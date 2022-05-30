@@ -1,9 +1,13 @@
-﻿using System;
-using SQLite;
-using SQLiteNetExtensions.Attributes;
+﻿// <copyright file="tActivityPickingRouteModel.cs" company="InterSect Business Systems Inc">
+// Copyright (c) InterSect Business Systems Inc. All rights reserved.
+// </copyright>
 
 namespace dMobile.Resources.Models
 {
+    using System;
+    using SQLite;
+    using SQLiteNetExtensions.Attributes;
+
     //string sqlTable = "CREATE TABLE IF NOT EXISTS tActivityPickingRoute"
     //+ "("
     //+ "PickingActivityRefno INTEGER NOT NULL,"
@@ -17,7 +21,7 @@ namespace dMobile.Resources.Models
 
     //        if (this.OnNubStatOut != null)
     //        {
-    //    // TODO: Resource strings
+    //    
     //    this.MsgEventArgs.StatusOutMsg = "Creating picking route table.";
     //    this.OnNubStatOut(this, this.MsgEventArgs);
     //}
@@ -34,12 +38,11 @@ namespace dMobile.Resources.Models
 
     //sqlNdx = "CREATE INDEX IF NOT EXISTS FK_ActivityPickingRouteOnRouteRefno ON tActivityPickingRoute(RouteRefno ASC)";
     //await this.RunDDLCommand(sqlNdx);
-
     [Table("tActivityPickingRoute")]
     public class tActivityPickingRouteModel
     {
         [PrimaryKey, NotNull, ForeignKey(typeof(tActivityPickingModel)), Indexed(Name = "UQ_ActivityPickingRouteOnPickingActivityRefnoAndRouteRefno", Order = 1, Unique = true)]
-        public int PickingActivityRefno {get; set;}
+        public int PickingActivityRefno { get; set; }
 
         [NotNull, ForeignKey(typeof(tRouteModel)), Indexed(Name = "UQ_ActivityPickingRouteOnPickingActivityRefnoAndRouteRefno", Order = 2, Unique = true)]
         public int RouteRefno { get; set; }

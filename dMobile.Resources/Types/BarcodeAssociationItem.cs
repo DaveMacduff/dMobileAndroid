@@ -1,6 +1,11 @@
-﻿using System;
+﻿// <copyright file="BarcodeAssociationItem.cs" company="InterSect Business Systems Inc">
+// Copyright (c) InterSect Business Systems Inc. All rights reserved.
+// </copyright>
+
 namespace dMobile.Resources.Types
 {
+    using System;
+
     //sql.Append("SELECT tActivityItem.ActivityItemRefno AS ActivityItemRefno,"); int
     //sql.Append("tProduct.ProductCode AS ProductCode,"); string
     //sql.Append("tProductUnit.ProductUnitRefno AS ProductUnitRefno,"); int
@@ -13,31 +18,21 @@ namespace dMobile.Resources.Types
     //sql.Append("tProductUnitBarCode.ProductUnitBarCodeSymbologyEnum AS ProductUnitBarCodeSymbologyEnum,"); int
     //sql.Append("tActivityItem.ActivityItemStatus AS ActivityStatus "); int
     //sql.Append("FROM tActivityItem ");
-
     public class BarcodeAssociationItem
     {
-        private int activityItemRefno;
-        private string productCode;
-        private int productUnitRefno;
-        private string productUnitBC;
-        private bool productUnitIsBC;
-        private string unitCode;
-        private int productUnitBarCodeRefno;
-        private string productUnitBarCodeCode;
         private string productUnitBarCodeModifier1;
-        private int productUnitBarCodeSymbologyEnum;
         private int activityItemStatus;
 
-        public int ActivityItemRefno { get => activityItemRefno; set => activityItemRefno = value; }
-        public string ProductCode { get => productCode; set => productCode = value; }
-        public int ProductUnitRefno { get => productUnitRefno; set => productUnitRefno = value; }
-        public string ProductUnitBC { get => productUnitBC; set => productUnitBC = value; }
-        public bool ProductUnitIsBC { get => productUnitIsBC; set => productUnitIsBC = value; }
-        public string UnitCode { get => unitCode; set => unitCode = value; }
-        public int ProductUnitBarCodeRefno { get => productUnitBarCodeRefno; set => productUnitBarCodeRefno = value; }
-        public string ProductUnitBarCodeCode { get => productUnitBarCodeCode; set => productUnitBarCodeCode = value; }
-        public string ProductUnitBarCodeModifier1 { get => productUnitBarCodeModifier1; set => productUnitBarCodeModifier1 = value; }
-        public int ProductUnitBarCodeSymbologyEnum { get => productUnitBarCodeSymbologyEnum; set => productUnitBarCodeSymbologyEnum = value; }
-        public int ActivityItemStatus { get => activityItemStatus; set => activityItemStatus = value; }
+        public int ActivityItemRefno { get; set; }
+        public string ProductCode { get; set; }
+        public int ProductUnitRefno { get; set; }
+        public string ProductUnitBC { get; set; }
+        public bool ProductUnitIsBC { get; set; }
+        public string UnitCode { get; set; }
+        public int ProductUnitBarCodeRefno { get; set; }
+        public string ProductUnitBarCodeCode { get; set; }
+        public string ProductUnitBarCodeModifier1 { get => this.productUnitBarCodeModifier1; set => this.productUnitBarCodeModifier1 = value; }
+        public int ProductUnitBarCodeSymbologyEnum { get; set; }
+        public int ActivityItemStatus { get => this.activityItemStatus; set => this.activityItemStatus = value; }
     }
 }

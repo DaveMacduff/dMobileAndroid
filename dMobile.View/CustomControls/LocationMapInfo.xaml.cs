@@ -1,21 +1,25 @@
-﻿using System;
-using System.Collections.Generic;
-using Xamarin.Forms;
-using Xamarin.Forms.Xaml;
+﻿// <copyright file="LocationMapInfo.xaml.cs" company="InterSect Business Systems Inc">
+// Copyright (c) InterSect Business Systems Inc. All rights reserved.
+// </copyright>
 
 namespace dMobile.View.CustomControls
 {
+    using System;
+    using System.Collections.Generic;
+    using Xamarin.Forms;
+    using Xamarin.Forms.Xaml;
+
     [XamlCompilation(XamlCompilationOptions.Compile)]
     public partial class LocationMapInfo : ContentView
     {
-        private EventHandler btnSaveClick;
-        private EventHandler btnCancelClick;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="LocationMapInfo"/> class.
+        /// </summary>
         public LocationMapInfo()
         {
-            InitializeComponent();
+            this.InitializeComponent();
 
-            // TODO: Resource strings
             this.lblWarehouse.Text = "Warehouse";
             this.lblWarehouseData.Text = "Unknown";
             this.lblSection.Text = "Section";
@@ -23,8 +27,8 @@ namespace dMobile.View.CustomControls
             this.lblSlot.Text = "Slot";
             this.lblSlotData.Text = "Unknown";
 
-            this.btnSave.Clicked += BtnSave_Clicked;
-            this.btnCancel.Clicked += BtnCancel_Clicked;
+            this.btnSave.Clicked += this.BtnSave_Clicked;
+            this.btnCancel.Clicked += this.BtnCancel_Clicked;
         }
 
         // lblWarehouseData functions
@@ -70,7 +74,7 @@ namespace dMobile.View.CustomControls
             this.BtnCancelClick?.Invoke(sender, e);
         }
 
-        public EventHandler BtnSaveClick { get => this.btnSaveClick; set => this.btnSaveClick = value; }
-        public EventHandler BtnCancelClick { get => this.btnCancelClick; set => this.btnCancelClick = value; }
+        public EventHandler BtnSaveClick { get; set; }
+        public EventHandler BtnCancelClick { get; set; }
     }
 }

@@ -1,24 +1,28 @@
+// <copyright file="IDataAccess.cs" company="InterSect Business Systems Inc">
+// Copyright (c) InterSect Business Systems Inc. All rights reserved.
+// </copyright>
+
 namespace dMobile.GroundWork
 {
-  public interface IDataAccessEventListener
-  {
-    void OnDataAccessStatusOut(
-        IDataAccessEventPublisher dataAccessEventPublisher, 
-        DataAccessEventArgs dataAccessEventArgs);
+    public interface IDataAccessEventListener
+    {
+        void OnDataAccessStatusOut(
+            IDataAccessEventPublisher dataAccessEventPublisher,
+            DataAccessEventArgs dataAccessEventArgs);
 
-    void OnDataAccessProgressOut(
-        IDataAccessEventPublisher dataAccessEventPublisher, 
-        DataAccessEventArgs dataAccessEventArgs);
-  }
+        void OnDataAccessProgressOut(
+            IDataAccessEventPublisher dataAccessEventPublisher,
+            DataAccessEventArgs dataAccessEventArgs);
+    }
 
-  public interface IDataAccessEventPublisher
-  {
-    void RegisterDataAccessListenerStatusOut(IDataAccessEventListener dataAccessEventListener);
+    public interface IDataAccessEventPublisher
+    {
+        void RegisterDataAccessListenerStatusOut(IDataAccessEventListener dataAccessEventListener);
 
-    void UnregisterDataAccessListenerStatusOut(IDataAccessEventListener dataAccessEventListener);
+        void UnregisterDataAccessListenerStatusOut(IDataAccessEventListener dataAccessEventListener);
 
-    void RegisterDataAccessListenerProgressOut(IDataAccessEventListener dataAccessEventListener);
+        void RegisterDataAccessListenerProgressOut(IDataAccessEventListener dataAccessEventListener);
 
-    void UnregisterDataAccessListenerProgressOut(IDataAccessEventListener dataAccessEventListener);
-  }
+        void UnregisterDataAccessListenerProgressOut(IDataAccessEventListener dataAccessEventListener);
+    }
 }

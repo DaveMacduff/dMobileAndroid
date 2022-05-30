@@ -1,17 +1,20 @@
-using System.Threading.Tasks;
-/// <summary>
-///
-/// </summary>
-/// <remarks></remarks>
+// <copyright file="clsCommon.cs" company="InterSect Business Systems Inc">
+// Copyright (c) InterSect Business Systems Inc. All rights reserved.
+// </copyright>
+
 namespace dMobile.GroundWork
 {
+    using System.Threading.Tasks;
+
+    /// <summary>
+    /// Defines the <see cref="Common" /> Ground work common library.
+    /// </summary>
     public class Common
     {
         /// <summary>
-        ///
+        /// Check if there is existing data in the database.
         /// </summary>
-        /// <returns></returns>
-        /// <remarks></remarks>
+        /// <returns><see cref="bool"/> True if existing data is found else false.</returns>
         public static async Task<bool> IsDataBaseDataExist()
         {
             int prodCount = await new TableProduct().DataStatus();
@@ -30,10 +33,9 @@ namespace dMobile.GroundWork
         }
 
         /// <summary>
-        ///
+        /// Get the ground work assembly version information.
         /// </summary>
-        /// <returns></returns>
-        /// <remarks></remarks>
+        /// <returns><see cref="string"/> Assembly version information.</returns>
         public string GetAssemblyVersion()
         {
             int major = System.Reflection.Assembly.GetExecutingAssembly().GetName().Version.Major;

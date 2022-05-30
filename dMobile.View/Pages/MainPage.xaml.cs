@@ -1,11 +1,15 @@
-﻿namespace dMobile.View
+﻿// <copyright file="MainPage.xaml.cs" company="InterSect Business Systems Inc">
+// Copyright (c) InterSect Business Systems Inc. All rights reserved.
+// </copyright>
+
+namespace dMobile.View
 {
     using System;
     using Xamarin.Forms;
     using Xamarin.Forms.Xaml;
 
     /// <summary>
-    /// Defines the <see cref="MainPage" />
+    /// Defines the <see cref="MainPage" />.
     /// </summary>
     [XamlCompilation(XamlCompilationOptions.Compile)]
     public partial class MainPage : MasterDetailPage
@@ -15,21 +19,21 @@
         /// </summary>
         public MainPage()
         {
-            InitializeComponent();
-            masterPage.listView.ItemSelected += OnItemSelected;
+            this.InitializeComponent();
+            this.masterPage.listView.ItemSelected += this.OnItemSelected;
         }
 
         /// <summary>
-        /// The OnItemSelected
+        /// The OnItemSelected.
         /// </summary>
-        /// <param name="sender">The sender<see cref="object"/></param>
-        /// <param name="e">The e<see cref="SelectedItemChangedEventArgs"/></param>
+        /// <param name="sender">The sender<see cref="object"/>.</param>
+        /// <param name="e">The e<see cref="SelectedItemChangedEventArgs"/>.</param>
         private void OnItemSelected(object sender, SelectedItemChangedEventArgs e)
-        {            
+        {
             if (e.SelectedItem is MasterPageItem item)
             {
-                masterPage.listView.SelectedItem = null;
-                IsPresented = false;
+                this.masterPage.listView.SelectedItem = null;
+                this.IsPresented = false;
                 Application.Current.MainPage = new NavigationPage(new ucLoginStartup());
             }
         }

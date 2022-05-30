@@ -1,49 +1,44 @@
-﻿using dMobile.View.CustomPages.Modal;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Collections;
-using System.ComponentModel;
-using System.Xml.Linq;
-using dMobile.Bedrock;
-using Xamarin.Forms;
-using Xamarin.Forms.Xaml;
-using dMobile.View.Forms;
-using dMobile.Resources.Enums;
-using Android.Views;
+﻿// <copyright file="ucSubmitBatchFilter.xaml.cs" company="InterSect Business Systems Inc">
+// Copyright (c) InterSect Business Systems Inc. All rights reserved.
+// </copyright>
 
 namespace dMobile.View.Options
 {
+    using System;
+    using System.Collections;
+    using System.Collections.Generic;
+    using System.ComponentModel;
+    using System.Linq;
+    using System.Text;
+    using System.Threading.Tasks;
+    using System.Xml.Linq;
+    using Android.Views;
+    using dMobile.Bedrock;
+    using dMobile.Resources.Enums;
+    using dMobile.View.CustomPages.Modal;
+    using dMobile.View.Forms;
+    using Xamarin.Forms;
+    using Xamarin.Forms.Xaml;
+    using Resource = dMobile.Resources.Properties.Resources;
+
     [XamlCompilation(XamlCompilationOptions.Compile)]
     public partial class ucSubmitBatchFilter : DMobileModal, IAppArea
     {
-        #region Fields
-
-        private bool isControlLoaded = false;
-        private SysEnvironment sysEnv = SysEnvironment.GetInstance();
-        private ArrayList actStatus = new ArrayList();
-        private ArrayList actSubType = new ArrayList();
-        private bool isChangesMade = false;
-        private SubmitBatchSettings submitBatchSettings = new SubmitBatchSettings();
         private Dictionary<string, string> statusFilters = new Dictionary<string, string>();
         private Dictionary<string, string> subTypeFilters = new Dictionary<string, string>();
-
-        #endregion
-
-        #region Constructors
 
         /// <summary>
         ///
         /// </summary>
         /// <param name="callingControl"></param>
         /// <remarks></remarks>
+/// <summary>
+/// Initializes a new instance of the <see cref="ucSubmitBatchFilter"/> class.
+/// </summary>
         public ucSubmitBatchFilter()
         {
             this.InitializeComponent();
 
-            // TODO: Resource strings
             this.Title = this.GetControlDescription();
             this.lblStatus.Text = "Status";
             this.lblFilterActivity.Text = "Activity";
@@ -52,41 +47,38 @@ namespace dMobile.View.Options
 
             this.SysEnv = SysEnvironment.GetInstance();
 
-            // TODO: Resource strings
             this.ActStatus.Clear();
-            this.ActStatus.Add(new ComboBoxMembers("All", Convert.ToInt32(SysCommon.ActStatus.NoChange).ToString()));
-            this.ActStatus.Add(new ComboBoxMembers("Inserted", Convert.ToInt32(SysCommon.ActStatus.Inserted).ToString()));
-            this.ActStatus.Add(new ComboBoxMembers("Updated", Convert.ToInt32(SysCommon.ActStatus.Updated).ToString()));
-            this.ActStatus.Add(new ComboBoxMembers("Deleted", Convert.ToInt32(SysCommon.ActStatus.Deleted).ToString()));
+            _ = this.ActStatus.Add(new ComboBoxMembers("All", Convert.ToInt32(SysCommon.ActStatus.NoChange).ToString()));
+            _ = this.ActStatus.Add(new ComboBoxMembers("Inserted", Convert.ToInt32(SysCommon.ActStatus.Inserted).ToString()));
+            _ = this.ActStatus.Add(new ComboBoxMembers("Updated", Convert.ToInt32(SysCommon.ActStatus.Updated).ToString()));
+            _ = this.ActStatus.Add(new ComboBoxMembers("Deleted", Convert.ToInt32(SysCommon.ActStatus.Deleted).ToString()));
             this.cboActivityStatus.ItemsSource = this.ActStatus;
             this.cboActivityStatus.ItemDisplayBinding = new Binding("DisplayMember");
             this.cboActivityStatus.SelectedIndex = 0;
 
-            // TODO: Resource strings
             this.statusFilters.Add("All", Convert.ToInt32(SysCommon.ActStatus.NoChange).ToString());
             this.statusFilters.Add("Inserted", Convert.ToInt32(SysCommon.ActStatus.Inserted).ToString());
             this.statusFilters.Add("Updated", Convert.ToInt32(SysCommon.ActStatus.Updated).ToString());
             this.statusFilters.Add("Deleted", Convert.ToInt32(SysCommon.ActStatus.Deleted).ToString());
 
             this.ActSubType.Clear();
-            this.ActSubType.Add(new ComboBoxMembers("Picking", Convert.ToInt32(SysCommon.ActSubTypes.Picking).ToString()));
-            this.ActSubType.Add(new ComboBoxMembers("Returns", Convert.ToInt32(SysCommon.ActSubTypes.Returns).ToString()));
-            this.ActSubType.Add(new ComboBoxMembers("Receiving", Convert.ToInt32(SysCommon.ActSubTypes.Receiving).ToString()));
-            this.ActSubType.Add(new ComboBoxMembers("Transfers", Convert.ToInt32(SysCommon.ActSubTypes.TransferFrom).ToString()));
-            this.ActSubType.Add(new ComboBoxMembers("Cycle Counts", Convert.ToInt32(SysCommon.ActSubTypes.CycleCounts).ToString()));
-            this.ActSubType.Add(new ComboBoxMembers("Physical Counts", Convert.ToInt32(SysCommon.ActSubTypes.PhysicalCounts).ToString()));
-            this.ActSubType.Add(new ComboBoxMembers("Bar Code Association", Convert.ToInt32(SysCommon.ActSubTypes.BarCodeAssociation).ToString()));
-            this.ActSubType.Add(new ComboBoxMembers("Adjustments", Convert.ToInt32(SysCommon.ActSubTypes.Adjustment).ToString()));
-            this.ActSubType.Add(new ComboBoxMembers("Ticket Finished", Convert.ToInt32(SysCommon.ActSubTypes.TicketFinished).ToString()));
-            this.ActSubType.Add(new ComboBoxMembers("Ticket Material", Convert.ToInt32(SysCommon.ActSubTypes.TicketMaterial).ToString()));
-            this.ActSubType.Add(new ComboBoxMembers("Ticket Add-Product", Convert.ToInt32(SysCommon.ActSubTypes.TicketAddProduct).ToString()));
-            this.ActSubType.Add(new ComboBoxMembers("Co-Product Add-Product", Convert.ToInt32(SysCommon.ActSubTypes.TicketAddProduct).ToString()));
-            this.ActSubType.Add(new ComboBoxMembers("PO Work Sheet", Convert.ToInt32(SysCommon.ActSubTypes.PurchaseOrderWorkSheet).ToString()));
+            _ = this.ActSubType.Add(new ComboBoxMembers("Picking", Convert.ToInt32(SysCommon.ActSubTypes.Picking).ToString()));
+            _ = this.ActSubType.Add(new ComboBoxMembers("Returns", Convert.ToInt32(SysCommon.ActSubTypes.Returns).ToString()));
+            _ = this.ActSubType.Add(new ComboBoxMembers("Receiving", Convert.ToInt32(SysCommon.ActSubTypes.Receiving).ToString()));
+            _ = this.ActSubType.Add(new ComboBoxMembers("Transfers", Convert.ToInt32(SysCommon.ActSubTypes.TransferFrom).ToString()));
+            _ = this.ActSubType.Add(new ComboBoxMembers("Cycle Counts", Convert.ToInt32(SysCommon.ActSubTypes.CycleCounts).ToString()));
+            _ = this.ActSubType.Add(new ComboBoxMembers("Physical Counts", Convert.ToInt32(SysCommon.ActSubTypes.PhysicalCounts).ToString()));
+            _ = this.ActSubType.Add(new ComboBoxMembers("Bar Code Association", Convert.ToInt32(SysCommon.ActSubTypes.BarCodeAssociation).ToString()));
+            _ = this.ActSubType.Add(new ComboBoxMembers("Adjustments", Convert.ToInt32(SysCommon.ActSubTypes.Adjustment).ToString()));
+            _ = this.ActSubType.Add(new ComboBoxMembers("Ticket Finished", Convert.ToInt32(SysCommon.ActSubTypes.TicketFinished).ToString()));
+            _ = this.ActSubType.Add(new ComboBoxMembers("Ticket Material", Convert.ToInt32(SysCommon.ActSubTypes.TicketMaterial).ToString()));
+            _ = this.ActSubType.Add(new ComboBoxMembers("Ticket Add-Product", Convert.ToInt32(SysCommon.ActSubTypes.TicketAddProduct).ToString()));
+            _ = this.ActSubType.Add(new ComboBoxMembers("Co-Product Add-Product", Convert.ToInt32(SysCommon.ActSubTypes.TicketAddProduct).ToString()));
+            _ = this.ActSubType.Add(new ComboBoxMembers("PO Work Sheet", Convert.ToInt32(SysCommon.ActSubTypes.PurchaseOrderWorkSheet).ToString()));
             this.cboActivitySubType.ItemsSource = this.ActSubType;
             this.cboActivitySubType.ItemDisplayBinding = new Binding("DisplayMember");
             this.cboActivitySubType.SelectedIndex = 0;
 
-            // TODO: Resource strings
             this.subTypeFilters.Add("Picking", Convert.ToInt32(SysCommon.ActSubTypes.Picking).ToString());
             this.subTypeFilters.Add("Returns", Convert.ToInt32(SysCommon.ActSubTypes.Returns).ToString());
             this.subTypeFilters.Add("Receiving", Convert.ToInt32(SysCommon.ActSubTypes.Receiving).ToString());
@@ -102,12 +94,8 @@ namespace dMobile.View.Options
             this.subTypeFilters.Add("PO Work Sheet", Convert.ToInt32(SysCommon.ActSubTypes.PurchaseOrderWorkSheet).ToString());
         }
 
-        #endregion
-
-        #region OnAppearing/OnDisappearing
-
         /// <summary>
-        /// The OnAppearing
+        /// The OnAppearing.
         /// </summary>
         protected override async void OnAppearing()
         {
@@ -115,8 +103,7 @@ namespace dMobile.View.Options
 
             MessagingCenter.Subscribe<string>(this, EventTypes.OnKeyUp.ToString(), async (keyPressed) =>
             {
-                // TODO: Verify keycodes
-                Enum.TryParse(keyPressed, out Keycode keycode);
+                _ = Enum.TryParse(keyPressed, out Keycode keycode);
 
                 if (!this.Loading)
                 {
@@ -137,13 +124,12 @@ namespace dMobile.View.Options
             }
             catch (Exception ex)
             {
-                // TODO: Resource strings
-                await Device.InvokeOnMainThreadAsync(async () => await DisplayAlert("Error", "this.ucSubmitBatchFilter_GotFocus threw an error " + ex, "OK"));
+                await Device.InvokeOnMainThreadAsync(async () => await this.DisplayAlert("Error", "this.ucSubmitBatchFilter_GotFocus threw an error " + ex, "OK"));
             }
         }
 
         /// <summary>
-        /// The OnDisappearing
+        /// The OnDisappearing.
         /// </summary>
         protected override async void OnDisappearing()
         {
@@ -157,7 +143,7 @@ namespace dMobile.View.Options
         {
             Device.BeginInvokeOnMainThread(async () =>
             {
-                base.OnBackButtonPressed();
+                _ = base.OnBackButtonPressed();
 
                 if (await this.SaveChanges())
                 {
@@ -174,93 +160,17 @@ namespace dMobile.View.Options
             return true;
         }
 
-        #endregion
+        private SubmitBatchSettings SubmitBatchSettings { get; set; } = new SubmitBatchSettings();
 
-        #region Properties
+        private bool IsChangesMade { get; set; } = false;
 
-        private SubmitBatchSettings SubmitBatchSettings
-        {
-            get
-            {
-                return this.submitBatchSettings;
-            }
+        private ArrayList ActSubType { get; set; } = new ArrayList();
 
-            set
-            {
-                this.submitBatchSettings = value;
-            }
-        }
+        private ArrayList ActStatus { get; set; } = new ArrayList();
 
-        private bool IsChangesMade
-        {
-            get
-            {
-                return this.isChangesMade;
-            }
+        private bool IsControlLoaded { get; set; } = false;
 
-            set
-            {
-                this.isChangesMade = value;
-            }
-        }
-
-        private ArrayList ActSubType
-        {
-            get
-            {
-                return this.actSubType;
-            }
-
-            set
-            {
-                this.actSubType = value;
-            }
-        }
-
-        private ArrayList ActStatus
-        {
-            get
-            {
-                return this.actStatus;
-            }
-
-            set
-            {
-                this.actStatus = value;
-            }
-        }
-
-        private bool IsControlLoaded
-        {
-            get
-            {
-                return this.isControlLoaded;
-            }
-
-            set
-            {
-                this.isControlLoaded = value;
-            }
-        }
-
-        private SysEnvironment SysEnv
-        {
-            get
-            {
-                return this.sysEnv;
-            }
-
-            set
-            {
-                this.sysEnv = value;
-            }
-        }
-
-        #endregion
-
-        #region Public Members
-
-        #region IAppArea Members
+        private SysEnvironment SysEnv { get; set; } = SysEnvironment.GetInstance();
 
         /// <summary>
         /// Unregister the bar code scan event handler and disable the scanner.
@@ -298,10 +208,14 @@ namespace dMobile.View.Options
                     this.IsChangesMade = false;
                 }
             }
-            catch (Exceptions.MessageOnlyException ex)
+            catch (MessageOnlyException ex)
             {
                 cancelChanges = false;
-                ex.Show(SysCommon.ActSubTypes.SubmitBatch);
+                await Device.InvokeOnMainThreadAsync(async () =>
+                    await Application.Current.MainPage.DisplayAlert(
+                        this.GetControlDescription(),
+                        ex.Message,
+                        Resource.OK));
             }
             catch (Exception ex)
             {
@@ -310,7 +224,7 @@ namespace dMobile.View.Options
                 await Device.InvokeOnMainThreadAsync(async () =>
                 {
                     FormErrorReport errRpt = new FormErrorReport(SysCommon.ActSubTypes.SubmitBatch, ex);
-                    await errRpt.ShowDialog();
+                    _ = await errRpt.ShowDialog();
                 });
             }
 
@@ -324,7 +238,6 @@ namespace dMobile.View.Options
         /// <remarks></remarks>
         public string GetControlDescription()
         {
-            // TODO: Resource strings
             return "Submit Batch Filter";
         }
 
@@ -338,8 +251,8 @@ namespace dMobile.View.Options
             XDocument request = XDocument.Parse(
                 "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>"
                 + "<params>"
-                + ("<activity_status>" + (int)SubmitBatchSettings.eActivityStatus + "</activity_status>")
-                + ("<activity_subtype>" + (int)SubmitBatchSettings.eActivitySubType + "</activity_subtype>")
+                + "<activity_status>" + (int)this.SubmitBatchSettings.eActivityStatus + "</activity_status>"
+                + "<activity_subtype>" + (int)this.SubmitBatchSettings.eActivitySubType + "</activity_subtype>"
                 + "</params>");
 
             return request;
@@ -372,10 +285,14 @@ namespace dMobile.View.Options
                     await this.ScannerDisable();
                 }
             }
-            catch (Exceptions.MessageOnlyException ex)
+            catch (MessageOnlyException ex)
             {
                 isReadyToClose = false;
-                ex.Show(SysCommon.ActSubTypes.SubmitBatch);
+                await Device.InvokeOnMainThreadAsync(async () =>
+                    await Application.Current.MainPage.DisplayAlert(
+                        this.GetControlDescription(),
+                        ex.Message,
+                        Resource.OK));
             }
             catch (Exception ex)
             {
@@ -386,7 +303,7 @@ namespace dMobile.View.Options
                 await Device.InvokeOnMainThreadAsync(async () =>
                 {
                     FormErrorReport errRpt = new FormErrorReport(SysCommon.ActSubTypes.SubmitBatch, ex);
-                    await errRpt.ShowDialog();
+                    _ = await errRpt.ShowDialog();
                 });
             }
 
@@ -406,10 +323,14 @@ namespace dMobile.View.Options
             {
                 isReadyToSave = true;
             }
-            catch (Exceptions.MessageOnlyException ex)
+            catch (MessageOnlyException ex)
             {
                 isReadyToSave = false;
-                ex.Show(SysCommon.ActSubTypes.SubmitBatch);
+                await Device.InvokeOnMainThreadAsync(async () =>
+                    await Application.Current.MainPage.DisplayAlert(
+                        this.GetControlDescription(),
+                        ex.Message,
+                        Resource.OK));
             }
             catch (Exception ex)
             {
@@ -418,7 +339,7 @@ namespace dMobile.View.Options
                 await Device.InvokeOnMainThreadAsync(async () =>
                 {
                     FormErrorReport errRpt = new FormErrorReport(SysCommon.ActSubTypes.SubmitBatch, ex);
-                    await errRpt.ShowDialog();
+                    _ = await errRpt.ShowDialog();
                 });
             }
 
@@ -438,51 +359,47 @@ namespace dMobile.View.Options
             {
                 if (await this.IsReadyToSave())
                 {
-                    //this.SubmitBatchSettings.eActivitySubType = (SysCommon.ActSubTypes)(Convert.ToInt32(((ComboBoxMembers)(this.cboActivitySubType.Items[this.cboActivitySubType.SelectedIndex])).ValueMember));
+                    // this.SubmitBatchSettings.eActivitySubType = (SysCommon.ActSubTypes)(Convert.ToInt32(((ComboBoxMembers)(this.cboActivitySubType.Items[this.cboActivitySubType.SelectedIndex])).ValueMember));
                     this.SubmitBatchSettings.eActivitySubType = (SysCommon.ActSubTypes)Convert.ToInt32(this.subTypeFilters[this.cboActivitySubType.Items[this.cboActivitySubType.SelectedIndex]]);
                     this.SubmitBatchSettings.iActivitySubTypeIdx = this.cboActivitySubType.SelectedIndex;
 
-                    //this.SubmitBatchSettings.eActivityStatus = (SysCommon.ActStatus)(Convert.ToInt32(((ComboBoxMembers)(this.cboActivityStatus.Items[this.cboActivityStatus.SelectedIndex])).ValueMember));
+                    // this.SubmitBatchSettings.eActivityStatus = (SysCommon.ActStatus)(Convert.ToInt32(((ComboBoxMembers)(this.cboActivityStatus.Items[this.cboActivityStatus.SelectedIndex])).ValueMember));
                     this.SubmitBatchSettings.eActivityStatus = (SysCommon.ActStatus)Convert.ToInt32(this.statusFilters[this.cboActivityStatus.Items[this.cboActivityStatus.SelectedIndex]]);
                     this.SubmitBatchSettings.iActivityStatusIdx = this.cboActivityStatus.SelectedIndex;
 
                     SubmitBatchSettings tempBatchSettings = this.SubmitBatchSettings;
-                    this.SubmitBatchSettings.SaveData(ref tempBatchSettings);
+                    _ = this.SubmitBatchSettings.SaveData(ref tempBatchSettings);
                     this.SubmitBatchSettings = tempBatchSettings;
                     saveComplete = true;
                     this.IsChangesMade = false;
                 }
                 else
                 {
-                    // IsReadyToSave will raise errors for invalid data. This is a catch all 
+                    // IsReadyToSave will raise errors for invalid data. This is a catch all
                     // in the event that IsReadyToSave just returns false.
-
-                    // TODO: Resource strings
-                    throw new Exceptions.MessageOnlyException("Data failed validation. Check your data.");
+                    throw new MessageOnlyException("Data failed validation. Check your data.");
                 }
             }
-            catch (Exceptions.MessageOnlyException ex)
+            catch (MessageOnlyException ex)
             {
                 saveComplete = false;
-                ex.Show(SysCommon.ActSubTypes.SubmitBatch);
+                await Device.InvokeOnMainThreadAsync(async () =>
+                    await Application.Current.MainPage.DisplayAlert(
+                        this.GetControlDescription(),
+                        ex.Message,
+                        Resource.OK));
             }
             catch (Exception ex)
             {
                 await Device.InvokeOnMainThreadAsync(async () =>
                 {
                     FormErrorReport errRpt = new FormErrorReport(SysCommon.ActSubTypes.SubmitBatch, ex);
-                    await errRpt.ShowDialog();
+                    _ = await errRpt.ShowDialog();
                 });
             }
 
             return saveComplete;
         }
-
-        #endregion
-
-        #endregion
-
-        #region Private Members
 
         /// <summary>
         ///
@@ -492,16 +409,13 @@ namespace dMobile.View.Options
         /// <remarks></remarks>
         private void ucSubmitBatchFilter_GotFocus(object sender, EventArgs e)
         {
-            if (!SysEnvironment.GetInstance().IsApplicationExitInvoked)
+            if (!this.IsControlLoaded)
             {
-                if (!this.IsControlLoaded)
-                {
-                    this.LoadData();
-                }
-
-                this.cboActivitySubType.SelectedIndex = this.SubmitBatchSettings.iActivitySubTypeIdx;
-                this.cboActivityStatus.SelectedIndex = this.SubmitBatchSettings.iActivityStatusIdx;
+                this.LoadData();
             }
+
+            this.cboActivitySubType.SelectedIndex = this.SubmitBatchSettings.iActivitySubTypeIdx;
+            this.cboActivityStatus.SelectedIndex = this.SubmitBatchSettings.iActivityStatusIdx;
         }
 
         /// <summary>
@@ -513,8 +427,6 @@ namespace dMobile.View.Options
             this.SubmitBatchSettings = this.SubmitBatchSettings.LoadData();
             this.IsControlLoaded = true;
         }
-
-        #endregion
 
         private async void btnSave_Clicked(object sender, EventArgs e)
         {

@@ -1,4 +1,8 @@
-﻿namespace dMobile.Controller
+﻿// <copyright file="clsPutAwaySkidActivityItem.cs" company="InterSect Business Systems Inc">
+// Copyright (c) InterSect Business Systems Inc. All rights reserved.
+// </copyright>
+
+namespace dMobile.Controller
 {
     using System;
     using System.Collections.Generic;
@@ -8,14 +12,15 @@
     using dMobile.Bedrock;
     using Xamarin.Forms;
 
+    /// <summary>
+    /// Defines the <see cref="PutAwaySkidActItem" />.
+    /// </summary>
     public class PutAwaySkidActItem : ActItem
     {
-        #region Constructors
-
         /// <summary>
-        /// 
+        /// Initializes a new instance of the <see cref="PutAwaySkidActItem"/> class.
         /// </summary>
-        /// <param name="activity"></param>
+        /// <param name="activity">.</param>
         public PutAwaySkidActItem(Activity activity)
             : base(activity)
         {
@@ -23,17 +28,22 @@
             this.IsAskCreateNewItem = true;
         }
 
-        #endregion
-
-        #region Public Members
+        /// <summary>
+        /// Gets or sets a value indicating whether allowed to add skid detail.
+        /// </summary>
+        /// <returns><see cref="bool"/> True if allowed to add skid detail.</returns>
+        public override bool IsAllowAddSkidDetail()
+        {
+            return false;
+        }
 
         /// <summary>
-        /// 
+        /// The IsCatchAsk.
         /// </summary>
-        /// <returns></returns>
+        /// <returns>.</returns>
         public override bool IsCatchAsk()
         {
-            bool isCatchAsk = base.IsCatchAsk();
+            bool isCatchAsk = this.ProdInfo.IsCatchAsk;
             if (isCatchAsk)
             {
                 // modules are for exclusions
@@ -44,67 +54,67 @@
         }
 
         /// <summary>
-        /// 
+        /// The IsCatchAskZero.
         /// </summary>
-        /// <returns></returns>
+        /// <returns>.</returns>
         public override bool IsCatchAskZero()
         {
-            bool isCatchAskZero = base.IsCatchAskZero();
-            if (isCatchAskZero)
+            bool result = this.IsCatchAsk();
+            if (result && this.ProdInfo.IsCatchAskZero)
             {
-                isCatchAskZero = !this.SysEnv.SysSettings.IsPutAwaySkidNoCatchAskZeroEnabled;
+                result = !this.SysEnv.SysSettings.IsPutAwaySkidNoCatchAskZeroEnabled;
             }
 
-            return isCatchAskZero;
+            return result;
         }
 
         /// <summary>
-        /// 
+        /// The UpdateListItemQuantity.
         /// </summary>
-        /// <param name="idx"></param>
-        /// <param name="quantity"></param>
-        /// <param name="baseQuantity"></param>
-        /// <param name="weightQuantity"></param>
-        /// <returns></returns>
+        /// <param name="selectedActivityItem">The selectedActivityItem<see cref="object"/>.</param>
+        /// <param name="quantity">.</param>
+        /// <param name="baseQuantity">.</param>
+        /// <param name="weightQuantity">.</param>
         public override void UpdateListItemQuantity(object selectedActivityItem, decimal quantity, decimal baseQuantity, decimal weightQuantity)
         {
             throw new NotImplementedException();
         }
 
         /// <summary>
-        /// 
+        /// The GetUnableToParseItemFKRefnoMessage.
         /// </summary>
-        /// <param name="actItemStringFKRefno"></param>
-        /// <returns></returns>
+        /// <param name="actItemStringFKRefno">.</param>
+        /// <returns>.</returns>
         public override string GetUnableToParseItemFKRefnoMessage(string actItemStringFKRefno)
         {
             return string.Empty;
         }
 
         /// <summary>
-        /// 
+        /// The GetUnableToFindItemFKRefnoMessage.
         /// </summary>
-        /// <param name="actItemStringFKRefno"></param>
-        /// <returns></returns>
+        /// <param name="actItemStringFKRefno">.</param>
+        /// <returns>.</returns>
         public override string GetUnableToFindItemFKRefnoMessage(string actItemStringFKRefno)
         {
             return string.Empty;
         }
 
         /// <summary>
-        /// 
+        /// The GetDataViewSortFKRefnoIdx.
         /// </summary>
-        /// <returns></returns>
+        /// <returns>.</returns>
         public override string GetDataViewSortFKRefnoIdx()
         {
             return string.Empty;
         }
 
         /// <summary>
-        /// 
+        /// The Insert.
         /// </summary>
-        /// <param name="data"></param>
-        /// <param name="askToInsertAsNewItem"></param>
+        /// <param name="data">.</param>
+        /// <param name="askToInsertAsNewItem">.</param>
+        /// <returns>The <see cref="Task"/>.</returns>
         public override async Task Insert(XDocument data, bool askToInsertAsNewItem)
         {
             int prodUnitRefno = int.Parse(data.Root.Element("ProductUnitRefno").Value);
@@ -116,100 +126,207 @@
             }
         }
 
-        ///// <summary>
-        ///// 
-        ///// </summary>
-        ///// <param name="dataGridMain"></param>
-        //public override void DesignDataGrid(DataGrid dataGridMain)
-        //{
-        //    throw new NotImplementedException();
-        //}
-            
-        public override ObservableCollection<object> DesignGrid(ref Grid dataGridMainActivityHeader, ref ListView dataGridMainActivity)
+        /// <summary>
+        /// The DesignGrid.
+        /// </summary>
+        /// <param name="GridMainActivity">The GridMainActivity<see cref="Grid"/>.</param>
+        /// <param name="ListViewMainActivity">The ListViewMainActivity<see cref="ListView"/>.</param>
+        /// <returns>The <see cref="ObservableCollection{object}"/>.</returns>
+        public override ObservableCollection<object> DesignGrid(ref Grid GridMainActivity, ref ListView ListViewMainActivity)
         {
             throw new NotImplementedException();
         }
 
         /// <summary>
-        /// 
+        /// The GetActivityItemList.
         /// </summary>
-        /// <param name="isSubmitBatch"></param>
-        /// <returns></returns>
+        /// <param name="isSubmitBatch">.</param>
+        /// <returns>.</returns>
         public override Task<List<object>> GetActivityItemList(bool isSubmitBatch)
         {
             throw new NotImplementedException();
         }
 
         /// <summary>
-        /// 
+        /// The Search.
         /// </summary>
-        /// <param name="searchText"></param>
-        /// <returns></returns>
+        /// <param name="searchText">.</param>
+        /// <returns>.</returns>
         public override ObservableCollection<object> Search(string searchText)
         {
             throw new NotImplementedException();
         }
 
         /// <summary>
-        /// 
+        /// The GetActivityItemRefno.
         /// </summary>
-        /// <param name="prodUnitRefno"></param>
-        /// <returns></returns>
-        public override Task<int> GetRefnoFromProdUnitRefno(int prodUnitRefno)
+        /// <param name="prodUnitRefno">.</param>
+        /// <returns>.</returns>
+        public override Task<int> GetActivityItemRefno(int prodUnitRefno)
         {
             throw new NotImplementedException();
         }
 
         /// <summary>
-        /// 
+        /// The SelectActivityItem.
         /// </summary>
-        /// <param name="idx"></param>
+        /// <param name="selectedActivityItem">The selectedActivityItem<see cref="object"/>.</param>
+        /// <returns>The <see cref="Task"/>.</returns>
         public override async Task SelectActivityItem(object selectedActivityItem)
         {
             throw new NotImplementedException();
         }
 
         /// <summary>
-        /// 
+        /// The Refresh.
         /// </summary>
-        /// <param name="data"></param>
+        /// <param name="data">.</param>
+        /// <returns>The <see cref="Task"/>.</returns>
         public override Task Refresh(XDocument data)
         {
             throw new NotImplementedException();
         }
 
         /// <summary>
-        /// 
+        /// The CreateSubmitXML.
         /// </summary>
-        /// <param name="data"></param>
-        /// <returns></returns>
+        /// <param name="data">.</param>
+        /// <returns>.</returns>
         public override Task<string> CreateSubmitXML(XDocument data)
         {
             throw new NotImplementedException();
         }
 
         /// <summary>
-        /// 
+        /// The RefreshQuantity.
         /// </summary>
-        /// <param name="idx"></param>
-        /// <param name="quantity"></param>
-        /// <param name="baseQuantity"></param>
-        /// <param name="weightQuantity"></param>
+        /// <param name="selectedActivityItem">The selectedActivityItem<see cref="object"/>.</param>
+        /// <param name="quantity">.</param>
+        /// <param name="baseQuantity">.</param>
+        /// <param name="weightQuantity">.</param>
         public override void RefreshQuantity(object selectedActivityItem, decimal quantity, decimal baseQuantity, decimal weightQuantity)
         {
             throw new NotImplementedException();
         }
 
         /// <summary>
-        /// 
+        /// The UpdateQuantityFromActivityItemList.
         /// </summary>
-        /// <param name="idx"></param>
-        /// <param name="actItemRefno"></param>
+        /// <param name="selectedActivityItem">The selectedActivityItem<see cref="object"/>.</param>
+        /// <param name="actItemRefno">.</param>
+        /// <returns>The <see cref="Task"/>.</returns>
         public override async Task UpdateQuantityFromActivityItemList(object selectedActivityItem, int actItemRefno)
         {
             throw new NotImplementedException();
         }
 
-        #endregion
+        /// <summary>
+        /// Get the activity item foreign key reference number.
+        /// </summary>
+        /// <param name="resourceType"><see cref="object"/> Resource model type.</param>
+        /// <returns><see cref="int"/> Found activity item foreign key refno, else 0 if not found.</returns>
+        public override int GetFKRefno(object resourceType)
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <summary>
+        /// Get the activity item control description.
+        /// </summary>
+        /// <returns><see cref="string"/> Get activity item control description.</returns>
+        public override string GetControlDescription()
+        {
+            return "Putaway.";
+        }
+
+        /// <summary>
+        /// The Delete.
+        /// </summary>
+        /// <returns>The <see cref="Task{int}"/>.</returns>
+        public override async Task<int> Delete()
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <summary>
+        /// The GetProdSchemeDataFromDetailFKRefno.
+        /// </summary>
+        /// <param name="actDetailFKRefno">The actDetailFKRefno<see cref="int"/>.</param>
+        /// <returns>The <see cref="Task{SActItemSchemeData}"/>.</returns>
+        public override Task<SActItemSchemeData> GetProdSchemeDataFromDetailFKRefno(int actDetailFKRefno)
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <summary>
+        /// The GetComment.
+        /// </summary>
+        /// <param name="selectedActivityItem">The selectedActivityItem<see cref="object"/>.</param>
+        /// <returns>The <see cref="Task{string}"/>.</returns>
+        public override Task<string> GetComment(object selectedActivityItem)
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <summary>
+        /// The Submit.
+        /// </summary>
+        /// <param name="data">The data<see cref="XDocument"/>.</param>
+        /// <param name="selectedActivityItem">The selectedActivityItem<see cref="object"/>.</param>
+        /// <returns>The <see cref="Task"/>.</returns>
+        public override Task Submit(XDocument data, object selectedActivityItem)
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <summary>
+        /// The CreateDeleteXML.
+        /// </summary>
+        /// <param name="data">The data<see cref="XDocument"/>.</param>
+        /// <returns>The <see cref="Task{string}"/>.</returns>
+        public override Task<string> CreateDeleteXML(XDocument data)
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <summary>
+        /// The Update.
+        /// </summary>
+        /// <param name="data">The data<see cref="XDocument"/>.</param>
+        /// <returns>The <see cref="Task"/>.</returns>
+        public override Task Update(XDocument data)
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <summary>
+        /// The GetTotalQuantity.
+        /// </summary>
+        /// <returns>The <see cref="Task{string}"/>.</returns>
+        public override Task<string> GetTotalQuantity()
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <summary>
+        /// Get the default location for the activity base on the sign quantity of the transaction.
+        /// </summary>
+        /// <param name="whsLocMapRefno"><see cref="int"/> Warehouse location map reference number.</param>
+        /// <param name="prodRefno"><see cref="int"/> Product reference number.</param>
+        /// <returns><see cref="int"/> Location map reference number.</returns>
+        public override Task<int> GetDefaultLocMapRefno(int whsLocMapRefno, int prodRefno)
+        {
+            throw new ArgumentNullException();
+        }
+
+        /// <summary>
+        /// The GetLabelQuantity.
+        /// </summary>
+        /// <param name="isRepackQuantityOnly">The isRepackQuantityOnly<see cref="bool"/>.</param>
+        /// <returns>The <see cref="Task{SLabelQuantity}"/>.</returns>
+        public override Task<SLabelQuantity> GetLabelQuantity(bool isRepackQuantityOnly)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

@@ -1,23 +1,25 @@
-/// <summary>
-/// This is the activity facade class that return an activity object.
-/// </summary>
-/// <remarks></remarks>
+// <copyright file="clsActivityItemFacade.cs" company="InterSect Business Systems Inc">
+// Copyright (c) InterSect Business Systems Inc. All rights reserved.
+// </copyright>
+
 namespace dMobile.Controller
 {
     using System;
     using dMobile.Bedrock;
 
+    /// <summary>
+    /// This is the activity facade class that return an activity object.
+    /// </summary>
     public class ActItemFacade
     {
         /// <summary>
         /// Creates and returns a generic activity object.
         /// </summary>
-        /// <param name="activity"></param>
-        /// <param name="actSubType"></param>
-        /// <returns></returns>
+        /// <param name="activity"><see cref="Activity"/> Activity header.</param>
+        /// <param name="actSubType"><see cref="SysCommon.ActSubTypes"/> Activity sub type.</param>
+        /// <returns><see cref="ActItem"/> Activity item object.</returns>
         public static ActItem GetActItem(Activity activity, SysCommon.ActSubTypes actSubType)
         {
-            ActItem actItem = null;
             ActItemFactory actItemFactory = null;
 
             switch (actSubType)
@@ -109,12 +111,11 @@ namespace dMobile.Controller
                 case SysCommon.ActSubTypes.ConvertProduct:
                     actItemFactory = new ConvertProductActItemFactory();
                     break;
-
             }
 
+            ActItem actItem;
             if (actItemFactory == null)
             {
-                // TODO: Resource strings
                 throw new NotImplementedException("Could not create activity item object.");
             }
             else

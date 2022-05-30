@@ -4,121 +4,200 @@
 // </copyright>
 //
 // ------------------------------------------------------------------------
+
 namespace dMobile.Bedrock
 {
+    using dMobile.Resources.Enums;
+    using dMobile.Resources.Types;
     using System;
     using System.Collections.Generic;
     using System.IO;
-    using System.Reflection;
     using System.Xml.Serialization;
-    using dMobile.Resources.Enums;
-    using dMobile.Resources.Types;
 
+    /// <summary>
+    /// Defines the <see cref="CycleCountSettings" />.
+    /// </summary>
     [Serializable()]
     public class CycleCountSettings
     {
-        //VARIABLES
+        // VARIABLES
+        /// <summary>
+        /// Defines the m_strFullClassName.
+        /// </summary>
         [NonSerialized()]
         private string m_strFullClassName = "dMobile.CycleCountSettings";
 
+        /// <summary>
+        /// Defines the m_strFilePath.
+        /// </summary>
         [NonSerialized()]
         private string m_strFilePath = string.Empty;
 
+        /// <summary>
+        /// Defines the m_strFileASCIIZ.
+        /// </summary>
         [NonSerialized()]
         private string m_strFileASCIIZ = string.Empty;
 
+        /// <summary>
+        /// Defines the m_strFileName.
+        /// </summary>
         [NonSerialized()]
         private string m_strFileName = "dMobileCycleCountSettings.xml";
 
+        /// <summary>
+        /// Defines the writeLockObject.
+        /// </summary>
         [NonSerialized]
         private readonly object writeLockObject = new object();
 
+        /// <summary>
+        /// Defines the readLockObject.
+        /// </summary>
         [NonSerialized]
         private readonly object readLockObject = new object();
 
-        private Int32 m_iSortBy1Index = 0;
+        /// <summary>
+        /// Defines the m_iSortBy1Index.
+        /// </summary>
+        private int m_iSortBy1Index = 0;
+
+        /// <summary>
+        /// Defines the sortBy1Value.
+        /// </summary>
         private Sort sortBy1Value = new Sort() { SortValue = "ActivityCountFKRefno", SortOrder = SortOrder.ASC };
-        private Int32 m_iSortBy2Index = -1;
+
+        /// <summary>
+        /// Defines the m_iSortBy2Index.
+        /// </summary>
+        private int m_iSortBy2Index = -1;
+
+        /// <summary>
+        /// Defines the sortBy2Value.
+        /// </summary>
         private Sort sortBy2Value = null;
-        private System.DateTime m_dtCountDate = new System.DateTime(1900, 1, 1);
+
+        /// <summary>
+        /// Defines the m_dtCountDate.
+        /// </summary>
+        private DateTime m_dtCountDate = new DateTime(1900, 1, 1);
+
+        /// <summary>
+        /// Defines the isApplyCountDate.
+        /// </summary>
         private bool isApplyCountDate = false;
 
-        //PROPERTIES
+        // PROPERTIES
+        /// <summary>
+        /// Gets or sets a value indicating whether IsApplyCountDate.
+        /// </summary>
         public bool IsApplyCountDate
         {
-            get { return isApplyCountDate; }
-            set { isApplyCountDate = value; }
+            get { return this.isApplyCountDate; }
+            set { this.isApplyCountDate = value; }
         }
-        public System.DateTime dtCountDate
+
+        /// <summary>
+        /// Gets or sets the dtCountDate.
+        /// </summary>
+        public DateTime dtCountDate
         {
-            get { return m_dtCountDate; }
-            set { m_dtCountDate = value; }
+            get { return this.m_dtCountDate; }
+            set { this.m_dtCountDate = value; }
         }
+
+        /// <summary>
+        /// Gets or sets the strFullClassName.
+        /// </summary>
         public string strFullClassName
         {
-            get { return m_strFullClassName; }
-            set { m_strFullClassName = value; }
+            get { return this.m_strFullClassName; }
+            set { this.m_strFullClassName = value; }
         }
+
+        /// <summary>
+        /// Gets or sets the strFilePath.
+        /// </summary>
         public string strFilePath
         {
-            get { return m_strFilePath; }
-            set { m_strFilePath = value; }
+            get { return this.m_strFilePath; }
+            set { this.m_strFilePath = value; }
         }
+
+        /// <summary>
+        /// Gets or sets the strFileASCIIZ.
+        /// </summary>
         public string strFileASCIIZ
         {
-            get { return m_strFileASCIIZ; }
-            set { m_strFileASCIIZ = value; }
+            get { return this.m_strFileASCIIZ; }
+            set { this.m_strFileASCIIZ = value; }
         }
+
+        /// <summary>
+        /// Gets or sets the strFileName.
+        /// </summary>
         public string strFileName
         {
-            get { return m_strFileName; }
-            set { m_strFileName = value; }
+            get { return this.m_strFileName; }
+            set { this.m_strFileName = value; }
         }
-        public Int32 iSortBy1Index
+
+        /// <summary>
+        /// Gets or sets the iSortBy1Index.
+        /// </summary>
+        public int iSortBy1Index
         {
-            get { return m_iSortBy1Index; }
-            set { m_iSortBy1Index = value; }
+            get { return this.m_iSortBy1Index; }
+            set { this.m_iSortBy1Index = value; }
         }
+
+        /// <summary>
+        /// Gets or sets the SortBy1Value.
+        /// </summary>
         public Sort SortBy1Value
         {
-            get { return sortBy1Value; }
-            set { sortBy1Value = value; }
+            get { return this.sortBy1Value; }
+            set { this.sortBy1Value = value; }
         }
-        public Int32 iSortBy2Index
+
+        /// <summary>
+        /// Gets or sets the iSortBy2Index.
+        /// </summary>
+        public int iSortBy2Index
         {
-            get { return m_iSortBy2Index; }
-            set { m_iSortBy2Index = value; }
+            get { return this.m_iSortBy2Index; }
+            set { this.m_iSortBy2Index = value; }
         }
+
+        /// <summary>
+        /// Gets or sets the SortBy2Value.
+        /// </summary>
         public Sort SortBy2Value
         {
-            get { return sortBy2Value; }
-            set { sortBy2Value = value; }
+            get { return this.sortBy2Value; }
+            set { this.sortBy2Value = value; }
         }
 
-        //METHODS
-
         /// <summary>
-        /// 
+        /// Initializes a new instance of the <see cref="CycleCountSettings"/> class.
         /// </summary>
-        /// <remarks></remarks>
         public CycleCountSettings()
         {
-            strFilePath = Environment.GetFolderPath(Environment.SpecialFolder.Personal);
-            strFileASCIIZ = Path.Combine(strFilePath, strFileName);
+            this.strFilePath = Environment.GetFolderPath(Environment.SpecialFolder.Personal);
+            this.strFileASCIIZ = Path.Combine(this.strFilePath, this.strFileName);
         }
 
         /// <summary>
-        /// 
+        /// The GetDataViewSortBy.
         /// </summary>
-        /// <returns></returns>
-        /// <remarks></remarks>
+        /// <returns>.</returns>
         public List<Sort> GetDataViewSortBy()
         {
             List<Sort> sortBy = new List<Sort>();
 
             sortBy.Add(this.SortBy1Value);
 
-            if (this.SortBy2Value != null && !string.IsNullOrEmpty(SortBy2Value.SortValue))
+            if (this.SortBy2Value != null && !string.IsNullOrEmpty(this.SortBy2Value.SortValue))
             {
                 sortBy.Add(this.SortBy2Value);
             }
@@ -127,24 +206,23 @@ namespace dMobile.Bedrock
         }
 
         /// <summary>
-        /// 
+        /// The LoadData.
         /// </summary>
-        /// <returns></returns>
-        /// <remarks></remarks>
+        /// <returns>.</returns>
         public CycleCountSettings LoadData()
         {
-            lock (readLockObject)
+            lock (this.readLockObject)
             {
                 XmlSerializer serializer = new XmlSerializer(typeof(CycleCountSettings));
                 CycleCountSettings oCycleCountSettings = new CycleCountSettings();
 
-                // use relection to get the current assembly path for the database
+                // use reflection to get the current assembly path for the database
                 string strAppDir = Environment.GetFolderPath(Environment.SpecialFolder.Personal);
-                string strFullPathToMyFile = Path.Combine(strAppDir, m_strFileName);
+                string strFullPathToMyFile = Path.Combine(strAppDir, this.m_strFileName);
 
                 if (!File.Exists(strFullPathToMyFile))
                 {
-                    SaveData(ref oCycleCountSettings);
+                    this.SaveData(ref oCycleCountSettings);
                 }
 
                 // Create a FileStream to read with.
@@ -158,23 +236,22 @@ namespace dMobile.Bedrock
         }
 
         /// <summary>
-        /// 
+        /// The SaveData.
         /// </summary>
-        /// <param name="oCycleCountSettings"></param>
-        /// <returns></returns>
-        /// <remarks></remarks>
+        /// <param name="oCycleCountSettings">.</param>
+        /// <returns>.</returns>
         public bool SaveData(ref CycleCountSettings oCycleCountSettings)
         {
-            lock (writeLockObject)
+            lock (this.writeLockObject)
             {
                 XmlSerializer serializer = new XmlSerializer(typeof(CycleCountSettings));
                 bool bSaveComplete = false;
 
                 try
                 {
-                    // use relection to get the current assembly path for the database
+                    // use reflection to get the current assembly path for the database
                     string strAppDir = Environment.GetFolderPath(Environment.SpecialFolder.Personal);
-                    string strFullPathToMyFile = Path.Combine(strAppDir, m_strFileName);
+                    string strFullPathToMyFile = Path.Combine(strAppDir, this.m_strFileName);
 
                     // Create a FileStream to write with.
                     using (FileStream writer = new FileStream(strFullPathToMyFile, FileMode.Create, FileAccess.Write, FileShare.None))

@@ -1,11 +1,15 @@
-﻿namespace dMobile.BarCodeScanner
+﻿// <copyright file="BarCodeParseEAN_UCC_8.cs" company="InterSect Business Systems Inc">
+// Copyright (c) InterSect Business Systems Inc. All rights reserved.
+// </copyright>
+
+namespace dMobile.BarCodeScanner.BarCodeParsing
 {
     using System;
 
     public class BarCodeParseEAN_UCC_8 : BarCodeParse
     {
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="barCodeData"></param>
         /// <returns></returns>
@@ -18,13 +22,13 @@
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="barCodeData"></param>
         /// <returns></returns>
         protected override string IdentifyProductIdentifier(string barCodeData)
         {
-            if (Settings.IsRuleEnabled_NoZeroPaddingOfProductIdentifierForUCC_EAN_Family)
+            if (this.Settings.IsRuleEnabled_NoZeroPaddingOfProductIdentifierForUCC_EAN_Family)
             {
                 this.ProductIdentifier = barCodeData;
             }
@@ -37,7 +41,7 @@
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="barCodeData"></param>
         /// <returns></returns>

@@ -1,50 +1,35 @@
-﻿namespace dMobile.Bedrock
+﻿// <copyright file="ContactLoginEventArgs.cs" company="InterSect Business Systems Inc">
+// Copyright (c) InterSect Business Systems Inc. All rights reserved.
+// </copyright>
+
+namespace dMobile.Bedrock
 {
     using System;
 
+    /// <summary>
+    /// Defines the <see cref="ContactLoginEventArgs" />.
+    /// </summary>
     public class ContactLoginEventArgs : EventArgs
     {
-        #region Fields
-
-        private string statusOutMsg = string.Empty;
-
-        #endregion
-
-        #region Contructors
-
         /// <summary>
-        /// 
+        /// Initializes a new instance of the <see cref="ContactLoginEventArgs"/> class.
         /// </summary>
         public ContactLoginEventArgs()
         {
         }
 
         /// <summary>
-        /// 
+        /// Initializes a new instance of the <see cref="ContactLoginEventArgs"/> class.
         /// </summary>
-        /// <param name="dataMsg"></param>
+        /// <param name="msgData">.</param>
         public ContactLoginEventArgs(string msgData)
         {
             this.StatusOutMsg = msgData;
         }
 
-        #endregion
-
-        #region Properties
-
-        public string StatusOutMsg
-        {
-            get
-            {
-                return this.statusOutMsg;
-            }
-
-            set
-            {
-                this.statusOutMsg = value;
-            }
-        }
-
-        #endregion
+        /// <summary>
+        /// Gets or sets the StatusOutMsg.
+        /// </summary>
+        public string StatusOutMsg { get; set; } = string.Empty;
     }
 }

@@ -1,18 +1,22 @@
-﻿namespace dMobile.GroundWork
+﻿// <copyright file="clsTableActivityPhysicalCountDetail.cs" company="InterSect Business Systems Inc">
+// Copyright (c) InterSect Business Systems Inc. All rights reserved.
+// </copyright>
+
+namespace dMobile.GroundWork
 {
-    using dMobile.Bedrock;
     using System;
-    using SQLite;
-    using System.Text;
-    using System.Xml;
-    using System.Xml.Linq;
-    using System.Threading.Tasks;
-    using dMobile.Resources.Models;
     using System.Collections.Generic;
     using System.Data;
+    using System.Text;
+    using System.Threading.Tasks;
+    using System.Xml;
+    using System.Xml.Linq;
+    using dMobile.Bedrock;
+    using dMobile.Resources.Models;
+    using SQLite;
 
     /// <summary>
-    /// Defines the <see cref="TableActivityPhysicalCountDetail" />
+    /// Defines the <see cref="TableActivityPhysicalCountDetail" />.
     /// </summary>
     public class TableActivityPhysicalCountDetail : TableBase
     {
@@ -25,21 +29,19 @@
         }
 
         /// <summary>
-        /// The Request
+        /// The Request.
         /// </summary>
-        /// <param name="actItemRefno">The actItemRefno<see cref="int"/></param>
-        public override async Task Request(int actItemRefno)
+        /// <param name="actItemRefno">The actItemRefno<see cref="int"/>.</param>
+        public override async Task RequestData(int actItemRefno)
         {
-            string reqData = string.Empty;
 
-            //GC.Collect();
-            //GC.WaitForPendingFinalizers();
-
+            // GC.Collect();
+            // GC.WaitForPendingFinalizers();
             try
             {
-                // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Seeding physical count details.", true);
 
+                string reqData;
                 if (actItemRefno == 0)
                 {
                     string query = "SELECT * FROM tActivityItem WHERE ActivityItemSubType = ?";
@@ -47,9 +49,9 @@
                     if (results != null && results.Count > 0)
                     {
                         actItemRefno = results[0].ActivityItemRefno;
-                        reqData = await this.Send(actItemRefno);
+                        reqData = await this.SendRequest(actItemRefno);
 
-                        if (0 < reqData.Length)
+                        if (reqData.Length > 0)
                         {
                             if (reqData.Contains("<message>ERROR</message>"))
                             {
@@ -64,9 +66,9 @@
                 }
                 else
                 {
-                    reqData = await this.Send(actItemRefno);
+                    reqData = await this.SendRequest(actItemRefno);
 
-                    if (0 < reqData.Length)
+                    if (reqData.Length > 0)
                     {
                         if (reqData.Contains("<message>ERROR</message>"))
                         {
@@ -79,36 +81,30 @@
                     }
                 }
 
-                // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Seeding physical count details complete.", true);
             }
             catch (SQLiteException ex)
             {
-                // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Database exception occurred.", true);
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Seeding physical count details failed.", true);
 
-                // TODO: Resource strings
                 throw new Exception("Database exception occurred. Seeding physical count details failed.", ex);
             }
             catch (Exception ex)
             {
-                // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Seeding physical count details failed.", true);
 
-                // TODO: Resource strings
                 throw new Exception("Database exception occurred. Seeding physical count details failed.", ex);
             }
         }
 
         /// <summary>
-        /// The Purge
+        /// The Purge.
         /// </summary>
-        public override async Task Purge()
+        public override async Task PurgeData()
         {
             try
             {
-                // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging physical count details.", true);
 
                 string query = "DELETE FROM tActivityDetailProductSchemeVariantXRef "
@@ -135,39 +131,33 @@
                 query = "DELETE FROM tActivityDetail WHERE tActivityDetail.ActivityDetailSubType = ?";
                 await DatabaseConnection.GetInstance().SQLConn.QueryAsync<tActivityDetailModel>(query, Convert.ToInt32(SysCommon.ActSubTypes.PhysicalCounts));
 
-                // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging physical count details complete.", true);
             }
             catch (SQLiteException ex)
             {
-                // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Database exception occurred.", true);
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging physical count details failed.", true);
 
-                // TODO: Resource strings
                 throw new Exception("Database exception occurred. Purging physical count details failed.", ex);
             }
         }
 
         /// <summary>
-        /// The DataStatus
+        /// The DataStatus.
         /// </summary>
-        /// <returns>The <see cref="int"/></returns>
+        /// <returns>The <see cref="int"/>.</returns>
         public override async Task<int> DataStatus()
         {
-            int rowsAffected = 0;
-
+            int rowsAffected;
             try
             {
                 string query = "SELECT COUNT(ActivityDetailRefno) FROM tActivityDetail WHERE ActivityDetailSubType = ?";
                 rowsAffected = await DatabaseConnection.GetInstance().SQLConn.ExecuteScalarAsync<int>(query, Convert.ToInt32(SysCommon.ActSubTypes.PhysicalCounts));
 
-                // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, string.Format("{0} Physical count details.", rowsAffected), true);
             }
             catch (SQLiteException ex)
             {
-                // TODO: Resource strings
                 throw new Exception("Database exception occurred. Physical count details status failed.", ex);
             }
 
@@ -175,17 +165,16 @@
         }
 
         /// <summary>
-        /// The Send
+        /// The Send.
         /// </summary>
         /// <param name="actItemCountRefno"></param>
         /// <returns></returns>
-        protected override async Task<string> Send(int actItemCountRefno)
+        protected override async Task<string> SendRequest(int actItemCountRefno)
         {
-            int actItemCountFKRefno = 0;
-
             string query = "SELECT * FROM tActivityItemCount WHERE ActivityItemRefno = ?";
             List<tActivityItemCountModel> results = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<tActivityItemCountModel>(query, actItemCountRefno);
 
+            int actItemCountFKRefno;
             if (results != null && results.Count > 0)
             {
                 actItemCountFKRefno = results[0].ActivityItemCountFKRefno;
@@ -195,11 +184,11 @@
                 throw new Exception("No results in tActivityItemCount for ActivityItemRefno " + actItemCountRefno);
             }
 
-            return await this.SendComm(await this.Create(actItemCountFKRefno));
+            return await this.SendComm(await this.CreateRequest(actItemCountFKRefno));
         }
 
         /// <summary>
-        /// The Save
+        /// The Save.
         /// </summary>
         /// <param name="reqData"></param>
         /// <param name="actItemCountRefno"></param>
@@ -213,12 +202,10 @@
                 {
                     using (DataSet ds = new DataSet())
                     {
-                        // TODO: Resource strings
                         this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Reading received data.", false);
 
                         ds.ReadXml(SysCommon.GetXmlReader(ref reqData), XmlReadMode.Auto);
 
-                        // TODO: Resource strings
                         this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving physical count details.", false);
 
                         if (ds.Tables.Count != 0)
@@ -235,7 +222,6 @@
 
                             if (resultCountItems == null || (resultCountItems != null && resultCountItems.Count == 0))
                             {
-                                // TODO: Resource strings
                                 throw new Exception("drItemCount.Read() failed.");
                             }
 
@@ -286,7 +272,7 @@
                                 parametersInsertDetail.Add(Convert.ToInt32(SysCommon.ActSubTypes.PhysicalCounts));
                                 parametersInsertDetail.Add(Convert.ToInt32(0));
                                 parametersInsertDetail.Add(actItemCountRefno);
-                                parametersInsertDetail.Add(this.SaveDetailLocation(drow, transaction, true));
+                                parametersInsertDetail.Add(this.GetDetailLocation(drow, transaction, true));
                                 parametersInsertDetail.Add(resultCountItems[0].ProductUnitRefno);
                                 parametersInsertDetail.AddRange(this.SaveDetail(drow, transaction, true));
 
@@ -314,29 +300,26 @@
 
                     transaction.Commit();
 
-                    // TODO: Resource strings
                     this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving physical count details complete.", false);
                 }
                 catch (SQLiteException ex)
                 {
                     transaction.Rollback();
 
-                    // TODO: Resource strings
                     this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Database exception occurred.", true);
                     this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving physical count details failed.", true);
 
-                    // TODO: Resource strings
                     throw new Exception("Database exception occurred. Saving physical count details failed." + Environment.NewLine + errMsg, ex);
                 }
             });
         }
 
         /// <summary>
-        /// The Create
+        /// The Create.
         /// </summary>
         /// <param name="actItemCountFKRefno"></param>
         /// <returns></returns>
-        protected override async Task<string> Create(int actItemCountFKRefno)
+        protected override async Task<string> CreateRequest(int actItemCountFKRefno)
         {
             StringBuilder xmlString = new StringBuilder();
             XmlWriter xml = XmlWriter.Create(xmlString);
@@ -347,7 +330,7 @@
                 + "<command>" +
                 "<action>REQUEST PHYSICAL COUNT DETAILS</action>"
                 + await SysCommon.GetRequestDefaults(false)
-                + ("<itm_refno>" + actItemCountFKRefno.ToString() + "</itm_refno>")
+                + "<itm_refno>" + actItemCountFKRefno.ToString() + "</itm_refno>"
                 + "</command>"
                 + "</imclient>");
 

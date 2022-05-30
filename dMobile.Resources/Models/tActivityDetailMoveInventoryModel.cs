@@ -1,9 +1,13 @@
-﻿using System;
-using SQLite;
-using SQLiteNetExtensions.Attributes;
+﻿// <copyright file="tActivityDetailMoveInventoryModel.cs" company="InterSect Business Systems Inc">
+// Copyright (c) InterSect Business Systems Inc. All rights reserved.
+// </copyright>
 
 namespace dMobile.Resources.Models
 {
+    using System;
+    using SQLite;
+    using SQLiteNetExtensions.Attributes;
+
     //string sqlTable = "CREATE TABLE IF NOT EXISTS tActivityDetailMoveInventory"
     //+ "("
     //+ "ActivityDetailRefno INTEGER NOT NULL CONSTRAINT PK_ActivityDetailMoveInventoryOnActivityDetailRefno PRIMARY KEY,"
@@ -23,7 +27,6 @@ namespace dMobile.Resources.Models
 
     //string alterTable = "ALTER TABLE tActivityDetailMoveInventory ADD CONSTRAINT ActivityDetailMoveInventoryTactDetailOnActivityDetailRefno FOREIGN KEY (ActivityDetailRefno) REFERENCES tActivityDetail(ActivityDetailRefno) ON DELETE CASCADE ON UPDATE CASCADE";
     //await this.RunDDLCommand(alterTable);
-
     [Table("tActivityDetailMoveInventory")]
     public class tActivityDetailMoveInventoryModel
     {

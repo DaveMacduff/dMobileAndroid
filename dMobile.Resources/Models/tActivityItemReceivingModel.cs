@@ -1,9 +1,13 @@
-﻿using System;
-using SQLite;
-using SQLiteNetExtensions.Attributes;
+﻿// <copyright file="tActivityItemReceivingModel.cs" company="InterSect Business Systems Inc">
+// Copyright (c) InterSect Business Systems Inc. All rights reserved.
+// </copyright>
 
 namespace dMobile.Resources.Models
 {
+    using System;
+    using SQLite;
+    using SQLiteNetExtensions.Attributes;
+
     //string sqlTable = "CREATE TABLE IF NOT EXISTS tActivityItemReceiving"
     //+ "("
     //+ "ActivityItemRefno INTEGER NOT NULL CONSTRAINT PK_ActivityItemReceivingOnActivityItemRefno PRIMARY KEY,"
@@ -46,7 +50,6 @@ namespace dMobile.Resources.Models
 
     //sqlNdx = "CREATE INDEX IF NOT EXISTS FK_ActivityItemReceivingOnWarehouseLocationMapRefno ON tActivityItemReceiving(WarehouseLocationMapRefno ASC)";
     //await this.RunDDLCommand(sqlNdx);
-
     [Table("tActivityItemReceiving")]
     public class tActivityItemReceivingModel
     {

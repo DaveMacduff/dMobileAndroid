@@ -1,9 +1,11 @@
-﻿namespace dMobile.Resources.Types
+﻿// <copyright file="SerialNumber.cs" company="InterSect Business Systems Inc">
+// Copyright (c) InterSect Business Systems Inc. All rights reserved.
+// </copyright>
+
+namespace dMobile.Resources.Types
 {
     public class SerialNumber
     {
-        private string activityDetailSingleTradeItemSerialNumber;
-
-        public string ActivityDetailSingleTradeItemSerialNumber { get => activityDetailSingleTradeItemSerialNumber; set => activityDetailSingleTradeItemSerialNumber = value; }
+        public string ActivityDetailSingleTradeItemSerialNumber { get; set; }
     }
 }

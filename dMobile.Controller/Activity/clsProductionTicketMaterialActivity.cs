@@ -1,32 +1,55 @@
+// <copyright file="clsProductionTicketMaterialActivity.cs" company="InterSect Business Systems Inc">
+// Copyright (c) InterSect Business Systems Inc. All rights reserved.
+// </copyright>
+
 namespace dMobile.Controller
 {
     using System;
+    using System.Collections.Generic;
     using System.Collections.ObjectModel;
     using System.Data;
-    using SQLite;
+    using System.Linq;
     using System.Text;
+    using System.Threading.Tasks;
     using System.Xml.Linq;
     using dMobile.Bedrock;
     using dMobile.GroundWork;
     using dMobile.Resources.Services;
     using dMobile.Resources.Types;
     using Xamarin.Forms;
-    using System.Linq;
-    using System.Collections.Generic;
-    using System.Threading.Tasks;
 
+    /// <summary>
+    /// Defines the <see cref="TicketMaterialActivity" />.
+    /// </summary>
     public class TicketMaterialActivity : Activity
     {
+        /// <summary>
+        /// Defines the columnWidth0.
+        /// </summary>
         private double columnWidth0 = 0;
-        private double columnWidth1 = 0;
-        private double columnWidth2 = 0;
-        private ResourceDictionary resourceDictionary = new ResourceDictionary();
-        private List<ProductionTicketMaterial> listProductionTicketMaterial = new List<ProductionTicketMaterial>();
-
-        #region Constructors
 
         /// <summary>
-        /// 
+        /// Defines the columnWidth1.
+        /// </summary>
+        private double columnWidth1 = 0;
+
+        /// <summary>
+        /// Defines the columnWidth2.
+        /// </summary>
+        private double columnWidth2 = 0;
+
+        /// <summary>
+        /// Defines the resourceDictionary.
+        /// </summary>
+        private ResourceDictionary resourceDictionary = new ResourceDictionary();
+
+        /// <summary>
+        /// Defines the listProductionTicketMaterial.
+        /// </summary>
+        private List<ProductionTicketMaterial> listProductionTicketMaterial = new List<ProductionTicketMaterial>();
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="TicketMaterialActivity"/> class.
         /// </summary>
         public TicketMaterialActivity()
           : base()
@@ -41,10 +64,10 @@ namespace dMobile.Controller
                     Padding = new Thickness(5),
                     ColumnDefinitions =
                     {
-                        new ColumnDefinition { Width = new GridLength(columnWidth0, GridUnitType.Absolute) },
-                        new ColumnDefinition { Width = new GridLength(columnWidth1, GridUnitType.Absolute) },
-                        new ColumnDefinition { Width = new GridLength(columnWidth2, GridUnitType.Absolute) }
-                    }
+                        new ColumnDefinition { Width = new GridLength(this.columnWidth0, GridUnitType.Absolute) },
+                        new ColumnDefinition { Width = new GridLength(this.columnWidth1, GridUnitType.Absolute) },
+                        new ColumnDefinition { Width = new GridLength(this.columnWidth2, GridUnitType.Absolute) },
+                    },
                 };
 
                 Label labelActivityRefno = new Label { VerticalOptions = LayoutOptions.Center };
@@ -69,40 +92,38 @@ namespace dMobile.Controller
             this.resourceDictionary.Add("dataTemplate", dataTemplate);
         }
 
-        #endregion
-
-        #region Public Members
-
         /// <summary>
-        ///
+        /// The GetFKRefnoIdx.
         /// </summary>
-        /// <returns></returns>
-        /// <remarks></remarks>
+        /// <returns>.</returns>
         public override string GetFKRefnoIdx()
         {
             return "ActivityProductionStringFKRefno";
         }
 
         /// <summary>
-        ///
+        /// The GetControlDescription.
         /// </summary>
-        /// <returns></returns>
-        /// <remarks></remarks>
+        /// <returns>.</returns>
         public override string GetControlDescription()
         {
-
-            // TODO: Resource strings
             return "Ticket Materials";
         }
 
-        public override ObservableCollection<object> DesignGrid(ref Grid dataGridMainActivityHeader, ref ListView dataGridMainActivity)
+        /// <summary>
+        /// The DesignGrid.
+        /// </summary>
+        /// <param name="GridMainActivity">The GridMainActivity<see cref="Grid"/>.</param>
+        /// <param name="ListViewMainActivity">The ListViewMainActivity<see cref="ListView"/>.</param>
+        /// <returns>The <see cref="ObservableCollection{object}"/>.</returns>
+        public override ObservableCollection<object> DesignGrid(ref Grid GridMainActivity, ref ListView ListViewMainActivity)
         {
             ObservableCollection<object> observableCollection = new ObservableCollection<object>();
 
             foreach (ProductionTicketMaterial productionTicket in this.ListHdrs)
             {
-                //ProductionTicketMaterial productionTicket = new ProductionTicketMaterial
-                //{
+                // ProductionTicketMaterial productionTicket = new ProductionTicketMaterial
+                // {
                 //    ActivityProductionDateTime = Convert.ToDateTime(row["ActivityProductionDateTime"] != DBNull.Value ? row["ActivityProductionDateTime"] : null),
                 //    ActivityProductionDescription = Convert.ToString(row["ActivityProductionDescription"] != DBNull.Value ? row["ActivityProductionDescription"] : null),
                 //    ActivityProductionFKRefno = Convert.ToInt32(row["ActivityProductionFKRefno"] != DBNull.Value ? row["ActivityProductionFKRefno"] : null),
@@ -112,30 +133,28 @@ namespace dMobile.Controller
                 //    LocationMapRefno = Convert.ToInt32(row["LocationMapRefno"] != DBNull.Value ? row["LocationMapRefno"] : null),
                 //    LocationMapWarehouseFKRefno = Convert.ToInt32(row["LocationMapWarehouseFKRefno"] != DBNull.Value ? row["LocationMapWarehouseFKRefno"] : null),
                 //    LocationMapWarehouseName = Convert.ToString(row["LocationMapWarehouseName"] != DBNull.Value ? row["LocationMapWarehouseName"] : null),
-                //};
-
+                // };
                 observableCollection.Add(productionTicket);
             }
 
-            // TODO: Resource Strings
             Label labelTicketNumber = new Label { Text = "Ticket #", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
             Label labelTicketDate = new Label { Text = "Date", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
             Label labelTicketDescription = new Label { Text = "Description", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
 
             // Calculate text size
-            columnWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(labelTicketNumber.Text);
-            columnWidth1 = DependencyService.Get<IGridService>().CalculateTextWidth(labelTicketDate.Text);
-            columnWidth2 = DependencyService.Get<IGridService>().CalculateTextWidth(labelTicketDescription.Text);
+            this.columnWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(labelTicketNumber.Text);
+            this.columnWidth1 = DependencyService.Get<IGridService>().CalculateTextWidth(labelTicketDate.Text);
+            this.columnWidth2 = DependencyService.Get<IGridService>().CalculateTextWidth(labelTicketDescription.Text);
 
             Grid gridHeader = new Grid
             {
                 Padding = new Thickness(5),
                 ColumnDefinitions =
                 {
-                    new ColumnDefinition { Width = new GridLength(columnWidth0, GridUnitType.Absolute) },
-                    new ColumnDefinition { Width = new GridLength(columnWidth1, GridUnitType.Absolute) },
-                    new ColumnDefinition { Width = new GridLength(columnWidth2, GridUnitType.Absolute) }
-                }
+                    new ColumnDefinition { Width = new GridLength(this.columnWidth0, GridUnitType.Absolute) },
+                    new ColumnDefinition { Width = new GridLength(this.columnWidth1, GridUnitType.Absolute) },
+                    new ColumnDefinition { Width = new GridLength(this.columnWidth2, GridUnitType.Absolute) },
+                },
             };
 
             gridHeader.SetDynamicResource(VisualElement.BackgroundColorProperty, "HeaderColor");
@@ -150,7 +169,7 @@ namespace dMobile.Controller
 
             Grid.SetRow(gridHeader, 0);
 
-            dataGridMainActivityHeader.Children.Add(gridHeader);
+            GridMainActivity.Children.Add(gridHeader);
 
             foreach (ProductionTicketMaterial productionTicket in observableCollection)
             {
@@ -158,36 +177,35 @@ namespace dMobile.Controller
                 double dataColumnWidth1 = DependencyService.Get<IGridService>().CalculateTextWidth(Convert.ToString(productionTicket.ActivityProductionDateTime.ToString("MM/dd/yyyy")));
                 double dataColumnWidth2 = DependencyService.Get<IGridService>().CalculateTextWidth(productionTicket.ActivityProductionDescription);
 
-                if (dataColumnWidth0 > columnWidth0)
+                if (dataColumnWidth0 > this.columnWidth0)
                 {
-                    columnWidth0 = dataColumnWidth0;
-                    gridHeader.ColumnDefinitions[0].Width = columnWidth0;
+                    this.columnWidth0 = dataColumnWidth0;
+                    gridHeader.ColumnDefinitions[0].Width = this.columnWidth0;
                 }
 
-                if (dataColumnWidth1 > columnWidth1)
+                if (dataColumnWidth1 > this.columnWidth1)
                 {
-                    columnWidth1 = dataColumnWidth1;
-                    gridHeader.ColumnDefinitions[1].Width = columnWidth1;
+                    this.columnWidth1 = dataColumnWidth1;
+                    gridHeader.ColumnDefinitions[1].Width = this.columnWidth1;
                 }
 
-                if (dataColumnWidth2 > columnWidth2)
+                if (dataColumnWidth2 > this.columnWidth2)
                 {
-                    columnWidth2 = dataColumnWidth2;
-                    gridHeader.ColumnDefinitions[2].Width = columnWidth2;
+                    this.columnWidth2 = dataColumnWidth2;
+                    gridHeader.ColumnDefinitions[2].Width = this.columnWidth2;
                 }
             }
 
-            dataGridMainActivity.ItemTemplate = (DataTemplate)this.resourceDictionary["dataTemplate"];
+            ListViewMainActivity.ItemTemplate = (DataTemplate)this.resourceDictionary["dataTemplate"];
 
             return observableCollection;
         }
 
         /// <summary>
-        ///
+        /// The GetActivityList.
         /// </summary>
-        /// <param name="isSubmitBatch"></param>
-        /// <returns></returns>
-        /// <remarks></remarks>
+        /// <param name="isSubmitBatch">.</param>
+        /// <returns>.</returns>
         public override async Task<List<object>> GetActivityList(bool isSubmitBatch)
         {
             ProductionTicketSettings ticketSettings = new ProductionTicketSettings().LoadData();
@@ -273,19 +291,18 @@ namespace dMobile.Controller
                 sql.AppendFormat("WHERE tActivity.ActivitySubType = {0}", Convert.ToInt32(SysCommon.ActSubTypes.TicketMaterial));
             }
 
-            //using (SQLiteDataAdapter da = new SQLiteDataAdapter(sql.ToString(), DatabaseConnection.GetInstance().SQLConn))
-            //{
+            // using (SQLiteDataAdapter da = new SQLiteDataAdapter(sql.ToString(), DatabaseConnection.GetInstance().SQLConn))
+            // {
             //    using (DataSet ds = new DataSet())
             //    {
             //        da.Fill(ds);
 
-            //        this.DataViewHdrs = ds.Tables[0].DefaultView;
+            // this.DataViewHdrs = ds.Tables[0].DefaultView;
             //        this.DataViewHdrs.Table.TableName = this.MainGridMappingName;
             //        // TODO: Fix sorting
             //        this.DataViewHdrs.Sort = ticketSettings.GetDataViewSortBy();
             //    }
-            //}
-
+            // }
             this.listProductionTicketMaterial = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<ProductionTicketMaterial>(sql.ToString());
 
             foreach (Sort sort in ticketSettings.GetDataViewSortBy())
@@ -307,30 +324,28 @@ namespace dMobile.Controller
         }
 
         /// <summary>
-        ///
+        /// The Search.
         /// </summary>
-        /// <param name="searchText"></param>
-        /// <returns></returns>
-        /// <remarks></remarks>
+        /// <param name="searchText">.</param>
+        /// <returns>.</returns>
         public override ObservableCollection<object> Search(string searchText)
         {
             ObservableCollection<object> observableCollection = new ObservableCollection<object>();
 
-            //if (string.IsNullOrEmpty(this.ActFilter))
-            //{
-            //this.DataViewHdrs.RowFilter = "ActivityProductionStringFKRefno LIKE \'%" + searchText.Trim() + "%\'";
+            // if (string.IsNullOrEmpty(this.ActFilter))
+            // {
+            // this.DataViewHdrs.RowFilter = "ActivityProductionStringFKRefno LIKE \'%" + searchText.Trim() + "%\'";
             this.ListHdrs = this.listProductionTicketMaterial.Where(prodTicket => prodTicket.ActivityProductionStringFKRefno.ToLower().Contains(searchText.ToLower().Trim())).Cast<object>().ToList();
-            //}
-            //else
-            //{
+            // }
+            // else
+            // {
             // TODO: Fix filtering
-            //this.DataViewHdrs.RowFilter = this.ActFilter + " AND ActivityProductionStringFKRefno LIKE \'%" + searchText.Trim() + "%\'";
-            //}
-
+            // this.DataViewHdrs.RowFilter = this.ActFilter + " AND ActivityProductionStringFKRefno LIKE \'%" + searchText.Trim() + "%\'";
+            // }
             foreach (ProductionTicketMaterial productionTicket in this.ListHdrs)
             {
-                //ProductionTicketMaterial productionTicket = new ProductionTicketMaterial
-                //{
+                // ProductionTicketMaterial productionTicket = new ProductionTicketMaterial
+                // {
                 //    ActivityProductionDateTime = Convert.ToDateTime(row["ActivityProductionDateTime"] != DBNull.Value ? row["ActivityProductionDateTime"] : null),
                 //    ActivityProductionDescription = Convert.ToString(row["ActivityProductionDescription"] != DBNull.Value ? row["ActivityProductionDescription"] : null),
                 //    ActivityProductionFKRefno = Convert.ToInt32(row["ActivityProductionFKRefno"] != DBNull.Value ? row["ActivityProductionFKRefno"] : null),
@@ -340,8 +355,7 @@ namespace dMobile.Controller
                 //    LocationMapRefno = Convert.ToInt32(row["LocationMapRefno"] != DBNull.Value ? row["LocationMapRefno"] : null),
                 //    LocationMapWarehouseFKRefno = Convert.ToInt32(row["LocationMapWarehouseFKRefno"] != DBNull.Value ? row["LocationMapWarehouseFKRefno"] : null),
                 //    LocationMapWarehouseName = Convert.ToString(row["LocationMapWarehouseName"] != DBNull.Value ? row["LocationMapWarehouseName"] : null),
-                //};
-
+                // };
                 observableCollection.Add(productionTicket);
             }
 
@@ -349,11 +363,10 @@ namespace dMobile.Controller
         }
 
         /// <summary>
-        ///
+        /// The SelectActivity.
         /// </summary>
-        /// <param name="i"></param>
-        /// <param name="lstDisplay"></param>
-        /// <remarks></remarks>
+        /// <param name="selectedActivity">The selectedActivity<see cref="object"/>.</param>
+        /// <returns>The <see cref="Task"/>.</returns>
         public override async Task SelectActivity(object selectedActivity)
         {
             if (selectedActivity is ProductionTicketMaterial productionTicketMaterial)
@@ -371,11 +384,10 @@ namespace dMobile.Controller
         }
 
         /// <summary>
-        ///
+        /// The GetRefnoFromRowIdx.
         /// </summary>
-        /// <param name="i"></param>
-        /// <returns></returns>
-        /// <remarks></remarks>
+        /// <param name="selectedItem">The selectedItem<see cref="object"/>.</param>
+        /// <returns>.</returns>
         public override int GetRefnoFromRowIdx(object selectedItem)
         {
             if (selectedItem is ProductionTicketMaterial productionTicketMaterial)
@@ -388,9 +400,10 @@ namespace dMobile.Controller
         }
 
         /// <summary>
-        ///
+        /// The Refresh.
         /// </summary>
-        /// <remarks></remarks>
+        /// <param name="data">The data<see cref="XDocument"/>.</param>
+        /// <returns>The <see cref="Task"/>.</returns>
         public override async Task Refresh(XDocument data)
         {
             if (this.SysEnv.SysSettings.IsDisconnectedMode)
@@ -407,31 +420,29 @@ namespace dMobile.Controller
                 TableActivityProductionTicketMaterial tableTicketMaterial = new TableActivityProductionTicketMaterial();
 
                 tableTicketMaterial.RegisterDataAccessListenerProgressOut((TicketMaterialActivity)this);
-                await tableTicketMaterial.Request();
+                await tableTicketMaterial.RequestData();
                 tableTicketMaterial.UnregisterDataAccessListenerProgressOut((TicketMaterialActivity)this);
             }
         }
 
         /// <summary>
-        ///
+        /// The Purge.
         /// </summary>
-        /// <remarks></remarks>
+        /// <returns>The <see cref="Task"/>.</returns>
         public override async Task Purge()
         {
             TableActivityProductionTicketMaterial tableTicketMaterial = new TableActivityProductionTicketMaterial();
             TableActivityProductionTicketMaterialItem tableTicketMaterialItem = new TableActivityProductionTicketMaterialItem();
             TableActivityProductionTicketMaterialDetail tableTicketMaterialDetail = new TableActivityProductionTicketMaterialDetail();
 
-            await tableTicketMaterialDetail.Purge();
-            await tableTicketMaterialItem.Purge();
-            await tableTicketMaterial.Purge();
+            await tableTicketMaterialDetail.PurgeData();
+            await tableTicketMaterialItem.PurgeData();
+            await tableTicketMaterial.PurgeData();
         }
 
         /// <summary>
-        ///
+        /// The GetFilter.
         /// </summary>
-        /// <returns></returns>
-        /// <remarks></remarks>
         public override void GetFilter()
         {
             ProductionTicketSettings ticketSettings = new ProductionTicketSettings().LoadData();
@@ -450,11 +461,9 @@ namespace dMobile.Controller
         }
 
         /// <summary>
-        ///
+        /// The GetFilter.
         /// </summary>
-        /// <param name="xmlDoc"></param>
-        /// <returns></returns>
-        /// <remarks></remarks>
+        /// <param name="data">The data<see cref="XDocument"/>.</param>
         public override void GetFilter(XDocument data)
         {
             ProductionTicketSettings ticketSettings = new ProductionTicketSettings().LoadData();
@@ -472,6 +481,64 @@ namespace dMobile.Controller
             }
         }
 
-        #endregion
+        /// <summary>
+        /// Get the activity foreign key reference number.
+        /// </summary>
+        /// <param name="resourceType"><see cref="object"/> Resource model (tActivity??Model).</param>
+        /// <returns><see cref="int"/> Found activity foreign key refno, else 0 if not found.</returns>
+        public override int GetFKRefno(object resourceType)
+        {
+            object tmpFKRefno = ((ProductionTicketMaterial)resourceType).ActivityProductionFKRefno;
+            return tmpFKRefno == null ? 0 : Convert.ToInt32(tmpFKRefno);
+        }
+
+        /// <summary>
+        /// The Insert.
+        /// </summary>
+        /// <param name="xmlParams">The xmlParams<see cref="XDocument"/>.</param>
+        /// <returns>The <see cref="Task{int}"/>.</returns>
+        public override Task<int> Insert(XDocument xmlParams)
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <summary>
+        /// The Delete.
+        /// </summary>
+        /// <returns>The <see cref="Task"/>.</returns>
+        public override Task Delete()
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <summary>
+        /// The PrintLabel.
+        /// </summary>
+        /// <param name="xmlParam">The xmlParam<see cref="XDocument"/>.</param>
+        /// <returns>The <see cref="Task"/>.</returns>
+        public override Task PrintLabel(XDocument xmlParam)
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <summary>
+        /// The GetLabelQuantity.
+        /// </summary>
+        /// <param name="isRepackQuantityOnly">The isRepackQuantityOnly<see cref="bool"/>.</param>
+        /// <returns>The <see cref="Task{SLabelQuantity}"/>.</returns>
+        public override Task<SLabelQuantity> GetLabelQuantity(bool isRepackQuantityOnly)
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <summary>
+        /// The ChangeStatus.
+        /// </summary>
+        /// <param name="selectedActivity">The selectedActivity<see cref="object"/>.</param>
+        /// <returns>The <see cref="Task{bool}"/>.</returns>
+        public override Task<bool> ChangeStatus(object selectedActivity)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

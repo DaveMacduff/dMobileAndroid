@@ -1,56 +1,52 @@
-﻿using System;
-using dMobile.Bedrock;
-using dMobile.View.Forms;
-using Xamarin.Forms;
-using Resource = dMobile.Resources.Properties.Resources;
+﻿// <copyright file="MessageOnlyException.cs" company="InterSect Business Systems Inc">
+// Copyright (c) InterSect Business Systems Inc. All rights reserved.
+// </copyright>
 
 namespace dMobile.View.Exceptions
 {
-    class MessageOnlyException : Exception
+    using System;
+    using dMobile.Bedrock;
+    using dMobile.View.Forms;
+    using Xamarin.Forms;
+    using Resource = dMobile.Resources.Properties.Resources;
+
+    /// <summary>
+    /// Defines the <see cref="MessageOnlyException" />.
+    /// </summary>
+    public class MessageOnlyException : Exception
     {
-        private SysCommon.ShowErrorMessageType showMessageType = SysCommon.ShowErrorMessageType.MessageBox;
-
-        public SysCommon.ShowErrorMessageType ShowMessageType
-        {
-            get
-            {
-                return this.showMessageType;
-            }
-
-            set
-            {
-                this.showMessageType = value;
-            }
-        }
-
+        /// <summary>
+        /// Initializes a new instance of the <see cref="MessageOnlyException"/> class.
+        /// </summary>
         public MessageOnlyException()
           : base()
         {
         }
 
         /// <summary>
-        /// 
+        /// Initializes a new instance of the <see cref="MessageOnlyException"/> class.
         /// </summary>
-        /// <param name="message"></param>
+        /// <param name="message">.</param>
         public MessageOnlyException(string message)
           : base(ModifyMessage(message))
         {
         }
 
         /// <summary>
-        /// 
+        /// Initializes a new instance of the <see cref="MessageOnlyException"/> class.
         /// </summary>
-        /// <param name="message"></param>
-        /// <param name="inner"></param>
+        /// <param name="message"><see cref="string"/> Message to attach with exception.</param>
+        /// <param name="inner"><see cref="Exception"/> Inner exception.</param>
         public MessageOnlyException(string message, Exception inner)
           : base(ModifyMessage(message), inner)
         {
         }
 
         /// <summary>
-        /// 
+        /// Initializes a new instance of the <see cref="MessageOnlyException"/> class.
         /// </summary>
-        /// <param name="message"></param>
+        /// <param name="message"><see cref="string"/> Message to attach with exception.</param>
+        /// <param name="showMessageType"><see cref="SysCommon.ShowErrorMessageType"/> Message type to show.</param>
         public MessageOnlyException(string message, SysCommon.ShowErrorMessageType showMessageType)
           : base(ModifyMessage(message))
         {
@@ -58,10 +54,11 @@ namespace dMobile.View.Exceptions
         }
 
         /// <summary>
-        /// 
+        /// Initializes a new instance of the <see cref="MessageOnlyException"/> class.
         /// </summary>
-        /// <param name="message"></param>
-        /// <param name="inner"></param>
+        /// <param name="message"><see cref="string"/> Message to attach with exception.</param>
+        /// <param name="inner"><see cref="Exception"/> Inner exception.</param>
+        /// <param name="showMessageType"><see cref="SysCommon.ShowErrorMessageType"/> Message type to show.</param>
         public MessageOnlyException(string message, Exception inner, SysCommon.ShowErrorMessageType showMessageType)
           : base(ModifyMessage(message), inner)
         {
@@ -69,22 +66,30 @@ namespace dMobile.View.Exceptions
         }
 
         /// <summary>
-        /// 
+        /// Gets or sets the show error message type.
         /// </summary>
-        /// <param name="control"></param>
-        public void Show(/*UserControl control, */ SysCommon.ActSubTypes actSubType)
+        public SysCommon.ShowErrorMessageType ShowMessageType { get; set; } = SysCommon.ShowErrorMessageType.MessageBox;
+
+        /// <summary>
+        /// The Show.
+        /// </summary>
+        /// <param name="actSubType">The actSubType<see cref="SysCommon.ActSubTypes"/>.</param>
+        public void Show(SysCommon.ActSubTypes actSubType)
         {
             switch (this.ShowMessageType)
             {
                 case SysCommon.ShowErrorMessageType.MessageBox:
-                    Device.BeginInvokeOnMainThread(async () => await App.Current.MainPage.DisplayAlert(Resource.Error, this.Message, Resource.OK));
-
+                    Device.BeginInvokeOnMainThread(async () => await Application.Current.MainPage.DisplayAlert(
+                        Resource.Error,
+                        this.Message,
+                        Resource.OK));
                     break;
 
                 case SysCommon.ShowErrorMessageType.ErrorReport:
-                    Device.BeginInvokeOnMainThread(async () => {
+                    Device.BeginInvokeOnMainThread(async () =>
+                    {
                         FormErrorReport errRpt = new FormErrorReport(actSubType, this);
-                        await errRpt.ShowDialog();
+                        _ = await errRpt.ShowDialog();
                     });
 
                     break;
@@ -95,17 +100,17 @@ namespace dMobile.View.Exceptions
         }
 
         /// <summary>
-        /// 
+        /// Modify message text. Removes the expression "MSGBOX-".
         /// </summary>
-        /// <param name="message"></param>
-        /// <returns></returns>
+        /// <param name="message"><see cref="string"/> Message text to alter.</param>
+        /// <returns><see cref="string"/> Original or altered text.</returns>
         private static string ModifyMessage(string message)
         {
             string msgToken = "MSGBOX-";
 
             if (message.Contains(msgToken))
             {
-                message = message.Substring(message.IndexOf(msgToken) + msgToken.Length);
+                message = message[(message.IndexOf(msgToken) + msgToken.Length) ..];
             }
 
             return message;

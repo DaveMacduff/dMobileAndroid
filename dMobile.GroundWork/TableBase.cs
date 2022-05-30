@@ -1,34 +1,23 @@
+// <copyright file="TableBase.cs" company="InterSect Business Systems Inc">
+// Copyright (c) InterSect Business Systems Inc. All rights reserved.
+// </copyright>
+
 namespace dMobile.GroundWork
 {
-    using dMobile.Bedrock;
     using System;
+    using System.Collections.Generic;
     using System.Data;
-    using SQLite;
     using System.Threading.Tasks;
     using System.Xml.Linq;
-    using System.Collections.Generic;
+    using dMobile.Bedrock;
     using dMobile.Resources.Models;
+    using SQLite;
 
     /// <summary>
-    /// Defines the <see cref="TableBase" />
+    /// <see cref="TableBase" /> Table base class.
     /// </summary>
     public abstract class TableBase : IDataAccessEventPublisher
     {
-        /// <summary>
-        /// Defines the fullClassName
-        /// </summary>
-        private string fullClassName = "TableBase";
-
-        /// <summary>
-        /// Defines the sysEnv
-        /// </summary>
-        private SysEnvironment sysEnv;
-
-        /// <summary>
-        /// Defines the dataEventArgs
-        /// </summary>
-        private DataAccessEventArgs dataEventArgs = new DataAccessEventArgs();
-
         /// <summary>
         /// Initializes a new instance of the <see cref="TableBase"/> class.
         /// </summary>
@@ -38,165 +27,146 @@ namespace dMobile.GroundWork
         }
 
         /// <summary>
-        /// The OnDataAccessStatusOutEventHandler
+        /// On data access status out event handler.
         /// </summary>
-        /// <param name="dataAccessEventPublisher">The dataAccessEventPublisher<see cref="IDataAccessEventPublisher"/></param>
-        /// <param name="dataAccessEventArgs">The dataAccessEventArgs<see cref="DataAccessEventArgs"/></param>
+        /// <param name="dataAccessEventPublisher"><see cref="IDataAccessEventPublisher"/> Data
+        /// access event publisher.</param>
+        /// <param name="dataAccessEventArgs"><see cref="DataAccessEventArgs"/> Data access event
+        /// arguments.</param>
         public delegate void OnDataAccessStatusOutEventHandler(
-        IDataAccessEventPublisher dataAccessEventPublisher,
-        DataAccessEventArgs dataAccessEventArgs);
+            IDataAccessEventPublisher dataAccessEventPublisher,
+            DataAccessEventArgs dataAccessEventArgs);
 
         /// <summary>
-        /// The OnDataAccessProgressOutEventHandler
+        /// On data access progress out event handler.
         /// </summary>
-        /// <param name="dataAccessEventPublisher">The dataAccessEventPublisher<see cref="IDataAccessEventPublisher"/></param>
-        /// <param name="dataAccessEventArgs">The dataAccessEventArgs<see cref="DataAccessEventArgs"/></param>
+        /// <param name="dataAccessEventPublisher"><see cref="IDataAccessEventPublisher"/> Data
+        /// access event publisher.</param>
+        /// <param name="dataAccessEventArgs"><see cref="DataAccessEventArgs"/> Data access event
+        /// arguments.</param>
         public delegate void OnDataAccessProgressOutEventHandler(
-        IDataAccessEventPublisher dataAccessEventPublisher,
-        DataAccessEventArgs dataAccessEventArgs);
+            IDataAccessEventPublisher dataAccessEventPublisher,
+            DataAccessEventArgs dataAccessEventArgs);
 
         /// <summary>
-        /// Defines the OnDataAccessStatusOut
+        /// Define the on access status out event.
         /// </summary>
         public event OnDataAccessStatusOutEventHandler OnDataAccessStatusOut;
 
         /// <summary>
-        /// Defines the OnDataAccessProgressOut
+        /// Define the on access progress out event.
         /// </summary>
         public event OnDataAccessProgressOutEventHandler OnDataAccessProgressOut;
 
         /// <summary>
-        /// Gets or sets the DataEventArgs
+        /// Gets or sets the data access event arguments.
         /// </summary>
-        public DataAccessEventArgs DataEventArgs
-        {
-            get
-            {
-                return this.dataEventArgs;
-            }
-
-            set
-            {
-                this.dataEventArgs = value;
-            }
-        }
+        public DataAccessEventArgs DataEventArgs { get; set; } = new DataAccessEventArgs();
 
         /// <summary>
-        /// Gets or sets the FullClassName
+        /// Gets or sets the full class name.
         /// </summary>
-        public string FullClassName
-        {
-            get
-            {
-                return this.fullClassName;
-            }
-
-            set
-            {
-                this.fullClassName = value;
-            }
-        }
+        public string FullClassName { get; set; } = "TableBase";
 
         /// <summary>
-        /// Gets or sets the SysEnv
+        /// Gets or sets the system environment.
         /// </summary>
-        public SysEnvironment SysEnv
-        {
-            get
-            {
-                return this.sysEnv;
-            }
-
-            set
-            {
-                this.sysEnv = value;
-            }
-        }
+        public SysEnvironment SysEnv { get; set; } = SysEnvironment.GetInstance();
 
         /// <summary>
-        /// The Request
+        /// Perform a request for data.
         /// </summary>
-        public virtual Task Request()
+        /// <returns>The <see cref="Task"/> Task operation.</returns>
+        public virtual Task RequestData()
         {
             throw new NotImplementedException();
         }
 
         /// <summary>
-        /// The Request
+        /// Perform a request for data.
         /// </summary>
-        /// <param name="actRefno"></param>
-        public virtual Task Request(int actRefno)
+        /// <param name="actRefno"><see cref="int"/> Activity reference number.</param>
+        /// <returns>The <see cref="Task"/> Task operation.</returns>
+        public virtual Task RequestData(int actRefno)
         {
             throw new NotImplementedException();
         }
 
         /// <summary>
-        /// The RequestData
+        /// Perform a request for data.
         /// </summary>
-        /// <param name="criteria"></param>
+        /// <param name="criteria"><see cref="XDocument"/> Filter detail used in the comm server.</param>
+        /// <returns>The <see cref="Task"/>.</returns>
         public virtual Task RequestData(XDocument criteria)
         {
             throw new NotImplementedException();
         }
 
         /// <summary>
-        /// The RequestData
+        /// Perform a request for data.
         /// </summary>
-        /// <param name="actRefno"></param>
-        /// <param name="criteria"></param>
+        /// <param name="actRefno"><see cref="int"/> Activity reference number.</param>
+        /// <param name="criteria"><see cref="XDocument"/> Filter detail used in the comm server.</param>
+        /// <returns>The <see cref="Task"/>.</returns>
         public virtual Task RequestData(int actRefno, XDocument criteria)
         {
             throw new NotImplementedException();
         }
 
         /// <summary>
-        /// The Purge
+        /// Perform a data purge.
         /// </summary>
-        public virtual Task Purge()
+        /// <returns>The <see cref="Task"/> Task operation.</returns>
+        public virtual Task PurgeData()
         {
             throw new NotImplementedException();
         }
 
         /// <summary>
-        /// The PurgeData
+        /// Perform a data purge.
         /// </summary>
-        /// <param name="sectLocMapRefno"></param>
+        /// <param name="sectLocMapRefno"><see cref="int"/> Section location map reference number.</param>
+        /// <returns>The <see cref="Task"/> Task operation.</returns>
         public virtual Task PurgeData(int sectLocMapRefno)
         {
             throw new NotImplementedException();
         }
 
         /// <summary>
-        /// The Purge
+        /// Perform a data purge.
         /// </summary>
-        /// <param name="actSubType"></param>
-        public virtual Task Purge(SysCommon.ActSubTypes actSubType)
+        /// <param name="actSubType"> .</param>
+        /// <returns>The <see cref="Task"/> Task operation.</returns>
+        public virtual Task PurgeData(SysCommon.ActSubTypes actSubType)
         {
             throw new NotImplementedException();
         }
 
         /// <summary>
-        /// The DataStatus
+        /// Get the data status.
         /// </summary>
-        /// <returns></returns>
+        /// <returns>.</returns>
         public virtual Task<int> DataStatus()
         {
             throw new NotImplementedException();
         }
 
         /// <summary>
-        /// The DataAccessStatusOutHandler
+        /// Data access status out event handler.
         /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        /// <param name="statMessage"></param>
-        /// <param name="overrideDisconnectedMode"></param>
+        /// <param name="sender"><see cref="object"/> Sender object.</param>
+        /// <param name="e"><see cref="EventArgs"/> Sender event arguments.</param>
+        /// <param name="statMessage"><see cref="string"/> Status message.</param>
+        /// <param name="overrideDisconnectedMode"><see cref="bool"/> Flag to override disconnected mode.</param>
         public void DataAccessStatusOutHandler(
-        object sender,
-        EventArgs e,
-        string statMessage,
-        bool overrideDisconnectedMode)
+            object sender,
+            EventArgs e,
+            string statMessage,
+            bool overrideDisconnectedMode)
         {
+            sender = sender ?? throw new ArgumentNullException(nameof(sender));
+            e = e ?? throw new ArgumentNullException(nameof(e));
+
             if (!this.SysEnv.SysSettings.IsDisconnectedMode || overrideDisconnectedMode)
             {
                 if (this.OnDataAccessStatusOut != null)
@@ -209,20 +179,23 @@ namespace dMobile.GroundWork
         }
 
         /// <summary>
-        /// The DataAccessProgressOutHandler
+        /// Data access progress out event handler.
         /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        /// <param name="currentValue"></param>
-        /// <param name="minValue"></param>
-        /// <param name="maxValue"></param>
+        /// <param name="sender"><see cref="object"/> Sender object.</param>
+        /// <param name="e"><see cref="EventArgs"/> Sender event arguments.</param>
+        /// <param name="currentValue"><see cref="int"/> Current progress index value.</param>
+        /// <param name="minValue"><see cref="int"/> Minimum / starting progress value.</param>
+        /// <param name="maxValue"><see cref="int"/> Maximum / last progress value.</param>
         public void DataAccessProgressOutHandler(
-        object sender,
-        EventArgs e,
-        int currentValue,
-        int minValue,
-        int maxValue)
+            object sender,
+            EventArgs e,
+            int currentValue,
+            int minValue,
+            int maxValue)
         {
+            sender = sender ?? throw new ArgumentNullException(nameof(sender));
+            e = e ?? throw new ArgumentNullException(nameof(e));
+
             if (this.OnDataAccessProgressOut != null)
             {
                 this.DataEventArgs.CurrentValue = currentValue;
@@ -234,13 +207,16 @@ namespace dMobile.GroundWork
         }
 
         /// <summary>
-        /// The DataAccessProgressOutHandler
+        /// Data access progress out event handler.
         /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        /// <param name="currentValue"></param>
+        /// <param name="sender"><see cref="object"/> Sender object.</param>
+        /// <param name="e"><see cref="EventArgs"/> Sender event arguments.</param>
+        /// <param name="currentValue"><see cref="int"/> Current progress index value.</param>
         public void DataAccessProgressOutHandler(object sender, EventArgs e, int currentValue)
         {
+            sender = sender ?? throw new ArgumentNullException(nameof(sender));
+            e = e ?? throw new ArgumentNullException(nameof(e));
+
             if (this.OnDataAccessProgressOut != null)
             {
                 this.DataEventArgs.CurrentValue = currentValue;
@@ -250,248 +226,224 @@ namespace dMobile.GroundWork
         }
 
         /// <summary>
-        /// The RegisterDataAccessListenerStatusOut
+        /// Register the data access status out listener.
         /// </summary>
-        /// <param name="dataAccessEventListener"></param>
-        public void RegisterDataAccessListenerStatusOut(IDataAccessEventListener dataAccessEventListener)
+        /// <param name="listener"><see cref="IDataAccessEventListener"/> Data access event listener.</param>
+        public void RegisterDataAccessListenerStatusOut(IDataAccessEventListener listener)
         {
-            this.OnDataAccessStatusOut += new OnDataAccessStatusOutEventHandler(dataAccessEventListener.OnDataAccessStatusOut);
+            this.OnDataAccessStatusOut += new OnDataAccessStatusOutEventHandler(
+                listener.OnDataAccessStatusOut);
         }
 
         /// <summary>
-        /// /
+        /// Unregister the data access status out listener.
         /// </summary>
-        /// <param name="dataAccessEventListener"></param>
-        public void UnregisterDataAccessListenerStatusOut(IDataAccessEventListener dataAccessEventListener)
+        /// <param name="listener"><see cref="IDataAccessEventListener"/> Data access event listener.</param>
+        public void UnregisterDataAccessListenerStatusOut(IDataAccessEventListener listener)
         {
-            this.OnDataAccessStatusOut -= new OnDataAccessStatusOutEventHandler(dataAccessEventListener.OnDataAccessStatusOut);
+            this.OnDataAccessStatusOut -= new OnDataAccessStatusOutEventHandler(
+                listener.OnDataAccessStatusOut);
         }
 
         /// <summary>
-        /// The RegisterDataAccessListenerProgressOut
+        /// Register the data access progress out listener.
         /// </summary>
-        /// <param name="dataAccessEventListener"></param>
-        public void RegisterDataAccessListenerProgressOut(IDataAccessEventListener dataAccessEventListener)
+        /// <param name="listener"><see cref="IDataAccessEventListener"/> Data access event listener.</param>
+        public void RegisterDataAccessListenerProgressOut(IDataAccessEventListener listener)
         {
             this.OnDataAccessProgressOut += new OnDataAccessProgressOutEventHandler(
-                dataAccessEventListener.OnDataAccessProgressOut);
+                listener.OnDataAccessProgressOut);
         }
 
         /// <summary>
-        /// The UnregisterDataAccessListenerProgressOut
+        /// Unregister the data access progress out listener.
         /// </summary>
-        /// <param name="dataAccessEventListener"></param>
-        public void UnregisterDataAccessListenerProgressOut(IDataAccessEventListener dataAccessEventListener)
+        /// <param name="listener"><see cref="IDataAccessEventListener"/> Data access event listener.</param>
+        public void UnregisterDataAccessListenerProgressOut(IDataAccessEventListener listener)
         {
             this.OnDataAccessProgressOut -= new OnDataAccessProgressOutEventHandler(
-                dataAccessEventListener.OnDataAccessProgressOut);
+                listener.OnDataAccessProgressOut);
         }
 
         /// <summary>
-        /// The SendRequest
+        /// Send a data request.
         /// </summary>
-        /// <param name="familyCode"></param>
-        /// <returns></returns>
+        /// <param name="familyCode"><see cref="string"/> Family code filter.</param>
+        /// <returns><see cref="string"/> Send result information.</returns>
         protected virtual Task<string> SendRequest(string familyCode)
         {
             throw new NotImplementedException();
         }
 
         /// <summary>
-        /// The Send
+        /// Send a data request.
         /// </summary>
-        /// <param name="actRefno"></param>
-        /// <returns></returns>
-        protected virtual Task<string> Send(int actRefno)
+        /// <param name="actRefno"><see cref="int"/> Activity reference number.</param>
+        /// <returns><see cref="string"/> Send result information.</returns>
+        protected virtual Task<string> SendRequest(int actRefno)
         {
             throw new NotImplementedException();
         }
 
         /// <summary>
-        /// The Send
+        /// Send a data request.
         /// </summary>
-        /// <returns></returns>
-        protected virtual Task<string> Send()
+        /// <param name="prodLocMapType"><see cref="int"/> Product location map type.</param>
+        /// <returns><see cref="string"/> Send result information.</returns>
+        protected virtual Task<string> SendRequestProdLoc(int prodLocMapType)
         {
             throw new NotImplementedException();
         }
 
         /// <summary>
-        /// The Send
+        /// Send a data request.
         /// </summary>
-        /// <param name="tableName"></param>
-        /// <returns></returns>
-        protected virtual async Task<string> Send(string tableName)
+        /// <returns><see cref="string"/> Send result information.</returns>
+        protected virtual async Task<string> SendRequest()
         {
-            return await this.SendComm(await this.Create());
+            return await this.SendComm(await this.CreateRequest());
         }
 
         /// <summary>
-        /// The SendRequest
+        /// Send a data request.
         /// </summary>
-        /// <param name="criteria">The criteria<see cref="XDocument"/></param>
-        /// <returns></returns>
+        /// <param name="criteria"><see cref="XDocument"/> Data filter request.</param>
+        /// <returns><see cref="string"/> Send result information.</returns>
         protected virtual Task<string> SendRequest(XDocument criteria)
         {
             throw new NotImplementedException();
         }
 
         /// <summary>
-        /// The SendRequest
+        /// Send a data request.
         /// </summary>
-        /// <param name="actRefno"></param>
-        /// <param name="criteria"></param>
-        /// <returns></returns>
+        /// <param name="actRefno"><see cref="int"/> Activity reference number.</param>
+        /// <param name="criteria"><see cref="XDocument"/> Data filter request.</param>
+        /// <returns><see cref="string"/> Send result information.</returns>
         protected virtual Task<string> SendRequest(int actRefno, XDocument criteria)
         {
             throw new NotImplementedException();
         }
 
         /// <summary>
-        /// The SendRequest
+        /// Send a data request.
         /// </summary>
-        /// <param name="sendData"></param>
-        /// <param name="familyCode"></param>
-        /// <returns></returns>
-        protected virtual Task<string> SendRequest(ref string sendData, string familyCode)
-        {
-            throw new NotImplementedException();
-        }
-
-        /// <summary>
-        /// The SendRequest
-        /// </summary>
-        /// <param name="prodLocMapType"></param>
-        /// <param name="whsLocMapFKRefno">The whsLocMapFKRefno<see cref="int"/></param>
-        /// <returns>The <see cref="string"/></returns>
+        /// <param name="prodLocMapType"><see cref="int"/> Product location map type.</param>
+        /// <param name="whsLocMapFKRefno"><see cref="int"/> Warehouse location map foreign key reference number.</param>
+        /// <returns><see cref="string"/> Send result information.</returns>
         protected virtual Task<string> SendRequest(int prodLocMapType, int whsLocMapFKRefno)
         {
             throw new NotImplementedException();
         }
 
         /// <summary>
-        /// The SendRequest
+        /// Save received data.
         /// </summary>
-        /// <param name="prodLocMapType"></param>
-        /// <returns></returns>
-        protected virtual Task<string> SendRequest(int prodLocMapType)
+        /// <param name="receivedData"><see cref="string"/> Received data to save.</param>
+        /// <returns><see cref="Task"/> Task operation.</returns>
+        protected virtual Task Save(string receivedData)
         {
             throw new NotImplementedException();
         }
 
         /// <summary>
-        /// The Save
+        /// Save received data.
         /// </summary>
-        /// <param name="requestData"></param>
-        protected virtual Task Save(string requestData)
+        /// <param name="receivedData"><see cref="string"/> Received data to save.</param>
+        /// <param name="refno"><see cref="int"/> Refno.</param>
+        /// <returns><see cref="Task"/> Task operation.</returns>
+        protected virtual Task Save(string receivedData, int refno)
         {
             throw new NotImplementedException();
         }
 
         /// <summary>
-        /// The Save
+        /// Create the request.
         /// </summary>
-        /// <param name="requestData"></param>
-        /// <param name="refno">The refno<see cref="int"/></param>
-        protected virtual Task Save(string requestData, int refno)
+        /// <returns><see cref="string"/> Created request.</returns>
+        protected virtual Task<string> CreateRequest()
         {
             throw new NotImplementedException();
         }
 
         /// <summary>
-        /// The SaveData
+        /// Create the request.
         /// </summary>
-        /// <param name="requestData"></param>
-        protected virtual Task SaveData(ref string requestData)
-        {
-            throw new NotImplementedException();
-        }
-
-        /// <summary>
-        /// The Create
-        /// </summary>
-        /// <returns></returns>
-        protected virtual Task<string> Create()
-        {
-            throw new NotImplementedException();
-        }
-
-        /// <summary>
-        /// The CreateRequest
-        /// </summary>
-        /// <param name="criteria">The criteria<see cref="XDocument"/></param>
-        /// <returns></returns>
+        /// <param name="criteria"><see cref="XDocument"/> Data filter request.</param>
+        /// <returns><see cref="string"/> Created request.</returns>
         protected virtual Task<string> CreateRequest(XDocument criteria)
         {
             throw new NotImplementedException();
         }
 
         /// <summary>
-        /// The CreateRequest
+        /// Create the request.
         /// </summary>
-        /// <param name="familyCode"></param>
-        /// <returns></returns>
+        /// <param name="familyCode"><see cref="string"/> Family code.</param>
+        /// <returns><see cref="string"/> Created request.</returns>
         protected virtual Task<string> CreateRequest(string familyCode)
         {
             throw new NotImplementedException();
         }
 
         /// <summary>
-        /// The Create
+        /// Create the request.
         /// </summary>
-        /// <param name="actFKRefno"></param>
-        /// <returns></returns>
-        protected virtual Task<string> Create(int actFKRefno)
+        /// <param name="actFKRefno"><see cref="int"/> Activity foreign key reference number.</param>
+        /// <returns><see cref="string"/> Created request.</returns>
+        protected virtual Task<string> CreateRequest(int actFKRefno)
         {
             throw new NotImplementedException();
         }
 
         /// <summary>
-        /// The CreateRequest
+        /// Create the request.
         /// </summary>
-        /// <param name="actFKRefno"></param>
-        /// <param name="criteria"></param>
-        /// <returns></returns>
+        /// <param name="actFKRefno"><see cref="int"/> Activity foreign key reference number.</param>
+        /// <param name="criteria"><see cref="XDocument"/> Data filter request.</param>
+        /// <returns><see cref="string"/> Created request.</returns>
         protected virtual Task<string> CreateRequest(int actFKRefno, XDocument criteria)
         {
             throw new NotImplementedException();
         }
 
         /// <summary>
-        /// The CreateRequest
+        /// Create the request.
         /// </summary>
-        /// <param name="prodLocMapType"></param>
-        /// <param name="whsLocMapFKRefno"></param>
-        /// <returns></returns>
+        /// <param name="prodLocMapType"><see cref="int"/> Product location map type.</param>
+        /// <param name="whsLocMapFKRefno"><see cref="int"/> Warehouse location map foreign key reference number.</param>
+        /// <returns><see cref="string"/> Created request.</returns>
         protected virtual Task<string> CreateRequest(int prodLocMapType, int whsLocMapFKRefno)
         {
             throw new NotImplementedException();
         }
 
         /// <summary>
-        /// The CreateRequest
+        /// Create the request.
         /// </summary>
-        /// <param name="prodLocMapType"></param>
-        /// <returns></returns>
-        protected async virtual Task<string> CreateRequest(int prodLocMapType)
+        /// <param name="prodLocMapType"><see cref="int"/> Product location map type.</param>
+        /// <returns><see cref="string"/> Created request.</returns>
+        protected virtual Task<string> CreateRequestProdLoc(int prodLocMapType)
         {
             throw new NotImplementedException();
         }
 
         /// <summary>
-        /// The SaveCommonDetailVariant
+        /// Save the common detail product scheme variant information.
         /// </summary>
-        /// <param name="drow"></param>
-        /// <param name="drSchemeVar"></param>
-        /// <param name="recSchemeVarXRef"></param>
-        /// <param name="actDetailRefno"></param>
-        /// <param name="useFNo"></param>
-        /// <returns></returns>
-        protected virtual void SaveCommonDetailVariant(DataRow drow, SQLiteConnection conn, int actDetailRefno, bool useFNo)
+        /// <param name="drow"><see cref="DataRow"/> Data row to get the scheme variant no from.</param>
+        /// <param name="conn"><see cref="SQLiteConnection"/> SQLite connection.</param>
+        /// <param name="actDetailRefno"><see cref="int"/> Activity detail reference number.</param>
+        /// <param name="useFNumberElements"><see cref="bool"/> Flag indicating whether to read
+        /// 'F' XML element or a more verbose field name element.</param>
+        protected virtual void SaveCommonDetailVariant(
+            DataRow drow,
+            SQLiteConnection conn,
+            int actDetailRefno,
+            bool useFNumberElements)
         {
-            int schemeVariantNo = 0;
-
-            if (useFNo)
+            int schemeVariantNo;
+            if (useFNumberElements)
             {
                 schemeVariantNo = Convert.ToInt32(drow["f17"]);
             }
@@ -502,54 +454,66 @@ namespace dMobile.GroundWork
 
             if (schemeVariantNo > 0)
             {
-                List<tProductSchemeVariantModel> results = conn.Query<tProductSchemeVariantModel>("SELECT * FROM tProductSchemeVariant WHERE ProductSchemeVariantNo = ?", Convert.ToInt32(schemeVariantNo));
+                List<tProductSchemeVariantModel> results = conn.Query<tProductSchemeVariantModel>(
+                    "SELECT * FROM tProductSchemeVariant WHERE ProductSchemeVariantNo = ?",
+                    Convert.ToInt32(schemeVariantNo));
 
                 if (results != null && results.Count > 0)
                 {
-                    conn.Execute("INSERT INTO tActivityDetailProductSchemeVariantXRef (ActivityDetailRefno, ProductSchemeVariantRefno) VALUES (?, ?)", Convert.ToInt32(actDetailRefno), results[0].ProductSchemeVariantRefno);
+                    conn.Execute(
+                        "INSERT INTO tActivityDetailProductSchemeVariantXRef (" +
+                        "ActivityDetailRefno, ProductSchemeVariantRefno) VALUES (?, ?)",
+                        Convert.ToInt32(actDetailRefno),
+                        results[0].ProductSchemeVariantRefno);
                 }
                 else
                 {
-                    // TODO: Resource strings
-                    throw new Exception("drSchemeVar.Read() failed. " + string.Format("Unable to locate product scheme no {0} in tProductSchemeVariant", schemeVariantNo));
+                    throw new Exception(string.Format(
+                        "Unable to locate product scheme no {0} in tProductSchemeVariant",
+                        schemeVariantNo));
                 }
             }
         }
 
         /// <summary>
-        /// The SaveDetailExtra
+        /// Save activity detail extra information.
         /// </summary>
-        /// <param name="drow"></param>
-        /// <param name="recExtra"></param>
-        /// <param name="actDetailRefno"></param>
-        /// <param name="useFNo"></param>
-        protected virtual void SaveDetailExtra(DataRow drow, SQLiteConnection conn, int actDetailRefno, bool useFNo)
+        /// <param name="drow"><see cref="DataRow"/> Data row to get the scheme variant no from.</param>
+        /// <param name="conn"><see cref="SQLiteConnection"/> SQLite connection.</param>
+        /// <param name="actDetailRefno"><see cref="int"/> Activity detail reference number.</param>
+        /// <param name="useFNumberElements"><see cref="bool"/> Flag indicating whether to read
+        /// 'F' XML element or a more verbose field name element.</param>
+        protected virtual void SaveDetailExtra(
+            DataRow drow,
+            SQLiteConnection conn,
+            int actDetailRefno,
+            bool useFNumberElements)
         {
             string emptyDate = "01-01-1900";
             List<object> parameters = new List<object>();
 
             string query = "INSERT INTO tActivityDetailExtra (" +
-            "ActivityDetailRefno, " +
-            "ActivityDetailSubType, " +
-            "ActivityDetailExtra1Text, " +
-            "ActivityDetailExtra2Text, " +
-            "ActivityDetailExtra3Text, " +
-            "ActivityDetailExtra4Text, " +
-            "ActivityDetailExtra5Date" +
-            ") VALUES (" +
-            "?, " +
-            "?, " +
-            "?, " +
-            "?, " +
-            "?, " +
-            "?, " +
-            "?" +
-            ")";
+                "ActivityDetailRefno, " +
+                "ActivityDetailSubType, " +
+                "ActivityDetailExtra1Text, " +
+                "ActivityDetailExtra2Text, " +
+                "ActivityDetailExtra3Text, " +
+                "ActivityDetailExtra4Text, " +
+                "ActivityDetailExtra5Date" +
+                ") VALUES (" +
+                "?, " +
+                "?, " +
+                "?, " +
+                "?, " +
+                "?, " +
+                "?, " +
+                "?" +
+                ")";
 
             parameters.Add(actDetailRefno);
             parameters.Add(Convert.ToInt32(SysCommon.ActSubTypes.CycleCounts));
 
-            if (useFNo)
+            if (useFNumberElements)
             {
                 parameters.Add(Convert.ToString(drow["f19"]));
                 parameters.Add(Convert.ToString(drow["f20"]));
@@ -586,22 +550,23 @@ namespace dMobile.GroundWork
         }
 
         /// <summary>
-        /// The SaveDetailLocation
+        /// get the activity detail location information.
         /// </summary>
-        /// <param name="drow"></param>
-        /// <param name="drLocMapSlot"></param>
-        /// <param name="drLocMapSection"></param>
-        /// <param name="drLocMapWhs"></param>
-        /// <param name="recDetail"></param>
-        /// <param name="useFNo"></param>
-        protected virtual int SaveDetailLocation(DataRow drow, SQLiteConnection conn, bool useFNo)
+        /// <param name="drow"><see cref="DataRow"/> Data row to get the scheme variant no from.</param>
+        /// <param name="conn"><see cref="SQLiteConnection"/> SQLite connection.</param>
+        /// <param name="useFNumberElements"><see cref="bool"/> Flag indicating whether to read
+        /// 'F' XML element or a more verbose field name element.</param>
+        /// <returns>The <see cref="int"/> Identified location map reference number.</returns>
+        protected virtual int GetDetailLocation(
+            DataRow drow,
+            SQLiteConnection conn,
+            bool useFNumberElements)
         {
             int locMapRefno = 0;
-            int locMapWhsFKRefno = 0;
-            int locMapSectFKRefno = 0;
-            int locMapSlotFKRefno = 0;
-
-            if (useFNo)
+            int locMapWhsFKRefno;
+            int locMapSectFKRefno;
+            int locMapSlotFKRefno;
+            if (useFNumberElements)
             {
                 locMapWhsFKRefno = Convert.ToInt32(drow["f07"]);
                 locMapSectFKRefno = Convert.ToInt32(drow["f08"]);
@@ -616,7 +581,9 @@ namespace dMobile.GroundWork
 
             if (locMapRefno == 0)
             {
-                List<tLocationMapSlotModel> results = conn.Query<tLocationMapSlotModel>("SELECT * FROM tLocationMapSlot WHERE LocationMapSlotFKRefno = ?", locMapSlotFKRefno);
+                List<tLocationMapSlotModel> results = conn.Query<tLocationMapSlotModel>(
+                    "SELECT * FROM tLocationMapSlot WHERE LocationMapSlotFKRefno = ?",
+                    locMapSlotFKRefno);
 
                 if (results != null && results.Count > 0)
                 {
@@ -626,7 +593,9 @@ namespace dMobile.GroundWork
 
             if (locMapRefno == 0)
             {
-                List<tLocationMapSectionModel> results = conn.Query<tLocationMapSectionModel>("SELECT * FROM tLocationMapSection WHERE LocationMapSectionFKRefno = ?", locMapSectFKRefno);
+                List<tLocationMapSectionModel> results = conn.Query<tLocationMapSectionModel>(
+                    "SELECT * FROM tLocationMapSection WHERE LocationMapSectionFKRefno = ?",
+                    locMapSectFKRefno);
 
                 if (results != null && results.Count > 0)
                 {
@@ -636,7 +605,9 @@ namespace dMobile.GroundWork
 
             if (locMapRefno == 0)
             {
-                List<tLocationMapWarehouseModel> results = conn.Query<tLocationMapWarehouseModel>("SELECT * FROM tLocationMapWarehouse WHERE LocationMapWarehouseFKRefno = ?", locMapWhsFKRefno);
+                List<tLocationMapWarehouseModel> results = conn.Query<tLocationMapWarehouseModel>(
+                    "SELECT * FROM tLocationMapWarehouse WHERE LocationMapWarehouseFKRefno = ?",
+                    locMapWhsFKRefno);
 
                 if (results != null && results.Count > 0)
                 {
@@ -646,7 +617,9 @@ namespace dMobile.GroundWork
 
             if (locMapRefno == 0)
             {
-                throw new Exception(string.Format("Unable to identify the location map refno. {0}Whs FK Refno {1}{2}Section FK Refno {3}{4} Slot FK Refno {5}{6}",
+                throw new Exception(string.Format(
+                    "Unable to identify the location map reference number. {0}Whs FK Refno {1}{2}Section" +
+                        " FK Refno {3}{4} Slot FK Refno {5}{6}",
                     Environment.NewLine,
                     locMapWhsFKRefno,
                     Environment.NewLine,
@@ -659,17 +632,22 @@ namespace dMobile.GroundWork
         }
 
         /// <summary>
-        /// The SaveDetail
+        /// Get the activity detail information.
         /// </summary>
-        /// <param name="drow"></param>
-        /// <param name="detail"></param>
-        /// <param name="useFNo"></param>
-        protected virtual List<object> SaveDetail(DataRow drow, SQLiteConnection detail, bool useFNo)
+        /// <param name="drow"><see cref="DataRow"/> Data row to get the scheme variant no from.</param>
+        /// <param name="conn"><see cref="SQLiteConnection"/> SQLite connection.</param>
+        /// <param name="useFNumberElements"><see cref="bool"/> Flag indicating whether to read
+        /// 'F' XML element or a more verbose field name element.</param>
+        /// <returns>The <see cref="List{object}"/> Activity detail information.</returns>
+        protected virtual List<object> SaveDetail(
+            DataRow drow,
+            SQLiteConnection conn,
+            bool useFNumberElements)
         {
             string emptyDate = "01-01-1900";
             List<object> detailParameters = new List<object>();
 
-            if (useFNo)
+            if (useFNumberElements)
             {
                 detailParameters.Add(Convert.ToString(drow["f05"]));
                 detailParameters.Add(Convert.ToString(drow["f06"]));
@@ -788,69 +766,68 @@ namespace dMobile.GroundWork
         }
 
         /// <summary>
-        /// The SendComm
+        /// Send the communication request.
         /// </summary>
-        /// <param name="sendData"></param>
-        /// <returns></returns>
+        /// <param name="sendData"><see cref="string"/> Communication request.</param>
+        /// <returns><see cref="string"/> Communication result.</returns>
         protected virtual async Task<string> SendComm(string sendData)
         {
             return SysCommon.SubmitComm(sendData);
         }
 
         /// <summary>
-        /// The GetWhsLocMapRefnoFromDataRow
+        /// Get the warehouse location map refno from the data row.
         /// </summary>
-        /// <param name="drow"></param>
-        /// <param name="errMsg"></param>
-        /// <param name="drWhs"></param>
-        /// <returns></returns>
-        protected virtual int GetWhsLocMapRefnoFromDataRow(DataRow drow, ref string errMsg, SQLiteConnection conn)
+        /// <param name="drow"><see cref="DataRow"/> Row of data.</param>
+        /// <param name="conn"><see cref="SQLiteConnection"/> SQL connection.</param>
+        /// <returns>.</returns>
+        protected virtual int GetWhsLocMapRefnoFromDataRow(
+            DataRow drow,
+            SQLiteConnection conn)
         {
-            int locMapRefno = 0;
             int locMapWhsFKRefno = Convert.ToInt32(drow["LocationMapWarehouseFKRefno"]);
-            errMsg += Environment.NewLine + "Whs " + locMapWhsFKRefno;
 
-            List<tLocationMapWarehouseModel> results = conn.Query<tLocationMapWarehouseModel>("SELECT * FROM tLocationMapWarehouse WHERE LocationMapWarehouseFKRefno = ?", Convert.ToInt32(locMapWhsFKRefno));
+            List<tLocationMapWarehouseModel> results = conn.Query<tLocationMapWarehouseModel>(
+                "SELECT * FROM tLocationMapWarehouse WHERE LocationMapWarehouseFKRefno = ?",
+                Convert.ToInt32(locMapWhsFKRefno));
 
+            int locMapRefno;
             if (results != null && results.Count > 0)
             {
                 locMapRefno = results[0].LocationMapRefno;
             }
             else
             {
-                // TODO: Resource String
-                throw new Exception("drWhs.Read() failed." + Environment.NewLine + errMsg);
+                throw new Exception("drWhs.Read() failed.");
             }
 
             if (locMapRefno == 0)
             {
-                // TODO: Resource String
-                throw new Exception("Unable to locate the location map refno." + Environment.NewLine + errMsg);
+                throw new Exception(
+                    "Unable to locate the location map reference number.");
             }
 
             return locMapRefno;
         }
 
         /// <summary>
-        /// The GetProductUnitRefnoFromDataRow
+        /// Get the product unit refno from the data row.
         /// </summary>
-        /// <param name="drow"></param>
-        /// <param name="errMsg"></param>
-        /// <param name="drProduct"></param>
-        /// <param name="drUnit"></param>
-        /// <param name="drProdUnit"></param>
-        /// <param name="useFNo">The useFNo<see cref="bool"/></param>
-        /// <returns></returns>
-        protected virtual int GetProductUnitRefnoFromDataRow(DataRow drow, SQLiteConnection conn, ref string errMsg, bool useFNo)
+        /// <param name="drow"><see cref="DataRow"/> Data row.</param>
+        /// <param name="conn">The conn<see cref="SQLiteConnection"/> SQL connection.</param>
+        /// <param name="errMsg">.</param>
+        /// <param name="useFNumberElements"><see cref="bool"/> Flag indicating whether to read
+        /// 'F' XML element or a more verbose field name element.</param>
+        /// <returns>.</returns>
+        protected virtual int GetProductUnitRefnoFromDataRow(
+            DataRow drow,
+            SQLiteConnection conn,
+            bool useFNumberElements)
         {
-            int prodRefno = 0;
-            int prodFKRefno = 0;
-            string unitCode = string.Empty;
-            int unitRefno = 0;
-            int prodUnitRefno = 0;
-            bool prodUnitIsBC = false;
-
-            if (useFNo)
+            int prodFKRefno;
+            string unitCode;
+            bool prodUnitIsBC;
+            if (useFNumberElements)
             {
                 prodFKRefno = Convert.ToInt32(drow["f03"]);
                 unitCode = Convert.ToString(drow["f05"]);
@@ -863,44 +840,48 @@ namespace dMobile.GroundWork
                 prodUnitIsBC = Convert.ToBoolean(drow["ProductUnitIsBC"]);
             }
 
-            errMsg += Environment.NewLine + "Prod fk refno " + prodFKRefno;
-            errMsg += Environment.NewLine + "Unit \'" + unitCode + "\'";
-            errMsg += Environment.NewLine + "Is bc " + prodUnitIsBC;
+            List<tProductModel> productResults = conn.Query<tProductModel>(
+                "SELECT * FROM tProduct WHERE ProductFKRefno = ?", Convert.ToInt32(prodFKRefno));
 
-            List<tProductModel> productResults = conn.Query<tProductModel>("SELECT * FROM tProduct WHERE ProductFKRefno = ?", Convert.ToInt32(prodFKRefno));
-
+            int prodRefno;
             if (productResults != null && productResults.Count > 0)
             {
                 prodRefno = Convert.ToInt32(productResults[0].ProductRefno);
             }
             else
             {
-                // TODO: Resource strings
-                throw new Exception("drProduct.Read() failed. Unable to locate the product refno from the product fk refno in tProduct." + Environment.NewLine + errMsg);
+                throw new Exception(
+                    "drProduct.Read() failed. Unable to locate the product refno" +
+                    " from the product fk refno in tProduct.");
             }
 
-            List<tUnitModel> unitResults = conn.Query<tUnitModel>("SELECT * FROM tUnit WHERE UnitCode = ?", unitCode);
-
+            List<tUnitModel> unitResults = conn.Query<tUnitModel>(
+                "SELECT * FROM tUnit WHERE UnitCode = ?", unitCode);
+            int unitRefno;
             if (unitResults != null && unitResults.Count > 0)
             {
                 unitRefno = Convert.ToInt32(unitResults[0].UnitRefno);
             }
             else
             {
-                // TODO: Resource strings
-                throw new Exception("drUnit.Read() failed." + Environment.NewLine + errMsg);
+                throw new Exception("drUnit.Read() failed.");
             }
 
-            List<tProductUnitModel> productUnitResults = conn.Query<tProductUnitModel>("SELECT * FROM tProductUnit WHERE ProductRefno = ? AND UnitRefno = ? AND ProductUnitIsBC = ?", Convert.ToInt32(prodRefno), Convert.ToInt32(unitRefno), Convert.ToBoolean(prodUnitIsBC));
-
+            List<tProductUnitModel> productUnitResults = conn.Query<tProductUnitModel>(
+                "SELECT * FROM tProductUnit WHERE ProductRefno = ? AND UnitRefno = ? AND" +
+                    " ProductUnitIsBC = ?", Convert.ToInt32(prodRefno),
+                Convert.ToInt32(unitRefno),
+                Convert.ToBoolean(prodUnitIsBC));
+            int prodUnitRefno;
             if (productUnitResults != null && productUnitResults.Count > 0)
             {
                 prodUnitRefno = Convert.ToInt32(productUnitResults[0].ProductUnitRefno);
             }
             else
             {
-                // TODO: Resource strings
-                throw new Exception("drProdUnit.Read() failed. Unable to locate the product unit refno from the product fk refno, bc and unit code in tProductUnit." + Environment.NewLine + errMsg);
+                throw new Exception(
+                    "drProdUnit.Read() failed. Unable to locate the product unit refno from the" +
+                    " product fk refno, bc and unit code in tProductUnit.");
             }
 
             return prodUnitRefno;

@@ -27,8 +27,8 @@
             <Label x:Name="lblLoginPassword" Grid.Row="2" Text="Password" />
             <Entry x:Name="txtLoginPassword" Grid.Row="3" IsPassword="True" Grid.ColumnSpan="2" />
 
-            <Button x:Name="cmdCancel" Grid.Row="5" Text="Cancel" Clicked="cmdCancel_Click"/>
-            <Button x:Name="cmdOK" Grid.Row="5" Grid.Column="1" Text="OK" Clicked="cmdOK_Click" />
+            <Button x:Name="cmdCancel" Grid.Row="5" Text="Cancel" Clicked="CmdCancel_Click"/>
+            <Button x:Name="cmdOK" Grid.Row="5" Grid.Column="1" Text="OK" Clicked="CmdOK_Click" />
         </Grid>
         
     </ContentPage.Content>

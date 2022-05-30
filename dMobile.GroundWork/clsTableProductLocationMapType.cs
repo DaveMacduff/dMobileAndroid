@@ -1,19 +1,26 @@
+// <copyright file="clsTableProductLocationMapType.cs" company="InterSect Business Systems Inc">
+// Copyright (c) InterSect Business Systems Inc. All rights reserved.
+// </copyright>
+
 namespace dMobile.GroundWork
 {
     using System;
+    using System.Collections.Generic;
     using System.Data;
+    using System.IO;
     using System.Text;
+    using System.Threading.Tasks;
     using System.Xml;
     using System.Xml.Linq;
     using dMobile.Bedrock;
-    using System.IO;
-    using System.Collections.Generic;
-    using SQLite;
-    using System.Threading.Tasks;
     using dMobile.Resources.Models;
+    using SQLite;
 
     public class TableProductLocationMapType : TableBase
     {
+        /// <summary>
+        /// Initializes a new instance of the <see cref="TableProductLocationMapType"/> class.
+        /// </summary>
         public TableProductLocationMapType() : base()
         {
             this.FullClassName = "dMobile.GroundWork.TableProductLocationMapType";
@@ -23,11 +30,10 @@ namespace dMobile.GroundWork
         ///
         /// </summary>
         /// <remarks></remarks>
-        public override async Task Request()
+        public override async Task RequestData()
         {
             try
             {
-                // TODO: Resource Strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Seeding product locations.", true);
 
                 string whsLocMapName = string.Empty;
@@ -45,15 +51,13 @@ namespace dMobile.GroundWork
                         whsLocMapName = locationMapWarehouse.LocationMapWarehouseName;
                         whsLocMapRefno = locationMapWarehouse.LocationMapRefno;
 
-                        // TODO: Resource Strings
                         this.DataAccessStatusOutHandler(this, EventArgs.Empty, string.Format("For whs \'{0}\'.", whsLocMapName), true);
 
-                        // TODO: Resource Strings
                         this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Default picking locations.", true);
 
                         reqData = await this.SendRequest((int)SysCommon.ProdLocMapTypes.Picking, whsLocMapFKRefno);
 
-                        if (0 < reqData.Length)
+                        if (reqData.Length > 0)
                         {
                             if (reqData.Contains("<message>ERROR</message>"))
                             {
@@ -65,12 +69,11 @@ namespace dMobile.GroundWork
                             await this.SaveOpt(reqData, whsLocMapRefno);
                         }
 
-                        // TODO: Resource Strings
                         this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Default receiving locations.", true);
 
                         reqData = await this.SendRequest((int)SysCommon.ProdLocMapTypes.Receiving, whsLocMapFKRefno);
 
-                        if (0 < reqData.Length)
+                        if (reqData.Length > 0)
                         {
                             if (reqData.Contains("<message>ERROR</message>"))
                             {
@@ -84,24 +87,19 @@ namespace dMobile.GroundWork
                     }
                 }
 
-                // TODO: Resource Strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Seeding product locations complete.", true);
             }
             catch (SQLiteException ex)
             {
-                // TODO: Resource Strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Database exception occurred.", true);
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Seeding product locations failed.", true);
 
-                // TODO: Resource Strings
                 throw new Exception("Database exception occurred. Seeding product locations failed.", ex);
             }
             catch (Exception ex)
             {
-                // TODO: Resource Strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Seeding product locations failed.", true);
 
-                // TODO: Resource Strings
                 throw new Exception("Seeding product locations failed.", ex);
             }
         }
@@ -112,22 +110,18 @@ namespace dMobile.GroundWork
         /// <remarks></remarks>
         public override async Task<int> DataStatus()
         {
-            int rowsAffected = 0;
-
+            int rowsAffected;
             try
             {
                 rowsAffected = Convert.ToInt32(await DatabaseConnection.GetInstance().SQLConn.ExecuteScalarAsync<int>("SELECT COUNT(*) FROM tProductLocationMapType"));
 
-                // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, string.Format("{0} product locations.", rowsAffected), true);
             }
             catch (SQLiteException ex)
             {
-                // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Database exception occurred.", false);
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "product locations status failed.", false);
 
-                // TODO: Resource strings
                 throw new Exception("Database exception occurred. Product location status failed.", ex);
             }
 
@@ -138,28 +132,25 @@ namespace dMobile.GroundWork
         ///
         /// </summary>
         /// <remarks></remarks>
-        public override async Task Purge()
+        public override async Task PurgeData()
         {
             try
             {
-                // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging product locations.", true);
 
                 await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync("DELETE FROM tProductLocationMapType");
             }
             catch (SQLiteException ex)
             {
-                // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Database exception occurred.", true);
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging product locations.", true);
 
-                // TODO: Resource strings
                 throw new Exception("Database exception occurred. Purging product locations.", ex);
             }
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="prodLocMapType"></param>
         /// <param name="whsLocMapFKRefno"></param>
@@ -170,7 +161,7 @@ namespace dMobile.GroundWork
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="reqData"></param>
         /// <param name="whsLocMapRefno"></param>
@@ -191,19 +182,16 @@ namespace dMobile.GroundWork
                 {
                     using (DataSet ds = new DataSet())
                     {
-                        // TODO: Resource strings
                         this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Reading received data.", false);
 
                         ds.ReadXml(SysCommon.GetXmlReader(ref reqData), XmlReadMode.Auto);
 
-                        // TODO: Resource strings
                         this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving product locations.", false);
 
                         if (ds.Tables.Count != 0)
                         {
                             int progMax = Convert.ToInt32(ds.Tables["seg"].Rows.Count);
 
-                            // TODO: Resource strings
                             this.DataAccessStatusOutHandler(this, EventArgs.Empty, string.Format("Records {0}", progMax), false);
 
                             int progValue = 0;
@@ -224,7 +212,6 @@ namespace dMobile.GroundWork
                                 }
                                 else
                                 {
-                                    // TODO: Resource strings
                                     throw new Exception("drProd.Read() failed." + Environment.NewLine + errMsg);
                                 }
 
@@ -237,22 +224,22 @@ namespace dMobile.GroundWork
                                 switch (locMapSubType)
                                 {
                                     case (int)SysCommon.LocMapSubTypes.Warehouse:
-                                        // TODO: Resource strings
+
                                         errMsg += Environment.NewLine + "Map sub type = " + locMapSubType + ", 'Warehouse'.";
                                         break;
 
                                     case (int)SysCommon.LocMapSubTypes.Section:
-                                        // TODO: Resource strings
+
                                         errMsg += Environment.NewLine + "Map sub type = " + locMapSubType + ", 'Section'.";
                                         break;
 
                                     case (int)SysCommon.LocMapSubTypes.Slot:
-                                        // TODO: Resource strings
+
                                         errMsg += Environment.NewLine + "Map sub type = " + locMapSubType + ", 'Slot'.";
                                         break;
 
                                     default:
-                                        // TODO: Resource strings
+
                                         throw new Exception(string.Format("Undefined location map subtype {0}", locMapSubType));
                                 }
 
@@ -272,7 +259,6 @@ namespace dMobile.GroundWork
                                         }
                                         else
                                         {
-                                            // TODO: Resource strings
                                             throw new Exception("drWhs.Read() failed." + Environment.NewLine + errMsg);
                                         }
 
@@ -287,7 +273,6 @@ namespace dMobile.GroundWork
                                         }
                                         else
                                         {
-                                            // TODO: Resource strings
                                             throw new Exception("drSect.Read() failed." + Environment.NewLine + errMsg);
                                         }
 
@@ -302,14 +287,13 @@ namespace dMobile.GroundWork
                                         }
                                         else
                                         {
-                                            // TODO: Resource strings
                                             throw new Exception("drSlot.Read() failed." + Environment.NewLine + errMsg);
                                         }
 
                                         break;
 
                                     default:
-                                        // TODO: Resource strings
+
                                         throw new Exception(string.Format("Undefined location map subtype {0}", locMapSubType));
                                 }
 
@@ -360,7 +344,7 @@ namespace dMobile.GroundWork
                                         Convert.ToInt32(prodRefno),
                                         Convert.ToInt32(whsLocMapRefno),
                                         Convert.ToInt32(prodLocMapType),
-                                        Convert.ToInt32(locMapRefno)
+                                        Convert.ToInt32(locMapRefno),
                                     };
 
                                     transaction.Execute(queryInsert, parametersInsert);
@@ -376,7 +360,6 @@ namespace dMobile.GroundWork
                             this.DataAccessProgressOutHandler(this, EventArgs.Empty, progMax, 0, progMax);
                         }
 
-                        // TODO: Resource strings
                         this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving product locations complete.", false);
                     }
 
@@ -386,21 +369,25 @@ namespace dMobile.GroundWork
                 {
                     transaction.Rollback();
 
-                    // TODO: Resource strings
                     this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Database exception occurred.", false);
                     this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving product locations failed.", false);
 
-                    // TODO: Resource strings
                     throw new Exception("Database exception occurred. Saving product locations failed." + Environment.NewLine + errMsg, ex);
                 }
             });
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="reqData"></param>
         /// <param name="whsLocMapRefno"></param>
+/// <summary>
+///
+/// </summary>
+/// <param name="reqData"></param>
+/// <param name="whsLocMapRefno"></param>
+/// <returns>A <see cref="Task"/> representing the result of the asynchronous operation.</returns>
         protected async Task SaveOpt(string reqData, int whsLocMapRefno)
         {
             string errMsg = string.Empty;
@@ -409,7 +396,6 @@ namespace dMobile.GroundWork
             {
                 try
                 {
-                    // TODO: Resource Strings
                     this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Reading received data.", false);
 
                     int startIndex = reqData.IndexOf("<VFPData");
@@ -426,7 +412,6 @@ namespace dMobile.GroundWork
                     using (StringReader stringReader = new StringReader(reqData.Substring(startIndex)))
                     using (XmlReader reader = XmlReader.Create(stringReader, sett))
                     {
-                        // TODO: Resource Strings
                         this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving product locations.", false);
 
                         int recordCount = 0;
@@ -486,13 +471,11 @@ namespace dMobile.GroundWork
                                 }
                             } // end of fill record
 
-
                             if (!recordFilled)
                             {
                                 continue;
                             }
 
-                            // TODO: Resource Strings
                             errMsg = "FK refno " + prodFKRefno;
 
                             List<tProductModel> resultsProduct = transaction.Query<tProductModel>("SELECT * FROM tProduct WHERE ProductFKRefno = ?", prodFKRefno);
@@ -503,11 +486,9 @@ namespace dMobile.GroundWork
                             }
                             else
                             {
-                                // TODO: Resource Strings
                                 throw new Exception("drProd.Read() failed." + Environment.NewLine + errMsg);
                             }
 
-                            // TODO: Resource Strings
                             errMsg += Environment.NewLine + "Map fk refno " + locMapFKRefno;
 
                             // locMapSubType = Warehouse, Section, Slot.
@@ -515,22 +496,22 @@ namespace dMobile.GroundWork
                             switch (locMapSubType)
                             {
                                 case (int)SysCommon.LocMapSubTypes.Warehouse:
-                                    // TODO: Resource Strings
+
                                     errMsg += Environment.NewLine + "Map sub type = " + locMapSubType + ", 'Warehouse'.";
                                     break;
 
                                 case (int)SysCommon.LocMapSubTypes.Section:
-                                    // TODO: Resource Strings
+
                                     errMsg += Environment.NewLine + "Map sub type = " + locMapSubType + ", 'Section'.";
                                     break;
 
                                 case (int)SysCommon.LocMapSubTypes.Slot:
-                                    // TODO: Resource Strings
+
                                     errMsg += Environment.NewLine + "Map sub type = " + locMapSubType + ", 'Slot'.";
                                     break;
 
                                 default:
-                                    // TODO: Resource Strings
+
                                     throw new Exception(string.Format("Undefined location map subtype {0}", locMapSubType));
                             }
 
@@ -552,7 +533,6 @@ namespace dMobile.GroundWork
                                         }
                                         else
                                         {
-                                            // TODO: Resource Strings
                                             throw new Exception("drWhs.Read() failed." + Environment.NewLine + errMsg);
                                         }
                                     }
@@ -571,7 +551,6 @@ namespace dMobile.GroundWork
                                         }
                                         else
                                         {
-                                            // TODO: Resource Strings
                                             throw new Exception("drSect.Read() failed." + Environment.NewLine + errMsg);
                                         }
                                     }
@@ -590,7 +569,6 @@ namespace dMobile.GroundWork
                                         }
                                         else
                                         {
-                                            // TODO: Resource Strings
                                             throw new Exception("drSlot.Read() failed." + Environment.NewLine + errMsg);
                                         }
                                     }
@@ -632,13 +610,12 @@ namespace dMobile.GroundWork
                             ++recordCount;
                             if (recordCount % 100 == 0)
                             {
-                                this.DataAccessProgressOutHandler(this, EventArgs.Empty, (recordCount / 10) % 100, 0, 100);
+                                this.DataAccessProgressOutHandler(this, EventArgs.Empty, recordCount / 10 % 100, 0, 100);
                             }
                         } // end of data
 
                         this.DataAccessProgressOutHandler(this, EventArgs.Empty, 100, 0, 100);
 
-                        // TODO: Resource Strings
                         this.DataAccessStatusOutHandler(this, EventArgs.Empty, string.Format("Records {0}", recordCount), false);
 
                         warehouseLookup = null;
@@ -648,23 +625,19 @@ namespace dMobile.GroundWork
 
                     transaction.Commit();
 
-                    // TODO: Resource Strings
                     this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving product locations complete.", false);
                 }
                 catch (SQLiteException ex)
                 {
                     transaction.Rollback();
 
-                    // TODO: Resource Strings
                     this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Database exception occurred.", false);
                     this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving product locations failed.", false);
 
-                    // TODO: Resource Strings
                     throw new Exception("Database exception occurred. Saving product locations failed." + Environment.NewLine + errMsg, ex);
                 }
             });
         }
-
 
         /// <summary>
         ///
@@ -682,8 +655,8 @@ namespace dMobile.GroundWork
                 + "<command>"
                 + "<action>REQUEST PRODUCT LOCATION MAP TYPES</action>"
                 + await SysCommon.GetRequestDefaults(true)
-                + ("<product_location_map_type>" + prodLocMapType + "</product_location_map_type>")
-                + ("<whs_id>" + whsLocMapFKRefno + "</whs_id>")
+                + "<product_location_map_type>" + prodLocMapType + "</product_location_map_type>"
+                + "<whs_id>" + whsLocMapFKRefno + "</whs_id>"
                 + "</command>"
                 + "</imclient>");
 

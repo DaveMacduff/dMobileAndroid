@@ -1,27 +1,50 @@
-namespace dMobile.BarCodeScanner
+// <copyright file="BarCodeParseFacade.cs" company="InterSect Business Systems Inc">
+// Copyright (c) InterSect Business Systems Inc. All rights reserved.
+// </copyright>
+
+namespace dMobile.BarCodeScanner.BarCodeParsing
 {
     using System;
     using dMobile.Bedrock;
 
+    /// <summary>
+    /// Bar code parsing facade. Create an bar code parse instance.
+    /// </summary>
     public class BarCodeParseFacade
     {
-        // vars are assigned in IdentifySymbology
-        private static string RawData = string.Empty;
-        private static string Prefix = string.Empty;
-        private static string Data = string.Empty;
-        private static int Length = 0;
-        private static SysCommon.BarCodeSymbologies Symbology = SysCommon.BarCodeSymbologies.UNDEFINED;
+        /// <summary>
+        /// Gets or sets the raw data received from the scanner engine.
+        /// </summary>
+        private static string RawData { get; set; } = string.Empty;
 
         /// <summary>
-        /// 
+        /// Gets or sets the the bar code symbology prefix.
         /// </summary>
-        /// <param name="strPData"></param>
-        /// <returns></returns>
+        private static string Prefix { get; set; } = string.Empty;
+
+        /// <summary>
+        /// Gets or sets the raw data with the symbology prefix removed.
+        /// </summary>
+        private static string Data { get; set; } = string.Empty;
+
+        /// <summary>
+        /// Gets or sets the data length.
+        /// </summary>
+        private static int Length { get; set; } = 0;
+
+        /// <summary>
+        /// Gets or sets the symbology identification.
+        /// </summary>
+        private static SysCommon.BarCodeSymbologies Symbology { get; set; } = SysCommon.BarCodeSymbologies.UNDEFINED;
+
+        /// <summary>
+        /// Parse the bar code scan data.
+        /// </summary>
+        /// <param name="pData"><see cref="string"/> Raw scan engine read data.</param>
+        /// <returns><see cref="BarCodeParse"/> Parsed bar code data information.</returns>
         public static BarCodeParse ParseData(string pData)
         {
             BarCodeParseFactory parseFactory = null;
-            BarCodeParse parse = null;
-
             IdentifySymbology(pData);
 
             switch (Symbology)
@@ -143,6 +166,8 @@ namespace dMobile.BarCodeScanner
                     break;
             }
 
+            BarCodeParse parse;
+
             // Create generic bar code parse object
             if (parseFactory != null)
             {
@@ -158,121 +183,117 @@ namespace dMobile.BarCodeScanner
             }
             else
             {
-#if MULTILANGUAGE
-        throw new NotSupportedException(Translator.GetInstance().Translate(TranslatorVocabulary.UnsupportedBarCodeSymbology));
-#else
                 throw new NotSupportedException("Unsupported Bar Code Symbology");
-#endif
             }
 
             return parse;
         }
 
-        // public string GetSymbologyPrefixFromSymbologyEnum(BarCodeSymbologies eSymbol)
-        // {
-        //  string strSymbologyPrefix = string.Empty;
+        //// public string GetSymbologyPrefixFromSymbologyEnum(BarCodeSymbologies eSymbol)
+        //// {
+        ////  string strSymbologyPrefix = string.Empty;
 
-        //  switch (eSymbol)
-        //  {
-        //    case BarCodeSymbologies.UNDEFINED:
-        //      strSymbologyPrefix = "]01";   // or ']O4'
-        //      break;
-        //    case BarCodeSymbologies.UCC_12_UPC_E:
-        //      strSymbologyPrefix = "]X0";
-        //      break;
-        //    case BarCodeSymbologies.EAN_UCC_14:
-        //      strSymbologyPrefix = string.Empty;
-        //      break;
-        //    case BarCodeSymbologies.EAN_UCC_13:
-        //      strSymbologyPrefix = "]E0";
-        //      break;
-        //    case BarCodeSymbologies.EAN_UCC_8:
-        //      strSymbologyPrefix = "]E4";
-        //      break;
-        //    case BarCodeSymbologies.ITF_14_Symbol:
-        //      strSymbologyPrefix = "]I";
-        //      break;
-        //    case BarCodeSymbologies.UCC_EAN_128_Symbol:
-        //      strSymbologyPrefix = "]C1";
-        //      break;
-        //    case BarCodeSymbologies.Code_128:
-        //      strSymbologyPrefix = "]C";
-        //      break;
-        //    case BarCodeSymbologies.SSCC_18:
-        //      strSymbologyPrefix = string.Empty;
-        //      break;
-        //    case BarCodeSymbologies.Code_39:
-        //      strSymbologyPrefix = "]A";
-        //      break;
-        //    case BarCodeSymbologies.EAN_UPC_Symbol:
-        //      strSymbologyPrefix = "]E";
-        //      break;
-        //    case BarCodeSymbologies.Code_93:
-        //      strSymbologyPrefix = "]G";
-        //      break;
-        //    case BarCodeSymbologies.Codabar:
-        //      strSymbologyPrefix = "]F";
-        //      break;
-        //    case BarCodeSymbologies.Code_2_of_5:
-        //      strSymbologyPrefix = string.Empty;
-        //      break;
-        //    case BarCodeSymbologies.MSI:
-        //      strSymbologyPrefix = "]M";
-        //      break;
-        //    case BarCodeSymbologies.Plessey:
-        //      strSymbologyPrefix = string.Empty;
-        //      break;
-        //    case BarCodeSymbologies.Code_11:
-        //      strSymbologyPrefix = "]H";
-        //      break;
-        //    case BarCodeSymbologies.Matrix_2_of_5:
-        //      strSymbologyPrefix = string.Empty;
-        //      break;
-        //    case BarCodeSymbologies.Telepen:
-        //      strSymbologyPrefix = "]B";
-        //      break;
-        //    case BarCodeSymbologies.PDF417:
-        //      strSymbologyPrefix = "]L";
-        //      break;
-        //    case BarCodeSymbologies.Micro_PDF417:
-        //      strSymbologyPrefix = string.Empty;
-        //      break;
-        //    case BarCodeSymbologies.RSS_14:
-        //      strSymbologyPrefix = string.Empty;
-        //      break;
-        //    case BarCodeSymbologies.RSS_Limited:
-        //      strSymbologyPrefix = string.Empty;
-        //      break;
-        //    case BarCodeSymbologies.RSS_Expanded:
-        //      strSymbologyPrefix = "]e0";
-        //      break;
-        //    case BarCodeSymbologies.Codablock_A:
-        //      strSymbologyPrefix = "]O6";
-        //      break;
-        //    case BarCodeSymbologies.Codablock_F:
-        //      strSymbologyPrefix = "]O5";
-        //      break;
-        //    case BarCodeSymbologies.TLC_39:
-        //      strSymbologyPrefix = string.Empty;
-        //      break;
-        //    case BarCodeSymbologies.Codablock:
-        //      strSymbologyPrefix = "]O";
-        //      break;
-        //    case BarCodeSymbologies.Codablock256:
-        //      strSymbologyPrefix = "]02";
-        //      break;
-        //    default:
-        //      strSymbologyPrefix = string.Empty;
-        //      break;
-        //  }
+        //// switch (eSymbol)
+        ////  {
+        ////    case BarCodeSymbologies.UNDEFINED:
+        ////      strSymbologyPrefix = "]01";   // or ']O4'
+        ////      break;
+        ////    case BarCodeSymbologies.UCC_12_UPC_E:
+        ////      strSymbologyPrefix = "]X0";
+        ////      break;
+        ////    case BarCodeSymbologies.EAN_UCC_14:
+        ////      strSymbologyPrefix = string.Empty;
+        ////      break;
+        ////    case BarCodeSymbologies.EAN_UCC_13:
+        ////      strSymbologyPrefix = "]E0";
+        ////      break;
+        ////    case BarCodeSymbologies.EAN_UCC_8:
+        ////      strSymbologyPrefix = "]E4";
+        ////      break;
+        ////    case BarCodeSymbologies.ITF_14_Symbol:
+        ////      strSymbologyPrefix = "]I";
+        ////      break;
+        ////    case BarCodeSymbologies.UCC_EAN_128_Symbol:
+        ////      strSymbologyPrefix = "]C1";
+        ////      break;
+        ////    case BarCodeSymbologies.Code_128:
+        ////      strSymbologyPrefix = "]C";
+        ////      break;
+        ////    case BarCodeSymbologies.SSCC_18:
+        ////      strSymbologyPrefix = string.Empty;
+        ////      break;
+        ////    case BarCodeSymbologies.Code_39:
+        ////      strSymbologyPrefix = "]A";
+        ////      break;
+        ////    case BarCodeSymbologies.EAN_UPC_Symbol:
+        ////      strSymbologyPrefix = "]E";
+        ////      break;
+        ////    case BarCodeSymbologies.Code_93:
+        ////      strSymbologyPrefix = "]G";
+        ////      break;
+        ////    case BarCodeSymbologies.Codabar:
+        ////      strSymbologyPrefix = "]F";
+        ////      break;
+        ////    case BarCodeSymbologies.Code_2_of_5:
+        ////      strSymbologyPrefix = string.Empty;
+        ////      break;
+        ////    case BarCodeSymbologies.MSI:
+        ////      strSymbologyPrefix = "]M";
+        ////      break;
+        ////    case BarCodeSymbologies.Plessey:
+        ////      strSymbologyPrefix = string.Empty;
+        ////      break;
+        ////    case BarCodeSymbologies.Code_11:
+        ////      strSymbologyPrefix = "]H";
+        ////      break;
+        ////    case BarCodeSymbologies.Matrix_2_of_5:
+        ////      strSymbologyPrefix = string.Empty;
+        ////      break;
+        ////    case BarCodeSymbologies.Telepen:
+        ////      strSymbologyPrefix = "]B";
+        ////      break;
+        ////    case BarCodeSymbologies.PDF417:
+        ////      strSymbologyPrefix = "]L";
+        ////      break;
+        ////    case BarCodeSymbologies.Micro_PDF417:
+        ////      strSymbologyPrefix = string.Empty;
+        ////      break;
+        ////    case BarCodeSymbologies.RSS_14:
+        ////      strSymbologyPrefix = string.Empty;
+        ////      break;
+        ////    case BarCodeSymbologies.RSS_Limited:
+        ////      strSymbologyPrefix = string.Empty;
+        ////      break;
+        ////    case BarCodeSymbologies.RSS_Expanded:
+        ////      strSymbologyPrefix = "]e0";
+        ////      break;
+        ////    case BarCodeSymbologies.Codablock_A:
+        ////      strSymbologyPrefix = "]O6";
+        ////      break;
+        ////    case BarCodeSymbologies.Codablock_F:
+        ////      strSymbologyPrefix = "]O5";
+        ////      break;
+        ////    case BarCodeSymbologies.TLC_39:
+        ////      strSymbologyPrefix = string.Empty;
+        ////      break;
+        ////    case BarCodeSymbologies.Codablock:
+        ////      strSymbologyPrefix = "]O";
+        ////      break;
+        ////    case BarCodeSymbologies.Codablock256:
+        ////      strSymbologyPrefix = "]02";
+        ////      break;
+        ////    default:
+        ////      strSymbologyPrefix = string.Empty;
+        ////      break;
+        ////  }
 
-        //  return strSymbologyPrefix;
-        // }
+        //// return strSymbologyPrefix;
+        //// }
 
         /// <summary>
-        /// Parses out the Symbology, RawData, BarCodeData and assigns the BarCodeLength
+        /// Parses out the Symbology, RawData, BarCodeData and assigns the BarCodeLength.
         /// </summary>
-        /// <param name="rawData"></param>
+        /// <param name="rawData"><see cref="string"/> Raw data stream from scan engine.</param>
         private static void IdentifySymbology(string rawData)
         {
             RawData = rawData;
@@ -286,10 +307,10 @@ namespace dMobile.BarCodeScanner
                     // First 3 Characters are the Prefix
                     Prefix = RawData.Substring(0, 3);
 
-                    if (!string.IsNullOrEmpty(rawData.Substring(Prefix.Length, rawData.Length - Prefix.Length)))
+                    if (!string.IsNullOrEmpty(rawData[Prefix.Length..]))
                     {
-                        // The Remainder is the actual barcode
-                        Data = rawData.Substring(Prefix.Length, rawData.Length - Prefix.Length);
+                        // The Remainder is the actual bar code.
+                        Data = rawData[Prefix.Length..];
                         Length = Data.Length;
 
                         if (Prefix.StartsWith("]O"))
@@ -352,7 +373,7 @@ namespace dMobile.BarCodeScanner
                             }
                             else if (Prefix == "]E4")
                             {
-                                // EAN-8                
+                                // EAN-8
                                 Symbology = SysCommon.BarCodeSymbologies.EAN_UCC_8;
                             }
                         }
@@ -396,7 +417,7 @@ namespace dMobile.BarCodeScanner
                 // Otherwise, doesn't have the Symbology info
                 if (!string.IsNullOrEmpty(rawData))
                 {
-                    // The Remainder is the actual barcode
+                    // The Remainder is the actual bar code.
                     Data = rawData;
                     Length = Data.Length;
                 }

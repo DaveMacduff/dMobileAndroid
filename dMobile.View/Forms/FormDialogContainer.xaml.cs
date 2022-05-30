@@ -1,535 +1,701 @@
-﻿
+﻿// <copyright file="FormDialogContainer.xaml.cs" company="InterSect Business Systems Inc">
+// Copyright (c) InterSect Business Systems Inc. All rights reserved.
+// </copyright>
+
 namespace dMobile.View.Forms
 {
+    using System;
+    using System.Threading.Tasks;
+    using System.Xml.Linq;
     using dMobile.Bedrock;
     using dMobile.Controller;
     using dMobile.View.Activity;
     using dMobile.View.CustomPages.Modal;
     using dMobile.View.Options;
-    using System;
-    using System.ComponentModel;
-    using System.Xml.Linq;
-    using Xamarin.Forms;
     using Xamarin.Forms.Xaml;
-    using dMobile.Resources.Enums;
-    using Resource = dMobile.Resources.Properties.Resources;
-    using System.Threading.Tasks;
 
+    /// <summary>
+    /// Defines the <see cref="FormDialogContainer" /> main form dialog container.
+    /// </summary>
     [XamlCompilation(XamlCompilationOptions.Compile)]
     public partial class FormDialogContainer : DMobileModal
     {
-        private IDMobileModal displayControl;
-
         /// <summary>
         /// Initializes a new instance of the <see cref="FormDialogContainer"/> class.
         /// </summary>
-        public FormDialogContainer()
+        /// <param name="modelType"><see cref="EDialogTypes"/> Inner model.</param>
+        /// <param name="actSubType"><see cref="SysCommon.ActSubTypes"/> Activity sub type.</param>
+        public FormDialogContainer(EDialogTypes modelType, SysCommon.ActSubTypes actSubType)
         {
-            InitializeComponent();
-        }
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="FormDialogContainer"/> class.
-        /// </summary>
-        /// <param name="typeInnerControl"></param>
-        /// <param name="actSubType"></param>
-        public FormDialogContainer(EDialogTypes typeInnerControl, SysCommon.ActSubTypes actSubType)
-        {
-            IDMobileModal control = null;
-
             this.InitializeComponent();
-
-            switch (typeInnerControl)
+            IDMobileModal model = modelType switch
             {
-                case EDialogTypes.ucRefreshDataStatus:
-                    control = new ucRefreshDataStatus(actSubType);
-                    break;
+                EDialogTypes.RefreshDataStatus => new ucRefreshDataStatus(actSubType),
+                EDialogTypes.ActivityInventoryInquiry => new ucActivityInventoryInquiry(),
+                EDialogTypes.ActivityDeboxLabelCount => new ucActivityDeboxLabelCount(),
+                EDialogTypes.SelectProductUnit => this.GetModel(modelType, actSubType),
+                EDialogTypes.SelectProductUnitFilterToProduct => this.GetModel(modelType, actSubType),
+                EDialogTypes.SelectLocationMap => this.GetModel(modelType, actSubType),
+                EDialogTypes.ActivityItem => this.GetModel(modelType, actSubType),
+                EDialogTypes.ActivityDetail => this.GetModel(modelType, actSubType),
+                EDialogTypes.ActivityDetailEdit => this.GetModel(modelType, actSubType),
+                EDialogTypes.ActivityHdrPickingFilter => this.GetModel(modelType, actSubType),
+                EDialogTypes.ActivityHdrReceivingFilter => this.GetModel(modelType, actSubType),
+                EDialogTypes.ActivityHdrTransferFilter => this.GetModel(modelType, actSubType),
+                EDialogTypes.ActivityHdrPhysicalCountFilter => this.GetModel(modelType, actSubType),
+                EDialogTypes.ActivityHdrReturnsFilter => this.GetModel(modelType, actSubType),
+                EDialogTypes.ActivityHdrCycleCountFilter => this.GetModel(modelType, actSubType),
+                EDialogTypes.SubmitBatchFilter => this.GetModel(modelType, actSubType),
+                EDialogTypes.ActivityAdjustmentFilter => this.GetModel(modelType, actSubType),
+                EDialogTypes.ActivityProductionTicketFinishedFilter => this.GetModel(modelType, actSubType),
+                EDialogTypes.ActivityProductionTicketMaterialFilter => this.GetModel(modelType, actSubType),
+                EDialogTypes.ActivityProductionTicketByProductFilter => this.GetModel(modelType, actSubType),
+                EDialogTypes.ActivityPurchaseOrderWorkSheetEdit => this.GetModel(modelType, actSubType),
+                EDialogTypes.ActivityPickingSelectCriteria => this.GetModel(modelType, actSubType),
+                EDialogTypes.ActivityShippingLabelEdit => this.GetModel(modelType, actSubType),
+                EDialogTypes.ActivityConvertUnitEdit => this.GetModel(modelType, actSubType),
+                EDialogTypes.SkidInfo => this.GetModel(modelType, actSubType),
+                EDialogTypes.SkidInfoEdit => this.GetModel(modelType, actSubType),
+                EDialogTypes.ActivityDetailSkid => this.GetModel(modelType, actSubType),
+                EDialogTypes.ActivityItemSingle => this.GetModel(modelType, actSubType),
+                EDialogTypes.ActivityInventoryInquiryItem => this.GetModel(modelType, actSubType),
+                EDialogTypes.ActivityInventoryInquiryDetail => this.GetModel(modelType, actSubType),
+                EDialogTypes.SelectProduct => this.GetModel(modelType, actSubType),
+                EDialogTypes.ActivityProductLabel => this.GetModel(modelType, actSubType),
+                EDialogTypes.ActivityConvertProductDetail => this.GetModel(modelType, actSubType),
+                EDialogTypes.ActivityInventoryInquirySummary => this.GetModel(modelType, actSubType),
+                EDialogTypes.ActivityRemoveFromSkid => this.GetModel(modelType, actSubType),
+                _ => this.GetModel(modelType, actSubType),
+            };
 
-                case EDialogTypes.ucActivityInventoryInquiry:
-                    control = new ucActivityInventoryInquiry();
-                    break;
-
-                case EDialogTypes.ucActivityDeboxLabelCount:
-                    control = new ucActivityDeboxLabelCount();
-                    break;
-
-                default:
-                    control = this.GetControlObj(typeInnerControl, actSubType);
-
-                    if (control == null)
-                    {
-                        control = this.GetControlObj(typeInnerControl);
-                    }
-                    break;
-            }
-
-            this.ShowActivityObj(control);
-        }
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="FormDialogContainer"/> class.
-        /// </summary>
-        /// <param name="typeInnerControl"></param>
-        /// <param name="callingControl"></param>
-        /// <param name="actSubType"></param>
-        /// <param name="labelQtyEdit"></param>
-        /// <param name="activity"></param>
-        /// <param name="selectMode">The selectMode<see cref="SysCommon.ShippingLabelQuantitySelectionMode"/></param>
-        public FormDialogContainer(EDialogTypes typeInnerControl, SysCommon.ActSubTypes actSubType, SysCommon.SLabelQuantity labelQtyEdit, Activity activity, SysCommon.ShippingLabelQuantitySelectionMode selectMode)
-        {
-            IDMobileModal control = null;
-
-            this.InitializeComponent();
-
-            switch (typeInnerControl)
-            {
-                case EDialogTypes.ucActivityShippingLabelEdit:
-                    // Override the subtype to Picking
-                    control = new ucActivityShippingLabelEdit(SysCommon.ActSubTypes.Picking, labelQtyEdit, activity, selectMode);
-                    break;
-            }
-
-            this.ShowActivityObj(control);
+            model ??= this.GetModel(modelType);
+            this.DisplayControl = model;
         }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="FormDialogContainer"/> class.
         /// </summary>
-        /// <param name="typeInnerControl"></param>
-        /// <param name="activity"></param>
-        /// <param name="actSubType"></param>
-        /// <param name="callingControl"></param>
-        public FormDialogContainer(EDialogTypes typeInnerControl, Activity activity, SysCommon.ActSubTypes actSubType)
+        /// <param name="modelType"><see cref="EDialogTypes"/> Inner model.</param>
+        /// <param name="labelQtyEdit"><see cref="SLabelQuantity"/> Label quantity.</param>
+        /// <param name="activity"><see cref="Activity"/> Activity header.</param>
+        /// <param name="selectMode">The selectMode<see cref="SysCommon.ShippingLabelQuantitySelectionMode"/>.</param>
+        public FormDialogContainer(
+            EDialogTypes modelType,
+            SLabelQuantity labelQtyEdit,
+            Activity activity,
+            SysCommon.ShippingLabelQuantitySelectionMode selectMode)
         {
-            IDMobileModal control = null;
-
             this.InitializeComponent();
 
-            switch (typeInnerControl)
+            string msg = $"Model object for {SysCommon.SourceEnum2String(modelType)}.";
+            IDMobileModal model = modelType switch
             {
-                case EDialogTypes.ucRefreshDataStatus:
-                    control = new ucRefreshDataStatus(actSubType);
-                    break;
+                EDialogTypes.ActivityShippingLabelEdit => new ucActivityShippingLabelEdit(
+                    SysCommon.ActSubTypes.Picking,  // Override the subtype to Picking
+                    labelQtyEdit,
+                    activity,
+                    selectMode),
+                EDialogTypes.RefreshDataStatus => throw new NotSupportedException(msg),
+                EDialogTypes.SelectProductUnit => throw new NotSupportedException(msg),
+                EDialogTypes.SelectProductUnitFilterToProduct => throw new NotSupportedException(msg),
+                EDialogTypes.SelectLocationMap => throw new NotSupportedException(msg),
+                EDialogTypes.ActivityItem => throw new NotSupportedException(msg),
+                EDialogTypes.ActivityDetail => throw new NotSupportedException(msg),
+                EDialogTypes.ActivityDetailEdit => throw new NotSupportedException(msg),
+                EDialogTypes.ActivityHdrPickingFilter => throw new NotSupportedException(msg),
+                EDialogTypes.ActivityHdrReceivingFilter => throw new NotSupportedException(msg),
+                EDialogTypes.ActivityHdrTransferFilter => throw new NotSupportedException(msg),
+                EDialogTypes.ActivityHdrPhysicalCountFilter => throw new NotSupportedException(msg),
+                EDialogTypes.ActivityHdrReturnsFilter => throw new NotSupportedException(msg),
+                EDialogTypes.ActivityHdrCycleCountFilter => throw new NotSupportedException(msg),
+                EDialogTypes.SubmitBatchFilter => throw new NotSupportedException(msg),
+                EDialogTypes.ActivityAdjustmentFilter => throw new NotSupportedException(msg),
+                EDialogTypes.ActivityProductionTicketFinishedFilter => throw new NotSupportedException(msg),
+                EDialogTypes.ActivityProductionTicketMaterialFilter => throw new NotSupportedException(msg),
+                EDialogTypes.ActivityProductionTicketByProductFilter => throw new NotSupportedException(msg),
+                EDialogTypes.ActivityPurchaseOrderWorkSheetEdit => throw new NotSupportedException(msg),
+                EDialogTypes.ActivityPickingSelectCriteria => throw new NotSupportedException(msg),
+                EDialogTypes.ActivityConvertUnitEdit => throw new NotSupportedException(msg),
+                EDialogTypes.SkidInfo => throw new NotSupportedException(msg),
+                EDialogTypes.SkidInfoEdit => throw new NotSupportedException(msg),
+                EDialogTypes.ActivityDetailSkid => throw new NotSupportedException(msg),
+                EDialogTypes.ActivityItemSingle => throw new NotSupportedException(msg),
+                EDialogTypes.ActivityInventoryInquiry => throw new NotSupportedException(msg),
+                EDialogTypes.ActivityInventoryInquiryItem => throw new NotSupportedException(msg),
+                EDialogTypes.ActivityInventoryInquiryDetail => throw new NotSupportedException(msg),
+                EDialogTypes.SelectProduct => throw new NotSupportedException(msg),
+                EDialogTypes.ActivityProductLabel => throw new NotSupportedException(msg),
+                EDialogTypes.ActivityConvertProductDetail => throw new NotSupportedException(msg),
+                EDialogTypes.ActivityInventoryInquirySummary => throw new NotSupportedException(msg),
+                EDialogTypes.ActivityRemoveFromSkid => throw new NotSupportedException(msg),
+                EDialogTypes.ActivityDeboxLabelCount => throw new NotSupportedException(msg),
+                _ => throw new NotSupportedException(msg),
+            };
 
-                case EDialogTypes.ucActivityInventoryInquiry:
-                    control = new ucActivityInventoryInquiry();
-                    break;
-
-                default:
-                    control = this.GetControlObj(typeInnerControl, activity, actSubType/*, callingControl*/);
-                    break;
-            }
-
-            this.ShowActivityObj(control);
+            this.DisplayControl = model;
         }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="FormDialogContainer"/> class.
         /// </summary>
-        /// <param name="typeInnerControl"></param>
-        /// <param name="actItem"></param>
-        /// <param name="actSubType"></param>
-        /// <param name="callingControl"></param>
-        public FormDialogContainer(EDialogTypes typeInnerControl, ActItem actItem, SysCommon.ActSubTypes actSubType, SysCommon.ActSubTypes callingActSubType = SysCommon.ActSubTypes.SkidInfo)
+        /// <param name="modelType"><see cref="EDialogTypes"/> Inner model.</param>
+        /// <param name="activity"><see cref="Activity"/> Activity header.</param>
+        /// <param name="actSubType"><see cref="SysCommon.ActSubTypes"/> Activity sub type.</param>
+        public FormDialogContainer(
+            EDialogTypes modelType,
+            Activity activity,
+            SysCommon.ActSubTypes actSubType)
         {
-            IDMobileModal control = null;
-
             this.InitializeComponent();
-
-            switch (typeInnerControl)
+            IDMobileModal model = modelType switch
             {
-                case EDialogTypes.ucRefreshDataStatus:
-                    control = new ucRefreshDataStatus(actSubType);
-                    break;
+                EDialogTypes.RefreshDataStatus => new ucRefreshDataStatus(actSubType),
+                EDialogTypes.ActivityInventoryInquiry => new ucActivityInventoryInquiry(),
+                EDialogTypes.SelectProductUnit => this.GetModel(modelType, activity, actSubType),
+                EDialogTypes.SelectProductUnitFilterToProduct => this.GetModel(modelType, activity, actSubType),
+                EDialogTypes.SelectLocationMap => this.GetModel(modelType, activity, actSubType),
+                EDialogTypes.ActivityItem => this.GetModel(modelType, activity, actSubType),
+                EDialogTypes.ActivityDetail => this.GetModel(modelType, activity, actSubType),
+                EDialogTypes.ActivityDetailEdit => this.GetModel(modelType, activity, actSubType),
+                EDialogTypes.ActivityHdrPickingFilter => this.GetModel(modelType, activity, actSubType),
+                EDialogTypes.ActivityHdrReceivingFilter => this.GetModel(modelType, activity, actSubType),
+                EDialogTypes.ActivityHdrTransferFilter => this.GetModel(modelType, activity, actSubType),
+                EDialogTypes.ActivityHdrPhysicalCountFilter => this.GetModel(modelType, activity, actSubType),
+                EDialogTypes.ActivityHdrReturnsFilter => this.GetModel(modelType, activity, actSubType),
+                EDialogTypes.ActivityHdrCycleCountFilter => this.GetModel(modelType, activity, actSubType),
+                EDialogTypes.SubmitBatchFilter => this.GetModel(modelType, activity, actSubType),
+                EDialogTypes.ActivityAdjustmentFilter => this.GetModel(modelType, activity, actSubType),
+                EDialogTypes.ActivityProductionTicketFinishedFilter => this.GetModel(modelType, activity, actSubType),
+                EDialogTypes.ActivityProductionTicketMaterialFilter => this.GetModel(modelType, activity, actSubType),
+                EDialogTypes.ActivityProductionTicketByProductFilter => this.GetModel(modelType, activity, actSubType),
+                EDialogTypes.ActivityPurchaseOrderWorkSheetEdit => this.GetModel(modelType, activity, actSubType),
+                EDialogTypes.ActivityPickingSelectCriteria => this.GetModel(modelType, activity, actSubType),
+                EDialogTypes.ActivityShippingLabelEdit => this.GetModel(modelType, activity, actSubType),
+                EDialogTypes.ActivityConvertUnitEdit => this.GetModel(modelType, activity, actSubType),
+                EDialogTypes.SkidInfo => this.GetModel(modelType, activity, actSubType),
+                EDialogTypes.SkidInfoEdit => this.GetModel(modelType, activity, actSubType),
+                EDialogTypes.ActivityDetailSkid => this.GetModel(modelType, activity, actSubType),
+                EDialogTypes.ActivityItemSingle => this.GetModel(modelType, activity, actSubType),
+                EDialogTypes.ActivityInventoryInquiryItem => this.GetModel(modelType, activity, actSubType),
+                EDialogTypes.ActivityInventoryInquiryDetail => this.GetModel(modelType, activity, actSubType),
+                EDialogTypes.SelectProduct => this.GetModel(modelType, activity, actSubType),
+                EDialogTypes.ActivityProductLabel => this.GetModel(modelType, activity, actSubType),
+                EDialogTypes.ActivityConvertProductDetail => this.GetModel(modelType, activity, actSubType),
+                EDialogTypes.ActivityInventoryInquirySummary => this.GetModel(modelType, activity, actSubType),
+                EDialogTypes.ActivityRemoveFromSkid => this.GetModel(modelType, activity, actSubType),
+                EDialogTypes.ActivityDeboxLabelCount => this.GetModel(modelType, activity, actSubType),
+                _ => this.GetModel(modelType, activity, actSubType),
+            };
 
-                case EDialogTypes.ucActivityInventoryInquiry:
-                    control = new ucActivityInventoryInquiry(actItem.ProdInfo);
-                    break;
-
-                case EDialogTypes.ucActivityInventoryInquirySummary:
-                    control = new ucActivityItemInventoryInquirySummary(actItem);
-                    break;
-
-                default:
-                    control = this.GetControlObj(typeInnerControl, actItem, actSubType, callingActSubType);
-                    break;
-            }
-
-            this.ShowActivityObj(control);
+            this.DisplayControl = model;
         }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="FormDialogContainer"/> class.
         /// </summary>
-        /// <param name="typeInnerControl"></param>
-        /// <param name="actDetail"></param>
-        /// <param name="actSubType"></param>
-        /// <param name="callingControl"></param>
-        public FormDialogContainer(EDialogTypes typeInnerControl, ActDetail actDetail, SysCommon.ActSubTypes actSubType)
+        /// <param name="modelType"><see cref="EDialogTypes"/> Inner model.</param>
+        /// <param name="actItem"><see cref="ActItem"/> Activity item object.</param>
+        /// <param name="actSubType"><see cref="SysCommon.ActSubTypes"/> Activity sub type.</param>
+        /// <param name="callingActSubType">The callingActSubType<see cref="SysCommon.ActSubTypes"/>.</param>
+        public FormDialogContainer(
+            EDialogTypes modelType,
+            ActItem actItem,
+            SysCommon.ActSubTypes actSubType,
+            SysCommon.ActSubTypes callingActSubType = SysCommon.ActSubTypes.SkidInfo)
         {
-            IDMobileModal control = null;
-
             this.InitializeComponent();
-
-            switch (typeInnerControl)
+            IDMobileModal model = modelType switch
             {
-                case EDialogTypes.ucRefreshDataStatus:
-                    control = new ucRefreshDataStatus(actSubType);
-                    break;
+                EDialogTypes.RefreshDataStatus => new ucRefreshDataStatus(actSubType),
+                EDialogTypes.ActivityInventoryInquiry => new ucActivityInventoryInquiry(actItem.ProdInfo),
+                EDialogTypes.ActivityInventoryInquirySummary => new ucActivityItemInventoryInquirySummary(actItem),
+                EDialogTypes.SelectProductUnit => this.GetModel(modelType, actItem, actSubType, callingActSubType),
+                EDialogTypes.SelectProductUnitFilterToProduct => this.GetModel(modelType, actItem, actSubType, callingActSubType),
+                EDialogTypes.SelectLocationMap => this.GetModel(modelType, actItem, actSubType, callingActSubType),
+                EDialogTypes.ActivityItem => this.GetModel(modelType, actItem, actSubType, callingActSubType),
+                EDialogTypes.ActivityDetail => this.GetModel(modelType, actItem, actSubType, callingActSubType),
+                EDialogTypes.ActivityDetailEdit => this.GetModel(modelType, actItem, actSubType, callingActSubType),
+                EDialogTypes.ActivityHdrPickingFilter => this.GetModel(modelType, actItem, actSubType, callingActSubType),
+                EDialogTypes.ActivityHdrReceivingFilter => this.GetModel(modelType, actItem, actSubType, callingActSubType),
+                EDialogTypes.ActivityHdrTransferFilter => this.GetModel(modelType, actItem, actSubType, callingActSubType),
+                EDialogTypes.ActivityHdrPhysicalCountFilter => this.GetModel(modelType, actItem, actSubType, callingActSubType),
+                EDialogTypes.ActivityHdrReturnsFilter => this.GetModel(modelType, actItem, actSubType, callingActSubType),
+                EDialogTypes.ActivityHdrCycleCountFilter => this.GetModel(modelType, actItem, actSubType, callingActSubType),
+                EDialogTypes.SubmitBatchFilter => this.GetModel(modelType, actItem, actSubType, callingActSubType),
+                EDialogTypes.ActivityAdjustmentFilter => this.GetModel(modelType, actItem, actSubType, callingActSubType),
+                EDialogTypes.ActivityProductionTicketFinishedFilter => this.GetModel(modelType, actItem, actSubType, callingActSubType),
+                EDialogTypes.ActivityProductionTicketMaterialFilter => this.GetModel(modelType, actItem, actSubType, callingActSubType),
+                EDialogTypes.ActivityProductionTicketByProductFilter => this.GetModel(modelType, actItem, actSubType, callingActSubType),
+                EDialogTypes.ActivityPurchaseOrderWorkSheetEdit => this.GetModel(modelType, actItem, actSubType, callingActSubType),
+                EDialogTypes.ActivityPickingSelectCriteria => this.GetModel(modelType, actItem, actSubType, callingActSubType),
+                EDialogTypes.ActivityShippingLabelEdit => this.GetModel(modelType, actItem, actSubType, callingActSubType),
+                EDialogTypes.ActivityConvertUnitEdit => this.GetModel(modelType, actItem, actSubType, callingActSubType),
+                EDialogTypes.SkidInfo => this.GetModel(modelType, actItem, actSubType, callingActSubType),
+                EDialogTypes.SkidInfoEdit => this.GetModel(modelType, actItem, actSubType, callingActSubType),
+                EDialogTypes.ActivityDetailSkid => this.GetModel(modelType, actItem, actSubType, callingActSubType),
+                EDialogTypes.ActivityItemSingle => this.GetModel(modelType, actItem, actSubType, callingActSubType),
+                EDialogTypes.ActivityInventoryInquiryItem => this.GetModel(modelType, actItem, actSubType, callingActSubType),
+                EDialogTypes.ActivityInventoryInquiryDetail => this.GetModel(modelType, actItem, actSubType, callingActSubType),
+                EDialogTypes.SelectProduct => this.GetModel(modelType, actItem, actSubType, callingActSubType),
+                EDialogTypes.ActivityProductLabel => this.GetModel(modelType, actItem, actSubType, callingActSubType),
+                EDialogTypes.ActivityConvertProductDetail => this.GetModel(modelType, actItem, actSubType, callingActSubType),
+                EDialogTypes.ActivityRemoveFromSkid => this.GetModel(modelType, actItem, actSubType, callingActSubType),
+                EDialogTypes.ActivityDeboxLabelCount => this.GetModel(modelType, actItem, actSubType, callingActSubType),
+                _ => this.GetModel(modelType, actItem, actSubType, callingActSubType),
+            };
 
-                case EDialogTypes.ucActivityInventoryInquiry:
-                    control = new ucActivityInventoryInquiry(actDetail.ActItem.ProdInfo);
-                    break;
-
-                default:
-                    control = this.GetControlObj(typeInnerControl, actDetail, actSubType);
-                    break;
-            }
-
-            this.ShowActivityObj(control);
-        }
-
-        public FormDialogContainer(EDialogTypes typeInnerControl, int defaultWhsLocMapRefno, bool lockWhsSelection)
-        {
-            IDMobileModal control = null;
-            this.InitializeComponent();
-
-            switch (typeInnerControl)
-            {
-                case EDialogTypes.ucSelectLocationMap:
-                    control = new ucSetLocationMap(defaultWhsLocMapRefno, lockWhsSelection);
-                    break;
-
-                default:
-                    throw new NotSupportedException("FormDialogContainer constructor is specific to EDialogTypes = EDialogTypes.ucSelectLocationMap");
-            }
-
-            this.ShowActivityObj(control);
-        }
-
-        public enum EDialogTypes
-        {
-            ucRefreshDataStatus,
-            ucSelectProductUnit,
-            ucSelectProductUnitFilterToProduct,
-            ucSelectLocationMap,
-            ucActivityItem,
-            ucActivityDetail,
-            ucActivityDetailEdit,
-            ucActivityHdrPickingFilter,
-            ucActivityHdrReceivingFilter,
-            ucActivityHdrTransferFilter,
-            ucActivityHdrPhysicalCountFilter,
-            ucActivityHdrReturnsFilter,
-            ucActivityHdrCycleCountFilter,
-            ucSubmitBatchFilter,
-            ucActivityAdjustmentFilter,
-            ucActivityProductionTicketFinishedFilter,
-            ucActivityProductionTicketMaterialFilter,
-            ucActivityProductionTicketByProductFilter,
-            ucActivityPurchaseOrderWorkSheetEdit,
-            ucActivityPickingSelectCriteria,
-            ucActivityShippingLabelEdit,
-            ucActivityConvertUnitEdit,
-            ucSkidInfo,
-            ucSkidInfoEdit,
-            ucActivityDetailSkid,
-            ucActivityItemSingle,
-            ucActivityInventoryInquiry,
-            ucActivityInventoryInquiryItem,
-            ucActivityInventoryInquiryDetail,
-            ucSelectProduct,
-            ucActivityProductLabel,
-            ucActivityConvertProductDetail,
-            ucActivityInventoryInquirySummary,
-            ucActivityRemoveFromSkid,
-            ucActivityDeboxLabelCount
+            this.DisplayControl = model;
         }
 
         /// <summary>
-        /// Gets or sets the DisplayControl
+        /// Initializes a new instance of the <see cref="FormDialogContainer"/> class.
         /// </summary>
-        public IDMobileModal DisplayControl
+        /// <param name="modelType"><see cref="EDialogTypes"/> Inner model.</param>
+        /// <param name="actDetail"><see cref="ActDetail"/> Activity detail object.</param>
+        /// <param name="actSubType"><see cref="SysCommon.ActSubTypes"/> Activity sub type.</param>
+        public FormDialogContainer(EDialogTypes modelType, ActDetail actDetail, SysCommon.ActSubTypes actSubType)
         {
-            get
+            this.InitializeComponent();
+            IDMobileModal model = modelType switch
             {
-                return this.displayControl;
-            }
+                EDialogTypes.RefreshDataStatus => new ucRefreshDataStatus(actSubType),
+                EDialogTypes.ActivityInventoryInquiry => new ucActivityInventoryInquiry(actDetail.ActItem.ProdInfo),
+                EDialogTypes.SelectProductUnit => this.GetModel(modelType, actDetail, actSubType),
+                EDialogTypes.SelectProductUnitFilterToProduct => this.GetModel(modelType, actDetail, actSubType),
+                EDialogTypes.SelectLocationMap => this.GetModel(modelType, actDetail, actSubType),
+                EDialogTypes.ActivityItem => this.GetModel(modelType, actDetail, actSubType),
+                EDialogTypes.ActivityDetail => this.GetModel(modelType, actDetail, actSubType),
+                EDialogTypes.ActivityDetailEdit => this.GetModel(modelType, actDetail, actSubType),
+                EDialogTypes.ActivityHdrPickingFilter => this.GetModel(modelType, actDetail, actSubType),
+                EDialogTypes.ActivityHdrReceivingFilter => this.GetModel(modelType, actDetail, actSubType),
+                EDialogTypes.ActivityHdrTransferFilter => this.GetModel(modelType, actDetail, actSubType),
+                EDialogTypes.ActivityHdrPhysicalCountFilter => this.GetModel(modelType, actDetail, actSubType),
+                EDialogTypes.ActivityHdrReturnsFilter => this.GetModel(modelType, actDetail, actSubType),
+                EDialogTypes.ActivityHdrCycleCountFilter => this.GetModel(modelType, actDetail, actSubType),
+                EDialogTypes.SubmitBatchFilter => this.GetModel(modelType, actDetail, actSubType),
+                EDialogTypes.ActivityAdjustmentFilter => this.GetModel(modelType, actDetail, actSubType),
+                EDialogTypes.ActivityProductionTicketFinishedFilter => this.GetModel(modelType, actDetail, actSubType),
+                EDialogTypes.ActivityProductionTicketMaterialFilter => this.GetModel(modelType, actDetail, actSubType),
+                EDialogTypes.ActivityProductionTicketByProductFilter => this.GetModel(modelType, actDetail, actSubType),
+                EDialogTypes.ActivityPurchaseOrderWorkSheetEdit => this.GetModel(modelType, actDetail, actSubType),
+                EDialogTypes.ActivityPickingSelectCriteria => this.GetModel(modelType, actDetail, actSubType),
+                EDialogTypes.ActivityShippingLabelEdit => this.GetModel(modelType, actDetail, actSubType),
+                EDialogTypes.ActivityConvertUnitEdit => this.GetModel(modelType, actDetail, actSubType),
+                EDialogTypes.SkidInfo => this.GetModel(modelType, actDetail, actSubType),
+                EDialogTypes.SkidInfoEdit => this.GetModel(modelType, actDetail, actSubType),
+                EDialogTypes.ActivityDetailSkid => this.GetModel(modelType, actDetail, actSubType),
+                EDialogTypes.ActivityItemSingle => this.GetModel(modelType, actDetail, actSubType),
+                EDialogTypes.ActivityInventoryInquiryItem => this.GetModel(modelType, actDetail, actSubType),
+                EDialogTypes.ActivityInventoryInquiryDetail => this.GetModel(modelType, actDetail, actSubType),
+                EDialogTypes.SelectProduct => this.GetModel(modelType, actDetail, actSubType),
+                EDialogTypes.ActivityProductLabel => this.GetModel(modelType, actDetail, actSubType),
+                EDialogTypes.ActivityConvertProductDetail => this.GetModel(modelType, actDetail, actSubType),
+                EDialogTypes.ActivityInventoryInquirySummary => this.GetModel(modelType, actDetail, actSubType),
+                EDialogTypes.ActivityRemoveFromSkid => this.GetModel(modelType, actDetail, actSubType),
+                EDialogTypes.ActivityDeboxLabelCount => this.GetModel(modelType, actDetail, actSubType),
+                _ => this.GetModel(modelType, actDetail, actSubType),
+            };
 
-            set
-            {
-                this.displayControl = value;
-            }
+            this.DisplayControl = model;
         }
 
         /// <summary>
-        /// The XML.
+        /// Initializes a new instance of the <see cref="FormDialogContainer"/> class.
         /// </summary>
-        /// <returns></returns>
+        /// <param name="modelType">The modelType<see cref="EDialogTypes"/>.</param>
+        /// <param name="defaultWhsLocMapRefno">The defaultWhsLocMapRefno<see cref="int"/>.</param>
+        /// <param name="lockWhsSelection">The lockWhsSelection<see cref="bool"/>.</param>
+        public FormDialogContainer(EDialogTypes modelType, int defaultWhsLocMapRefno, bool lockWhsSelection)
+        {
+            this.InitializeComponent();
+
+            string msg = $"Model object for {SysCommon.SourceEnum2String(modelType)}.";
+            IDMobileModal model = modelType switch
+            {
+                EDialogTypes.SelectLocationMap => new ucSetLocationMap(defaultWhsLocMapRefno, lockWhsSelection),
+                EDialogTypes.RefreshDataStatus => throw new NotSupportedException(msg),
+                EDialogTypes.SelectProductUnit => throw new NotSupportedException(msg),
+                EDialogTypes.SelectProductUnitFilterToProduct => throw new NotSupportedException(msg),
+                EDialogTypes.ActivityItem => throw new NotSupportedException(msg),
+                EDialogTypes.ActivityDetail => throw new NotSupportedException(msg),
+                EDialogTypes.ActivityDetailEdit => throw new NotSupportedException(msg),
+                EDialogTypes.ActivityHdrPickingFilter => throw new NotSupportedException(msg),
+                EDialogTypes.ActivityHdrReceivingFilter => throw new NotSupportedException(msg),
+                EDialogTypes.ActivityHdrTransferFilter => throw new NotSupportedException(msg),
+                EDialogTypes.ActivityHdrPhysicalCountFilter => throw new NotSupportedException(msg),
+                EDialogTypes.ActivityHdrReturnsFilter => throw new NotSupportedException(msg),
+                EDialogTypes.ActivityHdrCycleCountFilter => throw new NotSupportedException(msg),
+                EDialogTypes.SubmitBatchFilter => throw new NotSupportedException(msg),
+                EDialogTypes.ActivityAdjustmentFilter => throw new NotSupportedException(msg),
+                EDialogTypes.ActivityProductionTicketFinishedFilter => throw new NotSupportedException(msg),
+                EDialogTypes.ActivityProductionTicketMaterialFilter => throw new NotSupportedException(msg),
+                EDialogTypes.ActivityProductionTicketByProductFilter => throw new NotSupportedException(msg),
+                EDialogTypes.ActivityPurchaseOrderWorkSheetEdit => throw new NotSupportedException(msg),
+                EDialogTypes.ActivityPickingSelectCriteria => throw new NotSupportedException(msg),
+                EDialogTypes.ActivityShippingLabelEdit => throw new NotSupportedException(msg),
+                EDialogTypes.ActivityConvertUnitEdit => throw new NotSupportedException(msg),
+                EDialogTypes.SkidInfo => throw new NotSupportedException(msg),
+                EDialogTypes.SkidInfoEdit => throw new NotSupportedException(msg),
+                EDialogTypes.ActivityDetailSkid => throw new NotSupportedException(msg),
+                EDialogTypes.ActivityItemSingle => throw new NotSupportedException(msg),
+                EDialogTypes.ActivityInventoryInquiry => throw new NotSupportedException(msg),
+                EDialogTypes.ActivityInventoryInquiryItem => throw new NotSupportedException(msg),
+                EDialogTypes.ActivityInventoryInquiryDetail => throw new NotSupportedException(msg),
+                EDialogTypes.SelectProduct => throw new NotSupportedException(msg),
+                EDialogTypes.ActivityProductLabel => throw new NotSupportedException(msg),
+                EDialogTypes.ActivityConvertProductDetail => throw new NotSupportedException(msg),
+                EDialogTypes.ActivityInventoryInquirySummary => throw new NotSupportedException(msg),
+                EDialogTypes.ActivityRemoveFromSkid => throw new NotSupportedException(msg),
+                EDialogTypes.ActivityDeboxLabelCount => throw new NotSupportedException(msg),
+                _ => throw new NotSupportedException(msg),
+            };
+
+            this.DisplayControl = model;
+        }
+
+        /// <summary>
+        /// Gets or sets the display control.
+        /// </summary>
+        public IDMobileModal DisplayControl { get; set; }
+
+        /// <summary>
+        /// Get the display control XML return data.
+        /// </summary>
+        /// <returns><see cref="Task(XDocument)"/> XML data.</returns>
         public async Task<XDocument> GetXML()
         {
-            if (this.DisplayControl == null)
-            {
-                return null;
-            }
-            else
-            {
-                return await ((IAppArea)this.DisplayControl).GetXML();
-            }
+            return await ((IAppArea)this.DisplayControl).GetXML();
         }
 
         /// <summary>
-        /// The ShowActivityObj
+        /// Get the model base on the dialog type.
         /// </summary>
-        /// <param name="control"></param>
-        private void ShowActivityObj(IDMobileModal control)
+        /// <param name="modelType"><see cref="EDialogTypes"/> Inner model.</param>
+        /// <param name="actSubType"><see cref="SysCommon.ActSubTypes"/> Activity sub type.</param>
+        /// <returns><see cref="IDMobileModal"/> Model.</returns>
+        private IDMobileModal GetModel(
+            EDialogTypes modelType,
+            SysCommon.ActSubTypes actSubType,
+            SLabelQuantity labelQtyEdit,
+            Activity activity,
+            SysCommon.ShippingLabelQuantitySelectionMode selectMode)
         {
-            if (control == null)
+            IDMobileModal model = modelType switch
             {
-                throw new Exception("Activity control could not be created. Check if the EDialogType was defined.");
-            }
-            else
-            {
-                this.DisplayControl = control;
+                EDialogTypes.ActivityItem => new ucActivityItem(activity, actSubType),
+                EDialogTypes.ActivityItemSingle => new ucActivityItemSingle(activity, actSubType),
+                EDialogTypes.SkidInfo => new ucActivityHdrSkidInfo(actSubType, activity),
+                EDialogTypes.RefreshDataStatus => null,
+                EDialogTypes.SelectProductUnit => null,
+                EDialogTypes.SelectProductUnitFilterToProduct => null,
+                EDialogTypes.SelectLocationMap => null,
+                EDialogTypes.ActivityDetail => null,
+                EDialogTypes.ActivityDetailEdit => null,
+                EDialogTypes.ActivityHdrPickingFilter => null,
+                EDialogTypes.ActivityHdrReceivingFilter => null,
+                EDialogTypes.ActivityHdrTransferFilter => null,
+                EDialogTypes.ActivityHdrPhysicalCountFilter => null,
+                EDialogTypes.ActivityHdrReturnsFilter => null,
+                EDialogTypes.ActivityHdrCycleCountFilter => null,
+                EDialogTypes.SubmitBatchFilter => null,
+                EDialogTypes.ActivityAdjustmentFilter => null,
+                EDialogTypes.ActivityProductionTicketFinishedFilter => null,
+                EDialogTypes.ActivityProductionTicketMaterialFilter => null,
+                EDialogTypes.ActivityProductionTicketByProductFilter => null,
+                EDialogTypes.ActivityPurchaseOrderWorkSheetEdit => null,
+                EDialogTypes.ActivityPickingSelectCriteria => null,
+                EDialogTypes.ActivityShippingLabelEdit => new ucActivityShippingLabelEdit(actSubType, labelQtyEdit, activity, selectMode),
+                EDialogTypes.ActivityConvertUnitEdit => null,
+                EDialogTypes.SkidInfoEdit => null,
+                EDialogTypes.ActivityDetailSkid => null,
+                EDialogTypes.ActivityInventoryInquiry => null,
+                EDialogTypes.ActivityInventoryInquiryItem => null,
+                EDialogTypes.ActivityInventoryInquiryDetail => null,
+                EDialogTypes.SelectProduct => null,
+                EDialogTypes.ActivityProductLabel => null,
+                EDialogTypes.ActivityConvertProductDetail => null,
+                EDialogTypes.ActivityInventoryInquirySummary => null,
+                EDialogTypes.ActivityRemoveFromSkid => null,
+                EDialogTypes.ActivityDeboxLabelCount => null,
+                _ => null,
+            };
 
-            }
+            return model;
         }
 
         /// <summary>
-        /// The GetControlObj
+        /// Get the model base on the dialog type.
         /// </summary>
-        /// <param name="typeInnerControl"></param>
-        /// <param name="actSubType"></param>
-        /// <param name="callingControl"></param>
-        /// <param name="labelQtyEdit"></param>
-        /// <param name="activity"></param>
-        /// <param name="selectMode">The selectMode<see cref="SysCommon.ShippingLabelQuantitySelectionMode"/></param>
-        /// <returns></returns>
-        private IDMobileModal GetControlObj(EDialogTypes typeInnerControl, SysCommon.ActSubTypes actSubType, SysCommon.SLabelQuantity labelQtyEdit, Activity activity, SysCommon.ShippingLabelQuantitySelectionMode selectMode)
+        /// <param name="modelType"><see cref="EDialogTypes"/> Inner model.</param>
+        /// <param name="activity"><see cref="Activity"/> Activity header.</param>
+        /// <param name="actSubType"><see cref="SysCommon.ActSubTypes"/> Activity sub type.</param>
+        /// <returns><see cref="IDMobileModal"/> Model.</returns>
+        private IDMobileModal GetModel(
+            EDialogTypes modelType,
+            Activity activity,
+            SysCommon.ActSubTypes actSubType)
         {
-            IDMobileModal control = null;
-
-            switch (typeInnerControl)
+            IDMobileModal model = modelType switch
             {
-                case EDialogTypes.ucActivityShippingLabelEdit:
-                    control = new ucActivityShippingLabelEdit(actSubType, labelQtyEdit, activity, selectMode);
-                    break;
-            }
+                EDialogTypes.ActivityItem => new ucActivityItem(activity, actSubType),
+                EDialogTypes.ActivityItemSingle => new ucActivityItemSingle(activity, actSubType),
+                EDialogTypes.SkidInfo => new ucActivityHdrSkidInfo(actSubType, activity),
+                EDialogTypes.RefreshDataStatus => null,
+                EDialogTypes.SelectProductUnit => null,
+                EDialogTypes.SelectProductUnitFilterToProduct => null,
+                EDialogTypes.SelectLocationMap => null,
+                EDialogTypes.ActivityDetail => null,
+                EDialogTypes.ActivityDetailEdit => null,
+                EDialogTypes.ActivityHdrPickingFilter => null,
+                EDialogTypes.ActivityHdrReceivingFilter => null,
+                EDialogTypes.ActivityHdrTransferFilter => null,
+                EDialogTypes.ActivityHdrPhysicalCountFilter => null,
+                EDialogTypes.ActivityHdrReturnsFilter => null,
+                EDialogTypes.ActivityHdrCycleCountFilter => null,
+                EDialogTypes.SubmitBatchFilter => null,
+                EDialogTypes.ActivityAdjustmentFilter => null,
+                EDialogTypes.ActivityProductionTicketFinishedFilter => null,
+                EDialogTypes.ActivityProductionTicketMaterialFilter => null,
+                EDialogTypes.ActivityProductionTicketByProductFilter => null,
+                EDialogTypes.ActivityPurchaseOrderWorkSheetEdit => null,
+                EDialogTypes.ActivityPickingSelectCriteria => null,
+                EDialogTypes.ActivityShippingLabelEdit => null,
+                EDialogTypes.ActivityConvertUnitEdit => null,
+                EDialogTypes.SkidInfoEdit => null,
+                EDialogTypes.ActivityDetailSkid => null,
+                EDialogTypes.ActivityInventoryInquiry => null,
+                EDialogTypes.ActivityInventoryInquiryItem => null,
+                EDialogTypes.ActivityInventoryInquiryDetail => null,
+                EDialogTypes.SelectProduct => null,
+                EDialogTypes.ActivityProductLabel => null,
+                EDialogTypes.ActivityConvertProductDetail => null,
+                EDialogTypes.ActivityInventoryInquirySummary => null,
+                EDialogTypes.ActivityRemoveFromSkid => null,
+                EDialogTypes.ActivityDeboxLabelCount => null,
+                _ => null,
+            };
 
-            return control;
+            return model;
         }
 
         /// <summary>
-        /// The GetControlObj
+        /// Get the model base on the dialog type.
         /// </summary>
-        /// <param name="typeInnerControl"></param>
-        /// <param name="activity"></param>
-        /// <param name="actSubType"></param>
-        /// <param name="callingControl"></param>
-        /// <returns></returns>
-        private IDMobileModal GetControlObj(EDialogTypes typeInnerControl, Activity activity, SysCommon.ActSubTypes actSubType)
+        /// <param name="modelType"><see cref="EDialogTypes"/> Inner model.</param>
+        /// <param name="actDetail">.</param>
+        /// <param name="actSubType"><see cref="SysCommon.ActSubTypes"/> Activity sub type.</param>
+        /// <returns><see cref="IDMobileModal"/> Model.</returns>
+        private IDMobileModal GetModel(
+            EDialogTypes modelType,
+            ActDetail actDetail,
+            SysCommon.ActSubTypes actSubType)
         {
-            IDMobileModal control = null;
-
-            switch (typeInnerControl)
+            IDMobileModal model = modelType switch
             {
-                case EDialogTypes.ucActivityItem:
-                    control = new ucActivityItem(activity, actSubType);
-                    break;
+                EDialogTypes.ActivityDetailEdit => new ucActivityDetailEdit(actDetail, actSubType),
+                EDialogTypes.ActivityProductLabel => new ucActivityProductLabel(actDetail, actSubType),
+                EDialogTypes.ActivityPurchaseOrderWorkSheetEdit => new ucActivityItemPurchaseOrderWorkSheetEdit(
+                    actDetail,
+                    SysCommon.ActSubTypes.PurchaseOrderWorkSheet), // Override the subtype to PurchaseOrderWorkSheet
+                EDialogTypes.ActivityConvertUnitEdit => new ucActivityConvertUnitEdit(
+                    actDetail,
+                    SysCommon.ActSubTypes.ConvertUnit), // Override the subtype to ConvertUnit
+                EDialogTypes.ActivityInventoryInquiryDetail => new ucActivityDetailInventoryInquiry(actDetail, actSubType),
+                EDialogTypes.ActivityConvertProductDetail => new ucActivityConvertProductDetail(actDetail, actSubType),
+                EDialogTypes.ActivityRemoveFromSkid => new ucActivityRemoveFromSkid(actDetail, actSubType),
+                EDialogTypes.RefreshDataStatus => null,
+                EDialogTypes.SelectProductUnit => null,
+                EDialogTypes.SelectProductUnitFilterToProduct => null,
+                EDialogTypes.SelectLocationMap => null,
+                EDialogTypes.ActivityItem => null,
+                EDialogTypes.ActivityDetail => null,
+                EDialogTypes.ActivityHdrPickingFilter => null,
+                EDialogTypes.ActivityHdrReceivingFilter => null,
+                EDialogTypes.ActivityHdrTransferFilter => null,
+                EDialogTypes.ActivityHdrPhysicalCountFilter => null,
+                EDialogTypes.ActivityHdrReturnsFilter => null,
+                EDialogTypes.ActivityHdrCycleCountFilter => null,
+                EDialogTypes.SubmitBatchFilter => null,
+                EDialogTypes.ActivityAdjustmentFilter => null,
+                EDialogTypes.ActivityProductionTicketFinishedFilter => null,
+                EDialogTypes.ActivityProductionTicketMaterialFilter => null,
+                EDialogTypes.ActivityProductionTicketByProductFilter => null,
+                EDialogTypes.ActivityPickingSelectCriteria => null,
+                EDialogTypes.ActivityShippingLabelEdit => null,
+                EDialogTypes.SkidInfo => null,
+                EDialogTypes.SkidInfoEdit => null,
+                EDialogTypes.ActivityDetailSkid => null,
+                EDialogTypes.ActivityItemSingle => null,
+                EDialogTypes.ActivityInventoryInquiry => null,
+                EDialogTypes.ActivityInventoryInquiryItem => null,
+                EDialogTypes.SelectProduct => null,
+                EDialogTypes.ActivityInventoryInquirySummary => null,
+                EDialogTypes.ActivityDeboxLabelCount => null,
+                _ => null,
+            };
 
-                case EDialogTypes.ucActivityItemSingle:
-                    control = new ucActivityItemSingle(activity, actSubType);
-                    break;
-
-                case EDialogTypes.ucSkidInfo:
-                    control = new ucActivityHdrSkidInfo(actSubType, activity);
-                    break;
-            }
-
-            return control;
+            return model;
         }
 
         /// <summary>
-        /// The GetControlObj
+        /// Get the model base on the dialog type.
         /// </summary>
-        /// <param name="typeInnerControl"></param>
-        /// <param name="actDetail"></param>
-        /// <param name="actSubType"></param>
-        /// <param name="callingControl"></param>
-        /// <returns></returns>
-        private IDMobileModal GetControlObj(EDialogTypes typeInnerControl, ActDetail actDetail, SysCommon.ActSubTypes actSubType)
+        /// <param name="modelType"><see cref="EDialogTypes"/> Inner model.</param>
+        /// <param name="actItem">.</param>
+        /// <param name="actSubType"><see cref="SysCommon.ActSubTypes"/> Activity sub type.</param>
+        /// <param name="callingActSubType">The callingActSubType<see cref="SysCommon.ActSubTypes"/>.</param>
+        /// <returns><see cref="IDMobileModal"/> Model.</returns>
+        private IDMobileModal GetModel(
+            EDialogTypes modelType,
+            ActItem actItem,
+            SysCommon.ActSubTypes actSubType,
+            SysCommon.ActSubTypes callingActSubType = SysCommon.ActSubTypes.SkidInfo)
         {
-            IDMobileModal control = null;
-
-            switch (typeInnerControl)
+            IDMobileModal model = modelType switch
             {
-                case EDialogTypes.ucActivityDetailEdit:
-                    control = new ucActivityDetailEdit(actDetail, actSubType);
-                    break;
+                EDialogTypes.ActivityDetail => new ucActivityDetail(actItem, actSubType),
+                EDialogTypes.SelectProductUnitFilterToProduct => new ucSelectProductUnit(
+                    actItem.ProdInfo.Refno,
+                    actItem.ProdInfo.UnitRefno,
+                    actSubType),
+                EDialogTypes.SkidInfo => new ucActivityHdrSkidInfo(actSubType, actItem),
+                EDialogTypes.ActivityDetailSkid => new ucActivityDetailSkid(actItem, actSubType, callingActSubType),
+                EDialogTypes.ActivityInventoryInquiryItem => new ucActivityItemInventoryInquiry(actItem, actSubType),
+                EDialogTypes.RefreshDataStatus => null,
+                EDialogTypes.SelectProductUnit => null,
+                EDialogTypes.SelectLocationMap => null,
+                EDialogTypes.ActivityItem => null,
+                EDialogTypes.ActivityDetailEdit => null,
+                EDialogTypes.ActivityHdrPickingFilter => null,
+                EDialogTypes.ActivityHdrReceivingFilter => null,
+                EDialogTypes.ActivityHdrTransferFilter => null,
+                EDialogTypes.ActivityHdrPhysicalCountFilter => null,
+                EDialogTypes.ActivityHdrReturnsFilter => null,
+                EDialogTypes.ActivityHdrCycleCountFilter => null,
+                EDialogTypes.SubmitBatchFilter => null,
+                EDialogTypes.ActivityAdjustmentFilter => null,
+                EDialogTypes.ActivityProductionTicketFinishedFilter => null,
+                EDialogTypes.ActivityProductionTicketMaterialFilter => null,
+                EDialogTypes.ActivityProductionTicketByProductFilter => null,
+                EDialogTypes.ActivityPurchaseOrderWorkSheetEdit => null,
+                EDialogTypes.ActivityPickingSelectCriteria => null,
+                EDialogTypes.ActivityShippingLabelEdit => null,
+                EDialogTypes.ActivityConvertUnitEdit => null,
+                EDialogTypes.SkidInfoEdit => null,
+                EDialogTypes.ActivityItemSingle => null,
+                EDialogTypes.ActivityInventoryInquiry => null,
+                EDialogTypes.ActivityInventoryInquiryDetail => null,
+                EDialogTypes.SelectProduct => null,
+                EDialogTypes.ActivityProductLabel => null,
+                EDialogTypes.ActivityConvertProductDetail => null,
+                EDialogTypes.ActivityInventoryInquirySummary => null,
+                EDialogTypes.ActivityRemoveFromSkid => null,
+                EDialogTypes.ActivityDeboxLabelCount => null,
+                _ => null,
+            };
 
-                case EDialogTypes.ucActivityProductLabel:
-                    control = new ucActivityProductLabel(actDetail, actSubType);
-                    break;
-
-                case EDialogTypes.ucActivityPurchaseOrderWorkSheetEdit:
-                    // Override the subtype to PurchaseOrderWorkSheet
-                    control = new ucActivityItemPurchaseOrderWorkSheetEdit(actDetail, SysCommon.ActSubTypes.PurchaseOrderWorkSheet);
-                    break;
-
-                case EDialogTypes.ucActivityConvertUnitEdit:
-                    // Override the subtype to ConvertUnit
-                    control = new ucActivityConvertUnitEdit(actDetail, SysCommon.ActSubTypes.ConvertUnit);
-                    break;
-
-                case EDialogTypes.ucActivityInventoryInquiryDetail:
-                    control = new ucActivityDetailInventoryInquiry(actDetail, actSubType);
-                    break;
-
-                case EDialogTypes.ucActivityConvertProductDetail:
-                    control = new ucActivityConvertProductDetail(actDetail, actSubType);
-                    break;
-
-                case EDialogTypes.ucActivityRemoveFromSkid:
-                    control = new ucActivityRemoveFromSkid(actDetail, actSubType);
-                    break;
-            }
-
-            return control;
+            return model;
         }
 
         /// <summary>
-        /// The GetControlObj
+        /// Get the model base on the dialog type.
         /// </summary>
-        /// <param name="typeInnerControl"></param>
-        /// <param name="actItem"></param>
-        /// <param name="actSubType"></param>
-        /// <param name="callingControl"></param>
-        /// <returns></returns>
-        private IDMobileModal GetControlObj(EDialogTypes typeInnerControl, ActItem actItem, SysCommon.ActSubTypes actSubType, SysCommon.ActSubTypes callingActSubType = SysCommon.ActSubTypes.SkidInfo)
+        /// <param name="modelType"><see cref="EDialogTypes"/> Inner model.</param>
+        /// <param name="actSubType"><see cref="SysCommon.ActSubTypes"/> Activity sub type.</param>
+        /// <returns><see cref="IDMobileModal"/> Model.</returns>
+        private IDMobileModal GetModel(EDialogTypes modelType, SysCommon.ActSubTypes actSubType)
         {
-            IDMobileModal control = null;
-
-            switch (typeInnerControl)
+            IDMobileModal model = modelType switch
             {
-                case EDialogTypes.ucActivityDetail:
-                    control = new ucActivityDetail(actItem, actSubType);
-                    break;
+                EDialogTypes.SelectProductUnit => new ucSelectProductUnit(actSubType),
+                EDialogTypes.RefreshDataStatus => null,
+                EDialogTypes.SelectProductUnitFilterToProduct => null,
+                EDialogTypes.SelectLocationMap => null,
+                EDialogTypes.ActivityItem => null,
+                EDialogTypes.ActivityDetail => null,
+                EDialogTypes.ActivityDetailEdit => null,
+                EDialogTypes.ActivityHdrPickingFilter => null,
+                EDialogTypes.ActivityHdrReceivingFilter => null,
+                EDialogTypes.ActivityHdrTransferFilter => null,
+                EDialogTypes.ActivityHdrPhysicalCountFilter => null,
+                EDialogTypes.ActivityHdrReturnsFilter => null,
+                EDialogTypes.ActivityHdrCycleCountFilter => null,
+                EDialogTypes.SubmitBatchFilter => null,
+                EDialogTypes.ActivityAdjustmentFilter => null,
+                EDialogTypes.ActivityProductionTicketFinishedFilter => null,
+                EDialogTypes.ActivityProductionTicketMaterialFilter => null,
+                EDialogTypes.ActivityProductionTicketByProductFilter => null,
+                EDialogTypes.ActivityPurchaseOrderWorkSheetEdit => null,
+                EDialogTypes.ActivityPickingSelectCriteria => null,
+                EDialogTypes.ActivityShippingLabelEdit => null,
+                EDialogTypes.ActivityConvertUnitEdit => null,
+                EDialogTypes.SkidInfo => null,
+                EDialogTypes.SkidInfoEdit => null,
+                EDialogTypes.ActivityDetailSkid => null,
+                EDialogTypes.ActivityItemSingle => null,
+                EDialogTypes.ActivityInventoryInquiry => null,
+                EDialogTypes.ActivityInventoryInquiryItem => null,
+                EDialogTypes.ActivityInventoryInquiryDetail => null,
+                EDialogTypes.SelectProduct => null,
+                EDialogTypes.ActivityProductLabel => null,
+                EDialogTypes.ActivityConvertProductDetail => null,
+                EDialogTypes.ActivityInventoryInquirySummary => null,
+                EDialogTypes.ActivityRemoveFromSkid => null,
+                EDialogTypes.ActivityDeboxLabelCount => null,
+                _ => null,
+            };
 
-                case EDialogTypes.ucSelectProductUnitFilterToProduct:
-                    control = new ucSelectProductUnit(actItem.ProdInfo.Refno, actItem.ProdInfo.UnitRefno, actSubType);
-                    break;
-
-                case EDialogTypes.ucSkidInfo:
-                    control = new ucActivityHdrSkidInfo(actSubType, actItem);
-                    break;
-
-                case EDialogTypes.ucActivityDetailSkid:
-                    control = new ucActivityDetailSkid(actItem, actSubType, callingActSubType);
-                    break;
-
-                case EDialogTypes.ucActivityInventoryInquiryItem:
-                    control = new ucActivityItemInventoryInquiry(actItem, actSubType);
-                    break;
-            }
-
-            return control;
+            return model;
         }
 
         /// <summary>
-        /// The GetControlObj
+        /// Get the model base on the dialog type.
         /// </summary>
-        /// <param name="typeInnerControl"></param>
-        /// <param name="callingControl"></param>
-        /// <param name="actSubType"></param>
-        /// <returns></returns>
-        private IDMobileModal GetControlObj(EDialogTypes typeInnerControl, SysCommon.ActSubTypes actSubType)
+        /// <param name="modelType"><see cref="EDialogTypes"/> Inner model.</param>
+        /// <returns><see cref="IDMobileModal"/> Model.</returns>
+        private IDMobileModal GetModel(EDialogTypes modelType)
         {
-            IDMobileModal control = null;
-
-            switch (typeInnerControl)
+            IDMobileModal model = modelType switch
             {
-                case EDialogTypes.ucSelectProductUnit:
-                    control = new ucSelectProductUnit(actSubType);
-                    break;
-            }
+                EDialogTypes.SelectProduct => new ucSelectProduct(),
+                EDialogTypes.SelectLocationMap => new ucSetLocationMap(),
+                EDialogTypes.ActivityHdrPickingFilter => new ucActivityHdrPickingFilter(),
+                EDialogTypes.ActivityHdrReceivingFilter => new ucActivityHdrReceivingFilter(),
+                EDialogTypes.ActivityHdrPhysicalCountFilter => new ucActivityHdrPhysicalCountFilter(),
+                EDialogTypes.ActivityHdrCycleCountFilter => new ucActivityHdrCycleCountFilter(),
+                EDialogTypes.ActivityHdrReturnsFilter => new ucActivityHdrReturnsFilter(),
+                EDialogTypes.ActivityHdrTransferFilter => new ucActivityHdrTransferFilter(),
+                EDialogTypes.SubmitBatchFilter => new ucSubmitBatchFilter(),
+                EDialogTypes.ActivityAdjustmentFilter => new ucActivityHdrAdjustmentFilter(),
+                EDialogTypes.ActivityProductionTicketFinishedFilter => new ucActivityHdrProductionTicketFilter(),
+                EDialogTypes.ActivityProductionTicketMaterialFilter => new ucActivityHdrProductionTicketFilter(),
+                EDialogTypes.ActivityProductionTicketByProductFilter => new ucActivityHdrProductionTicketFilter(),
+                EDialogTypes.ActivityPickingSelectCriteria => new ucActivityHdrPickingSelectCriteria(),
+                EDialogTypes.SkidInfo => new ucActivityHdrSkidInfo(),
+                EDialogTypes.RefreshDataStatus => null,
+                EDialogTypes.SelectProductUnit => null,
+                EDialogTypes.SelectProductUnitFilterToProduct => null,
+                EDialogTypes.ActivityItem => null,
+                EDialogTypes.ActivityDetail => null,
+                EDialogTypes.ActivityDetailEdit => null,
+                EDialogTypes.ActivityPurchaseOrderWorkSheetEdit => null,
+                EDialogTypes.ActivityShippingLabelEdit => null,
+                EDialogTypes.ActivityConvertUnitEdit => null,
+                EDialogTypes.SkidInfoEdit => null,
+                EDialogTypes.ActivityDetailSkid => null,
+                EDialogTypes.ActivityItemSingle => null,
+                EDialogTypes.ActivityInventoryInquiry => null,
+                EDialogTypes.ActivityInventoryInquiryItem => null,
+                EDialogTypes.ActivityInventoryInquiryDetail => null,
+                EDialogTypes.ActivityProductLabel => null,
+                EDialogTypes.ActivityConvertProductDetail => null,
+                EDialogTypes.ActivityInventoryInquirySummary => null,
+                EDialogTypes.ActivityRemoveFromSkid => null,
+                EDialogTypes.ActivityDeboxLabelCount => null,
+                _ => null,
+            };
 
-            return control;
-        }
-
-        /// <summary>
-        /// The GetControlObj
-        /// </summary>
-        /// <param name="typeInnerControl"></param>
-        /// <param name="callingControl"></param>
-        /// <returns></returns>
-        private IDMobileModal GetControlObj(EDialogTypes typeInnerControl)
-        {
-            IDMobileModal control = null;
-
-            switch (typeInnerControl)
-            {
-                case EDialogTypes.ucSelectProduct:
-                    control = new ucSelectProduct();
-                    break;
-
-                case EDialogTypes.ucSelectLocationMap:
-                    control = new ucSetLocationMap();
-                    break;
-
-                case EDialogTypes.ucActivityHdrPickingFilter:
-                    control = new ucActivityHdrPickingFilter();
-                    break;
-
-                case EDialogTypes.ucActivityHdrReceivingFilter:
-                    control = new ucActivityHdrReceivingFilter();
-                    break;
-
-                case EDialogTypes.ucActivityHdrPhysicalCountFilter:
-                    control = new ucActivityHdrPhysicalCountFilter();
-                    break;
-
-                case EDialogTypes.ucActivityHdrCycleCountFilter:
-                    control = new ucActivityHdrCycleCountFilter();
-                    break;
-
-                case EDialogTypes.ucActivityHdrReturnsFilter:
-                    control = new ucActivityHdrReturnsFilter();
-                    break;
-
-                case EDialogTypes.ucActivityHdrTransferFilter:
-                    control = new ucActivityHdrTransferFilter();
-                    break;
-
-                case EDialogTypes.ucSubmitBatchFilter:
-                    control = new ucSubmitBatchFilter();
-                    break;
-
-                case EDialogTypes.ucActivityAdjustmentFilter:
-                    control = new ucActivityHdrAdjustmentFilter();
-                    break;
-
-                case EDialogTypes.ucActivityProductionTicketFinishedFilter:
-                    control = new ucActivityHdrProductionTicketFilter();
-                    break;
-
-                case EDialogTypes.ucActivityProductionTicketMaterialFilter:
-                    control = new ucActivityHdrProductionTicketFilter();
-                    break;
-
-                case EDialogTypes.ucActivityProductionTicketByProductFilter:
-                    control = new ucActivityHdrProductionTicketFilter();
-                    break;
-
-                case EDialogTypes.ucActivityPickingSelectCriteria:
-                    control = new ucActivityHdrPickingSelectCriteria();
-                    break;
-
-                case EDialogTypes.ucSkidInfo:
-                    control = new ucActivityHdrSkidInfo();
-                    break;
-            }
-
-            return control;
+            return model;
         }
     }
 }

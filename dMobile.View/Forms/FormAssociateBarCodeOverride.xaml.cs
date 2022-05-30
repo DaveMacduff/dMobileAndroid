@@ -1,53 +1,36 @@
-﻿namespace dMobile.View.Forms
+﻿// <copyright file="FormAssociateBarCodeOverride.xaml.cs" company="InterSect Business Systems Inc">
+// Copyright (c) InterSect Business Systems Inc. All rights reserved.
+// </copyright>
+
+namespace dMobile.View.Forms
 {
-    using Android.Views;
-    using dMobile.Bedrock;
-    using dMobile.GroundWork;
-    using dMobile.Resources.Enums;
     using System;
+    using System.Collections.Generic;
     using System.ComponentModel;
-    using System.Data;
+    using System.Threading.Tasks;
+    using dMobile.BarCodeScanner.BarCodeScanners;
+    using dMobile.Bedrock;
+    using dMobile.Resources.Enums;
+    using dMobile.Resources.Models;
+    using dMobile.View.CustomPages.Modal;
     using SQLite;
     using Xamarin.Forms;
     using Xamarin.Forms.Xaml;
-    using dMobile.View.CustomPages.Modal;
     using Resource = dMobile.Resources.Properties.Resources;
-    using System.Collections.Generic;
-    using dMobile.Resources.Models;
 
     /// <summary>
-    /// Defines the <see cref="FormAssociateBarCodeOverride" />
+    /// Defines the <see cref="FormAssociateBarCodeOverride" />.
     /// </summary>
     [XamlCompilation(XamlCompilationOptions.Compile)]
     public partial class FormAssociateBarCodeOverride : DMobileModal
     {
-        /// <summary>
-        /// Defines the userCode
-        /// </summary>
-        private int userCode = 0;
-
-        /// <summary>
-        /// Defines the password
-        /// </summary>
-        private string password = string.Empty;
-
-        /// <summary>
-        /// Defines the isAllowedAssocBarCode
-        /// </summary>
-        private bool isAllowedAssocBarCode = false;
-
-        /// <summary>
-        /// Defines the isEnableAllModuleBypassLicense
-        /// </summary>
-        private bool isEnableAllModuleBypassLicense = false;
-
         /// <summary>
         /// Initializes a new instance of the <see cref="FormAssociateBarCodeOverride"/> class.
         /// </summary>
         public FormAssociateBarCodeOverride()
         {
             // TODO: Test this form
-            InitializeComponent();
+            this.InitializeComponent();
 
             this.lblLoginID.Text = Resource.LoginID;
             this.lblLoginPassword.Text = Resource.Password;
@@ -63,14 +46,73 @@
                 }
                 else
                 {
-                    //this.txtLoginPassword.BackgroundColor = SystemColors.Window;
+                    // this.txtLoginPassword.BackgroundColor = SystemColors.Window;
                     this.IsEnableAllModuleBypassLicense = false;
                 }
             }
         }
 
         /// <summary>
-        /// The OnDisappearing
+        /// Gets or sets a value indicating whether bypass license all modules is enabled.
+        /// </summary>
+        private bool IsEnableAllModuleBypassLicense { get; set; } = false;
+
+        /// <summary>
+        /// Gets or sets a value indicating whether is allowed to associate a bar code.
+        /// </summary>
+        private bool IsAllowedAssocBarCode { get; set; } = false;
+
+        /// <summary>
+        /// Gets or sets the staff user login code.
+        /// </summary>
+        private int UserCode { get; set; } = 0;
+
+        /// <summary>
+        /// Gets or sets the staff user login password.
+        /// </summary>
+        private string Password { get; set; } = string.Empty;
+
+        /// <summary>
+        /// Gets or sets a value indicating whether the bar code handler is registered.
+        /// </summary>
+        private bool IsBarCodeHandlerRegistered { get; set; } = false;
+
+        /// <summary>
+        /// Gets or sets the bar code scanner instance.
+        /// </summary>
+        private BarCodeScanner Scanner { get; set; } = ScannerEngine.GetInstance().Scanner;
+
+        /// <summary>
+        /// Unregister the bar code scan event handler and disable the scanner.
+        /// </summary>
+        /// <returns><see cref="Task"/> Task operation.</returns>
+        public async Task ScannerDisable()
+        {
+            if (this.IsBarCodeHandlerRegistered && this.Scanner != null)
+            {
+                this.Scanner.BarCodeScan -= new BarCodeScanner.BarCodeScanEventHandler(this.BarCodeHandler);
+                await this.Scanner.Stop();
+            }
+
+            this.IsBarCodeHandlerRegistered = false;
+        }
+
+        /// <summary>
+        /// Registers the bar code scan event handler and enables the scanner.
+        /// </summary>
+        /// <returns><see cref="Task"/> Task operation.</returns>
+        public async Task ScannerEnable()
+        {
+            if (!this.IsBarCodeHandlerRegistered)
+            {
+                await this.Scanner.Start();
+                this.Scanner.BarCodeScan += new BarCodeScanner.BarCodeScanEventHandler(this.BarCodeHandler);
+                this.IsBarCodeHandlerRegistered = true;
+            }
+        }
+
+        /// <summary>
+        /// The on appearing event handler.
         /// </summary>
         protected override void OnAppearing()
         {
@@ -78,82 +120,28 @@
         }
 
         /// <summary>
-        /// Gets or sets a value indicating whether IsEnableAllModuleBypassLicense
+        /// Bar code scan handler.
         /// </summary>
-        private bool IsEnableAllModuleBypassLicense
+        /// <param name="sender"><see cref="object"/> Sender object.</param>
+        /// <param name="scanArgs"><see cref="BarCodeScannerEventArgs"/> Scan event arguments.</param>
+        private Task BarCodeHandler(object sender, BarCodeScannerEventArgs scanArgs)
         {
-            get
-            {
-                return this.isEnableAllModuleBypassLicense;
-            }
-
-            set
-            {
-                this.isEnableAllModuleBypassLicense = value;
-            }
+            throw new NotImplementedException();
         }
 
         /// <summary>
-        /// Gets or sets a value indicating whether IsAllowedAssocBarCode
+        /// Command OK click event handler.
         /// </summary>
-        private bool IsAllowedAssocBarCode
+        /// <param name="sender"><see cref="object"/> Sender object.</param>
+        /// <param name="e"><see cref="EventArgs"/> Event arguments.</param>
+        private async void CmdOK_Click(object sender, EventArgs e)
         {
-            get
-            {
-                return this.isAllowedAssocBarCode;
-            }
-
-            set
-            {
-                this.isAllowedAssocBarCode = value;
-            }
-        }
-
-        /// <summary>
-        /// Gets or sets the UserCode
-        /// </summary>
-        private int UserCode
-        {
-            get
-            {
-                return this.userCode;
-            }
-
-            set
-            {
-                this.userCode = value;
-            }
-        }
-
-        /// <summary>
-        /// Gets or sets the Password
-        /// </summary>
-        private string Password
-        {
-            get
-            {
-                return this.password;
-            }
-
-            set
-            {
-                this.password = value;
-            }
-        }
-
-        /// <summary>
-        /// The cmdOK_Click
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private async void cmdOK_Click(object sender, EventArgs e)
-        {
-            this.ValidateEntry(this, new CancelEventArgs());
-
             bool isValidData = true;
 
             try
             {
+                this.ValidateEntry(this, new CancelEventArgs());
+
                 if (string.IsNullOrEmpty(this.txtLoginPassword.Text))
                 {
                     isValidData = false;
@@ -183,16 +171,19 @@
             }
             else
             {
-                await Device.InvokeOnMainThreadAsync(async () => await DisplayAlert(Resource.BarCodeAssociation, Resource.PermissionDenied, Resource.OK));
+                await Device.InvokeOnMainThreadAsync(async () => await this.DisplayAlert(
+                    Resource.BarCodeAssociation,
+                    Resource.PermissionDenied,
+                    Resource.OK));
             }
         }
 
         /// <summary>
-        /// The cmdCancel_Click
+        /// Command Cancel click event handler.
         /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void cmdCancel_Click(object sender, EventArgs e)
+        /// <param name="sender"><see cref="object"/> Sender object.</param>
+        /// <param name="e"><see cref="EventArgs"/> Event arguments.</param>
+        private void CmdCancel_Click(object sender, EventArgs e)
         {
             Device.BeginInvokeOnMainThread(async () =>
             {
@@ -202,19 +193,20 @@
         }
 
         /// <summary>
-        /// The ValidateEntry
+        /// Validate bar code override entry.
         /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
+        /// <param name="sender"><see cref="object"/> Sender object.</param>
+        /// <param name="e"><see cref="EventArgs"/> Event arguments.</param>
         private async void ValidateEntry(object sender, CancelEventArgs e)
         {
-            TableContactUsers tableContactUsers = new TableContactUsers();
-
             try
             {
                 if (!string.IsNullOrEmpty(this.txtLoginID.Text))
                 {
-                    List<tContactUserModel> results = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<tContactUserModel>("SELECT * FROM tContactUser WHERE ContactUserCode = ?", Convert.ToInt32(this.txtLoginID.Text));
+                    List<tContactUserModel> results = await DatabaseConnection.GetInstance().SQLConn.
+                        QueryAsync<tContactUserModel>(
+                        "SELECT * FROM tContactUser WHERE ContactUserCode = ?",
+                        Convert.ToInt32(this.txtLoginID.Text));
 
                     if (results?.Count > 0)
                     {
@@ -226,16 +218,16 @@
 
                 if (sender == this.txtLoginID)
                 {
-                    if (true == string.IsNullOrEmpty(this.txtLoginID.Text))
+                    if (string.IsNullOrEmpty(this.txtLoginID.Text))
                     {
                         this.txtLoginPassword.Text = string.Empty;
                         this.Password = string.Empty;
                     }
-                    else if (true == string.IsNullOrEmpty(this.txtLoginPassword.Text))
+                    else if (string.IsNullOrEmpty(this.txtLoginPassword.Text))
                     {
                         this.Password = string.Empty;
                     }
-                    else if (true == (this.UserCode != Convert.ToInt32(this.txtLoginID.Text)))
+                    else if (this.UserCode != Convert.ToInt32(this.txtLoginID.Text))
                     {
                         throw new MessageOnlyException(Resource.InvalidLoginId + " " + this.txtLoginID.Text);
                     }
@@ -249,16 +241,16 @@
                         this.Password = SysCommon.SystemLoginPassword;
                     }
 
-                    if (true == string.IsNullOrEmpty(this.txtLoginID.Text))
+                    if (string.IsNullOrEmpty(this.txtLoginID.Text))
                     {
                         this.txtLoginPassword.Text = string.Empty;
                         this.Password = string.Empty;
                     }
-                    else if (true == string.IsNullOrEmpty(this.txtLoginPassword.Text))
+                    else if (string.IsNullOrEmpty(this.txtLoginPassword.Text))
                     {
                         this.Password = string.Empty;
                     }
-                    else if (true == (this.Password != this.txtLoginPassword.Text))
+                    else if (this.Password != this.txtLoginPassword.Text)
                     {
                         throw new MessageOnlyException(Resource.InvalidLoginPassword);
                     }
@@ -267,23 +259,28 @@
             catch (MessageOnlyException ex)
             {
                 e.Cancel = true;
-
-                await Device.InvokeOnMainThreadAsync(async () => await DisplayAlert(Resource.Barcode, ex.Message, Resource.OK));
+                await Device.InvokeOnMainThreadAsync(async () => await this.DisplayAlert(
+                    Resource.Barcode,
+                    ex.Message,
+                    Resource.OK));
             }
             catch (SQLiteException ex)
             {
                 e.Cancel = true;
-
-                await new FormErrorReport(ex).ShowDialog();
+                _ = await new FormErrorReport(ex).ShowDialog();
             }
             catch (Exception ex)
             {
                 e.Cancel = true;
-
-                await new FormErrorReport(ex).ShowDialog();
+                _ = await new FormErrorReport(ex).ShowDialog();
             }
         }
 
+        /// <summary>
+        /// The CmdOK_Clicked.
+        /// </summary>
+        /// <param name="sender">The sender<see cref="object"/>.</param>
+        /// <param name="e">The e<see cref="EventArgs"/>.</param>
         private async void CmdOK_Clicked(object sender, EventArgs e)
         {
             try
@@ -292,7 +289,7 @@
             }
             catch (Exception ex)
             {
-                await new FormErrorReport(ex).ShowDialog();
+                _ = await new FormErrorReport(ex).ShowDialog();
             }
         }
     }

@@ -1,14 +1,18 @@
-﻿namespace dMobile.View.Menus
+﻿// <copyright file="ucMainMenu.xaml.cs" company="InterSect Business Systems Inc">
+// Copyright (c) InterSect Business Systems Inc. All rights reserved.
+// </copyright>
+
+namespace dMobile.View.Menus
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Threading.Tasks;
+    using System.Xml.Linq;
     using Android.Views;
     using dMobile.Bedrock;
     using dMobile.Resources.Enums;
     using dMobile.View.CustomPages;
     using dMobile.View.Themes;
-    using System;
-    using System.Collections.Generic;
-    using System.Threading.Tasks;
-    using System.Xml.Linq;
     using Xamarin.Forms;
     using Xamarin.Forms.Xaml;
     using Resource = dMobile.Resources.Properties.Resources;
@@ -16,12 +20,13 @@
     [XamlCompilation(XamlCompilationOptions.Compile)]
     public partial class ucMainMenu : DMobileContentPage, IAppArea
     {
-        private SysEnvironment sysEnv;
-        private bool isControlLoaded = false;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ucMainMenu"/> class.
+        /// </summary>
         public ucMainMenu()
         {
-            InitializeComponent();
+            this.InitializeComponent();
 
             this.Title = this.GetControlDescription();
 
@@ -38,7 +43,7 @@
         }
 
         /// <summary>
-        /// The OnAppearing
+        /// The OnAppearing.
         /// </summary>
         protected override async void OnAppearing()
         {
@@ -46,8 +51,7 @@
 
             MessagingCenter.Subscribe<string>(this, EventTypes.OnKeyUp.ToString(), async (keyPressed) =>
             {
-                // TODO: Verify keycodes
-                Enum.TryParse(keyPressed, out Keycode keycode);
+                _ = Enum.TryParse(keyPressed, out Keycode keycode);
 
                 if (keycode == Keycode.Num1 && this.cmdPurchaseOrders.IsEnabled)
                 {
@@ -97,13 +101,12 @@
             }
             catch (Exception ex)
             {
-                // TODO: Resource strings
-                await Device.InvokeOnMainThreadAsync(async () => await DisplayAlert("Error", "this.ucMainMenu_GotFocus threw an error " + ex, "OK"));
+                await Device.InvokeOnMainThreadAsync(async () => await this.DisplayAlert("Error", "this.ucMainMenu_GotFocus threw an error " + ex, "OK"));
             }
         }
 
         /// <summary>
-        /// The OnDisappearing
+        /// The OnDisappearing.
         /// </summary>
         protected override void OnDisappearing()
         {
@@ -112,45 +115,22 @@
             base.OnDisappearing();
         }
 
-        //protected override bool OnBackButtonPressed()
-        //{
+        // protected override bool OnBackButtonPressed()
+        // {
         //    Device.BeginInvokeOnMainThread(() =>
         //    {
         //        base.OnBackButtonPressed();
 
-        //        this.DisableControls();
+        // this.DisableControls();
         //        this.IsControlLoaded = false;
 
-        //    });
+        // });
 
-        //    return true;
-        //}
+        // return true;
+        // }
+        private bool IsControlLoaded { get; set; } = false;
 
-        private bool IsControlLoaded
-        {
-            get
-            {
-                return this.isControlLoaded;
-            }
-
-            set
-            {
-                this.isControlLoaded = value;
-            }
-        }
-
-        private SysEnvironment SysEnv
-        {
-            get
-            {
-                return this.sysEnv;
-            }
-
-            set
-            {
-                this.sysEnv = value;
-            }
-        }
+        private SysEnvironment SysEnv { get; set; }
 
         /// <summary>
         /// Unregister the bar code scan event handler and disable the scanner.
@@ -195,7 +175,6 @@
         /// <remarks></remarks>
         public string GetControlDescription()
         {
-            // TODO: Resource strings
             return Resource.MainMenu;
         }
 
@@ -268,82 +247,79 @@
         /// <remarks></remarks>
         private void ucMainMenu_GotFocus(object sender, EventArgs e)
         {
-            if (!SysEnvironment.GetInstance().IsApplicationExitInvoked)
+            if (!this.IsControlLoaded)
             {
-                if (!this.IsControlLoaded)
+                this.IsControlLoaded = true;
+
+                this.cmdPurchaseOrders.IsEnabled = false;
+                if ((this.SysEnv.IsCommunicationTestSuccessful || this.SysEnv.SysSettings.IsDisconnectedMode)
+                    && this.SysEnv.ContactLog.LoginID != SysCommon.SetupLoginID
+                    && !this.SysEnv.RefreshOpt.IsRefreshDataFailed)
                 {
-                    this.IsControlLoaded = true;
-
-                    this.cmdPurchaseOrders.IsEnabled = false;
-                    if ((this.SysEnv.IsCommunicationTestSuccessful || this.SysEnv.SysSettings.IsDisconnectedMode)
-                        && this.SysEnv.ContactLog.LoginID != SysCommon.SetupLoginID
-                        && !this.SysEnv.RefreshOpt.IsRefreshDataFailed)
-                    {
-                        if (this.SysEnv.SysSettings.IsReceivingModule || this.SysEnv.SysSettings.IsPutAwayModule
-                            || this.SysEnv.ContactLog.LoginID == SysCommon.SystemLoginID)
-                        {
-                            this.cmdPurchaseOrders.IsEnabled = true;
-                        }
-                    }
-
-                    this.cmdSalesOrders.IsEnabled = false;
-                    if ((this.SysEnv.IsCommunicationTestSuccessful || this.SysEnv.SysSettings.IsDisconnectedMode)
-                        && this.SysEnv.ContactLog.LoginID != SysCommon.SetupLoginID
-                        && !this.SysEnv.RefreshOpt.IsRefreshDataFailed)
-                    {
-                        if (this.SysEnv.SysSettings.IsPickMod || this.SysEnv.SysSettings.IsRetMod
-                            || this.SysEnv.ContactLog.LoginID == SysCommon.SystemLoginID)
-                        {
-                            this.cmdSalesOrders.IsEnabled = true;
-                        }
-                    }
-
-                    this.cmdInventory.IsEnabled = false;
-                    if ((this.SysEnv.IsCommunicationTestSuccessful || this.SysEnv.SysSettings.IsDisconnectedMode)
-                        && this.SysEnv.ContactLog.LoginID != SysCommon.SetupLoginID
-                        && !this.SysEnv.RefreshOpt.IsRefreshDataFailed)
-                    {
-                        if (this.SysEnv.SysSettings.IsTransMod || this.SysEnv.SysSettings.IsConvertUnitsModule
-                            || this.SysEnv.SysSettings.IsMovesModule || this.SysEnv.SysSettings.IsCycleModule
-                            || this.SysEnv.SysSettings.IsPhysicalModule || this.SysEnv.SysSettings.IsReplenishmentModule
-                            || this.SysEnv.SysSettings.IsAddToSkidModule || this.SysEnv.SysSettings.IsBreakSkidModule
-                            || this.SysEnv.SysSettings.IsCreateSkidModule || this.SysEnv.SysSettings.IsRemoveFromSkidModule
-                            || this.SysEnv.SysSettings.IsInventoryAdjustmentModule
-                            || this.SysEnv.ContactLog.LoginID == SysCommon.SystemLoginID)
-                        {
-                            this.cmdInventory.IsEnabled = true;
-                        }
-                    }
-
-                    this.cmdProduction.IsEnabled = false;
-                    if ((this.SysEnv.IsCommunicationTestSuccessful || this.SysEnv.SysSettings.IsDisconnectedMode)
-                        && this.SysEnv.ContactLog.LoginID != SysCommon.SetupLoginID
-                        && !this.SysEnv.RefreshOpt.IsRefreshDataFailed)
-                    {
-                        if (this.SysEnv.SysSettings.IsTicketMaterialModule || this.SysEnv.SysSettings.IsTicketByProductModule
-                            || this.SysEnv.SysSettings.IsTicketFinishedGoodModule
-                            || this.SysEnv.ContactLog.LoginID == SysCommon.SystemLoginID)
-                        {
-                            this.cmdProduction.IsEnabled = true;
-                        }
-                    }
-
-                    // Override all checks if module bypass enabled.
-                    if ((this.SysEnv.IsCommunicationTestSuccessful || this.SysEnv.SysSettings.IsDisconnectedMode)
-                        && this.SysEnv.IsEnableAllModuleBypassLicense
-                        && !this.SysEnv.RefreshOpt.IsRefreshDataFailed)
+                    if (this.SysEnv.SysSettings.IsReceivingModule || this.SysEnv.SysSettings.IsPutAwayModule
+                        || this.SysEnv.ContactLog.LoginID == SysCommon.SystemLoginID)
                     {
                         this.cmdPurchaseOrders.IsEnabled = true;
+                    }
+                }
+
+                this.cmdSalesOrders.IsEnabled = false;
+                if ((this.SysEnv.IsCommunicationTestSuccessful || this.SysEnv.SysSettings.IsDisconnectedMode)
+                    && this.SysEnv.ContactLog.LoginID != SysCommon.SetupLoginID
+                    && !this.SysEnv.RefreshOpt.IsRefreshDataFailed)
+                {
+                    if (this.SysEnv.SysSettings.IsPickMod || this.SysEnv.SysSettings.IsRetMod
+                        || this.SysEnv.ContactLog.LoginID == SysCommon.SystemLoginID)
+                    {
                         this.cmdSalesOrders.IsEnabled = true;
+                    }
+                }
+
+                this.cmdInventory.IsEnabled = false;
+                if ((this.SysEnv.IsCommunicationTestSuccessful || this.SysEnv.SysSettings.IsDisconnectedMode)
+                    && this.SysEnv.ContactLog.LoginID != SysCommon.SetupLoginID
+                    && !this.SysEnv.RefreshOpt.IsRefreshDataFailed)
+                {
+                    if (this.SysEnv.SysSettings.IsTransMod || this.SysEnv.SysSettings.IsConvertUnitsModule
+                        || this.SysEnv.SysSettings.IsMovesModule || this.SysEnv.SysSettings.IsCycleModule
+                        || this.SysEnv.SysSettings.IsPhysicalModule || this.SysEnv.SysSettings.IsReplenishmentModule
+                        || this.SysEnv.SysSettings.IsAddToSkidModule || this.SysEnv.SysSettings.IsBreakSkidModule
+                        || this.SysEnv.SysSettings.IsCreateSkidModule || this.SysEnv.SysSettings.IsRemoveFromSkidModule
+                        || this.SysEnv.SysSettings.IsInventoryAdjustmentModule
+                        || this.SysEnv.ContactLog.LoginID == SysCommon.SystemLoginID)
+                    {
                         this.cmdInventory.IsEnabled = true;
+                    }
+                }
+
+                this.cmdProduction.IsEnabled = false;
+                if ((this.SysEnv.IsCommunicationTestSuccessful || this.SysEnv.SysSettings.IsDisconnectedMode)
+                    && this.SysEnv.ContactLog.LoginID != SysCommon.SetupLoginID
+                    && !this.SysEnv.RefreshOpt.IsRefreshDataFailed)
+                {
+                    if (this.SysEnv.SysSettings.IsTicketMaterialModule || this.SysEnv.SysSettings.IsTicketByProductModule
+                        || this.SysEnv.SysSettings.IsTicketFinishedGoodModule
+                        || this.SysEnv.ContactLog.LoginID == SysCommon.SystemLoginID)
+                    {
                         this.cmdProduction.IsEnabled = true;
                     }
-
-                    this.cmdOptions.IsEnabled = true;
-
-                    // attempt to give focus to first control
-                    this.cmdPurchaseOrders.Focus();
                 }
+
+                // Override all checks if module bypass enabled.
+                if ((this.SysEnv.IsCommunicationTestSuccessful || this.SysEnv.SysSettings.IsDisconnectedMode)
+                    && this.SysEnv.IsEnableAllModuleBypassLicense
+                    && !this.SysEnv.RefreshOpt.IsRefreshDataFailed)
+                {
+                    this.cmdPurchaseOrders.IsEnabled = true;
+                    this.cmdSalesOrders.IsEnabled = true;
+                    this.cmdInventory.IsEnabled = true;
+                    this.cmdProduction.IsEnabled = true;
+                }
+
+                this.cmdOptions.IsEnabled = true;
+
+                // attempt to give focus to first control
+                _ = this.cmdPurchaseOrders.Focus();
             }
         }
 

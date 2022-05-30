@@ -1,50 +1,44 @@
-﻿using dMobile.View.CustomPages.Modal;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using dMobile.Bedrock;
-using dMobile.GroundWork;
-using Xamarin.Forms;
-using Xamarin.Forms.Xaml;
-using Color = Xamarin.Forms.Color;
-using SQLite;
-using dMobile.Resources.Enums;
-using Android.Views;
-using dMobile.Resources.Models;
+﻿// <copyright file="FormAddManualDetailOverride.xaml.cs" company="InterSect Business Systems Inc">
+// Copyright (c) InterSect Business Systems Inc. All rights reserved.
+// </copyright>
 
 namespace dMobile.View.Forms
 {
+    using System;
+    using System.Collections.Generic;
+    using System.ComponentModel;
+    using System.Threading.Tasks;
+    using Android.Views;
+    using dMobile.BarCodeScanner.BarCodeScanners;
+    using dMobile.Bedrock;
+    using dMobile.Resources.Enums;
+    using dMobile.Resources.Models;
+    using dMobile.View.CustomPages.Modal;
+    using SQLite;
+    using Xamarin.Forms;
+    using Xamarin.Forms.Xaml;
+    using Color = Xamarin.Forms.Color;
+
+    /// <summary>
+    /// Add manual detail override.
+    /// </summary>
     [XamlCompilation(XamlCompilationOptions.Compile)]
     public partial class FormAddManualDetailOverride : DMobileModal
     {
-        #region Fields
-
-        private int userCode = 0;
-        private string password = string.Empty;
-        private bool isAllowedAddManualDetail = false;
-        private bool isEnableAllModuleBypassLicense = false;
-
-        #endregion
-
-        #region Constructors
-
+        /// <summary>
+        /// Initializes a new instance of the <see cref="FormAddManualDetailOverride"/> class.
+        /// </summary>
         public FormAddManualDetailOverride()
         {
             this.InitializeComponent();
 
-            // TODO: Resource strings
             this.Title = "Manual Detail Override";
             this.cmdCancel.Text = "Cancel";
             this.lblLoginPassword.Text = "Password";
             this.lblLoginID.Text = "LoginID";
-            this.cmdOK.Text = "Ok";
+            this.cmdOK.Text = "OK";
 
-            this.DialogResult = dMobile.Resources.Enums.DialogResult.None;
+            this.DialogResult = DialogResult.None;
 
             if (SysEnvironment.GetInstance().IsEnableAllModuleBypassLicense)
             {
@@ -53,42 +47,101 @@ namespace dMobile.View.Forms
             }
             else
             {
-                //this.txtLoginPassword.BackColor = SystemColors.Window;
+                // this.txtLoginPassword.BackColor = SystemColors.Window;
                 this.IsEnableAllModuleBypassLicense = false;
             }
         }
 
-        #endregion
-
-        #region OnAppearing/OnDisappearing
+        /// <summary>
+        /// Gets or sets a value indicating whether is allowed to add manual detail.
+        /// </summary>
+        private bool IsAllowedAddManualDetail { get; set; } = false;
 
         /// <summary>
-        /// The OnAppearing
+        /// Gets or sets a value indicating whether bypass license all modules is enabled.
+        /// </summary>
+        private bool IsEnableAllModuleBypassLicense { get; set; } = false;
+
+        /// <summary>
+        /// Gets or sets the staff user login code.
+        /// </summary>
+        private int UserCode { get; set; } = 0;
+
+        /// <summary>
+        /// Gets or sets the staff user login password.
+        /// </summary>
+        private string Password { get; set; } = string.Empty;
+
+        /// <summary>
+        /// Gets or sets a value indicating whether the bar code handler is registered.
+        /// </summary>
+        private bool IsBarCodeHandlerRegistered { get; set; } = false;
+
+        /// <summary>
+        /// Gets or sets the bar code scanner instance.
+        /// </summary>
+        private BarCodeScanner Scanner { get; set; } = ScannerEngine.GetInstance().Scanner;
+
+        /// <summary>
+        /// Unregister the bar code scan event handler and disable the scanner.
+        /// </summary>
+        /// <returns><see cref="Task"/> Task operation.</returns>
+        public async Task ScannerDisable()
+        {
+            if (this.IsBarCodeHandlerRegistered && this.Scanner != null)
+            {
+                this.Scanner.BarCodeScan -= new BarCodeScanner.BarCodeScanEventHandler(this.BarCodeHandler);
+                await this.Scanner.Stop();
+            }
+
+            this.IsBarCodeHandlerRegistered = false;
+        }
+
+        /// <summary>
+        /// Registers the bar code scan event handler and enables the scanner.
+        /// </summary>
+        /// <returns><see cref="Task"/> Task operation.</returns>
+        public async Task ScannerEnable()
+        {
+            if (!this.IsBarCodeHandlerRegistered)
+            {
+                await this.Scanner.Start();
+                this.Scanner.BarCodeScan += new BarCodeScanner.BarCodeScanEventHandler(this.BarCodeHandler);
+                this.IsBarCodeHandlerRegistered = true;
+            }
+        }
+
+        /// <summary>
+        /// On appearing event handler.
         /// </summary>
         protected override void OnAppearing()
         {
             base.OnAppearing();
 
-            MessagingCenter.Subscribe<string>(this, EventTypes.OnKeyUp.ToString(), async (keyPressed) =>
+            MessagingCenter.Subscribe<string>(this, EventTypes.OnKeyUp.ToString(), (keyPressed) =>
             {
-                // TODO: Verify keycodes
-                Enum.TryParse(keyPressed, out Keycode keycode);
+                // TODO: Verify key codes.
+                _ = Enum.TryParse(keyPressed, out Keycode keycode);
 
                 if (!this.Loading)
                 {
                     if (keycode == Keycode.Enter || keycode == Keycode.F1)
                     {
-                        this.cmdOK_Click(null, new EventArgs());
+                        this.CmdOK_Click(null, new EventArgs());
                     }
                 }
             });
         }
 
+        /// <summary>
+        /// On back button pressed event handler.
+        /// </summary>
+        /// <returns><see cref="bool"/> True.</returns>
         protected override bool OnBackButtonPressed()
         {
             Device.BeginInvokeOnMainThread(async () =>
             {
-                base.OnBackButtonPressed();
+                _ = base.OnBackButtonPressed();
                 this.DialogResult = DialogResult.None;
                 await this.Close();
             });
@@ -97,7 +150,7 @@ namespace dMobile.View.Forms
         }
 
         /// <summary>
-        /// The OnDisappearing
+        /// On disappearing event handler.
         /// </summary>
         protected override void OnDisappearing()
         {
@@ -106,73 +159,22 @@ namespace dMobile.View.Forms
             base.OnDisappearing();
         }
 
-        #endregion
-
-        #region Properties
-
-        private bool IsEnableAllModuleBypassLicense
+        /// <summary>
+        /// Bar code scan handler.
+        /// </summary>
+        /// <param name="sender"><see cref="object"/> Sender object.</param>
+        /// <param name="scanArgs"><see cref="BarCodeScannerEventArgs"/> Scan event arguments.</param>
+        private Task BarCodeHandler(object sender, BarCodeScannerEventArgs scanArgs)
         {
-            get
-            {
-                return this.isEnableAllModuleBypassLicense;
-            }
-
-            set
-            {
-                this.isEnableAllModuleBypassLicense = value;
-            }
+            throw new NotImplementedException();
         }
-
-        private bool IsAllowedAddManualDetail
-        {
-            get
-            {
-                return this.isAllowedAddManualDetail;
-            }
-
-            set
-            {
-                this.isAllowedAddManualDetail = value;
-            }
-        }
-
-        private int UserCode
-        {
-            get
-            {
-                return this.userCode;
-            }
-
-            set
-            {
-                this.userCode = value;
-            }
-        }
-
-        private string Password
-        {
-            get
-            {
-                return this.password;
-            }
-
-            set
-            {
-                this.password = value;
-            }
-        }
-
-        #endregion
-
-        #region Private Members
 
         /// <summary>
-        ///
+        /// Command OK click event handler.
         /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        /// <remarks></remarks>
-        private async void cmdOK_Click(object sender, EventArgs e)
+        /// <param name="sender"><see cref="object"/> Sender object.</param>
+        /// <param name="e"><see cref="EventArgs"/> Event arguments.</param>
+        private async void CmdOK_Click(object sender, EventArgs e)
         {
             bool isValidData = true;
 
@@ -193,65 +195,65 @@ namespace dMobile.View.Forms
 
             if (isValidData && this.IsAllowedAddManualDetail)
             {
-                this.DialogResult = dMobile.Resources.Enums.DialogResult.OK;
+                this.DialogResult = DialogResult.OK;
             }
             else
             {
-                // TODO: Resource strings
-                await Device.InvokeOnMainThreadAsync(async () => await DisplayAlert("Add Manual Detail Override", "Permission denied.", "OK"));
+                await Device.InvokeOnMainThreadAsync(async () => await this.DisplayAlert(
+                    "Add Manual Detail Override",
+                    "Permission denied.",
+                    "OK"));
             }
 
             await this.Close();
         }
 
-
         /// <summary>
-        ///
+        /// Command cancel click event handler.
         /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        /// <remarks></remarks>
-        private async void cmdCancel_Click(object sender, EventArgs e)
+        /// <param name="sender"><see cref="object"/> Sender object.</param>
+        /// <param name="e"><see cref="EventArgs"/> Event arugments.</param>
+        private async void CmdCancel_Click(object sender, EventArgs e)
         {
             await this.Close();
         }
 
         /// <summary>
-        ///
+        /// Validate manual detail override entry data.
         /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        /// <remarks></remarks>
+        /// <param name="sender"><see cref="object"/> Sender object.</param>
+        /// <param name="e"><see cref="CancelEventArgs"/> Cancel event arugments.</param>
         private async void ValidateEntry(object sender, CancelEventArgs e)
         {
-            TableContactUsers tableContactUsers = new TableContactUsers();
-
             try
             {
                 if (!string.IsNullOrEmpty(this.txtLoginID.Text))
                 {
-                    List<tContactUserModel> resultsContactUser = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<tContactUserModel>("SELECT * FROM tContactUser WHERE ContactUserCode = ?", Convert.ToInt32(txtLoginID.Text));
+                    List<tContactUserModel> resultsContactUser = await DatabaseConnection.GetInstance().SQLConn.
+                        QueryAsync<tContactUserModel>(
+                        "SELECT * FROM tContactUser WHERE ContactUserCode = ?",
+                        Convert.ToInt32(this.txtLoginID.Text));
 
                     if (resultsContactUser?.Count > 0)
                     {
                         this.Password = resultsContactUser[0].ContactUserPassword;
                         this.UserCode = resultsContactUser[0].ContactUserCode;
-                        this.IsAllowedAddManualDetail = resultsContactUser[0].ContactUserIsAllowedPickingModuleOverrideAddManualDetail;
+                        this.IsAllowedAddManualDetail =
+                            resultsContactUser[0].ContactUserIsAllowedPickingModuleOverrideAddManualDetail;
                     }
                 }
 
-                if (true == string.IsNullOrEmpty(this.txtLoginID.Text))
+                if (string.IsNullOrEmpty(this.txtLoginID.Text))
                 {
                     this.txtLoginPassword.Text = string.Empty;
                     this.Password = string.Empty;
                 }
-                else if (true == string.IsNullOrEmpty(this.txtLoginPassword.Text))
+                else if (string.IsNullOrEmpty(this.txtLoginPassword.Text))
                 {
                     this.Password = string.Empty;
                 }
-                else if (true == (this.UserCode != Convert.ToInt32(this.txtLoginID.Text)))
+                else if (this.UserCode != Convert.ToInt32(this.txtLoginID.Text))
                 {
-                    // TODO: Resource strings
                     throw new MessageOnlyException(string.Format("Invalid login id {0}", this.txtLoginID.Text));
                 }
 
@@ -261,30 +263,28 @@ namespace dMobile.View.Forms
                     this.Password = SysCommon.SystemLoginPassword;
                 }
 
-                if (true == string.IsNullOrEmpty(this.txtLoginID.Text))
+                if (string.IsNullOrEmpty(this.txtLoginID.Text))
                 {
                     this.txtLoginPassword.Text = string.Empty;
                     this.Password = string.Empty;
                 }
-                else if (true == string.IsNullOrEmpty(this.txtLoginPassword.Text))
+                else if (string.IsNullOrEmpty(this.txtLoginPassword.Text))
                 {
                     this.Password = string.Empty;
                 }
-                else if (true == (this.Password != this.txtLoginPassword.Text))
+                else if (this.Password != this.txtLoginPassword.Text)
                 {
-                    // TODO: Resource strings
                     throw new MessageOnlyException("Invalid login password.");
                 }
             }
             catch (MessageOnlyException ex)
             {
                 e.Cancel = true;
-                // Did not call ex.Show(this, SysCommon.ActSubTypes.BarCodeAssociation) because frmAssociateBarCodeOverride
-                // does not implement the IAppArea.
-                //MessageBox.Show(ex.Message,"Add Manual Detail Override",MessageBoxButtons.OK,MessageBoxIcon.Exclamation,MessageBoxDefaultButton.Button1);
 
-                // TODO: Resource strings
-                await Device.InvokeOnMainThreadAsync(async () => await DisplayAlert("Add Manual Detail Override", ex.Message, "OK"));
+                await Device.InvokeOnMainThreadAsync(async () => await this.DisplayAlert(
+                    "Add Manual Detail Override",
+                    ex.Message,
+                    "OK"));
             }
             catch (SQLiteException ex)
             {
@@ -293,7 +293,7 @@ namespace dMobile.View.Forms
                 await Device.InvokeOnMainThreadAsync(async () =>
                 {
                     FormErrorReport errRpt = new FormErrorReport(ex);
-                    await errRpt.ShowDialog();
+                    _ = await errRpt.ShowDialog();
                 });
             }
             catch (Exception ex)
@@ -303,11 +303,9 @@ namespace dMobile.View.Forms
                 await Device.InvokeOnMainThreadAsync(async () =>
                 {
                     FormErrorReport errRpt = new FormErrorReport(ex);
-                    await errRpt.ShowDialog();
+                    _ = await errRpt.ShowDialog();
                 });
             }
         }
-
-        #endregion
     }
 }

@@ -1,427 +1,159 @@
-﻿// ----------------------------------------------------------------------
-// <copyright file="ProdScheme.cs" company="InterSect Business Systems Inc.">
-//     Copyright (2013). All right reserved
+﻿// <copyright file="ProdScheme.cs" company="InterSect Business Systems Inc">
+// Copyright (c) InterSect Business Systems Inc. All rights reserved.
 // </copyright>
-//
-// ------------------------------------------------------------------------
+
 namespace dMobile.Bedrock
 {
     /// <summary>
-    /// 
+    /// Defines the <see cref="ProdScheme" />.
     /// </summary>
-    public struct ProdScheme
+    public class ProdScheme
     {
-        private int schemeRefno;
-        private bool isSerialTracked;
-        private bool isProductionDateTracked;
-        private bool isLotTracked;
-        private bool isBestBeforeDateTracked;
-        private bool isVariantTracked;
-        private bool isLotUniqueComponent;
-        private bool isProductionDateUniqueComponent;
-        private bool isBestBeforeDateUniqueComponent;
-        private bool isVariantUniqueComponent;
-        private int extra1Type;
-        private string extra1Caption;
-        private bool extra1IsRequired;
-        private int extra2Type;
-        private string extra2Caption;
-        private bool extra2IsRequired;
-        private int extra3Type;
-        private string extra3Caption;
-        private bool extra3IsRequired;
-        private int extra4Type;
-        private string extra4Caption;
-        private bool extra4IsRequired;
-        private int extra5Type;
-        private string extra5Caption;
-        private bool extra5IsRequired;
-        private bool isLotTrackedDefault;
-        private ProdSchemeLabelSettings.ProdSchemeLabelInfo labelInfo;
-        private bool isProductionDateTrackedDefault;
-        private bool isBestBeforeDateTrackedDefault;
+        /// <summary>
+        /// Gets or sets the scheme reference number.
+        /// </summary>
+        public int SchemeRefno { get; set; } = 0;
 
-        public bool IsBestBeforeDateTrackedDefault
-        {
-            get
-            {
-                return this.isBestBeforeDateTrackedDefault;
-            }
+        /// <summary>
+        /// Gets or sets a value indicating whether the scheme is single trade item serial number tracked.
+        /// </summary>
+        public bool IsSerialTracked { get; set; } = false;
 
-            set
-            {
-                this.isBestBeforeDateTrackedDefault = value;
-            }
-        }
+        /// <summary>
+        /// Gets or sets a value indicating whether the scheme is logistic unit production date tracked.
+        /// </summary>
+        public bool IsProductionDateTracked { get; set; } = false;
 
-        public bool IsProductionDateTrackedDefault
-        {
-            get
-            {
-                return this.isProductionDateTrackedDefault;
-            }
+        /// <summary>
+        /// Gets or sets a value indicating whether the scheme is logistic unit batch lot number tracked.
+        /// </summary>
+        public bool IsLotTracked { get; set; } = false;
 
-            set
-            {
-                this.isProductionDateTrackedDefault = value;
-            }
-        }
+        /// <summary>
+        /// Gets or sets a value indicating whether the scheme is logistic unit best before sell by date tracked.
+        /// </summary>
+        public bool IsBestBeforeDateTracked { get; set; } = false;
 
-        public ProdSchemeLabelSettings.ProdSchemeLabelInfo LabelInfo
-        {
-            get
-            {
-                return this.labelInfo;
-            }
+        /// <summary>
+        /// Gets or sets a value indicating whether the scheme is logistic unit product variant tracked.
+        /// </summary>
+        public bool IsVariantTracked { get; set; } = false;
 
-            set
-            {
-                this.labelInfo = value;
-            }
-        }
+        /// <summary>
+        /// Gets or sets a value indicating whether the tracked logistic unit batch lot number is a component of uniqueness.
+        /// </summary>
+        public bool IsLotUniqueComponent { get; set; } = false;
 
-        public int SchemeRefno
-        {
-            get
-            {
-                return this.schemeRefno;
-            }
+        /// <summary>
+        /// Gets or sets a value indicating whether the tracked logistic unit production date is a component of uniqueness.
+        /// </summary>
+        public bool IsProductionDateUniqueComponent { get; set; } = false;
 
-            set
-            {
-                this.schemeRefno = value;
-            }
-        }
+        /// <summary>
+        /// Gets or sets a value indicating whether the tracked logistic unit best before sell by date is a component
+        /// of uniqueness.
+        /// </summary>
+        public bool IsBestBeforeDateUniqueComponent { get; set; } = false;
 
-        public bool IsLotTrackedDefault
-        {
-            get
-            {
-                return this.isLotTrackedDefault;
-            }
+        /// <summary>
+        /// Gets or sets a value indicating whether the tracked logistic unit product variant is a component of uniqueness. 
+        /// </summary>
+        public bool IsVariantUniqueComponent { get; set; } = false;
 
-            set
-            {
-                this.isLotTrackedDefault = value;
-            }
-        }
+        /// <summary>
+        /// Gets or sets a value indicating whether the tracked logistic unit batch lot number can be defaulted.
+        /// </summary>
+        public bool IsLotTrackedDefault { get; set; } = false;
 
-        public int Extra1Type
-        {
-            get
-            {
-                return this.extra1Type;
-            }
+        /// <summary>
+        /// Gets or sets a value indicating whether the tracked logistic unit best before sell by date can be defaulted.
+        /// </summary>
+        public bool IsBestBeforeDateTrackedDefault { get; set; } = false;
 
-            set
-            {
-                this.extra1Type = value;
-            }
-        }
+        /// <summary>
+        /// Gets or sets a value indicating whether the tracked logistic unit production date can be defaulted.
+        /// </summary>
+        public bool IsProductionDateTrackedDefault { get; set; } = false;
 
-        public string Extra1Caption
-        {
-            get
-            {
-                if (string.IsNullOrEmpty(this.extra1Caption))
-                {
-                    // TODO: Resource Strings
-                    this.extra1Caption = "Extra 1";
-                }
+        /// <summary>
+        /// Gets or sets the product scheme label settings.
+        /// </summary>
+        public ProdSchemeLabelSettings.ProdSchemeLabelInfo LabelInfo { get; set; } =
+            new ProdSchemeLabelSettings.ProdSchemeLabelInfo();
 
-                return this.extra1Caption;
-            }
+        /// <summary>
+        /// Gets or sets the scheme extra 1 type.
+        /// </summary>
+        public int Extra1Type { get; set; } = 0;
 
-            set
-            {
-                this.extra1Caption = value;
-            }
-        }
+        /// <summary>
+        /// Gets or sets the scheme extra 1 caption.
+        /// </summary>
+        public string Extra1Caption { get; set; } = string.Empty;
 
-        public bool Extra1IsRequired
-        {
-            get
-            {
-                return this.extra1IsRequired;
-            }
+        /// <summary>
+        /// Gets or sets a value indicating whether the scheme extra 1 is required.
+        /// </summary>
+        public bool Extra1IsRequired { get; set; } = false;
 
-            set
-            {
-                this.extra1IsRequired = value;
-            }
-        }
+        /// <summary>
+        /// Gets or sets the scheme extra 2 type.
+        /// </summary>
+        public int Extra2Type { get; set; } = 0;
 
-        public int Extra2Type
-        {
-            get
-            {
-                return this.extra2Type;
-            }
+        /// <summary>
+        /// Gets or sets the scheme extra 2 caption.
+        /// </summary>
+        public string Extra2Caption { get; set; } = string.Empty;
 
-            set
-            {
-                this.extra2Type = value;
-            }
-        }
+        /// <summary>
+        /// Gets or sets a value indicating whether the scheme extra 2 is required.
+        /// </summary>
+        public bool Extra2IsRequired { get; set; } = false;
 
-        public string Extra2Caption
-        {
-            get
-            {
-                return this.extra2Caption;
-            }
+        /// <summary>
+        /// Gets or sets the scheme extra 3 type.
+        /// </summary>
+        public int Extra3Type { get; set; } = 0;
 
-            set
-            {
-                this.extra2Caption = value;
-            }
-        }
+        /// <summary>
+        /// Gets or sets the scheme extra 3 caption.
+        /// </summary>
+        public string Extra3Caption { get; set; } = string.Empty;
 
-        public bool Extra2IsRequired
-        {
-            get
-            {
-                return this.extra2IsRequired;
-            }
+        /// <summary>
+        /// Gets or sets a value indicating whether the scheme extra 3 is required.
+        /// </summary>
+        public bool Extra3IsRequired { get; set; } = false;
 
-            set
-            {
-                this.extra2IsRequired = value;
-            }
-        }
+        /// <summary>
+        /// Gets or sets the scheme extra 4 type.
+        /// </summary>
+        public int Extra4Type { get; set; } = 0;
 
-        public int Extra3Type
-        {
-            get
-            {
-                return this.extra3Type;
-            }
+        /// <summary>
+        /// Gets or sets the scheme extra 4 caption.
+        /// </summary>
+        public string Extra4Caption { get; set; } = string.Empty;
 
-            set
-            {
-                this.extra3Type = value;
-            }
-        }
+        /// <summary>
+        /// Gets or sets a value indicating whether the scheme extra 4 is required.
+        /// </summary>
+        public bool Extra4IsRequired { get; set; } = false;
 
-        public string Extra3Caption
-        {
-            get
-            {
-                return this.extra3Caption;
-            }
+        /// <summary>
+        /// Gets or sets the scheme extra 5 type.
+        /// </summary>
+        public int Extra5Type { get; set; } = 0;
 
-            set
-            {
-                this.extra3Caption = value;
-            }
-        }
+        /// <summary>
+        /// Gets or sets the scheme extra 5 caption.
+        /// </summary>
+        public string Extra5Caption { get; set; } = string.Empty;
 
-        public bool Extra3IsRequired
-        {
-            get
-            {
-                return this.extra3IsRequired;
-            }
-
-            set
-            {
-                this.extra3IsRequired = value;
-            }
-        }
-
-        public int Extra4Type
-        {
-            get
-            {
-                return this.extra4Type;
-            }
-
-            set
-            {
-                this.extra4Type = value;
-            }
-        }
-
-        public string Extra4Caption
-        {
-            get
-            {
-                return this.extra4Caption;
-            }
-
-            set
-            {
-                this.extra4Caption = value;
-            }
-        }
-
-        public bool Extra4IsRequired
-        {
-            get
-            {
-                return this.extra4IsRequired;
-            }
-
-            set
-            {
-                this.extra4IsRequired = value;
-            }
-        }
-
-        public int Extra5Type
-        {
-            get
-            {
-                return this.extra5Type;
-            }
-
-            set
-            {
-                this.extra5Type = value;
-            }
-        }
-
-        public string Extra5Caption
-        {
-            get
-            {
-                return this.extra5Caption;
-            }
-
-            set
-            {
-                this.extra5Caption = value;
-            }
-        }
-
-        public bool Extra5IsRequired
-        {
-            get
-            {
-                return this.extra5IsRequired;
-            }
-
-            set
-            {
-                this.extra5IsRequired = value;
-            }
-        }
-
-        public bool IsSerialTracked
-        {
-            get
-            {
-                return this.isSerialTracked;
-            }
-
-            set
-            {
-                this.isSerialTracked = value;
-            }
-        }
-
-        public bool IsProductionDateTracked
-        {
-            get
-            {
-                return this.isProductionDateTracked;
-            }
-
-            set
-            {
-                this.isProductionDateTracked = value;
-            }
-        }
-
-        public bool IsLotTracked
-        {
-            get
-            {
-                return this.isLotTracked;
-            }
-
-            set
-            {
-                this.isLotTracked = value;
-            }
-        }
-
-        public bool IsBestBeforeDateTracked
-        {
-            get
-            {
-                return this.isBestBeforeDateTracked;
-            }
-
-            set
-            {
-                this.isBestBeforeDateTracked = value;
-            }
-        }
-
-        public bool IsVariantTracked
-        {
-            get
-            {
-                return this.isVariantTracked;
-            }
-
-            set
-            {
-                this.isVariantTracked = value;
-            }
-        }
-
-        public bool IsLotUniqueComponent
-        {
-            get
-            {
-                return this.isLotUniqueComponent;
-            }
-
-            set
-            {
-                this.isLotUniqueComponent = value;
-            }
-        }
-
-        public bool IsProductionDateUniqueComponent
-        {
-            get
-            {
-                return this.isProductionDateUniqueComponent;
-            }
-
-            set
-            {
-                this.isProductionDateUniqueComponent = value;
-            }
-        }
-
-        public bool IsBestBeforeDateUniqueComponent
-        {
-            get
-            {
-                return this.isBestBeforeDateUniqueComponent;
-            }
-
-            set
-            {
-                this.isBestBeforeDateUniqueComponent = value;
-            }
-        }
-
-        public bool IsVariantUniqueComponent
-        {
-            get
-            {
-                return this.isVariantUniqueComponent;
-            }
-
-            set
-            {
-                this.isVariantUniqueComponent = value;
-            }
-        }
+        /// <summary>
+        /// Gets or sets a value indicating whether the scheme extra 5 is required.
+        /// </summary>
+        public bool Extra5IsRequired { get; set; } = false;
     }
 }

@@ -12271,25 +12271,6 @@ namespace dMobile.Droid
 			{
 			}
 		}
-		
-		public partial class Xml
-		{
-			
-			// aapt resource value: 0x7F100000
-			public const int network_security_config = 2131755008;
-			
-			// aapt resource value: 0x7F100001
-			public const int paths = 2131755009;
-			
-			static Xml()
-			{
-				global::Android.Runtime.ResourceIdManager.UpdateIdValues();
-			}
-			
-			private Xml()
-			{
-			}
-		}
 	}
 }
 #pragma warning restore 1591

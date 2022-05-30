@@ -1,11 +1,15 @@
-﻿using System;
-using Xamarin.Forms;
-using Switch = Xamarin.Forms.Switch;
+﻿// <copyright file="CustomSwitch.cs" company="InterSect Business Systems Inc">
+// Copyright (c) InterSect Business Systems Inc. All rights reserved.
+// </copyright>
 
 namespace dMobile.View.CustomControls
 {
+    using System;
+    using Xamarin.Forms;
+    using Switch = Xamarin.Forms.Switch;
+
     /// <summary>
-    /// Defines the <see cref="CustomSwitch" />
+    /// Defines the <see cref="CustomSwitch" />.
     /// </summary>
     public class CustomSwitch : Switch
     {
@@ -17,14 +21,14 @@ namespace dMobile.View.CustomControls
             {
                 lock (this)
                 {
-                    Click += value;
+                    this.Click += value;
                 }
             }
             remove
             {
                 lock (this)
                 {
-                    Click -= value;
+                    this.Click -= value;
                 }
             }
         }

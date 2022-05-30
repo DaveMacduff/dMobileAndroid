@@ -1,14 +1,16 @@
-﻿namespace dMobile.Resources.Types
+﻿// <copyright file="ProductVariant.cs" company="InterSect Business Systems Inc">
+// Copyright (c) InterSect Business Systems Inc. All rights reserved.
+// </copyright>
+
+namespace dMobile.Resources.Types
 {
     public class ProductVariant
     {
-        private string productSchemeVariantCode;
-        private int productSchemeVariantNo;
         private string productSchemeVariantDisplay;
 
-        public string ProductSchemeVariantCode { get => productSchemeVariantCode; set => productSchemeVariantCode = value; }
-        public int ProductSchemeVariantNo { get => productSchemeVariantNo; set => productSchemeVariantNo = value; }
-        public string ProductSchemeVariantDisplay { get => productSchemeVariantDisplay; set => productSchemeVariantDisplay = value; }
+        public string ProductSchemeVariantCode { get; set; }
+        public int ProductSchemeVariantNo { get; set; }
+        public string ProductSchemeVariantDisplay { get => this.productSchemeVariantDisplay; set => this.productSchemeVariantDisplay = value; }
     }
 }
 

@@ -1,26 +1,28 @@
+// <copyright file="BarCodeSettings.cs" company="InterSect Business Systems Inc">
+// Copyright (c) InterSect Business Systems Inc. All rights reserved.
+// </copyright>
+
 namespace dMobile.Bedrock
 {
     using System;
-    using System.Collections.Generic;
     using System.Data;
-
-    using System.Diagnostics.CodeAnalysis;
     using System.IO;
-    using System.Net.Sockets;
-    using System.Reflection;
     using System.Text;
     using System.Xml;
     using System.Xml.Linq;
     using System.Xml.Serialization;
-    using Microsoft.VisualBasic;
 
     /// <summary>
-    /// Bar Code Settings Class
+    /// Bar Code Settings Class.
     /// </summary>
     [Serializable]
     public class SysBarCodeSettings : IBarCodeSettingsEventPublisher
     {
-        #region Fields
+        [NonSerialized]
+        private readonly object writeLockObject = new object();
+
+        [NonSerialized]
+        private readonly object readLockObject = new object();
 
         /// <summary>
         /// Contains full bar code settings class name.
@@ -46,59 +48,35 @@ namespace dMobile.Bedrock
         [NonSerialized]
         private string fileASCIIZ = string.Empty;
 
-        [NonSerialized]
-        private readonly object writeLockObject = new object();
-
-        [NonSerialized]
-        private readonly object readLockObject = new object();
-
         /// <summary>
-        /// Rule: Sometimes a bar code is fully EAN/UCC 128 Symbol parsable EXCEPT the actual symbology is Code 128
+        /// Rule: Sometimes a bar code is fully EAN/UCC 128 Symbol parsable EXCEPT the actual symbology is Code 128.
         /// </summary>
-        [SuppressMessage("Microsoft.StyleCop.CSharp.DocumentationRules",
-            "SA1650:ElementDocumentationMustBeSpelledCorrectly",
-            Justification = "Parsable and Symbology is correct")]
-        [SuppressMessage("Microsoft.StyleCop.CSharp.NamingRules", "SA1310:FieldNamesMustNotContainUnderscore",
-            Justification = "Bar code rules are hard to read without under scores")]
         private bool isRuleEnabled_ParseCode_128AsUCC_EAN_128_SymbolCompliant = false;
 
         /// <summary>
-        /// Rule Description: Sometimes a bar code is fully EAN/UCC 128 Symbol parsable EXCEPT the actual symbology is 
-        /// Code 128
+        /// Rule Description: Sometimes a bar code is fully EAN/UCC 128 Symbol parsable EXCEPT the actual symbology is
+        /// Code 128.
         /// </summary>
-        [SuppressMessage("Microsoft.StyleCop.CSharp.DocumentationRules",
-            "SA1650:ElementDocumentationMustBeSpelledCorrectly",
-            Justification = "Parsable and Symbology is correct")]
-        [SuppressMessage("Microsoft.StyleCop.CSharp.NamingRules", "SA1310:FieldNamesMustNotContainUnderscore",
-            Justification = "Bar code rules are hard to read without under scores")]
         private string ruleDescription_ParseCode_128AsUCC_EAN_128_SymbolCompliant = string.Empty;
 
         /// <summary>
-        /// Rule: Vendor is FINICA FOOD SPECIALITIES 
+        /// Rule: Vendor is FINICA FOOD SPECIALITIES.
         /// </summary>
-        [SuppressMessage("Microsoft.StyleCop.CSharp.NamingRules", "SA1310:FieldNamesMustNotContainUnderscore",
-            Justification = "Bar code rules are hard to read without under scores")]
         private bool isRuleEnabled_ParseFINICA_Code_128_as_EAN_UCC_128 = false;
 
         /// <summary>
-        /// Rule Description: Vendor is FINICA FOOD SPECIALITIES 
+        /// Rule Description: Vendor is FINICA FOOD SPECIALITIES.
         /// </summary>
-        [SuppressMessage("Microsoft.StyleCop.CSharp.NamingRules", "SA1310:FieldNamesMustNotContainUnderscore",
-            Justification = "Bar code rules are hard to read without under scores")]
         private string ruleDescription_ParseFINICA_Code_128_as_EAN_UCC_128 = string.Empty;
 
         /// <summary>
-        /// Rule: GS1 UCC/EAN-128 AI(414) Global Location Number should have a check digit on the end (414)  9 
+        /// Rule: GS1 UCC/EAN-128 AI(414) Global Location Number should have a check digit on the end (414)  9.
         /// </summary>
-        [SuppressMessage("Microsoft.StyleCop.CSharp.NamingRules", "SA1310:FieldNamesMustNotContainUnderscore",
-            Justification = "Bar code rules are hard to read without under scores")]
         private bool isRuleEnabled_NoCheckDigitInGlobalLocationNumber = false;
 
         /// <summary>
-        /// Rule Description: GS1 UCC/EAN-128 AI(414) Global Location Number should have a check digit on the end (414)  9 
+        /// Rule Description: GS1 UCC/EAN-128 AI(414) Global Location Number should have a check digit on the end (414)  9.
         /// </summary>
-        [SuppressMessage("Microsoft.StyleCop.CSharp.NamingRules", "SA1310:FieldNamesMustNotContainUnderscore",
-            Justification = "Bar code rules are hard to read without under scores")]
         private string ruleDescription_NoCheckDigitInGlobalLocationNumber = string.Empty;
 
         /// <summary>
@@ -108,208 +86,147 @@ namespace dMobile.Bedrock
         /// GTIN-12 (UPC)
         /// GTIN-13 (EAN-13)
         /// GTIN-14 (EAN/UCC-128 or ITF-14)
-        /// GTIN-8 (EAN-8)
+        /// GTIN-8 (EAN-8).
         /// </remarks>
-        [SuppressMessage("Microsoft.StyleCop.CSharp.NamingRules", "SA1310:FieldNamesMustNotContainUnderscore",
-            Justification = "Bar code rules are hard to read without under scores")]
         private bool isRuleEnabled_NoZeroPaddingOfProductIdentifierForUCC_EAN_Family;
 
         /// <summary>
         /// Rule Description: No zero padding of product identifier for UCC/EAN family.
         /// </summary>
-        [SuppressMessage("Microsoft.StyleCop.CSharp.NamingRules", "SA1310:FieldNamesMustNotContainUnderscore",
-            Justification = "Bar code rules are hard to read without under scores")]
         private string ruleDescription_NoZeroPaddingOfProductIdentifierForUCC_EAN_Family;
 
         /// <summary>
-        /// Rule: Vendor is WOOLWICH DAIRY (cheese products) Bar Code is a UCC/EAN 128 symbology with 4 spaces in the GTIN, 
-        /// no other AI's exist. Length is 18 
+        /// Rule: Vendor is WOOLWICH DAIRY (cheese products) Bar Code is a UCC/EAN 128 symbology with 4 spaces in the GTIN,
+        /// no other AI's exist. Length is 18.
         /// </summary>
-        [SuppressMessage("Microsoft.StyleCop.CSharp.DocumentationRules", "SA1650:ElementDocumentationMustBeSpelledCorrectly",
-            Justification = "Symbology is correct")]
-        [SuppressMessage("Microsoft.StyleCop.CSharp.NamingRules", "SA1310:FieldNamesMustNotContainUnderscore",
-            Justification = "Bar code rules are hard to read without under scores")]
         private bool isRuleEnabled_ParseWOOLWICH_Code_128_RemoveSpaces = false;
 
         /// <summary>
-        /// Rule Description: Vendor is WOOLWICH DAIRY (cheese products) Bar Code is a UCC/EAN 128 symbology with 4 spaces 
-        /// in the GTIN, no other AI's exist. Length is 18 
+        /// Rule Description: Vendor is WOOLWICH DAIRY (cheese products) Bar Code is a UCC/EAN 128 symbology with 4 spaces
+        /// in the GTIN, no other AI's exist. Length is 18.
         /// </summary>
-        [SuppressMessage("Microsoft.StyleCop.CSharp.DocumentationRules", "SA1650:ElementDocumentationMustBeSpelledCorrectly",
-            Justification = "Symbology is correct")]
-        [SuppressMessage("Microsoft.StyleCop.CSharp.NamingRules", "SA1310:FieldNamesMustNotContainUnderscore",
-            Justification = "Bar code rules are hard to read without under scores")]
         private string ruleDescription_ParseWOOLWICH_Code_128_RemoveSpaces = string.Empty;
 
         /// <summary>
-        /// Rule: Recognize Code 128 AI(13) Packaging Date as a AI(11) Production Date   
+        /// Rule: Recognize Code 128 AI(13) Packaging Date as a AI(11) Production Date.
         /// </summary>
-        [SuppressMessage("Microsoft.StyleCop.CSharp.NamingRules", "SA1310:FieldNamesMustNotContainUnderscore",
-            Justification = "Bar code rules are hard to read without under scores")]
         private bool isRuleEnabled_Recognize_Code_128_AI13_PackagingDate_As_AI11_ProductionDate = false;
 
         /// <summary>
-        /// Rule Description: Recognize Code 128 AI(13) Packaging Date as a AI(11) Production Date   
+        /// Rule Description: Recognize Code 128 AI(13) Packaging Date as a AI(11) Production Date.
         /// </summary>
-        [SuppressMessage("Microsoft.StyleCop.CSharp.NamingRules", "SA1310:FieldNamesMustNotContainUnderscore",
-            Justification = "Bar code rules are hard to read without under scores")]
         private string ruleDescription_Recognize_Code_128_AI13_PackagingDate_As_AI11_ProductionDate = string.Empty;
 
         /// <summary>
-        /// Rule: Recognize Code 128 AI(17) Expiry Date as a AI(15) Best Before Date 
+        /// Rule: Recognize Code 128 AI(17) Expiry Date as a AI(15) Best Before Date.
         /// </summary>
-        [SuppressMessage("Microsoft.StyleCop.CSharp.NamingRules", "SA1310:FieldNamesMustNotContainUnderscore",
-            Justification = "Bar code rules are hard to read without under scores")]
         private bool ruleEnabled_Recognize_Code_128_AI17_ExpiryDate_As_AI15_BestBeforeDate = false;
 
         /// <summary>
-        /// Rule Description: Recognize Code 128 AI(17) Expiry Date as a AI(15) Best Before Date 
+        /// Rule Description: Recognize Code 128 AI(17) Expiry Date as a AI(15) Best Before Date.
         /// </summary>
-        [SuppressMessage("Microsoft.StyleCop.CSharp.NamingRules", "SA1310:FieldNamesMustNotContainUnderscore",
-            Justification = "Bar code rules are hard to read without under scores")]
         private string ruleDescription_Recognize_Code_128_AI17_ExpiryDate_As_AI15_BestBeforeDate = string.Empty;
 
         /// <summary>
-        /// Rule: Parse EAN/UCC Code 128 AI(01) with Nossack Company Prefix, AI(21) contains Skid Number and Box Count
+        /// Rule: Parse EAN/UCC Code 128 AI(01) with Nossack Company Prefix, AI(21) contains Skid Number and Box Count.
         /// </summary>
-        [SuppressMessage("Microsoft.StyleCop.CSharp.DocumentationRules", "SA1650:ElementDocumentationMustBeSpelledCorrectly",
-            Justification = "Nossack is correct")]
-        [SuppressMessage("Microsoft.StyleCop.CSharp.NamingRules", "SA1310:FieldNamesMustNotContainUnderscore",
-            Justification = "Bar code rules are hard to read without under scores")]
         private bool ruleEnabled_Parse_Code_128_AI01_Nossack_AI21_SkidNumber_BoxCount = false;
 
         /// <summary>
-        /// Rule Description: Parse EAN/UCC Code 128 AI(01) with Nossack Company Prefix, AI(21) contains Skid Number and 
-        /// Box Count
+        /// Rule Description: Parse EAN/UCC Code 128 AI(01) with Nossack Company Prefix, AI(21) contains Skid Number and
+        /// Box Count.
         /// </summary>
-        [SuppressMessage("Microsoft.StyleCop.CSharp.DocumentationRules",
-            "SA1650:ElementDocumentationMustBeSpelledCorrectly",
-            Justification = "Nossack is correct")]
-        [SuppressMessage("Microsoft.StyleCop.CSharp.NamingRules", "SA1310:FieldNamesMustNotContainUnderscore",
-            Justification = "Bar code rules are hard to read without under scores")]
         private string ruleDescription_Parse_Code_128_AI01_Nossack_AI21_SkidNumber_BoxCount = string.Empty;
 
         /// <summary>
-        /// Rule: Product Bar Code Minimum Length Requirement 4 Digits 
+        /// Rule: Product Bar Code Minimum Length Requirement 4 Digits.
         /// </summary>
-        [SuppressMessage("Microsoft.StyleCop.CSharp.NamingRules", "SA1310:FieldNamesMustNotContainUnderscore",
-            Justification = "Bar code rules are hard to read without under scores")]
         private bool isRuleEnabled_ProductBarCodeMinimumLengthRequirement4Digits = false;
 
         /// <summary>
-        /// Rule Description: Product Bar Code Minimum Length Requirement 4 Digits 
+        /// Rule Description: Product Bar Code Minimum Length Requirement 4 Digits.
         /// </summary>
-        [SuppressMessage("Microsoft.StyleCop.CSharp.NamingRules", "SA1310:FieldNamesMustNotContainUnderscore",
-            Justification = "Bar code rules are hard to read without under scores")]
         private string ruleDescription_ProductBarCodeMinimumLengthRequirement4Digits = string.Empty;
 
         /// <summary>
-        /// Rule: Enable POS PLU parsing UCC-12 / UPC-E
+        /// Rule: Enable POS PLU parsing UCC-12 / UPC-E.
         /// </summary>
-        [SuppressMessage("Microsoft.StyleCop.CSharp.NamingRules", "SA1310:FieldNamesMustNotContainUnderscore",
-            Justification = "Bar code rules are hard to read without under scores")]
         private bool isRuleEnabled_Parse_UCC_12_UPC_E_as_Deli_PLU = false;
 
         /// <summary>
-        /// Rule Description: Enable POS PLU parsing UCC-12 / UPC-E
+        /// Rule Description: Enable POS PLU parsing UCC-12 / UPC-E.
         /// </summary>
-        [SuppressMessage("Microsoft.StyleCop.CSharp.NamingRules", "SA1310:FieldNamesMustNotContainUnderscore",
-            Justification = "Bar code rules are hard to read without under scores")]
         private string ruleDescription_Parse_UCC_12_UPC_E_Deli_PLU_Enabled = string.Empty;
 
         /// <summary>
-        /// Rule: Enable to restrict deli scale amount to the last 4 digits. ie ignore the hundreds digit.
+        /// Rule: Enable to restrict deli scale amount to the last 4 digits. e.g. ignore the hundreds digit.
         /// This restricts amounts to the [0,99.99] range.
         /// </summary>
         /// <remarks>
         /// This was written for Prairie's bad label printing which creates bad amounts over 99.99.
         /// </remarks>
-        [SuppressMessage("Microsoft.StyleCop.CSharp.NamingRules", "SA1310:FieldNamesMustNotContainUnderscore",
-            Justification = "Bar code rules are hard to read without under scores")]
         private bool isRuleEnabled_Parse_UCC_12_UPC_E_as_Deli_PLU_4_Digit_Amount = false;
 
         /// <summary>
         /// Rule Description: Parse UCC_12_UPC_E as Deli PLU 4 Digit Amount. Restricts amount to the 0-99.99 range.
-        /// </summary>
-        [SuppressMessage("Microsoft.StyleCop.CSharp.NamingRules", "SA1310:FieldNamesMustNotContainUnderscore",
-          Justification = "Bar code rules are hard to read without under scores")]
+        /// </summary>s
         private string ruleDescription_Parse_UCC_12_UPC_E_as_Deli_PLU_4_Digit_Amount_Enabled = string.Empty;
 
         /// <summary>
-        /// Rule: New Zeland Lamb Ovation Fielding parsing
+        /// Rule: New Zealand Lamb Ovation Fielding parsing.
         /// </summary>
-        [SuppressMessage("Microsoft.StyleCop.CSharp.NamingRules", "SA1310:FieldNamesMustNotContainUnderscore",
-            Justification = "Bar code rules are hard to read without under scores")]
         private bool isRuleEnabled_Parse_Code128_OvationFielding_Lamb = false;
 
         /// <summary>
-        /// Rule Description: New Zeland Lamb Ovation Fielding parsing
+        /// Rule Description: New Zealand Lamb Ovation Fielding parsing.
         /// </summary>
-        [SuppressMessage("Microsoft.StyleCop.CSharp.NamingRules", "SA1310:FieldNamesMustNotContainUnderscore",
-            Justification = "Bar code rules are hard to read without under scores")]
         private string ruleDescription_Parse_Code128_OvationFielding_Lamb = string.Empty;
 
         /// <summary>
-        /// Rule: Parse China seafood EAN/UCC Code 128, length is 14, data starts with '30'
+        /// Rule: Parse China seafood EAN/UCC Code 128, length is 14, data starts with '30'.
         /// </summary>
-        [SuppressMessage("Microsoft.StyleCop.CSharp.NamingRules", "SA1310:FieldNamesMustNotContainUnderscore",
-            Justification = "Bar code rules are hard to read without under scores")]
         private bool isRuleEnabled_Parse_Code128_China_Seafood = false;
 
         /// <summary>
-        /// Rule Description: Parse China seafood EAN/UCC Code 128, length is 14, data starts with '30'
+        /// Rule Description: Parse China seafood EAN/UCC Code 128, length is 14, data starts with '30'.
         /// </summary>
-        [SuppressMessage("Microsoft.StyleCop.CSharp.NamingRules", "SA1310:FieldNamesMustNotContainUnderscore",
-            Justification = "Bar code rules are hard to read without under scores")]
         private string ruleDescription_Parse_Code128_China_Seafood = string.Empty;
 
         /// <summary>
         /// Rule: Parse EAN/UCC Code 128 AI(01) with B&C Company Prefix, AI(30) contains quantity of units, exclusive.
         /// Rule changed to ignore company prefix. Oct 20/2014.
         /// </summary>
-        [SuppressMessage("Microsoft.StyleCop.CSharp.NamingRules", "SA1310:FieldNamesMustNotContainUnderscore",
-            Justification = "Bar code rules are hard to read without under scores")]
         private bool isRuleEnabled_Parse_Code_128_AI01_BC_AI30_exclusive = false;
 
         /// <summary>
-        /// Rule Description: Parse EAN/UCC Code 128 AI(01) with B&C Company Prefix, AI(30) contains quantity of units, 
+        /// Rule Description: Parse EAN/UCC Code 128 AI(01) with B&C Company Prefix, AI(30) contains quantity of units,
         /// exclusive.
         /// Rule changed to ignore the company prefix. Oct 20/2014.
         /// </summary>
-        [SuppressMessage("Microsoft.StyleCop.CSharp.NamingRules", "SA1310:FieldNamesMustNotContainUnderscore",
-            Justification = "Bar code rules are hard to read without under scores")]
         private string ruleDescription_Parse_Code_128_AI01_BC_AI30_exclusive = string.Empty;
 
         /// <summary>
-        /// Rule: Vendor is Renee's Gourmet Bar Code is a UCC/EAN 128 symbology with 4 spaces in the GTIN, 
-        /// no other AI's exist. Length is 18 
+        /// Rule: Vendor is Renee's Gourmet Bar Code is a UCC/EAN 128 symbology with 4 spaces in the GTIN,
+        /// no other AI's exist. Length is 18.
         /// </summary>
-        [SuppressMessage("Microsoft.StyleCop.CSharp.NamingRules", "SA1310:FieldNamesMustNotContainUnderscore",
-            Justification = "Bar code rules are hard to read without under scores")]
         private bool isRuleEnabled_Parse_Renees_Code_128_RemoveSpaces = false;
 
         /// <summary>
-        /// Rule Description: Vendor is Renee's Bar Code is a UCC/EAN 128 symbology with 4 spaces in the GTIN, 
-        /// no other AI's exist. Length is 18 
+        /// Rule Description: Vendor is Renee's Bar Code is a UCC/EAN 128 symbology with 4 spaces in the GTIN,
+        /// no other AI's exist. Length is 18.
         /// </summary>
-        [SuppressMessage("Microsoft.StyleCop.CSharp.NamingRules", "SA1310:FieldNamesMustNotContainUnderscore",
-            Justification = "Bar code rules are hard to read without under scores")]
         private string ruleDescription_Parse_Renees_Code_128_RemoveSpaces = string.Empty;
 
         /// <summary>
-        /// Rule: Vendor is Lanz Meats, Bar Code is a UCC/EAN 128 symbology, AI(10) Lot Number will become 
+        /// Rule: Vendor is Lanz Meats, Bar Code is a UCC/EAN 128 symbology, AI(10) Lot Number will become
         /// AI(21) Serial Number.
         /// </summary>
-        [SuppressMessage("Microsoft.StyleCop.CSharp.NamingRules", "SA1310:FieldNamesMustNotContainUnderscore",
-            Justification = "Bar code rules are hard to read without under scores")]
         private bool isRuleEnabled_ParseLanzMeats_Code_128_AI10_as_AI21 = false;
 
         /// <summary>
-        /// Rule Description: Vendor is Lanz Meats, Bar Code is a UCC/EAN 128 symbology, AI(10) Lot Number will become 
+        /// Rule Description: Vendor is Lanz Meats, Bar Code is a UCC/EAN 128 symbology, AI(10) Lot Number will become
         /// AI(21) Serial Number.
         /// </summary>
-        [SuppressMessage("Microsoft.StyleCop.CSharp.NamingRules", "SA1310:FieldNamesMustNotContainUnderscore",
-            Justification = "Bar code rules are hard to read without under scores")]
         private string ruleDescription_ParseLanzMeats_Code_128_AI10_as_AI21 = string.Empty;
 
         /// <summary>
@@ -317,198 +234,153 @@ namespace dMobile.Bedrock
         /// </summary>
         /// <remarks>A check digit calculation flaw cause the the global location identifiers check digits to be printed
         /// incorrectly. We needed a way to ignore them. This is a temporary solution, until new location
-        /// indenitfers can be printed with the corrected check digits.</remarks>
-        [SuppressMessage("Microsoft.StyleCop.CSharp.NamingRules", "SA1310:FieldNamesMustNotContainUnderscore",
-            Justification = "Bar code rules are hard to read without under scores")]
+        /// identifier's can be printed with the corrected check digits.</remarks>
         private bool isRuleEnabled_HeritageGlobalLocationIdentifierSecondPassIgnoreCheckDigit = false;
 
         /// <summary>
-        /// Rule Description: Heritage Global Location Identifier do a second pass ignoring the check digit. 
+        /// Rule Description: Heritage Global Location Identifier do a second pass ignoring the check digit.
         /// </summary>
         /// <remarks>A check digit calculation flaw cause the the global location identifiers check digits to be printed
         /// incorrectly. We needed a way to ignore them. This is a temporary solution, until new location
-        /// indenitfers can be printed with the corrected check digits.</remarks>
-        [SuppressMessage("Microsoft.StyleCop.CSharp.NamingRules", "SA1310:FieldNamesMustNotContainUnderscore",
-            Justification = "Bar code rules are hard to read without under scores")]
+        /// identifier's can be printed with the corrected check digits.</remarks>
         private string ruleDescription_HeritageGlobalLocationIdentifierSecondPassIgnoreCheckDigit = string.Empty;
 
         /// <summary>
         /// Rule: Parse Nossack Broker Multi National Product From Chili Company Prefix 896775.
         /// </summary>
-        [SuppressMessage("Microsoft.StyleCop.CSharp.NamingRules", "SA1310:FieldNamesMustNotContainUnderscore",
-            Justification = "Bar code rules are hard to read without under scores")]
         private bool isRuleEnabled_ParseNossackBrokerMultiNationalProductFromChili = false;
 
         /// <summary>
-        /// Rule Description: Parse Nossack Broker Multi National Product From Chili Company Prefix 896775. 
+        /// Rule Description: Parse Nossack Broker Multi National Product From Chili Company Prefix 896775.
         /// </summary>
-        [SuppressMessage("Microsoft.StyleCop.CSharp.NamingRules", "SA1310:FieldNamesMustNotContainUnderscore",
-            Justification = "Bar code rules are hard to read without under scores")]
         private string ruleDescription_ParseNossackBrokerMultiNationalProductFromChili = string.Empty;
 
         /// <summary>
         /// Rule: Parse Nossack Greenlea Premier Meats.
         /// </summary>
-        [SuppressMessage("Microsoft.StyleCop.CSharp.NamingRules", "SA1310:FieldNamesMustNotContainUnderscore",
-          Justification = "Bar code rules are hard to read without under scores")]
         private bool isRuleEnabled_ParseEAN_UCC128_Nossack_GreenleaPremierMeats = false;
 
         /// <summary>
         /// Rule Description: Parse Nossack Greenlea Premier Meats.
         /// </summary>
-        [SuppressMessage("Microsoft.StyleCop.CSharp.NamingRules", "SA1310:FieldNamesMustNotContainUnderscore",
-          Justification = "Bar code rules are hard to read without under scores")]
         private string ruleDescription_ParseEAN_UCC128_Nossack_GreenleaPremierMeats = string.Empty;
 
         /// <summary>
         /// Rule: Enable Parse UCC_13 as UPC_12_UPC_E.
         /// </summary>
-        [SuppressMessage("Microsoft.StyleCop.CSharp.NamingRules", "SA1310:FieldNamesMustNotContainUnderscore",
-            Justification = "Bar code rules are hard to read without under scores")]
         private bool isRuleEnabled_Parse_UCC_13_as_UPC_12_UPC_E = false;
 
         /// <summary>
         /// Rule Description: Enable Parse UCC_13 as UPC_12 UPC_E.
         /// </summary>
-        [SuppressMessage("Microsoft.StyleCop.CSharp.NamingRules", "SA1310:FieldNamesMustNotContainUnderscore",
-            Justification = "Bar code rules are hard to read without under scores")]
         private string ruleDescription_Parse_UCC_13_as_UPC_12_UPC_E_Enabled = string.Empty;
 
         /// <summary>
         /// Rule: Enable Parse Hela Spice Canada Code 128.
         /// </summary>
-        [SuppressMessage("Microsoft.StyleCop.CSharp.NamingRules", "SA1310:FieldNamesMustNotContainUnderscore",
-            Justification = "Bar code rules are hard to read without under scores")]
         private bool isRuleEnabled_Parse_HelaSpiceCanada_Code_128 = false;
 
         /// <summary>
         /// Rule Description: Enable Parse Hela Spice Canada Code 128.
         /// </summary>
-        [SuppressMessage("Microsoft.StyleCop.CSharp.NamingRules", "SA1310:FieldNamesMustNotContainUnderscore",
-            Justification = "Bar code rules are hard to read without under scores")]
         private string ruleDescription_Parse_HelaSpiceCanada_Code_128 = string.Empty;
 
         /// <summary>
         /// Rule: Enable Nebraska Beef parse Lot Number as Serial Number.
         /// </summary>
-        [SuppressMessage("Microsoft.StyleCop.CSharp.NamingRules", "SA1310:FieldNamesMustNotContainUnderscore",
-            Justification = "Bar code rules are hard to read without under scores")]
         private bool isRuleEnabled_NebraskaBeef_Parse_Lot_as_Serial_Code_128 = false;
 
         /// <summary>
         /// Rule Description: Enable Nebraska Beef parse Lot Number as Serial Number.
         /// </summary>
-        [SuppressMessage("Microsoft.StyleCop.CSharp.NamingRules", "SA1310:FieldNamesMustNotContainUnderscore",
-            Justification = "Bar code rules are hard to read without under scores")]
         private string ruleDescription_NebraskaBeef_Parse_Lot_as_Serial_Code_128 = string.Empty;
 
         /// <summary>
         /// Rule: Enable Parse Northern Coop Australia Beef Trim Product '25612'.
         /// </summary>
-        [SuppressMessage("Microsoft.StyleCop.CSharp.NamingRules", "SA1310:FieldNamesMustNotContainUnderscore",
-            Justification = "Bar code rules are hard to read without under scores")]
         private bool isRuleEnabled_ParseNorthernCoop_AustraliaBeefTrim_Product25612 = false;
 
         /// <summary>
         /// Rule Description: Enable Parse Northern Coop Australia Beef Trim Product '25612'.
         /// </summary>
-        [SuppressMessage("Microsoft.StyleCop.CSharp.NamingRules", "SA1310:FieldNamesMustNotContainUnderscore",
-            Justification = "Bar code rules are hard to read without under scores")]
         private string ruleDescription_ParseNorthernCoop_AustraliaBeefTrim_Product25612 = string.Empty;
 
         /// <summary>
         /// Rule: Enable Parse Sumwa Farm Fed Whole Duck use Weight Range To ID Product.
         /// </summary>
-        [SuppressMessage("Microsoft.StyleCop.CSharp.NamingRules", "SA1310:FieldNamesMustNotContainUnderscore",
-            Justification = "Bar code rules are hard to read without under scores")]
         private bool isRuleEnabled_ParseSumwaFarmFedWholeDuck_UseWeightRangeToIDProduct = false;
 
         /// <summary>
         /// Rule Description: Enable Parse Sumwa Farm Fed Whole Duck use Weight Range To ID Product.
         /// </summary>
-        [SuppressMessage("Microsoft.StyleCop.CSharp.NamingRules", "SA1310:FieldNamesMustNotContainUnderscore",
-            Justification = "Bar code rules are hard to read without under scores")]
         private string ruleDescription_ParseSumwaFarmFedWholeDuck_UseWeightRangeToIDProduct = string.Empty;
 
         /// <summary>
         /// Rule: Enable Parse EAN/UCC Code 128 Nossack Product 94600 Vendor Chilean Back Ribs fix AI(01).
         /// </summary>
-        [SuppressMessage("Microsoft.StyleCop.CSharp.NamingRules", "SA1310:FieldNamesMustNotContainUnderscore",
-            Justification = "Bar code rules are hard to read without under scores")]
         private bool isRuleEnabled_ParseEAN_UCC128_NossackProduct94600_ChileanBackRibs = false;
 
         /// <summary>
         /// Rule Description: Enable Parse EAN/UCC Code 128 Nossack Product 94600 Vendor Chilean Back Ribs fix AI(01).
         /// </summary>
-        [SuppressMessage("Microsoft.StyleCop.CSharp.NamingRules", "SA1310:FieldNamesMustNotContainUnderscore",
-            Justification = "Bar code rules are hard to read without under scores")]
         private string ruleDescription_ParseEAN_UCC128_NossackProduct94600_ChileanBackRibs = string.Empty;
 
         /// <summary>
         /// Rule: Enable Parse EAN/UCC Code 128 Dovre Kii Natural Crisps fix AI(02) as AI(01) and AI(15) DDMMYY to YYMMDD.
         /// </summary>
-        [SuppressMessage("Microsoft.StyleCop.CSharp.NamingRules", "SA1310:FieldNamesMustNotContainUnderscore",
-            Justification = "Bar code rules are hard to read without under scores")]
         private bool isRuleEnabled_ParseEAN_UCC128_Dovre_KiiNaturalsCrisps = false;
 
         /// <summary>
         /// Rule Description: Enable Parse EAN/UCC Code 128 Dovre Kii Natural Crisps fix AI(02) as AI(01) and AI(15) DDMMYY to YYMMDD.
         /// </summary>
-        [SuppressMessage("Microsoft.StyleCop.CSharp.NamingRules", "SA1310:FieldNamesMustNotContainUnderscore",
-            Justification = "Bar code rules are hard to read without under scores")]
         private string ruleDescription_ParseEAN_UCC128_Dovre_KiiNaturalsCrisps = string.Empty;
 
         /// <summary>
         /// Rule: Enable Parse EAN/UCC Code 128 Nossack Product 51134 Frozen Pork Collar remove AI(00).
         /// </summary>
-        [SuppressMessage("Microsoft.StyleCop.CSharp.NamingRules", "SA1310:FieldNamesMustNotContainUnderscore",
-            Justification = "Bar code rules are hard to read without under scores")]
         private bool isRuleEnabled_ParseEAN_UCC128_NossackProduct51134_FrozenPorkCollarRemoveAI00 = false;
 
         /// <summary>
         /// Rule Description: Enable Parse EAN/UCC Code 128 Nossack Product 51134 Frozen Pork Collar remove AI(00).
         /// </summary>
-        [SuppressMessage("Microsoft.StyleCop.CSharp.NamingRules", "SA1310:FieldNamesMustNotContainUnderscore",
-            Justification = "Bar code rules are hard to read without under scores")]
         private string ruleDescription_ParseEAN_UCC128_NossackProduct51134_FrozenPorkCollarRemoveAI00 = string.Empty;
 
         /// <summary>
         /// Rule: When enabled it will suppress error messages for non-tracked fields.
-        /// This allows the barcode to be fully parsed, even when a field or two is missing as long
+        /// This allows the bar code to be fully parsed, even when a field or two is missing as long
         /// as they are non-tracked.
         /// </summary>
-        [SuppressMessage("Microsoft.StyleCop.CSharp.NamingRules", "SA1310:FieldNamesMustNotContainUnderscore",
-            Justification = "Bar code rules are hard to read without under scores")]
         private bool isRuleEnabled_ParseEAN_UCC128_SuppressAllParseErrorsForNonTrackedComponents = false;
 
         /// <summary>
         /// Rule Description: When enabled it will suppress error messages for non-tracked fields.
-        /// This allows the barcode to be fully parsed, even when a field or two is missing as long
+        /// This allows the bar code to be fully parsed, even when a field or two is missing as long
         /// as they are non-tracked.
         /// </summary>
-        [SuppressMessage("Microsoft.StyleCop.CSharp.NamingRules", "SA1310:FieldNamesMustNotContainUnderscore",
-            Justification = "Bar code rules are hard to read without under scores")]
         private string ruleDescription_ParseEAN_UCC128_SuppressAllParseErrorsForNonTrackedComponents = string.Empty;
 
         /// <summary>
-        /// Removes invalid character 0x001A from beginning of Code128 barcodes.
+        /// Removes invalid character 0x001A from beginning of Code128 bar codes.
         /// </summary>
-        [SuppressMessage("Microsoft.StyleCop.CSharp.NamingRules", "SA1310:FieldNamesMustNotContainUnderscore",
-            Justification = "Bar code rules are hard to read without under scores")]
-        bool isRuleEnabled_Parse_Code128_CleanSubstituteCharacter;
-        /// <summary>
-        /// Removes invalid character 0x001A from beginning of Code128 barcodes.
-        /// </summary>
-        [SuppressMessage("Microsoft.StyleCop.CSharp.NamingRules", "SA1310:FieldNamesMustNotContainUnderscore",
-            Justification = "Bar code rules are hard to read without under scores")]
-        string ruleDescription_Parse_Code128_CleanSubstituteCharacter;
-
-        #endregion
-
-        #region Constructors
+        private bool isRuleEnabled_Parse_Code128_CleanSubstituteCharacter = false;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="BarCodeSettings"/> class.
+        /// Removes invalid character 0x001A from beginning of Code128 bar codes.
+        /// </summary>
+        private string ruleDescription_Parse_Code128_CleanSubstituteCharacter = string.Empty;
+
+        /// <summary>
+        /// Parse EAN / UCC Code 128 Bourvy Exports production date from the AI(21) serial number.
+        /// </summary>
+        private bool isRuleEnabled_ParseEAN_UCC128_BourvyExports_ProductionDate = false;
+
+        /// <summary>
+        /// Parse EAN / UCC Code 128 Bourvy Exports production date from the AI(21) serial number.
+        /// </summary>
+        private string ruleDescription_ParseEAN_UCC128_BourvyExports_ProductionDate = string.Empty;
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="SysBarCodeSettings"/> class.
         /// </summary>
         public SysBarCodeSettings()
         {
@@ -516,29 +388,33 @@ namespace dMobile.Bedrock
             this.FileASCIIZ = Path.Combine(this.FilePath, this.FileName);
         }
 
-        #endregion
-
-        #region Delegates
-
+        /// <summary>
+        /// On bar code settings status out event handler.
+        /// </summary>
+        /// <param name="publisher"><see cref="IBarCodeSettingsEventPublisher"/> Publisher.</param>
+        /// <param name="eventArgs"><see cref="BarCodeSettingsEventArgs"/> Bar code setting event arguments.</param>
         private delegate void OnBarCodeSettingsStatusOutEventHandler(
-            IBarCodeSettingsEventPublisher BarCodeSettingsEventPublisher,
-            BarCodeSettingsEventArgs BarCodeSettingsEventArgs);
+            IBarCodeSettingsEventPublisher publisher,
+            BarCodeSettingsEventArgs eventArgs);
 
+        /// <summary>
+        /// On bar code settings progress out event hander.
+        /// </summary>
+        /// <param name="publisher"><see cref="IBarCodeSettingsEventPublisher"/> Publisher.</param>
+        /// <param name="eventArgs"><see cref="BarCodeSettingsEventArgs"/> Bar code setting event arguments.</param>
         private delegate void OnBarCodeSettingsProgressOutEventHandler(
-            IBarCodeSettingsEventPublisher BarCodeSettingsEventPublisher,
-            BarCodeSettingsEventArgs BarCodeSettingsEventArgs);
+            IBarCodeSettingsEventPublisher publisher,
+            BarCodeSettingsEventArgs eventArgs);
 
-        #endregion
-
-        #region Events
-
+        /// <summary>
+        /// On bar code settings status out event.
+        /// </summary>
         private event OnBarCodeSettingsStatusOutEventHandler OnBarCodeSettingsStatusOut;
 
+        /// <summary>
+        /// On bar code settings progress out event.
+        /// </summary>
         private event OnBarCodeSettingsProgressOutEventHandler OnBarCodeSettingsProgressOut;
-
-        #endregion
-
-        #region Properties
 
         /// <summary>
         /// Gets or sets the path name of the xml file.
@@ -576,7 +452,7 @@ namespace dMobile.Bedrock
         }
 
         /// <summary>
-        /// Gets or sets the file name of the xml file. 
+        /// Gets or sets the file name of the xml file.
         /// </summary>
         /// <remarks>
         /// Does not include any path information.
@@ -707,32 +583,34 @@ namespace dMobile.Bedrock
         }
 
         /// <summary>
-        /// Gets or sets if we restrict the deli plu amount to 4 digits. (Down from 5).
+        /// Gets or sets a value indicating whether if we restrict the deli plu amount to 4 digits. (Down from 5).
         /// </summary>
         public bool IsRuleEnabled_Parse_UCC_12_UPC_E_as_Deli_PLU_4_Digit_Amount
         {
             get
             {
-                return isRuleEnabled_Parse_UCC_12_UPC_E_as_Deli_PLU_4_Digit_Amount;
+                return this.isRuleEnabled_Parse_UCC_12_UPC_E_as_Deli_PLU_4_Digit_Amount;
             }
+
             set
             {
-                isRuleEnabled_Parse_UCC_12_UPC_E_as_Deli_PLU_4_Digit_Amount = value;
+                this.isRuleEnabled_Parse_UCC_12_UPC_E_as_Deli_PLU_4_Digit_Amount = value;
             }
         }
 
         /// <summary>
-        /// Rule description of deli plu amount restricted to 4 digits.
+        /// Gets or sets the rule description of deli PLU amount restricted to 4 digits.
         /// </summary>
         public string RuleDescription_Parse_UCC_12_UPC_E_as_Deli_PLU_4_Digit_Amount_Enabled
         {
             get
             {
-                return ruleDescription_Parse_UCC_12_UPC_E_as_Deli_PLU_4_Digit_Amount_Enabled;
+                return this.ruleDescription_Parse_UCC_12_UPC_E_as_Deli_PLU_4_Digit_Amount_Enabled;
             }
+
             set
             {
-                ruleDescription_Parse_UCC_12_UPC_E_as_Deli_PLU_4_Digit_Amount_Enabled = value;
+                this.ruleDescription_Parse_UCC_12_UPC_E_as_Deli_PLU_4_Digit_Amount_Enabled = value;
             }
         }
 
@@ -753,7 +631,7 @@ namespace dMobile.Bedrock
         }
 
         /// <summary>
-        /// Gets or sets a value indicating whether IsRuleEnabled_ProductBarCodeMinimumLengthRequirement4Digits rule 
+        /// Gets or sets a value indicating whether IsRuleEnabled_ProductBarCodeMinimumLengthRequirement4Digits rule
         /// description.
         /// </summary>
         public string RuleDescription_ProductBarCodeMinimumLengthRequirement4Digits
@@ -772,10 +650,6 @@ namespace dMobile.Bedrock
         /// <summary>
         /// Gets or sets a value indicating whether IsRuleEnabled_Parse_Code_128_AI01_Nossack_AI21_SkidNumber_BoxCount rule.
         /// </summary>
-        [SuppressMessage(
-            "Microsoft.StyleCop.CSharp.DocumentationRules",
-            "SA1650:ElementDocumentationMustBeSpelledCorrectly",
-            Justification = "Nossack is correct")]
         public bool IsRuleEnabled_Parse_Code_128_AI01_Nossack_AI21_SkidNumber_BoxCount
         {
             get
@@ -790,13 +664,9 @@ namespace dMobile.Bedrock
         }
 
         /// <summary>
-        /// Gets or sets a value indicating whether IsRuleEnabled_Parse_Code_128_AI01_Nossack_AI21_SkidNumber_BoxCount 
+        /// Gets or sets a value indicating whether IsRuleEnabled_Parse_Code_128_AI01_Nossack_AI21_SkidNumber_BoxCount
         /// rule description.
         /// </summary>
-        [SuppressMessage(
-            "Microsoft.StyleCop.CSharp.DocumentationRules",
-            "SA1650:ElementDocumentationMustBeSpelledCorrectly",
-            Justification = "Nossack is correct")]
         public string RuleDescription_Parse_Code_128_AI01_Nossack_AI21_SkidNumber_BoxCount
         {
             get
@@ -828,7 +698,7 @@ namespace dMobile.Bedrock
         }
 
         /// <summary>
-        /// Gets or sets a value indicating whether IsRuleEnabled_Recognize_Code_128_AI17_ExpiryDate_As_AI15_BestBeforeDate 
+        /// Gets or sets a value indicating whether IsRuleEnabled_Recognize_Code_128_AI17_ExpiryDate_As_AI15_BestBeforeDate
         /// rule description.
         /// </summary>
         public string RuleDescription_Recognize_Code_128_AI17_ExpiryDate_As_AI15_BestBeforeDate
@@ -845,7 +715,7 @@ namespace dMobile.Bedrock
         }
 
         /// <summary>
-        /// Gets or sets a value indicating whether 
+        /// Gets or sets a value indicating whether
         /// IsRuleEnabled_Recognize_Code_128_AI13_PackagingDate_As_AI11_ProductionDate rule.
         /// </summary>
         public bool IsRuleEnabled_Recognize_Code_128_AI13_PackagingDate_As_AI11_ProductionDate
@@ -862,7 +732,7 @@ namespace dMobile.Bedrock
         }
 
         /// <summary>
-        /// Gets or sets a value indicating whether 
+        /// Gets or sets a value indicating whether
         /// IsRuleEnabled_Recognize_Code_128_AI13_PackagingDate_As_AI11_ProductionDate rule description.
         /// </summary>
         public string RuleDescription_Recognize_Code_128_AI13_PackagingDate_As_AI11_ProductionDate
@@ -927,7 +797,7 @@ namespace dMobile.Bedrock
         }
 
         /// <summary>
-        /// Gets or sets a value indicating whether IsRuleEnabled_ParseCode_128AsUCC_EAN_128_SymbolCompliant rule 
+        /// Gets or sets a value indicating whether IsRuleEnabled_ParseCode_128AsUCC_EAN_128_SymbolCompliant rule
         /// description.
         /// </summary>
         public string RuleDescription_ParseCode_128AsUCC_EAN_128_SymbolCompliant
@@ -1024,7 +894,7 @@ namespace dMobile.Bedrock
         }
 
         /// <summary>
-        /// Gets or sets a value indicating whether IsRuleEnabled_NoZeroPaddingOfProductIdentifierForUCC_EAN_Family rule 
+        /// Gets or sets a value indicating whether IsRuleEnabled_NoZeroPaddingOfProductIdentifierForUCC_EAN_Family rule
         /// description.
         /// </summary>
         public string RuleDescription_NoZeroPaddingOfProductIdentifierForUCC_EAN_Family
@@ -1137,7 +1007,7 @@ namespace dMobile.Bedrock
         }
 
         /// <summary>
-        /// Gets or sets a value indicating whether 
+        /// Gets or sets a value indicating whether
         /// IsRuleEnabled_HeritageGlobalLocationIdentifierSecondPassIgnoreCheckDigit rule.
         /// </summary>
         public bool IsRuleEnabled_HeritageGlobalLocationIdentifierSecondPassIgnoreCheckDigit
@@ -1170,7 +1040,7 @@ namespace dMobile.Bedrock
         }
 
         /// <summary>
-        /// Gets or sets a value indicating whether 
+        /// Gets or sets a value indicating whether
         /// IsRuleEnabled_ParseNossackBrokerMultiNationalProductFromChili rule.
         /// </summary>
         public bool IsRuleEnabled_ParseNossackBrokerMultiNationalProductFromChili
@@ -1211,6 +1081,7 @@ namespace dMobile.Bedrock
             {
                 return this.isRuleEnabled_ParseEAN_UCC128_Nossack_GreenleaPremierMeats;
             }
+
             set
             {
                 this.isRuleEnabled_ParseEAN_UCC128_Nossack_GreenleaPremierMeats = value;
@@ -1226,6 +1097,7 @@ namespace dMobile.Bedrock
             {
                 return this.ruleDescription_ParseEAN_UCC128_Nossack_GreenleaPremierMeats;
             }
+
             set
             {
                 this.ruleDescription_ParseEAN_UCC128_Nossack_GreenleaPremierMeats = value;
@@ -1409,7 +1281,7 @@ namespace dMobile.Bedrock
         }
 
         /// <summary>
-        /// Gets or sets a value indicating whether ParseEAN_UCC128_NossackProduct94600_ChileanBackRibs description.
+        /// Gets or sets the ParseEAN_UCC128_NossackProduct94600_ChileanBackRibs description.
         /// </summary>
         public string RuleDescription_ParseEAN_UCC128_NossackProduct94600_ChileanBackRibs
         {
@@ -1425,35 +1297,36 @@ namespace dMobile.Bedrock
         }
 
         /// <summary>
-        /// Enables AI(02) to be read as AI(01) and AI(15) fix of DDMMYY -> YYMMDD.
+        /// Gets or sets a value indicating whether enables AI(02) to be read as AI(01) and AI(15) fix of DDMMYY -> YYMMDD.
         /// </summary>
         public bool IsRuleEnabled_ParseEAN_UCC128_Dovre_KiiNaturalsCrisps
         {
             get
             {
-                return isRuleEnabled_ParseEAN_UCC128_Dovre_KiiNaturalsCrisps;
+                return this.isRuleEnabled_ParseEAN_UCC128_Dovre_KiiNaturalsCrisps;
             }
+
             set
             {
-                isRuleEnabled_ParseEAN_UCC128_Dovre_KiiNaturalsCrisps = value;
+                this.isRuleEnabled_ParseEAN_UCC128_Dovre_KiiNaturalsCrisps = value;
             }
         }
 
         /// <summary>
-        /// Enables AI(02) to be read as AI(01) and AI(15) fix of DDMMYY -> YYMMDD.
+        /// Gets or sets the Enables AI(02) to be read as AI(01) and AI(15) fix of DDMMYY -> YYMMDD description.
         /// </summary>
         public string RuleDescription_ParseEAN_UCC128_Dovre_KiiNaturalsCrisps
         {
             get
             {
-                return ruleDescription_ParseEAN_UCC128_Dovre_KiiNaturalsCrisps;
+                return this.ruleDescription_ParseEAN_UCC128_Dovre_KiiNaturalsCrisps;
             }
+
             set
             {
-                ruleDescription_ParseEAN_UCC128_Dovre_KiiNaturalsCrisps = value;
+                this.ruleDescription_ParseEAN_UCC128_Dovre_KiiNaturalsCrisps = value;
             }
         }
-
 
         /// <summary>
         /// Gets or sets a value indicating whether ParseEAN_UCC128_NossackProduct51134_FrozenPorkCollarRemoveAI00 rule.
@@ -1472,7 +1345,7 @@ namespace dMobile.Bedrock
         }
 
         /// <summary>
-        /// Gets or sets a value indicating whether ParseEAN_UCC128_NossackProduct51134_FrozenPorkCollarRemoveAI00 
+        /// Gets or sets the ParseEAN_UCC128_NossackProduct51134_FrozenPorkCollarRemoveAI00 description.
         /// description.
         /// </summary>
         public string RuleDescription_ParseEAN_UCC128_NossackProduct51134_FrozenPorkCollarRemoveAI00
@@ -1489,8 +1362,8 @@ namespace dMobile.Bedrock
         }
 
         /// <summary>
-        /// When enabled it will suppress error messages for non-tracked fields.
-        /// This allows the barcode to be fully parsed, even when a field or two is missing as long
+        /// Gets or sets a value indicating whether when enabled it will suppress error messages for non-tracked fields.
+        /// This allows the bar code to be fully parsed, even when a field or two is missing as long
         /// as they are non-tracked.
         /// </summary>
         public bool IsRuleEnabled_ParseEAN_UCC128_SuppressAllParseErrorsForNonTrackedComponents
@@ -1499,6 +1372,7 @@ namespace dMobile.Bedrock
             {
                 return this.isRuleEnabled_ParseEAN_UCC128_SuppressAllParseErrorsForNonTrackedComponents;
             }
+
             set
             {
                 this.isRuleEnabled_ParseEAN_UCC128_SuppressAllParseErrorsForNonTrackedComponents = value;
@@ -1506,8 +1380,8 @@ namespace dMobile.Bedrock
         }
 
         /// <summary>
-        /// When enabled it will suppress error messages for non-tracked fields.
-        /// This allows the barcode to be fully parsed, even when a field or two is missing as long
+        /// Gets or sets when enabled it will suppress error messages for non-tracked fields description.
+        /// This allows the bar code to be fully parsed, even when a field or two is missing as long
         /// as they are non-tracked.
         /// </summary>
         public string RuleDescription_ParseEAN_UCC128_SuppressAllParseErrorsForNonTrackedComponents
@@ -1516,15 +1390,15 @@ namespace dMobile.Bedrock
             {
                 return this.ruleDescription_ParseEAN_UCC128_SuppressAllParseErrorsForNonTrackedComponents;
             }
+
             set
             {
                 this.ruleDescription_ParseEAN_UCC128_SuppressAllParseErrorsForNonTrackedComponents = value;
             }
         }
 
-
         /// <summary>
-        /// Strips invalid character 0x001A from the beginning of the string.
+        /// Gets or sets a value indicating whether strips invalid character 0x001A from the beginning of the string.
         /// </summary>
         public bool IsRuleEnabled_Parse_Code128_CleanSubstituteCharacter
         {
@@ -1532,29 +1406,61 @@ namespace dMobile.Bedrock
             {
                 return this.isRuleEnabled_Parse_Code128_CleanSubstituteCharacter;
             }
+
             set
             {
                 this.isRuleEnabled_Parse_Code128_CleanSubstituteCharacter = value;
             }
         }
+
         /// <summary>
-        /// Strips invalid character 0x001A from the beginning of the string.
+        /// Gets or sets the strips invalid character 0x001A from the beginning of the string.
         /// </summary>
         public string RuleDescription_Parse_Code128_CleanSubstituteCharacter
         {
             get
             {
-                return ruleDescription_Parse_Code128_CleanSubstituteCharacter;
+                return this.ruleDescription_Parse_Code128_CleanSubstituteCharacter;
             }
+
             set
             {
-                ruleDescription_Parse_Code128_CleanSubstituteCharacter = value;
+                this.ruleDescription_Parse_Code128_CleanSubstituteCharacter = value;
             }
         }
 
-        #endregion
+        /// <summary>
+        /// Gets or sets a value indicating whether parse EAN / UCC Code 128 Bourvy Exports production date from the
+        /// AI(21) serial number.
+        /// </summary>
+        public bool IsRuleEnabled_ParseEAN_UCC128_BourvyExports_ProductionDate
+        {
+            get
+            {
+                return this.isRuleEnabled_ParseEAN_UCC128_BourvyExports_ProductionDate;
+            }
 
-        #region Public Members
+            set
+            {
+                this.isRuleEnabled_ParseEAN_UCC128_BourvyExports_ProductionDate = value;
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets the parse EAN / UCC Code 128 Bourvy Exports production date from the AI(21) serial number string.
+        /// </summary>
+        public string RuleDescription_ParseEAN_UCC128_BourvyExports_ProductionDate
+        {
+            get
+            {
+                return this.ruleDescription_ParseEAN_UCC128_BourvyExports_ProductionDate;
+            }
+
+            set
+            {
+                this.ruleDescription_ParseEAN_UCC128_BourvyExports_ProductionDate = value;
+            }
+        }
 
         /// <summary>
         /// Request the bar code settings data and save the file.
@@ -1569,7 +1475,6 @@ namespace dMobile.Bedrock
 
                 if (this.OnBarCodeSettingsStatusOut != null)
                 {
-                    // TODO: Resource strings
                     msgEventArg.StatusOutMsg = "Seeding bar code settings.";
                     this.OnBarCodeSettingsStatusOut(this, msgEventArg);
                 }
@@ -1590,7 +1495,6 @@ namespace dMobile.Bedrock
 
                 if (this.OnBarCodeSettingsStatusOut != null)
                 {
-                    // TODO: Resource strings
                     msgEventArg.StatusOutMsg = "Seeding bar code settings complete.";
                     this.OnBarCodeSettingsStatusOut(this, msgEventArg);
                 }
@@ -1599,12 +1503,10 @@ namespace dMobile.Bedrock
             {
                 if (this.OnBarCodeSettingsStatusOut != null)
                 {
-                    // TODO: Resource strings
                     msgEventArg.StatusOutMsg = "Seeding bar code settings failed.";
                     this.OnBarCodeSettingsStatusOut(this, msgEventArg);
                 }
 
-                // TODO: Resource strings
                 throw new Exception("Seeding bar code settings failed.", ex);
             }
         }
@@ -1612,15 +1514,15 @@ namespace dMobile.Bedrock
         /// <summary>
         /// Load and object of type BarCodeSettings from a serialized xml file.
         /// </summary>
-        /// <returns>Object of type BarCodeSettings</returns>
+        /// <returns><see cref="SysBarCodeSettings"/> Object of type BarCodeSettings.</returns>
         public SysBarCodeSettings LoadData()
         {
-            lock (readLockObject)
+            lock (this.readLockObject)
             {
                 XmlSerializer serializer = new XmlSerializer(typeof(SysBarCodeSettings));
                 SysBarCodeSettings barCodeSettings = new SysBarCodeSettings();
 
-                // use relection to get the current assembly path for the database
+                // use reflection to get the current assembly path for the database
                 string appDir = Environment.GetFolderPath(Environment.SpecialFolder.Personal);
                 string fullPathToMyFile = Path.Combine(appDir, this.FileName);
 
@@ -1644,22 +1546,26 @@ namespace dMobile.Bedrock
         /// Serialize and save the data into a xml file.
         /// </summary>
         /// <param name="barCodeSettings"> Instance of BarCodeSettings to serialize.</param>
-        /// <returns>True if save was successful else false</returns>
+        /// <returns><see cref="bool"/> True if save was successful else false.</returns>
         public bool SaveData(ref SysBarCodeSettings barCodeSettings)
         {
-            lock (writeLockObject)
+            lock (this.writeLockObject)
             {
                 XmlSerializer serializer = new XmlSerializer(typeof(SysBarCodeSettings));
                 bool isSaveComplete = false;
 
                 try
                 {
-                    // use relection to get the current assembly path for the database
+                    // use reflection to get the current assembly path for the database
                     string appDir = Environment.GetFolderPath(Environment.SpecialFolder.Personal);
                     string fullPathToMyFile = Path.Combine(appDir, this.FileName);
 
                     // Create a FileStream to write with.
-                    using (FileStream writer = new FileStream(fullPathToMyFile, FileMode.Create, FileAccess.Write, FileShare.None))
+                    using (FileStream writer = new FileStream(
+                        fullPathToMyFile,
+                        FileMode.Create,
+                        FileAccess.Write,
+                        FileShare.None))
                     {
                         // Serialize the object, and close the TextWriter
                         serializer.Serialize(writer, barCodeSettings);
@@ -1676,42 +1582,54 @@ namespace dMobile.Bedrock
             }
         }
 
-        #region IBarCodeSettingsEventPublisher Members
-
+        /// <summary>
+        /// Register bar code settings status out listener.
+        /// </summary>
+        /// <param name="barCodeSettingsEventListener"><see cref="IBarCodeSettingsEventListener"/> Bar code settings
+        /// event listener.</param>
         public void RegisterBarCodeSettingsListenerStatusOut(IBarCodeSettingsEventListener barCodeSettingsEventListener)
         {
             this.OnBarCodeSettingsStatusOut += new OnBarCodeSettingsStatusOutEventHandler(
                 barCodeSettingsEventListener.OnBarCodeSettingsStatusOut);
         }
 
+        /// <summary>
+        /// Unregister bar code settings status out listener.
+        /// </summary>
+        /// <param name="barCodeSettingsEventListener"><see cref="IBarCodeSettingsEventListener"/> Bar code settings
+        /// event listener.</param>
         public void UnregisterBarCodeSettingsListenerStatusOut(IBarCodeSettingsEventListener barCodeSettingsEventListener)
         {
             this.OnBarCodeSettingsStatusOut -= new OnBarCodeSettingsStatusOutEventHandler(
                 barCodeSettingsEventListener.OnBarCodeSettingsStatusOut);
         }
 
+        /// <summary>
+        /// Register bar code settings event listener.
+        /// </summary>
+        /// <param name="barCodeSettingsEventListener"><see cref="IBarCodeSettingsEventListener"/> Bar code settings
+        /// event listener.</param>
         public void RegisterBarCodeSettingsListenerProgressOut(IBarCodeSettingsEventListener barCodeSettingsEventListener)
         {
             this.OnBarCodeSettingsProgressOut += new OnBarCodeSettingsProgressOutEventHandler(
                 barCodeSettingsEventListener.OnBarCodeSettingsProgressOut);
         }
 
+        /// <summary>
+        /// Unregister bar code settings event listener.
+        /// </summary>
+        /// <param name="barCodeSettingsEventListener"><see cref="IBarCodeSettingsEventListener"/> Bar code settings
+        /// event listener.</param>
         public void UnregisterBarCodeSettingsListenerProgressOut(IBarCodeSettingsEventListener barCodeSettingsEventListener)
         {
             this.OnBarCodeSettingsProgressOut -= new OnBarCodeSettingsProgressOutEventHandler(
                 barCodeSettingsEventListener.OnBarCodeSettingsProgressOut);
         }
 
-        #endregion
-
-        #endregion
-
-        #region Private Members
-
         /// <summary>
         /// Process the xml data from the communication server and store it.
         /// </summary>
-        /// <param name="xmlData"> Xml data received from the communication server</param>
+        /// <param name="xmlData"> Xml data received from the communication server.</param>
         private void Save(string xmlData)
         {
             BarCodeSettingsEventArgs msgEventArg = new BarCodeSettingsEventArgs();
@@ -1722,7 +1640,6 @@ namespace dMobile.Bedrock
                 {
                     if (this.OnBarCodeSettingsStatusOut != null)
                     {
-                        // TODO: Resource strings
                         msgEventArg.StatusOutMsg = "Reading received data.";
                         this.OnBarCodeSettingsStatusOut(this, msgEventArg);
                     }
@@ -1731,7 +1648,6 @@ namespace dMobile.Bedrock
 
                     if (this.OnBarCodeSettingsStatusOut != null)
                     {
-                        // TODO: Resource strings
                         msgEventArg.StatusOutMsg = "Saving bar code settings.";
                         this.OnBarCodeSettingsStatusOut(this, msgEventArg);
                     }
@@ -1742,7 +1658,6 @@ namespace dMobile.Bedrock
 
                         if (this.OnBarCodeSettingsStatusOut != null)
                         {
-                            // TODO: Resource strings
                             msgEventArg.StatusOutMsg = string.Format("Records {0}.", progMax);
                             this.OnBarCodeSettingsStatusOut(this, msgEventArg);
                         }
@@ -1755,31 +1670,6 @@ namespace dMobile.Bedrock
                             msgEventArg.MaxValue = progMax;
                             this.OnBarCodeSettingsProgressOut(this, msgEventArg);
                         }
-
-                        // ParseCode_128AsUCC_EAN_128_SymbolCompliant = 1,
-                        // ParseFINICA_Code_128_as_EAN_UCC_128 = 2,
-                        // NoCheckDigitInGlobalLocationNumber = 3,
-                        // NoZeroPaddingOfProductIdentifierForUCC_EAN_Family = 4,
-                        // ParseWOOLWICH_Code_128_RemoveSpaces = 5,
-                        // Recognize_Code_128_AI13_PackagingDate_As_AI11_ProductionDate = 6,
-                        // Recognize_Code_128_AI17_ExpiryDate_As_AI15_BestBeforeDate = 7,
-                        // Parse_Code_128_AI01_Nossack_AI21_SkidNumber_BoxCount = 8,
-                        // ProductBarCodeMinimumLength4Digits = 9,
-                        // Parse_UCC_12_UPC_E_as_Deli_PLU = 10,
-                        // Parse_Code128_OvationFielding_Lamb = 11,
-                        // Parse_Code128_China_Seafood = 12,
-                        // Parse_Code_128_AI01_BC_AI30_exclusive = 13,
-                        // ParseRenees_Code_128_RemoveSpaces = 14
-                        // ParseLanzMeats_Code_128_AI10_as_AI21 = 15
-                        // HeritageGlobalLocationIdentifierSecondPassIgnoreCheckDigit = 16
-                        // ParseNossackBrokerMultiNationalProductFromChili = 17
-                        // ParseUCC_13asUPC_12_UPC_E = 18
-                        // Parse_HelaSpiceCanada_Code_128 = 19
-                        // NebraskaBeef_Parse_Lot_as_Serial_Code_128 = 20
-                        // ParseNorthernCoop_AustraliaBeefTrim_Product25612 = 21
-                        // ParseSumwaFarmFedWholeDuck_UseWeightRangeToIDProduct = 22
-                        // ParseEAN_UCC128_NossackProduct94600_ChileanBackRibs = 23
-                        // ParseEAN_UCC128_NossackProduct51134_FrozenPorkCollarRemoveAI00 = 24
 
                         foreach (DataRow drow in ds.Tables["tBarCodeSettings"].Rows)
                         {
@@ -1932,9 +1822,17 @@ namespace dMobile.Bedrock
                                     this.IsRuleEnabled_Parse_UCC_12_UPC_E_as_Deli_PLU_4_Digit_Amount = enabled;
                                     this.RuleDescription_Parse_UCC_12_UPC_E_as_Deli_PLU_4_Digit_Amount_Enabled = description;
                                     break;
+
+                                case SysCommon.BarCodeRules.ParseEAN_UCC128_BourvyExports_ProductionDate:
+                                    this.IsRuleEnabled_ParseEAN_UCC128_BourvyExports_ProductionDate = enabled;
+                                    this.RuleDescription_ParseEAN_UCC128_BourvyExports_ProductionDate = description;
+                                    break;
+
+                                default:
+                                    throw new NotImplementedException("Bar code rule setting not defined.");
                             }
 
-                            progValue = progValue + 1;
+                            progValue++;
                             if (this.OnBarCodeSettingsProgressOut != null)
                             {
                                 msgEventArg.CurrentValue = progValue;
@@ -1942,7 +1840,7 @@ namespace dMobile.Bedrock
                                 msgEventArg.MaxValue = progMax;
                                 this.OnBarCodeSettingsProgressOut(this, msgEventArg);
                             }
-                        } // foreach barcode rule
+                        } // foreach bar code rule
 
                         if (this.OnBarCodeSettingsProgressOut != null)
                         {
@@ -1955,7 +1853,6 @@ namespace dMobile.Bedrock
 
                     if (this.OnBarCodeSettingsStatusOut != null)
                     {
-                        // TODO: Resource strings
                         msgEventArg.StatusOutMsg = "Saving bar code settings complete.";
                         this.OnBarCodeSettingsStatusOut(this, msgEventArg);
                     }
@@ -1965,12 +1862,10 @@ namespace dMobile.Bedrock
             {
                 if (this.OnBarCodeSettingsStatusOut != null)
                 {
-                    // TODO: Resource strings
                     msgEventArg.StatusOutMsg = "Saving bar code settings failed.";
                     this.OnBarCodeSettingsStatusOut(this, msgEventArg);
                 }
 
-                // TODO: Resource strings
                 throw new Exception("Saving bar code settings failed.", ex);
             }
         }
@@ -1978,7 +1873,7 @@ namespace dMobile.Bedrock
         /// <summary>
         /// Create the xml request string to send to the communication server.
         /// </summary>
-        /// <returns>String of the xml request to get the bar code settings</returns>
+        /// <returns><see cref="string"/> String of the xml request to get the bar code settings.</returns>
         private string CreateXMLRequestBarCodeSettings()
         {
             StringBuilder xmlString = new StringBuilder();
@@ -2004,7 +1899,5 @@ namespace dMobile.Bedrock
 
             return xmlString.ToString();
         }
-
-        #endregion
     }
 }

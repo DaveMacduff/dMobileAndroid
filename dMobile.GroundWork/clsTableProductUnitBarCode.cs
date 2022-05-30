@@ -1,18 +1,22 @@
+// <copyright file="clsTableProductUnitBarCode.cs" company="InterSect Business Systems Inc">
+// Copyright (c) InterSect Business Systems Inc. All rights reserved.
+// </copyright>
+
 namespace dMobile.GroundWork
 {
-    using dMobile.Bedrock;
     using System;
     using System.Collections.Generic;
-    using SQLite;
     using System.IO;
     using System.Text;
+    using System.Threading.Tasks;
     using System.Xml;
     using System.Xml.Linq;
-    using System.Threading.Tasks;
+    using dMobile.Bedrock;
     using dMobile.Resources.Models;
+    using SQLite;
 
     /// <summary>
-    /// Defines the <see cref="TableProductUnitBarCode" />
+    /// Defines the <see cref="TableProductUnitBarCode" />.
     /// </summary>
     public class TableProductUnitBarCode : TableBase
     {
@@ -26,13 +30,12 @@ namespace dMobile.GroundWork
         }
 
         /// <summary>
-        /// The Request
+        /// The Request.
         /// </summary>
-        public override async Task Request()
+        public override async Task RequestData()
         {
             try
             {
-                // TODO: Resource Strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Seeding product uom bar codes.", true);
 
                 string reqData = string.Empty;
@@ -42,12 +45,11 @@ namespace dMobile.GroundWork
                 {
                     foreach (tFamilyModel family in results)
                     {
-                        // TODO: Resource Strings
                         this.DataAccessStatusOutHandler(this, EventArgs.Empty, string.Format("For family {0}", family.FamilyCode), true);
 
                         reqData = await this.SendRequest(family.FamilyCode);
 
-                        if (0 < reqData.Length)
+                        if (reqData.Length > 0)
                         {
                             if (reqData.Contains("<message>ERROR</message>"))
                             {
@@ -60,74 +62,62 @@ namespace dMobile.GroundWork
                         }
                     }
 
-                    // TODO: Resource strings
                     this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Seeding product uom bar codes complete.", true);
                 }
             }
             catch (SQLiteException ex)
             {
-                // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Database exception occurred.", false);
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Seeding product uom bar codes failed.", true);
 
-                // TODO: Resource strings
                 throw new Exception("Database exception occurred. Seeding product uom bar codes failed.", ex);
             }
             catch (Exception ex)
             {
-                // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Seeding product uom bar codes failed.", true);
 
-                // TODO: Resource strings
                 throw new Exception("Seeding product uom bar codes failed.", ex);
             }
         }
 
         /// <summary>
-        /// The Purge
+        /// The Purge.
         /// </summary>
-        public override async Task Purge()
+        public override async Task PurgeData()
         {
             try
             {
-                // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging product uom bar codes.", true);
 
                 await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync("DELETE FROM tActivityItemBarCodeAssociationXRef");
                 await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync("DELETE FROM tProductUnitBarCode");
 
-                // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging product uom bar codes complete.", true);
             }
             catch (SQLiteException ex)
             {
-                // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Database exception occurred.", true);
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging product uom bar codes failed.", true);
 
-                // TODO: Resource strings
                 throw new Exception("Database exception occurred. Purging product uom bar codes failed.", ex);
             }
         }
 
         /// <summary>
-        /// The DataStatus
+        /// The DataStatus.
         /// </summary>
-        /// <returns>The <see cref="int"/></returns>
+        /// <returns>The <see cref="int"/>.</returns>
         public override async Task<int> DataStatus()
         {
-            int rowsAffected = 0;
-
+            int rowsAffected;
             try
             {
                 rowsAffected = Convert.ToInt32(await DatabaseConnection.GetInstance().SQLConn.ExecuteScalarAsync<int>("SELECT COUNT(*) FROM tProductUnitBarCode"));
 
-                // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, string.Format("{0} product uom bar codes.", rowsAffected), true);
             }
             catch (SQLiteException ex)
             {
-                // TODO: Resource strings
                 throw new Exception("Database exception occurred. Product uom bar codes status failed.", ex);
             }
 
@@ -135,9 +125,9 @@ namespace dMobile.GroundWork
         }
 
         /// <summary>
-        /// The SendRequest
+        /// The SendRequest.
         /// </summary>
-        /// <param name="strFamilyCode">The strFamilyCode<see cref="string"/></param>
+        /// <param name="strFamilyCode">The strFamilyCode<see cref="string"/>.</param>
         /// <returns></returns>
         protected override async Task<string> SendRequest(string strFamilyCode)
         {
@@ -145,7 +135,7 @@ namespace dMobile.GroundWork
         }
 
         /// <summary>
-        /// The Save
+        /// The Save.
         /// </summary>
         /// <param name="reqData"></param>
         protected override async Task Save(string reqData)
@@ -153,20 +143,19 @@ namespace dMobile.GroundWork
         }
 
         /// <summary>
-        /// The SaveOpt
+        /// The SaveOpt.
         /// </summary>
         /// <param name="reqData"></param>
         protected async Task SaveOpt(string reqData)
         {
             string errMsg = string.Empty;
-            bool refreshDataChangesOnly = SysEnv.RefreshOpt.RefreshDataChangesOnly;
+            bool refreshDataChangesOnly = this.SysEnv.RefreshOpt.RefreshDataChangesOnly;
             Dictionary<string, int> unitLookup = new Dictionary<string, int>();
 
             await DatabaseConnection.GetInstance().SQLConn.RunInTransactionAsync(transaction =>
             {
                 try
                 {
-                    // TODO: Resource Strings
                     this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Reading received data.", false);
 
                     int startIndex = reqData.IndexOf("<VFPData");
@@ -183,7 +172,6 @@ namespace dMobile.GroundWork
                     using (StringReader stringReader = new StringReader(reqData.Substring(startIndex)))
                     using (XmlReader reader = XmlReader.Create(stringReader, sett))
                     {
-                        // TODO: Resource Strings
                         this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving product uom bar codes.", false);
 
                         List<tUnitModel> resultsUnit = transaction.Query<tUnitModel>("SELECT * FROM tUnit");
@@ -263,7 +251,9 @@ namespace dMobile.GroundWork
                             } // end of fill record
 
                             if (!recordFilled)
+                            {
                                 continue;
+                            }
 
                             prodUnitBarCodeRaw = string.Empty;
                             errMsg = "FK Refno " + prodFKRefno;
@@ -276,7 +266,6 @@ namespace dMobile.GroundWork
                             }
                             else
                             {
-                                // TODO: Resource Strings
                                 throw new Exception("drProd.Read() failed." + Environment.NewLine + errMsg);
                             }
 
@@ -294,13 +283,12 @@ namespace dMobile.GroundWork
                             }
                             else
                             {
-                                // TODO: Resource Strings
                                 throw new Exception("drProdUnit.Read() failed." + Environment.NewLine + errMsg);
                             }
 
                             isProdUnitBarCodeFound = false;
 
-                            if (SysEnv.RefreshOpt.RefreshDataChangesOnly)
+                            if (this.SysEnv.RefreshOpt.RefreshDataChangesOnly)
                             {
                                 List<tProductUnitBarCodeModel> resultsProductUnitBarcode = transaction.Query<tProductUnitBarCodeModel>("SELECT ProductUnitBarCodeCode, ProductUnitBarCodeModifier1 FROM tProductUnitBarCode WHERE ProductUnitBarCodeCode = ? AND ProductUnitBarCodeModifier1 = ?", prodUnitBarCodeCode, prodUnitBarCodeModifier1);
 
@@ -342,19 +330,17 @@ namespace dMobile.GroundWork
                             ++recordCount;
                             if (recordCount % 100 == 0)
                             {
-                                this.DataAccessProgressOutHandler(this, EventArgs.Empty, (recordCount / 10) % 100, 0, 100);
+                                this.DataAccessProgressOutHandler(this, EventArgs.Empty, recordCount / 10 % 100, 0, 100);
                             }
                         } // end of data
 
                         this.DataAccessProgressOutHandler(this, EventArgs.Empty, 100, 0, 100);
 
-                        // TODO: Resource Strings
                         this.DataAccessStatusOutHandler(this, EventArgs.Empty, string.Format("Records {0}", recordCount), false);
 
                         unitLookup = null;
                         transaction.Commit();
 
-                        // TODO: Resource Strings
                         this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving product uom bar codes complete.", false);
                     }
                 }
@@ -362,18 +348,16 @@ namespace dMobile.GroundWork
                 {
                     transaction.Rollback();
 
-                    // TODO: Resource Strings
                     this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Database exception occurred.", false);
                     this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving product uom bar codes failed.", false);
 
-                    // TODO: Resource Strings
                     throw new Exception("Database exception occurred. Saving product uom bar codes failed." + Environment.NewLine + errMsg, ex);
                 }
             });
         }
 
         /// <summary>
-        /// The CreateRequest
+        /// The CreateRequest.
         /// </summary>
         /// <param name="familyCode"></param>
         /// <returns></returns>
@@ -388,7 +372,7 @@ namespace dMobile.GroundWork
                 + "<command>"
                 + "<action>REQUEST PRODUCT UNIT BAR CODES</action>"
                 + await SysCommon.GetRequestDefaults(true)
-                + ("<family_code>" + familyCode + "</family_code>")
+                + "<family_code>" + familyCode + "</family_code>"
                 + "</command>"
                 + "</imclient>");
 

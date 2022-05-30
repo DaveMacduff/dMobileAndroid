@@ -1,247 +1,28 @@
-﻿namespace dMobile.Controller
+﻿// <copyright file="clsActivityItem.cs" company="InterSect Business Systems Inc">
+// Copyright (c) InterSect Business Systems Inc. All rights reserved.
+// </copyright>
+
+namespace dMobile.Controller
 {
     using System;
+    using System.Collections.Generic;
     using System.Collections.ObjectModel;
-    using System.Data;
-    using SQLite;
     using System.Threading.Tasks;
     using System.Xml.Linq;
     using dMobile.Bedrock;
     using dMobile.GroundWork;
+    using SQLite;
     using Xamarin.Forms;
-    using System.Collections.Generic;
 
     /// <summary>
-    /// Used as return value for GetActivityItemProductSchemeDataFromActivityDetailRefno
+    /// Activity item base class.
     /// </summary>
-    /// <remarks></remarks>
-    public struct SActItemSchemeData
-    {
-        #region Fields
-
-        private int actItemFKRefno;
-        private decimal actDetailQuantity;
-        private string unitCode;
-        private decimal actDetailBaseQuantity;
-        private string baseUnitCode;
-        private decimal actDetailWeightQuantity;
-        private string weightUnitCode;
-        private SProductSchemeData prodSchemeData;
-        private int locMapWhsFKRefno;
-        private int locMapSectFKRefno;
-        private int locMapSlotFKRefno;
-        private ActDetailExtra actDetailExtra;
-
-        #endregion
-
-        #region Properties
-
-        public ActDetailExtra ActDetailExtra
-        {
-            get
-            {
-                return this.actDetailExtra;
-            }
-
-            set
-            {
-                this.actDetailExtra = value;
-            }
-        }
-
-        public int ActItemFKRefno
-        {
-            get
-            {
-                return this.actItemFKRefno;
-            }
-
-            set
-            {
-                this.actItemFKRefno = value;
-            }
-        }
-
-        public decimal ActDetailQuantity
-        {
-            get
-            {
-                return this.actDetailQuantity;
-            }
-
-            set
-            {
-                this.actDetailQuantity = value;
-            }
-        }
-
-        public string UnitCode
-        {
-            get
-            {
-                if (this.unitCode == null)
-                {
-                    this.unitCode = string.Empty;
-                }
-
-                return this.unitCode;
-            }
-
-            set
-            {
-                this.unitCode = value;
-            }
-        }
-
-        public decimal ActDetailBaseQuantity
-        {
-            get
-            {
-                return this.actDetailBaseQuantity;
-            }
-
-            set
-            {
-                this.actDetailBaseQuantity = value;
-            }
-        }
-
-        public string BaseUnitCode
-        {
-            get
-            {
-                if (this.baseUnitCode == null)
-                {
-                    this.baseUnitCode = string.Empty;
-                }
-
-                return this.baseUnitCode;
-            }
-
-            set
-            {
-                this.baseUnitCode = value;
-            }
-        }
-
-        public decimal ActDetailWeightQuantity
-        {
-            get
-            {
-                return this.actDetailWeightQuantity;
-            }
-
-            set
-            {
-                this.actDetailWeightQuantity = value;
-            }
-        }
-
-        public string WeightUnitCode
-        {
-            get
-            {
-                if (this.weightUnitCode == null)
-                {
-                    this.weightUnitCode = string.Empty;
-                }
-
-                return this.weightUnitCode;
-            }
-
-            set
-            {
-                this.weightUnitCode = value;
-            }
-        }
-
-        public SProductSchemeData ProdSchemeData
-        {
-            get
-            {
-                return this.prodSchemeData;
-            }
-
-            set
-            {
-                this.prodSchemeData = value;
-            }
-        }
-
-        public int LocMapWhsFKRefno
-        {
-            get
-            {
-                return this.locMapWhsFKRefno;
-            }
-
-            set
-            {
-                this.locMapWhsFKRefno = value;
-            }
-        }
-
-        public int LocMapSectFKRefno
-        {
-            get
-            {
-                return this.locMapSectFKRefno;
-            }
-
-            set
-            {
-                this.locMapSectFKRefno = value;
-            }
-        }
-
-        public int LocMapSlotFKRefno
-        {
-            get
-            {
-                return this.locMapSlotFKRefno;
-            }
-
-            set
-            {
-                this.locMapSlotFKRefno = value;
-            }
-        }
-
-        #endregion
-    }
-
     public abstract class ActItem : IDataLayerEventPublisher, IDataAccessEventListener
     {
-        #region Fields
-
-        private string mainGridMappingName = "tActivityItem";
-        private List<object> listItems = null;
-        private SysCommon.ActSubTypes actSubType;
-        private int refno = 0;
-        private int fkRefno = 0;
-        private SysEnvironment sysEnv;
-        private ProductInfo prodInfo = new ProductInfo();
-        private object selectedActivityItem;
-
         /// <summary>
-        /// Used to store the currently selected line item location map.
+        /// Initializes a new instance of the <see cref="ActItem"/> class.
         /// </summary>
-        private LocationMap locMap;
-        private Activity actHdr = null;
-        private bool isAllowAddItem = false;
-        //private string actItemFilter = string.Empty;
-        private DataLayerEventArgs dataEventArgs = new DataLayerEventArgs();
-        private string fullClassName = typeof(ActItem).FullName;
-        private bool isAskCreateNewItem = true;
-
-        #endregion
-
-        #region Constructors
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="activity"></param>
+        /// <param name="activity">.</param>
         public ActItem(Activity activity)
         {
             this.SysEnv = SysEnvironment.GetInstance();
@@ -250,477 +31,384 @@
             this.ActSubType = this.ActHdr.ActSubType;
         }
 
-        #endregion
+        /// <summary>
+        /// The data layer status out event handler.
+        /// </summary>
+        /// <param name="publisher">The publisher<see cref="IDataLayerEventPublisher"/>.</param>
+        /// <param name="args">The dataLayerEventArgs<see cref="DataLayerEventArgs"/>.</param>
+        public delegate void OnDataLayerStatusOutEventHandler(
+            IDataLayerEventPublisher publisher,
+            DataLayerEventArgs args);
 
-        #region Delegates
+        /// <summary>
+        /// The data layer progress out event handler.
+        /// </summary>
+        /// <param name="publisher">The publisher<see cref="IDataLayerEventPublisher"/>.</param>
+        /// <param name="args">The dataLayerEventArgs<see cref="DataLayerEventArgs"/>.</param>
+        public delegate void OnDataLayerProgressOutEventHandler(
+            IDataLayerEventPublisher publisher,
+            DataLayerEventArgs args);
 
-        public delegate void OnDataLayerStatusOutEventHandler(IDataLayerEventPublisher dataLayerEventPublisher, DataLayerEventArgs dataLayerEventArgs);
-        public delegate void OnDataLayerProgressOutEventHandler(IDataLayerEventPublisher dataLayerEventPublisher, DataLayerEventArgs dataLayerEventArgs);
-
-        #endregion
-
-        #region Events
-
+        /// <summary>
+        /// Data layer status out event handler.
+        /// </summary>
         public event OnDataLayerStatusOutEventHandler OnDataLayerStatusOut;
+
+        /// <summary>
+        /// Data layer progress out event handler.
+        /// </summary>
         public event OnDataLayerProgressOutEventHandler OnDataLayerProgressOut;
 
-        #endregion
-
-        #region Properties
+        /// <summary>
+        /// Gets or sets a value indicating whether to ask to create a new item..
+        /// </summary>
+        public bool IsAskCreateNewItem { get; set; } = true;
 
         /// <summary>
-        /// 
+        /// Gets or sets the data event arguments..
         /// </summary>
-        public bool IsAskCreateNewItem
-        {
-            get
-            {
-                return this.isAskCreateNewItem;
-            }
-
-            set
-            {
-                this.isAskCreateNewItem = value;
-            }
-        }
+        public DataLayerEventArgs DataEventArgs { get; set; } = new DataLayerEventArgs();
 
         /// <summary>
-        /// 
+        /// Gets or sets the full class name..
         /// </summary>
-        public DataLayerEventArgs DataEventArgs
-        {
-            get
-            {
-                return this.dataEventArgs;
-            }
-
-            set
-            {
-                this.dataEventArgs = value;
-            }
-        }
+        public string FullClassName { get; set; } = string.Empty;
 
         /// <summary>
-        /// 
+        /// Gets or sets a value indicating whether allowed to add an item..
         /// </summary>
-        public string FullClassName
-        {
-            get
-            {
-                return this.fullClassName;
-            }
-
-            set
-            {
-                this.fullClassName = value;
-            }
-        }
-
-        ///// <summary>
-        ///// 
-        ///// </summary>
-        //public string ActItemFilter
-        //{
-        //    get
-        //    {
-        //        return this.actItemFilter;
-        //    }
-
-        //    set
-        //    {
-        //        this.actItemFilter = value;
-        //    }
-        //}
+        public bool IsAllowAddItem { get; set; } = false;
 
         /// <summary>
-        /// 
+        /// Gets or sets the current selected line item location map..
         /// </summary>
-        public bool IsAllowAddItem
-        {
-            get
-            {
-                return this.isAllowAddItem;
-            }
-
-            set
-            {
-                this.isAllowAddItem = value;
-            }
-        }
+        public LocationMap LocMap { get; set; } = LocationMap.GetInstance();
 
         /// <summary>
-        /// Gets or sets the current selected line item location map.
+        /// Gets or sets the Product information..
         /// </summary>
-        public LocationMap LocMap
-        {
-            get
-            {
-                return this.locMap;
-            }
-
-            set
-            {
-                this.locMap = value;
-            }
-        }
+        public ProductInfo ProdInfo { get; set; }
 
         /// <summary>
-        /// 
+        /// Gets or sets the system environment..
         /// </summary>
-        public ProductInfo ProdInfo
-        {
-            get
-            {
-                return this.prodInfo;
-            }
-
-            set
-            {
-                this.prodInfo = value;
-            }
-        }
+        public SysEnvironment SysEnv { get; set; } = SysEnvironment.GetInstance();
 
         /// <summary>
-        /// 
+        /// Gets or sets the list items..
         /// </summary>
-        public SysEnvironment SysEnv
-        {
-            get
-            {
-                return this.sysEnv;
-            }
-
-            set
-            {
-                this.sysEnv = value;
-            }
-        }
+        public List<object> ListItems { get; set; } = new List<object>();
 
         /// <summary>
-        /// 
+        /// Gets or sets the activity item sub type..
         /// </summary>
-        public string MainGridMappingName
-        {
-            get
-            {
-                return this.mainGridMappingName;
-            }
-
-            set
-            {
-                this.mainGridMappingName = value;
-            }
-        }
+        public SysCommon.ActSubTypes ActSubType { get; set; } = SysCommon.ActSubTypes.NotApplicable;
 
         /// <summary>
-        /// 
+        /// Gets or sets the activity item reference number..
         /// </summary>
-        public List<object> ListItems
-        {
-            get
-            {
-                return this.listItems;
-            }
-
-            set
-            {
-                this.listItems = value;
-            }
-        }
+        public int Refno { get; set; } = 0;
 
         /// <summary>
-        /// 
+        /// Gets or sets the activity item foreign key reference number..
         /// </summary>
-        public SysCommon.ActSubTypes ActSubType
-        {
-            get
-            {
-                return this.actSubType;
-            }
-
-            set
-            {
-                this.actSubType = value;
-            }
-        }
+        public int FKRefno { get; set; } = 0;
 
         /// <summary>
-        /// 
+        /// Gets or sets the activity header..
         /// </summary>
-        public int Refno
-        {
-            get
-            {
-                return this.refno;
-            }
-
-            set
-            {
-                this.refno = value;
-            }
-        }
+        public Activity ActHdr { get; set; }
 
         /// <summary>
-        /// 
+        /// Gets or sets the selected activity item..
         /// </summary>
-        public int FKRefno
-        {
-            get
-            {
-                return this.fkRefno;
-            }
-
-            set
-            {
-                this.fkRefno = value;
-            }
-        }
+        public object SelectedActivityItem { get; set; }
 
         /// <summary>
-        /// 
+        /// Gets or sets a value indicating whether allowed to add skid detail.
         /// </summary>
-        public Activity ActHdr
-        {
-            get
-            {
-                return this.actHdr;
-            }
-
-            set
-            {
-                this.actHdr = value;
-            }
-        }
+        /// <returns><see cref="bool"/> True if allowed to add skid detail.</returns>
+        public abstract bool IsAllowAddSkidDetail();
 
         /// <summary>
-        /// 
+        /// Insert an activity item.
         /// </summary>
-        public object SelectedActivityItem
-        {
-            get
-            {
-                return this.selectedActivityItem;
-            }
-
-            set
-            {
-                this.selectedActivityItem = value;
-            }
-        }
-
-        #endregion
-
-        #region Public Members
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="data"></param>
-        /// <param name="askToInsertAsNewItem"></param>
+        /// <param name="data"><see cref="XDocument"/> Data to insert.</param>
+        /// <param name="askToInsertAsNewItem"><see cref="bool"/> Ask a question to insert a new item.</param>
+        /// <returns>The <see cref="Task"/>.</returns>
         public abstract Task Insert(XDocument data, bool askToInsertAsNewItem);
 
         /// <summary>
-        /// 
+        /// Refresh the activity item data.
         /// </summary>
-        /// <param name="data"></param>
+        /// <param name="data"><see cref="XDocument"/> Filter criteria.</param>
+        /// <returns>The <see cref="Task"/> Task operation.</returns>
         public abstract Task Refresh(XDocument data);
 
         /// <summary>
-        /// 
+        /// Create XML data for activity item submission.
         /// </summary>
-        /// <param name="data"></param>
-        /// <returns></returns>
+        /// <param name="data"><see cref="XDocument"/> Filter criteria.</param>
+        /// <returns><see cref="string"/> Created XML submission data.</returns>
         public abstract Task<string> CreateSubmitXML(XDocument data);
 
         /// <summary>
-        /// 
+        /// Search for activity items using the search text.
         /// </summary>
-        /// <param name="searchText"></param>
-        /// <returns></returns>
+        /// <param name="searchText"><see cref="string"/> Search text.</param>
+        /// <returns><see cref="object"/> Found object.</returns>
         public abstract ObservableCollection<object> Search(string searchText);
 
         /// <summary>
-        /// 
+        /// Get a list of activity items.
         /// </summary>
-        /// <param name="isSubmitBatch"></param>
-        /// <returns></returns>
+        /// <param name="isSubmitBatch"><see cref="bool"/> Is batch submission.</param>
+        /// <returns>.</returns>
         public abstract Task<List<object>> GetActivityItemList(bool isSubmitBatch);
 
         /// <summary>
-        /// 
+        /// Design the list view grid.
         /// </summary>
-        /// <param name="dataview"></param>
-        public abstract ObservableCollection<object> DesignGrid(ref Grid dataGridMainActivityHeader, ref ListView dataGridMainActivity);
+        /// <param name="GridMainActivity"><see cref="Grid"/> Main activity grid.</param>
+        /// <param name="ListViewMainActivity"><see cref="ListView"/> Main activity list view.</param>
+        /// <returns>The <see cref="ObservableCollection{object}"/>.</returns>
+        public abstract ObservableCollection<object> DesignGrid(
+            ref Grid GridMainActivity,
+            ref ListView ListViewMainActivity);
 
         /// <summary>
-        /// 
+        /// Get the activity item reference number from the product unit reference number.
         /// </summary>
-        /// <param name="prodUnitRefno"></param>
-        /// <returns></returns>
-        public abstract Task<int> GetRefnoFromProdUnitRefno(int prodUnitRefno);
+        /// <param name="prodUnitRefno"><see cref="int"/> Product unit reference number.</param>
+        /// <returns><see cref="int"/> Found activity item refno else 0.</returns>
+        public abstract Task<int> GetActivityItemRefno(int prodUnitRefno);
 
         /// <summary>
-        /// 
+        /// Get the data view sort foreign key reference number index name.
         /// </summary>
-        /// <returns></returns>
+        /// <returns><see cref="string"/> Foreign key index name.</returns>
         public abstract string GetDataViewSortFKRefnoIdx();
 
         /// <summary>
-        /// 
+        /// Get the activity item control description.
         /// </summary>
-        /// <param name="actItemStringFKRefno"></param>
-        /// <returns></returns>
+        /// <returns><see cref="string"/> Activity item control description.</returns>
+        public abstract string GetControlDescription();
+
+        /// <summary>
+        /// Get the unable to find item message.
+        /// </summary>
+        /// <param name="actItemStringFKRefno"><see cref="string"/> Activity item string foreign key reference number.</param>
+        /// <returns><see cref="string"/> Unable to find item message.</returns>
         public abstract string GetUnableToFindItemFKRefnoMessage(string actItemStringFKRefno);
 
         /// <summary>
-        /// 
+        /// Get the unable to parse item message.
         /// </summary>
-        /// <param name="actItemStringFKRefno"></param>
-        /// <returns></returns>
+        /// <param name="actItemStringFKRefno"><see cref="string"/> Activity item string foreign key reference number.</param>
+        /// <returns><see cref="string"/> Unable to find item message.</returns>
         public abstract string GetUnableToParseItemFKRefnoMessage(string actItemStringFKRefno);
 
         /// <summary>
-        /// Update the item dataview quantity. Adds to the existing values.
+        /// Update the item data view quantity. Adds to the existing values.
         /// </summary>
-        /// <param name="rowIdx"></param>
-        /// <param name="quantity"></param>
-        /// <param name="baseQuantity"></param>
-        /// <param name="weightQuantity"></param>
-        /// <returns></returns>
-        /// <remarks>Scanning a barcode that as all the required scheme data should just add the new quantity to 
-        /// the existing.</remarks>
-        public abstract void UpdateListItemQuantity(object selectedActivityItem, decimal quantity, decimal baseQuantity, decimal weightQuantity);
+        /// <param name="selectedActivityItem"><see cref="object"/> Selected activity item.</param>
+        /// <param name="quantity"><see cref="decimal"/> Alt quantity.</param>
+        /// <param name="baseQuantity"><see cref="decimal"/> Base quantity.</param>
+        /// <param name="weightQuantity"><see cref="decimal"/> Weight quantity.</param>
+        public abstract void UpdateListItemQuantity(
+            object selectedActivityItem,
+            decimal quantity,
+            decimal baseQuantity,
+            decimal weightQuantity);
 
         /// <summary>
-        /// Replaces the item dataview quantity. Does not add to the existing values.
+        /// Replaces the item data view quantity. Does not add to the existing values.
         /// </summary>
-        /// <param name="idx"></param>
-        /// <param name="quantity"></param>
-        /// <param name="baseQuantity"></param>
-        /// <param name="weightQuantity"></param>
-        /// <remarks>Returning from the activity detail screen the xml will have the total quantity for 
-        /// all details.</remarks>
-        public abstract void RefreshQuantity(object selectedActivityItem, decimal quantity, decimal baseQuantity, decimal weightQuantity);
+        /// <param name="selectedActivityItem"><see cref="object"/> Selected activity item.</param>
+        /// <param name="quantity"><see cref="decimal"/> Alt quantity.</param>
+        /// <param name="baseQuantity"><see cref="decimal"/> Base quantity.</param>
+        /// <param name="weightQuantity"><see cref="decimal"/> Weight quantity.</param>
+        public abstract void RefreshQuantity(
+            object selectedActivityItem,
+            decimal quantity,
+            decimal baseQuantity,
+            decimal weightQuantity);
 
         /// <summary>
-        /// Update the activity line item quantity in the database from the line item dataview.
+        /// Update the activity line item quantity in the database from the line item data view.
         /// </summary>
-        /// <param name="idx"></param>
-        /// <param name="actItemRefno"></param>
-        /// <remarks></remarks>
-        public abstract Task UpdateQuantityFromActivityItemList(object selectedActivityItem, int actItemRefno);
+        /// <param name="selectedActivityItem"><see cref="object"/> Selected activity item.</param>
+        /// <param name="actItemRefno"><see cref="int"/> Activity item reference number.</param>
+        /// <returns><see cref="Task"/> Taks operation.</returns>
+        public abstract Task UpdateQuantityFromActivityItemList(
+            object selectedActivityItem,
+            int actItemRefno);
 
         /// <summary>
-        /// 
+        /// Get the activity foreign key reference number.
         /// </summary>
-        /// <param name="idx"></param>
-        public virtual async Task SelectActivityItem(object selectedActivityItem)
+        /// <param name="resourceType"><see cref="object"/> Resource model type (t????Model).</param>
+        /// <returns><see cref="int"/> Found activity foreign key refno, else 0 if not found.</returns>
+        public abstract int GetFKRefno(object resourceType);
+
+        /// <summary>
+        /// Get the product scheme data from the detail fk reference number.
+        /// </summary>
+        /// <param name="actDetailFKRefno"><see cref="int"/> Activity detail foreign key reference number.</param>
+        /// <returns><see cref="Task{SActItemSchemeData}"/> Activity item scheme data.</returns>
+        public abstract Task<SActItemSchemeData> GetProdSchemeDataFromDetailFKRefno(int actDetailFKRefno);
+
+        /// <summary>
+        /// Get activity item comment.
+        /// </summary>
+        /// <param name="selectedActivityItem"><see cref="object"/> Selected activity item.</param>
+        /// <returns><see cref="Task{string}"/> Line item comment.</returns>
+        public abstract Task<string> GetComment(object selectedActivityItem);
+
+        /// <summary>
+        /// Submit and activity item.
+        /// </summary>
+        /// <param name="data">.</param>
+        /// <param name="selectedActivityItem"><see cref="object"/> Selected activity item.</param>
+        /// <returns>The <see cref="Task"/> Task operation.</returns>
+        public abstract Task Submit(XDocument data, object selectedActivityItem);
+
+        /// <summary>
+        /// Delete one or a set of activity item(s).
+        /// </summary>
+        /// <returns><see cref="int"/> Previous non deleted item foreign key reference number.</returns>
+        public abstract Task<int> Delete();
+
+        /// <summary>
+        /// Create delete XML request.
+        /// </summary>
+        /// <param name="data"><see cref="XDocument"/> Create delete XML request.</param>
+        /// <returns><see cref="Task{string}"/> Delete XML.</returns>
+        public abstract Task<string> CreateDeleteXML(XDocument data);
+
+        /// <summary>
+        /// Update the activity item.
+        /// </summary>
+        /// <param name="data"><see cref="XDocument"/> Update data.</param>
+        /// <returns>The <see cref="Task"/> Task operation.</returns>
+        public abstract Task Update(XDocument data);
+
+        /// <summary>
+        /// Return the total quantity as a message string for displaying in a message box.
+        /// </summary>
+        /// <returns><see cref="string"/> Total quantity.</returns>
+        public abstract Task<string> GetTotalQuantity();
+
+        /// <summary>
+        /// Select the activity item.
+        /// </summary>
+        /// <param name="selectedActivityItem"><see cref="object"/> Selected activity item.</param>
+        /// <returns><see cref="Task"/> Task operation.</returns>
+        public abstract Task SelectActivityItem(object selectedActivityItem);
+
+        /// <summary>
+        /// Get the default location map reference number for a warehouse, product.
+        /// </summary>
+        /// <param name="whsLocMapRefno"><see cref="int"/> Warehouse location map reference number.</param>
+        /// <param name="prodRefno"><see cref="int"/> Product reference number.</param>
+        /// <returns><see cref="int"/> Default location map refno or zero.</returns>
+        public abstract Task<int> GetDefaultLocMapRefno(int whsLocMapRefno, int prodRefno);
+
+        /// <summary>
+        /// Get label quantity.
+        /// </summary>
+        /// <param name="isRepackQuantityOnly"><see cref="bool"/> Is repack quantity only.</param>
+        /// <returns><see cref="SLabelQuantity"/> Structure containing the label quantities.</returns>
+        public abstract Task<SLabelQuantity> GetLabelQuantity(bool isRepackQuantityOnly);
+
+        /// <summary>
+        /// Check if the product catch ask is enabled.
+        /// </summary>
+        /// <returns><see cref="bool"/> True if catch ask is enabled else false.</returns>
+        public abstract bool IsCatchAsk();
+
+        /// <summary>
+        /// Check if the product catch ask zero is enabled.
+        /// </summary>
+        /// <returns><see cref="bool"/> True if catch ask zero is enabled else false.</returns>
+        public abstract bool IsCatchAskZero();
+
+        /// <summary>
+        /// Determine what the selected location map should be when an activity line item or detail is selected.
+        /// </summary>
+        /// <param name="activityLocMapRefno"><see cref="int"/> Activity location map reference number.</param>
+        /// <returns><see cref="Task{void}"/> Task operation.</returns>
+        public virtual async Task GetSelectedItemLocation(int activityLocMapRefno)
         {
-            if (selectedActivityItem == null)
+            SLocMap defaultLocMap = null;
+
+            // The line item location may be a warehouse or event a slot.
+            SLocMap itemLocMap = await LocationMapTasks.GetSLocMapFromLocMapRefno(activityLocMapRefno);
+
+            if (this.SysEnv.SysSettings.IsDefaultLocToProductDefaultLoc)
             {
-                return;
-            }
+                // If there is a skid, it's location will always be the warehouse product location.
+                int locMapRefno = await this.GetDefaultLocMapRefno(
+                    itemLocMap.WhsLocMapRefno,
+                    this.ProdInfo.Refno);
+                defaultLocMap = await LocationMapTasks.GetSLocMapFromLocMapRefno(locMapRefno);
 
-            this.SelectedActivityItem = selectedActivityItem;
-            this.Refno = Convert.ToInt32(this.SelectedActivityItem.GetType().GetProperty("ActivityItemRefno")?.GetValue(this.SelectedActivityItem));
-            this.ProdInfo = await ProductInfoTasks.GetInfoFromUnitRefno(Convert.ToInt32(this.SelectedActivityItem.GetType().GetProperty("ProductUnitRefno")?.GetValue(this.SelectedActivityItem)));
-
-            bool clearSkidFlag = SysEnv.SysSettings.DoesSelectingADifferentProductClearSkid;
-            bool hasSkidData = this.ActHdr.SkidInfo.CurrSkid.SkidFKRefno > 0;
-            bool allowAddToSkid = hasSkidData;
-
-            if (allowAddToSkid && clearSkidFlag)
-            {
-                // With this flag turned on, they should only be allowed to add to skid with the same product
-                allowAddToSkid &= this.ProdInfo.Refno == this.ActHdr.SkidInfo.CurrSkid.ProdInfo.Refno;
-            }
-
-            if (this.SysEnv.SysSettings.IsDefaultLocToProductDefaultLoc && !this.SysEnv.SysSettings.IsVerifyProductLocation)
-            {
-                if (0 < this.ActHdr.SkidInfo.CurrSkid.SkidFKRefno && this.ActHdr.SkidInfo.CurrSkid.ProdInfo.Refno == this.ProdInfo.Refno)
+                if (this.ActHdr.SkidInfo.CurrSkid.SkidFKRefno > 0)
                 {
-                    this.LocMap.CurrLocMap = this.ActHdr.SkidInfo.CurrSkid.LocMap;
-                }
-                else
-                {
-                    // Use a tmpLocMap to get the WarehouseLocationMapRefno. 
-                    // The count LocationMapRefno could be a warehouse, section or slot location map refno.
-                    SLocMap tmpLocMap = await LocationMapTasks.GetSLocMapFromLocMapRefno(Convert.ToInt32(this.SelectedActivityItem.GetType().GetProperty("LocationMapRefno")?.GetValue(this.SelectedActivityItem)));
-                    int tmpDefaultLocMap = await this.GetDefaultLocMapRefno(tmpLocMap.WhsLocMapRefno, Convert.ToInt32(this.SelectedActivityItem.GetType().GetProperty("ProductRefno")?.GetValue(this.SelectedActivityItem)));
-                    this.LocMap.CurrLocMap = await LocationMapTasks.GetSLocMapFromLocMapRefno(tmpDefaultLocMap);
-
-                    // clear the skid
-                    if (clearSkidFlag)
-                    {
-                        this.ActHdr.SkidInfo.CurrSkid = new SSkidInfo();
-                    }
+                    this.ActHdr.SkidInfo.CurrSkid.LocMap = defaultLocMap;
                 }
             }
             else
             {
-                // Default the location to the skid location even if defaulting location is turned off.
-                if (0 < this.ActHdr.SkidInfo.CurrSkid.SkidFKRefno && this.ActHdr.SkidInfo.CurrSkid.ProdInfo.Refno == this.ProdInfo.Refno)
+                // A skid or selected location must match the line item warehouse. This checked during
+                // scanning or a manual adding of detail not during an item selection.
+                if (this.SysEnv.SysSettings.IsVerifyProductLocation)
                 {
-                    this.LocMap.CurrLocMap = this.ActHdr.SkidInfo.CurrSkid.LocMap;
-                }
-                else if (clearSkidFlag)
-                {
-                    this.ActHdr.SkidInfo.CurrSkid = new SSkidInfo();
+                    if (this.ActHdr.SkidInfo.CurrSkid.SkidFKRefno > 0 &&
+                        this.ActHdr.SkidInfo.CurrSkid.ProdInfo.Refno == this.ProdInfo.Refno)
+                    {
+                        defaultLocMap = this.ActHdr.SkidInfo.CurrSkid.LocMap;
+                    }
                 }
             }
 
-            // LocationMap.GetInstance().CurrLocMap needs to be set before call to GetSchemeComponentsFromRefno.
-            this.ProdInfo.Scheme = await ProductInfoTasks.GetSchemeComponentsFromRefno(this.ProdInfo.Refno);
+            if (defaultLocMap == null || defaultLocMap.WhsLocMapRefno == 0)
+            {
+                defaultLocMap = LocationMap.GetInstance().ChosenLocMap;
+            }
+
+            if (defaultLocMap == null || defaultLocMap.WhsLocMapRefno == 0)
+            {
+                defaultLocMap = await LocationMapTasks.GetSLocMapFromLocMapRefno(
+                    LocationMap.GetInstance().LoginWhsLocMapRefno);
+            }
+
+            if (defaultLocMap == null || defaultLocMap.WhsLocMapRefno == 0)
+            {
+                defaultLocMap = new SLocMap();
+            }
+
+            this.LocMap.CurrLocMap = defaultLocMap;
+
+            if (this.SysEnv.SysSettings.DoesSelectingADifferentProductClearSkid &&
+                this.ActHdr.SkidInfo.CurrSkid.ProdInfo.Refno != this.ProdInfo.Refno)
+            {
+                this.ActHdr.SkidInfo.CurrSkid = new SSkidInfo();
+            }
         }
 
         /// <summary>
-        /// Get the default location map refno for a warehouse, product.
+        /// Get item not found message.
         /// </summary>
-        /// <param name="whsLocMapRefno"></param>
-        /// <param name="productRefno"></param>
-        /// <returns></returns>
-        /// Location map refno.
-        /// <remarks>Use the Current Warehouse Location Map Refno which should have be set from the selected 
-        /// Activity Item</remarks>
-        public virtual async Task<int> GetDefaultLocMapRefno(int whsLocMapRefno, int prodRefno)
-        {
-            int locMapRefno = await LocationMapTasks.GetDefaultLocMapRefnoFromProdRefno(whsLocMapRefno, prodRefno, SysCommon.ProdLocMapTypes.Picking);
-            return locMapRefno;
-        }
-
-        /// <summary>
-        ///
-        /// </summary>
-        /// <returns>Structure containing the label quantities.</returns>
-        /// <remarks>Currently picking is the only module needing this. Used for Shipping Labels.</remarks>
-        public virtual SysCommon.SLabelQuantity GetLabelQuantity()
-        {
-            throw new NotImplementedException();
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="isRepackQuantityOnly"></param>
-        /// <returns>Structure containing the label quantities.</returns>
-        /// <remarks>Currently picking is the only module needing this. Used for Shipping Labels.</remarks>
-        public virtual Task<SysCommon.SLabelQuantity> GetLabelQuantity(bool isRepackQuantityOnly)
-        {
-            throw new NotImplementedException();
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="locMap"></param>
-        /// <param name="prodInfo"></param>
-        /// <returns></returns>
+        /// <param name="locMap"><see cref="LocationMap"/> Location map reference number.</param>
+        /// <param name="prodInfo"><see cref="ProductInfo"/> Product informations.</param>
+        /// <returns><see cref="string"/> Item not found message.</returns>
         public virtual string GetItemNotFoundMessage(LocationMap locMap, ProductInfo prodInfo)
         {
-            // TODO: Resource strings
-            string message = string.Format("Item not found for "
-                + Environment.NewLine + "Location {0} "
-                + Environment.NewLine + "Product {1} BC {2} Unit {3}",
+            string message = string.Format(
+                "Item not found for " + Environment.NewLine + "Location {0} " +
+                    Environment.NewLine + "Product {1} BC {2} Unit {3}",
                 LocationMapTasks.GetCurrentReadableLocation(),
                 prodInfo.Code,
                 prodInfo.UnitBC,
@@ -729,182 +417,107 @@
             return message;
         }
 
+        public virtual List<object> GetListItems()
+        {
+            return this.ListItems;
+        }
+
         /// <summary>
-        /// IsReadyToApply will perform validations, such as duplicate checks and quantity over / under validations.
+        /// Perform validations, such as duplicate checks and quantity over / under validations.
         /// </summary>
-        /// <param name="data"></param>
-        /// <returns></returns>
-        /// <remarks>clsPickingActivityItem for example performs extra quantity validation.</remarks>
+        /// <param name="data"><see cref="XDocument"/> Activity detail unique scheme id.</param>
+        /// <returns><see cref="Task"/> Task operation.</returns>
         public virtual async Task IsReadyToApply(XDocument data)
         {
             // Check for duplicate
             if (this.SysEnv.SysSettings.IsDisconnectedMode)
             {
                 string actDetailUniqSchemeID = data.Root.Element("ActivityDetailUniqueSchemeID").Value;
-
                 if (string.Compare(actDetailUniqSchemeID, string.Empty) > 0)
                 {
-                    bool isDupSchemeID = await ProductInfoTasks.IsDuplicateUniqueSchemeID(actDetailUniqSchemeID);
-
+                    bool isDupSchemeID = await ProductInfoTasks.IsDuplicateUniqueSchemeID(
+                        actDetailUniqSchemeID);
                     if (isDupSchemeID)
                     {
-                        // TODO: Resource strings
-                        throw new IsReadyToApplyException("Duplicate scheme id!" + Environment.NewLine + actDetailUniqSchemeID, false, false);
+                        throw new IsReadyToApplyException(
+                            "Duplicate scheme id!" +
+                            Environment.NewLine + actDetailUniqSchemeID,
+                            false,
+                            false);
                     }
                 }
             }
         }
 
         /// <summary>
-        /// 
+        /// Create activity.
         /// </summary>
-        /// <param name="actDetailFKRefno"></param>
-        /// <returns></returns>
-        public async virtual Task<SActItemSchemeData> GetProdSchemeDataFromDetailFKRefno(int actDetailFKRefno)
-        {
-            return new SActItemSchemeData();
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="idx"></param>
-        /// <returns></returns>
-        public virtual bool ChangeStatus(int idx)
-        {
-            return true;
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="idx"></param>
-        /// <returns></returns>
-        public virtual async Task<string> GetComment(object selectedActivityItem)
-        {
-            return string.Empty;
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="data"></param>
-        /// <param name="idx"></param>
-        public virtual Task Submit(XDocument data, object selectedActivityItem)
-        {
-            throw new NotImplementedException();
-        }
-
-        /// <summary>
-        ///
-        /// </summary>
-        /// <remarks></remarks>
-        public virtual Task Delete()
-        {
-            throw new NotImplementedException();
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="data"></param>
-        /// <returns></returns>
-        public virtual Task<string> CreateDeleteXML(XDocument data)
-        {
-            throw new NotImplementedException();
-        }
-
-        /// <summary>
-        ///
-        /// </summary>
-        /// <returns></returns>
-        /// <remarks></remarks>
-        public virtual bool IsCatchAsk()
-        {
-            return this.ProdInfo.IsCatchAsk;
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <returns></returns>
-        public virtual bool IsCatchAskZero()
-        {
-            return this.ProdInfo.IsCatchAskZero;
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="data"></param>
-        public virtual Task Update(XDocument data)
-        {
-            throw new NotImplementedException();
-        }
-
-        /// <summary>
-        /// Return the total quantity as a message string for displaying in a messagebox.
-        /// </summary>
-        /// <remarks>Used for WO# 11445 Trimpac wanted to see the total cases received.
-        /// Trimpac's assumption is that all the UOM are the same to have any value being summed.</remarks>
-        /// Weight makes sense to sum.
-        /// Decided to add this to the base class in the event other modules would need something similar.
-        /// Lets hope common sense will prevail. :-)
-        /// <returns></returns>
-        public virtual async Task<string> GetTotalQuantity()
-        {
-            return string.Empty;
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="actSubTypes"></param>
+        /// <param name="actSubTypes"><see cref="SysCommon.ActSubTypes"/> Activity sub type.</param>
+        /// <returns><see cref="Task"/> Task operation.</returns>
         public async Task Create(SysCommon.ActSubTypes actSubTypes)
         {
             try
             {
                 SQLiteAsyncConnection conn = DatabaseConnection.GetInstance().SQLConn;
 
-                await conn.ExecuteAsync("INSERT INTO tActivityItem (ActivityItemSubType, ActivityItemStatus, ActivityRefno) VALUES (?, ?, ?)", Convert.ToInt32(actSubTypes), Convert.ToInt32(SysCommon.ActStatus.Inserted), Convert.ToInt32(this.ActHdr.Refno));
-                this.Refno = Convert.ToInt32(await conn.ExecuteScalarAsync<int>("SELECT last_insert_rowid() FROM tActivityItem"));
+                await conn.ExecuteAsync(
+                    "INSERT INTO tActivityItem (ActivityItemSubType, ActivityItemStatus," +
+                    " ActivityRefno) VALUES (?, ?, ?)",
+                    Convert.ToInt32(actSubTypes),
+                    Convert.ToInt32(SysCommon.ActStatus.Inserted),
+                    Convert.ToInt32(this.ActHdr.Refno));
+
+                this.Refno = Convert.ToInt32(await conn.ExecuteScalarAsync<int>(
+                    "SELECT last_insert_rowid() FROM tActivityItem"));
             }
             catch (SQLiteException ex)
             {
-                // TODO: Resource strings
                 throw new Exception("Database exception occurred.", ex);
+            }
+            catch
+            {
+                throw;
             }
         }
 
         /// <summary>
-        /// 
+        /// Data layer status out handler.
         /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        /// <param name="outMessage"></param>
-        /// <param name="overrideDisconnectedMode"></param>
-        public void DataLayerStatusOutHandler(object sender, EventArgs e, string outMessage, bool overrideDisconnectedMode)
+        /// <param name="sender"><see cref="object"/> Sender object.</param>
+        /// <param name="e"><see cref="EventArgs"/> Sender object event arguments.</param>
+        /// <param name="statusMessage"><see cref="string"/> Status message to display.</param>
+        /// <param name="overrideDisconnectedMode"><see cref="bool"/> Override disconnected mode.</param>
+        public void DataLayerStatusOutHandler(
+            object sender,
+            EventArgs e,
+            string statusMessage,
+            bool overrideDisconnectedMode)
         {
             if (!this.SysEnv.SysSettings.IsDisconnectedMode || overrideDisconnectedMode)
             {
                 if (this.OnDataLayerStatusOut != null)
                 {
                     this.DataEventArgs.OverrideDisconnectedMode = overrideDisconnectedMode;
-                    this.DataEventArgs.StatusOutMsg = outMessage;
+                    this.DataEventArgs.StatusOutMsg = statusMessage;
                     this.OnDataLayerStatusOut(this, this.DataEventArgs);
                 }
             }
         }
 
         /// <summary>
-        /// 
+        /// Data layer progress out handler.
         /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        /// <param name="currentValue"></param>
-        /// <param name="minValue"></param>
-        /// <param name="maxValue"></param>
-        public void DataLayerProgressOutHandler(object sender, EventArgs e, int currentValue, int minValue, int maxValue)
+        /// <param name="sender"><see cref="object"/> Sender object.</param>
+        /// <param name="e"><see cref="EventArgs"/> Sender object event arguments.</param>
+        /// <param name="currentValue"><see cref="int"/> Current progress value.</param>
+        /// <param name="minValue"><see cref="int"/> Progress minimum value.</param>
+        /// <param name="maxValue"><see cref="int"/> Progress maximum value.</param>
+        public void DataLayerProgressOutHandler(
+            object sender,
+            EventArgs e,
+            int currentValue,
+            int minValue,
+            int maxValue)
         {
             if (this.OnDataLayerProgressOut != null)
             {
@@ -917,11 +530,11 @@
         }
 
         /// <summary>
-        /// 
+        /// Data layer progress out handler.
         /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        /// <param name="currentValue"></param>
+        /// <param name="sender"><see cref="object"/> Sender object.</param>
+        /// <param name="e"><see cref="EventArgs"/> Sender object event arguments.</param>
+        /// <param name="currentValue"><see cref="int"/> Current progress value.</param>
         public void DataLayerProgressOutHandler(object sender, EventArgs e, int currentValue)
         {
             if (this.OnDataLayerProgressOut != null)
@@ -932,16 +545,17 @@
             }
         }
 
-        #region IDataAccessEventListener Members
-
         /// <summary>
-        /// 
+        /// On data access status out.
         /// </summary>
-        /// <param name="dataAccessEventPublisher"></param>
-        /// <param name="dataAccessEventArgs"></param>
-        public void OnDataAccessStatusOut(IDataAccessEventPublisher dataAccessEventPublisher, DataAccessEventArgs dataAccessEventArgs)
+        /// <param name="dataAccessEventPublisher"><see cref="IDataAccessEventPublisher"/> Data access event publisher.</param>
+        /// <param name="dataAccessEventArgs"><see cref="DataAccessEventArgs"/> Data access event arguments.</param>
+        public void OnDataAccessStatusOut(
+            IDataAccessEventPublisher dataAccessEventPublisher,
+            DataAccessEventArgs dataAccessEventArgs)
         {
-            if (!this.SysEnv.SysSettings.IsDisconnectedMode || dataAccessEventArgs.OverrideDisconnectedMode)
+            if (!this.SysEnv.SysSettings.IsDisconnectedMode ||
+                dataAccessEventArgs.OverrideDisconnectedMode)
             {
                 if (this.OnDataLayerStatusOut != null)
                 {
@@ -953,11 +567,13 @@
         }
 
         /// <summary>
-        /// 
+        /// On data access progress out.
         /// </summary>
-        /// <param name="dataAccessEventPublisher"></param>
-        /// <param name="dataAccessEventArgs"></param>
-        public void OnDataAccessProgressOut(IDataAccessEventPublisher dataAccessEventPublisher, DataAccessEventArgs dataAccessEventArgs)
+        /// <param name="dataAccessEventPublisher"><see cref="IDataAccessEventPublisher"/> Data access event publisher.</param>
+        /// <param name="dataAccessEventArgs"><see cref="DataAccessEventArgs"/> Data access event arguments.</param>
+        public void OnDataAccessProgressOut(
+            IDataAccessEventPublisher dataAccessEventPublisher,
+            DataAccessEventArgs dataAccessEventArgs)
         {
             if (this.OnDataLayerProgressOut != null)
             {
@@ -971,48 +587,44 @@
             }
         }
 
-        #endregion
-
-        #region IDataLayerEventPublisher Members
-
         /// <summary>
-        /// 
+        /// Register the data layer listener status out.
         /// </summary>
-        /// <param name="dataLayerEventListener"></param>
-        public void RegLayerListenerStatOut(IDataLayerEventListener dataLayerEventListener)
+        /// <param name="listener"><see cref="IDataAccessEventListener"/> Data access event listener.</param>
+        public void RegLayerListenerStatOut(IDataLayerEventListener listener)
         {
-            this.OnDataLayerStatusOut += new OnDataLayerStatusOutEventHandler(dataLayerEventListener.OnLayerStatOut);
+            this.OnDataLayerStatusOut += new OnDataLayerStatusOutEventHandler(
+                listener.OnLayerStatOut);
         }
 
         /// <summary>
-        /// 
+        /// Unregister the data layer listener status out.
         /// </summary>
-        /// <param name="dataLayerEventListener"></param>
-        public void UnregLayerListenerStatOut(IDataLayerEventListener dataLayerEventListener)
+        /// <param name="listener"><see cref="IDataAccessEventListener"/> Data access event listener.</param>
+        public void UnregLayerListenerStatOut(IDataLayerEventListener listener)
         {
-            this.OnDataLayerStatusOut -= new OnDataLayerStatusOutEventHandler(dataLayerEventListener.OnLayerStatOut);
+            this.OnDataLayerStatusOut -= new OnDataLayerStatusOutEventHandler(
+                listener.OnLayerStatOut);
         }
 
         /// <summary>
-        /// 
+        /// Register the data layer listener progress out.
         /// </summary>
-        /// <param name="dataLayerEventListener"></param>
-        public void RegLayerListenerProgOut(IDataLayerEventListener dataLayerEventListener)
+        /// <param name="listener"><see cref="IDataAccessEventListener"/> Data access event listener.</param>
+        public void RegLayerListenerProgOut(IDataLayerEventListener listener)
         {
-            this.OnDataLayerProgressOut += new OnDataLayerProgressOutEventHandler(dataLayerEventListener.OnLayerProgOut);
+            this.OnDataLayerProgressOut += new OnDataLayerProgressOutEventHandler(
+                listener.OnLayerProgOut);
         }
 
         /// <summary>
-        /// 
+        /// Unregister the data layer listener progress out.
         /// </summary>
-        /// <param name="dataLayerEventListener"></param>
-        public void UnregLayerListenerProgOut(IDataLayerEventListener dataLayerEventListener)
+        /// <param name="listener"><see cref="IDataAccessEventListener"/> Data access event listener.</param>
+        public void UnregLayerListenerProgOut(IDataLayerEventListener listener)
         {
-            this.OnDataLayerProgressOut -= new OnDataLayerProgressOutEventHandler(dataLayerEventListener.OnLayerProgOut);
+            this.OnDataLayerProgressOut -= new OnDataLayerProgressOutEventHandler(
+                listener.OnLayerProgOut);
         }
-
-        #endregion
-
-        #endregion
     }
 }

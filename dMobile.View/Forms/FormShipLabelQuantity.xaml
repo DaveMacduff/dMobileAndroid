@@ -13,12 +13,12 @@
 
                 <Grid Grid.Row="0" HorizontalOptions="CenterAndExpand" VerticalOptions="CenterAndExpand">
                     <Label x:Name="lblQuantity" Grid.Row="0"/>
-                    <Entry x:Name="txtQuantity" Grid.Row="0" Grid.Column="1" Keyboard="Numeric" TextChanged="txtQuantity_TextChanged"/>
+                    <Entry x:Name="txtQuantity" Grid.Row="0" Grid.Column="1" Keyboard="Numeric" TextChanged="TxtQuantity_TextChanged"/>
                 </Grid>
 
                 <Grid Grid.Row="1">
-                    <Button x:Name="cmdOK" Grid.Row="0" Grid.Column="0" Clicked="cmdOK_Click"/>
-                    <Button x:Name="cmdCancel" Grid.Row="0" Grid.Column="1" Clicked="cmdCancel_Click"/>
+                    <Button x:Name="cmdOK" Grid.Row="0" Grid.Column="0" Clicked="CmdOK_Click"/>
+                    <Button x:Name="cmdCancel" Grid.Row="0" Grid.Column="1" Clicked="CmdCancel_Click"/>
                 </Grid>
 
             </Grid>

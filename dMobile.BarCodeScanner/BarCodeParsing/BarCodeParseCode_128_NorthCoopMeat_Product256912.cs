@@ -1,16 +1,20 @@
-﻿namespace dMobile.BarCodeScanner
+﻿// <copyright file="BarCodeParseCode_128_NorthCoopMeat_Product256912.cs" company="InterSect Business Systems Inc">
+// Copyright (c) InterSect Business Systems Inc. All rights reserved.
+// </copyright>
+
+namespace dMobile.BarCodeScanner.BarCodeParsing
 {
     using System;
 
-    class BarCodeParseCode_128_NorthCoopMeat_Product256912 : BarCodeParse
+    /// <summary>
+    /// Defines the <see cref="BarCodeParseCode_128_NorthCoopMeat_Product256912" />.
+    /// </summary>
+    public class BarCodeParseCode_128_NorthCoopMeat_Product256912 : BarCodeParse
     {
-        #region Public Members
-
         /// <summary>
-        /// Parsing rules reviewed
+        /// Parsing rules reviewed.
         /// </summary>
-        /// <param name="barCodeData"></param>
-        /// <returns></returns>
+        /// <param name="barCodeData">.</param>
         public override void ParseBarCodeData(string barCodeData)
         {
             barCodeData = this.IdentifyProductIdentifier(barCodeData);
@@ -19,15 +23,11 @@
             this.Remainder = barCodeData;
         }
 
-        #endregion
-
-        #region Protected Methods
-
         /// <summary>
-        /// 
+        /// The IdentifyProductIdentifier.
         /// </summary>
-        /// <param name="barCodeData"></param>
-        /// <returns></returns>
+        /// <param name="barCodeData">.</param>
+        /// <returns>.</returns>
         protected override string IdentifyProductIdentifier(string barCodeData)
         {
             if (barCodeData.Length < 7)
@@ -49,10 +49,10 @@
         }
 
         /// <summary>
-        /// 
+        /// The IdentifyNetWeightMetricKG.
         /// </summary>
-        /// <param name="barCodeData"></param>
-        /// <returns></returns>
+        /// <param name="barCodeData">.</param>
+        /// <returns>.</returns>
         protected override string IdentifyNetWeightMetricKG(string barCodeData)
         {
             this.NetWeightMetricKGFoundAI = true;
@@ -79,10 +79,10 @@
         }
 
         /// <summary>
-        /// 
+        /// The IdentifyLogisticUnitProductionDate.
         /// </summary>
-        /// <param name="barCodeData"></param>
-        /// <returns></returns>
+        /// <param name="barCodeData">.</param>
+        /// <returns>.</returns>
         protected override string IdentifyLogisticUnitProductionDate(string barCodeData)
         {
             string tempData = barCodeData;
@@ -113,7 +113,5 @@
 
             return tempData;
         }
-
-        #endregion
     }
 }

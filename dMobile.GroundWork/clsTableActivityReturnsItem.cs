@@ -1,18 +1,25 @@
-﻿namespace dMobile.GroundWork
+﻿// <copyright file="clsTableActivityReturnsItem.cs" company="InterSect Business Systems Inc">
+// Copyright (c) InterSect Business Systems Inc. All rights reserved.
+// </copyright>
+
+namespace dMobile.GroundWork
 {
     using System;
     using System.Collections.Generic;
     using System.Data;
-    using SQLite;
     using System.Text;
+    using System.Threading.Tasks;
     using System.Xml;
     using System.Xml.Linq;
     using dMobile.Bedrock;
-    using System.Threading.Tasks;
     using dMobile.Resources.Models;
+    using SQLite;
 
     public class TableActivityReturnsItem : TableBase
     {
+        /// <summary>
+        /// Initializes a new instance of the <see cref="TableActivityReturnsItem"/> class.
+        /// </summary>
         public TableActivityReturnsItem()
           : base()
         {
@@ -23,15 +30,13 @@
         ///
         /// </summary>
         /// <remarks></remarks>
-        public override async Task Request(int actRefno)
+        public override async Task RequestData(int actRefno)
         {
-            string reqData = string.Empty;
-
             try
             {
-                // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Seeding sales return items.", true);
 
+                string reqData;
                 if (actRefno == 0)
                 {
                     List<tActivityModel> results = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<tActivityModel>("SELECT ActivityRefno FROM tActivity WHERE ActivitySubType = ?", Convert.ToInt32(SysCommon.ActSubTypes.Returns));
@@ -41,9 +46,9 @@
                         foreach (tActivityModel activityModel in results)
                         {
                             actRefno = Convert.ToInt32(activityModel.ActivityRefno);
-                            reqData = await this.Send(actRefno);
+                            reqData = await this.SendRequest(actRefno);
 
-                            if (0 < reqData.Length)
+                            if (reqData.Length > 0)
                             {
                                 if (reqData.Contains("<message>ERROR</message>"))
                                 {
@@ -59,9 +64,9 @@
                 }
                 else
                 {
-                    reqData = await this.Send(actRefno);
+                    reqData = await this.SendRequest(actRefno);
 
-                    if (0 < reqData.Length)
+                    if (reqData.Length > 0)
                     {
                         if (reqData.Contains("<message>ERROR</message>"))
                         {
@@ -74,24 +79,19 @@
                     }
                 }
 
-                // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Seeding sales return items complete.", true);
             }
             catch (SQLiteException ex)
             {
-                // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Database exception occurred.", true);
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Seeding sales return items failed.", true);
 
-                // TODO: Resource strings
                 throw new Exception("Database exception occurred. Seeding sales return items failed.", ex);
             }
             catch (Exception ex)
             {
-                // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Seeding sales return items failed.", true);
 
-                // TODO: Resource strings
                 throw new Exception("Seeding sales return items failed.", ex);
             }
         }
@@ -100,9 +100,8 @@
         ///
         /// </summary>
         /// <remarks></remarks>
-        public override async Task Purge()
+        public override async Task PurgeData()
         {
-            // TODO: Resource strings
             this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging sales return items.", true);
 
             try
@@ -121,16 +120,13 @@
                 query = "DELETE FROM tActivityItem WHERE ActivityItemSubType = ?";
                 await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(query, Convert.ToInt32(SysCommon.ActSubTypes.Returns));
 
-                // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging sales return items complete.", true);
             }
             catch (SQLiteException ex)
             {
-                // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Database exception occurred.", true);
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging sales return items failed.", true);
 
-                // TODO: Resource strings
                 throw new Exception("Database exception occurred. Purging sales return items failed.", ex);
             }
         }
@@ -141,18 +137,15 @@
         /// <remarks></remarks>
         public override async Task<int> DataStatus()
         {
-            int rowsAffected = 0;
-
+            int rowsAffected;
             try
             {
                 rowsAffected = Convert.ToInt32(await DatabaseConnection.GetInstance().SQLConn.ExecuteScalarAsync<int>("SELECT COUNT(ActivityItemRefno) FROM tActivityItem WHERE ActivityItemSubType = ?", Convert.ToInt32(SysCommon.ActSubTypes.Returns)));
 
-                // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, string.Format("{0} Sales return items.", rowsAffected), true);
             }
             catch (SQLiteException ex)
             {
-                // TODO: Resource strings
                 throw new Exception("Database exception occurred. Sales return items status failed.", ex);
             }
 
@@ -164,22 +157,21 @@
         /// </summary>
         /// <returns></returns>
         /// <remarks></remarks>
-        protected override async Task<string> Send(int actRefno)
+        protected override async Task<string> SendRequest(int actRefno)
         {
-            int returnsFKRefno = 0;
             List<tActivityReturnsModel> results = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<tActivityReturnsModel>("SELECT * FROM tActivityReturns WHERE ActivityRefno = ?", Convert.ToInt32(actRefno));
 
+            int returnsFKRefno;
             if (results?.Count > 0)
             {
                 returnsFKRefno = results[0].ActivityReturnsFKRefno;
             }
             else
             {
-                // TODO: Resource strings
                 throw new Exception("drReturns.Read() failed.");
             }
 
-            return await this.SendComm(await this.Create(returnsFKRefno));
+            return await this.SendComm(await this.CreateRequest(returnsFKRefno));
         }
 
         /// <summary>
@@ -189,27 +181,22 @@
         /// <remarks></remarks>
         protected override async Task Save(string reqData, int actRefno)
         {
-            string errMsg = string.Empty;
-
             await DatabaseConnection.GetInstance().SQLConn.RunInTransactionAsync(transaction =>
             {
                 try
                 {
                     using (DataSet ds = new DataSet())
                     {
-                        // TODO: Resource strings
                         this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Reading received data.", false);
 
                         ds.ReadXml(SysCommon.GetXmlReader(ref reqData), XmlReadMode.Auto);
 
-                        // TODO: Resource strings
                         this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving sales return items.", false);
 
                         if (ds.Tables.Count != 0)
                         {
                             int progMax = Convert.ToInt32(ds.Tables["tActivityItemReturns"].Rows.Count);
 
-                            // TODO: Resource strings
                             this.DataAccessStatusOutHandler(this, EventArgs.Empty, string.Format("Records {0}", progMax), false);
 
                             int actItemRefno = 0;
@@ -224,17 +211,12 @@
 
                             foreach (DataRow drow in ds.Tables["tActivityItemReturns"].Rows)
                             {
-                                errMsg = "Arguments:";
-
                                 transaction.Execute("INSERT INTO tActivityItem (ActivityItemSubType, ActivityItemStatus, ActivityRefno) VALUES (?, ?, ?)", Convert.ToInt32(SysCommon.ActSubTypes.Returns), 0, actRefno);
 
                                 actItemRefno = Convert.ToInt32(transaction.ExecuteScalar<int>("SELECT last_insert_rowid() FROM tActivityItem"));
-                                prodUnitRefno = this.GetProductUnitRefnoFromDataRow(drow, transaction, ref errMsg, false);
-                                locMapRefno = this.GetWhsLocMapRefnoFromDataRow(drow, ref errMsg, transaction);
-
+                                prodUnitRefno = this.GetProductUnitRefnoFromDataRow(drow, transaction, false);
+                                locMapRefno = this.GetWhsLocMapRefnoFromDataRow(drow, transaction);
                                 actItemReturnsFKRefno = Convert.ToInt32(drow["ActivityItemReturnsFKRefno"]);
-                                errMsg += Environment.NewLine + "Item fk refno " + actItemReturnsFKRefno;
-
                                 string queryInsertItem = "INSERT INTO tActivityItemReturns (" +
                                     "ActivityItemRefno, " +
                                     "ActivityItemSubType, " +
@@ -272,7 +254,7 @@
                                     Convert.ToDecimal(drow["ActivityItemReturnsBaseQuantityReturned"]),
                                     Convert.ToDecimal(drow["ActivityItemReturnsWeightQuantityReturned"]),
                                     Convert.ToString(drow["ActivityItemReturnsCustomerProductUnitCode"]),
-                                    Convert.ToString(drow["ActivityItemReturnsDescription"])
+                                    Convert.ToString(drow["ActivityItemReturnsDescription"]),
                                 };
 
                                 transaction.Execute(queryInsertItem, parametersInsertItem);
@@ -297,29 +279,26 @@
 
                     transaction.Commit();
 
-                    // TODO: Resource strings
                     this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving sales return items complete.", false);
                 }
                 catch (SQLiteException ex)
                 {
                     transaction.Rollback();
 
-                    // TODO: Resource strings
                     this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Database exception occurred.", true);
                     this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving sales return items failed.", false);
 
-                    // TODO: Resource strings
-                    throw new Exception("Database exception occurred. Saving sales return items failed." + Environment.NewLine + errMsg, ex);
+                    throw new Exception("Database exception occurred. Saving sales return items failed.", ex);
                 }
             });
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="returnsFKRefno"></param>
         /// <returns></returns>
-        protected override async Task<string> Create(int returnsFKRefno)
+        protected override async Task<string> CreateRequest(int returnsFKRefno)
         {
             StringBuilder xmlString = new StringBuilder();
             XmlWriter xml = XmlWriter.Create(xmlString);
@@ -330,7 +309,7 @@
                 + "<command>"
                 + "<action>REQUEST SALES RETURN ITEMS</action>"
                 + await SysCommon.GetRequestDefaults(false)
-                + ("<refno>" + returnsFKRefno + "</refno>")
+                + "<refno>" + returnsFKRefno + "</refno>"
                 + "</command>"
                 + "</imclient>");
 

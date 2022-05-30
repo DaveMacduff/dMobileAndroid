@@ -1,21 +1,20 @@
-﻿namespace dMobile.Resources.Types
+﻿// <copyright file="Section.cs" company="InterSect Business Systems Inc">
+// Copyright (c) InterSect Business Systems Inc. All rights reserved.
+// </copyright>
+
+namespace dMobile.Resources.Types
 {
     public class Section
     {
-        private int locationMapRefno;
-        private int locationMapSubType;
-        private int warehouseLocationMapRefno;
         private int locationMapSectionCode;
-        private string locationMapSectionName;
-        private int locationMapSectionFKRefno;
         private string locationMapSectionBarCode;
 
-        public int LocationMapRefno { get => locationMapRefno; set => locationMapRefno = value; }
-        public int LocationMapSubType { get => locationMapSubType; set => locationMapSubType = value; }
-        public int WarehouseLocationMapRefno { get => warehouseLocationMapRefno; set => warehouseLocationMapRefno = value; }
-        public int LocationMapSectionCode { get => locationMapSectionCode; set => locationMapSectionCode = value; }
-        public string LocationMapSectionName { get => locationMapSectionName; set => locationMapSectionName = value; }
-        public int LocationMapSectionFKRefno { get => locationMapSectionFKRefno; set => locationMapSectionFKRefno = value; }
-        public string LocationMapSectionBarCode { get => locationMapSectionBarCode; set => locationMapSectionBarCode = value; }
+        public int LocationMapRefno { get; set; }
+        public int LocationMapSubType { get; set; }
+        public int WarehouseLocationMapRefno { get; set; }
+        public int LocationMapSectionCode { get => this.locationMapSectionCode; set => this.locationMapSectionCode = value; }
+        public string LocationMapSectionName { get; set; }
+        public int LocationMapSectionFKRefno { get; set; }
+        public string LocationMapSectionBarCode { get => this.locationMapSectionBarCode; set => this.locationMapSectionBarCode = value; }
     }
 }

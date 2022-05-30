@@ -19,6 +19,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "dMobile.View", "dMobile.Vie
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{27EE7385-4BB3-4D1F-9821-815C0AF5C6E6}"
 	ProjectSection(SolutionItems) = preProject
+		.editorconfig = .editorconfig
 		Honywell Packages\Honeywell.BarcodeReader.1.35.00.0017.nupkg = Honywell Packages\Honeywell.BarcodeReader.1.35.00.0017.nupkg
 	EndProjectSection
 EndProject

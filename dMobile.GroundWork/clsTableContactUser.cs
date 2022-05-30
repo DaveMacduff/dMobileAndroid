@@ -1,19 +1,23 @@
-﻿namespace dMobile.GroundWork
+﻿// <copyright file="clsTableContactUser.cs" company="InterSect Business Systems Inc">
+// Copyright (c) InterSect Business Systems Inc. All rights reserved.
+// </copyright>
+
+namespace dMobile.GroundWork
 {
-    using dMobile.Bedrock;
     using System;
+    using System.Collections.Generic;
     using System.Data;
-    using SQLite;
+    using System.Linq;
     using System.Text;
     using System.Threading.Tasks;
     using System.Xml;
     using System.Xml.Linq;
-    using System.Collections.Generic;
+    using dMobile.Bedrock;
     using dMobile.Resources.Models;
-    using System.Linq;
+    using SQLite;
 
     /// <summary>
-    /// Defines the <see cref="TableContactUsers" />
+    /// Defines the <see cref="TableContactUsers" />.
     /// </summary>
     public class TableContactUsers : TableBase
     {
@@ -27,22 +31,18 @@
         }
 
         /// <summary>
-        /// The Request
+        /// The Request.
         /// </summary>
-        public override async Task Request()
+        public override async Task RequestData()
         {
-            string reqData = string.Empty;
-
             try
             {
-                // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Seeding users.", true);
 
                 await this.SeedContactUsersWithSystemUsers();
 
-                reqData = await this.Send("contact users");
-
-                if (0 < reqData.Length)
+                string reqData = await this.SendRequest();
+                if (reqData.Length > 0)
                 {
                     if (reqData.Contains("<message>ERROR</message>"))
                     {
@@ -54,37 +54,31 @@
                     await this.Save(reqData);
                 }
 
-                // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Seeding users complete.", true);
             }
             catch (Exception ex)
             {
-                // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Seeding users failed.", true);
 
-                // TODO: Resource strings
                 throw new Exception("Seeding users failed.", ex);
             }
         }
 
         /// <summary>
-        /// The DataStatus
+        /// The DataStatus.
         /// </summary>
-        /// <returns>The <see cref="int"/></returns>
+        /// <returns>The <see cref="int"/>.</returns>
         public override async Task<int> DataStatus()
         {
-            int rowsAffected = 0;
-
+            int rowsAffected;
             try
             {
                 rowsAffected = Convert.ToInt32(await DatabaseConnection.GetInstance().SQLConn.ExecuteScalarAsync<int>("SELECT COUNT(*) FROM tContactUser"));
 
-                // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, string.Format("{0} users.", rowsAffected), true);
             }
             catch (SQLiteException ex)
             {
-                // TODO: Resource strings
                 throw new Exception("Database exception occurred. Users status failed.", ex);
             }
 
@@ -92,46 +86,43 @@
         }
 
         /// <summary>
-        /// The Purge
+        /// The Purge.
         /// </summary>
-        public override async Task Purge()
+        public override async Task PurgeData()
         {
             try
             {
-                // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging users.", true);
 
                 await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync("DELETE FROM tContactUser");
 
-                // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging users complete.", true);
             }
             catch (SQLiteException ex)
             {
-                // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Database exception occurred.", true);
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging users failed.", true);
 
-                // TODO: Resource strings
                 throw new Exception("Database exception occurred. Purging users failed.", ex);
             }
         }
 
+        /// <summary>
+        ///
+        /// </summary>
+        /// <returns>A <see cref="Task"/> representing the result of the asynchronous operation.</returns>
         public async Task PurgeTContact()
         {
             try
             {
-                // TODO: Resource Strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging tContact.", true);
 
                 await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync("DELETE FROM tContact");
 
-                // TODO: Resource Strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging tContact complete.", true);
             }
             catch (SQLiteException ex)
             {
-                // TODO: Resource Strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Database exception occurred.", true);
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging tContact failed.", true);
 
@@ -140,9 +131,9 @@
         }
 
         /// <summary>
-        /// The SeedContactUsersWithSystemUsers
+        /// The SeedContactUsersWithSystemUsers.
         /// </summary>
-        /// <returns>The <see cref="Task"/></returns>
+        /// <returns>The <see cref="Task"/>.</returns>
         public async Task SeedContactUsersWithSystemUsers()
         {
             string errMsg = string.Empty;
@@ -193,7 +184,7 @@
                             true,
                             true,
                             true,
-                            SysEnv.SysSettings.DefaultLanguage
+                            this.SysEnv.SysSettings.DefaultLanguage,
                         };
 
                         transaction.Execute(queryInsertContactUser, parametersContactUserSystemLogin);
@@ -218,7 +209,7 @@
                             true,
                             false,
                             false,
-                            SysEnv.SysSettings.DefaultLanguage
+                            this.SysEnv.SysSettings.DefaultLanguage,
                         };
 
                         transaction.Execute(queryInsertContactUser, parametersContactUserSetupLogin);
@@ -235,7 +226,7 @@
         }
 
         /// <summary>
-        /// The Save
+        /// The Save.
         /// </summary>
         /// <param name="reqData"></param>
         protected override async Task Save(string reqData)
@@ -248,12 +239,10 @@
                 {
                     using (DataSet ds = new DataSet())
                     {
-                        // TODO: Resource strings
                         this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Reading received data.", false);
 
                         ds.ReadXml(SysCommon.GetXmlReader(ref reqData), XmlReadMode.Auto);
 
-                        // TODO: Resource strings
                         this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving users.", false);
 
                         // Check to see what users already exist
@@ -263,7 +252,6 @@
                         {
                             int progMax = Convert.ToInt32(ds.Tables["tContactUser"].Rows.Count);
 
-                            // TODO: Resource strings
                             this.DataAccessStatusOutHandler(this, EventArgs.Empty, string.Format("Records {0}", progMax), false);
 
                             string queryInsertContactUser = "INSERT INTO tContactUser " +
@@ -321,7 +309,7 @@
                                     Convert.ToBoolean(drow["ContactUserIsAllowedAssociateProductBarCode"]),
                                     Convert.ToBoolean(drow["ContactUserIsAllowedPickingModuleOverridePicker"]),
                                     Convert.ToBoolean(drow["ContactUserIsAllowedPickingModuleOverrideAddManualDetail"]),
-                                    Convert.ToString(drow["ContactUserLocalizationLanguage"])
+                                    Convert.ToString(drow["ContactUserLocalizationLanguage"]),
                                 };
 
                                 transaction.Execute(queryInsertContactUser, parametersInsertContactUser);
@@ -338,7 +326,6 @@
 
                         transaction.Commit();
 
-                        // TODO: Resource strings
                         this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving users complete.", false);
                     }
                 }
@@ -346,7 +333,6 @@
                 {
                     transaction.Rollback();
 
-                    // TODO: Resource strings
                     this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Database exception occurred.", false);
                     this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving users failed.", false);
                     throw new Exception("Database exception occurred. Saving users failed." + Environment.NewLine + errMsg, ex);
@@ -355,10 +341,10 @@
         }
 
         /// <summary>
-        /// The Create
+        /// The Create.
         /// </summary>
         /// <returns></returns>
-        protected override async Task<string> Create()
+        protected override async Task<string> CreateRequest()
         {
             StringBuilder xmlString = new StringBuilder();
             XmlWriter xml = XmlWriter.Create(xmlString);

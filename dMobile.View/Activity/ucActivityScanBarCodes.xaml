@@ -37,8 +37,8 @@
                     </ListView>
                 </Frame>
 
-                <Picker x:Name="updnBarCodeModifier1" Grid.Row="3" Grid.Column="0" SelectedIndexChanged="IdentifyChangesMade"/>
-                <Button x:Name="cmdAssignProduct" Grid.Row="3" Grid.Column="1" Text="Assign Scan To Product" Clicked="cmdAssignProduct_Click" IsEnabled="{Binding HasData}"/>
+                <Picker x:Name="BarCodeModifier1Picker" Grid.Row="3" Grid.Column="0" SelectedIndexChanged="BarCodeModifierChangesMade"/>
+                <Button x:Name="cmdAssignProduct" Grid.Row="3" Grid.Column="1" Text="Assign Scan To Product" Clicked="CmdAssignProduct_Click" IsEnabled="{Binding HasData}"/>
                 
             </Grid>
 

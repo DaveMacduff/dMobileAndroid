@@ -1,44 +1,38 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Xamarin.Forms;
-using Xamarin.Forms.Xaml;
-using System.Xml.Linq;
-using dMobile.Bedrock;
-using dMobile.Controller;
-using dMobile.View.CustomPages;
-using SQLite;
-using dMobile.View.Forms;
-using dMobile.Resources.Enums;
-using Android.Views;
-using System.Collections.ObjectModel;
+﻿// <copyright file="ucSubmitBatch.xaml.cs" company="InterSect Business Systems Inc">
+// Copyright (c) InterSect Business Systems Inc. All rights reserved.
+// </copyright>
 
 namespace dMobile.View.Options
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Collections.ObjectModel;
+    using System.Linq;
+    using System.Text;
+    using System.Threading.Tasks;
+    using System.Xml.Linq;
+    using Android.Views;
+    using dMobile.Bedrock;
+    using dMobile.Controller;
+    using dMobile.Resources.Enums;
+    using dMobile.View.CustomPages;
+    using dMobile.View.Forms;
+    using SQLite;
+    using Xamarin.Forms;
+    using Xamarin.Forms.Xaml;
+    using Resource = dMobile.Resources.Properties.Resources;
+
     [XamlCompilation(XamlCompilationOptions.Compile)]
     public partial class ucSubmitBatch : DMobileContentPage, IAppArea
     {
-        #region Fields
 
-        private bool isControlLoaded = false;
-        private SysEnvironment sysEnv;
-        private bool isChangesMade = false;
-        private SubmitBatchSettings submitBatchSettings;
-        private Controller.Activity activity = null;
-        private ObservableCollection<string> itemsList = new ObservableCollection<string>();
-        private ObservableCollection<object> dataGridMainActivityItemsList = new ObservableCollection<object>();
-
-        #endregion
-
-        #region Constructors
-
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ucSubmitBatch"/> class.
+        /// </summary>
         public ucSubmitBatch()
         {
             this.InitializeComponent();
 
-            // TODO: Resource strings
             this.Title = this.GetControlDescription();
             this.cmdSubmit.Text = "Submit Selected";
             this.cmdFilter.Text = "Filter";
@@ -50,24 +44,19 @@ namespace dMobile.View.Options
             }
         }
 
-        #endregion
-
-        #region OnAppearing/OnDisappearing
-
         /// <summary>
-        /// The OnAppearing
+        /// The OnAppearing.
         /// </summary>
         protected override async void OnAppearing()
         {
             base.OnAppearing();
 
-            this.lstDisplay.ItemsSource = this.ItemsList;
-            this.dataGridMainActivity.ItemsSource = this.DataGridMainActivityItemsList;
+            this.ListViewDisplayExtraInfo.ItemsSource = this.ExtraInfoItems;
+            this.ListViewMainActivity.ItemsSource = this.MainActivityItems;
 
             MessagingCenter.Subscribe<string>(this, EventTypes.OnKeyUp.ToString(), async (keyPressed) =>
             {
-                // TODO: Verify keycodes
-                Enum.TryParse(keyPressed, out Keycode keycode);
+                _ = Enum.TryParse(keyPressed, out Keycode keycode);
 
                 if (!this.Loading)
                 {
@@ -79,7 +68,7 @@ namespace dMobile.View.Options
                         }
                         else
                         {
-                            await this.CancelChanges();
+                            _ = await this.CancelChanges();
                             await this.Close();
                         }
                     }
@@ -93,8 +82,7 @@ namespace dMobile.View.Options
             }
             catch (Exception ex)
             {
-                // TODO: Resource strings
-                await Device.InvokeOnMainThreadAsync(async () => await DisplayAlert("Error", "this.ucSubmitBatch_GotFocus threw an error " + ex, "OK"));
+                await Device.InvokeOnMainThreadAsync(async () => await this.DisplayAlert("Error", "this.ucSubmitBatch_GotFocus threw an error " + ex, "OK"));
             }
             finally
             {
@@ -103,7 +91,7 @@ namespace dMobile.View.Options
         }
 
         /// <summary>
-        /// The OnDisappearing
+        /// The OnDisappearing.
         /// </summary>
         protected override async void OnDisappearing()
         {
@@ -117,7 +105,7 @@ namespace dMobile.View.Options
         {
             Device.BeginInvokeOnMainThread(async () =>
             {
-                base.OnBackButtonPressed();
+                _ = base.OnBackButtonPressed();
 
                 if (await this.SaveChanges())
                 {
@@ -132,83 +120,18 @@ namespace dMobile.View.Options
             return true;
         }
 
-        #endregion
+        private Activity Activity { get; set; } = null;
 
-        #region Properties
+        private bool IsChangesMade { get; set; } = false;
 
-        private Controller.Activity Activity
-        {
-            get
-            {
-                return this.activity;
-            }
+        private bool IsControlLoaded { get; set; } = false;
 
-            set
-            {
-                this.activity = value;
-            }
-        }
+        private SysEnvironment SysEnv { get; set; }
 
-        private bool IsChangesMade
-        {
-            get
-            {
-                return this.isChangesMade;
-            }
+        private SubmitBatchSettings SubmitBatchSettings { get; set; }
 
-            set
-            {
-                this.isChangesMade = value;
-            }
-        }
-
-        private bool IsControlLoaded
-        {
-            get
-            {
-                return this.isControlLoaded;
-            }
-
-            set
-            {
-                this.isControlLoaded = value;
-            }
-        }
-
-        private SysEnvironment SysEnv
-        {
-            get
-            {
-                return this.sysEnv;
-            }
-
-            set
-            {
-                this.sysEnv = value;
-            }
-        }
-
-        private SubmitBatchSettings SubmitBatchSettings
-        {
-            get
-            {
-                return this.submitBatchSettings;
-            }
-
-            set
-            {
-                this.submitBatchSettings = value;
-            }
-        }
-
-        public ObservableCollection<string> ItemsList { get => itemsList; set => itemsList = value; }
-        public ObservableCollection<object> DataGridMainActivityItemsList { get => dataGridMainActivityItemsList; set => dataGridMainActivityItemsList = value; }
-
-        #endregion
-
-        #region Public Members
-
-        #region IAppArea
+        public ObservableCollection<string> ExtraInfoItems { get; set; } = new ObservableCollection<string>();
+        public ObservableCollection<object> MainActivityItems { get; set; } = new ObservableCollection<object>();
 
         /// <summary>
         /// Unregister the bar code scan event handler and disable the scanner.
@@ -239,10 +162,14 @@ namespace dMobile.View.Options
             {
                 isReadyToSave = true;
             }
-            catch (Exceptions.MessageOnlyException ex)
+            catch (MessageOnlyException ex)
             {
                 isReadyToSave = false;
-                ex.Show(SysCommon.ActSubTypes.SubmitBatch);
+                await Device.InvokeOnMainThreadAsync(async () =>
+                    await Application.Current.MainPage.DisplayAlert(
+                        this.GetControlDescription(),
+                        ex.Message,
+                        Resource.OK));
             }
             catch (Exception ex)
             {
@@ -251,7 +178,7 @@ namespace dMobile.View.Options
                 await Device.InvokeOnMainThreadAsync(async () =>
                 {
                     FormErrorReport errRpt = new FormErrorReport(SysCommon.ActSubTypes.SubmitBatch, ex);
-                    await errRpt.ShowDialog();
+                    _ = await errRpt.ShowDialog();
                 });
             }
 
@@ -285,10 +212,14 @@ namespace dMobile.View.Options
                     await this.ScannerDisable();
                 }
             }
-            catch (Exceptions.MessageOnlyException ex)
+            catch (MessageOnlyException ex)
             {
                 isReadyToClose = false;
-                ex.Show(SysCommon.ActSubTypes.SubmitBatch);
+                await Device.InvokeOnMainThreadAsync(async () =>
+                    await Application.Current.MainPage.DisplayAlert(
+                        this.GetControlDescription(),
+                        ex.Message,
+                        Resource.OK));
             }
             catch (Exception ex)
             {
@@ -299,7 +230,7 @@ namespace dMobile.View.Options
                 await Device.InvokeOnMainThreadAsync(async () =>
                 {
                     FormErrorReport errRpt = new FormErrorReport(SysCommon.ActSubTypes.SubmitBatch, ex);
-                    await errRpt.ShowDialog();
+                    _ = await errRpt.ShowDialog();
                 });
             }
 
@@ -313,7 +244,6 @@ namespace dMobile.View.Options
         /// <remarks></remarks>
         public string GetControlDescription()
         {
-            // TODO: Resource strings
             return "dMobile Submit Batch";
         }
 
@@ -335,24 +265,26 @@ namespace dMobile.View.Options
                 }
                 else
                 {
-                    // IsReadyToSave will raise errors for invalid data. This is a catch all 
+                    // IsReadyToSave will raise errors for invalid data. This is a catch all
                     // in the event that IsReadyToSave just returns false.
-
-                    // TODO: Resource strings
-                    throw new Exceptions.MessageOnlyException("Data failed validation. Check your data.");
+                    throw new MessageOnlyException("Data failed validation. Check your data.");
                 }
             }
-            catch (Exceptions.MessageOnlyException ex)
+            catch (MessageOnlyException ex)
             {
                 saveComplete = false;
-                ex.Show(SysCommon.ActSubTypes.SubmitBatch);
+                await Device.InvokeOnMainThreadAsync(async () =>
+                    await Application.Current.MainPage.DisplayAlert(
+                        this.GetControlDescription(),
+                        ex.Message,
+                        Resource.OK));
             }
             catch (Exception ex)
             {
                 await Device.InvokeOnMainThreadAsync(async () =>
                 {
                     FormErrorReport errRpt = new FormErrorReport(SysCommon.ActSubTypes.SubmitBatch, ex);
-                    await errRpt.ShowDialog();
+                    _ = await errRpt.ShowDialog();
                 });
             }
 
@@ -388,10 +320,14 @@ namespace dMobile.View.Options
                     this.IsChangesMade = false;
                 }
             }
-            catch (Exceptions.MessageOnlyException ex)
+            catch (MessageOnlyException ex)
             {
                 cancelChanges = false;
-                ex.Show(SysCommon.ActSubTypes.SubmitBatch);
+                await Device.InvokeOnMainThreadAsync(async () =>
+                    await Application.Current.MainPage.DisplayAlert(
+                        this.GetControlDescription(),
+                        ex.Message,
+                        Resource.OK));
             }
             catch (Exception ex)
             {
@@ -400,7 +336,7 @@ namespace dMobile.View.Options
                 await Device.InvokeOnMainThreadAsync(async () =>
                 {
                     FormErrorReport errRpt = new FormErrorReport(SysCommon.ActSubTypes.SubmitBatch, ex);
-                    await errRpt.ShowDialog();
+                    _ = await errRpt.ShowDialog();
                 });
             }
 
@@ -414,19 +350,13 @@ namespace dMobile.View.Options
         /// <remarks></remarks>
         public async Task<XDocument> GetXML()
         {
-            XDocument xmldocParams = System.Xml.Linq.XDocument.Parse(
+            XDocument xmldocParams = XDocument.Parse(
                 "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>"
                 + "<params>"
                 + "</params>");
 
             return xmldocParams;
         }
-
-        #endregion
-
-        #endregion
-
-        #region Private Members
 
         /// <summary>
         ///
@@ -502,26 +432,25 @@ namespace dMobile.View.Options
                     {
                         for (int curExNdx = 0; curExNdx < ex.Data.Count; curExNdx++)
                         {
-                            // TODO: Resource strings
-                            await Device.InvokeOnMainThreadAsync(async () => await DisplayAlert("Submit Batch", Convert.ToString("Error " + ex.Data[curExNdx].ToString() + '\r'), "OK"));
+                            await Device.InvokeOnMainThreadAsync(async () => await this.DisplayAlert("Submit Batch", Convert.ToString("Error " + ex.Data[curExNdx].ToString() + '\r'), "OK"));
                         }
                     }
                     catch (Exception ex)
                     {
-                        await Device.InvokeOnMainThreadAsync(async () => await DisplayAlert("Error", "Submit Batch", ex.Message, "OK"));
+                        _ = await Device.InvokeOnMainThreadAsync(async () => await this.DisplayAlert("Error", "Submit Batch", ex.Message, "OK"));
                     }
 
                     this.Activity.ListHdrs = await this.Activity.GetActivityList(true);
 
                     await Device.InvokeOnMainThreadAsync(async () =>
                     {
-                        this.DataGridMainActivityItemsList = this.Activity.DesignGrid(ref this.dataGridMainActivityHeader, ref this.dataGridMainActivity);
-                        this.dataGridMainActivity.ItemsSource = this.DataGridMainActivityItemsList;
+                        this.MainActivityItems = this.Activity.DesignGrid(ref this.GridMainActivity, ref this.ListViewMainActivity);
+                        this.ListViewMainActivity.ItemsSource = this.MainActivityItems;
 
-                        if (Activity.ListHdrs.Count > 0 && this.DataGridMainActivityItemsList.Count > 0)
+                        if (this.Activity.ListHdrs.Count > 0 && this.MainActivityItems.Count > 0)
                         {
-                            this.dataGridMainActivity.SelectedItem = this.DataGridMainActivityItemsList[0];
-                            await Activity.SelectActivity(this.DataGridMainActivityItemsList[0]);
+                            this.ListViewMainActivity.SelectedItem = this.MainActivityItems[0];
+                            await this.Activity.SelectActivity(this.MainActivityItems[0]);
                         }
                     });
 
@@ -529,8 +458,7 @@ namespace dMobile.View.Options
                 }
                 catch (Exception ex)
                 {
-                    // TODO: Resource strings
-                    await Device.InvokeOnMainThreadAsync(async () => await DisplayAlert("Error", ex.Message, "OK"));
+                    await Device.InvokeOnMainThreadAsync(async () => await this.DisplayAlert("Error", ex.Message, "OK"));
                 }
             });
         }
@@ -543,13 +471,13 @@ namespace dMobile.View.Options
         /// <remarks></remarks>
         private async void cmdFilter_Click(object sender, EventArgs e)
         {
-            FormDialogContainer form = new FormDialogContainer(FormDialogContainer.EDialogTypes.ucSubmitBatchFilter, SysCommon.ActSubTypes.NotApplicable);
+            FormDialogContainer form = new FormDialogContainer(EDialogTypes.SubmitBatchFilter, SysCommon.ActSubTypes.NotApplicable);
 
             if (await form.DisplayControl.ShowDialog() == DialogResult.OK)
             {
                 XDocument xmlDoc = await form.GetXML();
                 this.SubmitBatchSettings = this.SubmitBatchSettings.LoadData();
-                this.ItemsList.Clear();
+                this.ExtraInfoItems.Clear();
             }
         }
 
@@ -768,7 +696,7 @@ namespace dMobile.View.Options
                                         {
                                             for (int detailIdx = 0; detailIdx <= actDetail.ListDetails.Count - 1; detailIdx++)
                                             {
-                                                await actDetail.GetInfo(actDetail.ListDetails[detailIdx], false);
+                                                _ = await actDetail.GetInfo(actDetail.ListDetails[detailIdx], false);
                                                 await actDetail.Submit(actDetail.ListDetails[detailIdx], null);
                                             }
                                         }
@@ -778,27 +706,29 @@ namespace dMobile.View.Options
                         }
                     }
 
-                    // TODO: Resource strings
-                    await Device.InvokeOnMainThreadAsync(async () => await DisplayAlert("Submit Batch", "Submission Complete.", "OK"));
+                    await Device.InvokeOnMainThreadAsync(async () => await this.DisplayAlert("Submit Batch", "Submission Complete.", "OK"));
                 }
-                catch (Exceptions.MessageOnlyException ex)
+                catch (MessageOnlyException ex)
                 {
-                    await Device.InvokeOnMainThreadAsync(() => ex.Show(SysCommon.ActSubTypes.SubmitBatch));
+                    await Device.InvokeOnMainThreadAsync(async () =>
+                        await Application.Current.MainPage.DisplayAlert(
+                            this.GetControlDescription(),
+                            ex.Message,
+                            Resource.OK));
                 }
                 catch (Exception ex)
                 {
-                    // TODO: Resource strings
-                    await Device.InvokeOnMainThreadAsync(async () => await DisplayAlert("Submit Batch", ex.Message, "OK"));
+                    await Device.InvokeOnMainThreadAsync(async () => await this.DisplayAlert("Submit Batch", ex.Message, "OK"));
                 }
                 finally
                 {
-                    //this.pbarStatus.Maximum = 100;
-                    //this.pbarStatus.Visible = false;
+                    // this.pbarStatus.Maximum = 100;
+                    // this.pbarStatus.Visible = false;
                     await this.LoadData();
 
                     await Device.InvokeOnMainThreadAsync(() =>
                     {
-                        this.ItemsList.Clear();
+                        this.ExtraInfoItems.Clear();
                         this.cmdSubmit.IsEnabled = true;
                     });
 
@@ -815,12 +745,7 @@ namespace dMobile.View.Options
         /// <remarks></remarks>
         private async Task ucSubmitBatch_GotFocus(object sender, EventArgs e)
         {
-            if (!SysEnvironment.GetInstance().IsApplicationExitInvoked)
-            {
-                await this.LoadData();
-            }
+            await this.LoadData();
         }
-
-        #endregion
     }
 }

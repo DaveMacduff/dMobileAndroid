@@ -1,88 +1,44 @@
-﻿namespace dMobile.Resources.Types
+﻿// <copyright file="PickingItem.cs" company="InterSect Business Systems Inc">
+// Copyright (c) InterSect Business Systems Inc. All rights reserved.
+// </copyright>
+
+namespace dMobile.Resources.Types
 {
     public class PickingItem
     {
-        //activityItemRefno int
-        //activityItemPickingFKRefno int
-        //activityItemPickingStringFKRefno string
-        //productUnitRefno int
-        // productRefno int
-        // productCode string
-        // productDescription string 
-        // productBrandDescription string
-        // unitCode string
-        // productUnitBC string
-        // productUnitSizeDescription string 
-        // activityItemPickingQuantityOrdered deciaml
-        // activityItemPickingBaseQuantityOrdered decimal
-        // activityItemPickingWeightQuantityOrdered decimal
-        // activityItemPickingQuantityShipped decimal
-        // activityItemPickingBaseQuantityShipped decimal
-        // activityItemPickingWeightQuantityShipped decimal
-        // activityItemPickingCustomerProductUnitCode string
-        // locationMapRefno int 
-        // locationCode int 
-        // locationName string
-        // activityItemPickingQuantityAvailable decimal
-        // activityItemPickingBaseQuantityAvailable decimal
-        // activityItemPickingWeightQuantityAvailable decimal
-        // isActivityItemPickingComment string
-        // activityItemStatus int
-
-        private int activityItemRefno;
-        private int activityItemPickingFKRefno;
-        private string activityItemPickingStringFKRefno;
-        private int productUnitRefno;
         private int productRefno;
-        private string productCode;
-        private string productDescription;
-        private string productBrandDescription;
-        private string unitCode;
-        private string productUnitBC;
         private string productUnitSizeDescription;
-        private decimal activityItemPickingQuantityOrdered;
-        private decimal activityItemPickingBaseQuantityOrdered;
-        private decimal activityItemPickingWeightQuantityOrdered;
-        private decimal activityItemPickingQuantityShipped;
-        private decimal activityItemPickingBaseQuantityShipped;
         private decimal activityItemPickingWeightQuantityShipped;
-        private string activityItemPickingCustomerProductUnitCode;
-        private int locationMapRefno;
         private int locationCode;
-        private string locationName;
-        private decimal activityItemPickingQuantityAvailable;
-        private decimal activityItemPickingBaseQuantityAvailable;
         private decimal activityItemPickingWeightQuantityAvailable;
-        private string isActivityItemPickingComment;
-        private int activityItemStatus;
         private bool activityItemPickingIsReviewed;
 
-        public int ActivityItemRefno { get => activityItemRefno; set => activityItemRefno = value; }
-        public int ActivityItemPickingFKRefno { get => activityItemPickingFKRefno; set => activityItemPickingFKRefno = value; }
-        public string ActivityItemPickingStringFKRefno { get => activityItemPickingStringFKRefno; set => activityItemPickingStringFKRefno = value; }
-        public int ProductUnitRefno { get => productUnitRefno; set => productUnitRefno = value; }
-        public int ProductRefno { get => productRefno; set => productRefno = value; }
-        public string ProductCode { get => productCode; set => productCode = value; }
-        public string ProductDescription { get => productDescription; set => productDescription = value; }
-        public string ProductBrandDescription { get => productBrandDescription; set => productBrandDescription = value; }
-        public string UnitCode { get => unitCode; set => unitCode = value; }
-        public string ProductUnitBC { get => productUnitBC; set => productUnitBC = value; }
-        public string ProductUnitSizeDescription { get => productUnitSizeDescription; set => productUnitSizeDescription = value; }
-        public decimal ActivityItemPickingQuantityOrdered { get => activityItemPickingQuantityOrdered; set => activityItemPickingQuantityOrdered = value; }
-        public decimal ActivityItemPickingBaseQuantityOrdered { get => activityItemPickingBaseQuantityOrdered; set => activityItemPickingBaseQuantityOrdered = value; }
-        public decimal ActivityItemPickingWeightQuantityOrdered { get => activityItemPickingWeightQuantityOrdered; set => activityItemPickingWeightQuantityOrdered = value; }
-        public decimal ActivityItemPickingQuantityShipped { get => activityItemPickingQuantityShipped; set => activityItemPickingQuantityShipped = value; }
-        public decimal ActivityItemPickingBaseQuantityShipped { get => activityItemPickingBaseQuantityShipped; set => activityItemPickingBaseQuantityShipped = value; }
-        public decimal ActivityItemPickingWeightQuantityShipped { get => activityItemPickingWeightQuantityShipped; set => activityItemPickingWeightQuantityShipped = value; }
-        public string ActivityItemPickingCustomerProductUnitCode { get => activityItemPickingCustomerProductUnitCode; set => activityItemPickingCustomerProductUnitCode = value; }
-        public int LocationMapRefno { get => locationMapRefno; set => locationMapRefno = value; }
-        public int LocationCode { get => locationCode; set => locationCode = value; }
-        public string LocationName { get => locationName; set => locationName = value; }
-        public decimal ActivityItemPickingQuantityAvailable { get => activityItemPickingQuantityAvailable; set => activityItemPickingQuantityAvailable = value; }
-        public decimal ActivityItemPickingBaseQuantityAvailable { get => activityItemPickingBaseQuantityAvailable; set => activityItemPickingBaseQuantityAvailable = value; }
-        public decimal ActivityItemPickingWeightQuantityAvailable { get => activityItemPickingWeightQuantityAvailable; set => activityItemPickingWeightQuantityAvailable = value; }
-        public string IsActivityItemPickingComment { get => isActivityItemPickingComment; set => isActivityItemPickingComment = value; }
-        public int ActivityItemStatus { get => activityItemStatus; set => activityItemStatus = value; }
-        public bool ActivityItemPickingIsReviewed { get => activityItemPickingIsReviewed; set => activityItemPickingIsReviewed = value; }
+        public int ActivityItemRefno { get; set; }
+        public int ActivityItemPickingFKRefno { get; set; }
+        public string ActivityItemPickingStringFKRefno { get; set; }
+        public int ProductUnitRefno { get; set; }
+        public int ProductRefno { get => this.productRefno; set => this.productRefno = value; }
+        public string ProductCode { get; set; }
+        public string ProductDescription { get; set; }
+        public string ProductBrandDescription { get; set; }
+        public string UnitCode { get; set; }
+        public string ProductUnitBC { get; set; }
+        public string ProductUnitSizeDescription { get => this.productUnitSizeDescription; set => this.productUnitSizeDescription = value; }
+        public decimal ActivityItemPickingQuantityOrdered { get; set; }
+        public decimal ActivityItemPickingBaseQuantityOrdered { get; set; }
+        public decimal ActivityItemPickingWeightQuantityOrdered { get; set; }
+        public decimal ActivityItemPickingQuantityShipped { get; set; }
+        public decimal ActivityItemPickingBaseQuantityShipped { get; set; }
+        public decimal ActivityItemPickingWeightQuantityShipped { get => this.activityItemPickingWeightQuantityShipped; set => this.activityItemPickingWeightQuantityShipped = value; }
+        public string ActivityItemPickingCustomerProductUnitCode { get; set; }
+        public int LocationMapRefno { get; set; }
+        public int LocationCode { get => this.locationCode; set => this.locationCode = value; }
+        public string LocationName { get; set; }
+        public decimal ActivityItemPickingQuantityAvailable { get; set; }
+        public decimal ActivityItemPickingBaseQuantityAvailable { get; set; }
+        public decimal ActivityItemPickingWeightQuantityAvailable { get => this.activityItemPickingWeightQuantityAvailable; set => this.activityItemPickingWeightQuantityAvailable = value; }
+        public string IsActivityItemPickingComment { get; set; }
+        public int ActivityItemStatus { get; set; }
+        public bool ActivityItemPickingIsReviewed { get => this.activityItemPickingIsReviewed; set => this.activityItemPickingIsReviewed = value; }
     }
 }

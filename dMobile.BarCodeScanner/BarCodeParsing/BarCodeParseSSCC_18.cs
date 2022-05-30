@@ -1,4 +1,8 @@
-﻿namespace dMobile.BarCodeScanner
+﻿// <copyright file="BarCodeParseSSCC_18.cs" company="InterSect Business Systems Inc">
+// Copyright (c) InterSect Business Systems Inc. All rights reserved.
+// </copyright>
+
+namespace dMobile.BarCodeScanner.BarCodeParsing
 {
     using System;
 
@@ -8,7 +12,7 @@
         /// Data structure is always 18 digits
         /// Position 1 is indicator digit
         /// Position 2-16 company prefix and manufacturer serial number
-        /// Position 18 is a check digit
+        /// Position 18 is a check digit.
         /// </summary>
         /// <param name="barCodeData"></param>
         /// <returns></returns>
@@ -34,7 +38,7 @@
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="barCodeData"></param>
         /// <returns></returns>
@@ -49,7 +53,7 @@
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="barCodeData"></param>
         /// <returns></returns>
@@ -64,7 +68,7 @@
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="barCodeData"></param>
         /// <returns></returns>
@@ -72,13 +76,12 @@
         {
             this.ProductIdentifier = barCodeData;
 
-            //barCodeData = barCodeData.Remove(0, strProductIdentifier.Length);
-
+            // barCodeData = barCodeData.Remove(0, strProductIdentifier.Length);
             return barCodeData;
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="barCodeData"></param>
         /// <returns></returns>
@@ -87,13 +90,13 @@
             this.CompanyPrefix = barCodeData.Substring(0, 7);
 
             // remove the Company Prefix from the bar code data
-            barCodeData = barCodeData.Remove(0, CompanyPrefix.Length);
+            barCodeData = barCodeData.Remove(0, this.CompanyPrefix.Length);
 
             return barCodeData;
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="barCodeData"></param>
         /// <returns></returns>

@@ -1,17 +1,24 @@
-﻿using dMobile.Bedrock;
-using dMobile.View.Themes;
-using System.Collections.Generic;
-using Xamarin.Forms;
+﻿// <copyright file="App.xaml.cs" company="InterSect Business Systems Inc">
+// Copyright (c) InterSect Business Systems Inc. All rights reserved.
+// </copyright>
 
 namespace dMobile.View
 {
+    using System.Collections.Generic;
+    using dMobile.Bedrock;
+    using dMobile.View.Themes;
+    using Xamarin.Forms;
+
     public partial class App : Application
     {
+        /// <summary>
+        /// Initializes a new instance of the <see cref="App"/> class.
+        /// </summary>
         public App()
         {
-            InitializeComponent();
+            this.InitializeComponent();
 
-            MainPage = new NavigationPage(new SplashStartup());
+            this.MainPage = new NavigationPage(new SplashStartup());
 
             if (!DesignMode.IsDesignModeEnabled)
             {
@@ -21,7 +28,7 @@ namespace dMobile.View
 
         public void SetTheme()
         {
-            ICollection<ResourceDictionary> mergedDictionaries = Application.Current.Resources.MergedDictionaries;
+            ICollection<ResourceDictionary> mergedDictionaries = Current.Resources.MergedDictionaries;
             Theme theme = SysEnvironment.GetInstance().SysSettings.Theme;
 
             if (mergedDictionaries != null)

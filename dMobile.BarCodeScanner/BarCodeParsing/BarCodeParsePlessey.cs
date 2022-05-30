@@ -1,11 +1,15 @@
-﻿namespace dMobile.BarCodeScanner
+﻿// <copyright file="BarCodeParsePlessey.cs" company="InterSect Business Systems Inc">
+// Copyright (c) InterSect Business Systems Inc. All rights reserved.
+// </copyright>
+
+namespace dMobile.BarCodeScanner.BarCodeParsing
 {
     using System;
 
     public class BarCodeParsePlessey : BarCodeParse
     {
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="barCodeData"></param>
         /// <returns></returns>
@@ -17,15 +21,15 @@
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="barCodeData"></param>
         /// <returns></returns>
         protected override string IdentifyProductIdentifier(string barCodeData)
         {
-            ProductIdentifier = barCodeData;
+            this.ProductIdentifier = barCodeData;
 
-            barCodeData = barCodeData.Remove(0, ProductIdentifier.Length);
+            barCodeData = barCodeData.Remove(0, this.ProductIdentifier.Length);
 
             return barCodeData;
         }

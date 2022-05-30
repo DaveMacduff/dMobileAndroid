@@ -1,30 +1,34 @@
-﻿namespace dMobile.View.Menus
+﻿// <copyright file="ucUtilitiesMenu.xaml.cs" company="InterSect Business Systems Inc">
+// Copyright (c) InterSect Business Systems Inc. All rights reserved.
+// </copyright>
+
+namespace dMobile.View.Menus
 {
+    using System;
+    using System.Threading.Tasks;
+    using System.Xml.Linq;
     using Android.Views;
     using dMobile.Bedrock;
     using dMobile.Resources.Enums;
     using dMobile.View.Activity;
     using dMobile.View.CustomPages;
     using dMobile.View.Utilities;
-    using System;
-    using System.Threading.Tasks;
-    using System.Xml.Linq;
     using Xamarin.Forms;
     using Xamarin.Forms.Xaml;
 
     [XamlCompilation(XamlCompilationOptions.Compile)]
     public partial class ucUtilitiesMenu : DMobileContentPage, IAppArea
     {
-        private SysEnvironment sysEnv;
-        private bool isControlsLoaded = false;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ucUtilitiesMenu"/> class.
+        /// </summary>
         public ucUtilitiesMenu()
         {
             this.InitializeComponent();
 
             this.Title = this.GetControlDescription();
 
-            // TODO: Resource strings
             this.cmdScanBarCodes.Text = "1) Scan Barcodes";
             this.cmdProductLabels.Text = "2) Product Labels";
             this.cmdAssignDefaultLocation.Text = "3) Assign Default Locations";
@@ -36,7 +40,7 @@
         }
 
         /// <summary>
-        /// The OnAppearing
+        /// The OnAppearing.
         /// </summary>
         protected override void OnAppearing()
         {
@@ -44,8 +48,7 @@
 
             MessagingCenter.Subscribe<string>(this, EventTypes.OnKeyUp.ToString(), async (keyPressed) =>
             {
-                // TODO: Verify keycodes
-                Enum.TryParse(keyPressed, out Keycode keycode);
+                _ = Enum.TryParse(keyPressed, out Keycode keycode);
 
                 if (keycode == Keycode.Enter && this.cmdProductLabels.IsEnabled)
                 {
@@ -53,7 +56,7 @@
                     this.IsControlLoaded = false;
 
                     ucActivityProductLabel productLabel = new ucActivityProductLabel();
-                    await productLabel.ShowDialog();
+                    _ = await productLabel.ShowDialog();
                 }
                 else if (keycode == Keycode.Num1 && this.cmdScanBarCodes.IsEnabled)
                 {
@@ -69,7 +72,7 @@
                     this.IsControlLoaded = false;
 
                     ucActivityProductLabel productLabel = new ucActivityProductLabel();
-                    await productLabel.ShowDialog();
+                    _ = await productLabel.ShowDialog();
                 }
                 else if (keycode == Keycode.Num3 && this.cmdAssignDefaultLocation.IsEnabled)
                 {
@@ -87,13 +90,12 @@
             }
             catch (Exception ex)
             {
-                // TODO: Logging
                 Console.WriteLine("this.ucUtilitiesMenu_GotFocus threw error " + ex);
             }
         }
 
         /// <summary>
-        /// The OnDisappearing
+        /// The OnDisappearing.
         /// </summary>
         protected override void OnDisappearing()
         {
@@ -101,31 +103,9 @@
             base.OnDisappearing();
         }
 
-        private bool IsControlLoaded
-        {
-            get
-            {
-                return this.isControlsLoaded;
-            }
+        private bool IsControlLoaded { get; set; } = false;
 
-            set
-            {
-                this.isControlsLoaded = value;
-            }
-        }
-
-        private SysEnvironment SysEnv
-        {
-            get
-            {
-                return this.sysEnv;
-            }
-
-            set
-            {
-                this.sysEnv = value;
-            }
-        }
+        private SysEnvironment SysEnv { get; set; }
 
         /// <summary>
         /// Unregister the bar code scan event handler and disable the scanner.
@@ -170,7 +150,6 @@
         /// <remarks></remarks>
         public string GetControlDescription()
         {
-            // TODO: Resource strings
             return "Utilities Menu";
         }
 
@@ -247,7 +226,7 @@
             this.IsControlLoaded = false;
 
             ucActivityProductLabel productLabel = new ucActivityProductLabel();
-            await productLabel.ShowDialog();
+            _ = await productLabel.ShowDialog();
         }
 
         /// <summary>
@@ -273,33 +252,30 @@
         /// <remarks></remarks>
         private void ucUtilitiesMenu_GotFocus(object sender, EventArgs e)
         {
-            if (!SysEnvironment.GetInstance().IsApplicationExitInvoked)
+            if (!this.IsControlLoaded)
             {
-                if (!this.IsControlLoaded)
+                this.IsControlLoaded = true;
+                this.cmdScanBarCodes.IsEnabled = true;
+
+                if (this.SysEnv.IsCommunicationTestSuccessful && !this.SysEnv.SysSettings.IsDisconnectedMode)
                 {
-                    this.IsControlLoaded = true;
-                    this.cmdScanBarCodes.IsEnabled = true;
-
-                    if (this.SysEnv.IsCommunicationTestSuccessful && !this.SysEnv.SysSettings.IsDisconnectedMode)
-                    {
-                        this.cmdProductLabels.IsEnabled = false;
-                    }
-                    else
-                    {
-                        this.cmdProductLabels.IsEnabled = false;
-                    }
-
-                    if (this.SysEnv.IsCommunicationTestSuccessful && !this.SysEnv.SysSettings.IsDisconnectedMode)
-                    {
-                        this.cmdAssignDefaultLocation.IsEnabled = true;
-                    }
-                    else
-                    {
-                        this.cmdAssignDefaultLocation.IsEnabled = false;
-                    }
-
-                    this.cmdScanBarCodes.Focus();
+                    this.cmdProductLabels.IsEnabled = false;
                 }
+                else
+                {
+                    this.cmdProductLabels.IsEnabled = false;
+                }
+
+                if (this.SysEnv.IsCommunicationTestSuccessful && !this.SysEnv.SysSettings.IsDisconnectedMode)
+                {
+                    this.cmdAssignDefaultLocation.IsEnabled = true;
+                }
+                else
+                {
+                    this.cmdAssignDefaultLocation.IsEnabled = false;
+                }
+
+                _ = this.cmdScanBarCodes.Focus();
             }
         }
     }

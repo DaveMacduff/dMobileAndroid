@@ -1,51 +1,46 @@
+// <copyright file="clsTableActivityReturnsItemComment.cs" company="InterSect Business Systems Inc">
+// Copyright (c) InterSect Business Systems Inc. All rights reserved.
+// </copyright>
+
 namespace dMobile.GroundWork
 {
     using System;
-    using SQLite;
-    using dMobile.Bedrock;
     using System.Threading.Tasks;
+    using dMobile.Bedrock;
+    using SQLite;
 
     public class TableActivityReturnsItemComment : TableBase
     {
-        #region Constructors
-
+        /// <summary>
+        /// Initializes a new instance of the <see cref="TableActivityReturnsItemComment"/> class.
+        /// </summary>
         public TableActivityReturnsItemComment()
           : base()
         {
             this.FullClassName = "dMobile.GroundWork.TableActivityReturnsItemComment";
         }
 
-        #endregion
-
-        #region Public Members
-
         /// <summary>
         ///
         /// </summary>
         /// <remarks></remarks>
-        public override async Task Purge()
+        public override async Task PurgeData()
         {
             try
             {
-                // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging sales return item comments.", true);
 
                 await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync("DELETE FROM tActivityReturnsItemComment");
 
-                // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging sales return item comments complete.", true);
             }
             catch (SQLiteException ex)
             {
-                // TODO: Resource strings
-                DataAccessStatusOutHandler(this, EventArgs.Empty, "Database exception occurred.", true);
-                DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging sales return item comments failed.", true);
+                this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Database exception occurred.", true);
+                this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging sales return item comments failed.", true);
 
-                // TODO: Resource strings
                 throw new Exception("Database exception occurred. Purging sales return item comments failed.", ex);
             }
         }
-
-        #endregion
     }
 }

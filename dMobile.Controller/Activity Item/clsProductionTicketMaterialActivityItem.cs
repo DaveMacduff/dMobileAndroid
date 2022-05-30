@@ -1,9 +1,14 @@
-﻿namespace dMobile.Controller
+﻿// <copyright file="clsProductionTicketMaterialActivityItem.cs" company="InterSect Business Systems Inc">
+// Copyright (c) InterSect Business Systems Inc. All rights reserved.
+// </copyright>
+
+namespace dMobile.Controller
 {
     using System;
+    using System.Collections.Generic;
     using System.Collections.ObjectModel;
     using System.Data;
-    using SQLite;
+    using System.Linq;
     using System.Text;
     using System.Threading.Tasks;
     using System.Xml;
@@ -12,26 +17,53 @@
     using dMobile.GroundWork;
     using dMobile.Resources.Services;
     using dMobile.Resources.Types;
+    using SQLite;
     using Xamarin.Forms;
-    using System.Collections.Generic;
-    using System.Linq;
 
+    /// <summary>
+    /// Defines the <see cref="TicketMaterialActItem" />.
+    /// </summary>
     public class TicketMaterialActItem : ActItem
     {
+        /// <summary>
+        /// Defines the columnWidth0.
+        /// </summary>
         private double columnWidth0 = 0;
-        private double columnWidth1 = 0;
-        private double columnWidth2 = 0;
-        private double columnWidth3 = 0;
-        private double columnWidth4 = 0;
-        private ResourceDictionary resourceDictionary = new ResourceDictionary();
-        List<ProductionTicketMaterialItem> listProductionTicketMaterialItems = new List<ProductionTicketMaterialItem>();
-
-        #region Constructors
 
         /// <summary>
-        /// 
+        /// Defines the columnWidth1.
         /// </summary>
-        /// <param name="activity"></param>
+        private double columnWidth1 = 0;
+
+        /// <summary>
+        /// Defines the columnWidth2.
+        /// </summary>
+        private double columnWidth2 = 0;
+
+        /// <summary>
+        /// Defines the columnWidth3.
+        /// </summary>
+        private double columnWidth3 = 0;
+
+        /// <summary>
+        /// Defines the columnWidth4.
+        /// </summary>
+        private double columnWidth4 = 0;
+
+        /// <summary>
+        /// Defines the resourceDictionary.
+        /// </summary>
+        private ResourceDictionary resourceDictionary = new ResourceDictionary();
+
+        /// <summary>
+        /// Defines the listProductionTicketMaterialItems.
+        /// </summary>
+        private List<ProductionTicketMaterialItem> listProductionTicketMaterialItems = new List<ProductionTicketMaterialItem>();
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="TicketMaterialActItem"/> class.
+        /// </summary>
+        /// <param name="activity">.</param>
         public TicketMaterialActItem(Activity activity)
           : base(activity)
         {
@@ -47,12 +79,12 @@
                     Padding = new Thickness(5),
                     ColumnDefinitions =
                     {
-                        new ColumnDefinition { Width = new GridLength(columnWidth0, GridUnitType.Absolute) },
-                        new ColumnDefinition { Width = new GridLength(columnWidth1, GridUnitType.Absolute) },
-                        new ColumnDefinition { Width = new GridLength(columnWidth2, GridUnitType.Absolute) },
-                        new ColumnDefinition { Width = new GridLength(columnWidth3, GridUnitType.Absolute) },
-                        new ColumnDefinition { Width = new GridLength(columnWidth4, GridUnitType.Absolute) }
-                    }
+                        new ColumnDefinition { Width = new GridLength(this.columnWidth0, GridUnitType.Absolute) },
+                        new ColumnDefinition { Width = new GridLength(this.columnWidth1, GridUnitType.Absolute) },
+                        new ColumnDefinition { Width = new GridLength(this.columnWidth2, GridUnitType.Absolute) },
+                        new ColumnDefinition { Width = new GridLength(this.columnWidth3, GridUnitType.Absolute) },
+                        new ColumnDefinition { Width = new GridLength(this.columnWidth4, GridUnitType.Absolute) },
+                    },
                 };
 
                 Label labelCode = new Label { VerticalOptions = LayoutOptions.Center };
@@ -88,18 +120,22 @@
             this.resourceDictionary.Add("dataTemplate", dataTemplate);
         }
 
-        #endregion
-
-        #region Public Members
+        /// <summary>
+        /// Gets or sets a value indicating whether allowed to add skid detail.
+        /// </summary>
+        /// <returns><see cref="bool"/> True if allowed to add skid detail.</returns>
+        public override bool IsAllowAddSkidDetail()
+        {
+            return false;
+        }
 
         /// <summary>
-        ///
+        /// The IsCatchAsk.
         /// </summary>
-        /// <returns></returns>
-        /// <remarks></remarks>
+        /// <returns>.</returns>
         public override bool IsCatchAsk()
         {
-            bool isCatchAsk = base.IsCatchAsk();
+            bool isCatchAsk = this.ProdInfo.IsCatchAsk;
             if (isCatchAsk)
             {
                 // modules are for exclusions
@@ -110,68 +146,86 @@
         }
 
         /// <summary>
-        /// 
+        /// The IsCatchAskZero.
         /// </summary>
-        /// <returns></returns>
+        /// <returns>.</returns>
         public override bool IsCatchAskZero()
         {
-            bool isCatchAskZero = base.IsCatchAskZero();
-            if (isCatchAskZero)
+            bool result = this.IsCatchAsk();
+            if (result && this.ProdInfo.IsCatchAskZero)
             {
-                isCatchAskZero = !this.SysEnv.SysSettings.IsTicketMaterialNoCatchAskZeroEnabled;
+                result = !this.SysEnv.SysSettings.IsTicketMaterialNoCatchAskZeroEnabled;
             }
 
-            return isCatchAskZero;
+            return result;
         }
 
         /// <summary>
-        /// 
+        /// Get the default location for the activity base on the sign quantity of the transaction.
         /// </summary>
-        /// <param name="whsLocMapRefno"></param>
-        /// <param name="prodRefno"></param>
-        /// <returns></returns>
+        /// <param name="whsLocMapRefno"><see cref="int"/> Warehouse location map reference number.</param>
+        /// <param name="prodRefno"><see cref="int"/> Product reference number.</param>
+        /// <returns><see cref="int"/> Location map reference number.</returns>
         public override async Task<int> GetDefaultLocMapRefno(int whsLocMapRefno, int prodRefno)
         {
-            int locMapRefno = await LocationMapTasks.GetDefaultLocMapRefnoFromProdRefno(whsLocMapRefno, prodRefno, SysCommon.ProdLocMapTypes.Picking);
+            int locMapRefno = 0;
+            if (this.SelectedActivityItem is ProductionTicketMaterialItem item)
+            {
+                if (Math.Sign(item.ActivityItemProductionQuantity) == 0 ||
+                    Math.Sign(item.ActivityItemProductionQuantity) == 1)
+                {
+                    locMapRefno = await LocationMapTasks.GetDefaultLocMapRefnoFromProdRefno(
+                        whsLocMapRefno,
+                        prodRefno,
+                        SysCommon.ProdLocMapTypes.Receiving);
+                }
+                else
+                {
+                    locMapRefno = await LocationMapTasks.GetDefaultLocMapRefnoFromProdRefno(
+                        whsLocMapRefno,
+                        prodRefno,
+                        SysCommon.ProdLocMapTypes.Picking);
+                }
+            }
+
             return locMapRefno;
         }
 
         /// <summary>
-        /// 
+        /// The GetUnableToParseItemFKRefnoMessage.
         /// </summary>
-        /// <param name="actItemStringFKRefno"></param>
-        /// <returns></returns>
+        /// <param name="actItemStringFKRefno">.</param>
+        /// <returns>.</returns>
         public override string GetUnableToParseItemFKRefnoMessage(string actItemStringFKRefno)
         {
-            // TODO: Resource strings
             return string.Format("Unable to parse production item# {0}", actItemStringFKRefno);
         }
 
         /// <summary>
-        /// 
+        /// The GetUnableToFindItemFKRefnoMessage.
         /// </summary>
-        /// <param name="actItemStringFKRefno"></param>
-        /// <returns></returns>
+        /// <param name="actItemStringFKRefno">.</param>
+        /// <returns>.</returns>
         public override string GetUnableToFindItemFKRefnoMessage(string actItemStringFKRefno)
         {
-            // TODO: Resource strings
             return string.Format("Unable to find production item# {0}", actItemStringFKRefno);
         }
 
         /// <summary>
-        /// 
+        /// The GetDataViewSortFKRefnoIdx.
         /// </summary>
-        /// <returns></returns>
+        /// <returns>.</returns>
         public override string GetDataViewSortFKRefnoIdx()
         {
             return "ActivityItemProductionMaterialStringFKRefno";
         }
 
         /// <summary>
-        /// 
+        /// The Insert.
         /// </summary>
-        /// <param name="data"></param>
-        /// <param name="askToInsertAsNewItem"></param>
+        /// <param name="data">.</param>
+        /// <param name="askToInsertAsNewItem">.</param>
+        /// <returns>The <see cref="Task"/>.</returns>
         public override async Task Insert(XDocument data, bool askToInsertAsNewItem)
         {
             int foundActItemRefno = 0;
@@ -180,11 +234,10 @@
 
             if (prodUnitRefno != 0)
             {
-                foundActItemRefno = await this.GetRefnoFromProdUnitRefno(prodUnitRefno);
+                foundActItemRefno = await this.GetActivityItemRefno(prodUnitRefno);
 
                 if (foundActItemRefno > 0)
                 {
-                    // TODO: Resource strings
                     dlgResult = await Device.InvokeOnMainThreadAsync(async () => await Application.Current.MainPage.DisplayAlert("New Item", "A line item already exists for this location and product." + Environment.NewLine + "Do you wish to create one?", "Yes", "No"));
                 }
                 else
@@ -243,7 +296,7 @@
                                 Convert.ToString(data.Root.Element("ProductDescription").Value.ToString().TrimEnd() + " " + data.Root.Element("ProductUnitSizeDescription").Value),
                                 Convert.ToDecimal(0),
                                 Convert.ToDecimal(0),
-                                Convert.ToDecimal(0)
+                                Convert.ToDecimal(0),
                             };
 
                             transaction.Execute(queryItemProduction, parametersItemProduction);
@@ -259,7 +312,7 @@
                         catch (SQLiteException ex)
                         {
                             transaction.Rollback();
-                            // TODO: Logging
+
                             Console.WriteLine(ex);
                         }
                     });
@@ -290,7 +343,7 @@
                             ActivityItemProductionWeightQuantity = 0,
                             ActivityItemProductionQuantityExpected = 0,
                             ActivityItemProductionBaseQuantityExpected = 0,
-                            ActivityItemProductionWeightQuantityExpected = 0
+                            ActivityItemProductionWeightQuantityExpected = 0,
                         });
                     }
                 }
@@ -298,12 +351,13 @@
         }
 
         /// <summary>
-        /// 
+        /// The Refresh.
         /// </summary>
-        /// <param name="data"></param>
+        /// <param name="data">.</param>
+        /// <returns>The <see cref="Task"/>.</returns>
         public override async Task Refresh(XDocument data)
         {
-            if (SysEnv.SysSettings.IsDisconnectedMode)
+            if (this.SysEnv.SysSettings.IsDisconnectedMode)
             {
                 this.DataLayerProgressOutHandler(this, new EventArgs(), 5);
             }
@@ -313,26 +367,32 @@
 
                 TableActivityProductionTicketMaterialItem tableActTicketMatItem = new TableActivityProductionTicketMaterialItem();
                 TableActivityProductionTicketMaterialDetail tableActTicketMatDetail = new TableActivityProductionTicketMaterialDetail();
-                await tableActTicketMatDetail.Purge();
-                await tableActTicketMatItem.Purge();
+                await tableActTicketMatDetail.PurgeData();
+                await tableActTicketMatItem.PurgeData();
 
                 this.DataLayerProgressOutHandler(this, new EventArgs(), 5);
 
                 tableActTicketMatItem.RegisterDataAccessListenerProgressOut((TicketMaterialActItem)this);
-                await tableActTicketMatItem.Request(ActHdr.Refno);
+                await tableActTicketMatItem.RequestData(this.ActHdr.Refno);
                 tableActTicketMatItem.UnregisterDataAccessListenerProgressOut((TicketMaterialActItem)this);
             }
         }
 
-        public override ObservableCollection<object> DesignGrid(ref Grid dataGridMainActivityHeader, ref ListView dataGridMainActivity)
+        /// <summary>
+        /// The DesignGrid.
+        /// </summary>
+        /// <param name="GridMainActivity">The GridMainActivity<see cref="Grid"/>.</param>
+        /// <param name="ListViewMainActivity">The ListViewMainActivity<see cref="ListView"/>.</param>
+        /// <returns>The <see cref="ObservableCollection{object}"/>.</returns>
+        public override ObservableCollection<object> DesignGrid(ref Grid GridMainActivity, ref ListView ListViewMainActivity)
         {
             ObservableCollection<object> observableCollection = new ObservableCollection<object>();
 
             // Add all items in dataview to observable collection for display
             foreach (ProductionTicketMaterialItem productionTicketMaterialItem in this.ListItems)
             {
-                //ProductionTicketMaterialItem productionTicketMaterialItem = new ProductionTicketMaterialItem
-                //{
+                // ProductionTicketMaterialItem productionTicketMaterialItem = new ProductionTicketMaterialItem
+                // {
                 //    ActivityItemRefno = Convert.ToInt32(row["ActivityItemRefno"] != DBNull.Value ? row["ActivityItemRefno"] : null),
                 //    ActivityItemProductionQuantity = Convert.ToDecimal(row["ActivityItemProductionQuantity"] != DBNull.Value ? row["ActivityItemProductionQuantity"] : null),
                 //    ActivityItemProductionBaseQuantity = Convert.ToDecimal(row["ActivityItemProductionBaseQuantity"] != DBNull.Value ? row["ActivityItemProductionBaseQuantity"] : null),
@@ -353,35 +413,33 @@
                 //    ActivityItemProductionWeightQuantityExpected = Convert.ToDecimal(row["ActivityItemProductionWeightQuantityExpected"] != DBNull.Value ? row["ActivityItemProductionWeightQuantityExpected"] : null),
                 //    BaseUnitCode = Convert.ToString(row["BaseUnitCode"] != DBNull.Value ? row["BaseUnitCode"] : null),
                 //    LocationCode = Convert.ToInt32(row["LocationCode"] != DBNull.Value ? row["LocationCode"] : null)
-                //};
-
+                // };
                 observableCollection.Add(productionTicketMaterialItem);
             }
 
-            // TODO: Resource strings
             Label labelCodeHeader = new Label { Text = "Code", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
             Label labelBCHeader = new Label { Text = "BC", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
             Label labelUnitHeader = new Label { Text = string.Empty, VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
             Label labelQtyHeader = new Label { Text = "Qty", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
             Label labelExpQtyHeader = new Label { Text = "Exp Qty", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
 
-            columnWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(labelCodeHeader.Text);
-            columnWidth1 = DependencyService.Get<IGridService>().CalculateTextWidth(labelBCHeader.Text);
-            columnWidth2 = DependencyService.Get<IGridService>().CalculateTextWidth(labelUnitHeader.Text);
-            columnWidth3 = DependencyService.Get<IGridService>().CalculateTextWidth(labelQtyHeader.Text);
-            columnWidth4 = DependencyService.Get<IGridService>().CalculateTextWidth(labelExpQtyHeader.Text);
+            this.columnWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(labelCodeHeader.Text);
+            this.columnWidth1 = DependencyService.Get<IGridService>().CalculateTextWidth(labelBCHeader.Text);
+            this.columnWidth2 = DependencyService.Get<IGridService>().CalculateTextWidth(labelUnitHeader.Text);
+            this.columnWidth3 = DependencyService.Get<IGridService>().CalculateTextWidth(labelQtyHeader.Text);
+            this.columnWidth4 = DependencyService.Get<IGridService>().CalculateTextWidth(labelExpQtyHeader.Text);
 
             Grid gridHeader = new Grid
             {
                 Padding = new Thickness(5),
                 ColumnDefinitions =
                 {
-                    new ColumnDefinition { Width = new GridLength(columnWidth0, GridUnitType.Absolute) },
-                    new ColumnDefinition { Width = new GridLength(columnWidth1, GridUnitType.Absolute) },
-                    new ColumnDefinition { Width = new GridLength(columnWidth2, GridUnitType.Absolute) },
-                    new ColumnDefinition { Width = new GridLength(columnWidth3, GridUnitType.Absolute) },
-                    new ColumnDefinition { Width = new GridLength(columnWidth4, GridUnitType.Absolute) }
-                }
+                    new ColumnDefinition { Width = new GridLength(this.columnWidth0, GridUnitType.Absolute) },
+                    new ColumnDefinition { Width = new GridLength(this.columnWidth1, GridUnitType.Absolute) },
+                    new ColumnDefinition { Width = new GridLength(this.columnWidth2, GridUnitType.Absolute) },
+                    new ColumnDefinition { Width = new GridLength(this.columnWidth3, GridUnitType.Absolute) },
+                    new ColumnDefinition { Width = new GridLength(this.columnWidth4, GridUnitType.Absolute) },
+                },
             };
 
             gridHeader.SetDynamicResource(VisualElement.BackgroundColorProperty, "HeaderColor");
@@ -402,7 +460,7 @@
 
             Grid.SetRow(gridHeader, 0);
 
-            dataGridMainActivityHeader.Children.Add(gridHeader);
+            GridMainActivity.Children.Add(gridHeader);
 
             foreach (ProductionTicketMaterialItem productionTicketMaterialItem in observableCollection)
             {
@@ -412,47 +470,47 @@
                 double detailWidth3 = DependencyService.Get<IGridService>().CalculateTextWidth(string.Format("{0:F3}", productionTicketMaterialItem.ActivityItemProductionBaseQuantity));
                 double detailWidth4 = DependencyService.Get<IGridService>().CalculateTextWidth(string.Format("{0:F3}", productionTicketMaterialItem.ActivityItemProductionBaseQuantityExpected));
 
-                if (detailWidth0 > columnWidth0)
+                if (detailWidth0 > this.columnWidth0)
                 {
-                    columnWidth0 = detailWidth0;
-                    gridHeader.ColumnDefinitions[0].Width = columnWidth0;
+                    this.columnWidth0 = detailWidth0;
+                    gridHeader.ColumnDefinitions[0].Width = this.columnWidth0;
                 }
 
-                if (detailWidth1 > columnWidth1)
+                if (detailWidth1 > this.columnWidth1)
                 {
-                    columnWidth1 = detailWidth1;
-                    gridHeader.ColumnDefinitions[1].Width = columnWidth1;
+                    this.columnWidth1 = detailWidth1;
+                    gridHeader.ColumnDefinitions[1].Width = this.columnWidth1;
                 }
 
-                if (detailWidth2 > columnWidth2)
+                if (detailWidth2 > this.columnWidth2)
                 {
-                    columnWidth2 = detailWidth2;
-                    gridHeader.ColumnDefinitions[2].Width = columnWidth2;
+                    this.columnWidth2 = detailWidth2;
+                    gridHeader.ColumnDefinitions[2].Width = this.columnWidth2;
                 }
 
-                if (detailWidth3 > columnWidth3)
+                if (detailWidth3 > this.columnWidth3)
                 {
-                    columnWidth3 = detailWidth3;
-                    gridHeader.ColumnDefinitions[3].Width = columnWidth3;
+                    this.columnWidth3 = detailWidth3;
+                    gridHeader.ColumnDefinitions[3].Width = this.columnWidth3;
                 }
 
-                if (detailWidth4 > columnWidth4)
+                if (detailWidth4 > this.columnWidth4)
                 {
-                    columnWidth4 = detailWidth4;
-                    gridHeader.ColumnDefinitions[4].Width = columnWidth4;
+                    this.columnWidth4 = detailWidth4;
+                    gridHeader.ColumnDefinitions[4].Width = this.columnWidth4;
                 }
             }
 
-            dataGridMainActivity.ItemTemplate = (DataTemplate)this.resourceDictionary["dataTemplate"];
+            ListViewMainActivity.ItemTemplate = (DataTemplate)this.resourceDictionary["dataTemplate"];
 
             return observableCollection;
         }
 
         /// <summary>
-        /// 
+        /// The GetActivityItemList.
         /// </summary>
-        /// <param name="isSubmitBatch"></param>
-        /// <returns></returns>
+        /// <param name="isSubmitBatch">.</param>
+        /// <returns>.</returns>
         public override async Task<List<object>> GetActivityItemList(bool isSubmitBatch)
         {
             StringBuilder sql = new StringBuilder();
@@ -570,8 +628,8 @@
                 sql.Append("ORDER BY tActivityItemProduction.ActivityItemRefno");
             }
 
-            //using (SQLiteDataAdapter da = new SQLiteDataAdapter(sql.ToString(), DatabaseConnection.GetInstance().SQLConn))
-            //{
+            // using (SQLiteDataAdapter da = new SQLiteDataAdapter(sql.ToString(), DatabaseConnection.GetInstance().SQLConn))
+            // {
             //    using (DataSet ds = new DataSet())
             //    {
             //        da.Fill(ds);
@@ -582,37 +640,36 @@
             //        this.DataViewItems.AllowDelete = true;
             //        this.DataViewItems.Sort = "ActivityItemRefno";
             //    }
-            //}
-
+            // }
             this.listProductionTicketMaterialItems = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<ProductionTicketMaterialItem>(sql.ToString());
             this.ListItems = this.listProductionTicketMaterialItems.Cast<object>().ToList();
             return this.ListItems;
         }
 
         /// <summary>
-        /// 
+        /// The Search.
         /// </summary>
-        /// <param name="searchText"></param>
-        /// <returns></returns>
+        /// <param name="searchText">.</param>
+        /// <returns>.</returns>
         public override ObservableCollection<object> Search(string searchText)
         {
             ObservableCollection<object> observableCollection = new ObservableCollection<object>();
 
-            //if (string.IsNullOrEmpty(this.ActItemFilter))
-            //{
+            // if (string.IsNullOrEmpty(this.ActItemFilter))
+            // {
             this.ListItems = this.listProductionTicketMaterialItems.Where(productionTicketMaterialItem => productionTicketMaterialItem.ProductCode.ToString().ToLower().Contains(searchText.ToLower().Trim())).Cast<object>().ToList();
-            //}
-            //else
-            //{
-            //TODO: Fix filtering
-            //this.DataViewItems.RowFilter = this.ActItemFilter + " AND ProductCode LIKE \'%" + searchText.Trim() + "%\'";
-            //}
+            // }
+            // else
+            // {
+            // TODO: Fix filtering
+            // this.DataViewItems.RowFilter = this.ActItemFilter + " AND ProductCode LIKE \'%" + searchText.Trim() + "%\'";
+            // }
 
             // Add all items in dataview to observable collection for display
             foreach (ProductionTicketMaterialItem productionTicketMaterialItem in this.ListItems)
             {
-                //ProductionTicketMaterialItem productionTicketMaterialItem = new ProductionTicketMaterialItem
-                //{
+                // ProductionTicketMaterialItem productionTicketMaterialItem = new ProductionTicketMaterialItem
+                // {
                 //    ActivityItemRefno = Convert.ToInt32(row["ActivityItemRefno"] != DBNull.Value ? row["ActivityItemRefno"] : null),
                 //    ActivityItemProductionQuantity = Convert.ToDecimal(row["ActivityItemProductionQuantity"] != DBNull.Value ? row["ActivityItemProductionQuantity"] : null),
                 //    ActivityItemProductionBaseQuantity = Convert.ToDecimal(row["ActivityItemProductionBaseQuantity"] != DBNull.Value ? row["ActivityItemProductionBaseQuantity"] : null),
@@ -633,8 +690,7 @@
                 //    ActivityItemProductionWeightQuantityExpected = Convert.ToDecimal(row["ActivityItemProductionWeightQuantityExpected"] != DBNull.Value ? row["ActivityItemProductionWeightQuantityExpected"] : null),
                 //    BaseUnitCode = Convert.ToString(row["BaseUnitCode"] != DBNull.Value ? row["BaseUnitCode"] : null),
                 //    LocationCode = Convert.ToInt32(row["LocationCode"] != DBNull.Value ? row["LocationCode"] : null)
-                //};
-
+                // };
                 observableCollection.Add(productionTicketMaterialItem);
             }
 
@@ -642,24 +698,35 @@
         }
 
         /// <summary>
-        /// 
+        /// Select an activity item.
         /// </summary>
-        /// <param name="idx"></param>
+        /// <param name="selectedActivityItem"><see cref="object"/> Selected activity object.</param>
+        /// <returns><see cref="Task"/> Task operation.</returns>
         public override async Task SelectActivityItem(object selectedActivityItem)
         {
-            if (selectedActivityItem is ProductionTicketMaterialItem productionTicketMaterialItem)
+            int activityItemLocMapRefno = 0;
+            if (selectedActivityItem is ProductionTicketMaterialItem item)
             {
-                await base.SelectActivityItem(selectedActivityItem);
-                this.FKRefno = Convert.ToInt32(productionTicketMaterialItem.ActivityItemProductionMaterialFKRefno);
+                this.SelectedActivityItem = item;
+                this.Refno = item.ActivityItemRefno;
+                this.FKRefno = Convert.ToInt32(item.ActivityItemProductionMaterialFKRefno);
+                this.ProdInfo = await ProductInfoTasks.GetInfoFromUnitRefno(item.ProductUnitRefno);
+                activityItemLocMapRefno = item.LocationMapRefno;
             }
+
+            await this.GetSelectedItemLocation(activityItemLocMapRefno);
+
+            // LocationMap.GetInstance().CurrLocMap needs to be set before call to GetSchemeComponentsFromRefno.
+            this.ProdInfo.Scheme = await ProductInfoTasks.GetSchemeComponentsFromRefno(
+                this.ProdInfo.Refno);
         }
 
         /// <summary>
-        /// 
+        /// The GetActivityItemRefno.
         /// </summary>
-        /// <param name="productUnitRefno"></param>
-        /// <returns></returns>
-        public override async Task<int> GetRefnoFromProdUnitRefno(int prodUnitRefno)
+        /// <param name="prodUnitRefno">The prodUnitRefno<see cref="int"/>.</param>
+        /// <returns>.</returns>
+        public override async Task<int> GetActivityItemRefno(int prodUnitRefno)
         {
             int foundActItemRefno = 0;
             StringBuilder sql = new StringBuilder();
@@ -694,10 +761,10 @@
         }
 
         /// <summary>
-        /// 
+        /// The CreateSubmitXML.
         /// </summary>
-        /// <param name="data"></param>
-        /// <returns></returns>
+        /// <param name="data">.</param>
+        /// <returns>.</returns>
         public async override Task<string> CreateSubmitXML(XDocument data)
         {
             StringBuilder xmlString = new StringBuilder();
@@ -715,10 +782,10 @@
                 + "<action>SUBMIT PRODUCTION TICKET MATERIAL ITEM</action>"
                 + "</command>"
                 + await SysCommon.GetRequestDefaults(false)
-                + ("<prod_id>" + prodCode + "</prod_id>")
-                + ("<is_bc>" + prodUnitIsBC + "</is_bc>")
-                + ("<symbology>" + symbologyPrefix + "</symbology>")
-                + ("<gtin>" + barCodeCode + "</gtin>")
+                + "<prod_id>" + prodCode + "</prod_id>"
+                + "<is_bc>" + prodUnitIsBC + "</is_bc>"
+                + "<symbology>" + symbologyPrefix + "</symbology>"
+                + "<gtin>" + barCodeCode + "</gtin>"
                 + "<whs_id></whs_id>"
                 + "<sect_refno></sect_refno>"
                 + "<slot_refno></slot_refno>"
@@ -733,12 +800,12 @@
         }
 
         /// <summary>
-        /// 
+        /// The RefreshQuantity.
         /// </summary>
-        /// <param name="idx"></param>
-        /// <param name="quantity"></param>
-        /// <param name="baseQuantity"></param>
-        /// <param name="weightQuantity"></param>
+        /// <param name="selectedActivityItem">The selectedActivityItem<see cref="object"/>.</param>
+        /// <param name="quantity">.</param>
+        /// <param name="baseQuantity">.</param>
+        /// <param name="weightQuantity">.</param>
         public override void RefreshQuantity(object selectedActivityItem, decimal quantity, decimal baseQuantity, decimal weightQuantity)
         {
             if (selectedActivityItem is ProductionTicketMaterialItem productionTicketMaterialItem)
@@ -750,13 +817,12 @@
         }
 
         /// <summary>
-        /// 
+        /// The UpdateListItemQuantity.
         /// </summary>
-        /// <param name="idx"></param>
-        /// <param name="quantity"></param>
-        /// <param name="baseQuantity"></param>
-        /// <param name="weightQuantity"></param>
-        /// <returns></returns>
+        /// <param name="selectedActivityItem">The selectedActivityItem<see cref="object"/>.</param>
+        /// <param name="quantity">.</param>
+        /// <param name="baseQuantity">.</param>
+        /// <param name="weightQuantity">.</param>
         public override void UpdateListItemQuantity(object selectedActivityItem, decimal quantity, decimal baseQuantity, decimal weightQuantity)
         {
             if (selectedActivityItem is ProductionTicketMaterialItem productionTicketMaterialItem)
@@ -768,10 +834,11 @@
         }
 
         /// <summary>
-        /// 
+        /// The UpdateQuantityFromActivityItemList.
         /// </summary>
-        /// <param name="idx"></param>
-        /// <param name="actItemRefno"></param>
+        /// <param name="selectedActivityItem">The selectedActivityItem<see cref="object"/>.</param>
+        /// <param name="actItemRefno">.</param>
+        /// <returns>The <see cref="Task"/>.</returns>
         public override async Task UpdateQuantityFromActivityItemList(object selectedActivityItem, int actItemRefno)
         {
             if (selectedActivityItem is ProductionTicketMaterialItem productionTicketMaterialItem)
@@ -783,6 +850,103 @@
             }
         }
 
-        #endregion
+        /// <summary>
+        /// Get the activity item foreign key reference number.
+        /// </summary>
+        /// <param name="resourceType"><see cref="object"/> Resource model type.</param>
+        /// <returns><see cref="int"/> Found activity item foreign key refno, else 0 if not found.</returns>
+        public override int GetFKRefno(object resourceType)
+        {
+            object tmpFKItRefno = ((ProductionTicketMaterialItem)resourceType).ActivityItemProductionMaterialFKRefno;
+            return tmpFKItRefno == null ? 0 : Convert.ToInt32(tmpFKItRefno);
+        }
+
+        /// <summary>
+        /// Get the activity item control description.
+        /// </summary>
+        /// <returns><see cref="string"/> Get activity item control description.</returns>
+        public override string GetControlDescription()
+        {
+            return string.Format("Production ticket # {0}", this.ActHdr.FKRefno);
+        }
+
+        /// <summary>
+        /// The Delete.
+        /// </summary>
+        /// <returns>The <see cref="Task{int}"/>.</returns>
+        public override async Task<int> Delete()
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <summary>
+        /// The GetProdSchemeDataFromDetailFKRefno.
+        /// </summary>
+        /// <param name="actDetailFKRefno">The actDetailFKRefno<see cref="int"/>.</param>
+        /// <returns>The <see cref="Task{SActItemSchemeData}"/>.</returns>
+        public override Task<SActItemSchemeData> GetProdSchemeDataFromDetailFKRefno(int actDetailFKRefno)
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <summary>
+        /// The GetComment.
+        /// </summary>
+        /// <param name="selectedActivityItem">The selectedActivityItem<see cref="object"/>.</param>
+        /// <returns>The <see cref="Task{string}"/>.</returns>
+        public override Task<string> GetComment(object selectedActivityItem)
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <summary>
+        /// The Submit.
+        /// </summary>
+        /// <param name="data">The data<see cref="XDocument"/>.</param>
+        /// <param name="selectedActivityItem">The selectedActivityItem<see cref="object"/>.</param>
+        /// <returns>The <see cref="Task"/>.</returns>
+        public override Task Submit(XDocument data, object selectedActivityItem)
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <summary>
+        /// The CreateDeleteXML.
+        /// </summary>
+        /// <param name="data">The data<see cref="XDocument"/>.</param>
+        /// <returns>The <see cref="Task{string}"/>.</returns>
+        public override Task<string> CreateDeleteXML(XDocument data)
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <summary>
+        /// The Update.
+        /// </summary>
+        /// <param name="data">The data<see cref="XDocument"/>.</param>
+        /// <returns>The <see cref="Task"/>.</returns>
+        public override Task Update(XDocument data)
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <summary>
+        /// The GetTotalQuantity.
+        /// </summary>
+        /// <returns>The <see cref="Task{string}"/>.</returns>
+        public override Task<string> GetTotalQuantity()
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <summary>
+        /// The GetLabelQuantity.
+        /// </summary>
+        /// <param name="isRepackQuantityOnly">The isRepackQuantityOnly<see cref="bool"/>.</param>
+        /// <returns>The <see cref="Task{SLabelQuantity}"/>.</returns>
+        public override Task<SLabelQuantity> GetLabelQuantity(bool isRepackQuantityOnly)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

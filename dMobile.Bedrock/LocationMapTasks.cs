@@ -1,126 +1,165 @@
-﻿namespace dMobile.Bedrock
+﻿// <copyright file="LocationMapTasks.cs" company="InterSect Business Systems Inc">
+// Copyright (c) InterSect Business Systems Inc. All rights reserved.
+// </copyright>
+
+namespace dMobile.Bedrock
 {
     using System;
     using System.Collections.Generic;
-    using System.Data;
     using System.Threading.Tasks;
     using dMobile.Resources.Models;
     using dMobile.Resources.QueryResults;
     using dMobile.Resources.Types;
-    using SQLite;
 
     /// <summary>
-    /// Defines the <see cref="LocationMapTasks" />
+    /// Defines the <see cref="LocationMapTasks" /> Location map tasks.
     /// </summary>
     public static class LocationMapTasks
     {
         /// <summary>
-        /// GET THE LOCATION MAP REFNO FROM A GLOBAL LOCATION IDENTIFIER
+        /// Get the location map reference number from a bar code global location identifier.
         /// </summary>
-        /// <param name="globalLocationIdentifier">The globalLocationIdentifier<see cref="string"/></param>
-        /// <returns>Found LocationMapRefno</returns>
+        /// <param name="globalLocationIdentifier"><see cref="string"/> Bar code global location identifier.</param>
+        /// <returns><see cref="int"/> Found location map reference number or zero.</returns>
         public static async Task<int> GetLocMapRefnoFromBarCodeGlobalLocIdentifier(string globalLocationIdentifier)
         {
-            int locMapRefno = 0;
+            int foundLocMapRefno = 0;
             SysBarCodeSettings barCodeSettings = new SysBarCodeSettings().LoadData();
-            bool secondAttempt = barCodeSettings.IsRuleEnabled_HeritageGlobalLocationIdentifierSecondPassIgnoreCheckDigit;
+
+            // This option was needed because of a screw up calculating the location check digit.
+            // Need to ignore the check digit when attempting to find the location.
+            bool ignoreCheckDigitAttempt =
+                barCodeSettings.IsRuleEnabled_HeritageGlobalLocationIdentifierSecondPassIgnoreCheckDigit;
+            string barCodeCheckDigitRemoved = globalLocationIdentifier.Substring(
+                0,
+                globalLocationIdentifier.TrimEnd().Length - 1);
 
             // Because we each warehouse has it's own map structure now we can't assume the tracking map.
             // So this will be a little slower, plus the extra parsing rules to include.
 
             // first attempt to find the location as a complete SLOT bar code
-            List<tLocationMapSlotModel> locationMapRefnoResults = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<tLocationMapSlotModel>("SELECT LocationMapRefno FROM tLocationMapSlot WHERE LocationMapSlotBarCode = ?", globalLocationIdentifier);
+            List<tLocationMapSlotModel> locationMapRefnoResults = await DatabaseConnection.GetInstance().
+                SQLConn.QueryAsync<tLocationMapSlotModel>(
+                    "SELECT LocationMapRefno FROM tLocationMapSlot WHERE LocationMapSlotBarCode = ?",
+                    globalLocationIdentifier);
 
             if (locationMapRefnoResults != null && locationMapRefnoResults.Count > 0)
             {
-                locMapRefno = Convert.ToInt32(locationMapRefnoResults[0].LocationMapRefno);
-            }
-            else
-            {
-                if (!secondAttempt)
-                {
-                    // TODO: Resource strings
-                    throw new Exception(string.Format("Unable To Locate Global Location Identifier '{0}' In {1}", globalLocationIdentifier, "SELECT LocationMapRefno FROM tLocationMapSlot WHERE LocationMapRefno = ? "));
-                }
+                foundLocMapRefno = Convert.ToInt32(locationMapRefnoResults[0].LocationMapRefno);
             }
 
-            if (secondAttempt)
+            if (foundLocMapRefno == 0 && ignoreCheckDigitAttempt)
             {
-                string barCode = globalLocationIdentifier.Substring(0, globalLocationIdentifier.TrimEnd().Length - 1);
-                locMapRefno = Convert.ToInt32(await DatabaseConnection.GetInstance().SQLConn.ExecuteScalarAsync<int>("SELECT LocationMapRefno FROM tLocationMapSlot WHERE LocationMapSlotBarCode LIKE ?", barCode + "%"));
+                foundLocMapRefno = Convert.ToInt32(await DatabaseConnection.GetInstance().SQLConn.
+                    ExecuteScalarAsync<int>(
+                    "SELECT LocationMapRefno FROM tLocationMapSlot WHERE LocationMapSlotBarCode LIKE ?",
+                    barCodeCheckDigitRemoved + "%"));
             }
 
             // second attempt to find the location as a complete SECTION bar code
-            if (locMapRefno == 0)
+            if (foundLocMapRefno == 0)
             {
-                secondAttempt = false;
-
-                List<tLocationMapSectionModel> tLocationMapSectionModelResults = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<tLocationMapSectionModel>("SELECT LocationMapRefno FROM tLocationMapSection WHERE LocationMapRefno = ?", globalLocationIdentifier);
+                List<tLocationMapSectionModel> tLocationMapSectionModelResults = await DatabaseConnection.
+                    GetInstance().SQLConn.QueryAsync<tLocationMapSectionModel>(
+                    "SELECT LocationMapRefno FROM tLocationMapSection" +
+                    " WHERE LocationMapSectionBarCode = ?",
+                    globalLocationIdentifier);
 
                 if (tLocationMapSectionModelResults != null && tLocationMapSectionModelResults.Count > 0)
                 {
-                    locMapRefno = Convert.ToInt32(tLocationMapSectionModelResults[0].LocationMapRefno);
+                    foundLocMapRefno = Convert.ToInt32(tLocationMapSectionModelResults[0].LocationMapRefno);
                 }
-                else
-                {
-                    if (!secondAttempt)
-                    {
-                        // TODO: Resource strings
-                        throw new Exception(string.Format("Unable To Locate Global Location Identifier '{0}' In {1}", globalLocationIdentifier, "SELECT LocationMapRefno FROM tLocationMapSection WHERE LocationMapRefno = ?"));
-                    }
-                }
+            }
 
-                if (secondAttempt)
-                {
-                    string barCode = globalLocationIdentifier.Substring(0, globalLocationIdentifier.TrimEnd().Length - 1);
-                    locMapRefno = Convert.ToInt32(await DatabaseConnection.GetInstance().SQLConn.ExecuteScalarAsync<int>("SELECT tLocationMapSection.LocationMapRefno FROM tLocationMapSection WHERE tLocationMapSection.LocationMapSectionBarCode LIKE ?", barCode + "%"));
-                }
+            if (foundLocMapRefno == 0 && ignoreCheckDigitAttempt)
+            {
+                foundLocMapRefno = Convert.ToInt32(await DatabaseConnection.GetInstance().SQLConn.
+                    ExecuteScalarAsync<int>(
+                    "SELECT LocationMapRefno FROM tLocationMapSection" +
+                    " WHERE LocationMapSectionBarCode LIKE ?",
+                    barCodeCheckDigitRemoved + "%"));
             }
 
             // third attempt to find the location as a complete WAREHOUSE bar code
-            if (locMapRefno == 0)
+            if (foundLocMapRefno == 0)
             {
-                secondAttempt = false;
-
-                List<tLocationMapWarehouseModel> tLocationMapWarehouseModelResults = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<tLocationMapWarehouseModel>("SELECT LocationMapRefno FROM tLocationMapWarehouse WHERE LocationMapRefno = ?", globalLocationIdentifier);
+                List<tLocationMapWarehouseModel> tLocationMapWarehouseModelResults =
+                    await DatabaseConnection.GetInstance().SQLConn.QueryAsync<tLocationMapWarehouseModel>(
+                        "SELECT LocationMapRefno FROM tLocationMapWarehouse WHERE LocationMapWarehouseBarCode = ?",
+                        globalLocationIdentifier);
 
                 if (tLocationMapWarehouseModelResults != null && tLocationMapWarehouseModelResults.Count > 0)
                 {
-                    locMapRefno = Convert.ToInt32(tLocationMapWarehouseModelResults[0].LocationMapRefno);
+                    foundLocMapRefno = Convert.ToInt32(tLocationMapWarehouseModelResults[0].LocationMapRefno);
+                }
+            }
+
+            if (foundLocMapRefno == 0 && ignoreCheckDigitAttempt)
+            {
+                foundLocMapRefno = Convert.ToInt32(await DatabaseConnection.GetInstance().SQLConn.
+                    ExecuteScalarAsync<int>(
+                    "SELECT LocationMapRefno FROM tLocationMapWarehouse" +
+                    " WHERE LocationMapWarehouseBarCode LIKE ?",
+                    barCodeCheckDigitRemoved + "%"));
+            }
+
+            return foundLocMapRefno;
+        }
+
+        /// <summary>
+        /// Assign the current location, by examining default, chosen and current locations.
+        /// </summary>
+        /// <returns><see cref="Task"/> Task operation.</returns>
+        public static async Task AssignLocationMapAsync()
+        {
+            SLocMap currLoc = LocationMap.GetInstance().CurrLocMap;
+            SLocMap chosenLoc = LocationMap.GetInstance().ChosenLocMap;
+
+            // Default to login warehouse if not location was selected or previously set.
+            if (currLoc.WhsLocMapRefno <= 0)
+            {
+                int locRefno = LocationMap.GetInstance().LoginWhsLocMapRefno;
+                LocationMap.GetInstance().CurrLocMap = await LocationMapTasks.GetSLocMapFromLocMapRefno(locRefno);
+            }
+
+            // Determine if a default location can be assigned.
+            if (SysEnvironment.GetInstance().SysSettings.IsDefaultLocToProductDefaultLoc)
+            {
+                if (await IsCompleteLocMapRefno(currLoc))
+                {
+                    // Assume that the current location was the default location or even the last chosen one if no
+                    // default was found.
+                }
+                else if (await IsCompleteLocMapRefno(chosenLoc))
+                {
+                    LocationMap.GetInstance().CurrLocMap = LocationMap.GetInstance().ChosenLocMap.Clone();
                 }
                 else
                 {
-                    if (!secondAttempt)
-                    {
-                        // TODO: Resource strings
-                        throw new Exception(string.Format("Unable To Locate Global Location Identifier '{0}' In {1}", globalLocationIdentifier, "SELECT LocationMapRefno FROM tLocationMapWarehouse WHERE LocationMapRefno = ?"));
-                    }
+                    // We can't default the location here because we don't know the warehouse, product, or even quantity.
                 }
-
-                if (secondAttempt)
-                {
-                    string barCode = globalLocationIdentifier.Substring(0, globalLocationIdentifier.TrimEnd().Length - 1);
-                    locMapRefno = Convert.ToInt32(await DatabaseConnection.GetInstance().SQLConn.ExecuteScalarAsync<int>("SELECT tLocationMapWarehouse.LocationMapRefno FROM tLocationMapWarehouse WHERE tLocationMapWarehouse.LocationMapWarehouseBarCode LIKE ?", barCode + "%"));
-                }
-
             }
-
-            return locMapRefno;
+            else
+            {
+                LocationMap.GetInstance().CurrLocMap = LocationMap.GetInstance().ChosenLocMap.Clone();
+            }
         }
 
         /// <summary>
-        /// The GetWhsList
+        /// Get a list of warehouses.
         /// </summary>
-        /// <param name="dataTableWhsList">The dataTableWhsList<see cref="DataTable"/></param>
+        /// <returns><see cref="Task{List{Warehouse}}"/> List of warehouses.</returns>
         public static async Task<List<Warehouse>> GetWhsList()
         {
-            return await DatabaseConnection.GetInstance().SQLConn.QueryAsync<Warehouse>("SELECT LocationMapWarehouseCode, LocationMapWarehouseName, LocationMapRefno FROM tLocationMapWarehouse ORDER BY LocationMapWarehouseCode");
+            return await DatabaseConnection.GetInstance().SQLConn.QueryAsync<Warehouse>(
+                "SELECT LocationMapWarehouseCode, LocationMapWarehouseName, LocationMapRefno" +
+                " FROM tLocationMapWarehouse ORDER BY LocationMapWarehouseCode");
         }
 
         /// <summary>
-        /// The GetSectList
+        /// Get a list of sections.
         /// </summary>
-        /// <param name="dataTableSectionList">The dataTableSectionList<see cref="DataTable"/></param>
+        /// <returns><see cref="Task{List{Section}}"/> List of sections.</returns>
         public static async Task<List<Section>> GetSectList()
         {
             string sql = "SELECT LocationMapSectionCode,"
@@ -134,32 +173,39 @@
         }
 
         /// <summary>
-        /// Gets the Section name from a LocationMapSectionFKRefno.
+        /// Get the section name from a section location map foreign key reference number.
         /// </summary>
-        /// <param name="locMapSectFKRefno">LocationMapSectionFKRefno</param>
+        /// <param name="locMapSectFKRefno"><see cref="int"/> Section location map foreign key reference number.</param>
         /// <returns>Name of the section.</returns>
         public static async Task<string> GetSectionName(int locMapSectFKRefno)
         {
-            List<tLocationMapSectionModel> results = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<tLocationMapSectionModel>("SELECT LocationMapSectionName FROM tLocationMapSection WHERE LocationMapSectionFKRefno = ?", Convert.ToInt32(locMapSectFKRefno));
+            List<tLocationMapSectionModel> results = await DatabaseConnection.GetInstance().
+                SQLConn.QueryAsync<tLocationMapSectionModel>(
+                "SELECT LocationMapSectionName FROM tLocationMapSection WHERE LocationMapSectionFKRefno = ?",
+                Convert.ToInt32(locMapSectFKRefno));
+
             return Convert.ToString(results[0].LocationMapSectionName);
         }
 
         /// <summary>
-        /// Gets the Slot name from a LocationMapSlotFKRefno.
+        /// Get the slot name from a slot location map foreign key reference number.
         /// </summary>
-        /// <param name="locMapSlotFKRefno">The locMapSlotFKRefno<see cref="int"/></param>
+        /// <param name="locMapSlotFKRefno"><see cref="int"/> Slot location map foreign key reference number.</param>
         /// <returns>Name of the slot.</returns>
         public static async Task<string> GetSlotName(int locMapSlotFKRefno)
         {
-            List<tLocationMapSlotModel> results = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<tLocationMapSlotModel>("SELECT LocationMapSlotName FROM tLocationMapSlot WHERE LocationMapSlotFKRefno = ?", Convert.ToInt32(locMapSlotFKRefno));
+            List<tLocationMapSlotModel> results = await DatabaseConnection.GetInstance().SQLConn.
+                QueryAsync<tLocationMapSlotModel>(
+                "SELECT LocationMapSlotName FROM tLocationMapSlot WHERE LocationMapSlotFKRefno = ?",
+                Convert.ToInt32(locMapSlotFKRefno));
+
             return Convert.ToString(results[0].LocationMapSlotName);
         }
 
         /// <summary>
-        /// The GetSlotCoord1List
+        /// Get a list of slot 1 coordinates.
         /// </summary>
-        /// <param name="dataTableSlotCoord1List">The dataTableSlotCoord1List<see cref="DataTable"/></param>
-        //public static async Task<List<Slot>> GetSlotCoord1List(ref DataTable dataTableSlotCoord1List)
+        /// <returns><see cref="Task{List{Slot}}"/> List of slot 1 coordinates.</returns>
         public static async Task<List<Slot>> GetSlotCoord1List()
         {
             string sql = "SELECT DISTINCT tLocationMapSlotCoordinate.LocationMapSlotCoordinateCode,"
@@ -171,13 +217,15 @@
                 + "WHERE tLocationMapSlotCoordinate.LocationMapSlotCoordinateEnum = ?"
                 + " ORDER BY tLocationMapSlotCoordinate.LocationMapSlotCoordinateCode";
 
-            return await DatabaseConnection.GetInstance().SQLConn.QueryAsync<Slot>(sql, Convert.ToInt32(SysCommon.LocMapSlotCoordTypes.Coord1));
+            return await DatabaseConnection.GetInstance().SQLConn.QueryAsync<Slot>(
+                sql,
+                Convert.ToInt32(SysCommon.LocMapSlotCoordTypes.Coord1));
         }
 
         /// <summary>
-        /// The GetSlotCoord2List
+        /// Get a list of slot 2 coordinates.
         /// </summary>
-        /// <param name="dataTableSlotCoord2List">The dataTableSlotCoord2List<see cref="DataTable"/></param>
+        /// <returns><see cref="Task{List{Slot}}"/> List of slot 2 coordinates.</returns>
         public static async Task<List<Slot>> GetSlotCoord2List()
         {
             string sql = "SELECT DISTINCT tLocationMapSlotCoordinate.LocationMapSlotCoordinateCode,"
@@ -189,14 +237,15 @@
             + "WHERE tLocationMapSlotCoordinate.LocationMapSlotCoordinateEnum = ?"
             + " ORDER BY tLocationMapSlotCoordinate.LocationMapSlotCoordinateCode";
 
-            return await DatabaseConnection.GetInstance().SQLConn.QueryAsync<Slot>(sql, Convert.ToInt32(SysCommon.LocMapSlotCoordTypes.Coord2));
-
+            return await DatabaseConnection.GetInstance().SQLConn.QueryAsync<Slot>(
+                sql,
+                Convert.ToInt32(SysCommon.LocMapSlotCoordTypes.Coord2));
         }
 
         /// <summary>
-        /// The GetSlotCoord3List
+        /// Get a list of slot 3 coordinates.
         /// </summary>
-        /// <param name="dataTableSlotCoord3List">The dataTableSlotCoord3List<see cref="DataTable"/></param>
+        /// <returns><see cref="Task{List{Slot}}"/> List of slot 3 coordinates.</returns>
         public static async Task<List<Slot>> GetSlotCoord3List()
         {
             string sql = "SELECT DISTINCT tLocationMapSlotCoordinate.LocationMapSlotCoordinateCode,"
@@ -208,25 +257,33 @@
                 + "WHERE tLocationMapSlotCoordinate.LocationMapSlotCoordinateEnum = ?"
                 + " ORDER BY tLocationMapSlotCoordinate.LocationMapSlotCoordinateCode";
 
-            return await DatabaseConnection.GetInstance().SQLConn.QueryAsync<Slot>(sql, Convert.ToInt32(SysCommon.LocMapSlotCoordTypes.Coord3));
+            return await DatabaseConnection.GetInstance().SQLConn.QueryAsync<Slot>(
+                sql,
+                Convert.ToInt32(SysCommon.LocMapSlotCoordTypes.Coord3));
         }
 
         /// <summary>
-        /// The GetSlotRefnoFromCoordinates
+        /// Get the slot location map reference number from slot coordinate reference number's.
         /// </summary>
-        /// <param name="sectionLocMapRefno"></param>
-        /// <param name="coordinate1"></param>
-        /// <param name="coordinate2"></param>
-        /// <param name="coordinate3"></param>
-        /// <returns></returns>
-        public static async Task<int> GetSlotRefnoFromCoordinates(int sectionLocMapRefno, int slotCoord1Refno, int slotCoord2Refno, int slotCoord3Refno)
+        /// <param name="sectionLocMapRefno"><see cref="int"/> Section location map reference number.</param>
+        /// <param name="slotCoord1Refno"><see cref="int"/> Slot coordinate 1 reference number.</param>
+        /// <param name="slotCoord2Refno"><see cref="int"/> Slot coordinate 2 reference number.</param>
+        /// <param name="slotCoord3Refno"><see cref="int"/> Slot coordinate 3 reference number.</param>
+        /// <returns>.</returns>
+        public static async Task<int> GetSlotRefnoFromCoordinates(
+            int sectionLocMapRefno,
+            int slotCoord1Refno,
+            int slotCoord2Refno,
+            int slotCoord3Refno)
         {
             int slotLocMapRefno = 0;
             LocationMap locMap = LocationMap.GetInstance();
             string query = string.Empty;
             List<object> parameters = new List<object>();
 
-            if (locMap.CurrLocMap.IsSlotCoord1Tracked && locMap.CurrLocMap.IsSlotCoord2Tracked && locMap.CurrLocMap.IsSlotCoord3Tracked)
+            if (locMap.CurrLocMap.IsSlotCoord1Tracked &&
+                locMap.CurrLocMap.IsSlotCoord2Tracked &&
+                locMap.CurrLocMap.IsSlotCoord3Tracked)
             {
                 query = "SELECT tLocationMapSlot.LocationMapRefno "
                     + "FROM tLocationMapSlot "
@@ -261,11 +318,11 @@
             }
             else
             {
-                // TODO: Resource strings
-                //throw new Exception("Location map tracking map settings are not set.");
+                // throw new Exception("Location map tracking map settings are not set.");
             }
 
-            List<tLocationMapSlotModel> results = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<tLocationMapSlotModel>(query, parameters.ToArray());
+            List<tLocationMapSlotModel> results = await DatabaseConnection.GetInstance().SQLConn.
+                QueryAsync<tLocationMapSlotModel>(query, parameters.ToArray());
 
             if (results != null && results.Count > 0)
             {
@@ -276,14 +333,13 @@
         }
 
         /// <summary>
-        /// The IsCompleteLocMapRefno
+        /// Check if we have a complete location map.
         /// </summary>
-        /// <param name="locMap"></param>
-        /// <returns></returns>
+        /// <param name="locMap"><see cref="SLocMap"/> Location map.</param>
+        /// <returns><see cref="bool"/> True if the location map is complete else false.</returns>
         public static async Task<bool> IsCompleteLocMapRefno(SLocMap locMap)
         {
-            bool isComplete = false;
-
+            bool isComplete;
             if (LocationMap.GetInstance().CurrLocMap.IsSlotTracked)
             {
                 isComplete = await IsCompleteLocMapRefno(locMap.SlotLocMapRefno);
@@ -301,17 +357,20 @@
         }
 
         /// <summary>
-        /// The IsCompleteLocMapRefno
+        /// Check if we have a complete location map.
         /// </summary>
-        /// <param name="locMapRefno"></param>
-        /// <returns></returns>
+        /// <param name="locMapRefno"><see cref="int"/> Location map reference number.</param>
+        /// <returns><see cref="bool"/> True if the location map is complete else false.</returns>
         public static async Task<bool> IsCompleteLocMapRefno(int locMapRefno)
         {
             bool isComplete = false;
             SysCommon.LocMapSubTypes locMapSubType = SysCommon.LocMapSubTypes.None;
             LocationMap locMap = LocationMap.GetInstance();
 
-            List<tLocationMapModel> results = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<tLocationMapModel>("SELECT * FROM tLocationMap WHERE LocationMapRefno = ?", Convert.ToInt32(locMapRefno));
+            List<tLocationMapModel> results = await DatabaseConnection.GetInstance().SQLConn
+                .QueryAsync<tLocationMapModel>(
+                "SELECT * FROM tLocationMap WHERE LocationMapRefno = ?",
+                Convert.ToInt32(locMapRefno));
 
             if (results != null && results.Count > 0)
             {
@@ -343,88 +402,26 @@
             return isComplete;
         }
 
-        ///// <summary>
-        ///// The GetWhsSectSlotLocMapRefnosFromLocMapRefno
-        ///// </summary>
-        ///// <param name="locMapRefno"></param>
-        ///// <param name="warehouseLocMapRefno"></param>
-        ///// <param name="sectionLocMapRefno">The sectionLocMapRefno<see cref="int"/></param>
-        ///// <param name="slotLocMapRefno"></param>
-        //public static void GetWhsSectSlotLocMapRefnosFromLocMapRefno(int locMapRefno, ref int warehouseLocMapRefno, ref int sectionLocMapRefno, ref int slotLocMapRefno)
-        //{
-        //    warehouseLocMapRefno = 0;
-        //    sectionLocMapRefno = 0;
-        //    slotLocMapRefno = 0;
-
-        //    using (SQLiteCommand cmndLocMap = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
-        //    {
-        //        cmndLocMap.CommandType = CommandType.Text;
-        //        cmndLocMap.CommandText = "SELECT tWarehouseLocationMap.LocationMapRefno AS WarehouseLocationMapRefno,"
-        //            + "CAST(0, Integer) AS SectionLocationMapRefno,"
-        //            + "CAST(0, Integer) AS SlotLocationMapRefno "
-        //            + "FROM tWarehouseLocationMap "
-        //            + "WHERE tWarehouseLocationMap.LocationMapRefno = @warehouseLocMapRefno"
-        //            + " UNION "
-        //            + "SELECT tSectionLocationMap.WarehouseLocationMapRefno,"
-        //            + "tSectionLocationMap.LocationMapRefno AS SectionLocationMapRefno,"
-        //            + "CAST(0, Integer) AS SlotLocationMapRefno "
-        //            + "FROM tSectionLocationMap "
-        //            + "WHERE tSectionLocationMap.LocationMapRefno = @sectionLocMapRefno"
-        //            + " UNION "
-        //            + "SELECT tWarehouseLocationMap.LocationMapRefno AS WarehouseLocationMapRefno,"
-        //            + "tSlotLocationMap.SectionLocationMapRefno,"
-        //            + "tSlotLocationMap.LocationMapRefno AS SlotLocationMapRefno "
-        //            + "FROM tSlotLocationMap "
-        //            + "INNER JOIN tSectionLocationMap ON tSectionLocationMap.LocationMapRefno "
-        //            + "= tSlotLocationMap.SectionLocationMapRefno "
-        //            + "INNER JOIN tWarehouseLocationMap ON tWarehouseLocationMap.LocationMapRefno "
-        //            + "= tSectionLocationMap.WarehouseLocationMapRefno "
-        //            + "WHERE tSlotLocationMap.LocationMapRefno = @slotLocMapRefno";
-        //        cmndLocMap.Parameters.Add(new SQLiteParameter("@warehouseLocMapRefno", Convert.ToInt32(warehouseLocMapRefno)));
-        //        cmndLocMap.Parameters.Add(new SQLiteParameter("@sectionLocMapRefno", Convert.ToInt32(sectionLocMapRefno)));
-        //        cmndLocMap.Parameters.Add(new SQLiteParameter("@slotLocMapRefno", Convert.ToInt32(slotLocMapRefno)));
-
-        //        using (SQLiteDataReader drLocMap = cmndLocMap.ExecuteReader())
-        //        {
-        //            if (drLocMap.Read())
-        //            {
-        //                warehouseLocMapRefno = Convert.ToInt32(drLocMap["WarehouseLocationMapRefno"]);
-        //                sectionLocMapRefno = Convert.ToInt32(drLocMap["SectionLocationMapRefno"]);
-        //                slotLocMapRefno = Convert.ToInt32(drLocMap["SlotLocationMapRefno"]);
-        //            }
-
-        //            drLocMap.Close();
-        //        }
-        //    }
-        //}
-
-        public class SLocMapAndRefno
-        {
-            private SLocMap sLocMap;
-            private int locMapRefno;
-
-            public SLocMap SLocMap { get => this.sLocMap; set => this.sLocMap = value; }
-            public int LocMapRefno { get => this.locMapRefno; set => this.locMapRefno = value; }
-        }
-
         /// <summary>
-        /// The GetSLocMapFromLocMapFKRefno
+        /// Get the location map from a location map foreign key reference number's.
         /// </summary>
-        /// <param name="warehouseLocMapFKRefno"></param>
-        /// <param name="sectionLocMapFKRefno"></param>
-        /// <param name="slotLocnMapFKRefno"></param>
-        /// <param name="locMapRefno"></param>
-        /// <returns></returns>
-        /// TODO: Check if locMapRefno is used anywhere
-        //public static async Task<SLocMap> GetSLocMapFromLocMapFKRefno(int warehouseLocMapFKRefno, int sectionLocMapFKRefno, int slotLocnMapFKRefno, ref int locMapRefno)
-        public static async Task<SLocMapAndRefno> GetSLocMapFromLocMapFKRefno(int warehouseLocMapFKRefno, int sectionLocMapFKRefno, int slotLocnMapFKRefno, int locMapRefno)
+        /// <param name="warehouseLocMapFKRefno"><see cref="int"/> Warehouse location map foreign key reference number.</param>
+        /// <param name="sectionLocMapFKRefno"><see cref="int"/> Section location map foreign key reference number.</param>
+        /// <param name="slotLocMapFKRefno"><see cref="int"/> Slot location map foreign key reference number.</param>
+        /// <returns><see cref="SLocMapAndRefno"/> Location map.</returns>
+        public static async Task<SLocMapAndRefno> GetSLocMapFromLocMapFKRefno(
+            int warehouseLocMapFKRefno,
+            int sectionLocMapFKRefno,
+            int slotLocMapFKRefno)
         {
-            SLocMap retLocMap = new SLocMap();
             int tempLocMapRefno = 0;
 
-            if (tempLocMapRefno == 0 & slotLocnMapFKRefno != 0)
+            if (tempLocMapRefno == 0 & slotLocMapFKRefno != 0)
             {
-                List<tLocationMapModel> results = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<tLocationMapModel>("SELECT LocationMapRefno FROM tLocationMapSlot WHERE LocationMapSlotFKRefno = ?", Convert.ToInt32(slotLocnMapFKRefno));
+                List<tLocationMapModel> results = await DatabaseConnection.GetInstance().SQLConn.
+                    QueryAsync<tLocationMapModel>(
+                    "SELECT LocationMapRefno FROM tLocationMapSlot WHERE LocationMapSlotFKRefno = ?",
+                    Convert.ToInt32(slotLocMapFKRefno));
 
                 if (results != null && results.Count > 0)
                 {
@@ -434,7 +431,10 @@
 
             if (tempLocMapRefno == 0 & sectionLocMapFKRefno != 0)
             {
-                List<tLocationMapSectionModel> results = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<tLocationMapSectionModel>("SELECT LocationMapRefno FROM tLocationMapSection WHERE LocationMapSectionFKRefno = ?", Convert.ToInt32(sectionLocMapFKRefno));
+                List<tLocationMapSectionModel> results = await DatabaseConnection.GetInstance().
+                    SQLConn.QueryAsync<tLocationMapSectionModel>(
+                    "SELECT LocationMapRefno FROM tLocationMapSection WHERE LocationMapSectionFKRefno = ?",
+                    Convert.ToInt32(sectionLocMapFKRefno));
 
                 if (results != null && results.Count > 0)
                 {
@@ -444,7 +444,10 @@
 
             if (tempLocMapRefno == 0 & warehouseLocMapFKRefno != 0)
             {
-                List<tLocationMapWarehouseModel> results = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<tLocationMapWarehouseModel>("SELECT LocationMapRefno FROM tLocationMapWarehouse WHERE LocationMapWarehouseFKRefno = ?", Convert.ToInt32(warehouseLocMapFKRefno));
+                List<tLocationMapWarehouseModel> results = await DatabaseConnection.GetInstance().
+                    SQLConn.QueryAsync<tLocationMapWarehouseModel>(
+                    "SELECT LocationMapRefno FROM tLocationMapWarehouse WHERE LocationMapWarehouseFKRefno = ?",
+                    Convert.ToInt32(warehouseLocMapFKRefno));
 
                 if (results != null && results.Count > 0)
                 {
@@ -452,24 +455,26 @@
                 }
             }
 
-            retLocMap = await GetSLocMapFromLocMapRefno(tempLocMapRefno);
+            SLocMap retLocMap = await GetSLocMapFromLocMapRefno(tempLocMapRefno);
 
-            locMapRefno = tempLocMapRefno;
-
-            return new SLocMapAndRefno { SLocMap = retLocMap, LocMapRefno = locMapRefno };
+            return new SLocMapAndRefno { SLocMap = retLocMap, LocMapRefno = tempLocMapRefno };
         }
 
         /// <summary>
-        /// The GetSLocMapFromLocMapRefno
+        /// Get the location map from a location map reference number.
         /// </summary>
-        /// <param name="locMapRefno"></param>
-        /// <returns></returns>
+        /// <param name="locMapRefno"><see cref="int"/> Location map reference number.</param>
+        /// <returns><see cref="SLocMap"/> Location map.</returns>
         public static async Task<SLocMap> GetSLocMapFromLocMapRefno(int locMapRefno)
         {
             SLocMap locMapInfo = new SLocMap();
-            SysCommon.LocMapSubTypes locMapSubType = default(SysCommon.LocMapSubTypes);
+            SysCommon.LocMapSubTypes locMapSubType = SysCommon.LocMapSubTypes.None;
+            SQLite.SQLiteAsyncConnection conn = DatabaseConnection.GetInstance().SQLConn;
 
-            List<tLocationMapModel> tLocationMapResults = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<tLocationMapModel>("SELECT * FROM tLocationMap WHERE LocationMapRefno = ?", Convert.ToInt32(locMapRefno));
+            List<tLocationMapModel> tLocationMapResults = await DatabaseConnection.GetInstance().
+                SQLConn.QueryAsync<tLocationMapModel>(
+                "SELECT * FROM tLocationMap WHERE LocationMapRefno = ?",
+                Convert.ToInt32(locMapRefno));
 
             if (tLocationMapResults != null && tLocationMapResults.Count > 0)
             {
@@ -507,11 +512,15 @@
                     + "tLocationMapWarehouse.LocationMapWarehouseIsSlotTracked, "
                     + "tLocationMapWarehouse.LocationMapWarehouseAdhocEnabled "
                     + "FROM tLocationMapSlot "
-                    + "INNER JOIN tLocationMapSection ON tLocationMapSection.LocationMapRefno = tLocationMapSlot.SectionLocationMapRefno "
-                    + "INNER JOIN tLocationMapWarehouse ON tLocationMapWarehouse.LocationMapRefno = tLocationMapSection.WarehouseLocationMapRefno "
+                    + "INNER JOIN tLocationMapSection ON tLocationMapSection.LocationMapRefno =" +
+                        " tLocationMapSlot.SectionLocationMapRefno "
+                    + "INNER JOIN tLocationMapWarehouse ON tLocationMapWarehouse.LocationMapRefno =" +
+                        " tLocationMapSection.WarehouseLocationMapRefno "
                     + "WHERE tLocationMapSlot.LocationMapRefno = ?";
 
-                List<tLocationMapSlotQueryResult> results = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<tLocationMapSlotQueryResult>(query, Convert.ToInt32(locMapRefno));
+                List<tLocationMapSlotQueryResult> results = await conn.QueryAsync<tLocationMapSlotQueryResult>(
+                    query,
+                    Convert.ToInt32(locMapRefno));
 
                 if (results != null && results.Count > 0)
                 {
@@ -572,7 +581,9 @@
                     + "= tLocationMapSection.WarehouseLocationMapRefno "
                     + "WHERE tLocationMapSection.LocationMapRefno = ?";
 
-                List<tLocationMapSectionQueryResult> results = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<tLocationMapSectionQueryResult>(query, Convert.ToInt32(locMapRefno));
+                List<tLocationMapSectionQueryResult> results = await conn.QueryAsync<tLocationMapSectionQueryResult>(
+                    query,
+                    Convert.ToInt32(locMapRefno));
 
                 if (results != null && results.Count > 0)
                 {
@@ -620,7 +631,9 @@
                     + "FROM tLocationMapWarehouse "
                     + "WHERE tLocationMapWarehouse.LocationMapRefno = ?";
 
-                List<tLocationMapWarehouseModel> results = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<tLocationMapWarehouseModel>(query, Convert.ToInt32(locMapRefno));
+                List<tLocationMapWarehouseModel> results = await conn.QueryAsync<tLocationMapWarehouseModel>(
+                    query,
+                    Convert.ToInt32(locMapRefno));
 
                 if (results != null && results.Count > 0)
                 {
@@ -647,9 +660,9 @@
         }
 
         /// <summary>
-        /// Returns a human readable (nice) formatted location string e.g. '001.FREEZER.123.45.6'
+        /// Returns a human readable (nice) formatted location string e.g. '001.FREEZER.123.45.6'.
         /// </summary>
-        /// <returns>Location string</returns>
+        /// <returns><see cref="string"/> Location string.</returns>
         public static string GetCurrentReadableLocation()
         {
             string location = string.Empty;
@@ -658,7 +671,9 @@
             if (locMap.CurrLocMap.WhsLocMapRefno != 0)
             {
                 // Warehouse Example 001M
-                location = location + locMap.CurrLocMap.WhsCode.ToString().TrimEnd().PadLeft(3, Convert.ToChar("0")) + "M";
+                location = location + locMap.CurrLocMap.WhsCode.ToString().TrimEnd().PadLeft(
+                    locMap.CurrLocMap.WhsCodeMask.Length,
+                    Convert.ToChar("0")) + "M";
             }
 
             if (locMap.CurrLocMap.SectLocMapRefno != 0 && locMap.CurrLocMap.SectName != null)
@@ -675,10 +690,41 @@
         }
 
         /// <summary>
-        /// Returns a human readable (nice) formatted location string e.g. '001.FREEZER.123.45.6'
+        /// Returns a human readable (nice) formatted location string e.g. '001145'.
         /// </summary>
-        /// <param name="isSeparateSlotCoords"></param>
-        /// <returns>Location string</returns>
+        /// <returns><see cref="string"/> Location string.</returns>
+        public static string GetCurrentLocation()
+        {
+            string location = string.Empty;
+            LocationMap locMap = LocationMap.GetInstance();
+
+            if (locMap.CurrLocMap.WhsLocMapRefno != 0)
+            {
+                // Warehouse Example 001M
+                location += locMap.CurrLocMap.WhsCode.ToString().TrimEnd().PadLeft(
+                    locMap.CurrLocMap.WhsCodeMask.Length,
+                    Convert.ToChar("0"));
+            }
+
+            if (locMap.CurrLocMap.IsSectionTracked && locMap.CurrLocMap.SectLocMapRefno != 0)
+            {
+                location += locMap.CurrLocMap.SectCode.ToString().TrimEnd().PadLeft(
+                    locMap.CurrLocMap.SectMask.Length, Convert.ToChar("0"));
+            }
+
+            if (locMap.CurrLocMap.IsSlotTracked && locMap.CurrLocMap.SlotLocMapRefno != 0)
+            {
+                location += locMap.CurrLocMap.SlotName.TrimEnd();
+            }
+
+            return location;
+        }
+
+        /// <summary>
+        /// Returns a human readable (nice) formatted location string e.g. '001.FREEZER.123.45.6'.
+        /// </summary>
+        /// <param name="isSeparateSlotCoords"><see cref="bool"/> Separate slot coordinates.</param>
+        /// <returns><see cref="string"/> Location string.</returns>
         public static string GetCurrentReadableLocation(bool isSeparateSlotCoords)
         {
             string location = string.Empty;
@@ -687,7 +733,9 @@
             if (locMap.CurrLocMap.WhsLocMapRefno != 0)
             {
                 // Warehouse Example 001M
-                location = location + locMap.CurrLocMap.WhsCode.ToString().TrimEnd().PadLeft(3, Convert.ToChar("0")) + "M";
+                location = location + locMap.CurrLocMap.WhsCode.ToString().TrimEnd().PadLeft(
+                    locMap.CurrLocMap.WhsCodeMask.Length,
+                    Convert.ToChar("0")) + "M";
             }
 
             if (locMap.CurrLocMap.SectLocMapRefno != 0 && locMap.CurrLocMap.SectName != null)
@@ -701,17 +749,23 @@
                 {
                     if (locMap.CurrLocMap.IsSlotCoord1Tracked)
                     {
-                        location = location + "." + locMap.CurrLocMap.SlotName.Substring(0, locMap.CurrLocMap.SlotCoord1Mask.Length);
+                        location = location + "." + locMap.CurrLocMap.SlotName.Substring(
+                            0,
+                            locMap.CurrLocMap.SlotCoord1Mask.Length);
                     }
 
                     if (locMap.CurrLocMap.IsSlotCoord2Tracked)
                     {
-                        location = location + "." + locMap.CurrLocMap.SlotName.Substring(locMap.CurrLocMap.SlotCoord1Mask.Length, locMap.CurrLocMap.SlotCoord2Mask.Length);
+                        location = location + "." + locMap.CurrLocMap.SlotName.Substring(
+                            locMap.CurrLocMap.SlotCoord1Mask.Length,
+                            locMap.CurrLocMap.SlotCoord2Mask.Length);
                     }
 
                     if (locMap.CurrLocMap.IsSlotCoord3Tracked)
                     {
-                        location = location + "." + locMap.CurrLocMap.SlotName.Substring(locMap.CurrLocMap.SlotCoord1Mask.Length + locMap.CurrLocMap.SlotCoord2Mask.Length);
+                        location = location + "." + locMap.CurrLocMap.SlotName[
+                            (locMap.CurrLocMap.SlotCoord1Mask.Length +
+                            locMap.CurrLocMap.SlotCoord2Mask.Length) ..];
                     }
                 }
                 else
@@ -724,28 +778,28 @@
         }
 
         /// <summary>
-        /// Returns a human readable (nice) formatted location string e.g. '001.FREEZER.123.45.6'
+        /// Returns a formatted location string e.g. '00112345'.
         /// </summary>
-        /// <param name="locMapInfo"></param>
-        /// <returns>Location string</returns>
-        public static string GetCurrentReadableLocation(SLocMap locMapInfo)
+        /// <param name="locMapInfo"><see cref="SLocMap"/> Location map.</param>
+        /// <returns><see cref="string"/> Location string.</returns>
+        public static string GetCurrentLocation(SLocMap locMapInfo)
         {
             string location = string.Empty;
 
             if (locMapInfo.WhsLocMapRefno != 0)
             {
-                // Warehouse Example 001M
-                location = location + locMapInfo.WhsCode.ToString().TrimEnd().PadLeft(
-                    3,
-                    Convert.ToChar("0")) + "M";
+                location += locMapInfo.WhsCode.ToString().TrimEnd().PadLeft(
+                    locMapInfo.WhsCodeMask.Length,
+                    Convert.ToChar("0"));
             }
 
-            if (locMapInfo.SectLocMapRefno != 0 && locMapInfo.SectName != null)
+            if (locMapInfo.IsSectionTracked && locMapInfo.SectLocMapRefno != 0)
             {
-                location = location + "." + locMapInfo.SectName.TrimEnd();
+                location = location + "." + locMapInfo.SectCode.ToString().TrimEnd().PadLeft(
+                    locMapInfo.SectMask.Length, Convert.ToChar("0"));
             }
 
-            if (locMapInfo.SlotLocMapRefno != 0 && locMapInfo.SlotName != null)
+            if (locMapInfo.IsSlotTracked && locMapInfo.SlotLocMapRefno != 0)
             {
                 location = location + "." + locMapInfo.SlotName.TrimEnd();
             }
@@ -754,19 +808,21 @@
         }
 
         /// <summary>
-        /// Returns a human readable (nice) formatted location string e.g. '001.FREEZER.123.45.6'
+        /// Returns a human readable (nice) formatted location string e.g. '001.FREEZER.123.45.6'.
         /// </summary>
-        /// <param name="locMapInfo"></param>
-        /// <param name="isSepSlotCoords">The isSepSlotCoords<see cref="bool"/></param>
-        /// <returns>Location string</returns>
-        public static string GetCurrentReadableLocation(SLocMap locMapInfo, bool isSepSlotCoords)
+        /// <param name="locMapInfo"><see cref="SLocMap"/> Location map.</param>
+        /// <param name="isSepSlotCoords"><see cref="bool"/> Separate slot coordinates.</param>
+        /// <returns><see cref="string"/> Location string.</returns>
+        public static string GetCurrentReadableLocation(SLocMap locMapInfo, bool isSepSlotCoords = false)
         {
             string location = string.Empty;
 
             if (locMapInfo.WhsLocMapRefno != 0)
             {
                 // Warehouse Example 001M
-                location = location + locMapInfo.WhsCode.ToString().TrimEnd().PadLeft(3, Convert.ToChar("0")) + "M";
+                location = location + locMapInfo.WhsCode.ToString().TrimEnd().PadLeft(
+                    locMapInfo.WhsCodeMask.Length,
+                    Convert.ToChar("0")) + "M";
             }
 
             if (locMapInfo.SectLocMapRefno != 0 && locMapInfo.SectName != null)
@@ -780,17 +836,22 @@
                 {
                     if (locMapInfo.IsSlotCoord1Tracked)
                     {
-                        location = location + "." + locMapInfo.SlotName.Substring(0, locMapInfo.SlotCoord1Mask.Length);
+                        location = location + "." + locMapInfo.SlotName.Substring(
+                            0,
+                            locMapInfo.SlotCoord1Mask.Length);
                     }
 
                     if (locMapInfo.IsSlotCoord2Tracked)
                     {
-                        location = location + "." + locMapInfo.SlotName.Substring(locMapInfo.SlotCoord1Mask.Length, locMapInfo.SlotCoord2Mask.Length);
+                        location = location + "." + locMapInfo.SlotName.Substring(
+                            locMapInfo.SlotCoord1Mask.Length,
+                            locMapInfo.SlotCoord2Mask.Length);
                     }
 
                     if (locMapInfo.IsSlotCoord3Tracked)
                     {
-                        location = location + "." + locMapInfo.SlotName.Substring(locMapInfo.SlotCoord1Mask.Length + locMapInfo.SlotCoord2Mask.Length);
+                        location = location + "." + locMapInfo.SlotName[
+                            (locMapInfo.SlotCoord1Mask.Length + locMapInfo.SlotCoord2Mask.Length) ..];
                     }
                 }
                 else
@@ -803,9 +864,9 @@
         }
 
         /// <summary>
-        /// RETURNS A FORMATTED LOCATION STRING FOR UNIQUENESS CHECKING
+        /// Get a formatted location string for uniqueness checking.
         /// </summary>
-        /// <returns>LOCATION STRING</returns>
+        /// <returns><see cref="string"/> Location string.</returns>
         public static string GetCurrentLocationForUniquenessChecking()
         {
             string location = string.Empty;
@@ -813,71 +874,68 @@
 
             if (locMap.CurrLocMap.WhsFKRefno != 0)
             {
-                location += locMap.CurrLocMap.WhsCode.ToString().TrimEnd().PadLeft(locMap.CurrLocMap.WhsCodeMask.Length, Convert.ToChar("0"));
+                location += locMap.CurrLocMap.WhsCode.ToString().TrimEnd().PadLeft(
+                    locMap.CurrLocMap.WhsCodeMask.Length, Convert.ToChar("0"));
             }
 
             return location;
         }
 
         /// <summary>
-        /// CALCULATE CHECK SUM MOD^10
+        /// Calculate the mod 10 Lund check digit.
         /// </summary>
-        /// <param name="globalLocationIdentifier"></param>
-        /// <returns></returns>
-        public static int CalculateGlobalLocationIdentifierCheckSum(string globalLocationIdentifier)
+        /// <param name="idWithoutCheckDigit"><see cref="string"/> Data to calculate the check digit for.</param>
+        /// <returns><see cref="int"/> The calculated check digit number.</returns>
+        public static int Mod10(string idWithoutCheckDigit)
         {
-            int checkSum = 0;
-            double odd = 0;
-            double even = 0;
-            double x = 0;
-            int i = 0;
+            idWithoutCheckDigit = idWithoutCheckDigit ?? throw new ArgumentNullException(nameof(idWithoutCheckDigit));
+            const int numberBase = 10;
+            const int validCodePointOffset = 48;    // '0'
 
-            // Padding left should not be needed but added anyway.
-            // 7 digits company prefix padded left with zeros + 5 digits for the serial 
-            // identifier padded left with zeros = 12
-            if (globalLocationIdentifier.Length < 12)
+            int index = idWithoutCheckDigit.Length;
+            var parity = true;
+            var sum = 0;
+
+            while (index-- > 0)
             {
-                globalLocationIdentifier = globalLocationIdentifier.PadLeft(12, Convert.ToChar("0"));
+                int digit = idWithoutCheckDigit[index] - validCodePointOffset;
+                if (parity)
+                {
+                    if ((digit <<= 1) > (numberBase - 1))
+                    {
+                        digit -= numberBase - 1;
+                    }
+                }
+
+                parity = !parity;
+                sum += digit;
             }
 
-            // Calculate check sum MOD^10
-            for (i = 1; i <= globalLocationIdentifier.Length; i += 2)
-            {
-                odd += (int.Parse(globalLocationIdentifier.Substring(i - 1, 1)) * 3);
-            }
-
-            for (i = 2; i <= globalLocationIdentifier.Length; i += 2)
-            {
-                even += int.Parse(globalLocationIdentifier.Substring(i - 1, 1));
-            }
-
-            x = 10 - ((odd + even) / 10) - 0.5;
-
-            checkSum = Convert.ToInt32(x);
-
-            return checkSum;
+            return (numberBase - (sum %= numberBase)) % numberBase;
         }
 
         /// <summary>
-        /// The GetDefaultLocMapRefnoFromProdRefno
+        /// Get default location map reference number from a product reference number.
         /// </summary>
-        /// <param name="whsLocMapRefno"></param>
-        /// <param name="prodRefno">Argument may be zero, result is defaulting to the warehouse.</param>
-        /// <param name="prodLocMapType"></param>
-        /// <returns></returns>
-        public static async Task<int> GetDefaultLocMapRefnoFromProdRefno(int whsLocMapRefno, int prodRefno, SysCommon.ProdLocMapTypes prodLocMapType)
+        /// <param name="whsLocMapRefno"><see cref="int"/> Warehouse location map reference number.</param>
+        /// <param name="prodRefno"><see cref="int"/> Product refno, Argument may be zero, result
+        /// is defaulting to the warehouse.</param>
+        /// <param name="prodLocMapType"><see cref="SysCommon.ProdLocMapTypes"/> Product location map type.</param>
+        /// <returns><see cref="int"/> Location map reference number.</returns>
+        public static async Task<int> GetDefaultLocMapRefnoFromProdRefno(
+            int whsLocMapRefno,
+            int prodRefno,
+            SysCommon.ProdLocMapTypes prodLocMapType)
         {
-            int locMapRefno = 0;
-            int defaultWhsLocMapRefno = 0;
+            int defaultWhsLocMapRefno = whsLocMapRefno;
             int defaultSectLocMapRefno = 0;
             int defaultSlotLocMapRefno = 0;
             LocationMap locMap = LocationMap.GetInstance();
 
-            defaultWhsLocMapRefno = whsLocMapRefno;
-
             if (locMap.CurrLocMap.IsSlotTracked && defaultWhsLocMapRefno != 0)
             {
-                if (0 < prodRefno)
+                // Check for default slot for the warehouse and product.
+                if (prodRefno > 0)
                 {
                     string query = "SELECT tProductLocationMapType.LocationMapRefno "
                         + "FROM tProductLocationMapType "
@@ -888,12 +946,13 @@
                         + "WHERE tProductLocationMapType.ProductRefno = ? "
                         + "AND tProductLocationMapType.ProductLocationMapTypeEnum = ? "
                         + "AND tLocationMapSection.WarehouseLocationMapRefno = ?";
-                    //cmndProdLocMapType.Parameters.Add(new SQLiteParameter("@prodRefno", Convert.ToInt32(prodRefno)));
-                    //cmndProdLocMapType.Parameters.Add(new SQLiteParameter("@prodLocMapType", Convert.ToInt32(prodLocMapType)));
-                    //cmndProdLocMapType.Parameters.Add(new SQLiteParameter("@defaultWhsLocMapRefno", Convert.ToInt32(defaultWhsLocMapRefno)));
 
-                    //defaultSlotLocMapRefno = Convert.ToInt32(cmndProdLocMapType.ExecuteScalar());
-                    List<tProductLocationMapTypeModel> results = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<tProductLocationMapTypeModel>(query, Convert.ToInt32(prodRefno), Convert.ToInt32(prodLocMapType), Convert.ToInt32(defaultWhsLocMapRefno));
+                    List<tProductLocationMapTypeModel> results = await DatabaseConnection.GetInstance().
+                        SQLConn.QueryAsync<tProductLocationMapTypeModel>(
+                        query,
+                        Convert.ToInt32(prodRefno),
+                        Convert.ToInt32(prodLocMapType),
+                        Convert.ToInt32(defaultWhsLocMapRefno));
 
                     if (results?.Count > 0)
                     {
@@ -901,16 +960,19 @@
                     }
                 }
 
+                // Check for default slot for the warehouse if not found for product.
                 if (defaultSlotLocMapRefno == 0)
                 {
                     string query = "SELECT tWarehouseLocationMapType.LocationMapRefno "
                         + "FROM tWarehouseLocationMapType "
                         + "WHERE tWarehouseLocationMapType.WarehouseLocationMapTypeEnum = ?"
                         + " AND tWarehouseLocationMapType.WarehouseLocationMapRefno = ?";
-                    //cmndWhsLocMapType.Parameters.Add(new SQLiteParameter("@prodLocMapType", Convert.ToInt32(prodLocMapType)));
-                    //cmndWhsLocMapType.Parameters.Add(new SQLiteParameter("@defaultWhsLocMapRefno", Convert.ToInt32(defaultWhsLocMapRefno)));
 
-                    List<tWarehouseLocationMapTypeModel> results = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<tWarehouseLocationMapTypeModel>(query, Convert.ToInt32(prodLocMapType), Convert.ToInt32(defaultWhsLocMapRefno));
+                    List<tWarehouseLocationMapTypeModel> results = await DatabaseConnection.GetInstance().
+                        SQLConn.QueryAsync<tWarehouseLocationMapTypeModel>(
+                        query,
+                        Convert.ToInt32(prodLocMapType),
+                        Convert.ToInt32(defaultWhsLocMapRefno));
 
                     if (results?.Count > 0)
                     {
@@ -921,7 +983,8 @@
 
             if (defaultSlotLocMapRefno == 0 && locMap.CurrLocMap.IsSectionTracked && defaultWhsLocMapRefno != 0)
             {
-                if (0 < prodRefno)
+                // Check for default section for the warehouse and product.
+                if (prodRefno > 0)
                 {
                     string query = "SELECT tProductLocationMapType.LocationMapRefno "
                         + "FROM tProductLocationMapType "
@@ -930,11 +993,13 @@
                         + "WHERE tProductLocationMapType.ProductRefno = ? "
                         + "AND tProductLocationMapType.ProductLocationMapTypeEnum = ? "
                         + "AND tLocationMapSection.WarehouseLocationMapRefno = ?";
-                    //cmndProdLocMapType.Parameters.Add(new SQLiteParameter("@prodRefno", Convert.ToInt32(prodRefno)));
-                    //cmndProdLocMapType.Parameters.Add(new SQLiteParameter("@prodLocMapType", Convert.ToInt32(prodLocMapType)));
-                    //cmndProdLocMapType.Parameters.Add(new SQLiteParameter("@defaultWhsLocMapRefno", Convert.ToInt32(defaultWhsLocMapRefno)));
 
-                    List<tProductLocationMapTypeModel> results = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<tProductLocationMapTypeModel>(query, Convert.ToInt32(prodRefno), Convert.ToInt32(prodLocMapType), Convert.ToInt32(defaultWhsLocMapRefno));
+                    List<tProductLocationMapTypeModel> results = await DatabaseConnection.GetInstance().
+                        SQLConn.QueryAsync<tProductLocationMapTypeModel>(
+                        query,
+                        Convert.ToInt32(prodRefno),
+                        Convert.ToInt32(prodLocMapType),
+                        Convert.ToInt32(defaultWhsLocMapRefno));
 
                     if (results?.Count > 0)
                     {
@@ -942,16 +1007,19 @@
                     }
                 }
 
+                // Check for default section for the warehouse if not found for product.
                 if (defaultSectLocMapRefno == 0)
                 {
                     string query = "SELECT tWarehouseLocationMapType.LocationMapRefno "
                         + "FROM tWarehouseLocationMapType "
                         + "WHERE tWarehouseLocationMapType.WarehouseLocationMapTypeEnum = ? "
                         + "AND tWarehouseLocationMapType.WarehouseLocationMapRefno = ?";
-                    //cmndWhsLocMapType.Parameters.Add(new SQLiteParameter("@prodLocMapType", Convert.ToInt32(prodLocMapType)));
-                    //cmndWhsLocMapType.Parameters.Add(new SQLiteParameter("@defaultWhsLocMapRefno", defaultWhsLocMapRefno));
 
-                    List<tWarehouseLocationMapTypeModel> results = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<tWarehouseLocationMapTypeModel>(query, Convert.ToInt32(prodLocMapType), Convert.ToInt32(defaultWhsLocMapRefno));
+                    List<tWarehouseLocationMapTypeModel> results = await DatabaseConnection.GetInstance().
+                        SQLConn.QueryAsync<tWarehouseLocationMapTypeModel>(
+                        query,
+                        Convert.ToInt32(prodLocMapType),
+                        Convert.ToInt32(defaultWhsLocMapRefno));
 
                     if (results?.Count > 0)
                     {
@@ -965,6 +1033,7 @@
                 defaultWhsLocMapRefno = locMap.LoginWhsLocMapRefno;
             }
 
+            int locMapRefno;
             if (defaultSlotLocMapRefno != 0)
             {
                 locMapRefno = defaultSlotLocMapRefno;
@@ -982,53 +1051,50 @@
         }
 
         /// <summary>
-        /// Gets the WarehouseLocationMapRefno from a LocationMapRefno.
+        /// Get the warehouse location map reference number from a location map reference number.
         /// Checks the subtype in tLocationMap and then looks it up.
         /// </summary>
-        /// <param name="locMapRefno">LocationMapRefno</param>
-        /// <returns>WarehouseLocationMapRefno</returns>
+        /// <param name="locMapRefno"><see cref="int"/> Location map reference number.</param>
+        /// <returns><see cref="int"/> Warehouse location map reference number.</returns>
         public static async Task<int> GetWhsLocMapRefnoFromLocMapRefno(int locMapRefno)
         {
-            // First we check what the locationmaprefno subtype is
-            // Perform SQL query to lookup subtype
-            int locationSubType = 0;
+            int locationSubType = Convert.ToInt32(await DatabaseConnection.GetInstance().SQLConn.
+                ExecuteScalarAsync<int>(
+                "SELECT LocationMapSubType FROM tLocationMap WHERE LocationMapRefno = ?",
+                locMapRefno));
 
-            locationSubType = Convert.ToInt32(await DatabaseConnection.GetInstance().SQLConn.ExecuteScalarAsync<int>("SELECT LocationMapSubType FROM tLocationMap WHERE LocationMapRefno = ?", locMapRefno));
-
-            switch ((SysCommon.LocMapSubTypes)locationSubType)
+            return (SysCommon.LocMapSubTypes)locationSubType switch
             {
-                default:
-                case SysCommon.LocMapSubTypes.None:
-                    return 0;
+                SysCommon.LocMapSubTypes.Section => Convert.ToInt32(await DatabaseConnection.GetInstance().SQLConn.
+                    ExecuteScalarAsync<int>(
+                    "SELECT WarehouseLocationMapRefno FROM tLocationMapSection WHERE LocationMapRefno = ?",
+                    locMapRefno)), // Access Section table for WarehouseLocationMapRefno
 
-                case SysCommon.LocMapSubTypes.Section:
-                    // Access Section table for WarehouseLocationMapRefno
-                    return Convert.ToInt32(await DatabaseConnection.GetInstance().SQLConn.ExecuteScalarAsync<int>("SELECT WarehouseLocationMapRefno FROM tLocationMapSection WHERE LocationMapRefno = ?", locMapRefno));
+                SysCommon.LocMapSubTypes.Slot => Convert.ToInt32(await DatabaseConnection.GetInstance().SQLConn.
+                    ExecuteScalarAsync<int>(
+                    "SELECT WarehouseLocationMapRefno FROM tLocationMapSlot WHERE LocationMapRefno = ?",
+                    locMapRefno)), // Access Slot table for WarehouseLocationMapRefno
 
-                case SysCommon.LocMapSubTypes.Slot:
-                    // Access Slot table for WarehouseLocationMapRefno
-                    return Convert.ToInt32(await DatabaseConnection.GetInstance().SQLConn.ExecuteScalarAsync<int>("SELECT WarehouseLocationMapRefno FROM tLocationMapSlot WHERE LocationMapRefno = ?", locMapRefno));
+                SysCommon.LocMapSubTypes.Warehouse => locationSubType, // It already is a WarehouseLocationMapRefno
 
-                case SysCommon.LocMapSubTypes.Warehouse:
-                    // It already is a WarehouseLocationMapRefno
-                    return locationSubType;
-            }
+                _ => 0,
+            };
         }
 
         /// <summary>
-        /// The GetLocMapRefnoFromSLocMap
+        /// Get the location map reference number from the current location map.
         /// </summary>
-        /// <returns></returns>
+        /// <returns><see cref="int"/> Location map reference number.</returns>
         public static int GetLocMapRefnoFromSLocMap()
         {
             return GetLocMapRefnoFromSLocMap(LocationMap.GetInstance().CurrLocMap);
         }
 
         /// <summary>
-        /// The GetLocMapRefnoFromSLocMap
+        /// Get the location map reference number from the location map.
         /// </summary>
-        /// <param name="locMapInfo"></param>
-        /// <returns></returns>
+        /// <param name="locMapInfo"><see cref="SLocMap"/> Location map.</param>
+        /// <returns><see cref="int"/> Location map reference number.</returns>
         public static int GetLocMapRefnoFromSLocMap(SLocMap locMapInfo)
         {
             int locMapRefno = 0;

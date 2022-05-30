@@ -1,10 +1,21 @@
+// <copyright file="clsProductionTicketMaterialActivityFactory.cs" company="InterSect Business Systems Inc">
+// Copyright (c) InterSect Business Systems Inc. All rights reserved.
+// </copyright>
+
 namespace dMobile.Controller
 {
-	public class TicketMaterialActivityFactory : ActivityFactory
-	{
-		public override Activity GetActivity()
-		{
-			return new TicketMaterialActivity();
-		}
-	}
+    /// <summary>
+    /// Defines the <see cref="TicketMaterialActivityFactory" />.
+    /// </summary>
+    public class TicketMaterialActivityFactory : ActivityFactory
+    {
+        /// <summary>
+        /// The GetActivity.
+        /// </summary>
+        /// <returns>The <see cref="Activity"/>.</returns>
+        public override Activity GetActivity()
+        {
+            return new TicketMaterialActivity();
+        }
+    }
 }

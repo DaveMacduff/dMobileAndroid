@@ -1,4 +1,8 @@
-﻿namespace dMobile.BarCodeScanner
+﻿// <copyright file="BarCodeParseEAN_UPC_Symbol.cs" company="InterSect Business Systems Inc">
+// Copyright (c) InterSect Business Systems Inc. All rights reserved.
+// </copyright>
+
+namespace dMobile.BarCodeScanner.BarCodeParsing
 {
     using System;
 
@@ -9,7 +13,7 @@
         /// Pos 1 Number System Character
         /// Pos 2-6 Company Prefix
         /// Pos 7-11 Item Reference
-        /// Pos 12 Check Digit
+        /// Pos 12 Check Digit.
         /// </summary>
         /// <param name="barCodeData"></param>
         /// <returns></returns>
@@ -29,19 +33,18 @@
                 barCodeData = barCodeData.Remove(0, 1);
             }
             // end parse GTIN
-
             this.Remainder = barCodeData;
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="barCodeData"></param>
         /// <returns></returns>
         protected override string IdentifyNumberSystemCharacter(string barCodeData)
         {
             string strBarCodeData = barCodeData;
-            NumberSystemCharacter = Convert.ToInt32(strBarCodeData.Substring(0, 1));
+            this.NumberSystemCharacter = Convert.ToInt32(strBarCodeData.Substring(0, 1));
 
             // remove the Number System Character from the bar code data
             strBarCodeData = strBarCodeData.Remove(0, 1);
@@ -50,45 +53,44 @@
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="barCodeData"></param>
         /// <returns></returns>
         protected override string IdentifyProductIdentifier(string barCodeData)
         {
-            if (Settings.IsRuleEnabled_NoZeroPaddingOfProductIdentifierForUCC_EAN_Family)
+            if (this.Settings.IsRuleEnabled_NoZeroPaddingOfProductIdentifierForUCC_EAN_Family)
             {
-                ProductIdentifier = barCodeData;
+                this.ProductIdentifier = barCodeData;
             }
             else
             {
-                ProductIdentifier = barCodeData.PadLeft(14, '0');
+                this.ProductIdentifier = barCodeData.PadLeft(14, '0');
             }
 
-            //remove the Product Identifier from the bar code data
+            // remove the Product Identifier from the bar code data
             // barCodeData = barCodeData.Remove(0, strProductIdentifier.Length);
-
             return barCodeData;
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="barCodeData"></param>
         /// <returns></returns>
         protected override string IdentifyCompanyPrefix(string barCodeData)
         {
             string strBarCodeData = barCodeData;
-            CompanyPrefix = strBarCodeData.Substring(0, 5);
+            this.CompanyPrefix = strBarCodeData.Substring(0, 5);
 
             // remove the Company Prefix from the bar code data
-            strBarCodeData = strBarCodeData.Remove(0, CompanyPrefix.Length);
+            strBarCodeData = strBarCodeData.Remove(0, this.CompanyPrefix.Length);
 
             return strBarCodeData;
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="barCodeData"></param>
         /// <returns></returns>
@@ -96,16 +98,16 @@
         {
             string strBarCodeData = barCodeData;
 
-            ItemReference = strBarCodeData.Substring(0, 5);
+            this.ItemReference = strBarCodeData.Substring(0, 5);
 
             // remove the Item Reference from the bar code data
-            strBarCodeData = strBarCodeData.Remove(0, ItemReference.Length);
+            strBarCodeData = strBarCodeData.Remove(0, this.ItemReference.Length);
 
             return strBarCodeData;
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="barCodeData"></param>
         /// <returns></returns>
@@ -117,8 +119,7 @@
 
             // remove the GTIN from the bar code data
             // barCodeData = barCodeData.Remove(0, strGTIN.Length);
-
-            return Data;
+            return this.Data;
         }
     }
 }

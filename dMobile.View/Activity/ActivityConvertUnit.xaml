@@ -26,7 +26,7 @@
                     </Grid.ColumnDefinitions>
 
                     <Button x:Name="cmdLocation" Grid.Row="0" Grid.Column="0" IsEnabled="{Binding Loading, Converter={Helpers:BoolConverter}}" Clicked="cmdLocation_Click"/>
-                    <customcontrols:CustomPicker x:Name="updnBarCodeModifier1" Image="arrow_drop_down" Grid.Row="0" Grid.Column="1" SelectedIndexChanged="IdentifyChangesMade" IsEnabled="{Binding Loading, Converter={Helpers:BoolConverter}}"/>
+                    <customcontrols:CustomPicker x:Name="BarCodeModifier1Picker" Image="arrow_drop_down" Grid.Row="0" Grid.Column="1" SelectedIndexChanged="IdentifyChangesMade" IsEnabled="{Binding Loading, Converter={Helpers:BoolConverter}}"/>
                 </Grid>
 
                 <!--Row 1-->
@@ -49,7 +49,7 @@
                 <!--Row 4-->
                 <Frame Grid.Row="4" OutlineColor="{DynamicResource BorderColor}">
                     <ScrollView Orientation="Horizontal">
-                        <Grid x:Name="dataGridMainActivityHeader">
+                        <Grid x:Name="GridMainActivity">
                             <Grid.RowDefinitions>
                                 <RowDefinition Height="Auto"/>
                             </Grid.RowDefinitions>

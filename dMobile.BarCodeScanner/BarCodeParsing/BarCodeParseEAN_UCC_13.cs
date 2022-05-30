@@ -1,20 +1,24 @@
-﻿namespace dMobile.BarCodeScanner
+﻿// <copyright file="BarCodeParseEAN_UCC_13.cs" company="InterSect Business Systems Inc">
+// Copyright (c) InterSect Business Systems Inc. All rights reserved.
+// </copyright>
+
+namespace dMobile.BarCodeScanner.BarCodeParsing
 {
     using System;
 
     public class BarCodeParseEAN_UCC_13 : BarCodeParse
     {
         /// <summary>
-        /// Parsing rules reviewed BarCodeParseEAN_UCC_13
+        /// Parsing rules reviewed BarCodeParseEAN_UCC_13.
         /// </summary>
         /// <remarks>
         /// <para>
         /// Data structure is always 13 or 14 digits
         /// Position 1 is an implied zero
         /// Position 2-13 company prefix and item reference
-        /// Position 14 is a check digit
+        /// Position 14 is a check digit.
         /// </para><para>
-        /// Because we do not know the length of either the company prefix or the item reference they 
+        /// Because we do not know the length of either the company prefix or the item reference they
         /// cannot be parsed.</para></remarks>
         /// <param name="barCodeData"></param>
         /// <returns></returns>
@@ -53,7 +57,7 @@
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="barCodeData"></param>
         /// <returns></returns>
@@ -70,12 +74,11 @@
 
             // remove the Product Identifier from the bar code data
             // barCodeData = barCodeData.Remove(0, strProductIdentifier.Length);
-
             return barCodeData;
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="barCodeData"></param>
         /// <returns></returns>
@@ -90,7 +93,7 @@
         }
 
         /// <summary>
-        /// Product Code
+        /// Product Code.
         /// </summary>
         /// <param name="barCodeData"></param>
         /// <returns></returns>
@@ -105,7 +108,7 @@
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="barCodeData"></param>
         /// <returns></returns>
@@ -117,7 +120,6 @@
 
             // remove the GTIN from the bar code data
             // barCodeData = barCodeData.Remove(0, barCodeData.Length);
-
             return barCodeData;
         }
     }

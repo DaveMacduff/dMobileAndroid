@@ -1,15 +1,21 @@
+// <copyright file="clsAssignDefaultLocationActivityFactory.cs" company="InterSect Business Systems Inc">
+// Copyright (c) InterSect Business Systems Inc. All rights reserved.
+// </copyright>
+
 namespace dMobile.Controller
 {
-  public class AssignDefaultLocActivityFactory : ActivityFactory
-	{
-		/// <summary>
-		///
-		/// </summary>
-		/// <returns></returns>
-		/// <remarks></remarks>
-		public override Activity GetActivity()
-		{
-			return new AssignDefaultLocActivity();
-		}
-	}
+    /// <summary>
+    /// Defines the <see cref="AssignDefaultLocActivityFactory" />.
+    /// </summary>
+    public class AssignDefaultLocActivityFactory : ActivityFactory
+    {
+        /// <summary>
+        /// The GetActivity.
+        /// </summary>
+        /// <returns>.</returns>
+        public override Activity GetActivity()
+        {
+            return new AssignDefaultLocActivity();
+        }
+    }
 }

@@ -1,18 +1,22 @@
-﻿namespace dMobile.GroundWork
+﻿// <copyright file="clsTableActivityReceivingItem.cs" company="InterSect Business Systems Inc">
+// Copyright (c) InterSect Business Systems Inc. All rights reserved.
+// </copyright>
+
+namespace dMobile.GroundWork
 {
-    using dMobile.Bedrock;
     using System;
+    using System.Collections.Generic;
     using System.Data;
-    using SQLite;
     using System.Text;
+    using System.Threading.Tasks;
     using System.Xml;
     using System.Xml.Linq;
-    using System.Threading.Tasks;
+    using dMobile.Bedrock;
     using dMobile.Resources.Models;
-    using System.Collections.Generic;
+    using SQLite;
 
     /// <summary>
-    /// Defines the <see cref="TableActivityRecevingItem" />
+    /// Defines the <see cref="TableActivityRecevingItem" />.
     /// </summary>
     public class TableActivityRecevingItem : TableBase
     {
@@ -26,18 +30,16 @@
         }
 
         /// <summary>
-        /// The Request
+        /// The Request.
         /// </summary>
-        /// <param name="actRefno">The actRefno<see cref="int"/></param>
-        public override async Task Request(int actRefno)
+        /// <param name="actRefno">The actRefno<see cref="int"/>.</param>
+        public override async Task RequestData(int actRefno)
         {
-            string reqData = string.Empty;
-
             try
             {
-                // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Seeding receiving items.", true);
 
+                string reqData;
                 if (actRefno == 0)
                 {
                     List<tActivityModel> results = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<tActivityModel>("SELECT * FROM tActivity WHERE ActivitySubType = ?", Convert.ToInt32(SysCommon.ActSubTypes.Receiving));
@@ -47,9 +49,9 @@
                         foreach (tActivityModel activityModel in results)
                         {
                             actRefno = Convert.ToInt32(activityModel.ActivityRefno);
-                            reqData = await this.Send(actRefno);
+                            reqData = await this.SendRequest(actRefno);
 
-                            if (0 < reqData.Length)
+                            if (reqData.Length > 0)
                             {
                                 if (reqData.Contains("<message>ERROR</message>"))
                                 {
@@ -65,9 +67,9 @@
                 }
                 else
                 {
-                    reqData = await this.Send(actRefno);
+                    reqData = await this.SendRequest(actRefno);
 
-                    if (0 < reqData.Length)
+                    if (reqData.Length > 0)
                     {
                         if (reqData.Contains("<message>ERROR</message>"))
                         {
@@ -80,46 +82,38 @@
                     }
                 }
 
-                // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Seeding receiving items complete.", true);
             }
             catch (SQLiteException ex)
             {
-                // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Database exception occurred.", false);
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Seeding receiving items failed.", false);
 
-                // TODO: Resource strings
                 throw new Exception("Database exception occurred. Seeding receiving items failed.", ex);
             }
             catch (Exception ex)
             {
-                // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Seeding receiving items failed.", true);
 
-                // TODO: Resource strings
                 throw new Exception("Seeding receiving items failed.", ex);
             }
         }
 
         /// <summary>
-        /// The DataStatus
+        /// The DataStatus.
         /// </summary>
-        /// <returns>The <see cref="int"/></returns>
+        /// <returns>The <see cref="int"/>.</returns>
         public override async Task<int> DataStatus()
         {
-            int rowsAffected = 0;
-
+            int rowsAffected;
             try
             {
                 rowsAffected = Convert.ToInt32(await DatabaseConnection.GetInstance().SQLConn.ExecuteScalarAsync<int>("SELECT COUNT(ActivityItemRefno) FROM tActivityItem WHERE ActivityItemSubType = ?", Convert.ToInt32(SysCommon.ActSubTypes.Receiving)));
 
-                // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, string.Format("{0} receiving items.", rowsAffected), true);
             }
             catch (SQLiteException ex)
             {
-                // TODO: Resource strings
                 throw new Exception("Database exception occurred. Receiving items status failed.", ex);
             }
 
@@ -127,13 +121,12 @@
         }
 
         /// <summary>
-        /// The Purge
+        /// The Purge.
         /// </summary>
-        public override async Task Purge()
+        public override async Task PurgeData()
         {
             try
             {
-                // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging receiving items.", true);
 
                 string query = "DELETE FROM tActivityItemBarCodeAssociationXRef "
@@ -149,72 +142,62 @@
                 query = "DELETE FROM tActivityItem WHERE tActivityItem.ActivityItemSubType = ?";
                 await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(query, Convert.ToInt32(SysCommon.ActSubTypes.Receiving));
 
-                // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging receiving items complete.", true);
             }
             catch (SQLiteException ex)
             {
-                // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Database exception occurred.", true);
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging receiving items failed.", true);
 
-                // TODO: Resource strings
                 throw new Exception("Database exception occurred. Purging receiving items failed.", ex);
             }
         }
 
         /// <summary>
-        /// The Send
+        /// The Send.
         /// </summary>
-        /// <param name="actRefno">The actRefno<see cref="int"/></param>
+        /// <param name="actRefno">The actRefno<see cref="int"/>.</param>
         /// <returns></returns>
-        protected override async Task<string> Send(int actRefno)
+        protected override async Task<string> SendRequest(int actRefno)
         {
-            int recvFKRefno = 0;
-
             List<tActivityReceivingModel> results = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<tActivityReceivingModel>("SELECT * FROM tActivityReceiving WHERE ActivityRefno = ?", actRefno);
 
+            int recvFKRefno;
             if (results?.Count > 0)
             {
                 recvFKRefno = results[0].ActivityReceivingFKRefno;
             }
             else
             {
-                // TODO: Resource strings
                 throw new Exception("drRecv.Read() failed.");
             }
 
-            return await this.SendComm(await this.Create(recvFKRefno));
+            return await this.SendComm(await this.CreateRequest(recvFKRefno));
         }
 
         /// <summary>
-        /// The Save
+        /// The Save.
         /// </summary>
         /// <param name="reqData"></param>
-        /// <param name="actRefno">The actRefno<see cref="int"/></param>
+        /// <param name="actRefno">The actRefno<see cref="int"/>.</param>
         protected override async Task Save(string reqData, int actRefno)
         {
-            string errMsg = string.Empty;
-
             await DatabaseConnection.GetInstance().SQLConn.RunInTransactionAsync(transaction =>
             {
                 try
                 {
                     using (DataSet ds = new DataSet())
                     {
-                        // TODO: Resource strings
                         this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Reading received data.", false);
 
                         ds.ReadXml(SysCommon.GetXmlReader(ref reqData), XmlReadMode.Auto);
 
-                        // TODO: Resource strings
                         this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving receiving items.", false);
 
                         if (ds.Tables.Count != 0)
                         {
                             int progMax = Convert.ToInt32(ds.Tables["tActivityItemPurchaseOrder"].Rows.Count);
 
-                            // TODO: Resource strings
                             this.DataAccessStatusOutHandler(this, EventArgs.Empty, string.Format("Records {0}", progMax), false);
 
                             int actItemRefno = 0;
@@ -228,16 +211,12 @@
 
                             foreach (DataRow drow in ds.Tables["tActivityItemPurchaseOrder"].Rows)
                             {
-                                errMsg = "Arguments:";
-
                                 transaction.Execute("INSERT INTO tActivityItem (ActivityItemSubType, ActivityItemStatus, ActivityRefno) VALUES (?, ?, ?)", Convert.ToInt32(SysCommon.ActSubTypes.Receiving), 0, Convert.ToInt32(actRefno));
 
                                 actItemRefno = Convert.ToInt32(transaction.ExecuteScalar<int>("SELECT last_insert_rowid() FROM tActivityItem"));
-                                prodUnitRefno = this.GetProductUnitRefnoFromDataRow(drow, transaction, ref errMsg, false);
-                                locMapRefno = this.GetWhsLocMapRefnoFromDataRow(drow, ref errMsg, transaction);
-
+                                prodUnitRefno = this.GetProductUnitRefnoFromDataRow(drow, transaction, false);
+                                locMapRefno = this.GetWhsLocMapRefnoFromDataRow(drow, transaction);
                                 recvItemFKRefno = Convert.ToInt32(drow["ActivityItemPurchaseOrderFKRefno"]);
-                                errMsg += Environment.NewLine + "Item fk refno " + recvItemFKRefno;
 
                                 string queryInsertActivityItemReceiving = "INSERT INTO tActivityItemReceiving (" +
                                     "ActivityItemRefno, " +
@@ -294,7 +273,7 @@
                                     Convert.ToString(drow["ActivityItemPurchaseOrderDescription"]),
                                     Convert.ToDecimal(drow["ActivityItemPurchaseOrderQuantityReceivedToDate"]),
                                     Convert.ToDecimal(drow["ActivityItemPurchaseOrderBaseQuantityReceivedToDate"]),
-                                    Convert.ToDecimal(drow["ActivityItemPurchaseOrderWeightQuantityReceivedToDate"])
+                                    Convert.ToDecimal(drow["ActivityItemPurchaseOrderWeightQuantityReceivedToDate"]),
                                 };
 
                                 transaction.Execute(queryInsertActivityItemReceiving, parametersActivityItemReceiving);
@@ -318,7 +297,6 @@
 
                         transaction.Commit();
 
-                        // TODO: Resource strings
                         this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving receiving items complete.", false);
                     }
                 }
@@ -326,38 +304,35 @@
                 {
                     transaction.Rollback();
 
-                    // TODO: Resource strings
                     this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Database exception occurred.", true);
                     this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving receiving items failed.", false);
-
-                    // TODO: Resource strings
-                    throw new Exception("Database exception occurred. Saving receiving items failed." + Environment.NewLine + errMsg, ex);
+                    throw new Exception("Database exception occurred. Saving receiving items failed.", ex);
                 }
             });
         }
 
         /// <summary>
-        /// The Create
+        /// The Create.
         /// </summary>
         /// <param name="recvFKRefno"></param>
         /// <returns></returns>
-        protected override async Task<string> Create(int recvFKRefno)
+        protected override async Task<string> CreateRequest(int recvFKRefno)
         {
             StringBuilder xmlString = new StringBuilder();
             XmlWriter xml = XmlWriter.Create(xmlString);
             string deviceID = SysDeviceID.GetDeviceID();
             string revision = new DateTime(1900, 1, 1).ToString("yyyy\'-\'MM\'-\'dd\'T\'HH\':\'mm\':\'ss");
-            string loginID = SysEnv.ContactLog.LoginID.ToString();
+            string loginID = this.SysEnv.ContactLog.LoginID.ToString();
 
             XDocument request = XDocument.Parse(
                 "<?xml version=\"1.0\" encoding=\"utf-8\" standalone=\"yes\"?>"
                 + "<imclient>"
                 + "<command>"
                 + "<action>REQUEST PURCHASE ORDER ITEMS</action>"
-                + ("<device_id>" + deviceID + "</device_id>")
-                + ("<login_id>" + loginID + "</login_id>")
-                + ("<revision_datetime>" + revision + "</revision_datetime>")
-                + ("<refno>" + recvFKRefno.ToString() + "</refno>")
+                + "<device_id>" + deviceID + "</device_id>"
+                + "<login_id>" + loginID + "</login_id>"
+                + "<revision_datetime>" + revision + "</revision_datetime>"
+                + "<refno>" + recvFKRefno.ToString() + "</refno>"
                 + "</command>"
                 + "</imclient>");
 

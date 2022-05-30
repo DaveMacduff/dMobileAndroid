@@ -1,9 +1,13 @@
-﻿using System;
-using SQLite;
-using SQLiteNetExtensions.Attributes;
+﻿// <copyright file="tActivityDetailExtraModel.cs" company="InterSect Business Systems Inc">
+// Copyright (c) InterSect Business Systems Inc. All rights reserved.
+// </copyright>
 
 namespace dMobile.Resources.Models
 {
+    using System;
+    using SQLite;
+    using SQLiteNetExtensions.Attributes;
+
     //string sqlTable = "CREATE TABLE IF NOT EXISTS tActivityDetailExtra"
     //            + "("
     //            + "ActivityDetailRefno INTEGER NOT NULL CONSTRAINT PK_ActivityDetailExtraOnActivityDetailRefno PRIMARY KEY,"
@@ -19,7 +23,7 @@ namespace dMobile.Resources.Models
 
     //        if (this.OnNubStatOut != null)
     //        {
-    //    // TODO: Resource strings
+    //    
     //    this.MsgEventArgs.StatusOutMsg = "Creating detail extra table.";
     //    this.OnNubStatOut(this, this.MsgEventArgs);
     //}
@@ -29,7 +33,6 @@ namespace dMobile.Resources.Models
     //        string sqlNdx = "CREATE UNIQUE INDEX IF NOT EXISTS UQ_ActivityDetailExtraOnActivityDetailRefnoAndActivityDetailSubType "
     //            + "ON tActivityDetailExtra(ActivityDetailRefno ASC, ActivityDetailSubType ASC)";
     //await this.RunDDLCommand(sqlNdx);
-
     [Table("tActivityDetailExtra")]
     public class tActivityDetailExtraModel
     {

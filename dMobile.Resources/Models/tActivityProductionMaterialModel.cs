@@ -1,9 +1,13 @@
-﻿using System;
-using SQLite;
-using SQLiteNetExtensions.Attributes;
+﻿// <copyright file="tActivityProductionMaterialModel.cs" company="InterSect Business Systems Inc">
+// Copyright (c) InterSect Business Systems Inc. All rights reserved.
+// </copyright>
 
 namespace dMobile.Resources.Models
 {
+    using System;
+    using SQLite;
+    using SQLiteNetExtensions.Attributes;
+
     //string sqlTable = "CREATE TABLE IF NOT EXISTS tActivityProductionMaterial"
     //+ "("
 
@@ -28,7 +32,6 @@ namespace dMobile.Resources.Models
 
     //sqlNdx = "CREATE UNIQUE INDEX IF NOT EXISTS UQ_ActivityProductionMaterialOnActivityProductionFKRefno ON tActivityProductionMaterial(ActivityProductionFKRefno ASC)";
     //await this.RunDDLCommand(sqlNdx);
-
     [Table("tActivityProductionMaterial")]
     public class tActivityProductionMaterialModel
     {

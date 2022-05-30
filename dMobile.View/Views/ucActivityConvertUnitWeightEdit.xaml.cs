@@ -1,25 +1,33 @@
-﻿using System;
-using System.Collections.Generic;
-using dMobile.Resources.Types;
-using dMobile.Resources.Enums;
-using dMobile.View.CustomPages.Modal;
-using Xamarin.Forms;
-using Xamarin.Forms.Xaml;
+﻿// <copyright file="ucActivityConvertUnitWeightEdit.xaml.cs" company="InterSect Business Systems Inc">
+// Copyright (c) InterSect Business Systems Inc. All rights reserved.
+// </copyright>
 
 namespace dMobile.View.Views
 {
+    using System;
+    using dMobile.Resources.Enums;
+    using dMobile.Resources.Types;
+    using dMobile.View.CustomPages.Modal;
+    using Xamarin.Forms.Xaml;
+
+    /// <summary>
+    /// Defines the <see cref="ucActivityConvertUnitWeightEdit" />.
+    /// </summary>
     [XamlCompilation(XamlCompilationOptions.Compile)]
     public partial class ucActivityConvertUnitWeightEdit : DMobileModal
     {
-        private bool weightHasChanged = false;
-        private decimal editedWeight;
+        /// <summary>
+        /// Defines the convertUnitDetail.
+        /// </summary>
         private ConvertUnitDetail convertUnitDetail;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ucActivityConvertUnitWeightEdit"/> class.
+        /// </summary>
         public ucActivityConvertUnitWeightEdit()
         {
-            InitializeComponent();
+            this.InitializeComponent();
 
-            // TODO: Resource strings
             this.Title = "Unit Weight Edit";
 
             this.lblUnitNumber.Text = "Unit Number";
@@ -35,13 +43,16 @@ namespace dMobile.View.Views
             this.cmdCancel.Text = "Cancel";
         }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ucActivityConvertUnitWeightEdit"/> class.
+        /// </summary>
+        /// <param name="convertUnitDetail">.</param>
         public ucActivityConvertUnitWeightEdit(ConvertUnitDetail convertUnitDetail)
         {
-            InitializeComponent();
+            this.InitializeComponent();
 
             this.convertUnitDetail = convertUnitDetail;
 
-            // TODO: Resource strings
             this.Title = "Unit Weight Edit";
 
             this.lblUnitNumber.Text = "Unit Number";
@@ -57,14 +68,26 @@ namespace dMobile.View.Views
             this.cmdCancel.Text = "Cancel";
         }
 
-        public decimal EditedWeight { get => editedWeight; set => editedWeight = value; }
-        public bool WeightHasChanged { get => weightHasChanged; set => weightHasChanged = value; }
+        /// <summary>
+        /// Gets or sets the EditedWeight.
+        /// </summary>
+        public decimal EditedWeight { get; set; }
 
+        /// <summary>
+        /// Gets or sets a value indicating whether WeightHasChanged.
+        /// </summary>
+        public bool WeightHasChanged { get; set; } = false;
+
+        /// <summary>
+        /// The cmdSave_Clicked.
+        /// </summary>
+        /// <param name="sender">The sender<see cref="object"/>.</param>
+        /// <param name="e">The e<see cref="EventArgs"/>.</param>
         private async void cmdSave_Clicked(object sender, EventArgs e)
         {
             this.DialogResult = DialogResult.OK;
 
-            decimal.TryParse(this.entryWeight.Text, out decimal result);
+            _ = decimal.TryParse(this.entryWeight.Text, out decimal result);
 
             if (this.convertUnitDetail != null && result != this.convertUnitDetail.ActivityDetailWeightQuantity)
             {
@@ -75,6 +98,11 @@ namespace dMobile.View.Views
             await this.Close();
         }
 
+        /// <summary>
+        /// The cmdCancel_Clicked.
+        /// </summary>
+        /// <param name="sender">The sender<see cref="object"/>.</param>
+        /// <param name="e">The e<see cref="EventArgs"/>.</param>
         private async void cmdCancel_Clicked(object sender, EventArgs e)
         {
             this.DialogResult = DialogResult.None;

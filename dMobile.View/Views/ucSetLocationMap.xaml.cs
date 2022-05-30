@@ -1,12 +1,9 @@
-﻿namespace dMobile.View
+﻿// <copyright file="ucSetLocationMap.xaml.cs" company="InterSect Business Systems Inc">
+// Copyright (c) InterSect Business Systems Inc. All rights reserved.
+// </copyright>
+
+namespace dMobile.View
 {
-    using Android.Views;
-    using dMobile.BarCodeScanner;
-    using dMobile.Bedrock;
-    using dMobile.Resources.Enums;
-    using dMobile.Resources.Types;
-    using dMobile.View.CustomPages.Modal;
-    using dMobile.View.Forms;
     using System;
     using System.Collections.Generic;
     using System.Collections.ObjectModel;
@@ -14,53 +11,33 @@
     using System.Linq;
     using System.Threading.Tasks;
     using System.Xml.Linq;
+    using Android.Views;
+    using dMobile.BarCodeScanner.BarCodeParsing;
+    using dMobile.BarCodeScanner.BarCodeScanners;
+    using dMobile.Bedrock;
+    using dMobile.Resources.Enums;
+    using dMobile.Resources.Types;
+    using dMobile.View.CustomPages.Modal;
+    using dMobile.View.Forms;
     using Xamarin.Forms;
     using Xamarin.Forms.Xaml;
     using Color = Xamarin.Forms.Color;
+    using Resource = dMobile.Resources.Properties.Resources;
 
+    /// <summary>
+    /// Set location map view model.
+    /// </summary>
     [XamlCompilation(XamlCompilationOptions.Compile)]
     public partial class ucSetLocationMap : DMobileTabbedModal, IAppArea
     {
-        private SysCommon.ActSubTypes actSubType = SysCommon.ActSubTypes.SelectLocation;
-        private bool isControlLoaded = false;
-        private bool isChangesMade = false;
-        private LocationMap locMap;
-        private BarCodeParse parse = null;
-        private BarCodeScanner scanner = null;
-        private bool isBarCodeHandlerRegistered = false;
-        private SLocMap locMapInfo;
-        private int defaultWhsLocMapRefno = 0;
-        private bool lockWhsSelection = false;
-
-        private List<Warehouse> listWarehouse;
-        private List<Section> listSections;
-        private List<Slot> listSlotCoord1;
-        private List<Slot> listSlotCoord2;
-        private List<Slot> listSlotCoord3;
-
-        private List<Warehouse> filteredListWarehouse;
-        private List<Section> filteredListSections;
-        private List<Slot> filteredListSlotCoord1;
-        private List<Slot> filteredListSlotCoord2;
-        private List<Slot> filteredListSlotCoord3;
-
-        private ObservableCollection<Warehouse> warehouseObservableCollection;
-        private ObservableCollection<Section> sectionObservableCollection;
-        private ObservableCollection<Slot> slotCoord1ObservableCollection;
-        private ObservableCollection<Slot> slotCoord2ObservableCollection;
-        private ObservableCollection<Slot> slotCoord3ObservableCollection;
-
         /// <summary>
-        /// 
+        /// Initializes a new instance of the <see cref="ucSetLocationMap"/> class.
         /// </summary>
-        /// <param></param>
         public ucSetLocationMap()
         {
             this.InitializeComponent();
 
-            // TODO: Resource strings
             this.Title = this.GetControlDescription();
-
             this.tabWarehouse.Text = "Warehouse";
             this.tabSection.Text = "Section";
             this.lblSearch.Text = "Search";
@@ -68,42 +45,41 @@
             this.lblSlotCoordinate1.Text = "Coord 1";
             this.lblSlotCoordinate2.Text = "Coord 2";
             this.lblSlotCoordinate3.Text = "Coord 3";
-
             this.warehouseTab.Title = "Warehouse";
             this.sectionTab.Title = "Section";
             this.slotTab.Title = "Slot";
-
             this.cboSectionSearch.Items.Add("Code");
             this.cboSectionSearch.Items.Add("Description");
             this.cboSectionSearch.SelectedItem = "Code";
 
             if (!DesignMode.IsDesignModeEnabled)
             {
+                this.Scanner = ScannerEngine.GetInstance().Scanner;
+
                 this.WarehouseObservableCollection = new ObservableCollection<Warehouse>();
                 this.SectionObservableCollection = new ObservableCollection<Section>();
                 this.SlotCoord1ObservableCollection = new ObservableCollection<Slot>();
                 this.SlotCoord2ObservableCollection = new ObservableCollection<Slot>();
                 this.SlotCoord3ObservableCollection = new ObservableCollection<Slot>();
-
                 this.LocMapInfo = new SLocMap();
                 this.LocMap = LocationMap.GetInstance();
-                this.Scanner = BarCodeSingleton.GetInstance().Scanner;
+                this.LocMap.ChosenLocMap = this.LocMap.CurrLocMap.Clone();
+                this.LocMap.ChosenLocMapRefno = this.LocMap.CurrLocMapRefno;
             }
 
             this.ApplyEvents();
         }
 
         /// <summary>
-        /// 
+        /// Initializes a new instance of the <see cref="ucSetLocationMap"/> class.
         /// </summary>
-        /// <param name="callingControl"></param>
+        /// <param name="defaultWhsLocMapRefno"><see cref="int"/> Default warehouse location map reference number.</param>
+        /// <param name="lockWhsSelection"><see cref="bool"/> Warehouse selection lock enabler.</param>
         public ucSetLocationMap(int defaultWhsLocMapRefno, bool lockWhsSelection)
         {
             this.InitializeComponent();
 
-            // TODO: Resource strings
             this.Title = this.GetControlDescription();
-
             this.tabWarehouse.Text = "Warehouse";
             this.tabSection.Text = "Section";
             this.lblSearch.Text = "Search";
@@ -111,26 +87,26 @@
             this.lblSlotCoordinate1.Text = "Coord 1";
             this.lblSlotCoordinate2.Text = "Coord 2";
             this.lblSlotCoordinate3.Text = "Coord 3";
-
             this.warehouseTab.Title = "Warehouse";
             this.sectionTab.Title = "Section";
             this.slotTab.Title = "Slot";
-
             this.cboSectionSearch.Items.Add("Code");
             this.cboSectionSearch.Items.Add("Description");
             this.cboSectionSearch.SelectedItem = "Code";
 
             if (!DesignMode.IsDesignModeEnabled)
             {
+                this.Scanner = ScannerEngine.GetInstance().Scanner;
+
                 this.WarehouseObservableCollection = new ObservableCollection<Warehouse>();
                 this.SectionObservableCollection = new ObservableCollection<Section>();
                 this.SlotCoord1ObservableCollection = new ObservableCollection<Slot>();
                 this.SlotCoord2ObservableCollection = new ObservableCollection<Slot>();
                 this.SlotCoord3ObservableCollection = new ObservableCollection<Slot>();
-
                 this.LocMapInfo = new SLocMap();
                 this.LocMap = LocationMap.GetInstance();
-                this.Scanner = BarCodeSingleton.GetInstance().Scanner;
+                this.LocMap.ChosenLocMap = this.LocMap.CurrLocMap.Clone();
+                this.LocMap.ChosenLocMapRefno = this.LocMap.CurrLocMapRefno;
                 this.DefaultWhsLocMapRefno = defaultWhsLocMapRefno;
                 this.LockWhsSelection = lockWhsSelection;
 
@@ -144,111 +120,666 @@
         }
 
         /// <summary>
-        /// The OnAppearing
+        /// Gets or sets a value indicating whether the warehouse selection is locked from change.
         /// </summary>
-        protected override async void OnAppearing()
+        private bool LockWhsSelection { get; set; } = false;
+
+        /// <summary>
+        /// Gets or sets the default warehouse location map reference number.
+        /// </summary>
+        private int DefaultWhsLocMapRefno { get; set; } = 0;
+
+        /// <summary>
+        /// Gets or sets the activity sub type.
+        /// </summary>
+        private SysCommon.ActSubTypes ActSubType { get; set; } = SysCommon.ActSubTypes.SelectLocation;
+
+        /// <summary>
+        /// Gets or sets the location map information.
+        /// </summary>
+        private SLocMap LocMapInfo { get; set; } = new SLocMap();
+
+        /// <summary>
+        /// Gets or sets the location map.
+        /// </summary>
+        private LocationMap LocMap { get; set; } = LocationMap.GetInstance();
+
+        /// <summary>
+        /// Gets or sets the slot coordinate 3 list.
+        /// </summary>
+        private List<Slot> ListSlotCoord3 { get; set; } = new List<Slot>();
+
+        /// <summary>
+        /// Gets or sets the slot coordinate 2 list.
+        /// </summary>
+        private List<Slot> ListSlotCoord2 { get; set; } = new List<Slot>();
+
+        /// <summary>
+        /// Gets or sets the slot coordinate 1 list.
+        /// </summary>
+        private List<Slot> ListSlotCoord1 { get; set; } = new List<Slot>();
+
+        /// <summary>
+        /// Gets or sets the list of sections.
+        /// </summary>
+        private List<Section> ListSections { get; set; } = new List<Section>();
+
+        /// <summary>
+        /// Gets or sets the warehouse list.
+        /// </summary>
+        private List<Warehouse> ListWarehouse { get; set; } = new List<Warehouse>();
+
+        /// <summary>
+        /// Gets or sets a value indicating whether changes have been made.
+        /// </summary>
+        private bool IsChangesMade { get; set; } = false;
+
+        /// <summary>
+        /// Gets or sets a value indicating whether the control / view has been loaded.
+        /// </summary>
+        private bool IsControlLoaded { get; set; } = false;
+
+        /// <summary>
+        /// Gets or sets the bar code scanner instance.
+        /// </summary>
+        private BarCodeScanner Scanner { get; set; } = ScannerEngine.GetInstance().Scanner;
+
+        /// <summary>
+        /// Gets or sets a value indicating whether the bar code handler is registered.
+        /// </summary>
+        private bool IsBarCodeHandlerRegistered { get; set; } = false;
+
+        /// <summary>
+        /// Gets or sets the bar code parsed data.
+        /// </summary>
+        private BarCodeParse Parse { get; set; }
+
+        /// <summary>
+        /// Gets or sets the warehouse observable collection.
+        /// </summary>
+        private ObservableCollection<Warehouse> WarehouseObservableCollection { get; set; } =
+            new ObservableCollection<Warehouse>();
+
+        /// <summary>
+        /// Gets or sets the section observable collection.
+        /// </summary>
+        private ObservableCollection<Section> SectionObservableCollection { get; set; } =
+            new ObservableCollection<Section>();
+
+        /// <summary>
+        /// Gets or sets the slot coordinate 1 observable collection.
+        /// </summary>
+        private ObservableCollection<Slot> SlotCoord1ObservableCollection { get; set; } =
+            new ObservableCollection<Slot>();
+
+        /// <summary>
+        /// Gets or sets the slot coordinate 2 observable collection.
+        /// </summary>
+        private ObservableCollection<Slot> SlotCoord2ObservableCollection { get; set; } =
+            new ObservableCollection<Slot>();
+
+        /// <summary>
+        /// Gets or sets the slot coordinate 3 observable collection.
+        /// </summary>
+        private ObservableCollection<Slot> SlotCoord3ObservableCollection { get; set; } =
+            new ObservableCollection<Slot>();
+
+        /// <summary>
+        /// Gets or sets the list of filtered warehouses.
+        /// </summary>
+        private List<Warehouse> FilteredListWarehouse { get; set; } = new List<Warehouse>();
+
+        /// <summary>
+        /// Gets or sets the list of filtered sections.
+        /// </summary>
+        private List<Section> FilteredListSections { get; set; } = new List<Section>();
+
+        /// <summary>
+        /// Gets or sets the list of filtered slot coordinates 1.
+        /// </summary>
+        private List<Slot> FilteredListSlotCoord1 { get; set; } = new List<Slot>();
+
+        /// <summary>
+        /// Gets or sets the list of filtered slot coordinates 2.
+        /// </summary>
+        private List<Slot> FilteredListSlotCoord2 { get; set; } = new List<Slot>();
+
+        /// <summary>
+        /// Gets or sets the list of filtered slot coordinates 3.
+        /// </summary>
+        private List<Slot> FilteredListSlotCoord3 { get; set; } = new List<Slot>();
+
+        /// <summary>
+        /// Gets or sets a value indicating whether the saved bar code scanner enabled status.
+        /// </summary>
+        private bool IsSvdBarScannerEnabled { get; set; } = false;
+
+        /// <summary>
+        /// Unregister the bar code scan event handler and disable the scanner.
+        /// </summary>
+        /// <returns><see cref="Task"/> Task operation.</returns>
+        public async Task ScannerDisable()
         {
-            base.OnAppearing();
-
-            MessagingCenter.Subscribe<string>(this, EventTypes.OnKeyUp.ToString(), async (keyPressed) =>
+            if (this.IsBarCodeHandlerRegistered && this.Scanner != null)
             {
-                // TODO: Verify keycodes
-                Enum.TryParse(keyPressed, out Keycode keycode);
+                this.Scanner.BarCodeScan -= new BarCodeScanner.BarCodeScanEventHandler(this.BarCodeHandler);
+                await this.Scanner.Stop();
+            }
 
-                if (keycode == Keycode.Enter || keycode == Keycode.F1)
-                {
-                    if (await this.SaveChanges())
-                    {
-                        this.DialogResult = DialogResult.OK;
-                        await this.Close();
-                    }
-                }
-                else if (keycode == Keycode.DpadDown)
-                {
-                    if (this.CurrentPage.Title == this.warehouseTab.Title)
-                    {
-                        if (this.dgWhs.SelectedItem != null && Convert.ToInt32(this.WarehouseObservableCollection.IndexOf(this.dgWhs.SelectedItem as Warehouse)) < this.WarehouseObservableCollection.Count - 1)
-                        {
-                            this.dgWhs.SelectedItem = this.WarehouseObservableCollection[this.WarehouseObservableCollection.IndexOf(this.dgWhs.SelectedItem as Warehouse) + 1];
-                            this.dgWhs.ScrollTo(this.dgWhs.SelectedItem, ScrollToPosition.MakeVisible, true);
-                        }
-                    }
-                    else if (this.CurrentPage.Title == this.sectionTab.Title)
-                    {
-                        if (this.dgSections.SelectedItem != null && Convert.ToInt32(this.SectionObservableCollection.IndexOf(this.dgSections.SelectedItem as Section)) < this.SectionObservableCollection.Count - 1)
-                        {
-                            this.dgSections.SelectedItem = this.SectionObservableCollection[this.SectionObservableCollection.IndexOf(this.dgSections.SelectedItem as Section) + 1];
-                            this.dgSections.ScrollTo(this.dgSections.SelectedItem, ScrollToPosition.MakeVisible, true);
-                        }
-                    }
-                }
-                else if (keycode == Keycode.DpadUp)
-                {
-                    if (this.CurrentPage.Title == this.warehouseTab.Title)
-                    {
-                        if (this.dgWhs.SelectedItem != null && Convert.ToInt32(this.WarehouseObservableCollection.IndexOf(this.dgWhs.SelectedItem as Warehouse)) > 0)
-                        {
-                            this.dgWhs.SelectedItem = this.WarehouseObservableCollection[this.WarehouseObservableCollection.IndexOf(this.dgWhs.SelectedItem as Warehouse) - 1];
-                            this.dgWhs.ScrollTo(this.dgWhs.SelectedItem, ScrollToPosition.MakeVisible, true);
-                        }
-                    }
-                    else if (this.CurrentPage.Title == this.sectionTab.Title)
-                    {
-                        if (this.dgSections.SelectedItem != null && Convert.ToInt32(this.SectionObservableCollection.IndexOf(this.dgSections.SelectedItem as Section)) > 0)
-                        {
-                            this.dgSections.SelectedItem = this.SectionObservableCollection[this.SectionObservableCollection.IndexOf(this.dgSections.SelectedItem as Section) - 1];
-                            this.dgSections.ScrollTo(this.dgSections.SelectedItem, ScrollToPosition.MakeVisible, true);
-                        }
-                    }
-                }
-            });
+            this.IsBarCodeHandlerRegistered = false;
+        }
+
+        /// <summary>
+        /// Registers the bar code scan event handler and enables the scanner.
+        /// </summary>
+        /// <returns><see cref="Task"/> Task operation.</returns>
+        public async Task ScannerEnable()
+        {
+            if (!this.IsBarCodeHandlerRegistered && this.Scanner != null)
+            {
+                await this.Scanner.Start();
+                this.Scanner.BarCodeScan += new BarCodeScanner.BarCodeScanEventHandler(this.BarCodeHandler);
+                this.IsBarCodeHandlerRegistered = true;
+            }
+        }
+
+        /// <summary>
+        /// Check if the activity header data is ready to be saved.
+        /// </summary>
+        /// <returns><see cref="bool"/> True if the data is ready to be saved else false.</returns>
+        public async Task<bool> IsReadyToSave()
+        {
+            bool isReadyToSave = false;
 
             try
             {
-                this.Loading = true;
-                this.IsEnabled = false;
-                await this.ucSetLocationMap_GotFocus(this, new EventArgs());
-                await this.tabLocation_GotFocus(this, new EventArgs());
+                this.IsSvdBarScannerEnabled = this.IsBarCodeHandlerRegistered;
+                await this.ScannerEnable();
+                isReadyToSave = true;
+            }
+            catch (MessageOnlyException ex)
+            {
+                await Device.InvokeOnMainThreadAsync(async () =>
+                    await Application.Current.MainPage.DisplayAlert(
+                        this.GetControlDescription(),
+                        ex.Message,
+                        Resource.OK));
             }
             catch (Exception ex)
             {
-                // TODO: Logging
-                Console.WriteLine("this.ucSetLocationMap_GotFocus/tabLocation_GotFocus threw error " + ex);
+                isReadyToSave = false;
+                await Device.InvokeOnMainThreadAsync(async () =>
+                {
+                    FormErrorReport errRpt = new FormErrorReport(this.ActSubType, ex);
+                    _ = await errRpt.ShowDialog();
+                });
+            }
+            finally
+            {
+                if (this.IsSvdBarScannerEnabled)
+                {
+                    await this.ScannerEnable();
+                }
+            }
+
+            return isReadyToSave;
+        }
+
+        /// <summary>
+        /// Check if this form is ready to close, that is can be closed.
+        /// </summary>
+        /// <returns><see cref="Task{bool}"/> True if the form is ready to close else false.</returns>
+        public async Task<bool> IsReadyToClose()
+        {
+            bool isReadyToClose = !this.IsChangesMade;
+
+            try
+            {
+                this.IsSvdBarScannerEnabled = this.IsBarCodeHandlerRegistered;
+                await this.ScannerDisable();
+                if (this.IsChangesMade)
+                {
+                    // Perform any checks or changes needed to allow a rollback or form close.
+                    // Set IsReadyToClose = false if checks fail.
+                }
+
+                if (isReadyToClose)
+                {
+                }
+            }
+            catch (MessageOnlyException ex)
+            {
+                await Device.InvokeOnMainThreadAsync(async () =>
+                    await Application.Current.MainPage.DisplayAlert(
+                        this.GetControlDescription(),
+                        ex.Message,
+                        Resource.OK));
+            }
+            catch (Exception ex)
+            {
+                isReadyToClose = false;
+                await Device.InvokeOnMainThreadAsync(async () =>
+                {
+                    FormErrorReport errRpt = new FormErrorReport(this.ActSubType, ex);
+                    _ = await errRpt.ShowDialog();
+                });
+            }
+            finally
+            {
+                if (this.IsSvdBarScannerEnabled)
+                {
+                    await this.ScannerEnable();
+                }
+            }
+
+            return isReadyToClose;
+        }
+
+        /// <summary>
+        /// Get control activity description.
+        /// </summary>
+        /// <returns><see cref="string"/> Control activity description.</returns>
+        public string GetControlDescription()
+        {
+            return "Select Location";
+        }
+
+        /// <summary>
+        /// Check if a save can be performed and do so.
+        /// </summary>
+        /// <returns><see cref="bool"/> True if a save was performed successfully else false.</returns>
+        public async Task<bool> SaveChanges()
+        {
+            bool saveComplete = false;
+
+            try
+            {
+                this.IsSvdBarScannerEnabled = this.IsBarCodeHandlerRegistered;
+                await this.ScannerDisable();
+                if (await this.IsReadyToSave())
+                {
+                    this.IsChangesMade = false;
+                    saveComplete = true;
+                    this.LocMap.ChosenLocMap = this.LocMapInfo.Clone();
+                    this.LocMap.ChosenLocMapRefno = LocationMapTasks.GetLocMapRefnoFromSLocMap(this.LocMapInfo);
+                }
+                else
+                {
+                    await Device.InvokeOnMainThreadAsync(async () => await this.DisplayAlert(
+                        this.GetControlDescription(),
+                        "Data failed validation. Check your data.",
+                        "OK"));
+                }
+            }
+            catch (MessageOnlyException ex)
+            {
+                saveComplete = false;
+                await Device.InvokeOnMainThreadAsync(async () =>
+                    await Application.Current.MainPage.DisplayAlert(
+                        this.GetControlDescription(),
+                        ex.Message,
+                        Resource.OK));
+            }
+            catch (Exception ex)
+            {
+                await Device.InvokeOnMainThreadAsync(async () =>
+                {
+                    FormErrorReport errorReport = new FormErrorReport(this.ActSubType, ex);
+                    _ = await errorReport.ShowDialog();
+                });
+
+                saveComplete = false;
+            }
+            finally
+            {
+                if (this.IsSvdBarScannerEnabled)
+                {
+                    await this.ScannerEnable();
+                }
+            }
+
+            return saveComplete;
+        }
+
+        /// <summary>
+        /// Check if there are any pending changes, if so cancel them.
+        /// </summary>
+        /// <returns><see cref="bool"/>. True if the changes where canceled, else false.</returns>
+        public async Task<bool> CancelChanges()
+        {
+            bool cancelChanges = true;
+
+            try
+            {
+                this.IsSvdBarScannerEnabled = this.IsBarCodeHandlerRegistered;
+                await this.ScannerDisable();
+                if (await this.IsReadyToClose())
+                {
+                    // Reset any properties if needed.
+                }
+                else
+                {
+                    await this.LoadData();
+                    cancelChanges = false;
+                    this.IsChangesMade = false;
+                }
+            }
+            catch (MessageOnlyException ex)
+            {
+                cancelChanges = false;
+                await Device.InvokeOnMainThreadAsync(async () =>
+                    await Application.Current.MainPage.DisplayAlert(
+                        this.GetControlDescription(),
+                        ex.Message,
+                        Resource.OK));
+            }
+            catch (Exception ex)
+            {
+                await Device.InvokeOnMainThreadAsync(async () =>
+                {
+                    FormErrorReport errorReport = new FormErrorReport(this.ActSubType, ex);
+                    _ = await errorReport.ShowDialog();
+                });
+
+                cancelChanges = false;
+            }
+            finally
+            {
+                if (this.IsSvdBarScannerEnabled)
+                {
+                    await this.ScannerEnable();
+                }
+            }
+
+            return cancelChanges;
+        }
+
+        /// <summary>
+        /// Assemble a XML string of activity data to return to the calling parent form.
+        /// </summary>
+        /// <returns><see cref="Task"/> Task operation containing an XDocument.</returns>
+        public async Task<XDocument> GetXML()
+        {
+            XDocument request = XDocument.Parse(
+                "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>"
+                + "<params>"
+                + "<LocationMapRefno>" + LocationMapTasks.GetLocMapRefnoFromSLocMap() + "</LocationMapRefno>"
+                + "</params>");
+
+            return request;
+        }
+
+        /// <summary>
+        /// Customize behavior immediately prior to the 'Page' becoming visible.
+        /// </summary>
+        protected override async void OnAppearing()
+        {
+            try
+            {
+                base.OnAppearing();
+
+                SubscribeKeyUpHandlers();
+
+                this.Loading = true;
+                this.IsEnabled = false;
+                if (!this.IsControlLoaded)
+                {
+                    await this.ScannerEnable();
+                    await this.LoadData();
+                    await this.SelectWarehouse();
+
+                    // Selecting the section and slot are required here even if the section / slot grids are not display
+                    // because we want to set the grid(s).CurrentRowIdx
+                    if (this.LocMap.ChosenLocMap.IsSectionTracked)
+                    {
+                        await this.SelectSection();
+                        await this.SelectSlotCoordinate();
+                    }
+
+                    this.IsControlLoaded = true;
+                    await this.UpdateLocationDisplay();
+                }
+
+                await TabLocation_GotFocus(this, new EventArgs());
+            }
+            catch (MessageOnlyException ex)
+            {
+                await Device.InvokeOnMainThreadAsync(async () =>
+                    await Application.Current.MainPage.DisplayAlert(
+                        this.GetControlDescription(),
+                        ex.Message,
+                        Resource.OK));
+            }
+            catch (Exception ex)
+            {
+                await Device.InvokeOnMainThreadAsync(async () =>
+                {
+                    string msg = "This activity unexpectedly failed to initialize correctly." +
+                        " Please exit and try again.";
+                    FormErrorReport errorReport = new FormErrorReport(msg, ex);
+                    _ = await errorReport.ShowDialog();
+                });
             }
             finally
             {
                 this.IsEnabled = true;
                 this.Loading = false;
             }
+
+            void SubscribeKeyUpHandlers()
+            {
+                MessagingCenter.Subscribe<string>(this, EventTypes.OnKeyUp.ToString(), async (keyPressed) =>
+                {
+                    bool svdIsScanReg = this.IsBarCodeHandlerRegistered;
+                    await this.ScannerDisable();
+
+                    _ = Enum.TryParse(keyPressed, out Keycode keycode);
+
+                    if (keycode == Keycode.Enter || keycode == Keycode.F1)
+                    {
+                        if (await this.SaveChanges())
+                        {
+                            this.DialogResult = DialogResult.OK;
+                            await this.Close();
+                        }
+                    }
+                    else if (keycode == Keycode.DpadDown)
+                    {
+                        if (this.CurrentPage.Title == this.warehouseTab.Title)
+                        {
+                            if (this.dgWhs.SelectedItem != null && Convert.ToInt32(
+                                this.WarehouseObservableCollection.IndexOf(this.dgWhs.SelectedItem as Warehouse)) <
+                                this.WarehouseObservableCollection.Count - 1)
+                            {
+                                this.dgWhs.SelectedItem = this.WarehouseObservableCollection[
+                                    this.WarehouseObservableCollection.IndexOf(this.dgWhs.SelectedItem as Warehouse) + 1];
+                                this.dgWhs.ScrollTo(this.dgWhs.SelectedItem, ScrollToPosition.MakeVisible, true);
+                            }
+                        }
+                        else if (this.CurrentPage.Title == this.sectionTab.Title)
+                        {
+                            if (this.dgSections.SelectedItem != null && Convert.ToInt32(
+                                this.SectionObservableCollection.IndexOf(this.dgSections.SelectedItem as Section)) <
+                                this.SectionObservableCollection.Count - 1)
+                            {
+                                this.dgSections.SelectedItem = this.SectionObservableCollection[
+                                    this.SectionObservableCollection.IndexOf(this.dgSections.SelectedItem as Section) + 1];
+                                this.dgSections.ScrollTo(this.dgSections.SelectedItem, ScrollToPosition.MakeVisible, true);
+                            }
+                        }
+                    }
+                    else if (keycode == Keycode.DpadUp)
+                    {
+                        if (this.CurrentPage.Title == this.warehouseTab.Title)
+                        {
+                            if (this.dgWhs.SelectedItem != null && Convert.ToInt32(
+                                this.WarehouseObservableCollection.IndexOf(this.dgWhs.SelectedItem as Warehouse)) > 0)
+                            {
+                                this.dgWhs.SelectedItem = this.WarehouseObservableCollection[
+                                    this.WarehouseObservableCollection.IndexOf(this.dgWhs.SelectedItem as Warehouse) - 1];
+                                this.dgWhs.ScrollTo(this.dgWhs.SelectedItem, ScrollToPosition.MakeVisible, true);
+                            }
+                        }
+                        else if (this.CurrentPage.Title == this.sectionTab.Title)
+                        {
+                            if (this.dgSections.SelectedItem != null && Convert.ToInt32(
+                                this.SectionObservableCollection.IndexOf(this.dgSections.SelectedItem as Section)) > 0)
+                            {
+                                this.dgSections.SelectedItem = this.SectionObservableCollection[
+                                    this.SectionObservableCollection.IndexOf(this.dgSections.SelectedItem as Section) - 1];
+                                this.dgSections.ScrollTo(this.dgSections.SelectedItem, ScrollToPosition.MakeVisible, true);
+                            }
+                        }
+                    }
+
+                    if (svdIsScanReg)
+                    {
+                        await this.ScannerEnable();
+                    }
+                });
+            }
+
+            async Task TabLocation_GotFocus(object sender, EventArgs e)
+            {
+                if (this.FilteredListWarehouse == null || this.LocMapInfo.WhsLocMapRefno == 0)
+                {
+                    await Device.InvokeOnMainThreadAsync(async () => await this.DisplayAlert(
+                        this.GetControlDescription(),
+                        "Select the warehouse first!",
+                        "OK"));
+                }
+                else
+                {
+                    if (this.FilteredListSections != null)
+                    {
+                        this.FilteredListSections = this.ListSections.Where(
+                            section => section.WarehouseLocationMapRefno == this.LocMapInfo.WhsLocMapRefno).ToList();
+
+                        await this.SelectSection();
+
+                        if (this.FilteredListSections.Count > 0)
+                        {
+                            if (this.dgSections.SelectedItem is Section selectedSection &&
+                                this.LocMapInfo.SectLocMapRefno != selectedSection.LocationMapRefno)
+                            {
+                                this.LocMapInfo = await LocationMapTasks.GetSLocMapFromLocMapRefno(
+                                    selectedSection.LocationMapRefno);
+                            }
+                        }
+                    }
+                }
+
+                if (this.FilteredListSections == null || this.LocMapInfo.SectLocMapRefno == 0)
+                {
+                    //// await Device.InvokeOnMainThreadAsync(async () => await DisplayAlert(
+                    //// this.GetControlDescription(), "Select the section first!", "OK"));
+                }
+                else
+                {
+                    if (this.FilteredListSlotCoord1 != null && this.FilteredListSlotCoord2 != null &&
+                        this.FilteredListSlotCoord3 != null)
+                    {
+                        this.FilteredListSlotCoord1 = this.ListSlotCoord1.Where(
+                            slot => slot.SectionLocationMapRefno == this.LocMapInfo.SectLocMapRefno).ToList();
+                        this.FilteredListSlotCoord2 = this.ListSlotCoord2.Where(
+                            slot => slot.SectionLocationMapRefno == this.LocMapInfo.SectLocMapRefno).ToList();
+                        this.FilteredListSlotCoord3 = this.ListSlotCoord3.Where(
+                            slot => slot.SectionLocationMapRefno == this.LocMapInfo.SectLocMapRefno).ToList();
+
+                        await this.SelectSlotCoordinate();
+
+                        if (this.FilteredListSlotCoord1.Count > 0)
+                        {
+                            int slotLocMapRefno = 0;
+
+                            if (this.dgCoord1.SelectedItem is Slot slotCoord1 &&
+                                this.dgCoord2.SelectedItem is Slot slotCoord2 &&
+                                this.dgCoord3.SelectedItem is Slot slotCoord3)
+                            {
+                                slotLocMapRefno = await LocationMapTasks.GetSlotRefnoFromCoordinates(
+                                    this.LocMapInfo.SectLocMapRefno,
+                                    slotCoord1.LocationMapSlotCoordinateRefno,
+                                    slotCoord2.LocationMapSlotCoordinateRefno,
+                                    slotCoord3.LocationMapSlotCoordinateRefno);
+                            }
+
+                            if (slotLocMapRefno != 0)
+                            {
+                                this.LocMapInfo = await LocationMapTasks.GetSLocMapFromLocMapRefno(slotLocMapRefno);
+                            }
+                        }
+                    }
+                }
+
+                await this.UpdateLocationDisplay();
+            }
         }
 
         /// <summary>
-        /// The OnDisappearing
+        /// Fires just before the page disappears.
         /// </summary>
         protected override async void OnDisappearing()
         {
             MessagingCenter.Unsubscribe<string>(this, EventTypes.OnKeyUp.ToString());
-            await this.ucSetLocationMap_LostFocus(this, new EventArgs());
+            await this.ScannerDisable();
 
             base.OnDisappearing();
         }
 
+        /// <summary>
+        /// On back button pressed handler.
+        /// </summary>
+        /// <returns><see cref="bool"/> True upon completion.</returns>
+        /// <remarks>Code lens reports no references yet this event does fire.</remarks>
         protected override bool OnBackButtonPressed()
         {
             Device.BeginInvokeOnMainThread(async () =>
             {
-                base.OnBackButtonPressed();
-
-                if (await this.CancelChanges())
+                try
                 {
-                    this.DialogResult = DialogResult.None;
-                    await this.Close();
+                    this.IsSvdBarScannerEnabled = this.IsBarCodeHandlerRegistered;
+                    await this.ScannerDisable();
+                    _ = base.OnBackButtonPressed();
+
+                    if (await this.CancelChanges())
+                    {
+                        this.DialogResult = DialogResult.None;
+                        await this.Close();
+                    }
+                }
+                catch (MessageOnlyException ex)
+                {
+                    await Device.InvokeOnMainThreadAsync(async () =>
+                        await Application.Current.MainPage.DisplayAlert(
+                            this.GetControlDescription(),
+                            ex.Message,
+                            Resource.OK));
+                }
+                catch (Exception ex)
+                {
+                    await Device.InvokeOnMainThreadAsync(async () =>
+                    {
+                        string msg = "This activity unexpectedly failed to initialize correctly." +
+                            " Please exit and try again.";
+                        FormErrorReport errorReport = new FormErrorReport(msg, ex);
+                        _ = await errorReport.ShowDialog();
+                    });
+                }
+                finally
+                {
+                    if (this.IsSvdBarScannerEnabled)
+                    {
+                        await this.ScannerEnable();
+                    }
                 }
             });
 
             return true;
         }
 
+        /// <summary>
+        /// Turn on form event handlers.
+        /// </summary>
         private void ApplyEvents()
         {
             this.warehouseLocationMapInfo.BtnSaveClick += this.BtnSave_Clicked;
@@ -259,9 +790,14 @@
             this.sectionLocationMapInfo.BtnCancelClick += this.BtnCancel_Clicked;
             this.slotLocationMapInfo.BtnCancelClick += this.BtnCancel_Clicked;
 
-            this.CurrentPageChanged += UcSetLocationMap_CurrentPageChanged;
+            this.CurrentPageChanged += this.UcSetLocationMap_CurrentPageChanged;
         }
 
+        /// <summary>
+        /// Set location map, current page changed event handler.
+        /// </summary>
+        /// <param name="sender"><see cref="object"/> Sender instance.</param>
+        /// <param name="e"><see cref="EventArgs"/> Event arguments.</param>
         private void UcSetLocationMap_CurrentPageChanged(object sender, EventArgs e)
         {
             if (this.CurrentPage.Title == this.sectionTab.Title)
@@ -295,554 +831,141 @@
             }
         }
 
-        private bool LockWhsSelection
-        {
-            get
-            {
-                return this.lockWhsSelection;
-            }
-
-            set
-            {
-                this.lockWhsSelection = value;
-            }
-        }
-
-        private int DefaultWhsLocMapRefno
-        {
-            get
-            {
-                return this.defaultWhsLocMapRefno;
-            }
-
-            set
-            {
-                this.defaultWhsLocMapRefno = value;
-            }
-        }
-
-        private SysCommon.ActSubTypes ActSubType
-        {
-            get
-            {
-                return this.actSubType;
-            }
-
-            set
-            {
-                this.actSubType = value;
-            }
-        }
-
-        private SLocMap LocMapInfo
-        {
-            get
-            {
-                return this.locMapInfo;
-            }
-
-            set
-            {
-                this.locMapInfo = value;
-            }
-        }
-
-        private LocationMap LocMap
-        {
-            get
-            {
-                return this.locMap;
-            }
-
-            set
-            {
-                this.locMap = value;
-            }
-        }
-
-        private List<Slot> ListSlotCoord3
-        {
-            get
-            {
-                return this.listSlotCoord3;
-            }
-
-            set
-            {
-                this.listSlotCoord3 = value;
-            }
-        }
-
-        private List<Slot> ListSlotCoord2
-        {
-            get
-            {
-                return this.listSlotCoord2;
-            }
-
-            set
-            {
-                this.listSlotCoord2 = value;
-            }
-        }
-
-        private List<Slot> ListSlotCoord1
-        {
-            get
-            {
-                return this.listSlotCoord1;
-            }
-
-            set
-            {
-                this.listSlotCoord1 = value;
-            }
-        }
-
-        private List<Section> ListSections
-        {
-            get
-            {
-                return this.listSections;
-            }
-
-            set
-            {
-                this.listSections = value;
-            }
-        }
-
-        private List<Warehouse> ListWarehouse
-        {
-            get
-            {
-                return this.listWarehouse;
-            }
-
-            set
-            {
-                this.listWarehouse = value;
-            }
-        }
-
-        private bool IsChangesMade
-        {
-            get
-            {
-                return this.isChangesMade;
-            }
-
-            set
-            {
-                this.isChangesMade = value;
-            }
-        }
-
-        private bool IsControlLoaded
-        {
-            get
-            {
-                return this.isControlLoaded;
-            }
-
-            set
-            {
-                this.isControlLoaded = value;
-            }
-        }
-
-        private bool IsBarCodeHandlerRegistered
-        {
-            get
-            {
-                return this.isBarCodeHandlerRegistered;
-            }
-
-            set
-            {
-                this.isBarCodeHandlerRegistered = value;
-            }
-        }
-
-        private BarCodeScanner Scanner
-        {
-            get
-            {
-                return this.scanner;
-            }
-
-            set
-            {
-                this.scanner = value;
-            }
-        }
-
-        private BarCodeParse Parse
-        {
-            get
-            {
-                return this.parse;
-            }
-
-            set
-            {
-                this.parse = value;
-            }
-        }
-
-        public ObservableCollection<Warehouse> WarehouseObservableCollection { get => warehouseObservableCollection; set => warehouseObservableCollection = value; }
-        public ObservableCollection<Section> SectionObservableCollection { get => sectionObservableCollection; set => sectionObservableCollection = value; }
-        public ObservableCollection<Slot> SlotCoord1ObservableCollection { get => slotCoord1ObservableCollection; set => slotCoord1ObservableCollection = value; }
-        public ObservableCollection<Slot> SlotCoord2ObservableCollection { get => slotCoord2ObservableCollection; set => slotCoord2ObservableCollection = value; }
-        public ObservableCollection<Slot> SlotCoord3ObservableCollection { get => slotCoord3ObservableCollection; set => slotCoord3ObservableCollection = value; }
-        public List<Warehouse> FilteredListWarehouse { get => filteredListWarehouse; set => filteredListWarehouse = value; }
-        public List<Section> FilteredListSections { get => filteredListSections; set => filteredListSections = value; }
-        public List<Slot> FilteredListSlotCoord1 { get => filteredListSlotCoord1; set => filteredListSlotCoord1 = value; }
-        public List<Slot> FilteredListSlotCoord2 { get => filteredListSlotCoord2; set => filteredListSlotCoord2 = value; }
-        public List<Slot> FilteredListSlotCoord3 { get => filteredListSlotCoord3; set => filteredListSlotCoord3 = value; }
-
-        #region Public Members
-
-        #region IAppArea
-
         /// <summary>
-        /// Unregister the bar code scan event handler and disable the scanner.
+        /// Search section text changed event handler.
         /// </summary>
-        /// <remarks></remarks>
-        public async Task ScannerDisable()
-        {
-            if (this.IsBarCodeHandlerRegistered && this.Scanner != null)
-            {
-                this.Scanner.BarCodeScan -= new BarCodeScanner.BarCodeScanEventHandler(this.BarCodeHandler);
-                await this.Scanner.Stop();
-                this.IsBarCodeHandlerRegistered = false;
-            }
-        }
-
-        /// <summary>
-        /// Registers the bar code scan event handler and enables the scanner.
-        /// </summary>
-        /// <remarks></remarks>
-        public async Task ScannerEnable()
-        {
-            if (!this.IsBarCodeHandlerRegistered)
-            {
-                this.IsBarCodeHandlerRegistered = true;
-                await this.Scanner.Start();
-                this.Scanner.BarCodeScan += new BarCodeScanner.BarCodeScanEventHandler(this.BarCodeHandler);
-            }
-        }
-
-        /// <summary>
-        ///
-        /// </summary>
-        /// <returns></returns>
-        /// <remarks></remarks>
-        public async Task<bool> IsReadyToSave()
-        {
-            bool isReadyToSave = false;
-
-            try
-            {
-                isReadyToSave = true;
-            }
-            catch (Exception ex)
-            {
-                isReadyToSave = false;
-
-                await Device.InvokeOnMainThreadAsync(async () =>
-                {
-                    FormErrorReport errorReport = new FormErrorReport(this.ActSubType, ex);
-                    await errorReport.ShowDialog();
-                });
-            }
-
-            return isReadyToSave;
-        }
-
-        /// <summary>
-        ///
-        /// </summary>
-        /// <returns></returns>
-        /// <remarks></remarks>
-        public async Task<bool> IsReadyToClose()
-        {
-            bool isReadyToClose = true;
-
-            try
-            {
-                if (this.IsChangesMade)
-                {
-                    // Perform any checks or changes needed to allow a rollback or form close.
-                    // Set IsReadyToClose = false if checks fail.
-                }
-
-                if (isReadyToClose)
-                {
-                    await this.ScannerDisable();
-                }
-            }
-            catch (Exceptions.MessageOnlyException ex)
-            {
-                isReadyToClose = false;
-                ex.Show(this.ActSubType);
-            }
-            catch (Exception ex)
-            {
-                // Non message only exceptions will allow the close to continue.
-                // We do not want to get caught not being able to 'escape' the control.
-                isReadyToClose = true;
-
-                await Device.InvokeOnMainThreadAsync(async () =>
-                {
-                    FormErrorReport errorReport = new FormErrorReport(this.ActSubType, ex);
-                    await errorReport.ShowDialog();
-                });
-            }
-
-            return isReadyToClose;
-        }
-
-        /// <summary>
-        ///
-        /// </summary>
-        /// <returns></returns>
-        /// <remarks></remarks>
-        public string GetControlDescription()
-        {
-            // TODO: Resource strings            
-            return "Select Location";
-        }
-
-        /// <summary>
-        ///
-        /// </summary>
-        /// <returns></returns>
-        /// <remarks></remarks>
-        public async Task<bool> SaveChanges()
-        {
-            bool saveComplete = false;
-
-            try
-            {
-                if (await this.IsReadyToSave())
-                {
-                    this.LocMap.CurrLocMap = this.LocMapInfo;
-                    this.IsChangesMade = false;
-                    saveComplete = true;
-                }
-                else
-                {
-                    // TODO: Resource strings
-                    await Device.InvokeOnMainThreadAsync(async () => await DisplayAlert("Data Validation", "Data failed validation. Check your data.", "OK"));
-                }
-            }
-            catch (Exceptions.MessageOnlyException ex)
-            {
-                saveComplete = false;
-                ex.Show(this.ActSubType);
-            }
-            catch (Exception ex)
-            {
-                await Device.InvokeOnMainThreadAsync(async () =>
-                {
-                    FormErrorReport errorReport = new FormErrorReport(this.ActSubType, ex);
-                    await errorReport.ShowDialog();
-                });
-
-                saveComplete = false;
-            }
-
-            return saveComplete;
-        }
-
-        /// <summary>
-        ///
-        /// </summary>
-        /// <returns></returns>
-        /// <remarks></remarks>
-        public async Task<bool> CancelChanges()
-        {
-            bool cancelChanges = true;
-
-            try
-            {
-                if (await this.IsReadyToClose())
-                {
-                    // Reset any properties if needed.
-                }
-                else
-                {
-                    await this.LoadData();
-                    cancelChanges = false;
-                    this.IsChangesMade = false;
-                }
-            }
-            catch (Exceptions.MessageOnlyException ex)
-            {
-                cancelChanges = false;
-                ex.Show(this.ActSubType);
-            }
-            catch (Exception ex)
-            {
-                await Device.InvokeOnMainThreadAsync(async () =>
-                {
-                    FormErrorReport errorReport = new FormErrorReport(this.ActSubType, ex);
-                    await errorReport.ShowDialog();
-                });
-
-                cancelChanges = false;
-            }
-
-            return cancelChanges;
-        }
-
-        /// <summary>
-        ///
-        /// </summary>
-        /// <returns></returns>
-        /// <remarks></remarks>
-        public async Task<XDocument> GetXML()
-        {
-            XDocument request = XDocument.Parse(
-                "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>"
-                + "<params>"
-                + ("<LocationMapRefno>" + LocationMapTasks.GetLocMapRefnoFromSLocMap() + "</LocationMapRefno>")
-                + "</params>");
-
-            return request;
-        }
-
-        #endregion
-
-        #endregion
-
-        #region Private Members
-
-        /// <summary>
-        ///
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        /// <remarks></remarks>
-        private async Task ucSetLocationMap_GotFocus(object sender, EventArgs e)
-        {
-            if (!SysEnvironment.GetInstance().IsApplicationExitInvoked)
-            {
-                if (!this.IsControlLoaded)
-                {
-                    await this.ScannerEnable();
-                    await this.LoadData();
-                    await this.SelectWarehouse();
-
-                    // Selecting the section and slot are required here even if the section / slot grids are not display 
-                    // because we want to set the grid(s).CurrentRowIdx
-                    if (this.LocMap.CurrLocMap.IsSectionTracked)
-                    {
-                        await this.SelectSection();
-                        await this.SelectSlotCoordinate();
-                    }
-
-                    this.IsControlLoaded = true;
-                    await this.UpdateLocationDisplay();
-                }
-            }
-        }
-
-        /// <summary>
-        ///
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        /// <remarks></remarks>
-        private async void txtSearchSection_TextChanged(object sender, TextChangedEventArgs e)
+        /// <param name="sender"><see cref="object"/> Sender instance.</param>
+        /// <param name="e"><see cref="TextChangedEventArgs"/> Text changed event arguments.</param>
+        private async void TxtSearchSection_TextChanged(object sender, TextChangedEventArgs e)
         {
             try
             {
+                this.IsSvdBarScannerEnabled = this.IsBarCodeHandlerRegistered;
+                await this.ScannerDisable();
+
                 // By Code
                 if (this.cboSectionSearch.SelectedIndex == 0)
                 {
-                    if (string.Compare(txtSearchSection.Text, string.Empty) > 0)
+                    if (string.Compare(this.txtSearchSection.Text, string.Empty) > 0)
                     {
-                        //this.DataViewSections.RowFilter = "LocationMapSectionCode = " + this.txtSearchSection.Text.Trim();
-                        this.FilteredListSections = this.ListSections.Where<Section>(section => Convert.ToString(section.LocationMapSectionCode) == this.txtSearchSection.Text.Trim()).ToList();
+                        this.FilteredListSections = this.ListSections.Where(
+                            section => Convert.ToString(section.LocationMapSectionCode) ==
+                            this.txtSearchSection.Text.Trim()).ToList();
                     }
                     else
                     {
-                        //this.DataViewSections.RowFilter = string.Empty;
                         this.FilteredListSections = this.ListSections;
                     }
                 }
                 else
                 {
-                    //this.DataViewSections.RowFilter = "LocationMapSectionName LIKE \'" + this.txtSearchSection.Text.Trim() + "%\'";
-                    this.FilteredListSections = this.ListSections.Where<Section>(section => section.LocationMapSectionName.Contains(this.txtSearchSection.Text.Trim())).ToList();
+                    this.FilteredListSections = this.ListSections.Where(
+                        section => section.LocationMapSectionName.Contains(this.txtSearchSection.Text.Trim())).ToList();
                 }
             }
-            // Setting this.DataViewSections.RowFilter = "LocationMapSectionCode = " + this.txtSearchSection.Text.Trim();
-            // when txt is not numeric blows up. Handle here
-            catch (EvaluateException ex)
+            catch (EvaluateException)
             {
-                Console.WriteLine(ex);
-                //this.DataViewSections.RowFilter = "LocationMapSectionCode = -1";
-                this.FilteredListSections = this.ListSections.Where<Section>(section => Convert.ToString(section.LocationMapSectionCode) == Convert.ToString(-1)).ToList();
+                this.FilteredListSections = this.ListSections.Where(
+                    section => Convert.ToString(section.LocationMapSectionCode) == Convert.ToString(-1)).ToList();
+            }
+            catch (MessageOnlyException ex)
+            {
+                await Device.InvokeOnMainThreadAsync(async () =>
+                    await Application.Current.MainPage.DisplayAlert(
+                        this.GetControlDescription(),
+                        ex.Message,
+                        Resource.OK));
             }
             catch (Exception ex)
             {
-                await Device.InvokeOnMainThreadAsync(async () => await DisplayAlert("Error", "An error occurred while searching." + ex.Message, "OK"));
-                this.FilteredListSections = this.ListSections;
+                await Device.InvokeOnMainThreadAsync(async () =>
+                {
+                    FormErrorReport errRpt = new FormErrorReport(this.ActSubType, ex);
+                    _ = await errRpt.ShowDialog();
+                });
             }
             finally
             {
+                if (this.IsSvdBarScannerEnabled)
+                {
+                    await this.ScannerEnable();
+                }
+
                 await this.PopulateSectionList();
             }
         }
 
         /// <summary>
-        ///
+        /// Slot coordinate 1 text changed event handler.
         /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        /// <remarks></remarks>
-        private async void txtSlotCoordinate1_TextChanged(object sender, TextChangedEventArgs e)
+        /// <param name="sender"><see cref="object"/> Sender instance.</param>
+        /// <param name="e"><see cref="TextChangedEventArgs"/> Text changed event arguments.</param>
+        private async void TxtSlotCoordinate1_TextChanged(object sender, TextChangedEventArgs e)
         {
             try
             {
-                if (string.Compare(txtSlotCoordinate1.Text, string.Empty) > 0)
+                this.IsSvdBarScannerEnabled = this.IsBarCodeHandlerRegistered;
+                await this.ScannerDisable();
+                if (string.Compare(this.txtSlotCoordinate1.Text, string.Empty) > 0)
                 {
                     if (this.LocMapInfo.SectLocMapRefno != 0)
                     {
-                        this.FilteredListSlotCoord1 = this.ListSlotCoord1.Where<Slot>(slot => slot.LocationMapSlotCoordinateCode.Contains(this.txtSlotCoordinate1.Text.Trim().ToUpper())
+                        this.FilteredListSlotCoord1 = this.ListSlotCoord1.Where(
+                            slot => slot.LocationMapSlotCoordinateCode.Contains(
+                                this.txtSlotCoordinate1.Text.Trim().ToUpper())
                         && slot.SectionLocationMapRefno == this.LocMapInfo.SectLocMapRefno).ToList();
                     }
                     else
                     {
-                        this.FilteredListSlotCoord1 = this.ListSlotCoord1.Where<Slot>(slot => slot.LocationMapSlotCoordinateCode.Contains(this.txtSlotCoordinate1.Text.Trim().ToUpper())).ToList();
+                        this.FilteredListSlotCoord1 = this.ListSlotCoord1.Where(
+                            slot => slot.LocationMapSlotCoordinateCode.Contains(
+                                this.txtSlotCoordinate1.Text.Trim().ToUpper())).ToList();
                     }
                 }
                 else
                 {
                     if (this.LocMapInfo.SectLocMapRefno != 0)
                     {
-                        this.FilteredListSlotCoord1 = this.ListSlotCoord1.Where<Slot>(slot => slot.SectionLocationMapRefno == this.LocMapInfo.SectLocMapRefno).ToList();
-                    } 
+                        this.FilteredListSlotCoord1 = this.ListSlotCoord1.Where(
+                            slot => slot.SectionLocationMapRefno == this.LocMapInfo.SectLocMapRefno).ToList();
+                    }
                     else
                     {
                         this.FilteredListSlotCoord1 = this.ListSlotCoord1;
                     }
                 }
             }
+            catch (MessageOnlyException ex)
+            {
+                await Device.InvokeOnMainThreadAsync(async () =>
+                    await Application.Current.MainPage.DisplayAlert(
+                        this.GetControlDescription(),
+                        ex.Message,
+                        Resource.OK));
+            }
             catch (Exception ex)
             {
-                await Device.InvokeOnMainThreadAsync(async () => await DisplayAlert("Error", "An error occurred while searching." + ex.Message, "OK"));
-                this.filteredListSlotCoord1 = this.ListSlotCoord1;
+                await Device.InvokeOnMainThreadAsync(async () =>
+                {
+                    FormErrorReport errRpt = new FormErrorReport(this.ActSubType, ex);
+                    _ = await errRpt.ShowDialog();
+                });
             }
             finally
             {
+                if (this.IsSvdBarScannerEnabled)
+                {
+                    await this.ScannerEnable();
+                }
+
                 await this.PopulateSlotCoord1List();
             }
         }
 
+        /// <summary>
+        /// Populate slot coordinate 1 list.
+        /// </summary>
+        /// <returns><see cref="Task"/> Task operation.</returns>
         private async Task PopulateSlotCoord1List()
         {
             this.SlotCoord1ObservableCollection = new ObservableCollection<Slot>();
@@ -852,36 +975,41 @@
                 this.SlotCoord1ObservableCollection.Add(slot);
             }
 
-            await Device.InvokeOnMainThreadAsync(() => this.dgCoord1.ItemsSource = this.SlotCoord1ObservableCollection);
+            _ = await Device.InvokeOnMainThreadAsync(() => this.dgCoord1.ItemsSource = this.SlotCoord1ObservableCollection);
         }
 
         /// <summary>
-        ///
+        /// Slot coordinate 2 text changed event handler.
         /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        /// <remarks></remarks>
-        private async void txtSlotCoordinate2_TextChanged(object sender, TextChangedEventArgs e)
+        /// <param name="sender"><see cref="object"/> Sender instance.</param>
+        /// <param name="e"><see cref="TextChangedEventArgs"/> Text changed event arguments.</param>
+        private async void TxtSlotCoordinate2_TextChanged(object sender, TextChangedEventArgs e)
         {
             try
             {
-                if (string.Compare(txtSlotCoordinate2.Text, string.Empty) > 0)
+                this.IsSvdBarScannerEnabled = this.IsBarCodeHandlerRegistered;
+                await this.ScannerDisable();
+                if (string.Compare(this.txtSlotCoordinate2.Text, string.Empty) > 0)
                 {
                     if (this.LocMapInfo.SectLocMapRefno != 0)
                     {
-                        this.FilteredListSlotCoord2 = this.ListSlotCoord2.Where<Slot>(slot => slot.LocationMapSlotCoordinateCode.Contains(this.txtSlotCoordinate2.Text.Trim().ToUpper())
-                        && slot.SectionLocationMapRefno == this.LocMapInfo.SectLocMapRefno).ToList();
+                        this.FilteredListSlotCoord2 = this.ListSlotCoord2.Where(
+                            slot => slot.LocationMapSlotCoordinateCode.Contains(this.txtSlotCoordinate2.Text.Trim().ToUpper())
+                            && slot.SectionLocationMapRefno == this.LocMapInfo.SectLocMapRefno).ToList();
                     }
                     else
                     {
-                        this.FilteredListSlotCoord2 = this.ListSlotCoord2.Where<Slot>(slot => slot.LocationMapSlotCoordinateCode.Contains(this.txtSlotCoordinate2.Text.Trim().ToUpper())).ToList();
+                        this.FilteredListSlotCoord2 = this.ListSlotCoord2.Where(
+                            slot => slot.LocationMapSlotCoordinateCode.Contains(
+                                this.txtSlotCoordinate2.Text.Trim().ToUpper())).ToList();
                     }
                 }
                 else
                 {
                     if (this.LocMapInfo.SectLocMapRefno != 0)
                     {
-                        this.FilteredListSlotCoord2 = this.ListSlotCoord2.Where<Slot>(slot => slot.SectionLocationMapRefno == this.LocMapInfo.SectLocMapRefno).ToList();
+                        this.FilteredListSlotCoord2 = this.ListSlotCoord2.Where(
+                            slot => slot.SectionLocationMapRefno == this.LocMapInfo.SectLocMapRefno).ToList();
                     }
                     else
                     {
@@ -889,17 +1017,37 @@
                     }
                 }
             }
+            catch (MessageOnlyException ex)
+            {
+                await Device.InvokeOnMainThreadAsync(async () =>
+                    await Application.Current.MainPage.DisplayAlert(
+                        this.GetControlDescription(),
+                        ex.Message,
+                        Resource.OK));
+            }
             catch (Exception ex)
             {
-                await Device.InvokeOnMainThreadAsync(async () => await DisplayAlert("Error", "An error occurred while searching." + ex.Message, "OK"));
-                this.filteredListSlotCoord2 = this.ListSlotCoord2;
+                await Device.InvokeOnMainThreadAsync(async () =>
+                {
+                    FormErrorReport errRpt = new FormErrorReport(this.ActSubType, ex);
+                    _ = await errRpt.ShowDialog();
+                });
             }
             finally
             {
+                if (this.IsSvdBarScannerEnabled)
+                {
+                    await this.ScannerEnable();
+                }
+
                 await this.PopulateSlotCoord2List();
             }
         }
 
+        /// <summary>
+        /// Populate slot coordinate 2 list.
+        /// </summary>
+        /// <returns><see cref="Task"/> Task operation.</returns>
         private async Task PopulateSlotCoord2List()
         {
             this.SlotCoord2ObservableCollection = new ObservableCollection<Slot>();
@@ -909,36 +1057,41 @@
                 this.SlotCoord2ObservableCollection.Add(slot);
             }
 
-            await Device.InvokeOnMainThreadAsync(() => this.dgCoord2.ItemsSource = this.SlotCoord2ObservableCollection);
+            _ = await Device.InvokeOnMainThreadAsync(() => this.dgCoord2.ItemsSource = this.SlotCoord2ObservableCollection);
         }
 
         /// <summary>
-        ///
+        /// Slot coordinate 3 text changed event handler.
         /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        /// <remarks></remarks>
-        private async void txtSlotCoordinate3_TextChanged(object sender, TextChangedEventArgs e)
+        /// <param name="sender"><see cref="object"/> Sender instance.</param>
+        /// <param name="e"><see cref="TextChangedEventArgs"/> Text changed event arguments.</param>
+        private async void TxtSlotCoordinate3_TextChanged(object sender, TextChangedEventArgs e)
         {
             try
             {
-                if (string.Compare(txtSlotCoordinate3.Text, string.Empty) > 0)
+                this.IsSvdBarScannerEnabled = this.IsBarCodeHandlerRegistered;
+                await this.ScannerDisable();
+                if (string.Compare(this.txtSlotCoordinate3.Text, string.Empty) > 0)
                 {
                     if (this.LocMapInfo.SectLocMapRefno != 0)
                     {
-                        this.FilteredListSlotCoord3 = this.ListSlotCoord3.Where<Slot>(slot => slot.LocationMapSlotCoordinateCode.Contains(this.txtSlotCoordinate3.Text.Trim().ToUpper())
-                        && slot.SectionLocationMapRefno == this.LocMapInfo.SectLocMapRefno).ToList();
+                        this.FilteredListSlotCoord3 = this.ListSlotCoord3.Where(
+                            slot => slot.LocationMapSlotCoordinateCode.Contains(this.txtSlotCoordinate3.Text.Trim().ToUpper())
+                            && slot.SectionLocationMapRefno == this.LocMapInfo.SectLocMapRefno).ToList();
                     }
                     else
                     {
-                        this.FilteredListSlotCoord3 = this.ListSlotCoord3.Where<Slot>(slot => slot.LocationMapSlotCoordinateCode.Contains(this.txtSlotCoordinate3.Text.Trim().ToUpper())).ToList();
+                        this.FilteredListSlotCoord3 = this.ListSlotCoord3.Where(
+                            slot => slot.LocationMapSlotCoordinateCode.Contains(
+                                this.txtSlotCoordinate3.Text.Trim().ToUpper())).ToList();
                     }
                 }
                 else
                 {
                     if (this.LocMapInfo.SectLocMapRefno != 0)
                     {
-                        this.FilteredListSlotCoord3 = this.ListSlotCoord3.Where<Slot>(slot => slot.SectionLocationMapRefno == this.LocMapInfo.SectLocMapRefno).ToList();
+                        this.FilteredListSlotCoord3 = this.ListSlotCoord3.Where(
+                            slot => slot.SectionLocationMapRefno == this.LocMapInfo.SectLocMapRefno).ToList();
                     }
                     else
                     {
@@ -946,17 +1099,37 @@
                     }
                 }
             }
+            catch (MessageOnlyException ex)
+            {
+                await Device.InvokeOnMainThreadAsync(async () =>
+                    await Application.Current.MainPage.DisplayAlert(
+                        this.GetControlDescription(),
+                        ex.Message,
+                        Resource.OK));
+            }
             catch (Exception ex)
             {
-                await Device.InvokeOnMainThreadAsync(async () => await DisplayAlert("Error", "An error occurred while searching." + ex.Message, "OK"));
-                this.filteredListSlotCoord3 = this.ListSlotCoord3;
+                await Device.InvokeOnMainThreadAsync(async () =>
+                {
+                    FormErrorReport errRpt = new FormErrorReport(this.ActSubType, ex);
+                    _ = await errRpt.ShowDialog();
+                });
             }
             finally
             {
+                if (this.IsSvdBarScannerEnabled)
+                {
+                    await this.ScannerEnable();
+                }
+
                 await this.PopulateSlotCoord3List();
             }
         }
 
+        /// <summary>
+        /// Populate slot coordinate 3 list.
+        /// </summary>
+        /// <returns><see cref="Task"/> Task operation.</returns>
         private async Task PopulateSlotCoord3List()
         {
             this.SlotCoord3ObservableCollection = new ObservableCollection<Slot>();
@@ -966,232 +1139,184 @@
                 this.SlotCoord3ObservableCollection.Add(slot);
             }
 
-            await Device.InvokeOnMainThreadAsync(() => this.dgCoord3.ItemsSource = this.SlotCoord3ObservableCollection);
+            _ = await Device.InvokeOnMainThreadAsync(() => this.dgCoord3.ItemsSource = this.SlotCoord3ObservableCollection);
         }
 
         /// <summary>
-        ///
+        /// Load the list of warehouses.
         /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        /// <remarks></remarks>
-        private async Task tabLocation_GotFocus(object sender, EventArgs e)
+        /// <returns><see cref="Task"/> Task operation.</returns>
+        private async Task LoadWhsList()
+        {
+            this.ListWarehouse = await LocationMapTasks.GetWhsList();
+            this.FilteredListWarehouse = this.ListWarehouse;
+            await PopulateWarehouseList();
+
+            async Task PopulateWarehouseList()
+            {
+                this.WarehouseObservableCollection = new ObservableCollection<Warehouse>();
+
+                foreach (Warehouse warehouse in this.FilteredListWarehouse)
+                {
+                    this.WarehouseObservableCollection.Add(warehouse);
+                }
+
+                _ = await Device.InvokeOnMainThreadAsync(() => this.dgWhs.ItemsSource = this.WarehouseObservableCollection);
+            }
+        }
+
+        /// <summary>
+        /// Load the list of sections.
+        /// </summary>
+        /// <returns><see cref="Task"/> Task operation.</returns>
+        private async Task LoadSections()
+        {
+            this.ListSections = await LocationMapTasks.GetSectList();
+            this.FilteredListSections = this.ListSections.Where(
+                section => section.WarehouseLocationMapRefno == this.LocMapInfo.WhsLocMapRefno).ToList();
+            await this.PopulateSectionList();
+        }
+
+        /// <summary>
+        /// Load the list of slots.
+        /// </summary>
+        /// <returns><see cref="Task"/> Task operation.</returns>
+        private async Task LoadSlots()
+        {
+            this.ListSlotCoord1 = await LocationMapTasks.GetSlotCoord1List();
+            this.FilteredListSlotCoord1 = this.ListSlotCoord1.Where(
+                slot => slot.SectionLocationMapRefno == this.LocMapInfo.SectLocMapRefno).ToList();
+            await this.PopulateSlotCoord1List();
+
+            this.ListSlotCoord2 = await LocationMapTasks.GetSlotCoord2List();
+            this.FilteredListSlotCoord2 = this.ListSlotCoord2.Where(
+                slot => slot.SectionLocationMapRefno == this.LocMapInfo.SectLocMapRefno).ToList();
+            await this.PopulateSlotCoord2List();
+
+            this.ListSlotCoord3 = await LocationMapTasks.GetSlotCoord3List();
+            this.FilteredListSlotCoord3 = this.ListSlotCoord3.Where(
+                slot => slot.SectionLocationMapRefno == this.LocMapInfo.SectLocMapRefno).ToList();
+            await this.PopulateSlotCoord3List();
+        }
+
+        /// <summary>
+        /// Load the data for the form controls.
+        /// </summary>
+        /// <returns><see cref="Task"/> Task operation.</returns>
+        private async Task LoadData()
         {
             try
             {
-                if (this.FilteredListWarehouse == null || this.LocMapInfo.WhsLocMapRefno == 0)
+                this.IsSvdBarScannerEnabled = this.IsBarCodeHandlerRegistered;
+                await this.ScannerDisable();
+
+                // Default to the login warehouse
+                int locMapRefno;
+
+                if (this.DefaultWhsLocMapRefno > 0)
                 {
-                    await Device.InvokeOnMainThreadAsync(async () => await DisplayAlert(this.GetControlDescription(), "Select the warehouse first!", "OK"));
+                    // If the default warehouse match the current
+                    if (this.LocMap.ChosenLocMap.WhsLocMapRefno == this.DefaultWhsLocMapRefno)
+                    {
+                        locMapRefno = this.LocMap.ChosenLocMapRefno;
+                    }
+                    else
+                    {
+                        locMapRefno = await LocationMapTasks.GetDefaultLocMapRefnoFromProdRefno(
+                            this.DefaultWhsLocMapRefno,
+                            0,
+                            SysCommon.ProdLocMapTypes.Picking);
+                    }
+                }
+                else if (this.LocMap.ChosenLocMap.WhsLocMapRefno <= 0)
+                {
+                    locMapRefno = await LocationMapTasks.GetDefaultLocMapRefnoFromProdRefno(
+                        this.LocMap.LoginWhsLocMapRefno,
+                        0,
+                        SysCommon.ProdLocMapTypes.Picking);
                 }
                 else
                 {
-                    if (this.FilteredListSections != null)
-                    {
-                        this.FilteredListSections = this.ListSections.Where<Section>(section => section.WarehouseLocationMapRefno == this.LocMapInfo.WhsLocMapRefno).ToList();
-
-                        await this.SelectSection();
-
-                        if (this.FilteredListSections.Count > 0)
-                        {
-                            if (this.dgSections.SelectedItem is Section selectedSection && this.LocMapInfo.SectLocMapRefno != selectedSection.LocationMapRefno)
-                            {
-                                this.LocMapInfo = await LocationMapTasks.GetSLocMapFromLocMapRefno(selectedSection.LocationMapRefno);
-                            }
-                        }
-                    }
+                    locMapRefno = this.LocMap.ChosenLocMapRefno;
                 }
 
-                if (this.FilteredListSections == null || this.LocMapInfo.SectLocMapRefno == 0)
-                {
-                    //await Device.InvokeOnMainThreadAsync(async () => await DisplayAlert(this.GetControlDescription(), "Select the section first!", "OK"));
-                }
-                else
-                {
-                    if (this.FilteredListSlotCoord1 != null && this.FilteredListSlotCoord2 != null && this.FilteredListSlotCoord3 != null)
-                    {
-                        this.FilteredListSlotCoord1 = this.ListSlotCoord1.Where<Slot>(slot => slot.SectionLocationMapRefno == this.LocMapInfo.SectLocMapRefno).ToList();
-                        this.FilteredListSlotCoord2 = this.ListSlotCoord2.Where<Slot>(slot => slot.SectionLocationMapRefno == this.LocMapInfo.SectLocMapRefno).ToList();
-                        this.FilteredListSlotCoord3 = this.ListSlotCoord3.Where<Slot>(slot => slot.SectionLocationMapRefno == this.LocMapInfo.SectLocMapRefno).ToList();
+                this.LocMapInfo = await LocationMapTasks.GetSLocMapFromLocMapRefno(locMapRefno);
 
-                        await this.SelectSlotCoordinate();
-
-                        if (this.FilteredListSlotCoord1.Count > 0)
-                        {
-                            int slotLocMapRefno = 0;
-
-                            if (this.dgCoord1.SelectedItem is Slot slotCoord1 && this.dgCoord2.SelectedItem is Slot slotCoord2 && this.dgCoord3.SelectedItem is Slot slotCoord3)
-                            {
-                                slotLocMapRefno = await LocationMapTasks.GetSlotRefnoFromCoordinates(this.LocMapInfo.SectLocMapRefno, slotCoord1.LocationMapSlotCoordinateRefno, slotCoord2.LocationMapSlotCoordinateRefno, slotCoord3.LocationMapSlotCoordinateRefno);
-                            }
-
-                            if (slotLocMapRefno != 0)
-                            {
-                                this.LocMapInfo = await LocationMapTasks.GetSLocMapFromLocMapRefno(slotLocMapRefno);
-                            }
-                        }
-                    }
-                }
+                // Load the data views and apply row filters base on the current sLocationMapInfo values
+                await this.LoadWhsList();
+                await this.LoadSections();
+                await this.LoadSlots();
+                await this.SelectWarehouse();
+                await this.SelectSection();
+                await this.SelectSlotCoordinate();
             }
-            catch (Exceptions.MessageOnlyException ex)
+            catch (MessageOnlyException ex)
             {
-                ex.Show(this.ActSubType);
+                await Device.InvokeOnMainThreadAsync(async () =>
+                    await Application.Current.MainPage.DisplayAlert(
+                        this.GetControlDescription(),
+                        ex.Message,
+                        Resource.OK));
             }
             catch (Exception ex)
             {
                 await Device.InvokeOnMainThreadAsync(async () =>
                 {
-                    FormErrorReport errorReport = new FormErrorReport(this.ActSubType, ex);
-                    await errorReport.ShowDialog();
+                    FormErrorReport errRpt = new FormErrorReport(this.ActSubType, ex);
+                    _ = await errRpt.ShowDialog();
                 });
             }
-
-            await this.UpdateLocationDisplay();
-        }
-
-        /// <summary>
-        ///
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        /// <remarks></remarks>
-        private async Task ucSetLocationMap_LostFocus(object sender, EventArgs e)
-        {
-            if (this.Scanner != null)
+            finally
             {
-                await this.ScannerDisable();
+                if (this.IsSvdBarScannerEnabled)
+                {
+                    await this.ScannerEnable();
+                }
             }
         }
 
         /// <summary>
-        ///
+        /// Select the initial warehouse.
         /// </summary>
-        /// <remarks></remarks>
-        private async Task LoadWhsList()
-        {
-            this.ListWarehouse = await LocationMapTasks.GetWhsList();
-            this.FilteredListWarehouse = this.ListWarehouse;
-            await this.PopulateWarehouseList();
-        }
-
-        /// <summary>
-        ///
-        /// </summary>
-        /// <remarks></remarks>
-        private async Task LoadSections()
-        {
-            this.ListSections = await LocationMapTasks.GetSectList();
-            this.FilteredListSections = this.ListSections.Where(section => section.WarehouseLocationMapRefno == this.LocMapInfo.WhsLocMapRefno).ToList();
-            await this.PopulateSectionList();
-        }
-
-        /// <summary>
-        ///
-        /// </summary>
-        /// <remarks></remarks>
-        private async Task LoadSlots()
-        {
-            this.ListSlotCoord1 = await LocationMapTasks.GetSlotCoord1List();
-            this.FilteredListSlotCoord1 = this.ListSlotCoord1.Where<Slot>(slot => slot.SectionLocationMapRefno == this.LocMapInfo.SectLocMapRefno).ToList();
-            await this.PopulateSlotCoord1List();
-
-            this.ListSlotCoord2 = await LocationMapTasks.GetSlotCoord2List();
-            this.FilteredListSlotCoord2 = this.ListSlotCoord2.Where<Slot>(slot => slot.SectionLocationMapRefno == this.LocMapInfo.SectLocMapRefno).ToList();
-            await this.PopulateSlotCoord2List();
-
-            this.ListSlotCoord3 = await LocationMapTasks.GetSlotCoord3List();
-            this.FilteredListSlotCoord3 = this.ListSlotCoord3.Where<Slot>(slot => slot.SectionLocationMapRefno == this.LocMapInfo.SectLocMapRefno).ToList();
-            await this.PopulateSlotCoord3List();
-        }
-
-        /// <summary>
-        ///
-        /// </summary>
-        /// <remarks></remarks>
-        private async Task LoadData()
-        {
-            try
-            {
-                // Default to the login warehouse
-                int locMapRefno;
-
-                if (0 < this.DefaultWhsLocMapRefno)
-                {
-                    // If the default warehouse match the current
-                    if (this.LocMap.CurrLocMap.WhsLocMapRefno == this.DefaultWhsLocMapRefno)
-                    {
-                        locMapRefno = this.LocMap.CurrLocMapRefno;
-                    }
-                    else
-                    {
-                        locMapRefno = await LocationMapTasks.GetDefaultLocMapRefnoFromProdRefno(this.DefaultWhsLocMapRefno, 0, SysCommon.ProdLocMapTypes.Picking);
-                    }
-                }
-                else if (0 >= this.LocMap.CurrLocMap.WhsLocMapRefno)
-                {
-                    locMapRefno = await LocationMapTasks.GetDefaultLocMapRefnoFromProdRefno(this.LocMap.LoginWhsLocMapRefno, 0, SysCommon.ProdLocMapTypes.Picking);
-                }
-                else
-                {
-                    locMapRefno = this.LocMap.CurrLocMapRefno;
-                }
-
-                this.LocMapInfo = await LocationMapTasks.GetSLocMapFromLocMapRefno(locMapRefno);
-
-                // Load the dataviews and apply row filters base on the current sLocationMapInfo values
-                await this.LoadWhsList();
-                await this.LoadSections();
-                await this.LoadSlots();
-
-                await this.SelectWarehouse();
-                await this.SelectSection();
-                await this.SelectSlotCoordinate();
-            }
-            catch (Exception ex)
-            {
-                await Device.InvokeOnMainThreadAsync(async () => await DisplayAlert("Error", "An error occurred while loading data." + ex.Message, "OK"));
-            }
-        }
-
-        /// <summary>
-        ///
-        /// </summary>
-        /// <remarks></remarks>
+        /// <returns><see cref="Task"/> Task operation.</returns>
         private async Task SelectWarehouse()
         {
             // Attempt to find last selected warehouse in warehouse view
             if (this.LocMapInfo.WhsLocMapRefno != 0)
             {
-                Warehouse selectedWarehouse = this.WarehouseObservableCollection.Where<Warehouse>(warehouse => warehouse.LocationMapRefno == this.LocMapInfo.WhsLocMapRefno).FirstOrDefault();
+                Warehouse selectedWarehouse = this.WarehouseObservableCollection.FirstOrDefault(
+                    warehouse => warehouse.LocationMapRefno == this.LocMapInfo.WhsLocMapRefno);
 
                 if (selectedWarehouse != null)
                 {
-                    await Device.InvokeOnMainThreadAsync(() => this.dgWhs.SelectedItem = selectedWarehouse);
+                    _ = await Device.InvokeOnMainThreadAsync(() => this.dgWhs.SelectedItem = selectedWarehouse);
                 }
                 else if (this.WarehouseObservableCollection.Count > 0)
                 {
-                    await Device.InvokeOnMainThreadAsync(() => this.dgWhs.SelectedItem = this.WarehouseObservableCollection[0]);
+                    _ = await Device.InvokeOnMainThreadAsync(() =>
+                        this.dgWhs.SelectedItem = this.WarehouseObservableCollection[0]);
                 }
             }
             else
             {
                 if (this.WarehouseObservableCollection.Count > 0)
                 {
-                    await Device.InvokeOnMainThreadAsync(() => this.dgWhs.SelectedItem = this.WarehouseObservableCollection[0]);
+                    _ = await Device.InvokeOnMainThreadAsync(() =>
+                        this.dgWhs.SelectedItem = this.WarehouseObservableCollection[0]);
                 }
             }
         }
 
         /// <summary>
-        ///
+        /// Update the location display.
         /// </summary>
-        /// <remarks></remarks>
+        /// <returns><see cref="Task"/> Task operation.</returns>
         private async Task UpdateLocationDisplay()
         {
             await Device.InvokeOnMainThreadAsync(() =>
             {
                 if (this.LocMapInfo.WhsLocMapRefno == 0)
                 {
-                    // TODO: Resource strings
                     this.warehouseLocationMapInfo.SetWarehouseDataText("Unknown");
                     this.warehouseLocationMapInfo.SetWarehouseDataTextColor(Color.Black);
                     this.sectionLocationMapInfo.SetWarehouseDataText("Unknown");
@@ -1211,10 +1336,6 @@
 
                 if (this.LocMapInfo.SectLocMapRefno == 0)
                 {
-                    // TODO: Resource strings
-                    //this.lblSectionData.Text = "Unknown";
-                    //this.lblSectionData.TextColor = Color.Black;
-
                     this.warehouseLocationMapInfo.SetSectionDataText("Unknown");
                     this.warehouseLocationMapInfo.SetSectionDataTextColor(Color.Black);
                     this.sectionLocationMapInfo.SetSectionDataText("Unknown");
@@ -1224,9 +1345,6 @@
                 }
                 else
                 {
-                    //this.lblSectionData.Text = this.LocMapInfo.SectCode + "  " + this.LocMapInfo.SectName;
-                    //this.lblSectionData.TextColor = Color.Blue;
-
                     this.warehouseLocationMapInfo.SetSectionDataText(this.LocMapInfo.SectCode + "  " + this.LocMapInfo.SectName);
                     this.warehouseLocationMapInfo.SetSectionDataTextColor(Color.Blue);
                     this.sectionLocationMapInfo.SetSectionDataText(this.LocMapInfo.SectCode + "  " + this.LocMapInfo.SectName);
@@ -1237,10 +1355,6 @@
 
                 if (this.LocMapInfo.SlotLocMapRefno == 0)
                 {
-                    // TODO: Resource strings
-                    //this.lblSlotData.Text = "Unknown";
-                    //this.lblSlotData.TextColor = Color.Black;
-
                     this.warehouseLocationMapInfo.SetSlotDataText("Unknown");
                     this.warehouseLocationMapInfo.SetSlotDataTextColor(Color.Black);
                     this.sectionLocationMapInfo.SetSlotDataText("Unknown");
@@ -1250,9 +1364,6 @@
                 }
                 else
                 {
-                    //this.lblSlotData.Text = this.LocMapInfo.SlotName;
-                    //this.lblSlotData.TextColor = Color.Blue;
-
                     this.warehouseLocationMapInfo.SetSlotDataText(this.LocMapInfo.SlotName);
                     this.warehouseLocationMapInfo.SetSlotDataTextColor(Color.Blue);
                     this.sectionLocationMapInfo.SetSlotDataText(this.LocMapInfo.SlotName);
@@ -1261,12 +1372,9 @@
                     this.slotLocationMapInfo.SetSlotDataTextColor(Color.Blue);
                 }
 
-                //if (this.tabLocation.SelectedIndex == 1)
-                //{
                 if (this.CurrentPage.TabIndex == 1)
                 {
                     this.cboSectionSearch.SelectedIndex = 0;
-                    //this.cboSectionSearch.Text = "Description";
                 }
 
                 if (this.CurrentPage.TabIndex == 2)
@@ -1299,44 +1407,47 @@
         }
 
         /// <summary>
-        ///
+        /// Select the section.
         /// </summary>
-        /// <remarks></remarks>
+        /// <remarks><see cref="Task"/> Task operation.</remarks>
         private async Task SelectSection()
         {
-            if (this.LocMap.CurrLocMap.IsSectionTracked)
+            if (this.LocMap.ChosenLocMap.IsSectionTracked)
             {
                 // attempt to find last selected section in section view
                 if (this.LocMapInfo.SectLocMapRefno != 0)
                 {
-                    Section section = this.SectionObservableCollection.Where<Section>(section => section.LocationMapRefno == this.LocMapInfo.SectLocMapRefno).FirstOrDefault();
+                    Section section = this.SectionObservableCollection.FirstOrDefault(
+                        section => section.LocationMapRefno == this.LocMapInfo.SectLocMapRefno);
 
                     if (section != null)
                     {
-                        await Device.InvokeOnMainThreadAsync(() => this.dgSections.SelectedItem = section);
+                        _ = await Device.InvokeOnMainThreadAsync(() => this.dgSections.SelectedItem = section);
                     }
                     else if (this.SectionObservableCollection.Count > 0)
                     {
-                        await Device.InvokeOnMainThreadAsync(() => this.dgSections.SelectedItem = this.SectionObservableCollection[0]);
+                        _ = await Device.InvokeOnMainThreadAsync(() =>
+                            this.dgSections.SelectedItem = this.SectionObservableCollection[0]);
                     }
                 }
                 else
                 {
                     if (this.SectionObservableCollection.Count > 0)
                     {
-                        await Device.InvokeOnMainThreadAsync(() => this.dgSections.SelectedItem = this.SectionObservableCollection[0]);
+                        _ = await Device.InvokeOnMainThreadAsync(() =>
+                            this.dgSections.SelectedItem = this.SectionObservableCollection[0]);
                     }
                 }
             }
         }
 
         /// <summary>
-        ///
+        /// Select the slot coordinate.
         /// </summary>
-        /// <remarks></remarks>
+        /// <remarks><see cref="Task"/> Task operation.</remarks>
         private async Task SelectSlotCoordinate()
         {
-            if (this.LocMap.CurrLocMap.IsSlotTracked)
+            if (this.LocMap.ChosenLocMap.IsSlotTracked)
             {
                 if (this.FilteredListSlotCoord1.Count > this.SlotCoord1ObservableCollection.Count)
                 {
@@ -1356,77 +1467,85 @@
                 // Attempt to find last selected slot coordinate in slot coordinate 1 view
                 if (this.LocMapInfo.SlotCoord1LocMapRefno != 0)
                 {
-                    Slot slotCoord1 = this.SlotCoord1ObservableCollection.Where(slot => slot.LocationMapSlotCoordinateRefno == this.LocMapInfo.SlotCoord1LocMapRefno).FirstOrDefault();
+                    Slot slotCoord1 = this.SlotCoord1ObservableCollection.FirstOrDefault(
+                        slot => slot.LocationMapSlotCoordinateRefno == this.LocMapInfo.SlotCoord1LocMapRefno);
 
                     if (slotCoord1 != null)
                     {
-                        await Device.InvokeOnMainThreadAsync(() => this.dgCoord1.SelectedItem = slotCoord1);
+                        _ = await Device.InvokeOnMainThreadAsync(() => this.dgCoord1.SelectedItem = slotCoord1);
                     }
                     else if (this.SlotCoord1ObservableCollection.Count > 0)
                     {
-                        await Device.InvokeOnMainThreadAsync(() => this.dgCoord1.SelectedItem = this.SlotCoord1ObservableCollection[0]);
+                        _ = await Device.InvokeOnMainThreadAsync(() =>
+                            this.dgCoord1.SelectedItem = this.SlotCoord1ObservableCollection[0]);
                     }
                 }
                 else
                 {
                     if (this.SlotCoord1ObservableCollection.Count > 0)
                     {
-                        await Device.InvokeOnMainThreadAsync(() => this.dgCoord1.SelectedItem = this.SlotCoord1ObservableCollection[0]);
+                        _ = await Device.InvokeOnMainThreadAsync(() =>
+                            this.dgCoord1.SelectedItem = this.SlotCoord1ObservableCollection[0]);
                     }
                 }
 
                 // attempt to find last selected slot coordinate in slot coordinate 2 view
                 if (this.LocMapInfo.SlotCoord2LocMapRefno != 0)
                 {
-                    Slot slotCoord2 = this.SlotCoord2ObservableCollection.Where(slot => slot.LocationMapSlotCoordinateRefno == this.LocMapInfo.SlotCoord1LocMapRefno).FirstOrDefault();
+                    Slot slotCoord2 = this.SlotCoord2ObservableCollection.FirstOrDefault(
+                        slot => slot.LocationMapSlotCoordinateRefno == this.LocMapInfo.SlotCoord1LocMapRefno);
 
                     if (slotCoord2 != null)
                     {
-                        await Device.InvokeOnMainThreadAsync(() => this.dgCoord2.SelectedItem = slotCoord2);
+                        _ = await Device.InvokeOnMainThreadAsync(() => this.dgCoord2.SelectedItem = slotCoord2);
                     }
                     else if (this.SlotCoord2ObservableCollection.Count > 0)
                     {
-                        await Device.InvokeOnMainThreadAsync(() => this.dgCoord2.SelectedItem = this.SlotCoord2ObservableCollection[0]);
+                        _ = await Device.InvokeOnMainThreadAsync(() =>
+                            this.dgCoord2.SelectedItem = this.SlotCoord2ObservableCollection[0]);
                     }
                 }
                 else
                 {
                     if (this.SlotCoord2ObservableCollection.Count > 0)
                     {
-                        await Device.InvokeOnMainThreadAsync(() => this.dgCoord2.SelectedItem = this.SlotCoord2ObservableCollection[0]);
+                        _ = await Device.InvokeOnMainThreadAsync(() =>
+                            this.dgCoord2.SelectedItem = this.SlotCoord2ObservableCollection[0]);
                     }
                 }
 
                 // Attempt to find last selected slot coordinate in slot coordinate 3 view
-                if (0 < this.LocMapInfo.SlotCoord3LocMapRefno)
+                if (this.LocMapInfo.SlotCoord3LocMapRefno > 0)
                 {
-                    Slot slotCoord3 = this.SlotCoord3ObservableCollection.Where(slot => slot.LocationMapSlotCoordinateRefno == this.LocMapInfo.SlotCoord1LocMapRefno).FirstOrDefault();
+                    Slot slotCoord3 = this.SlotCoord3ObservableCollection.FirstOrDefault(
+                        slot => slot.LocationMapSlotCoordinateRefno == this.LocMapInfo.SlotCoord1LocMapRefno);
 
                     if (slotCoord3 != null)
                     {
-                        await Device.InvokeOnMainThreadAsync(() => this.dgCoord3.SelectedItem = slotCoord3);
+                        _ = await Device.InvokeOnMainThreadAsync(() => this.dgCoord3.SelectedItem = slotCoord3);
                     }
                     else if (this.SlotCoord3ObservableCollection.Count > 0)
                     {
-                        await Device.InvokeOnMainThreadAsync(() => this.dgCoord3.SelectedItem = this.SlotCoord3ObservableCollection[0]);
+                        _ = await Device.InvokeOnMainThreadAsync(() =>
+                            this.dgCoord3.SelectedItem = this.SlotCoord3ObservableCollection[0]);
                     }
                 }
                 else
                 {
                     if (this.SlotCoord3ObservableCollection.Count > 0)
                     {
-                        await Device.InvokeOnMainThreadAsync(() => this.dgCoord3.SelectedItem = this.SlotCoord3ObservableCollection[0]);
+                        _ = await Device.InvokeOnMainThreadAsync(() =>
+                            this.dgCoord3.SelectedItem = this.SlotCoord3ObservableCollection[0]);
                     }
                 }
             }
         }
 
         /// <summary>
-        ///
+        /// Bar code scan handler.
         /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="oBarCodeScanArgs"></param>
-        /// <remarks></remarks>
+        /// <param name="sender"><see cref="object"/> Sender object.</param>
+        /// <param name="scanArgs"><see cref="BarCodeScannerEventArgs"/> Scan event arguments.</param>
         private async Task BarCodeHandler(object sender, BarCodeScannerEventArgs scanArgs)
         {
             if (this.Loading || scanArgs == null)
@@ -1436,35 +1555,49 @@
 
             try
             {
+                await this.ScannerDisable();
                 this.Loading = true;
 
-                // No need to disable/enable scanner because only messagebox are called. 
+                // No need to disable/enable scanner because only message box are called.
                 // GoFocus and LostFocus events will handle the scanner
                 this.Parse = scanArgs.ParseInfo;
 
                 if (!string.IsNullOrEmpty(this.Parse.ActFKRefno))
                 {
-                    // TODO: Resource strings
-                    await Device.InvokeOnMainThreadAsync(async () => await DisplayAlert(this.GetControlDescription(), "Scanning an header reference # is not supported here!", "OK"));
+                    await Device.InvokeOnMainThreadAsync(async () =>
+                        await this.DisplayAlert(
+                            this.GetControlDescription(),
+                            "Scanning an header reference # is not supported here!",
+                            "OK"));
                 }
                 else if (!string.IsNullOrEmpty(this.Parse.ActItemFKRefno))
                 {
-                    // TODO: Resource strings
-                    await Device.InvokeOnMainThreadAsync(async () => await DisplayAlert(this.GetControlDescription(), "Scanning an item reference # is not supported here!", "OK"));
+                    await Device.InvokeOnMainThreadAsync(async () =>
+                        await this.DisplayAlert(
+                            this.GetControlDescription(),
+                            "Scanning an item reference # is not supported here!",
+                            "OK"));
                 }
                 else if (!string.IsNullOrEmpty(this.Parse.ProductIdentifier))
                 {
-                    // TODO: Resource strings
-                    await Device.InvokeOnMainThreadAsync(async () => await DisplayAlert(this.GetControlDescription(), "Scanning a product bar code is not supported here!", "OK"));
+                    await Device.InvokeOnMainThreadAsync(async () =>
+                        await this.DisplayAlert(
+                            this.GetControlDescription(),
+                            "Scanning a product bar code is not supported here!",
+                            "OK"));
                 }
                 else if (!string.IsNullOrEmpty(this.Parse.SSCC18))
                 {
-                    // TODO: Resource strings
-                    await Device.InvokeOnMainThreadAsync(async () => await DisplayAlert(this.GetControlDescription(), "Scanning a shipping container bar code is not supported here!", "OK"));
+                    await Device.InvokeOnMainThreadAsync(async () =>
+                        await this.DisplayAlert(
+                            this.GetControlDescription(),
+                            "Scanning a shipping container bar code is not supported here!",
+                            "OK"));
                 }
                 else if (!string.IsNullOrEmpty(this.Parse.LocationIdentifier))
                 {
-                    int locMapRefno = await LocationMapTasks.GetLocMapRefnoFromBarCodeGlobalLocIdentifier(this.Parse.LocationIdentifier);
+                    int locMapRefno = await LocationMapTasks.GetLocMapRefnoFromBarCodeGlobalLocIdentifier(
+                        this.Parse.LocationIdentifier);
                     this.LocMapInfo = await LocationMapTasks.GetSLocMapFromLocMapRefno(locMapRefno);
                     await this.SelectWarehouse();
                     await this.SelectSection();
@@ -1472,33 +1605,54 @@
                 }
                 else
                 {
-                    // TODO: Resource strings
-                    await Device.InvokeOnMainThreadAsync(async () => await DisplayAlert(this.GetControlDescription(), "Scanned bar code type is not supported here!", "OK"));
+                    await Device.InvokeOnMainThreadAsync(async () => await this.DisplayAlert(
+                        this.GetControlDescription(),
+                        "Scanned bar code type is not supported here!",
+                        "OK"));
                 }
+            }
+            catch (MessageOnlyException ex)
+            {
+                await Device.InvokeOnMainThreadAsync(async () =>
+                    await Application.Current.MainPage.DisplayAlert(
+                        this.GetControlDescription(),
+                        ex.Message,
+                        Resource.OK));
             }
             catch (Exception ex)
             {
-                await Device.InvokeOnMainThreadAsync(async () => await DisplayAlert("Error", "An error occurred while processing barcode." + ex.Message, "OK"));
+                await Device.InvokeOnMainThreadAsync(async () =>
+                {
+                    FormErrorReport errRpt = new FormErrorReport(this.ActSubType, ex);
+                    _ = await errRpt.ShowDialog();
+                });
             }
             finally
             {
+                await this.ScannerEnable();
                 this.Loading = false;
             }
         }
 
-        #endregion
-
-        private async void dgWhs_ItemSelected(object sender, SelectedItemChangedEventArgs e)
+        /// <summary>
+        /// Warehouse list selected item changed event handler.
+        /// </summary>
+        /// <param name="sender"><see cref="object"/> Sender instance.</param>
+        /// <param name="e"><see cref="SelectedItemChangedEventArgs"/> Selected item changed event arguments.</param>
+        private async void Whs_ItemSelected(object sender, SelectedItemChangedEventArgs e)
         {
             try
             {
-                if (this.isControlLoaded)
+                this.IsSvdBarScannerEnabled = this.IsBarCodeHandlerRegistered;
+                await this.ScannerDisable();
+                if (this.IsControlLoaded)
                 {
                     this.IsChangesMade = true;
 
                     if (this.IsControlLoaded && e.SelectedItem is Warehouse warehouse)
                     {
-                        this.LocMapInfo = await LocationMapTasks.GetSLocMapFromLocMapRefno(Convert.ToInt32(warehouse.LocationMapRefno));
+                        this.LocMapInfo = await LocationMapTasks.GetSLocMapFromLocMapRefno(
+                            Convert.ToInt32(warehouse.LocationMapRefno));
                         await Device.InvokeOnMainThreadAsync(() =>
                         {
                             this.dgSections.SelectedItem = null;
@@ -1511,21 +1665,48 @@
                     }
                 }
             }
+            catch (MessageOnlyException ex)
+            {
+                await Device.InvokeOnMainThreadAsync(async () =>
+                    await Application.Current.MainPage.DisplayAlert(
+                        this.GetControlDescription(),
+                        ex.Message,
+                        Resource.OK));
+            }
             catch (Exception ex)
             {
-                await Device.InvokeOnMainThreadAsync(async () => await DisplayAlert("Error", "An error occurred while selecting a warehouse." + ex.Message, "OK"));
+                await Device.InvokeOnMainThreadAsync(async () =>
+                {
+                    FormErrorReport errRpt = new FormErrorReport(this.ActSubType, ex);
+                    _ = await errRpt.ShowDialog();
+                });
+            }
+            finally
+            {
+                if (this.IsSvdBarScannerEnabled)
+                {
+                    await this.ScannerEnable();
+                }
             }
         }
 
-        private async void dgSections_ItemSelected(object sender, SelectedItemChangedEventArgs e)
+        /// <summary>
+        /// Section list selected item changed event handler.
+        /// </summary>
+        /// <param name="sender"><see cref="object"/> Sender instance.</param>
+        /// <param name="e"><see cref="SelectedItemChangedEventArgs"/> Selected item changed event arguments.</param>
+        private async void Sections_ItemSelected(object sender, SelectedItemChangedEventArgs e)
         {
             try
             {
+                this.IsSvdBarScannerEnabled = this.IsBarCodeHandlerRegistered;
+                await this.ScannerDisable();
                 this.IsChangesMade = true;
 
                 if (this.IsControlLoaded && e.SelectedItem is Section section)
                 {
-                    this.LocMapInfo = await LocationMapTasks.GetSLocMapFromLocMapRefno(Convert.ToInt32(section.LocationMapRefno));
+                    this.LocMapInfo = await LocationMapTasks.GetSLocMapFromLocMapRefno(
+                        Convert.ToInt32(section.LocationMapRefno));
                     this.dgCoord1.SelectedItem = null;
                     this.dgCoord2.SelectedItem = null;
                     this.dgCoord3.SelectedItem = null;
@@ -1533,24 +1714,55 @@
                     await this.UpdateLocationDisplay();
                 }
             }
+            catch (MessageOnlyException ex)
+            {
+                await Device.InvokeOnMainThreadAsync(async () =>
+                    await Application.Current.MainPage.DisplayAlert(
+                        this.GetControlDescription(),
+                        ex.Message,
+                        Resource.OK));
+            }
             catch (Exception ex)
             {
-                await Device.InvokeOnMainThreadAsync(async () => await DisplayAlert("Error", "An error occurred while selecting a section." + ex.Message, "OK"));
+                await Device.InvokeOnMainThreadAsync(async () =>
+                {
+                    FormErrorReport errRpt = new FormErrorReport(this.ActSubType, ex);
+                    _ = await errRpt.ShowDialog();
+                });
+            }
+            finally
+            {
+                if (this.IsSvdBarScannerEnabled)
+                {
+                    await this.ScannerEnable();
+                }
             }
         }
 
-        private async void dgCoord1_ItemSelected(object sender, SelectedItemChangedEventArgs e)
+        /// <summary>
+        /// Slot coordinate 1 list selected item changed event handler.
+        /// </summary>
+        /// <param name="sender"><see cref="object"/> Sender instance.</param>
+        /// <param name="e"><see cref="SelectedItemChangedEventArgs"/> Selected item changed event arguments.</param>
+        private async void Coord1_ItemSelected(object sender, SelectedItemChangedEventArgs e)
         {
             try
             {
+                this.IsSvdBarScannerEnabled = this.IsBarCodeHandlerRegistered;
+                await this.ScannerDisable();
                 if (this.IsControlLoaded)
                 {
                     this.IsChangesMade = true;
                     int slotLocMapRefno = 0;
 
-                    if (e.SelectedItem is Slot slot1 && this.dgCoord2.SelectedItem is Slot slot2 && this.dgCoord3.SelectedItem is Slot slot3)
+                    if (e.SelectedItem is Slot slot1 && this.dgCoord2.SelectedItem is Slot slot2 &&
+                        this.dgCoord3.SelectedItem is Slot slot3)
                     {
-                        slotLocMapRefno = await LocationMapTasks.GetSlotRefnoFromCoordinates(this.LocMapInfo.SectLocMapRefno, slot1.LocationMapSlotCoordinateRefno, slot2.LocationMapSlotCoordinateRefno, slot3.LocationMapSlotCoordinateRefno);
+                        slotLocMapRefno = await LocationMapTasks.GetSlotRefnoFromCoordinates(
+                            this.LocMapInfo.SectLocMapRefno,
+                            slot1.LocationMapSlotCoordinateRefno,
+                            slot2.LocationMapSlotCoordinateRefno,
+                            slot3.LocationMapSlotCoordinateRefno);
                     }
 
                     if (slotLocMapRefno != 0)
@@ -1561,24 +1773,55 @@
                     await this.UpdateLocationDisplay();
                 }
             }
+            catch (MessageOnlyException ex)
+            {
+                await Device.InvokeOnMainThreadAsync(async () =>
+                    await Application.Current.MainPage.DisplayAlert(
+                        this.GetControlDescription(),
+                        ex.Message,
+                        Resource.OK));
+            }
             catch (Exception ex)
             {
-                await Device.InvokeOnMainThreadAsync(async () => await DisplayAlert("Error", "An error occurred while selecting slot coordinate 1." + ex.Message, "OK"));
+                await Device.InvokeOnMainThreadAsync(async () =>
+                {
+                    FormErrorReport errRpt = new FormErrorReport(this.ActSubType, ex);
+                    _ = await errRpt.ShowDialog();
+                });
+            }
+            finally
+            {
+                if (this.IsSvdBarScannerEnabled)
+                {
+                    await this.ScannerEnable();
+                }
             }
         }
 
-        private async void dgCoord2_ItemSelected(object sender, SelectedItemChangedEventArgs e)
+        /// <summary>
+        /// Slot coordinate 2 list selected item changed event handler.
+        /// </summary>
+        /// <param name="sender"><see cref="object"/> Sender instance.</param>
+        /// <param name="e"><see cref="SelectedItemChangedEventArgs"/> Selected item changed event arguments.</param>
+        private async void Coord2_ItemSelected(object sender, SelectedItemChangedEventArgs e)
         {
             try
             {
+                this.IsSvdBarScannerEnabled = this.IsBarCodeHandlerRegistered;
+                await this.ScannerDisable();
                 if (this.IsControlLoaded)
                 {
                     this.IsChangesMade = true;
                     int slotLocMapRefno = 0;
 
-                    if (this.dgCoord1.SelectedItem is Slot slot1 && e.SelectedItem is Slot slot2 && this.dgCoord3.SelectedItem is Slot slot3)
+                    if (this.dgCoord1.SelectedItem is Slot slot1 && e.SelectedItem is Slot slot2 &&
+                        this.dgCoord3.SelectedItem is Slot slot3)
                     {
-                        slotLocMapRefno = await LocationMapTasks.GetSlotRefnoFromCoordinates(this.LocMapInfo.SectLocMapRefno, slot1.LocationMapSlotCoordinateRefno, slot2.LocationMapSlotCoordinateRefno, slot3.LocationMapSlotCoordinateRefno);
+                        slotLocMapRefno = await LocationMapTasks.GetSlotRefnoFromCoordinates(
+                            this.LocMapInfo.SectLocMapRefno,
+                            slot1.LocationMapSlotCoordinateRefno,
+                            slot2.LocationMapSlotCoordinateRefno,
+                            slot3.LocationMapSlotCoordinateRefno);
                     }
 
                     if (slotLocMapRefno != 0)
@@ -1589,24 +1832,55 @@
                     await this.UpdateLocationDisplay();
                 }
             }
+            catch (MessageOnlyException ex)
+            {
+                await Device.InvokeOnMainThreadAsync(async () =>
+                    await Application.Current.MainPage.DisplayAlert(
+                        this.GetControlDescription(),
+                        ex.Message,
+                        Resource.OK));
+            }
             catch (Exception ex)
             {
-                await Device.InvokeOnMainThreadAsync(async () => await DisplayAlert("Error", "An error occurred while selecting slot coordinate 2." + ex.Message, "OK"));
+                await Device.InvokeOnMainThreadAsync(async () =>
+                {
+                    FormErrorReport errRpt = new FormErrorReport(this.ActSubType, ex);
+                    _ = await errRpt.ShowDialog();
+                });
+            }
+            finally
+            {
+                if (this.IsSvdBarScannerEnabled)
+                {
+                    await this.ScannerEnable();
+                }
             }
         }
 
-        private async void dgCoord3_ItemSelected(object sender, SelectedItemChangedEventArgs e)
+        /// <summary>
+        /// Slot coordinate 3 list selected item changed event handler.
+        /// </summary>
+        /// <param name="sender"><see cref="object"/> Sender instance.</param>
+        /// <param name="e"><see cref="SelectedItemChangedEventArgs"/> Selected item changed event arguments.</param>
+        private async void Coord3_ItemSelected(object sender, SelectedItemChangedEventArgs e)
         {
             try
             {
+                this.IsSvdBarScannerEnabled = this.IsBarCodeHandlerRegistered;
+                await this.ScannerDisable();
                 if (this.IsControlLoaded)
                 {
                     this.IsChangesMade = true;
                     int slotLocMapRefno = 0;
 
-                    if (this.dgCoord1.SelectedItem is Slot slot1 && this.dgCoord2.SelectedItem is Slot slot2 && e.SelectedItem is Slot slot3)
+                    if (this.dgCoord1.SelectedItem is Slot slot1 && this.dgCoord2.SelectedItem is Slot slot2 &&
+                        e.SelectedItem is Slot slot3)
                     {
-                        slotLocMapRefno = await LocationMapTasks.GetSlotRefnoFromCoordinates(this.LocMapInfo.SectLocMapRefno, slot1.LocationMapSlotCoordinateRefno, slot2.LocationMapSlotCoordinateRefno, slot3.LocationMapSlotCoordinateRefno);
+                        slotLocMapRefno = await LocationMapTasks.GetSlotRefnoFromCoordinates(
+                            this.LocMapInfo.SectLocMapRefno,
+                            slot1.LocationMapSlotCoordinateRefno,
+                            slot2.LocationMapSlotCoordinateRefno,
+                            slot3.LocationMapSlotCoordinateRefno);
                     }
 
                     if (slotLocMapRefno != 0)
@@ -1617,51 +1891,52 @@
                     await this.UpdateLocationDisplay();
                 }
             }
+            catch (MessageOnlyException ex)
+            {
+                await Device.InvokeOnMainThreadAsync(async () =>
+                    await Application.Current.MainPage.DisplayAlert(
+                        this.GetControlDescription(),
+                        ex.Message,
+                        Resource.OK));
+            }
             catch (Exception ex)
             {
-                await Device.InvokeOnMainThreadAsync(async () => await DisplayAlert("Error", "An error occurred while selecting slot coordinate 3." + ex.Message, "OK"));
+                await Device.InvokeOnMainThreadAsync(async () =>
+                {
+                    FormErrorReport errRpt = new FormErrorReport(this.ActSubType, ex);
+                    _ = await errRpt.ShowDialog();
+                });
             }
-        }
-
-        private async Task PopulateWarehouseList()
-        {
-            this.WarehouseObservableCollection = new ObservableCollection<Warehouse>();
-
-            foreach (Warehouse warehouse in this.FilteredListWarehouse)
+            finally
             {
-                //Warehouse warehouse = new Warehouse
-                //{
-                //    LocationMapWarehouseCode = Convert.ToInt32(row["LocationMapWarehouseCode"]),
-                //    LocationMapWarehouseName = Convert.ToString(row["LocationMapWarehouseName"]),
-                //    LocationMapRefno = Convert.ToInt32(row["LocationMapRefno"])
-                //};
-
-                this.WarehouseObservableCollection.Add(warehouse);
+                if (this.IsSvdBarScannerEnabled)
+                {
+                    await this.ScannerEnable();
+                }
             }
-
-            await Device.InvokeOnMainThreadAsync(() => this.dgWhs.ItemsSource = this.WarehouseObservableCollection);
         }
 
+        /// <summary>
+        /// Populate section list.
+        /// </summary>
+        /// <returns><see cref="Task"/> Task operation.</returns>
         private async Task PopulateSectionList()
         {
             this.SectionObservableCollection = new ObservableCollection<Section>();
 
             foreach (Section section in this.FilteredListSections)
             {
-                //Section section = new Section
-                //{
-                //    LocationMapSectionCode = Convert.ToInt32(row["LocationMapSectionCode"]),
-                //    LocationMapSectionName = Convert.ToString(row["LocationMapSectionName"]),
-                //    LocationMapRefno = Convert.ToInt32(row["LocationMapRefno"]),
-                //    WarehouseLocationMapRefno = Convert.ToInt32(row["WarehouseLocationMapRefno"])
-                //};
-
                 this.SectionObservableCollection.Add(section);
             }
 
-            await Device.InvokeOnMainThreadAsync(() => this.dgSections.ItemsSource = this.SectionObservableCollection);
+            _ = await Device.InvokeOnMainThreadAsync(() => this.dgSections.ItemsSource = this.SectionObservableCollection);
         }
 
+        /// <summary>
+        /// Save location button click event handler.
+        /// </summary>
+        /// <param name="sender"><see cref="object"/> Sender instance.</param>
+        /// <param name="e"><see cref="EventArgs"/> Event arguments.</param>
         private async void BtnSave_Clicked(object sender, EventArgs e)
         {
             if (await this.SaveChanges())
@@ -1671,6 +1946,11 @@
             }
         }
 
+        /// <summary>
+        /// Cancel location button click event handler.
+        /// </summary>
+        /// <param name="sender"><see cref="object"/> Sender instance.</param>
+        /// <param name="e"><see cref="EventArgs"/> Event arguments.</param>
         private async void BtnCancel_Clicked(object sender, EventArgs e)
         {
             if (await this.CancelChanges())

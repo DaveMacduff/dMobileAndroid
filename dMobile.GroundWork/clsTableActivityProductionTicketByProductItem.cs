@@ -1,18 +1,22 @@
-﻿namespace dMobile.GroundWork
+﻿// <copyright file="clsTableActivityProductionTicketByProductItem.cs" company="InterSect Business Systems Inc">
+// Copyright (c) InterSect Business Systems Inc. All rights reserved.
+// </copyright>
+
+namespace dMobile.GroundWork
 {
-    using dMobile.Bedrock;
     using System;
+    using System.Collections.Generic;
     using System.Data;
-    using SQLite;
     using System.Text;
+    using System.Threading.Tasks;
     using System.Xml;
     using System.Xml.Linq;
-    using System.Threading.Tasks;
-    using System.Collections.Generic;
+    using dMobile.Bedrock;
     using dMobile.Resources.Models;
+    using SQLite;
 
     /// <summary>
-    /// Defines the <see cref="TableActivityProductionTicketByProductItem" />
+    /// Defines the <see cref="TableActivityProductionTicketByProductItem" />.
     /// </summary>
     public class TableActivityProductionTicketByProductItem : TableBase
     {
@@ -22,22 +26,20 @@
         public TableActivityProductionTicketByProductItem()
       : base()
         {
-            FullClassName = "dMobile.GroundWork.TableActivityProductionTicketByProductItem";
+            this.FullClassName = "dMobile.GroundWork.TableActivityProductionTicketByProductItem";
         }
 
         /// <summary>
-        /// The Request
+        /// The Request.
         /// </summary>
-        /// <param name="actRefno">The actRefno<see cref="int"/></param>
-        public override async Task Request(int actRefno)
+        /// <param name="actRefno">The actRefno<see cref="int"/>.</param>
+        public override async Task RequestData(int actRefno)
         {
-            string reqData = string.Empty;
-
             try
             {
-                // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Seeding ticket add-product items.", true);
 
+                string reqData;
                 if (actRefno == 0)
                 {
                     List<tActivityModel> results = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<tActivityModel>("SELECT ActivityRefno FROM tActivity WHERE ActivitySubType = ?", Convert.ToInt32(SysCommon.ActSubTypes.TicketAddProduct));
@@ -47,9 +49,9 @@
                         foreach (tActivityModel activity in results)
                         {
                             actRefno = Convert.ToInt32(activity.ActivityRefno);
-                            reqData = await this.Send(actRefno);
+                            reqData = await this.SendRequest(actRefno);
 
-                            if (0 < reqData.Length)
+                            if (reqData.Length > 0)
                             {
                                 if (reqData.Contains("<message>ERROR</message>"))
                                 {
@@ -65,9 +67,9 @@
                 }
                 else
                 {
-                    reqData = await this.Send(actRefno);
+                    reqData = await this.SendRequest(actRefno);
 
-                    if (0 < reqData.Length)
+                    if (reqData.Length > 0)
                     {
                         if (reqData.Contains("<message>ERROR</message>"))
                         {
@@ -80,36 +82,30 @@
                     }
                 }
 
-                // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Seeding ticket add-product items complete.", true);
             }
             catch (SQLiteException ex)
             {
-                // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Database exception occurred.", true);
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Seeding ticket add-product items failed.", true);
 
-                // TODO: Resource strings
                 throw new Exception("Database exception occurred. Seeding ticket add-product items failed.", ex);
             }
             catch (Exception ex)
             {
-                // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Seeding ticket add-product items failed.", true);
 
-                // TODO: Resource strings
                 throw new Exception("Seeding ticket add-product items failed.", ex);
             }
         }
 
         /// <summary>
-        /// The Purge
+        /// The Purge.
         /// </summary>
-        public override async Task Purge()
+        public override async Task PurgeData()
         {
             try
             {
-                // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging ticket add-product items.", true);
 
                 string query = "DELETE FROM tActivityItemBarCodeAssociationXRef "
@@ -136,38 +132,32 @@
                 query = "DELETE FROM tActivityItem WHERE tActivityItem.ActivityItemSubType = ?";
                 await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(query, Convert.ToInt32(SysCommon.ActSubTypes.TicketAddProduct));
 
-                // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging ticket add-product items complete.", true);
             }
             catch (SQLiteException ex)
             {
-                // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Database exception occurred.", true);
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging ticket add-product items failed.", true);
 
-                // TODO: Resource strings
                 throw new Exception("Database exception occurred. Purging ticket add-product items failed.", ex);
             }
         }
 
         /// <summary>
-        /// The DataStatus
+        /// The DataStatus.
         /// </summary>
-        /// <returns>The <see cref="int"/></returns>
+        /// <returns>The <see cref="int"/>.</returns>
         public override async Task<int> DataStatus()
         {
-            int rowsAffected = 0;
-
+            int rowsAffected;
             try
             {
                 rowsAffected = Convert.ToInt32(await DatabaseConnection.GetInstance().SQLConn.ExecuteScalarAsync<int>("SELECT COUNT(ActivityItemRefno) FROM tActivityItem WHERE ActivityItemSubType = ?", Convert.ToInt32(SysCommon.ActSubTypes.TicketAddProduct)));
 
-                // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, string.Format("{0} ticket add-product items.", rowsAffected), true);
             }
             catch (SQLiteException ex)
             {
-                // TODO: Resource strings
                 throw new Exception("Database exception occurred. Ticket add-product items status failed.", ex);
             }
 
@@ -175,56 +165,50 @@
         }
 
         /// <summary>
-        /// The Send
+        /// The Send.
         /// </summary>
         /// <param name="actRefno"></param>
         /// <returns></returns>
-        protected override async Task<string> Send(int actRefno)
+        protected override async Task<string> SendRequest(int actRefno)
         {
-            int productionFKRefno = 0;
             List<tActivityProductionByProductModel> results = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<tActivityProductionByProductModel>("SELECT * FROM tActivityProductionByProduct WHERE ActivityRefno = ?", actRefno);
 
+            int productionFKRefno;
             if (results?.Count > 0)
             {
                 productionFKRefno = results[0].ActivityProductionFKRefno;
             }
             else
             {
-                // TODO: Resource strings
                 throw new Exception("drByProduct.Read() failed.");
             }
 
-            return await this.SendComm(await Create(productionFKRefno));
+            return await this.SendComm(await this.CreateRequest(productionFKRefno));
         }
 
         /// <summary>
-        /// The Save
+        /// The Save.
         /// </summary>
         /// <param name="reqData"></param>
-        /// <param name="actRefno">The actRefno<see cref="int"/></param>
+        /// <param name="actRefno">The actRefno<see cref="int"/>.</param>
         protected override async Task Save(string reqData, int actRefno)
         {
-            string errMsg = string.Empty;
-
             await DatabaseConnection.GetInstance().SQLConn.RunInTransactionAsync(transaction =>
             {
                 try
                 {
                     using (DataSet ds = new DataSet())
                     {
-                        // TODO: Resource strings
                         this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Reading received data.", false);
 
                         ds.ReadXml(SysCommon.GetXmlReader(ref reqData), XmlReadMode.Auto);
 
-                        // TODO: Resource strings
                         this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving ticket add-product items.", false);
 
                         if (ds.Tables.Count != 0)
                         {
                             int progMax = Convert.ToInt32(ds.Tables["tActivityItemProduction"].Rows.Count);
 
-                            // TODO: Resource strings
                             this.DataAccessStatusOutHandler(this, EventArgs.Empty, string.Format("Records {0}", progMax), false);
 
                             int actItemRefno = 0;
@@ -237,16 +221,12 @@
 
                             foreach (DataRow drow in ds.Tables["tActivityItemProduction"].Rows)
                             {
-                                errMsg = "Arguments:";
-
                                 transaction.Execute("INSERT INTO tActivityItem (ActivityItemSubType, ActivityItemStatus, ActivityRefno) VALUES (?, ?, ?)", Convert.ToInt32(SysCommon.ActSubTypes.TicketAddProduct), Convert.ToInt32(SysCommon.ActStatus.NoChange), actRefno);
 
                                 actItemRefno = Convert.ToInt32(transaction.ExecuteScalar<int>("SELECT last_insert_rowid() FROM tActivityItem"));
                                 actItemProductionFKRefno = Convert.ToInt32(drow["ActivityItemProductionFKRefno"]);
-                                errMsg += Environment.NewLine + "Item fk refno " + actItemProductionFKRefno;
-
-                                prodUnitRefno = this.GetProductUnitRefnoFromDataRow(drow, transaction, ref errMsg, false);
-                                locMapRefno = this.GetWhsLocMapRefnoFromDataRow(drow, ref errMsg, transaction);
+                                prodUnitRefno = this.GetProductUnitRefnoFromDataRow(drow, transaction, false);
+                                locMapRefno = this.GetWhsLocMapRefnoFromDataRow(drow, transaction);
 
                                 string queryActivityItemProduction = "INSERT INTO tActivityItemProduction " +
                                     "(" +
@@ -308,7 +288,7 @@
                                 {
                                     actItemRefno,
                                     actItemProductionFKRefno,
-                                    Convert.ToString(actItemProductionFKRefno)
+                                    Convert.ToString(actItemProductionFKRefno),
                                 };
 
                                 transaction.Execute(queryActivityItemProductionByProduct, parametersActivityItemProductionByProduct);
@@ -325,7 +305,6 @@
 
                         transaction.Commit();
 
-                        // TODO: Resource strings
                         this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving ticket add-product items complete.", false);
                     }
                 }
@@ -333,22 +312,20 @@
                 {
                     transaction.Rollback();
 
-                    // TODO: Resource strings
                     this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Database exception occurred.", true);
                     this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving ticket add-product items failed.", false);
 
-                    // TODO: Resource strings
-                    throw new Exception("Database exception occurred. Saving ticket add-product items failed." + Environment.NewLine + errMsg, ex);
+                    throw new Exception("Database exception occurred. Saving ticket add-product items failed.", ex);
                 }
             });
         }
 
         /// <summary>
-        /// The Create
+        /// The Create.
         /// </summary>
         /// <param name="actProductionFKRefno"></param>
         /// <returns></returns>
-        protected override async Task<string> Create(int actProductionFKRefno)
+        protected override async Task<string> CreateRequest(int actProductionFKRefno)
         {
             StringBuilder xmlString = new StringBuilder();
             XmlWriter xml = XmlWriter.Create(xmlString);
@@ -359,7 +336,7 @@
                 + "<command>"
                 + "<action>REQUEST PRODUCTION TICKET BYPRODUCT ITEMS</action>"
                 + await SysCommon.GetRequestDefaults(false)
-                + ("<refno>" + actProductionFKRefno.ToString() + "</refno>")
+                + "<refno>" + actProductionFKRefno.ToString() + "</refno>"
                 + "</command>"
                 + "</imclient>");
 

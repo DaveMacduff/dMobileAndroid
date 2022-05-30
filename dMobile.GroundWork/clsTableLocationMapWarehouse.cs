@@ -1,18 +1,22 @@
-﻿namespace dMobile.GroundWork
+﻿// <copyright file="clsTableLocationMapWarehouse.cs" company="InterSect Business Systems Inc">
+// Copyright (c) InterSect Business Systems Inc. All rights reserved.
+// </copyright>
+
+namespace dMobile.GroundWork
 {
-    using dMobile.Bedrock;
     using System;
+    using System.Collections.Generic;
     using System.Data;
-    using SQLite;
     using System.Text;
+    using System.Threading.Tasks;
     using System.Xml;
     using System.Xml.Linq;
-    using System.Threading.Tasks;
+    using dMobile.Bedrock;
     using dMobile.Resources.Models;
-    using System.Collections.Generic;
+    using SQLite;
 
     /// <summary>
-    /// Defines the <see cref="TableLocationMapWarehouse" />
+    /// Defines the <see cref="TableLocationMapWarehouse" />.
     /// </summary>
     public class TableLocationMapWarehouse : TableBase
     {
@@ -26,18 +30,17 @@
         }
 
         /// <summary>
-        /// The Request
+        /// The Request.
         /// </summary>
-        public override async Task Request()
+        public override async Task RequestData()
         {
             try
             {
-                // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Seeding warehouses.", true);
 
-                string reqData = await this.Send();
+                string reqData = await this.SendRequest();
 
-                if (0 < reqData.Length)
+                if (reqData.Length > 0)
                 {
                     if (reqData.Contains("<message>ERROR</message>"))
                     {
@@ -49,37 +52,31 @@
                     await this.Save(reqData);
                 }
 
-                // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Seeding warehouses complete.", true);
             }
             catch (Exception ex)
             {
-                // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Seeding warehouses failed.", true);
 
-                // TODO: Resource strings
                 throw new Exception("Seeding warehouses failed.", ex);
             }
         }
 
         /// <summary>
-        /// The Purge
+        /// The Purge.
         /// </summary>
-        public override async Task Purge()
+        public override async Task PurgeData()
         {
             try
             {
-                // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging warehouses.", true);
 
                 await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync("DELETE FROM tLocationMapWarehouse WHERE LocationMapSubType = ?", Convert.ToInt32(SysCommon.LocMapSubTypes.Warehouse));
 
-                // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging warehouses complete.", true);
             }
             catch (SQLiteException ex)
             {
-                // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Database exception occurred.", true);
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging warehouses failed.", true);
 
@@ -88,14 +85,13 @@
         }
 
         /// <summary>
-        /// The GetLocMapWhsRefnoFromLocWhsFKRefno
+        /// The GetLocMapWhsRefnoFromLocWhsFKRefno.
         /// </summary>
         /// <param name="locMapWhsFKRefno"></param>
         /// <returns></returns>
         public async Task<int> GetLocMapWhsRefnoFromLocWhsFKRefno(int locMapWhsFKRefno)
         {
-            int whsLocMapRefno = 0;
-
+            int whsLocMapRefno;
             try
             {
                 List<tLocationMapWarehouseModel> results = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<tLocationMapWarehouseModel>("SELECT * FROM tLocationMapWarehouse WHERE LocationMapWarehouseFKRefno = ?", Convert.ToInt32(locMapWhsFKRefno));
@@ -106,13 +102,11 @@
                 }
                 else
                 {
-                    // TODO: Resource strings
                     throw new Exception(string.Format("Unable to locate warehouse refno using the warehouse fk refno {0} in tLocationMapWarehouse.", locMapWhsFKRefno));
                 }
             }
             catch (SQLiteException ex)
             {
-                // TODO: Resource strings
                 throw new Exception("Database exception occurred. GetLocMapWhsRefnoFromLocWhsFKRefno failed.", ex);
             }
 
@@ -120,14 +114,13 @@
         }
 
         /// <summary>
-        /// The GetLocMapWhsFKRefnoFromLocMapWhsRefno
+        /// The GetLocMapWhsFKRefnoFromLocMapWhsRefno.
         /// </summary>
         /// <param name="locMapWhsRefno"></param>
         /// <returns></returns>
         public async Task<int> GetLocMapWhsFKRefnoFromLocMapWhsRefno(int locMapWhsRefno)
         {
-            int locMapWhsFKRefno = 0;
-
+            int locMapWhsFKRefno;
             try
             {
                 List<tLocationMapWarehouseModel> results = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<tLocationMapWarehouseModel>("SELECT * FROM tLocationMapWarehouse WHERE LocationMapRefno = ?", locMapWhsRefno);
@@ -138,13 +131,11 @@
                 }
                 else
                 {
-                    // TODO: Resource strings
                     throw new Exception(string.Format("Unable to locate warehouse FKRefno using the warehouse refno {0} in tLocationMapWarehouse.", locMapWhsRefno));
                 }
             }
             catch (SQLiteException ex)
             {
-                // TODO: Resource strings
                 throw new Exception("Database exception occurred. GetLocMapWhsFKRefnoFromLocMapWhsRefno failed.", ex);
             }
 
@@ -152,18 +143,16 @@
         }
 
         /// <summary>
-        /// The DataStatus
+        /// The DataStatus.
         /// </summary>
-        /// <returns>The <see cref="int"/></returns>
+        /// <returns>The <see cref="int"/>.</returns>
         public override async Task<int> DataStatus()
         {
-            int rowsAffected = 0;
-
+            int rowsAffected;
             try
             {
                 rowsAffected = Convert.ToInt32(await DatabaseConnection.GetInstance().SQLConn.ExecuteScalarAsync<int>("SELECT COUNT(*) FROM tLocationMapWarehouse"));
 
-                // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, string.Format("{0} warehouses.", rowsAffected), true);
             }
             catch (SQLiteException ex)
@@ -175,16 +164,16 @@
         }
 
         /// <summary>
-        /// The Send
+        /// The Send.
         /// </summary>
         /// <returns></returns>
-        protected override async Task<string> Send()
+        protected override async Task<string> SendRequest()
         {
-            return await this.SendComm(await this.Create());
+            return await this.SendComm(await this.CreateRequest());
         }
 
         /// <summary>
-        /// The Save
+        /// The Save.
         /// </summary>
         /// <param name="reqData"></param>
         protected override async Task Save(string reqData)
@@ -197,19 +186,16 @@
                 {
                     using (DataSet ds = new DataSet())
                     {
-                        // TODO: Resource strings
                         this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Reading received data.", false);
 
                         ds.ReadXml(SysCommon.GetXmlReader(ref reqData), XmlReadMode.Auto);
 
-                        // TODO: Resource strings
                         this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving warehouses.", false);
 
                         if (ds.Tables.Count != 0)
                         {
                             int progMax = Convert.ToInt32(ds.Tables["tLocationMapWarehouse"].Rows.Count);
 
-                            // TODO: Resource strings
                             this.DataAccessStatusOutHandler(this, EventArgs.Empty, string.Format("Records {0}", progMax), false);
 
                             int locMapRefno = 0;
@@ -373,7 +359,7 @@
                                         locMapSlotCoord3Name,
                                         Convert.ToInt32(isLocMapSectionTracked),
                                         Convert.ToInt32(isLocMapSlotTracked),
-                                        Convert.ToInt32(isLocMapAdhocEnabled)
+                                        Convert.ToInt32(isLocMapAdhocEnabled),
                                     };
 
                                     transaction.Execute(queryInsert, parametersInsert);
@@ -391,7 +377,6 @@
 
                         transaction.Commit();
 
-                        // TODO: Resource strings
                         this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving warehouses complete.", false);
                     }
                 }
@@ -399,21 +384,19 @@
                 {
                     transaction.Rollback();
 
-                    // TODO: Resource strings
                     this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Database exception occurred.", false);
                     this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving warehouses failed.", false);
 
-                    // TODO: Resource strings
                     throw new Exception("Database exception occurred. Saving warehouses failed." + Environment.NewLine + errMsg, ex);
                 }
             });
         }
 
         /// <summary>
-        /// The Create
+        /// The Create.
         /// </summary>
         /// <returns></returns>
-        protected override async Task<string> Create()
+        protected override async Task<string> CreateRequest()
         {
             StringBuilder xmlString = new StringBuilder();
             XmlWriter xml = XmlWriter.Create(xmlString);

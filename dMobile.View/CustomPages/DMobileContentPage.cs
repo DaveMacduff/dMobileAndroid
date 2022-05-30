@@ -1,41 +1,43 @@
-﻿namespace dMobile.View.CustomPages
+﻿// <copyright file="DMobileContentPage.cs" company="InterSect Business Systems Inc">
+// Copyright (c) InterSect Business Systems Inc. All rights reserved.
+// </copyright>
+
+namespace dMobile.View.CustomPages
 {
     using System;
     using System.Threading.Tasks;
     using Xamarin.Forms;
-    using Resource = Resources.Properties.Resources;
+    using Resource = dMobile.Resources.Properties.Resources;
 
     /// <summary>
-    /// Defines the <see cref="DMobileContentPage" />
+    /// Defines the <see cref="DMobileContentPage" />.
     /// </summary>
     public class DMobileContentPage : ContentPage
     {
         /// <summary>
-        /// Defines the loading
+        /// Defines the loading.
         /// </summary>
         private bool loading;
         private string optionsIconSource;
         private bool isClosing = false;
 
         /// <summary>
-        /// Gets or sets a value indicating whether Loading
+        /// Gets or sets a value indicating whether the page content is loading.
         /// </summary>
         public bool Loading
         {
-            get { return loading; }
+            get => this.loading;
+
             set
             {
-                loading = value;
+                this.loading = value;
                 this.OnPropertyChanged();
             }
         }
 
         public string OptionsIconSource
         {
-            get
-            {
-                return optionsIconSource;
-            }
+            get => this.optionsIconSource;
 
             set
             {
@@ -55,9 +57,9 @@
         }
 
         /// <summary>
-        /// The ShowDialog
+        /// The ShowDialog.
         /// </summary>
-        /// <returns>The <see cref="Task{DialogResult}"/></returns>
+        /// <returns>The <see cref="Task{DialogResult}"/>.</returns>
         public async Task Show()
         {
             try
@@ -69,14 +71,14 @@
             }
             catch (Exception ex)
             {
-                await Device.InvokeOnMainThreadAsync(async () => await DisplayAlert(Resource.Error, ex.Message, Resource.OK));
+                await Device.InvokeOnMainThreadAsync(async () => await this.DisplayAlert(Resource.Error, ex.Message, Resource.OK));
             }
         }
 
         /// <summary>
-        /// The Close
+        /// The Close.
         /// </summary>
-        /// <returns>The <see cref="Task"/></returns>
+        /// <returns>The <see cref="Task"/>.</returns>
         public async Task Close()
         {
             try
@@ -95,7 +97,7 @@
 
                     if (Application.Current.MainPage is MasterDetailPage mainPage)
                     {
-                        await Device.InvokeOnMainThreadAsync(async () => await mainPage.Detail.Navigation.PopAsync());
+                        _ = await Device.InvokeOnMainThreadAsync(async () => await mainPage.Detail.Navigation.PopAsync());
                     }
 
                     this.isClosing = false;
@@ -103,7 +105,7 @@
             }
             catch (Exception ex)
             {
-                await Device.InvokeOnMainThreadAsync(async () => await DisplayAlert(Resource.Error, ex.Message, Resource.OK));
+                await Device.InvokeOnMainThreadAsync(async () => await this.DisplayAlert(Resource.Error, ex.Message, Resource.OK));
             }
         }
     }

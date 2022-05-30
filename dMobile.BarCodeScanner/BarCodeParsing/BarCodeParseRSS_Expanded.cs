@@ -1,11 +1,15 @@
-﻿namespace dMobile.BarCodeScanner
+﻿// <copyright file="BarCodeParseRSS_Expanded.cs" company="InterSect Business Systems Inc">
+// Copyright (c) InterSect Business Systems Inc. All rights reserved.
+// </copyright>
+
+namespace dMobile.BarCodeScanner.BarCodeParsing
 {
     using System;
 
     public class BarCodeParseRSS_Expanded : BarCodeParse
     {
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="barCodeData"></param>
         /// <returns></returns>
@@ -17,7 +21,7 @@
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="barCodeData"></param>
         /// <returns></returns>

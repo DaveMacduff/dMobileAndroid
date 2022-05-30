@@ -1,9 +1,13 @@
-﻿using System;
-using SQLite;
-using SQLiteNetExtensions.Attributes;
+﻿// <copyright file="tActivityProductionModel.cs" company="InterSect Business Systems Inc">
+// Copyright (c) InterSect Business Systems Inc. All rights reserved.
+// </copyright>
 
 namespace dMobile.Resources.Models
 {
+    using System;
+    using SQLite;
+    using SQLiteNetExtensions.Attributes;
+
     //string sqlTable = "CREATE TABLE IF NOT EXISTS tActivityProduction"
     //+ "("
     //+ "ActivityRefno INTEGER NOT NULL CONSTRAINT PK_ActivityProductionOnActivityRefno PRIMARY KEY,"
@@ -30,7 +34,6 @@ namespace dMobile.Resources.Models
 
     //sqlNdx = "CREATE INDEX IF NOT EXISTS FK_ActivityProductionOnWarehouseLocationMapRefno ON tActivityProduction(WarehouseLocationMapRefno ASC)";
     //await this.RunDDLCommand(sqlNdx);
-
     [Table("tActivityProduction")]
     public class tActivityProductionModel
     {

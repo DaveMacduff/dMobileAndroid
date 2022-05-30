@@ -1,3 +1,7 @@
+// <copyright file="PrinterSettings.cs" company="InterSect Business Systems Inc">
+// Copyright (c) InterSect Business Systems Inc. All rights reserved.
+// </copyright>
+
 namespace dMobile.Bedrock
 {
     using System;
@@ -10,82 +14,82 @@ namespace dMobile.Bedrock
     using System.Xml.Serialization;
 
     /// <summary>
-    /// Printer Settings Class
+    /// Printer Settings Class.
     /// </summary>
     [XmlInclude(typeof(PrinterInfo))]
     [Serializable]
     public class PrinterSettings : ISysSocketEventListener, IPrnSettingsPublisher
     {
-        #region Fields
-
         /// <summary>
-        /// Contains full printer settings class name.
+        /// Contains full printer settings class name..
         /// </summary>
         [NonSerialized]
         private string fullClassName = "dMobile.Bedrock.PrinterSettings";
 
         /// <summary>
-        /// Contains printer settings path name.
+        /// Contains printer settings path name..
         /// </summary>
         [NonSerialized]
         private string filePath = string.Empty;
 
         /// <summary>
-        /// Contains printer settings drive letter, path and file name.
+        /// Contains printer settings drive letter, path and file name..
         /// </summary>
         [NonSerialized]
         private string fileASCIIZ = string.Empty;
 
         /// <summary>
-        /// Contains printer settings file name.
+        /// Contains printer settings file name..
         /// </summary>
         [NonSerialized]
         private string fileName = "dMobilePrinterSettings.xml";
 
+        /// <summary>
+        /// Defines the writeLockObject.
+        /// </summary>
         [NonSerialized]
         private readonly object writeLockObject = new object();
 
+        /// <summary>
+        /// Defines the readLockObject.
+        /// </summary>
         [NonSerialized]
         private readonly object readLockObject = new object();
 
         /// <summary>
-        /// Enables shipping label printer.
+        /// Enables shipping label printer..
         /// </summary>
         private bool isEnabledShippingLabelPrinter = false;
 
         /// <summary>
-        /// Contains a list of shipping label printer names.
+        /// Contains a list of shipping label printer names..
         /// </summary>
         private string shippingLabelPrinterName = string.Empty;
 
         /// <summary>
-        /// Enables shelf label printer.
+        /// Enables shelf label printer..
         /// </summary>
         private bool isEnabledShelfLabelPrinter = false;
 
         /// <summary>
-        /// Contains a list of shelf label printer names.
+        /// Contains a list of shelf label printer names..
         /// </summary>
         private string shelfLabelPrinterName = string.Empty;
 
         /// <summary>
-        /// Enables product label printer.
+        /// Enables product label printer..
         /// </summary>
         private bool isEnabledProductLabelPrinter = false;
 
         /// <summary>
-        /// Contains a list of product label printer names.
+        /// Contains a list of product label printer names..
         /// </summary>
         private string productLabelPrinterName = string.Empty;
 
         /// <summary>
-        /// arraylist of printer definitions of type printerInfo
+        /// arraylist of printer definitions of type printerInfo..
         /// </summary>
         private ArrayList allPrinters = new ArrayList();
-
-        #endregion
-
-        #region Constructors
 
         /// <summary>
         /// Initializes a new instance of the <see cref="PrinterSettings"/> class.
@@ -96,26 +100,33 @@ namespace dMobile.Bedrock
             this.FileASCIIZ = Path.Combine(this.FilePath, this.FileName);
         }
 
-        #endregion
-
-        #region Delegates
-
+        /// <summary>
+        /// The OnPrnSettingsStatusOutHandler.
+        /// </summary>
+        /// <param name="prnSettingsPublisher">The prnSettingsPublisher<see cref="IPrnSettingsPublisher"/>.</param>
+        /// <param name="prnSettingsArgs">The prnSettingsArgs<see cref="PrnSettingsArgs"/>.</param>
         private delegate void OnPrnSettingsStatusOutHandler(IPrnSettingsPublisher prnSettingsPublisher, PrnSettingsArgs prnSettingsArgs);
-        private delegate void OnPrnSettingsProgressOutHandler(IPrnSettingsPublisher prnSettingsPublisher, PrnSettingsArgs prnSettingsArgs);
-
-        #endregion
-
-        #region Events
-
-        private event OnPrnSettingsStatusOutHandler OnPrnSettingsStatusOut;
-        private event OnPrnSettingsProgressOutHandler OnPrnSettingsProgressOut;
-
-        #endregion
-
-        #region Properties
 
         /// <summary>
-        ///  Gets or sets an arraylist of printer definitions of type printerInfo
+        /// The OnPrnSettingsProgressOutHandler.
+        /// </summary>
+        /// <param name="prnSettingsPublisher">The prnSettingsPublisher<see cref="IPrnSettingsPublisher"/>.</param>
+        /// <param name="prnSettingsArgs">The prnSettingsArgs<see cref="PrnSettingsArgs"/>.</param>
+        private delegate void OnPrnSettingsProgressOutHandler(IPrnSettingsPublisher prnSettingsPublisher, PrnSettingsArgs prnSettingsArgs);
+
+        /// <summary>
+        /// Defines the OnPrnSettingsStatusOut.
+        /// </summary>
+        private event OnPrnSettingsStatusOutHandler OnPrnSettingsStatusOut;
+
+        /// <summary>
+        /// Defines the OnPrnSettingsProgressOut.
+        /// </summary>
+        private event OnPrnSettingsProgressOutHandler OnPrnSettingsProgressOut;
+
+        /// <summary>
+        /// Gets or sets the AllPrinters
+        /// Gets or sets an arraylist of printer definitions of type printerInfo..
         /// </summary>
         public ArrayList AllPrinters
         {
@@ -136,7 +147,8 @@ namespace dMobile.Bedrock
         }
 
         /// <summary>
-        /// Enables the shipping label printer
+        /// Gets or sets a value indicating whether IsEnabledShippingLabelPrinter
+        /// Enables the shipping label printer..
         /// </summary>
         public bool IsEnabledShippingLabelPrinter
         {
@@ -152,7 +164,7 @@ namespace dMobile.Bedrock
         }
 
         /// <summary>
-        /// Gets or sets the current shipping label printer name.
+        /// Gets or sets the current shipping label printer name..
         /// </summary>
         public string ShippingLabelPrinterName
         {
@@ -168,7 +180,8 @@ namespace dMobile.Bedrock
         }
 
         /// <summary>
-        /// Enables the shelf label printer
+        /// Gets or sets a value indicating whether IsEnabledShelfLabelPrinter
+        /// Enables the shelf label printer..
         /// </summary>
         public bool IsEnabledShelfLabelPrinter
         {
@@ -184,7 +197,7 @@ namespace dMobile.Bedrock
         }
 
         /// <summary>
-        /// Gets or sets the current shelf label printer name.
+        /// Gets or sets the current shelf label printer name..
         /// </summary>
         public string ShelfLabelPrinterName
         {
@@ -200,7 +213,8 @@ namespace dMobile.Bedrock
         }
 
         /// <summary>
-        /// Enables the product label printer
+        /// Gets or sets a value indicating whether IsEnabledProductLabelPrinter
+        /// Enables the product label printer..
         /// </summary>
         public bool IsEnabledProductLabelPrinter
         {
@@ -216,7 +230,7 @@ namespace dMobile.Bedrock
         }
 
         /// <summary>
-        /// Gets or sets the current product label printer name.
+        /// Gets or sets the current product label printer name..
         /// </summary>
         public string ProductLabelPrinterName
         {
@@ -232,7 +246,7 @@ namespace dMobile.Bedrock
         }
 
         /// <summary>
-        /// Gets or sets the class name to serialize.
+        /// Gets or sets the class name to serialize..
         /// </summary>
         public string FullClassName
         {
@@ -248,7 +262,7 @@ namespace dMobile.Bedrock
         }
 
         /// <summary>
-        /// Gets or sets the path name of the xml file.
+        /// Gets or sets the path name of the xml file..
         /// </summary>
         public string FilePath
         {
@@ -264,11 +278,8 @@ namespace dMobile.Bedrock
         }
 
         /// <summary>
-        /// Gets or sets the full path and file name of the xml file.
+        /// Gets or sets the full path and file name of the xml file..
         /// </summary>
-        /// <remarks>
-        /// Includes the drive letter, path and file name.
-        /// </remarks>
         public string FileASCIIZ
         {
             get
@@ -283,11 +294,8 @@ namespace dMobile.Bedrock
         }
 
         /// <summary>
-        /// Gets or sets the file name of the xml file. 
+        /// Gets or sets the file name of the xml file..
         /// </summary>
-        /// <remarks>
-        /// Does not include any path information.
-        /// </remarks>
         public string FileName
         {
             get
@@ -301,10 +309,6 @@ namespace dMobile.Bedrock
             }
         }
 
-        #endregion
-
-        #region Public Members
-
         /// <summary>
         /// Request the printer settings data and save the file.
         /// </summary>
@@ -315,7 +319,6 @@ namespace dMobile.Bedrock
 
             try
             {
-                // TODO: Resource strings
                 msgArgs.StatusOutMsg = "Seeding printer settings.";
                 this.OnPrnSettingsStatusOut(this, msgArgs);
 
@@ -332,17 +335,14 @@ namespace dMobile.Bedrock
                     this.Save(reqData);
                 }
 
-                // TODO: Resource strings
                 msgArgs.StatusOutMsg = "Seeding printer settings complete.";
                 this.OnPrnSettingsStatusOut(this, msgArgs);
             }
             catch (Exception ex)
             {
-                // TODO: Resource strings
                 msgArgs.StatusOutMsg = "Seeding printer settings failed.";
                 this.OnPrnSettingsStatusOut(this, msgArgs);
 
-                // TODO: Resource strings
                 throw new Exception("Seeding printer settings failed.", ex);
             }
         }
@@ -350,15 +350,15 @@ namespace dMobile.Bedrock
         /// <summary>
         /// Load and object of type PrinterSettings from a serialized xml file.
         /// </summary>
-        /// <returns>Object of type PrinterSettings</returns>
+        /// <returns>Object of type PrinterSettings.</returns>
         public PrinterSettings LoadData()
         {
-            lock (readLockObject)
+            lock (this.readLockObject)
             {
                 XmlSerializer serializer = new XmlSerializer(typeof(PrinterSettings));
                 PrinterSettings prnSettings = new PrinterSettings();
 
-                // use relection to get the current assembly path for the database
+                // use reflection to get the current assembly path for the database
                 string appDir = Environment.GetFolderPath(Environment.SpecialFolder.Personal);
                 string fullPathToMyFile = Path.Combine(appDir, this.fileName);
 
@@ -382,17 +382,17 @@ namespace dMobile.Bedrock
         /// Serialize and save the data into a xml file.
         /// </summary>
         /// <param name="prnSettings"> Instance of PrinterSettings to serialize.</param>
-        /// <returns>True if save was successful else false</returns>
+        /// <returns>True if save was successful else false.</returns>
         public bool SaveData(ref PrinterSettings prnSettings)
         {
-            lock (writeLockObject)
+            lock (this.writeLockObject)
             {
                 XmlSerializer serializer = new XmlSerializer(typeof(PrinterSettings));
                 bool saveComplete = false;
 
                 try
                 {
-                    // use relection to get the current assembly path for the database
+                    // use reflection to get the current assembly path for the database
                     string appDir = Environment.GetFolderPath(Environment.SpecialFolder.Personal);
                     string fullPathToMyFile = Path.Combine(appDir, this.fileName);
 
@@ -413,30 +413,28 @@ namespace dMobile.Bedrock
             }
         }
 
-        #region IPrinterSettingsEventPublisher Members
-
         /// <summary>
-        /// 
+        /// The RegPrnSettingsListenerStatusOut.
         /// </summary>
-        /// <param name="prnSettingsListener"></param>
+        /// <param name="prnSettingsListener">.</param>
         public void RegPrnSettingsListenerStatusOut(IPrnSettingsListener prnSettingsListener)
         {
             this.OnPrnSettingsStatusOut += new OnPrnSettingsStatusOutHandler(prnSettingsListener.OnPrnSettingsStatusOut);
         }
 
         /// <summary>
-        /// 
+        /// The UnregPrnSettingsListenerStatusOut.
         /// </summary>
-        /// <param name="prnSettingsListener"></param>
+        /// <param name="prnSettingsListener">.</param>
         public void UnregPrnSettingsListenerStatusOut(IPrnSettingsListener prnSettingsListener)
         {
             this.OnPrnSettingsStatusOut -= new OnPrnSettingsStatusOutHandler(prnSettingsListener.OnPrnSettingsStatusOut);
         }
 
         /// <summary>
-        /// 
+        /// The RegPrnSettingsListenerProgressOut.
         /// </summary>
-        /// <param name="prnSettingsListener"></param>
+        /// <param name="prnSettingsListener">.</param>
         public void RegPrnSettingsListenerProgressOut(IPrnSettingsListener prnSettingsListener)
         {
             this.OnPrnSettingsProgressOut += new OnPrnSettingsProgressOutHandler(
@@ -444,40 +442,30 @@ namespace dMobile.Bedrock
         }
 
         /// <summary>
-        /// 
+        /// The UnregPrnSettingsListenerProgressOut.
         /// </summary>
-        /// <param name="prnSettingsListener"></param>
+        /// <param name="prnSettingsListener">.</param>
         public void UnregPrnSettingsListenerProgressOut(IPrnSettingsListener prnSettingsListener)
         {
             this.OnPrnSettingsProgressOut -= new OnPrnSettingsProgressOutHandler(
                 prnSettingsListener.OnPrnSettingsProgressOut);
         }
 
-        #endregion
-
-        #region ISysSocketEventListener Members
-
         /// <summary>
-        /// 
+        /// The OnSysSocketStatusOut.
         /// </summary>
-        /// <param name="sockPublisher"></param>
-        /// <param name="sockArgs"></param>
+        /// <param name="sockPublisher">.</param>
+        /// <param name="sockArgs">.</param>
         public void OnSysSocketStatusOut(ISysSocketEventPublisher sockPublisher, SysSocketEventArgs sockArgs)
         {
             PrnSettingsArgs args = new PrnSettingsArgs(sockArgs.StatusOutMsg);
             this.OnPrnSettingsStatusOut(this, args);
         }
 
-        #endregion
-
-        #endregion
-
-        #region Private Members
-
         /// <summary>
         /// Process the xml data from the communication server and store it.
         /// </summary>
-        /// <param name="xmlData"> Xml data received from the communication server</param>
+        /// <param name="xmlData"> Xml data received from the communication server.</param>
         private void Save(string xmlData)
         {
             PrnSettingsArgs msgArg = new PrnSettingsArgs();
@@ -486,7 +474,6 @@ namespace dMobile.Bedrock
             {
                 if (this.OnPrnSettingsStatusOut != null)
                 {
-                    // TODO: Resource strings
                     msgArg.StatusOutMsg = "Reading received data.";
                     this.OnPrnSettingsStatusOut(this, msgArg);
                 }
@@ -495,7 +482,6 @@ namespace dMobile.Bedrock
 
                 if (this.OnPrnSettingsStatusOut != null)
                 {
-                    // TODO: Resource strings
                     msgArg.StatusOutMsg = "Saving printer settings.";
                     this.OnPrnSettingsStatusOut(this, msgArg);
                 }
@@ -506,7 +492,6 @@ namespace dMobile.Bedrock
 
                     if (this.OnPrnSettingsStatusOut != null)
                     {
-                        // TODO: Resource strings
                         msgArg.StatusOutMsg = string.Format("Records {0}", progMax);
                         this.OnPrnSettingsStatusOut(this, msgArg);
                     }
@@ -541,7 +526,6 @@ namespace dMobile.Bedrock
 
                 if (this.OnPrnSettingsStatusOut != null)
                 {
-                    // TODO: Resource strings
                     msgArg.StatusOutMsg = "Saving printer settings complete.";
                     this.OnPrnSettingsStatusOut(this, msgArg);
                 }
@@ -551,7 +535,7 @@ namespace dMobile.Bedrock
         /// <summary>
         /// Create the xml request string to send to the communication server.
         /// </summary>
-        /// <returns>String of the xml request to get the printer settings</returns>
+        /// <returns>String of the xml request to get the printer settings.</returns>
         private string Create()
         {
             StringBuilder xmlString = new StringBuilder();
@@ -578,37 +562,15 @@ namespace dMobile.Bedrock
             return xmlString.ToString();
         }
 
-        #endregion
-
-        #region Structures
-
         /// <summary>
-        /// 
+        /// Defines the <see cref="PrinterInfo" />.
         /// </summary>
         public struct PrinterInfo
         {
             /// <summary>
-            /// 
+            /// Gets or sets the Name.
             /// </summary>
-            private string name;
-
-            /// <summary>
-            /// 
-            /// </summary>
-            public string Name
-            {
-                get
-                {
-                    return this.name;
-                }
-
-                set
-                {
-                    this.name = value;
-                }
-            }
+            public string Name { get; set; }
         }
-
-        #endregion
     }
 }

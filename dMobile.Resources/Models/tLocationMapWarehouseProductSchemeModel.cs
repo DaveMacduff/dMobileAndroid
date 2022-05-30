@@ -1,9 +1,13 @@
-﻿using System;
-using SQLite;
-using SQLiteNetExtensions.Attributes;
+﻿// <copyright file="tLocationMapWarehouseProductSchemeModel.cs" company="InterSect Business Systems Inc">
+// Copyright (c) InterSect Business Systems Inc. All rights reserved.
+// </copyright>
 
 namespace dMobile.Resources.Models
 {
+    using System;
+    using SQLite;
+    using SQLiteNetExtensions.Attributes;
+
     //string sqlTable = "CREATE TABLE IF NOT EXISTS tLocationMapWarehouseProductScheme"
     //+ "("
 
@@ -36,7 +40,6 @@ namespace dMobile.Resources.Models
 
     //sqlNdx = "CREATE INDEX IF NOT EXISTS FK_WhsProdSchemeOnProductSchemeRefno ON tLocationMapWarehouseProductScheme(ProductSchemeRefno ASC)";
     //await this.RunDDLCommand(sqlNdx);
-
     [Table("tLocationMapWarehouseProductScheme")]
     public class tLocationMapWarehouseProductSchemeModel
     {

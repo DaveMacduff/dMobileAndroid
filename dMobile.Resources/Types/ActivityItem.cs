@@ -1,47 +1,72 @@
-﻿using System;
+﻿// <copyright file="ActivityItem.cs" company="InterSect Business Systems Inc">
+// Copyright (c) InterSect Business Systems Inc. All rights reserved.
+// </copyright>
+
 namespace dMobile.Resources.Types
 {
+    /// <summary>
+    /// Defines the <see cref="ActivityItem" /> Activity item model.
+    /// </summary>
     public class ActivityItem
     {
-        //DataTable dataTableItems = new DataTable("tActivityItem");
+        /// <summary>
+        /// Gets or sets the product code.
+        /// </summary>
+        public string ProductCode { get; set; } = string.Empty;
 
-        //dataTableItems.Columns.Add("productcode", Type.GetType("System.String"));
-        //    dataTableItems.Columns.Add("productunitbc", Type.GetType("System.String"));
-        //    dataTableItems.Columns.Add("unitcode", Type.GetType("System.String"));
-        //    dataTableItems.Columns.Add("weightunitcode", Type.GetType("System.String"));
-        //    dataTableItems.Columns.Add("activitydetaillogisticunitproductiondate", Type.GetType("System.String"));
-        //    dataTableItems.Columns.Add("activitydetaillogisticunitbestbeforesellbydate", Type.GetType("System.String"));
-        //    dataTableItems.Columns.Add("locationmapwarehousefkrefno", Type.GetType("System.String"));
-        //    dataTableItems.Columns.Add("locationmapsectionfkrefno", Type.GetType("System.String"));
-        //    dataTableItems.Columns.Add("locationmapslotfkrefno", Type.GetType("System.String"));
-        //    dataTableItems.Columns.Add("skidcode", Type.GetType("System.String"));
-        //    dataTableItems.Columns.Add("activityitemquantity", Type.GetType("System.Decimal"));
-        //    dataTableItems.Columns.Add("activityitemweightquantity", Type.GetType("System.Decimal"));
+        /// <summary>
+        /// Gets or sets the product unit bc character.
+        /// </summary>
+        public string ProductUnitBC { get; set; } = string.Empty;
 
-        private string productCode;
-        private string productUnitBC;
-        private string unitCode;
-        private string weightUnitCode;
-        private string activityDetailLogisticUnitProductionDate;
-        private string activityDetailLogisticUnitBestbeforesellbydate;
-        private string locationMapWarehouseFKRefno;
-        private string locationMapSectionFKRefno;
-        private string locationMapSlotFKRefno;
-        private string skidCode;
-        private decimal activityItemQuantity;
-        private decimal activityItemWeightQuantity;
+        /// <summary>
+        /// Gets or sets the product unit code.
+        /// </summary>
+        public string UnitCode { get; set; } = string.Empty;
 
-        public string ProductCode { get => productCode; set => productCode = value; }
-        public string ProductUnitBC { get => productUnitBC; set => productUnitBC = value; }
-        public string UnitCode { get => unitCode; set => unitCode = value; }
-        public string WeightUnitCode { get => weightUnitCode; set => weightUnitCode = value; }
-        public string ActivityDetailLogisticUnitProductionDate { get => activityDetailLogisticUnitProductionDate; set => activityDetailLogisticUnitProductionDate = value; }
-        public string ActivityDetailLogisticUnitBestbeforesellbydate { get => activityDetailLogisticUnitBestbeforesellbydate; set => activityDetailLogisticUnitBestbeforesellbydate = value; }
-        public string LocationMapWarehouseFKRefno { get => locationMapWarehouseFKRefno; set => locationMapWarehouseFKRefno = value; }
-        public string LocationMapSectionFKRefno { get => locationMapSectionFKRefno; set => locationMapSectionFKRefno = value; }
-        public string LocationMapSlotFKRefno { get => locationMapSlotFKRefno; set => locationMapSlotFKRefno = value; }
-        public string SkidCode { get => skidCode; set => skidCode = value; }
-        public decimal ActivityItemQuantity { get => activityItemQuantity; set => activityItemQuantity = value; }
-        public decimal ActivityItemWeightQuantity { get => activityItemWeightQuantity; set => activityItemWeightQuantity = value; }
+        /// <summary>
+        /// Gets or sets the weight unit code.
+        /// </summary>
+        public string WeightUnitCode { get; set; } = string.Empty;
+
+        /// <summary>
+        /// Gets or sets the activity detail logistic unit production date.
+        /// </summary>
+        public string ActivityDetailLogisticUnitProductionDate { get; set; }
+
+        /// <summary>
+        /// Gets or sets the activity detail logistic unit best before sell by date.
+        /// </summary>
+        public string ActivityDetailLogisticUnitBestBeforeSellByDate { get; set; }
+
+        /// <summary>
+        /// Gets or sets the location map warehouse foreign key reference number.
+        /// </summary>
+        public string LocationMapWarehouseFKRefno { get; set; } = string.Empty;
+
+        /// <summary>
+        /// Gets or sets the location map section foreign key reference number.
+        /// </summary>
+        public string LocationMapSectionFKRefno { get; set; } = string.Empty;
+
+        /// <summary>
+        /// Gets or sets the location map slot foreign key reference number.
+        /// </summary>
+        public string LocationMapSlotFKRefno { get; set; } = string.Empty;
+
+        /// <summary>
+        /// Gets or sets the skid code.
+        /// </summary>
+        public string SkidCode { get; set; } = string.Empty;
+
+        /// <summary>
+        /// Gets or sets the activity item quantity.
+        /// </summary>
+        public decimal ActivityItemQuantity { get; set; } = 0;
+
+        /// <summary>
+        /// Gets or sets the activity item weight quantity.
+        /// </summary>
+        public decimal ActivityItemWeightQuantity { get; set; } = 0;
     }
 }

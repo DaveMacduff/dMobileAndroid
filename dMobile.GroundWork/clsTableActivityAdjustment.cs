@@ -1,49 +1,47 @@
-﻿namespace dMobile.GroundWork
+﻿// <copyright file="clsTableActivityAdjustment.cs" company="InterSect Business Systems Inc">
+// Copyright (c) InterSect Business Systems Inc. All rights reserved.
+// </copyright>
+
+namespace dMobile.GroundWork
 {
-    using dMobile.Bedrock;
-    using SQLite;
     using System;
+    using System.Collections.Generic;
     using System.Data;
     using System.Text;
     using System.Threading.Tasks;
     using System.Xml;
     using System.Xml.Linq;
+    using dMobile.Bedrock;
     using dMobile.Resources.Models;
-    using System.Collections.Generic;
+    using SQLite;
 
     public class TableActivityAdjustment : TableBase
     {
-        #region Constructors
-
+        /// <summary>
+        /// Initializes a new instance of the <see cref="TableActivityAdjustment"/> class.
+        /// </summary>
         public TableActivityAdjustment()
           : base()
         {
             this.FullClassName = "dMobile.GroundWork.TableActivityAdjustment";
         }
 
-        #endregion
-
-        #region Public Members
-
         /// <summary>
         ///
         /// </summary>
         /// <remarks></remarks>
-        public override async Task Request()
+        public override async Task RequestData()
         {
-            string reqData = string.Empty;
 
-            //GC.Collect();
-            //GC.WaitForPendingFinalizers();
-
+            // GC.Collect();
+            // GC.WaitForPendingFinalizers();
             try
             {
-                // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Seeding adjustments.", true);
 
-                reqData = await this.SendComm(await this.Create());
+                string reqData = await this.SendComm(await this.CreateRequest());
 
-                if (0 < reqData.Length)
+                if (reqData.Length > 0)
                 {
                     if (reqData.Contains("<message>ERROR</message>"))
                     {
@@ -55,15 +53,12 @@
                     await this.Save(reqData);
                 }
 
-                // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Seeding adjustments complete.", true);
             }
             catch (Exception ex)
             {
-                // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Seeding adjustments failed.", true);
 
-                // TODO: Resource strings
                 throw new Exception("Seeding adjustments failed.", ex);
             }
         }
@@ -72,11 +67,10 @@
         ///
         /// </summary>
         /// <remarks></remarks>
-        public override async Task Purge()
+        public override async Task PurgeData()
         {
             try
             {
-                // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging adjustments.", true);
 
                 string query = "DELETE FROM tActivityAdjustment WHERE tActivityAdjustment.ActivitySubType = ?";
@@ -85,16 +79,13 @@
                 query = "DELETE FROM tActivity WHERE tActivity.ActivitySubType = ?";
                 await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(query, Convert.ToInt32(SysCommon.ActSubTypes.Adjustment));
 
-                // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging adjustments complete.", true);
             }
             catch (SQLiteException ex)
             {
-                // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Database exception occurred.", true);
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging adjustments failed.", true);
 
-                // TODO: Resource strings
                 throw new Exception("Database exception occurred. Purge adjustments failed.", ex);
             }
         }
@@ -105,8 +96,7 @@
         /// <remarks></remarks>
         public override async Task<int> DataStatus()
         {
-            int rowsAffected = 0;
-
+            int rowsAffected;
             try
             {
                 string query = "SELECT COUNT(tActivity.ActivityRefno)"
@@ -115,21 +105,15 @@
 
                 rowsAffected = await DatabaseConnection.GetInstance().SQLConn.ExecuteScalarAsync<int>(query, (int)SysCommon.ActSubTypes.Adjustment);
 
-                // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, string.Format("{0} adjustment(s)", rowsAffected), true);
             }
             catch (SQLiteException ex)
             {
-                // TODO: Resource strings
                 throw new Exception("Database exception occurred. Adjustments status failed.", ex);
             }
 
             return rowsAffected;
         }
-
-        #endregion
-
-        #region Private Members
 
         /// <summary>
         ///
@@ -146,12 +130,10 @@
                 {
                     using (DataSet ds = new DataSet())
                     {
-                        // TODO: Resource Strings
                         this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Reading received data.", false);
 
                         ds.ReadXml(SysCommon.GetXmlReader(ref reqData), XmlReadMode.Auto);
 
-                        // TODO: Resource Strings
                         this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving adjustments.", false);
 
                         // Receiving schema but no data results in no table being created in the dataset.
@@ -159,7 +141,6 @@
                         {
                             int progMax = Convert.ToInt32(ds.Tables["tActivityAdjustment"].Rows.Count);
 
-                            // TODO: Resource Strings
                             this.DataAccessStatusOutHandler(this, EventArgs.Empty, string.Format("Records {0}", progMax), false);
 
                             int actRefno = 0;
@@ -180,11 +161,9 @@
                                 }
                                 else
                                 {
-                                    // TODO: Resource String
                                     throw new Exception("drWhs.Read() failed." + Environment.NewLine + errMsg);
                                 }
 
-                                // TODO: Resource Strings
                                 errMsg = "Arguments:";
 
                                 transaction.Execute("INSERT INTO tActivity(ActivityStatus, ActivitySubType) VALUES(?, ?)", 0, Convert.ToInt32(SysCommon.ActSubTypes.Adjustment));
@@ -277,7 +256,6 @@
                                 adjFKRefno = Convert.ToInt32(drow["ActivityAdjustmentFKRefno"]);
                                 DateTime dt = Convert.ToDateTime(drow["ActivityAdjustmentDateTime"]);
 
-                                // TODO: Resource Strings
                                 errMsg += Environment.NewLine + "FK refno " + adjFKRefno;
                                 errMsg += Environment.NewLine + "Adj type \'" + actAdjTypeDesc + "\'";
 
@@ -311,7 +289,7 @@
                                     whsLocMapRefno,
                                     DateTime.Parse(dt.ToShortDateString()),
                                     Convert.ToString(drow["ActivityAdjustmentDescription"]),
-                                    actAdjTypeDesc
+                                    actAdjTypeDesc,
                                 };
 
                                 transaction.Execute(sql, parameters);
@@ -328,7 +306,6 @@
 
                         transaction.Commit();
 
-                        // TODO: Resource Strings
                         this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving adjustments complete.", true);
                     }
                 }
@@ -336,11 +313,9 @@
                 {
                     transaction.Rollback();
 
-                    // TODO: Resource Strings
                     this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Database exception occurred.", true);
                     this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving adjustments failed.", true);
 
-                    // TODO: Resource Strings
                     throw new Exception("Database exception occurred. Saving adjustments failed." + Environment.NewLine + errMsg, ex);
                 }
             });
@@ -351,7 +326,7 @@
         /// </summary>
         /// <returns></returns>
         /// <remarks></remarks>
-        protected override async Task<string> Create()
+        protected override async Task<string> CreateRequest()
         {
             StringBuilder xmlString = new StringBuilder();
             XmlWriter xml = XmlWriter.Create(xmlString);
@@ -371,7 +346,5 @@
 
             return xmlString.ToString();
         }
-
-        #endregion
     }
 }

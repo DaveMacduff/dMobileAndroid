@@ -1,41 +1,33 @@
-﻿using Java.Util.Functions;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.ComponentModel;
-using System.Data;
-using dMobile.Bedrock;
-using dMobile.GroundWork;
-using Xamarin.Forms;
-using Xamarin.Forms.Xaml;
-using dMobile.View.CustomPages.Modal;
-using dMobile.Resources.Enums;
-using Android.Views;
+﻿// <copyright file="FormShipLabelQuantity.xaml.cs" company="InterSect Business Systems Inc">
+// Copyright (c) InterSect Business Systems Inc. All rights reserved.
+// </copyright>
 
 namespace dMobile.View.Forms
 {
+    using System;
+    using System.ComponentModel;
+    using Android.Views;
+    using dMobile.Resources.Enums;
+    using dMobile.View.CustomPages.Modal;
+    using Xamarin.Forms;
+    using Xamarin.Forms.Xaml;
+
+    /// <summary>
+    /// Defines the <see cref="FormShipLabelQuantity" /> ship label quantity model.
+    /// </summary>
     [XamlCompilation(XamlCompilationOptions.Compile)]
     public partial class FormShipLabelQuantity : DMobileModal
     {
-        bool isNumericTrapped = false;
-        bool isEditTrapped = false;
-        int quantity = 0;
-
-        #region Constructors
-
         /// <summary>
-        /// 
+        /// Initializes a new instance of the <see cref="FormShipLabelQuantity"/> class.
         /// </summary>
         public FormShipLabelQuantity()
         {
-            InitializeComponent();
+            this.InitializeComponent();
 
-            // TODO: Resource strings
             this.Title = "Ship Label Quantity";
             this.cmdCancel.Text = "Cancel";
-            this.cmdOK.Text = "Ok";
+            this.cmdOK.Text = "OK";
             this.lblQuantity.Text = "Quantity";
 
             if (this.txtQuantity.Text != null)
@@ -45,12 +37,13 @@ namespace dMobile.View.Forms
             }
         }
 
-        #endregion
-
-        #region OnAppearing/OnDisappearing
+        /// <summary>
+        /// Gets or sets the Quantity.
+        /// </summary>
+        public int Quantity { get; set; } = 0;
 
         /// <summary>
-        /// The OnAppearing
+        /// On appearing event handler.
         /// </summary>
         protected override void OnAppearing()
         {
@@ -58,7 +51,7 @@ namespace dMobile.View.Forms
 
             MessagingCenter.Subscribe<string>(this, EventTypes.OnKeyUp.ToString(), async (keyPressed) =>
             {
-                Enum.TryParse(keyPressed, out Keycode keycode);
+                _ = Enum.TryParse(keyPressed, out Keycode keycode);
 
                 if (keycode == Keycode.Enter || keycode == Keycode.F1)
                 {
@@ -72,11 +65,24 @@ namespace dMobile.View.Forms
             });
         }
 
+        /// <summary>
+        /// On disappearing event handler.
+        /// </summary>
+        protected override void OnDisappearing()
+        {
+            MessagingCenter.Unsubscribe<string>(this, EventTypes.OnKeyUp.ToString());
+            base.OnDisappearing();
+        }
+
+        /// <summary>
+        /// On back button pressed event handler.
+        /// </summary>
+        /// <returns>The <see cref="bool"/> True.</returns>
         protected override bool OnBackButtonPressed()
         {
             Device.BeginInvokeOnMainThread(async () =>
             {
-                base.OnBackButtonPressed();
+                _ = base.OnBackButtonPressed();
                 this.DialogResult = DialogResult.None;
                 await this.Close();
             });
@@ -85,66 +91,10 @@ namespace dMobile.View.Forms
         }
 
         /// <summary>
-        /// The OnDisappearing
+        /// Validate user data entry.
         /// </summary>
-        protected override void OnDisappearing()
-        {
-            MessagingCenter.Unsubscribe<string>(this, EventTypes.OnKeyUp.ToString());
-            base.OnDisappearing();
-        }
-
-        #endregion
-
-        #region Properties
-
-        public int Quantity
-        {
-            get
-            {
-                return this.quantity;
-            }
-
-            set
-            {
-                this.quantity = value;
-            }
-        }
-
-        private bool IsNumericTrapped
-        {
-            get
-            {
-                return this.isNumericTrapped;
-            }
-
-            set
-            {
-                this.isNumericTrapped = value;
-            }
-        }
-
-        private bool IsEditTrapped
-        {
-            get
-            {
-                return this.isEditTrapped;
-            }
-
-            set
-            {
-                this.isEditTrapped = value;
-            }
-        }
-
-        #endregion
-
-        #region Private Members
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
+        /// <param name="sender"><see cref="object"/> Sender object.</param>
+        /// <param name="e"><see cref="CancelEventArgs"/> Cancel event arguments.</param>
         private void ValidateEntry(object sender, CancelEventArgs e)
         {
             e.Cancel = false;
@@ -157,26 +107,35 @@ namespace dMobile.View.Forms
             }
         }
 
-        #endregion
-
-        #region Private Members
-
-        private async void cmdOK_Click(object sender, EventArgs e)
+        /// <summary>
+        /// Command OK click event handler.
+        /// </summary>
+        /// <param name="sender"><see cref="object"/> Sender object.</param>
+        /// <param name="e"><see cref="EventArgs"/> Event arguments.</param>
+        private async void CmdOK_Click(object sender, EventArgs e)
         {
             this.Quantity = Convert.ToInt32(this.txtQuantity.Text);
             this.DialogResult = DialogResult.OK;
             await this.Close();
         }
 
-        private async void cmdCancel_Click(object sender, EventArgs e)
+        /// <summary>
+        /// Cancel command click event handler.
+        /// </summary>
+        /// <param name="sender"><see cref="object"/> Sender object.</param>
+        /// <param name="e"><see cref="EventArgs"/> Event arguments.</param>
+        private async void CmdCancel_Click(object sender, EventArgs e)
         {
             this.DialogResult = DialogResult.None;
             await this.Close();
         }
 
-        #endregion
-
-        private void txtQuantity_TextChanged(object sender, TextChangedEventArgs e)
+        /// <summary>
+        /// The txtQuantity_TextChanged.
+        /// </summary>
+        /// <param name="sender"><see cref="object"/> Sender object.</param>
+        /// <param name="e"><see cref="TextChangedEventArgs"/> Text changed event arguments.</param>
+        private void TxtQuantity_TextChanged(object sender, TextChangedEventArgs e)
         {
             this.ValidateEntry(sender, new CancelEventArgs());
         }

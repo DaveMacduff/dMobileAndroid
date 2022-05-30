@@ -1,32 +1,28 @@
-﻿using System;
+﻿// <copyright file="InventoryInquiryItem.cs" company="InterSect Business Systems Inc">
+// Copyright (c) InterSect Business Systems Inc. All rights reserved.
+// </copyright>
+
 namespace dMobile.Resources.Types
 {
+    using System;
+
     public class InventoryInquiryItem
     {
-        private string productCode;
-        private string productUnitBC;
-        private string unitCode;
         private string weightUnitCode;
-        private decimal activityItemQuantity;
         private decimal activityitemweightquantity;
-        private string activityDetailLogisticUnitProductionDate;
-        private string activityDetailLogisticUnitBestBeforeSellByDate;
-        private string locationMapWarehouseFKRefno;
-        private string locationMapSectionFKRefno;
-        private string locationMapSlotFKRefno;
         private string skidCode;
 
-        public string Productcode { get => productCode; set => productCode = value; }
-        public string Productunitbc { get => productUnitBC; set => productUnitBC = value; }
-        public string UnitCode { get => unitCode; set => unitCode = value; }
-        public string WeightUnitCode { get => weightUnitCode; set => weightUnitCode = value; }
-        public decimal ActivityItemQuantity { get => activityItemQuantity; set => activityItemQuantity = value; }
-        public decimal ActivityItemWeightQuantity { get => activityitemweightquantity; set => activityitemweightquantity = value; }
-        public string ActivityDetailLogisticUnitProductionDate { get => activityDetailLogisticUnitProductionDate; set => activityDetailLogisticUnitProductionDate = value; }
-        public string ActivityDetailLogisticUnitBestBeforeSellByDate { get => activityDetailLogisticUnitBestBeforeSellByDate; set => activityDetailLogisticUnitBestBeforeSellByDate = value; }
-        public string LocationMapWarehouseFKRefno { get => locationMapWarehouseFKRefno; set => locationMapWarehouseFKRefno = value; }
-        public string LocationMapSectionFKRefno { get => locationMapSectionFKRefno; set => locationMapSectionFKRefno = value; }
-        public string LocationMapSlotFKRefno { get => locationMapSlotFKRefno; set => locationMapSlotFKRefno = value; }
-        public string SkidCode { get => skidCode; set => skidCode = value; }
+        public string Productcode { get; set; }
+        public string Productunitbc { get; set; }
+        public string UnitCode { get; set; }
+        public string WeightUnitCode { get => this.weightUnitCode; set => this.weightUnitCode = value; }
+        public decimal ActivityItemQuantity { get; set; }
+        public decimal ActivityItemWeightQuantity { get => this.activityitemweightquantity; set => this.activityitemweightquantity = value; }
+        public string ActivityDetailLogisticUnitProductionDate { get; set; }
+        public string ActivityDetailLogisticUnitBestBeforeSellByDate { get; set; }
+        public string LocationMapWarehouseFKRefno { get; set; }
+        public string LocationMapSectionFKRefno { get; set; }
+        public string LocationMapSlotFKRefno { get; set; }
+        public string SkidCode { get => this.skidCode; set => this.skidCode = value; }
     }
 }

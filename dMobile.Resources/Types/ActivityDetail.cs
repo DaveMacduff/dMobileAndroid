@@ -1,114 +1,195 @@
-﻿using System;
+﻿// <copyright file="ActivityDetail.cs" company="InterSect Business Systems Inc">
+// Copyright (c) InterSect Business Systems Inc. All rights reserved.
+// </copyright>
+
 namespace dMobile.Resources.Types
 {
-    //    detail = new
-    //{
-    //    ActivityDetailRefno = 0, int 
-    //    ProductRefno = this.ActItem.ProdInfo.Refno, int
-    //    ProductCode = this.ActItem.ProdInfo.Code, string
-    //    ProductUnitBC = this.ActItem.ProdInfo.UnitBC, string 
-    //    ProductUnitIsBC = this.ActItem.ProdInfo.UnitIsBC, bool
-    //    ProductDescription = this.ActItem.ProdInfo.Desc, string
-    //    ProductUnitSizeDescription = this.ActItem.ProdInfo.UnitSizeDesc, string
-    //    UnitCode = this.ActItem.ProdInfo.UnitCode, string
-    //    BaseUnitCode = this.ActItem.ProdInfo.BaseUnitCode, string
-    //    WtUnitCode = this.ActItem.ProdInfo.WeightUnitCode, string
-    //    ActivityDetailQuantity = 0, decimal
-    //    ActivityDetailBaseQuantity = 0, decimal
-    //    ActivityDetailWeightQuantity = 0, decimal 
-    //    actDetailFKRefnoFldName = this.FKRefno, int
-    //    LocationMapRefno = 0, int
-    //    ProductSchemeVariantCode = string.Empty, string
-    //    ProductSchemeVariantNo = 0, int
-    //    ActivityDetailSingleTradeItemSerialNumber = string.Empty, string
-    //    ActivityDetailLogisticUnitBestBeforeSellByDate = new DateTime(), datetime
-    //    ActivityDetailLogisticUnitBatchLotNumber = string.Empty, string
-    //    ActivityDetailLogisticUnitProductionDate = new DateTime(), datetime
-    //    ActivityDetailLogisticUnitSkidNumber = string.Empty, string
-    //    ActivityDetailExtra1Text = string.Empty, string 
-    //    ActivityDetailExtra2Text = string.Empty, string
-    //    ActivityDetailExtra3Text = string.Empty, string 
-    //    ActivityDetailExtra4Text = string.Empty, string
-    //    ActivityDetailExtra5Date = new DateTime(), DateTime
-    //    LocationCode = string.Empty, string
-    //    LocationName = string.Empty, String
-    //    ActivityDetailSchemeID = string.Empty, string
-    //    ActivityDetailUniqueSchemeID = string.Empty, string
-    //    ActivityDetailIsConfirmed = false, bool
-    //    ActivityDetailIsConfirmedString = string.Empty, string 
-    //    IsBatchProductLabel = false,
-    //};
+    using System;
 
+    /// <summary>
+    /// Define the ActivityDetail model.
+    /// </summary>
     public class ActivityDetail
     {
-        private int activityDetailRefno;
-        private int productRefno;
-        private string productCode;
-        private string productUnitBC;
-        private bool productUnitIsBC;
-        private string productDescription;
-        private string productUnitSizeDescription;
-        private string unitCode;
-        private string baseUnitCode;
-        private string wtUnitCode;
-        private decimal activityDetailQuantity;
-        private decimal activityDetailBaseQuantity;
-        private decimal activityDetailWeightQuantity;
-        private int actDetailFKRefnoFldName;
-        private int locationMapRefno;
-        private string productSchemeVariantCode;
-        private int productSchemeVariantNo;
-        private string activityDetailSingleTradeItemSerialNumber;
-        private DateTime activityDetailLogisticUnitBestBeforeSellByDate;
-        private string activityDetailLogisticUnitBatchLotNumber;
-        private DateTime activityDetailLogisticUnitProductionDate;
-        private string activityDetailLogisticUnitSkidNumber;
-        private string activityDetailExtra1Text;
-        private string activityDetailExtra2Text;
-        private string activityDetailExtra3Text;
-        private string activityDetailExtra4Text;
-        private DateTime activityDetailExtra5Date;
-        private string locationCode;
-        private string locationName;
-        private string activityDetailSchemeID;
-        private string activityDetailUniqueSchemeID;
-        private bool activityDetailIsConfirmed;
-        private string activityDetailIsConfirmedString;
-        private bool isBatchProductLabel;
+        /// <summary>
+        /// Gets or sets the activity detail reference number.
+        /// </summary>
+        public int ActivityDetailRefno { get; set; } = 0;
 
-        public int ActivityDetailRefno { get => activityDetailRefno; set => activityDetailRefno = value; }
-        public int ProductRefno { get => productRefno; set => productRefno = value; }
-        public string ProductCode { get => productCode; set => productCode = value; }
-        public string ProductUnitBC { get => productUnitBC; set => productUnitBC = value; }
-        public bool ProductUnitIsBC { get => productUnitIsBC; set => productUnitIsBC = value; }
-        public string ProductDescription { get => productDescription; set => productDescription = value; }
-        public string ProductUnitSizeDescription { get => productUnitSizeDescription; set => productUnitSizeDescription = value; }
-        public string UnitCode { get => unitCode; set => unitCode = value; }
-        public string BaseUnitCode { get => baseUnitCode; set => baseUnitCode = value; }
-        public string WtUnitCode { get => wtUnitCode; set => wtUnitCode = value; }
-        public decimal ActivityDetailQuantity { get => activityDetailQuantity; set => activityDetailQuantity = value; }
-        public decimal ActivityDetailBaseQuantity { get => activityDetailBaseQuantity; set => activityDetailBaseQuantity = value; }
-        public decimal ActivityDetailWeightQuantity { get => activityDetailWeightQuantity; set => activityDetailWeightQuantity = value; }
-        public int ActDetailFKRefnoFldName { get => actDetailFKRefnoFldName; set => actDetailFKRefnoFldName = value; }
-        public int LocationMapRefno { get => locationMapRefno; set => locationMapRefno = value; }
-        public string ProductSchemeVariantCode { get => productSchemeVariantCode; set => productSchemeVariantCode = value; }
-        public int ProductSchemeVariantNo { get => productSchemeVariantNo; set => productSchemeVariantNo = value; }
-        public string ActivityDetailSingleTradeItemSerialNumber { get => activityDetailSingleTradeItemSerialNumber; set => activityDetailSingleTradeItemSerialNumber = value; }
-        public DateTime ActivityDetailLogisticUnitBestBeforeSellByDate { get => activityDetailLogisticUnitBestBeforeSellByDate; set => activityDetailLogisticUnitBestBeforeSellByDate = value; }
-        public string ActivityDetailLogisticUnitBatchLotNumber { get => activityDetailLogisticUnitBatchLotNumber; set => activityDetailLogisticUnitBatchLotNumber = value; }
-        public DateTime ActivityDetailLogisticUnitProductionDate { get => activityDetailLogisticUnitProductionDate; set => activityDetailLogisticUnitProductionDate = value; }
-        public string ActivityDetailLogisticUnitSkidNumber { get => activityDetailLogisticUnitSkidNumber; set => activityDetailLogisticUnitSkidNumber = value; }
-        public string ActivityDetailExtra1Text { get => activityDetailExtra1Text; set => activityDetailExtra1Text = value; }
-        public string ActivityDetailExtra2Text { get => activityDetailExtra2Text; set => activityDetailExtra2Text = value; }
-        public string ActivityDetailExtra3Text { get => activityDetailExtra3Text; set => activityDetailExtra3Text = value; }
-        public string ActivityDetailExtra4Text { get => activityDetailExtra4Text; set => activityDetailExtra4Text = value; }
-        public DateTime ActivityDetailExtra5Date { get => activityDetailExtra5Date; set => activityDetailExtra5Date = value; }
-        public string LocationCode { get => locationCode; set => locationCode = value; }
-        public string LocationName { get => locationName; set => locationName = value; }
-        public string ActivityDetailSchemeID { get => activityDetailSchemeID; set => activityDetailSchemeID = value; }
-        public string ActivityDetailUniqueSchemeID { get => activityDetailUniqueSchemeID; set => activityDetailUniqueSchemeID = value; }
-        public bool ActivityDetailIsConfirmed { get => activityDetailIsConfirmed; set => activityDetailIsConfirmed = value; }
-        public string ActivityDetailIsConfirmedString { get => activityDetailIsConfirmedString; set => activityDetailIsConfirmedString = value; }
-        public bool IsBatchProductLabel { get => isBatchProductLabel; set => isBatchProductLabel = value; }
+        /// <summary>
+        /// Gets or sets the activity detail foreign key reference number.
+        /// </summary>
+        public int ActivityDetailFKRefno { get; set; } = 0;
+
+        /// <summary>
+        /// Gets or sets the activity detail foreign key reference number field name. Used for searching.
+        /// </summary>
+        public string ActDetailFKRefnoFldName { get; set; } = string.Empty;
+
+        /// <summary>
+        /// Gets or sets the product reference number.
+        /// </summary>
+        public int ProductRefno { get; set; } = 0;
+
+        /// <summary>
+        /// Gets or sets the product unit reference number.
+        /// </summary>
+        public int ProductUnitRefno { get; set; } = 0;
+
+        /// <summary>
+        /// Gets or sets the product code.
+        /// </summary>
+        public string ProductCode { get; set; } = string.Empty;
+
+        /// <summary>
+        /// Gets or sets the product unit bc character.
+        /// </summary>
+        public string ProductUnitBC { get; set; } = string.Empty;
+
+        /// <summary>
+        /// Gets or sets a value indicating whether the product unit is broken case.
+        /// </summary>
+        public bool ProductUnitIsBC { get; set; } = false;
+
+        /// <summary>
+        /// Gets or sets the product description.
+        /// </summary>
+        public string ProductDescription { get; set; } = string.Empty;
+
+        /// <summary>
+        /// Gets or sets the product unit size description.
+        /// </summary>
+        public string ProductUnitSizeDescription { get; set; }
+
+        /// <summary>
+        /// Gets or sets the product unit code.
+        /// </summary>
+        public string UnitCode { get; set; }
+
+        /// <summary>
+        /// Gets or sets the product base unit code.
+        /// </summary>
+        public string BaseUnitCode { get; set; }
+
+        /// <summary>
+        /// Gets or sets the product weight unit code.
+        /// </summary>
+        public string WtUnitCode { get; set; }
+
+        /// <summary>
+        /// Gets or sets the activity detail alt quantity.
+        /// </summary>
+        public decimal ActivityDetailQuantity { get; set; } = 0;
+
+        /// <summary>
+        /// Gets or sets the activity detail base quantity.
+        /// </summary>
+        public decimal ActivityDetailBaseQuantity { get; set; } = 0;
+
+        /// <summary>
+        /// Gets or sets the activity  detail weight quantity.
+        /// </summary>
+        public decimal ActivityDetailWeightQuantity { get; set; } = 0;
+
+        /// <summary>
+        /// Gets or sets the location map reference number.
+        /// </summary>
+        public int LocationMapRefno { get; set; } = 0;
+
+        /// <summary>
+        /// Gets or sets the location map code.
+        /// </summary>
+        public int LocationCode { get; set; } = 0;
+
+        /// <summary>
+        /// Gets or sets the location name.
+        /// </summary>
+        /// <example>Main or Freezer or A12B02.</example>
+        public string LocationName { get; set; } = string.Empty;
+
+        /// <summary>
+        /// Gets or sets the location. e.g. Whs, section, slot.
+        /// </summary>
+        public string Location { get; set; } = string.Empty;
+
+        /// <summary>
+        /// Gets or sets the product scheme variant code.
+        /// </summary>
+        public string ProductSchemeVariantCode { get; set; } = string.Empty;
+
+        /// <summary>
+        /// Gets or sets the product scheme variant number.
+        /// </summary>
+        public int ProductSchemeVariantNo { get; set; } = 0;
+
+        /// <summary>
+        /// Gets or sets the product scheme variant description.
+        /// </summary>
+        public string ProductSchemeVariantDescription { get; set; } = string.Empty;
+
+        /// <summary>
+        /// Gets or sets the activity detail single trade item serial number.
+        /// </summary>
+        public string ActivityDetailSingleTradeItemSerialNumber { get; set; } = string.Empty;
+
+        /// <summary>
+        /// Gets or sets the activity detail logistic unit best before sell by date.
+        /// </summary>
+        public DateTime ActivityDetailLogisticUnitBestBeforeSellByDate { get; set; } = SysCommon.EmptyDateTime;
+
+        /// <summary>
+        /// Gets or sets the activity detail logistic unit batch lot number.
+        /// </summary>
+        public string ActivityDetailLogisticUnitBatchLotNumber { get; set; } = string.Empty;
+
+        /// <summary>
+        /// Gets or sets the activity detail logistic unit production date.
+        /// </summary>
+        public DateTime ActivityDetailLogisticUnitProductionDate { get; set; } = SysCommon.EmptyDateTime;
+
+        /// <summary>
+        /// Gets or sets the activity detail logistic unit skid number.
+        /// </summary>
+        public string ActivityDetailLogisticUnitSkidNumber { get; set; } = string.Empty;
+
+        /// <summary>
+        /// Gets or sets the activity detail extra 1 text.
+        /// </summary>
+        public string ActivityDetailExtra1Text { get; set; } = string.Empty;
+
+        /// <summary>
+        /// Gets or sets the activity detail extra 2 text.
+        /// </summary>
+        public string ActivityDetailExtra2Text { get; set; } = string.Empty;
+
+        /// <summary>
+        /// Gets or sets the activity detail extra 3 text.
+        /// </summary>
+        public string ActivityDetailExtra3Text { get; set; } = string.Empty;
+
+        /// <summary>
+        /// Gets or sets the activity detail extra 4 text.
+        /// </summary>
+        public string ActivityDetailExtra4Text { get; set; } = string.Empty;
+
+        /// <summary>
+        /// Gets or sets the activity detail extra 5 date time.
+        /// </summary>
+        public DateTime ActivityDetailExtra5Date { get; set; } = SysCommon.EmptyDateTime;
+
+        /// <summary>
+        /// Gets or sets the activity detail scheme id.
+        /// </summary>
+        public string ActivityDetailSchemeID { get; set; } = string.Empty;
+
+        /// <summary>
+        /// Gets or sets the activity detail unique scheme id.
+        /// </summary>
+        public string ActivityDetailUniqueSchemeID { get; set; } = string.Empty;
+
+        /// <summary>
+        /// Gets or sets a value indicating whether the product label is batched.
+        /// </summary>
+        public bool IsBatchProductLabel { get; set; } = false;
     }
 }

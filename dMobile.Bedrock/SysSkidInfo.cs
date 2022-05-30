@@ -1,4 +1,8 @@
-﻿namespace dMobile.Bedrock
+﻿// <copyright file="SysSkidInfo.cs" company="InterSect Business Systems Inc">
+// Copyright (c) InterSect Business Systems Inc. All rights reserved.
+// </copyright>
+
+namespace dMobile.Bedrock
 {
     using System;
     using System.Data;
@@ -10,178 +14,206 @@
     using System.Xml.Serialization;
     using static dMobile.Bedrock.LocationMapTasks;
 
+    /// <summary>
+    /// Defines the <see cref="SysSkidInfo" /> Skid information methods.
+    /// </summary>
     [Serializable]
     public class SysSkidInfo : ICloneable
     {
-        #region Fields
-
-        private SSkidInfo currSkid = new SSkidInfo();
-
-        #endregion
-
-        #region Properties
-
-        public SSkidInfo CurrSkid
-        {
-            get
-            {
-                return this.currSkid;
-            }
-
-            set
-            {
-                this.currSkid = value;
-            }
-        }
-
-        #endregion
-
-        #region Public Members
+        /// <summary>
+        /// Gets or sets the CurrSkid.
+        /// </summary>
+        public SSkidInfo CurrSkid { get; set; } = new SSkidInfo();
 
         /// <summary>
-        /// Fill a new instance of SSkidInfo from xml
+        /// Make a skid XDocument from a skid information object.
         /// </summary>
-        /// <param name="data"></param>
-        /// <returns>New instance of SSkidInfo</returns>
-        /// <remarks></remarks>
-        public static async Task<SSkidInfo> Fill(XDocument data)
-        {
-            SSkidInfo skid = new SSkidInfo();
-            skid.LogisticUnitSkidCode = data.Root.Element("logistic_unit_skid_code").Value;
-            skid.SkidCode = data.Root.Element("skid_code").Value;
-            int locMapRefno = int.Parse(data.Root.Element("location_map_refno").Value);
-            skid.LocMap = await LocationMapTasks.GetSLocMapFromLocMapRefno(locMapRefno);
-            int prodUnitRefno = int.Parse(data.Root.Element("product_unit_refno").Value);
-            skid.ProdInfo = await ProductInfoTasks.GetInfoFromUnitRefno(prodUnitRefno);
-            skid.ProdInfo.Scheme = await ProductInfoTasks.GetSchemeComponentsFromRefno(skid.ProdInfo.Refno);
-            skid.Quantity = decimal.Parse(data.Root.Element("quantity").Value);
-            skid.BaseQuantity = decimal.Parse(data.Root.Element("base_quantity").Value);
-            skid.WeightQuantity = decimal.Parse(data.Root.Element("weight_quantity").Value);
-            skid.IsCHEP = bool.Parse(data.Root.Element("chep").Value);
-            skid.IsHold = bool.Parse(data.Root.Element("hold").Value);
-            skid.Ti = int.Parse(data.Root.Element("ti").Value);
-            skid.Hi = int.Parse(data.Root.Element("hi").Value);
-            skid.Height = decimal.Parse(data.Root.Element("height").Value);
-            skid.HeightUnit = data.Root.Element("height_unit").Value;
-            skid.Cube = decimal.Parse(data.Root.Element("cube").Value);
-            skid.CubeUnit = data.Root.Element("cube_unit").Value;
-            skid.SkidFKRefno = int.Parse(data.Root.Element("skid_fk_refno").Value);
-            skid.IsCompleted = bool.Parse(data.Root.Element("completed").Value);
-            skid.IsConsumed = bool.Parse(data.Root.Element("consumed").Value);
-            skid.IsPutAway = bool.Parse(data.Root.Element("putaway").Value);
-            SProductSchemeData schemeData = skid.SchemeData;
-            schemeData.LogisticUnitBatchLotNumber = data.Root.Element("logistic_unit_batch_lot_number").Value;
-            schemeData.LogisticUnitBestBeforeSellByDate
-                = DateTime.Parse(data.Root.Element("logistic_unit_best_before_sell_by_date").Value);
-            schemeData.LogisticUnitProductionDate = DateTime.Parse(data.Root.Element("logistic_unit_production_date").Value);
-            schemeData.VariantNumber = int.Parse(data.Root.Element("product_scheme_variant_no").Value);
-            schemeData.VariantCode = data.Root.Element("product_scheme_variant_code").Value;
-            schemeData.VariantDescription = data.Root.Element("product_scheme_variant_description").Value;
-            skid.SchemeData = schemeData;
-
-            return skid;
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="info"></param>
-        /// <returns></returns>
-        /// <remarks></remarks>
+        /// <param name="skid"><see cref="SysSkidInfo"/> Skid information.</param>
+        /// <returns><see cref="XDocument"/> Created skid XDocument.</returns>
         public static XDocument SkidInfoToXML(SysSkidInfo skid)
         {
             XDocument xmlResult = new XDocument(
-                new XDeclaration("1.0", "utf-16", "yes"), string.Empty,
-                new XElement("params",
-                  new XElement("skid_fk_refno", skid.CurrSkid.SkidFKRefno),
-                  new XElement("chep", skid.CurrSkid.IsCHEP),
-                  new XElement("hold", skid.CurrSkid.IsHold),
-                  new XElement("base_quantity", skid.CurrSkid.BaseQuantity),
-                  new XElement("cube", skid.CurrSkid.Cube),
-                  new XElement("height", skid.CurrSkid.Height),
-                  new XElement("quantity", skid.CurrSkid.Quantity),
-                  new XElement("weight_quantity", skid.CurrSkid.WeightQuantity),
-                  new XElement("hi", skid.CurrSkid.Hi),
-                  new XElement("ti", skid.CurrSkid.Ti),
-                  new XElement("cube_unit", skid.CurrSkid.CubeUnit),
-                  new XElement("height_unit", skid.CurrSkid.HeightUnit),
-                  new XElement("logistic_unit_skid_code", skid.CurrSkid.LogisticUnitSkidCode),
-                  new XElement("skid_code", skid.CurrSkid.SkidCode),
-                  new XElement("location_map_refno", skid.CurrSkid.LocMapRefno),
-                  new XElement("whs_id", skid.CurrSkid.LocMap.WhsFKRefno),
-                  new XElement("sect_refno", skid.CurrSkid.LocMap.SectFKRefno),
-                  new XElement("slot_refno", skid.CurrSkid.LocMap.SlotFKRefno),
-                  new XElement("product_unit_refno", skid.CurrSkid.ProdInfo.UnitRefno),
-                  new XElement("product_id", skid.CurrSkid.ProdInfo.Code),
-                  new XElement("product_unit_bc", skid.CurrSkid.ProdInfo.UnitBC),
-                  new XElement("product_unit_code", skid.CurrSkid.ProdInfo.UnitCode),
-                  new XElement("completed", skid.CurrSkid.IsCompleted),
-                  new XElement("consumed", skid.CurrSkid.IsConsumed),
-                  new XElement("putaway", skid.CurrSkid.IsPutAway),
-                  new XElement("logistic_unit_batch_lot_number", skid.CurrSkid.SchemeData.LogisticUnitBatchLotNumber),
-                  new XElement(
-                      "logistic_unit_best_before_sell_by_date",
-                      skid.CurrSkid.SchemeData.LogisticUnitBestBeforeSellByDate),
-                  new XElement("logistic_unit_production_date", skid.CurrSkid.SchemeData.LogisticUnitProductionDate),
-                  new XElement("product_scheme_variant_no", skid.CurrSkid.SchemeData.VariantNumber),
-                  new XElement("product_scheme_variant_code", skid.CurrSkid.SchemeData.VariantCode),
-                  new XElement("product_scheme_variant_description", skid.CurrSkid.SchemeData.VariantDescription)));
+                new XDeclaration(
+                    "1.0", "utf-16", "yes"),
+                string.Empty,
+                new XElement(
+                    "params",
+                    new XElement("skid_fk_refno", skid.CurrSkid.SkidFKRefno),
+                    new XElement("chep", skid.CurrSkid.IsCHEP),
+                    new XElement("hold", skid.CurrSkid.IsHold),
+                    new XElement("base_quantity", skid.CurrSkid.BaseQuantity),
+                    new XElement("cube", skid.CurrSkid.Cube),
+                    new XElement("height", skid.CurrSkid.Height),
+                    new XElement("quantity", skid.CurrSkid.Quantity),
+                    new XElement("weight_quantity", skid.CurrSkid.WeightQuantity),
+                    new XElement("hi", skid.CurrSkid.Hi),
+                    new XElement("ti", skid.CurrSkid.Ti),
+                    new XElement("cube_unit", skid.CurrSkid.CubeUnit),
+                    new XElement("height_unit", skid.CurrSkid.HeightUnit),
+                    new XElement("logistic_unit_skid_code", skid.CurrSkid.LogisticUnitSkidCode),
+                    new XElement("skid_code", skid.CurrSkid.SkidCode),
+                    new XElement("location_map_refno", skid.CurrSkid.LocMapRefno),
+                    new XElement("whs_id", skid.CurrSkid.LocMap.WhsFKRefno),
+                    new XElement("sect_refno", skid.CurrSkid.LocMap.SectFKRefno),
+                    new XElement("slot_refno", skid.CurrSkid.LocMap.SlotFKRefno),
+                    new XElement("product_unit_refno", skid.CurrSkid.ProdInfo.UnitRefno),
+                    new XElement("product_id", skid.CurrSkid.ProdInfo.Code),
+                    new XElement("product_unit_bc", skid.CurrSkid.ProdInfo.UnitBC),
+                    new XElement("product_unit_code", skid.CurrSkid.ProdInfo.UnitCode),
+                    new XElement("completed", skid.CurrSkid.IsCompleted),
+                    new XElement("consumed", skid.CurrSkid.IsConsumed),
+                    new XElement("putaway", skid.CurrSkid.IsPutAway),
+                    new XElement(
+                        "logistic_unit_batch_lot_number",
+                        skid.CurrSkid.SchemeData.LogisticUnitBatchLotNumber),
+                    new XElement(
+                        "logistic_unit_best_before_sell_by_date",
+                        skid.CurrSkid.SchemeData.LogisticUnitBestBeforeSellByDate),
+                    new XElement(
+                        "logistic_unit_production_date",
+                        skid.CurrSkid.SchemeData.LogisticUnitProductionDate),
+                    new XElement("product_scheme_variant_no", skid.CurrSkid.SchemeData.VariantNumber),
+                    new XElement("product_scheme_variant_code", skid.CurrSkid.SchemeData.VariantCode),
+                    new XElement(
+                        "product_scheme_variant_description",
+                        skid.CurrSkid.SchemeData.VariantDescription)));
 
             return xmlResult;
         }
 
         /// <summary>
-        /// 
+        /// Convert xml skid information into a skid information object.
         /// </summary>
-        /// <param name="data"></param>
-        /// <returns></returns>
+        /// <param name="data"><see cref="XDocument"/> Skid information.</param>
+        /// <returns><see cref="SysSkidInfo"/> Create skid information object.</returns>
         public static async Task<SysSkidInfo> GetSkidInfoFromXML(XDocument data)
         {
             SysSkidInfo skid = new SysSkidInfo();
-
-            skid.CurrSkid = await Fill(data);
-
+            skid.CurrSkid = await FillSkidInfo(data);
             return skid;
+
+            //////////////////////////////////////////////////////////////////////////
+            static async Task<SSkidInfo> FillSkidInfo(XDocument data)
+            {
+                SSkidInfo skid = new SSkidInfo
+                {
+
+                    // Identifier information.
+                    SkidFKRefno = int.Parse(data.Root.Element("skid_fk_refno").Value),
+                    LogisticUnitSkidCode = data.Root.Element("logistic_unit_skid_code").Value,
+                    SkidCode = data.Root.Element("skid_code").Value,
+                };
+
+                // Location.
+                int locMapRefno = int.Parse(data.Root.Element("location_map_refno").Value);
+                skid.LocMap = await LocationMapTasks.GetSLocMapFromLocMapRefno(locMapRefno);
+
+                // Product unit.
+                int prodUnitRefno = int.Parse(data.Root.Element("product_unit_refno").Value);
+                skid.ProdInfo = await ProductInfoTasks.GetInfoFromUnitRefno(prodUnitRefno);
+                skid.ProdInfo.Scheme = await ProductInfoTasks.GetSchemeComponentsFromRefno(skid.ProdInfo.Refno);
+
+                // Quantity
+                skid.Quantity = decimal.Parse(data.Root.Element("quantity").Value);
+                skid.BaseQuantity = decimal.Parse(data.Root.Element("base_quantity").Value);
+                skid.WeightQuantity = decimal.Parse(data.Root.Element("weight_quantity").Value);
+
+                // Attributes.
+                skid.IsCHEP = bool.Parse(data.Root.Element("chep").Value);
+                skid.IsHold = bool.Parse(data.Root.Element("hold").Value);
+                skid.Ti = int.Parse(data.Root.Element("ti").Value);
+                skid.Hi = int.Parse(data.Root.Element("hi").Value);
+                skid.Height = decimal.Parse(data.Root.Element("height").Value);
+                skid.HeightUnit = data.Root.Element("height_unit").Value;
+                skid.Cube = decimal.Parse(data.Root.Element("cube").Value);
+                skid.CubeUnit = data.Root.Element("cube_unit").Value;
+                skid.IsCompleted = bool.Parse(data.Root.Element("completed").Value);
+                skid.IsConsumed = bool.Parse(data.Root.Element("consumed").Value);
+                skid.IsPutAway = bool.Parse(data.Root.Element("putaway").Value);
+
+                // Default inventory detail, used with creating new skids.
+                SProductSchemeData schemeData = skid.SchemeData;
+                schemeData.LogisticUnitBatchLotNumber =
+                    data.Root.Element("logistic_unit_batch_lot_number").Value;
+                schemeData.LogisticUnitBestBeforeSellByDate
+                    = DateTime.Parse(data.Root.Element("logistic_unit_best_before_sell_by_date").Value);
+                schemeData.LogisticUnitProductionDate = DateTime.Parse(
+                    data.Root.Element("logistic_unit_production_date").Value);
+                schemeData.VariantNumber = int.Parse(data.Root.Element("product_scheme_variant_no").Value);
+                schemeData.VariantCode = data.Root.Element("product_scheme_variant_code").Value;
+                schemeData.VariantDescription = data.Root.Element("product_scheme_variant_description").Value;
+                skid.SchemeData = schemeData;
+                return skid;
+            }
         }
 
         /// <summary>
-        /// 
+        /// Move a skid.
         /// </summary>
-        /// <param name="SkidInfo"></param>
-        /// <remarks></remarks>
+        /// <param name="skid"><see cref="SysSkidInfo"/> Skid information to move.</param>
+        /// <param name="moveToLocMap"><see cref="SLocMap"/> Destination location map.</param>
+        /// <returns><see cref="Task{SysSkidInfo}"/> Moved updated skid information.</returns>
         public static async Task<SysSkidInfo> Move(SysSkidInfo skid, SLocMap moveToLocMap)
         {
-            SysEnvironment sysEnv = SysEnvironment.GetInstance();
-            string recvData = string.Empty;
-            StringBuilder xmlString = new StringBuilder();
-            XmlWriter writer = XmlWriter.Create(xmlString);
-            string deviceID = sysEnv.DeviceID;
-            string revision = sysEnv.RefreshOpt.RefreshedDataLast.ToString("yyyy'-'MM'-'dd'T'HH':'mm':'ss");
-            string loginID = sysEnv.ContactLog.LoginID.ToString();
-            string current = DateTime.Now.ToString("yyyy'-'MM'-'dd'T'HH':'mm':'ss");
-            SysSkidInfo newSkid = skid;
+            CreateMoveRequest(skid, moveToLocMap, out StringBuilder xmlString);
+            PerformMoveRequest(xmlString);
+            await UpdateSkidWithNewLocation(skid, moveToLocMap);
+            return skid;
 
-            XDocument request = new XDocument(
-                new XDeclaration("1.0", "utf-16", "yes"), string.Empty,
-                new XElement("imclient",
-                  new XElement("command",
-                    new XElement("action", "SUBMIT MOVE SKID")),
-                    new XElement("device_id", deviceID),
-                    new XElement("login_id", loginID),
-                    new XElement("revision_datetime", revision),
-                    new XElement("stamp", current),
-                    new XElement("skid_data", skid.CurrSkid.SkidCode),
-                    new XElement("whs_id", moveToLocMap.WhsFKRefno),
-                    new XElement("sect_refno", moveToLocMap.SectFKRefno),
-                    new XElement("slot_refno", moveToLocMap.SlotFKRefno)));
-
-            request.Save(writer);
-            writer.Flush();
-            writer.Close();
-
-            recvData = SysCommon.SubmitComm(xmlString.ToString());
-            if (recvData.Length > 0)
+            //////////////////////////////////////////////////////////////////////////
+            static void CreateMoveRequest(
+                SysSkidInfo skid,
+                SLocMap moveToLocMap,
+                out StringBuilder xmlString)
             {
+                SysEnvironment sysEnv = SysEnvironment.GetInstance();
+                xmlString = new StringBuilder();
+                XmlWriter writer = XmlWriter.Create(xmlString);
+                string revision = sysEnv.RefreshOpt.RefreshedDataLast.ToString("yyyy'-'MM'-'dd'T'HH':'mm':'ss");
+                string current = DateTime.Now.ToString("yyyy'-'MM'-'dd'T'HH':'mm':'ss");
+
+                XDocument request = new XDocument(
+                    new XDeclaration("1.0", "utf-16", "yes"),
+                    string.Empty,
+                    new XElement(
+                        "imclient",
+                        new XElement("command", new XElement("action", "SUBMIT MOVE SKID")),
+                        new XElement("device_id", sysEnv.DeviceID),
+                        new XElement("login_id", sysEnv.ContactLog.LoginID.ToString()),
+                        new XElement("revision_datetime", revision),
+                        new XElement("stamp", current),
+                        new XElement("skid_data", skid.CurrSkid.SkidCode),
+                        new XElement("whs_id", moveToLocMap.WhsFKRefno),
+                        new XElement("sect_refno", moveToLocMap.SectFKRefno),
+                        new XElement("slot_refno", moveToLocMap.SlotFKRefno)));
+
+                request.Save(writer);
+                writer.Flush();
+                writer.Close();
+            }
+
+            //////////////////////////////////////////////////////////////////////////
+            static async Task UpdateSkidWithNewLocation(SysSkidInfo skid, SLocMap moveToLocMap)
+            {
+                SSkidInfo tempSkidInfo = skid.CurrSkid;
+                SLocMapAndRefno sLocMapAndRefno = await GetSLocMapFromLocMapFKRefno(
+                    moveToLocMap.WhsFKRefno,
+                    moveToLocMap.SectFKRefno,
+                    moveToLocMap.SlotFKRefno);
+                tempSkidInfo.LocMap = sLocMapAndRefno.SLocMap;
+                tempSkidInfo.LocMapRefno = sLocMapAndRefno.LocMapRefno;
+                skid.CurrSkid = tempSkidInfo;
+            }
+
+            //////////////////////////////////////////////////////////////////////////
+            static void PerformMoveRequest(StringBuilder xmlString)
+            {
+                string recvData = SysCommon.SubmitComm(xmlString.ToString());
+                if (recvData.Length <= 0)
+                {
+                    throw new MessageOnlyException("Move skid request failed. Check communications.");
+                }
+
                 if (recvData.Contains("<message>ERROR</message>"))
                 {
                     XmlDocument xmlResult = new XmlDocument();
@@ -195,44 +227,29 @@
                         throw new Exception(xmlResult.DocumentElement["detail"].InnerText);
                     }
                 }
-                else
-                {
-                    int newLocMapRefno = skid.CurrSkid.LocMapRefno;
-                    SSkidInfo tempSkidInfo = skid.CurrSkid;
-                    SLocMapAndRefno sLocMapAndRefno = await LocationMapTasks.GetSLocMapFromLocMapFKRefno(moveToLocMap.WhsFKRefno, moveToLocMap.SectFKRefno, moveToLocMap.SlotFKRefno, newLocMapRefno);
-                    tempSkidInfo.LocMap = sLocMapAndRefno.SLocMap;
-                    tempSkidInfo.LocMapRefno = sLocMapAndRefno.LocMapRefno;
-                    newSkid.CurrSkid = tempSkidInfo;
-                }
             }
-
-            return newSkid;
         }
 
         /// <summary>
-        /// 
+        /// Send skid update request.
         /// </summary>
-        /// <param name="SkidInfo"></param>
-        /// <returns></returns>
-        /// <remarks></remarks>
-        public static SysSkidInfo SendUpdate(SysSkidInfo skid)
+        /// <param name="skid"><see cref="SysSkidInfo"/> Skid information to send.</param>
+        public static void SendUpdate(SysSkidInfo skid)
         {
             SysEnvironment sysEnv = SysEnvironment.GetInstance();
-            string recvData = string.Empty;
             StringBuilder xmlString = new StringBuilder();
-            XmlWriter writer = XmlWriter.Create(xmlString);
-            string deviceID = sysEnv.DeviceID;
+            using XmlWriter writer = XmlWriter.Create(xmlString);
             string revision = sysEnv.RefreshOpt.RefreshedDataLast.ToString("yyyy'-'MM'-'dd'T'HH':'mm':'ss");
-            string loginID = sysEnv.ContactLog.LoginID.ToString();
             string current = DateTime.Now.ToString("yyyy'-'MM'-'dd'T'HH':'mm':'ss");
 
             XDocument request = new XDocument(
-                new XDeclaration("1.0", "utf-16", "yes"), string.Empty,
-                new XElement("imclient",
-                  new XElement("command",
-                    new XElement("action", "SUBMIT UPDATE SKID")),
-                    new XElement("device_id", deviceID),
-                    new XElement("login_id", loginID),
+                new XDeclaration("1.0", "utf-16", "yes"),
+                string.Empty,
+                new XElement(
+                    "imclient",
+                    new XElement("command", new XElement("action", "SUBMIT UPDATE SKID")),
+                    new XElement("device_id", sysEnv.DeviceID),
+                    new XElement("login_id", sysEnv.ContactLog.LoginID.ToString()),
                     new XElement("revision_datetime", revision),
                     new XElement("stamp", current),
                     new XElement("chep", skid.CurrSkid.IsCHEP),
@@ -262,7 +279,7 @@
             writer.Flush();
             writer.Close();
 
-            recvData = SysCommon.SubmitComm(xmlString.ToString());
+            string recvData = SysCommon.SubmitComm(xmlString.ToString());
             if (recvData.Length > 0)
             {
                 if (recvData.Contains("<message>ERROR</message>"))
@@ -279,34 +296,34 @@
                     }
                 }
             }
-
-            return skid;
+            else
+            {
+                throw new MessageOnlyException("Update skid request failed. Check communications.");
+            }
         }
 
         /// <summary>
-        /// 
+        /// Request to mark the skid as complete.
         /// </summary>
-        /// <param name="skid"></param>
-        /// <returns></returns>
+        /// <param name="skid"><see cref="SysSkidInfo"/> Skid information to mark complete.</param>
+        /// <returns><see cref="SysSkidInfo"/> Skid marked as completed.</returns>
         public static SysSkidInfo Complete(SysSkidInfo skid)
         {
             SysEnvironment sysEnv = SysEnvironment.GetInstance();
-            string recvData = string.Empty;
             StringBuilder xmlString = new StringBuilder();
-            XmlWriter writer = XmlWriter.Create(xmlString);
-            string deviceID = sysEnv.DeviceID;
+            using XmlWriter writer = XmlWriter.Create(xmlString);
             string revision = sysEnv.RefreshOpt.RefreshedDataLast.ToString("yyyy'-'MM'-'dd'T'HH':'mm':'ss");
-            string loginID = sysEnv.ContactLog.LoginID.ToString();
             string current = DateTime.Now.ToString("yyyy'-'MM'-'dd'T'HH':'mm':'ss");
             LocationMap locMap = LocationMap.GetInstance();
 
             XDocument request = new XDocument(
-                new XDeclaration("1.0", "utf-16", "yes"), string.Empty,
-                new XElement("imclient",
-                  new XElement("command",
-                    new XElement("action", "SUBMIT COMPLETE SKID")),
-                    new XElement("device_id", deviceID),
-                    new XElement("login_id", loginID),
+                new XDeclaration("1.0", "utf-16", "yes"),
+                string.Empty,
+                new XElement(
+                    "imclient",
+                    new XElement("command", new XElement("action", "SUBMIT COMPLETE SKID")),
+                    new XElement("device_id", sysEnv.DeviceID),
+                    new XElement("login_id", sysEnv.ContactLog.LoginID.ToString()),
                     new XElement("revision_datetime", revision),
                     new XElement("stamp", current),
                     new XElement("skid_data", skid.CurrSkid.SkidCode),
@@ -316,15 +333,14 @@
             writer.Flush();
             writer.Close();
 
-            recvData = SysCommon.SubmitComm(xmlString.ToString());
-            
+            string recvData = SysCommon.SubmitComm(xmlString.ToString());
             if (recvData.Length > 0)
             {
                 if (recvData.Contains("<message>ERROR</message>"))
                 {
                     XmlDocument xmlResult = new XmlDocument();
                     xmlResult.LoadXml(recvData);
-                    
+
                     if (recvData.Contains("MSGBOX-"))
                     {
                         throw new MessageOnlyException(xmlResult.DocumentElement["detail"].InnerText);
@@ -341,33 +357,35 @@
                     skid.CurrSkid = tempSkidInfo;
                 }
             }
+            else
+            {
+                throw new MessageOnlyException("Complete skid request failed. Check communications.");
+            }
 
             return skid;
         }
 
         /// <summary>
-        /// 
+        /// Print a skid label.
         /// </summary>
-        /// <param name="skid"></param>
-        /// <returns></returns>
+        /// <param name="skid"><see cref="SysSkidInfo"/> Skid information.</param>
         public static void PrintLabel(SysSkidInfo skid)
         {
             SysEnvironment sysEnv = SysEnvironment.GetInstance();
             StringBuilder xmlString = new StringBuilder();
-            XmlWriter writer = XmlWriter.Create(xmlString);
-            string deviceID = sysEnv.DeviceID;
+            using XmlWriter writer = XmlWriter.Create(xmlString);
             string revision = sysEnv.RefreshOpt.RefreshedDataLast.ToString("yyyy'-'MM'-'dd'T'HH':'mm':'ss");
-            string loginID = sysEnv.ContactLog.LoginID.ToString();
             string current = DateTime.Now.ToString("yyyy'-'MM'-'dd'T'HH':'mm':'ss");
             LocationMap locMap = LocationMap.GetInstance();
 
             XDocument request = new XDocument(
-                new XDeclaration("1.0", "utf-16", "yes"), string.Empty,
-                new XElement("imclient",
-                  new XElement("command",
-                    new XElement("action", "SUBMIT PRINT SKID LABEL")),
-                    new XElement("device_id", deviceID),
-                    new XElement("login_id", loginID),
+                new XDeclaration("1.0", "utf-16", "yes"),
+                string.Empty,
+                new XElement(
+                    "imclient",
+                    new XElement("command", new XElement("action", "SUBMIT PRINT SKID LABEL")),
+                    new XElement("device_id", sysEnv.DeviceID),
+                    new XElement("login_id", sysEnv.ContactLog.LoginID.ToString()),
                     new XElement("revision_datetime", revision),
                     new XElement("stamp", current),
                     new XElement("skid_data", skid.CurrSkid.SkidCode),
@@ -394,40 +412,41 @@
                     }
                 }
             }
+            else
+            {
+                throw new MessageOnlyException("Print skid label request failed. Check communications.");
+            }
         }
 
         /// <summary>
-        /// 
+        /// Request list of available skids.
         /// </summary>
-        /// <returns></returns>
+        /// <returns><see cref="DataSet"/> Data set of available skids.</returns>
         public static DataSet GetSkids()
         {
             SysEnvironment sysEnv = SysEnvironment.GetInstance();
-            string recvData = string.Empty;
             StringBuilder xmlString = new StringBuilder();
-            XmlWriter writer = XmlWriter.Create(xmlString);
-            string deviceID = sysEnv.DeviceID;
+            using XmlWriter writer = XmlWriter.Create(xmlString);
             string revision = sysEnv.RefreshOpt.RefreshedDataLast.ToString("yyyy'-'MM'-'dd'T'HH':'mm':'ss");
-            string loginID = sysEnv.ContactLog.LoginID.ToString();
             string current = DateTime.Now.ToString("yyyy'-'MM'-'dd'T'HH':'mm':'ss");
-            LocationMap locMap = LocationMap.GetInstance();
             DataSet dataSetSkids = null;
 
             XDocument request = new XDocument(
                 new XDeclaration("1.0", "utf-16", "yes"),
                 string.Empty,
-                new XElement("imclient",
-                  new XElement("command", new XElement("action", "REQUEST SKIDS")),
-                  new XElement("device_id", deviceID),
-                  new XElement("login_id", loginID),
-                  new XElement("revision_datetime", revision),
-                  new XElement("stamp", current)));
+                new XElement(
+                    "imclient",
+                    new XElement("command", new XElement("action", "REQUEST SKIDS")),
+                    new XElement("device_id", sysEnv.DeviceID),
+                    new XElement("login_id", sysEnv.ContactLog.LoginID.ToString()),
+                    new XElement("revision_datetime", revision),
+                    new XElement("stamp", current)));
 
             request.Save(writer);
             writer.Flush();
             writer.Close();
 
-            recvData = SysCommon.SubmitComm(xmlString.ToString());
+            string recvData = SysCommon.SubmitComm(xmlString.ToString());
             if (recvData.Length > 0)
             {
                 if (recvData.Contains("<message>ERROR</message>"))
@@ -445,59 +464,55 @@
                 }
                 else
                 {
-                    using (DataSet ds = new DataSet())
+                    using DataSet ds = new DataSet();
+                    ds.ReadXml(SysCommon.GetXmlReader(ref recvData), XmlReadMode.Auto);
+                    if (ds.Tables.Count != 0)
                     {
-                        ds.ReadXml(SysCommon.GetXmlReader(ref recvData), XmlReadMode.Auto);
-                        if (ds.Tables.Count != 0)
-                        {
-                            dataSetSkids = ds;
-                        }
+                        dataSetSkids = ds;
                     }
                 }
+            }
+            else
+            {
+                throw new MessageOnlyException("Request available skids failed. Check communications.");
             }
 
             return dataSetSkids;
         }
 
         /// <summary>
-        /// 
+        /// Request the skid detail.
         /// </summary>
-        /// <param name="skid"></param>
-        /// <returns></returns>
-        /// <remarks>
-        /// DataSet returned contains a table called 'cskiddetail'. Lower case table name.
-        /// All fields are strings because of the xml with no schema.
-        /// </remarks>
+        /// <param name="skid"><see cref="SysSkidInfo"/> Skid information.</param>
+        /// <param name="dataSetSkidDetail"><see cref="DataSet"/> Skid detail.</param>
         public static void GetSkidDetail(SysSkidInfo skid, ref DataSet dataSetSkidDetail)
         {
             SysEnvironment sysEnv = SysEnvironment.GetInstance();
-            string recvData = string.Empty;
             StringBuilder xmlString = new StringBuilder();
-            XmlWriter writer = XmlWriter.Create(xmlString);
-            string deviceID = sysEnv.DeviceID;
+            using XmlWriter writer = XmlWriter.Create(xmlString);
             string revision = sysEnv.RefreshOpt.RefreshedDataLast.ToString("yyyy'-'MM'-'dd'T'HH':'mm':'ss");
-            string loginID = sysEnv.ContactLog.LoginID.ToString();
             string current = DateTime.Now.ToString("yyyy'-'MM'-'dd'T'HH':'mm':'ss");
             LocationMap locMap = LocationMap.GetInstance();
 
             XDocument request = new XDocument(
                 new XDeclaration("1.0", "utf-16", "yes"),
                 string.Empty,
-                new XElement("imclient",
-                  new XElement("command", new XElement("action", "REQUEST SKID DETAIL")),
-                  new XElement("device_id", deviceID),
-                  new XElement("login_id", loginID),
-                  new XElement("revision_datetime", revision),
-                  new XElement("stamp", current),
-                  new XElement("whs_id", locMap.CurrLocMap.WhsFKRefno),
-                  new XElement("skid_fk_refno", skid.CurrSkid.SkidFKRefno),
-                  new XElement("is_negate_qty", "false")));
+                new XElement(
+                    "imclient",
+                    new XElement("command", new XElement("action", "REQUEST SKID DETAIL")),
+                    new XElement("device_id", sysEnv.DeviceID),
+                    new XElement("login_id", sysEnv.ContactLog.LoginID.ToString()),
+                    new XElement("revision_datetime", revision),
+                    new XElement("stamp", current),
+                    new XElement("whs_id", locMap.CurrLocMap.WhsFKRefno),
+                    new XElement("skid_fk_refno", skid.CurrSkid.SkidFKRefno),
+                    new XElement("is_negate_qty", "false")));
 
             request.Save(writer);
             writer.Flush();
             writer.Close();
 
-            recvData = SysCommon.SubmitComm(xmlString.ToString());
+            string recvData = SysCommon.SubmitComm(xmlString.ToString());
             if (recvData.Length > 0)
             {
                 if (recvData.Contains("<message>ERROR</message>"))
@@ -515,96 +530,77 @@
                 }
                 else
                 {
-                    using (DataSet ds = new DataSet())
+                    using DataSet ds = new DataSet();
+                    ds.ReadXml(SysCommon.GetXmlReader(ref recvData), XmlReadMode.Auto);
+                    if (ds.Tables.Count != 0)
                     {
-                        ds.ReadXml(SysCommon.GetXmlReader(ref recvData), XmlReadMode.Auto);
-                        if (ds.Tables.Count != 0)
-                        {
-                            dataSetSkidDetail = ds;
-                        }
+                        dataSetSkidDetail = ds;
                     }
                 }
+            }
+            else
+            {
+                throw new MessageOnlyException("Request skid detail failed. Check communications.");
             }
         }
 
         /// <summary>
-        /// 
+        /// Create a skid.
         /// </summary>
-        /// <param name="xmlParams"></param>
-        /// <remarks>
-        /// parameter xml document structure
-        /// <logistic_unit_skid_code>SkidInfo.CurrSkidInfo.strLogisticUnitSkidCode</logistic_unit_skid_code>
-        /// <skid_fk_refno>SkidInfo.CurrSkidInfo.iSkidFKRefno</skid_fk_refno>
-        /// <chep>SkidInfo.CurrSkidInfo.IsCHEP</chep>
-        /// <hold>SkidInfo.CurrSkidInfo.IsHold</hold>
-        /// <base_quantity>SkidInfo.CurrSkidInfo.decBaseQuantity</base_quantity>
-        /// <cube>SkidInfo.CurrSkidInfo.decCube</cube>
-        /// <height>SkidInfo.CurrSkidInfo.decHeight</height>
-        /// <quantity>SkidInfo.CurrSkidInfo.decQuantity</quantity>
-        /// <weight_quantity>SkidInfo.CurrSkidInfo.decWeightQuantity</weight_quantity>
-        /// <hi>SkidInfo.CurrSkidInfo.iHi</hi>
-        /// <ti>SkidInfo.CurrSkidInfo.iTi</ti>
-        /// <cube_unit>SkidInfo.CurrSkidInfo.strCubeUnit</cube_unit>
-        /// <height_unit>SkidInfo.CurrSkidInfo.strHeightUnit</height_unit>
-        /// <skid_code>SkidInfo.CurrSkidInfo.strSkidCode</skid_code>
-        /// <location_map_refno>SkidInfo.CurrSkidInfo.iLocationMapRefno</location_map_refno>
-        /// <product_unit_refno>SkidInfo.CurrSkidInfo.oProductInfo.prodUnitRefno</product_unit_refno>
-        /// <completed>SkidInfo.CurrSkidInfo.IsCompleted</completed>
-        /// <putaway>SkidInfo.CurrSkidInfo.IsPutAway</putaway>
-        /// </remarks>
+        /// <param name="skidData"><see cref="XDocument"/> Skid information data to create a skid from.</param>
+        /// <returns><see cref="Task{SysSkidInfo}"/> Created skid information.</returns>
         public static async Task<SysSkidInfo> Create(XDocument skidData)
         {
-            SysSkidInfo skid = new SysSkidInfo();
+            XElement root = skidData.Document.Root;
             SysEnvironment sysEnv = SysEnvironment.GetInstance();
-            string recvData = string.Empty;
             StringBuilder xmlString = new StringBuilder();
-            XmlWriter writer = XmlWriter.Create(xmlString);
-            string deviceID = sysEnv.DeviceID;
+            using XmlWriter writer = XmlWriter.Create(xmlString);
             string revDateTime = sysEnv.RefreshOpt.RefreshedDataLast.ToString("yyyy'-'MM'-'dd'T'HH':'mm':'ss");
-            string loginID = sysEnv.ContactLog.LoginID.ToString();
             string currDateTime = DateTime.Now.ToString("yyyy'-'MM'-'dd'T'HH':'mm':'ss");
             ProductInfo prodInfo = await ProductInfoTasks.GetInfoFromUnitRefno(
-                int.Parse(skidData.Document.Root.Element("product_unit_refno").Value));
+                int.Parse(root.Element("product_unit_refno").Value));
 
-            SLocMap skidLocMap = await LocationMapTasks.GetSLocMapFromLocMapRefno(int.Parse(skidData.Document.Root.Element("location_map_refno").Value));
-
+            SLocMap skidLocMap = await LocationMapTasks.GetSLocMapFromLocMapRefno(
+                int.Parse(root.Element("location_map_refno").Value));
             XDocument request = new XDocument(
                 new XDeclaration("1.0", "utf-16", "yes"),
                 string.Empty,
-                new XElement("imclient",
-                  new XElement("command",
-                    new XElement("action", "SUBMIT CREATE SKID")),
-                    new XElement("device_id", deviceID),
-                    new XElement("login_id", loginID),
+                new XElement(
+                    "imclient",
+                    new XElement("command", new XElement("action", "SUBMIT CREATE SKID")),
+                    new XElement("device_id", sysEnv.DeviceID),
+                    new XElement("login_id", sysEnv.ContactLog.LoginID.ToString()),
                     new XElement("revision_datetime", revDateTime),
                     new XElement("stamp", currDateTime),
-                    new XElement("chep", skidData.Document.Root.Element("chep").Value),
-                    new XElement("hold", skidData.Document.Root.Element("hold").Value),
-                    new XElement("base_quantity", skidData.Document.Root.Element("base_quantity").Value),
-                    new XElement("cube", skidData.Document.Root.Element("cube").Value),
-                    new XElement("height", skidData.Document.Root.Element("height").Value),
-                    new XElement("quantity", skidData.Document.Root.Element("quantity").Value),
-                    new XElement("weight_quantity", skidData.Document.Root.Element("weight_quantity").Value),
-                    new XElement("hi", skidData.Document.Root.Element("hi").Value),
-                    new XElement("ti", skidData.Document.Root.Element("ti").Value),
-                    new XElement("cube_unit", skidData.Document.Root.Element("cube_unit").Value),
-                    new XElement("height_unit", skidData.Document.Root.Element("height_unit").Value),
-                    new XElement("logistic_unit_skid_code", skidData.Document.Root.Element("logistic_unit_skid_code").Value),
-                    new XElement("skid_code", skidData.Document.Root.Element("skid_code").Value),
+                    new XElement("chep", root.Element("chep").Value),
+                    new XElement("hold", root.Element("hold").Value),
+                    new XElement("base_quantity", root.Element("base_quantity").Value),
+                    new XElement("cube", root.Element("cube").Value),
+                    new XElement("height", root.Element("height").Value),
+                    new XElement("quantity", root.Element("quantity").Value),
+                    new XElement("weight_quantity", root.Element("weight_quantity").Value),
+                    new XElement("hi", root.Element("hi").Value),
+                    new XElement("ti", root.Element("ti").Value),
+                    new XElement("cube_unit", root.Element("cube_unit").Value),
+                    new XElement("height_unit", root.Element("height_unit").Value),
+                    new XElement("logistic_unit_skid_code", root.Element("logistic_unit_skid_code").Value),
+                    new XElement("skid_code", root.Element("skid_code").Value),
                     new XElement("whs_id", skidLocMap.WhsFKRefno),
                     new XElement("sect_refno", skidLocMap.SectFKRefno),
                     new XElement("slot_refno", skidLocMap.SlotFKRefno),
                     new XElement("product_id", prodInfo.Code),
                     new XElement("product_unit_bc", prodInfo.UnitBC),
                     new XElement("product_unit_code", prodInfo.UnitCode),
-                    new XElement("completed", skid.CurrSkid.IsCompleted),
-                    new XElement("putaway", skidData.Document.Root.Element("putaway").Value)));
+                    new XElement("completed", root.Element("completed").Value),
+                    new XElement("putaway", root.Element("putaway").Value)));
 
             request.Save(writer);
             writer.Flush();
             writer.Close();
 
-            recvData = SysCommon.SubmitComm(xmlString.ToString());
+            string recvData = SysCommon.SubmitComm(xmlString.ToString());
+
+            SysSkidInfo skid;
             if (recvData.Length > 0)
             {
                 XmlDocument result = new XmlDocument();
@@ -630,35 +626,35 @@
                     skid.CurrSkid = tempSkidInfo;
                 }
             }
+            else
+            {
+                throw new MessageOnlyException("Request create skid failed. Check communications.");
+            }
 
             return skid;
         }
 
         /// <summary>
-        /// 
+        /// request to break the skid.
         /// </summary>
-        /// <param name="SkidInfo"></param>
-        /// <remarks></remarks>
+        /// <param name="skid"><see cref="SysSkidInfo"/> Skid information to break.</param>
         public static void Break(SysSkidInfo skid)
         {
             SysEnvironment sysEnv = SysEnvironment.GetInstance();
-            string data = string.Empty;
             StringBuilder xmlString = new StringBuilder();
-            XmlWriter writer = XmlWriter.Create(xmlString);
-            string deviceID = sysEnv.DeviceID;
+            using XmlWriter writer = XmlWriter.Create(xmlString);
             string revDateTime = sysEnv.RefreshOpt.RefreshedDataLast.ToString("yyyy'-'MM'-'dd'T'HH':'mm':'ss");
-            string loginID = sysEnv.ContactLog.LoginID.ToString();
             string currDateTime = DateTime.Now.ToString("yyyy'-'MM'-'dd'T'HH':'mm':'ss");
             LocationMap locMap = LocationMap.GetInstance();
 
             XDocument request = new XDocument(
                 new XDeclaration("1.0", "utf-16", "yes"),
                 string.Empty,
-                new XElement("imclient",
-                  new XElement("command",
-                    new XElement("action", "SUBMIT BREAK SKID")),
-                    new XElement("device_id", deviceID),
-                    new XElement("login_id", loginID),
+                new XElement(
+                    "imclient",
+                    new XElement("command", new XElement("action", "SUBMIT BREAK SKID")),
+                    new XElement("device_id", sysEnv.DeviceID),
+                    new XElement("login_id", sysEnv.ContactLog.LoginID.ToString()),
                     new XElement("revision_datetime", revDateTime),
                     new XElement("stamp", currDateTime),
                     new XElement("skid_data", skid.CurrSkid.SkidCode),
@@ -668,7 +664,7 @@
             writer.Flush();
             writer.Close();
 
-            data = SysCommon.SubmitComm(xmlString.ToString());
+            string data = SysCommon.SubmitComm(xmlString.ToString());
             if (data.Length > 0)
             {
                 if (data.Contains("<message>ERROR</message>"))
@@ -691,32 +687,33 @@
                     skid.CurrSkid = tempSkidInfo;
                 }
             }
+            else
+            {
+                throw new MessageOnlyException("Request break skid failed. Check communications.");
+            }
         }
 
         /// <summary>
-        /// 
+        /// Get skid information from a skid bar code or skid code.
         /// </summary>
-        /// <param name="skidData"></param>
-        /// <returns></returns>
-        /// <remarks></remarks>
+        /// <param name="skidData"><see cref="string"/> Skid bar code or skid code.</param>
+        /// <returns><see cref="SysSkidInfo"/> Skid information found.</returns>
         public static async Task<SysSkidInfo> GetSkidInfoFromBarCodeOrCode(string skidData)
         {
             SysEnvironment sysEnv = SysEnvironment.GetInstance();
             StringBuilder xmlString = new StringBuilder();
             XmlWriter xml = XmlWriter.Create(xmlString);
-            string deviceID = sysEnv.DeviceID;
             string revDateTime = sysEnv.RefreshOpt.RefreshedDataLast.ToString("yyyy'-'MM'-'dd'T'HH':'mm':'ss");
-            string loginID = sysEnv.ContactLog.LoginID.ToString();
             string currDateTime = DateTime.Now.ToString("yyyy'-'MM'-'dd'T'HH':'mm':'ss");
 
             XDocument request = new XDocument(
                 new XDeclaration("1.0", "utf-16", "yes"),
                 string.Empty,
-                new XElement("imclient",
-                  new XElement("command",
-                    new XElement("action", "REQUEST SKID INFO")),
-                    new XElement("device_id", deviceID),
-                    new XElement("login_id", loginID),
+                new XElement(
+                    "imclient",
+                    new XElement("command", new XElement("action", "REQUEST SKID INFO")),
+                    new XElement("device_id", sysEnv.DeviceID),
+                    new XElement("login_id", sysEnv.ContactLog.LoginID.ToString()),
                     new XElement("revision_datetime", revDateTime),
                     new XElement("stamp", currDateTime),
                     new XElement("whs_id", LocationMap.GetInstance().CurrLocMap.WhsFKRefno),
@@ -726,56 +723,6 @@
             xml.Flush();
             xml.Close();
 
-            return await RequestGetSkidInfo(request);
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="original"></param>
-        /// <returns></returns>
-        /// <remarks></remarks>
-        public static SysSkidInfo DeepCopy(SysSkidInfo original)
-        {
-            XmlSerializer serializer = null;
-            serializer = new XmlSerializer(original.GetType());
-            MemoryStream stream = new MemoryStream();
-            serializer.Serialize(stream, original);
-            stream.Position = 0;
-
-            return (SysSkidInfo)serializer.Deserialize(stream);
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <returns></returns>
-        /// <remarks></remarks>
-        public object ShallowCopy()
-        {
-            return (SysSkidInfo)MemberwiseClone();
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <returns></returns>
-        object ICloneable.Clone()
-        {
-            return this.ShallowCopy();
-        }
-
-        #endregion
-
-        #region Private Members
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="xmlRequest"></param>
-        /// <returns></returns>
-        private static async Task<SysSkidInfo> RequestGetSkidInfo(XDocument request)
-        {
             SysSkidInfo skid = new SysSkidInfo();
             string recvData = SysCommon.SubmitComm(request.ToString());
             if (recvData.Length > 0)
@@ -794,49 +741,55 @@
                     }
                 }
 
-                SSkidInfo tmpInfo = new SSkidInfo();
-                tmpInfo.SkidFKRefno = int.Parse(result.SelectSingleNode("/VFPData/cskidinfo/skidfkrefno").InnerText);
-                tmpInfo.SkidCode = result.SelectSingleNode("/VFPData/cskidinfo/skidcode").InnerText;
-                tmpInfo.LogisticUnitSkidCode = result.SelectSingleNode("/VFPData/cskidinfo/logisticunitskidcode").InnerText;
+                skid.CurrSkid = await FillSkidInfo(result);
+            }
+            else
+            {
+                throw new MessageOnlyException("Request skid info failed. Check communications.");
+            }
 
-                int locMapRefno = 0;
+            return skid;
+
+            static async Task<SSkidInfo> FillSkidInfo(XmlDocument result)
+            {
+                SSkidInfo skidInfo = new SSkidInfo
+                {
+                    SkidFKRefno = int.Parse(result.SelectSingleNode("/VFPData/cskidinfo/skidfkrefno").InnerText),
+                    SkidCode = result.SelectSingleNode("/VFPData/cskidinfo/skidcode").InnerText,
+                    LogisticUnitSkidCode = result.SelectSingleNode("/VFPData/cskidinfo/logisticunitskidcode").InnerText,
+                    Quantity = decimal.Parse(result.SelectSingleNode("/VFPData/cskidinfo/skidquantity").InnerText),
+                    BaseQuantity = decimal.Parse(result.SelectSingleNode("/VFPData/cskidinfo/skidbasequantity").InnerText),
+                    WeightQuantity = decimal.Parse(result.SelectSingleNode("/VFPData/cskidinfo/skidweightquantity").InnerText),
+                    IsCHEP = bool.Parse(result.SelectSingleNode("/VFPData/cskidinfo/skidischep").InnerText),
+                    IsHold = bool.Parse(result.SelectSingleNode("/VFPData/cskidinfo/skidisonhold").InnerText),
+                    Ti = int.Parse(result.SelectSingleNode("/VFPData/cskidinfo/skidti").InnerText),
+                    Hi = int.Parse(result.SelectSingleNode("/VFPData/cskidinfo/skidhi").InnerText),
+                    Height = decimal.Parse(result.SelectSingleNode("/VFPData/cskidinfo/skidheight").InnerText),
+                    HeightUnit = result.SelectSingleNode("/VFPData/cskidinfo/skidheightunit").InnerText,
+                    Cube = decimal.Parse(result.SelectSingleNode("/VFPData/cskidinfo/skidcube").InnerText),
+                    CubeUnit = result.SelectSingleNode("/VFPData/cskidinfo/skidcubeunit").InnerText,
+                    IsCompleted = bool.Parse(result.SelectSingleNode("/VFPData/cskidinfo/skidiscompleted").InnerText),
+                    IsConsumed = bool.Parse(result.SelectSingleNode("/VFPData/cskidinfo/skidisconsumed").InnerText),
+                    IsPutAway = bool.Parse(result.SelectSingleNode("/VFPData/cskidinfo/skidisputaway").InnerText),
+                };
 
                 SLocMapAndRefno sLocMapAndRefno = await LocationMapTasks.GetSLocMapFromLocMapFKRefno(
                     int.Parse(result.SelectSingleNode("/VFPData/cskidinfo/locationmapwarehousefkrefno").InnerText),
                     int.Parse(result.SelectSingleNode("/VFPData/cskidinfo/locationmapsectionfkrefno").InnerText),
-                    int.Parse(result.SelectSingleNode("/VFPData/cskidinfo/locationmapslotfkrefno").InnerText),
-                    locMapRefno);
+                    int.Parse(result.SelectSingleNode("/VFPData/cskidinfo/locationmapslotfkrefno").InnerText));
 
-                tmpInfo.LocMap = sLocMapAndRefno.SLocMap;
-                tmpInfo.LocMapRefno = sLocMapAndRefno.LocMapRefno;
+                skidInfo.LocMap = sLocMapAndRefno.SLocMap;
+                skidInfo.LocMapRefno = sLocMapAndRefno.LocMapRefno;
 
-                tmpInfo.ProdInfo = new ProductInfo();
-                tmpInfo.ProdInfo = await ProductInfoTasks.GetInfoFromCodeBCUnit(
+                skidInfo.ProdInfo = new ProductInfo();
+                skidInfo.ProdInfo = await ProductInfoTasks.GetInfoFromCodeBCUnit(
                     result.SelectSingleNode("/VFPData/cskidinfo/productcode").InnerText,
                     result.SelectSingleNode("/VFPData/cskidinfo/productunitbc").InnerText,
                     result.SelectSingleNode("/VFPData/cskidinfo/unitcode").InnerText);
 
-                tmpInfo.ProdInfo.Scheme = await ProductInfoTasks.GetSchemeComponentsFromRefno(tmpInfo.ProdInfo.Refno);
+                skidInfo.ProdInfo.Scheme = await ProductInfoTasks.GetSchemeComponentsFromRefno(skidInfo.ProdInfo.Refno);
 
-                tmpInfo.Quantity = decimal.Parse(result.SelectSingleNode("/VFPData/cskidinfo/skidquantity").InnerText);
-                tmpInfo.BaseQuantity = decimal.Parse(result.SelectSingleNode("/VFPData/cskidinfo/skidbasequantity").InnerText);
-
-                tmpInfo.WeightQuantity = decimal.Parse(
-                    result.SelectSingleNode("/VFPData/cskidinfo/skidweightquantity").InnerText);
-
-                tmpInfo.IsCHEP = bool.Parse(result.SelectSingleNode("/VFPData/cskidinfo/skidischep").InnerText);
-                tmpInfo.IsHold = bool.Parse(result.SelectSingleNode("/VFPData/cskidinfo/skidisonhold").InnerText);
-                tmpInfo.Ti = int.Parse(result.SelectSingleNode("/VFPData/cskidinfo/skidti").InnerText);
-                tmpInfo.Hi = int.Parse(result.SelectSingleNode("/VFPData/cskidinfo/skidhi").InnerText);
-                tmpInfo.Height = decimal.Parse(result.SelectSingleNode("/VFPData/cskidinfo/skidheight").InnerText);
-                tmpInfo.HeightUnit = result.SelectSingleNode("/VFPData/cskidinfo/skidheightunit").InnerText;
-                tmpInfo.Cube = decimal.Parse(result.SelectSingleNode("/VFPData/cskidinfo/skidcube").InnerText);
-                tmpInfo.CubeUnit = result.SelectSingleNode("/VFPData/cskidinfo/skidcubeunit").InnerText;
-                tmpInfo.IsCompleted = bool.Parse(result.SelectSingleNode("/VFPData/cskidinfo/skidiscompleted").InnerText);
-                tmpInfo.IsConsumed = bool.Parse(result.SelectSingleNode("/VFPData/cskidinfo/skidisconsumed").InnerText);
-                tmpInfo.IsPutAway = bool.Parse(result.SelectSingleNode("/VFPData/cskidinfo/skidisputaway").InnerText);
-
-                SProductSchemeData schemeData = tmpInfo.SchemeData;
+                SProductSchemeData schemeData = skidInfo.SchemeData;
                 schemeData.LogisticUnitBatchLotNumber
                     = result.SelectSingleNode("/VFPData/cskidinfo/activitydetaillogisticunitbatchlotnumber").InnerText;
 
@@ -866,14 +819,44 @@
                 schemeData.VariantCode = result.SelectSingleNode("//VFPData/cskidinfo/productschemevariantcode").InnerText;
                 schemeData.VariantDescription
                     = result.SelectSingleNode("//VFPData/cskidinfo/productschemevariantdescription").InnerText;
-                tmpInfo.SchemeData = schemeData;
+                skidInfo.SchemeData = schemeData;
 
-                skid.CurrSkid = tmpInfo;
+                return skidInfo;
             }
-
-            return skid;
         }
 
-        #endregion
+        /// <summary>
+        /// Perform a skid information deep copy.
+        /// </summary>
+        /// <param name="original"><see cref="SysSkidInfo"/> Original skid information.</param>
+        /// <returns><see cref="SysSkidInfo"/> New copy of the original skid information.</returns>
+        public static SysSkidInfo DeepCopy(SysSkidInfo original)
+        {
+            XmlSerializer serializer = new XmlSerializer(original.GetType());
+            MemoryStream stream = new MemoryStream();
+            serializer.Serialize(stream, original);
+            stream.Position = 0;
+
+            return (SysSkidInfo)serializer.Deserialize(stream);
+        }
+
+        /// <summary>
+        /// Perform a skid information shallow copy.
+        /// </summary>
+        /// <param name="original"><see cref="SysSkidInfo"/> Original skid information.</param>
+        /// <returns><see cref="SysSkidInfo"/> New copy of the original skid information.</returns>
+        public object ShallowCopy()
+        {
+            return (SysSkidInfo)this.MemberwiseClone();
+        }
+
+        /// <summary>
+        /// The Clone.
+        /// </summary>
+        /// <returns><see cref="object"/> Shallow copy of this.</returns>
+        object ICloneable.Clone()
+        {
+            return this.ShallowCopy();
+        }
     }
 }

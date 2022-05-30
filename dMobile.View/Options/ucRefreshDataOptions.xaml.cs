@@ -1,32 +1,33 @@
-﻿namespace dMobile.View.Options
+﻿// <copyright file="ucRefreshDataOptions.xaml.cs" company="InterSect Business Systems Inc">
+// Copyright (c) InterSect Business Systems Inc. All rights reserved.
+// </copyright>
+
+namespace dMobile.View.Options
 {
-    using Android.Views;
-    using dMobile.Bedrock;
-    using dMobile.Resources.Enums;
-    using dMobile.View.CustomPages;
-    using dMobile.View.Forms;
     using System;
     using System.ComponentModel;
     using System.Net.Sockets;
     using System.Threading.Tasks;
     using System.Xml.Linq;
+    using Android.Views;
+    using dMobile.Bedrock;
+    using dMobile.Resources.Enums;
+    using dMobile.View.CustomPages;
+    using dMobile.View.Forms;
     using Xamarin.Forms;
     using Xamarin.Forms.Xaml;
     using Resource = dMobile.Resources.Properties.Resources;
 
-
     [XamlCompilation(XamlCompilationOptions.Compile)]
     public partial class ucRefreshDataOptions : DMobileContentPage, IAppArea
     {
-        private bool isControlLoaded = false;
-        private bool isChangesMade = false;
-        private bool isRefreshComplete = false;
-        private bool isDisplayShutDownMsg = true;
-        private SysEnvironment sysEnv;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ucRefreshDataOptions"/> class.
+        /// </summary>
         public ucRefreshDataOptions()
         {
-            InitializeComponent();
+            this.InitializeComponent();
 
             this.Title = this.GetControlDescription();
 
@@ -40,8 +41,7 @@
                 }
                 catch (Exception ex)
                 {
-                    // TODO: Resource strings
-                    Device.BeginInvokeOnMainThread(() => DisplayAlert("Error", "ucRefreshDataOptions_GotFocus exception: " + ex.Message, "OK"));
+                    Device.BeginInvokeOnMainThread(() => this.DisplayAlert("Error", "ucRefreshDataOptions_GotFocus exception: " + ex.Message, "OK"));
                 }
             }
 
@@ -61,7 +61,7 @@
         }
 
         /// <summary>
-        /// The OnAppearing
+        /// The OnAppearing.
         /// </summary>
         protected override void OnAppearing()
         {
@@ -69,8 +69,7 @@
 
             MessagingCenter.Subscribe<string>(this, EventTypes.OnKeyUp.ToString(), async (keyPressed) =>
             {
-                // TODO: Verify keycodes
-                Enum.TryParse(keyPressed, out Keycode keycode);
+                _ = Enum.TryParse(keyPressed, out Keycode keycode);
 
                 if (keycode == Keycode.F1)
                 {
@@ -83,7 +82,7 @@
         }
 
         /// <summary>
-        /// The OnDisappearing
+        /// The OnDisappearing.
         /// </summary>
         protected override void OnDisappearing()
         {
@@ -96,7 +95,7 @@
         {
             Device.BeginInvokeOnMainThread(async () =>
             {
-                base.OnBackButtonPressed();
+                _ = base.OnBackButtonPressed();
 
                 if (await this.SaveChanges())
                 {
@@ -111,70 +110,15 @@
             return true;
         }
 
-        private SysEnvironment SysEnv
-        {
-            get
-            {
-                return this.sysEnv;
-            }
+        private SysEnvironment SysEnv { get; set; }
 
-            set
-            {
-                this.sysEnv = value;
-            }
-        }
+        private bool IsDisplayShutDownMsg { get; set; } = true;
 
-        private bool IsDisplayShutDownMsg
-        {
-            get
-            {
-                return this.isDisplayShutDownMsg;
-            }
+        private bool IsChangesMade { get; set; } = false;
 
-            set
-            {
-                this.isDisplayShutDownMsg = value;
-            }
-        }
+        private bool IsRefreshComplete { get; set; } = false;
 
-        private bool IsChangesMade
-        {
-            get
-            {
-                return this.isChangesMade;
-            }
-
-            set
-            {
-                this.isChangesMade = value;
-            }
-        }
-
-        private bool IsRefreshComplete
-        {
-            get
-            {
-                return this.isRefreshComplete;
-            }
-
-            set
-            {
-                this.isRefreshComplete = value;
-            }
-        }
-
-        private bool IsControlLoaded
-        {
-            get
-            {
-                return this.isControlLoaded;
-            }
-
-            set
-            {
-                this.isControlLoaded = value;
-            }
-        }
+        private bool IsControlLoaded { get; set; } = false;
 
         /// <summary>
         /// Unregister the bar code scan event handler and disable the scanner.
@@ -234,10 +178,14 @@
                     isReadyToSave = isReadyToSave && !this.chkPurchaseOrderWorkSheet.IsToggled;
                 }
             }
-            catch (Exceptions.MessageOnlyException ex)
+            catch (MessageOnlyException ex)
             {
                 isReadyToSave = false;
-                ex.Show(SysCommon.ActSubTypes.RefreshData);
+                await Device.InvokeOnMainThreadAsync(async () =>
+                    await Application.Current.MainPage.DisplayAlert(
+                        this.GetControlDescription(),
+                        ex.Message,
+                        Resource.OK));
             }
             catch (Exception ex)
             {
@@ -246,7 +194,7 @@
                 await Device.InvokeOnMainThreadAsync(async () =>
                 {
                     FormErrorReport errRpt = new FormErrorReport(SysCommon.ActSubTypes.RefreshData, ex);
-                    await errRpt.ShowDialog();
+                    _ = await errRpt.ShowDialog();
                 });
             }
 
@@ -275,10 +223,14 @@
                     await this.ScannerDisable();
                 }
             }
-            catch (Exceptions.MessageOnlyException ex)
+            catch (MessageOnlyException ex)
             {
                 isReadyToClose = false;
-                ex.Show(SysCommon.ActSubTypes.RefreshData);
+                await Device.InvokeOnMainThreadAsync(async () =>
+                    await Application.Current.MainPage.DisplayAlert(
+                        this.GetControlDescription(),
+                        ex.Message,
+                        Resource.OK));
             }
             catch (Exception ex)
             {
@@ -289,7 +241,7 @@
                 await Device.InvokeOnMainThreadAsync(async () =>
                 {
                     FormErrorReport errRpt = new FormErrorReport(SysCommon.ActSubTypes.RefreshData, ex);
-                    await errRpt.ShowDialog();
+                    _ = await errRpt.ShowDialog();
                 });
             }
 
@@ -301,6 +253,10 @@
         /// </summary>
         /// <returns></returns>
         /// <remarks></remarks>
+/// <summary>
+///
+/// </summary>
+/// <returns>A <see cref="Task"/> representing the result of the asynchronous operation.</returns>
         public async Task RefreshCompelete()
         {
             if (this.IsRefreshComplete)
@@ -310,13 +266,13 @@
                     this.IsDisplayShutDownMsg = false;
 
                     // Attempt to record logout
-                    if (!this.SysEnv.SysSettings.IsDisconnectedMode && (this.SysEnv.CommSetup.iHostIPAddressComponent1 + this.SysEnv.CommSetup.iHostIPAddressComponent2 + this.SysEnv.CommSetup.iHostIPAddressComponent3) != 0)
+                    if (!this.SysEnv.SysSettings.IsDisconnectedMode && (this.SysEnv.CommSetup.HostIPAddressComponent1 + this.SysEnv.CommSetup.HostIPAddressComponent2 + this.SysEnv.CommSetup.HostIPAddressComponent3) != 0)
                     {
                         if (this.SysEnv.ContactLog.IsLoggedIn)
                         {
                             this.SysEnv.ContactLog.IsLoggedIn = false;
                             ContactLogin tempContactLogin = this.SysEnv.ContactLog;
-                            this.SysEnv.ContactLog.SaveData(ref tempContactLogin);
+                            _ = this.SysEnv.ContactLog.SaveData(ref tempContactLogin);
 
                             try
                             {
@@ -324,7 +280,6 @@
                             }
                             catch (SocketException ex)
                             {
-                                // TODO: Logging
                                 Console.WriteLine(ex);
                             }
                             catch (Exception ex)
@@ -333,17 +288,15 @@
                             }
                             finally
                             {
-                                // TODO: Resource strings
-                                Device.BeginInvokeOnMainThread(async () => await DisplayAlert(this.GetControlDescription(), "Please log back in for changes to be made in effect.", "OK"));
-                                await Device.InvokeOnMainThreadAsync(() => Application.Current.MainPage = new NavigationPage(new SplashStartup()));
+                                Device.BeginInvokeOnMainThread(async () => await this.DisplayAlert(this.GetControlDescription(), "Please log back in for changes to be made in effect.", "OK"));
+                                _ = await Device.InvokeOnMainThreadAsync(() => Application.Current.MainPage = new NavigationPage(new SplashStartup()));
                             }
                         }
                     }
                     else
                     {
-                        // TODO: Resource strings
-                        Device.BeginInvokeOnMainThread(async () => await DisplayAlert(this.GetControlDescription(), "Please log back in for changes to be made in effect.", "OK"));
-                        await Device.InvokeOnMainThreadAsync(() => Application.Current.MainPage = new NavigationPage(new SplashStartup()));
+                        Device.BeginInvokeOnMainThread(async () => await this.DisplayAlert(this.GetControlDescription(), "Please log back in for changes to be made in effect.", "OK"));
+                        _ = await Device.InvokeOnMainThreadAsync(() => Application.Current.MainPage = new NavigationPage(new SplashStartup()));
                     }
                 }
             }
@@ -356,7 +309,6 @@
         /// <remarks></remarks>
         public string GetControlDescription()
         {
-            // TODO: Resource strings
             return Resource.RefreshDataOptions;
         }
 
@@ -391,13 +343,17 @@
                 }
                 else
                 {
-                    await Device.InvokeOnMainThreadAsync(async () => await DisplayAlert(this.GetControlDescription(), Resource.DataFailedValidationCheckYourData, Resource.OK));
+                    await Device.InvokeOnMainThreadAsync(async () => await this.DisplayAlert(this.GetControlDescription(), Resource.DataFailedValidationCheckYourData, Resource.OK));
                 }
             }
-            catch (Exceptions.MessageOnlyException ex)
+            catch (MessageOnlyException ex)
             {
                 saveComplete = false;
-                ex.Show(SysCommon.ActSubTypes.RefreshData);
+                await Device.InvokeOnMainThreadAsync(async () =>
+                    await Application.Current.MainPage.DisplayAlert(
+                        this.GetControlDescription(),
+                        ex.Message,
+                        Resource.OK));
             }
             catch (Exception ex)
             {
@@ -406,7 +362,7 @@
                 await Device.InvokeOnMainThreadAsync(async () =>
                 {
                     FormErrorReport errRpt = new FormErrorReport(SysCommon.ActSubTypes.RefreshData, ex);
-                    await errRpt.ShowDialog();
+                    _ = await errRpt.ShowDialog();
                 });
             }
 
@@ -442,10 +398,14 @@
                     this.IsChangesMade = false;
                 }
             }
-            catch (Exceptions.MessageOnlyException ex)
+            catch (MessageOnlyException ex)
             {
                 cancelChanges = false;
-                ex.Show(SysCommon.ActSubTypes.RefreshData);
+                await Device.InvokeOnMainThreadAsync(async () =>
+                    await Application.Current.MainPage.DisplayAlert(
+                        this.GetControlDescription(),
+                        ex.Message,
+                        Resource.OK));
             }
             catch (Exception ex)
             {
@@ -454,7 +414,7 @@
                 await Device.InvokeOnMainThreadAsync(async () =>
                 {
                     FormErrorReport errorReport = new FormErrorReport(SysCommon.ActSubTypes.RefreshData, ex);
-                    await errorReport.ShowDialog();
+                    _ = await errorReport.ShowDialog();
                 });
             }
 
@@ -484,14 +444,11 @@
         /// <remarks></remarks>
         private void ucRefreshDataOptions_GotFocus(object sender, EventArgs e)
         {
-            if (!SysEnvironment.GetInstance().IsApplicationExitInvoked)
+            if (!this.IsControlLoaded)
             {
-                if (!this.IsControlLoaded)
-                {
-                    this.LoadData();
-                    this.IsControlLoaded = true;
-                    this.cmdRefreshData.Focus();
-                }
+                this.LoadData();
+                this.IsControlLoaded = true;
+                _ = this.cmdRefreshData.Focus();
             }
         }
 
@@ -507,15 +464,15 @@
 
             if (this.SysEnv.SysSettings.IsDisconnectedMode && await SysCommon.CheckForUnSubmittedData())
             {
-                if (await Device.InvokeOnMainThreadAsync(async () => await DisplayAlert(this.GetControlDescription(), Resource.WarningUnsubmittedDataExistsAndWillBeLostContinueWithRefreshData, Resource.Yes, Resource.No)))
+                if (await Device.InvokeOnMainThreadAsync(async () => await this.DisplayAlert(this.GetControlDescription(), Resource.WarningUnsubmittedDataExistsAndWillBeLostContinueWithRefreshData, Resource.Yes, Resource.No)))
                 {
-                    if (await Device.InvokeOnMainThreadAsync(async () => await DisplayAlert(this.GetControlDescription(), Resource.ConfirmRefreshData, Resource.Yes, Resource.No)))
+                    if (await Device.InvokeOnMainThreadAsync(async () => await this.DisplayAlert(this.GetControlDescription(), Resource.ConfirmRefreshData, Resource.Yes, Resource.No)))
                     {
                         isContinueRefresh = true;
                     }
                 }
             }
-            else if (await Device.InvokeOnMainThreadAsync(async () => await DisplayAlert(this.GetControlDescription(), "Confirm refresh data?", Resource.Yes, Resource.No)))
+            else if (await Device.InvokeOnMainThreadAsync(async () => await this.DisplayAlert(this.GetControlDescription(), "Confirm refresh data?", Resource.Yes, Resource.No)))
             {
                 isContinueRefresh = true;
             }
@@ -526,7 +483,7 @@
                 {
                     await Device.InvokeOnMainThreadAsync(async () =>
                     {
-                        FormDialogContainer form = new FormDialogContainer(FormDialogContainer.EDialogTypes.ucRefreshDataStatus, SysCommon.ActSubTypes.RefreshData);
+                        FormDialogContainer form = new FormDialogContainer(EDialogTypes.RefreshDataStatus, SysCommon.ActSubTypes.RefreshData);
 
                         if (await form.DisplayControl.ShowDialog() == DialogResult.OK)
                         {
@@ -549,8 +506,8 @@
         {
             if (await this.SaveChanges())
             {
-                FormDialogContainer form = new FormDialogContainer(FormDialogContainer.EDialogTypes.ucRefreshDataStatus, SysCommon.ActSubTypes.DataStatus);
-                await Device.InvokeOnMainThreadAsync(async () => await form.DisplayControl.ShowDialog());
+                FormDialogContainer form = new FormDialogContainer(EDialogTypes.RefreshDataStatus, SysCommon.ActSubTypes.DataStatus);
+                _ = await Device.InvokeOnMainThreadAsync(async () => await form.DisplayControl.ShowDialog());
             }
         }
 
@@ -562,7 +519,7 @@
         /// <remarks></remarks>
         private async void chkSelectAll_Click(object sender, EventArgs e)
         {
-            this.chkSystemData.IsToggled = this.chkSelectAll.IsToggled && await dMobile.GroundWork.Common.IsDataBaseDataExist();
+            this.chkSystemData.IsToggled = this.chkSelectAll.IsToggled && await GroundWork.Common.IsDataBaseDataExist();
 
             if (this.SysEnv.SysSettings.IsDisconnectedMode)
             {
@@ -584,14 +541,11 @@
         /// <remarks></remarks>
         private bool IsAllItemsSelected()
         {
-            bool isAllSelected = false;
-
-            isAllSelected = this.chkSystemData.IsToggled
-                && Convert.ToBoolean(this.chkAdjustments.IsToggled && this.chkPurchaseOrders.IsToggled
-                && this.chkSalesOrders.IsToggled && this.chkProductionTickets.IsToggled && this.chkReplenishment.IsToggled
-                && this.chkCounts.IsToggled && this.chkTransfers.IsToggled
-                && this.chkPurchaseOrderWorkSheet.IsToggled ? true : false);
-
+            bool isAllSelected = this.chkSystemData.IsToggled
+    && Convert.ToBoolean(this.chkAdjustments.IsToggled && this.chkPurchaseOrders.IsToggled
+    && this.chkSalesOrders.IsToggled && this.chkProductionTickets.IsToggled && this.chkReplenishment.IsToggled
+    && this.chkCounts.IsToggled && this.chkTransfers.IsToggled
+    && this.chkPurchaseOrderWorkSheet.IsToggled ? true : false);
             return isAllSelected;
         }
 
@@ -605,7 +559,7 @@
         {
             if (!this.chkSelectAll.IsToggled && this.IsAllItemsSelected())
             {
-                this.chkSelectAll.IsToggled = await dMobile.GroundWork.Common.IsDataBaseDataExist();
+                this.chkSelectAll.IsToggled = await GroundWork.Common.IsDataBaseDataExist();
             }
             else if (this.chkSelectAll.IsToggled && !this.IsAllItemsSelected())
             {
@@ -650,7 +604,7 @@
                     }
                     else if (sender == this.chkRefreshDataChangesOnly)
                     {
-                        this.chkRefreshDataChangesOnly.IsToggled = this.chkRefreshDataChangesOnly.IsToggled && await dMobile.GroundWork.Common.IsDataBaseDataExist();
+                        this.chkRefreshDataChangesOnly.IsToggled = this.chkRefreshDataChangesOnly.IsToggled && await GroundWork.Common.IsDataBaseDataExist();
                     }
                     else if (sender == this.chkReplenishment)
                     {
@@ -669,22 +623,26 @@
                     }
                 }
             }
-            catch (Exceptions.MessageOnlyException ex)
+            catch (MessageOnlyException ex)
             {
-                // Do not set the IsChangesMade. MessageOnlyException is really not and error. 
+                // Do not set the IsChangesMade. MessageOnlyException is really not and error.
                 // Allow the validation to handle the setting for IsChangesMade.
-                ex.Show(SysCommon.ActSubTypes.RefreshData);
+                await Device.InvokeOnMainThreadAsync(async () =>
+                    await Application.Current.MainPage.DisplayAlert(
+                        this.GetControlDescription(),
+                        ex.Message,
+                        Resource.OK));
             }
             catch (Exception ex)
             {
                 this.IsChangesMade = true;
                 FormErrorReport errRpt = new FormErrorReport(SysCommon.ActSubTypes.RefreshData, ex);
-                await Device.InvokeOnMainThreadAsync(async () => await errRpt.ShowDialog());
+                _ = await Device.InvokeOnMainThreadAsync(async () => await errRpt.ShowDialog());
             }
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
@@ -734,18 +692,22 @@
                 {
                 }
             }
-            catch (Exceptions.MessageOnlyException ex)
+            catch (MessageOnlyException ex)
             {
                 // Do not allow the exit of control.
                 e.Cancel = true;
-                ex.Show(SysCommon.ActSubTypes.RefreshData);
+                await Device.InvokeOnMainThreadAsync(async () =>
+                    await Application.Current.MainPage.DisplayAlert(
+                        this.GetControlDescription(),
+                        ex.Message,
+                        Resource.OK));
             }
             catch (Exception ex)
             {
                 // Do not allow the exit of control.
                 e.Cancel = true;
                 FormErrorReport errRpt = new FormErrorReport(SysCommon.ActSubTypes.RefreshData, ex);
-                await Device.InvokeOnMainThreadAsync(async () => await errRpt.ShowDialog());
+                _ = await Device.InvokeOnMainThreadAsync(async () => await errRpt.ShowDialog());
             }
         }
 
@@ -755,7 +717,7 @@
         /// <remarks></remarks>
         private void LoadData()
         {
-            this.SysEnv.RefreshOpt.LoadData();
+            _ = this.SysEnv.RefreshOpt.LoadData();
 
             this.chkRefreshDataChangesOnly.IsToggled = this.SysEnv.RefreshOpt.RefreshDataChangesOnly;
             this.chkSystemData.IsToggled = this.SysEnv.RefreshOpt.SystemData;

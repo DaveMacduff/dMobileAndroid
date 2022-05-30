@@ -1,9 +1,13 @@
-﻿using System;
-using SQLite;
-using SQLiteNetExtensions.Attributes;
+﻿// <copyright file="tContactVendorSupplierModel.cs" company="InterSect Business Systems Inc">
+// Copyright (c) InterSect Business Systems Inc. All rights reserved.
+// </copyright>
 
 namespace dMobile.Resources.Models
 {
+    using System;
+    using SQLite;
+    using SQLiteNetExtensions.Attributes;
+
     //string sqlTable = "CREATE TABLE IF NOT EXISTS tContactVendorSupplier"
     //+ "("
     //+ "ContactRefno INTEGER NOT NULL CONSTRAINT PK_UserOnContactRefno PRIMARY KEY,"
@@ -37,7 +41,6 @@ namespace dMobile.Resources.Models
 
     //sqlNdx = "CREATE UNIQUE INDEX IF NOT EXISTS UQ_ContactVendorSupplierOnContactVendorSupplierName ON tContactVendorSupplier(ContactVendorSupplierName ASC)";
     //await this.RunDDLCommand(sqlNdx);
-
     [Table("tContactVendorSupplier")]
     public class tContactVendorSupplierModel
     {

@@ -1,86 +1,39 @@
-using System;
+// <copyright file="clsActivityDetailExtra.cs" company="InterSect Business Systems Inc">
+// Copyright (c) InterSect Business Systems Inc. All rights reserved.
+// </copyright>
 
 namespace dMobile.Controller
 {
+    using System;
+
+    /// <summary>
+    /// Defines the <see cref="ActDetailExtra" />.
+    /// </summary>
     public class ActDetailExtra
     {
-        #region Fields
+        /// <summary>
+        /// Gets or sets the activity detail extra text 1.
+        /// </summary>
+        public string Text1 { get; set; } = string.Empty;
 
-        private string text1 = string.Empty;
-        private string text2 = string.Empty;
-        private string text3 = string.Empty;
-        private string text4 = string.Empty;
-        private DateTime dateTime5 = new DateTime(1900, 1, 1);
+        /// <summary>
+        /// Gets or sets the activity detail extra text 2.
+        /// </summary>
+        public string Text2 { get; set; } = string.Empty;
 
-        #endregion
+        /// <summary>
+        /// Gets or sets the activity detail extra text 3.
+        /// </summary>
+        public string Text3 { get; set; } = string.Empty;
 
-        #region Properties
+        /// <summary>
+        /// Gets or sets the activity detail extra text 4.
+        /// </summary>
+        public string Text4 { get; set; } = string.Empty;
 
-        public string Text1
-        {
-            get
-            {
-                return this.text1;
-            }
-
-            set
-            {
-                this.text1 = value;
-            }
-        }
-
-        public string Text2
-        {
-            get
-            {
-                return this.text2;
-            }
-
-            set
-            {
-                this.text2 = value;
-            }
-        }
-
-        public string Text3
-        {
-            get
-            {
-                return this.text3;
-            }
-
-            set
-            {
-                this.text3 = value;
-            }
-        }
-
-        public string Text4
-        {
-            get
-            {
-                return this.text4;
-            }
-
-            set
-            {
-                this.text4 = value;
-            }
-        }
-
-        public DateTime DateTime5
-        {
-            get
-            {
-                return this.dateTime5;
-            }
-
-            set
-            {
-                this.dateTime5 = value;
-            }
-        }
-
-        #endregion
+        /// <summary>
+        /// Gets or sets the activity detail extra date time 1.
+        /// </summary>
+        public DateTime DateTime1 { get; set; } = new DateTime(1900, 1, 1);
     }
 }

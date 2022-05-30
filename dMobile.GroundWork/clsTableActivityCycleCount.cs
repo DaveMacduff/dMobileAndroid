@@ -1,17 +1,21 @@
-﻿namespace dMobile.GroundWork
+﻿// <copyright file="clsTableActivityCycleCount.cs" company="InterSect Business Systems Inc">
+// Copyright (c) InterSect Business Systems Inc. All rights reserved.
+// </copyright>
+
+namespace dMobile.GroundWork
 {
-    using dMobile.Bedrock;
-    using SQLite;
     using System;
+    using System.Collections.Generic;
     using System.Data;
     using System.Text;
     using System.Threading.Tasks;
     using System.Xml;
     using System.Xml.Linq;
-    using System.Collections.Generic;
+    using dMobile.Bedrock;
+    using SQLite;
 
     /// <summary>
-    /// Defines the <see cref="TableActivityCycleCount" />
+    /// Defines the <see cref="TableActivityCycleCount" />.
     /// </summary>
     public class TableActivityCycleCount : TableBase
     {
@@ -25,23 +29,20 @@
         }
 
         /// <summary>
-        /// The Request
+        /// The Request.
         /// </summary>
-        public override async Task Request()
+        public override async Task RequestData()
         {
-            string reqData = string.Empty;
 
-            //GC.Collect();
-            //GC.WaitForPendingFinalizers();
-
+            // GC.Collect();
+            // GC.WaitForPendingFinalizers();
             try
             {
-                // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Seeding cycle counts.", true);
 
-                reqData = await this.Send("cycle counts");
+                string reqData = await this.SendRequest();
 
-                if (0 < reqData.Length)
+                if (reqData.Length > 0)
                 {
                     if (reqData.Contains("<message>ERROR</message>"))
                     {
@@ -53,38 +54,32 @@
                     await this.Save(reqData);
                 }
 
-                // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Seeding cycle counts complete.", true);
             }
             catch (Exception ex)
             {
-                // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Seeding cycle counts failed.", true);
 
-                // TODO: Resource strings
                 throw new Exception("Seeding cycle counts failed.", ex);
             }
         }
 
         /// <summary>
-        /// The DataStatus
+        /// The DataStatus.
         /// </summary>
-        /// <returns>The <see cref="int"/></returns>
+        /// <returns>The <see cref="int"/>.</returns>
         public override async Task<int> DataStatus()
         {
-            int rowsAffected = 0;
-
+            int rowsAffected;
             try
             {
                 string query = "SELECT COUNT(tActivity.ActivityRefno) FROM tActivity WHERE tActivity.ActivitySubType = ?";
                 rowsAffected = await DatabaseConnection.GetInstance().SQLConn.ExecuteScalarAsync<int>(query, Convert.ToInt32(SysCommon.ActSubTypes.CycleCounts));
 
-                // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, string.Format("{0} cycle count(s)", rowsAffected), true);
             }
             catch (SQLiteException ex)
             {
-                // TODO: Resource strings
                 throw new Exception("Database exception occurred. Cycle counts status failed.", ex);
             }
 
@@ -92,13 +87,12 @@
         }
 
         /// <summary>
-        /// The Purge
+        /// The Purge.
         /// </summary>
-        public override async Task Purge()
+        public override async Task PurgeData()
         {
             try
             {
-                // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging cycle counts.", true);
 
                 string query = "DELETE FROM tActivityCount WHERE tActivityCount.ActivitySubType = ?";
@@ -107,40 +101,33 @@
                 query = "DELETE FROM tActivity WHERE tActivity.ActivitySubType = ?";
                 await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(query, Convert.ToInt32(SysCommon.ActSubTypes.CycleCounts));
 
-                // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging cycle counts complete.", true);
             }
             catch (SQLiteException ex)
             {
-                // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Database exception occurred.", true);
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging cycle counts failed.", true);
 
-                // TODO: Resource strings
                 throw new Exception("Database exception occurred. Purging cycle counts failed.", ex);
             }
         }
 
         /// <summary>
-        /// The Save
+        /// The Save.
         /// </summary>
         /// <param name="reqData"></param>
         protected override async Task Save(string reqData)
         {
-            string errMsg = string.Empty;
-
             await DatabaseConnection.GetInstance().SQLConn.RunInTransactionAsync(transaction =>
             {
                 try
                 {
-                    // TODO: Resource strings
                     this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Reading received data.", false);
 
                     using (DataSet ds = new DataSet())
                     {
                         ds.ReadXml(SysCommon.GetXmlReader(ref reqData), XmlReadMode.Auto);
 
-                        // TODO: Resource strings
                         this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving cycle counts.", false);
 
                         // Receiving schema but no data results in no table being created in the dataset.
@@ -148,7 +135,6 @@
                         {
                             int progMax = Convert.ToInt32(ds.Tables["tActivityCount"].Rows.Count);
 
-                            // TODO: Resource strings
                             this.DataAccessStatusOutHandler(this, EventArgs.Empty, string.Format("Records {0}", progMax), false);
 
                             int actRefno = 0;
@@ -161,51 +147,44 @@
 
                             foreach (DataRow drow in ds.Tables["tActivityCount"].Rows)
                             {
-                                // TODO: Resource strings
-                                errMsg = "Arguments:";
-
                                 transaction.Execute("INSERT INTO tActivity (ActivityStatus, ActivitySubType) VALUES (?, ?)", 0, Convert.ToInt32(SysCommon.ActSubTypes.CycleCounts));
                                 actRefno = Convert.ToInt32(transaction.ExecuteScalar<int>("SELECT last_insert_rowid() FROM tActivity"));
 
                                 countFKRefno = Convert.ToInt32(drow["ActivityCountFKRefno"]);
-                                errMsg += Environment.NewLine + "FK refno " + countFKRefno;
-                                whsLocMapRefno = this.GetWhsLocMapRefnoFromDataRow(drow, ref errMsg, transaction);
+                                whsLocMapRefno = this.GetWhsLocMapRefnoFromDataRow(drow, transaction);
                                 // To remove time - convert twice
                                 DateTime dt = Convert.ToDateTime(drow["ActivityCountDateTime"]);
 
                                 switch (Convert.ToInt32(drow["ActivityCountType"]))
                                 {
                                     case (int)SysCommon.ActCountTypeFields.CycleCountByWarehouse:
-                                        // TODO: Resource strings
+
                                         actCountTypeDesc = "Cycle Count By Warehouse";
                                         break;
 
                                     case (int)SysCommon.ActCountTypeFields.CycleCountBySection:
-                                        // TODO: Resource strings
+
                                         actCountTypeDesc = "Cycle Count By Section";
                                         break;
 
                                     case (int)SysCommon.ActCountTypeFields.CycleCountBySlot:
-                                        // TODO: Resource strings
+
                                         actCountTypeDesc = "Cycle Count By Slot";
                                         break;
 
                                     case (int)SysCommon.ActCountTypeFields.BaseCycleCountByWarehouse:
-                                        // TODO: Resource strings
+
                                         actCountTypeDesc = "Base Cycle Count By Warehouse";
                                         break;
 
                                     case (int)SysCommon.ActCountTypeFields.PhysicalCountByWarehouse:
-                                        // TODO: Resource strings
+
                                         actCountTypeDesc = "Standard Physical Count By Warehouse";
                                         break;
                                 }
 
-                                // TODO: Resource strings
-                                errMsg += Environment.NewLine + "Type \'" + actCountTypeDesc + "\'";
-
                                 // <wo="14563" comment="receiving strings up to 75 in length when database wants max 60. This is the viewable description when selecting line item." />
-                                string incomingDescription = ReduceWhitespace(drow["ActivityCountDescription"].ToString());
+                                string incomingDescription = this.ReduceWhitespace(drow["ActivityCountDescription"].ToString());
 
                                 if (incomingDescription.Length > 60)
                                 {
@@ -249,7 +228,7 @@
                                     Convert.ToInt32(drow["ActivityCountType"]),
                                     DateTime.Parse(dt.ToShortDateString()),
                                     actCountTypeDesc,
-                                    incomingDescription
+                                    incomingDescription,
                                 };
 
                                 transaction.Execute(sql, parameters);
@@ -266,7 +245,6 @@
 
                         transaction.Commit();
 
-                        // TODO: Resource strings
                         this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving cycle counts complete.", false);
                     }
                 }
@@ -274,12 +252,10 @@
                 {
                     transaction.Rollback();
 
-                    // TODO: Resource strings
                     this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Database exception occurred.", true);
                     this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving cycle counts failed.", true);
 
-                    // TODO: Resource strings
-                    throw new Exception("Database exception occurred. Saving cycle counts failed." + Environment.NewLine + errMsg, ex);
+                    throw new Exception("Database exception occurred. Saving cycle counts failed.", ex);
                 }
             });
         }
@@ -292,17 +268,22 @@
         private string ReduceWhitespace(string input)
         {
             if (string.IsNullOrEmpty(input))
+            {
                 return string.Empty;
+            }
 
             StringBuilder sb = new StringBuilder();
             bool prevIsWhitespace = false;
             char[] charArray = input.ToCharArray();
             for (int i = 0; i < input.Length; ++i)
             {
-                if (Char.IsWhiteSpace(charArray[i]))
+                if (char.IsWhiteSpace(charArray[i]))
                 {
                     if (prevIsWhitespace)
+                    {
                         continue;
+                    }
+
                     prevIsWhitespace = true;
                 }
                 else
@@ -316,10 +297,10 @@
         }
 
         /// <summary>
-        /// The Create
+        /// The Create.
         /// </summary>
         /// <returns></returns>
-        protected override async Task<string> Create()
+        protected override async Task<string> CreateRequest()
         {
             StringBuilder xmlString = new StringBuilder();
             XmlWriter xml = XmlWriter.Create(xmlString);

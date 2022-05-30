@@ -1,24 +1,27 @@
-﻿using System;
+﻿// <copyright file="HoneywellScannerService.cs" company="InterSect Business Systems Inc">
+// Copyright (c) InterSect Business Systems Inc. All rights reserved.
+// </copyright>
+
+using System;
 using System.Collections.Generic;
-using dMobile.Resources.Services;
+using Android.Util;
+using Android.Widget;
 using Com.Honeywell.Aidc;
-using BarcodeReader = Com.Honeywell.Aidc.BarcodeReader;
+using dMobile.Droid.Services;
+using dMobile.Resources.Services;
 using Java.Interop;
 using Xamarin.Forms;
-using dMobile.Droid.Services;
-using Android.Widget;
-using Android.Util;
+using BarcodeReader = Com.Honeywell.Aidc.BarcodeReader;
 
 [assembly: Dependency(typeof(HoneywellScannerService))]
 namespace dMobile.Droid.Services
 {
     public class HoneywellScannerService : IHoneywellScannerService
     {
-        private BarcodeReader barcodeReader;
         private Dictionary<string, object> barcodeReaderSettings = new Dictionary<string, object>();
         private event EventHandler OnProfileInfoRecieved;
         public event EventHandler ProfileDataReady;
-        public BarcodeReader BarcodeReader { get => barcodeReader; set => barcodeReader = value; }
+        public BarcodeReader BarcodeReader { get; set; }
         public Dictionary<string, object> BarcodeReaderSettings { get => this.barcodeReaderSettings; set => this.barcodeReaderSettings = value; }
         private string packageProfileName = Android.App.Application.Context.PackageName;
         private string defaultProfileName = "DEFAULT";
@@ -27,7 +30,7 @@ namespace dMobile.Droid.Services
         {
             try
             {
-                this.OnProfileInfoRecieved += HoneywellScannerService_OnProfileInfoRecieved;
+                this.OnProfileInfoRecieved += this.HoneywellScannerService_OnProfileInfoRecieved;
                 Callback callback = new Callback();
                 callback.OnCreatedComplete += ScannerProfileRetrieved;
                 AidcManager.Create(Android.App.Application.Context, callback);
@@ -73,7 +76,7 @@ namespace dMobile.Droid.Services
                                 }
                                 else
                                 {
-                                    Log.Debug("BARCODE READER PROPERTIES", "Invalid type in barcode reader properties. " + val != null ? val.GetType().ToString() : string.Empty);
+                                    Log.Debug("BARCODE READER PROPERTIES", "Invalid type in bar code reader properties. " + val != null ? val.GetType().ToString() : string.Empty);
                                 }
                             }
                             catch (Exception ex)
@@ -85,50 +88,48 @@ namespace dMobile.Droid.Services
                 }
 
                 // TODO: Loading the DEFAULT profile breaks the barcodeReader.SetAsync for some reason. For now we will have to create a scanner profile for the application
-                //        else if (this.BarcodeReader.LoadProfile(this.defaultProfileName)) // "DEFAULT"
-                //        {
-                //            var test = this.BarcodeReader.ProfileNames;
-                //            foreach (var property in this.BarcodeReader.AllProperties)
-                //            {
-                //                var val = property.Value;
+                ////        else if (this.BarcodeReader.LoadProfile(this.defaultProfileName)) // "DEFAULT"
+                ////        {
+                ////            var test = this.BarcodeReader.ProfileNames;
+                ////            foreach (var property in this.BarcodeReader.AllProperties)
+                ////            {
+                ////                var val = property.Value;
 
-                //                if (val != null)
-                //                {
-                //                    try
-                //                    {
-                //                        if (val.GetType() == typeof(Java.Lang.Boolean))
-                //                        {
-                //                            this.BarcodeReaderSettings.TryAdd(property.Key, (bool)val);
-                //                        }
-                //                        else if (val.GetType() == typeof(Java.Lang.String))
-                //                        {
-                //                            this.BarcodeReaderSettings.TryAdd(property.Key, (string)val);
-                //                        }
-                //                        else if (val.GetType() == typeof(Java.Lang.Integer))
-                //                        {
-                //                            this.BarcodeReaderSettings.TryAdd(property.Key, (int)val);
-                //                        }
-                //                        else
-                //                        {
-                //                            Log.Debug("DEFAULT BARCODE READER PROPERTIES", "Invalid type in barcode reader properties. " + val != null ? val.GetType().ToString() : string.Empty);
-                //                        }
-                //                    }
-                //                    catch (Exception ex)
-                //                    {
-                //                        Toast.MakeText(Android.App.Application.Context, "Error loading default barcode reader profile. " + val != null ? val.ToString() : string.Empty + " " + ex.Message, ToastLength.Short);
-                //                    }
-                //                }
-                //            }
-                //        }
-                //    }
-
+                //// if (val != null)
+                ////                {
+                ////                    try
+                ////                    {
+                ////                        if (val.GetType() == typeof(Java.Lang.Boolean))
+                ////                        {
+                ////                            this.BarcodeReaderSettings.TryAdd(property.Key, (bool)val);
+                ////                        }
+                ////                        else if (val.GetType() == typeof(Java.Lang.String))
+                ////                        {
+                ////                            this.BarcodeReaderSettings.TryAdd(property.Key, (string)val);
+                ////                        }
+                ////                        else if (val.GetType() == typeof(Java.Lang.Integer))
+                ////                        {
+                ////                            this.BarcodeReaderSettings.TryAdd(property.Key, (int)val);
+                ////                        }
+                ////                        else
+                ////                        {
+                ////                            Log.Debug("DEFAULT BARCODE READER PROPERTIES", "Invalid type in barcode reader properties. " + val != null ? val.GetType().ToString() : string.Empty);
+                ////                        }
+                ////                    }
+                ////                    catch (Exception ex)
+                ////                    {
+                ////                        Toast.MakeText(Android.App.Application.Context, "Error loading default barcode reader profile. " + val != null ? val.ToString() : string.Empty + " " + ex.Message, ToastLength.Short);
+                ////                    }
+                ////                }
+                ////            }
+                ////        }
+                ////    }
                 this.ProfileDataReady?.Invoke(this, new EventArgs());
             }
         }
 
         class Callback : Java.Lang.Object, AidcManager.ICreatedCallback
         {
-            private BarcodeReader barcodeReader;
             private AidcManager manager;
             public IntPtr Handle => throw new NotImplementedException();
             public int JniIdentityHashCode => throw new NotImplementedException();
@@ -136,10 +137,9 @@ namespace dMobile.Droid.Services
             public JniPeerMembers JniPeerMembers => throw new NotImplementedException();
             public JniManagedPeerStates JniManagedPeerState => throw new NotImplementedException();
 
-            public BarcodeReader BarcodeReader { get => barcodeReader; set => barcodeReader = value; }
-            public AidcManager Manager { get => manager; set => manager = value; }
+            public BarcodeReader BarcodeReader { get; set; }
+            public AidcManager Manager { get => this.manager; set => this.manager = value; }
             public EventHandler OnCreatedComplete;
-
 
             public void Dispose()
             {

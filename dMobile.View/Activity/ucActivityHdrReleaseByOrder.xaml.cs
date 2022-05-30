@@ -1,47 +1,43 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using SQLite;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Xml.Linq;
-using Android.Views;
-using dMobile.BarCodeScanner;
-using dMobile.Bedrock;
-using dMobile.Controller;
-using dMobile.Resources.Enums;
-using dMobile.View.CustomPages;
-using dMobile.View.Forms;
-using Xamarin.Forms;
-using Xamarin.Forms.Xaml;
+﻿// <copyright file="ucActivityHdrReleaseByOrder.xaml.cs" company="InterSect Business Systems Inc">
+// Copyright (c) InterSect Business Systems Inc. All rights reserved.
+// </copyright>
 
 namespace dMobile.View.Activity
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Collections.ObjectModel;
+    using System.Linq;
+    using System.Text;
+    using System.Threading.Tasks;
+    using System.Xml.Linq;
+    using Android.Views;
+    using dMobile.BarCodeScanner;
+    using dMobile.BarCodeScanner.BarCodeParsing;
+    using dMobile.BarCodeScanner.BarCodeScanners;
+    using dMobile.Bedrock;
+    using dMobile.Controller;
+    using dMobile.Resources.Enums;
+    using dMobile.View.CustomPages;
+    using dMobile.View.Forms;
+    using SQLite;
+    using Xamarin.Forms;
+    using Xamarin.Forms.Xaml;
+
     [XamlCompilation(XamlCompilationOptions.Compile)]
     public partial class ucActivityHdrReleaseByOrder : DMobileContentPage, IAppArea
     {
-        #region Fields
-
-        private Controller.Activity activity = null;
-        private SysCommon.ActSubTypes actSubTypes = SysCommon.ActSubTypes.ReleaseByOrder;
-        private BarCodeParse parse = null;
-        private BarCodeScanner.BarCodeScanner scanner = null;
-        private bool isBarCodeHandlerRegistered = false;
-        private SysEnvironment sysEnv;
-        private ObservableCollection<string> itemsList;
-        private ObservableCollection<object> dataGridMainActivityItemsList;
         private List<string> optionsMenuItems = new List<string>();
-
-        #endregion
-
-        #region Constructors
 
         /// <summary>
         ///
         /// </summary>
         /// <param name="_ActivitySubTypes"></param>
         /// <remarks></remarks>
+/// <summary>
+/// Initializes a new instance of the <see cref="ucActivityHdrReleaseByOrder"/> class.
+/// </summary>
+/// <param name="actSubTypes"></param>
         public ucActivityHdrReleaseByOrder(SysCommon.ActSubTypes actSubTypes)
         {
             this.InitializeComponent();
@@ -51,24 +47,20 @@ namespace dMobile.View.Activity
             this.cmdAdd.IsEnabled = false;
 
             this.SysEnv = SysEnvironment.GetInstance();
-            this.Scanner = BarCodeSingleton.GetInstance().Scanner;
+            this.Scanner = ScannerEngine.GetInstance().Scanner;
 
             this.ActSubType = actSubTypes;
             this.Activity = ActivityFacade.GetActivity(this.ActSubType);
             this.Activity.ActSubType = this.ActSubType;
 
             this.Title = this.GetControlDescription();
-            this.ItemsList = new ObservableCollection<string>();
-            this.DataGridMainActivityItemsList = new ObservableCollection<object>();
+            this.ExtraInfoItems = new ObservableCollection<string>();
+            this.MainActivityItems = new ObservableCollection<object>();
             this.optionsMenuItems.Add("Release order");
         }
 
-        #endregion
-
-        #region keyEvents
-
         /// <summary>
-        /// The OnAppearing
+        /// The OnAppearing.
         /// </summary>
         protected override async void OnAppearing()
         {
@@ -76,7 +68,7 @@ namespace dMobile.View.Activity
 
             MessagingCenter.Subscribe<string>(this, EventTypes.OnKeyUp.ToString(), async (keyPressed) =>
             {
-                Enum.TryParse(keyPressed, out Keycode keycode);
+                _ = Enum.TryParse(keyPressed, out Keycode keycode);
 
                 if (!this.Loading)
                 {
@@ -84,12 +76,11 @@ namespace dMobile.View.Activity
                     {
                         try
                         {
-                            await ReleaseOrder();
+                            await this.ReleaseOrder();
                         }
                         catch (Exception ex)
                         {
-                            // TODO: Resource strings
-                            await Device.InvokeOnMainThreadAsync(async () => await DisplayAlert("Change Status", ex.Message, "OK"));
+                            await Device.InvokeOnMainThreadAsync(async () => await this.DisplayAlert("Change Status", ex.Message, "OK"));
                         }
                     }
                 }
@@ -101,8 +92,7 @@ namespace dMobile.View.Activity
             }
             catch (Exception ex)
             {
-                // TODO: Resource strings
-                await Device.InvokeOnMainThreadAsync(async () => await DisplayAlert("Error", "this.ucActivityHdrReleaseByOrder_GotFocus threw an error " + ex, "OK"));
+                await Device.InvokeOnMainThreadAsync(async () => await this.DisplayAlert("Error", "this.ucActivityHdrReleaseByOrder_GotFocus threw an error " + ex, "OK"));
             }
         }
 
@@ -110,9 +100,8 @@ namespace dMobile.View.Activity
         {
             if (this.ActSubType == SysCommon.ActSubTypes.Picking || this.ActSubType == SysCommon.ActSubTypes.PickingSingle)
             {
-                if (await Device.InvokeOnMainThreadAsync(async () => await this.Activity.ChangeStatus(this.dataGridMainActivity.SelectedItem)))
+                if (await Device.InvokeOnMainThreadAsync(async () => await this.Activity.ChangeStatus(this.ListViewMainActivity.SelectedItem)))
                 {
-
                     await this.ScannerDisable();
 
                     // SHIPPING LABELS
@@ -120,12 +109,16 @@ namespace dMobile.View.Activity
                     {
                         // Load activity properties, activity is an argument for the ShippingLabelControl
                         // SelectedIdx is not refreshed.
-                        this.Activity.Refno = this.Activity.GetRefnoFromRowIdx(this.dataGridMainActivity.SelectedItem);
+                        this.Activity.Refno = this.Activity.GetRefnoFromRowIdx(this.ListViewMainActivity.SelectedItem);
 
-                        SysCommon.SLabelQuantity labelQuantity = new SysCommon.SLabelQuantity();
-                        labelQuantity = await this.Activity.GetLabelQuantity();
+                        SLabelQuantity labelQuantity = new SLabelQuantity();
+                        labelQuantity = await this.Activity.GetLabelQuantity(false);
 
-                        FormDialogContainer form = new FormDialogContainer(FormDialogContainer.EDialogTypes.ucActivityShippingLabelEdit, this.ActSubType, labelQuantity, this.Activity, SysCommon.ShippingLabelQuantitySelectionMode.BothFullRepack);
+                        FormDialogContainer form = new FormDialogContainer(
+                            EDialogTypes.ActivityShippingLabelEdit,
+                            labelQuantity,
+                            this.Activity,
+                            SysCommon.ShippingLabelQuantitySelectionMode.BothFullRepack);
 
                         if (await form.DisplayControl.ShowDialog() == DialogResult.OK)
                         {
@@ -145,24 +138,24 @@ namespace dMobile.View.Activity
                     }
                     else
                     {
-                        this.Activity.ListHdrs.Remove(this.dataGridMainActivity.SelectedItem);
+                        _ = this.Activity.ListHdrs.Remove(this.ListViewMainActivity.SelectedItem);
 
                         await Device.InvokeOnMainThreadAsync(async () =>
                         {
-                            this.ItemsList.Clear();
-                            this.DataGridMainActivityItemsList = this.Activity.DesignGrid(ref this.dataGridMainActivityHeader, ref this.dataGridMainActivity);
+                            this.ExtraInfoItems.Clear();
+                            this.MainActivityItems = this.Activity.DesignGrid(ref this.GridMainActivity, ref this.ListViewMainActivity);
 
                             if (!string.IsNullOrEmpty(this.txtSearchHdr.Text))
                             {
-                                this.DataGridMainActivityItemsList = this.Activity.Search(this.txtSearchHdr.Text);
+                                this.MainActivityItems = this.Activity.Search(this.txtSearchHdr.Text);
                             }
 
-                            this.dataGridMainActivity.ItemsSource = this.DataGridMainActivityItemsList;
+                            this.ListViewMainActivity.ItemsSource = this.MainActivityItems;
 
-                            if (this.Activity.ListHdrs.Count > 0 && this.DataGridMainActivityItemsList.Count > 0 && this.DataGridMainActivityItemsList[0] != null)
+                            if (this.Activity.ListHdrs.Count > 0 && this.MainActivityItems.Count > 0 && this.MainActivityItems[0] != null)
                             {
-                                this.dataGridMainActivity.SelectedItem = this.DataGridMainActivityItemsList[0];
-                                await this.Activity.SelectActivity(this.dataGridMainActivity.SelectedItem);
+                                this.ListViewMainActivity.SelectedItem = this.MainActivityItems[0];
+                                await this.Activity.SelectActivity(this.ListViewMainActivity.SelectedItem);
                             }
                         });
                     }
@@ -173,7 +166,7 @@ namespace dMobile.View.Activity
         }
 
         /// <summary>
-        /// The OnDisappearing
+        /// The OnDisappearing.
         /// </summary>
         protected override async void OnDisappearing()
         {
@@ -187,7 +180,7 @@ namespace dMobile.View.Activity
         {
             Device.BeginInvokeOnMainThread(async () =>
             {
-                base.OnBackButtonPressed();
+                _ = base.OnBackButtonPressed();
 
                 if (await this.SaveChanges())
                 {
@@ -195,7 +188,7 @@ namespace dMobile.View.Activity
                 }
                 else
                 {
-                    await this.CancelChanges();
+                    _ = await this.CancelChanges();
                     await this.Close();
                 }
             });
@@ -203,120 +196,47 @@ namespace dMobile.View.Activity
             return true;
         }
 
-        #endregion
+        private BarCodeParse Parse { get; set; } = null;
 
-        #region Properties
+        private BarCodeScanner Scanner { get; set; } = null;
 
-        private BarCodeParse Parse
-        {
-            get
-            {
-                return this.parse;
-            }
+        private SysEnvironment SysEnv { get; set; }
 
-            set
-            {
-                this.parse = value;
-            }
-        }
+        private bool IsBarCodeHandlerRegistered { get; set; } = false;
 
-        private BarCodeScanner.BarCodeScanner Scanner
-        {
-            get
-            {
-                return this.scanner;
-            }
+        private Activity Activity { get; set; } = null;
 
-            set
-            {
-                this.scanner = value;
-            }
-        }
+        private SysCommon.ActSubTypes ActSubType { get; set; } = SysCommon.ActSubTypes.ReleaseByOrder;
 
-        private SysEnvironment SysEnv
-        {
-            get
-            {
-                return this.sysEnv;
-            }
-
-            set
-            {
-                this.sysEnv = value;
-            }
-        }
-
-        private bool IsBarCodeHandlerRegistered
-        {
-            get
-            {
-                return this.isBarCodeHandlerRegistered;
-            }
-
-            set
-            {
-                this.isBarCodeHandlerRegistered = value;
-            }
-        }
-
-        private Controller.Activity Activity
-        {
-            get
-            {
-                return this.activity;
-            }
-
-            set
-            {
-                this.activity = value;
-            }
-        }
-
-        private SysCommon.ActSubTypes ActSubType
-        {
-            get
-            {
-                return this.actSubTypes;
-            }
-
-            set
-            {
-                this.actSubTypes = value;
-            }
-        }
-
-        public ObservableCollection<string> ItemsList { get => itemsList; set => itemsList = value; }
-        public ObservableCollection<object> DataGridMainActivityItemsList { get => dataGridMainActivityItemsList; set => dataGridMainActivityItemsList = value; }
-
-        #endregion
-
-        #region Public Members
+        public ObservableCollection<string> ExtraInfoItems { get; set; }
+        public ObservableCollection<object> MainActivityItems { get; set; }
 
         /// <summary>
         /// Unregister the bar code scan event handler and disable the scanner.
         /// </summary>
-        /// <remarks></remarks>
+        /// <returns><see cref="Task"/> Task operation.</returns>
         public async Task ScannerDisable()
         {
-            if (this.IsBarCodeHandlerRegistered)
+            if (this.IsBarCodeHandlerRegistered && this.Scanner != null)
             {
-                this.Scanner.BarCodeScan -= new BarCodeScanner.BarCodeScanner.BarCodeScanEventHandler(this.BarCodeHandler);
+                this.Scanner.BarCodeScan -= new BarCodeScanner.BarCodeScanEventHandler(this.BarCodeHandler);
                 await this.Scanner.Stop();
-                this.IsBarCodeHandlerRegistered = false;
             }
+
+            this.IsBarCodeHandlerRegistered = false;
         }
 
         /// <summary>
         /// Registers the bar code scan event handler and enables the scanner.
         /// </summary>
-        /// <remarks></remarks>
+        /// <returns><see cref="Task"/> Task operation.</returns>
         public async Task ScannerEnable()
         {
-            if (!this.IsBarCodeHandlerRegistered)
+            if (!this.IsBarCodeHandlerRegistered && this.Scanner != null)
             {
-                this.IsBarCodeHandlerRegistered = true;
                 await this.Scanner.Start();
-                this.Scanner.BarCodeScan += new BarCodeScanner.BarCodeScanner.BarCodeScanEventHandler(this.BarCodeHandler);
+                this.Scanner.BarCodeScan += new BarCodeScanner.BarCodeScanEventHandler(this.BarCodeHandler);
+                this.IsBarCodeHandlerRegistered = true;
             }
         }
 
@@ -355,12 +275,12 @@ namespace dMobile.View.Activity
         ///// </summary>
         ///// <returns></returns>
         ///// <remarks></remarks>
-        //public UserControl GetCallingControl()
-        //{
+        // public UserControl GetCallingControl()
+        // {
         //    UserControl control = new ucSalesOrdersMenu();
 
-        //    return control;
-        //}
+        // return control;
+        // }
 
         /// <summary>
         ///
@@ -421,7 +341,7 @@ namespace dMobile.View.Activity
                 await Device.InvokeOnMainThreadAsync(async () =>
                 {
                     FormErrorReport errorReport = new FormErrorReport(this.ActSubType, ex);
-                    await errorReport.ShowDialog();
+                    _ = await errorReport.ShowDialog();
                 });
             }
 
@@ -449,13 +369,16 @@ namespace dMobile.View.Activity
         /// <param name="sender"></param>
         /// <param name="e"></param>
         /// <remarks></remarks>
+/// <summary>
+///
+/// </summary>
+/// <param name="sender"></param>
+/// <param name="e"></param>
+/// <returns>A <see cref="Task"/> representing the result of the asynchronous operation.</returns>
         public async Task ucActivityHdrReleaseByOrder_GotFocus(object sender, EventArgs e)
         {
-            if (!SysEnvironment.GetInstance().IsApplicationExitInvoked)
-            {
-                await this.ScannerEnable();
-                await this.RefreshData();
-            }
+            await this.ScannerEnable();
+            await this.RefreshData();
         }
 
         /// <summary>
@@ -466,8 +389,8 @@ namespace dMobile.View.Activity
         /// <remarks></remarks>
         public void txtSearchHdr_TextChanged(object sender, TextChangedEventArgs e)
         {
-            this.DataGridMainActivityItemsList = this.Activity.Search(txtSearchHdr.Text);
-            this.dataGridMainActivity.ItemsSource = this.DataGridMainActivityItemsList;
+            this.MainActivityItems = this.Activity.Search(this.txtSearchHdr.Text);
+            this.ListViewMainActivity.ItemsSource = this.MainActivityItems;
         }
 
         /// <summary>
@@ -476,7 +399,7 @@ namespace dMobile.View.Activity
         /// <param name="sender"></param>
         /// <param name="e"></param>
         /// <remarks></remarks>
-        public async void DataGridMainActivity_ItemSelected(object sender, SelectedItemChangedEventArgs e)
+        public async void ListViewMainActivity_ItemSelected(object sender, SelectedItemChangedEventArgs e)
         {
             await this.Activity.SelectActivity(e.SelectedItem);
         }
@@ -491,7 +414,7 @@ namespace dMobile.View.Activity
         {
             await this.ScannerDisable();
 
-            FormDialogContainer form = new FormDialogContainer(FormDialogContainer.EDialogTypes.ucActivityHdrPickingFilter, this.ActSubType);
+            FormDialogContainer form = new FormDialogContainer(EDialogTypes.ActivityHdrPickingFilter, this.ActSubType);
 
             if (await form.DisplayControl.ShowDialog() == DialogResult.OK)
             {
@@ -499,17 +422,16 @@ namespace dMobile.View.Activity
                 this.Activity.GetFilter(xmlDoc);
 
                 // TODO: Fix filtering
-                //this.Activity.DataViewHdrs.RowFilter = filter;
-
+                // this.Activity.DataViewHdrs.RowFilter = filter;
                 if (!string.IsNullOrEmpty(this.txtSearchHdr.Text))
                 {
-                    this.Activity.Search(txtSearchHdr.Text);
+                    _ = this.Activity.Search(this.txtSearchHdr.Text);
                 }
 
                 if (!string.IsNullOrEmpty(xmlDoc.Root.Element("sortby").Value))
                 {
                     // TODO: Fix sorting
-                    //this.Activity.DataViewHdrs.Sort = xmlDoc.Root.Element("sortby").Value;
+                    // this.Activity.DataViewHdrs.Sort = xmlDoc.Root.Element("sortby").Value;
                 }
             }
 
@@ -522,15 +444,21 @@ namespace dMobile.View.Activity
         /// <param name="sender"></param>
         /// <param name="e"></param>
         /// <remarks></remarks>
+/// <summary>
+///
+/// </summary>
+/// <param name="sender"></param>
+/// <param name="e"></param>
+/// <returns>A <see cref="Task"/> representing the result of the asynchronous operation.</returns>
         public async Task ucActivityHdrReleaseByOrder_LostFocus(object sender, EventArgs e)
         {
-            //if (this.tmrActivityLoaded.Enabled == false)
-            //{
+            // if (this.tmrActivityLoaded.Enabled == false)
+            // {
             if (this.Scanner != null)
             {
                 await this.ScannerDisable();
             }
-            //}
+            // }
         }
 
         /// <summary>
@@ -542,7 +470,7 @@ namespace dMobile.View.Activity
         public async void cmdAdd_Click(object sender, EventArgs e)
         {
             XDocument xmlDoc = null;
-            await this.Activity.Insert(xmlDoc);
+            _ = await this.Activity.Insert(xmlDoc);
         }
 
         /// <summary>
@@ -559,10 +487,6 @@ namespace dMobile.View.Activity
                 this.txtSearchHdr.SelectionLength = this.txtSearchHdr.Text.Length;
             }
         }
-
-        #endregion
-
-        #region Private Members
 
         /// <summary>
         ///
@@ -599,62 +523,52 @@ namespace dMobile.View.Activity
 
                         if (selectedActivity != null)
                         {
-                            this.Activity.GetRefnoFromRowIdx(selectedActivity);
+                            _ = this.Activity.GetRefnoFromRowIdx(selectedActivity);
 
-                            FormDialogContainer form = new FormDialogContainer(FormDialogContainer.EDialogTypes.ucActivityItem, this.Activity, this.ActSubType);
-                            await Device.InvokeOnMainThreadAsync(async () => await form.DisplayControl.ShowDialog());
+                            FormDialogContainer form = new FormDialogContainer(EDialogTypes.ActivityItem, this.Activity, this.ActSubType);
+                            _ = await Device.InvokeOnMainThreadAsync(async () => await form.DisplayControl.ShowDialog());
                         }
                         else
                         {
                             this.Activity.FKRefno = 0;
                             this.Activity.Refno = 0;
 
-                            // TODO: Resource strings
                             message = string.Format("Unable To Find Reference# {0}", actStringFKRefno);
 
-                            // TODO: Resource strings
-                            await Device.InvokeOnMainThreadAsync(async () => await DisplayAlert(this.GetControlDescription(), message, "OK"));
+                            await Device.InvokeOnMainThreadAsync(async () => await this.DisplayAlert(this.GetControlDescription(), message, "OK"));
                         }
                     }
                     else
                     {
-                        // TODO: Resource strings
                         message = string.Format("Unable To Parse Reference# {0}", actStringFKRefno);
 
-                        // TODO: Resource strings
-                        await Device.InvokeOnMainThreadAsync(async () => await DisplayAlert(this.GetControlDescription(), message, "OK"));
+                        await Device.InvokeOnMainThreadAsync(async () => await this.DisplayAlert(this.GetControlDescription(), message, "OK"));
                     }
                 }
                 else if (!string.IsNullOrEmpty(this.Parse.ActItemFKRefno))
                 {
-                    // TODO: Resource strings
-                    await Device.InvokeOnMainThreadAsync(async () => await DisplayAlert(this.GetControlDescription(), "Scanning an activity item reference # is not supported here.", "OK"));
+                    await Device.InvokeOnMainThreadAsync(async () => await this.DisplayAlert(this.GetControlDescription(), "Scanning an activity item reference # is not supported here.", "OK"));
                 }
                 else if (!string.IsNullOrEmpty(this.Parse.ProductIdentifier))
                 {
-                    // TODO: Resource strings
-                    await Device.InvokeOnMainThreadAsync(async () => await DisplayAlert(this.GetControlDescription(), "Scanning a product bar code is not supported here.", "OK"));
+                    await Device.InvokeOnMainThreadAsync(async () => await this.DisplayAlert(this.GetControlDescription(), "Scanning a product bar code is not supported here.", "OK"));
                 }
                 else if (!string.IsNullOrEmpty(this.Parse.SSCC18))
                 {
-                    // TODO: Resource strings
-                    await Device.InvokeOnMainThreadAsync(async () => await DisplayAlert(this.GetControlDescription(), "Scanning a shipping container bar code is not supported here!", "OK"));
+                    await Device.InvokeOnMainThreadAsync(async () => await this.DisplayAlert(this.GetControlDescription(), "Scanning a shipping container bar code is not supported here!", "OK"));
                 }
                 else if (!string.IsNullOrEmpty(this.Parse.LocationIdentifier))
                 {
-                    // TODO: Resource strings
-                    await Device.InvokeOnMainThreadAsync(async () => await DisplayAlert(this.GetControlDescription(), "Scanning a location identifier bar code is not supported here.", "OK"));
+                    await Device.InvokeOnMainThreadAsync(async () => await this.DisplayAlert(this.GetControlDescription(), "Scanning a location identifier bar code is not supported here.", "OK"));
                 }
                 else
                 {
-                    // TODO: Resource strings
-                    await Device.InvokeOnMainThreadAsync(async () => await DisplayAlert(this.GetControlDescription(), "Scanned bar code type is not supported here.", "OK"));
+                    await Device.InvokeOnMainThreadAsync(async () => await this.DisplayAlert(this.GetControlDescription(), "Scanned bar code type is not supported here.", "OK"));
                 }
             }
             catch (Exception ex)
             {
-                // TODO: Resource strings
-                await Device.InvokeOnMainThreadAsync(async () => await DisplayAlert("Error scanning barcode", ex.Message, "OK"));
+                await Device.InvokeOnMainThreadAsync(async () => await this.DisplayAlert("Error scanning barcode", ex.Message, "OK"));
             }
             finally
             {
@@ -681,14 +595,12 @@ namespace dMobile.View.Activity
                 {
                     for (int curExNdx = 0; curExNdx <= ex.Data.Count; curExNdx++)
                     {
-                        // TODO: Resource strings
-                        await Device.InvokeOnMainThreadAsync(async () => await DisplayAlert(this.GetControlDescription(), Convert.ToString("Error " + Convert.ToString(ex.Data[curExNdx])), "OK"));
+                        await Device.InvokeOnMainThreadAsync(async () => await this.DisplayAlert(this.GetControlDescription(), Convert.ToString("Error " + Convert.ToString(ex.Data[curExNdx])), "OK"));
                     }
                 }
                 catch (Exception ex)
                 {
-                    // TODO: Resource strings
-                    await Device.InvokeOnMainThreadAsync(async () => await DisplayAlert(this.GetControlDescription(), ex.Message, "OK"));
+                    await Device.InvokeOnMainThreadAsync(async () => await this.DisplayAlert(this.GetControlDescription(), ex.Message, "OK"));
                 }
                 finally
                 {
@@ -699,20 +611,20 @@ namespace dMobile.View.Activity
 
                 await Device.InvokeOnMainThreadAsync(async () =>
                 {
-                    this.ItemsList.Clear();
-                    this.DataGridMainActivityItemsList = this.Activity.DesignGrid(ref this.dataGridMainActivityHeader, ref this.dataGridMainActivity);
+                    this.ExtraInfoItems.Clear();
+                    this.MainActivityItems = this.Activity.DesignGrid(ref this.GridMainActivity, ref this.ListViewMainActivity);
 
                     if (!string.IsNullOrEmpty(this.txtSearchHdr.Text))
                     {
-                        this.DataGridMainActivityItemsList = this.Activity.Search(this.txtSearchHdr.Text);
+                        this.MainActivityItems = this.Activity.Search(this.txtSearchHdr.Text);
                     }
 
-                    this.dataGridMainActivity.ItemsSource = this.DataGridMainActivityItemsList;
+                    this.ListViewMainActivity.ItemsSource = this.MainActivityItems;
 
-                    if (this.Activity.ListHdrs.Count > 0 && this.DataGridMainActivityItemsList.Count > 0 && this.DataGridMainActivityItemsList[0] != null)
+                    if (this.Activity.ListHdrs.Count > 0 && this.MainActivityItems.Count > 0 && this.MainActivityItems[0] != null)
                     {
-                        this.dataGridMainActivity.SelectedItem = this.DataGridMainActivityItemsList[0];
-                        await this.Activity.SelectActivity(this.dataGridMainActivity.SelectedItem);
+                        this.ListViewMainActivity.SelectedItem = this.MainActivityItems[0];
+                        await this.Activity.SelectActivity(this.ListViewMainActivity.SelectedItem);
                     }
                 });
             });
@@ -727,15 +639,12 @@ namespace dMobile.View.Activity
                 return;
             }
 
-            // TODO: Resource strings
-            string result = await DisplayActionSheet("Release Order Options", "Close", null, this.optionsMenuItems.ToArray());
+            string result = await this.DisplayActionSheet("Release Order Options", "Close", null, this.optionsMenuItems.ToArray());
 
             if (result == "Release order")
             {
                 await this.ReleaseOrder();
             }
         }
-
-        #endregion
     }
 }

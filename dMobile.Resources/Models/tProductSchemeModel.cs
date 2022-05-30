@@ -1,8 +1,12 @@
-﻿using System;
-using SQLite;
+﻿// <copyright file="tProductSchemeModel.cs" company="InterSect Business Systems Inc">
+// Copyright (c) InterSect Business Systems Inc. All rights reserved.
+// </copyright>
 
 namespace dMobile.Resources.Models
 {
+    using System;
+    using SQLite;
+
     //string sqlTable = "CREATE TABLE IF NOT EXISTS tProductScheme"
     //+ "("
     //+ "ProductSchemeRefno INTEGER NOT NULL CONSTRAINT PK_ProductSchemeOnProductSchemeRefno PRIMARY KEY,"
@@ -47,7 +51,6 @@ namespace dMobile.Resources.Models
 
     //string sqlNdx = "CREATE UNIQUE INDEX IF NOT EXISTS UQ_ProductSchemeOnProductSchemeCode ON tProductScheme(ProductSchemeCode ASC)";
     //await this.RunDDLCommand(sqlNdx);
-
     [Table("tProductScheme")]
     public class tProductSchemeModel
     {

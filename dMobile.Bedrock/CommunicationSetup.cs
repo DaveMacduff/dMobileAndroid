@@ -3,136 +3,125 @@
 // </copyright>
 //
 // ------------------------------------------------------------------------
+
 namespace dMobile.Bedrock
 {
     using System;
     using System.IO;
-    using System.Reflection;
     using System.Text;
     using System.Xml;
     using System.Xml.Linq;
     using System.Xml.Serialization;
 
     /// <summary>
-    /// 
+    /// Defines the <see cref="CommunicationSetup" />.
     /// </summary>
     [Serializable]
     public class CommunicationSetup
     {
-        #region Fields
-
         /// <summary>
-        /// 
+        /// Defines the fullClassName.
         /// </summary>
         [NonSerialized]
         private string fullClassName = "dMobile.Bedrock.CommunicationSetup";
 
         /// <summary>
-        /// 
+        /// Defines the filePath.
         /// </summary>
         [NonSerialized]
         private string filePath = string.Empty;
 
         /// <summary>
-        /// 
+        /// Defines the fileASCIIZ.
         /// </summary>
         [NonSerialized]
         private string fileASCIIZ = string.Empty;
 
         /// <summary>
-        /// 
+        /// Defines the fileName.
         /// </summary>
         [NonSerialized]
         private string fileName = "dMobileCommunicationSetup.xml";
 
         /// <summary>
-        /// 
+        /// Defines the hostIPAddressComponent1.
         /// </summary>
         private int hostIPAddressComponent1 = 127;
 
         /// <summary>
-        /// 
+        /// Defines the hostIPAddressComponent2.
         /// </summary>
         private int hostIPAddressComponent2 = 0;
 
         /// <summary>
-        /// 
+        /// Defines the hostIPAddressComponent3.
         /// </summary>
         private int hostIPAddressComponent3 = 0;
 
         /// <summary>
-        /// 
+        /// Defines the hostIPAddressComponent4.
         /// </summary>
         private int hostIPAddressComponent4 = 1;
 
         /// <summary>
-        /// 
+        /// Defines the baseSocketPort.
         /// </summary>
         private int baseSocketPort = 10000;
 
         /// <summary>
-        /// 
+        /// Defines the maxSocketPorts.
         /// </summary>
         private int maxSocketPorts = 1;
 
         /// <summary>
-        /// 
+        /// Defines the defaultSocketPort.
         /// </summary>
         private int defaultSocketPort = 10000;
 
         /// <summary>
-        /// 
+        /// Defines the connectionAttempts.
         /// </summary>
         private int connectionAttempts = 1;
 
         /// <summary>
-        /// Seconds to wait for a send request.
+        /// Seconds to wait for a send request..
         /// </summary>
         private int sendTimeOutSeconds = 60;
 
         /// <summary>
-        /// Number of times to attempt a send.
+        /// Number of times to attempt a send..
         /// </summary>
         private int sendAttempts = 4;
 
         /// <summary>
-        /// 
+        /// Defines the receiveAttempts.
         /// </summary>
         private int receiveAttempts = 1;
 
         /// <summary>
-        /// Seconds to wait for a receive request.
+        /// Seconds to wait for a receive request..
         /// </summary>
         private int receiveTimeOutSeconds = 99;
 
         /// <summary>
-        /// 
+        /// Defines the receiveBufferSize.
         /// </summary>
         private int receiveBufferSize = 32768;
 
-        #endregion
-
-        #region Constructors
-
         /// <summary>
-        /// 
+        /// Initializes a new instance of the <see cref="CommunicationSetup"/> class.
         /// </summary>
-        /// <remarks></remarks>
         public CommunicationSetup()
         {
-            //this.strFilePath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().GetName().CodeBase) + "\\";
-            this.strFilePath = Environment.GetFolderPath(Environment.SpecialFolder.Personal);
-            this.strFileASCIIZ = Path.Combine(this.strFilePath, this.strFileName);
+            // this.strFilePath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().GetName().CodeBase) + "\\";
+            this.FilePath = Environment.GetFolderPath(Environment.SpecialFolder.Personal);
+            this.FileASCIIZ = Path.Combine(this.FilePath, this.FileName);
         }
 
-        #endregion
-
-        #region Properties
-
         /// <summary>
-        /// 
+        /// Gets or sets the FullClassName.
         /// </summary>
-        public string strFullClassName
+        public string FullClassName
         {
             get
             {
@@ -146,9 +135,9 @@ namespace dMobile.Bedrock
         }
 
         /// <summary>
-        /// 
+        /// Gets or sets the strFilePath.
         /// </summary>
-        public string strFilePath
+        public string FilePath
         {
             get
             {
@@ -162,9 +151,9 @@ namespace dMobile.Bedrock
         }
 
         /// <summary>
-        /// 
+        /// Gets or sets the strFileASCIIZ.
         /// </summary>
-        public string strFileASCIIZ
+        public string FileASCIIZ
         {
             get
             {
@@ -178,9 +167,9 @@ namespace dMobile.Bedrock
         }
 
         /// <summary>
-        /// 
+        /// Gets or sets the strFileName.
         /// </summary>
-        public string strFileName
+        public string FileName
         {
             get
             {
@@ -194,9 +183,9 @@ namespace dMobile.Bedrock
         }
 
         /// <summary>
-        /// 
+        /// Gets or sets the iHostIPAddressComponent1.
         /// </summary>
-        public int iHostIPAddressComponent1
+        public int HostIPAddressComponent1
         {
             get
             {
@@ -210,9 +199,9 @@ namespace dMobile.Bedrock
         }
 
         /// <summary>
-        /// 
+        /// Gets or sets the iHostIPAddressComponent2.
         /// </summary>
-        public int iHostIPAddressComponent2
+        public int HostIPAddressComponent2
         {
             get
             {
@@ -226,9 +215,9 @@ namespace dMobile.Bedrock
         }
 
         /// <summary>
-        /// 
+        /// Gets or sets the iHostIPAddressComponent3.
         /// </summary>
-        public int iHostIPAddressComponent3
+        public int HostIPAddressComponent3
         {
             get
             {
@@ -242,9 +231,9 @@ namespace dMobile.Bedrock
         }
 
         /// <summary>
-        /// 
+        /// Gets or sets the iHostIPAddressComponent4.
         /// </summary>
-        public int iHostIPAddressComponent4
+        public int HostIPAddressComponent4
         {
             get
             {
@@ -258,9 +247,9 @@ namespace dMobile.Bedrock
         }
 
         /// <summary>
-        /// 
+        /// Gets or sets the iBaseSocketPort.
         /// </summary>
-        public int iBaseSocketPort
+        public int BaseSocketPort
         {
             get
             {
@@ -274,9 +263,9 @@ namespace dMobile.Bedrock
         }
 
         /// <summary>
-        /// 
+        /// Gets or sets the iMaxSocketPorts.
         /// </summary>
-        public int iMaxSocketPorts
+        public int MaxSocketPorts
         {
             get
             {
@@ -290,9 +279,9 @@ namespace dMobile.Bedrock
         }
 
         /// <summary>
-        /// 
+        /// Gets or sets the iDefaultSocketPort.
         /// </summary>
-        public int iDefaultSocketPort
+        public int DefaultSocketPort
         {
             get
             {
@@ -306,9 +295,9 @@ namespace dMobile.Bedrock
         }
 
         /// <summary>
-        /// 
+        /// Gets or sets the iConnectionAttempts.
         /// </summary>
-        public int iConnectionAttempts
+        public int ConnectionAttempts
         {
             get
             {
@@ -322,9 +311,9 @@ namespace dMobile.Bedrock
         }
 
         /// <summary>
-        /// 
+        /// Gets or sets the iSendTimeOutSeconds.
         /// </summary>
-        public int iSendTimeOutSeconds
+        public int SendTimeOutSeconds
         {
             get
             {
@@ -338,9 +327,9 @@ namespace dMobile.Bedrock
         }
 
         /// <summary>
-        /// 
+        /// Gets or sets the iSendAttempts.
         /// </summary>
-        public int iSendAttempts
+        public int SendAttempts
         {
             get
             {
@@ -354,9 +343,9 @@ namespace dMobile.Bedrock
         }
 
         /// <summary>
-        /// 
+        /// Gets or sets the iReceiveAttempts.
         /// </summary>
-        public int iReceiveAttempts
+        public int ReceiveAttempts
         {
             get
             {
@@ -370,9 +359,9 @@ namespace dMobile.Bedrock
         }
 
         /// <summary>
-        /// 
+        /// Gets or sets the iReceiveTimeOutSeconds.
         /// </summary>
-        public int iReceiveTimeOutSeconds
+        public int ReceiveTimeOutSeconds
         {
             get
             {
@@ -386,9 +375,9 @@ namespace dMobile.Bedrock
         }
 
         /// <summary>
-        /// 
+        /// Gets or sets the iiReceiveBufferSize.
         /// </summary>
-        public int iiReceiveBufferSize
+        public int ReceiveBufferSize
         {
             get
             {
@@ -401,15 +390,10 @@ namespace dMobile.Bedrock
             }
         }
 
-        #endregion
-
-        #region Public Members
-
         /// <summary>
-        /// 
+        /// The CreateXMLSubmitDeviceID.
         /// </summary>
-        /// <returns></returns>
-        /// <remarks></remarks>
+        /// <returns>.</returns>
         public static string CreateXMLSubmitDeviceID()
         {
             StringBuilder xmlString = new StringBuilder();
@@ -417,9 +401,12 @@ namespace dMobile.Bedrock
             string deviceID = SysDeviceID.GetDeviceID();
 
             XDocument request = new XDocument(
-                new XDeclaration("1.0", "utf-8", "yes"), string.Empty,
-                new XElement("imclient",
-                    new XElement("command",
+                new XDeclaration("1.0", "utf-8", "yes"),
+                string.Empty,
+                new XElement(
+                    "imclient",
+                    new XElement(
+                        "command",
                         new XElement("action", "SUBMIT DEVICE ID"),
                         new XElement("device_id", deviceID))));
 
@@ -431,15 +418,15 @@ namespace dMobile.Bedrock
         }
 
         /// <summary>
-        /// 
+        /// The LoadData.
         /// </summary>
-        /// <returns></returns>
+        /// <returns>.</returns>
         public CommunicationSetup LoadData()
         {
             XmlSerializer serializer = new XmlSerializer(typeof(CommunicationSetup));
             CommunicationSetup commSetup = new CommunicationSetup();
 
-            // use relection to get the current assembly path for the database
+            // use reflection to get the current assembly path for the database
             string appDir = Environment.GetFolderPath(Environment.SpecialFolder.Personal);
             string fullPathToMyFile = Path.Combine(appDir, this.fileName);
 
@@ -459,18 +446,17 @@ namespace dMobile.Bedrock
         }
 
         /// <summary>
-        /// 
+        /// The SaveData.
         /// </summary>
-        /// <param name="commSetup"></param>
-        /// <returns></returns>
+        /// <param name="commSetup">.</param>
+        /// <returns>.</returns>
         public bool SaveData(ref CommunicationSetup commSetup)
         {
             XmlSerializer serializer = new XmlSerializer(typeof(CommunicationSetup));
-            bool isSaveComplete = false;
-
+            bool isSaveComplete;
             try
             {
-                // use relection to get the current assembly path for the database
+                // use reflection to get the current assembly path for the database
                 string appDir = Environment.GetFolderPath(Environment.SpecialFolder.Personal);
                 string fullPathToMyFile = Path.Combine(appDir, this.fileName);
 
@@ -490,7 +476,5 @@ namespace dMobile.Bedrock
 
             return isSaveComplete;
         }
-
-        #endregion
     }
 }

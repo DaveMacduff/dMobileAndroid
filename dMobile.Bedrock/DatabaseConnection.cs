@@ -1,49 +1,51 @@
-﻿namespace dMobile.Bedrock
+﻿// <copyright file="DatabaseConnection.cs" company="InterSect Business Systems Inc">
+// Copyright (c) InterSect Business Systems Inc. All rights reserved.
+// </copyright>
+
+namespace dMobile.Bedrock
 {
-    using System.Data;
-    using System.IO;
-    using System;
     using SQLite;
+    using System;
+    using System.IO;
     using System.Threading.Tasks;
 
     /// <summary>
-    /// Defines the <see cref="DatabaseConnection" />
+    /// Defines the <see cref="DatabaseConnection" />.
     /// </summary>
     public class DatabaseConnection
     {
         /// <summary>
-        /// Defines the dataConnUniq
+        /// Defines the dataConnUniq.
         /// </summary>
         private static DatabaseConnection dataConnUniq;
 
         /// <summary>
-        /// Defines the sqlConn
+        /// Defines the sqlConn.
         /// </summary>
         private static SQLiteAsyncConnection sqlConn = null;
 
         /// <summary>
-        /// Defines the dbPath
+        /// Defines the dbPath.
         /// </summary>
-        //private static string dbPath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().GetName().CodeBase) + "//";
         private static string dbPath = Environment.GetFolderPath(Environment.SpecialFolder.Personal);
 
         /// <summary>
-        /// Defines the dbName
+        /// Defines the dbName.
         /// </summary>
         private static string dbName = "dMobile.Sqlite";
 
         /// <summary>
-        /// Defines the dbASCIIZ
+        /// Defines the dbASCIIZ.
         /// </summary>
         private static string dbASCIIZ = string.Empty;
 
         /// <summary>
-        /// Defines the dbPassword
+        /// Defines the dbPassword.
         /// </summary>
         private static string dbPassword = "dMobile";
 
         /// <summary>
-        /// Defines the connString
+        /// Defines the connString.
         /// </summary>
         private static SQLiteConnectionString connString;
 
@@ -55,7 +57,7 @@
         }
 
         /// <summary>
-        /// Gets or sets the DataConnUniq
+        /// Gets or sets the DataConnUniq.
         /// </summary>
         public DatabaseConnection DataConnUniq
         {
@@ -71,7 +73,7 @@
         }
 
         /// <summary>
-        /// Gets or sets the ConnString
+        /// Gets or sets the ConnString.
         /// </summary>
         public SQLiteConnectionString ConnString
         {
@@ -87,7 +89,7 @@
         }
 
         /// <summary>
-        /// Gets or sets the DBASCIIZ
+        /// Gets or sets the DBASCIIZ.
         /// </summary>
         public string DBASCIIZ
         {
@@ -103,7 +105,7 @@
         }
 
         /// <summary>
-        /// Gets or sets the DBPath
+        /// Gets or sets the DBPath.
         /// </summary>
         public string DBPath
         {
@@ -119,7 +121,7 @@
         }
 
         /// <summary>
-        /// Gets the DBPassword
+        /// Gets the DBPassword.
         /// </summary>
         public string DBPassword
         {
@@ -130,7 +132,7 @@
         }
 
         /// <summary>
-        /// Gets the DBName
+        /// Gets the DBName.
         /// </summary>
         public string DBName
         {
@@ -141,7 +143,7 @@
         }
 
         /// <summary>
-        /// Gets the SQLConn
+        /// Gets the SQLConn.
         /// </summary>
         public SQLiteAsyncConnection SQLConn
         {
@@ -152,28 +154,28 @@
         }
 
         /// <summary>
-        /// The GetInstance
+        /// The GetInstance.
         /// </summary>
-        /// <returns></returns>
+        /// <returns>.</returns>
         public static DatabaseConnection GetInstance()
         {
             if (dataConnUniq == null)
             {
                 dataConnUniq = new DatabaseConnection();
                 dbASCIIZ = Path.Combine(dbPath, dbName);
-                //connString = new SQLiteConnectionString(dbASCIIZ);
+                // connString = new SQLiteConnectionString(dbASCIIZ);
                 // foreign keys=true HAS to be specified or SQLite will not enforce foreign key constraints
-                //connString = "Data Source = '" + dbASCIIZ + "'; foreign keys=true;";
-                //connString = "Data Source = '" + dbPath + dbName + "'; Password = " + dbPassword;
+                // connString = "Data Source = '" + dbASCIIZ + "'; foreign keys=true;";
+                // connString = "Data Source = '" + dbPath + dbName + "'; Password = " + dbPassword;
             }
 
             OpenDataBaseConnection();
 
             return dataConnUniq;
         }
-        
+
         /// <summary>
-        /// The OpenDataBaseConnection
+        /// The OpenDataBaseConnection.
         /// </summary>
         public static void OpenDataBaseConnection()
         {
@@ -181,60 +183,37 @@
             {
                 sqlConn = new SQLiteAsyncConnection(dbASCIIZ, SQLiteOpenFlags.Create | SQLiteOpenFlags.FullMutex | SQLiteOpenFlags.ReadWrite);
             }
-
-            //if (sqlConn != null)
-            //{
-            //    if (sqlConn.State == ConnectionState.Closed)
-            //    {
-            //        sqlConn.Open();
-            //    }
-            //}
         }
 
-        /// <summary>   
-        /// The DisposeDataBaseConnection
+        /// <summary>
+        /// The DisposeDataBaseConnection.
         /// </summary>
         public static void DisposeDataBaseConnection()
         {
             if (sqlConn != null)
             {
-                //if (sqlConn.State == ConnectionState.Closed)
-                //{
-                //sqlConn.Dispose();
+                // if (sqlConn.State == ConnectionState.Closed)
+                // {
+                // sqlConn.Dispose();
                 sqlConn = null;
                 dataConnUniq = null;
-                //}
+                // }
             }
         }
 
         /// <summary>
-        /// The CloseDataBaseConnection
+        /// The CloseDataBaseConnection.
         /// </summary>
+        /// <returns>The <see cref="Task"/>.</returns>
         public static async Task CloseDataBaseConnection()
         {
             if (sqlConn != null)
             {
-                //if (sqlConn.State == ConnectionState.Open)
-                //{
+                // if (sqlConn.State == ConnectionState.Open)
+                // {
                 await sqlConn.CloseAsync();
-                //}
+                // }
             }
         }
-
-        ///// <summary>
-        ///// The IsDataBaseConnectionOpen
-        ///// </summary>
-        ///// <returns>The <see cref="bool"/></returns>
-        //public static bool IsDataBaseConnectionOpen()
-        //{
-        //    bool isConnOpen = false;
-
-        //    if (!(sqlConn.State == ConnectionState.Open))
-        //    {
-        //        isConnOpen = true;
-        //    }
-
-        //    return isConnOpen;
-        //}
     }
 }

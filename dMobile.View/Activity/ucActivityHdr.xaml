@@ -15,22 +15,23 @@
                     <RowDefinition Height="65*"/>
                     <RowDefinition Height="20*"/>
                     <RowDefinition Height="15*"/>
+                    <!--<RowDefinition Height="3*"/>-->
                 </Grid.RowDefinitions>
 
                 <Frame VerticalOptions="Start" Grid.Row="0" OutlineColor="{DynamicResource BorderColor}">
                     <ScrollView Orientation="Horizontal">
-                        <Grid x:Name="dataGridMainActivityHeader">
+                        <Grid x:Name="GridMainActivity">
                             <Grid.RowDefinitions>
                                 <RowDefinition Height="Auto"/>
                             </Grid.RowDefinitions>
 
-                            <ListView x:Name="dataGridMainActivity" ItemSelected="DataGridMainActivity_ItemSelected" HasUnevenRows="True" IsEnabled="{Binding Loading, Converter={Helpers:BoolConverter}}" Grid.Row="1"/>
+                            <ListView x:Name="ListViewMainActivity" ItemSelected="ListViewMainActivity_ItemSelected" HasUnevenRows="True" IsEnabled="{Binding Loading, Converter={Helpers:BoolConverter}}" Grid.Row="1"/>
                         </Grid>
                     </ScrollView>
                 </Frame>
 
                 <Frame VerticalOptions="Start" Grid.Row="1" OutlineColor="{DynamicResource BorderColor}">
-                    <ListView x:Name="lstDisplay" SelectionMode="None" HasUnevenRows="True" IsEnabled="{Binding Loading, Converter={Helpers:BoolConverter}}" SeparatorVisibility="None">
+                    <ListView x:Name="ListViewDisplayExtraInfo" SelectionMode="None" HasUnevenRows="True" IsEnabled="{Binding Loading, Converter={Helpers:BoolConverter}}" SeparatorVisibility="None">
                         <ListView.ItemTemplate>
                             <DataTemplate>
                                 <ViewCell>
@@ -46,10 +47,16 @@
                 <!--
                 <Button x:Name="cmdFilter" Grid.Row="2" Grid.Column="1" Text="Filter" Clicked="cmdFilter_Click" IsEnabled="{Binding Loading, Converter={Helpers:BoolConverter}}"/>
                 -->
+                
                 <Grid Grid.Row="2">
                     <Entry x:Name="txtSearchHdr" Grid.Row="0" Grid.Column="0" TextChanged="TxtSearchHdr_TextChanged" IsEnabled="{Binding Loading, Converter={Helpers:BoolConverter}}"/>
-                    <Button x:Name="cmdAdd" Grid.Row="0" Grid.Column="1" Text="Add" Clicked="cmdAdd_Click" IsEnabled="{Binding Loading, Converter={Helpers:BoolConverter}}"/>
+                    <Button x:Name="cmdAdd" Grid.Row="0" Grid.Column="1" Text="Add" Clicked="CmdAdd_Click" IsEnabled="{Binding Loading, Converter={Helpers:BoolConverter}}"/>
                 </Grid>
+                <!--
+                <Grid Grid.Row="3">
+                    <ProgressBar x:Name="progBarMain" Grid.Row="0" Grid.Column="0" Visual="Default"></ProgressBar>
+                </Grid>
+                -->
             </Grid>
 
             <ActivityIndicator IsVisible="{Binding Loading}" 

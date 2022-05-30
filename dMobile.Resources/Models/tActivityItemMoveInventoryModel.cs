@@ -1,9 +1,13 @@
-﻿using System;
-using SQLite;
-using SQLiteNetExtensions.Attributes;
+﻿// <copyright file="tActivityItemMoveInventoryModel.cs" company="InterSect Business Systems Inc">
+// Copyright (c) InterSect Business Systems Inc. All rights reserved.
+// </copyright>
 
 namespace dMobile.Resources.Models
 {
+    using System;
+    using SQLite;
+    using SQLiteNetExtensions.Attributes;
+
     //string sqlTable = "CREATE TABLE IF NOT EXISTS tActivityItemMoveInventory"
     //+ "("
     //+ "ActivityItemRefno INTEGER NOT NULL CONSTRAINT PK_ActivityItemMoveInventoryOnActivityItemRefno PRIMARY KEY,"
@@ -28,7 +32,6 @@ namespace dMobile.Resources.Models
 
     //string sqlNdx = "CREATE UNIQUE NONCLUSTERED INDEX UQ_ActivityItemMoveInventoryOnActivityItemRefnoAndActivityItemSubType ON tActivityItemMoveInventory(ActivityItemRefno ASC, ActivityItemSubType ASC)";
     //await this.RunDDLCommand(sqlNdx);
-
     [Table("tActivityItemMoveInventory")]
     public class tActivityItemMoveInventoryModel
     {

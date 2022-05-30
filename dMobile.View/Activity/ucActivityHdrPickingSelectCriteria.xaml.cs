@@ -1,61 +1,42 @@
-﻿using dMobile.View.CustomPages.Modal;
-using System;
-using System.Data;
-using System.Drawing;
-using System.Xml.Linq;
-using dMobile.BarCodeScanner;
-using dMobile.Bedrock;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Xamarin.Forms;
-using Xamarin.Forms.Xaml;
-using dMobile.View.Forms;
-using System.Collections.ObjectModel;
-using dMobile.Resources.Enums;
-using Android.Views;
-using dMobile.Resources.Types;
-using Color = Xamarin.Forms.Color;
-using dMobile.Resources.Services;
+﻿// <copyright file="ucActivityHdrPickingSelectCriteria.xaml.cs" company="InterSect Business Systems Inc">
+// Copyright (c) InterSect Business Systems Inc. All rights reserved.
+// </copyright>
 
 namespace dMobile.View.Activity
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Collections.ObjectModel;
+    using System.Data;
+    using System.Linq;
+    using System.Threading.Tasks;
+    using System.Xml.Linq;
+    using Android.Views;
+    using dMobile.BarCodeScanner.BarCodeParsing;
+    using dMobile.BarCodeScanner.BarCodeScanners;
+    using dMobile.Bedrock;
+    using dMobile.Resources.Enums;
+    using dMobile.Resources.Services;
+    using dMobile.Resources.Types;
+    using dMobile.View.CustomPages.Modal;
+    using dMobile.View.Forms;
+    using Xamarin.Forms;
+    using Xamarin.Forms.Xaml;
+    using Color = Xamarin.Forms.Color;
+    using Resource = dMobile.Resources.Properties.Resources;
+
     [XamlCompilation(XamlCompilationOptions.Compile)]
     public partial class ucActivityHdrPickingSelectCriteria : DMobileTabbedModal, IAppArea
     {
-        #region Fields
-
-        private bool isControlLoaded = false;
-        private bool isChangesMade = false;
-        private LocationMap locMap;
-        private BarCodeParse barParse = null;
-        private BarCodeScanner.BarCodeScanner scanner = null;
-        private bool isBarCodeHandlerRegistered = false;
-        private SLocMap locMapInfo;
-        private List<Warehouse> listWarehouse;
-        private List<Section> listSections;
-        private SysCommon.ActSubTypes actSubType;
-        private SysEnvironment sysEnv;
-        private ObservableCollection<object> warehouseObservableCollection;
-        private ObservableCollection<object> sectionObservableCollection;
-        private List<Warehouse> filteredListWarehouse;
         private List<Section> filteredListSections;
 
-        #endregion
-
-        #region Constructors
-
         /// <summary>
-        ///
+        /// Initializes a new instance of the <see cref="ucActivityHdrPickingSelectCriteria"/> class.
         /// </summary>
-        /// <param name="_ucCallingControl"></param>
-        /// <remarks></remarks>
         public ucActivityHdrPickingSelectCriteria()
         {
             this.InitializeComponent();
 
-            // TODO: Resource strings
             this.lblSectionData_tabWarehouse.Text = string.Empty;
             this.lblWarehouseData_tabWarehouse.Text = string.Empty;
             this.lblSectionData_tabSection.Text = string.Empty;
@@ -75,7 +56,7 @@ namespace dMobile.View.Activity
             if (!DesignMode.IsDesignModeEnabled)
             {
                 this.LocMap = LocationMap.GetInstance();
-                this.Scanner = BarCodeSingleton.GetInstance().Scanner;
+                this.Scanner = ScannerEngine.GetInstance().Scanner;
                 this.ActSubType = SysCommon.ActSubTypes.PickingSelectCriteria;
                 this.SysEnv = SysEnvironment.GetInstance();
                 this.LocMapInfo = new SLocMap();
@@ -83,12 +64,8 @@ namespace dMobile.View.Activity
             }
         }
 
-        #endregion
-
-        #region OnAppearing/OnDisappearing
-
         /// <summary>
-        /// The OnAppearing
+        /// The OnAppearing.
         /// </summary>
         protected override async void OnAppearing()
         {
@@ -99,8 +76,7 @@ namespace dMobile.View.Activity
 
             MessagingCenter.Subscribe<string>(this, EventTypes.OnKeyUp.ToString(), async (keyPressed) =>
             {
-                // TODO: Verify keycodes
-                Enum.TryParse(keyPressed, out Keycode keycode);
+                _ = Enum.TryParse(keyPressed, out Keycode keycode);
 
                 if (!this.Loading)
                 {
@@ -159,8 +135,7 @@ namespace dMobile.View.Activity
             }
             catch (Exception ex)
             {
-                // TODO: Resource strings
-                await Device.InvokeOnMainThreadAsync(async () => await DisplayAlert("Error", "this.ucActivityHdrPickingSelectCriteria_GotFocus threw an error " + ex, "OK"));
+                await Device.InvokeOnMainThreadAsync(async () => await this.DisplayAlert("Error", "this.ucActivityHdrPickingSelectCriteria_GotFocus threw an error " + ex, "OK"));
             }
 
             try
@@ -169,8 +144,7 @@ namespace dMobile.View.Activity
             }
             catch (Exception ex)
             {
-                // TODO: Resource strings
-                await Device.InvokeOnMainThreadAsync(async () => await DisplayAlert("Error", "this.tabLocation_GotFocus threw an error " + ex, "OK"));
+                await Device.InvokeOnMainThreadAsync(async () => await this.DisplayAlert("Error", "this.tabLocation_GotFocus threw an error " + ex, "OK"));
             }
         }
 
@@ -180,7 +154,7 @@ namespace dMobile.View.Activity
             {
                 if (await this.CancelChanges())
                 {
-                    base.OnBackButtonPressed();
+                    _ = base.OnBackButtonPressed();
                     this.DialogResult = DialogResult.None;
                     await this.Close();
                 }
@@ -190,7 +164,7 @@ namespace dMobile.View.Activity
         }
 
         /// <summary>
-        /// The OnDisappearing
+        /// The OnDisappearing.
         /// </summary>
         protected override async void OnDisappearing()
         {
@@ -200,189 +174,59 @@ namespace dMobile.View.Activity
             base.OnDisappearing();
         }
 
-        #endregion
+        private BarCodeParse BarParse { get; set; } = null;
 
-        #region Properties
+        private SysCommon.ActSubTypes ActSubType { get; set; }
 
-        private BarCodeParse BarParse
-        {
-            get
-            {
-                return this.barParse;
-            }
+        private BarCodeScanner Scanner { get; set; } = null;
 
-            set
-            {
-                this.barParse = value;
-            }
-        }
+        private SLocMap LocMapInfo { get; set; }
 
-        private SysCommon.ActSubTypes ActSubType
-        {
-            get
-            {
-                return this.actSubType;
-            }
+        private bool IsBarCodeHandlerRegistered { get; set; } = false;
 
-            set
-            {
-                this.actSubType = value;
-            }
-        }
+        private LocationMap LocMap { get; set; }
 
-        private BarCodeScanner.BarCodeScanner Scanner
-        {
-            get
-            {
-                return this.scanner;
-            }
+        private List<Section> ListSections { get; set; }
 
-            set
-            {
-                this.scanner = value;
-            }
-        }
+        private List<Warehouse> ListWarehouse { get; set; }
 
-        private SLocMap LocMapInfo
-        {
-            get
-            {
-                return this.locMapInfo;
-            }
+        private bool IsChangesMade { get; set; } = false;
 
-            set
-            {
-                this.locMapInfo = value;
-            }
-        }
+        private bool IsControlLoaded { get; set; } = false;
 
-        private bool IsBarCodeHandlerRegistered
-        {
-            get
-            {
-                return this.isBarCodeHandlerRegistered;
-            }
+        private SysEnvironment SysEnv { get; set; }
 
-            set
-            {
-                this.isBarCodeHandlerRegistered = value;
-            }
-        }
-
-        private LocationMap LocMap
-        {
-            get
-            {
-                return this.locMap;
-            }
-
-            set
-            {
-                this.locMap = value;
-            }
-        }
-
-        private List<Section> ListSections
-        {
-            get
-            {
-                return this.listSections;
-            }
-
-            set
-            {
-                this.listSections = value;
-            }
-        }
-
-        private List<Warehouse> ListWarehouse
-        {
-            get
-            {
-                return this.listWarehouse;
-            }
-
-            set
-            {
-                this.listWarehouse = value;
-            }
-        }
-
-        private bool IsChangesMade
-        {
-            get
-            {
-                return this.isChangesMade;
-            }
-
-            set
-            {
-                this.isChangesMade = value;
-            }
-        }
-
-        private bool IsControlLoaded
-        {
-            get
-            {
-                return this.isControlLoaded;
-            }
-
-            set
-            {
-                this.isControlLoaded = value;
-            }
-        }
-
-        private SysEnvironment SysEnv
-        {
-            get
-            {
-                return this.sysEnv;
-            }
-
-            set
-            {
-                this.sysEnv = value;
-            }
-        }
-
-        public ObservableCollection<object> WarehouseObservableCollection { get => warehouseObservableCollection; set => warehouseObservableCollection = value; }
-        public ObservableCollection<object> SectionObservableCollection { get => sectionObservableCollection; set => sectionObservableCollection = value; }
-        public List<Warehouse> FilteredListWarehouse { get => filteredListWarehouse; set => filteredListWarehouse = value; }
-        public List<Section> FilteredListSections { get => filteredListSections; set => filteredListSections = value; }
-
-        #endregion
-
-        #region Public Members
-
-        #region IAppArea
+        public ObservableCollection<object> WarehouseObservableCollection { get; set; }
+        public ObservableCollection<object> SectionObservableCollection { get; set; }
+        public List<Warehouse> FilteredListWarehouse { get; set; }
+        public List<Section> FilteredListSections { get => this.filteredListSections; set => this.filteredListSections = value; }
 
         /// <summary>
         /// Unregister the bar code scan event handler and disable the scanner.
         /// </summary>
-        /// <remarks></remarks>
+        /// <returns><see cref="Task"/> Task operation.</returns>
         public async Task ScannerDisable()
         {
             if (this.IsBarCodeHandlerRegistered && this.Scanner != null)
             {
-                this.Scanner.BarCodeScan -= new BarCodeScanner.BarCodeScanner.BarCodeScanEventHandler(this.BarCodeHandler);
+                this.Scanner.BarCodeScan -= new BarCodeScanner.BarCodeScanEventHandler(this.BarCodeHandler);
                 await this.Scanner.Stop();
-                this.IsBarCodeHandlerRegistered = false;
             }
+
+            this.IsBarCodeHandlerRegistered = false;
         }
 
         /// <summary>
         /// Registers the bar code scan event handler and enables the scanner.
         /// </summary>
-        /// <remarks></remarks>
+        /// <returns><see cref="Task"/> Task operation.</returns>
         public async Task ScannerEnable()
         {
-            if (!this.IsBarCodeHandlerRegistered)
+            if (!this.IsBarCodeHandlerRegistered && this.Scanner != null)
             {
-                this.IsBarCodeHandlerRegistered = true;
                 await this.Scanner.Start();
-                this.Scanner.BarCodeScan += new BarCodeScanner.BarCodeScanner.BarCodeScanEventHandler(this.BarCodeHandler);
+                this.Scanner.BarCodeScan += new BarCodeScanner.BarCodeScanEventHandler(this.BarCodeHandler);
+                this.IsBarCodeHandlerRegistered = true;
             }
         }
 
@@ -399,10 +243,14 @@ namespace dMobile.View.Activity
             {
                 isReadyToSave = true;
             }
-            catch (Exceptions.MessageOnlyException ex)
+            catch (MessageOnlyException ex)
             {
                 isReadyToSave = false;
-                ex.Show(this.ActSubType);
+                await Device.InvokeOnMainThreadAsync(async () =>
+                    await Application.Current.MainPage.DisplayAlert(
+                        this.GetControlDescription(),
+                        ex.Message,
+                        Resource.OK));
             }
             catch (Exception ex)
             {
@@ -411,7 +259,7 @@ namespace dMobile.View.Activity
                 await Device.InvokeOnMainThreadAsync(async () =>
                 {
                     FormErrorReport errRpt = new FormErrorReport(this.ActSubType, ex);
-                    await errRpt.ShowDialog();
+                    _ = await errRpt.ShowDialog();
                 });
             }
 
@@ -439,10 +287,14 @@ namespace dMobile.View.Activity
                 {
                 }
             }
-            catch (Exceptions.MessageOnlyException ex)
+            catch (MessageOnlyException ex)
             {
                 isReadyToClose = false;
-                ex.Show(this.ActSubType);
+                await Device.InvokeOnMainThreadAsync(async () =>
+                    await Application.Current.MainPage.DisplayAlert(
+                        this.GetControlDescription(),
+                        ex.Message,
+                        Resource.OK));
             }
             catch (Exception ex)
             {
@@ -453,7 +305,7 @@ namespace dMobile.View.Activity
                 await Device.InvokeOnMainThreadAsync(async () =>
                 {
                     FormErrorReport errRpt = new FormErrorReport(this.ActSubType, ex);
-                    await errRpt.ShowDialog();
+                    _ = await errRpt.ShowDialog();
                 });
             }
 
@@ -467,7 +319,6 @@ namespace dMobile.View.Activity
         /// <remarks></remarks>
         public string GetControlDescription()
         {
-            // TODO: Resource strings
             return "Picking Selection Criteria";
         }
 
@@ -490,24 +341,26 @@ namespace dMobile.View.Activity
                 }
                 else
                 {
-                    // IsReadyToSave will raise errors for invalid data. This is a catch all 
+                    // IsReadyToSave will raise errors for invalid data. This is a catch all
                     // in the event that IsReadyToSave just returns false.
-
-                    // TODO: Resource strings
-                    throw new Exceptions.MessageOnlyException("Data failed validation. Check your data.");
+                    throw new MessageOnlyException("Data failed validation. Check your data.");
                 }
             }
-            catch (Exceptions.MessageOnlyException ex)
+            catch (MessageOnlyException ex)
             {
                 saveComplete = false;
-                ex.Show(this.ActSubType);
+                await Device.InvokeOnMainThreadAsync(async () =>
+                    await Application.Current.MainPage.DisplayAlert(
+                        this.GetControlDescription(),
+                        ex.Message,
+                        Resource.OK));
             }
             catch (Exception ex)
             {
                 await Device.InvokeOnMainThreadAsync(async () =>
                 {
                     FormErrorReport errRpt = new FormErrorReport(this.ActSubType, ex);
-                    await errRpt.ShowDialog();
+                    _ = await errRpt.ShowDialog();
                 });
             }
 
@@ -530,7 +383,7 @@ namespace dMobile.View.Activity
                 {
                     if (!this.SysEnv.SysSettings.IsPickingModuleDisallowLoadingAllOrders)
                     {
-                        if (await Device.InvokeOnMainThreadAsync(async () => !await DisplayAlert(this.GetControlDescription(), "All orders for all sections will be loaded. Continue?", "Yes", "No")))
+                        if (await Device.InvokeOnMainThreadAsync(async () => !await this.DisplayAlert(this.GetControlDescription(), "All orders for all sections will be loaded. Continue?", "Yes", "No")))
                         {
                             cancelChanges = false;
                             this.IsChangesMade = false;
@@ -553,10 +406,14 @@ namespace dMobile.View.Activity
                     this.IsChangesMade = false;
                 }
             }
-            catch (Exceptions.MessageOnlyException ex)
+            catch (MessageOnlyException ex)
             {
                 cancelChanges = false;
-                ex.Show(this.ActSubType);
+                await Device.InvokeOnMainThreadAsync(async () =>
+                    await Application.Current.MainPage.DisplayAlert(
+                        this.GetControlDescription(),
+                        ex.Message,
+                        Resource.OK));
             }
             catch (Exception ex)
             {
@@ -565,7 +422,7 @@ namespace dMobile.View.Activity
                 await Device.InvokeOnMainThreadAsync(async () =>
                 {
                     FormErrorReport errRpt = new FormErrorReport(this.ActSubType, ex);
-                    await errRpt.ShowDialog();
+                    _ = await errRpt.ShowDialog();
                 });
             }
 
@@ -581,11 +438,11 @@ namespace dMobile.View.Activity
         {
             int locMapRefno = 0;
 
-            if (0 < this.LocMapInfo.SectLocMapRefno)
+            if (this.LocMapInfo.SectLocMapRefno > 0)
             {
                 locMapRefno = this.LocMapInfo.SectLocMapRefno;
             }
-            else if (0 < this.LocMapInfo.WhsLocMapRefno)
+            else if (this.LocMapInfo.WhsLocMapRefno > 0)
             {
                 locMapRefno = this.LocMapInfo.WhsLocMapRefno;
             }
@@ -593,17 +450,11 @@ namespace dMobile.View.Activity
             XDocument request = XDocument.Parse(
                 "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>"
                 + "<params>"
-                + ("<LocationMapRefno>" + locMapRefno + "</LocationMapRefno>")
+                + "<LocationMapRefno>" + locMapRefno + "</LocationMapRefno>"
                 + "</params>");
 
             return request;
         }
-
-        #endregion
-
-        #endregion
-
-        #region Private Members
 
         /// <summary>
         ///
@@ -620,9 +471,15 @@ namespace dMobile.View.Activity
         /// <param name="sender"></param>
         /// <param name="e"></param>
         /// <remarks></remarks>
+/// <summary>
+///
+/// </summary>
+/// <param name="sender"></param>
+/// <param name="e"></param>
+/// <returns>A <see cref="Task"/> representing the result of the asynchronous operation.</returns>
         public async Task tabLocation_GotFocus(object sender, EventArgs e)
         {
-            //this.ListSections.RowFilter = "WarehouseLocationMapRefno = " +  this.LocMapInfo.WhsLocMapRefno;
+            // this.ListSections.RowFilter = "WarehouseLocationMapRefno = " +  this.LocMapInfo.WhsLocMapRefno;
             this.FilteredListSections = this.ListSections.Where(section => section.WarehouseLocationMapRefno == this.LocMapInfo.WhsLocMapRefno).ToList();
 
             this.SelectSection();
@@ -644,6 +501,12 @@ namespace dMobile.View.Activity
         /// <param name="sender"></param>
         /// <param name="e"></param>
         /// <remarks></remarks>
+/// <summary>
+///
+/// </summary>
+/// <param name="sender"></param>
+/// <param name="e"></param>
+/// <returns>A <see cref="Task"/> representing the result of the asynchronous operation.</returns>
         public async Task ucSetLocationMap_LostFocus(object sender, EventArgs e)
         {
             await this.ScannerDisable();
@@ -655,28 +518,30 @@ namespace dMobile.View.Activity
         /// <param name="sender"></param>
         /// <param name="e"></param>
         /// <remarks></remarks>
+/// <summary>
+///
+/// </summary>
+/// <param name="sender"></param>
+/// <param name="e"></param>
+/// <returns>A <see cref="Task"/> representing the result of the asynchronous operation.</returns>
         public async Task ucActivityHdrPickingSelectCriteria_GotFocus(object sender, EventArgs e)
         {
-            if (!SysEnvironment.GetInstance().IsApplicationExitInvoked)
+            if (!this.IsControlLoaded)
             {
-                if (!this.IsControlLoaded)
-                {
-                    await this.ScannerEnable();
-                    await this.LoadData();
-                    this.SelectWarehouse();
-                    this.UpdateLocationDisplay();
+                await this.ScannerEnable();
+                await this.LoadData();
+                this.SelectWarehouse();
+                this.UpdateLocationDisplay();
 
-                    //// WO 10190 LEKKER wants to default to the section tab, Lekker only has one warehouse so we can assume it.
-                    //// Update Oct 9,2014 Lekker now has 2 warehouse this code will not work anymore. 
-                    //// John said "do not fix until they complain". We could default the warehouse to the login warehouse.
-                    //if (this.DataViewWhs.Count == 1 && this.DataViewSections.Count > 0)
-                    //{
-                    //    //this.tabLocation.SelectedIndex = 1;
-                    //    this.tabSection.Focus();
-                    //}
-
-                    this.IsControlLoaded = true;
-                }
+                //// WO 10190 LEKKER wants to default to the section tab, Lekker only has one warehouse so we can assume it.
+                //// Update Oct 9,2014 Lekker now has 2 warehouse this code will not work anymore.
+                //// John said "do not fix until they complain". We could default the warehouse to the login warehouse.
+                // if (this.DataViewWhs.Count == 1 && this.DataViewSections.Count > 0)
+                // {
+                //    //this.tabLocation.SelectedIndex = 1;
+                //    this.tabSection.Focus();
+                // }
+                this.IsControlLoaded = true;
             }
         }
 
@@ -695,15 +560,15 @@ namespace dMobile.View.Activity
 
                 if (this.cboSectionSearch.SelectedIndex == 0)
                 {
-                    if ((string.Compare(this.txtSearchSection.Text, string.Empty) > 0))
+                    if (string.Compare(this.txtSearchSection.Text, string.Empty) > 0)
                     {
-                        //this.ListSections.RowFilter = "LocationMapSectionCode = " + this.txtSearchSection.Text.Trim();
+                        // this.ListSections.RowFilter = "LocationMapSectionCode = " + this.txtSearchSection.Text.Trim();
                         this.FilteredListSections = this.ListSections.Where(section => Convert.ToString(section.LocationMapSectionCode) == this.txtSearchSection.Text.Trim()).ToList();
                     }
                 }
                 else
                 {
-                    //this.ListSections.RowFilter = "LocationMapSectionName LIKE \'" + this.txtSearchSection.Text.Trim() + "%\'";
+                    // this.ListSections.RowFilter = "LocationMapSectionName LIKE \'" + this.txtSearchSection.Text.Trim() + "%\'";
                     this.FilteredListSections = this.ListSections.Where(section => section.LocationMapSectionName.Contains(this.txtSearchSection.Text.Trim())).ToList();
                 }
 
@@ -800,7 +665,6 @@ namespace dMobile.View.Activity
         {
             if (this.LocMapInfo.WhsLocMapRefno == 0)
             {
-                // TODO: Resource strings
                 this.lblWarehouseData_tabWarehouse.Text = "Unknown";
                 this.lblWarehouseData_tabWarehouse.TextColor = Color.Black;
                 this.lblWarehouseData_tabSection.Text = "Unknown";
@@ -816,7 +680,6 @@ namespace dMobile.View.Activity
 
             if (this.LocMapInfo.SectLocMapRefno == 0)
             {
-                // TODO: Resource strings
                 this.lblSectionData_tabWarehouse.Text = "Unknown";
                 this.lblSectionData_tabWarehouse.TextColor = Color.Black;
                 this.lblSectionData_tabSection.Text = "Unknown";
@@ -876,33 +739,30 @@ namespace dMobile.View.Activity
             {
                 this.Loading = true;
 
-                // No need to disable/enable scanner because only messagebox are called. 
+                // No need to disable/enable scanner because only messagebox are called.
                 // GoFocus and LostFocus events will handle the scanner
                 this.BarParse = scanArgs.ParseInfo;
 
                 if (!string.IsNullOrEmpty(this.BarParse.ActFKRefno))
                 {
-                    // TODO: Resource strings
-                    throw new Exceptions.MessageOnlyException("Scanning an activity header reference # is not supported here.");
+                    throw new MessageOnlyException("Scanning an activity header reference # is not supported here.");
                 }
                 else if (!string.IsNullOrEmpty(this.BarParse.ActItemFKRefno))
                 {
-                    // TODO: Resource strings
-                    throw new Exceptions.MessageOnlyException("Scanning an activity item reference # is not supported here.");
+                    throw new MessageOnlyException("Scanning an activity item reference # is not supported here.");
                 }
                 else if (!string.IsNullOrEmpty(this.BarParse.ProductIdentifier))
                 {
-                    // TODO: Resource strings
-                    throw new Exceptions.MessageOnlyException("Scanning a product bar code is not supported here.");
+                    throw new MessageOnlyException("Scanning a product bar code is not supported here.");
                 }
                 else if (!string.IsNullOrEmpty(this.BarParse.SSCC18))
                 {
-                    // TODO: Resource strings
-                    throw new Exceptions.MessageOnlyException("Scanning a shipping container bar code is not supported here.");
+                    throw new MessageOnlyException("Scanning a shipping container bar code is not supported here.");
                 }
                 else if (!string.IsNullOrEmpty(this.BarParse.LocationIdentifier))
                 {
-                    int locMapRefno = await LocationMapTasks.GetLocMapRefnoFromBarCodeGlobalLocIdentifier(this.BarParse.LocationIdentifier);
+                    int locMapRefno = await LocationMapTasks.GetLocMapRefnoFromBarCodeGlobalLocIdentifier(
+                        this.BarParse.LocationIdentifier);
                     this.LocMapInfo = await LocationMapTasks.GetSLocMapFromLocMapRefno(locMapRefno);
 
                     this.SelectWarehouse();
@@ -910,20 +770,23 @@ namespace dMobile.View.Activity
                 }
                 else
                 {
-                    // TODO: Resource strings
-                    throw new Exceptions.MessageOnlyException("Scanned bar code type is not supported here.");
+                    throw new MessageOnlyException("Scanned bar code type is not supported here.");
                 }
             }
-            catch (Exceptions.MessageOnlyException ex)
+            catch (MessageOnlyException ex)
             {
-                ex.Show(this.ActSubType);
+                await Device.InvokeOnMainThreadAsync(async () =>
+                    await Application.Current.MainPage.DisplayAlert(
+                        this.GetControlDescription(),
+                        ex.Message,
+                        Resource.OK));
             }
             catch (Exception ex)
             {
                 await Device.InvokeOnMainThreadAsync(async () =>
                 {
                     FormErrorReport errRpt = new FormErrorReport(this.ActSubType, ex);
-                    await errRpt.ShowDialog();
+                    _ = await errRpt.ShowDialog();
                 });
             }
             finally
@@ -949,11 +812,11 @@ namespace dMobile.View.Activity
                 ColumnDefinitions =
                 {
                     new ColumnDefinition { Width = new GridLength(columnWidth0, GridUnitType.Absolute) },
-                    new ColumnDefinition { Width = new GridLength(columnWidth1, GridUnitType.Absolute) }
-                }
+                    new ColumnDefinition { Width = new GridLength(columnWidth1, GridUnitType.Absolute) },
+                },
             };
 
-            gridHeader.SetDynamicResource(VisualElement.BackgroundColorProperty, "HeaderColor");
+            gridHeader.SetDynamicResource(BackgroundColorProperty, "HeaderColor");
 
             gridHeader.Children.Add(labelCodeHeader);
             gridHeader.Children.Add(labelNameHeader);
@@ -989,12 +852,12 @@ namespace dMobile.View.Activity
                 Grid gridData = new Grid
                 {
                     Padding = new Thickness(5),
-                    //ColumnSpacing = 15,
+                    // ColumnSpacing = 15,
                     ColumnDefinitions =
                     {
                         new ColumnDefinition { Width = new GridLength(columnWidth0, GridUnitType.Absolute) },
-                        new ColumnDefinition { Width = new GridLength(columnWidth1, GridUnitType.Absolute) }
-                    }
+                        new ColumnDefinition { Width = new GridLength(columnWidth1, GridUnitType.Absolute) },
+                    },
                 };
 
                 Label labelCode = new Label { VerticalOptions = LayoutOptions.Center };
@@ -1037,11 +900,11 @@ namespace dMobile.View.Activity
                 ColumnDefinitions =
                 {
                     new ColumnDefinition { Width = new GridLength(columnWidth0, GridUnitType.Absolute) },
-                    new ColumnDefinition { Width = new GridLength(columnWidth1, GridUnitType.Absolute) }
-                }
+                    new ColumnDefinition { Width = new GridLength(columnWidth1, GridUnitType.Absolute) },
+                },
             };
 
-            gridHeader.SetDynamicResource(VisualElement.BackgroundColorProperty, "HeaderColor");
+            gridHeader.SetDynamicResource(BackgroundColorProperty, "HeaderColor");
 
             gridHeader.Children.Add(labelCodeHeader);
             gridHeader.Children.Add(labelNameHeader);
@@ -1077,12 +940,12 @@ namespace dMobile.View.Activity
                 Grid gridData = new Grid
                 {
                     Padding = new Thickness(5),
-                    //ColumnSpacing = 15,
+                    // ColumnSpacing = 15,
                     ColumnDefinitions =
                     {
                         new ColumnDefinition { Width = new GridLength(columnWidth0, GridUnitType.Absolute) },
-                        new ColumnDefinition { Width = new GridLength(columnWidth1, GridUnitType.Absolute) }
-                    }
+                        new ColumnDefinition { Width = new GridLength(columnWidth1, GridUnitType.Absolute) },
+                    },
                 };
 
                 Label labelCode = new Label { VerticalOptions = LayoutOptions.Center };
@@ -1103,8 +966,6 @@ namespace dMobile.View.Activity
             this.dgSections.ItemTemplate = dataTemplate;
             this.dgSections.ItemsSource = this.SectionObservableCollection;
         }
-
-        #endregion
 
         private async void dgWhs_ItemSelected(object sender, SelectedItemChangedEventArgs e)
         {
@@ -1133,13 +994,12 @@ namespace dMobile.View.Activity
 
             foreach (Warehouse warehouse in this.FilteredListWarehouse)
             {
-                //Warehouse warehouse = new Warehouse
-                //{
+                // Warehouse warehouse = new Warehouse
+                // {
                 //    LocationMapWarehouseCode = Convert.ToInt32(row["LocationMapWarehouseCode"]),
                 //    LocationMapWarehouseName = Convert.ToString(row["LocationMapWarehouseName"]),
                 //    LocationMapRefno = Convert.ToInt32(row["LocationMapRefno"])
-                //};
-
+                // };
                 this.WarehouseObservableCollection.Add(warehouse);
             }
         }
@@ -1150,14 +1010,13 @@ namespace dMobile.View.Activity
 
             foreach (Section section in this.FilteredListSections)
             {
-                //Section section = new Section
-                //{
+                // Section section = new Section
+                // {
                 //    LocationMapSectionCode = Convert.ToInt32(row["LocationMapSectionCode"]),
                 //    LocationMapSectionName = Convert.ToString(row["LocationMapSectionName"]),
                 //    LocationMapRefno = Convert.ToInt32(row["LocationMapRefno"]),
                 //    WarehouseLocationMapRefno = Convert.ToInt32(row["WarehouseLocationMapRefno"])
-                //};
-
+                // };
                 this.SectionObservableCollection.Add(section);
             }
         }
@@ -1173,7 +1032,7 @@ namespace dMobile.View.Activity
 
         private void btnCancel_Clicked(object sender, EventArgs e)
         {
-            this.OnBackButtonPressed();
+            _ = this.OnBackButtonPressed();
         }
     }
 }

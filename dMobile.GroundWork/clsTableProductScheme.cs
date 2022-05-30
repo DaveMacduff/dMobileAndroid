@@ -1,46 +1,43 @@
-﻿namespace dMobile.GroundWork
+﻿// <copyright file="clsTableProductScheme.cs" company="InterSect Business Systems Inc">
+// Copyright (c) InterSect Business Systems Inc. All rights reserved.
+// </copyright>
+
+namespace dMobile.GroundWork
 {
     using System;
+    using System.Collections.Generic;
     using System.Data;
-    using SQLite;
     using System.Text;
+    using System.Threading.Tasks;
     using System.Xml;
     using System.Xml.Linq;
     using dMobile.Bedrock;
-    using System.Threading.Tasks;
-    using System.Collections.Generic;
     using dMobile.Resources.Models;
+    using SQLite;
 
     public class TableProductScheme : TableBase
     {
-        #region Constructors
-
+        /// <summary>
+        /// Initializes a new instance of the <see cref="TableProductScheme"/> class.
+        /// </summary>
         public TableProductScheme()
           : base()
         {
             this.FullClassName = "dMobile.GroundWork.TableProductScheme";
         }
 
-        #endregion
-
-        #region Public Members
-
         /// <summary>
         ///
         /// </summary>
         /// <remarks></remarks>
-        public override async Task Request()
+        public override async Task RequestData()
         {
-            string reqData = string.Empty;
-
             try
             {
-                // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Seeding product schemes.", true);
 
-                reqData = await this.Send("product scheme");
-
-                if (0 < reqData.Length)
+                string reqData = await this.SendRequest();
+                if (reqData.Length > 0)
                 {
                     if (reqData.Contains("<message>ERROR</message>"))
                     {
@@ -52,29 +49,26 @@
                     await this.Save(reqData);
                 }
 
-                // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Seeding product schemes complete.", true);
             }
             catch (Exception ex)
             {
-                // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Seeding product schemes failed.", true);
 
-                // TODO: Resource strings
                 throw new Exception("Seeding product schemes failed.", ex);
             }
         }
 
         ///// <summary>
-        ///// 
+        /////
         ///// </summary>
         ///// <param name="schemeCode"></param>
         ///// <returns></returns>
-        //public int GetProdSchemeRefnoFromProdSchemeCode(string schemeCode)
-        //{
+        // public int GetProdSchemeRefnoFromProdSchemeCode(string schemeCode)
+        // {
         //  int schemeRefno = 0;
 
-        //      try
+        // try
         //      {
         //        using (SQLiteCommand cmndScheme = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
         //        {
@@ -82,7 +76,7 @@
         //          cmndScheme.IndexName = "UQ_ProductSchemeOnProductSchemeCode";
         //          cmndScheme.CommandType = CommandType.TableDirect;
 
-        //          using (SQLiteDataReader drScheme = cmndScheme.ExecuteReader())
+        // using (SQLiteDataReader drScheme = cmndScheme.ExecuteReader())
         //          {
         //            if (drScheme.Seek(DbSeekOptions.FirstEqual, new object[] { schemeCode }))
         //            {
@@ -93,40 +87,40 @@
         //              else
         //              {
         //                throw new Exception(
-        //#if MULTILANGUAGE
+        // #if MULTILANGUAGE
         //                    Translator.GetInstance().Translate(TranslatorVocabulary.DrschemereadFailed) + Environment.NewLine + Translator.GetInstance().Translate(TranslatorVocabulary.SchemeCode) + schemeCode + "\'");
-        //#else
+        // #else
         //                    "drScheme.Read() failed." + Environment.NewLine + "Scheme code \'" + schemeCode + "\'");
-        //#endif
+        // #endif
         //              }
         //            }
         //            else
         //            {
         //              throw new Exception(
-        //#if MULTILANGUAGE
-        //                  Translator.GetInstance().Translate(TranslatorVocabulary.UnableToLocateTheProductSchemeCodeInTproductscheme) 
+        // #if MULTILANGUAGE
+        //                  Translator.GetInstance().Translate(TranslatorVocabulary.UnableToLocateTheProductSchemeCodeInTproductscheme)
         //                  + Environment.NewLine + Translator.GetInstance().Translate(TranslatorVocabulary.SchemeCode) + schemeCode + "\'");
-        //#else
-        //                  "Unable to locate the product scheme code in tProductScheme." 
+        // #else
+        //                  "Unable to locate the product scheme code in tProductScheme."
         //                  + Environment.NewLine + "Scheme code \'" + schemeCode + "\'");
-        //#endif
+        // #endif
         //            }
 
-        //            drScheme.Close();
+        // drScheme.Close();
         //          }
         //        }
         //      }
         //      catch (SQLiteException ex)
         //      {
-        //#if MULTILANGUAGE
+        // #if MULTILANGUAGE
         //        throw new Exception(Translator.GetInstance().Translate(TranslatorVocabulary.DatabaseExceptionOccurredGetprodschemerefnofromprodschemecodeFailed), ex);
-        //#else
+        // #else
         //        throw new Exception("Database exception occurred. GetProdSchemeRefnoFromProdSchemeCode failed.", ex);
-        //#endif
+        // #endif
         //      }
 
-        //  return schemeRefno;
-        //}
+        // return schemeRefno;
+        // }
 
         /// <summary>
         ///
@@ -134,18 +128,15 @@
         /// <remarks></remarks>
         public override async Task<int> DataStatus()
         {
-            int rowsAffected = 0;
-
+            int rowsAffected;
             try
             {
                 rowsAffected = Convert.ToInt32(await DatabaseConnection.GetInstance().SQLConn.ExecuteScalarAsync<int>("SELECT COUNT(*) FROM tProductScheme"));
 
-                // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, string.Format("{0} product schemes.", rowsAffected), true);
             }
             catch (SQLiteException ex)
             {
-                // TODO: Resource strings
                 throw new Exception("Database exception occurred. Product schemes status failed.", ex);
             }
 
@@ -156,35 +147,30 @@
         ///
         /// </summary>
         /// <remarks></remarks>
-        public override async Task Purge()
+        public override async Task PurgeData()
         {
             try
             {
-                // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging product schemes.", true);
 
                 await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync("DELETE FROM tProductScheme");
 
-                // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging product schemes failed.", true);
             }
             catch (SQLiteException ex)
             {
-                // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Database exception occurred.", true);
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging product schemes failed.", true);
 
-                // TODO: Resource strings
                 throw new Exception("Database exception occurred. Purge product schemes failed.", ex);
             }
         }
 
-        //    /// <summary>
+        // /// <summary>
         //    ///
         //    /// </summary>
         //    /// <param name="reqData"></param>
         //    /// <remarks></remarks>
-
         protected override async Task Save(string reqData)
         {
             string errMsg = string.Empty;
@@ -195,18 +181,15 @@
                 {
                     using (DataSet ds = new DataSet())
                     {
-                        // TODO: Resource String
                         this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Reading received data.", false);
                         ds.ReadXml(SysCommon.GetXmlReader(ref reqData), XmlReadMode.Auto);
 
-                        // TODO: Resource String
                         this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving product schemes.", false);
 
                         if (ds.Tables.Count != 0)
                         {
                             int progMax = Convert.ToInt32(ds.Tables["tProductScheme"].Rows.Count);
 
-                            // TODO: Resource String
                             this.DataAccessStatusOutHandler(this, EventArgs.Empty, string.Format("Records {0}", ds.Tables["tProductScheme"].Rows.Count), false);
 
                             int progValue = 0;
@@ -226,7 +209,7 @@
                                 {
                                     isSchemeFound = true;
 
-                                    if (SysEnv.RefreshOpt.RefreshDataChangesOnly)
+                                    if (this.SysEnv.RefreshOpt.RefreshDataChangesOnly)
                                     {
                                         StringBuilder s = new StringBuilder();
                                         s.Append("UPDATE tProductScheme ");
@@ -406,7 +389,7 @@
                                         Convert.ToBoolean(drow["ProductSchemeExtra5IsRequired"]),
                                         Convert.ToBoolean(drow["ProductSchemeIsLotTrackedDefault"]),
                                         Convert.ToBoolean(drow["ProductSchemeIsProductionDateTrackedDefault"]),
-                                        Convert.ToBoolean(drow["ProductSchemeIsBestBeforeDateTrackedDefault"])
+                                        Convert.ToBoolean(drow["ProductSchemeIsBestBeforeDateTrackedDefault"]),
                                     };
 
                                     transaction.Execute(queryInsert, parametersInsert);
@@ -424,7 +407,6 @@
 
                         transaction.Commit();
 
-                        // TODO: Resource String
                         this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving product schemes complete.", false);
                     }
                 }
@@ -432,11 +414,9 @@
                 {
                     transaction.Rollback();
 
-                    // TODO: Resource String
                     this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Database exception occurred.", false);
                     this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving product schemes failed.", false);
 
-                    // TODO: Resource String
                     throw new Exception("Database exception occurred. Saving product schemes failed." + Environment.NewLine + errMsg, ex);
                 }
             });
@@ -447,7 +427,7 @@
         /// </summary>
         /// <returns></returns>
         /// <remarks></remarks>
-        protected override async Task<string> Create()
+        protected override async Task<string> CreateRequest()
         {
             StringBuilder xmlString = new StringBuilder();
             XmlWriter xml = XmlWriter.Create(xmlString);
@@ -467,7 +447,5 @@
 
             return xmlString.ToString();
         }
-
-        #endregion
     }
 }

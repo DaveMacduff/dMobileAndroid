@@ -1,12 +1,16 @@
-﻿using Android.Content;
-using Android.Runtime;
-using Android.Views;
-using Xamarin.Forms;
-using dMobile.Resources.Services;
-using dMobile.Droid.Services;
+﻿// <copyright file="GridService.cs" company="InterSect Business Systems Inc">
+// Copyright (c) InterSect Business Systems Inc. All rights reserved.
+// </copyright>
+
+using Android.Content;
 using Android.Graphics;
-using Android.Widget;
+using Android.Runtime;
 using Android.Util;
+using Android.Views;
+using Android.Widget;
+using dMobile.Droid.Services;
+using dMobile.Resources.Services;
+using Xamarin.Forms;
 
 [assembly: Dependency(typeof(GridService))]
 namespace dMobile.Droid.Services

@@ -1,19 +1,23 @@
-﻿namespace dMobile.Bedrock
+﻿// <copyright file="SysDeviceID.cs" company="InterSect Business Systems Inc">
+// Copyright (c) InterSect Business Systems Inc. All rights reserved.
+// </copyright>
+
+namespace dMobile.Bedrock
 {
-    using System;
-    using System.Net.NetworkInformation;
-    using Android;
     using Android.OS;
     using Android.Util;
-    using Xamarin.Forms;
+    using System;
+    using System.Net.NetworkInformation;
 
+    /// <summary>
+    /// Defines the <see cref="SysDeviceID" />.
+    /// </summary>
     public class SysDeviceID
     {
         /// <summary>
-        /// 
+        /// The GetDeviceID.
         /// </summary>
-        /// <returns></returns>
-        /// <remarks>LXE device id's are not unique. Therefore we are switching to the first MAC address</remarks>
+        /// <returns>.</returns>
         public static string GetDeviceID()
         {
             string deviceID = string.Empty;

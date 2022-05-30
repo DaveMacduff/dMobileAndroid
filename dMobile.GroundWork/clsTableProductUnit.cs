@@ -1,19 +1,23 @@
+// <copyright file="clsTableProductUnit.cs" company="InterSect Business Systems Inc">
+// Copyright (c) InterSect Business Systems Inc. All rights reserved.
+// </copyright>
+
 namespace dMobile.GroundWork
 {
-    using dMobile.Bedrock;
     using System;
     using System.Collections.Generic;
     using System.Data;
-    using SQLite;
     using System.IO;
     using System.Text;
+    using System.Threading.Tasks;
     using System.Xml;
     using System.Xml.Linq;
-    using System.Threading.Tasks;
+    using dMobile.Bedrock;
     using dMobile.Resources.Models;
+    using SQLite;
 
     /// <summary>
-    /// Defines the <see cref="TableProductUnit" />
+    /// Defines the <see cref="TableProductUnit" />.
     /// </summary>
     public class TableProductUnit : TableBase
     {
@@ -27,13 +31,12 @@ namespace dMobile.GroundWork
         }
 
         /// <summary>
-        /// The Request
+        /// The Request.
         /// </summary>
-        public override async Task Request()
+        public override async Task RequestData()
         {
             try
             {
-                // TODO: Resource Strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Seeding product uom.", true);
 
                 string reqData = string.Empty;
@@ -43,12 +46,11 @@ namespace dMobile.GroundWork
                 {
                     foreach (tFamilyModel family in resultsFamily)
                     {
-                        // TODO: Resource Strings
                         this.DataAccessStatusOutHandler(this, EventArgs.Empty, string.Format("For family {0}", family.FamilyCode), true);
 
                         reqData = await this.SendRequest(family.FamilyCode);
 
-                        if (0 < reqData.Length)
+                        if (reqData.Length > 0)
                         {
                             if (reqData.Contains("<message>ERROR</message>"))
                             {
@@ -62,50 +64,41 @@ namespace dMobile.GroundWork
                     }
                 }
 
-                // TODO: Resource Strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Seeding product uom complete.", true);
             }
             catch (SQLiteException ex)
             {
-                // TODO: Resource Strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Database exception occurred.", true);
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Seeding product uom failed.", true);
 
-                // TODO: Resource Strings
                 throw new Exception("Database exception occurred. Seeding product uom failed.", ex);
             }
             catch (Exception ex)
             {
-                // TODO: Resource Strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Seeding product uom failed.", true);
 
-                // TODO: Resource Strings
                 throw new Exception("Seeding product uom failed.", ex);
             }
         }
 
         /// <summary>
-        /// The Purge
+        /// The Purge.
         /// </summary>
-        public override async Task Purge()
+        public override async Task PurgeData()
         {
             try
             {
-                // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging product uom.", true);
 
                 await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync("DELETE FROM tProductUnit");
 
-                // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging product uom complete.", true);
             }
             catch (SQLiteException ex)
             {
-                // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Database exception occurred.", true);
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging product uom failed.", true);
 
-                // TODO: Resource strings
                 throw new Exception("Database exception occurred. Purging product uom failed.", ex);
             }
         }
@@ -117,14 +110,14 @@ namespace dMobile.GroundWork
         ///// <param name="unitRefno"></param>
         ///// <param name="prodUnitIsBC"></param>
         ///// <returns></returns>
-        //public int GetProdUnitRefnoFromProdRefnoAndUnitRefnoAndProdUnitIsBC(
+        // public int GetProdUnitRefnoFromProdRefnoAndUnitRefnoAndProdUnitIsBC(
         //    int prodRefno,
         //    int unitRefno,
         //    bool prodUnitIsBC)
-        //{
+        // {
         //    int prodUnitRefno = 0;
 
-        //            try
+        // try
         //            {
         //                using (SQLiteCommand cmndGetProductUnit = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
         //                {
@@ -132,7 +125,7 @@ namespace dMobile.GroundWork
         //                    cmndGetProductUnit.IndexName = "UQ_ProductUnitOnProductRefnoAndUnitRefnoAndProductUnitIsBC";
         //                    cmndGetProductUnit.CommandType = CommandType.TableDirect;
 
-        //                    using (SQLiteDataReader drProductUnit = cmndGetProductUnit.ExecuteReader())
+        // using (SQLiteDataReader drProductUnit = cmndGetProductUnit.ExecuteReader())
         //                    {
         //                        if (drProductUnit.Seek(
         //                            DbSeekOptions.FirstEqual,
@@ -145,64 +138,61 @@ namespace dMobile.GroundWork
         //                            }
         //                            else
         //                            {
-        //#if MULTILANGUAGE
+        // #if MULTILANGUAGE
         //                throw new Exception(Translator.GetInstance().Translate(TranslatorVocabulary.DrproductunitreadFailed));
-        //#else
+        // #else
         //                                throw new Exception("drProductUnit.Read() failed.");
-        //#endif
+        // #endif
         //                            }
         //                        }
         //                        else
         //                        {
         //                            throw new Exception(
         //                                string.Format(
-        //#if MULTILANGUAGE
+        // #if MULTILANGUAGE
         //                  Translator.GetInstance().Translate(TranslatorVocabulary.UnableToLocateProductUnitRefnoFromProductRefnoAndUnitRefnoAndIsBc) +
         //                  Translator.GetInstance().Translate(TranslatorVocabulary.InTproductunit),
-        //#else
-        //"Unable to locate product unit refno from product refno and unit refno and is BC {0}, {1}, {2} " +
+        // #else
+        // "Unable to locate product unit refno from product refno and unit refno and is BC {0}, {1}, {2} " +
         //                                "in tProductUnit",
-        //#endif
+        // #endif
         // prodRefno,
         //                                prodUnitRefno,
         //                                prodUnitIsBC));
         //                        }
 
-        //                        drProductUnit.Close();
+        // drProductUnit.Close();
         //                    }
         //                }
         //            }
         //            catch (SQLiteException ex)
         //            {
         //                throw new Exception(
-        //#if MULTILANGUAGE
+        // #if MULTILANGUAGE
         //            Translator.GetInstance().Translate(TranslatorVocabulary.DatabaseExceptionOccurredGetprodunitrefnofromprodrefnoandunitrefnoandprodunitisbcFailed), ex);
-        //#else
-        //"Database exception occurred. GetProdUnitRefnoFromProdRefnoAndUnitRefnoAndProdUnitIsBC failed.", ex);
-        //#endif
+        // #else
+        // "Database exception occurred. GetProdUnitRefnoFromProdRefnoAndUnitRefnoAndProdUnitIsBC failed.", ex);
+        // #endif
         //            }
 
-        //    return prodUnitRefno;
-        //}
+        // return prodUnitRefno;
+        // }
 
         /// <summary>
-        /// The DataStatus
+        /// The DataStatus.
         /// </summary>
-        /// <returns>The <see cref="int"/></returns>
+        /// <returns>The <see cref="int"/>.</returns>
         public override async Task<int> DataStatus()
         {
-            int rowsAffected = 0;
-
+            int rowsAffected;
             try
             {
                 rowsAffected = Convert.ToInt32(await DatabaseConnection.GetInstance().SQLConn.ExecuteScalarAsync<int>("SELECT COUNT(*) FROM tProductUnit"));
 
-                // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, string.Format("{0} product units.", rowsAffected), true);
             }
             catch (SQLiteException ex)
             {
-                // TODO: Resource strings
                 throw new Exception("Database exception occurred. Product uom status failed.", ex);
             }
 
@@ -210,7 +200,7 @@ namespace dMobile.GroundWork
         }
 
         /// <summary>
-        /// The SendRequest
+        /// The SendRequest.
         /// </summary>
         /// <param name="familyCode"></param>
         /// <returns></returns>
@@ -220,7 +210,7 @@ namespace dMobile.GroundWork
         }
 
         /// <summary>
-        /// The Save
+        /// The Save.
         /// </summary>
         /// <param name="reqData"></param>
         protected override async Task Save(string reqData)
@@ -228,7 +218,7 @@ namespace dMobile.GroundWork
         }
 
         /// <summary>
-        /// The SaveOpt
+        /// The SaveOpt.
         /// </summary>
         /// <param name="reqData"></param>
         protected async Task SaveOpt(string reqData)
@@ -243,13 +233,11 @@ namespace dMobile.GroundWork
                 {
                     int startIndex = reqData.IndexOf("<VFPData");
 
-                    // TODO: Resource Strings
                     this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Reading received data.", false);
 
                     using (StringReader stringReader = new StringReader(reqData.Substring(startIndex)))
                     using (XmlReader reader = XmlReader.Create(stringReader))
                     {
-                        // TODO: Resource Strings
                         this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving product uom.", false);
 
                         List<tUnitModel> resultsUnit = transaction.Query<tUnitModel>("SELECT * FROM tUnit");
@@ -375,7 +363,6 @@ namespace dMobile.GroundWork
                             }
                             else
                             {
-                                // TODO: Resource Strings
                                 throw new Exception("drProd.Read() failed." + Environment.NewLine + errMsg.ToString());
                             }
 
@@ -388,7 +375,6 @@ namespace dMobile.GroundWork
                             errMsg.Append(Environment.NewLine).Append("Base unit: \'").Append(baseUnitCode).Append("\'");
                             unitLookup.TryGetValue(baseUnitCode, out baseUnitRefno);
 
-
                             errMsg.Append(Environment.NewLine).Append("Weight unit: \'").Append(wtUnitCode).Append("\'");
                             unitLookup.TryGetValue(wtUnitCode, out wtUnitRefno);
 
@@ -400,7 +386,7 @@ namespace dMobile.GroundWork
                             {
                                 isProdUnitFound = true;
 
-                                if (SysEnv.RefreshOpt.RefreshDataChangesOnly)
+                                if (this.SysEnv.RefreshOpt.RefreshDataChangesOnly)
                                 {
                                     string queryUpdate = @"UPDATE tProductUnit
                                             SET BaseUnitRefno =  ?,
@@ -424,7 +410,7 @@ namespace dMobile.GroundWork
                                         Convert.ToDecimal(boxCount),
                                         Convert.ToInt32(prodRefno),
                                         Convert.ToInt32(unitRefno),
-                                        Convert.ToInt32(isProdUnitBC)
+                                        Convert.ToInt32(isProdUnitBC),
                                     };
 
                                     transaction.Execute(queryUpdate, parametersUpdate);
@@ -472,7 +458,7 @@ namespace dMobile.GroundWork
                                     Convert.ToInt32(isProdUnitSellUnit),
                                     Convert.ToInt32(isProdUnitDefault),
                                     Convert.ToDecimal(boxCount),
-                                    Convert.ToDecimal(weightTolerance)
+                                    Convert.ToDecimal(weightTolerance),
                                 };
 
                                 transaction.Execute(queryInsert, parametersInsert);
@@ -481,18 +467,16 @@ namespace dMobile.GroundWork
                             ++recordCount;
                             if (recordCount % 100 == 0)
                             {
-                                this.DataAccessProgressOutHandler(this, EventArgs.Empty, (recordCount / 10) % 100, 0, 100);
+                                this.DataAccessProgressOutHandler(this, EventArgs.Empty, recordCount / 10 % 100, 0, 100);
                             }
                         } // end of data
 
                         this.DataAccessProgressOutHandler(this, EventArgs.Empty, 100, 0, 100);
 
-                        // TODO: Resource Strings
                         this.DataAccessStatusOutHandler(this, EventArgs.Empty, string.Format("Records {0}", recordCount), false);
 
                         transaction.Commit();
 
-                        // TODO: Resource Strings
                         this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving product uom complete.", false);
                     }
                 }
@@ -500,16 +484,14 @@ namespace dMobile.GroundWork
                 {
                     transaction.Rollback();
 
-                    // TODO: Resource Strings
                     this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Database exception occurred.", false);
                     this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving product uom failed.", false);
 
-                    // TODO: Resource Strings
                     throw new Exception("Database exception occurred. Saving product uom failed." + Environment.NewLine + errMsg.ToString(), ex);
                 }
                 catch (Exception e)
                 {
-                    //MessageBox.Show(e.Message);
+                    // MessageBox.Show(e.Message);
                     this.DataAccessStatusOutHandler(this, EventArgs.Empty, e.Message, true);
                     throw;
                 }
@@ -517,7 +499,7 @@ namespace dMobile.GroundWork
         }
 
         /// <summary>
-        /// The CreateRequest
+        /// The CreateRequest.
         /// </summary>
         /// <param name="familyCode"></param>
         /// <returns></returns>
@@ -532,7 +514,7 @@ namespace dMobile.GroundWork
                 + "<command>"
                 + "<action>REQUEST PRODUCT UNITS</action>"
                 + await SysCommon.GetRequestDefaults(true)
-                + ("<family_code>" + familyCode + "</family_code>")
+                + "<family_code>" + familyCode + "</family_code>"
                 + "</command>"
                 + "</imclient>");
 

@@ -1,36 +1,34 @@
-﻿using Android.Views;
-using dMobile.Bedrock;
-using dMobile.Resources.Enums;
-using dMobile.View.Activity;
-using dMobile.View.CustomPages;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Xml.Linq;
-using Xamarin.Forms;
-using Xamarin.Forms.Xaml;
+﻿// <copyright file="ucInventoryCountsMenu.xaml.cs" company="InterSect Business Systems Inc">
+// Copyright (c) InterSect Business Systems Inc. All rights reserved.
+// </copyright>
 
 namespace dMobile.View.Menus
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
+    using System.Text;
+    using System.Threading.Tasks;
+    using System.Xml.Linq;
+    using Android.Views;
+    using dMobile.Bedrock;
+    using dMobile.Resources.Enums;
+    using dMobile.View.Activity;
+    using dMobile.View.CustomPages;
+    using Xamarin.Forms;
+    using Xamarin.Forms.Xaml;
+
     [XamlCompilation(XamlCompilationOptions.Compile)]
     public partial class ucInventoryCountsMenu : DMobileContentPage, IAppArea
     {
-        #region Fields
 
-        private SysEnvironment sysEnv;
-        private bool isControlLoaded = false;
-
-        #endregion
-
-        #region Constructors
-
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ucInventoryCountsMenu"/> class.
+        /// </summary>
         public ucInventoryCountsMenu()
         {
             this.InitializeComponent();
 
-            // TODO: Resource strings
             this.Title = this.GetControlDescription();
             this.cmdPhysicalCount.Text = "1) Physical Count";
             this.cmdCycleCount.Text = "2) Cycle Count";
@@ -41,10 +39,8 @@ namespace dMobile.View.Menus
             }
         }
 
-        #endregion
-
         /// <summary>
-        /// The OnAppearing
+        /// The OnAppearing.
         /// </summary>
         protected override async void OnAppearing()
         {
@@ -52,8 +48,7 @@ namespace dMobile.View.Menus
 
             MessagingCenter.Subscribe<string>(this, EventTypes.OnKeyUp.ToString(), async (keyPressed) =>
             {
-                // TODO: Verify keycodes
-                Enum.TryParse(keyPressed, out Keycode keycode);
+                _ = Enum.TryParse(keyPressed, out Keycode keycode);
 
                 if (keycode == Keycode.Enter && this.cmdPhysicalCount.IsEnabled)
                 {
@@ -87,13 +82,12 @@ namespace dMobile.View.Menus
             }
             catch (Exception ex)
             {
-                // TODO: Resource strings
-                await Device.InvokeOnMainThreadAsync(async () => await DisplayAlert("Error", "this.ucInventoryCountsMenu_GotFocus threw an error " + ex, "OK"));
+                await Device.InvokeOnMainThreadAsync(async () => await this.DisplayAlert("Error", "this.ucInventoryCountsMenu_GotFocus threw an error " + ex, "OK"));
             }
         }
 
         /// <summary>
-        /// The OnDisappearing
+        /// The OnDisappearing.
         /// </summary>
         protected override void OnDisappearing()
         {
@@ -106,7 +100,7 @@ namespace dMobile.View.Menus
         {
             Device.BeginInvokeOnMainThread(async () =>
             {
-                base.OnBackButtonPressed();
+                _ = base.OnBackButtonPressed();
 
                 this.DisableControls();
                 this.IsControlLoaded = false;
@@ -116,37 +110,9 @@ namespace dMobile.View.Menus
             return true;
         }
 
-        #region Properties
+        private bool IsControlLoaded { get; set; } = false;
 
-        private bool IsControlLoaded
-        {
-            get
-            {
-                return this.isControlLoaded;
-            }
-
-            set
-            {
-                this.isControlLoaded = value;
-            }
-        }
-
-        private SysEnvironment SysEnv
-        {
-            get
-            {
-                return this.sysEnv;
-            }
-
-            set
-            {
-                this.sysEnv = value;
-            }
-        }
-
-        #endregion
-
-        #region Public Members
+        private SysEnvironment SysEnv { get; set; }
 
         /// <summary>
         /// Unregister the bar code scan event handler and disable the scanner.
@@ -189,10 +155,10 @@ namespace dMobile.View.Menus
         ///// </summary>
         ///// <returns></returns>
         ///// <remarks></remarks>
-        //public UserControl GetCallingControl()
-        //{
+        // public UserControl GetCallingControl()
+        // {
         //    return this.CallingControl;
-        //}
+        // }
 
         /// <summary>
         ///
@@ -201,7 +167,6 @@ namespace dMobile.View.Menus
         /// <remarks></remarks>
         public string GetControlDescription()
         {
-            // TODO: Resource strings
             return "Inventory Counts Menu";
         }
 
@@ -239,10 +204,6 @@ namespace dMobile.View.Menus
 
             return xmldocParams;
         }
-
-        #endregion
-
-        #region Private Members
 
         /// <summary>
         ///
@@ -317,7 +278,7 @@ namespace dMobile.View.Menus
                     this.cmdCycleCount.IsEnabled = true;
                 }
 
-                this.cmdPhysicalCount.Focus();
+                _ = this.cmdPhysicalCount.Focus();
             }
         }
 
@@ -330,7 +291,5 @@ namespace dMobile.View.Menus
             this.cmdCycleCount.IsEnabled = false;
             this.cmdPhysicalCount.IsEnabled = false;
         }
-
-        #endregion
     }
 }

@@ -1,33 +1,55 @@
+// <copyright file="clsPurchaseOrderWorkSheetActivity.cs" company="InterSect Business Systems Inc">
+// Copyright (c) InterSect Business Systems Inc. All rights reserved.
+// </copyright>
+
 namespace dMobile.Controller
 {
     using System;
+    using System.Collections.Generic;
     using System.Collections.ObjectModel;
     using System.Data;
-    using SQLite;
+    using System.Linq;
     using System.Text;
+    using System.Threading.Tasks;
     using System.Xml.Linq;
     using dMobile.Bedrock;
     using dMobile.GroundWork;
     using dMobile.Resources.Services;
     using dMobile.Resources.Types;
     using Xamarin.Forms;
-    using Xamarin.Forms.Internals;
-    using System.Threading.Tasks;
-    using System.Collections.Generic;
-    using System.Linq;
 
+    /// <summary>
+    /// Defines the <see cref="POWorkSheetActivity" />.
+    /// </summary>
     public class POWorkSheetActivity : Activity
     {
+        /// <summary>
+        /// Defines the columnWidth0.
+        /// </summary>
         private double columnWidth0 = 0;
-        private double columnWidth1 = 0;
-        private double columnWidth2 = 0;
-        private ResourceDictionary resourceDictionary = new ResourceDictionary();
-        private List<PurchaseOrderWorkSheetItem> listPurchaseOrderWorkSheetItems = new List<PurchaseOrderWorkSheetItem>();
-
-        #region Constructors
 
         /// <summary>
-        /// 
+        /// Defines the columnWidth1.
+        /// </summary>
+        private double columnWidth1 = 0;
+
+        /// <summary>
+        /// Defines the columnWidth2.
+        /// </summary>
+        private double columnWidth2 = 0;
+
+        /// <summary>
+        /// Defines the resourceDictionary.
+        /// </summary>
+        private ResourceDictionary resourceDictionary = new ResourceDictionary();
+
+        /// <summary>
+        /// Defines the listPurchaseOrderWorkSheetItems.
+        /// </summary>
+        private List<PurchaseOrderWorkSheetItem> listPurchaseOrderWorkSheetItems = new List<PurchaseOrderWorkSheetItem>();
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="POWorkSheetActivity"/> class.
         /// </summary>
         public POWorkSheetActivity()
           : base()
@@ -42,10 +64,10 @@ namespace dMobile.Controller
                     Padding = new Thickness(5),
                     ColumnDefinitions =
                     {
-                        new ColumnDefinition { Width = new GridLength(columnWidth0, GridUnitType.Absolute) },
-                        new ColumnDefinition { Width = new GridLength(columnWidth1, GridUnitType.Absolute) },
-                        new ColumnDefinition { Width = new GridLength(columnWidth2, GridUnitType.Absolute) }
-                    }
+                        new ColumnDefinition { Width = new GridLength(this.columnWidth0, GridUnitType.Absolute) },
+                        new ColumnDefinition { Width = new GridLength(this.columnWidth1, GridUnitType.Absolute) },
+                        new ColumnDefinition { Width = new GridLength(this.columnWidth2, GridUnitType.Absolute) },
+                    },
                 };
 
                 Label labelActivityPOProductID = new Label { VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start };
@@ -70,39 +92,38 @@ namespace dMobile.Controller
             this.resourceDictionary.Add("dataTemplate", dataTemplate);
         }
 
-        #endregion
-
-        #region Public Members
-
         /// <summary>
-        ///
+        /// The GetFKRefnoIdx.
         /// </summary>
-        /// <returns></returns>
-        /// <remarks></remarks>
+        /// <returns>.</returns>
         public override string GetFKRefnoIdx()
         {
             throw new NotImplementedException();
         }
 
         /// <summary>
-        ///
+        /// The GetControlDescription.
         /// </summary>
-        /// <returns></returns>
-        /// <remarks></remarks>
+        /// <returns>.</returns>
         public override string GetControlDescription()
         {
-            // TODO: Resource strings
             return "Work Sheet";
         }
 
-        public override ObservableCollection<object> DesignGrid(ref Grid dataGridMainActivityHeader, ref ListView dataGridMainActivity)
+        /// <summary>
+        /// The DesignGrid.
+        /// </summary>
+        /// <param name="GridMainActivity">The GridMainActivity<see cref="Grid"/>.</param>
+        /// <param name="ListViewMainActivity">The ListViewMainActivity<see cref="ListView"/>.</param>
+        /// <returns>The <see cref="ObservableCollection{object}"/>.</returns>
+        public override ObservableCollection<object> DesignGrid(ref Grid GridMainActivity, ref ListView ListViewMainActivity)
         {
             ObservableCollection<object> observableCollection = new ObservableCollection<object>();
 
             foreach (PurchaseOrderWorkSheetItem purchaseOrderWorkSheetItem in this.ListHdrs)
             {
-                //PurchaseOrderWorkSheetItem purchaseOrderWorkSheetItem = new PurchaseOrderWorkSheetItem
-                //{
+                // PurchaseOrderWorkSheetItem purchaseOrderWorkSheetItem = new PurchaseOrderWorkSheetItem
+                // {
                 //    ActivityItemRefno = Convert.ToInt32(row["ActivityItemRefno"] != DBNull.Value ? row["ActivityItemRefno"] : null),
                 //    ActivityItemPurchaseOrderWorkSheetFKRefno = Convert.ToInt32(row["ActivityItemPurchaseOrderWorkSheetFKRefno"] != DBNull.Value ? row["ActivityItemPurchaseOrderWorkSheetFKRefno"] : null),
                 //    ActivityItemPurchaseOrderWorkSheetStringFKRefno = Convert.ToString(row["ActivityItemPurchaseOrderWorkSheetStringFKRefno"] != DBNull.Value ? row["ActivityItemPurchaseOrderWorkSheetStringFKRefno"] : null),
@@ -119,19 +140,17 @@ namespace dMobile.Controller
                 //    LocationCode = Convert.ToInt32(row["LocationCode"] != DBNull.Value ? row["LocationCode"] : null),
                 //    LocationName = Convert.ToString(row["LocationName"] != DBNull.Value ? row["LocationName"] : null),
                 //    ActivityItemStatus = Convert.ToInt32(row["ActivityItemStatus"] != DBNull.Value ? row["ActivityItemStatus"] : null),
-                //};
-
+                // };
                 observableCollection.Add(purchaseOrderWorkSheetItem);
             }
 
-            // TODO: Resource Strings
             Label labelProductID = new Label { Text = "Product ID", VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start, FontAttributes = FontAttributes.Bold };
             Label labelOrdered = new Label { Text = "Ordered", VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start, FontAttributes = FontAttributes.Bold };
             Label labelWeight = new Label { Text = "Weight", VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start, FontAttributes = FontAttributes.Bold };
 
-            columnWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(labelProductID.Text);
-            columnWidth1 = DependencyService.Get<IGridService>().CalculateTextWidth(labelOrdered.Text);
-            columnWidth2 = DependencyService.Get<IGridService>().CalculateTextWidth(labelWeight.Text);
+            this.columnWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(labelProductID.Text);
+            this.columnWidth1 = DependencyService.Get<IGridService>().CalculateTextWidth(labelOrdered.Text);
+            this.columnWidth2 = DependencyService.Get<IGridService>().CalculateTextWidth(labelWeight.Text);
 
             // Header grid
             Grid gridHeader = new Grid
@@ -139,10 +158,10 @@ namespace dMobile.Controller
                 Padding = new Thickness(5),
                 ColumnDefinitions =
                 {
-                    new ColumnDefinition { Width = new GridLength(columnWidth0, GridUnitType.Absolute) },
-                    new ColumnDefinition { Width = new GridLength(columnWidth1, GridUnitType.Absolute) },
-                    new ColumnDefinition { Width = new GridLength(columnWidth2, GridUnitType.Absolute) }
-                }
+                    new ColumnDefinition { Width = new GridLength(this.columnWidth0, GridUnitType.Absolute) },
+                    new ColumnDefinition { Width = new GridLength(this.columnWidth1, GridUnitType.Absolute) },
+                    new ColumnDefinition { Width = new GridLength(this.columnWidth2, GridUnitType.Absolute) },
+                },
             };
 
             gridHeader.SetDynamicResource(VisualElement.BackgroundColorProperty, "HeaderColor");
@@ -157,7 +176,7 @@ namespace dMobile.Controller
 
             Grid.SetRow(gridHeader, 0);
 
-            dataGridMainActivityHeader.Children.Add(gridHeader);
+            GridMainActivity.Children.Add(gridHeader);
 
             foreach (PurchaseOrderWorkSheetItem purchaseOrderWorkSheetItem in observableCollection)
             {
@@ -165,36 +184,35 @@ namespace dMobile.Controller
                 double detailWidth1 = DependencyService.Get<IGridService>().CalculateTextWidth(string.Format("{0:F3}", purchaseOrderWorkSheetItem.ActivityItemPurchaseOrderWorkSheetQuantityOrdered));
                 double detailWidth2 = DependencyService.Get<IGridService>().CalculateTextWidth(string.Format("{0:F3}", purchaseOrderWorkSheetItem.ActivityItemPurchaseOrderWorkSheetWeightQuantityOrdered));
 
-                if (detailWidth0 > columnWidth0)
+                if (detailWidth0 > this.columnWidth0)
                 {
-                    columnWidth0 = detailWidth0;
-                    gridHeader.ColumnDefinitions[0].Width = columnWidth0;
+                    this.columnWidth0 = detailWidth0;
+                    gridHeader.ColumnDefinitions[0].Width = this.columnWidth0;
                 }
 
-                if (detailWidth1 > columnWidth1)
+                if (detailWidth1 > this.columnWidth1)
                 {
-                    columnWidth1 = detailWidth1;
-                    gridHeader.ColumnDefinitions[1].Width = columnWidth1;
+                    this.columnWidth1 = detailWidth1;
+                    gridHeader.ColumnDefinitions[1].Width = this.columnWidth1;
                 }
 
-                if (detailWidth2 > columnWidth2)
+                if (detailWidth2 > this.columnWidth2)
                 {
-                    columnWidth2 = detailWidth2;
-                    gridHeader.ColumnDefinitions[2].Width = columnWidth2;
+                    this.columnWidth2 = detailWidth2;
+                    gridHeader.ColumnDefinitions[2].Width = this.columnWidth2;
                 }
             }
 
-            dataGridMainActivity.ItemTemplate = (DataTemplate)this.resourceDictionary["dataTemplate"];
+            ListViewMainActivity.ItemTemplate = (DataTemplate)this.resourceDictionary["dataTemplate"];
 
             return observableCollection;
         }
 
         /// <summary>
-        ///
+        /// The GetActivityList.
         /// </summary>
-        /// <param name="isSubmitBatch"></param>
-        /// <returns></returns>
-        /// <remarks></remarks>
+        /// <param name="isSubmitBatch">.</param>
+        /// <returns>.</returns>
         public override async Task<List<object>> GetActivityList(bool isSubmitBatch)
         {
             StringBuilder sql = new StringBuilder();
@@ -267,20 +285,20 @@ namespace dMobile.Controller
         }
 
         /// <summary>
-        ///
+        /// The Search.
         /// </summary>
-        /// <param name="searchText"></param>
-        /// <returns></returns>
-        /// <remarks></remarks>
+        /// <param name="searchText">.</param>
+        /// <returns>.</returns>
         public override ObservableCollection<object> Search(string searchText)
         {
             throw new NotImplementedException();
         }
 
         /// <summary>
-        ///
+        /// The SelectActivity.
         /// </summary>
-        /// <remarks></remarks>
+        /// <param name="selectedActivity">The selectedActivity<see cref="object"/>.</param>
+        /// <returns>The <see cref="Task"/>.</returns>
         public override async Task SelectActivity(object selectedActivity)
         {
             if (selectedActivity is PurchaseOrderWorkSheetItem purchaseOrderWorkSheetItem)
@@ -298,11 +316,10 @@ namespace dMobile.Controller
         }
 
         /// <summary>
-        ///
+        /// The GetRefnoFromRowIdx.
         /// </summary>
-        /// <param name="i"></param>
-        /// <returns></returns>
-        /// <remarks></remarks>
+        /// <param name="selectedItem">The selectedItem<see cref="object"/>.</param>
+        /// <returns>.</returns>
         public override int GetRefnoFromRowIdx(object selectedItem)
         {
             dynamic poWorkSheet = selectedItem as dynamic;
@@ -317,9 +334,10 @@ namespace dMobile.Controller
         }
 
         /// <summary>
-        ///
+        /// The Refresh.
         /// </summary>
-        /// <remarks></remarks>
+        /// <param name="data">The data<see cref="XDocument"/>.</param>
+        /// <returns>The <see cref="Task"/>.</returns>
         public override async Task Refresh(XDocument data)
         {
             if (this.SysEnv.SysSettings.IsDisconnectedMode)
@@ -335,37 +353,90 @@ namespace dMobile.Controller
         }
 
         /// <summary>
-        ///
+        /// The Purge.
         /// </summary>
-        /// <remarks></remarks>
+        /// <returns>The <see cref="Task"/>.</returns>
         public override async Task Purge()
         {
             TableActivityPurchaseOrderWorkSheetItem tableWorkSheetItem = new TableActivityPurchaseOrderWorkSheetItem();
 
-            await tableWorkSheetItem.Purge();
+            await tableWorkSheetItem.PurgeData();
         }
 
         /// <summary>
-        ///
+        /// The GetFilter.
         /// </summary>
-        /// <returns></returns>
-        /// <remarks></remarks>
         public override void GetFilter()
         {
             throw new NotImplementedException();
         }
 
         /// <summary>
-        ///
+        /// The GetFilter.
         /// </summary>
-        /// <param name="xmlDoc"></param>
-        /// <returns></returns>
-        /// <remarks></remarks>
+        /// <param name="data">The data<see cref="XDocument"/>.</param>
         public override void GetFilter(XDocument data)
         {
             throw new NotImplementedException();
         }
 
-        #endregion
+        /// <summary>
+        /// Get the activity foreign key reference number.
+        /// </summary>
+        /// <param name="resourceType"><see cref="object"/> Resource model (tActivity??Model).</param>
+        /// <returns><see cref="int"/> Found activity foreign key refno, else 0 if not found.</returns>
+        public override int GetFKRefno(object resourceType)
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <summary>
+        /// The Insert.
+        /// </summary>
+        /// <param name="xmlParams">The xmlParams<see cref="XDocument"/>.</param>
+        /// <returns>The <see cref="Task{int}"/>.</returns>
+        public override Task<int> Insert(XDocument xmlParams)
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <summary>
+        /// The Delete.
+        /// </summary>
+        /// <returns>The <see cref="Task"/>.</returns>
+        public override Task Delete()
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <summary>
+        /// The PrintLabel.
+        /// </summary>
+        /// <param name="xmlParam">The xmlParam<see cref="XDocument"/>.</param>
+        /// <returns>The <see cref="Task"/>.</returns>
+        public override Task PrintLabel(XDocument xmlParam)
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <summary>
+        /// The GetLabelQuantity.
+        /// </summary>
+        /// <param name="isRepackQuantityOnly">The isRepackQuantityOnly<see cref="bool"/>.</param>
+        /// <returns>The <see cref="Task{SLabelQuantity}"/>.</returns>
+        public override Task<SLabelQuantity> GetLabelQuantity(bool isRepackQuantityOnly)
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <summary>
+        /// The ChangeStatus.
+        /// </summary>
+        /// <param name="selectedActivity">The selectedActivity<see cref="object"/>.</param>
+        /// <returns>The <see cref="Task{bool}"/>.</returns>
+        public override Task<bool> ChangeStatus(object selectedActivity)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

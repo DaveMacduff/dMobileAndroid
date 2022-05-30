@@ -1,13 +1,15 @@
-﻿namespace dMobile.BarCodeScanner
+﻿// <copyright file="BarCodeParseCode_128_BrokerMultiNationalFromChili.cs" company="InterSect Business Systems Inc">
+// Copyright (c) InterSect Business Systems Inc. All rights reserved.
+// </copyright>
+
+namespace dMobile.BarCodeScanner.BarCodeParsing
 {
     using System;
 
     public class BarCodeParseCode_128_BrokerMultiNationalFromChili : BarCodeParse
     {
-        #region Public Members
-
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="barCodeData"></param>
         /// <remarks>Bar code GTIN was only 12 digits not 14.
@@ -15,10 +17,9 @@
         public override void ParseBarCodeData(string barCodeData)
         {
             string parse = barCodeData;
-            string compare = string.Empty;
-
             try
             {
+                string compare;
                 do
                 {
                     compare = parse;
@@ -58,12 +59,8 @@
             this.Remainder = parse;
         }
 
-        #endregion
-
-        #region Protected Methods
-
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="barCodeData"></param>
         /// <returns></returns>
@@ -111,7 +108,7 @@
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="barCodeData"></param>
         /// <returns></returns>
@@ -131,7 +128,7 @@
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="barCodeData"></param>
         /// <returns></returns>
@@ -158,7 +155,7 @@
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="barCodeData"></param>
         /// <returns></returns>
@@ -181,7 +178,7 @@
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="barCodeData"></param>
         /// <returns></returns>
@@ -197,8 +194,7 @@
 
                 // variable AI look for group separator
                 int aiIndex = this.FindGroupSeparatorInBarCode(tempData);
-                int dataLength = 0;
-
+                int dataLength;
                 if (aiIndex > -1)
                 {
                     dataLength = aiIndex;
@@ -237,7 +233,7 @@
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="barCodeData"></param>
         /// <returns></returns>
@@ -253,8 +249,7 @@
 
                 // variable AI look for group separator
                 int aiIndex = this.FindGroupSeparatorInBarCode(tempData);
-                int dataLength = 0;
-
+                int dataLength;
                 if (aiIndex > -1)
                 {
                     dataLength = aiIndex;
@@ -286,7 +281,7 @@
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="barCodeData"></param>
         /// <returns></returns>
@@ -323,7 +318,7 @@
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="barCodeData"></param>
         /// <returns></returns>
@@ -359,7 +354,7 @@
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="barCodeData"></param>
         /// <returns></returns>
@@ -403,7 +398,7 @@
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="barCodeData"></param>
         /// <returns></returns>
@@ -440,7 +435,7 @@
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="barCodeData"></param>
         /// <returns></returns>
@@ -467,7 +462,7 @@
 
                 DateTime dt = new DateTime(year, month, day);
 
-                if (Settings.IsRuleEnabled_Recognize_Code_128_AI17_ExpiryDate_As_AI15_BestBeforeDate)
+                if (this.Settings.IsRuleEnabled_Recognize_Code_128_AI17_ExpiryDate_As_AI15_BestBeforeDate)
                 {
                     this.LogisticUnitBestBeforeSellByDate = dt;
                 }
@@ -484,7 +479,7 @@
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="barCodeData"></param>
         /// <returns></returns>
@@ -507,7 +502,7 @@
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="barCodeData"></param>
         /// <returns></returns>
@@ -516,7 +511,7 @@
             string tempData = barCodeData;
             if (tempData.StartsWith("37") && tempData.Length >= 10)
             {
-                // remove the AI 
+                // remove the AI
                 tempData = tempData.Remove(0, 2);
 
                 // assign the Count of Trade Items
@@ -531,7 +526,7 @@
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="barCodeData"></param>
         /// <returns></returns>
@@ -540,7 +535,7 @@
             string codeData = barCodeData;
 
             // Check the entire length (this.Data) not the barCodeData.length because it could have been parsed and altered.
-            if (Settings.IsRuleEnabled_Parse_Code128_China_Seafood
+            if (this.Settings.IsRuleEnabled_Parse_Code128_China_Seafood
                 && barCodeData.StartsWith("30")
                 && this.Length == 14)
             {
@@ -552,7 +547,7 @@
                 {
                     bool parseIt = true;
 
-                    if (Settings.IsRuleEnabled_Parse_Code_128_AI01_BC_AI30_exclusive)
+                    if (this.Settings.IsRuleEnabled_Parse_Code_128_AI01_BC_AI30_exclusive)
                     {
                         if (string.IsNullOrEmpty(this.CompanyPrefix))
                         {
@@ -567,8 +562,7 @@
 
                         // variable AI look for group separator
                         int aiIndex = this.FindGroupSeparatorInBarCode(codeData);
-                        int dataLength = 0;
-
+                        int dataLength;
                         if (aiIndex > -1)
                         {
                             dataLength = aiIndex;
@@ -602,7 +596,7 @@
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="barCodeData"></param>
         /// <returns></returns>
@@ -613,10 +607,8 @@
             if (tempData.StartsWith("310") && tempData.Length >= 10)
             {
                 this.NetWeightMetricKGFoundAI = true;
-
                 // get the number of decimal places
-                int places = 0;
-                places = Convert.ToInt32(tempData.Substring(3, 1));
+                int places = Convert.ToInt32(tempData.Substring(3, 1));
 
                 // remove the AI
                 tempData = tempData.Remove(0, 4);
@@ -642,7 +634,7 @@
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="barCodeData"></param>
         /// <returns></returns>
@@ -653,10 +645,8 @@
             if (tempData.StartsWith("320") && tempData.Length >= 10)
             {
                 this.NetWeightNonMetricLBFoundAI = true;
-
                 // get the number of decimal places
-                int places = 0;
-                places = Convert.ToInt32(tempData.Substring(3, 1));
+                int places = Convert.ToInt32(tempData.Substring(3, 1));
 
                 // remove the AI
                 tempData = tempData.Remove(0, 4);
@@ -682,7 +672,7 @@
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="barCodeData"></param>
         /// <returns></returns>
@@ -693,10 +683,8 @@
             if (tempData.StartsWith("330") && tempData.Length >= 10)
             {
                 this.GrossWeightMetricKGFoundAI = true;
-
                 // get the number of decimal places
-                int places = 0;
-                places = Convert.ToInt32(tempData.Substring(3, 1));
+                int places = Convert.ToInt32(tempData.Substring(3, 1));
 
                 // remove the AI
                 tempData = tempData.Remove(0, 4);
@@ -722,7 +710,7 @@
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="barCodeData"></param>
         /// <returns></returns>
@@ -732,10 +720,8 @@
             if (tempData.StartsWith("340") && tempData.Length >= 10)
             {
                 this.GrossWeightNonMetricLBFoundAI = true;
-
                 // get the number of decimal places
-                int places = 0;
-                places = Convert.ToInt32(tempData.Substring(3, 1));
+                int places = Convert.ToInt32(tempData.Substring(3, 1));
 
                 // remove the AI
                 tempData = tempData.Remove(0, 4);
@@ -761,7 +747,7 @@
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="barCodeData"></param>
         /// <returns></returns>
@@ -771,8 +757,7 @@
             if (tempData.StartsWith("311") && tempData.Length >= 10)
             {
                 // get the number of decimal places
-                int places = 0;
-                places = Convert.ToInt32(tempData.Substring(3, 1));
+                int places = Convert.ToInt32(tempData.Substring(3, 1));
 
                 // remove the AI
                 tempData = tempData.Remove(0, 4);
@@ -796,7 +781,5 @@
 
             return tempData;
         }
-
-        #endregion
     }
 }

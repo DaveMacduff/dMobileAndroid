@@ -1,12 +1,16 @@
-﻿using System;
+﻿// <copyright file="TotalQuantity.cs" company="InterSect Business Systems Inc">
+// Copyright (c) InterSect Business Systems Inc. All rights reserved.
+// </copyright>
+
 namespace dMobile.Resources.Types
 {
+    using System;
+
     public class TotalQuantity
     {
-        private decimal ordered;
         private decimal received;
 
-        public decimal Ordered { get => ordered; set => ordered = value; }
-        public decimal Received { get => received; set => received = value; }
+        public decimal Ordered { get; set; }
+        public decimal Received { get => this.received; set => this.received = value; }
     }
 }

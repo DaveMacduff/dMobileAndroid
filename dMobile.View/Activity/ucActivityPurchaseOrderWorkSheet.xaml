@@ -21,17 +21,17 @@
                 </Grid.ColumnDefinitions>
 
                 <Frame VerticalOptions="Start" Grid.Row="0" Grid.ColumnSpan="2" OutlineColor="{DynamicResource BorderColor}">
-                    <Grid x:Name="dataGridMainActivityHeader">
+                    <Grid x:Name="GridMainActivity">
                         <Grid.RowDefinitions>
                             <RowDefinition Height="Auto"/>
                         </Grid.RowDefinitions>
 
-                        <ListView x:Name="dataGridMainActivity" ItemSelected="dataGridMainActivity_ItemSelected" HasUnevenRows="True" IsEnabled="{Binding Loading, Converter={Helpers:BoolConverter}}" Grid.Row="1"/>
+                        <ListView x:Name="ListViewMainActivity" ItemSelected="ListViewMainActivity_ItemSelected" HasUnevenRows="True" IsEnabled="{Binding Loading, Converter={Helpers:BoolConverter}}" Grid.Row="1"/>
                     </Grid>
                 </Frame>
 
                 <Frame VerticalOptions="Start" Grid.Row="1" Grid.ColumnSpan="2" OutlineColor="{DynamicResource BorderColor}">
-                    <ListView x:Name="lstDisplay" SelectionMode="None" HasUnevenRows="True" IsEnabled="{Binding Loading, Converter={Helpers:BoolConverter}}" SeparatorVisibility="None">
+                    <ListView x:Name="ListViewDisplayExtraInfo" SelectionMode="None" HasUnevenRows="True" IsEnabled="{Binding Loading, Converter={Helpers:BoolConverter}}" SeparatorVisibility="None">
                         <ListView.ItemTemplate>
                             <DataTemplate>
                                 <ViewCell>
@@ -44,7 +44,7 @@
                     </ListView>
                 </Frame>
 
-                <Picker x:Name="updnBarCodeModifier1" Grid.Row="2" Grid.Column="0" IsEnabled="{Binding Loading, Converter={Helpers:BoolConverter}}"/>
+                <Picker x:Name="BarCodeModifier1Picker" Grid.Row="2" Grid.Column="0" IsEnabled="{Binding Loading, Converter={Helpers:BoolConverter}}"/>
                 <Button x:Name="cmdAdd" Grid.Row="2" Grid.Column="1" Text="Add" Clicked="cmdAdd_Click" IsEnabled="{Binding Loading, Converter={Helpers:BoolConverter}}"/>
             </Grid>
 

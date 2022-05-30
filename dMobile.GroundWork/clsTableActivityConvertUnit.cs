@@ -1,32 +1,32 @@
+// <copyright file="clsTableActivityConvertUnit.cs" company="InterSect Business Systems Inc">
+// Copyright (c) InterSect Business Systems Inc. All rights reserved.
+// </copyright>
+
 namespace dMobile.GroundWork
 {
     using System;
-    using SQLite;
-    using dMobile.Bedrock;
     using System.Threading.Tasks;
+    using dMobile.Bedrock;
+    using SQLite;
 
     public class TableActivityConvertUnit : TableBase
     {
-        #region Constructors
-
+        /// <summary>
+        /// Initializes a new instance of the <see cref="TableActivityConvertUnit"/> class.
+        /// </summary>
         public TableActivityConvertUnit()
         {
             this.FullClassName = "dMobile.GroundWork.TableActivityConvertUnit";
         }
 
-        #endregion
-
-        #region Public Members
-
         /// <summary>
         ///
         /// </summary>
         /// <remarks></remarks>
-        public override async Task Purge()
+        public override async Task PurgeData()
         {
             try
             {
-                // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging convert units.", true);
 
                 string query = "DELETE FROM tActivityConvertUnit WHERE tActivityConvertUnit.ActivitySubType = ?";
@@ -35,20 +35,15 @@ namespace dMobile.GroundWork
                 query = "DELETE FROM tActivity WHERE tActivity.ActivitySubType = ?";
                 await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(query, Convert.ToInt32(SysCommon.ActSubTypes.ConvertUnit));
 
-                // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging convert units complete.", true);
             }
             catch (SQLiteException ex)
             {
-                // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Database exception occurred.", true);
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging convert units failed.", true);
 
-                // TODO: Resource strings
                 throw new Exception("Database exception occurred. Purging convert units failed.", ex);
             }
         }
-
-        #endregion
     }
 }

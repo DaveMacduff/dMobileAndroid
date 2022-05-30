@@ -1,9 +1,13 @@
-﻿using System;
-using SQLite;
-using SQLiteNetExtensions.Attributes;
+﻿// <copyright file="tActivityCountModel.cs" company="InterSect Business Systems Inc">
+// Copyright (c) InterSect Business Systems Inc. All rights reserved.
+// </copyright>
 
 namespace dMobile.Resources.Models
 {
+    using System;
+    using SQLite;
+    using SQLiteNetExtensions.Attributes;
+
     //string sqlTable = "CREATE TABLE IF NOT EXISTS tActivityCount"
     //+ "("
     //+ "ActivityRefno INTEGER NOT NULL CONSTRAINT PK_ActivityCountOnActivityRefno PRIMARY KEY,"
@@ -22,7 +26,7 @@ namespace dMobile.Resources.Models
 
     //        if (this.OnNubStatOut != null)
     //        {
-    //    // TODO: Resource strings
+    //    
     //    this.MsgEventArgs.StatusOutMsg = "Creating count table.";
     //    this.OnNubStatOut(this, this.MsgEventArgs);
     //}
@@ -40,7 +44,6 @@ namespace dMobile.Resources.Models
     //sqlNdx = "CREATE INDEX IF NOT EXISTS FK_ActivityCountOnWarehouseLocationMapRefno ON "
     //            + "tActivityCount(WarehouseLocationMapRefno ASC)";
     //await this.RunDDLCommand(sqlNdx);
-
     [Table("tActivityCount")]
     public class tActivityCountModel
     {
@@ -50,7 +53,7 @@ namespace dMobile.Resources.Models
         [NotNull, Indexed(Name = "UQ_ActivityCountOnActivityRefnoAndActivitySubType", Order = 2, Unique = true)]
         public int ActivitySubType { get; set; }
 
-        [NotNull, Indexed(Name = "UQ_ActivityCountOnActivityCountFKRefno", Order = 1, Unique = true)] 
+        [NotNull, Indexed(Name = "UQ_ActivityCountOnActivityCountFKRefno", Order = 1, Unique = true)]
         public int ActivityCountFKRefno { get; set; }
 
         [NotNull]

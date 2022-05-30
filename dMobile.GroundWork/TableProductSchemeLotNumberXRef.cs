@@ -1,18 +1,22 @@
-﻿namespace dMobile.GroundWork
+﻿// <copyright file="TableProductSchemeLotNumberXRef.cs" company="InterSect Business Systems Inc">
+// Copyright (c) InterSect Business Systems Inc. All rights reserved.
+// </copyright>
+
+namespace dMobile.GroundWork
 {
-    using dMobile.Bedrock;
     using System;
+    using System.Collections.Generic;
     using System.Data;
-    using SQLite;
     using System.Text;
+    using System.Threading.Tasks;
     using System.Xml;
     using System.Xml.Linq;
-    using System.Threading.Tasks;
-    using System.Collections.Generic;
+    using dMobile.Bedrock;
     using dMobile.Resources.Models;
+    using SQLite;
 
     /// <summary>
-    /// Defines the <see cref="TableProductSchemeLotNumberXRef" />
+    /// Defines the <see cref="TableProductSchemeLotNumberXRef" />.
     /// </summary>
     public class TableProductSchemeLotNumberXRef : TableBase
     {
@@ -26,20 +30,16 @@
         }
 
         /// <summary>
-        /// The Request
+        /// The Request.
         /// </summary>
-        public override async Task Request()
+        public override async Task RequestData()
         {
-            string reqData = string.Empty;
-
             try
             {
-                // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Seeding product scheme lot number xref.", true);
 
-                reqData = await this.Send("product scheme lot number xref");
-
-                if (0 < reqData.Length)
+                string reqData = await this.SendRequest();
+                if (reqData.Length > 0)
                 {
                     if (reqData.Contains("<message>ERROR</message>"))
                     {
@@ -51,64 +51,54 @@
                     await this.Save(reqData);
                 }
 
-                // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Seeding product scheme lot number xref complete.", true);
             }
             catch (Exception ex)
             {
-                // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Seeding product scheme lot number xref failed.", true);
 
-                // TODO: Resource strings
                 throw new Exception("Seeding product scheme lot number xref failed.", ex);
             }
         }
 
         /// <summary>
-        /// The Purge
+        /// The Purge.
         /// </summary>
-        public override async Task Purge()
+        public override async Task PurgeData()
         {
             try
             {
-                // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging product scheme lot number xref.", true);
 
                 await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync("DELETE FROM tProductSchemeLotNumber");
                 await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync("DELETE FROM tProductSchemeLotNumberXRef");
 
-                // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging product scheme lot number xref failed.", true);
             }
             catch (SQLiteException ex)
             {
-                // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Database exception occurred.", true);
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging product scheme lot number xref failed.", false);
 
-                // TODO: Resource strings
                 throw new Exception("Database exception occurred. Purging product scheme lot number xref failed.", ex);
             }
         }
 
         /// <summary>
-        /// The DataStatus
+        /// The DataStatus.
         /// </summary>
-        /// <returns>The <see cref="int"/></returns>
+        /// <returns>The <see cref="int"/>.</returns>
         public override async Task<int> DataStatus()
         {
-            int rowsAffected = 0;
-
+            int rowsAffected;
             try
             {
                 rowsAffected = Convert.ToInt32(await DatabaseConnection.GetInstance().SQLConn.ExecuteScalarAsync<int>("SELECT COUNT(*) FROM tProductSchemeLotNumberXRef"));
 
-                // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, string.Format("{0} product scheme lot number xrefs.", rowsAffected), true);
             }
             catch (SQLiteException ex)
             {
-                // TODO: Resource strings
                 throw new Exception("Database exception occurred. Product scheme lot number xrefs status failed.", ex);
             }
 
@@ -116,7 +106,7 @@
         }
 
         /// <summary>
-        /// The Save
+        /// The Save.
         /// </summary>
         /// <param name="reqData"></param>
         protected override async Task Save(string reqData)
@@ -129,19 +119,16 @@
                 {
                     using (DataSet ds = new DataSet())
                     {
-                        // TODO: Resource Strings
                         this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Reading received data.", false);
 
                         ds.ReadXml(SysCommon.GetXmlReader(ref reqData), XmlReadMode.Auto);
 
-                        // TODO: Resource Strings
                         this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving product scheme lot number xref.", false);
 
                         if (ds.Tables.Count != 0)
                         {
                             int progMax = Convert.ToInt32(ds.Tables["tProductSchemeLotNumberXRef"].Rows.Count);
 
-                            // TODO: Resource Strings
                             this.DataAccessStatusOutHandler(this, EventArgs.Empty, string.Format("Records {0}", progMax), false);
 
                             int schemeRefno = 0;
@@ -166,7 +153,6 @@
                                 }
                                 else
                                 {
-                                    // TODO: Resource Strings
                                     throw new Exception("drScheme.Read() failed." + Environment.NewLine + errMsg);
                                 }
 
@@ -181,7 +167,6 @@
                                 }
                                 else
                                 {
-                                    // TODO: Resource Strings
                                     throw new Exception("drSchemeLot.Read() failed." + Environment.NewLine + errMsg);
                                 }
 
@@ -216,7 +201,6 @@
 
                         transaction.Commit();
 
-                        // TODO: Resource Strings
                         this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving product scheme lot number xref complete.", false);
                     }
                 }
@@ -224,23 +208,20 @@
                 {
                     transaction.Rollback();
 
-                    // TODO: Resource Strings
                     this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Database exception occurred.", false);
 
-                    // TODO: Resource Strings
                     this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Request product scheme lot number xref failed.", false);
 
-                    // TODO: Resource Strings
                     throw new Exception("Database exception occurred. Request product scheme lot number xref failed." + errMsg, ex);
                 }
             });
         }
 
         /// <summary>
-        /// The Create
+        /// The Create.
         /// </summary>
         /// <returns></returns>
-        protected override async Task<string> Create()
+        protected override async Task<string> CreateRequest()
         {
             StringBuilder xmlString = new StringBuilder();
             XmlWriter xml = XmlWriter.Create(xmlString);

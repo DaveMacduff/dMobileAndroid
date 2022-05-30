@@ -1,8 +1,9 @@
-﻿namespace dMobile.GroundWork
+﻿// <copyright file="clsTableActivityItemAdjustment.cs" company="InterSect Business Systems Inc">
+// Copyright (c) InterSect Business Systems Inc. All rights reserved.
+// </copyright>
+
+namespace dMobile.GroundWork
 {
-    using dMobile.Bedrock;
-    using dMobile.Resources.Models;
-    using SQLite;
     using System;
     using System.Collections.Generic;
     using System.Data;
@@ -10,9 +11,12 @@
     using System.Threading.Tasks;
     using System.Xml;
     using System.Xml.Linq;
+    using dMobile.Bedrock;
+    using dMobile.Resources.Models;
+    using SQLite;
 
     /// <summary>
-    /// Defines the <see cref="TableActivityAdjustmentItem" />
+    /// Defines the <see cref="TableActivityAdjustmentItem" />.
     /// </summary>
     public class TableActivityAdjustmentItem : TableBase
     {
@@ -26,18 +30,16 @@
         }
 
         /// <summary>
-        /// The Request
+        /// The Request.
         /// </summary>
-        /// <param name="actRefno">The actRefno<see cref="int"/></param>
-        public override async Task Request(int actRefno)
+        /// <param name="actRefno">The actRefno<see cref="int"/>.</param>
+        public override async Task RequestData(int actRefno)
         {
-            string reqData = string.Empty;
-
             try
             {
-                // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Seeding adjustment items.", true);
 
+                string reqData;
                 if (actRefno == 0)
                 {
                     string query = "SELECT * FROM tActivity WHERE ActivitySubType = ?";
@@ -47,9 +49,9 @@
                     if (results != null && results.Count > 0)
                     {
                         actRefno = results[0].ActivityRefno;
-                        reqData = await this.Send(actRefno);
+                        reqData = await this.SendRequest(actRefno);
 
-                        if (0 < reqData.Length)
+                        if (reqData.Length > 0)
                         {
                             if (reqData.Contains("<message>ERROR</message>"))
                             {
@@ -64,9 +66,9 @@
                 }
                 else
                 {
-                    reqData = await this.Send(actRefno);
+                    reqData = await this.SendRequest(actRefno);
 
-                    if (0 < reqData.Length)
+                    if (reqData.Length > 0)
                     {
                         if (reqData.Contains("<message>ERROR</message>"))
                         {
@@ -79,47 +81,39 @@
                     }
                 }
 
-                // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Seeding adjustment items complete.", true);
             }
             catch (SQLiteException ex)
             {
-                // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Database exception occurred.", false);
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Seeding adjustment items failed.", false);
 
-                // TODO: Resource strings
                 throw new Exception("Database exception occurred. Seeding adjustment items failed.", ex);
             }
             catch (Exception ex)
             {
-                // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Seeding adjustment items failed.", true);
 
-                // TODO: Resource strings
                 throw new Exception("Seeding adjustment items failed.", ex);
             }
         }
 
         /// <summary>
-        /// The DataStatus
+        /// The DataStatus.
         /// </summary>
-        /// <returns>The <see cref="int"/></returns>
+        /// <returns>The <see cref="int"/>.</returns>
         public override async Task<int> DataStatus()
         {
-            int rowsAffected = 0;
-
+            int rowsAffected;
             try
             {
                 string query = "SELECT COUNT(tActivityItem.ActivityItemRefno) FROM tActivityItem WHERE tActivityItem.ActivityItemSubType = ?";
                 rowsAffected = await DatabaseConnection.GetInstance().SQLConn.ExecuteScalarAsync<int>(query, (int)SysCommon.ActSubTypes.Adjustment);
 
-                // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, string.Format("{0} adjustment items.", rowsAffected), true);
             }
             catch (SQLiteException ex)
             {
-                // TODO: Resource strings
                 throw new Exception("Database exception occurred. Adjustment items status failed.", ex);
             }
 
@@ -127,11 +121,10 @@
         }
 
         /// <summary>
-        /// The Purge
+        /// The Purge.
         /// </summary>
-        public override async Task Purge()
+        public override async Task PurgeData()
         {
-            // TODO: Resource strings
             this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging existing adjustment items.", true);
 
             try
@@ -149,71 +142,62 @@
                 query = "DELETE FROM tActivityItem WHERE ActivityItemSubType = ?";
                 await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(query, Convert.ToInt32(SysCommon.ActSubTypes.Adjustment));
 
-                // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging existing adjustment items complete.", true);
             }
             catch (SQLiteException ex)
             {
-                // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Database exception occurred.", true);
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging adjustment items failed.", true);
 
-                // TODO: Resource strings
                 throw new Exception("Database exception occurred. Purging adjustment items failed.", ex);
             }
         }
 
         /// <summary>
-        /// The Send
+        /// The Send.
         /// </summary>
-        /// <param name="actRefno">The actRefno<see cref="int"/></param>
+        /// <param name="actRefno">The actRefno<see cref="int"/>.</param>
         /// <returns></returns>
-        protected override async Task<string> Send(int actRefno)
+        protected override async Task<string> SendRequest(int actRefno)
         {
-            int actAdjFKRefno = 0;
             List<tActivityAdjustmentModel> results = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<tActivityAdjustmentModel>("SELECT * FROM tActivityAdjustment WHERE ActivityRefno = ?", actRefno);
 
+            int actAdjFKRefno;
             if (results?.Count > 0)
             {
                 actAdjFKRefno = results[0].ActivityAdjustmentFKRefno;
             }
             else
             {
-                // TODO: Resource strings
                 throw new Exception("No results in tActivityAdjustment for ActivityRefno " + actRefno);
             }
 
-            return await this.SendComm(await this.Create(actAdjFKRefno));
+            return await this.SendComm(await this.CreateRequest(actAdjFKRefno));
         }
 
         /// <summary>
-        /// The Save
+        /// The Save.
         /// </summary>
         /// <param name="reqData"></param>
         /// <param name="actRefno"></param>
         protected override async Task Save(string reqData, int actRefno)
         {
-            string errMsg = string.Empty;
-
             await DatabaseConnection.GetInstance().SQLConn.RunInTransactionAsync(transaction =>
             {
                 try
                 {
                     using (DataSet ds = new DataSet())
                     {
-                        // TODO: Resource strings
                         this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Reading received data.", false);
 
                         ds.ReadXml(SysCommon.GetXmlReader(ref reqData), XmlReadMode.Auto);
 
-                        // TODO: Resource strings
                         this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving adjustment items.", false);
 
                         if (ds.Tables.Count != 0)
                         {
                             int progMax = Convert.ToInt32(ds.Tables["tActivityItemAdjustment"].Rows.Count);
 
-                            // TODO: Resource strings
                             this.DataAccessStatusOutHandler(this, EventArgs.Empty, string.Format("Records {0}", progMax), false);
 
                             int actItemRefno = 0;
@@ -226,18 +210,12 @@
 
                             foreach (DataRow drow in ds.Tables["tActivityItemAdjustment"].Rows)
                             {
-                                // TODO: Resource strings
-                                errMsg = "Arguments:";
-
                                 transaction.Execute("INSERT INTO tActivityItem (ActivityItemSubType, ActivityItemStatus, ActivityRefno) VALUES (?, ?, ?)", Convert.ToInt32(SysCommon.ActSubTypes.Adjustment), Convert.ToInt32(SysCommon.ActStatus.NoChange), actRefno);
 
                                 actItemRefno = Convert.ToInt32(transaction.ExecuteScalar<int>("SELECT last_insert_rowid() FROM tActivityItem"));
-                                prodUnitRefno = this.GetProductUnitRefnoFromDataRow(drow, transaction, ref errMsg, false);
-                                locMapRefno = this.GetWhsLocMapRefnoFromDataRow(drow, ref errMsg, transaction);
+                                prodUnitRefno = this.GetProductUnitRefnoFromDataRow(drow, transaction, false);
+                                locMapRefno = this.GetWhsLocMapRefnoFromDataRow(drow, transaction);
                                 actItemAdjFKRefno = Convert.ToInt32(drow["ActivityItemAdjustmentFKRefno"]);
-
-                                // TODO: Resource strings
-                                errMsg += Environment.NewLine + "Item fk refno " + actItemAdjFKRefno;
 
                                 string query = "INSERT INTO tActivityItemAdjustment " +
                                     "(ActivityItemRefno, " +
@@ -289,30 +267,28 @@
 
                         transaction.Commit();
 
-                        DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving adjustment items complete.", false);
+                        this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving adjustment items complete.", false);
                     }
                 }
                 catch (SQLiteException ex)
                 {
                     transaction.Rollback();
 
-                    // TODO: Resource strings
                     this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Database exception occurred.", true);
                     this.DataAccessStatusOutHandler(this, EventArgs.Empty, "saving adjustment items failed.", true);
 
-                    // TODO: Resource strings
-                    throw new Exception("Database exception occurred. Saving adjustment items failed." + Environment.NewLine + errMsg, ex);
+                    throw new Exception("Database exception occurred. Saving adjustment items failed.", ex);
                     throw new Exception("Database exception occurred. Saving adjustment items failed.", ex);
                 }
             });
         }
 
         /// <summary>
-        /// The Create
+        /// The Create.
         /// </summary>
         /// <param name="actAdjFKRefno"></param>
         /// <returns></returns>
-        protected override async Task<string> Create(int actAdjFKRefno)
+        protected override async Task<string> CreateRequest(int actAdjFKRefno)
         {
             StringBuilder xmlString = new StringBuilder();
             XmlWriter xml = XmlWriter.Create(xmlString);
@@ -323,7 +299,7 @@
                 + "<command>"
                 + "<action>REQUEST ADJUSTMENT ITEMS</action>"
                 + await SysCommon.GetRequestDefaults(false)
-                + ("<refno>" + actAdjFKRefno.ToString() + "</refno>")
+                + "<refno>" + actAdjFKRefno.ToString() + "</refno>"
                 + "</command>"
                 + "</imclient>");
 

@@ -1,9 +1,13 @@
-﻿using System;
-using SQLite;
-using SQLiteNetExtensions.Attributes;
+﻿// <copyright file="tLocationMapWarehouseModel.cs" company="InterSect Business Systems Inc">
+// Copyright (c) InterSect Business Systems Inc. All rights reserved.
+// </copyright>
 
 namespace dMobile.Resources.Models
 {
+    using System;
+    using SQLite;
+    using SQLiteNetExtensions.Attributes;
+
     //string sqlTable = "CREATE TABLE IF NOT EXISTS tLocationMapWarehouse"
     //+ "("
     //+ "LocationMapRefno INTEGER NOT NULL CONSTRAINT PK_LocationMapWarehouseOnLocationMapRefno PRIMARY KEY,"
@@ -52,7 +56,6 @@ namespace dMobile.Resources.Models
 
     //sqlNdx = "CREATE UNIQUE INDEX IF NOT EXISTS UQ_LocationMapWarehouseOnLocationMapWarehouseBarCode ON tLocationMapWarehouse(LocationMapWarehouseBarCode ASC)";
     //await this.RunDDLCommand(sqlNdx);
-
     [Table("tLocationMapWarehouse")]
     public class tLocationMapWarehouseModel
     {

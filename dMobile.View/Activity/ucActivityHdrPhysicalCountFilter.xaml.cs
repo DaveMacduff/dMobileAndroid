@@ -1,46 +1,42 @@
-﻿using dMobile.View.CustomPages.Modal;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Collections;
-using System.Xml.Linq;
-using dMobile.Bedrock;
-using Xamarin.Forms;
-using Xamarin.Forms.Xaml;
-using System.Threading;
-using dMobile.View.Forms;
-using dMobile.Resources.Enums;
-using Android.Views;
-using dMobile.Resources.Types;
+﻿// <copyright file="ucActivityHdrPhysicalCountFilter.xaml.cs" company="InterSect Business Systems Inc">
+// Copyright (c) InterSect Business Systems Inc. All rights reserved.
+// </copyright>
 
 namespace dMobile.View.Activity
 {
+    using System;
+    using System.Collections;
+    using System.Collections.Generic;
+    using System.Threading.Tasks;
+    using System.Xml.Linq;
+    using Android.Views;
+    using dMobile.Bedrock;
+    using dMobile.Resources.Enums;
+    using dMobile.Resources.Types;
+    using dMobile.View.CustomPages.Modal;
+    using dMobile.View.Forms;
+    using Xamarin.Forms;
+    using Xamarin.Forms.Xaml;
+
+    /// <summary>
+    /// Defines the <see cref="ucActivityHdrPhysicalCountFilter" /> Physical count filter options.
+    /// </summary>
     [XamlCompilation(XamlCompilationOptions.Compile)]
     public partial class ucActivityHdrPhysicalCountFilter : DMobileModal, IAppArea
     {
-        #region Fields
 
-        private PhysicalCountSettings countSettings = new PhysicalCountSettings();
-        private ArrayList m_aSortBy1 = new ArrayList();
-        private ArrayList m_aSortBy2 = new ArrayList();
-        private string m_strSQLSortBy = string.Empty;
-        private bool m_bEnterTrapped = false;
-        private bool isControlLoaded = false;
-        private string m_strFullClassName = "dMobile.ucActivityHdrPhysicalCountFilter";
-        private bool m_bChangesMade = false;
+        /// <summary>
+        /// Defines the filters.
+        /// </summary>
         private Dictionary<string, Sort> filters = new Dictionary<string, Sort>();
 
-        #endregion
-
-        #region Constructors
-
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ucActivityHdrPhysicalCountFilter"/> class.
+        /// </summary>
         public ucActivityHdrPhysicalCountFilter()
         {
-            InitializeComponent();
+            this.InitializeComponent();
 
-            // TODO: Resource strings
             this.Title = this.GetControlDescription();
             this.lblSort.Text = "Sort By";
             this.lblApplyCountDate.Text = "Apply Physical Count Date Filter";
@@ -50,38 +46,32 @@ namespace dMobile.View.Activity
             this.btnSave.Text = "Save";
             this.btnClose.Text = "Close";
 
-            // TODO: Resource strings
-            aSortBy1.Clear();
-            aSortBy1.Add("Count # Ascending");
-            aSortBy1.Add("Count # Descending");
-            aSortBy1.Add("Count Date Ascending");
-            aSortBy1.Add("Count Date Descending");
-            cboSortBy1.ItemsSource = aSortBy1;
-            cboSortBy1.SelectedIndex = CountSettings.iSortBy1Index;
+            this.aSortBy1.Clear();
+            _ = this.aSortBy1.Add("Count # Ascending");
+            _ = this.aSortBy1.Add("Count # Descending");
+            _ = this.aSortBy1.Add("Count Date Ascending");
+            _ = this.aSortBy1.Add("Count Date Descending");
+            this.cboSortBy1.ItemsSource = this.aSortBy1;
+            this.cboSortBy1.SelectedIndex = this.CountSettings.iSortBy1Index;
 
-            // TODO: Resource strings
-            aSortBy2.Clear();
-            aSortBy2.Add(string.Empty);
-            aSortBy2.Add("Count # Ascending");
-            aSortBy2.Add("Count # Descending");
-            aSortBy2.Add("Count Date Ascending");
-            aSortBy2.Add("Count Date Descending");
-            cboSortBy2.ItemsSource = aSortBy2;
-            cboSortBy2.SelectedIndex = CountSettings.iSortBy2Index;
+            this.aSortBy2.Clear();
+            _ = this.aSortBy2.Add(string.Empty);
+            _ = this.aSortBy2.Add("Count # Ascending");
+            _ = this.aSortBy2.Add("Count # Descending");
+            _ = this.aSortBy2.Add("Count Date Ascending");
+            _ = this.aSortBy2.Add("Count Date Descending");
+            this.cboSortBy2.ItemsSource = this.aSortBy2;
+            this.cboSortBy2.SelectedIndex = this.CountSettings.iSortBy2Index;
 
-            filters.Add(string.Empty, null);
-            filters.Add("Count # Ascending", new Sort() { SortValue = "ActivityCountFKRefno", SortOrder = SortOrder.ASC });
-            filters.Add("Count # Descending", new Sort() { SortValue = "ActivityCountFKRefno", SortOrder = SortOrder.DESC });
-            filters.Add("Count Date Ascending", new Sort() { SortValue = "ActivityCountDateTime", SortOrder = SortOrder.ASC });
-            filters.Add("Count Date Descending", new Sort() { SortValue = "ActivityCountDateTime", SortOrder = SortOrder.DESC });
+            this.filters.Add(string.Empty, null);
+            this.filters.Add("Count # Ascending", new Sort() { SortValue = "ActivityCountFKRefno", SortOrder = SortOrder.ASC });
+            this.filters.Add("Count # Descending", new Sort() { SortValue = "ActivityCountFKRefno", SortOrder = SortOrder.DESC });
+            this.filters.Add("Count Date Ascending", new Sort() { SortValue = "ActivityCountDateTime", SortOrder = SortOrder.ASC });
+            this.filters.Add("Count Date Descending", new Sort() { SortValue = "ActivityCountDateTime", SortOrder = SortOrder.DESC });
         }
 
-        #endregion
-
-        #region OnAppearing/OnDisappearing
-
         /// <summary>
-        /// The OnAppearing
+        /// The OnAppearing.
         /// </summary>
         protected override async void OnAppearing()
         {
@@ -89,14 +79,13 @@ namespace dMobile.View.Activity
 
             MessagingCenter.Subscribe<string>(this, EventTypes.OnKeyUp.ToString(), async (keyPressed) =>
             {
-                // TODO: Verify keycodes
-                Enum.TryParse(keyPressed, out Keycode keycode);
+                _ = Enum.TryParse(keyPressed, out Keycode keycode);
 
                 if (!this.Loading)
                 {
                     if (keycode == Keycode.F1)
                     {
-                        if (await SaveChanges())
+                        if (await this.SaveChanges())
                         {
                             this.DialogResult = DialogResult.OK;
                             await this.Close();
@@ -104,7 +93,7 @@ namespace dMobile.View.Activity
                         else
                         {
                             this.DialogResult = DialogResult.None;
-                            await CancelChanges();
+                            _ = await this.CancelChanges();
                             await this.Close();
                         }
                     }
@@ -117,29 +106,32 @@ namespace dMobile.View.Activity
             }
             catch (Exception ex)
             {
-                // TODO: Resource strings
-                await Device.InvokeOnMainThreadAsync(async () => await DisplayAlert("Error", "this.ucActivityHdrPhysicalCountFilter_GotFocus threw an error " + ex, "OK"));
+                await Device.InvokeOnMainThreadAsync(async () => await this.DisplayAlert("Error", "this.ucActivityHdrPhysicalCountFilter_GotFocus threw an error " + ex, "OK"));
             }
         }
 
         /// <summary>
-        /// The OnDisappearing
+        /// The OnDisappearing.
         /// </summary>
         protected override async void OnDisappearing()
         {
             MessagingCenter.Unsubscribe<string>(this, EventTypes.OnKeyUp.ToString());
-            await this.ScannerDisable();
+            _ = this.ScannerDisable();
 
             base.OnDisappearing();
         }
 
+        /// <summary>
+        /// The OnBackButtonPressed.
+        /// </summary>
+        /// <returns>The <see cref="bool"/>.</returns>
         protected override bool OnBackButtonPressed()
         {
             Device.BeginInvokeOnMainThread(async () =>
             {
-                base.OnBackButtonPressed();
+                _ = base.OnBackButtonPressed();
 
-                if (await SaveChanges())
+                if (await this.SaveChanges())
                 {
                     this.DialogResult = DialogResult.OK;
                     await this.Close();
@@ -147,7 +139,7 @@ namespace dMobile.View.Activity
                 else
                 {
                     this.DialogResult = DialogResult.None;
-                    await CancelChanges();
+                    _ = await this.CancelChanges();
                     await this.Close();
                 }
             });
@@ -155,203 +147,99 @@ namespace dMobile.View.Activity
             return true;
         }
 
-        #endregion
-
-        #region Properties
-
-        public ArrayList aSortBy1
-        {
-            get
-            {
-                return m_aSortBy1;
-            }
-            set
-            {
-                m_aSortBy1 = value;
-            }
-        }
-
-        public ArrayList aSortBy2
-        {
-            get
-            {
-                return m_aSortBy2;
-            }
-            set
-            {
-                m_aSortBy2 = value;
-            }
-        }
-
-        public bool bEnterTrapped
-        {
-            get
-            {
-                return m_bEnterTrapped;
-            }
-            set
-            {
-                m_bEnterTrapped = value;
-            }
-        }
-
-        public bool IsControlLoaded
-        {
-            get
-            {
-                return isControlLoaded;
-            }
-            set
-            {
-                isControlLoaded = value;
-            }
-        }
-
-        public PhysicalCountSettings CountSettings
-        {
-            get
-            {
-                return countSettings;
-            }
-            set
-            {
-                countSettings = value;
-            }
-        }
-
-        public string strSQLSortBy
-        {
-            get
-            {
-                return m_strSQLSortBy;
-            }
-            set
-            {
-                m_strSQLSortBy = value;
-            }
-        }
-
-        public string strFullClassName
-        {
-            get
-            {
-                return m_strFullClassName;
-            }
-            set
-            {
-                m_strFullClassName = value;
-            }
-        }
-
-        public bool bChangesMade
-        {
-            get
-            {
-                return m_bChangesMade;
-            }
-            set
-            {
-                m_bChangesMade = value;
-            }
-        }
-
-        #endregion
-
-        #region Private Members
+        /// <summary>
+        /// Gets or sets the aSortBy1.
+        /// </summary>
+        public ArrayList aSortBy1 { get; set; } = new ArrayList();
 
         /// <summary>
-        ///
+        /// Gets or sets the aSortBy2.
         /// </summary>
-        /// <remarks></remarks>
-        private void MakeSQLSortBy()
-        {
-            strSQLSortBy = this.filters[cboSortBy1.Items[cboSortBy1.SelectedIndex]].SortValue;
-            CountSettings.SortBy1Value = this.filters[cboSortBy1.Items[cboSortBy1.SelectedIndex]];
-
-            if (cboSortBy2.SelectedIndex >= 0)
-            {
-                CountSettings.SortBy2Value = this.filters[cboSortBy2.Items[cboSortBy2.SelectedIndex]];
-
-                if (CountSettings.SortBy2Value != null && !string.IsNullOrEmpty(CountSettings.SortBy2Value.SortValue))
-                {
-                    strSQLSortBy = strSQLSortBy + ", " + CountSettings.SortBy2Value;
-                }
-            }
-        }
+        public ArrayList aSortBy2 { get; set; } = new ArrayList();
 
         /// <summary>
-        ///
+        /// Gets or sets a value indicating whether bEnterTrapped.
         /// </summary>
-        /// <remarks></remarks>
-        private void LoadData()
-        {
-            CountSettings = CountSettings.LoadData();
+        public bool bEnterTrapped { get; set; } = false;
 
-            // default count date to today's date if it is empty
-            if (SysCommon.IsEmptyDate(CountSettings.dtCountDate))
-            {
-                CountSettings.dtCountDate = DateTime.Now;
-            }
+        /// <summary>
+        /// Gets or sets a value indicating whether IsControlLoaded.
+        /// </summary>
+        public bool IsControlLoaded { get; set; } = false;
 
-            IsControlLoaded = true;
-        }
+        /// <summary>
+        /// Gets or sets the CountSettings.
+        /// </summary>
+        public PhysicalCountSettings CountSettings { get; set; } = new PhysicalCountSettings();
 
-        #endregion
+        /// <summary>
+        /// Gets or sets the strSQLSortBy.
+        /// </summary>
+        public string strSQLSortBy { get; set; } = string.Empty;
 
-        #region Public Members
+        /// <summary>
+        /// Gets or sets the strFullClassName.
+        /// </summary>
+        public string strFullClassName { get; set; } = "dMobile.ucActivityHdrPhysicalCountFilter";
+
+        /// <summary>
+        /// Gets or sets a value indicating whether bChangesMade.
+        /// </summary>
+        public bool bChangesMade { get; set; } = false;
 
         /// <summary>
         /// Unregister the bar code scan event handler and disable the scanner.
         /// </summary>
-        /// <remarks></remarks>
+        /// <returns>The <see cref="Task"/>.</returns>
         public async Task ScannerDisable()
         {
+            throw new NotImplementedException("Bar code scanning is not implemented here.");
         }
 
         /// <summary>
         /// Registers the bar code scan event handler and enables the scanner.
         /// </summary>
-        /// <remarks></remarks>
+        /// <returns>The <see cref="Task"/>.</returns>
         public async Task ScannerEnable()
         {
-        }
-
-        public void ucActivityHdrPhysicalCountFilter_GotFocus(object sender, EventArgs e)
-        {
-            if (!SysEnvironment.GetInstance().IsApplicationExitInvoked)
-            {
-                //Reload CountSettings because intial values will be scewed because of SelectedIndexChanged events firing
-                if (!IsControlLoaded)
-                {
-                    LoadData();
-                }
-
-                chkApplyCountDate.IsToggled = CountSettings.IsApplyCountDate;
-                dtpCountDate.Date = CountSettings.dtCountDate;
-
-                cboSortBy1.SelectedIndex = CountSettings.iSortBy1Index;
-                cboSortBy2.SelectedIndex = CountSettings.iSortBy2Index;
-                MakeSQLSortBy();
-            }
+            throw new NotImplementedException("Bar code scanning is not implemented here.");
         }
 
         /// <summary>
-        ///
+        /// The ucActivityHdrPhysicalCountFilter_GotFocus.
         /// </summary>
-        /// <returns></returns>
-        /// <remarks></remarks>
+        /// <param name="sender">The sender<see cref="object"/>.</param>
+        /// <param name="e">The e<see cref="EventArgs"/>.</param>
+        public void ucActivityHdrPhysicalCountFilter_GotFocus(object sender, EventArgs e)
+        {
+            // Reload CountSettings because intial values will be scewed because of SelectedIndexChanged events firing
+            if (!this.IsControlLoaded)
+            {
+                this.LoadData();
+            }
+
+            this.chkApplyCountDate.IsToggled = this.CountSettings.IsApplyCountDate;
+            this.dtpCountDate.Date = this.CountSettings.dtCountDate;
+
+            this.cboSortBy1.SelectedIndex = this.CountSettings.iSortBy1Index;
+            this.cboSortBy2.SelectedIndex = this.CountSettings.iSortBy2Index;
+            this.MakeSQLSortBy();
+        }
+
+        /// <summary>
+        /// The IsReadyToSave.
+        /// </summary>
+        /// <returns>.</returns>
         public async Task<bool> IsReadyToSave()
         {
             bool IsReadyToSave = true;
 
             try
             {
-
             }
             catch (Exception Ex)
             {
-
-                if (SysCommon.ErrorReportAndRequestContinue(strFullClassName, "IsReadyToSave", Ex) == false)
+                if (SysCommon.ErrorReportAndRequestContinue(this.strFullClassName, "IsReadyToSave", Ex) == false)
                 {
                 }
 
@@ -362,65 +250,60 @@ namespace dMobile.View.Activity
         }
 
         /// <summary>
-        ///
+        /// The IsReadyToClose.
         /// </summary>
-        /// <returns></returns>
-        /// <remarks></remarks>
+        /// <returns>.</returns>
         public async Task<bool> IsReadyToClose()
         {
-            return !bChangesMade;
+            return !this.bChangesMade;
         }
 
         /// <summary>
-        ///
+        /// The GetControlDescription.
         /// </summary>
-        /// <returns></returns>
-        /// <remarks></remarks>
+        /// <returns>.</returns>
         public string GetControlDescription()
         {
-            // TODO: Resource strings
             return "Physical Count Filter";
         }
 
         /// <summary>
-        ///
+        /// The SaveChanges.
         /// </summary>
-        /// <returns></returns>
-        /// <remarks></remarks>
+        /// <returns>.</returns>
         public async Task<bool> SaveChanges()
         {
             bool bSaveComplete = false;
             try
             {
-                if (await IsReadyToSave())
+                if (await this.IsReadyToSave())
                 {
-                    if (chkApplyCountDate.IsToggled)
+                    if (this.chkApplyCountDate.IsToggled)
                     {
-                        CountSettings.dtCountDate = dtpCountDate.Date;
+                        this.CountSettings.dtCountDate = this.dtpCountDate.Date;
                     }
 
-                    CountSettings.IsApplyCountDate = chkApplyCountDate.IsToggled;
+                    this.CountSettings.IsApplyCountDate = this.chkApplyCountDate.IsToggled;
 
-                    CountSettings.iSortBy1Index = cboSortBy1.SelectedIndex;
-                    CountSettings.iSortBy2Index = cboSortBy2.SelectedIndex;
-                    MakeSQLSortBy();
+                    this.CountSettings.iSortBy1Index = this.cboSortBy1.SelectedIndex;
+                    this.CountSettings.iSortBy2Index = this.cboSortBy2.SelectedIndex;
+                    this.MakeSQLSortBy();
 
-                    PhysicalCountSettings tempCountSettings = CountSettings;
-                    CountSettings.SaveData(ref tempCountSettings);
-                    CountSettings = tempCountSettings;
+                    PhysicalCountSettings tempCountSettings = this.CountSettings;
+                    _ = this.CountSettings.SaveData(ref tempCountSettings);
+                    this.CountSettings = tempCountSettings;
 
                     bSaveComplete = true;
-                    bChangesMade = false;
+                    this.bChangesMade = false;
                 }
                 else
                 {
-                    // TODO: Resource strings
-                    await Device.InvokeOnMainThreadAsync(async () => await DisplayAlert(this.GetControlDescription(), "Data Failed Validation. Check Your Data.", "OK"));
+                    await Device.InvokeOnMainThreadAsync(async () => await this.DisplayAlert(this.GetControlDescription(), "Data Failed Validation. Check Your Data.", "OK"));
                 }
             }
             catch (Exception Ex)
             {
-                if (SysCommon.ErrorReportAndRequestContinue(m_strFullClassName, "SaveChanges", Ex) == false)
+                if (SysCommon.ErrorReportAndRequestContinue(this.strFullClassName, "SaveChanges", Ex) == false)
                 {
                 }
 
@@ -431,29 +314,28 @@ namespace dMobile.View.Activity
         }
 
         /// <summary>
-        ///
+        /// The CancelChanges.
         /// </summary>
-        /// <returns></returns>
-        /// <remarks></remarks>
+        /// <returns>.</returns>
         public async Task<bool> CancelChanges()
         {
             bool bCancelChanges = true;
 
             try
             {
-                if (!await IsReadyToClose())
+                if (!await this.IsReadyToClose())
                 {
-                    LoadData();
+                    this.LoadData();
 
-                    chkApplyCountDate.IsToggled = CountSettings.IsApplyCountDate;
-                    dtpCountDate.Date = CountSettings.dtCountDate;
+                    this.chkApplyCountDate.IsToggled = this.CountSettings.IsApplyCountDate;
+                    this.dtpCountDate.Date = this.CountSettings.dtCountDate;
 
-                    cboSortBy1.SelectedIndex = CountSettings.iSortBy1Index;
-                    cboSortBy2.SelectedIndex = CountSettings.iSortBy2Index;
-                    MakeSQLSortBy();
+                    this.cboSortBy1.SelectedIndex = this.CountSettings.iSortBy1Index;
+                    this.cboSortBy2.SelectedIndex = this.CountSettings.iSortBy2Index;
+                    this.MakeSQLSortBy();
 
                     bCancelChanges = false;
-                    bChangesMade = false;
+                    this.bChangesMade = false;
                 }
             }
             catch (Exception ex)
@@ -461,7 +343,7 @@ namespace dMobile.View.Activity
                 await Device.InvokeOnMainThreadAsync(async () =>
                 {
                     FormErrorReport errRpt = new FormErrorReport(SysCommon.ActSubTypes.NotApplicable, ex);
-                    await errRpt.ShowDialog();
+                    _ = await errRpt.ShowDialog();
                 });
 
                 bCancelChanges = false;
@@ -471,65 +353,113 @@ namespace dMobile.View.Activity
         }
 
         /// <summary>
-        ///
+        /// The GetXML.
         /// </summary>
-        /// <returns></returns>
-        /// <remarks></remarks>
+        /// <returns>.</returns>
         public async Task<XDocument> GetXML()
         {
-            XDocument request = System.Xml.Linq.XDocument.Parse("<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>" + "<params>" + ("<count_date>" + CountSettings.dtCountDate.ToShortDateString() + "</count_date>") + ("<sortby>" + strSQLSortBy + "</sortby>") + "</params>");
+            XDocument request = XDocument.Parse("<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>" + "<params>" + "<count_date>" + this.CountSettings.dtCountDate.ToShortDateString() + "</count_date>" + "<sortby>" + this.strSQLSortBy + "</sortby>" + "</params>");
 
             return request;
         }
 
         /// <summary>
-        ///
+        /// The IdentifyChangesMade.
         /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        /// <remarks></remarks>
+        /// <param name="sender">.</param>
+        /// <param name="e">.</param>
         public void IdentifyChangesMade(object sender, EventArgs e)
         {
             try
             {
-                if (isControlLoaded)
+                if (this.IsControlLoaded)
                 {
-                    m_bChangesMade = true;
+                    this.bChangesMade = true;
                 }
             }
             catch (Exception Ex)
             {
-
-                if (SysCommon.ErrorReportAndRequestContinue(m_strFullClassName, "IdentifyChangesMade", Ex) == false)
+                if (SysCommon.ErrorReportAndRequestContinue(this.strFullClassName, "IdentifyChangesMade", Ex) == false)
                 {
                 }
             }
         }
 
-        #endregion
+        /// <summary>
+        /// The MakeSQLSortBy.
+        /// </summary>
+        private void MakeSQLSortBy()
+        {
+            this.strSQLSortBy = this.filters[this.cboSortBy1.Items[this.cboSortBy1.SelectedIndex]].SortValue;
+            this.CountSettings.SortBy1Value = this.filters[this.cboSortBy1.Items[this.cboSortBy1.SelectedIndex]];
 
+            if (this.cboSortBy2.SelectedIndex >= 0)
+            {
+                this.CountSettings.SortBy2Value = this.filters[this.cboSortBy2.Items[this.cboSortBy2.SelectedIndex]];
+
+                if (this.CountSettings.SortBy2Value != null && !string.IsNullOrEmpty(this.CountSettings.SortBy2Value.SortValue))
+                {
+                    this.strSQLSortBy = this.strSQLSortBy + ", " + this.CountSettings.SortBy2Value;
+                }
+            }
+        }
+
+        /// <summary>
+        /// The LoadData.
+        /// </summary>
+        private void LoadData()
+        {
+            this.CountSettings = this.CountSettings.LoadData();
+
+            // default count date to today's date if it is empty
+            if (SysCommon.IsEmptyDate(this.CountSettings.dtCountDate))
+            {
+                this.CountSettings.dtCountDate = DateTime.Now;
+            }
+
+            this.IsControlLoaded = true;
+        }
+
+        /// <summary>
+        /// The cboSortBy1_SelectedIndexChanged.
+        /// </summary>
+        /// <param name="sender">The sender<see cref="object"/>.</param>
+        /// <param name="e">The e<see cref="EventArgs"/>.</param>
         private void cboSortBy1_SelectedIndexChanged(object sender, EventArgs e)
         {
-
         }
 
+        /// <summary>
+        /// The cboSortBy2_SelectedIndexChanged.
+        /// </summary>
+        /// <param name="sender">The sender<see cref="object"/>.</param>
+        /// <param name="e">The e<see cref="EventArgs"/>.</param>
         private void cboSortBy2_SelectedIndexChanged(object sender, EventArgs e)
         {
-
         }
 
+        /// <summary>
+        /// The btnSave_Clicked.
+        /// </summary>
+        /// <param name="sender">The sender<see cref="object"/>.</param>
+        /// <param name="e">The e<see cref="EventArgs"/>.</param>
         private async void btnSave_Clicked(object sender, EventArgs e)
         {
-            if (await SaveChanges())
+            if (await this.SaveChanges())
             {
                 this.DialogResult = DialogResult.OK;
                 await this.Close();
             }
         }
 
+        /// <summary>
+        /// The btnClose_Clicked.
+        /// </summary>
+        /// <param name="sender">The sender<see cref="object"/>.</param>
+        /// <param name="e">The e<see cref="EventArgs"/>.</param>
         private async void btnClose_Clicked(object sender, EventArgs e)
         {
-            await this.CancelChanges();
+            _ = await this.CancelChanges();
             this.DialogResult = DialogResult.None;
             await this.Close();
         }

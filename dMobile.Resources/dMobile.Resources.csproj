@@ -18,7 +18,7 @@
   <ItemGroup>
     <PackageReference Include="Lindhart.Analyser.MissingAwaitWarning" Version="2.0.0" />
     <PackageReference Include="Microsoft.CSharp" Version="4.7.0" />
-    <PackageReference Include="StyleCop.Analyzers" Version="1.2.0-beta.406">
+    <PackageReference Include="StyleCop.Analyzers" Version="1.1.118">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>

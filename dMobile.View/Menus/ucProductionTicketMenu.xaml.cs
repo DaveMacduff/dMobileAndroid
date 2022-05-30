@@ -1,36 +1,34 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Xml.Linq;
-using Android.Views;
-using dMobile.Bedrock;
-using dMobile.Resources.Enums;
-using dMobile.View.Activity;
-using dMobile.View.CustomPages;
-using Xamarin.Forms;
-using Xamarin.Forms.Xaml;
+﻿// <copyright file="ucProductionTicketMenu.xaml.cs" company="InterSect Business Systems Inc">
+// Copyright (c) InterSect Business Systems Inc. All rights reserved.
+// </copyright>
 
 namespace dMobile.View.Menus
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
+    using System.Text;
+    using System.Threading.Tasks;
+    using System.Xml.Linq;
+    using Android.Views;
+    using dMobile.Bedrock;
+    using dMobile.Resources.Enums;
+    using dMobile.View.Activity;
+    using dMobile.View.CustomPages;
+    using Xamarin.Forms;
+    using Xamarin.Forms.Xaml;
+
     [XamlCompilation(XamlCompilationOptions.Compile)]
     public partial class ucProductionTicketMenu : DMobileContentPage, IAppArea
     {
-        #region Fields
 
-        private SysEnvironment sysEnv = SysEnvironment.GetInstance();
-        private bool isControlLoaded = false;
-
-        #endregion
-
-        #region Constructors
-
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ucProductionTicketMenu"/> class.
+        /// </summary>
         public ucProductionTicketMenu()
         {
             this.InitializeComponent();
 
-            // TODO: Resource strings
             this.Title = this.GetControlDescription();
             this.cmdFinishedGoods.Text = "1) Finished Goods";
             this.cmdIngredientMaterial.Text = "2) Ingredient Materials";
@@ -38,12 +36,8 @@ namespace dMobile.View.Menus
             this.cmdDebox.Text = "4) Debox";
         }
 
-        #endregion
-
-        #region OnAppearing/OnDisappearing
-
         /// <summary>
-        /// The OnAppearing
+        /// The OnAppearing.
         /// </summary>
         protected override async void OnAppearing()
         {
@@ -51,8 +45,7 @@ namespace dMobile.View.Menus
 
             MessagingCenter.Subscribe<string>(this, EventTypes.OnKeyUp.ToString(), async (keyPressed) =>
             {
-                // TODO: Verify keycodes
-                Enum.TryParse(keyPressed, out Keycode keycode);
+                _ = Enum.TryParse(keyPressed, out Keycode keycode);
 
                 if (keycode == Keycode.Num1 && this.cmdFinishedGoods.IsEnabled)
                 {
@@ -94,13 +87,12 @@ namespace dMobile.View.Menus
             }
             catch (Exception ex)
             {
-                // TODO: Resource strings
-                await Device.InvokeOnMainThreadAsync(async () => await DisplayAlert("Error", "this.ucProductionTicketMenu_GotFocus threw an error " + ex, "OK"));
+                await Device.InvokeOnMainThreadAsync(async () => await this.DisplayAlert("Error", "this.ucProductionTicketMenu_GotFocus threw an error " + ex, "OK"));
             }
         }
 
         /// <summary>
-        /// The OnDisappearing
+        /// The OnDisappearing.
         /// </summary>
         protected override void OnDisappearing()
         {
@@ -108,41 +100,9 @@ namespace dMobile.View.Menus
             base.OnDisappearing();
         }
 
-        #endregion
+        private bool IsControlLoaded { get; set; } = false;
 
-        #region Properties
-
-        private bool IsControlLoaded
-        {
-            get
-            {
-                return this.isControlLoaded;
-            }
-
-            set
-            {
-                this.isControlLoaded = value;
-            }
-        }
-
-        private SysEnvironment SysEnv
-        {
-            get
-            {
-                return this.sysEnv;
-            }
-
-            set
-            {
-                this.sysEnv = value;
-            }
-        }
-
-        #endregion
-
-        #region Public Members
-
-        #region IAppArea Members
+        private SysEnvironment SysEnv { get; set; } = SysEnvironment.GetInstance();
 
         /// <summary>
         /// Unregister the bar code scan event handler and disable the scanner.
@@ -187,7 +147,6 @@ namespace dMobile.View.Menus
         /// <remarks></remarks>
         public string GetControlDescription()
         {
-            // TODO: Resource strings
             return "Production Ticket Menu";
         }
 
@@ -226,12 +185,6 @@ namespace dMobile.View.Menus
             return xmldocParams;
         }
 
-        #endregion
-
-        #endregion
-
-        #region Private Members
-
         /// <summary>
         ///
         /// </summary>
@@ -240,56 +193,53 @@ namespace dMobile.View.Menus
         /// <remarks></remarks>
         private void ucProductionTicketMenu_GotFocus(object sender, EventArgs e)
         {
-            if (!SysEnvironment.GetInstance().IsApplicationExitInvoked)
+            if (!this.IsControlLoaded)
             {
-                if (!this.IsControlLoaded)
+                this.IsControlLoaded = true;
+
+                this.cmdDebox.IsEnabled = true;
+
+                this.cmdFinishedGoods.IsEnabled = false;
+                if ((this.SysEnv.IsCommunicationTestSuccessful || this.SysEnv.SysSettings.IsDisconnectedMode)
+                    && this.SysEnv.ContactLog.LoginID != SysCommon.SetupLoginID
+                    && !this.SysEnv.RefreshOpt.IsRefreshDataFailed)
                 {
-                    this.IsControlLoaded = true;
-
-                    this.cmdDebox.IsEnabled = true;
-
-                    this.cmdFinishedGoods.IsEnabled = false;
-                    if ((this.SysEnv.IsCommunicationTestSuccessful || this.SysEnv.SysSettings.IsDisconnectedMode)
-                        && this.SysEnv.ContactLog.LoginID != SysCommon.SetupLoginID
-                        && !this.SysEnv.RefreshOpt.IsRefreshDataFailed)
-                    {
-                        if (this.SysEnv.SysSettings.IsTicketFinishedGoodModule || this.SysEnv.ContactLog.LoginID == SysCommon.SystemLoginID)
-                        {
-                            this.cmdFinishedGoods.IsEnabled = true;
-                        }
-                    }
-
-                    this.cmdIngredientMaterial.IsEnabled = false;
-                    if ((this.SysEnv.IsCommunicationTestSuccessful || this.SysEnv.SysSettings.IsDisconnectedMode)
-                        && this.SysEnv.ContactLog.LoginID != SysCommon.SetupLoginID
-                        && !this.SysEnv.RefreshOpt.IsRefreshDataFailed)
-                    {
-                        if (this.SysEnv.SysSettings.IsTicketMaterialModule || this.SysEnv.ContactLog.LoginID == SysCommon.SystemLoginID)
-                        {
-                            this.cmdIngredientMaterial.IsEnabled = true;
-                        }
-                    }
-
-                    this.cmdByProduct.IsEnabled = false;
-                    if ((this.SysEnv.IsCommunicationTestSuccessful || this.SysEnv.SysSettings.IsDisconnectedMode)
-                        && this.SysEnv.ContactLog.LoginID != SysCommon.SetupLoginID
-                        && !this.SysEnv.RefreshOpt.IsRefreshDataFailed)
-                    {
-                        if (this.SysEnv.SysSettings.IsTicketByProductModule || this.SysEnv.ContactLog.LoginID == SysCommon.SystemLoginID)
-                        {
-                            this.cmdByProduct.IsEnabled = true;
-                        }
-                    }
-
-                    // Override all checks if module bypass Isenabled.
-                    if ((this.SysEnv.IsCommunicationTestSuccessful || this.SysEnv.SysSettings.IsDisconnectedMode)
-                        && this.SysEnv.IsEnableAllModuleBypassLicense
-                        && !this.SysEnv.RefreshOpt.IsRefreshDataFailed)
+                    if (this.SysEnv.SysSettings.IsTicketFinishedGoodModule || this.SysEnv.ContactLog.LoginID == SysCommon.SystemLoginID)
                     {
                         this.cmdFinishedGoods.IsEnabled = true;
+                    }
+                }
+
+                this.cmdIngredientMaterial.IsEnabled = false;
+                if ((this.SysEnv.IsCommunicationTestSuccessful || this.SysEnv.SysSettings.IsDisconnectedMode)
+                    && this.SysEnv.ContactLog.LoginID != SysCommon.SetupLoginID
+                    && !this.SysEnv.RefreshOpt.IsRefreshDataFailed)
+                {
+                    if (this.SysEnv.SysSettings.IsTicketMaterialModule || this.SysEnv.ContactLog.LoginID == SysCommon.SystemLoginID)
+                    {
                         this.cmdIngredientMaterial.IsEnabled = true;
+                    }
+                }
+
+                this.cmdByProduct.IsEnabled = false;
+                if ((this.SysEnv.IsCommunicationTestSuccessful || this.SysEnv.SysSettings.IsDisconnectedMode)
+                    && this.SysEnv.ContactLog.LoginID != SysCommon.SetupLoginID
+                    && !this.SysEnv.RefreshOpt.IsRefreshDataFailed)
+                {
+                    if (this.SysEnv.SysSettings.IsTicketByProductModule || this.SysEnv.ContactLog.LoginID == SysCommon.SystemLoginID)
+                    {
                         this.cmdByProduct.IsEnabled = true;
                     }
+                }
+
+                // Override all checks if module bypass Isenabled.
+                if ((this.SysEnv.IsCommunicationTestSuccessful || this.SysEnv.SysSettings.IsDisconnectedMode)
+                    && this.SysEnv.IsEnableAllModuleBypassLicense
+                    && !this.SysEnv.RefreshOpt.IsRefreshDataFailed)
+                {
+                    this.cmdFinishedGoods.IsEnabled = true;
+                    this.cmdIngredientMaterial.IsEnabled = true;
+                    this.cmdByProduct.IsEnabled = true;
                 }
             }
         }
@@ -359,8 +309,6 @@ namespace dMobile.View.Menus
             this.IsControlLoaded = false;
         }
 
-        #endregion
-
         /// <summary>
         /// Sets the adjustment settings for deboxing.
         /// </summary>
@@ -370,17 +318,16 @@ namespace dMobile.View.Menus
             adjustmentSettings.AdjustmentType = SysCommon.AdjTypes.Debox;
             adjustmentSettings.IsApplyAdjustmentType = true;
             adjustmentSettings.NegateScanQuantity = SysCommon.DefaultNegateQuantityFromAdjType(SysCommon.AdjTypes.Debox);
-            adjustmentSettings.SaveData(ref adjustmentSettings);
+            _ = adjustmentSettings.SaveData(ref adjustmentSettings);
         }
 
         private async void cmdDebox_Click(object sender, EventArgs e)
         {
-            //<WO ID="14748" comment="Adding Debox adjustment to Production Ticket menu." />
+            // <WO ID="14748" comment="Adding Debox adjustment to Production Ticket menu." />
             // Set adjustment form settings.
-            SetDeboxAdjustmentSettings();
+            this.SetDeboxAdjustmentSettings();
 
             // Show an adjustment form
-
             this.DisableControls();
             this.UnloadControl();
 

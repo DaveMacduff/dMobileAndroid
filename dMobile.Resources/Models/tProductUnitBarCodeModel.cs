@@ -1,9 +1,13 @@
-﻿using System;
-using SQLite;
-using SQLiteNetExtensions.Attributes;
+﻿// <copyright file="tProductUnitBarCodeModel.cs" company="InterSect Business Systems Inc">
+// Copyright (c) InterSect Business Systems Inc. All rights reserved.
+// </copyright>
 
 namespace dMobile.Resources.Models
 {
+    using System;
+    using SQLite;
+    using SQLiteNetExtensions.Attributes;
+
     //// 255 max len for a 1D barcode
     //string sqlTable = "CREATE TABLE IF NOT EXISTS tProductUnitBarCode"
     //    + "("
@@ -32,7 +36,6 @@ namespace dMobile.Resources.Models
 
     //sqlNdx = "CREATE UNIQUE INDEX IF NOT EXISTS UQ_ProductUnitBarCodeOnProductUnitBarCodeCodeAndProductUnitBarCodeModifier1 ON tProductUnitBarCode(ProductUnitBarCodeCode ASC, ProductUnitBarCodeModifier1 ASC)";
     //await this.RunDDLCommand(sqlNdx);
-
     [Table("tProductUnitBarCode")]
     public class tProductUnitBarCodeModel
     {

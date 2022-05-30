@@ -1,65 +1,63 @@
+// <copyright file="clsInventoryInquiryActivity.cs" company="InterSect Business Systems Inc">
+// Copyright (c) InterSect Business Systems Inc. All rights reserved.
+// </copyright>
+
 namespace dMobile.Controller
 {
     using System;
     using System.Collections.Generic;
     using System.Collections.ObjectModel;
-    using System.Data;
     using System.Threading.Tasks;
     using System.Xml.Linq;
     using dMobile.Bedrock;
     using Xamarin.Forms;
 
     /// <summary>
-    /// 
+    /// Defines the <see cref="InvInquiryActivity" />.
     /// </summary>
     public class InvInquiryActivity : Activity
     {
-        #region Constructors
-
+        /// <summary>
+        /// Initializes a new instance of the <see cref="InvInquiryActivity"/> class.
+        /// </summary>
         public InvInquiryActivity()
             : base()
         {
             this.FullClassName = typeof(AdjActivity).FullName;
         }
 
-        #endregion
-
-        #region Public Members
-
         /// <summary>
-        ///
+        /// The Purge.
         /// </summary>
-        /// <remarks></remarks>
+        /// <returns>The <see cref="Task"/>.</returns>
         public override Task Purge()
         {
             throw new NotImplementedException();
         }
 
         /// <summary>
-        ///
+        /// The GetFKRefnoIdx.
         /// </summary>
-        /// <returns></returns>
-        /// <remarks></remarks>
+        /// <returns>.</returns>
         public override string GetFKRefnoIdx()
         {
             return "ActivityStringFKRefno";
         }
 
         /// <summary>
-        ///
+        /// The GetControlDescription.
         /// </summary>
-        /// <returns></returns>
-        /// <remarks></remarks>
+        /// <returns>.</returns>
         public override string GetControlDescription()
         {
-            // TODO: Resource strings
             return "Inventory Inquiry";
         }
 
         /// <summary>
-        /// 
+        /// The SelectActivity.
         /// </summary>
-        /// <param name="idx"></param>
+        /// <param name="selectedActivity">The selectedActivity<see cref="object"/>.</param>
+        /// <returns>The <see cref="Task"/>.</returns>
         public override async Task SelectActivity(object selectedActivity)
         {
             this.SelectedActivity = selectedActivity;
@@ -68,11 +66,10 @@ namespace dMobile.Controller
         }
 
         /// <summary>
-        ///
+        /// The GetRefnoFromRowIdx.
         /// </summary>
-        /// <param name="idx"></param>
-        /// <returns></returns>
-        /// <remarks></remarks>
+        /// <param name="selectedItem">The selectedItem<see cref="object"/>.</param>
+        /// <returns>.</returns>
         public override int GetRefnoFromRowIdx(object selectedItem)
         {
             this.FKRefno = Convert.ToInt32((selectedItem as dynamic).ActivityRefno);
@@ -82,45 +79,41 @@ namespace dMobile.Controller
         }
 
         /// <summary>
-        ///
+        /// The GetActivityList.
         /// </summary>
-        /// <param name="isSubmitBatch"></param>
-        /// <returns></returns>
-        /// <remarks></remarks>
+        /// <param name="isSubmitBatch">.</param>
+        /// <returns>.</returns>
         public override Task<List<object>> GetActivityList(bool isSubmitBatch)
         {
             throw new NotImplementedException();
         }
 
         /// <summary>
-        ///
+        /// The Search.
         /// </summary>
-        /// <param name="searchText"></param>
-        /// <returns></returns>
-        /// <remarks></remarks>
+        /// <param name="searchText">.</param>
+        /// <returns>.</returns>
         public override ObservableCollection<object> Search(string searchText)
         {
             throw new NotImplementedException();
         }
 
-        public override ObservableCollection<object> DesignGrid(ref Grid dataGridMainActivityHeader, ref ListView dataGridMainActivity)
+        /// <summary>
+        /// The DesignGrid.
+        /// </summary>
+        /// <param name="GridMainActivity">The GridMainActivity<see cref="Grid"/>.</param>
+        /// <param name="ListViewMainActivity">The ListViewMainActivity<see cref="ListView"/>.</param>
+        /// <returns>The <see cref="ObservableCollection{object}"/>.</returns>
+        public override ObservableCollection<object> DesignGrid(ref Grid GridMainActivity, ref ListView ListViewMainActivity)
         {
             throw new NotImplementedException();
         }
 
-        ///// <summary>
-        /////
-        ///// </summary>
-        ///// <remarks></remarks>
-        //public override void DesignDataGrid(DataGrid dataGridMain)
-        //{
-        //    throw new NotImplementedException();
-        //}
-
         /// <summary>
-        /// 
+        ///.
         /// </summary>
-        /// <param name="filterData"></param>
+        /// <param name="filterData">.</param>
+        /// <returns>The <see cref="Task"/>.</returns>
         public override async Task Refresh(XDocument filterData)
         {
             if (!this.SysEnv.SysSettings.IsDisconnectedMode)
@@ -130,25 +123,78 @@ namespace dMobile.Controller
         }
 
         /// <summary>
-        /// 
+        /// The GetFilter.
         /// </summary>
-        /// <param name="filterData"></param>
-        /// <returns></returns>
+        /// <param name="filterData">.</param>
         public override void GetFilter(XDocument filterData)
         {
             throw new NotImplementedException();
         }
 
         /// <summary>
-        ///
+        /// The GetFilter.
         /// </summary>
-        /// <returns></returns>
-        /// <remarks></remarks>
         public override void GetFilter()
         {
-            //return string.Empty;
         }
 
-        #endregion
+        /// <summary>
+        /// Get the activity foreign key reference number.
+        /// </summary>
+        /// <param name="resourceType"><see cref="object"/> Resource model (tActivity??Model).</param>
+        /// <returns><see cref="int"/> Found activity foreign key refno, else 0 if not found.</returns>
+        public override int GetFKRefno(object resourceType)
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <summary>
+        /// The Insert.
+        /// </summary>
+        /// <param name="xmlParams">The xmlParams<see cref="XDocument"/>.</param>
+        /// <returns>The <see cref="Task{int}"/>.</returns>
+        public override Task<int> Insert(XDocument xmlParams)
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <summary>
+        /// The Delete.
+        /// </summary>
+        /// <returns>The <see cref="Task"/>.</returns>
+        public override Task Delete()
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <summary>
+        /// The PrintLabel.
+        /// </summary>
+        /// <param name="xmlParam">The xmlParam<see cref="XDocument"/>.</param>
+        /// <returns>The <see cref="Task"/>.</returns>
+        public override Task PrintLabel(XDocument xmlParam)
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <summary>
+        /// The GetLabelQuantity.
+        /// </summary>
+        /// <param name="isRepackQuantityOnly">The isRepackQuantityOnly<see cref="bool"/>.</param>
+        /// <returns>The <see cref="Task{SLabelQuantity}"/>.</returns>
+        public override Task<SLabelQuantity> GetLabelQuantity(bool isRepackQuantityOnly)
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <summary>
+        /// The ChangeStatus.
+        /// </summary>
+        /// <param name="selectedActivity">The selectedActivity<see cref="object"/>.</param>
+        /// <returns>The <see cref="Task{bool}"/>.</returns>
+        public override Task<bool> ChangeStatus(object selectedActivity)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

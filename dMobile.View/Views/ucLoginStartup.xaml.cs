@@ -1,43 +1,41 @@
-﻿using Android.Views;
-using dMobile.Bedrock;
-using dMobile.Resources.Enums;
-using dMobile.Resources.Types;
-using dMobile.View.CustomPages;
-using dMobile.View.Forms;
-using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using SQLite;
-using System.Diagnostics;
-using System.Linq;
-using System.Net.Sockets;
-using System.Threading.Tasks;
-using System.Xml.Linq;
-using Xamarin.Forms;
-using Xamarin.Forms.Xaml;
-using Resource = dMobile.Resources.Properties.Resources;
-using dMobile.Resources.Models;
+﻿// <copyright file="ucLoginStartup.xaml.cs" company="InterSect Business Systems Inc">
+// Copyright (c) InterSect Business Systems Inc. All rights reserved.
+// </copyright>
 
 namespace dMobile.View
 {
+    using System;
+    using System.Collections.Generic;
+    using System.ComponentModel;
+    using System.Data;
+    using System.Diagnostics;
+    using System.Linq;
+    using System.Net.Sockets;
+    using System.Threading.Tasks;
+    using System.Xml.Linq;
+    using Android.Views;
+    using dMobile.Bedrock;
+    using dMobile.Resources.Enums;
+    using dMobile.Resources.Models;
+    using dMobile.Resources.Types;
+    using dMobile.View.CustomPages;
+    using dMobile.View.Forms;
+    using SQLite;
+    using Xamarin.Forms;
+    using Xamarin.Forms.Xaml;
+    using Resource = dMobile.Resources.Properties.Resources;
+
     [XamlCompilation(XamlCompilationOptions.Compile)]
     public partial class ucLoginStartup : DMobileContentPage, IAppArea
     {
-        private bool changesMade = false;
-        private bool isControlLoaded = false;
-        private SysEnvironment sysEnv;
-        private bool isAllowedAssocBarCode = true;
-        private bool isAllowedOverridePicker = false;
-        private bool isOverrideAddManualDetail = false;
-        private bool logInPressed = false;
-        private bool isEnableAllModuleBypassLicense = false;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ucLoginStartup"/> class.
+        /// </summary>
         public ucLoginStartup()
         {
-            InitializeComponent();
+            this.InitializeComponent();
 
-            // TODO: Resource strings
             this.Title = "dMobile Login";
             this.cmdLogin.Text = Resource.Login;
             this.lblLoginID.Text = Resource.LoginID;
@@ -47,116 +45,28 @@ namespace dMobile.View
 
             if (!DesignMode.IsDesignModeEnabled)
             {
-                sysEnv = SysEnvironment.GetInstance();
+                this.SysEnv = SysEnvironment.GetInstance();
             }
         }
 
-        private bool LogInPressed
-        {
-            get
-            {
-                return this.logInPressed;
-            }
+        private bool LogInPressed { get; set; } = false;
 
-            set
-            {
-                this.logInPressed = value;
-            }
-        }
+        private bool ChangesMade { get; set; } = false;
 
-        private bool ChangesMade
-        {
-            get
-            {
-                return this.changesMade;
-            }
+        private bool IsAllowedOverridePicker { get; set; } = false;
 
-            set
-            {
-                this.changesMade = value;
-            }
-        }
+        private bool IsAllowedAssocBarCode { get; set; } = true;
 
-        private bool IsAllowedOverridePicker
-        {
-            get
-            {
-                return this.isAllowedOverridePicker;
-            }
+        private bool IsOverrideAddManualDetail { get; set; } = false;
 
-            set
-            {
-                this.isAllowedOverridePicker = value;
-            }
-        }
+        private bool IsControlLoaded { get; set; } = false;
 
-        private bool IsAllowedAssocBarCode
-        {
-            get
-            {
-                return this.isAllowedAssocBarCode;
-            }
+        private SysEnvironment SysEnv { get; set; }
 
-            set
-            {
-                this.isAllowedAssocBarCode = value;
-            }
-        }
-
-        private bool IsOverrideAddManualDetail
-        {
-            get
-            {
-                return this.isOverrideAddManualDetail;
-            }
-
-            set
-            {
-                this.isOverrideAddManualDetail = value;
-            }
-        }
-
-        private bool IsControlLoaded
-        {
-            get
-            {
-                return this.isControlLoaded;
-            }
-
-            set
-            {
-                this.isControlLoaded = value;
-            }
-        }
-
-        private SysEnvironment SysEnv
-        {
-            get
-            {
-                return this.sysEnv;
-            }
-
-            set
-            {
-                this.sysEnv = value;
-            }
-        }
-
-        private bool IsEnableAllModuleBypassLicense
-        {
-            get
-            {
-                return this.isEnableAllModuleBypassLicense;
-            }
-
-            set
-            {
-                this.isEnableAllModuleBypassLicense = value;
-            }
-        }
+        private bool IsEnableAllModuleBypassLicense { get; set; } = false;
 
         /// <summary>
-        /// The OnAppearing
+        /// The OnAppearing.
         /// </summary>
         protected override async void OnAppearing()
         {
@@ -166,11 +76,11 @@ namespace dMobile.View
             {
                 try
                 {
-                    Enum.TryParse(keyPressed, out Keycode keycode);
+                    _ = Enum.TryParse(keyPressed, out Keycode keycode);
 
                     if (keycode == Keycode.Enter)
                     {
-                        await this.IsReadyToClose();
+                        _ = await this.IsReadyToClose();
                         this.cmdLogin_Click(this, new EventArgs());
                     }
                 }
@@ -186,12 +96,12 @@ namespace dMobile.View
             }
             catch (Exception ex)
             {
-                await Device.InvokeOnMainThreadAsync(async () => await DisplayAlert(Resource.Error, "LoginStartup_GotFocus threw an error: " + ex.Message, Resource.OK));
+                await Device.InvokeOnMainThreadAsync(async () => await this.DisplayAlert(Resource.Error, "LoginStartup_GotFocus threw an error: " + ex.Message, Resource.OK));
             }
         }
 
         /// <summary>
-        /// The OnDisappearing
+        /// The OnDisappearing.
         /// </summary>
         protected override void OnDisappearing()
         {
@@ -270,13 +180,13 @@ namespace dMobile.View
             catch (SQLiteException ex)
             {
                 FormErrorReport errReport = new FormErrorReport(SysCommon.ActSubTypes.LoginStartup, ex);
-                await Device.InvokeOnMainThreadAsync(async () => await errReport.ShowDialog());
+                _ = await Device.InvokeOnMainThreadAsync(async () => await errReport.ShowDialog());
                 isReadyToSave = false;
             }
             catch (Exception ex)
             {
                 FormErrorReport errReport = new FormErrorReport(SysCommon.ActSubTypes.LoginStartup, ex);
-                await Device.InvokeOnMainThreadAsync(async () => await errReport.ShowDialog());
+                _ = await Device.InvokeOnMainThreadAsync(async () => await errReport.ShowDialog());
                 isReadyToSave = false;
             }
 
@@ -294,15 +204,15 @@ namespace dMobile.View
             {
                 // attempt to record login
                 if (!this.SysEnv.SysSettings.IsDisconnectedMode
-                    && (this.SysEnv.CommSetup.iHostIPAddressComponent1
-                    + this.SysEnv.CommSetup.iHostIPAddressComponent2
-                    + this.SysEnv.CommSetup.iHostIPAddressComponent3) != 0)
+                    && (this.SysEnv.CommSetup.HostIPAddressComponent1
+                    + this.SysEnv.CommSetup.HostIPAddressComponent2
+                    + this.SysEnv.CommSetup.HostIPAddressComponent3) != 0)
                 {
                     if (this.SysEnv.ContactLog.IsLoggedIn)
                     {
                         this.SysEnv.ContactLog.IsLoggedIn = false;
                         ContactLogin tempContactLogin = this.SysEnv.ContactLog;
-                        this.SysEnv.ContactLog.SaveData(ref tempContactLogin);
+                        _ = this.SysEnv.ContactLog.SaveData(ref tempContactLogin);
 
                         try
                         {
@@ -311,13 +221,13 @@ namespace dMobile.View
                         catch (SocketException)
                         {
                             // do nothing if login failed
-                            //FormErrorReport errReport = new FormErrorReport(SysCommon.ActSubTypes.LoginStartup, ex);
-                            //Device.BeginInvokeOnMainThread(async () => await errReport.ShowDialog());
+                            // FormErrorReport errReport = new FormErrorReport(SysCommon.ActSubTypes.LoginStartup, ex);
+                            // Device.BeginInvokeOnMainThread(async () => await errReport.ShowDialog());
                         }
                         catch (Exception ex)
                         {
                             FormErrorReport errReport = new FormErrorReport(SysCommon.ActSubTypes.LoginStartup, ex);
-                            await Device.InvokeOnMainThreadAsync(async () => await errReport.ShowDialog());
+                            _ = await Device.InvokeOnMainThreadAsync(async () => await errReport.ShowDialog());
                         }
                     }
                 }
@@ -361,9 +271,9 @@ namespace dMobile.View
                     this.LogInPressed = true;
 
                     if (!this.SysEnv.SysSettings.IsDisconnectedMode
-                        && (this.SysEnv.CommSetup.iHostIPAddressComponent1
-                        + this.SysEnv.CommSetup.iHostIPAddressComponent2
-                        + this.SysEnv.CommSetup.iHostIPAddressComponent3) != 0)
+                        && (this.SysEnv.CommSetup.HostIPAddressComponent1
+                        + this.SysEnv.CommSetup.HostIPAddressComponent2
+                        + this.SysEnv.CommSetup.HostIPAddressComponent3) != 0)
                     {
                         try
                         {
@@ -376,7 +286,7 @@ namespace dMobile.View
                         catch (Exception ex)
                         {
                             FormErrorReport errReport = new FormErrorReport(SysCommon.ActSubTypes.LoginStartup, ex);
-                            await Device.InvokeOnMainThreadAsync(async () => await errReport.ShowDialog());
+                            _ = await Device.InvokeOnMainThreadAsync(async () => await errReport.ShowDialog());
                         }
                     }
 
@@ -394,9 +304,13 @@ namespace dMobile.View
                     this.SysEnv.ContactLog.IsLoggedIn = false;
                 }
             }
-            catch (Exceptions.MessageOnlyException ex)
+            catch (MessageOnlyException ex)
             {
-                ex.Show(SysCommon.ActSubTypes.LoginStartup);
+                await Device.InvokeOnMainThreadAsync(async () =>
+                    await Application.Current.MainPage.DisplayAlert(
+                        this.GetControlDescription(),
+                        ex.Message,
+                        Resource.OK));
             }
             catch (Exception ex)
             {
@@ -493,25 +407,22 @@ namespace dMobile.View
         /// <remarks></remarks>
         private async Task LoginStartup_GotFocus()
         {
-            if (!SysEnvironment.GetInstance().IsApplicationExitInvoked)
+            if (!this.IsControlLoaded)
             {
-                if (!this.IsControlLoaded)
-                {
-                    await this.LoadData();
-                    this.IsControlLoaded = true;
+                await this.LoadData();
+                this.IsControlLoaded = true;
 
-                    if (this.SysEnv.ContactLog.LoginID == 0)
-                    {
-                        this.txtLoginID.Focus();
-                    }
-                    else if (this.SysEnv.ContactLog.LoginPassword == string.Empty)
-                    {
-                        this.txtLoginPassword.Focus();
-                    }
-                    else
-                    {
-                        this.cmdLogin.Focus();
-                    }
+                if (this.SysEnv.ContactLog.LoginID == 0)
+                {
+                    _ = this.txtLoginID.Focus();
+                }
+                else if (this.SysEnv.ContactLog.LoginPassword == string.Empty)
+                {
+                    _ = this.txtLoginPassword.Focus();
+                }
+                else
+                {
+                    _ = this.cmdLogin.Focus();
                 }
             }
         }
@@ -558,24 +469,24 @@ namespace dMobile.View
 
                 }
 
-                if (string.IsNullOrEmpty(txtLoginID.Text))
+                if (string.IsNullOrEmpty(this.txtLoginID.Text))
                 {
                     this.txtLoginPassword.Text = string.Empty;
                     password = string.Empty;
-                    throw new Exceptions.MessageOnlyException("Please enter a user ID.");
+                    throw new MessageOnlyException("Please enter a user ID.");
                 }
-                else if (string.IsNullOrEmpty(txtLoginPassword.Text))
+                else if (string.IsNullOrEmpty(this.txtLoginPassword.Text))
                 {
                     password = string.Empty;
-                    throw new Exceptions.MessageOnlyException("Please enter a password.");
+                    throw new MessageOnlyException("Please enter a password.");
                 }
-                else if (userCode != Convert.ToInt32(txtLoginID.Text))
+                else if (userCode != Convert.ToInt32(this.txtLoginID.Text))
                 {
-                    throw new Exceptions.MessageOnlyException(Resource.InvalidLoginId + " " + this.txtLoginID.Text);
+                    throw new MessageOnlyException(Resource.InvalidLoginId + " " + this.txtLoginID.Text);
                 }
-                else if (password != txtLoginPassword.Text)
+                else if (password != this.txtLoginPassword.Text)
                 {
-                    throw new Exceptions.MessageOnlyException(Resource.InvalidLoginPassword);
+                    throw new MessageOnlyException(Resource.InvalidLoginPassword);
                 }
 
                 if (this.lstWarehouse.Items.Count > 0)
@@ -584,7 +495,7 @@ namespace dMobile.View
 
                     if (Convert.ToInt32(this.lstWarehouse.SelectedValue) <= 0)
                     {
-                        throw new Exceptions.MessageOnlyException(Resource.SelectedWarehouseRequired);
+                        throw new MessageOnlyException(Resource.SelectedWarehouseRequired);
                     }
                 }
                 else
@@ -598,13 +509,17 @@ namespace dMobile.View
                 if (e.Cancel == false)
                 {
                     ContactLogin tempContactLogin = this.SysEnv.ContactLog;
-                    this.SysEnv.ContactLog.SaveData(ref tempContactLogin);
+                    _ = this.SysEnv.ContactLog.SaveData(ref tempContactLogin);
                 }
             }
-            catch (Exceptions.MessageOnlyException ex)
+            catch (MessageOnlyException ex)
             {
                 e.Cancel = true;
-                ex.Show(SysCommon.ActSubTypes.LoginStartup);
+                await Device.InvokeOnMainThreadAsync(async () =>
+                    await Application.Current.MainPage.DisplayAlert(
+                        this.GetControlDescription(),
+                        ex.Message,
+                        Resource.OK));
             }
             catch (SQLiteException ex)
             {
@@ -618,7 +533,7 @@ namespace dMobile.View
             {
                 e.Cancel = false;
                 FormErrorReport errReport = new FormErrorReport(ex);
-                await errReport.ShowDialog();
+                _ = await errReport.ShowDialog();
             }
         }
 
@@ -641,18 +556,18 @@ namespace dMobile.View
                     if (await this.SaveChanges())
                     {
                         // <WO ID="14734" Comment="Show message after login when data is older than 48 hours" />
-                        if (SysEnv == null || SysEnv.RefreshOpt == null || SysEnv.RefreshOpt.RefreshedDataLast == null || (DateTime.Now - this.SysEnv.RefreshOpt.RefreshedDataLast).TotalHours > 48)
+                        if (this.SysEnv == null || this.SysEnv.RefreshOpt == null || this.SysEnv.RefreshOpt.RefreshedDataLast == null || (DateTime.Now - this.SysEnv.RefreshOpt.RefreshedDataLast).TotalHours > 48)
                         {
-                            await Device.InvokeOnMainThreadAsync(async () => await DisplayAlert(Resource.RefreshRequired, Resource.DataIsOutOfDatePleaseRefreshImmediately, Resource.OK));
+                            await Device.InvokeOnMainThreadAsync(async () => await this.DisplayAlert(Resource.RefreshRequired, Resource.DataIsOutOfDatePleaseRefreshImmediately, Resource.OK));
                         }
 
-                        await Device.InvokeOnMainThreadAsync(() => Application.Current.MainPage = new MainPage());
+                        _ = await Device.InvokeOnMainThreadAsync(() => Application.Current.MainPage = new MainPage());
                     }
                 });
             }
             catch (Exception ex)
             {
-                await Device.InvokeOnMainThreadAsync(async () => await DisplayAlert(Resource.Error, ex.Message, Resource.OK));
+                await Device.InvokeOnMainThreadAsync(async () => await this.DisplayAlert(Resource.Error, ex.Message, Resource.OK));
             }
             finally
             {
@@ -669,7 +584,7 @@ namespace dMobile.View
         {
             if (this.IsEnableAllModuleBypassLicense)
             {
-                //this.txtLoginPassword.BackColor = SystemColors.Window;
+                // this.txtLoginPassword.BackColor = SystemColors.Window;
                 this.IsEnableAllModuleBypassLicense = false;
             }
             else
@@ -678,7 +593,7 @@ namespace dMobile.View
                 this.IsEnableAllModuleBypassLicense = true;
             }
 
-            await Device.InvokeOnMainThreadAsync(async () => await DisplayAlert(Resource.DMobile, Resource.AllModulesEnabledBypassingDeviceLicenses, Resource.OK));
+            await Device.InvokeOnMainThreadAsync(async () => await this.DisplayAlert(Resource.DMobile, Resource.AllModulesEnabledBypassingDeviceLicenses, Resource.OK));
         }
 
         public string GetControlDescription()

@@ -1,4 +1,8 @@
-﻿namespace dMobile.Bedrock
+﻿// <copyright file="ReturnsSettings.cs" company="InterSect Business Systems Inc">
+// Copyright (c) InterSect Business Systems Inc. All rights reserved.
+// </copyright>
+
+namespace dMobile.Bedrock
 {
     using System;
     using System.Collections.Generic;
@@ -7,160 +11,274 @@
     using dMobile.Resources.Enums;
     using dMobile.Resources.Types;
 
+    /// <summary>
+    /// Defines the <see cref="ReturnsSettings" />.
+    /// </summary>
     [Serializable]
     public class ReturnsSettings
     {
-        // VARIABLES
-        [NonSerialized()]
+        /// <summary>
+        /// Defines the m_strFullClassName.
+        /// </summary>
+        [NonSerialized]
         private string m_strFullClassName = "dMobile.ReturnsSettings";
-        [NonSerialized()]
+
+        /// <summary>
+        /// Defines the m_strFilePath.
+        /// </summary>
+        [NonSerialized]
         private string m_strFilePath = string.Empty;
-        [NonSerialized()]
+
+        /// <summary>
+        /// Defines the m_strFileASCIIZ.
+        /// </summary>
+        [NonSerialized]
         private string m_strFileASCIIZ = string.Empty;
-        [NonSerialized()]
+
+        /// <summary>
+        /// Defines the m_strFileName.
+        /// </summary>
+        [NonSerialized]
         private string m_strFileName = "dMobileReturnsSettings.xml";
+
+        /// <summary>
+        /// Defines the writeLockObject.
+        /// </summary>
         [NonSerialized]
         private readonly object writeLockObject = new object();
+
+        /// <summary>
+        /// Defines the readLockObject.
+        /// </summary>
         [NonSerialized]
         private readonly object readLockObject = new object();
-        private Int32 m_iSortBy1Index = 0;
+
+        /// <summary>
+        /// Defines the m_iSortBy1Index.
+        /// </summary>
+        private int m_iSortBy1Index = 0;
+
+        /// <summary>
+        /// Defines the sortBy1Value.
+        /// </summary>
         private Sort sortBy1Value = new Sort() { SortValue = "ActivityReturnsFKRefno", SortOrder = SortOrder.ASC };
-        private Int32 m_iSortBy2Index = -1;
+
+        /// <summary>
+        /// Defines the m_iSortBy2Index.
+        /// </summary>
+        private int m_iSortBy2Index = -1;
+
+        /// <summary>
+        /// Defines the sortBy2Value.
+        /// </summary>
         private Sort sortBy2Value = null;
-        private Int32 m_iSortBy3Index = -1;
+
+        /// <summary>
+        /// Defines the m_iSortBy3Index.
+        /// </summary>
+        private int m_iSortBy3Index = -1;
+
+        /// <summary>
+        /// Defines the sortBy3Value.
+        /// </summary>
         private Sort sortBy3Value = null;
+
+        /// <summary>
+        /// Defines the enteredDateFilter.
+        /// </summary>
         private DateTime enteredDateFilter = new DateTime(1900, 1, 1);
+
+        /// <summary>
+        /// Defines the returnedDateFilter.
+        /// </summary>
         private DateTime returnedDateFilter = new DateTime(1900, 1, 1);
+
+        /// <summary>
+        /// Defines the isApplyEnteredDateFilter.
+        /// </summary>
         private bool isApplyEnteredDateFilter = false;
+
+        /// <summary>
+        /// Defines the isApplyReturnedDateFilter.
+        /// </summary>
         private bool isApplyReturnedDateFilter = false;
 
-        // PROPERTIES
-        public bool IsApplyEnteredDateFilter
-        {
-            get { return isApplyEnteredDateFilter; }
-            set { isApplyEnteredDateFilter = value; }
-        }
-        public bool IsApplyReturnedDateFilter
-        {
-            get { return isApplyReturnedDateFilter; }
-            set { isApplyReturnedDateFilter = value; }
-        }
-        public DateTime EnteredDateFilter
-        {
-            get { return enteredDateFilter; }
-            set { enteredDateFilter = value; }
-        }
-        public DateTime ReturnedDateFilter
-        {
-            get { return returnedDateFilter; }
-            set { returnedDateFilter = value; }
-        }
-        public string strFullClassName
-        {
-            get { return m_strFullClassName; }
-            set { m_strFullClassName = value; }
-        }
-        public string strFilePath
-        {
-            get { return m_strFilePath; }
-            set { m_strFilePath = value; }
-        }
-        public string strFileASCIIZ
-        {
-            get { return m_strFileASCIIZ; }
-            set { m_strFileASCIIZ = value; }
-        }
-        public string strFileName
-        {
-            get { return m_strFileName; }
-            set { m_strFileName = value; }
-        }
-        public Int32 iSortBy1Index
-        {
-            get { return m_iSortBy1Index; }
-            set { m_iSortBy1Index = value; }
-        }
-        public Sort SortBy1Value
-        {
-            get { return sortBy1Value; }
-            set { sortBy1Value = value; }
-        }
-        public Int32 iSortBy2Index
-        {
-            get { return m_iSortBy2Index; }
-            set { m_iSortBy2Index = value; }
-        }
-        public Sort SortBy2Value
-        {
-            get { return sortBy2Value; }
-            set { sortBy2Value = value; }
-        }
-        public Int32 iSortBy3Index
-        {
-            get { return m_iSortBy3Index; }
-            set { m_iSortBy3Index = value; }
-        }
-        public Sort SortBy3Value
-        {
-            get { return sortBy3Value; }
-            set { sortBy3Value = value; }
-        }
-
-        //METHODS
-
         /// <summary>
-        /// 
+        /// Initializes a new instance of the <see cref="ReturnsSettings"/> class.
         /// </summary>
-        /// <remarks></remarks>
         public ReturnsSettings()
         {
-            strFilePath = Environment.GetFolderPath(Environment.SpecialFolder.Personal);
-            strFileASCIIZ = Path.Combine(strFilePath, strFileName);
+            this.strFilePath = Environment.GetFolderPath(Environment.SpecialFolder.Personal);
+            this.strFileASCIIZ = Path.Combine(this.strFilePath, this.strFileName);
         }
 
         /// <summary>
-        /// 
+        /// Gets or sets a value indicating whether IsApplyEnteredDateFilter.
         /// </summary>
-        /// <returns></returns>
-        /// <remarks></remarks>
+        public bool IsApplyEnteredDateFilter
+        {
+            get { return this.isApplyEnteredDateFilter; }
+            set { this.isApplyEnteredDateFilter = value; }
+        }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether IsApplyReturnedDateFilter.
+        /// </summary>
+        public bool IsApplyReturnedDateFilter
+        {
+            get { return this.isApplyReturnedDateFilter; }
+            set { this.isApplyReturnedDateFilter = value; }
+        }
+
+        /// <summary>
+        /// Gets or sets the EnteredDateFilter.
+        /// </summary>
+        public DateTime EnteredDateFilter
+        {
+            get { return this.enteredDateFilter; }
+            set { this.enteredDateFilter = value; }
+        }
+
+        /// <summary>
+        /// Gets or sets the ReturnedDateFilter.
+        /// </summary>
+        public DateTime ReturnedDateFilter
+        {
+            get { return this.returnedDateFilter; }
+            set { this.returnedDateFilter = value; }
+        }
+
+        /// <summary>
+        /// Gets or sets the strFullClassName.
+        /// </summary>
+        public string strFullClassName
+        {
+            get { return this.m_strFullClassName; }
+            set { this.m_strFullClassName = value; }
+        }
+
+        /// <summary>
+        /// Gets or sets the strFilePath.
+        /// </summary>
+        public string strFilePath
+        {
+            get { return this.m_strFilePath; }
+            set { this.m_strFilePath = value; }
+        }
+
+        /// <summary>
+        /// Gets or sets the strFileASCIIZ.
+        /// </summary>
+        public string strFileASCIIZ
+        {
+            get { return this.m_strFileASCIIZ; }
+            set { this.m_strFileASCIIZ = value; }
+        }
+
+        /// <summary>
+        /// Gets or sets the strFileName.
+        /// </summary>
+        public string strFileName
+        {
+            get { return this.m_strFileName; }
+            set { this.m_strFileName = value; }
+        }
+
+        /// <summary>
+        /// Gets or sets the iSortBy1Index.
+        /// </summary>
+        public int iSortBy1Index
+        {
+            get { return this.m_iSortBy1Index; }
+            set { this.m_iSortBy1Index = value; }
+        }
+
+        /// <summary>
+        /// Gets or sets the SortBy1Value.
+        /// </summary>
+        public Sort SortBy1Value
+        {
+            get { return this.sortBy1Value; }
+            set { this.sortBy1Value = value; }
+        }
+
+        /// <summary>
+        /// Gets or sets the iSortBy2Index.
+        /// </summary>
+        public int iSortBy2Index
+        {
+            get { return this.m_iSortBy2Index; }
+            set { this.m_iSortBy2Index = value; }
+        }
+
+        /// <summary>
+        /// Gets or sets the SortBy2Value.
+        /// </summary>
+        public Sort SortBy2Value
+        {
+            get { return this.sortBy2Value; }
+            set { this.sortBy2Value = value; }
+        }
+
+        /// <summary>
+        /// Gets or sets the iSortBy3Index.
+        /// </summary>
+        public int iSortBy3Index
+        {
+            get { return this.m_iSortBy3Index; }
+            set { this.m_iSortBy3Index = value; }
+        }
+
+        /// <summary>
+        /// Gets or sets the SortBy3Value.
+        /// </summary>
+        public Sort SortBy3Value
+        {
+            get { return this.sortBy3Value; }
+            set { this.sortBy3Value = value; }
+        }
+
+        /// <summary>
+        /// The GetDataViewSortBy.
+        /// </summary>
+        /// <returns>.</returns>
         public List<Sort> GetDataViewSortBy()
         {
             List<Sort> sortBy = new List<Sort>();
 
-            sortBy.Add(SortBy1Value);
+            sortBy.Add(this.SortBy1Value);
 
-            if (SortBy2Value != null && !string.IsNullOrEmpty(SortBy2Value.SortValue))
+            if (this.SortBy2Value != null && !string.IsNullOrEmpty(this.SortBy2Value.SortValue))
             {
-                sortBy.Add(SortBy2Value);
+                sortBy.Add(this.SortBy2Value);
             }
 
-            if (SortBy3Value != null && !string.IsNullOrEmpty(SortBy3Value.SortValue))
+            if (this.SortBy3Value != null && !string.IsNullOrEmpty(this.SortBy3Value.SortValue))
             {
-                sortBy.Add(SortBy3Value);
+                sortBy.Add(this.SortBy3Value);
             }
 
             return sortBy;
         }
 
         /// <summary>
-        /// 
+        /// The LoadData.
         /// </summary>
-        /// <returns></returns>
-        /// <remarks></remarks>
+        /// <returns>.</returns>
         public ReturnsSettings LoadData()
         {
-            lock (readLockObject)
+            lock (this.readLockObject)
             {
                 XmlSerializer serializer = new XmlSerializer(typeof(ReturnsSettings));
                 ReturnsSettings oReturnsSettings = new ReturnsSettings();
 
-                // use relection to get the current assembly path for the database
+                // use reflection to get the current assembly path for the database
                 string strAppDir = Environment.GetFolderPath(Environment.SpecialFolder.Personal);
-                string strFullPathToMyFile = Path.Combine(strAppDir, m_strFileName);
+                string strFullPathToMyFile = Path.Combine(strAppDir, this.m_strFileName);
 
                 if (!File.Exists(strFullPathToMyFile))
                 {
-                    SaveData(ref oReturnsSettings);
+                    this.SaveData(ref oReturnsSettings);
                 }
 
                 // Create a FileStream to read with.
@@ -175,23 +293,22 @@
         }
 
         /// <summary>
-        /// 
+        /// The SaveData.
         /// </summary>
-        /// <param name="oReturnsSettings"></param>
-        /// <returns></returns>
-        /// <remarks></remarks>
+        /// <param name="oReturnsSettings">.</param>
+        /// <returns>.</returns>
         public bool SaveData(ref ReturnsSettings oReturnsSettings)
         {
-            lock (writeLockObject)
+            lock (this.writeLockObject)
             {
                 XmlSerializer serializer = new XmlSerializer(typeof(ReturnsSettings));
                 bool bSaveComplete = false;
 
                 try
                 {
-                    // use relection to get the current assembly path for the database
+                    // use reflection to get the current assembly path for the database
                     string strAppDir = Environment.GetFolderPath(Environment.SpecialFolder.Personal);
-                    string strFullPathToMyFile = Path.Combine(strAppDir, m_strFileName);
+                    string strFullPathToMyFile = Path.Combine(strAppDir, this.m_strFileName);
 
                     // Create a FileStream to write with.
                     using (FileStream writer = new FileStream(strFullPathToMyFile, FileMode.Create, FileAccess.Write, FileShare.None))

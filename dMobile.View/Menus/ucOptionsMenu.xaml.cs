@@ -1,14 +1,18 @@
-﻿namespace dMobile.View.Menus
+﻿// <copyright file="ucOptionsMenu.xaml.cs" company="InterSect Business Systems Inc">
+// Copyright (c) InterSect Business Systems Inc. All rights reserved.
+// </copyright>
+
+namespace dMobile.View.Menus
 {
+    using System;
+    using System.IO;
+    using System.Threading.Tasks;
+    using System.Xml.Linq;
     using Android.Views;
     using dMobile.Bedrock;
     using dMobile.Resources.Enums;
     using dMobile.View.CustomPages;
     using dMobile.View.Options;
-    using System;
-    using System.IO;
-    using System.Threading.Tasks;
-    using System.Xml.Linq;
     using Xamarin.Forms;
     using Xamarin.Forms.Xaml;
     using Resource = dMobile.Resources.Properties.Resources;
@@ -16,18 +20,19 @@
     [XamlCompilation(XamlCompilationOptions.Compile)]
     public partial class ucOptionsMenu : DMobileContentPage, IAppArea
     {
-        private SysEnvironment sysEnv;
-        private bool isControlLoaded = false;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ucOptionsMenu"/> class.
+        /// </summary>
         public ucOptionsMenu()
         {
-            InitializeComponent();
+            this.InitializeComponent();
 
             this.Title = this.GetControlDescription();
 
             if (!DesignMode.IsDesignModeEnabled)
             {
-                sysEnv = SysEnvironment.GetInstance();
+                this.SysEnv = SysEnvironment.GetInstance();
             }
 
             this.cmdSetupDefaults.Text = "1) " + Resource.SetupDefaults;
@@ -39,7 +44,7 @@
         }
 
         /// <summary>
-        /// The OnAppearing
+        /// The OnAppearing.
         /// </summary>
         protected override async void OnAppearing()
         {
@@ -53,13 +58,12 @@
             }
             catch (Exception ex)
             {
-                await Device.InvokeOnMainThreadAsync(async () => await DisplayAlert("Error", "ucOptionsMenu_GotFocus exception: " + ex.Message, "OK"));
+                await Device.InvokeOnMainThreadAsync(async () => await this.DisplayAlert("Error", "ucOptionsMenu_GotFocus exception: " + ex.Message, "OK"));
             }
 
             MessagingCenter.Subscribe<string>(this, EventTypes.OnKeyUp.ToString(), async (keyPressed) =>
             {
-                // TODO: Verify keycodes
-                Enum.TryParse(keyPressed, out Keycode keycode);
+                _ = Enum.TryParse(keyPressed, out Keycode keycode);
 
                 if (keycode == Keycode.Enter && this.cmdSetupDefaults.IsEnabled)
                 {
@@ -73,7 +77,7 @@
                 {
                     this.DisableControls();
                     this.IsControlLoaded = false;
-                    
+
                     ucSetupDefaults setupDefaults = new ucSetupDefaults();
                     await setupDefaults.Show();
                 }
@@ -95,7 +99,7 @@
                     await refreshDataOption.Show();
                 }
                 else if (keycode == Keycode.Num4 && this.cmdSubmitBatch.IsEnabled)
-                {                    
+                {
                     this.DisableControls();
                     this.IsControlLoaded = false;
 
@@ -122,7 +126,7 @@
         }
 
         /// <summary>
-        /// The OnDisappearing
+        /// The OnDisappearing.
         /// </summary>
         protected override void OnDisappearing()
         {
@@ -135,7 +139,7 @@
         {
             Device.BeginInvokeOnMainThread(async () =>
             {
-                base.OnBackButtonPressed();
+                _ = base.OnBackButtonPressed();
 
                 this.DisableControls();
                 this.IsControlLoaded = false;
@@ -145,31 +149,9 @@
             return true;
         }
 
-        private bool IsControlLoaded
-        {
-            get
-            {
-                return this.isControlLoaded;
-            }
+        private bool IsControlLoaded { get; set; } = false;
 
-            set
-            {
-                this.isControlLoaded = value;
-            }
-        }
-
-        private SysEnvironment SysEnv
-        {
-            get
-            {
-                return this.sysEnv;
-            }
-
-            set
-            {
-                this.sysEnv = value;
-            }
-        }
+        private SysEnvironment SysEnv { get; set; }
 
         /// <summary>
         /// Unregister the bar code scan event handler and disable the scanner.
@@ -260,8 +242,7 @@
         /// <remarks></remarks>
         public async void cmdSetupDefaults_Click(object sender, EventArgs e)
         {
-            //this.CallingControl = new ucSetupDefaults();
-
+            // this.CallingControl = new ucSetupDefaults();
             ucSetupDefaults setupDefaults = new ucSetupDefaults();
             await setupDefaults.Show();
 
@@ -277,7 +258,7 @@
         /// <remarks></remarks>
         public async void cmdCommunicationSetup_Click(object sender, EventArgs e)
         {
-            //this.CallingControl = new ucCommunicationSetup();
+            // this.CallingControl = new ucCommunicationSetup();
             this.DisableControls();
             this.IsControlLoaded = false;
 
@@ -293,7 +274,7 @@
         /// <remarks></remarks>
         public async void cmdRefreshData_Click(object sender, EventArgs e)
         {
-            //this.CallingControl = new ucRefreshDataOptions();
+            // this.CallingControl = new ucRefreshDataOptions();
             this.DisableControls();
             this.IsControlLoaded = false;
 
@@ -309,7 +290,7 @@
         /// <remarks></remarks>
         public async void cmdSubmitBatch_Click(object sender, EventArgs e)
         {
-            //this.CallingControl = new ucSubmitBatch();
+            // this.CallingControl = new ucSubmitBatch();
             this.DisableControls();
             this.IsControlLoaded = false;
 
@@ -325,7 +306,7 @@
         /// <remarks></remarks>
         public async void cmdAbout_Click(object sender, EventArgs e)
         {
-            //this.CallingControl = new ucAbout();
+            // this.CallingControl = new ucAbout();
             this.DisableControls();
             this.IsControlLoaded = false;
 
@@ -341,7 +322,7 @@
         /// <remarks></remarks>
         public async void cmdUtilities_Click(object sender, EventArgs e)
         {
-            //this.CallingControl = new ucUtilitiesMenu();
+            // this.CallingControl = new ucUtilitiesMenu();
             this.DisableControls();
             this.IsControlLoaded = false;
 
@@ -363,7 +344,7 @@
 
                 CommunicationSetup commSetup = new CommunicationSetup();
 
-                if (File.Exists(commSetup.strFileASCIIZ))
+                if (File.Exists(commSetup.FileASCIIZ))
                 {
                     this.cmdRefreshData.IsEnabled = true;
                 }
@@ -382,32 +363,29 @@
         /// <remarks></remarks>
         public void ucOptionsMenu_GotFocus(object sender, EventArgs e)
         {
-            if (!SysEnvironment.GetInstance().IsApplicationExitInvoked)
+            if (!this.IsControlLoaded)
             {
-                if (!this.IsControlLoaded)
+                this.IsControlLoaded = true;
+
+                if (this.SysEnv.IsCommunicationTestSuccessful)
                 {
-                    this.IsControlLoaded = true;
-
-                    if (this.SysEnv.IsCommunicationTestSuccessful)
-                    {
-                        this.cmdRefreshData.IsEnabled = true;
-                    }
-                    else
-                    {
-                        this.cmdRefreshData.IsEnabled = false;
-                    }
-
-                    if (this.SysEnv.IsCommunicationTestSuccessful && this.SysEnv.SysSettings.IsDisconnectedMode)
-                    {
-                        this.cmdSubmitBatch.IsEnabled = true;
-                    }
-                    else
-                    {
-                        this.cmdSubmitBatch.IsEnabled = false;
-                    }
-
-                    this.cmdSetupDefaults.Focus();
+                    this.cmdRefreshData.IsEnabled = true;
                 }
+                else
+                {
+                    this.cmdRefreshData.IsEnabled = false;
+                }
+
+                if (this.SysEnv.IsCommunicationTestSuccessful && this.SysEnv.SysSettings.IsDisconnectedMode)
+                {
+                    this.cmdSubmitBatch.IsEnabled = true;
+                }
+                else
+                {
+                    this.cmdSubmitBatch.IsEnabled = false;
+                }
+
+                _ = this.cmdSetupDefaults.Focus();
             }
         }
 

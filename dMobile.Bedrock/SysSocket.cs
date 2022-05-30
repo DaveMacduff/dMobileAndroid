@@ -1,3 +1,7 @@
+// <copyright file="SysSocket.cs" company="InterSect Business Systems Inc">
+// Copyright (c) InterSect Business Systems Inc. All rights reserved.
+// </copyright>
+
 namespace dMobile.Bedrock
 {
     using System;
@@ -7,71 +11,47 @@ namespace dMobile.Bedrock
     using System.Text;
 
     /// <summary>
-    /// Handles Communication via a socket to send and receive data
+    /// Handles Communication via a socket to send and receive data.
     /// </summary>
-    /// <remarks></remarks>
     public class SysSocket : ISysSocketEventPublisher
     {
-        #region Fields
-
-        private string serverIP;
-        private string sendEOM = "</WAIT_EOM>" + (char)20;
+        /// <summary>
+        /// Defines the receiveEOM.
+        /// </summary>
         private string receiveEOM = "</EOM>" + (char)20;
-        private int recvBuffSize = 32768;
-        private int connTotalRetries = 3;
-        private int sendTotalRetries = 3;
-        private int recvTotalRetries = 3;
-        private int defPort = 10000;
-        private int basePort = 10000;
-        private int maxPorts = 1;
-        private int sendTimeOutMilliseconds = 4101;
+
+        /// <summary>
+        /// Defines the recvTimeOutMilliseconds.
+        /// </summary>
         private int recvTimeOutMilliseconds = 4102;
-        private SysEnvironment sysEnv = SysEnvironment.GetInstance();
 
-        #endregion
-
-        #region Delegates
-
+        /// <summary>
+        /// The OnSysSocketStatusOutEventHandler.
+        /// </summary>
+        /// <param name="sysSocketEventPublisher">The sysSocketEventPublisher<see cref="ISysSocketEventPublisher"/>.</param>
+        /// <param name="sysSocketEventArgs">The sysSocketEventArgs<see cref="SysSocketEventArgs"/>.</param>
         private delegate void OnSysSocketStatusOutEventHandler(
             ISysSocketEventPublisher sysSocketEventPublisher,
             SysSocketEventArgs sysSocketEventArgs);
 
-        #endregion
-
-        #region Events
-
+        /// <summary>
+        /// Defines the OnSysSocketStatusOut.
+        /// </summary>
         private event OnSysSocketStatusOutEventHandler OnSysSocketStatusOut;
 
-        #endregion
+        /// <summary>
+        /// Gets or sets the ServerIP.
+        /// </summary>
+        public string ServerIP { get; set; }
 
-        #region Properties
+        /// <summary>
+        /// Gets or sets the SendEOM.
+        /// </summary>
+        public string SendEOM { get; set; } = "</WAIT_EOM>" + (char)20;
 
-        public string ServerIP
-        {
-            get
-            {
-                return this.serverIP;
-            }
-
-            set
-            {
-                this.serverIP = value;
-            }
-        }
-
-        public string SendEOM
-        {
-            get
-            {
-                return this.sendEOM;
-            }
-
-            set
-            {
-                this.sendEOM = value;
-            }
-        }
-
+        /// <summary>
+        /// Gets or sets the ReceiveEOM.
+        /// </summary>
         public string ReceiveEOM
         {
             get
@@ -85,110 +65,49 @@ namespace dMobile.Bedrock
             }
         }
 
-        public int RecvBuffSize
-        {
-            get
-            {
-                return this.recvBuffSize;
-            }
+        /// <summary>
+        /// Gets or sets the RecvBuffSize.
+        /// </summary>
+        public int RecvBuffSize { get; set; } = 32768;
 
-            set
-            {
-                this.recvBuffSize = value;
-            }
-        }
+        /// <summary>
+        /// Gets or sets the ConnTotalRetries.
+        /// </summary>
+        public int ConnTotalRetries { get; set; } = 3;
 
-        public int ConnTotalRetries
-        {
-            get
-            {
-                return this.connTotalRetries;
-            }
+        /// <summary>
+        /// Gets or sets the SendTotalRetries.
+        /// </summary>
+        public int SendTotalRetries { get; set; } = 3;
 
-            set
-            {
-                this.connTotalRetries = value;
-            }
-        }
+        /// <summary>
+        /// Gets or sets the RecvTotalRetries.
+        /// </summary>
+        public int RecvTotalRetries { get; set; } = 3;
 
-        public int SendTotalRetries
-        {
-            get
-            {
-                return this.sendTotalRetries;
-            }
+        /// <summary>
+        /// Gets or sets the DefSocketPort.
+        /// </summary>
+        public int DefSocketPort { get; set; } = 10000;
 
-            set
-            {
-                this.sendTotalRetries = value;
-            }
-        }
+        /// <summary>
+        /// Gets or sets the BasePort.
+        /// </summary>
+        public int BasePort { get; set; } = 10000;
 
-        public int RecvTotalRetries
-        {
-            get
-            {
-                return this.recvTotalRetries;
-            }
+        /// <summary>
+        /// Gets or sets the MaxPorts.
+        /// </summary>
+        public int MaxPorts { get; set; } = 1;
 
-            set
-            {
-                this.recvTotalRetries = value;
-            }
-        }
+        /// <summary>
+        /// Gets or sets the SendTimeOutMilliseconds.
+        /// </summary>
+        public int SendTimeOutMilliseconds { get; set; } = 4101;
 
-        public int DefSocketPort
-        {
-            get
-            {
-                return this.defPort;
-            }
-
-            set
-            {
-                this.defPort = value;
-            }
-        }
-
-        public int BasePort
-        {
-            get
-            {
-                return this.basePort;
-            }
-
-            set
-            {
-                this.basePort = value;
-            }
-        }
-
-        public int MaxPorts
-        {
-            get
-            {
-                return this.maxPorts;
-            }
-
-            set
-            {
-                this.maxPorts = value;
-            }
-        }
-
-        public int SendTimeOutMilliseconds
-        {
-            get
-            {
-                return this.sendTimeOutMilliseconds;
-            }
-
-            set
-            {
-                this.sendTimeOutMilliseconds = value;
-            }
-        }
-
+        /// <summary>
+        /// Gets or sets the ReceiveTimeOutMilliseconds.
+        /// </summary>
         public int ReceiveTimeOutMilliseconds
         {
             get
@@ -202,28 +121,15 @@ namespace dMobile.Bedrock
             }
         }
 
-        private SysEnvironment SysEnv
-        {
-            get
-            {
-                return this.sysEnv;
-            }
-
-            set
-            {
-                this.sysEnv = value;
-            }
-        }
-
-        #endregion
-
-        #region Public Members
+        /// <summary>
+        /// Gets or sets the SysEnv.
+        /// </summary>
+        private SysEnvironment SysEnv { get; set; } = SysEnvironment.GetInstance();
 
         /// <summary>
-        /// Create and return a connected socket object
+        /// Create and return a connected socket object.
         /// </summary>
-        /// <returns></returns>
-        /// <remarks></remarks>
+        /// <returns><see cref="Socket"/> Connect socket instance or null.</returns>
         public Socket Connect()
         {
             Socket socket = null;
@@ -237,7 +143,6 @@ namespace dMobile.Bedrock
                 {
                     if (this.OnSysSocketStatusOut != null)
                     {
-                        // TODO: Resource strings
                         sockEventArgs.StatusOutMsg = string.Format("IP address {0}", this.ServerIP);
                         this.OnSysSocketStatusOut(this, sockEventArgs);
                     }
@@ -248,7 +153,6 @@ namespace dMobile.Bedrock
 
                     if (this.OnSysSocketStatusOut != null)
                     {
-                        // TODO: Resource strings
                         sockEventArgs.StatusOutMsg = string.Format("Connection attempt {0} port {1}.", attempt, port);
                         this.OnSysSocketStatusOut(this, sockEventArgs);
                     }
@@ -261,7 +165,6 @@ namespace dMobile.Bedrock
 
                         if (this.OnSysSocketStatusOut != null)
                         {
-                            // TODO: Resource strings
                             sockEventArgs.StatusOutMsg = "Connection successful.";
                             this.OnSysSocketStatusOut(this, sockEventArgs);
                         }
@@ -271,7 +174,6 @@ namespace dMobile.Bedrock
                     {
                         if (this.OnSysSocketStatusOut != null)
                         {
-                            // TODO: Resource strings
                             sockEventArgs.StatusOutMsg = string.Format("Connection attempt failed on port {0}.", port);
                             this.OnSysSocketStatusOut(this, sockEventArgs);
                         }
@@ -286,23 +188,22 @@ namespace dMobile.Bedrock
                     else
                     {
                         // Dim SysEnv As SysEnvironment = SysEnvironment.GetInstance()
-                        // socket.SetSocketOption(SocketOptionLevel.Tcp, SocketOptionName.SendTimeout, 
+                        // socket.SetSocketOption(SocketOptionLevel.Tcp, SocketOptionName.SendTimeout,
                         // SysEnv.SysSocketInstance.iSendTimeOutMilliseconds)
-                        // RaiseEvent OnSysSocketStatusOut(Me, EventArgs.Empty, "Settting Send Timeout")
-                        // socket.SetSocketOption(SocketOptionLevel.Tcp, SocketOptionName.ReceiveTimeout, 
+                        // RaiseEvent OnSysSocketStatusOut(Me, EventArgs.Empty, "Setting Send Timeout")
+                        // socket.SetSocketOption(SocketOptionLevel.Tcp, SocketOptionName.ReceiveTimeout,
                         // SysEnv.SysSocketInstance.iReceiveTimeOutMilliseconds)
-                        // RaiseEvent OnSysSocketStatusOut(Me, EventArgs.Empty, "Settting Send Timeout")
+                        // RaiseEvent OnSysSocketStatusOut(Me, EventArgs.Empty, "Setting Send Timeout")
                         break;
                     }
                 }
-                catch (System.Net.Sockets.SocketException ex)
+                catch (SocketException ex)
                 {
                     if (ex.ErrorCode == 10060)
                     {
                         exConn = ex;
                         if (this.OnSysSocketStatusOut != null)
                         {
-                            // TODO: Resource strings
                             sockEventArgs.StatusOutMsg = "Connection attempt timed out.";
 
                             this.OnSysSocketStatusOut(this, sockEventArgs);
@@ -321,7 +222,6 @@ namespace dMobile.Bedrock
                         exConn = ex;
                         if (this.OnSysSocketStatusOut != null)
                         {
-                            // TODO: Resource strings
                             sockEventArgs.StatusOutMsg = "Connection attempt refused.";
                             this.OnSysSocketStatusOut(this, sockEventArgs);
                         }
@@ -341,21 +241,18 @@ namespace dMobile.Bedrock
                         // Raised multiple events to keep message size down
                         if (this.OnSysSocketStatusOut != null)
                         {
-                            // TODO: Resource strings
                             sockEventArgs.StatusOutMsg = "Socket exception occurred.";
                             this.OnSysSocketStatusOut(this, sockEventArgs);
                         }
 
                         if (this.OnSysSocketStatusOut != null)
                         {
-                            // TODO: Resource strings
                             sockEventArgs.StatusOutMsg = string.Format("Code {0}.", ex.ErrorCode);
                             this.OnSysSocketStatusOut(this, sockEventArgs);
                         }
 
                         if (this.OnSysSocketStatusOut != null)
                         {
-                            // TODO: Resource strings
                             sockEventArgs.StatusOutMsg = "Msg " + ex.Message;
                             this.OnSysSocketStatusOut(this, sockEventArgs);
                         }
@@ -374,29 +271,26 @@ namespace dMobile.Bedrock
         }
 
         /// <summary>
-        /// Create and return a connected socket object
+        /// Create and return a connected socket object.
         /// </summary>
-        /// <returns></returns>
-        /// <remarks></remarks>
+        /// <returns>.</returns>
         public Socket ConnectWithHostEntry()
         {
             Socket socket = null;
-            IPHostEntry ipHostEntry = null;
             SocketException exConn = null;
             SysSocketEventArgs sockEventArgs = new SysSocketEventArgs();
 
             // Get host related information.
-            ipHostEntry = System.Net.Dns.GetHostEntry(this.ServerIP);
+            IPHostEntry ipHostEntry = Dns.GetHostEntry(this.ServerIP);
 
             if (this.OnSysSocketStatusOut != null)
             {
-                // TODO: Resource Strings
                 sockEventArgs.StatusOutMsg = "Getting IP host entry";
                 this.OnSysSocketStatusOut(this, sockEventArgs);
             }
 
             // Loop through the AddressList to obtain the supported AddressFamily. This is to avoid
-            // an exception that occurs when the host host IP Address is not compatible with the 
+            // an exception that occurs when the host host IP Address is not compatible with the
             // address family (typical in the IPv6 case).
             IPAddress ipAddress = null;
             int port = this.DefSocketPort;
@@ -410,7 +304,6 @@ namespace dMobile.Bedrock
                         ipAddress = ipAddressLoopVariable;
                         if (this.OnSysSocketStatusOut != null)
                         {
-                            // TODO: Resource Strings
                             sockEventArgs.StatusOutMsg = string.Format("IP address {0} ", ipAddress.ToString());
                             this.OnSysSocketStatusOut(this, sockEventArgs);
                         }
@@ -421,7 +314,6 @@ namespace dMobile.Bedrock
 
                         if (this.OnSysSocketStatusOut != null)
                         {
-                            // TODO: Resource Strings
                             sockEventArgs.StatusOutMsg = string.Format("Connection attempt {0} port {1}.", attempt, port);
                             this.OnSysSocketStatusOut(this, sockEventArgs);
                         }
@@ -433,7 +325,6 @@ namespace dMobile.Bedrock
                             socket = tempSocket;
                             if (this.OnSysSocketStatusOut != null)
                             {
-                                // TODO: Resource Strings
                                 sockEventArgs.StatusOutMsg = "Connection successful.";
                                 this.OnSysSocketStatusOut(this, sockEventArgs);
                             }
@@ -444,7 +335,6 @@ namespace dMobile.Bedrock
                     {
                         if (this.OnSysSocketStatusOut != null)
                         {
-                            // TODO: Resource Strings
                             sockEventArgs.StatusOutMsg = string.Format("Connection attempt failed on port {0}.", port);
                             this.OnSysSocketStatusOut(this, sockEventArgs);
                         }
@@ -460,14 +350,14 @@ namespace dMobile.Bedrock
                         // Dim SysEnv As SysEnvironment = SysEnvironment.GetInstance()
                         // socket.SetSocketOption(SocketOptionLevel.Tcp, SocketOptionName.SendTimeout,
                         // SysEnv.SysSocketInstance.iSendTimeOutMilliseconds)
-                        // RaiseEvent StatusOut(Me, EventArgs.Empty, "Settting Send Timeout")
-                        // socket.SetSocketOption(SocketOptionLevel.Tcp, SocketOptionName.ReceiveTimeout, 
+                        // RaiseEvent StatusOut(Me, EventArgs.Empty, "Setting Send Timeout")
+                        // socket.SetSocketOption(SocketOptionLevel.Tcp, SocketOptionName.ReceiveTimeout,
                         // SysEnv.SysSocketInstance.iReceiveTimeOutMilliseconds)
-                        // RaiseEvent StatusOut(Me, EventArgs.Empty, "Settting Send Timeout")
+                        // RaiseEvent StatusOut(Me, EventArgs.Empty, "Setting Send Timeout")
                         break;
                     }
                 }
-                catch (System.Net.Sockets.SocketException ex)
+                catch (SocketException ex)
                 {
                     if (ex.ErrorCode == 10060)
                     {
@@ -475,7 +365,6 @@ namespace dMobile.Bedrock
 
                         if (this.OnSysSocketStatusOut != null)
                         {
-                            // TODO: Resource Strings
                             sockEventArgs.StatusOutMsg = "Connection attempt timed out.";
                             this.OnSysSocketStatusOut(this, sockEventArgs);
                         }
@@ -495,7 +384,6 @@ namespace dMobile.Bedrock
 
                         if (this.OnSysSocketStatusOut != null)
                         {
-                            // TODO: Resource Strings
                             sockEventArgs.StatusOutMsg = "Connection attempt refused.";
                             this.OnSysSocketStatusOut(this, sockEventArgs);
                         }
@@ -516,21 +404,18 @@ namespace dMobile.Bedrock
                         // Raised multiple events to keep message size down
                         if (this.OnSysSocketStatusOut != null)
                         {
-                            // TODO: Resource Strings
                             sockEventArgs.StatusOutMsg = "Socket exception occurred.";
                             this.OnSysSocketStatusOut(this, sockEventArgs);
                         }
 
                         if (this.OnSysSocketStatusOut != null)
                         {
-                            // TODO: Resource Strings
                             sockEventArgs.StatusOutMsg = string.Format("Code {0}.", ex.ErrorCode);
                             this.OnSysSocketStatusOut(this, sockEventArgs);
                         }
 
                         if (this.OnSysSocketStatusOut != null)
                         {
-                            // TODO: Resource Strings
                             sockEventArgs.StatusOutMsg = "Msg " + ex.Message;
                             this.OnSysSocketStatusOut(this, sockEventArgs);
                         }
@@ -549,12 +434,11 @@ namespace dMobile.Bedrock
         }
 
         /// <summary>
-        /// Send data out via a socket
+        /// Send data out via a socket.
         /// </summary>
-        /// <param name="socket"></param>
-        /// <param name="request"></param>
-        /// <returns>Total number of bytes successfully sent</returns>
-        /// <remarks></remarks>
+        /// <param name="socket">.</param>
+        /// <param name="request">.</param>
+        /// <returns>Total number of bytes successfully sent.</returns>
         public int SendRequest(Socket socket, string request)
         {
             int attempt = 1;
@@ -570,14 +454,12 @@ namespace dMobile.Bedrock
 
             if (this.OnSysSocketStatusOut != null)
             {
-                // TODO: Resource strings
                 sysSocketEventArgs.StatusOutMsg = "Sending request.";
                 this.OnSysSocketStatusOut(this, sysSocketEventArgs);
             }
 
             if (this.OnSysSocketStatusOut != null)
             {
-                // TODO: Resource strings
                 sysSocketEventArgs.StatusOutMsg = string.Format("Bytes to send {0} ", totalBytes2Send.Length);
                 this.OnSysSocketStatusOut(this, sysSocketEventArgs);
             }
@@ -589,7 +471,6 @@ namespace dMobile.Bedrock
                 {
                     if (this.OnSysSocketStatusOut != null)
                     {
-                        // TODO: Resource strings
                         sysSocketEventArgs.StatusOutMsg = string.Format("Send attempt {0} of {1} ", attempt, this.SendTotalRetries);
                         this.OnSysSocketStatusOut(this, sysSocketEventArgs);
                     }
@@ -602,7 +483,6 @@ namespace dMobile.Bedrock
 
                             if (this.OnSysSocketStatusOut != null)
                             {
-                                // TODO: Resource strings
                                 sysSocketEventArgs.StatusOutMsg = string.Format("Sending bytes {0} ", bytesRemaining2BeSent);
                                 this.OnSysSocketStatusOut(this, sysSocketEventArgs);
                             }
@@ -613,7 +493,6 @@ namespace dMobile.Bedrock
 
                             if (this.OnSysSocketStatusOut != null)
                             {
-                                // TODO: Resource strings
                                 sysSocketEventArgs.StatusOutMsg = string.Format("Bytes sent {0} ", bytesSent);
                                 this.OnSysSocketStatusOut(this, sysSocketEventArgs);
                             }
@@ -624,7 +503,6 @@ namespace dMobile.Bedrock
 
                             if (this.OnSysSocketStatusOut != null)
                             {
-                                // TODO: Resource strings
                                 sysSocketEventArgs.StatusOutMsg = string.Format("Bytes remaining {0} ", bytesRemaining2BeSent);
                                 this.OnSysSocketStatusOut(this, sysSocketEventArgs);
                             }
@@ -640,7 +518,6 @@ namespace dMobile.Bedrock
 
                     if (this.OnSysSocketStatusOut != null)
                     {
-                        // TODO: Resource strings
                         sysSocketEventArgs.StatusOutMsg = "Request sent.";
                         this.OnSysSocketStatusOut(this, sysSocketEventArgs);
                     }
@@ -650,21 +527,18 @@ namespace dMobile.Bedrock
                     // Raised multiple events to keep message size down
                     if (this.OnSysSocketStatusOut != null)
                     {
-                        // TODO: Resource strings
                         sysSocketEventArgs.StatusOutMsg = "Socket exception occurred.";
                         this.OnSysSocketStatusOut(this, sysSocketEventArgs);
                     }
 
                     if (this.OnSysSocketStatusOut != null)
                     {
-                        // TODO: Resource strings
                         sysSocketEventArgs.StatusOutMsg = string.Format("Code {0}", ex.ErrorCode);
                         this.OnSysSocketStatusOut(this, sysSocketEventArgs);
                     }
 
                     if (this.OnSysSocketStatusOut != null)
                     {
-                        // TODO: Resource strings
                         sysSocketEventArgs.StatusOutMsg = "Msg " + ex.Message;
                         this.OnSysSocketStatusOut(this, sysSocketEventArgs);
                     }
@@ -684,7 +558,6 @@ namespace dMobile.Bedrock
                     {
                         if (this.OnSysSocketStatusOut != null)
                         {
-                            // TODO: Resource strings
                             sysSocketEventArgs.StatusOutMsg = "Total send attempts exceeded.";
                             this.OnSysSocketStatusOut(this, sysSocketEventArgs);
                         }
@@ -700,11 +573,10 @@ namespace dMobile.Bedrock
         }
 
         /// <summary>
-        /// Read data from a socket
+        /// Read data from a socket.
         /// </summary>
-        /// <param name="socket"></param>
-        /// <returns>A list of bytes from the socket</returns>
-        /// <remarks></remarks>
+        /// <param name="socket">.</param>
+        /// <returns>A list of bytes from the socket.</returns>
         public List<byte> ReceiveResponse(Socket socket)
         {
             int bytesReceived = default(int);
@@ -722,7 +594,6 @@ namespace dMobile.Bedrock
                 {
                     if (this.OnSysSocketStatusOut != null)
                     {
-                        // TODO: Resource strings
                         sysSocketEventArgs.StatusOutMsg = string.Format("Receive attempt {0} of {1} ", attempt, this.RecvTotalRetries);
                         this.OnSysSocketStatusOut(this, sysSocketEventArgs);
                     }
@@ -735,7 +606,6 @@ namespace dMobile.Bedrock
 
                             if (this.OnSysSocketStatusOut != null)
                             {
-                                // TODO: Resource strings
                                 sysSocketEventArgs.StatusOutMsg = string.Format("Received {0} bytes", bytesReceived);
                                 this.OnSysSocketStatusOut(this, sysSocketEventArgs);
                             }
@@ -753,21 +623,18 @@ namespace dMobile.Bedrock
                         // Raised multiple events to keep message size down
                         if (this.OnSysSocketStatusOut != null)
                         {
-                            // TODO: Resource strings
                             sysSocketEventArgs.StatusOutMsg = "Socket exception occurred.";
                             this.OnSysSocketStatusOut(this, sysSocketEventArgs);
                         }
 
                         if (this.OnSysSocketStatusOut != null)
                         {
-                            // TODO: Resource strings
                             sysSocketEventArgs.StatusOutMsg = string.Format("Code {0}", ex.ErrorCode);
                             this.OnSysSocketStatusOut(this, sysSocketEventArgs);
                         }
 
                         if (this.OnSysSocketStatusOut != null)
                         {
-                            // TODO: Resource strings
                             sysSocketEventArgs.StatusOutMsg = "Msg " + ex.Message;
                             this.OnSysSocketStatusOut(this, sysSocketEventArgs);
                         }
@@ -783,7 +650,6 @@ namespace dMobile.Bedrock
                         {
                             if (this.OnSysSocketStatusOut != null)
                             {
-                                // TODO: Resource strings
                                 sysSocketEventArgs.StatusOutMsg = "Total receive attempts exceeded.";
                                 this.OnSysSocketStatusOut(this, sysSocketEventArgs);
                             }
@@ -810,7 +676,6 @@ namespace dMobile.Bedrock
                     {
                         if (this.OnSysSocketStatusOut != null)
                         {
-                            // TODO: Resource strings
                             sysSocketEventArgs.StatusOutMsg = "EOM received.";
                             this.OnSysSocketStatusOut(this, sysSocketEventArgs);
                         }
@@ -840,20 +705,22 @@ namespace dMobile.Bedrock
             return page;
         }
 
-        #region ISysSocketEventPublisher Members
-
+        /// <summary>
+        /// The RegSockListenerStatusOut.
+        /// </summary>
+        /// <param name="sysSocketEventListener">The sysSocketEventListener<see cref="ISysSocketEventListener"/>.</param>
         public void RegSockListenerStatusOut(ISysSocketEventListener sysSocketEventListener)
         {
             this.OnSysSocketStatusOut += new OnSysSocketStatusOutEventHandler(sysSocketEventListener.OnSysSocketStatusOut);
         }
 
+        /// <summary>
+        /// The UnregSockListenerStatusOut.
+        /// </summary>
+        /// <param name="sysSocketEventListener">The sysSocketEventListener<see cref="ISysSocketEventListener"/>.</param>
         public void UnregSockListenerStatusOut(ISysSocketEventListener sysSocketEventListener)
         {
             this.OnSysSocketStatusOut -= new OnSysSocketStatusOutEventHandler(sysSocketEventListener.OnSysSocketStatusOut);
         }
-
-        #endregion
-
-        #endregion
     }
 }

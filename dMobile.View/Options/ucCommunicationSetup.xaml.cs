@@ -1,10 +1,9 @@
-﻿namespace dMobile.View.Options
+﻿// <copyright file="ucCommunicationSetup.xaml.cs" company="InterSect Business Systems Inc">
+// Copyright (c) InterSect Business Systems Inc. All rights reserved.
+// </copyright>
+
+namespace dMobile.View.Options
 {
-    using Android.Views;
-    using dMobile.Bedrock;
-    using dMobile.Resources.Enums;
-    using dMobile.View.CustomPages;
-    using dMobile.View.Forms;
     using System;
     using System.Collections.Generic;
     using System.Collections.ObjectModel;
@@ -13,30 +12,29 @@
     using System.Threading.Tasks;
     using System.Xml;
     using System.Xml.Linq;
+    using Android.Views;
+    using dMobile.Bedrock;
+    using dMobile.Resources.Enums;
+    using dMobile.View.CustomPages;
+    using dMobile.View.Forms;
     using Xamarin.Forms;
     using Xamarin.Forms.Xaml;
+    using Resource = dMobile.Resources.Properties.Resources;
 
     [XamlCompilation(XamlCompilationOptions.Compile)]
     public partial class ucCommunicationSetup : DMobileContentPage, IAppArea, ISysSocketEventListener
     {
-        private bool isControlLoaded = false;
-        private bool isChangesMade = false;
-        private int minIPAdress = 0;
-        private int maxIPAdress = 255;
-        private int minPort = 0;
-        private int maxPort = 20000;
-        private int maxNumberOfPorts = 100;
-        private SysEnvironment sysEnv;
-        private SysSocket sysSock;
         private ObservableCollection<string> itemsList;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ucCommunicationSetup"/> class.
+        /// </summary>
         public ucCommunicationSetup()
         {
-            InitializeComponent();
+            this.InitializeComponent();
 
             this.Title = this.GetControlDescription();
 
-            // TODO: Resource strings
             this.lblMobileServerIP.Text = "Mobile Server IP Address";
             this.lblBasePort.Text = "Base Port";
             this.lblMaxPorts.Text = "Max Ports";
@@ -48,12 +46,12 @@
             {
                 this.SysEnv = SysEnvironment.GetInstance();
                 this.SysSock = new SysSocket();
-                this.ItemsList = new ObservableCollection<string>();
+                this.ExtraInfoItems = new ObservableCollection<string>();
             }
         }
 
         /// <summary>
-        /// The OnAppearing
+        /// The OnAppearing.
         /// </summary>
         protected override async void OnAppearing()
         {
@@ -61,8 +59,7 @@
 
             MessagingCenter.Subscribe<string>(this, EventTypes.OnKeyUp.ToString(), async (keyPressed) =>
             {
-                // TODO: Verify keycodes
-                Enum.TryParse(keyPressed, out Keycode keycode);
+                _ = Enum.TryParse(keyPressed, out Keycode keycode);
 
                 if (keycode == Keycode.Enter || keycode == Keycode.F1)
                 {
@@ -79,13 +76,12 @@
             }
             catch (Exception ex)
             {
-                // TODO: Logging
                 Console.WriteLine("ucCommunicationSetup_GotFocus threw an error" + ex);
             }
         }
 
         /// <summary>
-        /// The OnDisappearing
+        /// The OnDisappearing.
         /// </summary>
         protected override void OnDisappearing()
         {
@@ -98,7 +94,7 @@
         {
             Device.BeginInvokeOnMainThread(async () =>
             {
-                base.OnBackButtonPressed();
+                _ = base.OnBackButtonPressed();
 
                 if (await this.SaveChanges())
                 {
@@ -113,59 +109,15 @@
             return true;
         }
 
-        private SysSocket SysSock
-        {
-            get
-            {
-                return this.sysSock;
-            }
+        private SysSocket SysSock { get; set; }
 
-            set
-            {
-                this.sysSock = value;
-            }
-        }
+        private bool IsControlLoaded { get; set; } = false;
 
-        private bool IsControlLoaded
-        {
-            get
-            {
-                return this.isControlLoaded;
-            }
+        private bool IsChangesMade { get; set; } = false;
 
-            set
-            {
-                this.isControlLoaded = value;
-            }
-        }
+        private SysEnvironment SysEnv { get; set; }
 
-        private bool IsChangesMade
-        {
-            get
-            {
-                return this.isChangesMade;
-            }
-
-            set
-            {
-                this.isChangesMade = value;
-            }
-        }
-
-        private SysEnvironment SysEnv
-        {
-            get
-            {
-                return this.sysEnv;
-            }
-
-            set
-            {
-                this.sysEnv = value;
-            }
-        }
-
-        public ObservableCollection<string> ItemsList
+        public ObservableCollection<string> ExtraInfoItems
         {
             get
             {
@@ -177,45 +129,15 @@
             }
         }
 
-        private int MinIPAddress
-        {
-            get
-            {
-                return this.minIPAdress;
-            }
-        }
+        private int MinIPAddress { get; } = 0;
 
-        private int MaxIPAddress
-        {
-            get
-            {
-                return this.maxIPAdress;
-            }
-        }
+        private int MaxIPAddress { get; } = 255;
 
-        private int MinPort
-        {
-            get
-            {
-                return this.minPort;
-            }
-        }
+        private int MinPort { get; } = 0;
 
-        private int MaxPort
-        {
-            get
-            {
-                return this.maxPort;
-            }
-        }
+        private int MaxPort { get; } = 20000;
 
-        private int MaxNumberOfPorts
-        {
-            get
-            {
-                return this.maxNumberOfPorts;
-            }
-        }
+        private int MaxNumberOfPorts { get; } = 100;
 
         /// <summary>
         /// Unregister the bar code scan event handler and disable the scanner.
@@ -240,7 +162,6 @@
         /// <remarks></remarks>
         public string GetControlDescription()
         {
-            // TODO: Resource strings
             return "Communication Setup";
         }
 
@@ -257,18 +178,22 @@
             {
                 int maxPort = Convert.ToInt32(int.Parse(this.updnBasePort.Text) + int.Parse(this.updnMaxPorts.Text) - 1);
 
-                isReadyToSave = isReadyToSave && (int.Parse(this.updnBasePort.Text) >= this.MinPort && int.Parse(this.updnBasePort.Text) <= this.MaxPort);
-                isReadyToSave = isReadyToSave && (int.Parse(this.updnMaxPorts.Text) >= this.MinPort && int.Parse(this.updnMaxPorts.Text) <= this.MaxNumberOfPorts);
-                isReadyToSave = isReadyToSave && (int.Parse(this.updnIP1.Text) >= this.MinIPAddress && int.Parse(this.updnIP1.Text) <= this.MaxIPAddress);
-                isReadyToSave = isReadyToSave && (int.Parse(this.updnIP2.Text) >= this.MinIPAddress && int.Parse(this.updnIP2.Text) <= this.MaxIPAddress);
-                isReadyToSave = isReadyToSave && (int.Parse(this.updnIP3.Text) >= this.MinIPAddress && int.Parse(this.updnIP3.Text) <= this.MaxIPAddress);
-                isReadyToSave = isReadyToSave && (int.Parse(this.updnIP4.Text) >= this.MinIPAddress && int.Parse(this.updnIP4.Text) <= this.MaxIPAddress);
-                isReadyToSave = isReadyToSave && (int.Parse(this.updnDefaultPort.Text) >= int.Parse(this.updnBasePort.Text) && int.Parse(this.updnDefaultPort.Text) <= this.MaxPort);
+                isReadyToSave = isReadyToSave && int.Parse(this.updnBasePort.Text) >= this.MinPort && int.Parse(this.updnBasePort.Text) <= this.MaxPort;
+                isReadyToSave = isReadyToSave && int.Parse(this.updnMaxPorts.Text) >= this.MinPort && int.Parse(this.updnMaxPorts.Text) <= this.MaxNumberOfPorts;
+                isReadyToSave = isReadyToSave && int.Parse(this.updnIP1.Text) >= this.MinIPAddress && int.Parse(this.updnIP1.Text) <= this.MaxIPAddress;
+                isReadyToSave = isReadyToSave && int.Parse(this.updnIP2.Text) >= this.MinIPAddress && int.Parse(this.updnIP2.Text) <= this.MaxIPAddress;
+                isReadyToSave = isReadyToSave && int.Parse(this.updnIP3.Text) >= this.MinIPAddress && int.Parse(this.updnIP3.Text) <= this.MaxIPAddress;
+                isReadyToSave = isReadyToSave && int.Parse(this.updnIP4.Text) >= this.MinIPAddress && int.Parse(this.updnIP4.Text) <= this.MaxIPAddress;
+                isReadyToSave = isReadyToSave && int.Parse(this.updnDefaultPort.Text) >= int.Parse(this.updnBasePort.Text) && int.Parse(this.updnDefaultPort.Text) <= this.MaxPort;
             }
-            catch (Exceptions.MessageOnlyException ex)
+            catch (MessageOnlyException ex)
             {
                 isReadyToSave = false;
-                ex.Show(SysCommon.ActSubTypes.CommunicationSetup);
+                await Device.InvokeOnMainThreadAsync(async () =>
+                    await Application.Current.MainPage.DisplayAlert(
+                        this.GetControlDescription(),
+                        ex.Message,
+                        Resource.OK));
             }
             catch (Exception ex)
             {
@@ -277,7 +202,7 @@
                 await Device.InvokeOnMainThreadAsync(async () =>
                 {
                     FormErrorReport errorReport = new FormErrorReport(SysCommon.ActSubTypes.CommunicationSetup, /*this,*/ ex);
-                    await errorReport.ShowDialog();
+                    _ = await errorReport.ShowDialog();
                 });
             }
 
@@ -292,18 +217,18 @@
         public async Task<bool> SaveChanges()
         {
             bool isSaveComplete = false;
-            
+
             try
             {
                 if (await this.IsReadyToSave())
                 {
-                    this.SysEnv.CommSetup.iHostIPAddressComponent1 = int.Parse(this.updnIP1.Text);
-                    this.SysEnv.CommSetup.iHostIPAddressComponent2 = int.Parse(this.updnIP2.Text);
-                    this.SysEnv.CommSetup.iHostIPAddressComponent3 = int.Parse(this.updnIP3.Text);
-                    this.SysEnv.CommSetup.iHostIPAddressComponent4 = int.Parse(this.updnIP4.Text);
-                    this.SysEnv.CommSetup.iBaseSocketPort = int.Parse(this.updnBasePort.Text);
-                    this.SysEnv.CommSetup.iDefaultSocketPort = int.Parse(this.updnDefaultPort.Text);
-                    this.SysEnv.CommSetup.iMaxSocketPorts = int.Parse(this.updnMaxPorts.Text);
+                    this.SysEnv.CommSetup.HostIPAddressComponent1 = int.Parse(this.updnIP1.Text);
+                    this.SysEnv.CommSetup.HostIPAddressComponent2 = int.Parse(this.updnIP2.Text);
+                    this.SysEnv.CommSetup.HostIPAddressComponent3 = int.Parse(this.updnIP3.Text);
+                    this.SysEnv.CommSetup.HostIPAddressComponent4 = int.Parse(this.updnIP4.Text);
+                    this.SysEnv.CommSetup.BaseSocketPort = int.Parse(this.updnBasePort.Text);
+                    this.SysEnv.CommSetup.DefaultSocketPort = int.Parse(this.updnDefaultPort.Text);
+                    this.SysEnv.CommSetup.MaxSocketPorts = int.Parse(this.updnMaxPorts.Text);
 
                     CommunicationSetup tempCommSetup = this.SysEnv.CommSetup;
                     isSaveComplete = this.SysEnv.CommSetup.SaveData(ref tempCommSetup);
@@ -312,21 +237,24 @@
                 }
                 else
                 {
-                    // TODO: Resource strings
-                    throw new Exceptions.MessageOnlyException("Data failed validation. Check your data.");
+                    throw new MessageOnlyException("Data failed validation. Check your data.");
                 }
             }
-            catch (Exceptions.MessageOnlyException ex)
+            catch (MessageOnlyException ex)
             {
                 isSaveComplete = false;
-                ex.Show(/*this,*/ SysCommon.ActSubTypes.CommunicationSetup);
+                await Device.InvokeOnMainThreadAsync(async () =>
+                    await Application.Current.MainPage.DisplayAlert(
+                        this.GetControlDescription(),
+                        ex.Message,
+                        Resource.OK));
             }
             catch (Exception ex)
             {
                 await Device.InvokeOnMainThreadAsync(async () =>
                 {
                     FormErrorReport errorReport = new FormErrorReport(SysCommon.ActSubTypes.CommunicationSetup, /*this,*/ ex);
-                    await errorReport.ShowDialog();
+                    _ = await errorReport.ShowDialog();
                 });
             }
 
@@ -360,10 +288,14 @@
                     await this.ScannerDisable();
                 }
             }
-            catch (Exceptions.MessageOnlyException ex)
+            catch (MessageOnlyException ex)
             {
                 isReadyToClose = false;
-                ex.Show(/*this,*/ SysCommon.ActSubTypes.CommunicationSetup);
+                await Device.InvokeOnMainThreadAsync(async () =>
+                    await Application.Current.MainPage.DisplayAlert(
+                        this.GetControlDescription(),
+                        ex.Message,
+                        Resource.OK));
             }
             catch (Exception ex)
             {
@@ -371,15 +303,14 @@
                 // We do not want to get caught not being able to 'escape' the control.
                 isReadyToClose = true;
 
-                //using (FormErrorReport errRpt = new FormErrorReport(SysCommon.ActSubTypes.CommunicationSetup, this, ex))
-                //{
+                // using (FormErrorReport errRpt = new FormErrorReport(SysCommon.ActSubTypes.CommunicationSetup, this, ex))
+                // {
                 //    errRpt.ShowDialog();
-                //}
-
+                // }
                 await Device.InvokeOnMainThreadAsync(async () =>
                 {
                     FormErrorReport errorReport = new FormErrorReport(SysCommon.ActSubTypes.CommunicationSetup, /*this,*/ ex);
-                    await errorReport.ShowDialog();
+                    _ = await errorReport.ShowDialog();
                 });
             }
 
@@ -415,24 +346,27 @@
                     this.IsChangesMade = false;
                 }
             }
-            catch (Exceptions.MessageOnlyException ex)
+            catch (MessageOnlyException ex)
             {
                 cancelChanges = false;
-                ex.Show(/*this,*/ SysCommon.ActSubTypes.CommunicationSetup);
+                await Device.InvokeOnMainThreadAsync(async () =>
+                    await Application.Current.MainPage.DisplayAlert(
+                        this.GetControlDescription(),
+                        ex.Message,
+                        Resource.OK));
             }
             catch (Exception ex)
             {
                 cancelChanges = true;
 
-                //using (FormErrorReport errorReport = new FormErrorReport(SysCommon.ActSubTypes.CommunicationSetup, this, ex))
-                //{
+                // using (FormErrorReport errorReport = new FormErrorReport(SysCommon.ActSubTypes.CommunicationSetup, this, ex))
+                // {
                 //    errorReport.ShowDialog();
-                //}
-
+                // }
                 await Device.InvokeOnMainThreadAsync(async () =>
                 {
                     FormErrorReport errorReport = new FormErrorReport(SysCommon.ActSubTypes.CommunicationSetup, /*this,*/ ex);
-                    await errorReport.ShowDialog();
+                    _ = await errorReport.ShowDialog();
                 });
             }
 
@@ -460,14 +394,17 @@
         /// <param name="sender"></param>
         /// <param name="e"></param>
         /// <remarks></remarks>
+/// <summary>
+///
+/// </summary>
+/// <param name="sender"></param>
+/// <param name="e"></param>
+/// <returns>A <see cref="Task"/> representing the result of the asynchronous operation.</returns>
         public async Task ucCommunicationSetup_GotFocus(object sender, EventArgs e)
         {
-            if (!SysEnvironment.GetInstance().IsApplicationExitInvoked)
-            {
-                this.LoadData();
-                this.IsControlLoaded = true;
-                this.updnIP1.Focus();
-            }
+            this.LoadData();
+            this.IsControlLoaded = true;
+            _ = this.updnIP1.Focus();
         }
 
         /// <summary>
@@ -483,107 +420,104 @@
             try
             {
                 // Socket Base Port
-                //if (sender == this.updnBasePort)
-                //{
-                if (true == (int.Parse(this.updnBasePort.Text) < this.MinPort || int.Parse(this.updnBasePort.Text) > this.MaxPort))
+                // if (sender == this.updnBasePort)
+                // {
+                if ((int.Parse(this.updnBasePort.Text) < this.MinPort || int.Parse(this.updnBasePort.Text) > this.MaxPort) == true)
                 {
                     e.Cancel = true;
-                    throw new Exceptions.MessageOnlyException(string.Format("Base port must be between {0} and {1}", this.MinPort, this.MaxPort));
+                    throw new MessageOnlyException(string.Format("Base port must be between {0} and {1}", this.MinPort, this.MaxPort));
                 }
-                //}
+                // }
 
                 // Socket Max Ports
-                //if (sender == this.updnMaxPorts)
-                //{
-                if (true == (int.Parse(this.updnMaxPorts.Text) < this.MinPort || int.Parse(this.updnMaxPorts.Text) > this.MaxNumberOfPorts))
+                // if (sender == this.updnMaxPorts)
+                // {
+                if ((int.Parse(this.updnMaxPorts.Text) < this.MinPort || int.Parse(this.updnMaxPorts.Text) > this.MaxNumberOfPorts) == true)
                 {
                     e.Cancel = true;
 
-                    // TODO: Resource strings
-                    throw new Exceptions.MessageOnlyException(string.Format("port must be between {0} and {1}", this.MinPort, this.MaxNumberOfPorts));
+                    throw new MessageOnlyException(string.Format("port must be between {0} and {1}", this.MinPort, this.MaxNumberOfPorts));
                 }
-                //}
+                // }
 
                 // IP Address Component 1
-                //if (sender == this.updnIP1)
-                //{
-                if (true == (int.Parse(this.updnIP1.Text) < this.MinIPAddress || int.Parse(this.updnIP1.Text) > this.MaxIPAddress))
+                // if (sender == this.updnIP1)
+                // {
+                if ((int.Parse(this.updnIP1.Text) < this.MinIPAddress || int.Parse(this.updnIP1.Text) > this.MaxIPAddress) == true)
                 {
                     e.Cancel = true;
 
-                    // TODO: Resource strings
-                    throw new Exceptions.MessageOnlyException(string.Format("IP address component must be between {0} and {1}", this.MinIPAddress, this.MaxIPAddress));
+                    throw new MessageOnlyException(string.Format("IP address component must be between {0} and {1}", this.MinIPAddress, this.MaxIPAddress));
                 }
-                //}
+                // }
 
                 // IP Address Component 2
-                //if (sender == this.updnIP2)
-                //{
-                if (true == (int.Parse(this.updnIP2.Text) < this.MinIPAddress || int.Parse(this.updnIP2.Text) > this.MaxIPAddress))
+                // if (sender == this.updnIP2)
+                // {
+                if ((int.Parse(this.updnIP2.Text) < this.MinIPAddress || int.Parse(this.updnIP2.Text) > this.MaxIPAddress) == true)
                 {
                     e.Cancel = true;
 
-                    // TODO: Resource strings
-                    throw new Exceptions.MessageOnlyException(string.Format("IP address component must be between {0} and {1}", this.MinIPAddress, this.MaxIPAddress));
+                    throw new MessageOnlyException(string.Format("IP address component must be between {0} and {1}", this.MinIPAddress, this.MaxIPAddress));
                 }
-                //}
+                // }
 
                 // IP Address Component 3
-                //if (sender == this.updnIP3)
-                //{
-                if (true == (int.Parse(this.updnIP3.Text) < this.MinIPAddress || int.Parse(this.updnIP3.Text) > this.MaxIPAddress))
+                // if (sender == this.updnIP3)
+                // {
+                if ((int.Parse(this.updnIP3.Text) < this.MinIPAddress || int.Parse(this.updnIP3.Text) > this.MaxIPAddress) == true)
                 {
                     e.Cancel = true;
 
-                    // TODO: Resource strings
-                    throw new Exceptions.MessageOnlyException(string.Format("IP address component must be between {0} and {1}", this.MinIPAddress, this.MaxIPAddress));
+                    throw new MessageOnlyException(string.Format("IP address component must be between {0} and {1}", this.MinIPAddress, this.MaxIPAddress));
                 }
-                //}
+                // }
 
                 // IP Address Component 4
-                //if (sender == this.updnIP4)
-                //{
-                if (true == (int.Parse(this.updnIP4.Text) < this.MinIPAddress || int.Parse(this.updnIP4.Text) > this.MaxIPAddress))
+                // if (sender == this.updnIP4)
+                // {
+                if ((int.Parse(this.updnIP4.Text) < this.MinIPAddress || int.Parse(this.updnIP4.Text) > this.MaxIPAddress) == true)
                 {
                     e.Cancel = true;
 
-                    // TODO: Resource strings
-                    throw new Exceptions.MessageOnlyException(string.Format("IP address component must be between {0} and {1}", this.MinIPAddress, this.MaxIPAddress));
+                    throw new MessageOnlyException(string.Format("IP address component must be between {0} and {1}", this.MinIPAddress, this.MaxIPAddress));
                 }
-                //}
+                // }
 
                 // Default Socket Port
-                //if (sender == this.updnDefaultPort)
-                //{
+                // if (sender == this.updnDefaultPort)
+                // {
                 int maxPort = (int)(int.Parse(this.updnBasePort.Text) + int.Parse(this.updnMaxPorts.Text) - 1);
 
-                if (true == (int.Parse(this.updnDefaultPort.Text) < int.Parse(this.updnBasePort.Text) || int.Parse(this.updnDefaultPort.Text) > this.MaxPort))
+                if ((int.Parse(this.updnDefaultPort.Text) < int.Parse(this.updnBasePort.Text) || int.Parse(this.updnDefaultPort.Text) > this.MaxPort) == true)
                 {
                     e.Cancel = true;
 
-                    // TODO: Resource strings
-                    throw new Exceptions.MessageOnlyException(string.Format("Default port must be between {0} and {1}", this.updnBasePort.Text, this.MaxPort));
+                    throw new MessageOnlyException(string.Format("Default port must be between {0} and {1}", this.updnBasePort.Text, this.MaxPort));
                 }
-                //}
+                // }
             }
-            catch (Exceptions.MessageOnlyException ex)
+            catch (MessageOnlyException ex)
             {
                 e.Cancel = true;
-                ex.Show(/*this,*/ SysCommon.ActSubTypes.CommunicationSetup);
+                _ = Device.InvokeOnMainThreadAsync(async () =>
+                      await Application.Current.MainPage.DisplayAlert(
+                          this.GetControlDescription(),
+                          ex.Message,
+                          Resource.OK));
             }
             catch (Exception ex)
             {
                 e.Cancel = false;
 
-                //using (FormErrorReport errRpt = new FormErrorReport(SysCommon.ActSubTypes.CommunicationSetup, this, ex))
-                //{
+                // using (FormErrorReport errRpt = new FormErrorReport(SysCommon.ActSubTypes.CommunicationSetup, this, ex))
+                // {
                 //    errRpt.ShowDialog();
-                //}
-
+                // }
                 Device.BeginInvokeOnMainThread(async () =>
                 {
                     FormErrorReport errorReport = new FormErrorReport(SysCommon.ActSubTypes.CommunicationSetup, /*this,*/ ex);
-                    await errorReport.ShowDialog();
+                    _ = await errorReport.ShowDialog();
                 });
             }
         }
@@ -603,21 +537,24 @@
                     this.IsChangesMade = true;
                 }
             }
-            catch (Exceptions.MessageOnlyException ex)
+            catch (MessageOnlyException ex)
             {
-                ex.Show(/*this,*/ SysCommon.ActSubTypes.CommunicationSetup);
+                _ = Device.InvokeOnMainThreadAsync(async () =>
+                      await Application.Current.MainPage.DisplayAlert(
+                          this.GetControlDescription(),
+                          ex.Message,
+                          Resource.OK));
             }
             catch (Exception ex)
             {
-                //using (FormErrorReport errRpt = new FormErrorReport(SysCommon.ActSubTypes.CommunicationSetup, this, ex))
-                //{
+                // using (FormErrorReport errRpt = new FormErrorReport(SysCommon.ActSubTypes.CommunicationSetup, this, ex))
+                // {
                 //    errRpt.ShowDialog();
-                //}
-
+                // }
                 Device.BeginInvokeOnMainThread(async () =>
                 {
                     FormErrorReport errorReport = new FormErrorReport(SysCommon.ActSubTypes.CommunicationSetup, /*this,*/ ex);
-                    await errorReport.ShowDialog();
+                    _ = await errorReport.ShowDialog();
                 });
             }
         }
@@ -632,7 +569,6 @@
         {
             // Needed to check if the enter key was pressed last, because it seems that
             // SelectNextControl causes a click event to fire if it is the next control
-
             ucCommunicationSetupAdvanced setupAdvanced = new ucCommunicationSetupAdvanced();
             await setupAdvanced.Show();
         }
@@ -651,8 +587,8 @@
             {
                 await this.Connect();
                 ucCommunicationSetupStatus status = new ucCommunicationSetupStatus();
-                status.ItemsList = this.ItemsList;
-                await status.ShowDialog();
+                status.ExtraInfoItems = this.ExtraInfoItems;
+                _ = await status.ShowDialog();
             }
         }
 
@@ -675,13 +611,13 @@
         {
             this.SysEnv.CommSetup = this.SysEnv.CommSetup.LoadData();
 
-            this.updnIP1.Text = this.SysEnv.CommSetup.iHostIPAddressComponent1.ToString();
-            this.updnIP2.Text = this.SysEnv.CommSetup.iHostIPAddressComponent2.ToString();
-            this.updnIP3.Text = this.SysEnv.CommSetup.iHostIPAddressComponent3.ToString();
-            this.updnIP4.Text = this.SysEnv.CommSetup.iHostIPAddressComponent4.ToString();
-            this.updnBasePort.Text = this.SysEnv.CommSetup.iBaseSocketPort.ToString();
-            this.updnDefaultPort.Text = this.SysEnv.CommSetup.iDefaultSocketPort.ToString();
-            this.updnMaxPorts.Text = this.SysEnv.CommSetup.iMaxSocketPorts.ToString();
+            this.updnIP1.Text = this.SysEnv.CommSetup.HostIPAddressComponent1.ToString();
+            this.updnIP2.Text = this.SysEnv.CommSetup.HostIPAddressComponent2.ToString();
+            this.updnIP3.Text = this.SysEnv.CommSetup.HostIPAddressComponent3.ToString();
+            this.updnIP4.Text = this.SysEnv.CommSetup.HostIPAddressComponent4.ToString();
+            this.updnBasePort.Text = this.SysEnv.CommSetup.BaseSocketPort.ToString();
+            this.updnDefaultPort.Text = this.SysEnv.CommSetup.DefaultSocketPort.ToString();
+            this.updnMaxPorts.Text = this.SysEnv.CommSetup.MaxSocketPorts.ToString();
         }
 
         /// <summary>
@@ -700,60 +636,49 @@
                 List<byte> bytRecvData;
                 string reqData = string.Empty;
 
-                this.ItemsList.Clear();
-                //this.lstCommMsg.ItemsSource = null;
+                this.ExtraInfoItems.Clear();
+                // this.lstCommMsg.ItemsSource = null;
+                this.SysEnv.SysSock.BasePort = this.SysEnv.CommSetup.BaseSocketPort;
 
-                this.SysEnv.SysSock.BasePort = this.SysEnv.CommSetup.iBaseSocketPort;
-
-                // TODO: Resource strings
                 this.AddCommMsg(this, EventArgs.Empty, string.Format("Base socket port: {0}", this.SysEnv.SysSock.BasePort));
 
-                this.SysEnv.SysSock.DefSocketPort = this.SysEnv.CommSetup.iDefaultSocketPort;
+                this.SysEnv.SysSock.DefSocketPort = this.SysEnv.CommSetup.DefaultSocketPort;
 
-                // TODO: Resource strings
                 this.AddCommMsg(this, EventArgs.Empty, string.Format("Default socket port: {0}", this.SysEnv.SysSock.DefSocketPort));
 
-                this.SysEnv.SysSock.MaxPorts = this.SysEnv.CommSetup.iMaxSocketPorts;
+                this.SysEnv.SysSock.MaxPorts = this.SysEnv.CommSetup.MaxSocketPorts;
 
-                // TODO: Resource strings
                 this.AddCommMsg(this, EventArgs.Empty, string.Format("Max socket port: {0}", this.SysEnv.SysSock.MaxPorts));
 
-                this.SysEnv.SysSock.ConnTotalRetries = this.SysEnv.CommSetup.iConnectionAttempts;
+                this.SysEnv.SysSock.ConnTotalRetries = this.SysEnv.CommSetup.ConnectionAttempts;
 
-                // TODO: Resource strings
                 this.AddCommMsg(this, EventArgs.Empty, string.Format("Connection retries: {0}", this.SysEnv.SysSock.ConnTotalRetries));
 
-                this.SysEnv.SysSock.SendTotalRetries = this.SysEnv.CommSetup.iSendAttempts;
+                this.SysEnv.SysSock.SendTotalRetries = this.SysEnv.CommSetup.SendAttempts;
 
-                // TODO: Resource strings
                 this.AddCommMsg(this, EventArgs.Empty, string.Format("Socket send retries: {0}", this.SysEnv.SysSock.SendTotalRetries));
 
-                this.SysEnv.SysSock.RecvTotalRetries = this.SysEnv.CommSetup.iReceiveAttempts;
+                this.SysEnv.SysSock.RecvTotalRetries = this.SysEnv.CommSetup.ReceiveAttempts;
 
-                // TODO: Resource strings
                 this.AddCommMsg(this, EventArgs.Empty, string.Format("Socket receive retries: {0}", this.SysEnv.SysSock.RecvTotalRetries));
 
-                this.SysEnv.SysSock.SendTimeOutMilliseconds = this.SysEnv.CommSetup.iSendTimeOutSeconds * 1000;
+                this.SysEnv.SysSock.SendTimeOutMilliseconds = this.SysEnv.CommSetup.SendTimeOutSeconds * 1000;
 
-                // TODO: Resource strings
-                this.AddCommMsg(this, EventArgs.Empty, string.Format("Send time out: {0} seconds.", this.SysEnv.CommSetup.iSendTimeOutSeconds));
+                this.AddCommMsg(this, EventArgs.Empty, string.Format("Send time out: {0} seconds.", this.SysEnv.CommSetup.SendTimeOutSeconds));
 
-                this.SysEnv.SysSock.ReceiveTimeOutMilliseconds = this.SysEnv.CommSetup.iReceiveTimeOutSeconds * 1000;
+                this.SysEnv.SysSock.ReceiveTimeOutMilliseconds = this.SysEnv.CommSetup.ReceiveTimeOutSeconds * 1000;
 
-                // TODO: Resource strings
-                this.AddCommMsg(this, EventArgs.Empty, string.Format("Receive time out: {0} seconds.", this.SysEnv.CommSetup.iReceiveTimeOutSeconds));
+                this.AddCommMsg(this, EventArgs.Empty, string.Format("Receive time out: {0} seconds.", this.SysEnv.CommSetup.ReceiveTimeOutSeconds));
 
-                this.SysEnv.SysSock.RecvBuffSize = this.SysEnv.CommSetup.iiReceiveBufferSize;
+                this.SysEnv.SysSock.RecvBuffSize = this.SysEnv.CommSetup.ReceiveBufferSize;
 
-                // TODO: Resource strings
                 this.AddCommMsg(this, EventArgs.Empty, string.Format("Receive buffer size: {0} ", this.SysEnv.SysSock.RecvBuffSize));
 
-                this.SysEnv.SysSock.ServerIP = this.SysEnv.CommSetup.iHostIPAddressComponent1
-                    + "." + this.SysEnv.CommSetup.iHostIPAddressComponent2 + "."
-                    + this.SysEnv.CommSetup.iHostIPAddressComponent3 + "."
-                    + this.SysEnv.CommSetup.iHostIPAddressComponent4;
+                this.SysEnv.SysSock.ServerIP = this.SysEnv.CommSetup.HostIPAddressComponent1
+                    + "." + this.SysEnv.CommSetup.HostIPAddressComponent2 + "."
+                    + this.SysEnv.CommSetup.HostIPAddressComponent3 + "."
+                    + this.SysEnv.CommSetup.HostIPAddressComponent4;
 
-                // TODO: Resource strings
                 this.AddCommMsg(this, EventArgs.Empty, string.Format("Server host ip: {0}", this.SysEnv.SysSock.ServerIP));
                 this.AddCommMsg(this, EventArgs.Empty, "Creating connection request.");
 
@@ -767,25 +692,21 @@
 
                     if (socket == null)
                     {
-                        // TODO: Resource strings
                         this.AddCommMsg(this, EventArgs.Empty, "Connection failed.");
                     }
                     else
                     {
-                        // TODO: Resource strings
                         this.AddCommMsg(this, EventArgs.Empty, "Sending device id.");
                         bytesSent = this.SysEnv.SysSock.SendRequest(socket, sendReq);
 
                         this.AddCommMsg(this, EventArgs.Empty, string.Format("Bytes sent: {0}", bytesSent));
 
-                        // TODO: Resource strings
                         this.AddCommMsg(this, EventArgs.Empty, "Waiting for response.");
                         bytRecvData = this.SysEnv.SysSock.ReceiveResponse(socket);
 
                         socket.Disconnect(true);
                         socket.Close();
 
-                        // TODO: Resource strings
                         this.AddCommMsg(this, EventArgs.Empty, "Socket closed.");
 
                         reqData = Compress.UnZip(bytRecvData.ToArray());
@@ -796,13 +717,11 @@
                             docError.LoadXml(reqData);
                             string errorDetail = docError.DocumentElement["detail"].InnerText;
 
-                            // TODO: Resource strings
                             this.AddCommMsg(this, EventArgs.Empty, "Submit device id error.");
                             this.AddCommMsg(this, EventArgs.Empty, errorDetail);
                         }
                         else
                         {
-                            // TODO: Resource strings
                             this.AddCommMsg(this, EventArgs.Empty, "Connection succeeded.");
                             this.SysEnv.IsCommunicationTestSuccessful = true;
                         }
@@ -810,14 +729,11 @@
                 }
                 catch (SocketException ex)
                 {
-                    // TODO: Resource strings
                     this.AddCommMsg(this, EventArgs.Empty, "Socket exception occurred.");
                     this.AddCommMsg(this, EventArgs.Empty, "Connection failed.");
 
-                    //MessageBox.Show(string.Format("Code {0}, {1}", ex.ErrorCode, ex.Message));
-
-                    // TODO: Resource strings
-                    Device.BeginInvokeOnMainThread(async () => await DisplayAlert("Error", string.Format("Code {0}, {1}", ex.ErrorCode, ex.Message), "OK"));
+                    // MessageBox.Show(string.Format("Code {0}, {1}", ex.ErrorCode, ex.Message));
+                    Device.BeginInvokeOnMainThread(async () => await this.DisplayAlert("Error", string.Format("Code {0}, {1}", ex.ErrorCode, ex.Message), "OK"));
                 }
                 finally
                 {
@@ -837,7 +753,7 @@
         /// <remarks></remarks>
         private void AddCommMsg(object sender, EventArgs e, string message)
         {
-            this.ItemsList.Add(message);
+            this.ExtraInfoItems.Add(message);
         }
 
         private void UpdnIP1_Focused(object sender, FocusEventArgs e)

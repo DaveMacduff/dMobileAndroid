@@ -1,9 +1,13 @@
-﻿using System;
-using SQLite;
-using SQLiteNetExtensions.Attributes;
+﻿// <copyright file="tActivityItemCountModel.cs" company="InterSect Business Systems Inc">
+// Copyright (c) InterSect Business Systems Inc. All rights reserved.
+// </copyright>
 
 namespace dMobile.Resources.Models
 {
+    using System;
+    using SQLite;
+    using SQLiteNetExtensions.Attributes;
+
     //string sqlTable = "CREATE TABLE IF NOT EXISTS tActivityItemCount"
     //+ "("
     //+ "ActivityItemRefno INTEGER NOT NULL CONSTRAINT PK_ActivityItemCountOnActivityItemRefno PRIMARY KEY,"
@@ -27,7 +31,7 @@ namespace dMobile.Resources.Models
 
     //if (this.OnNubStatOut != null)
     //{
-    //    // TODO: Resource strings
+    //    
     //    this.MsgEventArgs.StatusOutMsg = "Creating count item table.";
     //    this.OnNubStatOut(this, this.MsgEventArgs);
     //}

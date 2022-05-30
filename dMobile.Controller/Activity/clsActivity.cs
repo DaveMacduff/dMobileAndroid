@@ -1,382 +1,189 @@
+// <copyright file="clsActivity.cs" company="InterSect Business Systems Inc">
+// Copyright (c) InterSect Business Systems Inc. All rights reserved.
+// </copyright>
+
 namespace dMobile.Controller
 {
-    using dMobile.Bedrock;
-    using dMobile.GroundWork;
-    using SQLite;
     using System;
+    using System.Collections.Generic;
     using System.Collections.ObjectModel;
     using System.Threading.Tasks;
     using System.Xml.Linq;
+    using dMobile.Bedrock;
+    using dMobile.GroundWork;
+    using SQLite;
     using Xamarin.Forms;
-    using dMobile.Resources.Models;
-    using System.Collections.Generic;
 
+    /// <summary>
+    /// Defines the <see cref="Activity" /> Activity header base class.
+    /// </summary>
     public abstract class Activity : IDataLayerEventPublisher, IDataAccessEventListener
     {
-        #region Fields
+        /// <summary>
+        /// The on data layer status out event handler.
+        /// </summary>
+        /// <param name="publisher"><see cref="IDataLayerEventPublisher"/> Data layer event publisher.</param>
+        /// <param name="eventArgs"><see cref="DataLayerEventArgs"/> Data layer event arguments.</param>
+        public delegate void OnDataLayerStatusOutEventHandler(
+            IDataLayerEventPublisher publisher,
+            DataLayerEventArgs eventArgs);
 
-        private string mainGridMappingName = "tActivity";
-        private List<object> listHdrs = null;
-        private SysCommon.ActSubTypes actSubType;
-        private int refno;
-        private SysEnvironment sysEnv;
-        private int fkRefno = 0;
-        private string pono = string.Empty;
-        //private string actFilter = string.Empty;
-        private XDocument xmlDataCriteria = null;
-        private SysSkidInfo skidInfo = new SysSkidInfo();
-        private DataLayerEventArgs dataEventArgs = new DataLayerEventArgs();
-        private string fullClassName = typeof(Activity).FullName;
-        private object selectedActivity;
+        /// <summary>
+        /// The on data layer progress out event handler.
+        /// </summary>
+        /// <param name="publisher"><see cref="IDataLayerEventPublisher"/> Data layer event publisher.</param>
+        /// <param name="eventArgs"><see cref="DataLayerEventArgs"/> Data layer event arguments.</param>
+        public delegate void OnDataLayerProgressOutEventHandler(
+            IDataLayerEventPublisher publisher,
+            DataLayerEventArgs eventArgs);
 
-        #endregion
-
-        #region Constructors
-
-        public Activity()
-        {
-            this.SysEnv = SysEnvironment.GetInstance();
-        }
-
-        #endregion
-
-        #region Delegates
-
-        public delegate void OnDataLayerStatusOutEventHandler(IDataLayerEventPublisher DataLayerEventPublisher, DataLayerEventArgs DataLayerEventArgs);
-        public delegate void OnDataLayerProgressOutEventHandler(IDataLayerEventPublisher DataLayerEventPublisher, DataLayerEventArgs DataLayerEventArgs);
-
-        #endregion
-
-        #region Events
-
+        /// <summary>
+        /// On data layer status out event handler.
+        /// </summary>
         public event OnDataLayerStatusOutEventHandler OnDataLayerStatusOut;
+
+        /// <summary>
+        /// On data layer progress out event handler.
+        /// </summary>
         public event OnDataLayerProgressOutEventHandler OnDataLayerProgressOut;
 
-        #endregion
-
-        #region Properties
+        /// <summary>
+        /// Gets or sets the full class name. Used for error reporting.
+        /// </summary>
+        public string FullClassName { get; set; } = typeof(Activity).FullName;
 
         /// <summary>
-        /// 
+        /// Gets or sets the skid information.
         /// </summary>
-        public string FullClassName
-        {
-            get
-            {
-                return this.fullClassName;
-            }
-
-            set
-            {
-                this.fullClassName = value;
-            }
-        }
+        /// <remarks>
+        /// Skid info is on the header activity because working with skid maintenance does have a
+        /// header.
+        /// </remarks>
+        public SysSkidInfo SkidInfo { get; set; } = new SysSkidInfo();
 
         /// <summary>
-        /// 
+        /// Gets or sets the XML data criteria. Used for data exchange between activities.
         /// </summary>
-        public SysSkidInfo SkidInfo
-        {
-            get
-            {
-                return this.skidInfo;
-            }
-
-            set
-            {
-                this.skidInfo = value;
-            }
-        }
+        public XDocument XMLDataCriteria { get; set; }
 
         /// <summary>
-        /// 
+        /// Gets or sets the activity foreign key reference number.
         /// </summary>
-        public XDocument XMLDataCriteria
-        {
-            get
-            {
-                return this.xmlDataCriteria;
-            }
-
-            set
-            {
-                this.xmlDataCriteria = value;
-            }
-        }
-
-        ///// <summary>
-        ///// 
-        ///// </summary>
-        //public string ActFilter
-        //{
-        //    get
-        //    {
-        //        return this.actFilter;
-        //    }
-
-        //    set
-        //    {
-        //        this.actFilter = value;
-        //    }
-        //}
+        public int FKRefno { get; set; } = 0;
 
         /// <summary>
-        /// 
+        /// Gets or sets the list of activity headers.
         /// </summary>
-        public int FKRefno
-        {
-            get
-            {
-                return this.fkRefno;
-            }
-
-            set
-            {
-                this.fkRefno = value;
-            }
-        }
+        public List<object> ListHdrs { get; set; } = new List<object>();
 
         /// <summary>
-        /// 
+        /// Gets or sets the ActSubType.
         /// </summary>
-        public string MainGridMappingName
-        {
-            get
-            {
-                return this.mainGridMappingName;
-            }
-
-            set
-            {
-                this.mainGridMappingName = value;
-            }
-        }
+        public SysCommon.ActSubTypes ActSubType { get; set; } = SysCommon.ActSubTypes.NotApplicable;
 
         /// <summary>
-        /// 
+        /// Gets or sets the Refno.
         /// </summary>
-        public List<object> ListHdrs
-        {
-            get
-            {
-                return this.listHdrs;
-            }
-
-            set
-            {
-                this.listHdrs = value;
-            }
-        }
+        public int Refno { get; set; } = 0;
 
         /// <summary>
-        /// 
+        /// Gets or sets the SysEnv.
         /// </summary>
-        public SysCommon.ActSubTypes ActSubType
-        {
-            get
-            {
-                return this.actSubType;
-            }
-
-            set
-            {
-                this.actSubType = value;
-            }
-        }
+        public SysEnvironment SysEnv { get; set; } = SysEnvironment.GetInstance();
 
         /// <summary>
-        /// 
+        /// Gets or sets the DataEventArgs.
         /// </summary>
-        public int Refno
-        {
-            get
-            {
-                return this.refno;
-            }
-
-            set
-            {
-                this.refno = value;
-            }
-        }
+        public DataLayerEventArgs DataEventArgs { get; set; } = new DataLayerEventArgs();
 
         /// <summary>
-        /// 
+        /// Gets or sets the SelectedActivity.
         /// </summary>
-        public string PONO
-        {
-            get
-            {
-                return this.pono;
-            }
-
-            set
-            {
-                this.pono = value;
-            }
-        }
+        public object SelectedActivity { get; set; }
 
         /// <summary>
-        /// 
+        /// Perform a data refresh.
         /// </summary>
-        public SysEnvironment SysEnv
-        {
-            get
-            {
-                return this.sysEnv;
-            }
-
-            set
-            {
-                this.sysEnv = value;
-            }
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        public DataLayerEventArgs DataEventArgs
-        {
-            get
-            {
-                return this.dataEventArgs;
-            }
-
-            set
-            {
-                this.dataEventArgs = value;
-            }
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        public object SelectedActivity
-        {
-            get
-            {
-                return this.selectedActivity;
-            }
-
-            set
-            {
-                this.selectedActivity = value;
-            }
-        }
-
-        #endregion
-
-        #region Public Members
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="pbProgressBar"></param>
-        /// <param name="xmlParam"></param>
+        /// <param name="data">The data<see cref="XDocument"/>.</param>
+        /// <returns>The <see cref="Task"/>.</returns>
         public abstract Task Refresh(XDocument data);
 
         /// <summary>
-        /// 
+        /// Search for a text match.
         /// </summary>
-        /// <param name="searchText"></param>
-        /// <returns></returns>
+        /// <param name="searchText">.</param>
+        /// <returns><see cref="ObservableCollection{T}"/> Found object.</returns>
         public abstract ObservableCollection<object> Search(string searchText);
 
         /// <summary>
-        /// 
+        /// Get a list of activity objects.
         /// </summary>
-        /// <param name="IsSubmitBatch"></param>
-        /// <returns></returns>
+        /// <param name="isSubmitBatch"><see cref="bool"/> Is submit batch operation.</param>
+        /// <returns><see cref="List{T}"/> List of activity objects.</returns>
         public abstract Task<List<object>> GetActivityList(bool isSubmitBatch);
 
         /// <summary>
-        /// 
+        /// Design the activity grid.
         /// </summary>
-        /// <param name="dg"></param>
-        public abstract ObservableCollection<object> DesignGrid(ref Grid dataGridMainActivityHeader, ref ListView dataGridMainActivity);
+        /// <param name="GridMainActivity"><see cref="Grid"/> Main activity grid.</param>
+        /// <param name="ListViewMainActivity"><see cref="ListView"/>.</param>
+        /// <returns>The <see cref="ObservableCollection{object}"/> Main activity list view.</returns>
+        public abstract ObservableCollection<object> DesignGrid(ref Grid GridMainActivity, ref ListView ListViewMainActivity);
 
         /// <summary>
-        /// 
+        /// Select an activity.
         /// </summary>
-        /// <param name="i"></param>
-        /// <param name="lst"></param>
+        /// <param name="selectedActivity"><see cref="object"/> Activity to select.</param>
+        /// <returns>The <see cref="Task"/>.</returns>
         public abstract Task SelectActivity(object selectedActivity);
 
         /// <summary>
-        /// 
+        /// The GetRefnoFromRowIdx.
         /// </summary>
-        /// <param name="idx"></param>
-        /// <returns></returns>
+        /// <param name="selectedActivity"><see cref="object"/> Selected activity to get the refno for.</param>
+        /// <returns>.</returns>
         public abstract int GetRefnoFromRowIdx(object selectedActivity);
 
         /// <summary>
-        /// 
+        /// Get the activity filter.
         /// </summary>
-        /// <returns></returns>
         public abstract void GetFilter();
 
         /// <summary>
-        /// 
+        /// Get the activity filter.
         /// </summary>
-        /// <param name="xmlParams"></param>
-        /// <returns></returns>
+        /// <param name="data"><see cref="XDocument"/> Filter criteria.</param>
         public abstract void GetFilter(XDocument data);
 
         /// <summary>
-        /// 
+        /// Get the activity control description.
         /// </summary>
-        /// <returns></returns>
+        /// <returns><see cref="string"/> Activity control description.</returns>
         public abstract string GetControlDescription();
 
         /// <summary>
-        /// 
+        /// Get the foreign key refno index.
         /// </summary>
-        /// <returns></returns>
+        /// <returns>.</returns>
         public abstract string GetFKRefnoIdx();
 
         /// <summary>
-        /// 
+        /// Get the activity foreign key reference number.
         /// </summary>
+        /// <param name="resourceType"><see cref="object"/> Resource model type (t????Model).</param>
+        /// <returns><see cref="int"/> Found activity foreign key refno, else 0 if not found.</returns>
+        public abstract int GetFKRefno(object resourceType);
+
+        /// <summary>
+        /// Purge all activity data.
+        /// </summary>
+        /// <returns>The <see cref="Task"/>.</returns>
         public abstract Task Purge();
 
         /// <summary>
-        ///
+        /// Make create activity submission XML.
         /// </summary>
-        /// <param name="actSubType"></param>
-        /// <returns></returns>
-        /// <remarks></remarks>
-        public bool IsAllowedAdd(SysCommon.ActSubTypes actSubType)
-        {
-            return false;
-        }
-
-        /// <summary>
-        ///
-        /// </summary>
-        /// <param name="actSubTypes"></param>
-        /// <remarks></remarks>
-        public async Task Create(SysCommon.ActSubTypes actSubType)
-        {
-            try
-            {
-                string sql = "INSERT INTO tActivity (ActivityStatus, ActivitySubType) VALUES (?, ?)";
-                await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(sql, Convert.ToInt32(SysCommon.ActStatus.Inserted), Convert.ToInt32(actSubType));
-                
-                string queryID = "SELECT last_insert_rowid() FROM tActivity";
-                this.Refno = Convert.ToInt32(await DatabaseConnection.GetInstance().SQLConn.ExecuteScalarAsync<int>(queryID));
-            }
-            catch (SQLiteException ex)
-            {
-                // TODO: Resource strings
-                throw new Exception("Database exception occurred. Create activity failed.", ex);
-            }
-        }
-
-        /// <summary>
-        ///
-        /// </summary>
-        /// <returns></returns>
-        /// <remarks></remarks>
+        /// <returns>.</returns>
         public virtual XDocument CreateSubmitXML()
         {
             XDocument xmldocSubmission = XDocument.Parse(
@@ -390,74 +197,97 @@ namespace dMobile.Controller
         }
 
         /// <summary>
-        ///
+        /// Perform an activity header insert.
         /// </summary>
-        /// <param name="xmlParams"></param>
-        /// <remarks></remarks>
-        public virtual Task Insert(XDocument xmlParams)
-        {
-            throw new NotImplementedException();
-        }
+        /// <param name="xmlParams"><see cref="XDocument"/> Activity insert detail.</param>
+        /// <returns><see cref="int"/> Activity reference number.</returns>
+        public abstract Task<int> Insert(XDocument xmlParams);
 
         /// <summary>
-        ///
+        /// Perform an activity deletion.
         /// </summary>
-        /// <remarks></remarks>
-        public virtual Task Delete()
-        {
-            throw new NotImplementedException();
-        }
+        /// <returns>The <see cref="Task"/> Task operation.</returns>
+        public abstract Task Delete();
 
         /// <summary>
-        ///
+        /// Print an activity label. Could be a shipping label for example.
         /// </summary>
-        /// <remarks></remarks>
-        public virtual Task PrintLabel(XDocument xmlParam)
-        {
-            throw new NotImplementedException();
-        }
+        /// <param name="xmlParam"><see cref="XDocument"/> Label criteria.</param>
+        /// <returns>The <see cref="Task"/> Task operation.</returns>
+        public abstract Task PrintLabel(XDocument xmlParam);
 
         /// <summary>
-        ///
+        /// Get the label quantity.
         /// </summary>
-        /// <returns>Structure containing the label quantities.</returns>
-        /// <remarks>Currently picking is the only module needing this. Used for Shipping Labels.</remarks>
-        public virtual Task<SysCommon.SLabelQuantity> GetLabelQuantity()
-        {
-            throw new NotImplementedException();
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="isRepackQuantityOnly"></param>
-        /// <returns>Structure containing the label quantities.</returns>
-        /// <remarks>Currently picking is the only module needing this. Used for Shipping Labels.</remarks>
-        public virtual Task<SysCommon.SLabelQuantity> GetLabelQuantity(bool isRepackQuantityOnly)
-        {
-            throw new NotImplementedException();
-        }
+        /// <param name="isRepackQuantityOnly"><see cref="bool"/> Print repack quantity only.</param>
+        /// <returns><see cref="SLabelQuantity"/> Structure containing the label quantities.</returns>
+        public abstract Task<SLabelQuantity> GetLabelQuantity(bool isRepackQuantityOnly);
 
         /// <summary>
         /// Check if all items have been reviewed.
         /// Under quantity check for ALL items.
         /// </summary>
-        /// <returns></returns>
-        /// <remarks></remarks>
-        public virtual async Task<bool> ChangeStatus(object selectedActivity)
+        /// <param name="selectedActivity">The selectedActivity<see cref="object"/>.</param>
+        /// <returns><see cref="bool"/> True if status was changed.</returns>
+        public abstract Task<bool> ChangeStatus(object selectedActivity);
+
+        /// <summary>
+        /// Create an activity header. Insert a tActivity record and assign this.Refno.
+        /// </summary>
+        /// <param name="actSubType"><see cref="SysCommon.ActSubTypes"/> Activity sub type.</param>
+        /// <returns>The <see cref="Task"/> Task operation.</returns>
+        public async Task Create(SysCommon.ActSubTypes actSubType)
         {
-            return true;
+            try
+            {
+                string sql = "insert into tActivity (ActivityStatus, ActivitySubType) values (?, ?)";
+                _ = await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(
+                    sql,
+                    Convert.ToInt32(SysCommon.ActStatus.Inserted),
+                    Convert.ToInt32(actSubType));
+
+                string queryID = "select last_insert_rowid() from tActivity";
+                this.Refno = Convert.ToInt32(
+                    await DatabaseConnection.GetInstance().SQLConn.ExecuteScalarAsync<int>(queryID));
+            }
+            catch (SQLiteException ex)
+            {
+                throw new Exception("Database exception occurred. Create activity failed.", ex);
+            }
+            catch
+            {
+                throw;
+            }
         }
 
         /// <summary>
-        /// 
+        /// The data layer status out handler.
         /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        /// <param name="outMessage"></param>
-        /// <param name="overrideDisconnectedMode"></param>
-        public void DataLayerStatusOutHandler(object sender, EventArgs e, string outMessage, bool overrideDisconnectedMode)
+        /// <param name="sender"><see cref="object"/> Sender instance.</param>
+        /// <param name="e"><see cref="EventArgs"/> Sender object event arguments.</param>
+        /// <param name="outMessage"><see cref="string"/> Status out message.</param>
+        /// <param name="overrideDisconnectedMode"><see cref="bool"/> Override disconnected mode.</param>
+        public void DataLayerStatusOutHandler(
+            object sender,
+            EventArgs e,
+            string outMessage,
+            bool overrideDisconnectedMode)
         {
+            if (sender is null)
+            {
+                throw new ArgumentNullException(nameof(sender));
+            }
+
+            if (e is null)
+            {
+                throw new ArgumentNullException(nameof(e));
+            }
+
+            if (string.IsNullOrEmpty(outMessage))
+            {
+                throw new ArgumentException($"'{nameof(outMessage)}' cannot be null or empty.", nameof(outMessage));
+            }
+
             if (!this.SysEnv.SysSettings.IsDisconnectedMode || overrideDisconnectedMode)
             {
                 if (this.OnDataLayerStatusOut != null)
@@ -470,15 +300,30 @@ namespace dMobile.Controller
         }
 
         /// <summary>
-        /// 
+        /// The data layer progress out handler.
         /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        /// <param name="currentValue"></param>
-        /// <param name="minValue"></param>
-        /// <param name="maxValue"></param>
-        public void DataLayerProgressOutHandler(object sender, EventArgs e, int currentValue, int minValue, int maxValue)
+        /// <param name="sender"><see cref="object"/> Sender instance.</param>
+        /// <param name="e"><see cref="EventArgs"/> Sender object event arguments.</param>
+        /// <param name="currentValue"><see cref="int"/> Current progress value.</param>
+        /// <param name="minValue"><see cref="int"/> Minimum progress value.</param>
+        /// <param name="maxValue"><see cref="int"/> Maximum progress value.</param>
+        public void DataLayerProgressOutHandler(
+            object sender,
+            EventArgs e,
+            int currentValue,
+            int minValue,
+            int maxValue)
         {
+            if (sender is null)
+            {
+                throw new ArgumentNullException(nameof(sender));
+            }
+
+            if (e is null)
+            {
+                throw new ArgumentNullException(nameof(e));
+            }
+
             if (this.OnDataLayerProgressOut != null)
             {
                 this.DataEventArgs.CurrentValue = currentValue;
@@ -490,13 +335,23 @@ namespace dMobile.Controller
         }
 
         /// <summary>
-        /// 
+        /// The data layer progress out handler.
         /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        /// <param name="currentValue"></param>
+        /// <param name="sender"><see cref="object"/> Sender instance.</param>
+        /// <param name="e"><see cref="EventArgs"/> Sender object event arguments.</param>
+        /// <param name="currentValue"><see cref="int"/> Current progress value.</param>
         public void DataLayerProgressOutHandler(object sender, EventArgs e, int currentValue)
         {
+            if (sender is null)
+            {
+                throw new ArgumentNullException(nameof(sender));
+            }
+
+            if (e is null)
+            {
+                throw new ArgumentNullException(nameof(e));
+            }
+
             if (this.OnDataLayerProgressOut != null)
             {
                 this.DataEventArgs.CurrentValue = currentValue;
@@ -505,86 +360,88 @@ namespace dMobile.Controller
             }
         }
 
-        #endregion
-
-        #region IDataAccessEventListener Members
-
         /// <summary>
-        /// 
+        /// Data access status out event publisher.
         /// </summary>
-        /// <param name="dataAccessEventPublisher"></param>
-        /// <param name="dataAccessEventArgs"></param>
-        public void OnDataAccessStatusOut(IDataAccessEventPublisher dataAccessEventPublisher, DataAccessEventArgs dataAccessEventArgs)
+        /// <param name="publisher"><see cref="IDataAccessEventPublisher"/> Event publisher.</param>
+        /// <param name="args"><see cref="DataAccessEventArgs"/> Publisher event arguments.</param>
+        public void OnDataAccessStatusOut(
+            IDataAccessEventPublisher publisher,
+            DataAccessEventArgs args)
         {
-            if (!this.SysEnv.SysSettings.IsDisconnectedMode || dataAccessEventArgs.OverrideDisconnectedMode)
+            if (!this.SysEnv.SysSettings.IsDisconnectedMode || args.OverrideDisconnectedMode)
             {
                 if (this.OnDataLayerStatusOut != null)
                 {
-                    this.DataEventArgs.OverrideDisconnectedMode = dataAccessEventArgs.OverrideDisconnectedMode;
-                    this.DataEventArgs.StatusOutMsg = dataAccessEventArgs.StatusOutMsg;
+                    this.DataEventArgs.OverrideDisconnectedMode = args.OverrideDisconnectedMode;
+                    this.DataEventArgs.StatusOutMsg = args.StatusOutMsg;
                     this.OnDataLayerStatusOut(this, this.DataEventArgs);
                 }
             }
         }
 
         /// <summary>
-        /// 
+        /// Data access progress out event publisher.
         /// </summary>
-        /// <param name="dataAccessEventPublisher"></param>
-        /// <param name="dataAccessEventArgs"></param>
-        public void OnDataAccessProgressOut(IDataAccessEventPublisher dataAccessEventPublisher, DataAccessEventArgs dataAccessEventArgs)
+        /// <param name="publisher"><see cref="IDataAccessEventPublisher"/> Event publisher.</param>
+        /// <param name="args"><see cref="DataAccessEventArgs"/> Publisher event arguments.</param>
+        public void OnDataAccessProgressOut(
+            IDataAccessEventPublisher publisher,
+            DataAccessEventArgs args)
         {
             if (this.OnDataLayerProgressOut != null)
             {
-                this.DataEventArgs.OverrideDisconnectedMode = dataAccessEventArgs.OverrideDisconnectedMode;
-                this.DataEventArgs.CurrentValue = dataAccessEventArgs.CurrentValue;
-                this.DataEventArgs.MinValue = dataAccessEventArgs.MinValue;
-                this.DataEventArgs.MaxValue = dataAccessEventArgs.MaxValue;
-                this.DataEventArgs.SetMinMaxValue = dataAccessEventArgs.SetMinMaxValue;
+                this.DataEventArgs.OverrideDisconnectedMode = args.OverrideDisconnectedMode;
+                this.DataEventArgs.CurrentValue = args.CurrentValue;
+                this.DataEventArgs.MinValue = args.MinValue;
+                this.DataEventArgs.MaxValue = args.MaxValue;
+                this.DataEventArgs.SetMinMaxValue = args.SetMinMaxValue;
                 this.OnDataLayerProgressOut(this, this.DataEventArgs);
             }
         }
 
-        #endregion
-
-        #region IDataLayerEventPublisher Members
-
         /// <summary>
-        /// 
+        /// Register data layer status out listener.
         /// </summary>
-        /// <param name="dataLayerEventListener"></param>
-        public void RegLayerListenerStatOut(IDataLayerEventListener dataLayerEventListener)
+        /// <param name="listener"><see cref="IDataAccessEventListener"/> Data access
+        /// status out listener.</param>
+        public void RegLayerListenerStatOut(IDataLayerEventListener listener)
         {
-            this.OnDataLayerStatusOut += new OnDataLayerStatusOutEventHandler(dataLayerEventListener.OnLayerStatOut);
+            this.OnDataLayerStatusOut += new OnDataLayerStatusOutEventHandler(
+                listener.OnLayerStatOut);
         }
 
         /// <summary>
-        /// 
+        /// Unregister data layer status out listener.
         /// </summary>
-        /// <param name="dataLayerEventListener"></param>
-        public void UnregLayerListenerStatOut(IDataLayerEventListener dataLayerEventListener)
+        /// <param name="listener"><see cref="IDataAccessEventListener"/> Data access
+        /// status out listener.</param>
+        public void UnregLayerListenerStatOut(IDataLayerEventListener listener)
         {
-            this.OnDataLayerStatusOut -= new OnDataLayerStatusOutEventHandler(dataLayerEventListener.OnLayerStatOut);
+            this.OnDataLayerStatusOut -= new OnDataLayerStatusOutEventHandler(
+                listener.OnLayerStatOut);
         }
 
         /// <summary>
-        /// 
+        /// Register data layer progress out listener.
         /// </summary>
-        /// <param name="dataLayerEventListener"></param>
-        public void RegLayerListenerProgOut(IDataLayerEventListener dataLayerEventListener)
+        /// <param name="listener"><see cref="IDataAccessEventListener"/> Data access
+        /// status out listener.</param>
+        public void RegLayerListenerProgOut(IDataLayerEventListener listener)
         {
-            this.OnDataLayerProgressOut += new OnDataLayerProgressOutEventHandler(dataLayerEventListener.OnLayerProgOut);
+            this.OnDataLayerProgressOut += new OnDataLayerProgressOutEventHandler(
+                listener.OnLayerProgOut);
         }
 
         /// <summary>
-        /// 
+        /// Unregister data layer progress out listener.
         /// </summary>
-        /// <param name="dataLayerEventListener"></param>
-        public void UnregLayerListenerProgOut(IDataLayerEventListener dataLayerEventListener)
+        /// <param name="listener"><see cref="IDataAccessEventListener"/> Data access
+        /// status out listener.</param>
+        public void UnregLayerListenerProgOut(IDataLayerEventListener listener)
         {
-            this.OnDataLayerProgressOut -= new OnDataLayerProgressOutEventHandler(dataLayerEventListener.OnLayerProgOut);
+            this.OnDataLayerProgressOut -= new OnDataLayerProgressOutEventHandler(
+                listener.OnLayerProgOut);
         }
-
-        #endregion
     }
 }

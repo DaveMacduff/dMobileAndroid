@@ -1,18 +1,22 @@
-﻿namespace dMobile.GroundWork
+﻿// <copyright file="clsTableActivityPickingItem.cs" company="InterSect Business Systems Inc">
+// Copyright (c) InterSect Business Systems Inc. All rights reserved.
+// </copyright>
+
+namespace dMobile.GroundWork
 {
-    using dMobile.Bedrock;
     using System;
     using System.Collections.Generic;
     using System.Data;
-    using SQLite;
     using System.Text;
+    using System.Threading.Tasks;
     using System.Xml;
     using System.Xml.Linq;
-    using System.Threading.Tasks;
+    using dMobile.Bedrock;
     using dMobile.Resources.Models;
+    using SQLite;
 
     /// <summary>
-    /// Defines the <see cref="TableActivityPickingItem" />
+    /// Defines the <see cref="TableActivityPickingItem" />.
     /// </summary>
     public class TableActivityPickingItem : TableBase
     {
@@ -26,31 +30,29 @@
         }
 
         /// <summary>
-        /// The RequestData
+        /// The RequestData.
         /// </summary>
-        /// <param name="actRefno">The actRefno<see cref="int"/></param>
-        /// <param name="xmlCriteria">The xmlCriteria<see cref="XDocument"/></param>
+        /// <param name="actRefno">The actRefno<see cref="int"/>.</param>
+        /// <param name="xmlCriteria">The xmlCriteria<see cref="XDocument"/>.</param>
         public override async Task RequestData(int actRefno, XDocument xmlCriteria)
         {
-            string reqData = string.Empty;
-
             try
             {
-                // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Seeding sales order items.", true);
 
+                string reqData;
                 if (actRefno == 0)
                 {
                     List<tActivityModel> results = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<tActivityModel>("SELECT ActivityRefno FROM tActivity WHERE ActivitySubType = ?", Convert.ToInt32(SysCommon.ActSubTypes.Picking));
 
                     if (results?.Count > 0)
                     {
-                        foreach(tActivityModel actvityModel in results)
+                        foreach (tActivityModel actvityModel in results)
                         {
                             actRefno = Convert.ToInt32(actvityModel.ActivityRefno);
                             reqData = await this.SendRequest(actRefno, xmlCriteria);
 
-                            if (0 < reqData.Length)
+                            if (reqData.Length > 0)
                             {
                                 if (reqData.Contains("<message>ERROR</message>"))
                                 {
@@ -68,7 +70,7 @@
                 {
                     reqData = await this.SendRequest(actRefno, xmlCriteria);
 
-                    if (0 < reqData.Length)
+                    if (reqData.Length > 0)
                     {
                         if (reqData.Contains("<message>ERROR</message>"))
                         {
@@ -81,36 +83,30 @@
                     }
                 }
 
-                // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Seeding sales order items complete.", true);
             }
             catch (SQLiteException ex)
             {
-                // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Database exception occurred.", true);
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Seeding sales order items failed.", true);
 
-                // TODO: Resource strings
                 throw new Exception("Database exception occurred. Seeding sales order items failed.", ex);
             }
             catch (Exception ex)
             {
-                // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Seeding sales order items failed.", true);
 
-                // TODO: Resource strings
                 throw new Exception("Seeding sales order items failed.", ex);
             }
         }
 
         /// <summary>
-        /// The Purge
+        /// The Purge.
         /// </summary>
-        public override async Task Purge()
+        public override async Task PurgeData()
         {
             try
             {
-                // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging sales order items.", true);
 
                 string query = "DELETE FROM tActivityItemBarCodeAssociationXRef "
@@ -124,38 +120,32 @@
                 query = "DELETE FROM tActivityItem WHERE tActivityItem.ActivityItemSubType = ?";
                 await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(query, Convert.ToInt32(SysCommon.ActSubTypes.Picking));
 
-                // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging sales order items completed.", true);
             }
             catch (SQLiteException ex)
             {
-                // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Database exception occurred.", true);
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging sales order items failed.", true);
 
-                // TODO: Resource strings
                 throw new Exception("Database exception occurred. Purging sales order items failed.", ex);
             }
         }
 
         /// <summary>
-        /// The DataStatus
+        /// The DataStatus.
         /// </summary>
-        /// <returns>The <see cref="int"/></returns>
+        /// <returns>The <see cref="int"/>.</returns>
         public override async Task<int> DataStatus()
         {
-            int rowsAffected = 0;
-
+            int rowsAffected;
             try
             {
                 rowsAffected = Convert.ToInt32(await DatabaseConnection.GetInstance().SQLConn.ExecuteScalarAsync<int>("SELECT COUNT(ActivityItemRefno) FROM tActivityItem WHERE ActivityItemSubType = ?", Convert.ToInt32(SysCommon.ActSubTypes.Picking)));
 
-                // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, string.Format("{0} Sales order items.", rowsAffected), true);
             }
             catch (SQLiteException ex)
             {
-                // TODO: Resource strings
                 throw new Exception("Database exception occurred. Sales order items status failed.", ex);
             }
 
@@ -163,24 +153,22 @@
         }
 
         /// <summary>
-        /// The SendRequest
+        /// The SendRequest.
         /// </summary>
-        /// <param name="actRefno">The actRefno<see cref="int"/></param>
-        /// <param name="xmlCriteria">The xmlCriteria<see cref="XDocument"/></param>
+        /// <param name="actRefno">The actRefno<see cref="int"/>.</param>
+        /// <param name="xmlCriteria">The xmlCriteria<see cref="XDocument"/>.</param>
         /// <returns></returns>
         protected override async Task<string> SendRequest(int actRefno, XDocument xmlCriteria)
         {
-            int actPickFKRefno = 0;
-
             List<tActivityPickingModel> results = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<tActivityPickingModel>("SELECT * FROM tActivityPicking WHERE ActivityRefno = ?", actRefno);
 
+            int actPickFKRefno;
             if (results?.Count > 0)
             {
                 actPickFKRefno = Convert.ToInt32(results[0].ActivityPickingFKRefno);
             }
             else
             {
-                // TODO: Resource strings
                 throw new Exception("No results in tActivityPicking for ActivityRefno " + actRefno + Environment.NewLine + this.FullClassName + "SendRequest");
             }
 
@@ -188,33 +176,28 @@
         }
 
         /// <summary>
-        /// The Save
+        /// The Save.
         /// </summary>
         /// <param name="reqData"></param>
-        /// <param name="actRefno">The actRefno<see cref="int"/></param>
+        /// <param name="actRefno">The actRefno<see cref="int"/>.</param>
         protected override async Task Save(string reqData, int actRefno)
         {
-            string errMsg = string.Empty;
-
             await DatabaseConnection.GetInstance().SQLConn.RunInTransactionAsync(transaction =>
             {
                 try
                 {
                     using (DataSet ds = new DataSet())
                     {
-                        // TODO: Resource strings
                         this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Reading received data.", false);
 
                         ds.ReadXml(SysCommon.GetXmlReader(ref reqData), XmlReadMode.Auto);
 
-                        // TODO: Resource strings
                         this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving sales order items.", false);
 
                         if (ds.Tables.Count != 0)
                         {
                             int progMax = Convert.ToInt32(ds.Tables["tActivityItemPicking"].Rows.Count);
 
-                            // TODO: Resource strings
                             this.DataAccessStatusOutHandler(this, EventArgs.Empty, string.Format("Records {0}", progMax), false);
 
                             int actItemRefno = 0;
@@ -228,16 +211,12 @@
 
                             foreach (DataRow drow in ds.Tables["tActivityItemPicking"].Rows)
                             {
-                                errMsg = "Arguments:";
-
                                 transaction.Execute("INSERT INTO tActivityItem (ActivityItemSubType, ActivityItemStatus, ActivityRefno) VALUES (?, ?, ?)", Convert.ToInt32(SysCommon.ActSubTypes.Picking), 0, actRefno);
 
                                 actItemRefno = Convert.ToInt32(transaction.ExecuteScalar<int>("SELECT last_insert_rowid() FROM tActivityItem"));
                                 actItemPickFKRefno = Convert.ToInt32(drow["ActivityItemPickingFKRefno"]);
-                                errMsg += Environment.NewLine + "Item fk refno " + actItemPickFKRefno;
-
-                                prodUnitRefno = this.GetProductUnitRefnoFromDataRow(drow, transaction, ref errMsg, false);
-                                locMapRefno = this.GetWhsLocMapRefnoFromDataRow(drow, ref errMsg, transaction);
+                                prodUnitRefno = this.GetProductUnitRefnoFromDataRow(drow, transaction, false);
+                                locMapRefno = this.GetWhsLocMapRefnoFromDataRow(drow, transaction);
 
                                 string queryInsertItemPicking = "INSERT INTO tActivityItemPicking (" +
                                     "ActivityItemRefno, " +
@@ -297,7 +276,7 @@
                                     Convert.ToDecimal(drow["ActivityItemPickingQuantityAvailable"]),
                                     Convert.ToDecimal(drow["ActivityItemPickingBaseQuantityAvailable"]),
                                     Convert.ToDecimal(drow["ActivityItemPickingWeightQuantityAvailable"]),
-                                    false
+                                    false,
                                 };
 
                                 transaction.Execute(queryInsertItemPicking, parametersInsertItemPicking);
@@ -321,7 +300,6 @@
 
                         transaction.Commit();
 
-                        // TODO: Resource strings
                         this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving sales order items complete.", false);
                     }
                 }
@@ -329,18 +307,16 @@
                 {
                     transaction.Rollback();
 
-                    // TODO: Resource strings
                     this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Database exception occurred.", true);
                     this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving sales order items failed.", true);
 
-                    // TODO: Resource strings
-                    throw new Exception("Database exception occurred. Saving sales order items failed." + Environment.NewLine + errMsg, ex);
+                    throw new Exception("Database exception occurred. Saving sales order items failed.", ex);
                 }
             });
         }
 
         /// <summary>
-        /// The CreateRequest
+        /// The CreateRequest.
         /// </summary>
         /// <param name="actPickFKRefno"></param>
         /// <param name="criteria"></param>
@@ -349,8 +325,7 @@
         {
             StringBuilder xmlString = new StringBuilder();
             XmlWriter xml = XmlWriter.Create(xmlString);
-            XDocument request = null;
-
+            XDocument request;
             if (criteria == null)
             {
                 request = XDocument.Parse(
@@ -359,11 +334,11 @@
                     + "<command>"
                     + "<action>REQUEST SALES ORDER ITEMS</action>"
                     + await SysCommon.GetRequestDefaults(false)
-                    + ("<refno>" + actPickFKRefno + "</refno>")
+                    + "<refno>" + actPickFKRefno + "</refno>"
                     + "<whs_id></whs_id>"
                     + "<sect_refno></sect_refno>"
                     + "</command>" +
-                    ("<is_disconnected>" + this.SysEnv.SysSettings.IsDisconnectedMode + "</is_disconnected>")
+                    "<is_disconnected>" + this.SysEnv.SysSettings.IsDisconnectedMode + "</is_disconnected>"
                     + "</imclient>");
             }
             else
@@ -374,11 +349,11 @@
                     + "<command>"
                     + "<action>REQUEST SALES ORDER ITEMS</action>"
                     + await SysCommon.GetRequestDefaults(false)
-                    + ("<refno>" + actPickFKRefno + "</refno>")
-                    + ("<whs_id>" + criteria.Root.Element("whs_id").Value + "</whs_id>")
-                    + ("<sect_refno>" + criteria.Root.Element("sect_refno").Value + "</sect_refno>")
+                    + "<refno>" + actPickFKRefno + "</refno>"
+                    + "<whs_id>" + criteria.Root.Element("whs_id").Value + "</whs_id>"
+                    + "<sect_refno>" + criteria.Root.Element("sect_refno").Value + "</sect_refno>"
                     + "</command>"
-                    + ("<is_disconnected>" + this.SysEnv.SysSettings.IsDisconnectedMode + "</is_disconnected>")
+                    + "<is_disconnected>" + this.SysEnv.SysSettings.IsDisconnectedMode + "</is_disconnected>"
                     + "</imclient>");
             }
 

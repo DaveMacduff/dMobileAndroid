@@ -1,48 +1,52 @@
-﻿namespace dMobile.Bedrock
+﻿// <copyright file="MessageOnlyException.cs" company="InterSect Business Systems Inc">
+// Copyright (c) InterSect Business Systems Inc. All rights reserved.
+// </copyright>
+
+namespace dMobile.Bedrock
 {
     using System;
-    using System.Linq;
-    using System.Collections.Generic;
-    using System.Text;
 
+    /// <summary>
+    /// Defines the <see cref="MessageOnlyException" />.
+    /// </summary>
     public class MessageOnlyException : Exception
     {
-        #region Constructors
-
+        /// <summary>
+        /// Initializes a new instance of the <see cref="MessageOnlyException"/> class.
+        /// </summary>
         public MessageOnlyException()
             : base()
         {
         }
 
         /// <summary>
-        /// 
+        /// Initializes a new instance of the <see cref="MessageOnlyException"/> class.
         /// </summary>
-        /// <param name="message"></param>
+        /// <param name="message">.</param>
         public MessageOnlyException(string message)
             : base(ModifyMessage(message))
         {
         }
 
         /// <summary>
-        /// 
+        /// Initializes a new instance of the <see cref="MessageOnlyException"/> class.
         /// </summary>
-        /// <param name="message"></param>
-        /// <param name="inner"></param>
+        /// <param name="message">.</param>
+        /// <param name="inner">.</param>
         public MessageOnlyException(string message, Exception inner)
             : base(ModifyMessage(message), inner)
         {
         }
 
         /// <summary>
-        /// 
+        /// The ModifyMessage.
         /// </summary>
-        /// <param name="message"></param>
-        /// <returns></returns>
+        /// <param name="message">.</param>
+        /// <returns>.</returns>
         private static string ModifyMessage(string message)
         {
             string msgToken = "MSGBOX-";
-            string errMsg = string.Empty;
-
+            string errMsg;
             if (message.Contains(msgToken))
             {
                 errMsg = message.Substring(message.IndexOf(msgToken) + msgToken.Length);
@@ -54,7 +58,5 @@
 
             return errMsg;
         }
-
-        #endregion
     }
 }

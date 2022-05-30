@@ -1,18 +1,22 @@
+// <copyright file="TableWarehouseLocationMapType.cs" company="InterSect Business Systems Inc">
+// Copyright (c) InterSect Business Systems Inc. All rights reserved.
+// </copyright>
+
 namespace dMobile.GroundWork
 {
-    using dMobile.Bedrock;
     using System;
+    using System.Collections.Generic;
     using System.Data;
-    using SQLite;
     using System.Text;
+    using System.Threading.Tasks;
     using System.Xml;
     using System.Xml.Linq;
-    using System.Threading.Tasks;
-    using System.Collections.Generic;
+    using dMobile.Bedrock;
     using dMobile.Resources.Models;
+    using SQLite;
 
     /// <summary>
-    /// Defines the <see cref="TableWarehouseLocationMapType" />
+    /// Defines the <see cref="TableWarehouseLocationMapType" />.
     /// </summary>
     public class TableWarehouseLocationMapType : TableBase
     {
@@ -26,21 +30,19 @@ namespace dMobile.GroundWork
         }
 
         /// <summary>
-        /// The Request
+        /// The Request.
         /// </summary>
-        public override async Task Request()
+        public override async Task RequestData()
         {
             try
             {
-                // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Seeding warehouse locations.", true);
 
-                // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Default picking locations.", true);
 
-                string reqData = await this.SendRequest(Convert.ToInt32(SysCommon.ProdLocMapTypes.Picking));
+                string reqData = await this.SendRequestProdLoc(Convert.ToInt32(SysCommon.ProdLocMapTypes.Picking));
 
-                if (0 < reqData.Length)
+                if (reqData.Length > 0)
                 {
                     if (reqData.Contains("<message>ERROR</message>"))
                     {
@@ -52,12 +54,11 @@ namespace dMobile.GroundWork
                     await this.Save(reqData);
                 }
 
-                // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Default receiving locations.", true);
 
-                reqData = await this.SendRequest(Convert.ToInt32(SysCommon.ProdLocMapTypes.Receiving));
+                reqData = await this.SendRequestProdLoc(Convert.ToInt32(SysCommon.ProdLocMapTypes.Receiving));
 
-                if (0 < reqData.Length)
+                if (reqData.Length > 0)
                 {
                     if (reqData.Contains("<message>ERROR</message>"))
                     {
@@ -69,41 +70,34 @@ namespace dMobile.GroundWork
                     await this.Save(reqData);
                 }
 
-                // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Seeding warehouse locations complete.", true);
             }
             catch (Exception ex)
             {
-                // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Seeding warehouse locations failed.", true);
 
-                // TODO: Resource strings
                 throw new Exception("Seeding warehouse locations failed.", ex);
             }
         }
 
         /// <summary>
-        /// The DataStatus
+        /// The DataStatus.
         /// </summary>
-        /// <returns>The <see cref="int"/></returns>
+        /// <returns>The <see cref="int"/>.</returns>
         public override async Task<int> DataStatus()
         {
-            int rowsAffected = 0;
-
+            int rowsAffected;
             try
             {
                 rowsAffected = Convert.ToInt32(await DatabaseConnection.GetInstance().SQLConn.ExecuteScalarAsync<int>("SELECT COUNT(*) FROM tWarehouseLocationMapType"));
 
-                // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, string.Format("{0} warehouse locations.", rowsAffected), true);
             }
             catch (SQLiteException ex)
             {
-                // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Database exception occurred.", false);
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "warehouse locations status failed.", false);
 
-                // TODO: Resource strings
                 throw new Exception("Database exception occurred. Warehouse location status failed.", ex);
             }
 
@@ -111,40 +105,37 @@ namespace dMobile.GroundWork
         }
 
         /// <summary>
-        /// The Purge
+        /// The Purge.
         /// </summary>
-        public override async Task Purge()
+        public override async Task PurgeData()
         {
             try
             {
-                // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging warehouse locations.", true);
 
                 await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync("DELETE FROM tWarehouseLocationMapType");
             }
             catch (SQLiteException ex)
             {
-                // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Database exception occurred.", true);
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging warehouse locations.", true);
 
-                // TODO: Resource strings
                 throw new Exception("Database exception occurred. Purging warehouse locations.", ex);
             }
         }
 
         /// <summary>
-        /// The SendRequest
+        /// The SendRequest.
         /// </summary>
         /// <param name="whsLocMapType"></param>
         /// <returns></returns>
-        protected override async Task<string> SendRequest(int whsLocMapType)
+        protected override async Task<string> SendRequestProdLoc(int whsLocMapType)
         {
-            return await this.SendComm(await this.CreateRequest(whsLocMapType));
+            return await this.SendComm(await this.CreateRequestProdLoc(whsLocMapType));
         }
 
         /// <summary>
-        /// The Save
+        /// The Save.
         /// </summary>
         /// <param name="reqData"></param>
         protected override async Task Save(string reqData)
@@ -164,21 +155,17 @@ namespace dMobile.GroundWork
                 {
                     using (DataSet ds = new DataSet())
                     {
-                        // TODO: Resource Strings
                         this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Reading received data.", false);
 
                         ds.ReadXml(SysCommon.GetXmlReader(ref reqData), XmlReadMode.Auto);
 
-                        // TODO: Resource Strings
                         this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving warehouse locations.", false);
 
                         if (ds.Tables.Count != 0)
                         {
                             int progMax = Convert.ToInt32(ds.Tables["seg"].Rows.Count);
 
-                            // TODO: Resource Strings
                             this.DataAccessStatusOutHandler(this, EventArgs.Empty, string.Format("Records {0}", progMax), false);
-
 
                             int progValue = 0;
                             bool isLocMapTypeFound = false;
@@ -198,7 +185,6 @@ namespace dMobile.GroundWork
                                 }
                                 else
                                 {
-                                    // TODO: Resource Strings
                                     throw new Exception("drWhs.Read() failed." + Environment.NewLine + errMsg);
                                 }
 
@@ -226,7 +212,7 @@ namespace dMobile.GroundWork
                                         break;
 
                                     default:
-                                        // TODO: Resource Strings
+
                                         throw new Exception(string.Format("Undefined location map subtype {0}", locMapSubType));
                                 }
 
@@ -246,7 +232,6 @@ namespace dMobile.GroundWork
                                         }
                                         else
                                         {
-                                            // TODO: Resource Strings
                                             throw new Exception("drWhs.Read() failed." + Environment.NewLine + errMsg);
                                         }
 
@@ -261,7 +246,6 @@ namespace dMobile.GroundWork
                                         }
                                         else
                                         {
-                                            // TODO: Resource Strings
                                             throw new Exception("drSect.Read() failed." + Environment.NewLine + errMsg);
                                         }
 
@@ -276,7 +260,6 @@ namespace dMobile.GroundWork
                                         }
                                         else
                                         {
-                                            // TODO: Resource Strings
                                             throw new Exception("drSlot.Read() failed." + Environment.NewLine + errMsg);
                                         }
 
@@ -300,7 +283,6 @@ namespace dMobile.GroundWork
                                     }
                                     else
                                     {
-                                        // TODO: Resource Strings
                                         throw new Exception("drLocMapType.Read() failed." + Environment.NewLine + errMsg);
                                     }
                                 }
@@ -330,7 +312,6 @@ namespace dMobile.GroundWork
 
                         transaction.Commit();
 
-                        // TODO: Resource Strings
                         this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving warehouse locations complete.", false);
                     }
                 }
@@ -338,22 +319,20 @@ namespace dMobile.GroundWork
                 {
                     transaction.Rollback();
 
-                    // TODO: Resource Strings
                     this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Database exception occurred.", false);
                     this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving warehouse locations failed.", false);
 
-                    // TODO: Resource Strings
                     throw new Exception("Database exception occurred. Saving warehouse locations failed." + Environment.NewLine + errMsg, ex);
                 }
             });
         }
 
         /// <summary>
-        /// The CreateRequest
+        /// The CreateRequest.
         /// </summary>
-        /// <param name="whsLocMapType">The whsLocMapType<see cref="int"/></param>
+        /// <param name="whsLocMapType">The whsLocMapType<see cref="int"/>.</param>
         /// <returns></returns>
-        protected async override Task<string> CreateRequest(int whsLocMapType)
+        protected async override Task<string> CreateRequestProdLoc(int whsLocMapType)
         {
             StringBuilder xmlString = new StringBuilder();
             XmlWriter xml = XmlWriter.Create(xmlString);
@@ -364,7 +343,7 @@ namespace dMobile.GroundWork
                 + "<command>"
                 + "<action>REQUEST WAREHOUSE LOCATION MAP TYPES</action>"
                 + await SysCommon.GetRequestDefaults(true)
-                + ("<warehouse_location_map_type>" + whsLocMapType + "</warehouse_location_map_type>")
+                + "<warehouse_location_map_type>" + whsLocMapType + "</warehouse_location_map_type>"
                 + "</command>"
                 + "</imclient>");
 

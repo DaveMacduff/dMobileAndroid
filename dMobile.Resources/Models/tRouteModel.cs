@@ -1,8 +1,12 @@
-﻿using System;
-using SQLite;
+﻿// <copyright file="tRouteModel.cs" company="InterSect Business Systems Inc">
+// Copyright (c) InterSect Business Systems Inc. All rights reserved.
+// </copyright>
 
 namespace dMobile.Resources.Models
 {
+    using System;
+    using SQLite;
+
     //string sqlTable = "CREATE TABLE IF NOT EXISTS tRoute"
     //+ "("
     //+ "RouteRefno INTEGER NOT NULL CONSTRAINT PK_RouteOnRouteRefno PRIMARY KEY,"
@@ -24,7 +28,6 @@ namespace dMobile.Resources.Models
 
     //sqlNdx = "CREATE INDEX IF NOT EXISTS RouteOnRouteDescription ON tRoute(RouteDescription ASC)";
     //await this.RunDDLCommand(sqlNdx);
-
     [Table("tRoute")]
     public class tRouteModel
     {

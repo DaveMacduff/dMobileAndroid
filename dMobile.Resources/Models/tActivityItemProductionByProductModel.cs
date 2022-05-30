@@ -1,9 +1,13 @@
-﻿using System;
-using SQLite;
-using SQLiteNetExtensions.Attributes;
+﻿// <copyright file="tActivityItemProductionByProductModel.cs" company="InterSect Business Systems Inc">
+// Copyright (c) InterSect Business Systems Inc. All rights reserved.
+// </copyright>
 
 namespace dMobile.Resources.Models
 {
+    using System;
+    using SQLite;
+    using SQLiteNetExtensions.Attributes;
+
     //string sqlTable = "CREATE TABLE IF NOT EXISTS tActivityItemProductionByProduct"
     //+ "("
 
@@ -25,7 +29,6 @@ namespace dMobile.Resources.Models
 
     //string sqlNdx = "CREATE UNIQUE INDEX IF NOT EXISTS UQ_ActivityItemProductionByProductOnActivityItemProductionByProductFKRefno ON tActivityItemProductionByProduct(ActivityItemProductionByProductFKRefno ASC)";
     //await this.RunDDLCommand(sqlNdx);
-
     [Table("tActivityItemProductionByProduct")]
     public class tActivityItemProductionByProductModel
     {

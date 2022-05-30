@@ -1,9 +1,13 @@
-﻿using System;
-using SQLite;
-using SQLiteNetExtensions.Attributes;
+﻿// <copyright file="tActivityItemReceivingCommentModel.cs" company="InterSect Business Systems Inc">
+// Copyright (c) InterSect Business Systems Inc. All rights reserved.
+// </copyright>
 
 namespace dMobile.Resources.Models
 {
+    using System;
+    using SQLite;
+    using SQLiteNetExtensions.Attributes;
+
     //string sqlTable = "CREATE TABLE IF NOT EXISTS tActivityItemReceivingComment"
     //+ "("
     //+ "ActivityItemRefno INTEGER NOT NULL CONSTRAINT PK_ActivityItemReceivingCommentOnActivityItemRefno PRIMARY KEY,"
@@ -20,7 +24,6 @@ namespace dMobile.Resources.Models
     //}
 
     //await this.RunDDLCommand(sqlTable);
-
     [Table("tActivityItemReceivingComment")]
     public class tActivityItemReceivingCommentModel
     {

@@ -38,7 +38,7 @@
                 </Grid>
 
                 <Frame VerticalOptions="Start" Grid.Row="1" OutlineColor="{DynamicResource BorderColor}">
-                    <ListView x:Name="lstDisplay" SelectionMode="None" HasUnevenRows="True" IsEnabled="{Binding Loading, Converter={Helpers:BoolConverter}}" SeparatorVisibility="None">
+                    <ListView x:Name="ListViewDisplayExtraInfo" SelectionMode="None" HasUnevenRows="True" IsEnabled="{Binding Loading, Converter={Helpers:BoolConverter}}" SeparatorVisibility="None">
                         <ListView.ItemTemplate>
                             <DataTemplate>
                                 <ViewCell>
@@ -58,12 +58,12 @@
                     </Grid.ColumnDefinitions>
 
                     <Entry x:Name="txtSearchItem" Grid.Row="0" Grid.Column="0" Focused="txtSearchItem_GotFocus" TextChanged="txtSearchHdr_TextChanged" IsEnabled="{Binding Loading, Converter={Helpers:BoolConverter}}"/>
-                    <customcontrols:CustomPicker x:Name="updnBarCodeModifier1" Grid.Row="0" Grid.Column="1" Image="arrow_drop_down" SelectedIndexChanged="updnBarCodeModifier1_SelectedIndexChanged" IsEnabled="{Binding Loading, Converter={Helpers:BoolConverter}}"/>
+                    <customcontrols:CustomPicker x:Name="BarCodeModifier1Picker" Grid.Row="0" Grid.Column="1" Image="arrow_drop_down" SelectedIndexChanged="BarCodeModifier1Picker_SelectedIndexChanged" IsEnabled="{Binding Loading, Converter={Helpers:BoolConverter}}"/>
                     <!--<Button x:Name="cmdFilter" Grid.Row="0" Grid.Column="1" Clicked="CmdFilter_Clicked" IsEnabled="{Binding Loading, Converter={Helpers:BoolConverter}}"/>-->
                 </Grid>
 
                 <Grid Grid.Row="3">
-                    <Button x:Name="cmdDetails" Grid.Row="0" Grid.Column="0" Clicked="cmdDetails_Click" IsEnabled="{Binding Loading, Converter={Helpers:BoolConverter}}"/>
+                    <Button x:Name="cmdDetails" Grid.Row="0" Grid.Column="0" Clicked="CmdDetails_Click" IsEnabled="{Binding Loading, Converter={Helpers:BoolConverter}}"/>
                     <Button x:Name="cmdPrevious" Grid.Row="0" Grid.Column="1" Clicked="cmdPrevious_Click" IsEnabled="{Binding Loading, Converter={Helpers:BoolConverter}}"/>
                     <Button x:Name="cmdNext" Grid.Row="0" Grid.Column="2" Clicked="cmdNext_Click" IsEnabled="{Binding Loading, Converter={Helpers:BoolConverter}}"/>
                 </Grid>

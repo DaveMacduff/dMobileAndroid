@@ -19,18 +19,18 @@
 
                 <Frame VerticalOptions="Start" OutlineColor="{DynamicResource BorderColor}" Grid.Row="0">
                     <ScrollView Orientation="Horizontal">
-                        <Grid x:Name="dataGridMainActivityHeader">
+                        <Grid x:Name="GridMainActivity">
                             <Grid.RowDefinitions>
                                 <RowDefinition Height="Auto"/>
                             </Grid.RowDefinitions>
 
-                            <ListView x:Name="dataGridMainActivity" HasUnevenRows="True" IsEnabled="{Binding Loading, Converter={Helpers:BoolConverter}}" Grid.Row="1"/>
+                            <ListView x:Name="ListViewMainActivity" HasUnevenRows="True" IsEnabled="{Binding Loading, Converter={Helpers:BoolConverter}}" Grid.Row="1"/>
                         </Grid>
                     </ScrollView>
                 </Frame>
 
                 <Frame VerticalOptions="Start" Grid.Row="1" OutlineColor="{DynamicResource BorderColor}">
-                    <ListView x:Name="lstDisplay" SelectionMode="None" HasUnevenRows="True" IsEnabled="{Binding Loading, Converter={Helpers:BoolConverter}}" SeparatorVisibility="None">
+                    <ListView x:Name="ListViewDisplayExtraInfo" SelectionMode="None" HasUnevenRows="True" IsEnabled="{Binding Loading, Converter={Helpers:BoolConverter}}" SeparatorVisibility="None">
                         <ListView.ItemTemplate>
                             <DataTemplate>
                                 <ViewCell>
@@ -45,7 +45,7 @@
 
                 <StackLayout Grid.Row="2">
                     <Grid>
-                        <Picker x:Name="updnBarCodeModifier1" Grid.Row="0" Grid.Column="0" IsEnabled="{Binding Loading, Converter={Helpers:BoolConverter}}"/>
+                        <Picker x:Name="BarCodeModifier1Picker" Grid.Row="0" Grid.Column="0" IsEnabled="{Binding Loading, Converter={Helpers:BoolConverter}}"/>
                         <Button x:Name="cmdAddProduct" Grid.Row="0" Grid.Column="1" Clicked="cmdAddProduct_Click" IsEnabled="{Binding Loading, Converter={Helpers:BoolConverter}}"/>
 
                         <Button x:Name="cmdLocation" Grid.Row="1" Grid.Column="0" Clicked="cmdLocation_Click" IsEnabled="{Binding Loading, Converter={Helpers:BoolConverter}}"/>

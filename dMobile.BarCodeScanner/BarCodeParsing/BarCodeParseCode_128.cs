@@ -1,17 +1,18 @@
-namespace dMobile.BarCodeScanner
+// <copyright file="BarCodeParseCode_128.cs" company="InterSect Business Systems Inc">
+// Copyright (c) InterSect Business Systems Inc. All rights reserved.
+// </copyright>
+
+namespace dMobile.BarCodeScanner.BarCodeParsing
 {
     using System;
     using dMobile.Bedrock;
 
     public class BarCodeParseCode_128 : BarCodeParse
     {
-        #region Public Members
-
         /// <summary>
-        /// Parsing rules reviewed
+        /// Main call to parse the bar code data.
         /// </summary>
-        /// <param name="barCodeData"></param>
-        /// <returns></returns>
+        /// <param name="barCodeData">Bar code data to parse.</param>
         public override void ParseBarCodeData(string barCodeData)
         {
             this.Remainder = barCodeData;
@@ -25,14 +26,12 @@ namespace dMobile.BarCodeScanner
                 this.Remainder = barCodeData;
             }
 
-
-            if (!string.IsNullOrEmpty(Remainder))
+            if (!string.IsNullOrEmpty(this.Remainder))
             {
                 if (this.Remainder.Length < 4)
                 {
                     if (this.Settings.IsRuleEnabled_ProductBarCodeMinimumLengthRequirement4Digits)
                     {
-                        // TODO: Resource strings
                         throw new RuleViolationException("Bar code minimum length rule violated, must have a length greater than 4.");
                     }
                 }
@@ -65,7 +64,7 @@ namespace dMobile.BarCodeScanner
                     barCodeParse.ParseBarCodeData(barCodeData);
                 }
                 else if (this.Settings.IsRuleEnabled_ParseNossackBrokerMultiNationalProductFromChili
-                    && IsChiliBarcode(barCodeData))
+                    && this.IsChiliBarcode(barCodeData))
                 {
                     this.ClearResetBarCodeProperties(false);
                     BarCodeParseCode_128_BrokerMultiNationalFromChili barCodeParse
@@ -107,19 +106,14 @@ namespace dMobile.BarCodeScanner
                 && barcode.Substring(2, 6) == "896775";
         }
 
-        #endregion
-
-        #region Protected Methods
-
         /// <summary>
-        /// 
+        /// Identify the product identifier.
         /// </summary>
-        /// <param name="barCodeData"></param>
-        /// <returns></returns>
+        /// <param name="barCodeData"><see cref="string"/> Bar code data.</param>
+        /// <returns>Remainder of the unparsable bar code data.</returns>
         protected override string IdentifyProductIdentifier(string barCodeData)
         {
-            int len = 0;
-
+            int len;
             if (barCodeData.Length < 14)
             {
                 this.ProductIdentifier = barCodeData.PadLeft(14, '0');
@@ -140,7 +134,5 @@ namespace dMobile.BarCodeScanner
 
             return barCodeData;
         }
-
-        #endregion
     }
 }

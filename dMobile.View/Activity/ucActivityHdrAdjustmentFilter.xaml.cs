@@ -1,42 +1,30 @@
-﻿using Android.Views;
-using dMobile.Bedrock;
-using dMobile.Resources.Enums;
-using dMobile.Resources.Types;
-using dMobile.View.CustomPages.Modal;
-using dMobile.View.Forms;
-using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Xml.Linq;
-using Xamarin.Forms;
-using Xamarin.Forms.Xaml;
+﻿// <copyright file="ucActivityHdrAdjustmentFilter.xaml.cs" company="InterSect Business Systems Inc">
+// Copyright (c) InterSect Business Systems Inc. All rights reserved.
+// </copyright>
 
 namespace dMobile.View.Activity
 {
+    using System;
+    using System.Collections;
+    using System.Collections.Generic;
+    using System.Linq;
+    using System.Text;
+    using System.Threading.Tasks;
+    using System.Xml.Linq;
+    using Android.Views;
+    using dMobile.Bedrock;
+    using dMobile.Resources.Enums;
+    using dMobile.Resources.Types;
+    using dMobile.View.CustomPages.Modal;
+    using dMobile.View.Forms;
+    using Xamarin.Forms;
+    using Xamarin.Forms.Xaml;
+
     [XamlCompilation(XamlCompilationOptions.Compile)]
     public partial class ucActivityHdrAdjustmentFilter : DMobileModal, IAppArea
     {
-        #region Fields
-
-        private AdjustmentSettings adjSettings = new AdjustmentSettings();
-        private ArrayList sortBy1 = new ArrayList();
-        private ArrayList sortBy2 = new ArrayList();
-        private ArrayList sortBy3 = new ArrayList();
-        private ArrayList adjTypes = new ArrayList();
-        private string sqlSortBy = string.Empty;
-        private bool enterTrapped = false;
-        private bool isControlLoaded = false;
-        private string fullClassName = "dMobile.ucActivityHdrAdjustmentFilter";
-        private bool changesMade = false;
         private Dictionary<string, Sort> filters = new Dictionary<string, Sort>();
         private Dictionary<string, string> adjustmentTypeFilters = new Dictionary<string, string>();
-
-        #endregion
-
-        #region Constructors
 
         /// <summary>
         /// Constructor.
@@ -46,7 +34,6 @@ namespace dMobile.View.Activity
         {
             this.InitializeComponent();
 
-            // TODO: Resource strings
             this.Title = this.GetControlDescription();
             this.lblSortBy.Text = "Sort By";
             this.lblApplyAdjustmentType.Text = "Apply Adjustment Type Filter";
@@ -67,42 +54,38 @@ namespace dMobile.View.Activity
             this.cboAdjustmentType.SelectedIndex = Convert.ToInt32(this.AdjSettings.AdjustmentType);
 
             // At least one sort option must be selected
-            // TODO: Resource strings
             this.SortBy1.Clear();
-            this.SortBy1.Add("Adjustment # Ascending");
-            this.SortBy1.Add("Adjustment # Descending");
-            this.SortBy1.Add("Adjustment Type # Ascending");
-            this.SortBy1.Add("Adjustment Type # Descending");
-            this.SortBy1.Add("Adjustment Date Ascending");
-            this.SortBy1.Add("Adjustment Date Descending");
+            _ = this.SortBy1.Add("Adjustment # Ascending");
+            _ = this.SortBy1.Add("Adjustment # Descending");
+            _ = this.SortBy1.Add("Adjustment Type # Ascending");
+            _ = this.SortBy1.Add("Adjustment Type # Descending");
+            _ = this.SortBy1.Add("Adjustment Date Ascending");
+            _ = this.SortBy1.Add("Adjustment Date Descending");
             this.cboSortBy1.ItemsSource = this.SortBy1;
             this.cboSortBy1.SelectedIndex = this.AdjSettings.SortBy1Index;
 
-            // TODO: Resource strings
             this.SortBy2.Clear();
-            this.SortBy2.Add(string.Empty);
-            this.SortBy2.Add("Adjustment # Ascending");
-            this.SortBy2.Add("Adjustment # Descending");
-            this.SortBy2.Add("Adjustment Type # Ascending");
-            this.SortBy2.Add("Adjustment Type # Descending");
-            this.SortBy2.Add("Adjustment Date Ascending");
-            this.SortBy2.Add("Adjustment Date Descending");
+            _ = this.SortBy2.Add(string.Empty);
+            _ = this.SortBy2.Add("Adjustment # Ascending");
+            _ = this.SortBy2.Add("Adjustment # Descending");
+            _ = this.SortBy2.Add("Adjustment Type # Ascending");
+            _ = this.SortBy2.Add("Adjustment Type # Descending");
+            _ = this.SortBy2.Add("Adjustment Date Ascending");
+            _ = this.SortBy2.Add("Adjustment Date Descending");
             this.cboSortBy2.ItemsSource = this.SortBy2;
             this.cboSortBy2.SelectedIndex = this.AdjSettings.SortBy2Index;
 
-            // TODO: Resource strings
             this.SortBy3.Clear();
-            this.SortBy3.Add(string.Empty);
-            this.SortBy3.Add("Adjustment # Ascending");
-            this.SortBy3.Add("Adjustment # Descending");
-            this.SortBy3.Add("Adjustment Type # Ascending");
-            this.SortBy3.Add("Adjustment Type # Descending");
-            this.SortBy3.Add("Adjustment Date Ascending");
-            this.SortBy3.Add("Adjustment Date Descending");
+            _ = this.SortBy3.Add(string.Empty);
+            _ = this.SortBy3.Add("Adjustment # Ascending");
+            _ = this.SortBy3.Add("Adjustment # Descending");
+            _ = this.SortBy3.Add("Adjustment Type # Ascending");
+            _ = this.SortBy3.Add("Adjustment Type # Descending");
+            _ = this.SortBy3.Add("Adjustment Date Ascending");
+            _ = this.SortBy3.Add("Adjustment Date Descending");
             this.cboSortBy3.ItemsSource = this.SortBy3;
             this.cboSortBy3.SelectedIndex = this.AdjSettings.SortBy3Index;
 
-            // TODO: Resource strings
             this.filters.Clear();
             this.filters.Add(string.Empty, null);
             this.filters.Add("Adjustment # Ascending", new Sort() { SortValue = "ActivityAdjustmentFKRefno", SortOrder = SortOrder.ASC });
@@ -121,36 +104,32 @@ namespace dMobile.View.Activity
             // KLUDGE: these choices must be in the same order as the ActivityAdjustmentTypes definition.
             // The clsAdjustmentActivity.SelectActivity Method set the oAdjustmentSettings.iAdjustmentTypeIdx property
             // based on the enumeration value
-
-            // TODO: Resource strings
             this.AdjTypes.Clear();
-            this.AdjTypes.Add(new ComboBoxMembers("Inventory", Convert.ToInt32(SysCommon.AdjTypes.Inventory).ToString()));
-            this.AdjTypes.Add(new ComboBoxMembers("Unit Converstion", Convert.ToInt32(SysCommon.AdjTypes.UnitConversion).ToString()));
-            this.AdjTypes.Add(new ComboBoxMembers("Rework", Convert.ToInt32(SysCommon.AdjTypes.Rework).ToString()));
-            this.AdjTypes.Add(new ComboBoxMembers("Partial Rework", Convert.ToInt32(SysCommon.AdjTypes.PartialRework).ToString()));
-            this.AdjTypes.Add(new ComboBoxMembers("Production", Convert.ToInt32(SysCommon.AdjTypes.Production).ToString()));
-            this.AdjTypes.Add(new ComboBoxMembers("Partial Production", Convert.ToInt32(SysCommon.AdjTypes.PartialProduction).ToString()));
-            this.AdjTypes.Add(new ComboBoxMembers("Disposal", Convert.ToInt32(SysCommon.AdjTypes.Disposal).ToString()));
-            this.AdjTypes.Add(new ComboBoxMembers("Fresh To Frozen", Convert.ToInt32(SysCommon.AdjTypes.Fresh2Frozen).ToString()));
-            this.AdjTypes.Add(new ComboBoxMembers("Transfer", Convert.ToInt32(SysCommon.AdjTypes.Transfer).ToString()));
-            this.AdjTypes.Add(new ComboBoxMembers("Pack Off", Convert.ToInt32(SysCommon.AdjTypes.PackOff).ToString()));
-            this.AdjTypes.Add(new ComboBoxMembers("Lost & Found", Convert.ToInt32(SysCommon.AdjTypes.LostFound).ToString()));
-            this.AdjTypes.Add(new ComboBoxMembers("Cycle Count", Convert.ToInt32(SysCommon.AdjTypes.CycleCount).ToString()));
-            this.AdjTypes.Add(new ComboBoxMembers("Move To Deli", Convert.ToInt32(SysCommon.AdjTypes.MoveToDeli).ToString()));
-            this.AdjTypes.Add(new ComboBoxMembers("Periodic Count", Convert.ToInt32(SysCommon.AdjTypes.PeriodicCount).ToString()));
-            this.AdjTypes.Add(new ComboBoxMembers("Manufacture", Convert.ToInt32(SysCommon.AdjTypes.Manufacture).ToString()));
-            this.AdjTypes.Add(new ComboBoxMembers("Requisition", Convert.ToInt32(SysCommon.AdjTypes.Requisition).ToString()));
-            this.AdjTypes.Add(new ComboBoxMembers("Auto Convert To", Convert.ToInt32(SysCommon.AdjTypes.AutoConvertTo).ToString()));
-            this.AdjTypes.Add(new ComboBoxMembers("Auto Create From", Convert.ToInt32(SysCommon.AdjTypes.AutoCreateFrom).ToString()));
-            this.AdjTypes.Add(new ComboBoxMembers("Skid Putaway", Convert.ToInt32(SysCommon.AdjTypes.SkidPutaway).ToString()));
+            _ = this.AdjTypes.Add(new ComboBoxMembers("Inventory", Convert.ToInt32(SysCommon.AdjTypes.Inventory).ToString()));
+            _ = this.AdjTypes.Add(new ComboBoxMembers("Unit Converstion", Convert.ToInt32(SysCommon.AdjTypes.UnitConversion).ToString()));
+            _ = this.AdjTypes.Add(new ComboBoxMembers("Rework", Convert.ToInt32(SysCommon.AdjTypes.Rework).ToString()));
+            _ = this.AdjTypes.Add(new ComboBoxMembers("Partial Rework", Convert.ToInt32(SysCommon.AdjTypes.PartialRework).ToString()));
+            _ = this.AdjTypes.Add(new ComboBoxMembers("Production", Convert.ToInt32(SysCommon.AdjTypes.Production).ToString()));
+            _ = this.AdjTypes.Add(new ComboBoxMembers("Partial Production", Convert.ToInt32(SysCommon.AdjTypes.PartialProduction).ToString()));
+            _ = this.AdjTypes.Add(new ComboBoxMembers("Disposal", Convert.ToInt32(SysCommon.AdjTypes.Disposal).ToString()));
+            _ = this.AdjTypes.Add(new ComboBoxMembers("Fresh To Frozen", Convert.ToInt32(SysCommon.AdjTypes.Fresh2Frozen).ToString()));
+            _ = this.AdjTypes.Add(new ComboBoxMembers("Transfer", Convert.ToInt32(SysCommon.AdjTypes.Transfer).ToString()));
+            _ = this.AdjTypes.Add(new ComboBoxMembers("Pack Off", Convert.ToInt32(SysCommon.AdjTypes.PackOff).ToString()));
+            _ = this.AdjTypes.Add(new ComboBoxMembers("Lost & Found", Convert.ToInt32(SysCommon.AdjTypes.LostFound).ToString()));
+            _ = this.AdjTypes.Add(new ComboBoxMembers("Cycle Count", Convert.ToInt32(SysCommon.AdjTypes.CycleCount).ToString()));
+            _ = this.AdjTypes.Add(new ComboBoxMembers("Move To Deli", Convert.ToInt32(SysCommon.AdjTypes.MoveToDeli).ToString()));
+            _ = this.AdjTypes.Add(new ComboBoxMembers("Periodic Count", Convert.ToInt32(SysCommon.AdjTypes.PeriodicCount).ToString()));
+            _ = this.AdjTypes.Add(new ComboBoxMembers("Manufacture", Convert.ToInt32(SysCommon.AdjTypes.Manufacture).ToString()));
+            _ = this.AdjTypes.Add(new ComboBoxMembers("Requisition", Convert.ToInt32(SysCommon.AdjTypes.Requisition).ToString()));
+            _ = this.AdjTypes.Add(new ComboBoxMembers("Auto Convert To", Convert.ToInt32(SysCommon.AdjTypes.AutoConvertTo).ToString()));
+            _ = this.AdjTypes.Add(new ComboBoxMembers("Auto Create From", Convert.ToInt32(SysCommon.AdjTypes.AutoCreateFrom).ToString()));
+            _ = this.AdjTypes.Add(new ComboBoxMembers("Skid Putaway", Convert.ToInt32(SysCommon.AdjTypes.SkidPutaway).ToString()));
 
             // <WO ID="14748" comment="Added convert product due to aforementioned KLUDGE at top of function. Having to have same order of enumerations. So to play it safe I put debox and convert product in.>
-
-            this.AdjTypes.Add(new ComboBoxMembers("Convert Product", Convert.ToInt32(SysCommon.AdjTypes.ConvertProduct).ToString()));
-            this.AdjTypes.Add(new ComboBoxMembers("Debox", Convert.ToInt32(SysCommon.AdjTypes.Debox).ToString()));
-            this.AdjTypes.Add(new ComboBoxMembers("Convert Skid", Convert.ToInt32(SysCommon.AdjTypes.ConvertSkid).ToString()));
+            _ = this.AdjTypes.Add(new ComboBoxMembers("Convert Product", Convert.ToInt32(SysCommon.AdjTypes.ConvertProduct).ToString()));
+            _ = this.AdjTypes.Add(new ComboBoxMembers("Debox", Convert.ToInt32(SysCommon.AdjTypes.Debox).ToString()));
+            _ = this.AdjTypes.Add(new ComboBoxMembers("Convert Skid", Convert.ToInt32(SysCommon.AdjTypes.ConvertSkid).ToString()));
             // </WO>
-
             this.adjustmentTypeFilters.Clear();
             this.adjustmentTypeFilters.Add("Inventory", Convert.ToInt32(SysCommon.AdjTypes.Inventory).ToString());
             this.adjustmentTypeFilters.Add("Unit Converstion", Convert.ToInt32(SysCommon.AdjTypes.UnitConversion).ToString());
@@ -177,12 +156,8 @@ namespace dMobile.View.Activity
 
         }
 
-        #endregion
-
-        #region OnAppearing/OnDisappearing
-
         /// <summary>
-        /// The OnAppearing
+        /// The OnAppearing.
         /// </summary>
         protected override async void OnAppearing()
         {
@@ -190,8 +165,7 @@ namespace dMobile.View.Activity
 
             MessagingCenter.Subscribe<string>(this, EventTypes.OnKeyUp.ToString(), async (keyPressed) =>
             {
-                // TODO: Verify keycodes
-                Enum.TryParse(keyPressed, out Keycode keycode);
+                _ = Enum.TryParse(keyPressed, out Keycode keycode);
 
                 if (!this.Loading)
                 {
@@ -204,7 +178,7 @@ namespace dMobile.View.Activity
                         }
                         else
                         {
-                            await this.CancelChanges();
+                            _ = await this.CancelChanges();
                             this.DialogResult = DialogResult.None;
                             await this.Close();
                         }
@@ -218,13 +192,12 @@ namespace dMobile.View.Activity
             }
             catch (Exception ex)
             {
-                // TODO: Resource strings
-                await Device.InvokeOnMainThreadAsync(async () => await DisplayAlert("Error", "this.ucActivityHdrAdjustmentFilter_GotFocus threw an error " + ex, "OK"));
+                await Device.InvokeOnMainThreadAsync(async () => await this.DisplayAlert("Error", "this.ucActivityHdrAdjustmentFilter_GotFocus threw an error " + ex, "OK"));
             }
         }
 
         /// <summary>
-        /// The OnDisappearing
+        /// The OnDisappearing.
         /// </summary>
         protected override async void OnDisappearing()
         {
@@ -238,7 +211,7 @@ namespace dMobile.View.Activity
         {
             Device.BeginInvokeOnMainThread(async () =>
             {
-                base.OnBackButtonPressed();
+                _ = base.OnBackButtonPressed();
 
                 if (await this.SaveChanges())
                 {
@@ -247,7 +220,7 @@ namespace dMobile.View.Activity
                 }
                 else
                 {
-                    await this.CancelChanges();
+                    _ = await this.CancelChanges();
                     this.DialogResult = DialogResult.None;
                     await this.Close();
                 }
@@ -256,143 +229,25 @@ namespace dMobile.View.Activity
             return true;
         }
 
-        #endregion
+        public ArrayList AdjTypes { get; set; } = new ArrayList();
 
-        #region Properties
+        public ArrayList SortBy1 { get; set; } = new ArrayList();
 
-        public ArrayList AdjTypes
-        {
-            get
-            {
-                return this.adjTypes;
-            }
+        public ArrayList SortBy2 { get; set; } = new ArrayList();
 
-            set
-            {
-                this.adjTypes = value;
-            }
-        }
+        public ArrayList SortBy3 { get; set; } = new ArrayList();
 
-        public ArrayList SortBy1
-        {
-            get
-            {
-                return this.sortBy1;
-            }
+        public bool EnterTrapped { get; set; } = false;
 
-            set
-            {
-                this.sortBy1 = value;
-            }
-        }
+        public bool IsControlLoaded { get; set; } = false;
 
-        public ArrayList SortBy2
-        {
-            get
-            {
-                return this.sortBy2;
-            }
+        public AdjustmentSettings AdjSettings { get; set; } = new AdjustmentSettings();
 
-            set
-            {
-                this.sortBy2 = value;
-            }
-        }
+        public string SQLSortBy { get; set; } = string.Empty;
 
-        public ArrayList SortBy3
-        {
-            get
-            {
-                return this.sortBy3;
-            }
+        public string FullClassName { get; set; } = "dMobile.ucActivityHdrAdjustmentFilter";
 
-            set
-            {
-                this.sortBy3 = value;
-            }
-        }
-
-        public bool EnterTrapped
-        {
-            get
-            {
-                return this.enterTrapped;
-            }
-
-            set
-            {
-                this.enterTrapped = value;
-            }
-        }
-
-        public bool IsControlLoaded
-        {
-            get
-            {
-                return this.isControlLoaded;
-            }
-
-            set
-            {
-                this.isControlLoaded = value;
-            }
-        }
-
-        public AdjustmentSettings AdjSettings
-        {
-            get
-            {
-                return this.adjSettings;
-            }
-
-            set
-            {
-                this.adjSettings = value;
-            }
-        }
-
-        public string SQLSortBy
-        {
-            get
-            {
-                return this.sqlSortBy;
-            }
-
-            set
-            {
-                this.sqlSortBy = value;
-            }
-        }
-
-        public string FullClassName
-        {
-            get
-            {
-                return this.fullClassName;
-            }
-
-            set
-            {
-                this.fullClassName = value;
-            }
-        }
-
-        public bool ChangesMade
-        {
-            get
-            {
-                return this.changesMade;
-            }
-
-            set
-            {
-                this.changesMade = value;
-            }
-        }
-
-        #endregion
-
-        #region Public Members
+        public bool ChangesMade { get; set; } = false;
 
         /// <summary>
         /// Unregister the bar code scan event handler and disable the scanner.
@@ -418,27 +273,24 @@ namespace dMobile.View.Activity
         /// <remarks></remarks>
         public void ucActivityHdrAdjustmentFilter_GotFocus(object sender, EventArgs e)
         {
-            if (!SysEnvironment.GetInstance().IsApplicationExitInvoked)
+            // Reload oAdjustmentSettings because intial values will be scewed because of SelectedIndexChanged events firing
+            if (!this.IsControlLoaded)
             {
-                // Reload oAdjustmentSettings because intial values will be scewed because of SelectedIndexChanged events firing
-                if (!this.IsControlLoaded)
-                {
-                    this.LoadData();
-                }
-
-                this.chkApplyAdjustmentType.IsToggled = this.AdjSettings.IsApplyAdjustmentType;
-                this.cboAdjustmentType.SelectedIndex = (int)this.AdjSettings.AdjustmentType;
-
-                this.chkApplyAdjustmentDate.IsToggled = this.AdjSettings.IsApplyAdjustmentDate;
-                this.dtpAdjustmentDate.Date = this.AdjSettings.AdjustmentDate;
-
-                this.chkNegateScanQuantity.IsEnabled = SysCommon.IsAllowedChangeNegateQuantityFromAdjType(this.AdjSettings.AdjustmentType);
-                this.chkNegateScanQuantity.IsToggled = SysCommon.DefaultNegateQuantityFromAdjType(this.AdjSettings.AdjustmentType);
-
-                this.cboSortBy1.SelectedIndex = this.AdjSettings.SortBy1Index;
-                this.cboSortBy2.SelectedIndex = this.AdjSettings.SortBy2Index;
-                this.cboSortBy3.SelectedIndex = this.AdjSettings.SortBy3Index;
+                this.LoadData();
             }
+
+            this.chkApplyAdjustmentType.IsToggled = this.AdjSettings.IsApplyAdjustmentType;
+            this.cboAdjustmentType.SelectedIndex = (int)this.AdjSettings.AdjustmentType;
+
+            this.chkApplyAdjustmentDate.IsToggled = this.AdjSettings.IsApplyAdjustmentDate;
+            this.dtpAdjustmentDate.Date = this.AdjSettings.AdjustmentDate;
+
+            this.chkNegateScanQuantity.IsEnabled = SysCommon.IsAllowedChangeNegateQuantityFromAdjType(this.AdjSettings.AdjustmentType);
+            this.chkNegateScanQuantity.IsToggled = SysCommon.DefaultNegateQuantityFromAdjType(this.AdjSettings.AdjustmentType);
+
+            this.cboSortBy1.SelectedIndex = this.AdjSettings.SortBy1Index;
+            this.cboSortBy2.SelectedIndex = this.AdjSettings.SortBy2Index;
+            this.cboSortBy3.SelectedIndex = this.AdjSettings.SortBy3Index;
         }
 
         /// <summary>
@@ -482,7 +334,6 @@ namespace dMobile.View.Activity
         /// <remarks></remarks>
         public string GetControlDescription()
         {
-            // TODO: Resource strings
             return "dMobile Activity Adjustment Filter";
         }
 
@@ -496,10 +347,10 @@ namespace dMobile.View.Activity
             XDocument request = XDocument.Parse(
                 "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>" +
                 "<params>" +
-                ("<adjustment_date>" + this.AdjSettings.AdjustmentDate.ToShortDateString() + "</adjustment_date>") +
-                ("<adjustment_type>" + Convert.ToInt32(this.AdjSettings.AdjustmentType) + "</adjustment_type>") +
-                ("<negate_scan_quantity>" + this.AdjSettings.NegateScanQuantity + "</negate_scan_quantity>") +
-                ("<sortby>" + this.SQLSortBy + "</sortby>") + "</params>");
+                "<adjustment_date>" + this.AdjSettings.AdjustmentDate.ToShortDateString() + "</adjustment_date>" +
+                "<adjustment_type>" + Convert.ToInt32(this.AdjSettings.AdjustmentType) + "</adjustment_type>" +
+                "<negate_scan_quantity>" + this.AdjSettings.NegateScanQuantity + "</negate_scan_quantity>" +
+                "<sortby>" + this.SQLSortBy + "</sortby>" + "</params>");
 
             return request;
         }
@@ -543,7 +394,7 @@ namespace dMobile.View.Activity
                 await Device.InvokeOnMainThreadAsync(async () =>
                 {
                     FormErrorReport errRpt = new FormErrorReport(SysCommon.ActSubTypes.NotApplicable, ex);
-                    await errRpt.ShowDialog();
+                    _ = await errRpt.ShowDialog();
                 });
 
                 cancelChanges = false;
@@ -585,7 +436,7 @@ namespace dMobile.View.Activity
                     this.MakeSQLSortBy();
 
                     AdjustmentSettings tempAdjSettings = this.AdjSettings;
-                    this.AdjSettings.SaveData(ref tempAdjSettings);
+                    _ = this.AdjSettings.SaveData(ref tempAdjSettings);
                     this.AdjSettings = tempAdjSettings;
 
                     saveComplete = true;
@@ -593,8 +444,7 @@ namespace dMobile.View.Activity
                 }
                 else
                 {
-                    // TODO: Resource strings
-                    await Device.InvokeOnMainThreadAsync(async () => await DisplayAlert(this.GetControlDescription(), "Data Failed Validation. Check Your Data.", "OK"));
+                    await Device.InvokeOnMainThreadAsync(async () => await this.DisplayAlert(this.GetControlDescription(), "Data Failed Validation. Check Your Data.", "OK"));
                 }
             }
             catch (Exception ex)
@@ -644,9 +494,9 @@ namespace dMobile.View.Activity
             {
                 if (this.IsControlLoaded)
                 {
-                    // Did not move this into SaveData because there is not way to assign oAdjustmentSetting.eAdjustmentType 
+                    // Did not move this into SaveData because there is not way to assign oAdjustmentSetting.eAdjustmentType
                     // to the binding context in the LoadData or CancelData method easily for a default value
-                    //this.AdjSettings.AdjustmentType = (SysCommon.AdjTypes)(Convert.ToInt32(((ComboBoxMembers)(this.cboAdjustmentType.Items[this.cboAdjustmentType.SelectedIndex])).ValueMember));
+                    // this.AdjSettings.AdjustmentType = (SysCommon.AdjTypes)(Convert.ToInt32(((ComboBoxMembers)(this.cboAdjustmentType.Items[this.cboAdjustmentType.SelectedIndex])).ValueMember));
                     this.AdjSettings.AdjustmentType = (SysCommon.AdjTypes)Convert.ToInt32(this.adjustmentTypeFilters[this.cboAdjustmentType.Items[this.cboAdjustmentType.SelectedIndex]]);
                     this.chkNegateScanQuantity.IsToggled = SysCommon.DefaultNegateQuantityFromAdjType(this.AdjSettings.AdjustmentType);
                     this.chkNegateScanQuantity.IsEnabled = SysCommon.IsAllowedChangeNegateQuantityFromAdjType(this.AdjSettings.AdjustmentType);
@@ -661,23 +511,19 @@ namespace dMobile.View.Activity
             }
         }
 
-        #endregion
-
-        #region Private Members
-
         /// <summary>
         ///
         /// </summary>
         /// <remarks></remarks>
         private void MakeSQLSortBy()
         {
-            //((ComboBoxMembers)this.cboSortBy1.Items[this.cboSortBy1.SelectedIndex]).ValueMember.Trim();
-            this.SQLSortBy = this.filters[cboSortBy1.Items[cboSortBy1.SelectedIndex]].SortValue;
-            this.AdjSettings.SortBy1Value = this.filters[cboSortBy1.Items[cboSortBy1.SelectedIndex]];
+            // ((ComboBoxMembers)this.cboSortBy1.Items[this.cboSortBy1.SelectedIndex]).ValueMember.Trim();
+            this.SQLSortBy = this.filters[this.cboSortBy1.Items[this.cboSortBy1.SelectedIndex]].SortValue;
+            this.AdjSettings.SortBy1Value = this.filters[this.cboSortBy1.Items[this.cboSortBy1.SelectedIndex]];
 
             if (this.cboSortBy2.SelectedIndex >= 0)
             {
-                this.AdjSettings.SortBy2Value = this.filters[cboSortBy2.Items[cboSortBy2.SelectedIndex]];
+                this.AdjSettings.SortBy2Value = this.filters[this.cboSortBy2.Items[this.cboSortBy2.SelectedIndex]];
 
                 if (this.AdjSettings.SortBy2Value != null && !string.IsNullOrEmpty(this.AdjSettings.SortBy2Value.SortValue))
                 {
@@ -687,7 +533,7 @@ namespace dMobile.View.Activity
 
             if (this.cboSortBy3.SelectedIndex >= 0)
             {
-                this.AdjSettings.SortBy3Value = this.filters[cboSortBy3.Items[cboSortBy3.SelectedIndex]];
+                this.AdjSettings.SortBy3Value = this.filters[this.cboSortBy3.Items[this.cboSortBy3.SelectedIndex]];
 
                 if (this.AdjSettings.SortBy2Value != null && !string.IsNullOrEmpty(this.AdjSettings.SortBy3Value.SortValue))
                 {
@@ -713,8 +559,6 @@ namespace dMobile.View.Activity
             this.IsControlLoaded = true;
         }
 
-        #endregion
-
         private async void btnSave_Clicked(object sender, EventArgs e)
         {
             if (await this.SaveChanges())
@@ -726,7 +570,7 @@ namespace dMobile.View.Activity
 
         private async void btnClose_Clicked(object sender, EventArgs e)
         {
-            await this.CancelChanges();
+            _ = await this.CancelChanges();
             this.DialogResult = DialogResult.None;
             await this.Close();
         }

@@ -1,80 +1,50 @@
-﻿namespace dMobile.Bedrock
+﻿// <copyright file="BarCodeSettingsEventArgs.cs" company="InterSect Business Systems Inc">
+// Copyright (c) InterSect Business Systems Inc. All rights reserved.
+// </copyright>
+
+namespace dMobile.Bedrock
 {
     using System;
-    using System.Collections.Generic;
-    using System.Linq;
-    using System.Text;
 
+    /// <summary>
+    /// Defines the <see cref="BarCodeSettingsEventArgs" />.
+    /// </summary>
     public class BarCodeSettingsEventArgs : EventArgs
     {
-        private string statusOutMsg = string.Empty;
-        private int minValue = 0;
-        private int maxValue = 0;
-        private int currentValue = 0;
-
+        /// <summary>
+        /// Initializes a new instance of the <see cref="BarCodeSettingsEventArgs"/> class.
+        /// </summary>
         public BarCodeSettingsEventArgs()
         {
         }
 
         /// <summary>
-        /// 
+        /// Initializes a new instance of the <see cref="BarCodeSettingsEventArgs"/> class.
         /// </summary>
-        /// <param name="dataMsg"></param>
+        /// <param name="msgData">.</param>
         public BarCodeSettingsEventArgs(string msgData)
         {
             this.StatusOutMsg = msgData;
         }
 
-        public string StatusOutMsg
-        {
-            get
-            {
-                return this.statusOutMsg;
-            }
+        /// <summary>
+        /// Gets or sets the status out message.
+        /// </summary>
+        public string StatusOutMsg { get; set; } = string.Empty;
 
-            set
-            {
-                this.statusOutMsg = value;
-            }
-        }
+        /// <summary>
+        /// Gets or sets the progress bar minimum value.
+        /// </summary>
+        public int MinValue { get; set; } = 0;
 
-        public int MinValue
-        {
-            get
-            {
-                return this.minValue;
-            }
+        /// <summary>
+        /// Gets or sets the progress bar maximum value.
+        /// </summary>
+        public int MaxValue { get; set; } = 0;
 
-            set
-            {
-                this.minValue = value;
-            }
-        }
-
-        public int MaxValue
-        {
-            get
-            {
-                return this.maxValue;
-            }
-
-            set
-            {
-                this.maxValue = value;
-            }
-        }
-
-        public int CurrentValue
-        {
-            get
-            {
-                return this.currentValue;
-            }
-
-            set
-            {
-                this.currentValue = value;
-            }
-        }
+        /// <summary>
+        /// Gets or sets the progress bar current value.
+        /// </summary>
+        public int CurrentValue { get; set; } = 0;
     }
 }

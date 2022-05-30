@@ -1,4 +1,8 @@
-﻿namespace dMobile.Bedrock
+﻿// <copyright file="TransferSettings.cs" company="InterSect Business Systems Inc">
+// Copyright (c) InterSect Business Systems Inc. All rights reserved.
+// </copyright>
+
+namespace dMobile.Bedrock
 {
     using System;
     using System.Collections.Generic;
@@ -7,165 +11,281 @@
     using dMobile.Resources.Enums;
     using dMobile.Resources.Types;
 
+    /// <summary>
+    /// Defines the <see cref="TransferSettings" />.
+    /// </summary>
     [Serializable]
     public class TransferSettings
     {
-        //VARIABLES
+        // VARIABLES
+        /// <summary>
+        /// Defines the m_strFullClassName.
+        /// </summary>
         [NonSerialized()]
         private string m_strFullClassName = "dMobile.TransferSettings";
+
+        /// <summary>
+        /// Defines the m_strFilePath.
+        /// </summary>
         [NonSerialized()]
         private string m_strFilePath = string.Empty;
+
+        /// <summary>
+        /// Defines the m_strFileASCIIZ.
+        /// </summary>
         [NonSerialized()]
         private string m_strFileASCIIZ = string.Empty;
+
+        /// <summary>
+        /// Defines the m_strFileName.
+        /// </summary>
         [NonSerialized()]
         private string m_strFileName = "dMobileTransferSettings.xml";
+
+        /// <summary>
+        /// Defines the writeLockObject.
+        /// </summary>
         [NonSerialized]
         private readonly object writeLockObject = new object();
+
+        /// <summary>
+        /// Defines the readLockObject.
+        /// </summary>
         [NonSerialized]
         private readonly object readLockObject = new object();
-        private Int32 m_iSortBy1Index = 0;
-        private Sort sortBy1Value = new Sort() { SortValue = "ActivityTransferFKRefno", SortOrder = SortOrder.ASC };
-        private Int32 m_iSortBy2Index = -1;
-        private Sort sortBy2Value = null;
-        private Int32 m_iSortBy3Index = -1;
-        private Sort sortBy3Value = null;
-        private Int32 m_iSortBy4Index = -1;
-        private Sort sortBy4Value = null;
-        private bool isApplyTransferDateFilter = false;
-        private DateTime transferDateFilter = new System.DateTime(1900, 1, 1);
 
-        //PROPERTIES
+        /// <summary>
+        /// Defines the m_iSortBy1Index.
+        /// </summary>
+        private int m_iSortBy1Index = 0;
+
+        /// <summary>
+        /// Defines the sortBy1Value.
+        /// </summary>
+        private Sort sortBy1Value = new Sort() { SortValue = "ActivityTransferFKRefno", SortOrder = SortOrder.ASC };
+
+        /// <summary>
+        /// Defines the m_iSortBy2Index.
+        /// </summary>
+        private int m_iSortBy2Index = -1;
+
+        /// <summary>
+        /// Defines the sortBy2Value.
+        /// </summary>
+        private Sort sortBy2Value = null;
+
+        /// <summary>
+        /// Defines the m_iSortBy3Index.
+        /// </summary>
+        private int m_iSortBy3Index = -1;
+
+        /// <summary>
+        /// Defines the sortBy3Value.
+        /// </summary>
+        private Sort sortBy3Value = null;
+
+        /// <summary>
+        /// Defines the m_iSortBy4Index.
+        /// </summary>
+        private int m_iSortBy4Index = -1;
+
+        /// <summary>
+        /// Defines the sortBy4Value.
+        /// </summary>
+        private Sort sortBy4Value = null;
+
+        /// <summary>
+        /// Defines the isApplyTransferDateFilter.
+        /// </summary>
+        private bool isApplyTransferDateFilter = false;
+
+        /// <summary>
+        /// Defines the transferDateFilter.
+        /// </summary>
+        private DateTime transferDateFilter = new DateTime(1900, 1, 1);
+
+        // PROPERTIES
+        /// <summary>
+        /// Gets or sets a value indicating whether IsApplyTransferDateFilter.
+        /// </summary>
         public bool IsApplyTransferDateFilter
         {
-            get { return isApplyTransferDateFilter; }
-            set { isApplyTransferDateFilter = value; }
+            get { return this.isApplyTransferDateFilter; }
+            set { this.isApplyTransferDateFilter = value; }
         }
+
+        /// <summary>
+        /// Gets or sets the TransferDateFilter.
+        /// </summary>
         public DateTime TransferDateFilter
         {
-            get { return transferDateFilter; }
-            set { transferDateFilter = value; }
+            get { return this.transferDateFilter; }
+            set { this.transferDateFilter = value; }
         }
+
+        /// <summary>
+        /// Gets or sets the strFullClassName.
+        /// </summary>
         public string strFullClassName
         {
-            get { return m_strFullClassName; }
-            set { m_strFullClassName = value; }
+            get { return this.m_strFullClassName; }
+            set { this.m_strFullClassName = value; }
         }
+
+        /// <summary>
+        /// Gets or sets the strFilePath.
+        /// </summary>
         public string strFilePath
         {
-            get { return m_strFilePath; }
-            set { m_strFilePath = value; }
+            get { return this.m_strFilePath; }
+            set { this.m_strFilePath = value; }
         }
+
+        /// <summary>
+        /// Gets or sets the strFileASCIIZ.
+        /// </summary>
         public string strFileASCIIZ
         {
-            get { return m_strFileASCIIZ; }
-            set { m_strFileASCIIZ = value; }
+            get { return this.m_strFileASCIIZ; }
+            set { this.m_strFileASCIIZ = value; }
         }
+
+        /// <summary>
+        /// Gets or sets the strFileName.
+        /// </summary>
         public string strFileName
         {
-            get { return m_strFileName; }
-            set { m_strFileName = value; }
+            get { return this.m_strFileName; }
+            set { this.m_strFileName = value; }
         }
-        public Int32 iSortBy1Index
+
+        /// <summary>
+        /// Gets or sets the iSortBy1Index.
+        /// </summary>
+        public int iSortBy1Index
         {
-            get { return m_iSortBy1Index; }
-            set { m_iSortBy1Index = value; }
+            get { return this.m_iSortBy1Index; }
+            set { this.m_iSortBy1Index = value; }
         }
+
+        /// <summary>
+        /// Gets or sets the SortBy1Value.
+        /// </summary>
         public Sort SortBy1Value
         {
-            get { return sortBy1Value; }
-            set { sortBy1Value = value; }
+            get { return this.sortBy1Value; }
+            set { this.sortBy1Value = value; }
         }
-        public Int32 iSortBy2Index
+
+        /// <summary>
+        /// Gets or sets the iSortBy2Index.
+        /// </summary>
+        public int iSortBy2Index
         {
-            get { return m_iSortBy2Index; }
-            set { m_iSortBy2Index = value; }
+            get { return this.m_iSortBy2Index; }
+            set { this.m_iSortBy2Index = value; }
         }
+
+        /// <summary>
+        /// Gets or sets the SortBy2Value.
+        /// </summary>
         public Sort SortBy2Value
         {
-            get { return sortBy2Value; }
-            set { sortBy2Value = value; }
+            get { return this.sortBy2Value; }
+            set { this.sortBy2Value = value; }
         }
-        public Int32 iSortBy3Index
+
+        /// <summary>
+        /// Gets or sets the iSortBy3Index.
+        /// </summary>
+        public int iSortBy3Index
         {
-            get { return m_iSortBy3Index; }
-            set { m_iSortBy3Index = value; }
+            get { return this.m_iSortBy3Index; }
+            set { this.m_iSortBy3Index = value; }
         }
+
+        /// <summary>
+        /// Gets or sets the SortBy3Value.
+        /// </summary>
         public Sort SortBy3Value
         {
-            get { return sortBy3Value; }
-            set { sortBy3Value = value; }
+            get { return this.sortBy3Value; }
+            set { this.sortBy3Value = value; }
         }
-        public Int32 iSortBy4Index
+
+        /// <summary>
+        /// Gets or sets the iSortBy4Index.
+        /// </summary>
+        public int iSortBy4Index
         {
-            get { return m_iSortBy4Index; }
-            set { m_iSortBy4Index = value; }
+            get { return this.m_iSortBy4Index; }
+            set { this.m_iSortBy4Index = value; }
         }
+
+        /// <summary>
+        /// Gets or sets the SortBy4Value.
+        /// </summary>
         public Sort SortBy4Value
         {
-            get { return sortBy4Value; }
-            set { sortBy4Value = value; }
+            get { return this.sortBy4Value; }
+            set { this.sortBy4Value = value; }
         }
 
-        //METHODS
-
         /// <summary>
-        /// 
+        /// Initializes a new instance of the <see cref="TransferSettings"/> class.
         /// </summary>
-        /// <remarks></remarks>
         public TransferSettings()
         {
-            strFilePath = Environment.GetFolderPath(Environment.SpecialFolder.Personal);
-            strFileASCIIZ = Path.Combine(strFilePath, strFileName);
+            this.strFilePath = Environment.GetFolderPath(Environment.SpecialFolder.Personal);
+            this.strFileASCIIZ = Path.Combine(this.strFilePath, this.strFileName);
         }
 
         /// <summary>
-        /// 
+        /// The GetDataViewSortBy.
         /// </summary>
-        /// <returns></returns>
-        /// <remarks></remarks>
+        /// <returns>.</returns>
         public List<Sort> GetDataViewSortBy()
         {
             List<Sort> sortBy = new List<Sort>();
 
-            sortBy.Add(SortBy1Value);
+            sortBy.Add(this.SortBy1Value);
 
-            if (SortBy2Value != null && !string.IsNullOrEmpty(SortBy2Value.SortValue))
+            if (this.SortBy2Value != null && !string.IsNullOrEmpty(this.SortBy2Value.SortValue))
             {
-                sortBy.Add(SortBy2Value);
+                sortBy.Add(this.SortBy2Value);
             }
 
-            if (SortBy3Value != null && !string.IsNullOrEmpty(SortBy3Value.SortValue))
+            if (this.SortBy3Value != null && !string.IsNullOrEmpty(this.SortBy3Value.SortValue))
             {
-                sortBy.Add(SortBy3Value);
+                sortBy.Add(this.SortBy3Value);
             }
 
-            if (SortBy4Value != null && !string.IsNullOrEmpty(SortBy4Value.SortValue))
+            if (this.SortBy4Value != null && !string.IsNullOrEmpty(this.SortBy4Value.SortValue))
             {
-                sortBy.Add(SortBy4Value);
+                sortBy.Add(this.SortBy4Value);
             }
 
             return sortBy;
         }
 
         /// <summary>
-        /// 
+        /// The LoadData.
         /// </summary>
-        /// <returns></returns>
-        /// <remarks></remarks>
+        /// <returns>.</returns>
         public TransferSettings LoadData()
         {
-            lock (readLockObject)
+            lock (this.readLockObject)
             {
                 XmlSerializer serializer = new XmlSerializer(typeof(TransferSettings));
                 TransferSettings oTransferSettings = new TransferSettings();
 
-                // use relection to get the current assembly path for the database
+                // use reflection to get the current assembly path for the database
                 string strAppDir = Environment.GetFolderPath(Environment.SpecialFolder.Personal);
-                string strFullPathToMyFile = Path.Combine(strAppDir, m_strFileName);
+                string strFullPathToMyFile = Path.Combine(strAppDir, this.m_strFileName);
 
                 if (!File.Exists(strFullPathToMyFile))
                 {
-                    SaveData(ref oTransferSettings);
+                    this.SaveData(ref oTransferSettings);
                 }
 
                 // Create a FileStream to read with.
@@ -180,23 +300,22 @@
         }
 
         /// <summary>
-        /// 
+        /// The SaveData.
         /// </summary>
-        /// <param name="oTransferSettings"></param>
-        /// <returns></returns>
-        /// <remarks></remarks>
+        /// <param name="oTransferSettings">.</param>
+        /// <returns>.</returns>
         public bool SaveData(ref TransferSettings oTransferSettings)
         {
-            lock (writeLockObject)
+            lock (this.writeLockObject)
             {
                 XmlSerializer serializer = new XmlSerializer(typeof(TransferSettings));
                 bool bSaveComplete = false;
 
                 try
                 {
-                    // use relection to get the current assembly path for the database
+                    // use reflection to get the current assembly path for the database
                     string strAppDir = Environment.GetFolderPath(Environment.SpecialFolder.Personal);
-                    string strFullPathToMyFile = Path.Combine(strAppDir, m_strFileName);
+                    string strFullPathToMyFile = Path.Combine(strAppDir, this.m_strFileName);
 
                     // Create a FileStream to write with.
                     using (FileStream writer = new FileStream(strFullPathToMyFile, FileMode.Create, FileAccess.Write, FileShare.None))

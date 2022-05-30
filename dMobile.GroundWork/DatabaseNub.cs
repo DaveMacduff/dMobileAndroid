@@ -1,50 +1,37 @@
+// <copyright file="DatabaseNub.cs" company="InterSect Business Systems Inc">
+// Copyright (c) InterSect Business Systems Inc. All rights reserved.
+// </copyright>
+
 namespace dMobile.GroundWork
 {
     using System;
-    using SQLite;
     using System.IO;
-    using dMobile.Bedrock;
     using System.Threading.Tasks;
+    using dMobile.Bedrock;
     using dMobile.Resources.Models;
+    using SQLite;
 
     public class DatabaseNub : IDataNubPublisher
     {
-        #region Fields
-
-        private bool errorRaised = false;
-        private DatabaseConnection dbConn;
         private DataNubEventArgs msgEventArgs = new DataNubEventArgs();
-
-        #endregion
-
-        #region Constructors
 
         /// <summary>
         ///
         /// </summary>
         /// <remarks></remarks>
+/// <summary>
+/// Initializes a new instance of the <see cref="DatabaseNub"/> class.
+/// </summary>
         public DatabaseNub()
         {
             this.DBConn = DatabaseConnection.GetInstance();
         }
 
-        #endregion
-
-        #region Delegates
-
         private delegate void OnNubStatOutEventHandler(
             IDataNubPublisher databaseNubEventPublisher,
             DataNubEventArgs databaseNubEventArgs);
 
-        #endregion
-
-        #region Events
-
         private event OnNubStatOutEventHandler OnNubStatOut;
-
-        #endregion
-
-        #region Properties
 
         public DataNubEventArgs MsgEventArgs
         {
@@ -59,41 +46,15 @@ namespace dMobile.GroundWork
             }
         }
 
-        public DatabaseConnection DBConn
-        {
-            get
-            {
-                return this.dbConn;
-            }
+        public DatabaseConnection DBConn { get; set; }
 
-            set
-            {
-                this.dbConn = value;
-            }
-        }
-
-        public bool ErrorRaised
-        {
-            get
-            {
-                return this.errorRaised;
-            }
-
-            set
-            {
-                this.errorRaised = value;
-            }
-        }
-
-        #endregion
-
-        #region Public Members
+        public bool ErrorRaised { get; set; } = false;
 
         /// <summary>
         /// Create a new sql server database called dMobile
-        /// Delete the database if it already exists
+        /// Delete the database if it already exists.
         /// </summary>
-        /// <remarks>Password is 'dMobile'</remarks>
+        /// <remarks>Password is 'dMobile'.</remarks>
         public async Task CreateNewDatabase()
         {
             string dbASCIIZ = Path.Combine(this.DBConn.DBPath, this.DBConn.DBName);
@@ -105,7 +66,6 @@ namespace dMobile.GroundWork
             {
                 if (this.OnNubStatOut != null)
                 {
-                    // TODO: Resource strings
                     this.MsgEventArgs.StatusOutMsg = "Deleting database " + dbASCIIZ;
                     this.OnNubStatOut(this, this.MsgEventArgs);
                 }
@@ -115,7 +75,6 @@ namespace dMobile.GroundWork
 
             if (this.OnNubStatOut != null)
             {
-                // TODO: Resource strings
                 this.MsgEventArgs.StatusOutMsg = "Creating database " + dbASCIIZ;
                 this.OnNubStatOut(this, this.MsgEventArgs);
             }
@@ -123,13 +82,17 @@ namespace dMobile.GroundWork
             File.Create(dbASCIIZ);
 
             DatabaseConnection.GetInstance();
-            //DatabaseConnection.OpenDataBaseConnection();
+            // DatabaseConnection.OpenDataBaseConnection();
         }
 
         /// <summary>
         ///
         /// </summary>
         /// <remarks></remarks>
+/// <summary>
+///
+/// </summary>
+/// <returns>A <see cref="Task"/> representing the result of the asynchronous operation.</returns>
         public async Task CreateTables()
         {
             try
@@ -235,8 +198,6 @@ namespace dMobile.GroundWork
             }
         }
 
-        #region IDatabaseNubEventPublisher Members
-
         public void RegNubListenerStatOut(IDataNubListener dataNubEventListener)
         {
             this.OnNubStatOut += new OnNubStatOutEventHandler(dataNubEventListener.OnNubStatOut);
@@ -247,12 +208,6 @@ namespace dMobile.GroundWork
             this.OnNubStatOut -= new OnNubStatOutEventHandler(dataNubEventListener.OnNubStatOut);
         }
 
-        #endregion
-
-        #endregion
-
-        #region Private Members
-
         /// <summary>
         ///
         /// </summary>
@@ -261,7 +216,6 @@ namespace dMobile.GroundWork
         {
             if (this.OnNubStatOut != null)
             {
-                // TODO: Resource strings
                 this.MsgEventArgs.StatusOutMsg = "Creating activity table.";
                 this.OnNubStatOut(this, this.MsgEventArgs);
             }
@@ -277,7 +231,6 @@ namespace dMobile.GroundWork
         {
             if (this.OnNubStatOut != null)
             {
-                // TODO: Resource strings
                 this.MsgEventArgs.StatusOutMsg = "Creating detail product scheme variant xref table.";
                 this.OnNubStatOut(this, this.MsgEventArgs);
             }
@@ -293,7 +246,6 @@ namespace dMobile.GroundWork
         {
             if (this.OnNubStatOut != null)
             {
-                // TODO: Resource strings
                 this.MsgEventArgs.StatusOutMsg = "Creating activity item table.";
                 this.OnNubStatOut(this, this.MsgEventArgs);
             }
@@ -302,14 +254,13 @@ namespace dMobile.GroundWork
         }
 
         /// <summary>
-        ///  SN:12345678 BB:11/12/2010 BL:001.FREEZER.123456   1TT=100EA@300KG
+        ///  SN:12345678 BB:11/12/2010 BL:001.FREEZER.123456   1TT=100EA@300KG.
         /// </summary>
         /// <remarks></remarks>
         private async Task CreateTableActivityDetail()
         {
             if (this.OnNubStatOut != null)
             {
-                // TODO: Resource strings
                 this.MsgEventArgs.StatusOutMsg = "Creating activity detail table.";
                 this.OnNubStatOut(this, this.MsgEventArgs);
             }
@@ -325,7 +276,6 @@ namespace dMobile.GroundWork
         {
             if (this.OnNubStatOut != null)
             {
-                // TODO: Resource strings
                 this.MsgEventArgs.StatusOutMsg = "Creating detail extra table.";
                 this.OnNubStatOut(this, this.MsgEventArgs);
             }
@@ -341,7 +291,6 @@ namespace dMobile.GroundWork
         {
             if (this.OnNubStatOut != null)
             {
-                // TODO: Resource strings
                 this.MsgEventArgs.StatusOutMsg = "Creating count table.";
                 this.OnNubStatOut(this, this.MsgEventArgs);
             }
@@ -357,7 +306,6 @@ namespace dMobile.GroundWork
         {
             if (this.OnNubStatOut != null)
             {
-                // TODO: Resource strings
                 this.MsgEventArgs.StatusOutMsg = "Creating picking table.";
                 this.OnNubStatOut(this, this.MsgEventArgs);
             }
@@ -373,7 +321,6 @@ namespace dMobile.GroundWork
         {
             if (this.OnNubStatOut != null)
             {
-                // TODO: Resource strings
                 this.MsgEventArgs.StatusOutMsg = "Creating returns table.";
                 this.OnNubStatOut(this, this.MsgEventArgs);
             }
@@ -389,7 +336,6 @@ namespace dMobile.GroundWork
         {
             if (this.OnNubStatOut != null)
             {
-                // TODO: Resource strings
                 this.MsgEventArgs.StatusOutMsg = "Creating picking route table.";
                 this.OnNubStatOut(this, this.MsgEventArgs);
             }
@@ -405,7 +351,6 @@ namespace dMobile.GroundWork
         {
             if (this.OnNubStatOut != null)
             {
-                // TODO: Resource strings
                 this.MsgEventArgs.StatusOutMsg = "Creating receiving table.";
                 this.OnNubStatOut(this, this.MsgEventArgs);
             }
@@ -421,7 +366,6 @@ namespace dMobile.GroundWork
         {
             if (this.OnNubStatOut != null)
             {
-                // TODO: Resource strings
                 this.MsgEventArgs.StatusOutMsg = "Creating transfer table.";
                 this.OnNubStatOut(this, this.MsgEventArgs);
             }
@@ -437,7 +381,6 @@ namespace dMobile.GroundWork
         {
             if (this.OnNubStatOut != null)
             {
-                // TODO: Resource strings
                 this.MsgEventArgs.StatusOutMsg = "Creating count item table.";
                 this.OnNubStatOut(this, this.MsgEventArgs);
             }
@@ -453,7 +396,6 @@ namespace dMobile.GroundWork
         {
             if (this.OnNubStatOut != null)
             {
-                // TODO: Resource strings
                 this.MsgEventArgs.StatusOutMsg = "Creating picking item table.";
                 this.OnNubStatOut(this, this.MsgEventArgs);
             }
@@ -469,7 +411,6 @@ namespace dMobile.GroundWork
         {
             if (this.OnNubStatOut != null)
             {
-                // TODO: Resource strings
                 this.MsgEventArgs.StatusOutMsg = "Creating returns item table.";
                 this.OnNubStatOut(this, this.MsgEventArgs);
             }
@@ -485,7 +426,6 @@ namespace dMobile.GroundWork
         {
             if (this.OnNubStatOut != null)
             {
-                // TODO: Resource strings
                 this.MsgEventArgs.StatusOutMsg = "Creating picking comment item table.";
                 this.OnNubStatOut(this, this.MsgEventArgs);
             }
@@ -501,7 +441,6 @@ namespace dMobile.GroundWork
         {
             if (this.OnNubStatOut != null)
             {
-                // TODO: Resource strings
                 this.MsgEventArgs.StatusOutMsg = "Creating returns comment item table.";
                 this.OnNubStatOut(this, this.MsgEventArgs);
             }
@@ -517,7 +456,6 @@ namespace dMobile.GroundWork
         {
             if (this.OnNubStatOut != null)
             {
-                // TODO: Resource strings
                 this.MsgEventArgs.StatusOutMsg = "Creating receiving item table.";
                 this.OnNubStatOut(this, this.MsgEventArgs);
             }
@@ -533,7 +471,6 @@ namespace dMobile.GroundWork
         {
             if (this.OnNubStatOut != null)
             {
-                // TODO: Resource strings
                 this.MsgEventArgs.StatusOutMsg = "Creating purchase order work sheet item table.";
                 this.OnNubStatOut(this, this.MsgEventArgs);
             }
@@ -549,7 +486,6 @@ namespace dMobile.GroundWork
         {
             if (this.OnNubStatOut != null)
             {
-                // TODO: Resource strings
                 this.MsgEventArgs.StatusOutMsg = "Creating receiving comment item table.";
                 this.OnNubStatOut(this, this.MsgEventArgs);
             }
@@ -565,7 +501,6 @@ namespace dMobile.GroundWork
         {
             if (this.OnNubStatOut != null)
             {
-                // TODO: Resource strings
                 this.MsgEventArgs.StatusOutMsg = "Creating transfer item table.";
                 this.OnNubStatOut(this, this.MsgEventArgs);
             }
@@ -581,7 +516,6 @@ namespace dMobile.GroundWork
         {
             if (this.OnNubStatOut != null)
             {
-                // TODO: Resource strings
                 this.MsgEventArgs.StatusOutMsg = "Creating bar code association item table.";
                 this.OnNubStatOut(this, this.MsgEventArgs);
             }
@@ -597,7 +531,6 @@ namespace dMobile.GroundWork
         {
             if (this.OnNubStatOut != null)
             {
-                // TODO: Resource strings
                 this.MsgEventArgs.StatusOutMsg = "Creating count detail table.";
                 this.OnNubStatOut(this, this.MsgEventArgs);
             }
@@ -613,7 +546,6 @@ namespace dMobile.GroundWork
         {
             if (this.OnNubStatOut != null)
             {
-                // TODO: Resource strings
                 this.MsgEventArgs.StatusOutMsg = "Creating picking detail table.";
                 this.OnNubStatOut(this, this.MsgEventArgs);
             }
@@ -629,7 +561,6 @@ namespace dMobile.GroundWork
         {
             if (this.OnNubStatOut != null)
             {
-                // TODO: Resource strings
                 this.MsgEventArgs.StatusOutMsg = "Creating returns detail table.";
                 this.OnNubStatOut(this, this.MsgEventArgs);
             }
@@ -645,7 +576,6 @@ namespace dMobile.GroundWork
         {
             if (this.OnNubStatOut != null)
             {
-                // TODO: Resource strings
                 this.MsgEventArgs.StatusOutMsg = "Creating receiving detail table.";
                 this.OnNubStatOut(this, this.MsgEventArgs);
             }
@@ -661,7 +591,6 @@ namespace dMobile.GroundWork
         {
             if (this.OnNubStatOut != null)
             {
-                // TODO: Resource strings
                 this.MsgEventArgs.StatusOutMsg = "Creating transfer detail table.";
                 this.OnNubStatOut(this, this.MsgEventArgs);
             }
@@ -677,7 +606,6 @@ namespace dMobile.GroundWork
         {
             if (this.OnNubStatOut != null)
             {
-                // TODO: Resource strings
                 this.MsgEventArgs.StatusOutMsg = "Creating unit of measure table.";
                 this.OnNubStatOut(this, this.MsgEventArgs);
             }
@@ -693,7 +621,6 @@ namespace dMobile.GroundWork
         {
             if (this.OnNubStatOut != null)
             {
-                // TODO: Resource strings
                 this.MsgEventArgs.StatusOutMsg = "Creating routes table.";
                 this.OnNubStatOut(this, this.MsgEventArgs);
             }
@@ -709,16 +636,15 @@ namespace dMobile.GroundWork
         {
             if (this.OnNubStatOut != null)
             {
-                // TODO: Resource strings
                 this.MsgEventArgs.StatusOutMsg = "Creating location map table.";
                 this.OnNubStatOut(this, this.MsgEventArgs);
             }
 
             await DatabaseConnection.GetInstance().SQLConn.CreateTableAsync<tLocationMapModel>();
         }
-                
+
         /// <summary>
-        /// 
+        ///
         /// </summary>
         private async Task CreateTableLocationMapWarehouseProductScheme()
         {
@@ -739,7 +665,6 @@ namespace dMobile.GroundWork
         {
             if (this.OnNubStatOut != null)
             {
-                // TODO: Resource strings
                 this.MsgEventArgs.StatusOutMsg = "Creating location map warehouse table.";
                 this.OnNubStatOut(this, this.MsgEventArgs);
             }
@@ -755,7 +680,6 @@ namespace dMobile.GroundWork
         {
             if (this.OnNubStatOut != null)
             {
-                // TODO: Resource strings
                 this.MsgEventArgs.StatusOutMsg = "Creating location map section table.";
                 this.OnNubStatOut(this, this.MsgEventArgs);
             }
@@ -771,7 +695,6 @@ namespace dMobile.GroundWork
         {
             if (this.OnNubStatOut != null)
             {
-                // TODO: Resource strings
                 this.MsgEventArgs.StatusOutMsg = "Creating location map slot table.";
                 this.OnNubStatOut(this, this.MsgEventArgs);
             }
@@ -787,7 +710,6 @@ namespace dMobile.GroundWork
         {
             if (this.OnNubStatOut != null)
             {
-                // TODO: Resource strings
                 this.MsgEventArgs.StatusOutMsg = "Creating location map slot table.";
                 this.OnNubStatOut(this, this.MsgEventArgs);
             }
@@ -803,7 +725,6 @@ namespace dMobile.GroundWork
         {
             if (this.OnNubStatOut != null)
             {
-                // TODO: Resource strings
                 this.MsgEventArgs.StatusOutMsg = "Creating location map type table.";
                 this.OnNubStatOut(this, this.MsgEventArgs);
             }
@@ -819,7 +740,6 @@ namespace dMobile.GroundWork
         {
             if (this.OnNubStatOut != null)
             {
-                // TODO: Resource strings
                 this.MsgEventArgs.StatusOutMsg = "Creating product scheme variants xref table.";
                 this.OnNubStatOut(this, this.MsgEventArgs);
             }
@@ -835,7 +755,6 @@ namespace dMobile.GroundWork
         {
             if (this.OnNubStatOut != null)
             {
-                // TODO: Resource strings
                 this.MsgEventArgs.StatusOutMsg = "Creating product scheme lot numbers xref table.";
                 this.OnNubStatOut(this, this.MsgEventArgs);
             }
@@ -851,7 +770,6 @@ namespace dMobile.GroundWork
         {
             if (this.OnNubStatOut != null)
             {
-                // TODO: Resource strings
                 this.MsgEventArgs.StatusOutMsg = "Creating product scheme table.";
                 this.OnNubStatOut(this, this.MsgEventArgs);
             }
@@ -867,7 +785,6 @@ namespace dMobile.GroundWork
         {
             if (this.OnNubStatOut != null)
             {
-                // TODO: Resource strings
                 this.MsgEventArgs.StatusOutMsg = "Creating product scheme variants table.";
                 this.OnNubStatOut(this, this.MsgEventArgs);
             }
@@ -883,7 +800,6 @@ namespace dMobile.GroundWork
         {
             if (this.OnNubStatOut != null)
             {
-                // TODO: Resource strings
                 this.MsgEventArgs.StatusOutMsg = "Creating product scheme lots table.";
                 this.OnNubStatOut(this, this.MsgEventArgs);
             }
@@ -899,7 +815,6 @@ namespace dMobile.GroundWork
         {
             if (this.OnNubStatOut != null)
             {
-                // TODO: Resource strings
                 this.MsgEventArgs.StatusOutMsg = "Creating products table.";
                 this.OnNubStatOut(this, this.MsgEventArgs);
             }
@@ -915,7 +830,6 @@ namespace dMobile.GroundWork
         {
             if (this.OnNubStatOut != null)
             {
-                // TODO: Resource strings
                 this.MsgEventArgs.StatusOutMsg = "Creating product units table.";
                 this.OnNubStatOut(this, this.MsgEventArgs);
             }
@@ -931,7 +845,6 @@ namespace dMobile.GroundWork
         {
             if (this.OnNubStatOut != null)
             {
-                // TODO: Resource strings
                 this.MsgEventArgs.StatusOutMsg = "Creating product unit bar codes table.";
                 this.OnNubStatOut(this, this.MsgEventArgs);
             }
@@ -947,7 +860,6 @@ namespace dMobile.GroundWork
         {
             if (this.OnNubStatOut != null)
             {
-                // TODO: Resource strings
                 this.MsgEventArgs.StatusOutMsg = "Creating product unit relations table.";
                 this.OnNubStatOut(this, this.MsgEventArgs);
             }
@@ -956,13 +868,12 @@ namespace dMobile.GroundWork
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         private async Task CreateTableWarehouseLocationMapType()
         {
             if (this.OnNubStatOut != null)
             {
-                // TODO: Resource strings
                 this.MsgEventArgs.StatusOutMsg = "Creating warehouse location map table.";
                 this.OnNubStatOut(this, this.MsgEventArgs);
             }
@@ -978,7 +889,6 @@ namespace dMobile.GroundWork
         {
             if (this.OnNubStatOut != null)
             {
-                // TODO: Resource strings
                 this.MsgEventArgs.StatusOutMsg = "Creating product location map table.";
                 this.OnNubStatOut(this, this.MsgEventArgs);
             }
@@ -994,7 +904,6 @@ namespace dMobile.GroundWork
         {
             if (this.OnNubStatOut != null)
             {
-                // TODO: Resource strings
                 this.MsgEventArgs.StatusOutMsg = "Creating contacts table.";
                 this.OnNubStatOut(this, this.MsgEventArgs);
             }
@@ -1010,7 +919,6 @@ namespace dMobile.GroundWork
         {
             if (this.OnNubStatOut != null)
             {
-                // TODO: Resource strings
                 this.MsgEventArgs.StatusOutMsg = "Creating contact users table.";
                 this.OnNubStatOut(this, this.MsgEventArgs);
             }
@@ -1026,7 +934,6 @@ namespace dMobile.GroundWork
         {
             if (this.OnNubStatOut != null)
             {
-                // TODO: Resource strings
                 this.MsgEventArgs.StatusOutMsg = "Creating contact customers table.";
                 this.OnNubStatOut(this, this.MsgEventArgs);
             }
@@ -1042,7 +949,6 @@ namespace dMobile.GroundWork
         {
             if (this.OnNubStatOut != null)
             {
-                // TODO: Resource strings
                 this.MsgEventArgs.StatusOutMsg = "Creating contact customer shipto's table.";
                 this.OnNubStatOut(this, this.MsgEventArgs);
             }
@@ -1073,7 +979,6 @@ namespace dMobile.GroundWork
         {
             if (this.OnNubStatOut != null)
             {
-                // TODO: Resource strings
                 this.MsgEventArgs.StatusOutMsg = "Creating contact vendor suppliers table.";
                 this.OnNubStatOut(this, this.MsgEventArgs);
             }
@@ -1089,7 +994,6 @@ namespace dMobile.GroundWork
         {
             if (this.OnNubStatOut != null)
             {
-                // TODO: Resource strings
                 this.MsgEventArgs.StatusOutMsg = "Creating reason code table.";
                 this.OnNubStatOut(this, this.MsgEventArgs);
             }
@@ -1105,7 +1009,6 @@ namespace dMobile.GroundWork
         {
             if (this.OnNubStatOut != null)
             {
-                // TODO: Resource strings
                 this.MsgEventArgs.StatusOutMsg = "Creating item reason code xref table.";
                 this.OnNubStatOut(this, this.MsgEventArgs);
             }
@@ -1121,7 +1024,6 @@ namespace dMobile.GroundWork
         {
             if (this.OnNubStatOut != null)
             {
-                // TODO: Resource strings
                 this.MsgEventArgs.StatusOutMsg = "Creating item convert units table.";
                 this.OnNubStatOut(this, this.MsgEventArgs);
             }
@@ -1137,7 +1039,6 @@ namespace dMobile.GroundWork
         {
             if (this.OnNubStatOut != null)
             {
-                // TODO: Resource strings
                 this.MsgEventArgs.StatusOutMsg = "Creating detail convert units table.";
                 this.OnNubStatOut(this, this.MsgEventArgs);
             }
@@ -1153,7 +1054,6 @@ namespace dMobile.GroundWork
         {
             if (this.OnNubStatOut != null)
             {
-                // TODO: Resource strings
                 this.MsgEventArgs.StatusOutMsg = "Creating item move inventory table.";
                 this.OnNubStatOut(this, this.MsgEventArgs);
             }
@@ -1169,7 +1069,6 @@ namespace dMobile.GroundWork
         {
             if (this.OnNubStatOut != null)
             {
-                // TODO: Resource strings
                 this.MsgEventArgs.StatusOutMsg = "Creating detail move inventory table.";
                 this.OnNubStatOut(this, this.MsgEventArgs);
             }
@@ -1185,7 +1084,6 @@ namespace dMobile.GroundWork
         {
             if (this.OnNubStatOut != null)
             {
-                // TODO: Resource strings
                 this.MsgEventArgs.StatusOutMsg = "Creating adjustment table.";
                 this.OnNubStatOut(this, this.MsgEventArgs);
             }
@@ -1201,7 +1099,6 @@ namespace dMobile.GroundWork
         {
             if (this.OnNubStatOut != null)
             {
-                // TODO: Resource strings
                 this.MsgEventArgs.StatusOutMsg = "Creating item adjustment table.";
                 this.OnNubStatOut(this, this.MsgEventArgs);
             }
@@ -1217,7 +1114,6 @@ namespace dMobile.GroundWork
         {
             if (this.OnNubStatOut != null)
             {
-                // TODO: Resource strings
                 this.MsgEventArgs.StatusOutMsg = "Creating detail adjustment table.";
                 this.OnNubStatOut(this, this.MsgEventArgs);
             }
@@ -1233,7 +1129,6 @@ namespace dMobile.GroundWork
         {
             if (this.OnNubStatOut != null)
             {
-                // TODO: Resource strings
                 this.MsgEventArgs.StatusOutMsg = "Creating production table.";
                 this.OnNubStatOut(this, this.MsgEventArgs);
             }
@@ -1249,7 +1144,6 @@ namespace dMobile.GroundWork
         {
             if (this.OnNubStatOut != null)
             {
-                // TODO: Resource strings
                 this.MsgEventArgs.StatusOutMsg = "Creating production finished table.";
                 this.OnNubStatOut(this, this.MsgEventArgs);
             }
@@ -1265,7 +1159,6 @@ namespace dMobile.GroundWork
         {
             if (this.OnNubStatOut != null)
             {
-                // TODO: Resource strings
                 this.MsgEventArgs.StatusOutMsg = "Creating production material table.";
                 this.OnNubStatOut(this, this.MsgEventArgs);
             }
@@ -1281,7 +1174,6 @@ namespace dMobile.GroundWork
         {
             if (this.OnNubStatOut != null)
             {
-                // TODO: Resource strings
                 this.MsgEventArgs.StatusOutMsg = "Creating production byproduct table.";
                 this.OnNubStatOut(this, this.MsgEventArgs);
             }
@@ -1297,7 +1189,6 @@ namespace dMobile.GroundWork
         {
             if (this.OnNubStatOut != null)
             {
-                // TODO: Resource strings
                 this.MsgEventArgs.StatusOutMsg = "Creating item production table.";
                 this.OnNubStatOut(this, this.MsgEventArgs);
             }
@@ -1313,7 +1204,6 @@ namespace dMobile.GroundWork
         {
             if (this.OnNubStatOut != null)
             {
-                // TODO: Resource strings
                 this.MsgEventArgs.StatusOutMsg = "Creating item production finished table.";
                 this.OnNubStatOut(this, this.MsgEventArgs);
             }
@@ -1329,7 +1219,6 @@ namespace dMobile.GroundWork
         {
             if (this.OnNubStatOut != null)
             {
-                // TODO: Resource strings
                 this.MsgEventArgs.StatusOutMsg = "Creating item production material table.";
                 this.OnNubStatOut(this, this.MsgEventArgs);
             }
@@ -1345,7 +1234,6 @@ namespace dMobile.GroundWork
         {
             if (this.OnNubStatOut != null)
             {
-                // TODO: Resource strings
                 this.MsgEventArgs.StatusOutMsg = "Creating item production byproduct table.";
                 this.OnNubStatOut(this, this.MsgEventArgs);
             }
@@ -1361,7 +1249,6 @@ namespace dMobile.GroundWork
         {
             if (this.OnNubStatOut != null)
             {
-                // TODO: Resource strings
                 this.MsgEventArgs.StatusOutMsg = "Creating detail production finished table.";
                 this.OnNubStatOut(this, this.MsgEventArgs);
             }
@@ -1377,7 +1264,6 @@ namespace dMobile.GroundWork
         {
             if (this.OnNubStatOut != null)
             {
-                // TODO: Resource strings
                 this.MsgEventArgs.StatusOutMsg = "Creating detail production material table.";
                 this.OnNubStatOut(this, this.MsgEventArgs);
             }
@@ -1393,7 +1279,6 @@ namespace dMobile.GroundWork
         {
             if (this.OnNubStatOut != null)
             {
-                // TODO: Resource strings
                 this.MsgEventArgs.StatusOutMsg = "Creating detail production byproduct table.";
                 this.OnNubStatOut(this, this.MsgEventArgs);
             }
@@ -1409,14 +1294,11 @@ namespace dMobile.GroundWork
         {
             if (this.OnNubStatOut != null)
             {
-                // TODO: Resource strings
                 this.MsgEventArgs.StatusOutMsg = "Creating families table.";
                 this.OnNubStatOut(this, this.MsgEventArgs);
             }
 
             await DatabaseConnection.GetInstance().SQLConn.CreateTableAsync<tFamilyModel>();
         }
-
-        #endregion
     }
 }

@@ -1,23 +1,29 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Drawing;
-using System.Data;
-using System.Text;
-using dMobile.Bedrock;
-using System.Xml.Linq;
-using Xamarin.Forms;
-using Xamarin.Forms.Xaml;
-using dMobile.View.CustomPages.Modal;
-using System.Threading.Tasks;
+﻿// <copyright file="ucActivityDeboxLabelCount.xaml.cs" company="InterSect Business Systems Inc">
+// Copyright (c) InterSect Business Systems Inc. All rights reserved.
+// </copyright>
 
 namespace dMobile.View.Activity
 {
+    using System;
+    using System.Collections.Generic;
+    using System.ComponentModel;
+    using System.Data;
+    using System.Drawing;
+    using System.Text;
+    using System.Threading.Tasks;
+    using System.Xml.Linq;
+    using dMobile.Bedrock;
+    using dMobile.View.CustomPages.Modal;
+    using Xamarin.Forms;
+    using Xamarin.Forms.Xaml;
+
     [XamlCompilation(XamlCompilationOptions.Compile)]
     public partial class ucActivityDeboxLabelCount : DMobileModal, IAppArea
     {
-        int quantity;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ucActivityDeboxLabelCount"/> class.
+        /// </summary>
         public ucActivityDeboxLabelCount()
         {
             this.InitializeComponent();
@@ -26,17 +32,7 @@ namespace dMobile.View.Activity
             this.labelQuantity.Text = "Quantity";
         }
 
-        public int Quantity
-        {
-            get
-            {
-                return quantity;
-            }
-            private set
-            {
-                quantity = value;
-            }
-        }
+        public int Quantity { get; private set; }
 
         public async Task ScannerDisable()
         {
@@ -60,9 +56,9 @@ namespace dMobile.View.Activity
         {
             bool saveComplete = false;
 
-            if (await IsReadyToSave())
+            if (await this.IsReadyToSave())
             {
-                Quantity = Convert.ToInt32(this.entryQuantity.Text);
+                this.Quantity = Convert.ToInt32(this.entryQuantity.Text);
                 saveComplete = true;
             }
 
@@ -71,7 +67,7 @@ namespace dMobile.View.Activity
 
         public async Task<bool> CancelChanges()
         {
-            return await IsReadyToClose();
+            return await this.IsReadyToClose();
         }
 
         public async Task<bool> IsReadyToSave()
@@ -84,7 +80,7 @@ namespace dMobile.View.Activity
             XDocument result = XDocument.Parse(
                 "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>"
                     + "<quantity>"
-                    + Quantity
+                    + this.Quantity
                     + "</quantity>");
             return result;
         }

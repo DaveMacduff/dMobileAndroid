@@ -1,45 +1,43 @@
-﻿namespace dMobile.GroundWork
+﻿// <copyright file="clsTableActivityTransferFrom.cs" company="InterSect Business Systems Inc">
+// Copyright (c) InterSect Business Systems Inc. All rights reserved.
+// </copyright>
+
+namespace dMobile.GroundWork
 {
     using System;
+    using System.Collections.Generic;
     using System.Data;
-    using SQLite;
     using System.Text;
+    using System.Threading.Tasks;
     using System.Xml;
     using System.Xml.Linq;
     using dMobile.Bedrock;
-    using System.Threading.Tasks;
-    using System.Collections.Generic;
     using dMobile.Resources.Models;
+    using SQLite;
 
     public class TableActivityTransferFrom : TableBase
     {
-        #region Constructors
-
+        /// <summary>
+        /// Initializes a new instance of the <see cref="TableActivityTransferFrom"/> class.
+        /// </summary>
         public TableActivityTransferFrom()
             : base()
         {
             this.FullClassName = "dMobile.GroundWork.TableActivityTransferFrom";
         }
 
-        #endregion
-
-        #region Public Members
-
         /// <summary>
         ///
         /// </summary>
         /// <remarks></remarks>
-        public override async Task Request()
+        public override async Task RequestData()
         {
-            string reqData = string.Empty;
-
             try
             {
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Seeding transfers from.", true);
 
-                reqData = await this.Send("activity transfers from");
-
-                if (0 < reqData.Length)
+                string reqData = await this.SendRequest();
+                if (reqData.Length > 0)
                 {
                     if (reqData.Contains("<message>ERROR</message>"))
                     {
@@ -65,8 +63,7 @@
         /// <remarks></remarks>
         public override async Task<int> DataStatus()
         {
-            int rowsAffected = 0;
-
+            int rowsAffected;
             try
             {
                 rowsAffected = Convert.ToInt32(await DatabaseConnection.GetInstance().SQLConn.ExecuteScalarAsync<int>("SELECT COUNT(ActivityRefno) FROM tActivity WHERE ActivitySubType = ?", Convert.ToInt32(SysCommon.ActSubTypes.TransferFrom)));
@@ -85,7 +82,7 @@
         ///
         /// </summary>
         /// <remarks></remarks>
-        public override async Task Purge()
+        public override async Task PurgeData()
         {
             this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging transfers from.", true);
 
@@ -105,10 +102,6 @@
             }
         }
 
-        #endregion
-
-        #region Private Members
-
         /// <summary>
         ///
         /// </summary>
@@ -124,19 +117,16 @@
                 {
                     using (DataSet ds = new DataSet())
                     {
-                        // TODO: Resource strings
                         this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Reading received data.", false);
 
                         ds.ReadXml(SysCommon.GetXmlReader(ref reqData), XmlReadMode.Auto);
 
-                        // TODO: Resource strings
                         this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving transfers from.", false);
 
                         if (ds.Tables.Count != 0)
                         {
                             int progMax = Convert.ToInt32(ds.Tables["tActivityTransfer"].Rows.Count);
 
-                            // TODO: Resource strings
                             this.DataAccessStatusOutHandler(this, EventArgs.Empty, string.Format("Records {0}", progMax), false);
 
                             int actRefno = 0;
@@ -174,7 +164,6 @@
                                 }
                                 else
                                 {
-                                    // TODO: Resource strings
                                     throw new Exception("No results in tLocationMapWarehouse for LocationMapWarehouseFKRefno " + locMapWhsFKRefno + Environment.NewLine + this.FullClassName + Environment.NewLine + errMsg);
                                 }
 
@@ -210,7 +199,7 @@
                                     Convert.ToInt32(whsLocMapRefno),
                                     transDesc,
                                     Convert.ToDateTime(transDateTime),
-                                    Convert.ToDateTime(arrivalDateTime)
+                                    Convert.ToDateTime(arrivalDateTime),
                                 };
 
                                 transaction.Execute(query, parameters);
@@ -235,7 +224,6 @@
                 {
                     transaction.Rollback();
 
-                    // TODO: Resource strings
                     this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Database exception occurred.", false);
                     this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving transfers from failed.", false);
 
@@ -249,7 +237,7 @@
         /// </summary>
         /// <returns></returns>
         /// <remarks></remarks>
-        protected override async Task<string> Create()
+        protected override async Task<string> CreateRequest()
         {
             StringBuilder xmlString = new StringBuilder();
             XmlWriter xml = XmlWriter.Create(xmlString);
@@ -268,7 +256,5 @@
 
             return xmlString.ToString();
         }
-
-        #endregion
     }
 }

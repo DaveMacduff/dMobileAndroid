@@ -1,367 +1,603 @@
+// <copyright file="SystemSettings.cs" company="InterSect Business Systems Inc">
+// Copyright (c) InterSect Business Systems Inc. All rights reserved.
+// </copyright>
+
 namespace dMobile.Bedrock
 {
     using System;
-    using System.Xml.Serialization;
     using System.Collections.Generic;
+    using System.Xml.Serialization;
 
+    /// <summary>
+    /// Defines the <see cref="SystemSettings" />.
+    /// </summary>
     [Serializable]
     public class SystemSettings : ISysSettingsEventPublisher
     {
-        #region System Fields
-
+        /// <summary>
+        /// Defines the theme.
+        /// </summary>
         private Theme theme = Theme.Light;
+
+        /// <summary>
+        /// Defines the isDisconnectedMode.
+        /// </summary>
         private bool isDisconnectedMode = false;
+
+        /// <summary>
+        /// Defines the lastRefreshData.
+        /// </summary>
         private DateTime lastRefreshData = DateTime.Now;
+
+        /// <summary>
+        /// Defines the isInvStrict.
+        /// </summary>
         private bool isInvStrict = false;
+
+        /// <summary>
+        /// Defines the isSetCatchWeightZero.
+        /// </summary>
         private bool isSetCatchWeightZero = false;
+
+        /// <summary>
+        /// Defines the isSetCatchCountZero.
+        /// </summary>
         private bool isSetCatchCountZero = false;
+
+        /// <summary>
+        /// Defines the isIntegerCheckOverride.
+        /// </summary>
         private bool isIntegerCheckOverride = false;
+
+        /// <summary>
+        /// Defines the isDisconnectedModeLoadDetail.
+        /// </summary>
         private bool isDisconnectedModeLoadDetail = false;
+
+        /// <summary>
+        /// Defines the isEnableDefaultDetailValues.
+        /// </summary>
         private bool isEnableDefaultDetailValues = false;
+
+        /// <summary>
+        /// Defines the isDetailEditScreenSetFocus2CatchWeight.
+        /// </summary>
         private bool isDetailEditScreenSetFocus2CatchWeight = false;
+
+        /// <summary>
+        /// Defines the isEnableDefaultDetailExtraValues.
+        /// </summary>
         private bool isEnableDefaultDetailExtraValues = false;
+
+        /// <summary>
+        /// Defines the isPrintProductLabelsAsBatch.
+        /// </summary>
         private bool isPrintProductLabelsAsBatch = false;
+
+        /// <summary>
+        /// Defines the detailDateMinMaxValidYearRange.
+        /// </summary>
         private int detailDateMinMaxValidYearRange = 0;
+
+        /// <summary>
+        /// Defines the prodWeightUnitTolerancePercent.
+        /// </summary>
         private decimal prodWeightUnitTolerancePercent = 0;
+
+        /// <summary>
+        /// Defines the doesSelectingADifferentProductClearSkid.
+        /// </summary>
         private bool doesSelectingADifferentProductClearSkid = false;
+
+        /// <summary>
+        /// Defines the isProductLabelCatchAsk.
+        /// </summary>
         private bool isProductLabelCatchAsk = false;
+
+        /// <summary>
+        /// Defines the defaultLanguage.
+        /// </summary>
         private string defaultLanguage = "ENU";
+
+        /// <summary>
+        /// Defines the languagePaths.
+        /// </summary>
         private List<string> languagePaths = new List<string>();
 
         /// <summary>
         /// When true, inventory inquiry will search the whole warehouse instead
-        /// of specific section or slot.
+        /// of specific section or slot..
         /// </summary>
         private bool inventoryInquirySearchEntireWarehouse = false;
 
-        #endregion
-
-        #region BarCode Fields
-
+        /// <summary>
+        /// Defines the gtinCompanyPrefix.
+        /// </summary>
         private string gtinCompanyPrefix = string.Empty;
+
+        /// <summary>
+        /// Defines the isProductUnitBarCodeModifier1.
+        /// </summary>
         private bool isProductUnitBarCodeModifier1 = false;
+
+        /// <summary>
+        /// Defines the productUnitBarCodeModifier1Codes.
+        /// </summary>
         private string productUnitBarCodeModifier1Codes = string.Empty;
 
-        #endregion Fields
-
-        #region Location Map Fields
-
-        //private string locMapWarehouseMask = string.Empty;
-        //private string locMapSectionMask = string.Empty;
-        //private string locMapSlotMask = string.Empty;
-        //private string locMapSlotCoord1Mask = string.Empty;
-        //private string locMapSlotCoord2Mask = string.Empty;
-        //private string locMapSlotCoord3Mask = string.Empty;
-        //private string locMapSlotCoord1Name = string.Empty;
-        //private string locMapSlotCoord2Name = string.Empty;
-        //private string locMapSlotCoord3Name = string.Empty;
+        // private string locMapWarehouseMask = string.Empty;
+        // private string locMapSectionMask = string.Empty;
+        // private string locMapSlotMask = string.Empty;
+        // private string locMapSlotCoord1Mask = string.Empty;
+        // private string locMapSlotCoord2Mask = string.Empty;
+        // private string locMapSlotCoord3Mask = string.Empty;
+        // private string locMapSlotCoord1Name = string.Empty;
+        // private string locMapSlotCoord2Name = string.Empty;
+        // private string locMapSlotCoord3Name = string.Empty;
+        /// <summary>
+        /// Defines the isDefaultLocToProductDefaultLoc.
+        /// </summary>
         private bool isDefaultLocToProductDefaultLoc = false;
+
+        /// <summary>
+        /// Defines the isVerifyProductLocation.
+        /// </summary>
         private bool isVerifyProductLocation = false;
 
-        #endregion Fields
-
-        #region Receiving Fields
-
+        /// <summary>
+        /// Defines the isPutAwaySkidNoCatchAskZeroEnabled.
+        /// </summary>
         private bool isPutAwaySkidNoCatchAskZeroEnabled = false;
+
+        /// <summary>
+        /// Defines the isReceivingNoCatchAskZeroEnabled.
+        /// </summary>
         private bool isReceivingNoCatchAskZeroEnabled = false;
+
+        /// <summary>
+        /// Defines the isPOWorkSheetNoCatchAskZeroEnabled.
+        /// </summary>
         private bool isPOWorkSheetNoCatchAskZeroEnabled = false;
+
+        /// <summary>
+        /// Defines the isReceivingModule.
+        /// </summary>
         private bool isReceivingModule = false;
+
+        /// <summary>
+        /// Defines the allowAddProduct2Receiving.
+        /// </summary>
         private bool allowAddProduct2Receiving = false;
+
+        /// <summary>
+        /// Defines the canPrintProductLabelReceiving.
+        /// </summary>
         private bool canPrintProductLabelReceiving = false;
+
+        /// <summary>
+        /// Defines the isReceivingExtraDetailEnabled.
+        /// </summary>
         private bool isReceivingExtraDetailEnabled = false;
+
+        /// <summary>
+        /// Defines the isReceivingCatchAskEnabled.
+        /// </summary>
         private bool isReceivingCatchAskEnabled = false;
+
+        /// <summary>
+        /// Defines the isPurchaseOrderWorkSheetModule.
+        /// </summary>
         private bool isPurchaseOrderWorkSheetModule = false;
+
+        /// <summary>
+        /// Defines the isPOWorkSheetCatchAskEnabled.
+        /// </summary>
         private bool isPOWorkSheetCatchAskEnabled = false;
+
+        /// <summary>
+        /// Defines the isReceivingCreateNewItemNoAsk.
+        /// </summary>
         private bool isReceivingCreateNewItemNoAsk = false;
+
+        /// <summary>
+        /// Defines the isPOWorkSheetCreateNewItemNoAsk.
+        /// </summary>
         private bool isPOWorkSheetCreateNewItemNoAsk = false;
+
+        /// <summary>
+        /// Defines the askRecvPrintAllSkidLabelsUponSave.
+        /// </summary>
         private bool askRecvPrintAllSkidLabelsUponSave = false;
 
         /// <summary>
-        /// Receiving quantity over warning level.
+        /// Receiving quantity over warning level..
         /// </summary>
         private SysCommon.ActReceivingQtyOverValLevels recvQtyOverWarn;
 
         /// <summary>
-        /// Receiving quantity ounder warning level.
+        /// Receiving quantity ounder warning level..
         /// </summary>
         private SysCommon.ActReceivingQtyUnderValLevels recvQtyUnderWarn;
 
-        #endregion
-
-        #region Picking Fields
-
+        /// <summary>
+        /// Defines the isPickingSingleModuleNoCatchAskZeroEnabled.
+        /// </summary>
         private bool isPickingSingleModuleNoCatchAskZeroEnabled = false;
+
+        /// <summary>
+        /// Defines the isPickingNoCatchAskZeroEnabled.
+        /// </summary>
         private bool isPickingNoCatchAskZeroEnabled = false;
 
         /// <summary>
-        /// Is picking module enabled.
+        /// Is picking module enabled..
         /// </summary>
         private bool isPickMod = false;
 
         /// <summary>
-        /// Is release by order.
+        /// Is release by order..
         /// </summary>
         private bool isRelByOrder = false;
 
         /// <summary>
-        /// Is release by section.
+        /// Is release by section..
         /// </summary>
         private bool isRelBySect = false;
 
         /// <summary>
-        /// Allow adding new product to order.
+        /// Allow adding new product to order..
         /// </summary>
         private bool allowAddProd2Pick = false;
 
         /// <summary>
-        /// Is preselection picking criteria.
+        /// Is preselection picking criteria..
         /// </summary>
         private bool isPrePickCrit = false;
 
         /// <summary>
-        /// Is picking disallow manual add new product.
+        /// Is picking disallow manual add new product..
         /// </summary>
         private bool isPickDisallowManualAddProd = false;
 
         /// <summary>
-        /// Is picking associate bar code password required.
+        /// Is picking associate bar code password required..
         /// </summary>
         private bool isPickAssocBarCodePwdReq = false;
 
         /// <summary>
-        /// Picking quantity over warning level.
+        /// Picking quantity over warning level..
         /// </summary>
         private SysCommon.ActPickingQtyOverValLevels pickQtyOverWarn;
 
         /// <summary>
-        /// Picking quantity ounder warning level.
+        /// Picking quantity ounder warning level..
         /// </summary>
         private SysCommon.ActPickingQtyUnderValLevels pickQtyUnderWarn;
 
         /// <summary>
-        /// Is picking quantity under show base quantity available.
+        /// Is picking quantity under show base quantity available..
         /// </summary>
         private bool isPickQtyUnderShowBaseQtyAvail = false;
 
         /// <summary>
-        /// Is picking refresh orders after release.
+        /// Is picking refresh orders after release..
         /// </summary>
         private bool isPickRefreshOrdAfterRel = false;
 
         /// <summary>
-        /// Is picking show item quantity available.
+        /// Is picking show item quantity available..
         /// </summary>
         private bool isPickShowItemQtyAvail = false;
 
         /// <summary>
-        /// Is Picking cofirm detail mode.
+        /// Is Picking cofirm detail mode..
         /// </summary>
         private bool isPickConfirmDet = false;
 
         /// <summary>
-        /// Is picking popup comments.
+        /// Is picking popup comments..
         /// </summary>
         private bool isPickPopupCmnt = false;
 
         /// <summary>
-        /// Is picking must review items before release.
+        /// Is picking must review items before release..
         /// </summary>
         private bool isPickMustReviewItemsBeforeRel = false;
 
         /// <summary>
-        /// Is picking confirm exit enabled.
+        /// Is picking confirm exit enabled..
         /// </summary>
         private bool isPickConfirmExit = false;
 
         /// <summary>
-        /// Is picking override message 1 enabled.
+        /// Is picking override message 1 enabled..
         /// </summary>
         private bool isPickOverrideMsg1 = false;
 
         /// <summary>
-        /// Is picking hide route colums enabled.
+        /// Is picking hide route colums enabled..
         /// </summary>
         private bool isPickHideRouteCol = false;
 
         /// <summary>
-        /// Is picking extra detail enabled.
+        /// Is picking extra detail enabled..
         /// </summary>
         private bool isPickExtraDet = false;
 
         /// <summary>
-        /// Is picking catch as enabled.
+        /// Is picking catch as enabled..
         /// </summary>
         private bool isPickCatchAsk = false;
 
         /// <summary>
-        /// Picking detail grid design layout.
+        /// Picking detail grid design layout..
         /// </summary>
         private int pickDetGridDesignLayout = 0;
 
         /// <summary>
-        /// Is picking create new item no ask.
+        /// Is picking create new item no ask..
         /// </summary>
         private bool isPickCreateNewItemNoAsk = false;
 
         /// <summary>
-        /// Picking item description option.
+        /// Picking item description option..
         /// </summary>
         private int pickItemDescOpt = 0;
 
         /// <summary>
-        /// Disable creation of a skid during picking.
+        /// Disable creation of a skid during picking..
         /// </summary>
         private bool isPickDisableMakeSkid = false;
 
         /// <summary>
-        /// Require password for adding manual detail quantity.
+        /// Require password for adding manual detail quantity..
         /// </summary>
         private bool isPickAddManualDetailPasswordRequired = false;
 
         /// <summary>
-        /// 
+        /// Defines the isPickingModuleDisallowLoadingAllOrders.
         /// </summary>
         private bool isPickingModuleDisallowLoadingAllOrders = false;
 
-        #region Picking Single
-
         /// <summary>
-        /// Is picking single catch ask enabled.
+        /// Is picking single catch ask enabled..
         /// </summary>
         private bool isPickSingleCatchAsk = false;
 
         /// <summary>
-        /// Is picking single product.
+        /// Is picking single product..
         /// </summary>
         private bool isPickSingleProd = false;
 
         /// <summary>
-        /// Is picking single scanned product must match selected product.
+        /// Is picking single scanned product must match selected product..
         /// </summary>
         private bool isPickSingleScanProdMustMatchSelProd = false;
 
+        /// <summary>
+        /// Defines the isPickSinglePrintShipLabelFullQuantity.
+        /// </summary>
         private bool isPickSinglePrintShipLabelFullQuantity = false;
 
+        /// <summary>
+        /// Defines the pickSingleShipLabelStopThresholdQuantity.
+        /// </summary>
         private int pickSingleShipLabelStopThresholdQuantity = 0;
 
-        #endregion
-
-        #region Picking Other Info
-
+        /// <summary>
+        /// Defines the canPrintShippingLabel.
+        /// </summary>
         private bool canPrintShippingLabel = false;
+
+        /// <summary>
+        /// Defines the isFullQuantityEnabled.
+        /// </summary>
         private bool isFullQuantityEnabled = false;
+
+        /// <summary>
+        /// Defines the isRepackQuantityEnabled.
+        /// </summary>
         private bool isRepackQuantityEnabled = false;
+
+        /// <summary>
+        /// Defines the isDryQuantityEnabled.
+        /// </summary>
         private bool isDryQuantityEnabled = false;
+
+        /// <summary>
+        /// Defines the isDryRepackQuantityEnabled.
+        /// </summary>
         private bool isDryRepackQuantityEnabled = false;
+
+        /// <summary>
+        /// Defines the isFreshQuantityEnabled.
+        /// </summary>
         private bool isFreshQuantityEnabled = false;
+
+        /// <summary>
+        /// Defines the isFreshRepackQuantityEnabled.
+        /// </summary>
         private bool isFreshRepackQuantityEnabled = false;
+
+        /// <summary>
+        /// Defines the isFrozenQuantityEnabled.
+        /// </summary>
         private bool isFrozenQuantityEnabled = false;
+
+        /// <summary>
+        /// Defines the isFrozenRepackQuantityEnabled.
+        /// </summary>
         private bool isFrozenRepackQuantityEnabled = false;
+
+        /// <summary>
+        /// Defines the isLiveQuantityEnabled.
+        /// </summary>
         private bool isLiveQuantityEnabled = false;
+
+        /// <summary>
+        /// Defines the isLiveRepackQuantityEnabled.
+        /// </summary>
         private bool isLiveRepackQuantityEnabled = false;
+
+        /// <summary>
+        /// Defines the isPalletQuantityEnabled.
+        /// </summary>
         private bool isPalletQuantityEnabled = false;
+
+        /// <summary>
+        /// Defines the isBundleQuantityEnabled.
+        /// </summary>
         private bool isBundleQuantityEnabled = false;
 
-        #endregion
-
-        #region Returns
-
+        /// <summary>
+        /// Defines the isReturnsNoCatchAskZeroEnabled.
+        /// </summary>
         private bool isReturnsNoCatchAskZeroEnabled = false;
 
         /// <summary>
-        /// Is returns module enabled.
+        /// Is returns module enabled..
         /// </summary>
         private bool isRetMod = false;
 
         /// <summary>
-        /// Allow adding new products to returns.
+        /// Allow adding new products to returns..
         /// </summary>
         private bool allowAddProduct2Returns = false;
 
         /// <summary>
-        /// Is returns confirm detail.
+        /// Is returns confirm detail..
         /// </summary>
         private bool isRetConfirmDet = false;
 
         /// <summary>
-        /// Is returns extra detail enabled.
+        /// Is returns extra detail enabled..
         /// </summary>
         private bool isRetExtraDetEnabled = false;
 
         /// <summary>
-        /// Is returns catch ask enabled.
+        /// Is returns catch ask enabled..
         /// </summary>
         private bool isRetCatchAskEnabled = false;
 
         /// <summary>
-        /// 
+        /// Defines the isRetCreateNewItemNoAsk.
         /// </summary>
         private bool isRetCreateNewItemNoAsk = false;
 
-        #endregion
-
+        /// <summary>
+        /// Defines the isReplenishmentModule.
+        /// </summary>
         private bool isReplenishmentModule = false;
 
-        #endregion
-
-        #region Physical Fields
-
+        /// <summary>
+        /// Defines the isPhysicalCountNoCatchAskZeroEnabled.
+        /// </summary>
         private bool isPhysicalCountNoCatchAskZeroEnabled = false;
+
+        /// <summary>
+        /// Defines the isPhysicalCountModule.
+        /// </summary>
         private bool isPhysicalCountModule = false;
+
+        /// <summary>
+        /// Defines the allowAddProduct2PhysicalCounts.
+        /// </summary>
         private bool allowAddProduct2PhysicalCounts = false;
+
+        /// <summary>
+        /// Defines the isPhysicalExtraDetailEnabled.
+        /// </summary>
         private bool isPhysicalExtraDetailEnabled = false;
+
+        /// <summary>
+        /// Defines the isPhysicalCatchAskEnabled.
+        /// </summary>
         private bool isPhysicalCatchAskEnabled = false;
+
+        /// <summary>
+        /// Defines the isPhysicalCreateNewItemNoAsk.
+        /// </summary>
         private bool isPhysicalCreateNewItemNoAsk = false;
+
+        /// <summary>
+        /// Defines the isPhysicalDoNotDefaultProductLocation.
+        /// </summary>
         private bool isPhysicalDoNotDefaultProductLocation = false;
 
-        #endregion
-
-        #region Cycle Fields
-
+        /// <summary>
+        /// Defines the isCycleCountNoCatchAskZeroEnabled.
+        /// </summary>
         private bool isCycleCountNoCatchAskZeroEnabled = false;
+
+        /// <summary>
+        /// Defines the isCycleCountModule.
+        /// </summary>
         private bool isCycleCountModule = false;
+
+        /// <summary>
+        /// Defines the allowAddProduct2CycleCounts.
+        /// </summary>
         private bool allowAddProduct2CycleCounts = false;
+
+        /// <summary>
+        /// Defines the isCycleCountExtraDetailEnabled.
+        /// </summary>
         private bool isCycleCountExtraDetailEnabled = false;
+
+        /// <summary>
+        /// Defines the isCycleCatchAskEnabled.
+        /// </summary>
         private bool isCycleCatchAskEnabled = false;
+
+        /// <summary>
+        /// Defines the isCycleCreateNewItemNoAsk.
+        /// </summary>
         private bool isCycleCreateNewItemNoAsk = false;
+
+        /// <summary>
+        /// Defines the isCycleDoNotDefaultProductLocation.
+        /// </summary>
         private bool isCycleDoNotDefaultProductLocation = false;
 
-        #endregion
-
-        #region Transfers Fields
-
+        /// <summary>
+        /// Defines the isTransferNoCatchAskZeroEnabled.
+        /// </summary>
         private bool isTransferNoCatchAskZeroEnabled = false;
+
+        /// <summary>
+        /// Defines the canPrintProductLabelTransfers.
+        /// </summary>
         private bool canPrintProductLabelTransfers = false;
 
         /// <summary>
-        /// Is transfers module enabled.
+        /// Is transfers module enabled..
         /// </summary>
         private bool isTransMod = false;
 
         /// <summary>
-        /// Allowed adding new products to transfers.
+        /// Allowed adding new products to transfers..
         /// </summary>
         private bool allowAddProd2Trans = false;
 
         /// <summary>
-        /// Is transfer extra detail enabled.
+        /// Is transfer extra detail enabled..
         /// </summary>
         private bool isTransExtraDetEnabled = false;
 
         /// <summary>
-        /// Is transfers catch ask enabled.
+        /// Is transfers catch ask enabled..
         /// </summary>
         private bool isTransCatchAskEnabled = false;
 
         /// <summary>
-        /// Is transfers create new item no ask.
+        /// Is transfers create new item no ask..
         /// </summary>
         private bool isTransCreateNewItemNoAsk = false;
 
         /// <summary>
         /// Is transfers confirm from detail mode.
         /// </summary>
-        //private bool isTransConfirmFromDet = false;
+        // private bool isTransConfirmFromDet = false;
 
         /// <summary>
         /// Is transfers confirm to detail mode.
@@ -369,106 +605,231 @@ namespace dMobile.Bedrock
         ////private bool isTransConfirmToDet = false;
 
         /// <summary>
-        /// Transfers quantity over warning level.
+        /// Transfers quantity over warning level..
         /// </summary>
         private SysCommon.ActTransfersQtyOverValLevels transQtyOverWarn;
 
         /// <summary>
-        /// Transfers quantity ounder warning level.
+        /// Transfers quantity ounder warning level..
         /// </summary>
         private SysCommon.ActTransfersQtyUnderValLevels transQtyUnderWarn;
 
-        #endregion
-
-        #region Convert Fields
-
+        /// <summary>
+        /// Defines the isConvertUnitModuleNoCatchAskZeroEnabled.
+        /// </summary>
         private bool isConvertUnitModuleNoCatchAskZeroEnabled = false;
-        private bool isConvertUnitsModule = false;
-        private bool isConvertUnitOnlyShowSell = false;
-        private bool canPrintProductLabelConvertUnits = false;
-        private bool canPrintProductLabelConvertProduct = false;
-        private bool isConvertUnitCatchAskEnabled = false;
-
-        #endregion
-
-        #region Moves Fields
-
-        private bool isMoveInventoryModuleNoCatchAskZeroEnabled = false;
-        private bool isMovesModule = false;
-        private bool isMoveInventoryCatchAskEnabled = false;
-
-        #endregion
-
-        #region PutAway Fields
-
-        private bool isPutAwayModule = false;
-        private bool isPutAwaySkidCatchAskEnabled = false;
-
-        #endregion
-
-        #region Skid Fields
-
-        private bool isAddToSkidModule = false;
-        private bool isRemoveFromSkidModule = false;
-        private bool isBreakSkidModule = false;
-        private bool isCreateSkidModule = false;
-        private bool isSkidTrackingModule = false;
-        private bool isMoveSkidModule = false;
-
-        #endregion
-
-        #region Adjustments Fields
-
-        private bool isAdjustmentNoCatchAskZeroEnabled = false;
-        private bool isInventoryAdjustmentModule = false;
-        private bool allowAddProduct2Adjustments = false;
-        private bool isEnabledAdjustmentTypeFresh2Frozen = false;
-        private bool isAdjustmentsExtraDetailEnabled = false;
-        private bool isAdjustmentModuleCatchAskEnabled = false;
-        private bool isAdjustmentCreateNewItemNoAsk = false;
-
-        #endregion
-
-        #region Production Fields
-
-        private bool isFinishedExtraDetailEnabled = false;
-        private bool isMaterialExtraDetailEnabled = false;
-        private bool isByProductsExtraDetailEnabled = false;
-
-        #region Production Ticket Fields
-
-        private bool isTicketByProductNoCatchAskZeroEnabled = false;
-        private bool isTicketFinishedNoCatchAskZeroEnabled = false;
-        private bool isTicketMaterialNoCatchAskZeroEnabled = false;
-        private bool isTicketFinishedGoodModule = false;
-        private bool isTicketMaterialModule = false;
-        private bool isTicketByProductModule = false;
-        private bool allowAddProduct2TicketFinishedGood = false;
-        private bool allowAddProduct2TicketMaterial = false;
-        private bool allowAddProduct2TicketByProduct = false;
-        private bool isTicketFinishedCatchAskEnabled = false;
-        private bool isTicketMaterialCatchAskEnabled = false;
-        private bool isTicketByProductCatchAskEnabled = false;
-        private bool isTicketMaterialCreateNewItemNoAsk = false;
-        private bool isTicketByProductCreateNewItemNoAsk = false;
-
-        #endregion
-
-        #endregion
 
         /// <summary>
-        /// 
+        /// Defines the isConvertUnitsModule.
         /// </summary>
-        /// <remarks></remarks>
+        private bool isConvertUnitsModule = false;
+
+        /// <summary>
+        /// Defines the isConvertUnitOnlyShowSell.
+        /// </summary>
+        private bool isConvertUnitOnlyShowSell = false;
+
+        /// <summary>
+        /// Defines the canPrintProductLabelConvertUnits.
+        /// </summary>
+        private bool canPrintProductLabelConvertUnits = false;
+
+        /// <summary>
+        /// Defines the canPrintProductLabelConvertProduct.
+        /// </summary>
+        private bool canPrintProductLabelConvertProduct = false;
+
+        /// <summary>
+        /// Defines the isConvertUnitCatchAskEnabled.
+        /// </summary>
+        private bool isConvertUnitCatchAskEnabled = false;
+
+        /// <summary>
+        /// Defines the isMoveInventoryModuleNoCatchAskZeroEnabled.
+        /// </summary>
+        private bool isMoveInventoryModuleNoCatchAskZeroEnabled = false;
+
+        /// <summary>
+        /// Defines the isMovesModule.
+        /// </summary>
+        private bool isMovesModule = false;
+
+        /// <summary>
+        /// Defines the isMoveInventoryCatchAskEnabled.
+        /// </summary>
+        private bool isMoveInventoryCatchAskEnabled = false;
+
+        /// <summary>
+        /// Defines the isPutAwayModule.
+        /// </summary>
+        private bool isPutAwayModule = false;
+
+        /// <summary>
+        /// Defines the isPutAwaySkidCatchAskEnabled.
+        /// </summary>
+        private bool isPutAwaySkidCatchAskEnabled = false;
+
+        /// <summary>
+        /// Defines the isAddToSkidModule.
+        /// </summary>
+        private bool isAddToSkidModule = false;
+
+        /// <summary>
+        /// Defines the isRemoveFromSkidModule.
+        /// </summary>
+        private bool isRemoveFromSkidModule = false;
+
+        /// <summary>
+        /// Defines the isBreakSkidModule.
+        /// </summary>
+        private bool isBreakSkidModule = false;
+
+        /// <summary>
+        /// Defines the isCreateSkidModule.
+        /// </summary>
+        private bool isCreateSkidModule = false;
+
+        /// <summary>
+        /// Defines the isSkidTrackingModule.
+        /// </summary>
+        private bool isSkidTrackingModule = false;
+
+        /// <summary>
+        /// Defines the isMoveSkidModule.
+        /// </summary>
+        private bool isMoveSkidModule = false;
+
+        /// <summary>
+        /// Defines the isAdjustmentNoCatchAskZeroEnabled.
+        /// </summary>
+        private bool isAdjustmentNoCatchAskZeroEnabled = false;
+
+        /// <summary>
+        /// Defines the isInventoryAdjustmentModule.
+        /// </summary>
+        private bool isInventoryAdjustmentModule = false;
+
+        /// <summary>
+        /// Defines the allowAddProduct2Adjustments.
+        /// </summary>
+        private bool allowAddProduct2Adjustments = false;
+
+        /// <summary>
+        /// Defines the isEnabledAdjustmentTypeFresh2Frozen.
+        /// </summary>
+        private bool isEnabledAdjustmentTypeFresh2Frozen = false;
+
+        /// <summary>
+        /// Defines the isAdjustmentsExtraDetailEnabled.
+        /// </summary>
+        private bool isAdjustmentsExtraDetailEnabled = false;
+
+        /// <summary>
+        /// Defines the isAdjustmentModuleCatchAskEnabled.
+        /// </summary>
+        private bool isAdjustmentModuleCatchAskEnabled = false;
+
+        /// <summary>
+        /// Defines the isAdjustmentCreateNewItemNoAsk.
+        /// </summary>
+        private bool isAdjustmentCreateNewItemNoAsk = false;
+
+        /// <summary>
+        /// Defines the isFinishedExtraDetailEnabled.
+        /// </summary>
+        private bool isFinishedExtraDetailEnabled = false;
+
+        /// <summary>
+        /// Defines the isMaterialExtraDetailEnabled.
+        /// </summary>
+        private bool isMaterialExtraDetailEnabled = false;
+
+        /// <summary>
+        /// Defines the isByProductsExtraDetailEnabled.
+        /// </summary>
+        private bool isByProductsExtraDetailEnabled = false;
+
+        /// <summary>
+        /// Defines the isTicketByProductNoCatchAskZeroEnabled.
+        /// </summary>
+        private bool isTicketByProductNoCatchAskZeroEnabled = false;
+
+        /// <summary>
+        /// Defines the isTicketFinishedNoCatchAskZeroEnabled.
+        /// </summary>
+        private bool isTicketFinishedNoCatchAskZeroEnabled = false;
+
+        /// <summary>
+        /// Defines the isTicketMaterialNoCatchAskZeroEnabled.
+        /// </summary>
+        private bool isTicketMaterialNoCatchAskZeroEnabled = false;
+
+        /// <summary>
+        /// Defines the isTicketFinishedGoodModule.
+        /// </summary>
+        private bool isTicketFinishedGoodModule = false;
+
+        /// <summary>
+        /// Defines the isTicketMaterialModule.
+        /// </summary>
+        private bool isTicketMaterialModule = false;
+
+        /// <summary>
+        /// Defines the isTicketByProductModule.
+        /// </summary>
+        private bool isTicketByProductModule = false;
+
+        /// <summary>
+        /// Defines the allowAddProduct2TicketFinishedGood.
+        /// </summary>
+        private bool allowAddProduct2TicketFinishedGood = false;
+
+        /// <summary>
+        /// Defines the allowAddProduct2TicketMaterial.
+        /// </summary>
+        private bool allowAddProduct2TicketMaterial = false;
+
+        /// <summary>
+        /// Defines the allowAddProduct2TicketByProduct.
+        /// </summary>
+        private bool allowAddProduct2TicketByProduct = false;
+
+        /// <summary>
+        /// Defines the isTicketFinishedCatchAskEnabled.
+        /// </summary>
+        private bool isTicketFinishedCatchAskEnabled = false;
+
+        /// <summary>
+        /// Defines the isTicketMaterialCatchAskEnabled.
+        /// </summary>
+        private bool isTicketMaterialCatchAskEnabled = false;
+
+        /// <summary>
+        /// Defines the isTicketByProductCatchAskEnabled.
+        /// </summary>
+        private bool isTicketByProductCatchAskEnabled = false;
+
+        /// <summary>
+        /// Defines the isTicketMaterialCreateNewItemNoAsk.
+        /// </summary>
+        private bool isTicketMaterialCreateNewItemNoAsk = false;
+
+        /// <summary>
+        /// Defines the isTicketByProductCreateNewItemNoAsk.
+        /// </summary>
+        private bool isTicketByProductCreateNewItemNoAsk = false;
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="SystemSettings"/> class.
+        /// </summary>
         public SystemSettings()
         {
             SystemSettingsTasks.Init();
         }
 
-        #region System Properties
-
         /// <summary>
-        /// Is inventory checking strict.
+        /// Gets or sets a value indicating whether IsInvStrict
+        /// Is inventory checking strict..
         /// </summary>
         public bool IsInvStrict
         {
@@ -483,6 +844,9 @@ namespace dMobile.Bedrock
             }
         }
 
+        /// <summary>
+        /// Gets or sets the LastRefreshData.
+        /// </summary>
         public DateTime LastRefreshData
         {
             get
@@ -496,6 +860,9 @@ namespace dMobile.Bedrock
             }
         }
 
+        /// <summary>
+        /// Gets or sets a value indicating whether IsDetailEditScreenSetFocus2CatchWeight.
+        /// </summary>
         public bool IsDetailEditScreenSetFocus2CatchWeight
         {
             get
@@ -509,6 +876,9 @@ namespace dMobile.Bedrock
             }
         }
 
+        /// <summary>
+        /// Gets or sets a value indicating whether IsPrintProductLabelsAsBatch.
+        /// </summary>
         public bool IsPrintProductLabelsAsBatch
         {
             get
@@ -522,7 +892,9 @@ namespace dMobile.Bedrock
             }
         }
 
-
+        /// <summary>
+        /// Gets or sets a value indicating whether IsSetCatchWeightZero.
+        /// </summary>
         public bool IsSetCatchWeightZero
         {
             get
@@ -536,6 +908,9 @@ namespace dMobile.Bedrock
             }
         }
 
+        /// <summary>
+        /// Gets or sets a value indicating whether IsSetCatchCountZero.
+        /// </summary>
         public bool IsSetCatchCountZero
         {
             get
@@ -549,6 +924,9 @@ namespace dMobile.Bedrock
             }
         }
 
+        /// <summary>
+        /// Gets or sets a value indicating whether IsIntegerCheckOverride.
+        /// </summary>
         public bool IsIntegerCheckOverride
         {
             get
@@ -562,6 +940,9 @@ namespace dMobile.Bedrock
             }
         }
 
+        /// <summary>
+        /// Gets or sets a value indicating whether IsEnableDefaultDetailValues.
+        /// </summary>
         public bool IsEnableDefaultDetailValues
         {
             get
@@ -575,6 +956,9 @@ namespace dMobile.Bedrock
             }
         }
 
+        /// <summary>
+        /// Gets or sets a value indicating whether IsEnableDefaultDetailExtraValues.
+        /// </summary>
         public bool IsEnableDefaultDetailExtraValues
         {
             get
@@ -588,6 +972,9 @@ namespace dMobile.Bedrock
             }
         }
 
+        /// <summary>
+        /// Gets or sets the Theme.
+        /// </summary>
         public Theme Theme
         {
             get
@@ -601,6 +988,9 @@ namespace dMobile.Bedrock
             }
         }
 
+        /// <summary>
+        /// Gets or sets a value indicating whether IsDisconnectedMode.
+        /// </summary>
         public bool IsDisconnectedMode
         {
             get
@@ -614,6 +1004,9 @@ namespace dMobile.Bedrock
             }
         }
 
+        /// <summary>
+        /// Gets or sets a value indicating whether IsDisconnectedModeLoadDetail.
+        /// </summary>
         public bool IsDisconnectedModeLoadDetail
         {
             get
@@ -627,6 +1020,9 @@ namespace dMobile.Bedrock
             }
         }
 
+        /// <summary>
+        /// Gets or sets the DetailDateMinMaxValidYearRange.
+        /// </summary>
         public int DetailDateMinMaxValidYearRange
         {
             get
@@ -640,6 +1036,9 @@ namespace dMobile.Bedrock
             }
         }
 
+        /// <summary>
+        /// Gets or sets the ProdWeightUnitTolerancePercent.
+        /// </summary>
         public decimal ProdWeightUnitTolerancePercent
         {
             get
@@ -654,9 +1053,10 @@ namespace dMobile.Bedrock
         }
 
         /// <summary>
+        /// Gets or sets a value indicating whether DoesSelectingADifferentProductClearSkid
         /// In Activity Item, when you have a skid made for a line and go to select a new line:
         /// If this is true, it should clear the skid.
-        /// Otherwise, keep the skid as is.
+        /// Otherwise, keep the skid as is..
         /// </summary>
         public bool DoesSelectingADifferentProductClearSkid
         {
@@ -671,18 +1071,19 @@ namespace dMobile.Bedrock
         }
 
         /// <summary>
+        /// Gets or sets a value indicating whether IsProductLabelCatchAsk
         /// Forces the Product Label edit screen to always popup.
-        /// It used to only show if scheme was missing. This says OR do it every time.
+        /// It used to only show if scheme was missing. This says OR do it every time..
         /// </summary>
         public bool IsProductLabelCatchAsk
         {
             get
             {
-                return isProductLabelCatchAsk;
+                return this.isProductLabelCatchAsk;
             }
             set
             {
-                isProductLabelCatchAsk = value;
+                this.isProductLabelCatchAsk = value;
             }
         }
 
@@ -690,7 +1091,7 @@ namespace dMobile.Bedrock
         /// Gets or sets the system default language.
         /// This is the language shown on startup,
         /// when a user is not logged in, or when a user
-        /// does not have a preferred language selected.
+        /// does not have a preferred language selected..
         /// </summary>
         public string DefaultLanguage
         {
@@ -708,7 +1109,7 @@ namespace dMobile.Bedrock
         /// Gets or sets the paths to the language files.
         /// Each file should have a naming convention of dMobileTranslation.CODE.txt
         /// where code is 3 letters from this site.
-        /// https://msdn.microsoft.com/en-us/library/ee825488(v=cs.20).aspx
+        /// https://msdn.microsoft.com/en-us/library/ee825488(v=cs.20).aspx..
         /// </summary>
         [XmlArrayItem("Path")]
         public List<string> LanguagePaths
@@ -723,10 +1124,10 @@ namespace dMobile.Bedrock
             }
         }
 
-
         /// <summary>
+        /// Gets or sets a value indicating whether InventoryInquirySearchEntireWarehouse
         /// Gets or sets if the Inventory Inquiry screen should search the entire warehouse (true)
-        /// or search specific section and slot (false).
+        /// or search specific section and slot (false)..
         /// </summary>
         public bool InventoryInquirySearchEntireWarehouse
         {
@@ -741,10 +1142,9 @@ namespace dMobile.Bedrock
             }
         }
 
-        #endregion
-
-        #region BarCode Properties
-
+        /// <summary>
+        /// Gets or sets the GTINCompanyPrefix.
+        /// </summary>
         public string GTINCompanyPrefix
         {
             get
@@ -758,6 +1158,9 @@ namespace dMobile.Bedrock
             }
         }
 
+        /// <summary>
+        /// Gets or sets a value indicating whether IsProductUnitBarCodeModifier1.
+        /// </summary>
         public bool IsProductUnitBarCodeModifier1
         {
             get
@@ -771,6 +1174,9 @@ namespace dMobile.Bedrock
             }
         }
 
+        /// <summary>
+        /// Gets or sets the ProductUnitBarCodeModifier1Codes.
+        /// </summary>
         public string ProductUnitBarCodeModifier1Codes
         {
             get
@@ -784,127 +1190,125 @@ namespace dMobile.Bedrock
             }
         }
 
-        #endregion
-
-        #region Location Map Properties
-
-        //public string LocMapWarehouseMask
-        //{
+        // public string LocMapWarehouseMask
+        // {
         //    get
         //    {
         //        return this.locMapWarehouseMask;
         //    }
 
-        //    set
+        // set
         //    {
         //        this.locMapWarehouseMask = value;
         //    }
-        //}
+        // }
 
-        //public string LocMapSectionMask
-        //{
+        // public string LocMapSectionMask
+        // {
         //    get
         //    {
         //        return this.locMapSectionMask;
         //    }
 
-        //    set
+        // set
         //    {
         //        this.locMapSectionMask = value;
         //    }
-        //}
+        // }
 
-        //public string LocMapSlotMask
-        //{
+        // public string LocMapSlotMask
+        // {
         //    get
         //    {
         //        return this.locMapSlotMask;
         //    }
 
-        //    set
+        // set
         //    {
         //        this.locMapSlotMask = value;
         //    }
-        //}
+        // }
 
-        //public string LocMapSlotCoord1Mask
-        //{
+        // public string LocMapSlotCoord1Mask
+        // {
         //    get
         //    {
         //        return this.locMapSlotCoord1Mask;
         //    }
 
-        //    set
+        // set
         //    {
         //        this.locMapSlotCoord1Mask = value;
         //    }
-        //}
+        // }
 
-        //public string LocMapSlotCoord2Mask
-        //{
+        // public string LocMapSlotCoord2Mask
+        // {
         //    get
         //    {
         //        return this.locMapSlotCoord2Mask;
         //    }
 
-        //    set
+        // set
         //    {
         //        this.locMapSlotCoord2Mask = value;
         //    }
-        //}
+        // }
 
-        //public string LocMapSlotCoord3Mask
-        //{
+        // public string LocMapSlotCoord3Mask
+        // {
         //    get
         //    {
         //        return this.locMapSlotCoord3Mask;
         //    }
 
-        //    set
+        // set
         //    {
         //        this.locMapSlotCoord3Mask = value;
         //    }
-        //}
+        // }
 
-        //public string LocMapSlotCoord1Name
-        //{
+        // public string LocMapSlotCoord1Name
+        // {
         //    get
         //    {
         //        return this.locMapSlotCoord1Name;
         //    }
 
-        //    set
+        // set
         //    {
         //        this.locMapSlotCoord1Name = value;
         //    }
-        //}
+        // }
 
-        //public string LocMapSlotCoord2Name
-        //{
+        // public string LocMapSlotCoord2Name
+        // {
         //    get
         //    {
         //        return this.locMapSlotCoord2Name;
         //    }
 
-        //    set
+        // set
         //    {
         //        this.locMapSlotCoord2Name = value;
         //    }
-        //}
+        // }
 
-        //public string LocMapSlotCoord3Name
-        //{
+        // public string LocMapSlotCoord3Name
+        // {
         //    get
         //    {
         //        return this.locMapSlotCoord3Name;
         //    }
 
-        //    set
+        // set
         //    {
         //        this.locMapSlotCoord3Name = value;
         //    }
-        //}
-
+        // }
+        /// <summary>
+        /// Gets or sets a value indicating whether IsDefaultLocToProductDefaultLoc.
+        /// </summary>
         public bool IsDefaultLocToProductDefaultLoc
         {
             get
@@ -918,6 +1322,9 @@ namespace dMobile.Bedrock
             }
         }
 
+        /// <summary>
+        /// Gets or sets a value indicating whether IsVerifyProductLocation.
+        /// </summary>
         public bool IsVerifyProductLocation
         {
             get
@@ -931,10 +1338,9 @@ namespace dMobile.Bedrock
             }
         }
 
-        #endregion
-
-        #region Receiving Properties
-
+        /// <summary>
+        /// Gets or sets a value indicating whether IsPutAwaySkidNoCatchAskZeroEnabled.
+        /// </summary>
         public bool IsPutAwaySkidNoCatchAskZeroEnabled
         {
             get
@@ -948,6 +1354,9 @@ namespace dMobile.Bedrock
             }
         }
 
+        /// <summary>
+        /// Gets or sets a value indicating whether IsPOWorkSheetNoCatchAskZeroEnabled.
+        /// </summary>
         public bool IsPOWorkSheetNoCatchAskZeroEnabled
         {
             get
@@ -961,6 +1370,9 @@ namespace dMobile.Bedrock
             }
         }
 
+        /// <summary>
+        /// Gets or sets a value indicating whether IsReceivingNoCatchAskZeroEnabled.
+        /// </summary>
         public bool IsReceivingNoCatchAskZeroEnabled
         {
             get
@@ -974,6 +1386,9 @@ namespace dMobile.Bedrock
             }
         }
 
+        /// <summary>
+        /// Gets or sets a value indicating whether IsReceivingModule.
+        /// </summary>
         public bool IsReceivingModule
         {
             get
@@ -987,6 +1402,9 @@ namespace dMobile.Bedrock
             }
         }
 
+        /// <summary>
+        /// Gets or sets a value indicating whether IsReceivingCatchAskEnabled.
+        /// </summary>
         public bool IsReceivingCatchAskEnabled
         {
             get
@@ -1000,6 +1418,9 @@ namespace dMobile.Bedrock
             }
         }
 
+        /// <summary>
+        /// Gets or sets a value indicating whether IsReceivingExtraDetailEnabled.
+        /// </summary>
         public bool IsReceivingExtraDetailEnabled
         {
             get
@@ -1013,6 +1434,9 @@ namespace dMobile.Bedrock
             }
         }
 
+        /// <summary>
+        /// Gets or sets a value indicating whether CanPrintProductLabelReceiving.
+        /// </summary>
         public bool CanPrintProductLabelReceiving
         {
             get
@@ -1026,6 +1450,9 @@ namespace dMobile.Bedrock
             }
         }
 
+        /// <summary>
+        /// Gets or sets a value indicating whether AllowAddProduct2Receiving.
+        /// </summary>
         public bool AllowAddProduct2Receiving
         {
             get
@@ -1039,6 +1466,9 @@ namespace dMobile.Bedrock
             }
         }
 
+        /// <summary>
+        /// Gets or sets a value indicating whether IsPOWorkSheetCatchAskEnabled.
+        /// </summary>
         public bool IsPOWorkSheetCatchAskEnabled
         {
             get
@@ -1052,6 +1482,9 @@ namespace dMobile.Bedrock
             }
         }
 
+        /// <summary>
+        /// Gets or sets a value indicating whether IsPOWorkSheetModule.
+        /// </summary>
         public bool IsPOWorkSheetModule
         {
             get
@@ -1065,6 +1498,9 @@ namespace dMobile.Bedrock
             }
         }
 
+        /// <summary>
+        /// Gets or sets a value indicating whether IsReceivingCreateNewItemNoAsk.
+        /// </summary>
         public bool IsReceivingCreateNewItemNoAsk
         {
             get
@@ -1078,6 +1514,9 @@ namespace dMobile.Bedrock
             }
         }
 
+        /// <summary>
+        /// Gets or sets a value indicating whether IsPOWorkSheetCreateNewItemNoAsk.
+        /// </summary>
         public bool IsPOWorkSheetCreateNewItemNoAsk
         {
             get
@@ -1091,6 +1530,9 @@ namespace dMobile.Bedrock
             }
         }
 
+        /// <summary>
+        /// Gets or sets the RecvQtyUnderWarn.
+        /// </summary>
         public SysCommon.ActReceivingQtyUnderValLevels RecvQtyUnderWarn
         {
             get
@@ -1104,6 +1546,9 @@ namespace dMobile.Bedrock
             }
         }
 
+        /// <summary>
+        /// Gets or sets the RecvQtyOverWarn.
+        /// </summary>
         public SysCommon.ActReceivingQtyOverValLevels RecvQtyOverWarn
         {
             get
@@ -1117,6 +1562,9 @@ namespace dMobile.Bedrock
             }
         }
 
+        /// <summary>
+        /// Gets or sets a value indicating whether AskRecvPrintAllSkidLabelsUponSave.
+        /// </summary>
         public bool AskRecvPrintAllSkidLabelsUponSave
         {
             get
@@ -1130,10 +1578,9 @@ namespace dMobile.Bedrock
             }
         }
 
-        #endregion
-
-        #region Picking Properties
-
+        /// <summary>
+        /// Gets or sets a value indicating whether IsPickingNoCatchAskZeroEnabled.
+        /// </summary>
         public bool IsPickingNoCatchAskZeroEnabled
         {
             get
@@ -1147,6 +1594,9 @@ namespace dMobile.Bedrock
             }
         }
 
+        /// <summary>
+        /// Gets or sets a value indicating whether IsPickingModuleDisallowLoadingAllOrders.
+        /// </summary>
         public bool IsPickingModuleDisallowLoadingAllOrders
         {
             get
@@ -1160,6 +1610,9 @@ namespace dMobile.Bedrock
             }
         }
 
+        /// <summary>
+        /// Gets or sets the PickItemDescOpt.
+        /// </summary>
         public int PickItemDescOpt
         {
             get
@@ -1173,6 +1626,9 @@ namespace dMobile.Bedrock
             }
         }
 
+        /// <summary>
+        /// Gets or sets a value indicating whether IsPickMod.
+        /// </summary>
         public bool IsPickMod
         {
             get
@@ -1186,6 +1642,9 @@ namespace dMobile.Bedrock
             }
         }
 
+        /// <summary>
+        /// Gets or sets a value indicating whether IsPickHideRouteCol.
+        /// </summary>
         public bool IsPickHideRouteCol
         {
             get
@@ -1199,6 +1658,9 @@ namespace dMobile.Bedrock
             }
         }
 
+        /// <summary>
+        /// Gets or sets a value indicating whether IsPickOverrideMsg1.
+        /// </summary>
         public bool IsPickOverrideMsg1
         {
             get
@@ -1212,6 +1674,9 @@ namespace dMobile.Bedrock
             }
         }
 
+        /// <summary>
+        /// Gets or sets a value indicating whether IsPickConfirmExit.
+        /// </summary>
         public bool IsPickConfirmExit
         {
             get
@@ -1225,6 +1690,9 @@ namespace dMobile.Bedrock
             }
         }
 
+        /// <summary>
+        /// Gets or sets a value indicating whether IsPickCatchAsk.
+        /// </summary>
         public bool IsPickCatchAsk
         {
             get
@@ -1238,6 +1706,9 @@ namespace dMobile.Bedrock
             }
         }
 
+        /// <summary>
+        /// Gets or sets a value indicating whether IsPickExtraDet.
+        /// </summary>
         public bool IsPickExtraDet
         {
             get
@@ -1251,6 +1722,9 @@ namespace dMobile.Bedrock
             }
         }
 
+        /// <summary>
+        /// Gets or sets a value indicating whether IsPickMustReviewItemsBeforeRel.
+        /// </summary>
         public bool IsPickMustReviewItemsBeforeRel
         {
             get
@@ -1264,6 +1738,9 @@ namespace dMobile.Bedrock
             }
         }
 
+        /// <summary>
+        /// Gets or sets a value indicating whether IsPickPopupCmnt.
+        /// </summary>
         public bool IsPickPopupCmnt
         {
             get
@@ -1277,6 +1754,9 @@ namespace dMobile.Bedrock
             }
         }
 
+        /// <summary>
+        /// Gets or sets a value indicating whether IsPickRefreshOrdAfterRel.
+        /// </summary>
         public bool IsPickRefreshOrdAfterRel
         {
             get
@@ -1290,6 +1770,9 @@ namespace dMobile.Bedrock
             }
         }
 
+        /// <summary>
+        /// Gets or sets a value indicating whether IsPickQtyUnderShowBaseQtyAvail.
+        /// </summary>
         public bool IsPickQtyUnderShowBaseQtyAvail
         {
             get
@@ -1303,6 +1786,9 @@ namespace dMobile.Bedrock
             }
         }
 
+        /// <summary>
+        /// Gets or sets a value indicating whether IsPickDisallowManualAddProd.
+        /// </summary>
         public bool IsPickDisallowManualAddProd
         {
             get
@@ -1316,6 +1802,9 @@ namespace dMobile.Bedrock
             }
         }
 
+        /// <summary>
+        /// Gets or sets a value indicating whether IsPickAssocBarCodePwdReq.
+        /// </summary>
         public bool IsPickAssocBarCodePwdReq
         {
             get
@@ -1329,6 +1818,9 @@ namespace dMobile.Bedrock
             }
         }
 
+        /// <summary>
+        /// Gets or sets a value indicating whether AllowAddProd2Pick.
+        /// </summary>
         public bool AllowAddProd2Pick
         {
             get
@@ -1342,6 +1834,9 @@ namespace dMobile.Bedrock
             }
         }
 
+        /// <summary>
+        /// Gets or sets a value indicating whether IsPrePickCrit.
+        /// </summary>
         public bool IsPrePickCrit
         {
             get
@@ -1355,6 +1850,9 @@ namespace dMobile.Bedrock
             }
         }
 
+        /// <summary>
+        /// Gets or sets the PickQtyUnderWarn.
+        /// </summary>
         public SysCommon.ActPickingQtyUnderValLevels PickQtyUnderWarn
         {
             get
@@ -1368,6 +1866,9 @@ namespace dMobile.Bedrock
             }
         }
 
+        /// <summary>
+        /// Gets or sets the PickQtyOverWarn.
+        /// </summary>
         public SysCommon.ActPickingQtyOverValLevels PickQtyOverWarn
         {
             get
@@ -1381,6 +1882,9 @@ namespace dMobile.Bedrock
             }
         }
 
+        /// <summary>
+        /// Gets or sets a value indicating whether IsPickConfirmDet.
+        /// </summary>
         public bool IsPickConfirmDet
         {
             get
@@ -1394,6 +1898,9 @@ namespace dMobile.Bedrock
             }
         }
 
+        /// <summary>
+        /// Gets or sets a value indicating whether IsPickShowItemQtyAvail.
+        /// </summary>
         public bool IsPickShowItemQtyAvail
         {
             get
@@ -1407,6 +1914,9 @@ namespace dMobile.Bedrock
             }
         }
 
+        /// <summary>
+        /// Gets or sets a value indicating whether IsRelByOrder.
+        /// </summary>
         public bool IsRelByOrder
         {
             get
@@ -1420,6 +1930,9 @@ namespace dMobile.Bedrock
             }
         }
 
+        /// <summary>
+        /// Gets or sets a value indicating whether IsRelBySect.
+        /// </summary>
         public bool IsRelBySect
         {
             get
@@ -1433,6 +1946,9 @@ namespace dMobile.Bedrock
             }
         }
 
+        /// <summary>
+        /// Gets or sets the PickDetGridDesignLayout.
+        /// </summary>
         public int PickDetGridDesignLayout
         {
             get
@@ -1446,6 +1962,9 @@ namespace dMobile.Bedrock
             }
         }
 
+        /// <summary>
+        /// Gets or sets a value indicating whether IsPickCreateNewItemNoAsk.
+        /// </summary>
         public bool IsPickCreateNewItemNoAsk
         {
             get
@@ -1459,6 +1978,9 @@ namespace dMobile.Bedrock
             }
         }
 
+        /// <summary>
+        /// Gets or sets a value indicating whether IsPickDisableMakeSkid.
+        /// </summary>
         public bool IsPickDisableMakeSkid
         {
             get
@@ -1472,6 +1994,9 @@ namespace dMobile.Bedrock
             }
         }
 
+        /// <summary>
+        /// Gets or sets a value indicating whether IsPickAddManualDetailPasswordRequired.
+        /// </summary>
         public bool IsPickAddManualDetailPasswordRequired
         {
             get
@@ -1485,8 +2010,9 @@ namespace dMobile.Bedrock
             }
         }
 
-        #region Picking Single
-
+        /// <summary>
+        /// Gets or sets a value indicating whether IsPickingSingleModuleNoCatchAskZeroEnabled.
+        /// </summary>
         public bool IsPickingSingleModuleNoCatchAskZeroEnabled
         {
             get
@@ -1500,6 +2026,9 @@ namespace dMobile.Bedrock
             }
         }
 
+        /// <summary>
+        /// Gets or sets a value indicating whether IsPickSingleProd.
+        /// </summary>
         public bool IsPickSingleProd
         {
             get
@@ -1513,6 +2042,9 @@ namespace dMobile.Bedrock
             }
         }
 
+        /// <summary>
+        /// Gets or sets a value indicating whether IsPickSingleCatchAsk.
+        /// </summary>
         public bool IsPickSingleCatchAsk
         {
             get
@@ -1526,6 +2058,9 @@ namespace dMobile.Bedrock
             }
         }
 
+        /// <summary>
+        /// Gets or sets a value indicating whether IsPickSingleScanProdMustMatchSelProd.
+        /// </summary>
         public bool IsPickSingleScanProdMustMatchSelProd
         {
             get
@@ -1539,6 +2074,9 @@ namespace dMobile.Bedrock
             }
         }
 
+        /// <summary>
+        /// Gets or sets a value indicating whether IsPickSinglePrintShipLabelFullQuantity.
+        /// </summary>
         public bool IsPickSinglePrintShipLabelFullQuantity
         {
             get
@@ -1552,6 +2090,9 @@ namespace dMobile.Bedrock
             }
         }
 
+        /// <summary>
+        /// Gets or sets the PickSingleShipLabelStopThresholdQuantity.
+        /// </summary>
         public int PickSingleShipLabelStopThresholdQuantity
         {
             get
@@ -1565,10 +2106,9 @@ namespace dMobile.Bedrock
             }
         }
 
-        #endregion Properties
-
-        #region Picking Other Info
-
+        /// <summary>
+        /// Gets or sets a value indicating whether CanPrintShippingLabel.
+        /// </summary>
         public bool CanPrintShippingLabel
         {
             get
@@ -1582,6 +2122,9 @@ namespace dMobile.Bedrock
             }
         }
 
+        /// <summary>
+        /// Gets or sets a value indicating whether IsFullQuantityEnabled.
+        /// </summary>
         public bool IsFullQuantityEnabled
         {
             get
@@ -1595,6 +2138,9 @@ namespace dMobile.Bedrock
             }
         }
 
+        /// <summary>
+        /// Gets or sets a value indicating whether IsRepackQuantityEnabled.
+        /// </summary>
         public bool IsRepackQuantityEnabled
         {
             get
@@ -1608,6 +2154,9 @@ namespace dMobile.Bedrock
             }
         }
 
+        /// <summary>
+        /// Gets or sets a value indicating whether IsDryQuantityEnabled.
+        /// </summary>
         public bool IsDryQuantityEnabled
         {
             get
@@ -1621,6 +2170,9 @@ namespace dMobile.Bedrock
             }
         }
 
+        /// <summary>
+        /// Gets or sets a value indicating whether IsDryRepackQuantityEnabled.
+        /// </summary>
         public bool IsDryRepackQuantityEnabled
         {
             get
@@ -1634,6 +2186,9 @@ namespace dMobile.Bedrock
             }
         }
 
+        /// <summary>
+        /// Gets or sets a value indicating whether IsFreshQuantityEnabled.
+        /// </summary>
         public bool IsFreshQuantityEnabled
         {
             get
@@ -1647,6 +2202,9 @@ namespace dMobile.Bedrock
             }
         }
 
+        /// <summary>
+        /// Gets or sets a value indicating whether IsFreshRepackQuantityEnabled.
+        /// </summary>
         public bool IsFreshRepackQuantityEnabled
         {
             get
@@ -1660,6 +2218,9 @@ namespace dMobile.Bedrock
             }
         }
 
+        /// <summary>
+        /// Gets or sets a value indicating whether IsFrozenQuantityEnabled.
+        /// </summary>
         public bool IsFrozenQuantityEnabled
         {
             get
@@ -1673,6 +2234,9 @@ namespace dMobile.Bedrock
             }
         }
 
+        /// <summary>
+        /// Gets or sets a value indicating whether IsFrozenRepackQuantityEnabled.
+        /// </summary>
         public bool IsFrozenRepackQuantityEnabled
         {
             get
@@ -1686,6 +2250,9 @@ namespace dMobile.Bedrock
             }
         }
 
+        /// <summary>
+        /// Gets or sets a value indicating whether IsLiveQuantityEnabled.
+        /// </summary>
         public bool IsLiveQuantityEnabled
         {
             get
@@ -1699,6 +2266,9 @@ namespace dMobile.Bedrock
             }
         }
 
+        /// <summary>
+        /// Gets or sets a value indicating whether IsLiveRepackQuantityEnabled.
+        /// </summary>
         public bool IsLiveRepackQuantityEnabled
         {
             get
@@ -1712,6 +2282,9 @@ namespace dMobile.Bedrock
             }
         }
 
+        /// <summary>
+        /// Gets or sets a value indicating whether IsPalletQuantityEnabled.
+        /// </summary>
         public bool IsPalletQuantityEnabled
         {
             get
@@ -1725,6 +2298,9 @@ namespace dMobile.Bedrock
             }
         }
 
+        /// <summary>
+        /// Gets or sets a value indicating whether IsBundleQuantityEnabled.
+        /// </summary>
         public bool IsBundleQuantityEnabled
         {
             get
@@ -1738,12 +2314,9 @@ namespace dMobile.Bedrock
             }
         }
 
-        #endregion Properties
-
-        #endregion
-
-        #region Returns Properties
-
+        /// <summary>
+        /// Gets or sets a value indicating whether IsReturnsNoCatchAskZeroEnabled.
+        /// </summary>
         public bool IsReturnsNoCatchAskZeroEnabled
         {
             get
@@ -1757,6 +2330,9 @@ namespace dMobile.Bedrock
             }
         }
 
+        /// <summary>
+        /// Gets or sets a value indicating whether IsRetMod.
+        /// </summary>
         public bool IsRetMod
         {
             get
@@ -1770,6 +2346,9 @@ namespace dMobile.Bedrock
             }
         }
 
+        /// <summary>
+        /// Gets or sets a value indicating whether IsRetExtraDetEnabled.
+        /// </summary>
         public bool IsRetExtraDetEnabled
         {
             get
@@ -1783,6 +2362,9 @@ namespace dMobile.Bedrock
             }
         }
 
+        /// <summary>
+        /// Gets or sets a value indicating whether IsRetConfirmDet.
+        /// </summary>
         public bool IsRetConfirmDet
         {
             get
@@ -1796,6 +2378,9 @@ namespace dMobile.Bedrock
             }
         }
 
+        /// <summary>
+        /// Gets or sets a value indicating whether AllowAddProd2Ret.
+        /// </summary>
         public bool AllowAddProd2Ret
         {
             get
@@ -1809,6 +2394,9 @@ namespace dMobile.Bedrock
             }
         }
 
+        /// <summary>
+        /// Gets or sets a value indicating whether IsRetCatchAskEnabled.
+        /// </summary>
         public bool IsRetCatchAskEnabled
         {
             get
@@ -1822,6 +2410,9 @@ namespace dMobile.Bedrock
             }
         }
 
+        /// <summary>
+        /// Gets or sets a value indicating whether IsRetCreateNewItemNoAsk.
+        /// </summary>
         public bool IsRetCreateNewItemNoAsk
         {
             get
@@ -1835,10 +2426,9 @@ namespace dMobile.Bedrock
             }
         }
 
-        #endregion Properties
-
-        #region Physical Properties
-
+        /// <summary>
+        /// Gets or sets a value indicating whether IsPhysicalModule.
+        /// </summary>
         public bool IsPhysicalModule
         {
             get
@@ -1852,6 +2442,9 @@ namespace dMobile.Bedrock
             }
         }
 
+        /// <summary>
+        /// Gets or sets a value indicating whether IsPhysicalCatchAskEnabled.
+        /// </summary>
         public bool IsPhysicalCatchAskEnabled
         {
             get
@@ -1865,6 +2458,9 @@ namespace dMobile.Bedrock
             }
         }
 
+        /// <summary>
+        /// Gets or sets a value indicating whether IsPhysicalExtraDetailEnabled.
+        /// </summary>
         public bool IsPhysicalExtraDetailEnabled
         {
             get
@@ -1878,6 +2474,9 @@ namespace dMobile.Bedrock
             }
         }
 
+        /// <summary>
+        /// Gets or sets a value indicating whether AllowAddProduct2Physical.
+        /// </summary>
         public bool AllowAddProduct2Physical
         {
             get
@@ -1891,6 +2490,9 @@ namespace dMobile.Bedrock
             }
         }
 
+        /// <summary>
+        /// Gets or sets a value indicating whether IsPhysicalCreateNewItemNoAsk.
+        /// </summary>
         public bool IsPhysicalCreateNewItemNoAsk
         {
             get
@@ -1904,6 +2506,9 @@ namespace dMobile.Bedrock
             }
         }
 
+        /// <summary>
+        /// Gets or sets a value indicating whether IsPhysicalDoNotDefaultProductLocation.
+        /// </summary>
         public bool IsPhysicalDoNotDefaultProductLocation
         {
             get
@@ -1917,10 +2522,9 @@ namespace dMobile.Bedrock
             }
         }
 
-        #endregion
-
-        #region Cycle Properties
-
+        /// <summary>
+        /// Gets or sets a value indicating whether IsCycleCountNoCatchAskZeroEnabled.
+        /// </summary>
         public bool IsCycleCountNoCatchAskZeroEnabled
         {
             get
@@ -1934,6 +2538,9 @@ namespace dMobile.Bedrock
             }
         }
 
+        /// <summary>
+        /// Gets or sets a value indicating whether IsCycleModule.
+        /// </summary>
         public bool IsCycleModule
         {
             get
@@ -1947,6 +2554,9 @@ namespace dMobile.Bedrock
             }
         }
 
+        /// <summary>
+        /// Gets or sets a value indicating whether IsCycleCatchAskEnabled.
+        /// </summary>
         public bool IsCycleCatchAskEnabled
         {
             get
@@ -1960,6 +2570,9 @@ namespace dMobile.Bedrock
             }
         }
 
+        /// <summary>
+        /// Gets or sets a value indicating whether IsCycleExtraDetailEnabled.
+        /// </summary>
         public bool IsCycleExtraDetailEnabled
         {
             get
@@ -1973,6 +2586,9 @@ namespace dMobile.Bedrock
             }
         }
 
+        /// <summary>
+        /// Gets or sets a value indicating whether AllowAddProduct2Cycle.
+        /// </summary>
         public bool AllowAddProduct2Cycle
         {
             get
@@ -1986,6 +2602,9 @@ namespace dMobile.Bedrock
             }
         }
 
+        /// <summary>
+        /// Gets or sets a value indicating whether IsCycleCreateNewItemNoAsk.
+        /// </summary>
         public bool IsCycleCreateNewItemNoAsk
         {
             get
@@ -1999,6 +2618,9 @@ namespace dMobile.Bedrock
             }
         }
 
+        /// <summary>
+        /// Gets or sets a value indicating whether IsCycleDoNotDefaultProductLocation.
+        /// </summary>
         public bool IsCycleDoNotDefaultProductLocation
         {
             get
@@ -2012,10 +2634,9 @@ namespace dMobile.Bedrock
             }
         }
 
-        #endregion
-
-        #region Production Properties
-
+        /// <summary>
+        /// Gets or sets a value indicating whether IsFinishedExtraDetailEnabled.
+        /// </summary>
         public bool IsFinishedExtraDetailEnabled
         {
             get
@@ -2029,6 +2650,9 @@ namespace dMobile.Bedrock
             }
         }
 
+        /// <summary>
+        /// Gets or sets a value indicating whether IsIngredientsExtraDetailEnabled.
+        /// </summary>
         public bool IsIngredientsExtraDetailEnabled
         {
             get
@@ -2042,6 +2666,9 @@ namespace dMobile.Bedrock
             }
         }
 
+        /// <summary>
+        /// Gets or sets a value indicating whether IsByProductsExtraDetailEnabled.
+        /// </summary>
         public bool IsByProductsExtraDetailEnabled
         {
             get
@@ -2055,8 +2682,9 @@ namespace dMobile.Bedrock
             }
         }
 
-        #region Production Ticket Properties
-
+        /// <summary>
+        /// Gets or sets a value indicating whether IsTicketMaterialNoCatchAskZeroEnabled.
+        /// </summary>
         public bool IsTicketMaterialNoCatchAskZeroEnabled
         {
             get
@@ -2070,6 +2698,9 @@ namespace dMobile.Bedrock
             }
         }
 
+        /// <summary>
+        /// Gets or sets a value indicating whether IsTicketByProductNoCatchAskZeroEnabled.
+        /// </summary>
         public bool IsTicketByProductNoCatchAskZeroEnabled
         {
             get
@@ -2083,6 +2714,9 @@ namespace dMobile.Bedrock
             }
         }
 
+        /// <summary>
+        /// Gets or sets a value indicating whether IsTicketFinishedNoCatchAskZeroEnabled.
+        /// </summary>
         public bool IsTicketFinishedNoCatchAskZeroEnabled
         {
             get
@@ -2096,6 +2730,9 @@ namespace dMobile.Bedrock
             }
         }
 
+        /// <summary>
+        /// Gets or sets a value indicating whether IsPhysicalCountNoCatchAskZeroEnabled.
+        /// </summary>
         public bool IsPhysicalCountNoCatchAskZeroEnabled
         {
             get
@@ -2109,6 +2746,9 @@ namespace dMobile.Bedrock
             }
         }
 
+        /// <summary>
+        /// Gets or sets a value indicating whether IsTicketFinishedGoodModule.
+        /// </summary>
         public bool IsTicketFinishedGoodModule
         {
             get
@@ -2122,6 +2762,9 @@ namespace dMobile.Bedrock
             }
         }
 
+        /// <summary>
+        /// Gets or sets a value indicating whether IsTicketMaterialModule.
+        /// </summary>
         public bool IsTicketMaterialModule
         {
             get
@@ -2135,6 +2778,9 @@ namespace dMobile.Bedrock
             }
         }
 
+        /// <summary>
+        /// Gets or sets a value indicating whether IsTicketByProductModule.
+        /// </summary>
         public bool IsTicketByProductModule
         {
             get
@@ -2148,6 +2794,9 @@ namespace dMobile.Bedrock
             }
         }
 
+        /// <summary>
+        /// Gets or sets a value indicating whether IsTicketFinishedCatchAskEnabled.
+        /// </summary>
         public bool IsTicketFinishedCatchAskEnabled
         {
             get
@@ -2161,6 +2810,9 @@ namespace dMobile.Bedrock
             }
         }
 
+        /// <summary>
+        /// Gets or sets a value indicating whether IsTicketMaterialCatchAskEnabled.
+        /// </summary>
         public bool IsTicketMaterialCatchAskEnabled
         {
             get
@@ -2174,6 +2826,9 @@ namespace dMobile.Bedrock
             }
         }
 
+        /// <summary>
+        /// Gets or sets a value indicating whether IsTicketByProductCatchAskEnabled.
+        /// </summary>
         public bool IsTicketByProductCatchAskEnabled
         {
             get
@@ -2187,6 +2842,9 @@ namespace dMobile.Bedrock
             }
         }
 
+        /// <summary>
+        /// Gets or sets a value indicating whether AllowAddProduct2TicketFinished.
+        /// </summary>
         public bool AllowAddProduct2TicketFinished
         {
             get
@@ -2200,6 +2858,9 @@ namespace dMobile.Bedrock
             }
         }
 
+        /// <summary>
+        /// Gets or sets a value indicating whether AllowAddProduct2TicketMaterial.
+        /// </summary>
         public bool AllowAddProduct2TicketMaterial
         {
             get
@@ -2213,6 +2874,9 @@ namespace dMobile.Bedrock
             }
         }
 
+        /// <summary>
+        /// Gets or sets a value indicating whether AllowAddProduct2TicketByProduct.
+        /// </summary>
         public bool AllowAddProduct2TicketByProduct
         {
             get
@@ -2226,6 +2890,9 @@ namespace dMobile.Bedrock
             }
         }
 
+        /// <summary>
+        /// Gets or sets a value indicating whether IsTicketMaterialCreateNewItemNoAsk.
+        /// </summary>
         public bool IsTicketMaterialCreateNewItemNoAsk
         {
             get
@@ -2239,6 +2906,9 @@ namespace dMobile.Bedrock
             }
         }
 
+        /// <summary>
+        /// Gets or sets a value indicating whether IsTicketByProductCreateNewItemNoAsk.
+        /// </summary>
         public bool IsTicketByProductCreateNewItemNoAsk
         {
             get
@@ -2252,12 +2922,9 @@ namespace dMobile.Bedrock
             }
         }
 
-        #endregion
-
-        #endregion
-
-        #region Adjustments Properties
-
+        /// <summary>
+        /// Gets or sets a value indicating whether IsAdjustmentNoCatchAskZeroEnabled.
+        /// </summary>
         public bool IsAdjustmentNoCatchAskZeroEnabled
         {
             get
@@ -2271,6 +2938,9 @@ namespace dMobile.Bedrock
             }
         }
 
+        /// <summary>
+        /// Gets or sets a value indicating whether IsInventoryAdjustmentModule.
+        /// </summary>
         public bool IsInventoryAdjustmentModule
         {
             get
@@ -2284,6 +2954,9 @@ namespace dMobile.Bedrock
             }
         }
 
+        /// <summary>
+        /// Gets or sets a value indicating whether IsAdjustmentCatchAskEnabled.
+        /// </summary>
         public bool IsAdjustmentCatchAskEnabled
         {
             get
@@ -2297,6 +2970,9 @@ namespace dMobile.Bedrock
             }
         }
 
+        /// <summary>
+        /// Gets or sets a value indicating whether IsAdjustmentsExtraDetailEnabled.
+        /// </summary>
         public bool IsAdjustmentsExtraDetailEnabled
         {
             get
@@ -2310,6 +2986,9 @@ namespace dMobile.Bedrock
             }
         }
 
+        /// <summary>
+        /// Gets or sets a value indicating whether IsEnabledAdjustmentTypeFresh2Frozen.
+        /// </summary>
         public bool IsEnabledAdjustmentTypeFresh2Frozen
         {
             get
@@ -2323,6 +3002,9 @@ namespace dMobile.Bedrock
             }
         }
 
+        /// <summary>
+        /// Gets or sets a value indicating whether AllowAddProduct2Adjustments.
+        /// </summary>
         public bool AllowAddProduct2Adjustments
         {
             get
@@ -2336,6 +3018,9 @@ namespace dMobile.Bedrock
             }
         }
 
+        /// <summary>
+        /// Gets or sets a value indicating whether IsAdjustmentCreateNewItemNoAsk.
+        /// </summary>
         public bool IsAdjustmentCreateNewItemNoAsk
         {
             get
@@ -2349,10 +3034,9 @@ namespace dMobile.Bedrock
             }
         }
 
-        #endregion
-
-        #region Transfers Properties
-
+        /// <summary>
+        /// Gets or sets a value indicating whether IsTransferNoCatchAskZeroEnabled.
+        /// </summary>
         public bool IsTransferNoCatchAskZeroEnabled
         {
             get
@@ -2366,6 +3050,9 @@ namespace dMobile.Bedrock
             }
         }
 
+        /// <summary>
+        /// Gets or sets a value indicating whether CanPrintProductLabelTransfers.
+        /// </summary>
         public bool CanPrintProductLabelTransfers
         {
             get
@@ -2378,6 +3065,9 @@ namespace dMobile.Bedrock
             }
         }
 
+        /// <summary>
+        /// Gets or sets a value indicating whether IsTransMod.
+        /// </summary>
         public bool IsTransMod
         {
             get
@@ -2391,6 +3081,9 @@ namespace dMobile.Bedrock
             }
         }
 
+        /// <summary>
+        /// Gets or sets a value indicating whether IsTransCatchAskEnabled.
+        /// </summary>
         public bool IsTransCatchAskEnabled
         {
             get
@@ -2404,6 +3097,9 @@ namespace dMobile.Bedrock
             }
         }
 
+        /// <summary>
+        /// Gets or sets a value indicating whether IsTransExtraDetEnabled.
+        /// </summary>
         public bool IsTransExtraDetEnabled
         {
             get
@@ -2417,6 +3113,9 @@ namespace dMobile.Bedrock
             }
         }
 
+        /// <summary>
+        /// Gets or sets a value indicating whether AllowAddProd2Trans.
+        /// </summary>
         public bool AllowAddProd2Trans
         {
             get
@@ -2430,6 +3129,9 @@ namespace dMobile.Bedrock
             }
         }
 
+        /// <summary>
+        /// Gets or sets a value indicating whether IsTransCreateNewItemNoAsk.
+        /// </summary>
         public bool IsTransCreateNewItemNoAsk
         {
             get
@@ -2443,18 +3145,18 @@ namespace dMobile.Bedrock
             }
         }
 
-        //public bool IsTransConfirmFromDet
-        //{
+        // public bool IsTransConfirmFromDet
+        // {
         //    get
         //    {
         //        return this.isTransConfirmFromDet;
         //    }
 
-        //    set
+        // set
         //    {
         //        this.isTransConfirmFromDet = value;
         //    }
-        //}
+        // }
 
         ////public bool IsTransConfirmToDet
         ////{
@@ -2468,7 +3170,9 @@ namespace dMobile.Bedrock
         ////    this.IsTransConfirmToDet = value;
         ////  }
         ////}
-
+        /// <summary>
+        /// Gets or sets the TransQtyUnderWarn.
+        /// </summary>
         public SysCommon.ActTransfersQtyUnderValLevels TransQtyUnderWarn
         {
             get
@@ -2482,6 +3186,9 @@ namespace dMobile.Bedrock
             }
         }
 
+        /// <summary>
+        /// Gets or sets the TransQtyOverWarn.
+        /// </summary>
         public SysCommon.ActTransfersQtyOverValLevels TransQtyOverWarn
         {
             get
@@ -2495,10 +3202,9 @@ namespace dMobile.Bedrock
             }
         }
 
-        #endregion
-
-        #region Convert Properties
-
+        /// <summary>
+        /// Gets or sets a value indicating whether IsConvertUnitModuleNoCatchAskZeroEnabled.
+        /// </summary>
         public bool IsConvertUnitModuleNoCatchAskZeroEnabled
         {
             get
@@ -2512,6 +3218,9 @@ namespace dMobile.Bedrock
             }
         }
 
+        /// <summary>
+        /// Gets or sets a value indicating whether IsConvertUnitsModule.
+        /// </summary>
         public bool IsConvertUnitsModule
         {
             get
@@ -2525,6 +3234,9 @@ namespace dMobile.Bedrock
             }
         }
 
+        /// <summary>
+        /// Gets or sets a value indicating whether IsConvertUnitCatchAskEnabled.
+        /// </summary>
         public bool IsConvertUnitCatchAskEnabled
         {
             get
@@ -2538,6 +3250,9 @@ namespace dMobile.Bedrock
             }
         }
 
+        /// <summary>
+        /// Gets or sets a value indicating whether IsConvertUnitOnlyShowSell.
+        /// </summary>
         public bool IsConvertUnitOnlyShowSell
         {
             get
@@ -2551,6 +3266,9 @@ namespace dMobile.Bedrock
             }
         }
 
+        /// <summary>
+        /// Gets or sets a value indicating whether CanPrintProductLabelConvertUnits.
+        /// </summary>
         public bool CanPrintProductLabelConvertUnits
         {
             get
@@ -2564,11 +3282,11 @@ namespace dMobile.Bedrock
             }
         }
 
-
         /// <summary>
+        /// Gets or sets a value indicating whether CanPrintProductLabelConvertProduct
         /// <para>Causes a label to print from ActivityDetail screen:</para>
-        /// <para>- After scanning with complete scheme data</para>
-        /// <para>- After save of scheme data in ActivtyDetailEdit screen</para>
+        /// <para>- After scanning with complete scheme data.</para>
+        /// <para>- After save of scheme data in ActivtyDetailEdit screen.</para>.
         /// </summary>
         public bool CanPrintProductLabelConvertProduct
         {
@@ -2582,10 +3300,9 @@ namespace dMobile.Bedrock
             }
         }
 
-        #endregion
-
-        #region Moves Properties
-
+        /// <summary>
+        /// Gets or sets a value indicating whether IsMoveInventoryModuleNoCatchAskZeroEnabled.
+        /// </summary>
         public bool IsMoveInventoryModuleNoCatchAskZeroEnabled
         {
             get
@@ -2599,6 +3316,9 @@ namespace dMobile.Bedrock
             }
         }
 
+        /// <summary>
+        /// Gets or sets a value indicating whether IsMovesModule.
+        /// </summary>
         public bool IsMovesModule
         {
             get
@@ -2612,6 +3332,9 @@ namespace dMobile.Bedrock
             }
         }
 
+        /// <summary>
+        /// Gets or sets a value indicating whether IsMoveInventoryCatchAskEnabled.
+        /// </summary>
         public bool IsMoveInventoryCatchAskEnabled
         {
             get
@@ -2625,10 +3348,9 @@ namespace dMobile.Bedrock
             }
         }
 
-        #endregion
-
-        #region Skid Properties
-
+        /// <summary>
+        /// Gets or sets a value indicating whether IsSkidTrackingModule.
+        /// </summary>
         public bool IsSkidTrackingModule
         {
             get
@@ -2642,6 +3364,9 @@ namespace dMobile.Bedrock
             }
         }
 
+        /// <summary>
+        /// Gets or sets a value indicating whether IsAddToSkidModule.
+        /// </summary>
         public bool IsAddToSkidModule
         {
             get
@@ -2655,6 +3380,9 @@ namespace dMobile.Bedrock
             }
         }
 
+        /// <summary>
+        /// Gets or sets a value indicating whether IsRemoveFromSkidModule.
+        /// </summary>
         public bool IsRemoveFromSkidModule
         {
             get
@@ -2668,6 +3396,9 @@ namespace dMobile.Bedrock
             }
         }
 
+        /// <summary>
+        /// Gets or sets a value indicating whether IsBreakSkidModule.
+        /// </summary>
         public bool IsBreakSkidModule
         {
             get
@@ -2681,6 +3412,9 @@ namespace dMobile.Bedrock
             }
         }
 
+        /// <summary>
+        /// Gets or sets a value indicating whether IsCreateSkidModule.
+        /// </summary>
         public bool IsCreateSkidModule
         {
             get
@@ -2694,6 +3428,9 @@ namespace dMobile.Bedrock
             }
         }
 
+        /// <summary>
+        /// Gets or sets a value indicating whether IsMoveSkidModule.
+        /// </summary>
         public bool IsMoveSkidModule
         {
             get
@@ -2707,10 +3444,9 @@ namespace dMobile.Bedrock
             }
         }
 
-        #endregion
-
-        #region PutAway Properties
-
+        /// <summary>
+        /// Gets or sets a value indicating whether IsPutAwayModule.
+        /// </summary>
         public bool IsPutAwayModule
         {
             get
@@ -2724,6 +3460,9 @@ namespace dMobile.Bedrock
             }
         }
 
+        /// <summary>
+        /// Gets or sets a value indicating whether IsPutAwaySkidCatchAskEnabled.
+        /// </summary>
         public bool IsPutAwaySkidCatchAskEnabled
         {
             get
@@ -2737,8 +3476,9 @@ namespace dMobile.Bedrock
             }
         }
 
-        #endregion
-
+        /// <summary>
+        /// Gets or sets a value indicating whether IsReplenishmentModule.
+        /// </summary>
         public bool IsReplenishmentModule
         {
             get
@@ -2752,30 +3492,42 @@ namespace dMobile.Bedrock
             }
         }
 
-        #region ISysSettingsEventPublisher Members
-
+        /// <summary>
+        /// The RegisterSysSettingsListenerStatusOut.
+        /// </summary>
+        /// <param name="sysSettingsListener">The sysSettingsListener<see cref="ISysSettingsEventListener"/>.</param>
         public void RegisterSysSettingsListenerStatusOut(ISysSettingsEventListener sysSettingsListener)
         {
             SystemSettingsTasks.OnSysSettingsStatusOut += new SystemSettingsTasks.OnSysSettingsStatusOutEventHandler(sysSettingsListener.OnSysSettingsStatusOut);
         }
 
+        /// <summary>
+        /// The UnregisterSysSettingsListenerStatusOut.
+        /// </summary>
+        /// <param name="sysSettingsListener">The sysSettingsListener<see cref="ISysSettingsEventListener"/>.</param>
         public void UnregisterSysSettingsListenerStatusOut(ISysSettingsEventListener sysSettingsListener)
         {
             SystemSettingsTasks.OnSysSettingsStatusOut -= new SystemSettingsTasks.OnSysSettingsStatusOutEventHandler(sysSettingsListener.OnSysSettingsStatusOut);
         }
 
+        /// <summary>
+        /// The RegisterSysSettingsListenerProgressOut.
+        /// </summary>
+        /// <param name="sysSettingsListener">The sysSettingsListener<see cref="ISysSettingsEventListener"/>.</param>
         public void RegisterSysSettingsListenerProgressOut(ISysSettingsEventListener sysSettingsListener)
         {
             SystemSettingsTasks.OnSysSettingsProgressOut += new SystemSettingsTasks.OnSysSettingsProgressOutEventHandler(
                 sysSettingsListener.OnSysSettingsProgressOut);
         }
 
+        /// <summary>
+        /// The UnregisterSysSettingsListenerProgressOut.
+        /// </summary>
+        /// <param name="sysSettingsListener">The sysSettingsListener<see cref="ISysSettingsEventListener"/>.</param>
         public void UnregisterSysSettingsListenerProgressOut(ISysSettingsEventListener sysSettingsListener)
         {
             SystemSettingsTasks.OnSysSettingsProgressOut -= new SystemSettingsTasks.OnSysSettingsProgressOutEventHandler(
                 sysSettingsListener.OnSysSettingsProgressOut);
         }
-
-        #endregion
     }
 }

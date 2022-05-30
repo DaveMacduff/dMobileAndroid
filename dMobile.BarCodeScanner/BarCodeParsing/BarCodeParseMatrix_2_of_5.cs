@@ -1,11 +1,15 @@
-﻿namespace dMobile.BarCodeScanner
+﻿// <copyright file="BarCodeParseMatrix_2_of_5.cs" company="InterSect Business Systems Inc">
+// Copyright (c) InterSect Business Systems Inc. All rights reserved.
+// </copyright>
+
+namespace dMobile.BarCodeScanner.BarCodeParsing
 {
     using System;
 
     public class BarCodeParseMatrix_2_of_5 : BarCodeParse
     {
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="barCodeData"></param>
         /// <returns></returns>
@@ -17,7 +21,7 @@
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="barCodeData"></param>
         /// <returns></returns>
@@ -25,7 +29,7 @@
         {
             this.ProductIdentifier = barCodeData;
 
-            barCodeData = barCodeData.Remove(0, ProductIdentifier.Length);
+            barCodeData = barCodeData.Remove(0, this.ProductIdentifier.Length);
 
             return barCodeData;
         }

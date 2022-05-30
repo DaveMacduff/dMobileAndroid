@@ -1,4 +1,8 @@
-﻿using System.Reflection;
+﻿// <copyright file="AssemblyInfo.cs" company="InterSect Business Systems Inc">
+// Copyright (c) InterSect Business Systems Inc. All rights reserved.
+// </copyright>
+
+using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 

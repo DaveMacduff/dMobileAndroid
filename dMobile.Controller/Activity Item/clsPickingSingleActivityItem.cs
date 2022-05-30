@@ -1,42 +1,79 @@
-﻿namespace dMobile.Controller
+﻿// <copyright file="clsPickingSingleActivityItem.cs" company="InterSect Business Systems Inc">
+// Copyright (c) InterSect Business Systems Inc. All rights reserved.
+// </copyright>
+
+namespace dMobile.Controller
 {
     using System;
+    using System.Collections.Generic;
     using System.Collections.ObjectModel;
     using System.Data;
-    using SQLite;
+    using System.Linq;
     using System.Text;
     using System.Threading.Tasks;
     using System.Xml;
     using System.Xml.Linq;
     using dMobile.Bedrock;
     using dMobile.GroundWork;
+    using dMobile.Resources.Models;
     using dMobile.Resources.Services;
     using dMobile.Resources.Types;
-    using Microsoft.VisualBasic;
     using Xamarin.Forms;
-    using dMobile.Resources.Models;
-    using System.Collections.Generic;
-    using System.Linq;
 
+    /// <summary>
+    /// Defines the <see cref="PickSingleActItem" />.
+    /// </summary>
     public class PickSingleActItem : ActItem
     {
+        /// <summary>
+        /// Defines the columnWidth0.
+        /// </summary>
         private double columnWidth0 = 0;
-        private double columnWidth1 = 0;
-        private double columnWidth2 = 0;
-        private double columnWidth3 = 0;
-        private double columnWidth4 = 0;
-        private double columnWidth5 = 0;
-        private double columnWidth6 = 0;
-        private ResourceDictionary resourceDictionary = new ResourceDictionary();
-        List<PickingItem> listPickingItems = new List<PickingItem>();
-
-        #region Constructors
 
         /// <summary>
-        ///
+        /// Defines the columnWidth1.
         /// </summary>
-        /// <param name="_oActivity"></param>
-        /// <remarks></remarks>
+        private double columnWidth1 = 0;
+
+        /// <summary>
+        /// Defines the columnWidth2.
+        /// </summary>
+        private double columnWidth2 = 0;
+
+        /// <summary>
+        /// Defines the columnWidth3.
+        /// </summary>
+        private double columnWidth3 = 0;
+
+        /// <summary>
+        /// Defines the columnWidth4.
+        /// </summary>
+        private double columnWidth4 = 0;
+
+        /// <summary>
+        /// Defines the columnWidth5.
+        /// </summary>
+        private double columnWidth5 = 0;
+
+        /// <summary>
+        /// Defines the columnWidth6.
+        /// </summary>
+        private double columnWidth6 = 0;
+
+        /// <summary>
+        /// Defines the resourceDictionary.
+        /// </summary>
+        private ResourceDictionary resourceDictionary = new ResourceDictionary();
+
+        /// <summary>
+        /// Defines the listPickingItems.
+        /// </summary>
+        private List<PickingItem> listPickingItems = new List<PickingItem>();
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="PickSingleActItem"/> class.
+        /// </summary>
+        /// <param name="activity">.</param>
         public PickSingleActItem(Activity activity)
           : base(activity)
         {
@@ -52,14 +89,14 @@
                     Padding = new Thickness(5),
                     ColumnDefinitions =
                     {
-                        new ColumnDefinition { Width = new GridLength(columnWidth0, GridUnitType.Absolute) },
-                        new ColumnDefinition { Width = new GridLength(columnWidth1, GridUnitType.Absolute) },
-                        new ColumnDefinition { Width = new GridLength(columnWidth2, GridUnitType.Absolute) },
-                        new ColumnDefinition { Width = new GridLength(columnWidth3, GridUnitType.Absolute) },
-                        new ColumnDefinition { Width = new GridLength(columnWidth4, GridUnitType.Absolute) },
-                        new ColumnDefinition { Width = new GridLength(columnWidth5, GridUnitType.Absolute) },
-                        new ColumnDefinition { Width = new GridLength(columnWidth6, GridUnitType.Absolute) }
-                    }
+                        new ColumnDefinition { Width = new GridLength(this.columnWidth0, GridUnitType.Absolute) },
+                        new ColumnDefinition { Width = new GridLength(this.columnWidth1, GridUnitType.Absolute) },
+                        new ColumnDefinition { Width = new GridLength(this.columnWidth2, GridUnitType.Absolute) },
+                        new ColumnDefinition { Width = new GridLength(this.columnWidth3, GridUnitType.Absolute) },
+                        new ColumnDefinition { Width = new GridLength(this.columnWidth4, GridUnitType.Absolute) },
+                        new ColumnDefinition { Width = new GridLength(this.columnWidth5, GridUnitType.Absolute) },
+                        new ColumnDefinition { Width = new GridLength(this.columnWidth6, GridUnitType.Absolute) },
+                    },
                 };
 
                 Label labelActivityItemPickingIsActivityItemPickingComment = new Label { VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start };
@@ -108,18 +145,23 @@
             this.resourceDictionary.Add("dataTemplate", dataTemplate);
         }
 
-        #endregion
-
-        #region Public Members
+        /// <summary>
+        /// Gets or sets a value indicating whether allowed to add skid detail.
+        /// </summary>
+        /// <returns><see cref="bool"/> True if allowed to add skid detail.</returns>
+        public override bool IsAllowAddSkidDetail()
+        {
+            return false;
+        }
 
         /// <summary>
-        ///
+        /// The GetLabelQuantity.
         /// </summary>
-        /// <returns></returns>
-        /// <remarks></remarks>
-        public async override Task<SysCommon.SLabelQuantity> GetLabelQuantity(bool isRepackQuantityOnly)
+        /// <param name="isRepackQuantityOnly">The isRepackQuantityOnly<see cref="bool"/>.</param>
+        /// <returns>.</returns>
+        public async override Task<SLabelQuantity> GetLabelQuantity(bool isRepackQuantityOnly)
         {
-            SysCommon.SLabelQuantity labelQty = new SysCommon.SLabelQuantity();
+            SLabelQuantity labelQty = new SLabelQuantity();
 
             try
             {
@@ -136,7 +178,7 @@
                     + "<action>REQUEST SHIPPING LABEL ITEM QUANTITY</action>"
                     + "</command>"
                     + await SysCommon.GetRequestDefaults(false)
-                    + ("<itm_refno>" + this.FKRefno + "</itm_refno>")
+                    + "<itm_refno>" + this.FKRefno + "</itm_refno>"
                     + "</imclient>");
 
                 request.Save(xml);
@@ -156,7 +198,6 @@
                     {
                         string errorDetail = string.Format(
 
-                // TODO: Resource strings
                 "Order# {0} request shipping label(s) quantity failed." + Environment.NewLine + "{1}",
 
                 this.FKRefno,
@@ -222,13 +263,11 @@
                 }
                 else
                 {
-                    // TODO: Resource strings
                     throw new Exception(string.Format("Order # {0} item request shipping label(s) quantity failed.", this.FKRefno));
                 }
             }
             catch (Exception ex)
             {
-                // TODO: Resource strings
                 Device.BeginInvokeOnMainThread(() => Application.Current.MainPage.DisplayAlert(this.ActHdr.GetControlDescription(), string.Format("Get full unit label quantity failed." + Environment.NewLine + " {0}", ex.Message), "OK"));
             }
 
@@ -236,13 +275,12 @@
         }
 
         /// <summary>
-        ///
+        /// The IsCatchAsk.
         /// </summary>
-        /// <returns></returns>
-        /// <remarks></remarks>
+        /// <returns>.</returns>
         public override bool IsCatchAsk()
         {
-            bool isCatchAsk = base.IsCatchAsk();
+            bool isCatchAsk = this.ProdInfo.IsCatchAsk;
             if (isCatchAsk)
             {
                 // modules are for exclusions
@@ -253,25 +291,25 @@
         }
 
         /// <summary>
-        /// 
+        /// The IsCatchAskZero.
         /// </summary>
-        /// <returns></returns>
+        /// <returns>.</returns>
         public override bool IsCatchAskZero()
         {
-            bool isCatchAskZero = base.IsCatchAskZero();
-            if (isCatchAskZero)
+            bool result = this.IsCatchAsk();
+            if (result && this.ProdInfo.IsCatchAskZero)
             {
-                isCatchAskZero = !this.SysEnv.SysSettings.IsPickingSingleModuleNoCatchAskZeroEnabled;
+                result = !this.SysEnv.SysSettings.IsPickingSingleModuleNoCatchAskZeroEnabled;
             }
 
-            return isCatchAskZero;
+            return result;
         }
 
         /// <summary>
-        /// 
+        /// The IsReadyToApply.
         /// </summary>
-        /// <param name="data"></param>
-        /// <returns></returns>
+        /// <param name="data">.</param>
+        /// <returns>.</returns>
         public override async Task IsReadyToApply(XDocument data)
         {
             await base.IsReadyToApply(data);
@@ -282,19 +320,18 @@
                 decimal weight = decimal.Parse(data.Root.Element("wt_qty").Value);
                 decimal qty = decimal.Parse(data.Root.Element("alt_qty").Value);
                 decimal per = this.SysEnv.SysSettings.ProdWeightUnitTolerancePercent / 100;
-                decimal weightUpper = (this.ProdInfo.UnitWeight + (this.ProdInfo.UnitWeight * per)) * qty;
-                decimal weightLower = (this.ProdInfo.UnitWeight - (this.ProdInfo.UnitWeight * per)) * qty;
+                decimal weightUpper = (this.ProdInfo.UnitGrossWeight + (this.ProdInfo.UnitGrossWeight * per)) * qty;
+                decimal weightLower = (this.ProdInfo.UnitGrossWeight - (this.ProdInfo.UnitGrossWeight * per)) * qty;
 
                 if (weight < weightLower || weight > weightUpper)
                 {
-                    // TODO: Resource strings
                     string msg = "Item is outside of expected weight.";
                     await Device.InvokeOnMainThreadAsync(async () => await Application.Current.MainPage.DisplayAlert("Weight Range Check", msg, "OK"));
                 }
             }
 
             // New items are identified with 0 < this.FKRefno, do not validate.
-            if (this.SysEnv.SysSettings.PickQtyOverWarn != SysCommon.ActPickingQtyOverValLevels.NoValidationOrWarning && 0 < this.FKRefno)
+            if (this.SysEnv.SysSettings.PickQtyOverWarn != SysCommon.ActPickingQtyOverValLevels.NoValidationOrWarning && this.FKRefno > 0)
             {
                 try
                 {
@@ -305,7 +342,7 @@
                     switch (this.SysEnv.SysSettings.PickQtyOverWarn)
                     {
                         case SysCommon.ActPickingQtyOverValLevels.ValidateWarnAndContinue:
-                            // TODO: Resource strings
+
                             if (await Device.InvokeOnMainThreadAsync(async () => await Application.Current.MainPage.DisplayAlert("Quantity Over", ex.Message + Environment.NewLine + "Continue?", "Yes", "No")))
                             {
                                 throw new IsReadyToApplyException(ex.Message, true, true);
@@ -322,15 +359,15 @@
         }
 
         /// <summary>
-        /// 
+        /// The GetProdSchemeDataFromDetailFKRefno.
         /// </summary>
-        /// <param name="actDetailFKRefno"></param>
-        /// <returns></returns>
+        /// <param name="actDetailFKRefno">.</param>
+        /// <returns>.</returns>
         public async override Task<SActItemSchemeData> GetProdSchemeDataFromDetailFKRefno(int actDetailFKRefno)
         {
             StringBuilder xmlString = new StringBuilder();
             XmlWriter xml = XmlWriter.Create(xmlString);
-            SActItemSchemeData itemSchemeData = await base.GetProdSchemeDataFromDetailFKRefno(actDetailFKRefno);
+            SActItemSchemeData itemSchemeData = new SActItemSchemeData();
 
             XDocument request = XDocument.Parse(
                 "<?xml version=\"1.0\" encoding=\"utf-8\" standalone=\"yes\"?>"
@@ -338,7 +375,7 @@
                 + "<command>"
                 + "<action>REQUEST SALES ORDER ITEM FROM DETAIL</action>"
                 + await SysCommon.GetRequestDefaults(false)
-                + ("<ser_refno>" + actDetailFKRefno + "</ser_refno>")
+                + "<ser_refno>" + actDetailFKRefno + "</ser_refno>"
                 + "</command>"
                 + "</imclient>");
 
@@ -426,13 +463,13 @@
         }
 
         /// <summary>
-        /// 
+        /// The GetComment.
         /// </summary>
-        /// <param name="idx"></param>
-        /// <returns></returns>
+        /// <param name="selectedActivityItem">The selectedActivityItem<see cref="object"/>.</param>
+        /// <returns>.</returns>
         public override async Task<string> GetComment(object selectedActivityItem)
         {
-            string itemCmnt = await base.GetComment(selectedActivityItem);
+            string itemCmnt = string.Empty;
 
             if (selectedActivityItem is PickingItem pickingItem)
             {
@@ -448,50 +485,50 @@
         }
 
         /// <summary>
-        /// 
+        /// The GetUnableToParseItemFKRefnoMessage.
         /// </summary>
-        /// <param name="actItemStringFKRefno"></param>
-        /// <returns></returns>
+        /// <param name="actItemStringFKRefno">.</param>
+        /// <returns>.</returns>
         public override string GetUnableToParseItemFKRefnoMessage(string actItemStringFKRefno)
         {
-            // TODO: Resource strings
             return string.Format("Unable to parse sales order item # {0}", actItemStringFKRefno);
         }
 
         /// <summary>
-        /// 
+        /// The GetUnableToFindItemFKRefnoMessage.
         /// </summary>
-        /// <param name="actItemStringFKRefno"></param>
-        /// <returns></returns>
+        /// <param name="actItemStringFKRefno">.</param>
+        /// <returns>.</returns>
         public override string GetUnableToFindItemFKRefnoMessage(string actItemStringFKRefno)
         {
-            // TODO: Resource strings
             return string.Format("Unable to find sales order item # {0}", actItemStringFKRefno);
         }
 
         /// <summary>
-        /// 
+        /// The GetDataViewSortFKRefnoIdx.
         /// </summary>
-        /// <returns></returns>
+        /// <returns>.</returns>
         public override string GetDataViewSortFKRefnoIdx()
         {
             return "ActivityItemPickingStringFKRefno";
         }
 
         /// <summary>
-        ///
+        /// The Insert.
         /// </summary>
-        /// <remarks></remarks>
+        /// <param name="data">The data<see cref="XDocument"/>.</param>
+        /// <param name="askToInsertAsNewItem">The askToInsertAsNewItem<see cref="bool"/>.</param>
+        /// <returns>The <see cref="Task"/>.</returns>
         public override async Task Insert(XDocument data, bool askToInsertAsNewItem)
         {
             throw new NotImplementedException();
         }
 
         /// <summary>
-        ///
+        /// The Refresh.
         /// </summary>
-        /// <param name="pbProgressBar"></param>
-        /// <remarks></remarks>
+        /// <param name="data">The data<see cref="XDocument"/>.</param>
+        /// <returns>The <see cref="Task"/>.</returns>
         public override async Task Refresh(XDocument data)
         {
             if (this.SysEnv.SysSettings.IsDisconnectedMode)
@@ -504,22 +541,27 @@
 
                 TableActivityPickingItem tableActPickItem = new TableActivityPickingItem();
                 TableActivityPickingDetail tableActPickDetail = new TableActivityPickingDetail();
-                await tableActPickDetail.Purge();
-                await tableActPickItem.Purge();
+                await tableActPickDetail.PurgeData();
+                await tableActPickItem.PurgeData();
 
                 this.DataLayerProgressOutHandler(this, new EventArgs(), 5);
 
                 tableActPickItem.RegisterDataAccessListenerProgressOut((PickSingleActItem)this);
-                await tableActPickItem.RequestData(ActHdr.Refno, data);
+                await tableActPickItem.RequestData(this.ActHdr.Refno, data);
                 tableActPickItem.UnregisterDataAccessListenerProgressOut((PickSingleActItem)this);
             }
         }
 
-        public override ObservableCollection<object> DesignGrid(ref Grid dataGridMainActivityHeader, ref ListView dataGridMainActivity)
+        /// <summary>
+        /// The DesignGrid.
+        /// </summary>
+        /// <param name="GridMainActivity">The GridMainActivity<see cref="Grid"/>.</param>
+        /// <param name="ListViewMainActivity">The ListViewMainActivity<see cref="ListView"/>.</param>
+        /// <returns>The <see cref="ObservableCollection{object}"/>.</returns>
+        public override ObservableCollection<object> DesignGrid(ref Grid GridMainActivity, ref ListView ListViewMainActivity)
         {
             ObservableCollection<object> observableCollection = new ObservableCollection<object>();
 
-            // TODO: Resource strings
             Label labelIsActivityItemPickingCommentHeader = new Label { Text = "C", VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start, FontAttributes = FontAttributes.Bold };
             Label labelActivityItemPickingProductCodeHeader = new Label { Text = "Product ID", VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start, FontAttributes = FontAttributes.Bold };
             Label labelActivityItemPickingProductUnitBCHeader = new Label { Text = string.Empty, VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start, FontAttributes = FontAttributes.Bold };
@@ -528,20 +570,13 @@
             Label labelActivityItemPickingQuantityReceivedHeader = new Label { Text = "Shipped", VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start, FontAttributes = FontAttributes.Bold };
             Label labelActivityItemPickingQuantityAvailableHeader = new Label { Text = "Available", VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start, FontAttributes = FontAttributes.Bold };
 
-            columnWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(labelIsActivityItemPickingCommentHeader.Text);
-            columnWidth1 = DependencyService.Get<IGridService>().CalculateTextWidth(labelActivityItemPickingProductCodeHeader.Text);
-            columnWidth2 = DependencyService.Get<IGridService>().CalculateTextWidth(labelActivityItemPickingProductUnitBCHeader.Text);
-            columnWidth3 = DependencyService.Get<IGridService>().CalculateTextWidth(labelActivityItemPickingUnitCodeHeader.Text);
-            columnWidth4 = DependencyService.Get<IGridService>().CalculateTextWidth(labelActivityItemPickingQuantityOrderedHeader.Text);
-            columnWidth5 = DependencyService.Get<IGridService>().CalculateTextWidth(labelActivityItemPickingQuantityReceivedHeader.Text);
-            columnWidth6 = DependencyService.Get<IGridService>().CalculateTextWidth(labelActivityItemPickingQuantityAvailableHeader.Text);
-            double detailWidth0 = 0;
-            double detailWidth1 = 0;
-            double detailWidth2 = 0;
-            double detailWidth3 = 0;
-            double detailWidth4 = 0;
-            double detailWidth5 = 0;
-            double detailWidth6 = 0;
+            this.columnWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(labelIsActivityItemPickingCommentHeader.Text);
+            this.columnWidth1 = DependencyService.Get<IGridService>().CalculateTextWidth(labelActivityItemPickingProductCodeHeader.Text);
+            this.columnWidth2 = DependencyService.Get<IGridService>().CalculateTextWidth(labelActivityItemPickingProductUnitBCHeader.Text);
+            this.columnWidth3 = DependencyService.Get<IGridService>().CalculateTextWidth(labelActivityItemPickingUnitCodeHeader.Text);
+            this.columnWidth4 = DependencyService.Get<IGridService>().CalculateTextWidth(labelActivityItemPickingQuantityOrderedHeader.Text);
+            this.columnWidth5 = DependencyService.Get<IGridService>().CalculateTextWidth(labelActivityItemPickingQuantityReceivedHeader.Text);
+            this.columnWidth6 = DependencyService.Get<IGridService>().CalculateTextWidth(labelActivityItemPickingQuantityAvailableHeader.Text);
 
             // Header grid
             Grid gridHeaderPicking = new Grid
@@ -549,14 +584,14 @@
                 Padding = new Thickness(5),
                 ColumnDefinitions =
                 {
-                    new ColumnDefinition { Width = new GridLength(columnWidth0, GridUnitType.Absolute) },
-                    new ColumnDefinition { Width = new GridLength(columnWidth1, GridUnitType.Absolute) },
-                    new ColumnDefinition { Width = new GridLength(columnWidth2, GridUnitType.Absolute) },
-                    new ColumnDefinition { Width = new GridLength(columnWidth3, GridUnitType.Absolute) },
-                    new ColumnDefinition { Width = new GridLength(columnWidth4, GridUnitType.Absolute) },
-                    new ColumnDefinition { Width = new GridLength(columnWidth5, GridUnitType.Absolute) },
-                    new ColumnDefinition { Width = new GridLength(columnWidth6, GridUnitType.Absolute) }
-                }
+                    new ColumnDefinition { Width = new GridLength(this.columnWidth0, GridUnitType.Absolute) },
+                    new ColumnDefinition { Width = new GridLength(this.columnWidth1, GridUnitType.Absolute) },
+                    new ColumnDefinition { Width = new GridLength(this.columnWidth2, GridUnitType.Absolute) },
+                    new ColumnDefinition { Width = new GridLength(this.columnWidth3, GridUnitType.Absolute) },
+                    new ColumnDefinition { Width = new GridLength(this.columnWidth4, GridUnitType.Absolute) },
+                    new ColumnDefinition { Width = new GridLength(this.columnWidth5, GridUnitType.Absolute) },
+                    new ColumnDefinition { Width = new GridLength(this.columnWidth6, GridUnitType.Absolute) },
+                },
             };
 
             gridHeaderPicking.SetDynamicResource(VisualElement.BackgroundColorProperty, "HeaderColor");
@@ -587,12 +622,12 @@
 
             Grid.SetRow(gridHeaderPicking, 0);
 
-            dataGridMainActivityHeader.Children.Add(gridHeaderPicking);
+            GridMainActivity.Children.Add(gridHeaderPicking);
 
             foreach (PickingItem pickingItem in this.ListItems)
             {
-                //PickingItem pickingItem = new PickingItem
-                //{
+                // PickingItem pickingItem = new PickingItem
+                // {
                 //    ActivityItemRefno = Convert.ToInt32(row["ActivityItemRefno"] != DBNull.Value ? row["ActivityItemRefno"] : null),
                 //    ActivityItemPickingFKRefno = Convert.ToInt32(row["ActivityItemPickingFKRefno"] != DBNull.Value ? row["ActivityItemPickingFKRefno"] : null),
                 //    ActivityItemPickingStringFKRefno = Convert.ToString(row["ActivityItemPickingStringFKRefno"] != DBNull.Value ? row["ActivityItemPickingStringFKRefno"] : null),
@@ -617,79 +652,78 @@
                 //    ActivityItemPickingWeightQuantityAvailable = Convert.ToDecimal(row["ActivityItemPickingWeightQuantityAvailable"] != DBNull.Value ? row["ActivityItemPickingWeightQuantityAvailable"] : null),
                 //    IsActivityItemPickingComment = !string.IsNullOrWhiteSpace(Convert.ToString(row["IsActivityItemPickingComment"] != DBNull.Value ? row["IsActivityItemPickingComment"] : null)) ? "X" : "",
                 //    ActivityItemStatus = Convert.ToInt32(row["ActivityItemStatus"] != DBNull.Value ? row["ActivityItemStatus"] : null)
-                //};
-
+                // };
                 observableCollection.Add(pickingItem);
 
-                detailWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(pickingItem.IsActivityItemPickingComment);
-                detailWidth1 = DependencyService.Get<IGridService>().CalculateTextWidth(pickingItem.ProductCode);
-                detailWidth2 = DependencyService.Get<IGridService>().CalculateTextWidth(pickingItem.ProductUnitBC);
-                detailWidth3 = DependencyService.Get<IGridService>().CalculateTextWidth(pickingItem.UnitCode);
-                detailWidth4 = DependencyService.Get<IGridService>().CalculateTextWidth(string.Format("{0:F3}", pickingItem.ActivityItemPickingQuantityOrdered));
-                detailWidth5 = DependencyService.Get<IGridService>().CalculateTextWidth(string.Format("{0:F3}", pickingItem.ActivityItemPickingWeightQuantityShipped));
-                detailWidth6 = DependencyService.Get<IGridService>().CalculateTextWidth(string.Format("{0:F3}", pickingItem.ActivityItemPickingQuantityAvailable));
+                double detailWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(pickingItem.IsActivityItemPickingComment);
+                double detailWidth1 = DependencyService.Get<IGridService>().CalculateTextWidth(pickingItem.ProductCode);
+                double detailWidth2 = DependencyService.Get<IGridService>().CalculateTextWidth(pickingItem.ProductUnitBC);
+                double detailWidth3 = DependencyService.Get<IGridService>().CalculateTextWidth(pickingItem.UnitCode);
+                double detailWidth4 = DependencyService.Get<IGridService>().CalculateTextWidth(string.Format("{0:F3}", pickingItem.ActivityItemPickingQuantityOrdered));
+                double detailWidth5 = DependencyService.Get<IGridService>().CalculateTextWidth(string.Format("{0:F3}", pickingItem.ActivityItemPickingWeightQuantityShipped));
+                double detailWidth6 = DependencyService.Get<IGridService>().CalculateTextWidth(string.Format("{0:F3}", pickingItem.ActivityItemPickingQuantityAvailable));
 
-                if (detailWidth0 > columnWidth0)
+                if (detailWidth0 > this.columnWidth0)
                 {
-                    columnWidth0 = detailWidth0;
-                    gridHeaderPicking.ColumnDefinitions[0].Width = columnWidth0;
+                    this.columnWidth0 = detailWidth0;
+                    gridHeaderPicking.ColumnDefinitions[0].Width = this.columnWidth0;
                 }
 
-                if (detailWidth1 > columnWidth1)
+                if (detailWidth1 > this.columnWidth1)
                 {
-                    columnWidth1 = detailWidth1;
-                    gridHeaderPicking.ColumnDefinitions[1].Width = columnWidth1;
+                    this.columnWidth1 = detailWidth1;
+                    gridHeaderPicking.ColumnDefinitions[1].Width = this.columnWidth1;
                 }
 
-                if (detailWidth2 > columnWidth2)
+                if (detailWidth2 > this.columnWidth2)
                 {
-                    columnWidth2 = detailWidth2;
-                    gridHeaderPicking.ColumnDefinitions[2].Width = columnWidth2;
+                    this.columnWidth2 = detailWidth2;
+                    gridHeaderPicking.ColumnDefinitions[2].Width = this.columnWidth2;
                 }
 
-                if (detailWidth3 > columnWidth3)
+                if (detailWidth3 > this.columnWidth3)
                 {
-                    columnWidth3 = detailWidth3;
-                    gridHeaderPicking.ColumnDefinitions[3].Width = columnWidth3;
+                    this.columnWidth3 = detailWidth3;
+                    gridHeaderPicking.ColumnDefinitions[3].Width = this.columnWidth3;
                 }
 
-                if (detailWidth4 > columnWidth4)
+                if (detailWidth4 > this.columnWidth4)
                 {
-                    columnWidth4 = detailWidth4;
-                    gridHeaderPicking.ColumnDefinitions[4].Width = columnWidth4;
+                    this.columnWidth4 = detailWidth4;
+                    gridHeaderPicking.ColumnDefinitions[4].Width = this.columnWidth4;
                 }
 
-                if (detailWidth5 > columnWidth5)
+                if (detailWidth5 > this.columnWidth5)
                 {
-                    columnWidth5 = detailWidth5;
-                    gridHeaderPicking.ColumnDefinitions[5].Width = columnWidth5;
+                    this.columnWidth5 = detailWidth5;
+                    gridHeaderPicking.ColumnDefinitions[5].Width = this.columnWidth5;
                 }
 
                 if (this.SysEnv.SysSettings.IsPickShowItemQtyAvail)
                 {
-                    if (detailWidth6 > columnWidth6)
+                    if (detailWidth6 > this.columnWidth6)
                     {
-                        columnWidth6 = detailWidth6;
-                        gridHeaderPicking.ColumnDefinitions[6].Width = columnWidth6;
+                        this.columnWidth6 = detailWidth6;
+                        gridHeaderPicking.ColumnDefinitions[6].Width = this.columnWidth6;
                     }
                 }
                 else
                 {
-                    columnWidth6 = 0;
-                    gridHeaderPicking.ColumnDefinitions[6].Width = columnWidth6;
+                    this.columnWidth6 = 0;
+                    gridHeaderPicking.ColumnDefinitions[6].Width = this.columnWidth6;
                 }
             }
 
-            dataGridMainActivity.ItemTemplate = (DataTemplate)this.resourceDictionary["dataTemplate"];
+            ListViewMainActivity.ItemTemplate = (DataTemplate)this.resourceDictionary["dataTemplate"];
 
             return observableCollection;
         }
 
         /// <summary>
-        /// 
+        /// The GetActivityItemList.
         /// </summary>
-        /// <param name="isSubmitBatch"></param>
-        /// <returns></returns>
+        /// <param name="isSubmitBatch">.</param>
+        /// <returns>.</returns>
         public override async Task<List<object>> GetActivityItemList(bool isSubmitBatch)
         {
             StringBuilder sql = new StringBuilder();
@@ -830,8 +864,8 @@
                 sql.Append("ORDER BY tActivityItemPicking.ActivityItemRefno");
             }
 
-            //using (SQLiteDataAdapter da = new SQLiteDataAdapter(sql.ToString(), DatabaseConnection.GetInstance().SQLConn))
-            //{
+            // using (SQLiteDataAdapter da = new SQLiteDataAdapter(sql.ToString(), DatabaseConnection.GetInstance().SQLConn))
+            // {
             //    using (DataSet ds = new DataSet())
             //    {
             //        da.Fill(ds);
@@ -843,37 +877,34 @@
             //        this.DataViewItems.Sort = "ActivityItemRefno";
             //        TODO: Fix sorting
             //    }
-            //}
-
+            // }
             this.listPickingItems = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<PickingItem>(sql.ToString());
             this.ListItems = this.listPickingItems.Cast<object>().ToList();
             return this.ListItems;
         }
 
         /// <summary>
-        ///
+        /// The Search.
         /// </summary>
-        /// <param name="searchText"></param>
-        /// <returns></returns>
-        /// <remarks></remarks>
+        /// <param name="searchText">.</param>
+        /// <returns>.</returns>
         public override ObservableCollection<object> Search(string searchText)
         {
             ObservableCollection<object> observableCollection = new ObservableCollection<object>();
 
-            //if (string.IsNullOrEmpty(this.ActItemFilter))
-            //{
+            // if (string.IsNullOrEmpty(this.ActItemFilter))
+            // {
             this.ListItems = this.listPickingItems.Where(pickingItem => pickingItem.ProductCode.ToString().ToLower().Contains(searchText.ToLower().Trim())).Cast<object>().ToList();
-            //}
-            //else
-            //{
+            // }
+            // else
+            // {
             // TODO: Fix filtering
-            //this.DataViewItems.RowFilter = this.ActItemFilter + " AND ProductCode LIKE \'%" + searchText.Trim() + "%\'";
-            //}
-
+            // this.DataViewItems.RowFilter = this.ActItemFilter + " AND ProductCode LIKE \'%" + searchText.Trim() + "%\'";
+            // }
             foreach (PickingItem pickingItem in this.ListItems)
             {
-                //PickingItem pickingItem = new PickingItem
-                //{
+                // PickingItem pickingItem = new PickingItem
+                // {
                 //    ActivityItemRefno = Convert.ToInt32(row["ActivityItemRefno"] != DBNull.Value ? row["ActivityItemRefno"] : null),
                 //    ActivityItemPickingFKRefno = Convert.ToInt32(row["ActivityItemPickingFKRefno"] != DBNull.Value ? row["ActivityItemPickingFKRefno"] : null),
                 //    ActivityItemPickingStringFKRefno = Convert.ToString(row["ActivityItemPickingStringFKRefno"] != DBNull.Value ? row["ActivityItemPickingStringFKRefno"] : null),
@@ -898,8 +929,7 @@
                 //    ActivityItemPickingWeightQuantityAvailable = Convert.ToDecimal(row["ActivityItemPickingWeightQuantityAvailable"] != DBNull.Value ? row["ActivityItemPickingWeightQuantityAvailable"] : null),
                 //    IsActivityItemPickingComment = !string.IsNullOrWhiteSpace(Convert.ToString(row["IsActivityItemPickingComment"] != DBNull.Value ? row["IsActivityItemPickingComment"] : null)) ? "X" : "",
                 //    ActivityItemStatus = Convert.ToInt32(row["ActivityItemStatus"] != DBNull.Value ? row["ActivityItemStatus"] : null)
-                //};
-
+                // };
                 observableCollection.Add(pickingItem);
             }
 
@@ -907,35 +937,45 @@
         }
 
         /// <summary>
-        /// 
+        /// Select an activity item.
         /// </summary>
-        /// <param name="idx"></param>
+        /// <param name="selectedActivityItem"><see cref="object"/> Selected activity object.</param>
+        /// <returns><see cref="Task"/> Task operation.</returns>
         public override async Task SelectActivityItem(object selectedActivityItem)
         {
-            if (selectedActivityItem is PickingItem pickingItem)
+            int activityItemLocMapRefno = 0;
+            if (selectedActivityItem is PickingItem item)
             {
-                await base.SelectActivityItem(selectedActivityItem);
-                this.FKRefno = Convert.ToInt32(pickingItem.ActivityItemPickingFKRefno);
+                this.SelectedActivityItem = item;
+                this.Refno = item.ActivityItemRefno;
+                this.FKRefno = Convert.ToInt32(item.ActivityItemPickingFKRefno);
+                this.ProdInfo = await ProductInfoTasks.GetInfoFromUnitRefno(item.ProductUnitRefno);
+                activityItemLocMapRefno = item.LocationMapRefno;
             }
+
+            await this.GetSelectedItemLocation(activityItemLocMapRefno);
+
+            // LocationMap.GetInstance().CurrLocMap needs to be set before call to GetSchemeComponentsFromRefno.
+            this.ProdInfo.Scheme = await ProductInfoTasks.GetSchemeComponentsFromRefno(
+                this.ProdInfo.Refno);
         }
 
         /// <summary>
-        ///
+        /// The GetActivityItemRefno.
         /// </summary>
-        /// <param name="prodUnitRefno"></param>
-        /// <returns></returns>
-        /// <remarks></remarks>
-        public override async Task<int> GetRefnoFromProdUnitRefno(int prodUnitRefno)
+        /// <param name="prodUnitRefno">.</param>
+        /// <returns>.</returns>
+        public override async Task<int> GetActivityItemRefno(int prodUnitRefno)
         {
             int foundActItemRefno = this.Refno;
             return foundActItemRefno;
         }
 
         /// <summary>
-        /// 
+        /// The CreateSubmitXML.
         /// </summary>
-        /// <param name="data"></param>
-        /// <returns></returns>
+        /// <param name="data">.</param>
+        /// <returns>.</returns>
         public async override Task<string> CreateSubmitXML(XDocument data)
         {
             StringBuilder xmlString = new StringBuilder();
@@ -970,12 +1010,12 @@
         }
 
         /// <summary>
-        /// 
+        /// The RefreshQuantity.
         /// </summary>
-        /// <param name="idx"></param>
-        /// <param name="quantity"></param>
-        /// <param name="baseQuantity"></param>
-        /// <param name="weightQuantity"></param>
+        /// <param name="selectedActivityItem">The selectedActivityItem<see cref="object"/>.</param>
+        /// <param name="quantity">.</param>
+        /// <param name="baseQuantity">.</param>
+        /// <param name="weightQuantity">.</param>
         public override void RefreshQuantity(object selectedActivityItem, decimal quantity, decimal baseQuantity, decimal weightQuantity)
         {
             if (selectedActivityItem is PickingItem pickingItem)
@@ -987,13 +1027,12 @@
         }
 
         /// <summary>
-        /// 
+        /// The UpdateListItemQuantity.
         /// </summary>
-        /// <param name="idx"></param>
-        /// <param name="quantity"></param>
-        /// <param name="baseQuantity"></param>
-        /// <param name="weightQuantity"></param>
-        /// <returns></returns>
+        /// <param name="selectedActivityItem">The selectedActivityItem<see cref="object"/>.</param>
+        /// <param name="quantity">.</param>
+        /// <param name="baseQuantity">.</param>
+        /// <param name="weightQuantity">.</param>
         public override void UpdateListItemQuantity(object selectedActivityItem, decimal quantity, decimal baseQuantity, decimal weightQuantity)
         {
             if (selectedActivityItem is PickingItem pickingItem)
@@ -1005,10 +1044,11 @@
         }
 
         /// <summary>
-        /// 
+        /// The UpdateQuantityFromActivityItemList.
         /// </summary>
-        /// <param name="idx"></param>
-        /// <param name="actItemRefno"></param>
+        /// <param name="selectedActivityItem">The selectedActivityItem<see cref="object"/>.</param>
+        /// <param name="actItemRefno">.</param>
+        /// <returns>The <see cref="Task"/>.</returns>
         public override async Task UpdateQuantityFromActivityItemList(object selectedActivityItem, int actItemRefno)
         {
             if (selectedActivityItem is PickingItem pickingItem)
@@ -1020,14 +1060,10 @@
             }
         }
 
-        #endregion
-
-        #region Private Members
-
         /// <summary>
-        /// 
+        /// The PickingModuleQuantityOverCheck.
         /// </summary>
-        /// <param name="actItemPickQuantity"></param>
+        /// <param name="actItemPickQuantity">.</param>
         private void PickingModuleQuantityOverCheck(decimal actItemPickQuantity)
         {
             if (this.SelectedActivityItem is PickingItem pickingItem)
@@ -1037,12 +1073,109 @@
 
                 if (shipped + actItemPickQuantity > ordered)
                 {
-                    // TODO: Resource strings
                     throw new Exception(string.Format("The resulting quantity shipped {0} {1} will be greater than the quantity ordered {2} {3}.", shipped + actItemPickQuantity, this.ProdInfo.UnitCode, ordered, this.ProdInfo.UnitCode));
                 }
             }
+        }
 
-            #endregion
+        /// <summary>
+        /// Get the activity item foreign key reference number.
+        /// </summary>
+        /// <param name="resourceType"><see cref="object"/> Resource model type.</param>
+        /// <returns><see cref="int"/> Found activity item foreign key refno, else 0 if not found.</returns>
+        public override int GetFKRefno(object resourceType)
+        {
+            object tmpFKItRefno = ((PickingItem)resourceType).ActivityItemPickingFKRefno;
+            return tmpFKItRefno == null ? 0 : Convert.ToInt32(tmpFKItRefno);
+        }
+
+        /// <summary>
+        /// Get the activity item control description.
+        /// </summary>
+        /// <returns><see cref="string"/> Get activity item control description.</returns>
+        public override string GetControlDescription()
+        {
+            return string.Format("Pick # {0}", this.ActHdr.FKRefno);
+        }
+
+        /// <summary>
+        /// The Delete.
+        /// </summary>
+        /// <returns>The <see cref="Task{int}"/>.</returns>
+        public override async Task<int> Delete()
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <summary>
+        /// The Submit.
+        /// </summary>
+        /// <param name="data">The data<see cref="XDocument"/>.</param>
+        /// <param name="selectedActivityItem">The selectedActivityItem<see cref="object"/>.</param>
+        /// <returns>The <see cref="Task"/>.</returns>
+        public override Task Submit(XDocument data, object selectedActivityItem)
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <summary>
+        /// The CreateDeleteXML.
+        /// </summary>
+        /// <param name="data">The data<see cref="XDocument"/>.</param>
+        /// <returns>The <see cref="Task{string}"/>.</returns>
+        public override Task<string> CreateDeleteXML(XDocument data)
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <summary>
+        /// The Update.
+        /// </summary>
+        /// <param name="data">The data<see cref="XDocument"/>.</param>
+        /// <returns>The <see cref="Task"/>.</returns>
+        public override Task Update(XDocument data)
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <summary>
+        /// The GetTotalQuantity.
+        /// </summary>
+        /// <returns>The <see cref="Task{string}"/>.</returns>
+        public override Task<string> GetTotalQuantity()
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <summary>
+        /// Get the default location for the activity base on the sign quantity of the transaction.
+        /// </summary>
+        /// <param name="whsLocMapRefno"><see cref="int"/> Warehouse location map reference number.</param>
+        /// <param name="prodRefno"><see cref="int"/> Product reference number.</param>
+        /// <returns><see cref="int"/> Location map reference number.</returns>
+        public override async Task<int> GetDefaultLocMapRefno(int whsLocMapRefno, int prodRefno)
+        {
+            int locMapRefno = 0;
+            if (this.SelectedActivityItem is PickingItem item)
+            {
+                if (Math.Sign(item.ActivityItemPickingQuantityShipped) == 0 ||
+                    Math.Sign(item.ActivityItemPickingQuantityShipped) == -1)
+                {
+                    locMapRefno = await LocationMapTasks.GetDefaultLocMapRefnoFromProdRefno(
+                        whsLocMapRefno,
+                        prodRefno,
+                        SysCommon.ProdLocMapTypes.Receiving);
+                }
+                else
+                {
+                    locMapRefno = await LocationMapTasks.GetDefaultLocMapRefnoFromProdRefno(
+                        whsLocMapRefno,
+                        prodRefno,
+                        SysCommon.ProdLocMapTypes.Picking);
+                }
+            }
+
+            return locMapRefno;
         }
     }
 }

@@ -1,32 +1,60 @@
+// <copyright file="clsReceivingActivity.cs" company="InterSect Business Systems Inc">
+// Copyright (c) InterSect Business Systems Inc. All rights reserved.
+// </copyright>
+
 namespace dMobile.Controller
 {
     using System;
+    using System.Collections.Generic;
     using System.Collections.ObjectModel;
     using System.Data;
-    using SQLite;
+    using System.Linq;
     using System.Text;
+    using System.Threading.Tasks;
     using System.Xml.Linq;
     using dMobile.Bedrock;
     using dMobile.GroundWork;
     using dMobile.Resources.Services;
     using dMobile.Resources.Types;
     using Xamarin.Forms;
-    using System.Threading.Tasks;
-    using System.Collections.Generic;
-    using System.Linq;
 
+    /// <summary>
+    /// Defines the <see cref="RecvActivity" />.
+    /// </summary>
     public class RecvActivity : Activity
     {
+        /// <summary>
+        /// Defines the columnWidth0.
+        /// </summary>
         private double columnWidth0 = 0;
-        private double columnWidth1 = 0;
-        private double columnWidth2 = 0;
-        private ResourceDictionary resourceDictionary = new ResourceDictionary();
-        private List<Receive> listReceives = new List<Receive>();
-
-        #region Constructors
 
         /// <summary>
-        /// 
+        /// Defines the columnWidth1.
+        /// </summary>
+        private double columnWidth1 = 0;
+
+        /// <summary>
+        /// Defines the columnWidth2.
+        /// </summary>
+        private double columnWidth2 = 0;
+
+        /// <summary>
+        /// Defines the resourceDictionary.
+        /// </summary>
+        private ResourceDictionary resourceDictionary = new ResourceDictionary();
+
+        /// <summary>
+        /// Defines the listReceives.
+        /// </summary>
+        private List<Receive> listReceives = new List<Receive>();
+
+        /// <summary>
+        /// Gets or sets the PONO.
+        /// </summary>
+        public string PONO { get; set; } = string.Empty;
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="RecvActivity"/> class.
         /// </summary>
         public RecvActivity()
           : base()
@@ -41,10 +69,10 @@ namespace dMobile.Controller
                     Padding = new Thickness(5),
                     ColumnDefinitions =
                     {
-                        new ColumnDefinition { Width = new GridLength(columnWidth0, GridUnitType.Absolute) },
-                        new ColumnDefinition { Width = new GridLength(columnWidth1, GridUnitType.Absolute) },
-                        new ColumnDefinition { Width = new GridLength(columnWidth2, GridUnitType.Absolute) }
-                    }
+                        new ColumnDefinition { Width = new GridLength(this.columnWidth0, GridUnitType.Absolute) },
+                        new ColumnDefinition { Width = new GridLength(this.columnWidth1, GridUnitType.Absolute) },
+                        new ColumnDefinition { Width = new GridLength(this.columnWidth2, GridUnitType.Absolute) },
+                    },
                 };
 
                 Label labelActivityReceivingPONumber = new Label { VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start };
@@ -69,65 +97,62 @@ namespace dMobile.Controller
             this.resourceDictionary.Add("dataTemplate", dataTemplate);
         }
 
-        #endregion
-
-        #region Public Members
-
         /// <summary>
-        ///
+        /// The GetFKRefnoIdx.
         /// </summary>
-        /// <returns></returns>
-        /// <remarks></remarks>
+        /// <returns>.</returns>
         public override string GetFKRefnoIdx()
         {
             return "ActivityReceivingStringFKRefno";
         }
 
         /// <summary>
-        ///
+        /// The GetControlDescription.
         /// </summary>
-        /// <returns></returns>
-        /// <remarks></remarks>
+        /// <returns>.</returns>
         public override string GetControlDescription()
         {
-            // TODO: Resource strings
             return "Receiving";
         }
 
-        public override ObservableCollection<object> DesignGrid(ref Grid dataGridMainActivityHeader, ref ListView dataGridMainActivity)
+        /// <summary>
+        /// The DesignGrid.
+        /// </summary>
+        /// <param name="GridMainActivity">The GridMainActivity<see cref="Grid"/>.</param>
+        /// <param name="ListViewMainActivity">The ListViewMainActivity<see cref="ListView"/>.</param>
+        /// <returns>The <see cref="ObservableCollection{object}"/>.</returns>
+        public override ObservableCollection<object> DesignGrid(ref Grid GridMainActivity, ref ListView ListViewMainActivity)
         {
             ObservableCollection<object> observableCollection = new ObservableCollection<object>();
 
             foreach (Receive receive in this.ListHdrs)
             {
-                //Receive receive = new Receive
-                //{
+                // Receive receive = new Receive
+                // {
                 //    ActivityReceivingPONumber = Convert.ToString(row["ActivityReceivingPONumber"]),
                 //    ActivityReceivingIssuedDateTime = Convert.ToDateTime(row["ActivityReceivingIssuedDateTime"]),
                 //    ActivityReceivingArrivalDateTime = Convert.ToDateTime(row["ActivityReceivingArrivalDateTime"])
-                //};
-
+                // };
                 observableCollection.Add(receive);
             }
 
-            // TODO: Resource Strings
             Label labelPOReceiving = new Label { Text = "PO #", VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start, FontAttributes = FontAttributes.Bold };
             Label labelIssuedReceiving = new Label { Text = "Issued", VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start, FontAttributes = FontAttributes.Bold };
             Label labelArrivedReceiving = new Label { Text = "Arrived", VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start, FontAttributes = FontAttributes.Bold };
 
-            columnWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(labelPOReceiving.Text);
-            columnWidth1 = DependencyService.Get<IGridService>().CalculateTextWidth(labelIssuedReceiving.Text);
-            columnWidth2 = DependencyService.Get<IGridService>().CalculateTextWidth(labelArrivedReceiving.Text);
+            this.columnWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(labelPOReceiving.Text);
+            this.columnWidth1 = DependencyService.Get<IGridService>().CalculateTextWidth(labelIssuedReceiving.Text);
+            this.columnWidth2 = DependencyService.Get<IGridService>().CalculateTextWidth(labelArrivedReceiving.Text);
 
             Grid gridHeader = new Grid
             {
                 Padding = new Thickness(5),
                 ColumnDefinitions =
                 {
-                    new ColumnDefinition { Width = new GridLength(columnWidth0, GridUnitType.Absolute) },
-                    new ColumnDefinition { Width = new GridLength(columnWidth1, GridUnitType.Absolute) },
-                    new ColumnDefinition { Width = new GridLength(columnWidth2, GridUnitType.Absolute) }
-                }
+                    new ColumnDefinition { Width = new GridLength(this.columnWidth0, GridUnitType.Absolute) },
+                    new ColumnDefinition { Width = new GridLength(this.columnWidth1, GridUnitType.Absolute) },
+                    new ColumnDefinition { Width = new GridLength(this.columnWidth2, GridUnitType.Absolute) },
+                },
             };
 
             gridHeader.SetDynamicResource(VisualElement.BackgroundColorProperty, "HeaderColor");
@@ -142,7 +167,7 @@ namespace dMobile.Controller
 
             Grid.SetRow(gridHeader, 0);
 
-            dataGridMainActivityHeader.Children.Add(gridHeader);
+            GridMainActivity.Children.Add(gridHeader);
 
             foreach (Receive receive in observableCollection)
             {
@@ -150,36 +175,35 @@ namespace dMobile.Controller
                 double detailWidth1 = DependencyService.Get<IGridService>().CalculateTextWidth(receive.ActivityReceivingIssuedDateTime.ToString("MM/dd/yyyy"));
                 double detailWidth2 = DependencyService.Get<IGridService>().CalculateTextWidth(receive.ActivityReceivingArrivalDateTime.ToString("MM/dd/yyyy"));
 
-                if (detailWidth0 > columnWidth0)
+                if (detailWidth0 > this.columnWidth0)
                 {
-                    columnWidth0 = detailWidth0;
-                    gridHeader.ColumnDefinitions[0].Width = columnWidth0;
+                    this.columnWidth0 = detailWidth0;
+                    gridHeader.ColumnDefinitions[0].Width = this.columnWidth0;
                 }
 
-                if (detailWidth1 > columnWidth1)
+                if (detailWidth1 > this.columnWidth1)
                 {
-                    columnWidth1 = detailWidth1;
-                    gridHeader.ColumnDefinitions[1].Width = columnWidth1;
+                    this.columnWidth1 = detailWidth1;
+                    gridHeader.ColumnDefinitions[1].Width = this.columnWidth1;
                 }
 
-                if (detailWidth2 > columnWidth2)
+                if (detailWidth2 > this.columnWidth2)
                 {
-                    columnWidth2 = detailWidth2;
-                    gridHeader.ColumnDefinitions[2].Width = columnWidth2;
+                    this.columnWidth2 = detailWidth2;
+                    gridHeader.ColumnDefinitions[2].Width = this.columnWidth2;
                 }
             }
 
-            dataGridMainActivity.ItemTemplate = (DataTemplate)this.resourceDictionary["dataTemplate"];
+            ListViewMainActivity.ItemTemplate = (DataTemplate)this.resourceDictionary["dataTemplate"];
 
             return observableCollection;
         }
 
         /// <summary>
-        ///
+        /// The GetActivityList.
         /// </summary>
-        /// <param name="IsSubmitBatch"></param>
-        /// <returns></returns>
-        /// <remarks></remarks>
+        /// <param name="isSubmitBatch">The isSubmitBatch<see cref="bool"/>.</param>
+        /// <returns>.</returns>
         public override async Task<List<object>> GetActivityList(bool isSubmitBatch)
         {
             ReceivingSettings receiveSettings = new ReceivingSettings().LoadData();
@@ -282,20 +306,19 @@ namespace dMobile.Controller
                 sql.AppendFormat("AND tActivity.ActivitySubType = {0}", Convert.ToInt32(SysCommon.ActSubTypes.Receiving));
             }
 
-            //using (SQLiteDataAdapter da = new SQLiteDataAdapter(sql.ToString(), DatabaseConnection.GetInstance().SQLConn))
-            //{
+            // using (SQLiteDataAdapter da = new SQLiteDataAdapter(sql.ToString(), DatabaseConnection.GetInstance().SQLConn))
+            // {
             //    using (DataSet ds = new DataSet())
             //    {
             //        da.Fill(ds);
 
-            //        this.DataViewHdrs = ds.Tables[0].DefaultView;
+            // this.DataViewHdrs = ds.Tables[0].DefaultView;
             //        this.DataViewHdrs.Table.TableName = this.MainGridMappingName;
             //        // TODO: Fix sorting and filter
             //        this.DataViewHdrs.Sort = receiveSettings.GetDataViewSortBy();
             //        this.DataViewHdrs.RowFilter = this.GetFilter();
             //    }
-            //}
-
+            // }
             this.listReceives = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<Receive>(sql.ToString());
 
             foreach (Sort sort in receiveSettings.GetDataViewSortBy())
@@ -321,29 +344,32 @@ namespace dMobile.Controller
         /// <param name="searchText"></param>
         /// <returns></returns>
         /// <remarks></remarks>
+        /// <summary>
+        /// The Search.
+        /// </summary>
+        /// <param name="searchText">.</param>
+        /// <returns>.</returns>
         public override ObservableCollection<object> Search(string searchText)
         {
             ObservableCollection<object> observableCollection = new ObservableCollection<object>();
 
-            //if (string.IsNullOrEmpty(this.ActFilter))
-            //{
+            // if (string.IsNullOrEmpty(this.ActFilter))
+            // {
             this.ListHdrs = this.listReceives.Where(receive => receive.ActivityReceivingPONumber.ToLower().Contains(searchText.ToLower().Trim())).Cast<object>().ToList();
-            //}
-            //else
-            //{
+            // }
+            // else
+            // {
             // TODO: Fix filtering
-            //this.DataViewHdrs.RowFilter = this.ActFilter + " AND ActivityReceivingPONumber LIKE \'%" + searchText.Trim() + "%\'";
-            //}
-
+            // this.DataViewHdrs.RowFilter = this.ActFilter + " AND ActivityReceivingPONumber LIKE \'%" + searchText.Trim() + "%\'";
+            // }
             foreach (Receive receive in this.ListHdrs)
             {
-                //Receive receive = new Receive
-                //{
+                // Receive receive = new Receive
+                // {
                 //    ActivityReceivingPONumber = Convert.ToString(row["ActivityReceivingPONumber"]),
                 //    ActivityReceivingIssuedDateTime = Convert.ToDateTime(row["ActivityReceivingIssuedDateTime"]),
                 //    ActivityReceivingArrivalDateTime = Convert.ToDateTime(row["ActivityReceivingArrivalDateTime"])
-                //};
-
+                // };
                 observableCollection.Add(receive);
             }
 
@@ -351,9 +377,10 @@ namespace dMobile.Controller
         }
 
         /// <summary>
-        ///
+        /// The SelectActivity.
         /// </summary>
-        /// <remarks></remarks>
+        /// <param name="selectedActivity">The selectedActivity<see cref="object"/>.</param>
+        /// <returns>The <see cref="Task"/>.</returns>
         public override async Task SelectActivity(object selectedActivity)
         {
             if (selectedActivity is Receive receive)
@@ -372,11 +399,10 @@ namespace dMobile.Controller
         }
 
         /// <summary>
-        ///
+        /// The GetRefnoFromRowIdx.
         /// </summary>
-        /// <param name="i"></param>
-        /// <returns></returns>
-        /// <remarks></remarks>
+        /// <param name="selectedItem">The selectedItem<see cref="object"/>.</param>
+        /// <returns>.</returns>
         public override int GetRefnoFromRowIdx(object selectedItem)
         {
             if (selectedItem is Receive receive)
@@ -390,9 +416,10 @@ namespace dMobile.Controller
         }
 
         /// <summary>
-        ///
+        /// The Refresh.
         /// </summary>
-        /// <remarks></remarks>
+        /// <param name="data">The data<see cref="XDocument"/>.</param>
+        /// <returns>The <see cref="Task"/>.</returns>
         public override async Task Refresh(XDocument data)
         {
             if (this.SysEnv.SysSettings.IsDisconnectedMode)
@@ -408,31 +435,29 @@ namespace dMobile.Controller
                 TableActivityReceiving tableActReceiving = new TableActivityReceiving();
 
                 tableActReceiving.RegisterDataAccessListenerProgressOut((RecvActivity)this);
-                await tableActReceiving.Request();
+                await tableActReceiving.RequestData();
                 tableActReceiving.UnregisterDataAccessListenerProgressOut((RecvActivity)this);
             }
         }
 
         /// <summary>
-        ///
+        /// The Purge.
         /// </summary>
-        /// <remarks></remarks>
+        /// <returns>The <see cref="Task"/>.</returns>
         public override async Task Purge()
         {
             TableActivityReceiving tableActReceiving = new TableActivityReceiving();
             TableActivityRecevingItem tableActReceivingItem = new TableActivityRecevingItem();
             TableActivityReceivingDetail tableActReceivingDetail = new TableActivityReceivingDetail();
 
-            await tableActReceivingDetail.Purge();
-            await tableActReceivingItem.Purge();
-            await tableActReceiving.Purge();
+            await tableActReceivingDetail.PurgeData();
+            await tableActReceivingItem.PurgeData();
+            await tableActReceiving.PurgeData();
         }
 
         /// <summary>
-        ///
+        /// The GetFilter.
         /// </summary>
-        /// <returns></returns>
-        /// <remarks></remarks>
         public override void GetFilter()
         {
             ReceivingSettings recvSettings = new ReceivingSettings().LoadData();
@@ -463,18 +488,16 @@ namespace dMobile.Controller
         }
 
         /// <summary>
-        ///
+        /// The GetFilter.
         /// </summary>
-        /// <param name="xmlDoc"></param>
-        /// <returns></returns>
-        /// <remarks></remarks>
+        /// <param name="data">The data<see cref="XDocument"/>.</param>
         public override void GetFilter(XDocument data)
         {
             ReceivingSettings recvSettings = new ReceivingSettings().LoadData();
 
             if (recvSettings.IsApplyIssuedDateFilter)
             {
-                if ((string.Compare(data.Root.Element("issued_date").Value, string.Empty) > 0))
+                if (string.Compare(data.Root.Element("issued_date").Value, string.Empty) > 0)
                 {
                     DateTime dt = DateTime.Parse(data.Root.Element("issued_date").Value);
                     DateTime minDate = new DateTime(dt.Year, dt.Month, dt.Day, 00, 00, 00);
@@ -486,7 +509,7 @@ namespace dMobile.Controller
 
             if (recvSettings.IsApplyArrivalDateFilter)
             {
-                if ((string.Compare(data.Root.Element("arrival_date").Value, string.Empty) > 0))
+                if (string.Compare(data.Root.Element("arrival_date").Value, string.Empty) > 0)
                 {
                     DateTime dt = DateTime.Parse(data.Root.Element("arrival_date").Value);
                     DateTime minDate = new DateTime(dt.Year, dt.Month, dt.Day, 00, 00, 00);
@@ -497,6 +520,64 @@ namespace dMobile.Controller
             }
         }
 
-        #endregion
+        /// <summary>
+        /// Get the activity foreign key reference number.
+        /// </summary>
+        /// <param name="resourceType"><see cref="object"/> Resource model (tActivity??Model).</param>
+        /// <returns><see cref="int"/> Found activity foreign key refno, else 0 if not found.</returns>
+        public override int GetFKRefno(object resourceType)
+        {
+            object tmpFKRefno = ((Receive)resourceType).ActivityReceivingFKRefno;
+            return tmpFKRefno == null ? 0 : Convert.ToInt32(tmpFKRefno);
+        }
+
+        /// <summary>
+        /// The Insert.
+        /// </summary>
+        /// <param name="xmlParams">The xmlParams<see cref="XDocument"/>.</param>
+        /// <returns>The <see cref="Task{int}"/>.</returns>
+        public override Task<int> Insert(XDocument xmlParams)
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <summary>
+        /// The Delete.
+        /// </summary>
+        /// <returns>The <see cref="Task"/>.</returns>
+        public override Task Delete()
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <summary>
+        /// The PrintLabel.
+        /// </summary>
+        /// <param name="xmlParam">The xmlParam<see cref="XDocument"/>.</param>
+        /// <returns>The <see cref="Task"/>.</returns>
+        public override Task PrintLabel(XDocument xmlParam)
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <summary>
+        /// The GetLabelQuantity.
+        /// </summary>
+        /// <param name="isRepackQuantityOnly">The isRepackQuantityOnly<see cref="bool"/>.</param>
+        /// <returns>The <see cref="Task{SLabelQuantity}"/>.</returns>
+        public override Task<SLabelQuantity> GetLabelQuantity(bool isRepackQuantityOnly)
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <summary>
+        /// The ChangeStatus.
+        /// </summary>
+        /// <param name="selectedActivity">The selectedActivity<see cref="object"/>.</param>
+        /// <returns>The <see cref="Task{bool}"/>.</returns>
+        public override Task<bool> ChangeStatus(object selectedActivity)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

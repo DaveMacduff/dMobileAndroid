@@ -1,150 +1,222 @@
-﻿namespace dMobile.Bedrock
+﻿// <copyright file="SubmitBatchSettings.cs" company="InterSect Business Systems Inc">
+// Copyright (c) InterSect Business Systems Inc. All rights reserved.
+// </copyright>
+
+namespace dMobile.Bedrock
 {
-	using System;
-	using System.IO;
-	using System.Xml.Serialization;
+    using System;
+    using System.IO;
+    using System.Xml.Serialization;
 
-	[Serializable()]
-	public class SubmitBatchSettings
-	{
-		//VARIABLES
-		[NonSerialized()]
-		private string m_strFullClassName = "dMobile.SubmitBatchSettings";
-		[NonSerialized()]
-		private string m_strFilePath = string.Empty;
-		[NonSerialized()]
-		private string m_strFileASCIIZ = string.Empty;
-		[NonSerialized()]
-		private string m_strFileName = "dMobileSubmitBatchSettings.xml";
-		[NonSerialized]
-		private readonly object writeLockObject = new object();
-		[NonSerialized]
-		private readonly object readLockObject = new object();
-		private Int32 m_iActivityStatusIdx = 0;
-		private SysCommon.ActStatus m_eActivityStatus = SysCommon.ActStatus.NoChange;
-		private Int32 m_iActivitySubTypeIdx = 0;
-		private SysCommon.ActSubTypes m_eActivitySubType = SysCommon.ActSubTypes.Picking;
+    /// <summary>
+    /// Defines the <see cref="SubmitBatchSettings" />.
+    /// </summary>
+    [Serializable()]
+    public class SubmitBatchSettings
+    {
+        // VARIABLES
+        /// <summary>
+        /// Defines the m_strFullClassName.
+        /// </summary>
+        [NonSerialized()]
+        private string m_strFullClassName = "dMobile.SubmitBatchSettings";
 
-		//PROPERTIES
-		public SysCommon.ActSubTypes eActivitySubType
-		{
-			get { return m_eActivitySubType; }
-			set { m_eActivitySubType = value; }
-		}
-		public SysCommon.ActStatus eActivityStatus
-		{
-			get { return m_eActivityStatus; }
-			set { m_eActivityStatus = value; }
-		}
-		public Int32 iActivityStatusIdx
-		{
-			get { return m_iActivityStatusIdx; }
-			set { m_iActivityStatusIdx = value; }
-		}
-		public Int32 iActivitySubTypeIdx
-		{
-			get { return m_iActivitySubTypeIdx; }
-			set { m_iActivitySubTypeIdx = value; }
-		}
-		public string strFullClassName
-		{
-			get { return m_strFullClassName; }
-			set { m_strFullClassName = value; }
-		}
-		public string strFilePath
-		{
-			get { return m_strFilePath; }
-			set { m_strFilePath = value; }
-		}
-		public string strFileASCIIZ
-		{
-			get { return m_strFileASCIIZ; }
-			set { m_strFileASCIIZ = value; }
-		}
-		public string strFileName
-		{
-			get { return m_strFileName; }
-			set { m_strFileName = value; }
-		}
+        /// <summary>
+        /// Defines the m_strFilePath.
+        /// </summary>
+        [NonSerialized()]
+        private string m_strFilePath = string.Empty;
 
-		//METHODS
+        /// <summary>
+        /// Defines the m_strFileASCIIZ.
+        /// </summary>
+        [NonSerialized()]
+        private string m_strFileASCIIZ = string.Empty;
 
-		/// <summary>
-		/// 
-		/// </summary>
-		/// <remarks></remarks>
-		public SubmitBatchSettings()
-		{
-			strFilePath = Environment.GetFolderPath(Environment.SpecialFolder.Personal);
-			strFileASCIIZ = Path.Combine(strFilePath, strFileName);
-		}
+        /// <summary>
+        /// Defines the m_strFileName.
+        /// </summary>
+        [NonSerialized()]
+        private string m_strFileName = "dMobileSubmitBatchSettings.xml";
 
-		/// <summary>
-		/// 
-		/// </summary>
-		/// <returns></returns>
-		/// <remarks></remarks>
-		public SubmitBatchSettings LoadData()
-		{
-			lock (readLockObject)
-			{
-				XmlSerializer serializer = new XmlSerializer(typeof(SubmitBatchSettings));
-				SubmitBatchSettings oSubmitBatchSettings = new SubmitBatchSettings();
+        /// <summary>
+        /// Defines the writeLockObject.
+        /// </summary>
+        [NonSerialized]
+        private readonly object writeLockObject = new object();
 
-				// use relection to get the current assembly path for the database
-				string strAppDir = Environment.GetFolderPath(Environment.SpecialFolder.Personal);
-				string strFullPathToMyFile = Path.Combine(strAppDir, m_strFileName);
+        /// <summary>
+        /// Defines the readLockObject.
+        /// </summary>
+        [NonSerialized]
+        private readonly object readLockObject = new object();
 
-				if (!File.Exists(strFullPathToMyFile))
-				{
-					SaveData(ref oSubmitBatchSettings);
-				}
+        /// <summary>
+        /// Defines the m_iActivityStatusIdx.
+        /// </summary>
+        private int m_iActivityStatusIdx = 0;
 
-				// Create a FileStream to read with.
-				using (FileStream reader = new FileStream(strFullPathToMyFile, FileMode.Open, FileAccess.Read, FileShare.Read))
-				{
-					// Deserialize the stream to the object, and close the TextReader
-					oSubmitBatchSettings = (SubmitBatchSettings)serializer.Deserialize(reader);
-				}
+        /// <summary>
+        /// Defines the m_eActivityStatus.
+        /// </summary>
+        private SysCommon.ActStatus m_eActivityStatus = SysCommon.ActStatus.NoChange;
 
-				return oSubmitBatchSettings;
-			}
-		}
+        /// <summary>
+        /// Defines the m_iActivitySubTypeIdx.
+        /// </summary>
+        private int m_iActivitySubTypeIdx = 0;
 
-		/// <summary>
-		/// 
-		/// </summary>
-		/// <param name="oSubmitBatchSettings"></param>
-		/// <returns></returns>
-		/// <remarks></remarks>
-		public bool SaveData(ref SubmitBatchSettings oSubmitBatchSettings)
-		{
-			lock (writeLockObject)
-			{
-				XmlSerializer serializer = new XmlSerializer(typeof(SubmitBatchSettings));
-				bool bSaveComplete = false;
+        /// <summary>
+        /// Defines the m_eActivitySubType.
+        /// </summary>
+        private SysCommon.ActSubTypes m_eActivitySubType = SysCommon.ActSubTypes.Picking;
 
-				try
-				{
-					// use relection to get the current assembly path for the database
-					string strAppDir = Environment.GetFolderPath(Environment.SpecialFolder.Personal);
-					string strFullPathToMyFile = Path.Combine(strAppDir, m_strFileName);
+        // PROPERTIES
+        /// <summary>
+        /// Gets or sets the eActivitySubType.
+        /// </summary>
+        public SysCommon.ActSubTypes eActivitySubType
+        {
+            get { return this.m_eActivitySubType; }
+            set { this.m_eActivitySubType = value; }
+        }
 
-					// Create a FileStream to write with.
-					using (FileStream writer = new FileStream(strFullPathToMyFile, FileMode.Create, FileAccess.Write, FileShare.None))
-					{
-						serializer.Serialize(writer, oSubmitBatchSettings);
-					}
+        /// <summary>
+        /// Gets or sets the eActivityStatus.
+        /// </summary>
+        public SysCommon.ActStatus eActivityStatus
+        {
+            get { return this.m_eActivityStatus; }
+            set { this.m_eActivityStatus = value; }
+        }
 
-					bSaveComplete = true;
-				}
-				catch
-				{
-					bSaveComplete = false;
-				}
+        /// <summary>
+        /// Gets or sets the iActivityStatusIdx.
+        /// </summary>
+        public int iActivityStatusIdx
+        {
+            get { return this.m_iActivityStatusIdx; }
+            set { this.m_iActivityStatusIdx = value; }
+        }
 
-				return bSaveComplete;
-			}
-		}
-	}
+        /// <summary>
+        /// Gets or sets the iActivitySubTypeIdx.
+        /// </summary>
+        public int iActivitySubTypeIdx
+        {
+            get { return this.m_iActivitySubTypeIdx; }
+            set { this.m_iActivitySubTypeIdx = value; }
+        }
+
+        /// <summary>
+        /// Gets or sets the strFullClassName.
+        /// </summary>
+        public string strFullClassName
+        {
+            get { return this.m_strFullClassName; }
+            set { this.m_strFullClassName = value; }
+        }
+
+        /// <summary>
+        /// Gets or sets the strFilePath.
+        /// </summary>
+        public string strFilePath
+        {
+            get { return this.m_strFilePath; }
+            set { this.m_strFilePath = value; }
+        }
+
+        /// <summary>
+        /// Gets or sets the strFileASCIIZ.
+        /// </summary>
+        public string strFileASCIIZ
+        {
+            get { return this.m_strFileASCIIZ; }
+            set { this.m_strFileASCIIZ = value; }
+        }
+
+        /// <summary>
+        /// Gets or sets the strFileName.
+        /// </summary>
+        public string strFileName
+        {
+            get { return this.m_strFileName; }
+            set { this.m_strFileName = value; }
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="SubmitBatchSettings"/> class.
+        /// </summary>
+        public SubmitBatchSettings()
+        {
+            this.strFilePath = Environment.GetFolderPath(Environment.SpecialFolder.Personal);
+            this.strFileASCIIZ = Path.Combine(this.strFilePath, this.strFileName);
+        }
+
+        /// <summary>
+        /// The LoadData.
+        /// </summary>
+        /// <returns>.</returns>
+        public SubmitBatchSettings LoadData()
+        {
+            lock (this.readLockObject)
+            {
+                XmlSerializer serializer = new XmlSerializer(typeof(SubmitBatchSettings));
+                SubmitBatchSettings oSubmitBatchSettings = new SubmitBatchSettings();
+
+                // use reflection to get the current assembly path for the database
+                string strAppDir = Environment.GetFolderPath(Environment.SpecialFolder.Personal);
+                string strFullPathToMyFile = Path.Combine(strAppDir, this.m_strFileName);
+
+                if (!File.Exists(strFullPathToMyFile))
+                {
+                    this.SaveData(ref oSubmitBatchSettings);
+                }
+
+                // Create a FileStream to read with.
+                using (FileStream reader = new FileStream(strFullPathToMyFile, FileMode.Open, FileAccess.Read, FileShare.Read))
+                {
+                    // Deserialize the stream to the object, and close the TextReader
+                    oSubmitBatchSettings = (SubmitBatchSettings)serializer.Deserialize(reader);
+                }
+
+                return oSubmitBatchSettings;
+            }
+        }
+
+        /// <summary>
+        /// The SaveData.
+        /// </summary>
+        /// <param name="oSubmitBatchSettings">.</param>
+        /// <returns>.</returns>
+        public bool SaveData(ref SubmitBatchSettings oSubmitBatchSettings)
+        {
+            lock (this.writeLockObject)
+            {
+                XmlSerializer serializer = new XmlSerializer(typeof(SubmitBatchSettings));
+                bool bSaveComplete = false;
+
+                try
+                {
+                    // use reflection to get the current assembly path for the database
+                    string strAppDir = Environment.GetFolderPath(Environment.SpecialFolder.Personal);
+                    string strFullPathToMyFile = Path.Combine(strAppDir, this.m_strFileName);
+
+                    // Create a FileStream to write with.
+                    using (FileStream writer = new FileStream(strFullPathToMyFile, FileMode.Create, FileAccess.Write, FileShare.None))
+                    {
+                        serializer.Serialize(writer, oSubmitBatchSettings);
+                    }
+
+                    bSaveComplete = true;
+                }
+                catch
+                {
+                    bSaveComplete = false;
+                }
+
+                return bSaveComplete;
+            }
+        }
+    }
 }

@@ -1,18 +1,22 @@
-﻿namespace dMobile.GroundWork
+﻿// <copyright file="clsTableLocationMapSlot.cs" company="InterSect Business Systems Inc">
+// Copyright (c) InterSect Business Systems Inc. All rights reserved.
+// </copyright>
+
+namespace dMobile.GroundWork
 {
-    using dMobile.Bedrock;
     using System;
-    using SQLite;
+    using System.Collections.Generic;
     using System.IO;
     using System.Text;
+    using System.Threading.Tasks;
     using System.Xml;
     using System.Xml.Linq;
-    using System.Threading.Tasks;
-    using System.Collections.Generic;
+    using dMobile.Bedrock;
     using dMobile.Resources.Models;
+    using SQLite;
 
     /// <summary>
-    /// Defines the <see cref="TableLocationMapSlot" />
+    /// Defines the <see cref="TableLocationMapSlot" />.
     /// </summary>
     public class TableLocationMapSlot : TableBase
     {
@@ -26,37 +30,34 @@
         }
 
         /// <summary>
-        /// The Request
+        /// The Request.
         /// </summary>
         /// <param name="whsLocMapRefno"></param>
-        public override async Task Request(int whsLocMapRefno)
+        public override async Task RequestData(int whsLocMapRefno)
         {
             try
             {
-                // TODO: Resource Strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Seeding slots.", true);
 
                 string reqData = string.Empty;
 
-                if (0 < whsLocMapRefno)
+                if (whsLocMapRefno > 0)
                 {
                     List<tLocationMapWarehouseModel> results = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<tLocationMapWarehouseModel>("SELECT * FROM tLocationMapWarehouse WHERE LocationMapRefno = ?", whsLocMapRefno);
 
                     if (results?.Count > 0)
                     {
-                        // TODO: Resource Strings
                         this.DataAccessStatusOutHandler(this, EventArgs.Empty, string.Format("For whs \'{0}\'.", results[0].LocationMapWarehouseName), true);
                     }
                     else
                     {
-                        // TODO: Resource Strings
                         throw new Exception("No results in tLocationMapWarehouse for LocationMapRefno " + whsLocMapRefno + Environment.NewLine + this.FullClassName + " Request");
                     }
                 }
 
-                reqData = await this.Send(whsLocMapRefno);
+                reqData = await this.SendRequest(whsLocMapRefno);
 
-                if (0 < reqData.Length)
+                if (reqData.Length > 0)
                 {
                     if (reqData.Contains("<message>ERROR</message>"))
                     {
@@ -68,37 +69,31 @@
                     await this.SaveOpt(reqData);
                 }
 
-                // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Seeding slots complete.", true);
             }
             catch (SQLiteException ex)
             {
-                // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Database exception occurred.", true);
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Seeding slots failed.", true);
 
-                // TODO: Resource strings
                 throw new Exception("Database exception occurred. Seeding slots failed.", ex);
             }
             catch (Exception ex)
             {
-                // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Seeding slots failed.", true);
 
-                // TODO: Resource strings
                 throw new Exception("Seeding slots failed.", ex);
             }
         }
 
         /// <summary>
-        /// The PurgeData
+        /// The PurgeData.
         /// </summary>
         /// <param name="sectRefno"></param>
         public override async Task PurgeData(int sectRefno)
         {
             try
             {
-                // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging slots.", true);
 
                 if (sectRefno == 0)
@@ -110,38 +105,32 @@
                     await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync("DELETE FROM tLocationMapSlot WHERE SectionLocationMapRefno = ?", sectRefno);
                 }
 
-                // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging slots complete.", true);
             }
             catch (SQLiteException ex)
             {
-                // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Database exception occurred.", true);
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging slots failed.", true);
 
-                // TODO: Resource strings
                 throw new Exception("Database exception occurred. Purging slots failed.", ex);
             }
         }
 
         /// <summary>
-        /// The DataStatus
+        /// The DataStatus.
         /// </summary>
-        /// <returns>The <see cref="int"/></returns>
+        /// <returns>The <see cref="int"/>.</returns>
         public override async Task<int> DataStatus()
         {
-            int rowsAffected = 0;
-
+            int rowsAffected;
             try
             {
                 rowsAffected = Convert.ToInt32(await DatabaseConnection.GetInstance().SQLConn.ExecuteScalarAsync<int>("SELECT COUNT(*) FROM tLocationMapSlot"));
 
-                // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, string.Format("{0} slots.", rowsAffected), false);
             }
             catch (SQLiteException ex)
             {
-                // TODO: Resource strings
                 throw new Exception("Database exception occurred. Slots status failed.", ex);
             }
 
@@ -149,17 +138,17 @@
         }
 
         /// <summary>
-        /// The Send
+        /// The Send.
         /// </summary>
         /// <param name="whsLocMapRefno"></param>
         /// <returns></returns>
-        protected override async Task<string> Send(int whsLocMapRefno)
+        protected override async Task<string> SendRequest(int whsLocMapRefno)
         {
-            return await this.SendComm(await this.Create(whsLocMapRefno));
+            return await this.SendComm(await this.CreateRequest(whsLocMapRefno));
         }
 
         /// <summary>
-        /// The Save
+        /// The Save.
         /// </summary>
         /// <param name="recvData"></param>
         protected override Task Save(string recvData)
@@ -168,7 +157,7 @@
         }
 
         /// <summary>
-        /// The SaveOpt
+        /// The SaveOpt.
         /// </summary>
         /// <param name="recvData"></param>
         protected async Task SaveOpt(string recvData)
@@ -185,10 +174,8 @@
                     using (StringReader stringReader = new StringReader(recvData.Substring(startIndex)))
                     using (XmlReader reader = XmlReader.Create(stringReader))
                     {
-                        // TODO: Resource Strings
                         this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Reading received data.", false);
 
-                        // TODO: Resource Strings
                         this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving slots.", false);
 
                         int locMapRefno = 0;
@@ -293,7 +280,6 @@
                             }
                             else
                             {
-                                // TODO: Resource Strings
                                 throw new Exception("No results in tLocationMapSection for LocationMapSectionFKRefno " + sectFKRefno + Environment.NewLine + errMsg);
                             }
 
@@ -353,7 +339,7 @@
 
                             isLocMapSlotFound = false;
 
-                            if (SysEnv.RefreshOpt.RefreshDataChangesOnly)
+                            if (this.SysEnv.RefreshOpt.RefreshDataChangesOnly)
                             {
                                 List<tLocationMapSlotModel> results = transaction.Query<tLocationMapSlotModel>("SELECT LocationMapSlotFKRefno FROM tLocationMapSlot WHERE LocationMapSlotFKRefno = ?", slotFKRefno);
 
@@ -419,7 +405,7 @@
                                     coord3Refno,
                                     slotFKRefno,
                                     slotBarCode,
-                                    whsLocMapRefno
+                                    whsLocMapRefno,
                                 };
 
                                 transaction.Execute(queryInsert, parametersInsert);
@@ -428,7 +414,7 @@
                             ++recordCount;
                             if (recordCount % 100 == 0)
                             {
-                                this.DataAccessProgressOutHandler(this, EventArgs.Empty, (recordCount / 10) % 100, 0, 100);
+                                this.DataAccessProgressOutHandler(this, EventArgs.Empty, recordCount / 10 % 100, 0, 100);
                             }
                         } // end of record data
 
@@ -436,10 +422,8 @@
 
                         transaction.Commit();
 
-                        // TODO: Resource Strings
                         this.DataAccessStatusOutHandler(this, EventArgs.Empty, string.Format("Records {0}", recordCount), false);
 
-                        // TODO: Resource Strings
                         this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving slots complete.", false);
                     }
                 }
@@ -447,22 +431,20 @@
                 {
                     transaction.Rollback();
 
-                    // TODO: Resource Strings
                     this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Database exception occurred.", false);
                     this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving slots failed.", false);
 
-                    // TODO: Resource Strings
                     throw new Exception("Database exception occurred. Saving slots failed." + Environment.NewLine + errMsg, ex);
                 }
             });
         }
 
         /// <summary>
-        /// The Create
+        /// The Create.
         /// </summary>
         /// <param name="whsLocMapRefno"></param>
         /// <returns></returns>
-        protected override async Task<string> Create(int whsLocMapRefno)
+        protected override async Task<string> CreateRequest(int whsLocMapRefno)
         {
             StringBuilder xmlString = new StringBuilder();
             XmlWriter xml = XmlWriter.Create(xmlString);
@@ -480,7 +462,7 @@
                 + "<command>"
                 + "<action>REQUEST SLOTS</action>"
                 + await SysCommon.GetRequestDefaults(true)
-                + ("<LocationMapWarehouseFKRefno>" + locMapWhsFKRefno.ToString() + "</LocationMapWarehouseFKRefno>")
+                + "<LocationMapWarehouseFKRefno>" + locMapWhsFKRefno.ToString() + "</LocationMapWarehouseFKRefno>"
                 + "</command>"
                 + "</imclient>");
 

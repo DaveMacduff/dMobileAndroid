@@ -1,8 +1,9 @@
-﻿namespace dMobile.GroundWork
+﻿// <copyright file="clsTableActivityCycleCountDetail.cs" company="InterSect Business Systems Inc">
+// Copyright (c) InterSect Business Systems Inc. All rights reserved.
+// </copyright>
+
+namespace dMobile.GroundWork
 {
-    using dMobile.Bedrock;
-    using dMobile.Resources.Models;
-    using SQLite;
     using System;
     using System.Collections.Generic;
     using System.Data;
@@ -10,9 +11,12 @@
     using System.Threading.Tasks;
     using System.Xml;
     using System.Xml.Linq;
+    using dMobile.Bedrock;
+    using dMobile.Resources.Models;
+    using SQLite;
 
     /// <summary>
-    /// Defines the <see cref="TableActivityCycleCountDetail" />
+    /// Defines the <see cref="TableActivityCycleCountDetail" />.
     /// </summary>
     public class TableActivityCycleCountDetail : TableBase
     {
@@ -26,21 +30,19 @@
         }
 
         /// <summary>
-        /// The Request
+        /// The Request.
         /// </summary>
-        /// <param name="actItemRefno">The actItemRefno<see cref="int"/></param>
-        public override async Task Request(int actItemRefno)
+        /// <param name="actItemRefno">The actItemRefno<see cref="int"/>.</param>
+        public override async Task RequestData(int actItemRefno)
         {
-            string reqData = string.Empty;
 
-            //GC.Collect();
-            //GC.WaitForPendingFinalizers();
-
+            // GC.Collect();
+            // GC.WaitForPendingFinalizers();
             try
             {
-                // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Seeding cycle count details.", true);
 
+                string reqData;
                 if (actItemRefno == 0)
                 {
                     List<tActivityItemModel> results = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<tActivityItemModel>("SELECT ActivityItemRefno FROM tActivityItem WHERE ActivityItemSubType = ?", Convert.ToInt32(SysCommon.ActSubTypes.CycleCounts));
@@ -50,9 +52,9 @@
                         foreach (tActivityItemModel activityItem in results)
                         {
                             actItemRefno = Convert.ToInt32(activityItem.ActivityItemRefno);
-                            reqData = await this.Send(actItemRefno);
+                            reqData = await this.SendRequest(actItemRefno);
 
-                            if (0 < reqData.Length)
+                            if (reqData.Length > 0)
                             {
                                 if (reqData.Contains("<message>ERROR</message>"))
                                 {
@@ -68,9 +70,9 @@
                 }
                 else
                 {
-                    reqData = await this.Send(actItemRefno);
+                    reqData = await this.SendRequest(actItemRefno);
 
-                    if (0 < reqData.Length)
+                    if (reqData.Length > 0)
                     {
                         if (reqData.Contains("<message>ERROR</message>"))
                         {
@@ -83,47 +85,39 @@
                     }
                 }
 
-                // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Seeding cycle count details complete.", true);
             }
             catch (SQLiteException ex)
             {
-                // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Database exception occurred.", true);
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Request cycle count details failed.", true);
 
-                // TODO: Resource strings
                 throw new Exception("Database exception occurred. Request cycle count details failed.", ex);
             }
             catch (Exception ex)
             {
-                // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Request cycle count details failed.", true);
 
-                // TODO: Resource strings
                 throw new Exception("Request cycle count details failed.", ex);
             }
         }
 
         /// <summary>
-        /// The DataStatus
+        /// The DataStatus.
         /// </summary>
-        /// <returns>The <see cref="int"/></returns>
+        /// <returns>The <see cref="int"/>.</returns>
         public override async Task<int> DataStatus()
         {
-            int rowsAffected = 0;
-
+            int rowsAffected;
             try
             {
                 string query = "SELECT COUNT(tActivityDetail.ActivityDetailRefno) FROM tActivityDetail WHERE tActivityDetail.ActivityDetailSubType = ?";
                 rowsAffected = await DatabaseConnection.GetInstance().SQLConn.ExecuteScalarAsync<int>(query, Convert.ToInt32(SysCommon.ActSubTypes.CycleCounts));
 
-                // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, string.Format("{0} cycle count detail(s)", rowsAffected), true);
             }
             catch (SQLiteException ex)
             {
-                // TODO: Resource strings
                 throw new Exception("Database exception occurred. Cycle count details status failed.", ex);
             }
 
@@ -131,13 +125,12 @@
         }
 
         /// <summary>
-        /// The Purge
+        /// The Purge.
         /// </summary>
-        public override async Task Purge()
+        public override async Task PurgeData()
         {
             try
             {
-                // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging cycle count details.", true);
 
                 string query = "DELETE FROM tActivityDetailProductSchemeVariantXRef "
@@ -164,34 +157,30 @@
                 query = "DELETE FROM tActivityDetail WHERE tActivityDetail.ActivityDetailSubType = ?";
                 await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(query, Convert.ToInt32(SysCommon.ActSubTypes.CycleCounts));
 
-                // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging cycle count details complete.", true);
             }
             catch (SQLiteException ex)
             {
-                // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Database exception occurred.", true);
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging cycle count details failed.", true);
 
-                // TODO: Resource strings
                 throw new Exception("Database exception occurred. Purging cycle count details failed.", ex);
             }
         }
 
         /// <summary>
-        /// The Send
+        /// The Send.
         /// </summary>
-        /// <param name="actItemCountRefno">The actItemCountRefno<see cref="int"/></param>
+        /// <param name="actItemCountRefno">The actItemCountRefno<see cref="int"/>.</param>
         /// <returns></returns>
-        protected override async Task<string> Send(int actItemCountRefno)
+        protected override async Task<string> SendRequest(int actItemCountRefno)
         {
-            int actItemCountFKRefno = 0;
-
             try
             {
                 string query = "SELECT * FROM tActivityItemCount WHERE ActivityItemRefno = ?";
                 List<tActivityItemCountModel> results = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<tActivityItemCountModel>(query, actItemCountRefno);
 
+                int actItemCountFKRefno;
                 if (results != null && results.Count > 0)
                 {
                     actItemCountFKRefno = results[0].ActivityItemCountFKRefno;
@@ -201,7 +190,7 @@
                     throw new Exception("No results in tActivityItemCount for ActivityItemRefno " + actItemCountRefno);
                 }
 
-                return await this.SendComm(await this.Create(actItemCountFKRefno));
+                return await this.SendComm(await this.CreateRequest(actItemCountFKRefno));
             }
             catch (SQLiteException ex)
             {
@@ -210,7 +199,7 @@
         }
 
         /// <summary>
-        /// The Save
+        /// The Save.
         /// </summary>
         /// <param name="reqData"></param>
         /// <param name="actItemCountRefno"></param>
@@ -224,12 +213,10 @@
                 {
                     using (DataSet ds = new DataSet())
                     {
-                        // TODO: Resource strings
                         this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Reading received data.", false);
 
                         ds.ReadXml(SysCommon.GetXmlReader(ref reqData), XmlReadMode.Auto);
 
-                        // TODO: Resource strings
                         this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving cycle count details.", false);
 
                         // Receiving schema but no data results in no table being created in the dataset.
@@ -237,7 +224,6 @@
                         {
                             int progMax = Convert.ToInt32(ds.Tables["tActivityDetailCount"].Rows.Count);
 
-                            // TODO: Resource strings
                             this.DataAccessStatusOutHandler(this, EventArgs.Empty, string.Format("Records {0}.", progMax), false);
 
                             int actDetailRefno = 0;
@@ -250,13 +236,11 @@
 
                             if (countItems == null || (countItems != null && countItems.Count == 0))
                             {
-                                // TODO: Resource strings
                                 throw new Exception("drItemCount.Read() failed.");
                             }
 
                             foreach (DataRow drow in ds.Tables["tActivityDetailCount"].Rows)
                             {
-                                // TODO: Resource strings
                                 errMsg = "Arguments:";
 
                                 List<object> detailParameterList = new List<object>();
@@ -306,7 +290,7 @@
                                 detailParameterList.Add(Convert.ToInt32(SysCommon.ActSubTypes.CycleCounts));
                                 detailParameterList.Add(Convert.ToInt32(SysCommon.ActStatus.NoChange));
                                 detailParameterList.Add(actItemCountRefno);
-                                detailParameterList.Add(this.SaveDetailLocation(drow, transaction, true));
+                                detailParameterList.Add(this.GetDetailLocation(drow, transaction, true));
                                 detailParameterList.Add(countItems[0].ProductUnitRefno);
                                 detailParameterList.AddRange(this.SaveDetail(drow, transaction, true));
 
@@ -315,7 +299,6 @@
                                 actDetailRefno = Convert.ToInt32(transaction.ExecuteScalar<int>("SELECT last_insert_rowid() FROM tActivityDetail"));
                                 actDetailCycleFKRefno = Convert.ToInt32(drow["f01"]);
 
-                                // TODO: Resource strings
                                 errMsg += Environment.NewLine + "Detail fk refno" + actDetailCycleFKRefno;
 
                                 transaction.Execute("INSERT INTO tActivityDetailCount (ActivityDetailRefno, ActivityDetailCountFKRefno) VALUES (?, ?)", actDetailRefno, actDetailCycleFKRefno);
@@ -336,29 +319,26 @@
 
                     transaction.Commit();
 
-                    // TODO: Resource strings
                     this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving cycle count details complete.", false);
                 }
                 catch (SQLiteException ex)
                 {
                     transaction.Rollback();
 
-                    // TODO: Resource strings
                     this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Database exception occurred.", true);
                     this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving cycle count details failed.", true);
 
-                    // TODO: Resource strings
                     throw new Exception("Database exception occurred. Saving cycle count details failed." + Environment.NewLine + errMsg, ex);
                 }
             });
         }
 
         /// <summary>
-        /// The Create
+        /// The Create.
         /// </summary>
-        /// <param name="actItemCountFKRefno">The actItemCountFKRefno<see cref="int"/></param>
+        /// <param name="actItemCountFKRefno">The actItemCountFKRefno<see cref="int"/>.</param>
         /// <returns></returns>
-        protected override async Task<string> Create(int actItemCountFKRefno)
+        protected override async Task<string> CreateRequest(int actItemCountFKRefno)
         {
             StringBuilder xmlString = new StringBuilder();
             XmlWriter xml = XmlWriter.Create(xmlString);
@@ -369,7 +349,7 @@
                 + "<command>"
                 + "<action>REQUEST CYCLE COUNT DETAILS</action>"
                 + await SysCommon.GetRequestDefaults(false)
-                + ("<itm_refno>" + actItemCountFKRefno.ToString() + "</itm_refno>")
+                + "<itm_refno>" + actItemCountFKRefno.ToString() + "</itm_refno>"
                 + "</command>"
                 + "</imclient>");
 

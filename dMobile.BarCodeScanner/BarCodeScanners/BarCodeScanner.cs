@@ -1,72 +1,92 @@
-﻿namespace dMobile.BarCodeScanner
+﻿// <copyright file="BarCodeScanner.cs" company="InterSect Business Systems Inc">
+// Copyright (c) InterSect Business Systems Inc. All rights reserved.
+// </copyright>
+
+namespace dMobile.BarCodeScanner.BarCodeScanners
 {
     using System;
     using System.Threading.Tasks;
-    using Xamarin.Forms;
 
     /// <summary>
     /// This is the abstract barcode scanner class.
     /// </summary>
     public abstract class BarCodeScanner : IDisposable
     {
-        #region Constructors
-
+        /// <summary>
+        /// Initializes a new instance of the <see cref="BarCodeScanner"/> class.
+        /// </summary>
         public BarCodeScanner()
         {
-            // If we can initialize the scanner...
-            // if (Initialize())
-            // ...start a scan on the scanner
-            // this.Start();
-            Initialize();
+            _ = this.Initialize();
         }
 
-        #endregion
+        /// <summary>
+        /// Finalizes an instance of the <see cref="BarCodeScanner"/> class.
+        /// </summary>
+        ~BarCodeScanner()
+        {
+            this.Dispose(false);
+        }
 
-        #region Delegates
-
+        /// <summary>
+        /// Bar code scan event handler delegate.
+        /// </summary>
+        /// <param name="sender"><see cref="object"/> Sender instance.</param>
+        /// <param name="e"> <see cref="BarCodeScannerEventArgs"/> Scanner event arguments.</param>
+        /// <returns><see cref="Task"/> Task operation.</returns>
         public delegate Task BarCodeScanEventHandler(object sender, BarCodeScannerEventArgs e);
 
-        #endregion
-
-        #region Events
-
+        /// <summary>
+        /// Bar code scan event handler.
+        /// </summary>
         public event BarCodeScanEventHandler BarCodeScan;
 
-        #endregion
-
-        #region Public Members
-
-        // Methods that need to be implemented in subclass.
+        /// <summary>
+        /// Initialize the scanner engine.
+        /// </summary>
+        /// <returns><see cref="bool"/> True if the scanner was initialized succesfully, else false.</returns>
         public abstract bool Initialize();
+
+        /// <summary>
+        /// Turn on bar code scanning.
+        /// </summary>
+        /// <returns><see cref="Task"/> Task operation.</returns>
         public abstract Task Start();
+
+        /// <summary>
+        /// Turn off bar code scanning.
+        /// </summary>
+        /// <returns><see cref="Task"/> Task operation.</returns>
         public abstract Task Stop();
+
+        /// <summary>
+        /// Unload the initialized bar code scanning engine.
+        /// </summary>
         public abstract void Terminate();
 
         /// <summary>
-        /// Event that calls the delegate.
+        /// Raise the bar code scan event.
         /// </summary>
+        /// <returns><see cref="Task"/> Task operation.</returns>
         public virtual async Task OnBarCodeScan(BarCodeScannerEventArgs e)
         {
             await this.BarCodeScan?.Invoke(this, e);
         }
 
-        #region IDisposable
-
+        /// <summary>
+        /// Dispose the bar code scanner engine.
+        /// </summary>
+        /// <param name="disposing"><see cref="bool"/> True to indicating that the engine is
+        /// currently disposing.</param>
         public abstract void Dispose(bool disposing);
 
+        /// <summary>
+        /// Dispose the bar code scanner engine.
+        /// </summary>
         public virtual void Dispose()
         {
-            Dispose(true);
+            this.Dispose(true);
             GC.SuppressFinalize(this);
         }
-
-        ~BarCodeScanner()
-        {
-            Dispose(false);
-        }
-
-        #endregion
-
-        #endregion
     }
 }

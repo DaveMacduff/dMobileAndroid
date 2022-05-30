@@ -1,18 +1,22 @@
-﻿namespace dMobile.GroundWork
+﻿// <copyright file="clsTableActivityPhysicalCountItem.cs" company="InterSect Business Systems Inc">
+// Copyright (c) InterSect Business Systems Inc. All rights reserved.
+// </copyright>
+
+namespace dMobile.GroundWork
 {
-    using dMobile.Bedrock;
     using System;
-    using SQLite;
+    using System.Collections.Generic;
+    using System.Data;
     using System.Text;
+    using System.Threading.Tasks;
     using System.Xml;
     using System.Xml.Linq;
-    using System.Threading.Tasks;
-    using System.Collections.Generic;
+    using dMobile.Bedrock;
     using dMobile.Resources.Models;
-    using System.Data;
+    using SQLite;
 
     /// <summary>
-    /// Defines the <see cref="TableActivityPhysicalCountItem" />
+    /// Defines the <see cref="TableActivityPhysicalCountItem" />.
     /// </summary>
     public class TableActivityPhysicalCountItem : TableBase
     {
@@ -26,33 +30,30 @@
         }
 
         /// <summary>
-        /// The Request
+        /// The Request.
         /// </summary>
         /// <param name="actRefno"></param>
-        public override async Task Request(int actRefno)
+        public override async Task RequestData(int actRefno)
         {
-            string reqData = string.Empty;
 
-            //GC.Collect();
-            //GC.WaitForPendingFinalizers();
-
+            // GC.Collect();
+            // GC.WaitForPendingFinalizers();
             try
             {
-
-                // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Seeding physical count items.", true);
 
+                string reqData;
                 if (actRefno == 0)
                 {
                     string query = "SELECT ActivityRefno FROM tActivity WHERE ActivitySubType = ?";
-                    List<tActivityModel> results =  await DatabaseConnection.GetInstance().SQLConn.QueryAsync<tActivityModel>(query, Convert.ToInt32(SysCommon.ActSubTypes.PhysicalCounts));
+                    List<tActivityModel> results = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<tActivityModel>(query, Convert.ToInt32(SysCommon.ActSubTypes.PhysicalCounts));
 
                     if (results != null && results.Count > 0)
                     {
                         actRefno = results[0].ActivityRefno;
-                        reqData = await this.Send(actRefno);
+                        reqData = await this.SendRequest(actRefno);
 
-                        if (0 < reqData.Length)
+                        if (reqData.Length > 0)
                         {
                             if (reqData.Contains("<message>ERROR</message>"))
                             {
@@ -67,9 +68,9 @@
                 }
                 else
                 {
-                    reqData = await this.Send(actRefno);
+                    reqData = await this.SendRequest(actRefno);
 
-                    if (0 < reqData.Length)
+                    if (reqData.Length > 0)
                     {
                         if (reqData.Contains("<message>ERROR</message>"))
                         {
@@ -82,47 +83,39 @@
                     }
                 }
 
-                // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Seeding physical count items complete.", true);
             }
             catch (SQLiteException ex)
             {
-                // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Database exception occurred.", false);
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Seeding physical count items failed.", false);
 
-                // TODO: Resource strings
                 throw new Exception("Database exception occurred. Seeding physical count items failed.", ex);
             }
             catch (Exception ex)
             {
-                // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Seeding physical count items failed.", false);
 
-                // TODO: Resource strings
                 throw new Exception("Seeding physical count items failed.", ex);
             }
         }
 
         /// <summary>
-        /// The DataStatus
+        /// The DataStatus.
         /// </summary>
-        /// <returns>The <see cref="int"/></returns>
+        /// <returns>The <see cref="int"/>.</returns>
         public override async Task<int> DataStatus()
         {
-            int rowsAffected = 0;
-
+            int rowsAffected;
             try
             {
                 string query = "SELECT COUNT(ActivityItemRefno) FROM tActivityItem WHERE ActivityItemSubType = ?";
                 rowsAffected = await DatabaseConnection.GetInstance().SQLConn.ExecuteScalarAsync<int>(query, Convert.ToInt32(SysCommon.ActSubTypes.PhysicalCounts));
 
-                // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, string.Format("{0} physical count items.", rowsAffected), true);
             }
             catch (SQLiteException ex)
             {
-                // TODO: Resource strings
                 throw new Exception("Database exception occurred. Physical count items status failed.", ex);
             }
 
@@ -130,13 +123,12 @@
         }
 
         /// <summary>
-        /// The Purge
+        /// The Purge.
         /// </summary>
-        public override async Task Purge()
+        public override async Task PurgeData()
         {
             try
             {
-                // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging physical count items.", true);
 
                 string query = "DELETE FROM tActivityItemBarCodeAssociationXRef "
@@ -152,26 +144,23 @@
                 query = "DELETE FROM tActivityItem WHERE tActivityItem.ActivityItemSubType = ?";
                 await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(query, Convert.ToInt32(SysCommon.ActSubTypes.PhysicalCounts));
 
-                // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging physical count items complete.", true);
             }
             catch (SQLiteException ex)
             {
-                // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Database exception occurred.", true);
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging physical count items failed.", true);
 
-                // TODO: Resource strings
                 throw new Exception("Database exception occurred. Purging physical count items failed.", ex);
             }
         }
 
         /// <summary>
-        /// The Send
+        /// The Send.
         /// </summary>
-        /// <param name="actRefno">The actRefno<see cref="int"/></param>
+        /// <param name="actRefno">The actRefno<see cref="int"/>.</param>
         /// <returns></returns>
-        protected override async Task<string> Send(int actRefno)
+        protected override async Task<string> SendRequest(int actRefno)
         {
             int actCountFKRefno = 0;
 
@@ -183,30 +172,26 @@
                 actCountFKRefno = results[0].ActivityCountFKRefno;
             }
 
-            return await this.SendComm(await this.Create(actCountFKRefno));
+            return await this.SendComm(await this.CreateRequest(actCountFKRefno));
         }
 
         /// <summary>
-        /// The Save
+        /// The Save.
         /// </summary>
         /// <param name="reqData"></param>
-        /// <param name="actRefno">The actRefno<see cref="int"/></param>
+        /// <param name="actRefno">The actRefno<see cref="int"/>.</param>
         protected override async Task Save(string reqData, int actRefno)
         {
-            string errMsg = string.Empty;
-
             await DatabaseConnection.GetInstance().SQLConn.RunInTransactionAsync(transaction =>
             {
                 try
                 {
                     using (DataSet ds = new DataSet())
                     {
-                        // TODO: Resource strings
                         this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Reading received data.", false);
 
                         ds.ReadXml(SysCommon.GetXmlReader(ref reqData), XmlReadMode.Auto);
 
-                        // TODO: Resource strings
                         this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving physical count items.", false);
 
                         if (ds.Tables.Count != 0)
@@ -227,12 +212,10 @@
 
                             foreach (DataRow drow in ds.Tables["tActivityItemCount"].Rows)
                             {
-                                errMsg = "Arguments:";
-
                                 transaction.Execute("INSERT INTO tActivityItem (ActivityItemSubType, ActivityItemStatus, ActivityRefno) VALUES (?, ?, ?)", Convert.ToInt32(SysCommon.ActSubTypes.PhysicalCounts), 0, actRefno);
 
                                 actItemRefno = Convert.ToInt32(transaction.ExecuteScalar<int>("SELECT last_insert_rowid() FROM tActivityItem"));
-                                prodUnitRefno = this.GetProductUnitRefnoFromDataRow(drow, transaction, ref errMsg, true);
+                                prodUnitRefno = this.GetProductUnitRefnoFromDataRow(drow, transaction, true);
 
                                 // Cannot use this.SaveDetailLocation() f00 tags are not the same.
                                 locMapRefno = 0;
@@ -275,7 +258,7 @@
 
                                 if (locMapRefno == 0)
                                 {
-                                    throw new Exception(string.Format("Unable to indentify the location map refno.{0} Whs FK Refno {1}{2} Section FK Refno {3}{4} Slot FK Refno {5}",
+                                    throw new Exception(string.Format("Unable to indentify the location map reference number.{0} Whs FK Refno {1}{2} Section FK Refno {3}{4} Slot FK Refno {5}",
                                         Environment.NewLine,
                                         locMapWhsFKRefno,
                                         Environment.NewLine,
@@ -286,9 +269,8 @@
 
                                 countItemFKRefno = Convert.ToInt32(drow["f02"]);
 
-                                errMsg += Environment.NewLine + "Item fk refno " + countItemFKRefno;
-
-                                transaction.Execute("INSERT INTO tActivityItemCount (" +
+                                transaction.Execute(
+                                    "INSERT INTO tActivityItemCount (" +
                                     "ActivityItemRefno, " +
                                     "ActivityItemSubType, " +
                                     "ActivityItemCountFKRefno, " +
@@ -303,18 +285,18 @@
                                     "ActivityItemCountWeightQuantity" +
                                     ") VALUES (" +
                                     "?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
-                                actItemRefno,
-                                Convert.ToInt32(SysCommon.ActSubTypes.PhysicalCounts),
-                                countItemFKRefno,
-                                Convert.ToString(countItemFKRefno),
-                                prodUnitRefno,
-                                locMapRefno,
-                                Convert.ToDecimal(drow["f09"]),
-                                Convert.ToDecimal(drow["f10"]),
-                                Convert.ToDecimal(drow["f11"]),
-                                Convert.ToDecimal(drow["f12"]),
-                                Convert.ToDecimal(drow["f13"]),
-                                Convert.ToDecimal(drow["f14"]));
+                                    actItemRefno,
+                                    Convert.ToInt32(SysCommon.ActSubTypes.PhysicalCounts),
+                                    countItemFKRefno,
+                                    Convert.ToString(countItemFKRefno),
+                                    prodUnitRefno,
+                                    locMapRefno,
+                                    Convert.ToDecimal(drow["f09"]),
+                                    Convert.ToDecimal(drow["f10"]),
+                                    Convert.ToDecimal(drow["f11"]),
+                                    Convert.ToDecimal(drow["f12"]),
+                                    Convert.ToDecimal(drow["f13"]),
+                                    Convert.ToDecimal(drow["f14"]));
 
                                 progValue++;
                                 if (progValue % 10 == 0)
@@ -328,7 +310,6 @@
 
                         transaction.Commit();
 
-                        // TODO: Resource strings
                         this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Request physical count items complete.", false);
                     }
                 }
@@ -336,22 +317,20 @@
                 {
                     transaction.Rollback();
 
-                    // TODO: Resource strings
                     this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Database exception occurred.", true);
                     this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Request physical count items failed.", true);
 
-                    // TODO: Resource strings
-                    throw new Exception("Database exception occurred. Saving physical count items failed." + Environment.NewLine + errMsg, ex);
+                    throw new Exception("Database exception occurred. Saving physical count items failed.", ex);
                 }
             });
         }
 
         /// <summary>
-        /// The Create
+        /// The Create.
         /// </summary>
         /// <param name="actCountFKRefno"></param>
         /// <returns></returns>
-        protected override async Task<string> Create(int actCountFKRefno)
+        protected override async Task<string> CreateRequest(int actCountFKRefno)
         {
             StringBuilder xmlString = new StringBuilder();
             XmlWriter xml = XmlWriter.Create(xmlString);
@@ -362,7 +341,7 @@
                 + "<command>"
                 + "<action>REQUEST PHYSICAL COUNT ITEMS</action>"
                 + await SysCommon.GetRequestDefaults(false)
-                + ("<refno>" + actCountFKRefno.ToString() + "</refno>")
+                + "<refno>" + actCountFKRefno.ToString() + "</refno>"
                 + "</command>"
                 + "</imclient>");
 

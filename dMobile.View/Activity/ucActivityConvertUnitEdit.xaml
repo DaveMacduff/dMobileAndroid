@@ -48,7 +48,7 @@
 
                 <!--Row 3-->
                 <Frame Grid.Row="3" OutlineColor="{DynamicResource BorderColor}">
-                    <ListView x:Name="lstDisplay" SelectionMode="None" HasUnevenRows="True" IsEnabled="{Binding Loading, Converter={Helpers:BoolConverter}}" SeparatorVisibility="None">
+                    <ListView x:Name="ListViewDisplayExtraInfo" SelectionMode="None" HasUnevenRows="True" IsEnabled="{Binding Loading, Converter={Helpers:BoolConverter}}" SeparatorVisibility="None">
                         <ListView.ItemTemplate>
                             <DataTemplate>
                                 <ViewCell>

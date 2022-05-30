@@ -1,18 +1,22 @@
-﻿namespace dMobile.GroundWork
+﻿// <copyright file="clsTableLocationMapSection.cs" company="InterSect Business Systems Inc">
+// Copyright (c) InterSect Business Systems Inc. All rights reserved.
+// </copyright>
+
+namespace dMobile.GroundWork
 {
-    using dMobile.Bedrock;
     using System;
+    using System.Collections.Generic;
     using System.Data;
-    using SQLite;
     using System.Text;
+    using System.Threading.Tasks;
     using System.Xml;
     using System.Xml.Linq;
-    using System.Threading.Tasks;
+    using dMobile.Bedrock;
     using dMobile.Resources.Models;
-    using System.Collections.Generic;
+    using SQLite;
 
     /// <summary>
-    /// Defines the <see cref="TableLocationMapSection" />
+    /// Defines the <see cref="TableLocationMapSection" />.
     /// </summary>
     public class TableLocationMapSection : TableBase
     {
@@ -26,38 +30,35 @@
         }
 
         /// <summary>
-        /// The Request
+        /// The Request.
         /// </summary>
         /// <param name="whsLocMapRefno"></param>
-        public override async Task Request(int whsLocMapRefno)
+        public override async Task RequestData(int whsLocMapRefno)
         {
             try
             {
-                // TODO: Resource String
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Seeding sections.", true);
 
                 string reqData = string.Empty;
 
-                if (0 < whsLocMapRefno)
+                if (whsLocMapRefno > 0)
                 {
                     List<tLocationMapWarehouseModel> results = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<tLocationMapWarehouseModel>("SELECT * FROM tLocationMapWarehouse WHERE LocationMapRefno = ?", whsLocMapRefno);
 
                     if (results?.Count > 0)
                     {
-                        // TODO: Resource String
                         this.DataAccessStatusOutHandler(this, EventArgs.Empty, string.Format("For whs \'{0}\'.", results[0].LocationMapWarehouseName), true);
                     }
                     else
                     {
-                        // TODO: Resource String
                         throw new Exception(string.Format("Unable to locate the warehouse name using the warehouse refno {0} in tLocationMapWarehouse.", whsLocMapRefno));
                     }
 
                 }
 
-                reqData = await this.Send(whsLocMapRefno);
+                reqData = await this.SendRequest(whsLocMapRefno);
 
-                if (0 < reqData.Length)
+                if (reqData.Length > 0)
                 {
                     if (reqData.Contains("<message>ERROR</message>"))
                     {
@@ -69,38 +70,31 @@
                     await this.Save(reqData);
                 }
 
-                // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Seeding sections complete.", true);
             }
             catch (SQLiteException ex)
             {
-
-                // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Database exception occurred.", true);
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Seeding sections failed.", true);
 
-                // TODO: Resource strings
                 throw new Exception("Database exception occurred. Seeding sections failed.", ex);
             }
             catch (Exception ex)
             {
-                // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Seeding sections failed.", true);
 
-                // TODO: Resource strings
                 throw new Exception("Seeding sections failed.", ex);
             }
         }
 
         /// <summary>
-        /// The PurgeData
+        /// The PurgeData.
         /// </summary>
         /// <param name="whsLocMapRefno"></param>
         public override async Task PurgeData(int whsLocMapRefno)
         {
             try
             {
-                // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging sections.", true);
 
                 if (whsLocMapRefno == 0)
@@ -112,38 +106,32 @@
                     await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync("DELETE FROM tLocationMapSection WHERE WarehouseLocationMapRefno = ?", Convert.ToString(whsLocMapRefno));
                 }
 
-                // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging sections complete.", true);
             }
             catch (SQLiteException ex)
             {
-                // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Database exception occurred.", true);
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging sections failed.", true);
 
-                // TODO: Resource strings
                 throw new Exception("Database exception occurred. Purging sections failed.", ex);
             }
         }
 
         /// <summary>
-        /// The DataStatus
+        /// The DataStatus.
         /// </summary>
-        /// <returns>The <see cref="int"/></returns>
+        /// <returns>The <see cref="int"/>.</returns>
         public override async Task<int> DataStatus()
         {
-            int rowsAffected = 0;
-
+            int rowsAffected;
             try
             {
                 rowsAffected = Convert.ToInt32(await DatabaseConnection.GetInstance().SQLConn.ExecuteScalarAsync<int>("SELECT COUNT(*) FROM tLocationMapSection"));
 
-                // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, string.Format("{0} sections.", rowsAffected), true);
             }
             catch (SQLiteException ex)
             {
-                // TODO: Resource strings
                 throw new Exception("Database exception occurred. Sections status failed.", ex);
             }
 
@@ -151,42 +139,37 @@
         }
 
         /// <summary>
-        /// The Send
+        /// The Send.
         /// </summary>
         /// <param name="whsLocMapRefno"></param>
         /// <returns></returns>
-        protected override async Task<string> Send(int whsLocMapRefno)
+        protected override async Task<string> SendRequest(int whsLocMapRefno)
         {
-            return await this.SendComm(await this.Create(whsLocMapRefno));
+            return await this.SendComm(await this.CreateRequest(whsLocMapRefno));
         }
 
         /// <summary>
-        /// The Save
+        /// The Save.
         /// </summary>
         /// <param name="reqData"></param>
         protected override async Task Save(string reqData)
         {
-            string errMsg = string.Empty;
-
             await DatabaseConnection.GetInstance().SQLConn.RunInTransactionAsync(transaction =>
             {
                 try
                 {
                     using (DataSet ds = new DataSet())
                     {
-                        // TODO: Resource String
                         this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Reading received data.", false);
 
                         ds.ReadXml(SysCommon.GetXmlReader(ref reqData), XmlReadMode.Auto);
 
-                        // TODO: Resource String
                         this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving sections.", false);
 
                         if (ds.Tables.Count != 0)
                         {
                             int progMax = Convert.ToInt32(ds.Tables["tLocationMapSection"].Rows.Count);
 
-                            // TODO: Resource String
                             this.DataAccessStatusOutHandler(this, EventArgs.Empty, string.Format("Records {0}", progMax), false);
 
                             int locMapRefno = 0;
@@ -203,14 +186,10 @@
                             foreach (DataRow drowSection in ds.Tables["tLocationMapSection"].Rows)
                             {
                                 sectFKRefno = Convert.ToInt32(drowSection["LocationMapSectionFKRefno"]);
-                                errMsg = "Section fk refno " + sectFKRefno;
                                 sectCode = Convert.ToInt32(drowSection["LocationMapSectionCode"]);
-                                errMsg += Environment.NewLine + "Section code " + sectCode;
                                 sectName = Convert.ToString(drowSection["LocationMapSectionName"]);
-                                errMsg += Environment.NewLine + "Section name \'" + sectName + "\'";
                                 sectBarCode = Convert.ToString(drowSection["LocationMapSectionBarCode"]);
-                                errMsg += Environment.NewLine + "Section bar code \'" + sectBarCode + "\'";
-                                whsLocMapRefno = this.GetWhsLocMapRefnoFromDataRow(drowSection, ref errMsg, transaction);
+                                whsLocMapRefno = this.GetWhsLocMapRefnoFromDataRow(drowSection, transaction);
                                 isSectFound = false;
 
                                 List<tLocationMapSectionModel> resultsLocationMapSection = transaction.Query<tLocationMapSectionModel>("SELECT LocationMapSectionFKRefno FROM tLocationMapSection WHERE LocationMapSectionFKRefno = ?", Convert.ToString(sectFKRefno));
@@ -219,7 +198,7 @@
                                 {
                                     isSectFound = true;
 
-                                    if (SysEnv.RefreshOpt.RefreshDataChangesOnly)
+                                    if (this.SysEnv.RefreshOpt.RefreshDataChangesOnly)
                                     {
                                         string queryUpdate = "UPDATE tLocationMapSection "
                                         + "SET WarehouseLocationMapRefno = " + whsLocMapRefno + ","
@@ -264,7 +243,7 @@
                                         sectCode,
                                         sectName,
                                         sectFKRefno,
-                                        sectBarCode
+                                        sectBarCode,
                                     };
 
                                     transaction.Execute(queryInsert, parametersInsert);
@@ -282,28 +261,24 @@
 
                         transaction.Commit();
 
-                        // TODO: Resource String
                         this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving sections complete.", false);
                     }
                 }
                 catch (SQLiteException ex)
                 {
-                    // TODO: Resource String
                     this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Database exception occurred.", false);
                     this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving sections failed.", false);
-
-                    // TODO: Resource String
-                    throw new Exception("Database exception occurred. Saving sections failed." + Environment.NewLine + errMsg, ex);
+                    throw new Exception("Database exception occurred. Saving sections failed.", ex);
                 }
             });
         }
 
         /// <summary>
-        /// The Create
+        /// The Create.
         /// </summary>
         /// <param name="whsLocMapRefno"></param>
         /// <returns></returns>
-        protected override async Task<string> Create(int whsLocMapRefno)
+        protected override async Task<string> CreateRequest(int whsLocMapRefno)
         {
             StringBuilder xmlString = new StringBuilder();
             XmlWriter xml = XmlWriter.Create(xmlString);
@@ -311,7 +286,7 @@
             int locMapWhsFKRefno = 0;
 
             // lookup and verify warehouse
-            if (0 < whsLocMapRefno)
+            if (whsLocMapRefno > 0)
             {
                 locMapWhsFKRefno = await locMapWhs.GetLocMapWhsFKRefnoFromLocMapWhsRefno(whsLocMapRefno);
             }
@@ -322,7 +297,7 @@
                 + "<command>"
                 + "<action>REQUEST SECTIONS</action>"
                 + await SysCommon.GetRequestDefaults(true)
-                + ("<LocationMapWarehouseFKRefno>" + locMapWhsFKRefno + "</LocationMapWarehouseFKRefno>")
+                + "<LocationMapWarehouseFKRefno>" + locMapWhsFKRefno + "</LocationMapWarehouseFKRefno>"
                 + "</command>"
                 + "</imclient>");
 

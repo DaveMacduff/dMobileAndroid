@@ -1,39 +1,38 @@
+// <copyright file="clsSkidInfoActivity.cs" company="InterSect Business Systems Inc">
+// Copyright (c) InterSect Business Systems Inc. All rights reserved.
+// </copyright>
+
 namespace dMobile.Controller
 {
     using System;
     using System.Collections.Generic;
     using System.Collections.ObjectModel;
     using System.Data;
-    using System.Threading.Tasks;
     using System.Linq;
+    using System.Threading.Tasks;
     using System.Xml.Linq;
     using dMobile.Bedrock;
     using dMobile.Resources.Services;
     using dMobile.Resources.Types;
     using Xamarin.Forms;
 
+    /// <summary>
+    /// Defines the <see cref="SkidInfoActivity" /> skid information activity.
+    /// </summary>
     public class SkidInfoActivity : Activity
     {
-        #region Fields
-
-        private LocationMap locMap;
-        private double columnWidth0 = 0;
-        private double columnWidth1 = 0;
-        private double columnWidth2 = 0;
-        private double columnWidth3 = 0;
-        private double columnWidth4 = 0;
-        private double columnWidth5 = 0;
-        private double columnWidth6 = 0;
-        private double columnWidth7 = 0;
+        /// <summary>
+        /// Defines the resourceDictionary.
+        /// </summary>
         private ResourceDictionary resourceDictionary = new ResourceDictionary();
-        List<Skid> listSkids = new List<Skid>();
-
-        #endregion
-
-        #region Constructors
 
         /// <summary>
-        /// 
+        /// Defines the listSkids.
+        /// </summary>
+        private List<Skid> listSkids = new List<Skid>();
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="SkidInfoActivity"/> class.
         /// </summary>
         public SkidInfoActivity()
             : base()
@@ -41,9 +40,74 @@ namespace dMobile.Controller
             this.FullClassName = typeof(SkidInfoActivity).FullName;
             this.LocMap = LocationMap.GetInstance();
 
+            Label labelHeader1 = new Label
+            {
+                Text = "Code",
+                VerticalOptions = LayoutOptions.Center,
+                FontAttributes = FontAttributes.Bold,
+            };
+
+            Label labelHeader2 = new Label
+            {
+                Text = string.Empty,
+                VerticalOptions = LayoutOptions.Center,
+                FontAttributes = FontAttributes.Bold,
+            };
+
+            Label labelHeader3 = new Label
+            {
+                Text = string.Empty,
+                VerticalOptions = LayoutOptions.Center,
+                FontAttributes = FontAttributes.Bold,
+            };
+
+            Label labelHeader4 = new Label
+            {
+                Text = "Qty",
+                VerticalOptions = LayoutOptions.Center,
+                FontAttributes = FontAttributes.Bold,
+            };
+
+            Label labelHeader5 = new Label
+            {
+                Text = string.Empty,
+                VerticalOptions = LayoutOptions.Center,
+                FontAttributes = FontAttributes.Bold,
+            };
+
+            Label labelHeader6 = new Label
+            {
+                Text = "Weight",
+                VerticalOptions = LayoutOptions.Center,
+                FontAttributes = FontAttributes.Bold,
+            };
+
+            Label labelHeader7 = new Label
+            {
+                Text = string.Empty,
+                VerticalOptions = LayoutOptions.Center,
+                FontAttributes = FontAttributes.Bold,
+            };
+
+            Label labelHeader8 = new Label
+            {
+                Text = string.Empty,
+                VerticalOptions = LayoutOptions.Center,
+                FontAttributes = FontAttributes.Bold,
+            };
+
             // Data grid
             DataTemplate dataTemplate = new DataTemplate(() =>
             {
+                double columnWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(labelHeader1.Text);
+                double columnWidth1 = DependencyService.Get<IGridService>().CalculateTextWidth(labelHeader2.Text);
+                double columnWidth2 = DependencyService.Get<IGridService>().CalculateTextWidth(labelHeader3.Text);
+                double columnWidth3 = DependencyService.Get<IGridService>().CalculateTextWidth(labelHeader4.Text);
+                double columnWidth4 = DependencyService.Get<IGridService>().CalculateTextWidth(labelHeader5.Text);
+                double columnWidth5 = DependencyService.Get<IGridService>().CalculateTextWidth(labelHeader6.Text);
+                double columnWidth6 = DependencyService.Get<IGridService>().CalculateTextWidth(labelHeader7.Text);
+                double columnWidth7 = DependencyService.Get<IGridService>().CalculateTextWidth(labelHeader8.Text);
+
                 Grid gridData = new Grid
                 {
                     Padding = new Thickness(5),
@@ -56,8 +120,8 @@ namespace dMobile.Controller
                         new ColumnDefinition { Width = new GridLength(columnWidth4, GridUnitType.Absolute) },
                         new ColumnDefinition { Width = new GridLength(columnWidth5, GridUnitType.Absolute) },
                         new ColumnDefinition { Width = new GridLength(columnWidth6, GridUnitType.Absolute) },
-                        new ColumnDefinition { Width = new GridLength(columnWidth7, GridUnitType.Absolute) }
-                    }
+                        new ColumnDefinition { Width = new GridLength(columnWidth7, GridUnitType.Absolute) },
+                    },
                 };
 
                 Label label1 = new Label { VerticalOptions = LayoutOptions.Center };
@@ -102,62 +166,40 @@ namespace dMobile.Controller
             this.resourceDictionary.Add("dataTemplate", dataTemplate);
         }
 
-        #endregion
-
-        #region Properties
-
-        public LocationMap LocMap
-        {
-            get
-            {
-                return this.locMap;
-            }
-
-            set
-            {
-                this.locMap = value;
-            }
-        }
-
-        #endregion
-
-        #region Public Members
+        /// <summary>
+        /// Gets or sets the LocMap.
+        /// </summary>
+        public LocationMap LocMap { get; set; }
 
         /// <summary>
-        ///
+        /// The GetFilter.
         /// </summary>
-        /// <returns></returns>
-        /// <remarks></remarks>
         public override void GetFilter()
         {
-            //return string.Empty;
         }
 
         /// <summary>
-        ///
+        /// The GetFKRefnoIdx.
         /// </summary>
-        /// <returns></returns>
-        /// <remarks></remarks>
+        /// <returns>.</returns>
         public override string GetFKRefnoIdx()
         {
             return string.Empty;
         }
 
         /// <summary>
-        ///
+        /// The GetControlDescription.
         /// </summary>
-        /// <returns></returns>
-        /// <remarks></remarks>
+        /// <returns>.</returns>
         public override string GetControlDescription()
         {
-            // TODO: Resource strings
             return "Skid Info";
         }
 
         /// <summary>
-        ///
+        /// The Delete.
         /// </summary>
-        /// <remarks></remarks>
+        /// <returns>The <see cref="Task"/>.</returns>
         public override async Task Delete()
         {
             if (this.ListHdrs != null && this.ListHdrs.Count > 1)
@@ -167,9 +209,10 @@ namespace dMobile.Controller
         }
 
         /// <summary>
-        /// 
+        /// Select the activity.
         /// </summary>
-        /// <param name="idx"></param>
+        /// <param name="selectedActivity"><see cref="object"/> Selected activity.</param>
+        /// <returns><see cref="Task"/> Task operation.</returns>
         public override async Task SelectActivity(object selectedActivity)
         {
             if (selectedActivity is Skid skid)
@@ -207,135 +250,153 @@ namespace dMobile.Controller
             {
                 this.FKRefno = 0;
                 this.Refno = 0;
-                this.PONO = string.Empty;
                 this.SkidInfo = new SysSkidInfo();
             }
         }
 
         /// <summary>
-        /// 
+        /// The GetRefnoFromRowIdx.
         /// </summary>
-        /// <param name="idx"></param>
-        /// <returns></returns>
+        /// <param name="selectedItem">The selectedItem<see cref="object"/>.</param>
+        /// <returns>.</returns>
         public override int GetRefnoFromRowIdx(object selectedItem)
         {
             return this.Refno;
         }
 
         /// <summary>
-        ///
+        /// The GetActivityList.
         /// </summary>
-        /// <param name="isSubmitBatch"></param>
-        /// <returns></returns>
-        /// <remarks></remarks>
+        /// <param name="isSubmitBatch">.</param>
+        /// <returns>.</returns>
         public override async Task<List<object>> GetActivityList(bool isSubmitBatch)
         {
             DataTable table = new DataTable("ActivitySkid");
 
-            table.Columns.Add("SkidFKRefno", Type.GetType("System.Int32"));
-            table.Columns.Add("SkidCode", Type.GetType("System.String"));
-            table.Columns.Add("ProductUnitRefno", Type.GetType("System.Int32"));
-            table.Columns.Add("ProductRefno", Type.GetType("System.Int32"));
-            table.Columns.Add("ProductCode", Type.GetType("System.String"));
-            table.Columns.Add("ProductUnitBC", Type.GetType("System.String"));
-            table.Columns.Add("ProductUnitIsBC", Type.GetType("System.Boolean"));
-            table.Columns.Add("UnitCode", Type.GetType("System.String"));
-            table.Columns.Add("BaseUnitCode", Type.GetType("System.String"));
-            table.Columns.Add("WeightUnitCode", Type.GetType("System.String"));
-            table.Columns.Add("ProductDescription", Type.GetType("System.String"));
-            table.Columns.Add("ProductUnitSizeDescription", Type.GetType("System.String"));
-            table.Columns.Add("Quantity", Type.GetType("System.Decimal"));
-            table.Columns.Add("BaseQuantity", Type.GetType("System.Decimal"));
-            table.Columns.Add("WeightQuantity", Type.GetType("System.Decimal"));
-            table.Columns.Add("LocationMapRefno", Type.GetType("System.Int32"));
-            table.Columns.Add("LocationName", Type.GetType("System.String"));
-            table.Columns.Add("SkidCreated", Type.GetType("System.DateTime"));
-            table.Columns.Add("SkidCompleted", Type.GetType("System.DateTime"));
-            table.Columns.Add("SkidTi", Type.GetType("System.Int32"));
-            table.Columns.Add("SkidHi", Type.GetType("System.Int32"));
-            table.Columns.Add("SkidCube", Type.GetType("System.Decimal"));
-            table.Columns.Add("SkidCubeUnit", Type.GetType("System.String"));
-            table.Columns.Add("SkidHeight", Type.GetType("System.Decimal"));
-            table.Columns.Add("SkidHeightUnit", Type.GetType("System.String"));
-            table.Columns.Add("SkidIsCHEP", Type.GetType("System.Boolean"));
-            table.Columns.Add("SkidIsOnHold", Type.GetType("System.Boolean"));
+            _ = table.Columns.Add("SkidFKRefno", Type.GetType("System.Int32"));
+            _ = table.Columns.Add("SkidCode", Type.GetType("System.String"));
+            _ = table.Columns.Add("ProductUnitRefno", Type.GetType("System.Int32"));
+            _ = table.Columns.Add("ProductRefno", Type.GetType("System.Int32"));
+            _ = table.Columns.Add("ProductCode", Type.GetType("System.String"));
+            _ = table.Columns.Add("ProductUnitBC", Type.GetType("System.String"));
+            _ = table.Columns.Add("ProductUnitIsBC", Type.GetType("System.Boolean"));
+            _ = table.Columns.Add("UnitCode", Type.GetType("System.String"));
+            _ = table.Columns.Add("BaseUnitCode", Type.GetType("System.String"));
+            _ = table.Columns.Add("WeightUnitCode", Type.GetType("System.String"));
+            _ = table.Columns.Add("ProductDescription", Type.GetType("System.String"));
+            _ = table.Columns.Add("ProductUnitSizeDescription", Type.GetType("System.String"));
+            _ = table.Columns.Add("Quantity", Type.GetType("System.Decimal"));
+            _ = table.Columns.Add("BaseQuantity", Type.GetType("System.Decimal"));
+            _ = table.Columns.Add("WeightQuantity", Type.GetType("System.Decimal"));
+            _ = table.Columns.Add("LocationMapRefno", Type.GetType("System.Int32"));
+            _ = table.Columns.Add("LocationName", Type.GetType("System.String"));
+            _ = table.Columns.Add("SkidCreated", Type.GetType("System.DateTime"));
+            _ = table.Columns.Add("SkidCompleted", Type.GetType("System.DateTime"));
+            _ = table.Columns.Add("SkidTi", Type.GetType("System.Int32"));
+            _ = table.Columns.Add("SkidHi", Type.GetType("System.Int32"));
+            _ = table.Columns.Add("SkidCube", Type.GetType("System.Decimal"));
+            _ = table.Columns.Add("SkidCubeUnit", Type.GetType("System.String"));
+            _ = table.Columns.Add("SkidHeight", Type.GetType("System.Decimal"));
+            _ = table.Columns.Add("SkidHeightUnit", Type.GetType("System.String"));
+            _ = table.Columns.Add("SkidIsCHEP", Type.GetType("System.Boolean"));
+            _ = table.Columns.Add("SkidIsOnHold", Type.GetType("System.Boolean"));
 
-            //this.DataViewHdrs = table.DefaultView;
-            //this.DataViewHdrs.Table.TableName = this.MainGridMappingName;
-
+            // this.DataViewHdrs = table.DefaultView;
+            // this.DataViewHdrs.Table.TableName = this.MainGridMappingName;
             this.listSkids = table.Rows.Cast<Skid>().ToList();
             this.ListHdrs = this.listSkids.Cast<object>().ToList();
             return this.ListHdrs;
         }
 
         /// <summary>
-        ///
+        /// The Search.
         /// </summary>
-        /// <param name="searchText"></param>
-        /// <returns></returns>
-        /// <remarks></remarks>
-        public override ObservableCollection<object> Search( string searchText)
+        /// <param name="searchText">.</param>
+        /// <returns>.</returns>
+        public override ObservableCollection<object> Search(string searchText)
         {
             throw new NotImplementedException();
         }
 
-        public override ObservableCollection<object> DesignGrid(ref Grid dataGridMainActivityHeader, ref ListView dataGridMainActivity)
+        /// <summary>
+        /// The DesignGrid.
+        /// </summary>
+        /// <param name="GridMainActivity">The GridMainActivity<see cref="Grid"/>.</param>
+        /// <param name="ListViewMainActivity">The ListViewMainActivity<see cref="ListView"/>.</param>
+        /// <returns>The <see cref="ObservableCollection{object}"/>.</returns>
+        public override ObservableCollection<object> DesignGrid(ref Grid GridMainActivity, ref ListView ListViewMainActivity)
         {
             ObservableCollection<object> observableCollection = new ObservableCollection<object>();
 
             foreach (Skid skid in this.ListHdrs)
             {
-                //Skid skid = new Skid
-                //{
-                //    SkidFKRefno = Convert.ToInt32(row["SkidFKRefno"] != DBNull.Value ? row["SkidFKRefno"] : null),
-                //    SkidCode = Convert.ToString(row["SkidCode"] != DBNull.Value ? row["SkidCode"] : null),
-                //    ProductUnitRefno = Convert.ToInt32(row["ProductUnitRefno"] != DBNull.Value ? row["ProductUnitRefno"] : null),
-                //    ProductRefno = Convert.ToInt32(row["ProductRefno"] != DBNull.Value ? row["ProductRefno"] : null),
-                //    ProductUnitBC = Convert.ToString(row["ProductUnitBC"] != DBNull.Value ? row["ProductUnitBC"] : null),
-                //    ProductUnitIsBC = Convert.ToBoolean(row["ProductUnitIsBC"] != DBNull.Value ? row["ProductUnitIsBC"] : null),
-                //    UnitCode = Convert.ToString(row["UnitCode"] != DBNull.Value ? row["UnitCode"] : null),
-                //    BaseUnitCode = Convert.ToString(row["BaseUnitCode"] != DBNull.Value ? row["BaseUnitCode"] : null),
-                //    WeightUnitCode = Convert.ToString(row["WeightUnitCode"] != DBNull.Value ? row["WeightUnitCode"] : null),
-                //    ProductDescription = Convert.ToString(row["ProductDescription"] != DBNull.Value ? row["ProductDescription"] : null),
-                //    ProductUnitSizeDescription = Convert.ToString(row["ProductUnitSizeDescription"] != DBNull.Value ? row["ProductUnitSizeDescription"] : null),
-                //    Quantity = Convert.ToDecimal(row["Quantity"] != DBNull.Value ? row["Quantity"] : null),
-                //    BaseQuantity = Convert.ToDecimal(row["BaseQuantity"] != DBNull.Value ? row["BaseQuantity"] : null),
-                //    WeightQuantity = Convert.ToDecimal(row["WeightQuantity"] != DBNull.Value ? row["WeightQuantity"] : null),
-                //    LocationMapRefno = Convert.ToInt32(row["LocationMapRefno"] != DBNull.Value ? row["LocationMapRefno"] : null),
-                //    LocationName = Convert.ToString(row["LocationName"] != DBNull.Value ? row["LocationName"] : null),
-                //    SkidCreated = Convert.ToDateTime(row["SkidCreated"] != DBNull.Value ? row["SkidCreated"] : null),
-                //    SkidCompleted = Convert.ToDateTime(row["SkidCompleted"] != DBNull.Value ? row["SkidCompleted"] : null),
-                //    SkidTi = Convert.ToInt32(row["SkidTi"] != DBNull.Value ? row["SkidTi"] : null),
-                //    SkidHi = Convert.ToInt32(row["SkidHi"] != DBNull.Value ? row["SkidHi"] : null),
-                //    SkidCube = Convert.ToDecimal(row["SkidCube"] != DBNull.Value ? row["SkidCube"] : null),
-                //    SkidCubeUnit = Convert.ToString(row["SkidCubeUnit"] != DBNull.Value ? row["SkidCubeUnit"] : null),
-                //    SkidHeight = Convert.ToDecimal(row["SkidHeight"] != DBNull.Value ? row["SkidHeight"] : null),
-                //    SkidHeightUnit = Convert.ToString(row["SkidHeightUnit"] != DBNull.Value ? row["SkidHeightUnit"] : null),
-                //    SkidIsCHEP = Convert.ToBoolean(row["SkidIsCHEP"] != DBNull.Value ? row["SkidIsCHEP"] : null),
-                //    SkidIsOnHold = Convert.ToBoolean(row["SkidIsOnHold"] != DBNull.Value ? row["SkidIsOnHold"] : null),
-                //};
-
                 observableCollection.Add(skid);
             }
 
-            // TODO: Resource strings
-            Label labelHeader1 = new Label { Text = "Code", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
-            Label labelHeader2 = new Label { Text = string.Empty, VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
-            Label labelHeader3 = new Label { Text = string.Empty, VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
-            Label labelHeader4 = new Label { Text = "Qty", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
-            Label labelHeader5 = new Label { Text = string.Empty, VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
-            Label labelHeader6 = new Label { Text = "Weight", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
-            Label labelHeader7 = new Label { Text = string.Empty, VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
-            Label labelHeader8 = new Label { Text = string.Empty, VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
+            Label labelHeader1 = new Label
+            {
+                Text = "Code",
+                VerticalOptions = LayoutOptions.Center,
+                FontAttributes = FontAttributes.Bold,
+            };
 
-            columnWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(labelHeader1.Text);
-            columnWidth1 = DependencyService.Get<IGridService>().CalculateTextWidth(labelHeader2.Text);
-            columnWidth2 = DependencyService.Get<IGridService>().CalculateTextWidth(labelHeader3.Text);
-            columnWidth3 = DependencyService.Get<IGridService>().CalculateTextWidth(labelHeader4.Text);
-            columnWidth4 = DependencyService.Get<IGridService>().CalculateTextWidth(labelHeader5.Text);
-            columnWidth5 = DependencyService.Get<IGridService>().CalculateTextWidth(labelHeader6.Text);
-            columnWidth6 = DependencyService.Get<IGridService>().CalculateTextWidth(labelHeader7.Text);
-            columnWidth7 = DependencyService.Get<IGridService>().CalculateTextWidth(labelHeader8.Text);
+            Label labelHeader2 = new Label
+            {
+                Text = string.Empty,
+                VerticalOptions = LayoutOptions.Center,
+                FontAttributes = FontAttributes.Bold,
+            };
+
+            Label labelHeader3 = new Label
+            {
+                Text = string.Empty,
+                VerticalOptions = LayoutOptions.Center,
+                FontAttributes = FontAttributes.Bold,
+            };
+
+            Label labelHeader4 = new Label
+            {
+                Text = "Qty",
+                VerticalOptions = LayoutOptions.Center,
+                FontAttributes = FontAttributes.Bold,
+            };
+
+            Label labelHeader5 = new Label
+            {
+                Text = string.Empty,
+                VerticalOptions = LayoutOptions.Center,
+                FontAttributes = FontAttributes.Bold,
+            };
+
+            Label labelHeader6 = new Label
+            {
+                Text = "Weight",
+                VerticalOptions = LayoutOptions.Center,
+                FontAttributes = FontAttributes.Bold,
+            };
+
+            Label labelHeader7 = new Label
+            {
+                Text = string.Empty,
+                VerticalOptions = LayoutOptions.Center,
+                FontAttributes = FontAttributes.Bold,
+            };
+
+            Label labelHeader8 = new Label
+            {
+                Text = string.Empty,
+                VerticalOptions = LayoutOptions.Center,
+                FontAttributes = FontAttributes.Bold,
+            };
+
+            double columnWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(labelHeader1.Text);
+            double columnWidth1 = DependencyService.Get<IGridService>().CalculateTextWidth(labelHeader2.Text);
+            double columnWidth2 = DependencyService.Get<IGridService>().CalculateTextWidth(labelHeader3.Text);
+            double columnWidth3 = DependencyService.Get<IGridService>().CalculateTextWidth(labelHeader4.Text);
+            double columnWidth4 = DependencyService.Get<IGridService>().CalculateTextWidth(labelHeader5.Text);
+            double columnWidth5 = DependencyService.Get<IGridService>().CalculateTextWidth(labelHeader6.Text);
+            double columnWidth6 = DependencyService.Get<IGridService>().CalculateTextWidth(labelHeader7.Text);
+            double columnWidth7 = DependencyService.Get<IGridService>().CalculateTextWidth(labelHeader8.Text);
 
             // Create header data template
             Grid gridHeader = new Grid
@@ -350,8 +411,8 @@ namespace dMobile.Controller
                     new ColumnDefinition { Width = new GridLength(columnWidth4, GridUnitType.Absolute) },
                     new ColumnDefinition { Width = new GridLength(columnWidth5, GridUnitType.Absolute) },
                     new ColumnDefinition { Width = new GridLength(columnWidth6, GridUnitType.Absolute) },
-                    new ColumnDefinition { Width = new GridLength(columnWidth7, GridUnitType.Absolute) }
-                }
+                    new ColumnDefinition { Width = new GridLength(columnWidth7, GridUnitType.Absolute) },
+                },
             };
 
             gridHeader.SetDynamicResource(VisualElement.BackgroundColorProperty, "HeaderColor");
@@ -376,17 +437,19 @@ namespace dMobile.Controller
 
             Grid.SetRow(gridHeader, 0);
 
-            dataGridMainActivityHeader.Children.Add(gridHeader);
+            GridMainActivity.Children.Add(gridHeader);
 
             foreach (Skid skid in observableCollection)
             {
-                //string.Format("{0:F3}", adjustmentDetail.ActivityDetailQuantity)
+                // string.Format("{0:F3}", adjustmentDetail.ActivityDetailQuantity)
                 double detailWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(skid.SkidCode);
                 double detailWidth1 = DependencyService.Get<IGridService>().CalculateTextWidth(skid.ProductCode);
                 double detailWidth2 = DependencyService.Get<IGridService>().CalculateTextWidth(skid.ProductUnitBC);
-                double detailWidth3 = DependencyService.Get<IGridService>().CalculateTextWidth(string.Format("{0:F3}", skid.Quantity));
+                double detailWidth3 = DependencyService.Get<IGridService>().CalculateTextWidth(
+                    string.Format("{0:F3}", skid.Quantity));
                 double detailWidth4 = DependencyService.Get<IGridService>().CalculateTextWidth(skid.UnitCode);
-                double detailWidth5 = DependencyService.Get<IGridService>().CalculateTextWidth(string.Format("{0:F3}", skid.WeightQuantity));
+                double detailWidth5 = DependencyService.Get<IGridService>().CalculateTextWidth(
+                    string.Format("{0:F3}", skid.WeightQuantity));
                 double detailWidth6 = DependencyService.Get<IGridService>().CalculateTextWidth(skid.WeightUnitCode);
                 double detailWidth7 = DependencyService.Get<IGridService>().CalculateTextWidth(skid.LocationName);
 
@@ -439,39 +502,87 @@ namespace dMobile.Controller
                 }
             }
 
-            dataGridMainActivity.ItemTemplate = (DataTemplate)this.resourceDictionary["dataTemplate"];
+            ListViewMainActivity.ItemTemplate = (DataTemplate)this.resourceDictionary["dataTemplate"];
 
             return observableCollection;
         }
 
         /// <summary>
-        ///
+        /// The Refresh.
         /// </summary>
-        /// <remarks></remarks>
+        /// <param name="data">The data<see cref="XDocument"/>.</param>
+        /// <returns>The <see cref="Task"/>.</returns>
         public override Task Refresh(XDocument data)
         {
             throw new NotImplementedException();
         }
 
         /// <summary>
-        ///
+        /// The Purge.
         /// </summary>
-        /// <remarks></remarks>
+        /// <returns>The <see cref="Task"/>.</returns>
         public override Task Purge()
         {
             throw new NotImplementedException();
         }
 
         /// <summary>
-        /// 
+        /// The GetFilter.
         /// </summary>
-        /// <param name="data"></param>
-        /// <returns></returns>
+        /// <param name="data">.</param>
         public override void GetFilter(XDocument data)
         {
             throw new NotImplementedException();
         }
 
-        #endregion
+        /// <summary>
+        /// Get the activity foreign key reference number.
+        /// </summary>
+        /// <param name="resourceType"><see cref="object"/> Resource model (tActivity??Model).</param>
+        /// <returns><see cref="int"/> Found activity foreign key refno, else 0 if not found.</returns>
+        public override int GetFKRefno(object resourceType)
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <summary>
+        /// The Insert.
+        /// </summary>
+        /// <param name="xmlParams">The xmlParams<see cref="XDocument"/>.</param>
+        /// <returns>The <see cref="Task{int}"/>.</returns>
+        public override Task<int> Insert(XDocument xmlParams)
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <summary>
+        /// The PrintLabel.
+        /// </summary>
+        /// <param name="xmlParam">The xmlParam<see cref="XDocument"/>.</param>
+        /// <returns>The <see cref="Task"/>.</returns>
+        public override Task PrintLabel(XDocument xmlParam)
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <summary>
+        /// The GetLabelQuantity.
+        /// </summary>
+        /// <param name="isRepackQuantityOnly">The isRepackQuantityOnly<see cref="bool"/>.</param>
+        /// <returns>The <see cref="Task{SLabelQuantity}"/>.</returns>
+        public override Task<SLabelQuantity> GetLabelQuantity(bool isRepackQuantityOnly)
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <summary>
+        /// The ChangeStatus.
+        /// </summary>
+        /// <param name="selectedActivity">The selectedActivity<see cref="object"/>.</param>
+        /// <returns>The <see cref="Task{bool}"/>.</returns>
+        public override Task<bool> ChangeStatus(object selectedActivity)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

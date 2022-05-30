@@ -1,9 +1,7 @@
-﻿// ----------------------------------------------------------------------
-// <copyright file="SysEnvironment.cs" company="InterSect Business Systems Inc.">
-//     Copyright (2013)
+﻿// <copyright file="SysEnvironment.cs" company="InterSect Business Systems Inc">
+// Copyright (c) InterSect Business Systems Inc. All rights reserved.
 // </copyright>
-//
-// ------------------------------------------------------------------------
+
 namespace dMobile.Bedrock
 {
     using System;
@@ -26,14 +24,14 @@ namespace dMobile.Bedrock
         private static string currentBarCodeModifier1 = string.Empty;
 
         /// <summary>
-        /// Contains device id
+        /// Contains device id.
         /// </summary>
         private static string deviceID = SysDeviceID.GetDeviceID();
 
         /// <summary>
         /// Contains system settings instance.
         /// </summary>
-        /// <remarks>IMPORTANT to set to null, LoadData is called in get() in SystemSettings</remarks>
+        /// <remarks>IMPORTANT to set to null, LoadData is called in get() in SystemSettings.</remarks>
         private static SystemSettings sysSettings = null;
 
         /// <summary>
@@ -72,11 +70,6 @@ namespace dMobile.Bedrock
         private static bool isWindowsMobile6Device = false;
 
         /// <summary>
-        /// Test if system.application.exit() was called to terminate dMobile.
-        /// </summary>
-        private static bool isApplicationExitInvoked = false;
-
-        /// <summary>
         /// Allow login double click logo to override device mode licenses.
         /// </summary>
         private static bool isEnableAllModuleBypassLicense = false;
@@ -84,33 +77,17 @@ namespace dMobile.Bedrock
         // CONSTRUCTOR
 
         /// <summary>
-        /// Prevents a default instance of the <see cref="SysEnvironment"/> 
+        /// Prevents a default instance of the <see cref="SysEnvironment"/>
         /// class from being created.
         /// </summary>
         /// <remarks>
-        /// Visibility is private for implementing singleton
+        /// Visibility is private for implementing singleton.
         /// </remarks>
         private SysEnvironment()
         {
         }
 
         // PROPERTIES
-
-        /// <summary>
-        /// Test if system.application.exit() was called to terminate dMobile.
-        /// </summary>
-        public bool IsApplicationExitInvoked
-        {
-            get
-            {
-                return isApplicationExitInvoked;
-            }
-
-            set
-            {
-                isApplicationExitInvoked = value;
-            }
-        }
 
         /// <summary>
         /// Gets or sets the current bar code modifier.
@@ -145,7 +122,8 @@ namespace dMobile.Bedrock
         }
 
         /// <summary>
-        /// Bypass the device module license, double clicking the login logo.
+        /// Gets or sets a value indicating whether to bypass the device module license,
+        /// double clicking the login logo.
         /// </summary>
         public bool IsEnableAllModuleBypassLicense
         {
@@ -241,27 +219,27 @@ namespace dMobile.Bedrock
         /// <summary>
         /// Gets or sets the communication socket object.
         /// </summary>
-        /// <remarks>Loads the socket with the current settings from the communication settings 
-        /// object</remarks>
+        /// <remarks>Loads the socket with the current settings from the communication settings
+        /// object.</remarks>
         public SysSocket SysSock
         {
             get
             {
                 if (string.IsNullOrEmpty(sysSock.ServerIP))
                 {
-                    sysSock.BasePort = this.CommSetup.iBaseSocketPort;
-                    sysSock.DefSocketPort = this.CommSetup.iDefaultSocketPort;
-                    sysSock.MaxPorts = this.CommSetup.iMaxSocketPorts;
-                    sysSock.ConnTotalRetries = this.CommSetup.iConnectionAttempts;
-                    sysSock.SendTotalRetries = this.CommSetup.iSendAttempts;
-                    sysSock.RecvTotalRetries = this.CommSetup.iReceiveAttempts;
-                    sysSock.SendTimeOutMilliseconds = this.CommSetup.iSendTimeOutSeconds * 1000;
-                    sysSock.ReceiveTimeOutMilliseconds = this.CommSetup.iReceiveTimeOutSeconds * 1000;
-                    sysSock.RecvBuffSize = this.CommSetup.iiReceiveBufferSize;
-                    sysSock.ServerIP = this.CommSetup.iHostIPAddressComponent1.ToString() +
-                        "." + this.CommSetup.iHostIPAddressComponent2.ToString() + "." +
-                        this.CommSetup.iHostIPAddressComponent3.ToString() + "." +
-                        this.CommSetup.iHostIPAddressComponent4.ToString();
+                    sysSock.BasePort = this.CommSetup.BaseSocketPort;
+                    sysSock.DefSocketPort = this.CommSetup.DefaultSocketPort;
+                    sysSock.MaxPorts = this.CommSetup.MaxSocketPorts;
+                    sysSock.ConnTotalRetries = this.CommSetup.ConnectionAttempts;
+                    sysSock.SendTotalRetries = this.CommSetup.SendAttempts;
+                    sysSock.RecvTotalRetries = this.CommSetup.ReceiveAttempts;
+                    sysSock.SendTimeOutMilliseconds = this.CommSetup.SendTimeOutSeconds * 1000;
+                    sysSock.ReceiveTimeOutMilliseconds = this.CommSetup.ReceiveTimeOutSeconds * 1000;
+                    sysSock.RecvBuffSize = this.CommSetup.ReceiveBufferSize;
+                    sysSock.ServerIP = this.CommSetup.HostIPAddressComponent1.ToString() +
+                        "." + this.CommSetup.HostIPAddressComponent2.ToString() + "." +
+                        this.CommSetup.HostIPAddressComponent3.ToString() + "." +
+                        this.CommSetup.HostIPAddressComponent4.ToString();
                 }
 
                 return sysSock;
@@ -344,29 +322,13 @@ namespace dMobile.Bedrock
             }
         }
 
-        /// <summary>
-        /// Gets or sets the system environment unique instance object.
-        /// </summary>
-        private static SysEnvironment SysEnv
-        {
-            get
-            {
-                return sysEnv;
-            }
-
-            set
-            {
-                sysEnv = value;
-            }
-        }
-
         // METHODS
 
         /// <summary>
-        /// Return an instance of self. Create a new instance if self does not 
+        /// Return an instance of self. Create a new instance if self does not
         /// exist yet or return the current one.
         /// </summary>
-        /// <returns>A new or current singleton instance</returns>
+        /// <returns>A new or current singleton instance.</returns>
         public static SysEnvironment GetInstance()
         {
             if (sysEnv == null)
@@ -394,19 +356,19 @@ namespace dMobile.Bedrock
             sysEnv.CommSetup = commSetup.LoadData();
             sysEnv.ContactLog = contactLog.LoadData();
 
-            sysEnv.SysSock.BasePort = commSetup.iBaseSocketPort;
-            sysEnv.SysSock.DefSocketPort = commSetup.iDefaultSocketPort;
-            sysEnv.SysSock.MaxPorts = commSetup.iMaxSocketPorts;
-            sysEnv.SysSock.ConnTotalRetries = commSetup.iConnectionAttempts;
-            sysEnv.SysSock.SendTotalRetries = commSetup.iSendAttempts;
-            sysEnv.SysSock.RecvTotalRetries = commSetup.iReceiveAttempts;
-            sysEnv.SysSock.SendTimeOutMilliseconds = commSetup.iSendTimeOutSeconds * 1000;
-            sysEnv.SysSock.ReceiveTimeOutMilliseconds = commSetup.iReceiveTimeOutSeconds * 1000;
-            sysEnv.SysSock.RecvBuffSize = commSetup.iiReceiveBufferSize;
-            sysEnv.SysSock.ServerIP = commSetup.iHostIPAddressComponent1.ToString() +
-                "." + commSetup.iHostIPAddressComponent2.ToString() + "." +
-                commSetup.iHostIPAddressComponent3.ToString() + "." +
-                commSetup.iHostIPAddressComponent4.ToString();
+            sysEnv.SysSock.BasePort = commSetup.BaseSocketPort;
+            sysEnv.SysSock.DefSocketPort = commSetup.DefaultSocketPort;
+            sysEnv.SysSock.MaxPorts = commSetup.MaxSocketPorts;
+            sysEnv.SysSock.ConnTotalRetries = commSetup.ConnectionAttempts;
+            sysEnv.SysSock.SendTotalRetries = commSetup.SendAttempts;
+            sysEnv.SysSock.RecvTotalRetries = commSetup.ReceiveAttempts;
+            sysEnv.SysSock.SendTimeOutMilliseconds = commSetup.SendTimeOutSeconds * 1000;
+            sysEnv.SysSock.ReceiveTimeOutMilliseconds = commSetup.ReceiveTimeOutSeconds * 1000;
+            sysEnv.SysSock.RecvBuffSize = commSetup.ReceiveBufferSize;
+            sysEnv.SysSock.ServerIP = commSetup.HostIPAddressComponent1.ToString() +
+                "." + commSetup.HostIPAddressComponent2.ToString() + "." +
+                commSetup.HostIPAddressComponent3.ToString() + "." +
+                commSetup.HostIPAddressComponent4.ToString();
         }
     }
 }

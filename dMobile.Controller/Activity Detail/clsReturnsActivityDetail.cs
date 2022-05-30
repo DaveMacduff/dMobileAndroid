@@ -1,11 +1,16 @@
+// <copyright file="clsReturnsActivityDetail.cs" company="InterSect Business Systems Inc">
+// Copyright (c) InterSect Business Systems Inc. All rights reserved.
+// </copyright>
+
 namespace dMobile.Controller
 {
     using System;
+    using System.Collections.Generic;
     using System.Collections.ObjectModel;
     using System.Data;
-    using SQLite;
-    using System.IO;
+    using System.Linq;
     using System.Text;
+    using System.Threading.Tasks;
     using System.Xml;
     using System.Xml.Linq;
     using dMobile.Bedrock;
@@ -13,26 +18,16 @@ namespace dMobile.Controller
     using dMobile.Resources.Services;
     using dMobile.Resources.Types;
     using Xamarin.Forms;
-    using System.Threading.Tasks;
-    using System.Linq;
-    using System.Collections.Generic;
 
+    /// <summary>
+    /// Defines the <see cref="ReturnsActDetail" />.
+    /// </summary>
     public class ReturnsActDetail : ActDetail
     {
-        private double columnWidth0 = 0;
-        private double columnWidth1 = 0;
-        private double columnWidth2 = 0;
-        private double columnWidth3 = 0;
-        private double columnWidth4 = 0;
-        private ResourceDictionary resourceDictionary = new ResourceDictionary();
-        List<ReturnDetail> listReturnDetails = new List<ReturnDetail>();
-
-        #region Constructors
-
         /// <summary>
-        /// 
+        /// Initializes a new instance of the <see cref="ReturnsActDetail"/> class.
         /// </summary>
-        /// <param name="activityItem"></param>
+        /// <param name="activityItem">.</param>
         public ReturnsActDetail(ActItem activityItem)
           : base(activityItem)
         {
@@ -46,12 +41,12 @@ namespace dMobile.Controller
                     Padding = new Thickness(5),
                     ColumnDefinitions =
                     {
-                        new ColumnDefinition { Width = new GridLength(columnWidth0, GridUnitType.Absolute) },
-                        new ColumnDefinition { Width = new GridLength(columnWidth1, GridUnitType.Absolute) },
-                        new ColumnDefinition { Width = new GridLength(columnWidth2, GridUnitType.Absolute) },
-                        new ColumnDefinition { Width = new GridLength(columnWidth3, GridUnitType.Absolute) },
-                        new ColumnDefinition { Width = new GridLength(columnWidth4, GridUnitType.Absolute) }
-                    }
+                        new ColumnDefinition { Width = new GridLength(this.ColumnWidth0, GridUnitType.Absolute) },
+                        new ColumnDefinition { Width = new GridLength(this.ColumnWidth1, GridUnitType.Absolute) },
+                        new ColumnDefinition { Width = new GridLength(this.ColumnWidth2, GridUnitType.Absolute) },
+                        new ColumnDefinition { Width = new GridLength(this.ColumnWidth3, GridUnitType.Absolute) },
+                        new ColumnDefinition { Width = new GridLength(this.ColumnWidth4, GridUnitType.Absolute) },
+                    },
                 };
 
                 Label labelConfirmed = new Label { VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start };
@@ -89,23 +84,56 @@ namespace dMobile.Controller
                 return new ViewCell { View = gridData };
             });
 
-            this.resourceDictionary.Add("dataTemplate", dataTemplate);
+            this.ResourceDictionary.Add("dataTemplate", dataTemplate);
         }
 
-        #endregion
-
-        #region Public Members
+        /// <summary>
+        /// Gets or sets the grid column 0 width..
+        /// </summary>
+        public double ColumnWidth0 { get; set; } = 0;
 
         /// <summary>
-        /// 
+        /// Gets or sets the grid column 1 width..
         /// </summary>
-        /// <param name="skidInfo"></param>
+        public double ColumnWidth1 { get; set; } = 0;
+
+        /// <summary>
+        /// Gets or sets the grid column 2 width..
+        /// </summary>
+        public double ColumnWidth2 { get; set; } = 0;
+
+        /// <summary>
+        /// Gets or sets the grid column 3 width..
+        /// </summary>
+        public double ColumnWidth3 { get; set; } = 0;
+
+        /// <summary>
+        /// Gets or sets the grid column 4 width..
+        /// </summary>
+        public double ColumnWidth4 { get; set; } = 0;
+
+        /// <summary>
+        /// Gets or sets the resource dictionary..
+        /// </summary>
+        public ResourceDictionary ResourceDictionary { get; set; } = new ResourceDictionary();
+
+        /// <summary>
+        /// Gets or sets the ListReturnDetails
+        /// Gets or sets a list of picking details..
+        /// </summary>
+        public List<ReturnDetail> ListReturnDetails { get; set; } = new List<ReturnDetail>();
+
+        /// <summary>
+        /// The InsertSkid.
+        /// </summary>
+        /// <param name="skidInfo">.</param>
+        /// <returns>The <see cref="Task"/>.</returns>
         public override async Task InsertSkid(SysSkidInfo skidInfo)
         {
             XDocument request = XDocument.Parse(
                 "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>"
                 + "<params>"
-                + ("<skid_data>" + skidInfo.CurrSkid.SkidCode + "</skid_data>")
+                + "<skid_data>" + skidInfo.CurrSkid.SkidCode + "</skid_data>"
                 + "</params>");
 
             string reqData = SysCommon.SubmitComm(await this.CreateSubmitXML(request));
@@ -146,10 +174,9 @@ namespace dMobile.Controller
                     this.ActItem.FKRefno = this.NewItemFKRefno;
 
                     // TODO: Fix sorting
-                    //string oldSort = this.ActItem.DataViewItems.Sort;
-                    //this.ActItem.DataViewItems.Sort = "ActivityItemRefno";
-                    //var rowIdx = this.ActItem.DataViewItems.Find(new object[] { ActItem.Refno });
-
+                    // string oldSort = this.ActItem.DataViewItems.Sort;
+                    // this.ActItem.DataViewItems.Sort = "ActivityItemRefno";
+                    // var rowIdx = this.ActItem.DataViewItems.Find(new object[] { ActItem.Refno });
                     ReturnItem returnItem = this.ActItem.ListItems.OfType<ReturnItem>().Where(returnItem => returnItem.ActivityItemRefno == this.ActItem.Refno).FirstOrDefault();
 
                     if (returnItem != null)
@@ -159,20 +186,20 @@ namespace dMobile.Controller
                     }
 
                     // TODO: Fix sorting
-                    //this.ActItem.DataViewItems.Sort = oldSort;
+                    // this.ActItem.DataViewItems.Sort = oldSort;
                 }
             }
             else
             {
-                // TODO: Resource strings
                 throw new Exception("Nothing received. Data was expected.");
             }
         }
 
         /// <summary>
-        /// 
+        /// The DeleteSkid.
         /// </summary>
-        /// <param name="skidInfo"></param>
+        /// <param name="skidInfo">.</param>
+        /// <returns>The <see cref="Task"/>.</returns>
         public override async Task DeleteSkid(SysSkidInfo skidInfo)
         {
             if (!this.SysEnv.SysSettings.IsDisconnectedMode)
@@ -201,9 +228,10 @@ namespace dMobile.Controller
         }
 
         /// <summary>
-        /// 
+        /// The Insert.
         /// </summary>
-        /// <param name="data"></param>
+        /// <param name="data">.</param>
+        /// <returns>The <see cref="Task"/>.</returns>
         public override async Task Insert(XDocument data)
         {
             await this.FillActDetailObjFromXML(data);
@@ -221,10 +249,9 @@ namespace dMobile.Controller
                     await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync("UPDATE tActivityItemReturns SET ActivityItemReturnsStringFKRefno = ? ActivityItemReturnsFKRefno = ? WHERE ActivityItemRefno = ?", Convert.ToString(this.NewItemFKRefno), this.NewItemFKRefno, this.ActItem.Refno);
 
                     // TODO: Fix sorting
-                    //string oldSort = this.ActItem.DataViewItems.Sort;
-                    //this.ActItem.DataViewItems.Sort = "ActivityItemRefno";
-                    //int rowIdx = this.ActItem.DataViewItems.Find(new object[] { this.ActItem.Refno });
-
+                    // string oldSort = this.ActItem.DataViewItems.Sort;
+                    // this.ActItem.DataViewItems.Sort = "ActivityItemRefno";
+                    // int rowIdx = this.ActItem.DataViewItems.Find(new object[] { this.ActItem.Refno });
                     ReturnItem returnItem = this.ActItem.ListItems.OfType<ReturnItem>().Where(returnItem => returnItem.ActivityItemRefno == this.ActItem.Refno).FirstOrDefault();
 
                     if (returnItem != null)
@@ -234,17 +261,18 @@ namespace dMobile.Controller
                     }
 
                     // TODO: Fix sorting
-                    //this.ActItem.DataViewItems.Sort = oldSort;
+                    // this.ActItem.DataViewItems.Sort = oldSort;
                 }
             }
 
-            this.InsertUpdateDataViewDetail("ActivityDetailReturnsFKRefno", "ActivityDetailReturnsFKRefno");
+            this.InsertListDetail("ActivityDetailReturnsFKRefno");
         }
 
         /// <summary>
-        ///
+        /// The Delete.
         /// </summary>
-        public override async Task Delete()
+        /// <returns>The <see cref="Task{int}"/>.</returns>
+        public override async Task<int> Delete()
         {
             if (!this.SysEnv.SysSettings.IsDisconnectedMode)
             {
@@ -270,15 +298,19 @@ namespace dMobile.Controller
                         }
                     }
                 }
+                else
+                {
+                    throw new Exception("Unexpected delete activity detail error.");
+                }
             }
 
             // delete row from DataView
             // TODO: Fix sorting
-            //string oldSort = this.DataViewDetails.Sort;
-            //this.DataViewDetails.Sort = "ActivityDetailReturnsFKRefno";
-            //int rowIdx = this.DataViewDetails.Find(FKRefno);
-
-            ReturnDetail returnDetail = this.ActItem.ListItems.OfType<ReturnDetail>().Where(returnDetail => returnDetail.ActivityDetailReturnsFKRefno == this.FKRefno).FirstOrDefault();
+            // string oldSort = this.DataViewDetails.Sort;
+            // this.DataViewDetails.Sort = "ActivityDetailReturnsFKRefno";
+            // int rowIdx = this.DataViewDetails.Find(FKRefno);
+            ReturnDetail returnDetail = this.ActItem.ListItems.OfType<ReturnDetail>().Where(returnDetail =>
+                returnDetail.ActivityDetailFKRefno == this.FKRefno).FirstOrDefault();
 
             if (this.ListDetails != null && returnDetail != null)
             {
@@ -286,9 +318,9 @@ namespace dMobile.Controller
             }
 
             // TODO: Fix sorting
-            //this.DataViewDetails.Sort = oldSort;
+            // this.DataViewDetails.Sort = oldSort;
 
-            //delete from database
+            // delete from database
             string query = "DELETE FROM tActivityDetailProductSchemeVariantXRef WHERE ActivityDetailRefno = ?";
             await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(query, this.Refno);
 
@@ -300,13 +332,16 @@ namespace dMobile.Controller
 
             query = "DELETE FROM tActivityDetail WHERE ActivityDetailRefno = ?";
             await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(query, this.Refno);
+
+            return 0;
         }
 
         /// <summary>
-        /// 
+        /// The Submit.
         /// </summary>
-        /// <param name="idx"></param>
-        /// <param name="data"></param>
+        /// <param name="selectedActivityDetail">The selectedActivityDetail<see cref="object"/>.</param>
+        /// <param name="data">.</param>
+        /// <returns>The <see cref="Task"/>.</returns>
         public override async Task Submit(object selectedActivityDetail, XDocument data)
         {
             XmlDocument xmlDoc = new XmlDocument();
@@ -337,37 +372,42 @@ namespace dMobile.Controller
 
                     if (selectedActivityDetail is ReturnDetail returnDetail)
                     {
-                        returnDetail.ActivityDetailReturnsFKRefno = this.FKRefno;
+                        returnDetail.ActivityDetailFKRefno = this.FKRefno;
                         returnDetail.ActivityDetailStatus = Convert.ToInt32(SysCommon.ActStatus.NoChange);
                     }
 
-                    await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync("UPDATE tActivityDetail SET ActivityDetailStatus = ? WHERE ActivityDetailRefno = ?", Convert.ToInt32(SysCommon.ActStatus.NoChange), this.Refno);
+                    await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(
+                        "UPDATE tActivityDetail SET ActivityDetailStatus = ? WHERE ActivityDetailRefno = ?",
+                        Convert.ToInt32(SysCommon.ActStatus.NoChange),
+                        this.Refno);
                 }
             }
         }
 
         /// <summary>
-        /// 
+        /// The GetInfo.
         /// </summary>
-        /// <param name="idx"></param>
-        /// <param name="isAdd"></param>
-        /// <returns></returns>
+        /// <param name="selectedActivityDetail">The selectedActivityDetail<see cref="object"/>.</param>
+        /// <param name="isAdd">.</param>
+        /// <returns>.</returns>
         public override async Task<ActDetail> GetInfo(object selectedActivityDetail, bool isAdd)
         {
             await base.GetInfo(selectedActivityDetail, isAdd);
 
             if (!isAdd && selectedActivityDetail is ReturnDetail returnDetail)
             {
-                this.FKRefno = Convert.ToInt32(returnDetail.ActivityDetailReturnsFKRefno);
-                this.LocMap.CurrLocMap = await LocationMapTasks.GetSLocMapFromLocMapRefno(Convert.ToInt32(returnDetail.LocationMapRefno));
+                this.FKRefno = Convert.ToInt32(returnDetail.ActivityDetailFKRefno);
+                this.LocMap.CurrLocMap = await LocationMapTasks.GetSLocMapFromLocMapRefno(
+                    Convert.ToInt32(returnDetail.LocationMapRefno));
             }
 
             return this;
         }
 
         /// <summary>
-        /// 
+        /// The Refresh.
         /// </summary>
+        /// <returns>The <see cref="Task"/>.</returns>
         public override async Task Refresh()
         {
             if (this.SysEnv.SysSettings.IsDisconnectedMode)
@@ -379,47 +419,40 @@ namespace dMobile.Controller
                 this.DataLayerProgressOutHandler(this, new EventArgs(), 2);
 
                 TableActivityReturnsDetail tableActReturnsDetail = new TableActivityReturnsDetail();
-                await tableActReturnsDetail.Purge();
+                await tableActReturnsDetail.PurgeData();
 
                 this.DataLayerProgressOutHandler(this, new EventArgs(), 5);
 
                 tableActReturnsDetail.RegisterDataAccessListenerProgressOut((ReturnsActDetail)this);
-                await tableActReturnsDetail.Request(ActItem.Refno);
+                await tableActReturnsDetail.RequestData(this.ActItem.Refno);
                 tableActReturnsDetail.UnregisterDataAccessListenerProgressOut((ReturnsActDetail)this);
             }
         }
 
         /// <summary>
-        /// 
+        /// The GetRefno.
         /// </summary>
-        /// <param name="idx"></param>
-        /// <returns></returns>
+        /// <param name="selectedActivityDetail">The selectedActivityDetail<see cref="object"/>.</param>
+        /// <returns>.</returns>
         public override int GetRefno(object selectedActivityDetail)
         {
             return (selectedActivityDetail as ReturnDetail).ActivityDetailRefno;
         }
 
         /// <summary>
-        /// 
+        /// The GetFKRefno.
         /// </summary>
-        /// <param name="idx"></param>
-        /// <returns></returns>
+        /// <param name="selectedActivityDetail">The selectedActivityDetail<see cref="object"/>.</param>
+        /// <returns>.</returns>
         public override int GetFKRefno(object selectedActivityDetail)
         {
-            return (selectedActivityDetail as ReturnDetail).ActivityDetailReturnsFKRefno;
+            return (selectedActivityDetail as ReturnDetail).ActivityDetailFKRefno;
         }
 
         /// <summary>
         /// Get a data view of the activity detail.
         /// </summary>
-        /// <param name="isSubmitBatch"></param>
-        /// <remarks>The sql queries use a UNION this is needed to support base distrib-u-tec with a WMS Map turned on. 
-        /// The map could include slots.
-        /// Because the current location in dMobile may be a slot, base distrib-u-tec does not contain a slot location
-        /// where the detail is stored, only the warehouse. So a union including the warehouse is needed to included 
-        /// the received data from the base to match up with location refno. Have a default location on the slot level
-        /// really only shows the user where to find the product. However the detail sent is lost if base wms is being 
-        /// used.</remarks>
+        /// <param name="isSubmitBatch">.</param>
         /// <returns>Data view result of the query.</returns>
         public override async Task<List<object>> GetActivityDetailList(bool isSubmitBatch)
         {
@@ -783,74 +816,37 @@ namespace dMobile.Controller
                 sql.Append("ORDER BY tActivityDetail.ActivityDetailRefno");
             }
 
-            this.listReturnDetails = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<ReturnDetail>(sql.ToString());
-            this.ListDetails = this.listReturnDetails.Cast<object>().ToList();
+            this.ListReturnDetails = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<ReturnDetail>(sql.ToString());
+            this.ListDetails = this.ListReturnDetails.Cast<object>().ToList();
             return this.ListDetails;
         }
 
-        public override ObservableCollection<object> DesignGrid(ref Grid dataGridMainActivityHeader, ref ListView dataGridMainActivity)
+        /// <summary>
+        /// The DesignGrid.
+        /// </summary>
+        /// <param name="GridMainActivity">The GridMainActivity<see cref="Grid"/>.</param>
+        /// <param name="ListViewMainActivity">The ListViewMainActivity<see cref="ListView"/>.</param>
+        /// <returns>The <see cref="ObservableCollection{object}"/>.</returns>
+        public override ObservableCollection<object> DesignGrid(ref Grid GridMainActivity, ref ListView ListViewMainActivity)
         {
             ObservableCollection<object> observableCollection = new ObservableCollection<object>();
 
             foreach (ReturnDetail returnDetail in this.ListDetails)
             {
-                //ReturnDetail returnDetail = new ReturnDetail
-                //{
-                //    ActivityDetailRefno = Convert.ToInt32(row["ActivityDetailRefno"] != DBNull.Value ? row["ActivityDetailRefno"] : null),
-                //    LocationMapRefno = Convert.ToInt32(row["LocationMapRefno"] != DBNull.Value ? row["LocationMapRefno"] : null),
-                //    ActivityDetailReturnsFKRefno = Convert.ToInt32(row["ActivityDetailReturnsFKRefno"] != DBNull.Value ? row["ActivityDetailReturnsFKRefno"] : null),
-                //    UnitCode = Convert.ToString(row["UnitCode"] != DBNull.Value ? row["UnitCode"] : null),
-                //    WtUnitCode = Convert.ToString(row["WtUnitCode"] != DBNull.Value ? row["WtUnitCode"] : null),
-                //    BaseUnitCode = Convert.ToString(row["BaseUnitCode"] != DBNull.Value ? row["BaseUnitCode"] : null),
-                //    ProductCode = Convert.ToString(row["ProductCode"] != DBNull.Value ? row["ProductCode"] : null),
-                //    ProductRefno = Convert.ToInt32(row["ProductRefno"] != DBNull.Value ? row["ProductRefno"] : null),
-                //    ProductDescription = Convert.ToString(row["ProductDescription"] != DBNull.Value ? row["ProductDescription"] : null),
-                //    ProductBrandDescription = Convert.ToString(row["ProductBrandDescription"] != DBNull.Value ? row["ProductBrandDescription"] : null),
-                //    ProductUnitBC = Convert.ToString(row["ProductUnitBC"] != DBNull.Value ? row["ProductUnitBC"] : null),
-                //    ProductUnitIsBC = Convert.ToBoolean(row["ProductUnitIsBC"] != DBNull.Value ? row["ProductUnitIsBC"] : null),
-                //    ProductUnitSizeDescription = Convert.ToString(row["ProductUnitSizeDescription"] != DBNull.Value ? row["ProductUnitSizeDescription"] : null),
-                //    ActivityDetailQuantity = Convert.ToDecimal(row["ActivityDetailQuantity"] != DBNull.Value ? row["ActivityDetailQuantity"] : null),
-                //    ActivityDetailBaseQuantity = Convert.ToDecimal(row["ActivityDetailBaseQuantity"] != DBNull.Value ? row["ActivityDetailBaseQuantity"] : null),
-                //    ActivityDetailWeightQuantity = Convert.ToDecimal(row["ActivityDetailWeightQuantity"] != DBNull.Value ? row["ActivityDetailWeightQuantity"] : null),
-                //    ActivityDetailLogisticUnitBestBeforeSellByDate = Convert.ToDateTime(row["ActivityDetailLogisticUnitBestBeforeSellByDate"] != DBNull.Value ? row["ActivityDetailLogisticUnitBestBeforeSellByDate"] : null),
-                //    ActivityDetailSchemeID = Convert.ToString(row["ActivityDetailSchemeID"] != DBNull.Value ? row["ActivityDetailSchemeID"] : null),
-                //    ActivityDetailUniqueSchemeID = Convert.ToString(row["ActivityDetailUniqueSchemeID"] != DBNull.Value ? row["ActivityDetailUniqueSchemeID"] : null),
-                //    ActivityDetailSingleTradeItemSerialNumber = Convert.ToString(row["ActivityDetailSingleTradeItemSerialNumber"] != DBNull.Value ? row["ActivityDetailSingleTradeItemSerialNumber"] : null),
-                //    ActivityDetailLogisticUnitBatchLotNumber = Convert.ToString(row["ActivityDetailLogisticUnitBatchLotNumber"] != DBNull.Value ? row["ActivityDetailLogisticUnitBatchLotNumber"] : null),
-                //    ActivityDetailLogisticUnitExpiryUseByDate = Convert.ToDateTime(row["ActivityDetailLogisticUnitExpiryUseByDate"] != DBNull.Value ? row["ActivityDetailLogisticUnitExpiryUseByDate"] : null),
-                //    ActivityDetailLogisticUnitProductionDate = Convert.ToDateTime(row["ActivityDetailLogisticUnitProductionDate"] != DBNull.Value ? row["ActivityDetailLogisticUnitProductionDate"] : null),
-                //    ActivityDetailLogisticUnitSkidNumber = Convert.ToString(row["ActivityDetailLogisticUnitSkidNumber"] != DBNull.Value ? row["ActivityDetailLogisticUnitSkidNumber"] : null),
-                //    LocationCode = Convert.ToInt32(row["LocationCode"] != DBNull.Value ? row["LocationCode"] : null),
-                //    LocationName = Convert.ToString(row["LocationName"] != DBNull.Value ? row["LocationName"] : null),
-                //    Location = Convert.ToString(row["Location"] != DBNull.Value ? row["Location"] : null),
-                //    ProductSchemeVariantCode = Convert.ToString(row["ProductSchemeVariantCode"] != DBNull.Value ? row["ProductSchemeVariantCode"] : null),
-                //    ProductSchemeVariantNo = Convert.ToInt32(row["ProductSchemeVariantNo"] != DBNull.Value ? row["ProductSchemeVariantNo"] : null),
-                //    ProductSchemeVariantDescription = Convert.ToString(row["ProductSchemeVariantDescription"] != DBNull.Value ? row["ProductSchemeVariantDescription"] : null),
-                //    ActivityDetailStatus = Convert.ToInt32(row["ActivityDetailStatus"] != DBNull.Value ? row["ActivityDetailStatus"] : null),
-                //    ActivityDetailIsConfirmed = Convert.ToBoolean(row["ActivityDetailIsConfirmed"] != DBNull.Value ? row["ActivityDetailIsConfirmed"] : null),
-                //    ActivityDetailIsConfirmedString = Convert.ToString(row["ActivityDetailIsConfirmedString"] != DBNull.Value ? row["ActivityDetailIsConfirmedString"] : null),
-                //    ActivityDetailExtra1Text = Convert.ToString(row["ActivityDetailExtra1Text"] != DBNull.Value ? row["ActivityDetailExtra1Text"] : null),
-                //    ActivityDetailExtra2Text = Convert.ToString(row["ActivityDetailExtra2Text"] != DBNull.Value ? row["ActivityDetailExtra2Text"] : null),
-                //    ActivityDetailExtra3Text = Convert.ToString(row["ActivityDetailExtra3Text"] != DBNull.Value ? row["ActivityDetailExtra3Text"] : null),
-                //    ActivityDetailExtra4Text = Convert.ToString(row["ActivityDetailExtra4Text"] != DBNull.Value ? row["ActivityDetailExtra4Text"] : null),
-                //    ActivityDetailExtra5Date = Convert.ToDateTime(row["ActivityDetailExtra5Date"] != DBNull.Value ? row["ActivityDetailExtra5Date"] : null)
-                //};
-
                 observableCollection.Add(returnDetail);
             }
 
-            // TODO: Resource strings
             Label labelConfirmedHeader = new Label { Text = "C", VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start, FontAttributes = FontAttributes.Bold };
             Label labelQuantityHeader = new Label { Text = "Qty", VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start, FontAttributes = FontAttributes.Bold };
             Label labelWeightQuantityHeader = new Label { Text = "Weight", VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start, FontAttributes = FontAttributes.Bold };
             Label labelUnitCodeHeader = new Label { Text = string.Empty, VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start, FontAttributes = FontAttributes.Bold };
             Label labelSchemeIDHeader = new Label { Text = "Scheme ID", VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start, FontAttributes = FontAttributes.Bold };
 
-            columnWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(labelConfirmedHeader.Text);
-            columnWidth1 = DependencyService.Get<IGridService>().CalculateTextWidth(labelQuantityHeader.Text);
-            columnWidth2 = DependencyService.Get<IGridService>().CalculateTextWidth(labelWeightQuantityHeader.Text);
-            columnWidth3 = DependencyService.Get<IGridService>().CalculateTextWidth(labelUnitCodeHeader.Text);
-            columnWidth4 = DependencyService.Get<IGridService>().CalculateTextWidth(labelSchemeIDHeader.Text);
+            this.ColumnWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(labelConfirmedHeader.Text);
+            this.ColumnWidth1 = DependencyService.Get<IGridService>().CalculateTextWidth(labelQuantityHeader.Text);
+            this.ColumnWidth2 = DependencyService.Get<IGridService>().CalculateTextWidth(labelWeightQuantityHeader.Text);
+            this.ColumnWidth3 = DependencyService.Get<IGridService>().CalculateTextWidth(labelUnitCodeHeader.Text);
+            this.ColumnWidth4 = DependencyService.Get<IGridService>().CalculateTextWidth(labelSchemeIDHeader.Text);
 
             // Header grid
             Grid gridHeaderReturnsActivityDetail = new Grid
@@ -858,12 +854,12 @@ namespace dMobile.Controller
                 Padding = new Thickness(5),
                 ColumnDefinitions =
                 {
-                    new ColumnDefinition { Width = new GridLength(columnWidth0, GridUnitType.Absolute) },
-                    new ColumnDefinition { Width = new GridLength(columnWidth1, GridUnitType.Absolute) },
-                    new ColumnDefinition { Width = new GridLength(columnWidth2, GridUnitType.Absolute) },
-                    new ColumnDefinition { Width = new GridLength(columnWidth3, GridUnitType.Absolute) },
-                    new ColumnDefinition { Width = new GridLength(columnWidth4, GridUnitType.Absolute) }
-                }
+                    new ColumnDefinition { Width = new GridLength(this.ColumnWidth0, GridUnitType.Absolute) },
+                    new ColumnDefinition { Width = new GridLength(this.ColumnWidth1, GridUnitType.Absolute) },
+                    new ColumnDefinition { Width = new GridLength(this.ColumnWidth2, GridUnitType.Absolute) },
+                    new ColumnDefinition { Width = new GridLength(this.ColumnWidth3, GridUnitType.Absolute) },
+                    new ColumnDefinition { Width = new GridLength(this.ColumnWidth4, GridUnitType.Absolute) },
+                },
             };
 
             gridHeaderReturnsActivityDetail.SetDynamicResource(VisualElement.BackgroundColorProperty, "HeaderColor");
@@ -890,7 +886,7 @@ namespace dMobile.Controller
 
             Grid.SetRow(gridHeaderReturnsActivityDetail, 0);
 
-            dataGridMainActivityHeader.Children.Add(gridHeaderReturnsActivityDetail);
+            GridMainActivity.Children.Add(gridHeaderReturnsActivityDetail);
 
             foreach (ReturnDetail returnDetail in observableCollection)
             {
@@ -902,102 +898,61 @@ namespace dMobile.Controller
 
                 if (this.SysEnv.SysSettings.IsRetConfirmDet)
                 {
-                    if (detailWidth0 > columnWidth0)
+                    if (detailWidth0 > this.ColumnWidth0)
                     {
-                        columnWidth0 = detailWidth0;
-                        gridHeaderReturnsActivityDetail.ColumnDefinitions[0].Width = columnWidth0;
+                        this.ColumnWidth0 = detailWidth0;
+                        gridHeaderReturnsActivityDetail.ColumnDefinitions[0].Width = this.ColumnWidth0;
                     }
                 }
                 else
                 {
-                    columnWidth0 = 0;
-                    gridHeaderReturnsActivityDetail.ColumnDefinitions[0].Width = columnWidth0;
+                    this.ColumnWidth0 = 0;
+                    gridHeaderReturnsActivityDetail.ColumnDefinitions[0].Width = this.ColumnWidth0;
                 }
 
-                if (detailWidth1 > columnWidth1)
+                if (detailWidth1 > this.ColumnWidth1)
                 {
-                    columnWidth1 = detailWidth1;
-                    gridHeaderReturnsActivityDetail.ColumnDefinitions[1].Width = columnWidth1;
+                    this.ColumnWidth1 = detailWidth1;
+                    gridHeaderReturnsActivityDetail.ColumnDefinitions[1].Width = this.ColumnWidth1;
                 }
 
-                if (detailWidth2 > columnWidth2)
+                if (detailWidth2 > this.ColumnWidth2)
                 {
-                    columnWidth2 = detailWidth2;
-                    gridHeaderReturnsActivityDetail.ColumnDefinitions[2].Width = columnWidth2;
+                    this.ColumnWidth2 = detailWidth2;
+                    gridHeaderReturnsActivityDetail.ColumnDefinitions[2].Width = this.ColumnWidth2;
                 }
 
-                if (detailWidth3 > columnWidth3)
+                if (detailWidth3 > this.ColumnWidth3)
                 {
-                    columnWidth3 = detailWidth3;
-                    gridHeaderReturnsActivityDetail.ColumnDefinitions[3].Width = columnWidth3;
+                    this.ColumnWidth3 = detailWidth3;
+                    gridHeaderReturnsActivityDetail.ColumnDefinitions[3].Width = this.ColumnWidth3;
                 }
 
-                if (detailWidth4 > columnWidth4)
+                if (detailWidth4 > this.ColumnWidth4)
                 {
-                    columnWidth4 = detailWidth4;
-                    gridHeaderReturnsActivityDetail.ColumnDefinitions[4].Width = columnWidth4;
+                    this.ColumnWidth4 = detailWidth4;
+                    gridHeaderReturnsActivityDetail.ColumnDefinitions[4].Width = this.ColumnWidth4;
                 }
             }
 
-            dataGridMainActivity.ItemTemplate = (DataTemplate)this.resourceDictionary["dataTemplate"];
+            ListViewMainActivity.ItemTemplate = (DataTemplate)this.ResourceDictionary["dataTemplate"];
 
             return observableCollection;
         }
 
         /// <summary>
-        /// 
+        /// The Search.
         /// </summary>
-        /// <param name="searchText"></param>
-        /// <returns></returns>
+        /// <param name="searchText">.</param>
+        /// <returns>.</returns>
         public override ObservableCollection<object> Search(string searchText)
         {
             ObservableCollection<object> observableCollection = new ObservableCollection<object>();
-            this.ListDetails = this.listReturnDetails.Where(returnDetail => returnDetail.ActivityDetailReturnsFKRefno.ToString().ToLower().Contains(searchText.ToLower().Trim())).Cast<object>().ToList();
+            this.ListDetails = this.ListReturnDetails.Where(returnDetail => returnDetail.ActivityDetailFKRefno.
+                ToString().ToLower().Contains(searchText.ToLower().Trim())).Cast<object>().ToList();
 
             foreach (ReturnDetail returnDetail in this.ListDetails)
             {
-                //ReturnDetail returnDetail = new ReturnDetail
-                //{
-                //    ActivityDetailRefno = Convert.ToInt32(row["ActivityDetailRefno"] != DBNull.Value ? row["ActivityDetailRefno"] : null),
-                //    LocationMapRefno = Convert.ToInt32(row["LocationMapRefno"] != DBNull.Value ? row["LocationMapRefno"] : null),
-                //    ActivityDetailReturnsFKRefno = Convert.ToInt32(row["ActivityDetailReturnsFKRefno"] != DBNull.Value ? row["ActivityDetailReturnsFKRefno"] : null),
-                //    UnitCode = Convert.ToString(row["UnitCode"] != DBNull.Value ? row["UnitCode"] : null),
-                //    WtUnitCode = Convert.ToString(row["WtUnitCode"] != DBNull.Value ? row["WtUnitCode"] : null),
-                //    BaseUnitCode = Convert.ToString(row["BaseUnitCode"] != DBNull.Value ? row["BaseUnitCode"] : null),
-                //    ProductCode = Convert.ToString(row["ProductCode"] != DBNull.Value ? row["ProductCode"] : null),
-                //    ProductRefno = Convert.ToInt32(row["ProductRefno"] != DBNull.Value ? row["ProductRefno"] : null),
-                //    ProductDescription = Convert.ToString(row["ProductDescription"] != DBNull.Value ? row["ProductDescription"] : null),
-                //    ProductBrandDescription = Convert.ToString(row["ProductBrandDescription"] != DBNull.Value ? row["ProductBrandDescription"] : null),
-                //    ProductUnitBC = Convert.ToString(row["ProductUnitBC"] != DBNull.Value ? row["ProductUnitBC"] : null),
-                //    ProductUnitIsBC = Convert.ToBoolean(row["ProductUnitIsBC"] != DBNull.Value ? row["ProductUnitIsBC"] : null),
-                //    ProductUnitSizeDescription = Convert.ToString(row["ProductUnitSizeDescription"] != DBNull.Value ? row["ProductUnitSizeDescription"] : null),
-                //    ActivityDetailQuantity = Convert.ToDecimal(row["ActivityDetailQuantity"] != DBNull.Value ? row["ActivityDetailQuantity"] : null),
-                //    ActivityDetailBaseQuantity = Convert.ToDecimal(row["ActivityDetailBaseQuantity"] != DBNull.Value ? row["ActivityDetailBaseQuantity"] : null),
-                //    ActivityDetailWeightQuantity = Convert.ToDecimal(row["ActivityDetailWeightQuantity"] != DBNull.Value ? row["ActivityDetailWeightQuantity"] : null),
-                //    ActivityDetailLogisticUnitBestBeforeSellByDate = Convert.ToDateTime(row["ActivityDetailLogisticUnitBestBeforeSellByDate"] != DBNull.Value ? row["ActivityDetailLogisticUnitBestBeforeSellByDate"] : null),
-                //    ActivityDetailSchemeID = Convert.ToString(row["ActivityDetailSchemeID"] != DBNull.Value ? row["ActivityDetailSchemeID"] : null),
-                //    ActivityDetailUniqueSchemeID = Convert.ToString(row["ActivityDetailUniqueSchemeID"] != DBNull.Value ? row["ActivityDetailUniqueSchemeID"] : null),
-                //    ActivityDetailSingleTradeItemSerialNumber = Convert.ToString(row["ActivityDetailSingleTradeItemSerialNumber"] != DBNull.Value ? row["ActivityDetailSingleTradeItemSerialNumber"] : null),
-                //    ActivityDetailLogisticUnitBatchLotNumber = Convert.ToString(row["ActivityDetailLogisticUnitBatchLotNumber"] != DBNull.Value ? row["ActivityDetailLogisticUnitBatchLotNumber"] : null),
-                //    ActivityDetailLogisticUnitExpiryUseByDate = Convert.ToDateTime(row["ActivityDetailLogisticUnitExpiryUseByDate"] != DBNull.Value ? row["ActivityDetailLogisticUnitExpiryUseByDate"] : null),
-                //    ActivityDetailLogisticUnitProductionDate = Convert.ToDateTime(row["ActivityDetailLogisticUnitProductionDate"] != DBNull.Value ? row["ActivityDetailLogisticUnitProductionDate"] : null),
-                //    ActivityDetailLogisticUnitSkidNumber = Convert.ToString(row["ActivityDetailLogisticUnitSkidNumber"] != DBNull.Value ? row["ActivityDetailLogisticUnitSkidNumber"] : null),
-                //    LocationCode = Convert.ToInt32(row["LocationCode"] != DBNull.Value ? row["LocationCode"] : null),
-                //    LocationName = Convert.ToString(row["LocationName"] != DBNull.Value ? row["LocationName"] : null),
-                //    Location = Convert.ToString(row["Location"] != DBNull.Value ? row["Location"] : null),
-                //    ProductSchemeVariantCode = Convert.ToString(row["ProductSchemeVariantCode"] != DBNull.Value ? row["ProductSchemeVariantCode"] : null),
-                //    ProductSchemeVariantNo = Convert.ToInt32(row["ProductSchemeVariantNo"] != DBNull.Value ? row["ProductSchemeVariantNo"] : null),
-                //    ProductSchemeVariantDescription = Convert.ToString(row["ProductSchemeVariantDescription"] != DBNull.Value ? row["ProductSchemeVariantDescription"] : null),
-                //    ActivityDetailStatus = Convert.ToInt32(row["ActivityDetailStatus"] != DBNull.Value ? row["ActivityDetailStatus"] : null),
-                //    ActivityDetailIsConfirmed = Convert.ToBoolean(row["ActivityDetailIsConfirmed"] != DBNull.Value ? row["ActivityDetailIsConfirmed"] : null),
-                //    ActivityDetailIsConfirmedString = Convert.ToString(row["ActivityDetailIsConfirmedString"] != DBNull.Value ? row["ActivityDetailIsConfirmedString"] : null),
-                //    ActivityDetailExtra1Text = Convert.ToString(row["ActivityDetailExtra1Text"] != DBNull.Value ? row["ActivityDetailExtra1Text"] : null),
-                //    ActivityDetailExtra2Text = Convert.ToString(row["ActivityDetailExtra2Text"] != DBNull.Value ? row["ActivityDetailExtra2Text"] : null),
-                //    ActivityDetailExtra3Text = Convert.ToString(row["ActivityDetailExtra3Text"] != DBNull.Value ? row["ActivityDetailExtra3Text"] : null),
-                //    ActivityDetailExtra4Text = Convert.ToString(row["ActivityDetailExtra4Text"] != DBNull.Value ? row["ActivityDetailExtra4Text"] : null),
-                //    ActivityDetailExtra5Date = Convert.ToDateTime(row["ActivityDetailExtra5Date"] != DBNull.Value ? row["ActivityDetailExtra5Date"] : null)
-                //};
-
                 observableCollection.Add(returnDetail);
             }
 
@@ -1005,43 +960,26 @@ namespace dMobile.Controller
         }
 
         /// <summary>
-        /// 
+        /// Select the activity detail.
         /// </summary>
-        /// <param name="idx"></param>
+        /// <param name="selectedActivityDetail"><see cref="object"/> Selected activity detail.</param>
+        /// <returns><see cref="Task"/> Task operation.</returns>
         public override async Task SelectActivityDetail(object selectedActivityDetail)
         {
-            if (selectedActivityDetail is ReturnDetail returnDetail)
-            {
-                this.SelectedLocMap = await LocationMapTasks.GetSLocMapFromLocMapRefno(Convert.ToInt32(returnDetail.LocationMapRefno));
-                this.Refno = Convert.ToInt32(returnDetail.ActivityDetailRefno);
-                this.FKRefno = Convert.ToInt32(returnDetail.ActivityDetailReturnsFKRefno);
-                this.SchemeID = Convert.ToString(returnDetail.ActivityDetailSchemeID);
-                this.UniqueSchemeID = Convert.ToString(returnDetail.ActivityDetailUniqueSchemeID);
-
-                this.ActExtra.Text1 = Convert.ToString(returnDetail.ActivityDetailExtra1Text);
-                this.ActExtra.Text2 = Convert.ToString(returnDetail.ActivityDetailExtra2Text);
-                this.ActExtra.Text3 = Convert.ToString(returnDetail.ActivityDetailExtra3Text);
-                this.ActExtra.Text4 = Convert.ToString(returnDetail.ActivityDetailExtra4Text);
-                this.ActExtra.DateTime5 = Convert.ToDateTime(returnDetail.ActivityDetailExtra5Date);
-            }
-            else
-            {
-                this.ClearProperties();
-            }
+            await base.SelectActivityDetail(selectedActivityDetail);
         }
 
         /// <summary>
-        /// 
+        /// The CreateSubmitXML.
         /// </summary>
-        /// <param name="sendData"></param>
-        /// <returns></returns>
+        /// <param name="sendData">.</param>
+        /// <returns>.</returns>
         public override async Task<string> CreateSubmitXML(XDocument sendData)
         {
             StringBuilder xmlString = new StringBuilder();
             XmlWriter xml = XmlWriter.Create(xmlString);
 
-            XDocument request = null;
-
+            XDocument request;
             if (this.ActItem.ActHdr.XMLDataCriteria == null)
             {
                 if (sendData.Document.Root.Element("skid_data") == null)
@@ -1058,7 +996,7 @@ namespace dMobile.Controller
                             + "</command>"
                             + await SysCommon.GetRequestDefaults(false)
                             + this.GetRequestDetailDefaults()
-                            + ("<skid_fk_refno>" + 0 + "</skid_fk_refno>")
+                            + "<skid_fk_refno>" + 0 + "</skid_fk_refno>"
                             + "</imclient>");
                     }
                     else
@@ -1073,7 +1011,7 @@ namespace dMobile.Controller
                             + "</command>"
                             + await SysCommon.GetRequestDefaults(false)
                             + this.GetRequestDetailDefaults()
-                            + ("<skid_fk_refno>" + this.ActItem.ActHdr.SkidInfo.CurrSkid.SkidFKRefno + "</skid_fk_refno>")
+                            + "<skid_fk_refno>" + this.ActItem.ActHdr.SkidInfo.CurrSkid.SkidFKRefno + "</skid_fk_refno>"
                             + "</imclient>");
                     }
                 }
@@ -1088,16 +1026,16 @@ namespace dMobile.Controller
                         + "<sect_refno></sect_refno>"
                         + "</command>"
                         + await SysCommon.GetRequestDefaults(false)
-                        + ("<skid_data>" + sendData.Root.Element("skid_data").Value + "</skid_data>")
-                        + ("<whs_id>" + this.LocMap.CurrLocMap.WhsFKRefno + "</whs_id>")
-                        + ("<refno>" + this.ActItem.ActHdr.FKRefno + "</refno>")
-                        + ("<itm_refno>" + this.ActItem.FKRefno + "</itm_refno>")
+                        + "<skid_data>" + sendData.Root.Element("skid_data").Value + "</skid_data>"
+                        + "<whs_id>" + this.LocMap.CurrLocMap.WhsFKRefno + "</whs_id>"
+                        + "<refno>" + this.ActItem.ActHdr.FKRefno + "</refno>"
+                        + "<itm_refno>" + this.ActItem.FKRefno + "</itm_refno>"
                         + "<is_negate_qty>false</is_negate_qty>"
-                        + ("<extra1>" + this.ActExtra.Text1 + "</extra1>")
-                        + ("<extra2>" + this.ActExtra.Text2 + "</extra2>")
-                        + ("<extra3>" + this.ActExtra.Text3 + "</extra3>")
-                        + ("<extra4>" + this.ActExtra.Text4 + "</extra4>")
-                        + ("<extra5>" + this.ActExtra.DateTime5 + "</extra5>")
+                        + "<extra1>" + this.ActExtra.Text1 + "</extra1>"
+                        + "<extra2>" + this.ActExtra.Text2 + "</extra2>"
+                        + "<extra3>" + this.ActExtra.Text3 + "</extra3>"
+                        + "<extra4>" + this.ActExtra.Text4 + "</extra4>"
+                        + "<extra5>" + this.ActExtra.DateTime1 + "</extra5>"
                         + "</imclient>");
                 }
             }
@@ -1115,12 +1053,12 @@ namespace dMobile.Controller
                             + "<imclient>"
                             + "<command>"
                             + "<action>SUBMIT SALES RETURN DETAIL</action>"
-                            + ("<whs_id>" + whsRefno + "</whs_id>")
-                            + ("<sect_refno>" + sectRefno + "</sect_refno>")
+                            + "<whs_id>" + whsRefno + "</whs_id>"
+                            + "<sect_refno>" + sectRefno + "</sect_refno>"
                             + "</command>"
                             + await SysCommon.GetRequestDefaults(false)
                             + this.GetRequestDetailDefaults()
-                            + ("<skid_fk_refno>" + 0 + "</skid_fk_refno>")
+                            + "<skid_fk_refno>" + 0 + "</skid_fk_refno>"
                             + "</imclient>");
                     }
                     else
@@ -1130,12 +1068,12 @@ namespace dMobile.Controller
                             + "<imclient>"
                             + "<command>"
                             + "<action>SUBMIT SALES RETURN DETAIL</action>"
-                            + ("<whs_id>" + whsRefno + "</whs_id>")
-                            + ("<sect_refno>" + sectRefno + "</sect_refno>")
+                            + "<whs_id>" + whsRefno + "</whs_id>"
+                            + "<sect_refno>" + sectRefno + "</sect_refno>"
                             + "</command>"
                             + await SysCommon.GetRequestDefaults(false)
                             + this.GetRequestDetailDefaults()
-                            + ("<skid_fk_refno>" + this.ActItem.ActHdr.SkidInfo.CurrSkid.SkidFKRefno + "</skid_fk_refno>")
+                            + "<skid_fk_refno>" + this.ActItem.ActHdr.SkidInfo.CurrSkid.SkidFKRefno + "</skid_fk_refno>"
                             + "</imclient>");
                     }
                 }
@@ -1146,20 +1084,20 @@ namespace dMobile.Controller
                         + "<imclient>"
                         + "<command>"
                         + "<action>SUBMIT SALES RETURN DETAIL SKID</action>"
-                        + ("<whs_id>" + whsRefno + "</whs_id>")
-                        + ("<sect_refno>" + sectRefno + "</sect_refno>")
+                        + "<whs_id>" + whsRefno + "</whs_id>"
+                        + "<sect_refno>" + sectRefno + "</sect_refno>"
                         + "</command>"
                         + await SysCommon.GetRequestDefaults(false)
-                        + ("<skid_data>" + sendData.Root.Element("skid_data").Value + "</skid_data>")
-                        + ("<whs_id>" + this.LocMap.CurrLocMap.WhsFKRefno + "</whs_id>")
-                        + ("<refno>" + this.ActItem.ActHdr.FKRefno + "</refno>")
-                        + ("<itm_refno>" + this.ActItem.FKRefno + "</itm_refno>")
+                        + "<skid_data>" + sendData.Root.Element("skid_data").Value + "</skid_data>"
+                        + "<whs_id>" + this.LocMap.CurrLocMap.WhsFKRefno + "</whs_id>"
+                        + "<refno>" + this.ActItem.ActHdr.FKRefno + "</refno>"
+                        + "<itm_refno>" + this.ActItem.FKRefno + "</itm_refno>"
                         + "<is_negate_qty>false</is_negate_qty>"
-                        + ("<extra1>" + this.ActExtra.Text1 + "</extra1>")
-                        + ("<extra2>" + this.ActExtra.Text2 + "</extra2>")
-                        + ("<extra3>" + this.ActExtra.Text3 + "</extra3>")
-                        + ("<extra4>" + this.ActExtra.Text4 + "</extra4>")
-                        + ("<extra5>" + this.ActExtra.DateTime5 + "</extra5>")
+                        + "<extra1>" + this.ActExtra.Text1 + "</extra1>"
+                        + "<extra2>" + this.ActExtra.Text2 + "</extra2>"
+                        + "<extra3>" + this.ActExtra.Text3 + "</extra3>"
+                        + "<extra4>" + this.ActExtra.Text4 + "</extra4>"
+                        + "<extra5>" + this.ActExtra.DateTime1 + "</extra5>"
                         + "</imclient>");
                 }
             }
@@ -1172,16 +1110,16 @@ namespace dMobile.Controller
         }
 
         /// <summary>
-        /// 
+        /// The CreateDeleteXML.
         /// </summary>
-        /// <param name="data"></param>
-        /// <returns></returns>
+        /// <param name="data">.</param>
+        /// <returns>.</returns>
         public override async Task<string> CreateDeleteXML(XDocument data)
         {
             StringBuilder xmlString = new StringBuilder();
             XmlWriter xml = XmlWriter.Create(xmlString);
 
-            XDocument request = null;
+            XDocument request;
             if (data.Document.Root.Element("skid_data") == null)
             {
                 if (this.SysEnv.SysSettings.IsDisconnectedMode)
@@ -1194,7 +1132,7 @@ namespace dMobile.Controller
                         + "</command>"
                         + await SysCommon.GetRequestDefaults(false)
                         + this.GetRequestDetailDefaults()
-                        + ("<skid_fk_refno>" + 0 + "</skid_fk_refno>")
+                        + "<skid_fk_refno>" + 0 + "</skid_fk_refno>"
                         + "</imclient>");
                 }
                 else
@@ -1207,7 +1145,7 @@ namespace dMobile.Controller
                         + "</command>"
                         + await SysCommon.GetRequestDefaults(false)
                         + this.GetRequestDetailDefaults()
-                        + ("<skid_fk_refno>" + this.ActItem.ActHdr.SkidInfo.CurrSkid.SkidFKRefno + "</skid_fk_refno>")
+                        + "<skid_fk_refno>" + this.ActItem.ActHdr.SkidInfo.CurrSkid.SkidFKRefno + "</skid_fk_refno>"
                         + "</imclient>");
                 }
             }
@@ -1220,10 +1158,10 @@ namespace dMobile.Controller
                     + "<action>DELETE SALES RETURN DETAIL SKID</action>"
                     + "</command>"
                     + await SysCommon.GetRequestDefaults(false)
-                    + ("<skid_data>" + data.Root.Element("skid_data").Value + "</skid_data>")
-                    + ("<whs_id>" + LocMap.CurrLocMap.WhsFKRefno + "</whs_id>")
-                    + ("<refno>" + ActItem.ActHdr.FKRefno + "</refno>")
-                    + ("<itm_refno>" + ActItem.FKRefno + "</itm_refno>")
+                    + "<skid_data>" + data.Root.Element("skid_data").Value + "</skid_data>"
+                    + "<whs_id>" + this.LocMap.CurrLocMap.WhsFKRefno + "</whs_id>"
+                    + "<refno>" + this.ActItem.ActHdr.FKRefno + "</refno>"
+                    + "<itm_refno>" + this.ActItem.FKRefno + "</itm_refno>"
                     + "<is_negate_qty>false</is_negate_qty>"
                     + "</imclient>");
             }
@@ -1235,6 +1173,261 @@ namespace dMobile.Controller
             return xmlString.ToString();
         }
 
-        #endregion
+        /// <summary>
+        /// Get the activity item control description.
+        /// </summary>
+        /// <returns><see cref="string"/> Get activity item control description.</returns>
+        public override string GetControlDescription()
+        {
+            return string.Format("Return order # {0}", this.ActItem.ActHdr.FKRefno);
+        }
+
+        /// <summary>
+        /// Find or insert an activity detail into the list details.
+        /// </summary>
+        /// <param name="actDetailFKRefnoFldName">The actDetailFKRefnoFldName<see cref="string"/>.</param>
+        /// <returns>The <see cref="ActivityDetail"/>.</returns>
+        public override ActivityDetail InsertListDetail(string actDetailFKRefnoFldName)
+        {
+            ReturnDetail detail = null;
+            if (this.IsUpdateView && this.ListDetails != null)
+            {
+                bool detailToBeAdded = false;
+                if (this.FKRefno > 0)
+                {
+                    detail = this.ListDetails.OfType<ReturnDetail>().FirstOrDefault(adjDetail =>
+                        adjDetail.ActivityDetailFKRefno == this.FKRefno);
+                }
+
+                if (detail == null)
+                {
+                    detail = new ReturnDetail();
+                    detailToBeAdded = true;
+                    detail.ActivityDetailRefno = 0;
+                    detail.ProductRefno = this.ActItem.ProdInfo.Refno;
+                    detail.ProductUnitRefno = this.ActItem.ProdInfo.UnitRefno;
+                    detail.ProductCode = this.ActItem.ProdInfo.Code;
+                    detail.ProductUnitBC = this.ActItem.ProdInfo.UnitBC;
+                    detail.ProductUnitIsBC = this.ActItem.ProdInfo.UnitIsBC;
+                    detail.ProductDescription = this.ActItem.ProdInfo.Desc;
+                    detail.ProductUnitSizeDescription = this.ActItem.ProdInfo.UnitSizeDesc;
+                    detail.UnitCode = this.ActItem.ProdInfo.UnitCode;
+                    detail.BaseUnitCode = this.ActItem.ProdInfo.BaseUnitCode;
+                    detail.WtUnitCode = this.ActItem.ProdInfo.WeightUnitCode;
+                    detail.ActivityDetailQuantity = 0;
+                    detail.ActivityDetailBaseQuantity = 0;
+                    detail.ActivityDetailWeightQuantity = 0;
+                    detail.ActDetailFKRefnoFldName = actDetailFKRefnoFldName;
+                    detail.ActivityDetailStatus = (int)SysCommon.ActStatus.Inserted;
+                }
+                else
+                {
+                    detail.ActivityDetailStatus = (int)SysCommon.ActStatus.Updated;
+                }
+
+                detail.LocationMapRefno = this.LocMap.CurrLocMapRefno;
+                detail.ActivityDetailQuantity = Convert.ToDecimal(detail.ActivityDetailQuantity) +
+                    Math.Round(this.Quantity, 3);
+                detail.ActivityDetailBaseQuantity = Convert.ToDecimal(detail.ActivityDetailBaseQuantity) +
+                    Math.Round(this.BaseQuantity, 3);
+                detail.ActivityDetailWeightQuantity = Convert.ToDecimal(detail.ActivityDetailWeightQuantity) +
+                    Math.Round(this.WeightQuantity, 3);
+                detail.ProductSchemeVariantCode = this.SchemeData.VariantCode;
+                detail.ProductSchemeVariantNo = this.SchemeData.VariantNumber;
+                detail.ActivityDetailSingleTradeItemSerialNumber = this.SchemeData.SingleTradeItemSerialNumber;
+                detail.ActivityDetailLogisticUnitBestBeforeSellByDate = this.SchemeData.LogisticUnitBestBeforeSellByDate;
+                detail.ActivityDetailLogisticUnitBatchLotNumber = this.SchemeData.LogisticUnitBatchLotNumber;
+                detail.ActivityDetailLogisticUnitProductionDate = this.SchemeData.LogisticUnitProductionDate;
+                detail.ActivityDetailLogisticUnitSkidNumber = this.SchemeData.LogisticUnitSkidNumber;
+                detail.ActivityDetailExtra1Text = this.ActExtra.Text1;
+                detail.ActivityDetailExtra2Text = this.ActExtra.Text2;
+                detail.ActivityDetailExtra3Text = this.ActExtra.Text3;
+                detail.ActivityDetailExtra4Text = this.ActExtra.Text4;
+                detail.ActivityDetailExtra5Date = this.ActExtra.DateTime1;
+
+                int locCode = 0;
+                string locName = string.Empty;
+
+                if (this.LocMap.CurrLocMap.SlotLocMapRefno > 0)
+                {
+                    locCode = this.LocMap.CurrLocMap.SlotCode;
+                    locName = this.LocMap.CurrLocMap.SlotName;
+                }
+                else if (this.LocMap.CurrLocMap.SectLocMapRefno > 0)
+                {
+                    locCode = this.LocMap.CurrLocMap.SectCode;
+                    locName = this.LocMap.CurrLocMap.SectName;
+                }
+                else
+                {
+                    locCode = this.LocMap.CurrLocMap.WhsCode;
+                    locName = this.LocMap.CurrLocMap.WhsName;
+                }
+
+                detail.LocationCode = locCode;
+                detail.LocationName = locName;
+                detail.ActivityDetailSchemeID = this.SchemeID;
+                detail.ActivityDetailUniqueSchemeID = this.UniqueSchemeID;
+
+                if (detailToBeAdded)
+                {
+                    this.ListDetails.Add(detail);
+                }
+            }
+
+            return detail;
+        }
+
+        /// <summary>
+        /// Design the activity grid.
+        /// </summary>
+        /// <param name="gridMain"><see cref="Grid"/> Activity grid.</param>
+        /// <param name="actDetail"><see cref="ActivityDetail"/> Activity detail.</param>
+        /// <param name="mainActivityExtraInfoItems"><see cref="ObservableCollection(object)"/> Main activity items list.</param>
+        /// <returns><see cref="DataTemplate"/> Data template.</returns>
+        public override DataTemplate DesignGrid(
+            ref Grid gridMain,
+            ActivityDetail actDetail,
+            ObservableCollection<object> mainActivityExtraInfoItems)
+        {
+            Label labelPickingDetailConfirmedHeader = new Label
+            {
+                Text = "C",
+                VerticalOptions = LayoutOptions.Center,
+                HorizontalOptions = LayoutOptions.Start,
+                FontAttributes = FontAttributes.Bold,
+            };
+
+            Label labelPickingQuantityHeader = new Label
+            {
+                Text = "Qty",
+                VerticalOptions = LayoutOptions.Center,
+                HorizontalOptions = LayoutOptions.Start,
+                FontAttributes = FontAttributes.Bold,
+            };
+
+            Label labelPickingWeightQuantityHeader = new Label
+            {
+                Text = "Weight",
+                VerticalOptions = LayoutOptions.Center,
+                HorizontalOptions = LayoutOptions.Start,
+                FontAttributes = FontAttributes.Bold,
+            };
+
+            Label labelPickingUnitCodeHeader = new Label
+            {
+                Text = string.Empty,
+                VerticalOptions = LayoutOptions.Center,
+                HorizontalOptions = LayoutOptions.Start,
+                FontAttributes = FontAttributes.Bold,
+            };
+
+            Label labelPickingSchemeIDHeader = new Label
+            {
+                Text = "Scheme ID",
+                VerticalOptions = LayoutOptions.Center,
+                HorizontalOptions = LayoutOptions.Start,
+                FontAttributes = FontAttributes.Bold,
+            };
+
+            this.ColumnWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(labelPickingDetailConfirmedHeader.Text);
+            this.ColumnWidth1 = DependencyService.Get<IGridService>().CalculateTextWidth(labelPickingQuantityHeader.Text);
+            this.ColumnWidth2 = DependencyService.Get<IGridService>().CalculateTextWidth(labelPickingWeightQuantityHeader.Text);
+            this.ColumnWidth3 = DependencyService.Get<IGridService>().CalculateTextWidth(labelPickingUnitCodeHeader.Text);
+            this.ColumnWidth4 = DependencyService.Get<IGridService>().CalculateTextWidth(labelPickingSchemeIDHeader.Text);
+
+            // Header grid
+            Grid gridHeader = new Grid
+            {
+                Padding = new Thickness(5),
+                ColumnDefinitions =
+                {
+                    new ColumnDefinition { Width = new GridLength(this.ColumnWidth0, GridUnitType.Absolute) },
+                    new ColumnDefinition { Width = new GridLength(this.ColumnWidth1, GridUnitType.Absolute) },
+                    new ColumnDefinition { Width = new GridLength(this.ColumnWidth2, GridUnitType.Absolute) },
+                    new ColumnDefinition { Width = new GridLength(this.ColumnWidth3, GridUnitType.Absolute) },
+                    new ColumnDefinition { Width = new GridLength(this.ColumnWidth4, GridUnitType.Absolute) },
+                },
+            };
+
+            gridHeader.SetDynamicResource(VisualElement.BackgroundColorProperty, "HeaderColor");
+
+            if (this.SysEnv.SysSettings.IsPickConfirmDet)
+            {
+                gridHeader.Children.Add(labelPickingDetailConfirmedHeader);
+            }
+
+            gridHeader.Children.Add(labelPickingQuantityHeader);
+            gridHeader.Children.Add(labelPickingWeightQuantityHeader);
+            gridHeader.Children.Add(labelPickingUnitCodeHeader);
+            gridHeader.Children.Add(labelPickingSchemeIDHeader);
+
+            if (this.SysEnv.SysSettings.IsPickConfirmDet)
+            {
+                Grid.SetColumn(labelPickingDetailConfirmedHeader, 0);
+            }
+
+            Grid.SetColumn(labelPickingQuantityHeader, 1);
+            Grid.SetColumn(labelPickingWeightQuantityHeader, 2);
+            Grid.SetColumn(labelPickingUnitCodeHeader, 3);
+            Grid.SetColumn(labelPickingSchemeIDHeader, 4);
+
+            Grid.SetRow(gridHeader, 0);
+
+            gridMain.Children.Add(gridHeader);
+
+            mainActivityExtraInfoItems.Add(actDetail);
+
+            double detailWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(
+                ((PickingDetail)actDetail).ActivityDetailIsConfirmedString);
+            double detailWidth1 = DependencyService.Get<IGridService>().CalculateTextWidth(
+                string.Format("{0:F3}", actDetail.ActivityDetailQuantity));
+            double detailWidth2 = DependencyService.Get<IGridService>().CalculateTextWidth(
+                string.Format("{0:F3}", actDetail.ActivityDetailWeightQuantity));
+            double detailWidth3 = DependencyService.Get<IGridService>().CalculateTextWidth(
+                actDetail.UnitCode);
+            double detailWidth4 = DependencyService.Get<IGridService>().CalculateTextWidth(
+                actDetail.ActivityDetailSchemeID);
+
+            if (this.SysEnv.SysSettings.IsPickConfirmDet)
+            {
+                if (detailWidth0 > this.ColumnWidth0)
+                {
+                    this.ColumnWidth0 = detailWidth0;
+                    gridMain.ColumnDefinitions[0].Width = this.ColumnWidth0;
+                }
+            }
+            else
+            {
+                this.ColumnWidth0 = 0;
+                gridMain.ColumnDefinitions[0].Width = this.ColumnWidth0;
+            }
+
+            if (detailWidth1 > this.ColumnWidth1)
+            {
+                this.ColumnWidth1 = detailWidth1;
+                gridMain.ColumnDefinitions[1].Width = this.ColumnWidth1;
+            }
+
+            if (detailWidth2 > this.ColumnWidth2)
+            {
+                this.ColumnWidth2 = detailWidth2;
+                gridMain.ColumnDefinitions[2].Width = this.ColumnWidth2;
+            }
+
+            if (detailWidth3 > this.ColumnWidth3)
+            {
+                this.ColumnWidth3 = detailWidth3;
+                gridMain.ColumnDefinitions[3].Width = this.ColumnWidth3;
+            }
+
+            if (detailWidth4 > this.ColumnWidth4)
+            {
+                this.ColumnWidth4 = detailWidth4;
+                gridMain.ColumnDefinitions[4].Width = this.ColumnWidth4;
+            }
+
+            return (DataTemplate)this.ResourceDictionary["dataTemplate"];
+        }
     }
 }

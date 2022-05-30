@@ -1,9 +1,9 @@
-﻿namespace dMobile.View.Options
+﻿// <copyright file="ucAbout.xaml.cs" company="InterSect Business Systems Inc">
+// Copyright (c) InterSect Business Systems Inc. All rights reserved.
+// </copyright>
+
+namespace dMobile.View.Options
 {
-    using Android.Views;
-    using dMobile.Bedrock;
-    using dMobile.Resources.Enums;
-    using dMobile.View.CustomPages;
     using System;
     using System.Collections.ObjectModel;
     using System.Linq;
@@ -12,27 +12,31 @@
     using System.Net.Sockets;
     using System.Threading.Tasks;
     using System.Xml.Linq;
+    using Android.Views;
+    using dMobile.Bedrock;
+    using dMobile.Resources.Enums;
+    using dMobile.View.CustomPages;
     using Xamarin.Forms;
     using Xamarin.Forms.Xaml;
 
     [XamlCompilation(XamlCompilationOptions.Compile)]
     public partial class ucAbout : DMobileContentPage, IAppArea
     {
-        NetworkInterface nic = null;
-        private bool isControlLoaded = false;
         private ObservableCollection<IPAddr> itemsList;
 
         /// <summary>
         ///
         /// </summary>
         /// <remarks></remarks>
+/// <summary>
+/// Initializes a new instance of the <see cref="ucAbout"/> class.
+/// </summary>
         public ucAbout()
         {
             this.InitializeComponent();
 
             this.Title = this.GetControlDescription();
 
-            // TODO: Resource strings
             this.lblDeviceNameIP.Text = "Device Serial Number";
             this.lblMACAddress.Text = "MAC Address:";
             this.lblStatus.Text = "Status:";
@@ -54,14 +58,13 @@
                 }
                 catch (Exception ex)
                 {
-                    // TODO: Logging
                     Console.WriteLine("Error in ucAbout.xaml.cs " + ex);
                 }
             }
         }
 
         /// <summary>
-        /// The OnAppearing
+        /// The OnAppearing.
         /// </summary>
         protected override void OnAppearing()
         {
@@ -76,8 +79,7 @@
 
             MessagingCenter.Subscribe<string>(this, EventTypes.OnKeyUp.ToString(), async (keyPressed) =>
             {
-                // TODO: Verify keycodes
-                Enum.TryParse(keyPressed, out Keycode keycode);
+                _ = Enum.TryParse(keyPressed, out Keycode keycode);
 
                 if (keycode == Keycode.Enter || keycode == Keycode.F1)
                 {
@@ -95,7 +97,7 @@
             {
                 if (await this.CancelChanges())
                 {
-                    base.OnBackButtonPressed();
+                    _ = base.OnBackButtonPressed();
                     await this.Close();
                 }
             });
@@ -104,7 +106,7 @@
         }
 
         /// <summary>
-        /// The OnDisappearing
+        /// The OnDisappearing.
         /// </summary>
         protected override void OnDisappearing()
         {
@@ -113,31 +115,9 @@
             MessagingCenter.Unsubscribe<string>(this, EventTypes.OnKeyUp.ToString());
         }
 
-        public bool IsControlLoaded
-        {
-            get
-            {
-                return this.isControlLoaded;
-            }
+        public bool IsControlLoaded { get; set; } = false;
 
-            set
-            {
-                this.isControlLoaded = value;
-            }
-        }
-
-        public NetworkInterface NIC
-        {
-            get
-            {
-                return this.nic;
-            }
-
-            set
-            {
-                this.nic = value;
-            }
-        }
+        public NetworkInterface NIC { get; set; } = null;
 
         /// <summary>
         /// Unregister the bar code scan event handler and disable the scanner.
@@ -182,7 +162,6 @@
         /// <remarks></remarks>
         public string GetControlDescription()
         {
-            // TODO: Resource strings
             return "About dMobile";
         }
 
@@ -229,13 +208,10 @@
         /// <remarks></remarks>
         private void ucAbout_GotFocus(object sender, EventArgs e)
         {
-            if (!SysEnvironment.GetInstance().IsApplicationExitInvoked)
+            if (!this.IsControlLoaded)
             {
-                if (!this.IsControlLoaded)
-                {
-                    this.IsControlLoaded = true;
-                    this.lblDeviceIDData.Text = SysCommon.WordWrap2String(SysDeviceID.GetDeviceID(), 30);
-                }
+                this.IsControlLoaded = true;
+                this.lblDeviceIDData.Text = SysCommon.WordWrap2String(SysDeviceID.GetDeviceID(), 30);
             }
         }
 
@@ -282,7 +258,7 @@
                 set
                 {
                     this.displayMember = value;
-                    OnPropertyChanged();
+                    this.OnPropertyChanged();
                 }
             }
         }
@@ -295,7 +271,7 @@
         /// <remarks></remarks>
         private async void cmdShowMemory_Click(object sender, EventArgs e)
         {
-            await Device.InvokeOnMainThreadAsync(async () => await DisplayAlert("Memory Usage", SysCommon.ShowMemory(), "OK"));
+            await Device.InvokeOnMainThreadAsync(async () => await this.DisplayAlert("Memory Usage", SysCommon.ShowMemory(), "OK"));
         }
 
         /// <summary>
@@ -306,13 +282,12 @@
         /// <remarks></remarks>
         private async void cmdVersionInfo_Click(object sender, EventArgs e)
         {
-            string viewsAssemblyVersion = new SysShared().GetAssemblyVersion();
+            string viewsAssemblyVersion = SysShared.GetAssemblyVersion();
             string barCodeScannerAssemblyVersion = new BarCodeScanner.clsCommon().GetAssemblyVersion();
             string groundWorkAssemblyVersion = new GroundWork.Common().GetAssemblyVersion();
             string controllerAssemblyVersion = new Controller.Common().GetAssemblyVersion();
             string bedrockAssemblyVersion = new SysCommon().GetAssemblyVersion();
 
-            // TODO: Resource strings
             string message = string.Format("Views {0} " + Environment.NewLine +
                 "Scan Engine {1} " + Environment.NewLine +
                 "Ground Work {2} " + Environment.NewLine +
@@ -324,8 +299,7 @@
                 controllerAssemblyVersion,
                 bedrockAssemblyVersion);
 
-            // TODO: Resource strings
-            await Device.InvokeOnMainThreadAsync(async () => await DisplayAlert("Assembly Versions", message, "OK"));
+            await Device.InvokeOnMainThreadAsync(async () => await this.DisplayAlert("Assembly Versions", message, "OK"));
         }
 
         private void LstDeviceNameIP_ItemSelected(object sender, SelectedItemChangedEventArgs e)

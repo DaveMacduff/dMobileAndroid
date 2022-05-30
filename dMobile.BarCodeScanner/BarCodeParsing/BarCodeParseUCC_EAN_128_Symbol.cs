@@ -1,12 +1,14 @@
-namespace dMobile.BarCodeScanner
+// <copyright file="BarCodeParseUCC_EAN_128_Symbol.cs" company="InterSect Business Systems Inc">
+// Copyright (c) InterSect Business Systems Inc. All rights reserved.
+// </copyright>
+
+namespace dMobile.BarCodeScanner.BarCodeParsing
 {
     using System;
     using dMobile.Bedrock;
 
     public class BarCodeParseUCC_EAN_128_Symbol : BarCodeParse
     {
-        #region Public Members
-
         public override void ParseBarCodeData(string barCodeData)
         {
             try
@@ -16,8 +18,9 @@ namespace dMobile.BarCodeScanner
 
                 // GetType == typeof(...) makes sure the rules are checked once.
                 // This way, a rule doesn't have to override ParseBarCodeData(...) with duplicate code.
-                // It can instead just call this and run it again. Saves coding time, reduces duplicate code, keeps code in sync.
-                if (GetType() == typeof(BarCodeParseUCC_EAN_128_Symbol))
+                // It can instead just call this and run it again. Saves coding time, reduces duplicate code,
+                // keeps code in sync.
+                if (this.GetType() == typeof(BarCodeParseUCC_EAN_128_Symbol))
                 {
                     if (this.Settings.IsRuleEnabled_ParseEAN_UCC128_NossackProduct94600_ChileanBackRibs
                         && barCodeData.Length >= 14
@@ -33,17 +36,24 @@ namespace dMobile.BarCodeScanner
                         barCodeData.Length >= 14)
                     {
                         this.ClearResetBarCodeProperties(false);
-                        BarCodeParseUCC_EAN_128_KiiNaturalsCrisps_Dovre barCodeParse = new BarCodeParseUCC_EAN_128_KiiNaturalsCrisps_Dovre();
+                        BarCodeParseUCC_EAN_128_KiiNaturalsCrisps_Dovre barCodeParse =
+                            new BarCodeParseUCC_EAN_128_KiiNaturalsCrisps_Dovre();
                         barCodeParse.ParseBarCodeData(barCodeData);
-                        return; // stop executing since we already went through this function as long as you don't override ParseBarCodeData
+
+                        // stop executing since we already went through this function as long as you don't override
+                        // ParseBarCodeData
+                        return;
                     }
                     else if (this.Settings.IsRuleEnabled_ParseEAN_UCC128_Nossack_GreenleaPremierMeats &&
                         barCodeData.Length == 20 &&
-                        barCodeData.Substring(0, 2) != "00" && // don't parse out skid codes <WO 13873>
-                        barCodeData.Substring(0, 7).Contains("05080")) // only use the rule with their product id of "05080"
+                        barCodeData.Substring(0, 2) != "00" &&
+                        barCodeData.Substring(0, 7).Contains("05080"))
                     {
+                        // don't parse out skid codes <WO 13873>
+                        // only use the rule with their product id of "05080"
                         this.ClearResetBarCodeProperties(false);
-                        BarCodeParseUCC_EAN_128_GreenleaPremierMeats_Nossack barCodeParse = new BarCodeParseUCC_EAN_128_GreenleaPremierMeats_Nossack();
+                        BarCodeParseUCC_EAN_128_GreenleaPremierMeats_Nossack barCodeParse =
+                            new BarCodeParseUCC_EAN_128_GreenleaPremierMeats_Nossack();
                         barCodeParse.ParseBarCodeData(barCodeData);
                         return;
                     }
@@ -86,7 +96,7 @@ namespace dMobile.BarCodeScanner
                     this.SSCC18 = string.Empty;
                 }
 
-                SuppressErrorsRule();
+                this.SuppressErrorsRule();
             }
             catch (BarCodeParseException)
             {
@@ -107,14 +117,9 @@ namespace dMobile.BarCodeScanner
             }
             finally
             {
-                CleanupRules();
+                this.CleanupRules();
             }
         }
-
-
-        #endregion
-
-        #region Protected Methods
 
         /// <summary>
         /// Cleans up any extra rule information.
@@ -125,7 +130,9 @@ namespace dMobile.BarCodeScanner
             if (!this.Settings.IsRuleEnabled_ParseEAN_UCC128_SuppressAllParseErrorsForNonTrackedComponents)
             {
                 if (this.Details != null)
+                {
                     this.Details.ClearErrors();
+                }
             }
         }
 
@@ -144,7 +151,7 @@ namespace dMobile.BarCodeScanner
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="barCodeData"></param>
         /// <returns></returns>
@@ -192,7 +199,7 @@ namespace dMobile.BarCodeScanner
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="barCodeData"></param>
         /// <returns></returns>
@@ -212,7 +219,7 @@ namespace dMobile.BarCodeScanner
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="barCodeData"></param>
         /// <returns></returns>
@@ -275,7 +282,7 @@ namespace dMobile.BarCodeScanner
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="barCodeData"></param>
         /// <returns></returns>
@@ -298,7 +305,7 @@ namespace dMobile.BarCodeScanner
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="barCodeData"></param>
         /// <returns></returns>
@@ -330,7 +337,7 @@ namespace dMobile.BarCodeScanner
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="barCodeData"></param>
         /// <returns></returns>
@@ -390,7 +397,7 @@ namespace dMobile.BarCodeScanner
 #else
                                 "Failed to resize string '{0}' to length {1}.",
 #endif
-                                tempData ?? "",
+                                tempData ?? string.Empty,
                                 dataLength),
 #if MULTILANGUAGE
                             Translator.GetInstance().Translate(TranslatorVocabulary.BatchLotNumberz),
@@ -402,14 +409,13 @@ namespace dMobile.BarCodeScanner
                 // remove the Batch / Lot Number from the bar code data
                 tempData = tempData.Remove(0, aiIndex);
 
-
             }
 
             return tempData;
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="barCodeData"></param>
         /// <returns></returns>
@@ -449,13 +455,41 @@ namespace dMobile.BarCodeScanner
                         }
                     }
 
-                    // assign the SERIAL NUMBER
-                    this.SingleTradeItemSerialNumber = tempData.Substring(0, dataLength);
+                    if (this.GTIN.Contains("95060000093134") &&
+                        this.Settings.IsRuleEnabled_ParseEAN_UCC128_BourvyExports_ProductionDate)
+                    {
+                        // Parse and assign the production date from the serial number data.
+
+                        // year
+                        int year = Convert.ToInt32(tempData.Substring(0, 2));
+                        if (year < 80)
+                        {
+                            year += 2000;
+                        }
+                        else
+                        {
+                            year += 1900;
+                        }
+
+                        DateTime dt = new DateTime(year, 1, 1);
+
+                        // Julian days from and including Jan 01 of the year.
+                        // Assumption is that the string length will always be three digits. 0 filled???
+                        int days = Convert.ToInt32(tempData.Substring(2, 3));
+
+                        // Subtract one day, because the the calculated year date begins at day 1.
+                        this.LogisticUnitProductionDate = dt.AddDays(days - 1);
+                    }
+                    else
+                    {
+                        // assign the SERIAL NUMBER
+                        this.SingleTradeItemSerialNumber = tempData.Substring(0, dataLength);
+                    }
                 }
                 catch (Exception e)
                 {
                     this.AddParseErrorDetail(
-                        BarCodeExceptionReason.SerialNumber_InvalidFormat,
+                        BarCodeExceptionReason.SingleTradeItemSerialNumber_InvalidFormat,
                         new BarCodeParseException(
                             string.Format(
 #if MULTILANGUAGE
@@ -463,7 +497,7 @@ namespace dMobile.BarCodeScanner
 #else
                                 "Failed to resize string '{0}' to length {1}.",
 #endif
-                                tempData ?? "",
+                                tempData ?? string.Empty,
                                 dataLength),
 #if MULTILANGUAGE
                             Translator.GetInstance().Translate(TranslatorVocabulary.SerialNumber), e));
@@ -479,7 +513,7 @@ namespace dMobile.BarCodeScanner
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="barCodeData"></param>
         /// <returns></returns>
@@ -538,7 +572,7 @@ namespace dMobile.BarCodeScanner
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="barCodeData"></param>
         /// <returns></returns>
@@ -596,7 +630,7 @@ namespace dMobile.BarCodeScanner
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="barCodeData"></param>
         /// <returns></returns>
@@ -684,7 +718,7 @@ namespace dMobile.BarCodeScanner
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="barCodeData"></param>
         /// <returns></returns>
@@ -743,7 +777,7 @@ namespace dMobile.BarCodeScanner
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="barCodeData"></param>
         /// <returns></returns>
@@ -773,7 +807,7 @@ namespace dMobile.BarCodeScanner
                         Convert.ToInt32(tempData.Substring(2, 2)),
                         Convert.ToInt32(tempData.Substring(4, 2)));   // 101026
 
-                    if (Settings.IsRuleEnabled_Recognize_Code_128_AI17_ExpiryDate_As_AI15_BestBeforeDate)
+                    if (this.Settings.IsRuleEnabled_Recognize_Code_128_AI17_ExpiryDate_As_AI15_BestBeforeDate)
                     {
                         this.LogisticUnitBestBeforeSellByDate = dt;
                     }
@@ -809,7 +843,7 @@ namespace dMobile.BarCodeScanner
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="barCodeData"></param>
         /// <returns></returns>
@@ -852,7 +886,7 @@ namespace dMobile.BarCodeScanner
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="barCodeData"></param>
         /// <returns></returns>
@@ -861,7 +895,7 @@ namespace dMobile.BarCodeScanner
             string tempData = barCodeData;
             if (tempData.StartsWith("37") && tempData.Length >= 10)
             {
-                // remove the AI 
+                // remove the AI
                 tempData = tempData.Remove(0, 2);
                 try
                 {
@@ -896,7 +930,7 @@ namespace dMobile.BarCodeScanner
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="barCodeData"></param>
         /// <returns></returns>
@@ -905,7 +939,7 @@ namespace dMobile.BarCodeScanner
             string codeData = barCodeData;
 
             // Check the entire length (this.Data) not the barCodeData.length because it could have been parsed and altered.
-            if (Settings.IsRuleEnabled_Parse_Code128_China_Seafood
+            if (this.Settings.IsRuleEnabled_Parse_Code128_China_Seafood
                 && barCodeData.StartsWith("30")
                 && this.Length == 14)
             {
@@ -917,7 +951,7 @@ namespace dMobile.BarCodeScanner
                 {
                     bool parseIt = true;
 
-                    if (Settings.IsRuleEnabled_Parse_Code_128_AI01_BC_AI30_exclusive)
+                    if (this.Settings.IsRuleEnabled_Parse_Code_128_AI01_BC_AI30_exclusive)
                     {
                         if (string.IsNullOrEmpty(this.CompanyPrefix))
                         {
@@ -988,14 +1022,13 @@ namespace dMobile.BarCodeScanner
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="barCodeData"></param>
         /// <returns></returns>
         protected override string IdentifyLocationIdentifier(string barCodeData)
         {
             string tempData = barCodeData;
-
 
             // <revision date="20160928" />
             // Used to parse 414 && length >= 16
@@ -1021,7 +1054,7 @@ namespace dMobile.BarCodeScanner
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="barCodeData"></param>
         /// <returns></returns>
@@ -1098,7 +1131,7 @@ namespace dMobile.BarCodeScanner
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="barCodeData"></param>
         /// <returns></returns>
@@ -1177,7 +1210,7 @@ namespace dMobile.BarCodeScanner
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="barCodeData"></param>
         /// <returns></returns>
@@ -1259,7 +1292,7 @@ namespace dMobile.BarCodeScanner
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="barCodeData"></param>
         /// <returns></returns>
@@ -1339,7 +1372,7 @@ namespace dMobile.BarCodeScanner
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="barCodeData"></param>
         /// <returns></returns>
@@ -1418,7 +1451,7 @@ namespace dMobile.BarCodeScanner
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="barCodeData"></param>
         /// <returns></returns>
@@ -1472,8 +1505,9 @@ namespace dMobile.BarCodeScanner
                             string.Format("Failed to parse '{0}'", barCodeData),
 #endif
                             "Activity FK Refno",
-                        e));
+                            e));
                 }
+
                 // remove the Activity FK Refno data from the bar code data
                 tempData = tempData.Remove(0, aiIndex);
             }
@@ -1482,7 +1516,7 @@ namespace dMobile.BarCodeScanner
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="barCodeData"></param>
         /// <returns></returns>
@@ -1546,7 +1580,7 @@ namespace dMobile.BarCodeScanner
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="barCodeData"></param>
         /// <returns></returns>
@@ -1607,7 +1641,5 @@ namespace dMobile.BarCodeScanner
 
             return tempData;
         }
-
-        #endregion
     }
 }

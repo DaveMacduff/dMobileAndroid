@@ -1,4 +1,8 @@
-﻿#if MULTILANGUAGE
+﻿// <copyright file="Translator.cs" company="InterSect Business Systems Inc">
+// Copyright (c) InterSect Business Systems Inc. All rights reserved.
+// </copyright>
+
+#if MULTILANGUAGE
 namespace dMobile.Bedrock
 {   
     using System;
@@ -674,8 +678,7 @@ namespace dMobile.Bedrock
             return sb.ToString();
         }
 
-        #region IDisposable Members
-
+        
         /// <summary>
         /// Disposes the translator and all resources.
         /// </summary>
@@ -692,8 +695,7 @@ namespace dMobile.Bedrock
             languageLoaded = false;
         }
 
-        #endregion
-
+        
         /// <summary>
         /// Gets the number of words.
         /// </summary>

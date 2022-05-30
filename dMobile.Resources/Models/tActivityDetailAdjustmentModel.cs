@@ -1,9 +1,13 @@
-﻿using System;
-using SQLite;
-using SQLiteNetExtensions.Attributes;
+﻿// <copyright file="tActivityDetailAdjustmentModel.cs" company="InterSect Business Systems Inc">
+// Copyright (c) InterSect Business Systems Inc. All rights reserved.
+// </copyright>
 
 namespace dMobile.Resources.Models
 {
+    using System;
+    using SQLite;
+    using SQLiteNetExtensions.Attributes;
+
     //string sqlTable = "CREATE TABLE IF NOT EXISTS tActivityDetailAdjustment"
     //+ "("
     //+ "ActivityDetailRefno INTEGER NOT NULL CONSTRAINT PK_ActivityDetailAdjustmentOnActivityDetailRefno PRIMARY KEY,"
@@ -23,7 +27,6 @@ namespace dMobile.Resources.Models
 
     //string sqlNdx = "CREATE UNIQUE INDEX IF NOT EXISTS UQ_ActivityDetailAdjustmentOnActivityDetailAdjustmentFKRefno ON tActivityDetailAdjustment(ActivityDetailAdjustmentFKRefno ASC)";
     //await this.RunDDLCommand(sqlNdx);
-
     [Table("tActivityDetailAdjustment")]
     public class tActivityDetailAdjustmentModel
     {

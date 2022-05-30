@@ -14,18 +14,18 @@
 
                 <Frame Grid.Row="0" OutlineColor="{DynamicResource BorderColor}" VerticalOptions="FillAndExpand">
                     <ScrollView Orientation="Horizontal">
-                        <Grid x:Name="dataGridMainActivityHeader">
+                        <Grid x:Name="GridMainActivity">
                             <Grid.RowDefinitions>
                                 <RowDefinition Height="Auto"/>
                             </Grid.RowDefinitions>
 
-                            <ListView x:Name="dataGridMainActivity" HasUnevenRows="True" IsEnabled="{Binding Loading, Converter={Helpers:BoolConverter}}" Grid.Row="1"/>
+                            <ListView x:Name="ListViewMainActivity" HasUnevenRows="True" IsEnabled="{Binding Loading, Converter={Helpers:BoolConverter}}" Grid.Row="1"/>
                         </Grid>
                     </ScrollView>
                 </Frame>
 
                 <Frame VerticalOptions="Start" Grid.Row="1" OutlineColor="{DynamicResource BorderColor}">
-                    <ListView x:Name="lstDisplay" SelectionMode="None" HasUnevenRows="True" IsEnabled="{Binding Loading, Converter={Helpers:BoolConverter}}" SeparatorVisibility="None">
+                    <ListView x:Name="ListViewDisplayExtraInfo" SelectionMode="None" HasUnevenRows="True" IsEnabled="{Binding Loading, Converter={Helpers:BoolConverter}}" SeparatorVisibility="None">
                         <ListView.ItemTemplate>
                             <DataTemplate>
                                 <ViewCell>

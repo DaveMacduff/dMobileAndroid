@@ -1,49 +1,43 @@
-﻿using dMobile.View.CustomPages.Modal;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Xamarin.Forms;
-using Xamarin.Forms.Xaml;
-using System.Collections;
-using System.ComponentModel;
-using System.Data;
-using System.Xml.Linq;
-using dMobile.Bedrock;
-using dMobile.Resources.Enums;
-using Android.Views;
-using SQLite;
-using System.Collections.ObjectModel;
-using dMobile.View.Forms;
-using dMobile.Resources.Models;
-using dMobile.Resources.Types;
+﻿// <copyright file="ucActivityHdrPickingFilter.xaml.cs" company="InterSect Business Systems Inc">
+// Copyright (c) InterSect Business Systems Inc. All rights reserved.
+// </copyright>
 
 namespace dMobile.View.Activity
 {
+    using System;
+    using System.Collections;
+    using System.Collections.Generic;
+    using System.Collections.ObjectModel;
+    using System.ComponentModel;
+    using System.Data;
+    using System.Linq;
+    using System.Text;
+    using System.Threading.Tasks;
+    using System.Xml.Linq;
+    using Android.Views;
+    using dMobile.Bedrock;
+    using dMobile.Resources.Enums;
+    using dMobile.Resources.Models;
+    using dMobile.Resources.Types;
+    using dMobile.View.CustomPages.Modal;
+    using dMobile.View.Forms;
+    using SQLite;
+    using Xamarin.Forms;
+    using Xamarin.Forms.Xaml;
+    using Resource = dMobile.Resources.Properties.Resources;
+
     [XamlCompilation(XamlCompilationOptions.Compile)]
     public partial class ucActivityHdrPickingFilter : DMobileModal, IAppArea
     {
-        private SysCommon.ActSubTypes actSubType = SysCommon.ActSubTypes.PickingFilter;
-        private PickingSettings pickSettings;
-        private ArrayList sortBy1 = new ArrayList();
-        private ArrayList sortBy2 = new ArrayList();
-        private ArrayList sortBy3 = new ArrayList();
-        private ArrayList sortBy4 = new ArrayList();
-        private string sqlSortBy = string.Empty;
-        private bool isControlLoaded = false;
-        private bool isChangesMade = false;
-        private Dictionary<string, Sort> filters;
-        ObservableCollection<object> routesList;
         private bool isFirstAppearance = true;
 
-        #region Constructors
-
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ucActivityHdrPickingFilter"/> class.
+        /// </summary>
         public ucActivityHdrPickingFilter()
         {
             this.InitializeComponent();
 
-            // TODO: Resource strings
             this.Title = this.GetControlDescription();
             this.lblApplyRouteCode.Text = "Apply Route Code Filter";
             this.lblApplyDeliveryDate.Text = "Apply Delivery Date Filter";
@@ -61,10 +55,8 @@ namespace dMobile.View.Activity
             }
         }
 
-        #endregion
-
         /// <summary>
-        /// The OnAppearing
+        /// The OnAppearing.
         /// </summary>
         protected override async void OnAppearing()
         {
@@ -72,8 +64,7 @@ namespace dMobile.View.Activity
 
             MessagingCenter.Subscribe<string>(this, EventTypes.OnKeyUp.ToString(), async (keyPressed) =>
             {
-                // TODO: Verify keycodes
-                Enum.TryParse(keyPressed, out Keycode keycode);
+                _ = Enum.TryParse(keyPressed, out Keycode keycode);
 
                 if (keycode == Keycode.F1)
                 {
@@ -94,87 +85,82 @@ namespace dMobile.View.Activity
                     this.cboRoute.ItemDisplayBinding = new Binding("RouteCode");
 
                     // At least one sort option must be selected
-                    // TODO: Resource strings
                     this.SortBy1.Clear();
-                    this.SortBy1.Add("Order # Ascending");
-                    this.SortBy1.Add("Order # Descending");
-                    this.SortBy1.Add("Route # Ascending");
-                    this.SortBy1.Add("Route # Descending");
-                    this.SortBy1.Add("Ordered Date Ascending");
-                    this.SortBy1.Add("Ordered Date Descending");
-                    this.SortBy1.Add("Delivery Ascending");
-                    this.SortBy1.Add("Delivery Descending");
+                    _ = this.SortBy1.Add("Order # Ascending");
+                    _ = this.SortBy1.Add("Order # Descending");
+                    _ = this.SortBy1.Add("Route # Ascending");
+                    _ = this.SortBy1.Add("Route # Descending");
+                    _ = this.SortBy1.Add("Ordered Date Ascending");
+                    _ = this.SortBy1.Add("Ordered Date Descending");
+                    _ = this.SortBy1.Add("Delivery Ascending");
+                    _ = this.SortBy1.Add("Delivery Descending");
 
                     this.cboSortBy1.ItemsSource = this.SortBy1;
                     this.cboSortBy1.SelectedIndex = this.PickSettings.iSortBy1Index;
 
-                    // TODO: Resource strings
                     this.SortBy2.Clear();
-                    this.SortBy2.Add(string.Empty);
-                    this.SortBy2.Add("Order # Ascending");
-                    this.SortBy2.Add("Order # Descending");
-                    this.SortBy2.Add("Route # Ascending");
-                    this.SortBy2.Add("Route # Descending");
-                    this.SortBy2.Add("Ordered Date Ascending");
-                    this.SortBy2.Add("Ordered Date Descending");
-                    this.SortBy2.Add("Delivery Ascending");
-                    this.SortBy2.Add("Delivery Descending");
+                    _ = this.SortBy2.Add(string.Empty);
+                    _ = this.SortBy2.Add("Order # Ascending");
+                    _ = this.SortBy2.Add("Order # Descending");
+                    _ = this.SortBy2.Add("Route # Ascending");
+                    _ = this.SortBy2.Add("Route # Descending");
+                    _ = this.SortBy2.Add("Ordered Date Ascending");
+                    _ = this.SortBy2.Add("Ordered Date Descending");
+                    _ = this.SortBy2.Add("Delivery Ascending");
+                    _ = this.SortBy2.Add("Delivery Descending");
 
                     this.cboSortBy2.ItemsSource = this.SortBy2;
                     this.cboSortBy2.SelectedIndex = this.PickSettings.iSortBy2Index;
 
-                    // TODO: Resource strings
                     this.SortBy3.Clear();
-                    this.SortBy3.Add(string.Empty);
-                    this.SortBy3.Add("Order # Ascending");
-                    this.SortBy3.Add("Order # Descending");
-                    this.SortBy3.Add("Route # Ascending");
-                    this.SortBy3.Add("Route # Descending");
-                    this.SortBy3.Add("Ordered Date Ascending");
-                    this.SortBy3.Add("Ordered Date Descending");
-                    this.SortBy3.Add("Delivery Ascending");
-                    this.SortBy3.Add("Delivery Descending");
+                    _ = this.SortBy3.Add(string.Empty);
+                    _ = this.SortBy3.Add("Order # Ascending");
+                    _ = this.SortBy3.Add("Order # Descending");
+                    _ = this.SortBy3.Add("Route # Ascending");
+                    _ = this.SortBy3.Add("Route # Descending");
+                    _ = this.SortBy3.Add("Ordered Date Ascending");
+                    _ = this.SortBy3.Add("Ordered Date Descending");
+                    _ = this.SortBy3.Add("Delivery Ascending");
+                    _ = this.SortBy3.Add("Delivery Descending");
 
                     this.cboSortBy3.ItemsSource = this.SortBy3;
                     this.cboSortBy3.SelectedIndex = this.PickSettings.iSortBy3Index;
 
-                    // TODO: Resource strings
                     this.SortBy4.Clear();
-                    this.SortBy4.Add(string.Empty);
-                    this.SortBy4.Add("Order # Ascending");
-                    this.SortBy4.Add("Order # Descending");
-                    this.SortBy4.Add("Route # Ascending");
-                    this.SortBy4.Add("Route # Descending");
-                    this.SortBy4.Add("Ordered Date Ascending");
-                    this.SortBy4.Add("Ordered Date Descending");
-                    this.SortBy4.Add("Delivery Ascending");
-                    this.SortBy4.Add("Delivery Descending");
+                    _ = this.SortBy4.Add(string.Empty);
+                    _ = this.SortBy4.Add("Order # Ascending");
+                    _ = this.SortBy4.Add("Order # Descending");
+                    _ = this.SortBy4.Add("Route # Ascending");
+                    _ = this.SortBy4.Add("Route # Descending");
+                    _ = this.SortBy4.Add("Ordered Date Ascending");
+                    _ = this.SortBy4.Add("Ordered Date Descending");
+                    _ = this.SortBy4.Add("Delivery Ascending");
+                    _ = this.SortBy4.Add("Delivery Descending");
 
                     this.cboSortBy4.ItemsSource = this.SortBy4;
                     this.cboSortBy4.SelectedIndex = this.PickSettings.iSortBy4Index;
 
-                    Filters.Add(string.Empty, null);
-                    Filters.Add("Order # Ascending", new Sort() { SortValue = "ActivityPickingFKRefno", SortOrder = SortOrder.ASC });
-                    Filters.Add("Order # Descending", new Sort() { SortValue = "ActivityPickingFKRefno", SortOrder = SortOrder.DESC });
-                    Filters.Add("Route # Ascending", new Sort() { SortValue = "RouteCode", SortOrder = SortOrder.ASC });
-                    Filters.Add("Route # Descending", new Sort() { SortValue = "RouteCode", SortOrder = SortOrder.DESC });
-                    Filters.Add("Ordered Date Ascending", new Sort() { SortValue = "ActivityPickingOrderedDateTime", SortOrder = SortOrder.ASC });
-                    Filters.Add("Ordered Date Descending", new Sort() { SortValue = "ActivityPickingOrderedDateTime", SortOrder = SortOrder.DESC });
-                    Filters.Add("Delivery Ascending", new Sort() { SortValue = "ActivityPickingDeliveryDateTime", SortOrder = SortOrder.ASC });
-                    Filters.Add("Delivery Descending", new Sort() { SortValue = "ActivityPickingDeliveryDateTime", SortOrder = SortOrder.DESC });
+                    this.Filters.Add(string.Empty, null);
+                    this.Filters.Add("Order # Ascending", new Sort() { SortValue = "ActivityPickingFKRefno", SortOrder = SortOrder.ASC });
+                    this.Filters.Add("Order # Descending", new Sort() { SortValue = "ActivityPickingFKRefno", SortOrder = SortOrder.DESC });
+                    this.Filters.Add("Route # Ascending", new Sort() { SortValue = "RouteCode", SortOrder = SortOrder.ASC });
+                    this.Filters.Add("Route # Descending", new Sort() { SortValue = "RouteCode", SortOrder = SortOrder.DESC });
+                    this.Filters.Add("Ordered Date Ascending", new Sort() { SortValue = "ActivityPickingOrderedDateTime", SortOrder = SortOrder.ASC });
+                    this.Filters.Add("Ordered Date Descending", new Sort() { SortValue = "ActivityPickingOrderedDateTime", SortOrder = SortOrder.DESC });
+                    this.Filters.Add("Delivery Ascending", new Sort() { SortValue = "ActivityPickingDeliveryDateTime", SortOrder = SortOrder.ASC });
+                    this.Filters.Add("Delivery Descending", new Sort() { SortValue = "ActivityPickingDeliveryDateTime", SortOrder = SortOrder.DESC });
                 }
 
                 await this.ucActivityPickingFilter_GotFocus(this, new EventArgs());
             }
             catch (Exception ex)
             {
-                // TODO: Resource strings
-                await Device.InvokeOnMainThreadAsync(async () => await DisplayAlert("Error", "this.ucActivityPickingFilter_GotFocus threw an error " + ex, "OK"));
+                await Device.InvokeOnMainThreadAsync(async () => await this.DisplayAlert("Error", "this.ucActivityPickingFilter_GotFocus threw an error " + ex, "OK"));
             }
         }
 
         /// <summary>
-        /// The OnDisappearing
+        /// The OnDisappearing.
         /// </summary>
         protected override void OnDisappearing()
         {
@@ -187,8 +173,8 @@ namespace dMobile.View.Activity
         {
             Device.BeginInvokeOnMainThread(async () =>
             {
-                base.OnBackButtonPressed();
-                await this.CancelChanges();
+                _ = base.OnBackButtonPressed();
+                _ = await this.CancelChanges();
                 this.DialogResult = DialogResult.None;
                 await this.Close();
             });
@@ -196,133 +182,26 @@ namespace dMobile.View.Activity
             return true;
         }
 
-        #region Properties
+        private SysCommon.ActSubTypes ActSubType { get; set; } = SysCommon.ActSubTypes.PickingFilter;
 
-        private SysCommon.ActSubTypes ActSubType
-        {
-            get
-            {
-                return this.actSubType;
-            }
+        private ArrayList SortBy1 { get; set; } = new ArrayList();
 
-            set
-            {
-                this.actSubType = value;
-            }
-        }
+        private ArrayList SortBy2 { get; set; } = new ArrayList();
 
-        private ArrayList SortBy1
-        {
-            get
-            {
-                return this.sortBy1;
-            }
+        private ArrayList SortBy3 { get; set; } = new ArrayList();
 
-            set
-            {
-                this.sortBy1 = value;
-            }
-        }
+        private ArrayList SortBy4 { get; set; } = new ArrayList();
 
-        private ArrayList SortBy2
-        {
-            get
-            {
-                return this.sortBy2;
-            }
+        private bool IsControlLoaded { get; set; } = false;
 
-            set
-            {
-                this.sortBy2 = value;
-            }
-        }
+        private PickingSettings PickSettings { get; set; }
 
-        private ArrayList SortBy3
-        {
-            get
-            {
-                return this.sortBy3;
-            }
+        private string SQLSortBy { get; set; } = string.Empty;
 
-            set
-            {
-                this.sortBy3 = value;
-            }
-        }
+        private bool IsChangesMade { get; set; } = false;
 
-        private ArrayList SortBy4
-        {
-            get
-            {
-                return this.sortBy4;
-            }
-
-            set
-            {
-                this.sortBy4 = value;
-            }
-        }
-
-        private bool IsControlLoaded
-        {
-            get
-            {
-                return this.isControlLoaded;
-            }
-
-            set
-            {
-                this.isControlLoaded = value;
-            }
-        }
-
-        private PickingSettings PickSettings
-        {
-            get
-            {
-                return this.pickSettings;
-            }
-
-            set
-            {
-                this.pickSettings = value;
-            }
-        }
-
-        private string SQLSortBy
-        {
-            get
-            {
-                return this.sqlSortBy;
-            }
-
-            set
-            {
-                this.sqlSortBy = value;
-            }
-        }
-
-        private bool IsChangesMade
-        {
-            get
-            {
-                return this.isChangesMade;
-            }
-
-            set
-            {
-                this.isChangesMade = value;
-            }
-        }
-
-        public Dictionary<string, Sort> Filters { get => filters; set => filters = value; }
-        public ObservableCollection<object> RoutesList { get => routesList; set => routesList = value; }
-
-        #endregion
-
-        #region Public Members
-
-        #region IAppArea
+        public Dictionary<string, Sort> Filters { get; set; }
+        public ObservableCollection<object> RoutesList { get; set; }
 
         /// <summary>
         /// Unregister the bar code scan event handler and disable the scanner.
@@ -353,10 +232,14 @@ namespace dMobile.View.Activity
             {
                 isReadyToSave = true;
             }
-            catch (Exceptions.MessageOnlyException ex)
+            catch (MessageOnlyException ex)
             {
                 isReadyToSave = false;
-                ex.Show(this.ActSubType);
+                await Device.InvokeOnMainThreadAsync(async () =>
+                    await Application.Current.MainPage.DisplayAlert(
+                        this.GetControlDescription(),
+                        ex.Message,
+                        Resource.OK));
             }
             catch (Exception ex)
             {
@@ -365,7 +248,7 @@ namespace dMobile.View.Activity
                 await Device.InvokeOnMainThreadAsync(async () =>
                 {
                     FormErrorReport errRpt = new FormErrorReport(this.ActSubType, ex);
-                    await errRpt.ShowDialog();
+                    _ = await errRpt.ShowDialog();
                 });
             }
 
@@ -393,10 +276,14 @@ namespace dMobile.View.Activity
                 {
                 }
             }
-            catch (Exceptions.MessageOnlyException ex)
+            catch (MessageOnlyException ex)
             {
                 isReadyToClose = false;
-                ex.Show(this.ActSubType);
+                await Device.InvokeOnMainThreadAsync(async () =>
+                    await Application.Current.MainPage.DisplayAlert(
+                        this.GetControlDescription(),
+                        ex.Message,
+                        Resource.OK));
             }
             catch (Exception ex)
             {
@@ -407,7 +294,7 @@ namespace dMobile.View.Activity
                 await Device.InvokeOnMainThreadAsync(async () =>
                 {
                     FormErrorReport errRpt = new FormErrorReport(this.ActSubType, ex);
-                    await errRpt.ShowDialog();
+                    _ = await errRpt.ShowDialog();
                 });
             }
 
@@ -421,7 +308,6 @@ namespace dMobile.View.Activity
         /// <remarks></remarks>
         public string GetControlDescription()
         {
-            // TODO: Resource strings
             return "Picking Filter";
         }
 
@@ -476,7 +362,7 @@ namespace dMobile.View.Activity
                     this.MakeSQLSortBy();
 
                     PickingSettings tempPickSettings = this.PickSettings;
-                    this.PickSettings.SaveData(ref tempPickSettings);
+                    _ = this.PickSettings.SaveData(ref tempPickSettings);
                     this.PickSettings = tempPickSettings;
 
                     saveComplete = true;
@@ -484,24 +370,26 @@ namespace dMobile.View.Activity
                 }
                 else
                 {
-                    // IsReadyToSave will raise errors for invalid data. This is a catch all 
+                    // IsReadyToSave will raise errors for invalid data. This is a catch all
                     // in the event that IsReadyToSave just returns false.
-
-                    // TODO: Resource strings
-                    throw new Exceptions.MessageOnlyException("Data failed validation. Check your data.");
+                    throw new MessageOnlyException("Data failed validation. Check your data.");
                 }
             }
-            catch (Exceptions.MessageOnlyException ex)
+            catch (MessageOnlyException ex)
             {
                 saveComplete = false;
-                ex.Show(this.ActSubType);
+                await Device.InvokeOnMainThreadAsync(async () =>
+                    await Application.Current.MainPage.DisplayAlert(
+                        this.GetControlDescription(),
+                        ex.Message,
+                        Resource.OK));
             }
             catch (Exception ex)
             {
                 await Device.InvokeOnMainThreadAsync(async () =>
                 {
                     FormErrorReport errRpt = new FormErrorReport(this.ActSubType, ex);
-                    await errRpt.ShowDialog();
+                    _ = await errRpt.ShowDialog();
                 });
             }
 
@@ -559,10 +447,14 @@ namespace dMobile.View.Activity
                     this.IsChangesMade = false;
                 }
             }
-            catch (Exceptions.MessageOnlyException ex)
+            catch (MessageOnlyException ex)
             {
                 cancelChanges = false;
-                ex.Show(this.ActSubType);
+                await Device.InvokeOnMainThreadAsync(async () =>
+                    await Application.Current.MainPage.DisplayAlert(
+                        this.GetControlDescription(),
+                        ex.Message,
+                        Resource.OK));
             }
             catch (Exception ex)
             {
@@ -571,7 +463,7 @@ namespace dMobile.View.Activity
                 await Device.InvokeOnMainThreadAsync(async () =>
                 {
                     FormErrorReport errRpt = new FormErrorReport(this.ActSubType, ex);
-                    await errRpt.ShowDialog();
+                    _ = await errRpt.ShowDialog();
                 });
             }
 
@@ -588,20 +480,14 @@ namespace dMobile.View.Activity
             XDocument request = XDocument.Parse(
                 "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>"
                 + "<params>"
-                + ("<delivery_date>" + this.PickSettings.dtDeliveryDateFilter.ToShortDateString() + "</delivery_date>")
-                + ("<ordered_date>" + this.PickSettings.dtOrderedDateFilter.ToShortDateString() + "</ordered_date>")
-                + ("<route_code>" + this.PickSettings.strRouteCodeSelectedValue + "</route_code>")
-                + ("<sortby>" + this.SQLSortBy + "</sortby>")
+                + "<delivery_date>" + this.PickSettings.dtDeliveryDateFilter.ToShortDateString() + "</delivery_date>"
+                + "<ordered_date>" + this.PickSettings.dtOrderedDateFilter.ToShortDateString() + "</ordered_date>"
+                + "<route_code>" + this.PickSettings.strRouteCodeSelectedValue + "</route_code>"
+                + "<sortby>" + this.SQLSortBy + "</sortby>"
                 + "</params>");
 
             return request;
         }
-
-        #endregion
-
-        #endregion
-
-        #region Private Members
 
         /// <summary>
         ///
@@ -639,11 +525,15 @@ namespace dMobile.View.Activity
                     this.IsChangesMade = true;
                 }
             }
-            catch (Exceptions.MessageOnlyException ex)
+            catch (MessageOnlyException ex)
             {
-                // Do not set the IsChangesMade. Exceptions.MessageOnlyException is really not and error. 
+                // Do not set the IsChangesMade. MessageOnlyException is really not and error.
                 // Allow the validation to handle the setting for IsChangesMade.
-                ex.Show(this.ActSubType);
+                _ = Device.InvokeOnMainThreadAsync(async () =>
+                      await Application.Current.MainPage.DisplayAlert(
+                          this.GetControlDescription(),
+                          ex.Message,
+                          Resource.OK));
             }
             catch (Exception ex)
             {
@@ -652,7 +542,7 @@ namespace dMobile.View.Activity
                 Device.BeginInvokeOnMainThread(async () =>
                 {
                     FormErrorReport errRpt = new FormErrorReport(this.ActSubType, ex);
-                    await errRpt.ShowDialog();
+                    _ = await errRpt.ShowDialog();
                 });
             }
         }
@@ -676,7 +566,7 @@ namespace dMobile.View.Activity
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         private void DisplayData()
         {
@@ -709,12 +599,12 @@ namespace dMobile.View.Activity
         /// <remarks></remarks>
         private void MakeSQLSortBy()
         {
-            this.SQLSortBy = this.Filters[cboSortBy1.Items[cboSortBy1.SelectedIndex]].SortValue;
-            this.PickSettings.SortBy1Value = this.Filters[cboSortBy1.Items[cboSortBy1.SelectedIndex]];
+            this.SQLSortBy = this.Filters[this.cboSortBy1.Items[this.cboSortBy1.SelectedIndex]].SortValue;
+            this.PickSettings.SortBy1Value = this.Filters[this.cboSortBy1.Items[this.cboSortBy1.SelectedIndex]];
 
-            if (0 <= cboSortBy2.SelectedIndex)
+            if (this.cboSortBy2.SelectedIndex >= 0)
             {
-                this.PickSettings.SortBy2Value = this.Filters[cboSortBy2.Items[cboSortBy2.SelectedIndex]];
+                this.PickSettings.SortBy2Value = this.Filters[this.cboSortBy2.Items[this.cboSortBy2.SelectedIndex]];
 
                 if (this.PickSettings.SortBy2Value != null && !string.IsNullOrEmpty(this.PickSettings.SortBy2Value.SortValue))
                 {
@@ -722,9 +612,9 @@ namespace dMobile.View.Activity
                 }
             }
 
-            if (0 <= cboSortBy3.SelectedIndex)
+            if (this.cboSortBy3.SelectedIndex >= 0)
             {
-                this.PickSettings.SortBy3Value = this.Filters[cboSortBy3.Items[cboSortBy3.SelectedIndex]];
+                this.PickSettings.SortBy3Value = this.Filters[this.cboSortBy3.Items[this.cboSortBy3.SelectedIndex]];
 
                 if (this.PickSettings.SortBy3Value != null && !string.IsNullOrEmpty(this.PickSettings.SortBy3Value.SortValue))
                 {
@@ -732,9 +622,9 @@ namespace dMobile.View.Activity
                 }
             }
 
-            if (0 <= cboSortBy4.SelectedIndex)
+            if (this.cboSortBy4.SelectedIndex >= 0)
             {
-                this.PickSettings.SortBy4Value = this.Filters[cboSortBy4.Items[cboSortBy4.SelectedIndex]];
+                this.PickSettings.SortBy4Value = this.Filters[this.cboSortBy4.Items[this.cboSortBy4.SelectedIndex]];
 
                 if (this.PickSettings.SortBy4Value != null && !string.IsNullOrEmpty(this.PickSettings.SortBy4Value.SortValue))
                 {
@@ -754,23 +644,21 @@ namespace dMobile.View.Activity
             // Default route selection.
             if (this.PickSettings.iRouteCodeSelectedIndex <= this.cboRoute.Items.Count)
             {
-                await Device.InvokeOnMainThreadAsync(() => this.cboRoute.SelectedIndex = this.PickSettings.iRouteCodeSelectedIndex);
+                _ = await Device.InvokeOnMainThreadAsync(() => this.cboRoute.SelectedIndex = this.PickSettings.iRouteCodeSelectedIndex);
             }
 
             // Default delivery date.
             if (SysCommon.IsEmptyDate(this.PickSettings.dtDeliveryDateFilter))
             {
-                await Device.InvokeOnMainThreadAsync(() => this.PickSettings.dtDeliveryDateFilter = DateTime.Now);
+                _ = await Device.InvokeOnMainThreadAsync(() => this.PickSettings.dtDeliveryDateFilter = DateTime.Now);
             }
 
             // Default ordered date.
             if (SysCommon.IsEmptyDate(this.PickSettings.dtOrderedDateFilter))
             {
-                await Device.InvokeOnMainThreadAsync(() => this.PickSettings.dtOrderedDateFilter = DateTime.Now);
+                _ = await Device.InvokeOnMainThreadAsync(() => this.PickSettings.dtOrderedDateFilter = DateTime.Now);
             }
         }
-
-        #endregion
 
         private void chkApplyRouteCode_Toggled(object sender, ToggledEventArgs e)
         {

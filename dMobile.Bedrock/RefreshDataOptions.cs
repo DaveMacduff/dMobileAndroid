@@ -1,39 +1,100 @@
-﻿namespace dMobile.Bedrock
+﻿// <copyright file="RefreshDataOptions.cs" company="InterSect Business Systems Inc">
+// Copyright (c) InterSect Business Systems Inc. All rights reserved.
+// </copyright>
+
+namespace dMobile.Bedrock
 {
     using System;
     using System.IO;
-    using System.Reflection;
     using System.Xml.Serialization;
 
+    /// <summary>
+    /// Defines the <see cref="RefreshDataOptions" />.
+    /// </summary>
     [Serializable]
     public class RefreshDataOptions
     {
-        #region Fields
-
+        /// <summary>
+        /// Defines the fileName.
+        /// </summary>
         [NonSerialized]
         private string fileName = "dMobileRefreshDataOptions.xml";
 
-        //<issue="15668" author="RD" timestamp="2018-01-02" comment="refreshDataChangesOnly=false; and systemData=true is now default for when an autoupdate occurs and clears these properties." />
+        // <issue="15668" author="RD" timestamp="2018-01-02" comment="refreshDataChangesOnly=false; and systemData=true is now default for when an autoupdate occurs and clears these properties." />
+        /// <summary>
+        /// Defines the refreshDataChangesOnly.
+        /// </summary>
         private bool refreshDataChangesOnly = false;
+
+        /// <summary>
+        /// Defines the systemData.
+        /// </summary>
         private bool systemData = true;
+
+        /// <summary>
+        /// Defines the adjustments.
+        /// </summary>
         private bool adjustments = false;
+
+        /// <summary>
+        /// Defines the purchaseOrders.
+        /// </summary>
         private bool purchaseOrders = false;
+
+        /// <summary>
+        /// Defines the salesOrders.
+        /// </summary>
         private bool salesOrders = false;
+
+        /// <summary>
+        /// Defines the productionTickets.
+        /// </summary>
         private bool productionTickets = false;
+
+        /// <summary>
+        /// Defines the replenishment.
+        /// </summary>
         private bool replenishment = false;
+
+        /// <summary>
+        /// Defines the counts.
+        /// </summary>
         private bool counts = false;
+
+        /// <summary>
+        /// Defines the transfers.
+        /// </summary>
         private bool transfers = false;
+
+        /// <summary>
+        /// Defines the purchaseOrderWorkSheet.
+        /// </summary>
         private bool purchaseOrderWorkSheet = false;
-        //private DateTime refreshedDataLast = DateAndTime.DateSerial(1900, 1, 1);
+
+        // private DateTime refreshedDataLast = DateAndTime.DateSerial(1900, 1, 1);
+        /// <summary>
+        /// Defines the refreshedDataLast.
+        /// </summary>
         private DateTime refreshedDataLast = new DateTime(1900, 1, 1);
+
+        /// <summary>
+        /// Defines the isRefreshedLastDataChangesOnly.
+        /// </summary>
         private bool isRefreshedLastDataChangesOnly = false;
+
+        /// <summary>
+        /// Defines the isDataCreatedOnStartUp.
+        /// </summary>
         private bool isDataCreatedOnStartUp = false;
+
+        /// <summary>
+        /// Defines the isRefreshDataFailed.
+        /// </summary>
         private bool isRefreshDataFailed = false;
 
-        #endregion
-
-        #region Properties
-
+        /// <summary>
+        /// Gets or sets a value indicating whether IsRefreshDataFailed.
+        /// </summary>
         public bool IsRefreshDataFailed
         {
             get
@@ -47,6 +108,9 @@
             }
         }
 
+        /// <summary>
+        /// Gets or sets a value indicating whether IsDataCreatedInStartUp.
+        /// </summary>
         public bool IsDataCreatedInStartUp
         {
             get
@@ -60,6 +124,9 @@
             }
         }
 
+        /// <summary>
+        /// Gets or sets a value indicating whether IsRefreshedLastDataChangesOnly.
+        /// </summary>
         public bool IsRefreshedLastDataChangesOnly
         {
             get
@@ -73,6 +140,9 @@
             }
         }
 
+        /// <summary>
+        /// Gets or sets the RefreshedDataLast.
+        /// </summary>
         public DateTime RefreshedDataLast
         {
             get
@@ -86,6 +156,9 @@
             }
         }
 
+        /// <summary>
+        /// Gets or sets a value indicating whether PurchaseOrderWorkSheet.
+        /// </summary>
         public bool PurchaseOrderWorkSheet
         {
             get
@@ -99,6 +172,9 @@
             }
         }
 
+        /// <summary>
+        /// Gets or sets a value indicating whether Transfers.
+        /// </summary>
         public bool Transfers
         {
             get
@@ -112,6 +188,9 @@
             }
         }
 
+        /// <summary>
+        /// Gets or sets a value indicating whether RefreshDataChangesOnly.
+        /// </summary>
         public bool RefreshDataChangesOnly
         {
             get
@@ -125,6 +204,9 @@
             }
         }
 
+        /// <summary>
+        /// Gets or sets a value indicating whether SystemData.
+        /// </summary>
         public bool SystemData
         {
             get
@@ -138,6 +220,9 @@
             }
         }
 
+        /// <summary>
+        /// Gets or sets a value indicating whether Adjustments.
+        /// </summary>
         public bool Adjustments
         {
             get
@@ -151,6 +236,9 @@
             }
         }
 
+        /// <summary>
+        /// Gets or sets a value indicating whether PurchaseOrders.
+        /// </summary>
         public bool PurchaseOrders
         {
             get
@@ -164,6 +252,9 @@
             }
         }
 
+        /// <summary>
+        /// Gets or sets a value indicating whether SalesOrders.
+        /// </summary>
         public bool SalesOrders
         {
             get
@@ -177,6 +268,9 @@
             }
         }
 
+        /// <summary>
+        /// Gets or sets a value indicating whether ProductionTickets.
+        /// </summary>
         public bool ProductionTickets
         {
             get
@@ -190,6 +284,9 @@
             }
         }
 
+        /// <summary>
+        /// Gets or sets a value indicating whether Replenishment.
+        /// </summary>
         public bool Replenishment
         {
             get
@@ -203,6 +300,9 @@
             }
         }
 
+        /// <summary>
+        /// Gets or sets a value indicating whether Counts.
+        /// </summary>
         public bool Counts
         {
             get
@@ -216,15 +316,10 @@
             }
         }
 
-        #endregion
-
-        #region Public Members
-
         /// <summary>
-        /// 
+        /// The LoadData.
         /// </summary>
-        /// <returns></returns>
-        /// <remarks></remarks>
+        /// <returns>.</returns>
         public RefreshDataOptions LoadData()
         {
             XmlSerializer serializer = new XmlSerializer(typeof(RefreshDataOptions));
@@ -251,15 +346,14 @@
         }
 
         /// <summary>
-        /// 
+        /// The SaveData.
         /// </summary>
-        /// <param name="options"></param>
-        /// <returns></returns>
+        /// <param name="options">.</param>
+        /// <returns>.</returns>
         public bool SaveData(ref RefreshDataOptions options)
         {
             XmlSerializer serializer = new XmlSerializer(typeof(RefreshDataOptions));
-            bool isSaveComplete = false;
-
+            bool isSaveComplete;
             try
             {
                 // use reflection to get the current assembly path for the database
@@ -283,7 +377,5 @@
 
             return isSaveComplete;
         }
-
-        #endregion
     }
 }

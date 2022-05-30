@@ -1,4 +1,8 @@
-﻿using Android.Content;
+﻿// <copyright file="CustomNavigationPageRenderer.cs" company="InterSect Business Systems Inc">
+// Copyright (c) InterSect Business Systems Inc. All rights reserved.
+// </copyright>
+
+using Android.Content;
 using Android.Support.V4.Widget;
 using Android.Views;
 using Android.Widget;
@@ -13,22 +17,22 @@ using Support = Android.Support.V7.Widget;
 namespace dMobile.Droid.CustomRenderers
 {
     /// <summary>
-    /// Defines the <see cref="CustomNavigationPageRenderer" />
+    /// Defines the <see cref="CustomNavigationPageRenderer" />.
     /// </summary>
     public class CustomNavigationPageRenderer : NavigationRenderer
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="CustomNavigationPageRenderer"/> class.
         /// </summary>
-        /// <param name="context">The context<see cref="Context"/></param>
+        /// <param name="context">The context<see cref="Context"/>.</param>
         public CustomNavigationPageRenderer(Context context) : base(context) { }
         protected override void OnAttachedToWindow()
         {
             base.OnAttachedToWindow();
 
-            Element page = Element.Parent;
+            Element page = this.Element.Parent;
             MasterDetailPage masterDetailPage = null;
-            
+
             while (page != null)
             {
                 if (page is MasterDetailPage)
@@ -46,7 +50,7 @@ namespace dMobile.Droid.CustomRenderers
             }
 
             var renderer = Platform.GetRenderer(masterDetailPage) as MasterDetailPageRenderer;
-            
+
             if (renderer == null)
             {
                 return;
@@ -55,7 +59,7 @@ namespace dMobile.Droid.CustomRenderers
             var drawerLayout = (DrawerLayout)renderer;
             Support.Toolbar toolbar = this.FindViewById<Support.Toolbar>(Resource.Id.toolbar);
 
-            toolbar?.SetNavigationOnClickListener(new MenuClickListener(Element, drawerLayout));
+            toolbar?.SetNavigationOnClickListener(new MenuClickListener(this.Element, drawerLayout));
         }
 
         private class MenuClickListener : Java.Lang.Object, IOnClickListener
@@ -71,11 +75,11 @@ namespace dMobile.Droid.CustomRenderers
 
             public void OnClick(Android.Views.View v)
             {
-                if (navigationPage.Navigation.NavigationStack.Count <= 1)
+                if (this.navigationPage.Navigation.NavigationStack.Count <= 1)
                 {
-                    layout.OpenDrawer((int)GravityFlags.Left);
+                    this.layout.OpenDrawer((int)GravityFlags.Left);
                 }
-                else if (navigationPage.CurrentPage.Parent is NavigationPage page)
+                else if (this.navigationPage.CurrentPage.Parent is NavigationPage page)
                 {
                     page.SendBackButtonPressed();
                 }

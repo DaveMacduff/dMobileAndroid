@@ -1,1493 +1,3509 @@
+// <copyright file="SysCommon.cs" company="InterSect Business Systems Inc">
+// Copyright (c) InterSect Business Systems Inc. All rights reserved.
+// </copyright>
+
 namespace dMobile.Bedrock
 {
     using System;
     using System.Collections.Generic;
-    using System.Data;
-    using SQLite;
     using System.IO;
     using System.Net.Sockets;
     using System.Reflection;
     using System.Runtime.InteropServices;
     using System.Text;
+    using System.Threading.Tasks;
     using System.Xml;
     using System.Xml.Schema;
-    using System.Threading.Tasks;
+    using System.Xml.Serialization;
     using dMobile.Resources.Models;
 
-    public struct SProductSchemeData
-    {
-        #region Fields
-
-        private string singleTradeItemSerialNumber;
-        private string logisticUnitBatchLotNumber;
-        private DateTime logisticUnitBestBeforeSellByDate;
-        private DateTime logisticUnitExpiryUseByDate;
-        private DateTime logisticUnitProductionDate;
-        private DateTime logisticUnitDueDate;
-        private DateTime logisticUnitPackagingDate;
-        private string logisticUnitSkidNumber;
-        private string variantCode;
-        private string variantDescription;
-        private int variantNumber;
-
-        #endregion
-
-        #region Properties
-
-        public string SingleTradeItemSerialNumber
-        {
-            get
-            {
-                if (string.IsNullOrEmpty(this.singleTradeItemSerialNumber))
-                {
-                    this.singleTradeItemSerialNumber = string.Empty;
-                }
-
-                return this.singleTradeItemSerialNumber;
-            }
-
-            set
-            {
-                this.singleTradeItemSerialNumber = value;
-            }
-        }
-
-        public string LogisticUnitBatchLotNumber
-        {
-            get
-            {
-                if (string.IsNullOrEmpty(this.logisticUnitBatchLotNumber))
-                {
-                    this.logisticUnitBatchLotNumber = string.Empty;
-                }
-
-                return this.logisticUnitBatchLotNumber;
-            }
-
-            set
-            {
-                this.logisticUnitBatchLotNumber = value;
-            }
-        }
-
-        public DateTime LogisticUnitBestBeforeSellByDate
-        {
-            get
-            {
-                if (SysCommon.IsEmptyDateTime(this.logisticUnitBestBeforeSellByDate))
-                {
-                    this.logisticUnitBestBeforeSellByDate = new DateTime(1900, 1, 1);
-                }
-
-                return this.logisticUnitBestBeforeSellByDate;
-            }
-
-            set
-            {
-                this.logisticUnitBestBeforeSellByDate = value;
-            }
-        }
-
-        public DateTime LogisticUnitExpiryUseByDate
-        {
-            get
-            {
-                if (SysCommon.IsEmptyDateTime(this.logisticUnitExpiryUseByDate))
-                {
-                    this.logisticUnitExpiryUseByDate = new DateTime(1900, 1, 1);
-                }
-
-                return this.logisticUnitExpiryUseByDate;
-            }
-
-            set
-            {
-                this.logisticUnitExpiryUseByDate = value;
-            }
-        }
-
-        public DateTime LogisticUnitProductionDate
-        {
-            get
-            {
-                if (SysCommon.IsEmptyDateTime(this.logisticUnitProductionDate))
-                {
-                    this.logisticUnitProductionDate = new DateTime(1900, 1, 1);
-                }
-
-                return this.logisticUnitProductionDate;
-            }
-
-            set
-            {
-                this.logisticUnitProductionDate = value;
-            }
-        }
-
-        public DateTime LogisticUnitDueDate
-        {
-            get
-            {
-                if (SysCommon.IsEmptyDateTime(this.logisticUnitDueDate))
-                {
-                    this.logisticUnitDueDate = new DateTime(1900, 1, 1);
-                }
-
-                return this.logisticUnitDueDate;
-            }
-
-            set
-            {
-                this.logisticUnitDueDate = value;
-            }
-        }
-
-        public DateTime LogisticUnitPackagingDate
-        {
-            get
-            {
-                if (SysCommon.IsEmptyDateTime(this.logisticUnitPackagingDate))
-                {
-                    this.logisticUnitPackagingDate = new DateTime(1900, 1, 1);
-                }
-
-                return this.logisticUnitPackagingDate;
-            }
-
-            set
-            {
-                this.logisticUnitPackagingDate = value;
-            }
-        }
-
-        public string LogisticUnitSkidNumber
-        {
-            get
-            {
-                if (string.IsNullOrEmpty(this.logisticUnitSkidNumber))
-                {
-                    this.logisticUnitSkidNumber = string.Empty;
-                }
-
-                return this.logisticUnitSkidNumber;
-            }
-
-            set
-            {
-                this.logisticUnitSkidNumber = value;
-            }
-        }
-
-        public string VariantCode
-        {
-            get
-            {
-                if (string.IsNullOrEmpty(this.variantCode))
-                {
-                    this.variantCode = string.Empty;
-                }
-
-                return this.variantCode;
-            }
-
-            set
-            {
-                this.variantCode = value;
-            }
-        }
-
-        public int VariantNumber
-        {
-            get
-            {
-                return this.variantNumber;
-            }
-
-            set
-            {
-                this.variantNumber = value;
-            }
-        }
-
-        public string VariantDescription
-        {
-            get
-            {
-                if (string.IsNullOrEmpty(this.variantDescription))
-                {
-                    this.variantDescription = string.Empty;
-                }
-
-                return this.variantDescription;
-            }
-
-            set
-            {
-                this.variantDescription = value;
-            }
-        }
-
-        #endregion
-    }
-
+    /// <summary>
+    /// Defines the <see cref="SysCommon" />.
+    /// </summary>
     public class SysCommon
     {
-        #region Fields
-
+        /// <summary>
+        /// Defines the SystemLoginID.
+        /// </summary>
         public const int SystemLoginID = 30;
+
+        /// <summary>
+        /// Defines the SystemLoginPassword.
+        /// </summary>
         public const string SystemLoginPassword = "4274";
+
+        /// <summary>
+        /// Defines the SetupLoginID.
+        /// </summary>
         public const int SetupLoginID = 99;
+
+        /// <summary>
+        /// Defines the SetupLoginPassword.
+        /// </summary>
         public const string SetupLoginPassword = "99";
 
-        #region Enumerations
+        /// <summary>
+        /// Defines the EmptyDateTime.
+        /// </summary>
+        public static readonly DateTime EmptyDateTime = new DateTime(1900, 1, 1);
 
+        /// <summary>
+        /// Defines the ShippingLabelQuantitySelectionMode.
+        /// </summary>
         public enum ShippingLabelQuantitySelectionMode : int
         {
+            /// <summary>
+            /// Defines the BothFullRepack.
+            /// </summary>
             BothFullRepack = 0,
+
+            /// <summary>
+            /// Defines the FullOnly.
+            /// </summary>
             FullOnly = 1,
-            RepackOnly = 2
+
+            /// <summary>
+            /// Defines the RepackOnly.
+            /// </summary>
+            RepackOnly = 2,
         }
 
+        /// <summary>
+        /// Defines the ShowErrorMessageType.
+        /// </summary>
         public enum ShowErrorMessageType
         {
             /// <summary>
             /// Error Report Description
             /// </summary>
             ErrorReport = 0,
-            MessageBox = 1
+
+            /// <summary>
+            /// Defines the MessageBox.
+            /// </summary>
+            MessageBox = 1,
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <remarks></remarks>
         public enum ActPickingQtyOverValLevels : int
         {
+            /// <summary>
+            /// Defines the NoValidationOrWarning.
+            /// </summary>
             NoValidationOrWarning = 0,
+
+            /// <summary>
+            /// Defines the ValidateWarnAndStop.
+            /// </summary>
             ValidateWarnAndStop = 1,
-            ValidateWarnAndContinue = 2
+
+            /// <summary>
+            /// Defines the ValidateWarnAndContinue.
+            /// </summary>
+            ValidateWarnAndContinue = 2,
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <remarks></remarks>
         public enum ActPickingQtyUnderValLevels : int
         {
+            /// <summary>
+            /// Defines the NoValidationOrWarning.
+            /// </summary>
             NoValidationOrWarning = 0,
+
+            /// <summary>
+            /// Defines the ValidateWarnAndStop.
+            /// </summary>
             ValidateWarnAndStop = 1,
-            ValidateWarnAndContinue = 2
+
+            /// <summary>
+            /// Defines the ValidateWarnAndContinue.
+            /// </summary>
+            ValidateWarnAndContinue = 2,
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <remarks></remarks>
         public enum ActTransfersQtyOverValLevels : int
         {
+            /// <summary>
+            /// Defines the NoValidationOrWarning.
+            /// </summary>
             NoValidationOrWarning = 0,
+
+            /// <summary>
+            /// Defines the ValidateWarnAndStop.
+            /// </summary>
             ValidateWarnAndStop = 1,
-            ValidateWarnAndContinue = 2
+
+            /// <summary>
+            /// Defines the ValidateWarnAndContinue.
+            /// </summary>
+            ValidateWarnAndContinue = 2,
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <remarks></remarks>
         public enum ActTransfersQtyUnderValLevels : int
         {
+            /// <summary>
+            /// Defines the NoValidationOrWarning.
+            /// </summary>
             NoValidationOrWarning = 0,
+
+            /// <summary>
+            /// Defines the ValidateWarnAndStop.
+            /// </summary>
             ValidateWarnAndStop = 1,
-            ValidateWarnAndContinue = 2
+
+            /// <summary>
+            /// Defines the ValidateWarnAndContinue.
+            /// </summary>
+            ValidateWarnAndContinue = 2,
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <remarks></remarks>
         public enum ActReceivingQtyOverValLevels : int
         {
+            /// <summary>
+            /// Defines the NoValidationOrWarning.
+            /// </summary>
             NoValidationOrWarning = 0,
+
+            /// <summary>
+            /// Defines the ValidateWarnAndStop.
+            /// </summary>
             ValidateWarnAndStop = 1,
-            ValidateWarnAndContinue = 2
+
+            /// <summary>
+            /// Defines the ValidateWarnAndContinue.
+            /// </summary>
+            ValidateWarnAndContinue = 2,
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <remarks></remarks>
         public enum ActReceivingQtyUnderValLevels : int
         {
+            /// <summary>
+            /// Defines the NoValidationOrWarning.
+            /// </summary>
             NoValidationOrWarning = 0,
+
+            /// <summary>
+            /// Defines the ValidateWarnAndStop.
+            /// </summary>
             ValidateWarnAndStop = 1,
-            ValidateWarnAndContinue = 2
+
+            /// <summary>
+            /// Defines the ValidateWarnAndContinue.
+            /// </summary>
+            ValidateWarnAndContinue = 2,
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <remarks></remarks>
         public enum AdjTypes : int
         {
+            /// <summary>
+            /// Defines the Inventory.
+            /// </summary>
             Inventory = 0,
+
+            /// <summary>
+            /// Defines the UnitConversion.
+            /// </summary>
             UnitConversion = 1,
+
+            /// <summary>
+            /// Defines the Rework.
+            /// </summary>
             Rework = 2,
+
+            /// <summary>
+            /// Defines the PartialRework.
+            /// </summary>
             PartialRework = 3,
+
+            /// <summary>
+            /// Defines the Production.
+            /// </summary>
             Production = 4,
+
+            /// <summary>
+            /// Defines the PartialProduction.
+            /// </summary>
             PartialProduction = 5,
+
+            /// <summary>
+            /// Defines the Disposal.
+            /// </summary>
             Disposal = 6,
+
+            /// <summary>
+            /// Defines the Fresh2Frozen.
+            /// </summary>
             Fresh2Frozen = 7,
+
+            /// <summary>
+            /// Defines the Transfer.
+            /// </summary>
             Transfer = 8,
+
+            /// <summary>
+            /// Defines the PackOff.
+            /// </summary>
             PackOff = 9,
+
+            /// <summary>
+            /// Defines the LostFound.
+            /// </summary>
             LostFound = 10,
+
+            /// <summary>
+            /// Defines the CycleCount.
+            /// </summary>
             CycleCount = 11,
+
+            /// <summary>
+            /// Defines the MoveToDeli.
+            /// </summary>
             MoveToDeli = 12,
+
+            /// <summary>
+            /// Defines the PeriodicCount.
+            /// </summary>
             PeriodicCount = 13,
+
+            /// <summary>
+            /// Defines the Manufacture.
+            /// </summary>
             Manufacture = 14,
+
+            /// <summary>
+            /// Defines the Requisition.
+            /// </summary>
             Requisition = 15,
+
+            /// <summary>
+            /// Defines the AutoConvertTo.
+            /// </summary>
             AutoConvertTo = 16,
+
+            /// <summary>
+            /// Defines the AutoCreateFrom.
+            /// </summary>
             AutoCreateFrom = 17,
+
+            /// <summary>
+            /// Defines the SkidPutaway.
+            /// </summary>
             SkidPutaway = 18,
+
+            /// <summary>
+            /// Defines the ConvertProduct.
+            /// </summary>
             ConvertProduct = 19,
+
+            /// <summary>
+            /// Defines the Debox.
+            /// </summary>
             Debox = 20,
-            ConvertSkid = 21
+
+            /// <summary>
+            /// Defines the ConvertSkid.
+            /// </summary>
+            ConvertSkid = 21,
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <remarks></remarks>
         public enum BarCodeSymbologies : int
         {
+            /// <summary>
+            /// Defines the UNDEFINED.
+            /// </summary>
             UNDEFINED = 0,
+
+            /// <summary>
+            /// Defines the UCC_12_UPC_E.
+            /// </summary>
             UCC_12_UPC_E = 1,
+
+            /// <summary>
+            /// Defines the EAN_UCC_14.
+            /// </summary>
             EAN_UCC_14 = 2,
+
+            /// <summary>
+            /// Defines the EAN_UCC_13.
+            /// </summary>
             EAN_UCC_13 = 3,
+
+            /// <summary>
+            /// Defines the EAN_UCC_8.
+            /// </summary>
             EAN_UCC_8 = 4,
+
+            /// <summary>
+            /// Defines the ITF_14_Symbol.
+            /// </summary>
             ITF_14_Symbol = 5,
+
+            /// <summary>
+            /// Defines the UCC_EAN_128_Symbol.
+            /// </summary>
             UCC_EAN_128_Symbol = 6,
+
+            /// <summary>
+            /// Defines the Code_128.
+            /// </summary>
             Code_128 = 7,
+
+            /// <summary>
+            /// Defines the SSCC_18.
+            /// </summary>
             SSCC_18 = 8,
+
+            /// <summary>
+            /// Defines the Code_39.
+            /// </summary>
             Code_39 = 9,
+
+            /// <summary>
+            /// Defines the EAN_UPC_Symbol.
+            /// </summary>
             EAN_UPC_Symbol = 10,
+
+            /// <summary>
+            /// Defines the Code_93.
+            /// </summary>
             Code_93 = 11,
+
+            /// <summary>
+            /// Defines the Codabar.
+            /// </summary>
             Codabar = 12,
+
+            /// <summary>
+            /// Defines the Code_2_of_5.
+            /// </summary>
             Code_2_of_5 = 13,
+
+            /// <summary>
+            /// Defines the MSI.
+            /// </summary>
             MSI = 14,
+
+            /// <summary>
+            /// Defines the Plessey.
+            /// </summary>
             Plessey = 15,
+
+            /// <summary>
+            /// Defines the Code_11.
+            /// </summary>
             Code_11 = 16,
+
+            /// <summary>
+            /// Defines the Matrix_2_of_5.
+            /// </summary>
             Matrix_2_of_5 = 17,
+
+            /// <summary>
+            /// Defines the Telepen.
+            /// </summary>
             Telepen = 18,
+
+            /// <summary>
+            /// Defines the PDF417.
+            /// </summary>
             PDF417 = 19,
+
+            /// <summary>
+            /// Defines the Micro_PDF417.
+            /// </summary>
             Micro_PDF417 = 20,
+
+            /// <summary>
+            /// Defines the RSS_14.
+            /// </summary>
             RSS_14 = 21,
+
+            /// <summary>
+            /// Defines the RSS_Limited.
+            /// </summary>
             RSS_Limited = 22,
+
+            /// <summary>
+            /// Defines the RSS_Expanded.
+            /// </summary>
             RSS_Expanded = 23,
+
+            /// <summary>
+            /// Defines the Codablock_A.
+            /// </summary>
             Codablock_A = 24,
+
+            /// <summary>
+            /// Defines the Codablock_F.
+            /// </summary>
             Codablock_F = 25,
+
+            /// <summary>
+            /// Defines the TLC_39.
+            /// </summary>
             TLC_39 = 26,
+
+            /// <summary>
+            /// Defines the Codablock.
+            /// </summary>
             Codablock = 27,
-            Codablock256 = 28
+
+            /// <summary>
+            /// Defines the Codablock256.
+            /// </summary>
+            Codablock256 = 28,
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <remarks></remarks>
         public enum ActStatus : int
         {
+            /// <summary>
+            /// Defines the NoChange.
+            /// </summary>
             NoChange = 0,
+
+            /// <summary>
+            /// Defines the Inserted.
+            /// </summary>
             Inserted = 1,
+
+            /// <summary>
+            /// Defines the Updated.
+            /// </summary>
             Updated = 2,
-            Deleted = 3
+
+            /// <summary>
+            /// Defines the Deleted.
+            /// </summary>
+            Deleted = 3,
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <remarks></remarks>
         public enum SchemeExtraTypes : int
         {
+            /// <summary>
+            /// Defines the Disabled.
+            /// </summary>
             Disabled = 0,
-            Text = 1
+
+            /// <summary>
+            /// Defines the Text.
+            /// </summary>
+            Text = 1,
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <remarks></remarks>
         public enum ActDetailSchemeVariantXRefFields : int
         {
+            /// <summary>
+            /// Defines the ActDetailRefno.
+            /// </summary>
             ActDetailRefno = 0,
-            ProdSchemeVariantRefno = 1
+
+            /// <summary>
+            /// Defines the ProdSchemeVariantRefno.
+            /// </summary>
+            ProdSchemeVariantRefno = 1,
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <remarks></remarks>
         public enum ActDetailFields : int
         {
+            /// <summary>
+            /// Defines the Refno.
+            /// </summary>
             Refno = 0,
+
+            /// <summary>
+            /// Defines the SubType.
+            /// </summary>
             SubType = 1,
+
+            /// <summary>
+            /// Defines the Status.
+            /// </summary>
             Status = 2,
+
+            /// <summary>
+            /// Defines the ActivityItemRefno.
+            /// </summary>
             ActivityItemRefno = 3,
+
+            /// <summary>
+            /// Defines the LocationMapRefno.
+            /// </summary>
             LocationMapRefno = 4,
+
+            /// <summary>
+            /// Defines the ProductUnitRefno.
+            /// </summary>
             ProductUnitRefno = 5,
+
+            /// <summary>
+            /// Defines the UniqueSchemeID.
+            /// </summary>
             UniqueSchemeID = 6,
+
+            /// <summary>
+            /// Defines the SchemeID.
+            /// </summary>
             SchemeID = 7,
+
+            /// <summary>
+            /// Defines the Quantity.
+            /// </summary>
             Quantity = 8,
+
+            /// <summary>
+            /// Defines the BaseQuantity.
+            /// </summary>
             BaseQuantity = 9,
+
+            /// <summary>
+            /// Defines the WeightQuantity.
+            /// </summary>
             WeightQuantity = 10,
+
+            /// <summary>
+            /// Defines the SingleTradeItemSerialNumber.
+            /// </summary>
             SingleTradeItemSerialNumber = 11,
+
+            /// <summary>
+            /// Defines the LogisticUnitBatchLotNumber.
+            /// </summary>
             LogisticUnitBatchLotNumber = 12,
+
+            /// <summary>
+            /// Defines the LogisticUnitBestBeforeSellByDate.
+            /// </summary>
             LogisticUnitBestBeforeSellByDate = 13,
+
+            /// <summary>
+            /// Defines the LogisticUnitExpiryUseByDate.
+            /// </summary>
             LogisticUnitExpiryUseByDate = 14,
+
+            /// <summary>
+            /// Defines the LogisticUnitProductionDate.
+            /// </summary>
             LogisticUnitProductionDate = 15,
+
+            /// <summary>
+            /// Defines the LogisticUnitDueDate.
+            /// </summary>
             LogisticUnitDueDate = 16,
+
+            /// <summary>
+            /// Defines the LogisticUnitPackagingDate.
+            /// </summary>
             LogisticUnitPackagingDate = 17,
-            LogisticUnitSkidNumber = 18
+
+            /// <summary>
+            /// Defines the LogisticUnitSkidNumber.
+            /// </summary>
+            LogisticUnitSkidNumber = 18,
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <remarks></remarks>
         public enum ActDetailExtraFields : int
         {
+            /// <summary>
+            /// Defines the ActDetailRefno.
+            /// </summary>
             ActDetailRefno = 0,
+
+            /// <summary>
+            /// Defines the ActDetailSubType.
+            /// </summary>
             ActDetailSubType = 1,
+
+            /// <summary>
+            /// Defines the Text1.
+            /// </summary>
             Text1 = 2,
+
+            /// <summary>
+            /// Defines the Text2.
+            /// </summary>
             Text2 = 3,
+
+            /// <summary>
+            /// Defines the Text3.
+            /// </summary>
             Text3 = 4,
+
+            /// <summary>
+            /// Defines the Text4.
+            /// </summary>
             Text4 = 5,
-            DateTime5 = 6
+
+            /// <summary>
+            /// Defines the DateTime5.
+            /// </summary>
+            DateTime5 = 6,
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <remarks></remarks>
         public enum ActItemFields : int
         {
+            /// <summary>
+            /// Defines the Refno.
+            /// </summary>
             Refno = 0,
+
+            /// <summary>
+            /// Defines the SubType.
+            /// </summary>
             SubType = 1,
+
+            /// <summary>
+            /// Defines the Status.
+            /// </summary>
             Status = 2,
-            ActRefno = 3
+
+            /// <summary>
+            /// Defines the ActRefno.
+            /// </summary>
+            ActRefno = 3,
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <remarks></remarks>
         public enum ActFields : int
         {
+            /// <summary>
+            /// Defines the Refno.
+            /// </summary>
             Refno = 0,
+
+            /// <summary>
+            /// Defines the Status.
+            /// </summary>
             Status = 1,
-            SubType = 2
+
+            /// <summary>
+            /// Defines the SubType.
+            /// </summary>
+            SubType = 2,
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <remarks></remarks>
         public enum ActCountFields : int
         {
+            /// <summary>
+            /// Defines the ActRefno.
+            /// </summary>
             ActRefno = 0,
+
+            /// <summary>
+            /// Defines the ActSubType.
+            /// </summary>
             ActSubType = 1,
+
+            /// <summary>
+            /// Defines the FKRefno.
+            /// </summary>
             FKRefno = 2,
+
+            /// <summary>
+            /// Defines the StringFKRefno.
+            /// </summary>
             StringFKRefno = 3,
+
+            /// <summary>
+            /// Defines the WhsLocMapRefno.
+            /// </summary>
             WhsLocMapRefno = 4,
+
+            /// <summary>
+            /// Defines the Type.
+            /// </summary>
             Type = 5,
+
+            /// <summary>
+            /// Defines the DateTime.
+            /// </summary>
             DateTime = 6,
+
+            /// <summary>
+            /// Defines the TypeDescription.
+            /// </summary>
             TypeDescription = 7,
-            Description = 8
+
+            /// <summary>
+            /// Defines the Description.
+            /// </summary>
+            Description = 8,
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <remarks></remarks>
         public enum ActItemCountFields : int
         {
+            /// <summary>
+            /// Defines the ActItemRefno.
+            /// </summary>
             ActItemRefno = 0,
+
+            /// <summary>
+            /// Defines the ActItemSubType.
+            /// </summary>
             ActItemSubType = 1,
+
+            /// <summary>
+            /// Defines the FKRefno.
+            /// </summary>
             FKRefno = 2,
+
+            /// <summary>
+            /// Defines the StringFKRefno.
+            /// </summary>
             StringFKRefno = 3,
+
+            /// <summary>
+            /// Defines the ProdUnitRefno.
+            /// </summary>
             ProdUnitRefno = 4,
+
+            /// <summary>
+            /// Defines the LocMapRefno.
+            /// </summary>
             LocMapRefno = 5,
+
+            /// <summary>
+            /// Defines the QuantityOnHand.
+            /// </summary>
             QuantityOnHand = 6,
+
+            /// <summary>
+            /// Defines the BaseQuantityOnHand.
+            /// </summary>
             BaseQuantityOnHand = 7,
+
+            /// <summary>
+            /// Defines the WeightQuantityOnHand.
+            /// </summary>
             WeightQuantityOnHand = 8,
+
+            /// <summary>
+            /// Defines the Quantity.
+            /// </summary>
             Quantity = 9,
+
+            /// <summary>
+            /// Defines the BaseQuantity.
+            /// </summary>
             BaseQuantity = 10,
-            WeightQuantity = 11
+
+            /// <summary>
+            /// Defines the WeightQuantity.
+            /// </summary>
+            WeightQuantity = 11,
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <remarks></remarks>
         public enum ActDetailCountFields : int
         {
+            /// <summary>
+            /// Defines the ActDetailRefno.
+            /// </summary>
             ActDetailRefno = 0,
-            FKRefno = 1
+
+            /// <summary>
+            /// Defines the FKRefno.
+            /// </summary>
+            FKRefno = 1,
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <remarks></remarks>
         public enum ActReceivingFields : int
         {
+            /// <summary>
+            /// Defines the ActRefno.
+            /// </summary>
             ActRefno = 0,
+
+            /// <summary>
+            /// Defines the ActSubType.
+            /// </summary>
             ActSubType = 1,
+
+            /// <summary>
+            /// Defines the FKRefno.
+            /// </summary>
             FKRefno = 2,
+
+            /// <summary>
+            /// Defines the StringFKRefno.
+            /// </summary>
             StringFKRefno = 3,
+
+            /// <summary>
+            /// Defines the PONumber.
+            /// </summary>
             PONumber = 4,
+
+            /// <summary>
+            /// Defines the WhsLocMapRefno.
+            /// </summary>
             WhsLocMapRefno = 5,
+
+            /// <summary>
+            /// Defines the IssuedDateTime.
+            /// </summary>
             IssuedDateTime = 6,
+
+            /// <summary>
+            /// Defines the ArrivalDateTime.
+            /// </summary>
             ArrivalDateTime = 7,
+
+            /// <summary>
+            /// Defines the VendorContactName.
+            /// </summary>
             VendorContactName = 8,
+
+            /// <summary>
+            /// Defines the VendorSupplierContactName.
+            /// </summary>
             VendorSupplierContactName = 9,
-            VendorSupplierGTINCompanyPrefix = 10
+
+            /// <summary>
+            /// Defines the VendorSupplierGTINCompanyPrefix.
+            /// </summary>
+            VendorSupplierGTINCompanyPrefix = 10,
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <remarks></remarks>
         public enum ActItemReceivingFields : int
         {
+            /// <summary>
+            /// Defines the ActItemRefno.
+            /// </summary>
             ActItemRefno = 0,
+
+            /// <summary>
+            /// Defines the ActItemSubType.
+            /// </summary>
             ActItemSubType = 1,
+
+            /// <summary>
+            /// Defines the FKRefno.
+            /// </summary>
             FKRefno = 2,
+
+            /// <summary>
+            /// Defines the StringFKRefno.
+            /// </summary>
             StringFKRefno = 3,
+
+            /// <summary>
+            /// Defines the ProdUnitRefno.
+            /// </summary>
             ProdUnitRefno = 4,
+
+            /// <summary>
+            /// Defines the WhsLocMapRefno.
+            /// </summary>
             WhsLocMapRefno = 5,
+
+            /// <summary>
+            /// Defines the QuantityOrdered.
+            /// </summary>
             QuantityOrdered = 6,
+
+            /// <summary>
+            /// Defines the BaseQuantityOrdered.
+            /// </summary>
             BaseQuantityOrdered = 7,
+
+            /// <summary>
+            /// Defines the WeightQuantityOrdered.
+            /// </summary>
             WeightQuantityOrdered = 8,
+
+            /// <summary>
+            /// Defines the QuantityReceived.
+            /// </summary>
             QuantityReceived = 9,
+
+            /// <summary>
+            /// Defines the BaseQuantityReceived.
+            /// </summary>
             BaseQuantityReceived = 10,
+
+            /// <summary>
+            /// Defines the WeightQuantityReceived.
+            /// </summary>
             WeightQuantityReceived = 11,
+
+            /// <summary>
+            /// Defines the VendorProductUnitCode.
+            /// </summary>
             VendorProductUnitCode = 12,
+
+            /// <summary>
+            /// Defines the Description.
+            /// </summary>
             Description = 13,
+
+            /// <summary>
+            /// Defines the QuantityReceivedToDate.
+            /// </summary>
             QuantityReceivedToDate = 14,
+
+            /// <summary>
+            /// Defines the BaseQuantityReceivedToDate.
+            /// </summary>
             BaseQuantityReceivedToDate = 15,
-            WeightQuantityReceivedToDate = 16
+
+            /// <summary>
+            /// Defines the WeightQuantityReceivedToDate.
+            /// </summary>
+            WeightQuantityReceivedToDate = 16,
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <remarks></remarks>
         public enum ActItemReceivingCommentFields : int
         {
+            /// <summary>
+            /// Defines the ActItemRefno.
+            /// </summary>
             ActItemRefno = 0,
-            Comment = 1
+
+            /// <summary>
+            /// Defines the Comment.
+            /// </summary>
+            Comment = 1,
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <remarks></remarks>
         public enum ActDetailReceivingFields : int
         {
+            /// <summary>
+            /// Defines the ActDetailRefno.
+            /// </summary>
             ActDetailRefno = 0,
-            FKRefno = 1
+
+            /// <summary>
+            /// Defines the FKRefno.
+            /// </summary>
+            FKRefno = 1,
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <remarks></remarks>
         public enum ActItemWorkSheetFields : int
         {
+            /// <summary>
+            /// Defines the ActItemRefno.
+            /// </summary>
             ActItemRefno = 0,
+
+            /// <summary>
+            /// Defines the ActItemSubType.
+            /// </summary>
             ActItemSubType = 1,
+
+            /// <summary>
+            /// Defines the FKRefno.
+            /// </summary>
             FKRefno = 2,
+
+            /// <summary>
+            /// Defines the StringFKRefno.
+            /// </summary>
             StringFKRefno = 3,
+
+            /// <summary>
+            /// Defines the ProdUnitRefno.
+            /// </summary>
             ProdUnitRefno = 4,
+
+            /// <summary>
+            /// Defines the WhsLocMapRefno.
+            /// </summary>
             WhsLocMapRefno = 5,
+
+            /// <summary>
+            /// Defines the QuantityOrdered.
+            /// </summary>
             QuantityOrdered = 6,
+
+            /// <summary>
+            /// Defines the BaseQuantityOrdered.
+            /// </summary>
             BaseQuantityOrdered = 7,
-            WeightQuantityOrdered = 8
+
+            /// <summary>
+            /// Defines the WeightQuantityOrdered.
+            /// </summary>
+            WeightQuantityOrdered = 8,
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <remarks></remarks>
         public enum ActPickingRouteFields : int
         {
+            /// <summary>
+            /// Defines the PickingActRefno.
+            /// </summary>
             PickingActRefno = 0,
+
+            /// <summary>
+            /// Defines the RouteRefno.
+            /// </summary>
             RouteRefno = 1,
-            RouteStop = 2
+
+            /// <summary>
+            /// Defines the RouteStop.
+            /// </summary>
+            RouteStop = 2,
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <remarks></remarks>
         public enum ActPickingFields : int
         {
+            /// <summary>
+            /// Defines the ActRefno.
+            /// </summary>
             ActRefno = 0,
+
+            /// <summary>
+            /// Defines the ActSubType.
+            /// </summary>
             ActSubType = 1,
+
+            /// <summary>
+            /// Defines the FKRefno.
+            /// </summary>
             FKRefno = 2,
+
+            /// <summary>
+            /// Defines the StringFKRefno.
+            /// </summary>
             StringFKRefno = 3,
+
+            /// <summary>
+            /// Defines the WhsLocMapRefno.
+            /// </summary>
             WhsLocMapRefno = 4,
+
+            /// <summary>
+            /// Defines the OrderedDateTime.
+            /// </summary>
             OrderedDateTime = 5,
+
+            /// <summary>
+            /// Defines the DeliveryDateTime.
+            /// </summary>
             DeliveryDateTime = 6,
+
+            /// <summary>
+            /// Defines the CustomerContactName.
+            /// </summary>
             CustomerContactName = 7,
+
+            /// <summary>
+            /// Defines the CustomerShipToInfo.
+            /// </summary>
             CustomerShipToInfo = 8,
-            IsReviewed = 9
+
+            /// <summary>
+            /// Defines the IsReviewed.
+            /// </summary>
+            IsReviewed = 9,
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <remarks></remarks>
         public enum ActReturnsFields : int
         {
+            /// <summary>
+            /// Defines the ActRefno.
+            /// </summary>
             ActRefno = 0,
+
+            /// <summary>
+            /// Defines the ActSubType.
+            /// </summary>
             ActSubType = 1,
+
+            /// <summary>
+            /// Defines the FKRefno.
+            /// </summary>
             FKRefno = 2,
+
+            /// <summary>
+            /// Defines the StringFKRefno.
+            /// </summary>
             StringFKRefno = 3,
+
+            /// <summary>
+            /// Defines the WhsLocMapRefno.
+            /// </summary>
             WhsLocMapRefno = 4,
+
+            /// <summary>
+            /// Defines the OrderedDateTime.
+            /// </summary>
             OrderedDateTime = 5,
+
+            /// <summary>
+            /// Defines the DeliveryDateTime.
+            /// </summary>
             DeliveryDateTime = 6,
+
+            /// <summary>
+            /// Defines the CustomerContactName.
+            /// </summary>
             CustomerContactName = 7,
-            CustomerShipToInfo = 8
+
+            /// <summary>
+            /// Defines the CustomerShipToInfo.
+            /// </summary>
+            CustomerShipToInfo = 8,
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <remarks></remarks>
         public enum ActItemPickingFields : int
         {
+            /// <summary>
+            /// Defines the ActItemRefno.
+            /// </summary>
             ActItemRefno = 0,
+
+            /// <summary>
+            /// Defines the ActItemSubType.
+            /// </summary>
             ActItemSubType = 1,
+
+            /// <summary>
+            /// Defines the FKRefno.
+            /// </summary>
             FKRefno = 2,
+
+            /// <summary>
+            /// Defines the StringFKRefno.
+            /// </summary>
             StringFKRefno = 3,
+
+            /// <summary>
+            /// Defines the ProdUnitRefno.
+            /// </summary>
             ProdUnitRefno = 4,
+
+            /// <summary>
+            /// Defines the WhsLocMapRefno.
+            /// </summary>
             WhsLocMapRefno = 5,
+
+            /// <summary>
+            /// Defines the QuantityOrdered.
+            /// </summary>
             QuantityOrdered = 6,
+
+            /// <summary>
+            /// Defines the BaseQuantityOrdered.
+            /// </summary>
             BaseQuantityOrdered = 7,
+
+            /// <summary>
+            /// Defines the WeightQuantityOrdered.
+            /// </summary>
             WeightQuantityOrdered = 8,
+
+            /// <summary>
+            /// Defines the QuantityShipped.
+            /// </summary>
             QuantityShipped = 9,
+
+            /// <summary>
+            /// Defines the BaseQuantityShipped.
+            /// </summary>
             BaseQuantityShipped = 10,
+
+            /// <summary>
+            /// Defines the WeightQuantityShipped.
+            /// </summary>
             WeightQuantityShipped = 11,
+
+            /// <summary>
+            /// Defines the CustomerProductUnitCode.
+            /// </summary>
             CustomerProductUnitCode = 12,
+
+            /// <summary>
+            /// Defines the Description.
+            /// </summary>
             Description = 13,
+
+            /// <summary>
+            /// Defines the QuantityAvailable.
+            /// </summary>
             QuantityAvailable = 14,
+
+            /// <summary>
+            /// Defines the BaseQuantityAvailable.
+            /// </summary>
             BaseQuantityAvailable = 15,
+
+            /// <summary>
+            /// Defines the WeightQuantityAvailable.
+            /// </summary>
             WeightQuantityAvailable = 16,
-            IsReviewed = 17
+
+            /// <summary>
+            /// Defines the IsReviewed.
+            /// </summary>
+            IsReviewed = 17,
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <remarks></remarks>
         public enum ActItemReturnsFields : int
         {
+            /// <summary>
+            /// Defines the ActItemRefno.
+            /// </summary>
             ActItemRefno = 0,
+
+            /// <summary>
+            /// Defines the ActItemSubType.
+            /// </summary>
             ActItemSubType = 1,
+
+            /// <summary>
+            /// Defines the FKRefno.
+            /// </summary>
             FKRefno = 2,
+
+            /// <summary>
+            /// Defines the StringFKRefno.
+            /// </summary>
             StringFKRefno = 3,
+
+            /// <summary>
+            /// Defines the ProdUnitRefno.
+            /// </summary>
             ProdUnitRefno = 4,
+
+            /// <summary>
+            /// Defines the WhsLocMapRefno.
+            /// </summary>
             WhsLocMapRefno = 5,
+
+            /// <summary>
+            /// Defines the QuantityReturned.
+            /// </summary>
             QuantityReturned = 6,
+
+            /// <summary>
+            /// Defines the BaseQuantityReturned.
+            /// </summary>
             BaseQuantityReturned = 7,
+
+            /// <summary>
+            /// Defines the WeightQuantityReturned.
+            /// </summary>
             WeightQuantityReturned = 8,
+
+            /// <summary>
+            /// Defines the CustomerProdUnitCode.
+            /// </summary>
             CustomerProdUnitCode = 9,
-            Description = 10
+
+            /// <summary>
+            /// Defines the Description.
+            /// </summary>
+            Description = 10,
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <remarks></remarks>
         public enum ActItemPickingCommentFields : int
         {
+            /// <summary>
+            /// Defines the ActItemRefno.
+            /// </summary>
             ActItemRefno = 0,
-            Comment = 1
+
+            /// <summary>
+            /// Defines the Comment.
+            /// </summary>
+            Comment = 1,
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <remarks></remarks>
         public enum ActItemReturnsCommentFields : int
         {
+            /// <summary>
+            /// Defines the ActItemRefno.
+            /// </summary>
             ActItemRefno = 0,
-            Comment = 1
+
+            /// <summary>
+            /// Defines the Comment.
+            /// </summary>
+            Comment = 1,
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <remarks></remarks>
         public enum ActDetailPickingFields : int
         {
+            /// <summary>
+            /// Defines the ActDetailRefno.
+            /// </summary>
             ActDetailRefno = 0,
+
+            /// <summary>
+            /// Defines the FKRefno.
+            /// </summary>
             FKRefno = 1,
-            IsConfirmed = 2
+
+            /// <summary>
+            /// Defines the IsConfirmed.
+            /// </summary>
+            IsConfirmed = 2,
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <remarks></remarks>
         public enum ActDetailReturnsFields : int
         {
+            /// <summary>
+            /// Defines the ActDetailRefno.
+            /// </summary>
             ActDetailRefno = 0,
+
+            /// <summary>
+            /// Defines the FKRefno.
+            /// </summary>
             FKRefno = 1,
-            IsConfirmed = 2
+
+            /// <summary>
+            /// Defines the IsConfirmed.
+            /// </summary>
+            IsConfirmed = 2,
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <remarks></remarks>
         public enum ActTransferFields : int
         {
+            /// <summary>
+            /// Defines the ActRefno.
+            /// </summary>
             ActRefno = 0,
+
+            /// <summary>
+            /// Defines the ActSubType.
+            /// </summary>
             ActSubType = 1,
+
+            /// <summary>
+            /// Defines the FKRefno.
+            /// </summary>
             FKRefno = 2,
+
+            /// <summary>
+            /// Defines the StringFKRefno.
+            /// </summary>
             StringFKRefno = 3,
+
+            /// <summary>
+            /// Defines the TransferToWhsLocMapRefno.
+            /// </summary>
             TransferToWhsLocMapRefno = 4,
+
+            /// <summary>
+            /// Defines the Description.
+            /// </summary>
             Description = 5,
+
+            /// <summary>
+            /// Defines the DateTime.
+            /// </summary>
             DateTime = 6,
-            ArrivalDateTime = 7
+
+            /// <summary>
+            /// Defines the ArrivalDateTime.
+            /// </summary>
+            ArrivalDateTime = 7,
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <remarks></remarks>
         public enum ActItemTransferFields : int
         {
+            /// <summary>
+            /// Defines the ActItemRefno.
+            /// </summary>
             ActItemRefno = 0,
+
+            /// <summary>
+            /// Defines the ActItemSubType.
+            /// </summary>
             ActItemSubType = 1,
+
+            /// <summary>
+            /// Defines the FKRefno.
+            /// </summary>
             FKRefno = 2,
+
+            /// <summary>
+            /// Defines the StringFKRefno.
+            /// </summary>
             StringFKRefno = 3,
+
+            /// <summary>
+            /// Defines the ProductUnitRefno.
+            /// </summary>
             ProductUnitRefno = 4,
+
+            /// <summary>
+            /// Defines the TransferFromWhsLocMapRefno.
+            /// </summary>
             TransferFromWhsLocMapRefno = 5,
+
+            /// <summary>
+            /// Defines the RequiredQuantity.
+            /// </summary>
             RequiredQuantity = 6,
+
+            /// <summary>
+            /// Defines the Quantity.
+            /// </summary>
             Quantity = 7,
+
+            /// <summary>
+            /// Defines the BaseQuantity.
+            /// </summary>
             BaseQuantity = 8,
-            WeightQuantity = 9
+
+            /// <summary>
+            /// Defines the WeightQuantity.
+            /// </summary>
+            WeightQuantity = 9,
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <remarks></remarks>
         public enum ActDetailTransferFields : int
         {
+            /// <summary>
+            /// Defines the ActDetailRefno.
+            /// </summary>
             ActDetailRefno = 0,
+
+            /// <summary>
+            /// Defines the FKRefno.
+            /// </summary>
             FKRefno = 1,
+
+            /// <summary>
+            /// Defines the IsConfirmed.
+            /// </summary>
             IsConfirmed = 2,
-            TransModeEnum = 3
+
+            /// <summary>
+            /// Defines the TransModeEnum.
+            /// </summary>
+            TransModeEnum = 3,
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <remarks></remarks>
         public enum BarCodeRules : int
         {
+            /// <summary>
+            /// Defines the ParseCode_128AsUCC_EAN_128_SymbolCompliant.
+            /// </summary>
             ParseCode_128AsUCC_EAN_128_SymbolCompliant = 1,
+
+            /// <summary>
+            /// Defines the ParseFINICA_Code_128_as_EAN_UCC_128.
+            /// </summary>
             ParseFINICA_Code_128_as_EAN_UCC_128 = 2,
+
+            /// <summary>
+            /// Defines the NoCheckDigitInGlobalLocationNumber.
+            /// </summary>
             NoCheckDigitInGlobalLocationNumber = 3,
+
+            /// <summary>
+            /// Defines the NoZeroPaddingOfProductIdentifierForUCC_EAN_Family.
+            /// </summary>
             NoZeroPaddingOfProductIdentifierForUCC_EAN_Family = 4,
+
+            /// <summary>
+            /// Defines the ParseWOOLWICH_Code_128_RemoveSpaces.
+            /// </summary>
             ParseWOOLWICH_Code_128_RemoveSpaces = 5,
+
+            /// <summary>
+            /// Defines the Recognize_Code_128_AI13_PackagingDate_As_AI11_ProductionDate.
+            /// </summary>
             Recognize_Code_128_AI13_PackagingDate_As_AI11_ProductionDate = 6,
+
+            /// <summary>
+            /// Defines the Recognize_Code_128_AI17_ExpiryDate_As_AI15_BestBeforeDate.
+            /// </summary>
             Recognize_Code_128_AI17_ExpiryDate_As_AI15_BestBeforeDate = 7,
+
+            /// <summary>
+            /// Defines the Parse_Code_128_AI01_Nossack_AI21_SkidNumber_BoxCount.
+            /// </summary>
             Parse_Code_128_AI01_Nossack_AI21_SkidNumber_BoxCount = 8,
+
+            /// <summary>
+            /// Defines the ProductBarCodeMinimumLength4Digits.
+            /// </summary>
             ProductBarCodeMinimumLength4Digits = 9,
+
+            /// <summary>
+            /// Defines the Parse_UCC_12_UPC_E_as_Deli_PLU.
+            /// </summary>
             Parse_UCC_12_UPC_E_as_Deli_PLU = 10,
+
+            /// <summary>
+            /// Defines the Parse_Code128_OvationFielding_Lamb.
+            /// </summary>
             Parse_Code128_OvationFielding_Lamb = 11,
+
+            /// <summary>
+            /// Defines the Parse_Code128_China_Seafood.
+            /// </summary>
             Parse_Code128_China_Seafood = 12,
+
+            /// <summary>
+            /// Defines the Parse_Code_128_AI01_BC_AI30_exclusive.
+            /// </summary>
             Parse_Code_128_AI01_BC_AI30_exclusive = 13,
+
+            /// <summary>
+            /// Defines the ParseRenees_Code_128_RemoveSpaces.
+            /// </summary>
             ParseRenees_Code_128_RemoveSpaces = 14,
+
+            /// <summary>
+            /// Defines the ParseLanzMeats_Code_128_AI10_as_AI21.
+            /// </summary>
             ParseLanzMeats_Code_128_AI10_as_AI21 = 15,
+
+            /// <summary>
+            /// Defines the HeritageGlobalLocationIdentifierSecondPassIgnoreCheckDigit.
+            /// </summary>
             HeritageGlobalLocationIdentifierSecondPassIgnoreCheckDigit = 16,
+
+            /// <summary>
+            /// Defines the ParseNossackBrokerMultiNationalProductFromChili.
+            /// </summary>
             ParseNossackBrokerMultiNationalProductFromChili = 17,
+
+            /// <summary>
+            /// Defines the ParseUCC_13asUPC_12_UPC_E.
+            /// </summary>
             ParseUCC_13asUPC_12_UPC_E = 18,
+
+            /// <summary>
+            /// Defines the Parse_HelaSpiceCanada_Code_128.
+            /// </summary>
             Parse_HelaSpiceCanada_Code_128 = 19,
+
+            /// <summary>
+            /// Defines the NebraskaBeef_Parse_Lot_as_Serial_Code_128.
+            /// </summary>
             NebraskaBeef_Parse_Lot_as_Serial_Code_128 = 20,
+
+            /// <summary>
+            /// Defines the ParseNorthernCoop_AustraliaBeefTrim_Product25612.
+            /// </summary>
             ParseNorthernCoop_AustraliaBeefTrim_Product25612 = 21,
+
+            /// <summary>
+            /// Defines the ParseSumwaFarmFedWholeDuck_UseWeightRangeToIDProduct.
+            /// </summary>
             ParseSumwaFarmFedWholeDuck_UseWeightRangeToIDProduct = 22,
+
+            /// <summary>
+            /// Defines the ParseEAN_UCC128_NossackProduct94600_ChileanBackRibs.
+            /// </summary>
             ParseEAN_UCC128_NossackProduct94600_ChileanBackRibs = 23,
+
+            /// <summary>
+            /// Defines the ParseEAN_UCC128_NossackProduct51134_FrozenPorkCollarRemoveAI00.
+            /// </summary>
             ParseEAN_UCC128_NossackProduct51134_FrozenPorkCollarRemoveAI00 = 24,
+
+            /// <summary>
+            /// Defines the ParseEAN_UCC128_SuppressAllParseErrorsForNonTrackedComponents.
+            /// </summary>
             ParseEAN_UCC128_SuppressAllParseErrorsForNonTrackedComponents = 25,
+
+            /// <summary>
+            /// Defines the ParseEAN_UCC128_Nossack_GreenleaPremierMeats.
+            /// </summary>
             ParseEAN_UCC128_Nossack_GreenleaPremierMeats = 26,
+
+            /// <summary>
+            /// Defines the ParseEAN_UCC128_Dovre_KiiNaturalsCrisps.
+            /// </summary>
             ParseEAN_UCC128_Dovre_KiiNaturalsCrisps = 27,
+
+            /// <summary>
+            /// Defines the Parse_Code128_CleanSubstituteCharacter.
+            /// </summary>
             Parse_Code128_CleanSubstituteCharacter = 28,
 
             /// <summary>
-            /// Restrict the amount on deli plu's from 5 to 4.
+            /// Restrict the amount on deli PLU's from 5 to 4.
             /// </summary>
             /// <remarks>12345 becomes 2345.</remarks>
-            Parse_UCC_12_UPC_E_as_Deli_PLU_4_Digit_Amount_Enabled = 29
+            Parse_UCC_12_UPC_E_as_Deli_PLU_4_Digit_Amount_Enabled = 29,
+
+            /// <summary>
+            /// Define the parse EAN / UCC Code 128 Bourvy Exports production date from the AI(21) serial number.
+            /// </summary>
+            ParseEAN_UCC128_BourvyExports_ProductionDate = 30,
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <remarks>
         /// Keep in sync with imsck_wms.datacntrl method request_skid_info_cursor() enums.
         /// </remarks>
         public enum ActSubTypes : int
         {
+            /// <summary>
+            /// Defines the NotApplicable.
+            /// </summary>
             NotApplicable = 0,
+
+            /// <summary>
+            /// Defines the BarCodeAssociation.
+            /// </summary>
             BarCodeAssociation = 1,
+
+            /// <summary>
+            /// Defines the PhysicalCounts.
+            /// </summary>
             PhysicalCounts = 2,
+
+            /// <summary>
+            /// Defines the Receiving.
+            /// </summary>
             Receiving = 3,
+
+            /// <summary>
+            /// Defines the Picking.
+            /// </summary>
             Picking = 4,
+
+            /// <summary>
+            /// Defines the TransferFrom.
+            /// </summary>
             TransferFrom = 5,
+
+            /// <summary>
+            /// Defines the RefreshData.
+            /// </summary>
             RefreshData = 6,
+
+            /// <summary>
+            /// Defines the DataStatus.
+            /// </summary>
             DataStatus = 7,
+
+            /// <summary>
+            /// Defines the Returns.
+            /// </summary>
             Returns = 8,
+
+            /// <summary>
+            /// Defines the SelectProduct.
+            /// </summary>
             SelectProduct = 9,
+
+            /// <summary>
+            /// Defines the SelectLocation.
+            /// </summary>
             SelectLocation = 10,
+
+            /// <summary>
+            /// Defines the CycleCounts.
+            /// </summary>
             CycleCounts = 11,
+
+            /// <summary>
+            /// Defines the ConvertUnit.
+            /// </summary>
             ConvertUnit = 12,
+
+            /// <summary>
+            /// Defines the MoveInventory.
+            /// </summary>
             MoveInventory = 13,
+
+            /// <summary>
+            /// Defines the Adjustment.
+            /// </summary>
             Adjustment = 14,
+
+            /// <summary>
+            /// Defines the PurgeActivityData.
+            /// </summary>
             PurgeActivityData = 15,
+
+            /// <summary>
+            /// Defines the TicketFinished.
+            /// </summary>
             TicketFinished = 16,
+
+            /// <summary>
+            /// Defines the TicketMaterial.
+            /// </summary>
             TicketMaterial = 17,
+
+            /// <summary>
+            /// Defines the TicketAddProduct.
+            /// </summary>
             TicketAddProduct = 18,
+
+            /// <summary>
+            /// Defines the ReleaseByOrder.
+            /// </summary>
             ReleaseByOrder = 19,
+
+            /// <summary>
+            /// Defines the ReleaseByItemSection.
+            /// </summary>
             ReleaseByItemSection = 20,
+
+            /// <summary>
+            /// Defines the PurchaseOrderWorkSheet.
+            /// </summary>
             PurchaseOrderWorkSheet = 21,
+
+            /// <summary>
+            /// Defines the SkidInfo.
+            /// </summary>
             SkidInfo = 22,
+
+            /// <summary>
+            /// Defines the MoveSkid.
+            /// </summary>
             MoveSkid = 23,
+
+            /// <summary>
+            /// Defines the BreakSkid.
+            /// </summary>
             BreakSkid = 24,
+
+            /// <summary>
+            /// Defines the PickingSingle.
+            /// </summary>
             PickingSingle = 25,
+
+            /// <summary>
+            /// Defines the PutAwaySkid.
+            /// </summary>
             PutAwaySkid = 26,
+
+            /// <summary>
+            /// Defines the AssignDefaultLocation.
+            /// </summary>
             AssignDefaultLocation = 27,
+
+            /// <summary>
+            /// Defines the InventoryInquiry.
+            /// </summary>
             InventoryInquiry = 28,
+
+            /// <summary>
+            /// Defines the InventoryReplenishment.
+            /// </summary>
             InventoryReplenishment = 29,
+
+            /// <summary>
+            /// Defines the LoginStartup.
+            /// </summary>
             LoginStartup = 30,
+
+            /// <summary>
+            /// Defines the SplashStartup.
+            /// </summary>
             SplashStartup = 31,
+
+            /// <summary>
+            /// Defines the PrintProductLabel.
+            /// </summary>
             PrintProductLabel = 32,
+
+            /// <summary>
+            /// Defines the PickingSelectCriteria.
+            /// </summary>
             PickingSelectCriteria = 33,
+
+            /// <summary>
+            /// Defines the PickingFilter.
+            /// </summary>
             PickingFilter = 34,
+
+            /// <summary>
+            /// Defines the SubmitBatch.
+            /// </summary>
             SubmitBatch = 35,
+
+            /// <summary>
+            /// Defines the CommunicationSetup.
+            /// </summary>
             CommunicationSetup = 36,
+
+            /// <summary>
+            /// Defines the SetupDefaults.
+            /// </summary>
             SetupDefaults = 37,
+
+            /// <summary>
+            /// Defines the InventoryInquirySummary.
+            /// </summary>
             InventoryInquirySummary = 38,
+
+            /// <summary>
+            /// Defines the ConvertProduct.
+            /// </summary>
             ConvertProduct = 39,
-            TransferTo = 40
+
+            /// <summary>
+            /// Defines the TransferTo.
+            /// </summary>
+            TransferTo = 40,
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <remarks></remarks>
         public enum ActCountTypeFields : int
         {
+            /// <summary>
+            /// Defines the PhysicalCountByWarehouse.
+            /// </summary>
             PhysicalCountByWarehouse = 1,
+
+            /// <summary>
+            /// Defines the CycleCountByWarehouse.
+            /// </summary>
             CycleCountByWarehouse = 2,
+
+            /// <summary>
+            /// Defines the CycleCountBySection.
+            /// </summary>
             CycleCountBySection = 3,
+
+            /// <summary>
+            /// Defines the CycleCountBySlot.
+            /// </summary>
             CycleCountBySlot = 4,
-            BaseCycleCountByWarehouse = 5
+
+            /// <summary>
+            /// Defines the BaseCycleCountByWarehouse.
+            /// </summary>
+            BaseCycleCountByWarehouse = 5,
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <remarks></remarks>
         public enum ContactSubTypes : int
         {
+            /// <summary>
+            /// Defines the User.
+            /// </summary>
             User = 1,
+
+            /// <summary>
+            /// Defines the Customer.
+            /// </summary>
             Customer = 2,
+
+            /// <summary>
+            /// Defines the CustomerShipTo.
+            /// </summary>
             CustomerShipTo = 3,
+
+            /// <summary>
+            /// Defines the Vendor.
+            /// </summary>
             Vendor = 4,
-            VendorSupplier = 5
+
+            /// <summary>
+            /// Defines the VendorSupplier.
+            /// </summary>
+            VendorSupplier = 5,
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <remarks></remarks>
         public enum RouteFields : int
         {
+            /// <summary>
+            /// Defines the Refno.
+            /// </summary>
             Refno = 0,
+
+            /// <summary>
+            /// Defines the Code.
+            /// </summary>
             Code = 1,
+
+            /// <summary>
+            /// Defines the Description.
+            /// </summary>
             Description = 2,
-            DayOfWeek = 3
+
+            /// <summary>
+            /// Defines the DayOfWeek.
+            /// </summary>
+            DayOfWeek = 3,
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <remarks></remarks>
         public enum ContactFields : int
         {
+            /// <summary>
+            /// Defines the Refno.
+            /// </summary>
             Refno = 0,
-            SubType = 1
+
+            /// <summary>
+            /// Defines the SubType.
+            /// </summary>
+            SubType = 1,
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <remarks></remarks>
         public enum ContactUserFields : int
         {
+            /// <summary>
+            /// Defines the ContactRefno.
+            /// </summary>
             ContactRefno = 0,
+
+            /// <summary>
+            /// Defines the ContactSubType.
+            /// </summary>
             ContactSubType = 1,
+
+            /// <summary>
+            /// Defines the Code.
+            /// </summary>
             Code = 2,
+
+            /// <summary>
+            /// Defines the Name.
+            /// </summary>
             Name = 3,
+
+            /// <summary>
+            /// Defines the Password.
+            /// </summary>
             Password = 4,
+
+            /// <summary>
+            /// Defines the IsAllowedAssocProdBarCode.
+            /// </summary>
             IsAllowedAssocProdBarCode = 5,
+
+            /// <summary>
+            /// Defines the IsAllowedPickingOverridePicker.
+            /// </summary>
             IsAllowedPickingOverridePicker = 6,
+
+            /// <summary>
+            /// Defines the IsAllowedPickingModuleOverrideAddManualDetail.
+            /// </summary>
             IsAllowedPickingModuleOverrideAddManualDetail = 7,
-            UserLocalizationLanguage = 8
+
+            /// <summary>
+            /// Defines the UserLocalizationLanguage.
+            /// </summary>
+            UserLocalizationLanguage = 8,
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <remarks></remarks>
         public enum ProdLocMapTypeFields : int
         {
+            /// <summary>
+            /// Defines the ProdRefno.
+            /// </summary>
             ProdRefno = 0,
+
+            /// <summary>
+            /// Defines the WhsLocMapRefno.
+            /// </summary>
             WhsLocMapRefno = 1,
+
+            /// <summary>
+            /// Defines the EnumType.
+            /// </summary>
             EnumType = 2,
-            LocMapRefno = 3
-        }
-        
-        /// <summary>
-        /// 
-        /// </summary>
-        public enum WhsLocMapProdSchemeFields : int
-        {
-            WhsLocMapRefno = 0,
-            ProdRefno = 1,
-            ProdSchemeRefno = 2
+
+            /// <summary>
+            /// Defines the LocMapRefno.
+            /// </summary>
+            LocMapRefno = 3,
         }
 
         /// <summary>
-        /// 
+        ///
+        /// </summary>
+        public enum WhsLocMapProdSchemeFields : int
+        {
+            /// <summary>
+            /// Defines the WhsLocMapRefno.
+            /// </summary>
+            WhsLocMapRefno = 0,
+
+            /// <summary>
+            /// Defines the ProdRefno.
+            /// </summary>
+            ProdRefno = 1,
+
+            /// <summary>
+            /// Defines the ProdSchemeRefno.
+            /// </summary>
+            ProdSchemeRefno = 2,
+        }
+
+        /// <summary>
+        ///
         /// </summary>
         /// <remarks></remarks>
         public enum WhsLocMapTypeFields : int
         {
+            /// <summary>
+            /// Defines the WhsLocMapRefno.
+            /// </summary>
             WhsLocMapRefno = 0,
+
+            /// <summary>
+            /// Defines the EnumType.
+            /// </summary>
             EnumType = 1,
-            LocMapRefno = 2
+
+            /// <summary>
+            /// Defines the LocMapRefno.
+            /// </summary>
+            LocMapRefno = 2,
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <remarks></remarks>
         public enum ProdUnitRelationFields : int
         {
+            /// <summary>
+            /// Defines the ProdUnit1Refno.
+            /// </summary>
             ProdUnit1Refno = 0,
+
+            /// <summary>
+            /// Defines the ProdUnit2Refno.
+            /// </summary>
             ProdUnit2Refno = 1,
-            Factor = 2
+
+            /// <summary>
+            /// Defines the Factor.
+            /// </summary>
+            Factor = 2,
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <remarks></remarks>
         public enum ProdUnitBarCodeFields : int
         {
+            /// <summary>
+            /// Defines the Refno.
+            /// </summary>
             Refno = 0,
+
+            /// <summary>
+            /// Defines the ProdUnitRefno.
+            /// </summary>
             ProdUnitRefno = 1,
+
+            /// <summary>
+            /// Defines the Code.
+            /// </summary>
             Code = 2,
+
+            /// <summary>
+            /// Defines the Raw.
+            /// </summary>
             Raw = 3,
+
+            /// <summary>
+            /// Defines the SymbologyEnum.
+            /// </summary>
             SymbologyEnum = 4,
+
+            /// <summary>
+            /// Defines the Modifier1.
+            /// </summary>
             Modifier1 = 5,
-            Status = 6
+
+            /// <summary>
+            /// Defines the Status.
+            /// </summary>
+            Status = 6,
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <remarks></remarks>
         public enum ProdUnitFields : int
         {
+            /// <summary>
+            /// Defines the Refno.
+            /// </summary>
             Refno = 0,
+
+            /// <summary>
+            /// Defines the ProdRefno.
+            /// </summary>
             ProdRefno = 1,
+
+            /// <summary>
+            /// Defines the UnitRefno.
+            /// </summary>
             UnitRefno = 2,
+
+            /// <summary>
+            /// Defines the BaseUnitRefno.
+            /// </summary>
             BaseUnitRefno = 3,
+
+            /// <summary>
+            /// Defines the WtUnitRefno.
+            /// </summary>
             WtUnitRefno = 4,
+
+            /// <summary>
+            /// Defines the IsBC.
+            /// </summary>
             IsBC = 5,
+
+            /// <summary>
+            /// Defines the BC.
+            /// </summary>
             BC = 6,
+
+            /// <summary>
+            /// Defines the Weight.
+            /// </summary>
             Weight = 7,
+
+            /// <summary>
+            /// Defines the SizeDescription.
+            /// </summary>
             SizeDescription = 8,
+
+            /// <summary>
+            /// Defines the IsSellUnit.
+            /// </summary>
             IsSellUnit = 9,
+
+            /// <summary>
+            /// Defines the IsDefault.
+            /// </summary>
             IsDefault = 10,
-            BoxCount = 11
+
+            /// <summary>
+            /// Defines the BoxCount.
+            /// </summary>
+            BoxCount = 11,
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <remarks></remarks>
         public enum ProductFields : int
         {
+            /// <summary>
+            /// Defines the Refno.
+            /// </summary>
             Refno = 0,
+
+            /// <summary>
+            /// Defines the FamilyRefno.
+            /// </summary>
             FamilyRefno = 1,
+
+            /// <summary>
+            /// Defines the Code.
+            /// </summary>
             Code = 2,
+
+            /// <summary>
+            /// Defines the FKRefno.
+            /// </summary>
             FKRefno = 3,
+
+            /// <summary>
+            /// Defines the Description.
+            /// </summary>
             Description = 4,
+
+            /// <summary>
+            /// Defines the IsCatchCount.
+            /// </summary>
             IsCatchCount = 5,
+
+            /// <summary>
+            /// Defines the IsCatchWeight.
+            /// </summary>
             IsCatchWeight = 6,
+
+            /// <summary>
+            /// Defines the IsCatchAsk.
+            /// </summary>
             IsCatchAsk = 7,
+
+            /// <summary>
+            /// Defines the IsCatchAskZero.
+            /// </summary>
             IsCatchAskZero = 8,
+
+            /// <summary>
+            /// Defines the BrandDescription.
+            /// </summary>
             BrandDescription = 9,
-            AllowConvertProduct = 10
+
+            /// <summary>
+            /// Defines the AllowConvertProduct.
+            /// </summary>
+            AllowConvertProduct = 10,
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <remarks></remarks>
         public enum ProdSchemeVariantXRefFields : int
         {
+            /// <summary>
+            /// Defines the ProdSchemeRefno.
+            /// </summary>
             ProdSchemeRefno = 0,
-            ProdSchemeVariantRefno = 1
+
+            /// <summary>
+            /// Defines the ProdSchemeVariantRefno.
+            /// </summary>
+            ProdSchemeVariantRefno = 1,
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <remarks></remarks>
         public enum ProdSchemeVariantFields : int
         {
+            /// <summary>
+            /// Defines the Refno.
+            /// </summary>
             Refno = 0,
+
+            /// <summary>
+            /// Defines the Code.
+            /// </summary>
             Code = 1,
+
+            /// <summary>
+            /// Defines the Description.
+            /// </summary>
             Description = 2,
+
+            /// <summary>
+            /// Defines the No.
+            /// </summary>
             No = 3,
-            IsDefault = 4
+
+            /// <summary>
+            /// Defines the IsDefault.
+            /// </summary>
+            IsDefault = 4,
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <remarks></remarks>
         public enum ProdSchemeLotNumberXRefFields : int
         {
+            /// <summary>
+            /// Defines the ProdSchemeRefno.
+            /// </summary>
             ProdSchemeRefno = 0,
-            ProdSchemeLotNumberRefno = 1
+
+            /// <summary>
+            /// Defines the ProdSchemeLotNumberRefno.
+            /// </summary>
+            ProdSchemeLotNumberRefno = 1,
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <remarks></remarks>
         public enum ProdSchemeLotNumberFields : int
         {
+            /// <summary>
+            /// Defines the Refno.
+            /// </summary>
             Refno = 0,
+
+            /// <summary>
+            /// Defines the Code.
+            /// </summary>
             Code = 1,
-            CodeDefault = 2
+
+            /// <summary>
+            /// Defines the CodeDefault.
+            /// </summary>
+            CodeDefault = 2,
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <remarks></remarks>
         public enum FamilyFields
         {
+            /// <summary>
+            /// Defines the Refno.
+            /// </summary>
             Refno = 0,
-            Code = 1
+
+            /// <summary>
+            /// Defines the Code.
+            /// </summary>
+            Code = 1,
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <remarks></remarks>
         public enum ProdSchemeFields : int
         {
+            /// <summary>
+            /// Defines the Refno.
+            /// </summary>
             Refno = 0,
+
+            /// <summary>
+            /// Defines the Code.
+            /// </summary>
             Code = 1,
+
+            /// <summary>
+            /// Defines the IsSerialTracked.
+            /// </summary>
             IsSerialTracked = 2,
+
+            /// <summary>
+            /// Defines the IsProductionDateTracked.
+            /// </summary>
             IsProductionDateTracked = 3,
+
+            /// <summary>
+            /// Defines the IsLotTracked.
+            /// </summary>
             IsLotTracked = 4,
+
+            /// <summary>
+            /// Defines the IsBestBeforeDateTracked.
+            /// </summary>
             IsBestBeforeDateTracked = 5,
+
+            /// <summary>
+            /// Defines the IsVariantTracked.
+            /// </summary>
             IsVariantTracked = 6,
+
+            /// <summary>
+            /// Defines the IsLotUniqueComponent.
+            /// </summary>
             IsLotUniqueComponent = 7,
+
+            /// <summary>
+            /// Defines the IsProductionDateUniqueComponent.
+            /// </summary>
             IsProductionDateUniqueComponent = 8,
+
+            /// <summary>
+            /// Defines the IsBestBeforeDateUniqueComponent.
+            /// </summary>
             IsBestBeforeDateUniqueComponent = 9,
+
+            /// <summary>
+            /// Defines the IsVariantUniqueComponent.
+            /// </summary>
             IsVariantUniqueComponent = 10,
+
+            /// <summary>
+            /// Defines the Extra1Type.
+            /// </summary>
             Extra1Type = 11,
+
+            /// <summary>
+            /// Defines the Extra2Type.
+            /// </summary>
             Extra2Type = 12,
+
+            /// <summary>
+            /// Defines the Extra3Type.
+            /// </summary>
             Extra3Type = 13,
+
+            /// <summary>
+            /// Defines the Extra4Type.
+            /// </summary>
             Extra4Type = 14,
+
+            /// <summary>
+            /// Defines the Extra5Type.
+            /// </summary>
             Extra5Type = 15,
+
+            /// <summary>
+            /// Defines the Extra1Caption.
+            /// </summary>
             Extra1Caption = 16,
+
+            /// <summary>
+            /// Defines the Extra2Caption.
+            /// </summary>
             Extra2Caption = 17,
+
+            /// <summary>
+            /// Defines the Extra3Caption.
+            /// </summary>
             Extra3Caption = 18,
+
+            /// <summary>
+            /// Defines the Extra4Caption.
+            /// </summary>
             Extra4Caption = 19,
+
+            /// <summary>
+            /// Defines the Extra5Caption.
+            /// </summary>
             Extra5Caption = 20,
+
+            /// <summary>
+            /// Defines the Extra1IsRequired.
+            /// </summary>
             Extra1IsRequired = 21,
+
+            /// <summary>
+            /// Defines the Extra2IsRequired.
+            /// </summary>
             Extra2IsRequired = 22,
+
+            /// <summary>
+            /// Defines the Extra3IsRequired.
+            /// </summary>
             Extra3IsRequired = 23,
+
+            /// <summary>
+            /// Defines the Extra4IsRequired.
+            /// </summary>
             Extra4IsRequired = 24,
+
+            /// <summary>
+            /// Defines the Extra5IsRequired.
+            /// </summary>
             Extra5IsRequired = 25,
+
+            /// <summary>
+            /// Defines the IsLotTrackedDefault.
+            /// </summary>
             IsLotTrackedDefault = 26,
+
+            /// <summary>
+            /// Defines the IsProductionDateTrackedDefault.
+            /// </summary>
             IsProductionDateTrackedDefault = 27,
-            IsBestBeforeDateTrackedDefault = 28
+
+            /// <summary>
+            /// Defines the IsBestBeforeDateTrackedDefault.
+            /// </summary>
+            IsBestBeforeDateTrackedDefault = 28,
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <remarks></remarks>
         public enum ProdLocMapTypes : int
         {
+            /// <summary>
+            /// Defines the Floor.
+            /// </summary>
             Floor = 1,
+
+            /// <summary>
+            /// Defines the Picking.
+            /// </summary>
             Picking = 2,
+
+            /// <summary>
+            /// Defines the Receiving.
+            /// </summary>
             Receiving = 3,
+
+            /// <summary>
+            /// Defines the QualityAssurance.
+            /// </summary>
             QualityAssurance = 4,
+
+            /// <summary>
+            /// Defines the IssuedTo.
+            /// </summary>
             IssuedTo = 5,
+
+            /// <summary>
+            /// Defines the ByProducts.
+            /// </summary>
             ByProducts = 6,
-            FinishedGoods = 7
+
+            /// <summary>
+            /// Defines the FinishedGoods.
+            /// </summary>
+            FinishedGoods = 7,
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <remarks></remarks>
         public enum LocMapTypes : int
         {
+            /// <summary>
+            /// Defines the IsTracked.
+            /// </summary>
             IsTracked = 1,
+
+            /// <summary>
+            /// Defines the IsStaging.
+            /// </summary>
             IsStaging = 2,
+
+            /// <summary>
+            /// Defines the IsFreezer.
+            /// </summary>
             IsFreezer = 3,
+
+            /// <summary>
+            /// Defines the IsReserved.
+            /// </summary>
             IsReserved = 4,
+
+            /// <summary>
+            /// Defines the IsToBeOrdered.
+            /// </summary>
             IsToBeOrdered = 5,
+
+            /// <summary>
+            /// Defines the IsHandStack.
+            /// </summary>
             IsHandStack = 6,
+
+            /// <summary>
+            /// Defines the IsGroundLevel.
+            /// </summary>
             IsGroundLevel = 7,
-            IsProcessing = 8
+
+            /// <summary>
+            /// Defines the IsProcessing.
+            /// </summary>
+            IsProcessing = 8,
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <remarks></remarks>
         public enum LocMapTypeFields : int
         {
+            /// <summary>
+            /// Defines the LocMapRefno.
+            /// </summary>
             LocMapRefno = 0,
-            EnumType = 1
+
+            /// <summary>
+            /// Defines the EnumType.
+            /// </summary>
+            EnumType = 1,
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <remarks></remarks>
         public enum LocMapSlotCoordTypes : int
         {
+            /// <summary>
+            /// Defines the Coord1.
+            /// </summary>
             Coord1 = 1,
+
+            /// <summary>
+            /// Defines the Coord2.
+            /// </summary>
             Coord2 = 2,
-            Coord3 = 3
+
+            /// <summary>
+            /// Defines the Coord3.
+            /// </summary>
+            Coord3 = 3,
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <remarks></remarks>
         public enum LocMapSlotCoordFields : int
         {
+            /// <summary>
+            /// Defines the Refno.
+            /// </summary>
             Refno = 0,
+
+            /// <summary>
+            /// Defines the EnumType.
+            /// </summary>
             EnumType = 1,
+
+            /// <summary>
+            /// Defines the WhsLocMapRefno.
+            /// </summary>
             WhsLocMapRefno = 2,
-            Code = 3
+
+            /// <summary>
+            /// Defines the Code.
+            /// </summary>
+            Code = 3,
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <remarks></remarks>
         public enum LocMapSubTypes : int
         {
+            /// <summary>
+            /// Defines the None.
+            /// </summary>
             None = 0,
+
+            /// <summary>
+            /// Defines the Warehouse.
+            /// </summary>
             Warehouse = 1,
+
+            /// <summary>
+            /// Defines the Section.
+            /// </summary>
             Section = 2,
-            Slot = 3
+
+            /// <summary>
+            /// Defines the Slot.
+            /// </summary>
+            Slot = 3,
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <remarks></remarks>
         public enum LocMapFields : int
         {
+            /// <summary>
+            /// Defines the Refno.
+            /// </summary>
             Refno = 0,
-            SubType = 1
+
+            /// <summary>
+            /// Defines the SubType.
+            /// </summary>
+            SubType = 1,
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <remarks></remarks>
         public enum LocMapSlotFields : int
         {
+            /// <summary>
+            /// Defines the LocMapRefno.
+            /// </summary>
             LocMapRefno = 0,
+
+            /// <summary>
+            /// Defines the LocMapSubType.
+            /// </summary>
             LocMapSubType = 1,
+
+            /// <summary>
+            /// Defines the SectLocMapRefno.
+            /// </summary>
             SectLocMapRefno = 2,
+
+            /// <summary>
+            /// Defines the Code.
+            /// </summary>
             Code = 3,
+
+            /// <summary>
+            /// Defines the Name.
+            /// </summary>
             Name = 4,
+
+            /// <summary>
+            /// Defines the SlotCoord1LocMapRefno.
+            /// </summary>
             SlotCoord1LocMapRefno = 5,
+
+            /// <summary>
+            /// Defines the SlotCoord2LocMapRefno.
+            /// </summary>
             SlotCoord2LocMapRefno = 6,
+
+            /// <summary>
+            /// Defines the SlotCoord3LocMapRefno.
+            /// </summary>
             SlotCoord3LocMapRefno = 7,
+
+            /// <summary>
+            /// Defines the FKRefno.
+            /// </summary>
             FKRefno = 8,
+
+            /// <summary>
+            /// Defines the BarCode.
+            /// </summary>
             BarCode = 9,
-            WhsLocMapRefno = 10
+
+            /// <summary>
+            /// Defines the WhsLocMapRefno.
+            /// </summary>
+            WhsLocMapRefno = 10,
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <remarks></remarks>
         public enum LocMapSectFields : int
         {
+            /// <summary>
+            /// Defines the LocMapRefno.
+            /// </summary>
             LocMapRefno = 0,
+
+            /// <summary>
+            /// Defines the LocMapSubType.
+            /// </summary>
             LocMapSubType = 1,
+
+            /// <summary>
+            /// Defines the WhsLocMapRefno.
+            /// </summary>
             WhsLocMapRefno = 2,
+
+            /// <summary>
+            /// Defines the Code.
+            /// </summary>
             Code = 3,
+
+            /// <summary>
+            /// Defines the Name.
+            /// </summary>
             Name = 4,
+
+            /// <summary>
+            /// Defines the FKRefno.
+            /// </summary>
             FKRefno = 5,
-            BarCode = 6
+
+            /// <summary>
+            /// Defines the BarCode.
+            /// </summary>
+            BarCode = 6,
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <remarks></remarks>
         public enum LocMapWhsFields : int
         {
+            /// <summary>
+            /// Defines the LocMapRefno.
+            /// </summary>
             LocMapRefno = 0,
+
+            /// <summary>
+            /// Defines the LocMapSubType.
+            /// </summary>
             LocMapSubType = 1,
+
+            /// <summary>
+            /// Defines the Name.
+            /// </summary>
             Name = 2,
+
+            /// <summary>
+            /// Defines the Code.
+            /// </summary>
             Code = 3,
+
+            /// <summary>
+            /// Defines the FKRefno.
+            /// </summary>
             FKRefno = 4,
+
+            /// <summary>
+            /// Defines the BarCode.
+            /// </summary>
             BarCode = 5,
+
+            /// <summary>
+            /// Defines the IsWMS.
+            /// </summary>
             IsWMS = 6,
+
+            /// <summary>
+            /// Defines the WhsMask.
+            /// </summary>
             WhsMask = 7,
+
+            /// <summary>
+            /// Defines the SectionMask.
+            /// </summary>
             SectionMask = 8,
+
+            /// <summary>
+            /// Defines the SlotMask.
+            /// </summary>
             SlotMask = 9,
+
+            /// <summary>
+            /// Defines the SlotCoord1Mask.
+            /// </summary>
             SlotCoord1Mask = 10,
+
+            /// <summary>
+            /// Defines the SlotCoord2Mask.
+            /// </summary>
             SlotCoord2Mask = 11,
+
+            /// <summary>
+            /// Defines the SlotCoord3Mask.
+            /// </summary>
             SlotCoord3Mask = 12,
+
+            /// <summary>
+            /// Defines the SlotCoord1Name.
+            /// </summary>
             SlotCoord1Name = 13,
+
+            /// <summary>
+            /// Defines the SlotCoord2Name.
+            /// </summary>
             SlotCoord2Name = 14,
+
+            /// <summary>
+            /// Defines the SlotCoord3Name.
+            /// </summary>
             SlotCoord3Name = 15,
+
+            /// <summary>
+            /// Defines the IsSectionTracked.
+            /// </summary>
             IsSectionTracked = 16,
+
+            /// <summary>
+            /// Defines the IsSlotTracked.
+            /// </summary>
             IsSlotTracked = 17,
-            IsAdhocEnabled = 18
+
+            /// <summary>
+            /// Defines the IsAdhocEnabled.
+            /// </summary>
+            IsAdhocEnabled = 18,
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <remarks></remarks>
         public enum UnitFields : int
         {
+            /// <summary>
+            /// Defines the UnitRefno.
+            /// </summary>
             UnitRefno = 0,
-            UnitCode = 1
+
+            /// <summary>
+            /// Defines the UnitCode.
+            /// </summary>
+            UnitCode = 1,
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <remarks></remarks>
         public enum ActAdjFields
         {
+            /// <summary>
+            /// Defines the ActRefno.
+            /// </summary>
             ActRefno = 0,
+
+            /// <summary>
+            /// Defines the ActSubType.
+            /// </summary>
             ActSubType = 1,
+
+            /// <summary>
+            /// Defines the FKRefno.
+            /// </summary>
             FKRefno = 2,
+
+            /// <summary>
+            /// Defines the StringFKRefno.
+            /// </summary>
             StringFKRefno = 3,
+
+            /// <summary>
+            /// Defines the Type.
+            /// </summary>
             Type = 4,
+
+            /// <summary>
+            /// Defines the WhsLocMapRefno.
+            /// </summary>
             WhsLocMapRefno = 5,
+
+            /// <summary>
+            /// Defines the DateTime.
+            /// </summary>
             DateTime = 6,
+
+            /// <summary>
+            /// Defines the Description.
+            /// </summary>
             Description = 7,
-            TypeDescription = 8
+
+            /// <summary>
+            /// Defines the TypeDescription.
+            /// </summary>
+            TypeDescription = 8,
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <remarks></remarks>
         public enum ActItemAdjFields : int
         {
+            /// <summary>
+            /// Defines the ActItemRefno.
+            /// </summary>
             ActItemRefno = 0,
+
+            /// <summary>
+            /// Defines the ActItemSubType.
+            /// </summary>
             ActItemSubType = 1,
+
+            /// <summary>
+            /// Defines the FKRefno.
+            /// </summary>
             FKRefno = 2,
+
+            /// <summary>
+            /// Defines the StringFKRefno.
+            /// </summary>
             StringFKRefno = 3,
+
+            /// <summary>
+            /// Defines the ProdUnitRefno.
+            /// </summary>
             ProdUnitRefno = 4,
+
+            /// <summary>
+            /// Defines the WhsLocMapRefno.
+            /// </summary>
             WhsLocMapRefno = 5,
+
+            /// <summary>
+            /// Defines the Quantity.
+            /// </summary>
             Quantity = 6,
+
+            /// <summary>
+            /// Defines the BaseQuantity.
+            /// </summary>
             BaseQuantity = 7,
+
+            /// <summary>
+            /// Defines the WeightQuantity.
+            /// </summary>
             WeightQuantity = 8,
-            Description = 9
+
+            /// <summary>
+            /// Defines the Description.
+            /// </summary>
+            Description = 9,
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <remarks></remarks>
         public enum ActDetailAdjFields : int
         {
+            /// <summary>
+            /// Defines the ActDetailRefno.
+            /// </summary>
             ActDetailRefno = 0,
-            FKRefno = 1
+
+            /// <summary>
+            /// Defines the FKRefno.
+            /// </summary>
+            FKRefno = 1,
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <remarks></remarks>
         public enum ActProdFields : int
         {
+            /// <summary>
+            /// Defines the ActRefno.
+            /// </summary>
             ActRefno = 0,
+
+            /// <summary>
+            /// Defines the ActSubType.
+            /// </summary>
             ActSubType = 1,
+
+            /// <summary>
+            /// Defines the WhsLocMapRefno.
+            /// </summary>
             WhsLocMapRefno = 2,
+
+            /// <summary>
+            /// Defines the DateTime.
+            /// </summary>
             DateTime = 3,
-            Description = 4
+
+            /// <summary>
+            /// Defines the Description.
+            /// </summary>
+            Description = 4,
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <remarks></remarks>
         public enum ActProdFinishedFields : int
         {
+            /// <summary>
+            /// Defines the ActivityRefno.
+            /// </summary>
             ActivityRefno = 0,
+
+            /// <summary>
+            /// Defines the FKRefno.
+            /// </summary>
             FKRefno = 1,
+
+            /// <summary>
+            /// Defines the StringFKRefno.
+            /// </summary>
             StringFKRefno = 2,
-            DefaultLogisticUnitBatchLotNumber = 3
+
+            /// <summary>
+            /// Defines the DefaultLogisticUnitBatchLotNumber.
+            /// </summary>
+            DefaultLogisticUnitBatchLotNumber = 3,
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <remarks></remarks>
         public enum ActProdMaterialFields : int
         {
+            /// <summary>
+            /// Defines the ActRefno.
+            /// </summary>
             ActRefno = 0,
+
+            /// <summary>
+            /// Defines the FKRefno.
+            /// </summary>
             FKRefno = 1,
-            StringFKRefno = 2
+
+            /// <summary>
+            /// Defines the StringFKRefno.
+            /// </summary>
+            StringFKRefno = 2,
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <remarks></remarks>
         public enum ActProdByProductFields : int
         {
+            /// <summary>
+            /// Defines the ActRefno.
+            /// </summary>
             ActRefno = 0,
+
+            /// <summary>
+            /// Defines the FKRefno.
+            /// </summary>
             FKRefno = 1,
-            StringFKRefno = 2
+
+            /// <summary>
+            /// Defines the StringFKRefno.
+            /// </summary>
+            StringFKRefno = 2,
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <remarks></remarks>
         public enum ActItemProdFields : int
         {
+            /// <summary>
+            /// Defines the ActItemRefno.
+            /// </summary>
             ActItemRefno = 0,
+
+            /// <summary>
+            /// Defines the ActivityItemSubType.
+            /// </summary>
             ActivityItemSubType = 1,
+
+            /// <summary>
+            /// Defines the ProdUnitRefno.
+            /// </summary>
             ProdUnitRefno = 2,
+
+            /// <summary>
+            /// Defines the LocMapRefno.
+            /// </summary>
             LocMapRefno = 3,
+
+            /// <summary>
+            /// Defines the Quantity.
+            /// </summary>
             Quantity = 4,
+
+            /// <summary>
+            /// Defines the BaseQuantity.
+            /// </summary>
             BaseQuantity = 5,
+
+            /// <summary>
+            /// Defines the WeightQuantity.
+            /// </summary>
             WeightQuantity = 6,
+
+            /// <summary>
+            /// Defines the Description.
+            /// </summary>
             Description = 7,
+
+            /// <summary>
+            /// Defines the QuantityExpected.
+            /// </summary>
             QuantityExpected = 8,
+
+            /// <summary>
+            /// Defines the BaseQuantityExpected.
+            /// </summary>
             BaseQuantityExpected = 9,
-            WeightQuantityExpected = 10
+
+            /// <summary>
+            /// Defines the WeightQuantityExpected.
+            /// </summary>
+            WeightQuantityExpected = 10,
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <remarks></remarks>
         public enum ActItemProdFinishedFields : int
         {
+            /// <summary>
+            /// Defines the ActItemRefno.
+            /// </summary>
             ActItemRefno = 0,
+
+            /// <summary>
+            /// Defines the FKRefno.
+            /// </summary>
             FKRefno = 1,
-            StringFKRefno = 2
+
+            /// <summary>
+            /// Defines the StringFKRefno.
+            /// </summary>
+            StringFKRefno = 2,
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <remarks></remarks>
         public enum ActItemProdMaterialFields : int
         {
+            /// <summary>
+            /// Defines the ActItemRefno.
+            /// </summary>
             ActItemRefno = 0,
+
+            /// <summary>
+            /// Defines the FKRefno.
+            /// </summary>
             FKRefno = 1,
-            StringFKRefno = 2
+
+            /// <summary>
+            /// Defines the StringFKRefno.
+            /// </summary>
+            StringFKRefno = 2,
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <remarks></remarks>
         public enum ActItemProdByProductFields : int
         {
+            /// <summary>
+            /// Defines the ActItemRefno.
+            /// </summary>
             ActItemRefno = 0,
+
+            /// <summary>
+            /// Defines the FKRefno.
+            /// </summary>
             FKRefno = 1,
-            StringFKRefno = 2
+
+            /// <summary>
+            /// Defines the StringFKRefno.
+            /// </summary>
+            StringFKRefno = 2,
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <remarks></remarks>
         public enum ActDetailProdFinishedFields : int
         {
+            /// <summary>
+            /// Defines the ActDetailRefno.
+            /// </summary>
             ActDetailRefno = 0,
-            FKRefno = 1
+
+            /// <summary>
+            /// Defines the FKRefno.
+            /// </summary>
+            FKRefno = 1,
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <remarks></remarks>
         public enum ActDetailProdMaterialFields : int
         {
+            /// <summary>
+            /// Defines the ActDetailRefno.
+            /// </summary>
             ActDetailRefno = 0,
-            FKRefno = 1
+
+            /// <summary>
+            /// Defines the FKRefno.
+            /// </summary>
+            FKRefno = 1,
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <remarks></remarks>
         public enum ActDetailProdByProductFields : int
         {
+            /// <summary>
+            /// Defines the ActDetailRefno.
+            /// </summary>
             ActDetailRefno = 0,
-            FKRefno = 1
+
+            /// <summary>
+            /// Defines the FKRefno.
+            /// </summary>
+            FKRefno = 1,
         }
-
-        #endregion
-
-        #endregion
-
-        #region Public Members
 
         /// <summary>
         /// Replace XML reserved characters in a string with the XML entity references.
         /// </summary>
-        /// <param name="data"></param>
-        /// <returns>Well formed xml string</returns>
+        /// <param name="data">.</param>
+        /// <returns>Well formed xml string.</returns>
         public static string AddXMLReservedChars(string data)
         {
-            string xmlString = string.Empty;
-
-            xmlString = data.Replace("<", "&lt;");
+            string xmlString = data.Replace("<", "&lt;");
             xmlString = xmlString.Replace(">", "&gt;");
             xmlString = xmlString.Replace("\"", "&quot;");
             xmlString = xmlString.Replace("'", "&apos;");
@@ -1499,13 +3515,11 @@ namespace dMobile.Bedrock
         /// <summary>
         /// Replace the XML entity references in a string with the reserved characters.
         /// </summary>
-        /// <param name="data"></param>
-        /// <returns>Restored string</returns>
+        /// <param name="data">.</param>
+        /// <returns>Restored string.</returns>
         public static string RemoveXMLReservedChars(string data)
         {
-            string xmlString = string.Empty;
-
-            xmlString = data.Replace("&lt;", "<");
+            string xmlString = data.Replace("&lt;", "<");
             xmlString = xmlString.Replace("&gt;", ">");
             xmlString = xmlString.Replace("&quot;", "\"");
             xmlString = xmlString.Replace("&apos;", "'");
@@ -1515,10 +3529,10 @@ namespace dMobile.Bedrock
         }
 
         /// <summary>
-        /// 
+        /// The IsAllowedChangeNegateQuantityFromAdjType.
         /// </summary>
-        /// <param name="adjustmentType"></param>
-        /// <returns></returns>
+        /// <param name="adjustmentType">.</param>
+        /// <returns>.</returns>
         public static bool IsAllowedChangeNegateQuantityFromAdjType(AdjTypes
             adjustmentType)
         {
@@ -1605,10 +3619,10 @@ namespace dMobile.Bedrock
         }
 
         /// <summary>
-        /// 
+        /// The DefaultNegateQuantityFromAdjType.
         /// </summary>
-        /// <param name="adjustmentType"></param>
-        /// <returns></returns>
+        /// <param name="adjustmentType">.</param>
+        /// <returns>.</returns>
         public static bool DefaultNegateQuantityFromAdjType(AdjTypes
             adjustmentType)
         {
@@ -1698,14 +3712,13 @@ namespace dMobile.Bedrock
         }
 
         /// <summary>
-        /// 
+        /// The GetSymbologyPrefixFromSymbologyEnum.
         /// </summary>
-        /// <param name="symbology"></param>
-        /// <returns></returns>
+        /// <param name="symbology">.</param>
+        /// <returns>.</returns>
         public static string GetSymbologyPrefixFromSymbologyEnum(BarCodeSymbologies symbology)
         {
-            string symbologyPrefix = string.Empty;
-
+            string symbologyPrefix;
             switch (symbology)
             {
                 case BarCodeSymbologies.UNDEFINED:
@@ -1835,10 +3848,10 @@ namespace dMobile.Bedrock
         }
 
         /// <summary>
-        /// device_id, login_id, revision_date, stamp
+        /// device_id, login_id, revision_date, stamp.
         /// </summary>
-        /// <param name="useRefreshedDataLast"></param>
-        /// <returns></returns>
+        /// <param name="useRefreshedDataLast">.</param>
+        /// <returns>.</returns>
         public async static Task<string> GetRequestDefaults(bool useRefreshedDataLast)
         {
             SysEnvironment sysEnv = SysEnvironment.GetInstance();
@@ -1849,24 +3862,23 @@ namespace dMobile.Bedrock
                 revision = sysEnv.RefreshOpt.RefreshedDataLast.ToString("yyyy\'-\'MM\'-\'dd\'T\'HH\':\'mm\':\'ss");
             }
 
-            // Added the login warehouse fk refno, for request filtering. 
+            // Added the login warehouse fk refno, for request filtering.
             // Easier to add it here than review every activity request, for filtering.
             SLocMap loginLocMap = await LocationMapTasks.GetSLocMapFromLocMapRefno(LocationMap.GetInstance().LoginWhsLocMapRefno);
 
-            string def = ("<device_id>" + sysEnv.DeviceID + "</device_id>")
-                + ("<login_id>" + sysEnv.ContactLog.LoginID + "</login_id>")
-                + ("<login_whs_id>" + loginLocMap.WhsFKRefno + "</login_whs_id>")
-                + ("<revision_datetime>" + revision + "</revision_datetime>")
-                + ("<stamp>" + current + "</stamp>");
+            string def = "<device_id>" + sysEnv.DeviceID + "</device_id>"
+                + "<login_id>" + sysEnv.ContactLog.LoginID + "</login_id>"
+                + "<login_whs_id>" + loginLocMap.WhsFKRefno + "</login_whs_id>"
+                + "<revision_datetime>" + revision + "</revision_datetime>"
+                + "<stamp>" + current + "</stamp>";
 
             return def;
         }
 
         /// <summary>
-        /// Check for any activities with change state not equal to ActivityStatus.NoChange
+        /// Check for any activities with change state not equal to ActivityStatus.NoChange.
         /// </summary>
-        /// <returns>True or false if data unsubmitted data exists</returns>
-        /// <remarks></remarks>
+        /// <returns>True or false if data that has not been submitted exists.</returns>
         public static async Task<bool> CheckForUnSubmittedData()
         {
             bool isDataExists = false;
@@ -1888,7 +3900,7 @@ namespace dMobile.Bedrock
             sql.AppendFormat("WHERE tActivityDetail.ActivityDetailStatus <> {0}", Convert.ToInt32(ActStatus.NoChange));
 
             List<tActivityModel> results = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<tActivityModel>(Convert.ToString(sql));
-            
+
             if (results?.Count > 0)
             {
                 isDataExists = true;
@@ -1898,13 +3910,12 @@ namespace dMobile.Bedrock
         }
 
         /// <summary>
-        /// Make a nice formatted string of quantity and product units
+        /// Make a nice formatted string of quantity and product units.
         /// </summary>
-        /// <param name="prodInfo"></param>
-        /// <param name="quantity"></param>
-        /// <param name="weightQuantity"></param>
-        /// <returns>Formatted nice readable string '12.000 CS @ 150.546 KG'</returns>
-        /// <remarks></remarks>
+        /// <param name="prodInfo">.</param>
+        /// <param name="quantity">.</param>
+        /// <param name="weightQuantity">.</param>
+        /// <returns>Formatted nice readable string '12.000 CS @ 150.546 KG'.</returns>
         public static string NiceQuantityReadableString(ProductInfo prodInfo, decimal quantity, decimal weightQuantity)
         {
             string unit = Math.Round(quantity, 3).ToString() + " " + prodInfo.UnitCode;
@@ -1914,11 +3925,11 @@ namespace dMobile.Bedrock
         }
 
         /// <summary>
-        /// 
+        /// The FillQuantityStructureFromQuantity.
         /// </summary>
-        /// <param name="prodInfo"></param>
-        /// <param name="quantity"></param>
-        /// <returns></returns>
+        /// <param name="prodInfo">.</param>
+        /// <param name="quantity">.</param>
+        /// <returns>.</returns>
         public static SFillQuantity FillQuantityStructureFromQuantity(ProductInfo prodInfo, decimal quantity)
         {
             SFillQuantity fill = new SFillQuantity();
@@ -1927,7 +3938,7 @@ namespace dMobile.Bedrock
             {
                 if (prodInfo.UnitCode == "LB" | prodInfo.UnitCode == "KG")
                 {
-                    fill.Quantity = prodInfo.UnitWeight;
+                    fill.Quantity = prodInfo.UnitGrossWeight;
                 }
                 else
                 {
@@ -1947,12 +3958,12 @@ namespace dMobile.Bedrock
                 }
                 else
                 {
-                    fill.WeightQuantity = prodInfo.UnitWeight;
+                    fill.WeightQuantity = prodInfo.UnitGrossWeight;
                 }
             }
             else
             {
-                fill.WeightQuantity = prodInfo.UnitWeight;
+                fill.WeightQuantity = prodInfo.UnitGrossWeight;
             }
 
             if (prodInfo.BaseUnitCode == "LB" | prodInfo.BaseUnitCode == "KG")
@@ -1976,67 +3987,59 @@ namespace dMobile.Bedrock
         }
 
         /// <summary>
-        /// 
+        /// Submit communication request.
         /// </summary>
-        /// <param name="sendData"></param>
-        /// <returns></returns>
+        /// <param name="sendData"><see cref="string"/> Communication data to submit.</param>
+        /// <returns><see cref="string"/> Communication response.</returns>
         public static string SubmitComm(string sendData)
         {
-            SysEnvironment sysEnv = SysEnvironment.GetInstance();
-            Socket sysSock = null;
-            int bytesSent = default(int);
-            List<byte> compressedData = null;
             string recvData = string.Empty;
-
-            try
+            SysEnvironment sysEnv = SysEnvironment.GetInstance();
+            using (Socket sysSock = sysEnv.SysSock.Connect())
             {
-                sysSock = sysEnv.SysSock.Connect();
-                if (sysSock != null)
+                _ = sysSock ?? throw new Exception("Failed to connect.");
+
+                try
                 {
-                    System.Threading.Thread.Sleep(500); // Temp fix until we can share a socket
-                    
-                    bytesSent = sysEnv.SysSock.SendRequest(sysSock, sendData);
-                    compressedData = sysEnv.SysSock.ReceiveResponse(sysSock);
-                    
+                    // KLUDGE: Temp fix until we can share a socket
+                    System.Threading.Thread.Sleep(500);
+
+                    int bytesSent = sysEnv.SysSock.SendRequest(sysSock, sendData);
+                    List<byte> compressedData = sysEnv.SysSock.ReceiveResponse(sysSock);
+
                     recvData = Compress.UnZip(compressedData.ToArray());
 
-                    // Only errors from the comm server will contain reserved xml characters that need special handling.
-                    // Table data with special characters will be handled when being loaded in the xml.dom object.
+                    // Only errors from the comm server will contain reserved xml characters that need
+                    // special handling.
+                    // Table data with special characters will be handled when being loaded in the
+                    // xml.dom object.
                     if (recvData.Contains("<message>ERROR</message>"))
                     {
                         recvData = SysCommon.RemoveXMLReservedChars(recvData);
                     }
                 }
-                else
+                catch
                 {
-                    // TODO: Resource strings
-                    throw new Exception("Failed to connect.");
+                    throw;
+                }
+                finally
+                {
+                    if (sysSock != null)
+                    {
+                        sysSock.Disconnect(true);
+                        sysSock.Close();
+                    }
                 }
             }
-            catch (SocketException ex)
-            {
-                if (sysSock != null)
-                {
-                    sysSock.Disconnect(true);
-                    sysSock.Close();
-                }
 
-                // TODO: Resource strings
-                throw new Exception("SubmitComm socket error occurred.", ex);
-            }
-            sysSock.Disconnect(true);
-            sysSock.Close();
             return recvData;
         }
 
-
         /// <summary>
-        /// Checks a COM submission reponse string for errors.
+        /// Checks a COM submission response string for errors.
         /// Throws exceptions if errors are found.
         /// </summary>
         /// <param name="response">XML response string.</param>
-        /// <exception cref="MessageOnlyException"/>
-        /// <exception cref="Exception"/>
         public static void CheckCommResponseForErrors(string response)
         {
             if (response == null)
@@ -2061,11 +4064,10 @@ namespace dMobile.Bedrock
         }
 
         /// <summary>
-        /// 
+        /// The IsEmptyDateTime.
         /// </summary>
-        /// <param name="dt"></param>
-        /// <returns></returns>
-        /// <remarks></remarks>
+        /// <param name="dt">.</param>
+        /// <returns>.</returns>
         public static bool IsEmptyDateTime(DateTime dt)
         {
             bool isEmpty = false;
@@ -2078,12 +4080,11 @@ namespace dMobile.Bedrock
         }
 
         /// <summary>
-        /// 
+        /// The IsEmptyDate.
         /// </summary>
-        /// <param name="dt"></param>
-        /// <returns></returns>
-        /// <remarks></remarks>
-        public static bool IsEmptyDate(System.DateTime dt)
+        /// <param name="dt">.</param>
+        /// <returns>.</returns>
+        public static bool IsEmptyDate(DateTime dt)
         {
             bool isEmpty = false;
             if (dt.Year <= 1900)
@@ -2095,53 +4096,50 @@ namespace dMobile.Bedrock
         }
 
         /// <summary>
-        /// 
+        /// The ConvertLB2KG.
         /// </summary>
-        /// <param name="dblLBQuantity"></param>
-        /// <returns></returns>
-        /// <remarks></remarks>
+        /// <param name="lbQuantity">The lbQuantity<see cref="double"/>.</param>
+        /// <returns>.</returns>
         public static double ConvertLB2KG(double lbQuantity)
         {
-            return (lbQuantity * 0.4535923703);
+            return lbQuantity * 0.4535923703;
         }
 
         /// <summary>
         /// Converts LB to KG.
         /// </summary>
-        /// <param name="lbQuantity"></param>
-        /// <returns></returns>
+        /// <param name="lbQuantity">.</param>
+        /// <returns>.</returns>
         public static decimal ConvertLB2KG(decimal lbQuantity)
         {
             return lbQuantity * 0.4535923703M;
         }
 
         /// <summary>
-        /// 
+        /// The ConvertKG2LB.
         /// </summary>
-        /// <param name="dblKGQuantity"></param>
-        /// <returns></returns>
-        /// <remarks></remarks>
+        /// <param name="kgQuantity">The kgQuantity<see cref="double"/>.</param>
+        /// <returns>.</returns>
         public static double ConvertKG2LB(double kgQuantity)
         {
-            return (kgQuantity * 2.20462262);
+            return kgQuantity * 2.20462262;
         }
 
         /// <summary>
         /// Converts KG to LB.
         /// </summary>
-        /// <param name="kgQuantity"></param>
-        /// <returns></returns>
+        /// <param name="kgQuantity">.</param>
+        /// <returns>.</returns>
         public static decimal ConvertKG2LB(decimal kgQuantity)
         {
             return kgQuantity * 2.20462262M;
         }
 
         /// <summary>
-        /// 
+        /// The GetXMLDocumentFromObjectArray.
         /// </summary>
-        /// <param name="objList"></param>
-        /// <returns></returns>
-        /// <remarks></remarks>
+        /// <param name="objList">.</param>
+        /// <returns>.</returns>
         public static XmlDocument GetXMLDocumentFromObjectArray(Array objList)
         {
             XmlDocument result = new XmlDocument();
@@ -2155,7 +4153,7 @@ namespace dMobile.Bedrock
                 root.AppendChild(record);
                 XmlElement tmpElem = null;
 
-                // Interogate properties
+                // Interrogate properties
                 foreach (PropertyInfo prop in list.GetType().GetProperties())
                 {
                     if (prop.CanRead)
@@ -2166,7 +4164,7 @@ namespace dMobile.Bedrock
                     }
                 }
 
-                // Interogate fields
+                // Interrogate fields
                 foreach (FieldInfo fld in list.GetType().GetFields())
                 {
                     if (fld.IsPublic)
@@ -2182,10 +4180,9 @@ namespace dMobile.Bedrock
         }
 
         /// <summary>
-        /// 
+        /// The GetAssemblyVersion.
         /// </summary>
-        /// <returns></returns>
-        /// <remarks></remarks>
+        /// <returns>.</returns>
         public string GetAssemblyVersion()
         {
             int major = Assembly.GetExecutingAssembly().GetName().Version.Major;
@@ -2197,13 +4194,12 @@ namespace dMobile.Bedrock
         }
 
         /// <summary>
-        /// 
+        /// The ErrorReportAndRequestContinue.
         /// </summary>
-        /// <param name="strFullClassName"></param>
-        /// <param name="strReportingMethod"></param>
-        /// <param name="ex"></param>
-        /// <returns></returns>
-        /// <remarks></remarks>
+        /// <param name="fullClassName">The fullClassName<see cref="string"/>.</param>
+        /// <param name="reportingMethod">The reportingMethod<see cref="string"/>.</param>
+        /// <param name="ex">.</param>
+        /// <returns>.</returns>
         public static bool ErrorReportAndRequestContinue(string fullClassName, string reportingMethod,
             Exception ex)
         {
@@ -2211,47 +4207,45 @@ namespace dMobile.Bedrock
             string[] aClass = fullClassName.Split('.');
             string assembly = aClass[0];
 
-            //Dim strClassName As New System.Text.StringBuilder
-            //For Each s As String In aClass
+            // Dim strClassName As New System.Text.StringBuilder
+            // For Each s As String In aClass
             //  If Not (s = aClass(0)) Then strClassName.Append(s & ".")
-            //Next
-            //strClassName.Remove(strClassName.Length - 1, 1)
+            // Next
+            // strClassName.Remove(strClassName.Length - 1, 1)
 
-            //Dim strAppDir As String = Path.GetDirectoryName(Assembly.GetExecutingAssembly().GetName().CodeBase)
-            //Dim strFullPathToMyFile As String = Path.Combine(strAppDir, "dMobileResource02.wav")
-            //Dim oSnd As SysSound = New SysSound(strFullPathToMyFile)
-            //oSnd.Play()
-
+            // Dim strAppDir As String = Path.GetDirectoryName(Assembly.GetExecutingAssembly().GetName().CodeBase)
+            // Dim strFullPathToMyFile As String = Path.Combine(strAppDir, "dMobileResource02.wav")
+            // Dim oSnd As SysSound = New SysSound(strFullPathToMyFile)
+            // oSnd.Play()
             bool result = false;
-//#if MULTILANGUAGE
-//      string errorMsg = Translator.GetInstance().Translate(TranslatorVocabulary.AnUnanticipatedErrorOccuredInDmobile) + Constants.vbCrLf +
-//#else
-//            string errorMsg = "An Unanticipated Error Occured in dMobile: " + Constants.vbCrLf +
-//#endif
-// "Assembly: " + assembly + Constants.vbCrLf + "Class: " + fullClassName +
-//                Constants.vbCrLf + "Method: " + reportingMethod + Constants.vbCrLf + "Type: " +
-//                ex.GetType().ToString() + Constants.vbCrLf + "Message: " + ex.Message.ToString() +
-//#if MULTILANGUAGE
-//          Constants.vbCrLf + Translator.GetInstance().Translate(TranslatorVocabulary.DoYouWishToContinue);
-//#else
-// Constants.vbCrLf + "DO YOU WISH TO CONTINUE?";
-//#endif
+            // #if MULTILANGUAGE
+            //      string errorMsg = Translator.GetInstance().Translate(TranslatorVocabulary.AnUnanticipatedErrorOccuredInDmobile) + Constants.vbCrLf +
+            // #else
+            //            string errorMsg = "An Unanticipated Error Occurred in dMobile: " + Constants.vbCrLf +
+            // #endif
+            // "Assembly: " + assembly + Constants.vbCrLf + "Class: " + fullClassName +
+            //                Constants.vbCrLf + "Method: " + reportingMethod + Constants.vbCrLf + "Type: " +
+            //                ex.GetType().ToString() + Constants.vbCrLf + "Message: " + ex.Message.ToString() +
+            // #if MULTILANGUAGE
+            //          Constants.vbCrLf + Translator.GetInstance().Translate(TranslatorVocabulary.DoYouWishToContinue);
+            // #else
+            // Constants.vbCrLf + "DO YOU WISH TO CONTINUE?";
+            // #endif
 
-//            result = !(Interaction.MsgBox(errorMsg, MsgBoxStyle.YesNo,
-//#if MULTILANGUAGE
-//          Translator.GetInstance().Translate(TranslatorVocabulary.DmobileErrorOccurredDoYouWishToContinue)) == MsgBoxResult.No);
-//#else
-// "dMobile Error Occurred Do you wish to continue!") == MsgBoxResult.No);
-//#endif
-
+            // result = !(Interaction.MsgBox(errorMsg, MsgBoxStyle.YesNo,
+            // #if MULTILANGUAGE
+            //          Translator.GetInstance().Translate(TranslatorVocabulary.DmobileErrorOccurredDoYouWishToContinue)) == MsgBoxResult.No);
+            // #else
+            // "dMobile Error Occurred Do you wish to continue!") == MsgBoxResult.No);
+            // #endif
             return result;
         }
 
         /// <summary>
-        /// Removes control characters and other non-UTF-8 characters
+        /// Removes control characters and other non-UTF-8 characters.
         /// </summary>
-        /// <param name="inData">The string to process</param>
-        /// <returns>A string with no control characters or entities above 0x00FD</returns>
+        /// <param name="inData">The string to process.</param>
+        /// <returns>A string with no control characters or entities above 0x00FD.</returns>
         public static string RemoveTroublesomeCharacters(string inData)
         {
             if (string.IsNullOrEmpty(inData))
@@ -2260,40 +4254,39 @@ namespace dMobile.Bedrock
             }
 
             StringBuilder newData = new StringBuilder();
-            //char ch = '\0';
-            //for (int index = 0; index <= inData.Length - 1; index++)
-            //{
-            //    ch = inData[index];
+            //// char ch = '\0';
+            //// for (int index = 0; index <= inData.Length - 1; index++)
+            //// {
+            ////    ch = inData[index];
 
-            //    // remove any characters outside the valid UTF-8 range as well as all control characters
-            //    // except tabs and new lines
-            //    ////if ((&HFD > AscW(ch) And AscW(ch) > &H1F) Or ch = "\t" Or ch = "\n" Or ch = "\r")
-            //    ////newString.Append(ch)
+            //// // remove any characters outside the valid UTF-8 range as well as all control characters
+            ////    // except tabs and new lines
+            ////    ////if ((&HFD > AscW(ch) And AscW(ch) > &H1F) Or ch = "\t" Or ch = "\n" Or ch = "\r")
+            ////    ////newString.Append(ch)
 
-            //    if (0xfd > Strings.AscW(ch) & Strings.AscW(ch) > 0x1f)
-            //    {
-            //        newData.Append(ch);
-            //    }
-            //}
-
+            //// if (0xfd > Strings.AscW(ch) & Strings.AscW(ch) > 0x1f)
+            ////    {
+            ////        newData.Append(ch);
+            ////    }
+            //// }
+            ///
             return newData.ToString();
         }
 
         /// <summary>
         /// Word wraps the given text to fit within the specified width.
         /// </summary>
-        /// <param name="text">Text to be word wrapped</param>
-        /// <param name="width">Width, in characters, to which the text
-        /// should be word wrapped</param>
-        /// <returns>Array list of strings with the modified text</returns>
+        /// <param name="text">Text to be word wrapped.</param>
+        /// <param name="width">The width<see cref="int"/>.</param>
+        /// <returns>Array list of strings with the modified text.</returns>
         public static List<string> WordWrap2List(string text, int width)
         {
             List<string> sb = new List<string>();
 
             if (width > 0)
             {
-                int pos = 0;
-                int next = 0;
+                int pos;
+                int next;
 
                 // Parse each line of text
                 for (pos = 0; pos < text.Length; pos = next)
@@ -2324,7 +4317,7 @@ namespace dMobile.Bedrock
 
                             // Trim whitespace following break
                             pos += len;
-                            while (pos < eol && Char.IsWhiteSpace(text[pos]))
+                            while (pos < eol && char.IsWhiteSpace(text[pos]))
                             {
                                 pos++;
                             }
@@ -2340,10 +4333,9 @@ namespace dMobile.Bedrock
         /// <summary>
         /// Word wraps the given text to fit within the specified width.
         /// </summary>
-        /// <param name="text">Text to be word wrapped</param>
-        /// <param name="width">Width, in characters, to which the text
-        /// should be word wrapped</param>
-        /// <returns>The modified text</returns>
+        /// <param name="text">Text to be word wrapped.</param>
+        /// <param name="width">The width<see cref="int"/>.</param>
+        /// <returns>The modified text.</returns>
         public static string WordWrap2String(string text, int width)
         {
             ////if (width > text.Length)
@@ -2355,8 +4347,8 @@ namespace dMobile.Bedrock
 
             if (width > 0)
             {
-                int pos = 0;
-                int next = 0;
+                int pos;
+                int next;
 
                 // Parse each line of text
                 for (pos = 0; pos < text.Length; pos = next)
@@ -2388,7 +4380,7 @@ namespace dMobile.Bedrock
 
                             // Trim whitespace following break
                             pos += len;
-                            while (pos < eol && Char.IsWhiteSpace(text[pos]))
+                            while (pos < eol && char.IsWhiteSpace(text[pos]))
                             {
                                 pos++;
                             }
@@ -2408,16 +4400,16 @@ namespace dMobile.Bedrock
         /// <summary>
         /// Locates position to break the given line so as to avoid breaking words.
         /// </summary>
-        /// <param name="text">String that contains line of text</param>
-        /// <param name="pos">Index where line of text starts</param>
-        /// <param name="max">Maximum line length</param>
-        /// <returns>The modified line length</returns>
+        /// <param name="text">String that contains line of text.</param>
+        /// <param name="pos">Index where line of text starts.</param>
+        /// <param name="max">Maximum line length.</param>
+        /// <returns>The modified line length.</returns>
         private static int BreakLine(string text, int pos, int max)
         {
             // Find last whitespace in line
             int i = max;
 
-            while (i >= 0 && !Char.IsWhiteSpace(text[pos + i]))
+            while (i >= 0 && !char.IsWhiteSpace(text[pos + i]))
             {
                 i--;
             }
@@ -2429,7 +4421,7 @@ namespace dMobile.Bedrock
             }
 
             // Find start of whitespace
-            while (i >= 0 && Char.IsWhiteSpace(text[pos + i]))
+            while (i >= 0 && char.IsWhiteSpace(text[pos + i]))
             {
                 i--;
             }
@@ -2439,11 +4431,10 @@ namespace dMobile.Bedrock
         }
 
         /// <summary>
-        /// 
+        /// The GetXmlReader.
         /// </summary>
-        /// <param name="xml"></param>
-        /// <returns></returns>
-        /// <remarks></remarks>
+        /// <param name="xml">.</param>
+        /// <returns>.</returns>
         public static XmlReader GetXmlReader(ref string xml)
         {
             // Parse the Data into Schema and Data
@@ -2455,7 +4446,7 @@ namespace dMobile.Bedrock
                 int actualSchemaEnd = eoSchemaEnd + endSchema.Length;
                 string schema = xml.Substring(0, actualSchemaEnd);
 
-                int dataLength = xml.Length - (actualSchemaEnd);
+                int dataLength = xml.Length - actualSchemaEnd;
                 string data = xml.Substring(actualSchemaEnd, dataLength);
 
                 // Create the XmlSchemaSet class.
@@ -2480,471 +4471,324 @@ namespace dMobile.Bedrock
             }
         }
 
-        #endregion
-
         /// <summary>
-        /// Structure to hold label quantites
+        /// Defines the <see cref="MEMORYSTATUS" />.
         /// </summary>
-        /// <remarks>Used in requesting how many shipping labels to print</remarks>
-        public struct SLabelQuantity
-        {
-            #region Fields
-
-            private int fullQuantity;
-            private int repackQuantity;
-            private int dryQuantity;
-            private int frozenQuantity;
-            private int liveQuantity;
-            private int freshQuantity;
-            private int palletQuantity;
-            private int bundleQuantity;
-            private int repackDryQuantity;
-            private int repackFrozenQuantity;
-            private int repackLiveQuantity;
-            private int repackFreshQuantity;
-
-            /// <summary>
-            /// Used as flag to validate if a 'full' repack quantity is required.
-            /// </summary>
-            private bool isRepack;
-
-            /// <summary>
-            /// Used as flag to validate if a 'dry' repack quantity is required.
-            /// </summary>
-            private bool isRepackDry;
-
-            /// <summary>
-            /// Used as flag to validate if a 'frozen' repack quantity is required.
-            /// </summary>
-            private bool isRepackFrozen;
-
-            /// <summary>
-            /// Used as flag to validate if a 'live' repack quantity is required.
-            /// </summary>
-            private bool isRepackLive;
-
-            /// <summary>
-            /// Used as flag to validate if a 'fresh' repack quantity is required.
-            /// </summary>
-            private bool isRepackFresh;
-
-            private bool isPrinted;
-
-            #endregion
-
-            #region Properties
-
-            public bool IsRepack
-            {
-                get
-                {
-                    return this.isRepack;
-                }
-
-                set
-                {
-                    this.isRepack = value;
-                }
-            }
-
-            public bool IsRepackLive
-            {
-                get
-                {
-                    return this.isRepackLive;
-                }
-
-                set
-                {
-                    this.isRepackLive = value;
-                }
-            }
-
-            public bool IsRepackFresh
-            {
-                get
-                {
-                    return this.isRepackFresh;
-                }
-
-                set
-                {
-                    this.isRepackFresh = value;
-                }
-            }
-
-            public bool IsRepackFrozen
-            {
-                get
-                {
-                    return this.isRepackFrozen;
-                }
-
-                set
-                {
-                    this.isRepackFrozen = value;
-                }
-            }
-
-            public bool IsRepackDry
-            {
-                get
-                {
-                    return this.isRepackDry;
-                }
-
-                set
-                {
-                    this.isRepackDry = value;
-                }
-            }
-
-            public int BundleQuantity
-            {
-                get
-                {
-                    return this.bundleQuantity;
-                }
-
-                set
-                {
-                    this.bundleQuantity = value;
-                }
-            }
-
-            public int RepackFreshQuantity
-            {
-                get
-                {
-                    return this.repackFreshQuantity;
-                }
-
-                set
-                {
-                    this.repackFreshQuantity = value;
-                }
-            }
-
-            public int RepackLiveQuantity
-            {
-                get
-                {
-                    return this.repackLiveQuantity;
-                }
-
-                set
-                {
-                    this.repackLiveQuantity = value;
-                }
-            }
-
-            public int RepackFrozenQuantity
-            {
-                get
-                {
-                    return this.repackFrozenQuantity;
-                }
-
-                set
-                {
-                    this.repackFrozenQuantity = value;
-                }
-            }
-
-            public int RepackDryQuantity
-            {
-                get
-                {
-                    return this.repackDryQuantity;
-                }
-
-                set
-                {
-                    this.repackDryQuantity = value;
-                }
-            }
-
-            public int PalletQuantity
-            {
-                get
-                {
-                    return this.palletQuantity;
-                }
-
-                set
-                {
-                    this.palletQuantity = value;
-                }
-            }
-
-            public int FreshQuantity
-            {
-                get
-                {
-                    return this.freshQuantity;
-                }
-
-                set
-                {
-                    this.freshQuantity = value;
-                }
-            }
-
-            public int LiveQuantity
-            {
-                get
-                {
-                    return this.liveQuantity;
-                }
-
-                set
-                {
-                    this.liveQuantity = value;
-                }
-            }
-
-            public int FrozenQuantity
-            {
-                get
-                {
-                    return this.frozenQuantity;
-                }
-
-                set
-                {
-                    this.frozenQuantity = value;
-                }
-            }
-
-            public int DryQuantity
-            {
-                get
-                {
-                    return this.dryQuantity;
-                }
-
-                set
-                {
-                    this.dryQuantity = value;
-                }
-            }
-
-            public int FullQuantity
-            {
-                get
-                {
-                    return this.fullQuantity;
-                }
-
-                set
-                {
-                    this.fullQuantity = value;
-                }
-            }
-
-            public int RepackQuantity
-            {
-                get
-                {
-                    return this.repackQuantity;
-                }
-
-                set
-                {
-                    this.repackQuantity = value;
-                }
-            }
-
-            public bool IsPrinted
-            {
-                get
-                {
-                    return this.isPrinted;
-                }
-
-                set
-                {
-                    this.isPrinted = value;
-                }
-            }
-
-            #endregion
-        }
-
-        /// <summary>
-        /// Structure to hold quantity
-        /// </summary>
-        /// <remarks>Used in FillQuantityStructureFromQuantity</remarks>
-        public struct SFillQuantity
-        {
-            private decimal quantity;
-            private decimal baseQuantity;
-            private decimal weightQuantity;
-
-            public decimal Quantity
-            {
-                get { return this.quantity; }
-                set { this.quantity = value; }
-            }
-
-            public decimal BaseQuantity
-            {
-                get { return this.baseQuantity; }
-                set { this.baseQuantity = value; }
-            }
-
-            public decimal WeightQuantity
-            {
-                get { return this.weightQuantity; }
-                set { this.weightQuantity = value; }
-            }
-        }
-
-        #region "Device Memory"
-
         public struct MEMORYSTATUS
         {
-            public UInt32 dwLength;
-            public UInt32 dwMemoryLoad;
-            public UInt32 dwTotalPhys;
-            public UInt32 dwAvailPhys;
-            public UInt32 dwTotalPageFile;
-            public UInt32 dwAvailPageFile;
-            public UInt32 dwTotalVirtual;
-            public UInt32 dwAvailVirtual;
+            /// <summary>
+            /// Defines the dwLength.
+            /// </summary>
+            public uint dwLength;
+
+            /// <summary>
+            /// Defines the dwMemoryLoad.
+            /// </summary>
+            public uint dwMemoryLoad;
+
+            /// <summary>
+            /// Defines the dwTotalPhys.
+            /// </summary>
+            public uint dwTotalPhys;
+
+            /// <summary>
+            /// Defines the dwAvailPhys.
+            /// </summary>
+            public uint dwAvailPhys;
+
+            /// <summary>
+            /// Defines the dwTotalPageFile.
+            /// </summary>
+            public uint dwTotalPageFile;
+
+            /// <summary>
+            /// Defines the dwAvailPageFile.
+            /// </summary>
+            public uint dwAvailPageFile;
+
+            /// <summary>
+            /// Defines the dwTotalVirtual.
+            /// </summary>
+            public uint dwTotalVirtual;
+
+            /// <summary>
+            /// Defines the dwAvailVirtual.
+            /// </summary>
+            public uint dwAvailVirtual;
         }
 
+        /// <summary>
+        /// The GlobalMemoryStatus.
+        /// </summary>
+        /// <param name="ms">The ms<see cref="MEMORYSTATUS"/>.</param>
+        /// <returns>The <see cref="int"/>.</returns>
         [DllImport("coredll")]
         public static extern int GlobalMemoryStatus(ref MEMORYSTATUS ms);
 
+        /// <summary>
+        /// The GetSystemMemoryDivision.
+        /// </summary>
+        /// <param name="lpdwStorePages">The lpdwStorePages<see cref="uint"/>.</param>
+        /// <param name="ldpwRamPages">The ldpwRamPages<see cref="uint"/>.</param>
+        /// <param name="ldpwPageSize">The ldpwPageSize<see cref="uint"/>.</param>
+        /// <returns>The <see cref="int"/>.</returns>
         [DllImport("coredll")]
-        public static extern int GetSystemMemoryDivision(ref UInt32 lpdwStorePages,
-            ref UInt32 ldpwRamPages, ref UInt32 ldpwPageSize);
+        public static extern int GetSystemMemoryDivision(ref uint lpdwStorePages,
+            ref uint ldpwRamPages, ref uint ldpwPageSize);
 
         /// <summary>
-        /// 
+        /// The ShowMemory.
         /// </summary>
-        /// <remarks></remarks>
+        /// <returns>The <see cref="string"/>.</returns>
         public static string ShowMemory()
         {
             StringBuilder memoryInfoString = new StringBuilder();
 
-            memoryInfoString.Append("Total Bytes Allocated " + Environment.NewLine + GC.GetTotalMemory(true) + " Bytes" + Environment.NewLine);
-            memoryInfoString.Append(Environment.NewLine + "Used Heap Memory " + Environment.NewLine + (Java.Lang.Runtime.GetRuntime().TotalMemory() - Java.Lang.Runtime.GetRuntime().FreeMemory()) + " Bytes" +  Environment.NewLine);
-            memoryInfoString.Append(Environment.NewLine + "Free Heap Memory " + Environment.NewLine + Java.Lang.Runtime.GetRuntime().FreeMemory() + " Bytes" + Environment.NewLine);
-            memoryInfoString.Append(Environment.NewLine + "Total Heap Memory " + Environment.NewLine + Java.Lang.Runtime.GetRuntime().TotalMemory() + " Bytes" + Environment.NewLine);
-            memoryInfoString.Append(Environment.NewLine + "Max Heap Memory " + Environment.NewLine + Java.Lang.Runtime.GetRuntime().MaxMemory() + " Bytes" + Environment.NewLine);
+            memoryInfoString.Append(
+                "Total Bytes Allocated " + Environment.NewLine + GC.GetTotalMemory(true) +
+                " Bytes" + Environment.NewLine);
+            memoryInfoString.Append(
+                Environment.NewLine + "Used Heap Memory " + Environment.NewLine +
+                (Java.Lang.Runtime.GetRuntime().TotalMemory() - Java.Lang.Runtime.GetRuntime().FreeMemory()) +
+                " Bytes" + Environment.NewLine);
+            memoryInfoString.Append(
+                Environment.NewLine + "Free Heap Memory " + Environment.NewLine +
+                Java.Lang.Runtime.GetRuntime().FreeMemory() + " Bytes" + Environment.NewLine);
+            memoryInfoString.Append(
+                Environment.NewLine + "Total Heap Memory " + Environment.NewLine +
+                Java.Lang.Runtime.GetRuntime().TotalMemory() + " Bytes" + Environment.NewLine);
+            memoryInfoString.Append(
+                Environment.NewLine + "Max Heap Memory " + Environment.NewLine +
+                Java.Lang.Runtime.GetRuntime().MaxMemory() + " Bytes" + Environment.NewLine);
 
             return memoryInfoString.ToString();
         }
 
-        #endregion
-
-        #region "Reset Device"
-
+        /// <summary>
+        /// Defines the FILE_DEVICE_HAL.
+        /// </summary>
         private const int FILE_DEVICE_HAL = 0x101;
+
+        /// <summary>
+        /// Defines the METHOD_BUFFERED.
+        /// </summary>
         private const int METHOD_BUFFERED = 0;
+
+        /// <summary>
+        /// Defines the FILE_ANY_ACCESS.
+        /// </summary>
         private const int FILE_ANY_ACCESS = 0;
 
+        /// <summary>
+        /// The CTL_CODE.
+        /// </summary>
+        /// <param name="DeviceType">The DeviceType<see cref="int"/>.</param>
+        /// <param name="Func">The Func<see cref="int"/>.</param>
+        /// <param name="Method">The Method<see cref="int"/>.</param>
+        /// <param name="Access">The Access<see cref="int"/>.</param>
+        /// <returns>The <see cref="int"/>.</returns>
         private int CTL_CODE(int DeviceType, int Func, int Method, int Access)
         {
             return (DeviceType << 16) | (Access << 14) | (Func << 2) | Method;
         }
 
+        /// <summary>
+        /// The KernelIoControl.
+        /// </summary>
+        /// <param name="dwIoControlCode">The dwIoControlCode<see cref="int"/>.</param>
+        /// <param name="lpInBuf">The lpInBuf<see cref="IntPtr"/>.</param>
+        /// <param name="nInBufSize">The nInBufSize<see cref="int"/>.</param>
+        /// <param name="lpOutBuf">The lpOutBuf<see cref="IntPtr"/>.</param>
+        /// <param name="nOutBufSize">The nOutBufSize<see cref="int"/>.</param>
+        /// <param name="lpBytesReturned">The lpBytesReturned<see cref="int"/>.</param>
+        /// <returns>The <see cref="int"/>.</returns>
         [DllImport("coredll")]
         public static extern int KernelIoControl(int dwIoControlCode, IntPtr lpInBuf, int nInBufSize,
             IntPtr lpOutBuf, int nOutBufSize, ref int lpBytesReturned);
 
         /// <summary>
-        /// 
+        /// The ResetDevice.
         /// </summary>
-        /// <returns></returns>
-        /// <remarks></remarks>
+        /// <returns>.</returns>
         private int ResetDevice()
         {
             int bytesReturned = 0;
-            int IOCTL_HAL_REBOOT = CTL_CODE(FILE_DEVICE_HAL, 15, METHOD_BUFFERED, FILE_ANY_ACCESS);
+            int IOCTL_HAL_REBOOT = this.CTL_CODE(FILE_DEVICE_HAL, 15, METHOD_BUFFERED, FILE_ANY_ACCESS);
 
             return KernelIoControl(IOCTL_HAL_REBOOT, IntPtr.Zero, 0, IntPtr.Zero, 0, ref bytesReturned);
         }
 
-        #endregion
+        /// <summary>
+        /// Defines the EM_SETSEL.
+        /// </summary>
+        private const int EM_SETSEL = 0xb1;
 
-        #region "SelectValueNumericUpDown"
+        /// <summary>
+        /// Defines the WM_USER.
+        /// </summary>
+        private const int WM_USER = 0x400;
 
-        const int EM_SETSEL = 0xb1;
-        const int WM_USER = 0x400;
-        const int UDM_GETBUDDY = (WM_USER + 106);
-        const int GW_CHILD = 5;
+        /// <summary>
+        /// Defines the UDM_GETBUDDY.
+        /// </summary>
+        private const int UDM_GETBUDDY = WM_USER + 106;
+
+        /// <summary>
+        /// Defines the GW_CHILD.
+        /// </summary>
+        private const int GW_CHILD = 5;
+
+        /// <summary>
+        /// The SendMessage.
+        /// </summary>
+        /// <param name="hWnd">The hWnd<see cref="IntPtr"/>.</param>
+        /// <param name="msg">The msg<see cref="int"/>.</param>
+        /// <param name="wParam">The wParam<see cref="int"/>.</param>
+        /// <param name="lParam">The lParam<see cref="int"/>.</param>
+        /// <returns>The <see cref="IntPtr"/>.</returns>
         [DllImport("coredll")]
         public static extern IntPtr SendMessage(IntPtr hWnd, int msg, int wParam, int lParam);
+
+        /// <summary>
+        /// The GetCapture.
+        /// </summary>
+        /// <returns>The <see cref="IntPtr"/>.</returns>
         [DllImport("coredll")]
         public static extern IntPtr GetCapture();
+
+        /// <summary>
+        /// The GetWindow.
+        /// </summary>
+        /// <param name="hWnd">The hWnd<see cref="IntPtr"/>.</param>
+        /// <param name="nIndex">The nIndex<see cref="int"/>.</param>
+        /// <returns>The <see cref="IntPtr"/>.</returns>
         [DllImport("coredll")]
         public static extern IntPtr GetWindow(IntPtr hWnd, int nIndex);
+
+        /// <summary>
+        /// The SetFocus.
+        /// </summary>
+        /// <param name="hWnd">The hWnd<see cref="IntPtr"/>.</param>
         [DllImport("coredll")]
         public static extern void SetFocus(IntPtr hWnd);
 
         /// <summary>
-        /// 
-        /// </summary>
+        /// /// </summary>
         /// <param name="ctl"></param>
-        /// <remarks></remarks>
-        //public static void SetFocusAndSelectValueToNumericUpDown(UpDownBase ctl)
-        //{
-        //    ctl.Capture = true;
-        //    IntPtr hWnd = GetCapture();
-        //    ctl.Capture = false;
-        //    IntPtr hBuddy = GetWindow(hWnd, GW_CHILD);
-        //    SetFocus(hBuddy);
-        //    SendMessage(hBuddy, EM_SETSEL, 0, -1);
-        //}
+        //// public static void SetFocusAndSelectValueToNumericUpDown(UpDownBase ctl)
+        //// {
+        ////    ctl.Capture = true;
+        ////    IntPtr hWnd = GetCapture();
+        ////    ctl.Capture = false;
+        ////    IntPtr hBuddy = GetWindow(hWnd, GW_CHILD);
+        ////    SetFocus(hBuddy);
+        ////    SendMessage(hBuddy, EM_SETSEL, 0, -1);
+        //// }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="ctl"></param>
-        /// <remarks></remarks>
-        //public static void SetFocusAndSelectValueToDomainUpDown(UpDownBase ctl)
-        //{
-        //    ctl.Capture = true;
-        //    IntPtr hWnd = GetCapture();
-        //    ctl.Capture = false;
-        //    IntPtr hBuddy = GetWindow(hWnd, GW_CHILD);
-        //    SetFocus(hBuddy);
-        //    SendMessage(hBuddy, EM_SETSEL, 0, -1);
-        //}
+        //// public static void SetFocusAndSelectValueToDomainUpDown(UpDownBase ctl)
+        //// {
+        ////    ctl.Capture = true;
+        ////    IntPtr hWnd = GetCapture();
+        ////    ctl.Capture = false;
+        ////    IntPtr hBuddy = GetWindow(hWnd, GW_CHILD);
+        ////    SetFocus(hBuddy);
+        ////    SendMessage(hBuddy, EM_SETSEL, 0, -1);
+        //// }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="ctl"></param>
-        /// <remarks></remarks>
-        //public static void SelectValueInNumericUpDown(UpDownBase ctl)
-        //{
-        //    ctl.Capture = true;
-        //    IntPtr hWnd = GetCapture();
-        //    ctl.Capture = false;
-        //    IntPtr hBuddy = GetWindow(hWnd, GW_CHILD);
-        //    ////SetFocus(hBuddy)
-        //    SendMessage(hBuddy, EM_SETSEL, 0, -1);
-        //}
+        //// public static void SelectValueInNumericUpDown(UpDownBase ctl)
+        //// {
+        ////    ctl.Capture = true;
+        ////    IntPtr hWnd = GetCapture();
+        ////    ctl.Capture = false;
+        ////    IntPtr hBuddy = GetWindow(hWnd, GW_CHILD);
+        ////    ////SetFocus(hBuddy)
+        ////    SendMessage(hBuddy, EM_SETSEL, 0, -1);
+        //// }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="ctl"></param>
-        /// <remarks></remarks>
-        //public static void SelectValueInDomainUpDown(UpDownBase ctl)
-        //{
-        //    ctl.Capture = true;
-        //    IntPtr hWnd = GetCapture();
-        //    ctl.Capture = false;
-        //    IntPtr hBuddy = GetWindow(hWnd, GW_CHILD);
-        //    ////SetFocus(hBuddy)
-        //    SendMessage(hBuddy, EM_SETSEL, 0, -1);
-        //}
+        //// public static void SelectValueInDomainUpDown(UpDownBase ctl)
+        //// {
+        ////    ctl.Capture = true;
+        ////    IntPtr hWnd = GetCapture();
+        ////    ctl.Capture = false;
+        ////    IntPtr hBuddy = GetWindow(hWnd, GW_CHILD);
+        ////    ////SetFocus(hBuddy)
+        ////    SendMessage(hBuddy, EM_SETSEL, 0, -1);
+        //// }
 
-        #endregion
+        /// <summary>
+        ///.
+        /// </summary>
+        /// <typeparam name="TObjectType">.</typeparam>
+        /// <param name="oObject">.</param>
+        /// <returns>.</returns>
+        public static TObjectType CopyObject<TObjectType>(TObjectType oObject)
+        {
+            XmlSerializer oSerializer = new XmlSerializer(oObject.GetType());
+            using MemoryStream oStream = new MemoryStream();
+            oSerializer.Serialize(oStream, oObject);
+            oStream.Position = 0;
+            return (TObjectType)oSerializer.Deserialize(oStream);
+        }
+
+        /// <summary>
+        /// The clone.
+        /// </summary>
+        /// <typeparam name="T">.</typeparam>
+        /// <param name="original">.</param>
+        /// <returns>.</returns>
+        public static T clone<T>(T original)
+        {
+            T tempMyClass = (T)Activator.CreateInstance(original.GetType());
+
+            FieldInfo[] fis = original.GetType().GetFields(
+                BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
+
+            foreach (FieldInfo fi in fis)
+            {
+                object fieldValue = fi.GetValue(original);
+                if (fi.FieldType.Namespace != original.GetType().Namespace)
+                {
+                    fi.SetValue(tempMyClass, fieldValue);
+                }
+                else
+                {
+                    fi.SetValue(tempMyClass, clone(fieldValue));
+                }
+            }
+
+            return tempMyClass;
+        }
+
+        /// <summary>
+        /// Convert enum dialog type value to a dialog type name string.
+        /// </summary>
+        /// <param name="dialogType"><see cref="EDialogTypes"/> Dialog type enum.</param>
+        /// <returns><see cref="string"/> Dialog type name string.</returns>
+        public static string SourceEnum2String(EDialogTypes dialogType)
+        {
+            return Enum.GetName(typeof(EDialogTypes), dialogType);
+        }
+
+        /// <summary>
+        /// Convert dialog type string to it's enum value type.
+        /// </summary>
+        /// <param name="dialogType"><see cref="string"/> Dialog type name string.</param>
+        /// <returns><see cref="EDialogTypes"/> Dialog type enum.</returns>
+        public static EDialogTypes SourceString2Enum(string dialogType)
+        {
+            return (EDialogTypes)Enum.Parse(typeof(EDialogTypes), dialogType);
+        }
     }
 }

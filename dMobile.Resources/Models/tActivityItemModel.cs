@@ -1,8 +1,12 @@
-﻿using SQLite;
-using SQLiteNetExtensions.Attributes;
+﻿// <copyright file="tActivityItemModel.cs" company="InterSect Business Systems Inc">
+// Copyright (c) InterSect Business Systems Inc. All rights reserved.
+// </copyright>
 
 namespace dMobile.Resources.Models
 {
+    using SQLite;
+    using SQLiteNetExtensions.Attributes;
+
     //string sqlTable = "CREATE TABLE IF NOT EXISTS tActivityItem"
     //    + "("
     //    + "ActivityItemRefno INTEGER NOT NULL CONSTRAINT PK_ActivityItemOnActivityItemRefno PRIMARY KEY,"
@@ -14,7 +18,7 @@ namespace dMobile.Resources.Models
 
     //        if (this.OnNubStatOut != null)
     //        {
-    //    // TODO: Resource strings
+    //    
     //    this.MsgEventArgs.StatusOutMsg = "Creating activity item table.";
     //    this.OnNubStatOut(this, this.MsgEventArgs);
     //}
@@ -29,7 +33,6 @@ namespace dMobile.Resources.Models
     //await this.RunDDLCommand(sqlNdx);
 
     //[Indexed(Name = "UQ_ContactUserOnContactUserCode", Order = 1, Unique = true), NotNull]
-
     [Table("tActivityItem")]
     public class tActivityItemModel
     {

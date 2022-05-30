@@ -1,29 +1,25 @@
-﻿namespace dMobile.Resources.Types
+﻿// <copyright file="ProductUnit.cs" company="InterSect Business Systems Inc">
+// Copyright (c) InterSect Business Systems Inc. All rights reserved.
+// </copyright>
+
+namespace dMobile.Resources.Types
 {
     public class ProductUnit
     {
-        private int productUnitRefno;
         private int productRefno;
-        private string productDescription;
-        private string productCode;
-        private string unitCode;
-        private string baseUnitCode;
-        private string weightUnitCode;
         private string productUnitBC;
-        private bool productUnitIsBC;
-        private string productUnitSizeDescription;
         private bool productUnitIsSellUnit;
 
-        public int ProductUnitRefno { get => productUnitRefno; set => productUnitRefno = value; }
-        public int ProductRefno { get => productRefno; set => productRefno = value; }
-        public string ProductDescription { get => productDescription; set => productDescription = value; }
-        public string ProductCode { get => productCode; set => productCode = value; }
-        public string UnitCode { get => unitCode; set => unitCode = value; }
-        public string BaseUnitCode { get => baseUnitCode; set => baseUnitCode = value; }
-        public string WeightUnitCode { get => weightUnitCode; set => weightUnitCode = value; }
-        public string ProductUnitBC { get => productUnitBC; set => productUnitBC = value; }
-        public bool ProductUnitIsBC { get => productUnitIsBC; set => productUnitIsBC = value; }
-        public string ProductUnitSizeDescription { get => productUnitSizeDescription; set => productUnitSizeDescription = value; }
-        public bool ProductUnitIsSellUnit { get => productUnitIsSellUnit; set => productUnitIsSellUnit = value; }
+        public int ProductUnitRefno { get; set; }
+        public int ProductRefno { get => this.productRefno; set => this.productRefno = value; }
+        public string ProductDescription { get; set; }
+        public string ProductCode { get; set; }
+        public string UnitCode { get; set; }
+        public string BaseUnitCode { get; set; }
+        public string WeightUnitCode { get; set; }
+        public string ProductUnitBC { get => this.productUnitBC; set => this.productUnitBC = value; }
+        public bool ProductUnitIsBC { get; set; }
+        public string ProductUnitSizeDescription { get; set; }
+        public bool ProductUnitIsSellUnit { get => this.productUnitIsSellUnit; set => this.productUnitIsSellUnit = value; }
     }
 }

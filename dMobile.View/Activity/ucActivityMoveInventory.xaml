@@ -31,24 +31,24 @@
 
                     <CheckBox x:Name="chkScanToLocation" Grid.Column="0" VerticalOptions="Center" IsEnabled="{Binding Loading, Converter={Helpers:BoolConverter}}"/>
                     <Label x:Name="lblScanToLocation" Grid.Column="1" VerticalOptions="Center"/>
-                    <Picker x:Name="updnBarCodeModifier1" Grid.Column="2" IsEnabled="{Binding Loading, Converter={Helpers:BoolConverter}}"/>
+                    <Picker x:Name="BarCodeModifier1Picker" Grid.Column="2" IsEnabled="{Binding Loading, Converter={Helpers:BoolConverter}}"/>
                     <Button x:Name="cmdAdd" Grid.Column="3" Clicked="cmdAdd_Click" IsEnabled="{Binding Loading, Converter={Helpers:BoolConverter}}"/>
                 </Grid>
 
                 <Frame Grid.Row="2" OutlineColor="{DynamicResource BorderColor}">
                     <ScrollView Orientation="Horizontal">
-                        <Grid x:Name="dataGridMainActivityHeader">
+                        <Grid x:Name="GridMainActivity">
                             <Grid.RowDefinitions>
                                 <RowDefinition Height="Auto"/>
                             </Grid.RowDefinitions>
 
-                            <ListView x:Name="dataGridMainActivity" HasUnevenRows="True" IsEnabled="{Binding Loading, Converter={Helpers:BoolConverter}}" Grid.Row="1"/>
+                            <ListView x:Name="ListViewMainActivity" HasUnevenRows="True" IsEnabled="{Binding Loading, Converter={Helpers:BoolConverter}}" Grid.Row="1"/>
                         </Grid>
                     </ScrollView>
                 </Frame>
 
                 <Frame Grid.Row="3" OutlineColor="{DynamicResource BorderColor}">
-                    <ListView x:Name="lstDisplay" SelectionMode="None" HasUnevenRows="True" IsEnabled="{Binding Loading, Converter={Helpers:BoolConverter}}" SeparatorVisibility="None">
+                    <ListView x:Name="ListViewDisplayExtraInfo" SelectionMode="None" HasUnevenRows="True" IsEnabled="{Binding Loading, Converter={Helpers:BoolConverter}}" SeparatorVisibility="None">
                         <ListView.ItemTemplate>
                             <DataTemplate>
                                 <ViewCell>

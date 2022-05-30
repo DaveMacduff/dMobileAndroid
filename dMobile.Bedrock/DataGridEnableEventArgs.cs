@@ -1,19 +1,27 @@
-﻿namespace dMobile.Bedrock
+﻿// <copyright file="DataGridEnableEventArgs.cs" company="InterSect Business Systems Inc">
+// Copyright (c) InterSect Business Systems Inc. All rights reserved.
+// </copyright>
+
+namespace dMobile.Bedrock
 {
     using System;
 
+    /// <summary>
+    /// Defines the <see cref="DataGridEnableEventArgs" />.
+    /// </summary>
     public class DataGridEnableEventArgs : EventArgs
     {
-        #region Fields
-
-        private int column = 0;
+        /// <summary>
+        /// Defines the row.
+        /// </summary>
         private int row = 0;
-        private bool isMeetsCriteria = false;
 
-        #endregion
-
-        #region Constructors
-
+        /// <summary>
+        /// Initializes a new instance of the <see cref="DataGridEnableEventArgs"/> class.
+        /// </summary>
+        /// <param name="row">.</param>
+        /// <param name="col">.</param>
+        /// <param name="isMeetsCriteria">.</param>
         public DataGridEnableEventArgs(int row, int col, bool isMeetsCriteria)
         {
             this.Row = row;
@@ -21,23 +29,14 @@
             this.MeetsCriteria = isMeetsCriteria;
         }
 
-        #endregion
+        /// <summary>
+        /// Gets or sets the Column.
+        /// </summary>
+        public int Column { get; set; } = 0;
 
-        #region Public Properties
-
-        public int Column
-        {
-            get
-            {
-                return this.column;
-            }
-
-            set
-            {
-                this.column = value;
-            }
-        }
-
+        /// <summary>
+        /// Gets or sets the Row.
+        /// </summary>
         public int Row
         {
             get
@@ -51,19 +50,9 @@
             }
         }
 
-        public bool MeetsCriteria
-        {
-            get
-            {
-                return this.isMeetsCriteria;
-            }
-
-            set
-            {
-                this.isMeetsCriteria = value;
-            }
-        }
-
-        #endregion
+        /// <summary>
+        /// Gets or sets a value indicating whether MeetsCriteria.
+        /// </summary>
+        public bool MeetsCriteria { get; set; } = false;
     }
 }

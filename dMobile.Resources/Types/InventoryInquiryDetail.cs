@@ -1,27 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿// <copyright file="InventoryInquiryDetail.cs" company="InterSect Business Systems Inc">
+// Copyright (c) InterSect Business Systems Inc. All rights reserved.
+// </copyright>
 
 namespace dMobile.Resources.Types
 {
-    public class InventoryInquiryDetail
+    /// <summary>
+    /// Define the inventory inquiry detail model.
+    /// </summary>
+    public class InventoryInquiryDetail : ActivityDetail
     {
-        private string productCode;
-        private string productUnitBC;
-        private string unitCode;
-        private string weightUnitCode;
-        private string activityDetailSchemeID;
-        private decimal activityDetailQuantity;
-        private decimal activityDetailWeightQuantity;
-
-        public string ProductCode { get => productCode; set => productCode = value; }
-        public string ProductUnitBC { get => productUnitBC; set => productUnitBC = value; }
-        public string UnitCode { get => unitCode; set => unitCode = value; }
-        public string WeightUnitCode { get => weightUnitCode; set => weightUnitCode = value; }
-        public string ActivityDetailSchemeID { get => activityDetailSchemeID; set => activityDetailSchemeID = value; }
-        public decimal ActivityDetailQuantity { get => activityDetailQuantity; set => activityDetailQuantity = value; }
-        public decimal ActivityDetailWeightQuantity { get => activityDetailWeightQuantity; set => activityDetailWeightQuantity = value; }
     }
 }

@@ -1,33 +1,33 @@
+// <copyright file="clsTableActivityDetailConvertUnit.cs" company="InterSect Business Systems Inc">
+// Copyright (c) InterSect Business Systems Inc. All rights reserved.
+// </copyright>
+
 namespace dMobile.GroundWork
 {
     using System;
-    using SQLite;
-    using dMobile.Bedrock;
     using System.Threading.Tasks;
+    using dMobile.Bedrock;
+    using SQLite;
 
     public class TableActivityConvertUnitDetail : TableBase
     {
-        #region Constructors
-
+        /// <summary>
+        /// Initializes a new instance of the <see cref="TableActivityConvertUnitDetail"/> class.
+        /// </summary>
         public TableActivityConvertUnitDetail()
           : base()
         {
             this.FullClassName = "dMobile.GroundWork.TableActivityConvertUnitDetail";
         }
 
-        #endregion
-
-        #region Public Members
-
         /// <summary>
         ///
         /// </summary>
         /// <remarks></remarks>
-        public override async Task Purge()
+        public override async Task PurgeData()
         {
             try
             {
-                // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging convert unit details.", true);
 
                 string query = "DELETE FROM tActivityDetailProductSchemeVariantXRef "
@@ -54,20 +54,15 @@ namespace dMobile.GroundWork
                 query = "DELETE FROM tActivityDetail WHERE tActivityDetail.ActivityDetailSubType = ?";
                 await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(query, Convert.ToInt32(SysCommon.ActSubTypes.ConvertUnit));
 
-                // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging convert unit details complete.", true);
             }
             catch (SQLiteException ex)
             {
-                // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Database exception occurred.", true);
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging convert unit details failed.", true);
 
-                // TODO: Resource strings
                 throw new Exception("Database exception occurred. Purging convert unit details failed.", ex);
             }
         }
-
-        #endregion
     }
 }

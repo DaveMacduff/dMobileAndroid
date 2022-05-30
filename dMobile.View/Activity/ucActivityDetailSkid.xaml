@@ -6,11 +6,14 @@
                      x:Class="dMobile.View.Activity.ucActivityDetailSkid">
         <ContentPage.ToolbarItems>
             <!--<ToolbarItem x:Name="optionsMenu" IconImageSource="{Binding OptionsIconSource}" Clicked="OptionsMenu_Clicked" />-->
-            <ToolbarItem x:Name="scannerModeText" Clicked="scannerModeText_Clicked"/>
+            <ToolbarItem x:Name="scannerModeText" Clicked="ScannerModeText_Clicked"/>
         </ContentPage.ToolbarItems>
         <ContentPage.Content>
             <AbsoluteLayout VerticalOptions="Center">
-                <Grid x:Name="gridContainer" Padding="10" AbsoluteLayout.LayoutFlags="All" AbsoluteLayout.LayoutBounds="0,0,1,1">
+                <Grid x:Name="gridContainer"
+                      Padding="10"
+                      AbsoluteLayout.LayoutFlags="All"
+                      AbsoluteLayout.LayoutBounds="0,0,1,1">
                     <Grid.RowDefinitions>
                         <RowDefinition Height="65*"/>
                         <RowDefinition Height="20*"/>
@@ -19,18 +22,26 @@
 
                     <Frame VerticalOptions="Start" Grid.Row="0" OutlineColor="{DynamicResource BorderColor}">
                         <ScrollView Orientation="Horizontal">
-                            <Grid x:Name="dataGridMainActivityHeader">
+                            <Grid x:Name="GridMainActivity">
                                 <Grid.RowDefinitions>
                                     <RowDefinition Height="Auto"/>
                                 </Grid.RowDefinitions>
 
-                                <ListView x:Name="dataGridMainActivity" ItemSelected="dataGridMainActivity_ItemSelected" HasUnevenRows="True" IsEnabled="{Binding Loading, Converter={Helpers:BoolConverter}}" Grid.Row="1"/>
+                                <ListView x:Name="ListViewMainActivity"
+                                          ItemSelected="ListViewMainActivity_ItemSelected"
+                                          HasUnevenRows="True"
+                                          IsEnabled="{Binding Loading, Converter={Helpers:BoolConverter}}"
+                                          Grid.Row="1"/>
                             </Grid>
                         </ScrollView>
                     </Frame>
 
                     <Frame VerticalOptions="Start" Grid.Row="1" OutlineColor="{DynamicResource BorderColor}">
-                        <ListView x:Name="lstDisplay" SelectionMode="None" HasUnevenRows="True" IsEnabled="{Binding Loading, Converter={Helpers:BoolConverter}}" SeparatorVisibility="None">
+                        <ListView x:Name="ListViewDisplayExtraInfo"
+                                  SelectionMode="None"
+                                  HasUnevenRows="True"
+                                  IsEnabled="{Binding Loading, Converter={Helpers:BoolConverter}}"
+                                  SeparatorVisibility="None">
                             <ListView.ItemTemplate>
                                 <DataTemplate>
                                     <ViewCell>
@@ -44,8 +55,17 @@
                     </Frame>
 
                     <Grid Grid.Row="2">
-                        <Entry x:Name="txtSearchDetail" Grid.Row="0" Grid.Column="0" TextChanged="txtSearchHdr_TextChanged" IsEnabled="{Binding Loading, Converter={Helpers:BoolConverter}}"/>
-                        <Button x:Name="cmdAdd" Grid.Row="0" Grid.Column="1" Text="Add" Clicked="AddActivityDetail" IsEnabled="{Binding Loading, Converter={Helpers:BoolConverter}}"/>
+                        <Entry x:Name="txtSearchDetail"
+                               Grid.Row="0"
+                               Grid.Column="0"
+                               TextChanged="TxtSearchHdr_TextChanged"
+                               IsEnabled="{Binding Loading, Converter={Helpers:BoolConverter}}"/>
+                        <Button x:Name="cmdAdd"
+                                Grid.Row="0"
+                                Grid.Column="1"
+                                Text="Add"
+                                Clicked="CmdAdd_Click"
+                                IsEnabled="{Binding Loading, Converter={Helpers:BoolConverter}}"/>
                     </Grid>
                 </Grid>
 

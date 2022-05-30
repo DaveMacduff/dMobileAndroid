@@ -1,10 +1,22 @@
+// <copyright file="clsCycleCountActivityItemFactory.cs" company="InterSect Business Systems Inc">
+// Copyright (c) InterSect Business Systems Inc. All rights reserved.
+// </copyright>
+
 namespace dMobile.Controller
 {
-  public class CycleActItemFactory : ActItemFactory
-	{
-		public override ActItem GetActItem(Activity activity)
-		{
-			return new CycleActItem(activity);
-		}
-	}
+    /// <summary>
+    /// Defines the <see cref="CycleActItemFactory" />.
+    /// </summary>
+    public class CycleActItemFactory : ActItemFactory
+    {
+        /// <summary>
+        /// The GetActItem.
+        /// </summary>
+        /// <param name="activity">The activity<see cref="Activity"/>.</param>
+        /// <returns>The <see cref="ActItem"/>.</returns>
+        public override ActItem GetActItem(Activity activity)
+        {
+            return new CycleActItem(activity);
+        }
+    }
 }

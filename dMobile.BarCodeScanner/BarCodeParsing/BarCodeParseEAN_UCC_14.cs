@@ -1,4 +1,8 @@
-﻿namespace dMobile.BarCodeScanner
+﻿// <copyright file="BarCodeParseEAN_UCC_14.cs" company="InterSect Business Systems Inc">
+// Copyright (c) InterSect Business Systems Inc. All rights reserved.
+// </copyright>
+
+namespace dMobile.BarCodeScanner.BarCodeParsing
 {
     using System;
 
@@ -6,13 +10,13 @@
     {
         /// <summary>
         /// Parsing rules reviewed
-        /// 
+        ///
         /// Data structure is always 14 digits
         /// Position 1 is indicator digit
-        /// Position 2-3 is UPC numbering system or EAN prefix 
+        /// Position 2-3 is UPC numbering system or EAN prefix
         /// Position 4-8 company prefix
         /// Position 9-13 item reference
-        /// Position 14 is a check digit
+        /// Position 14 is a check digit.
         /// </summary>
         /// <param name="barCodeData"></param>
         /// <returns></returns>
@@ -34,12 +38,11 @@
                 barCodeData = barCodeData.Remove(0, 1);    // remove the check digit
             }
             // end parse GTIN
-
             this.Remainder = barCodeData;
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="barCodeData"></param>
         /// <returns></returns>
@@ -56,12 +59,11 @@
 
             // remove the Product Identifier from the bar code data
             // barCodeData = barCodeData.Remove(0, strProductIdentifier.Length);
-
             return barCodeData;
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="barCodeData"></param>
         /// <returns></returns>
@@ -71,13 +73,13 @@
             this.CompanyPrefix = strBarCodeData.Substring(0, 5);
 
             // remove the Company Prefix from the bar code data
-            strBarCodeData = strBarCodeData.Remove(0, CompanyPrefix.Length);
+            strBarCodeData = strBarCodeData.Remove(0, this.CompanyPrefix.Length);
 
             return strBarCodeData;
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="barCodeData"></param>
         /// <returns></returns>
@@ -86,13 +88,13 @@
             this.ItemReference = barCodeData.Substring(0, 5);
 
             // remove the Item Reference from the bar code data
-            barCodeData = barCodeData.Remove(0, ItemReference.Length);
+            barCodeData = barCodeData.Remove(0, this.ItemReference.Length);
 
             return barCodeData;
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="barCodeData"></param>
         /// <returns></returns>
@@ -104,7 +106,6 @@
 
             // remove the GTIN from the bar code data
             // barCodeData = barCodeData.Remove(0, strGTIN.Length);
-
             return barCodeData;
         }
     }

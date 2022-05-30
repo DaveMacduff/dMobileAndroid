@@ -63,7 +63,6 @@
                     <Button x:Name="cmdSelect" Grid.Row="0" Grid.Column="0" Text="Select" Clicked="CmdSelect_Clicked" IsEnabled="{Binding Loading, Converter={Helpers:BoolConverter}}"/>
                     <Button x:Name="cmdClose" Grid.Row="0" Grid.Column="1" Text="Close" Clicked="CmdClose_Clicked" IsEnabled="{Binding Loading, Converter={Helpers:BoolConverter}}"/>
                 </Grid>
-
             </Grid>
 
             <ActivityIndicator IsVisible="{Binding Loading}" 

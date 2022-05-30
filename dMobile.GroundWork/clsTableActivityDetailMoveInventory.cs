@@ -1,31 +1,31 @@
+// <copyright file="clsTableActivityDetailMoveInventory.cs" company="InterSect Business Systems Inc">
+// Copyright (c) InterSect Business Systems Inc. All rights reserved.
+// </copyright>
+
 namespace dMobile.GroundWork
 {
-    using dMobile.Bedrock;
-    using SQLite;
     using System;
     using System.Threading.Tasks;
+    using dMobile.Bedrock;
+    using SQLite;
 
     public class TableActivityMoveInventoryDetail : TableBase
     {
-        #region Constructors
-
+        /// <summary>
+        /// Initializes a new instance of the <see cref="TableActivityMoveInventoryDetail"/> class.
+        /// </summary>
         public TableActivityMoveInventoryDetail()
           : base()
         {
             this.FullClassName = "dMobile.GroundWork.TableActivityMoveInventoryDetail";
         }
 
-        #endregion
-
-        #region Public Members
-
         /// <summary>
         ///
         /// </summary>
         /// <remarks></remarks>
-        public override async Task Purge()
+        public override async Task PurgeData()
         {
-            // TODO: Resource strings
             this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging move inventory details.", true);
 
             try
@@ -47,20 +47,15 @@ namespace dMobile.GroundWork
                 query = "DELETE FROM tActivityDetail WHERE tActivityDetail.ActivityDetailSubType = ?";
                 await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(query, Convert.ToInt32(SysCommon.ActSubTypes.MoveInventory));
 
-                // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging move inventory details complete.", true);
             }
             catch (SQLiteException ex)
             {
-                // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Database exception occurred.", true);
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging move inventory details failed.", true);
 
-                // TODO: Resource strings
                 throw new Exception("Database exception occurred. Purging move inventory details failed.", ex);
             }
         }
-
-        #endregion
     }
 }

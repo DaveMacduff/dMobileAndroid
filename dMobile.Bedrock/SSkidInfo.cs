@@ -1,307 +1,128 @@
-﻿using System;
-using System.Linq;
-using System.Collections.Generic;
-using System.Text;
+﻿// <copyright file="SSkidInfo.cs" company="InterSect Business Systems Inc">
+// Copyright (c) InterSect Business Systems Inc. All rights reserved.
+// </copyright>
 
 namespace dMobile.Bedrock
 {
-    public struct SSkidInfo
+    /// <summary>
+    /// <see cref="SSkidInfo" /> Skid information.
+    /// </summary>
+    public class SSkidInfo
     {
-        private ProductInfo prodInfo;
-        private int locMapRefno;
-        private SLocMap locMap;
-        private decimal quantity;
-        private decimal baseQuantity;
-        private decimal weightQuantity;
+        /// <summary>
+        /// Define the location map reference number.
+        /// </summary>
+        private int locMapRefno = 0;
 
         /// <summary>
-        /// GS1 18 digit skid code. Including the company prefix.
+        /// Gets or sets the product scheme data.
         /// </summary>
-        private string logisticUnitSkidCode;
-        private int skidFKRefno;
+        public SProductSchemeData SchemeData { get; set; } = new SProductSchemeData();
 
         /// <summary>
-        /// User entered or form generated skid code.
+        /// Gets or sets a value indicating whether the skid is put away.
         /// </summary>
-        private string skidCode;
+        public bool IsPutAway { get; set; } = false;
 
-        private bool isCHEP;
-        private bool isHold;
-        private int ti;
-        private int hi;
-        private decimal height;
-        private string heightUnit;
-        private decimal cube;
-        private string cubeUnit;
-        private bool isCompleted;
-        private bool isConsumed;
-        private bool isPutAway;
-        private SProductSchemeData schemeData;
+        /// <summary>
+        /// Gets or sets a value indicating whether the skid is consumed.
+        /// </summary>
+        public bool IsConsumed { get; set; } = false;
 
-        public SProductSchemeData SchemeData
-        {
-            get
-            {
-                return this.schemeData;
-            }
+        /// <summary>
+        /// Gets or sets a value indicating whether the skid is completed.
+        /// </summary>
+        public bool IsCompleted { get; set; } = false;
 
-            set
-            {
-                this.schemeData = value;
-            }
-        }
+        /// <summary>
+        /// Gets or sets the skid foreign key reference number.
+        /// </summary>
+        public int SkidFKRefno { get; set; } = 0;
 
-        public bool IsPutAway
-        {
-            get
-            {
-                return this.isPutAway;
-            }
+        /// <summary>
+        /// Gets or sets the skid cube unit.
+        /// </summary>
+        public string CubeUnit { get; set; } = string.Empty;
 
-            set
-            {
-                this.isPutAway = value;
-            }
-        }
+        /// <summary>
+        /// Gets or sets the cube.
+        /// </summary>
+        public decimal Cube { get; set; } = 0;
 
-        public bool IsConsumed
-        {
-            get
-            {
-                return this.isConsumed;
-            }
+        /// <summary>
+        /// Gets or sets the height unit.
+        /// </summary>
+        public string HeightUnit { get; set; } = string.Empty;
 
-            set
-            {
-                this.isConsumed = value;
-            }
-        }
+        /// <summary>
+        /// Gets or sets the height.
+        /// </summary>
+        public decimal Height { get; set; } = 0;
 
-        public bool IsCompleted
-        {
-            get
-            {
-                return this.isCompleted;
-            }
+        /// <summary>
+        /// Gets or sets the Hi.
+        /// </summary>
+        public int Hi { get; set; } = 0;
 
-            set
-            {
-                this.isCompleted = value;
-            }
-        }
+        /// <summary>
+        /// Gets or sets the Ti.
+        /// </summary>
+        public int Ti { get; set; } = 0;
 
-        public int SkidFKRefno
-        {
-            get
-            {
-                return this.skidFKRefno;
-            }
+        /// <summary>
+        /// Gets or sets a value indicating whether the skid is on hold.
+        /// </summary>
+        public bool IsHold { get; set; } = false;
 
-            set
-            {
-                this.skidFKRefno = value;
-            }
-        }
-
-        public string CubeUnit
-        {
-            get
-            {
-                return this.cubeUnit;
-            }
-
-            set
-            {
-                this.cubeUnit = value;
-            }
-        }
-
-        public decimal Cube
-        {
-            get
-            {
-                return this.cube;
-            }
-
-            set
-            {
-                this.cube = value;
-            }
-        }
-
-        public string HeightUnit
-        {
-            get
-            {
-                return this.heightUnit;
-            }
-
-            set
-            {
-                this.heightUnit = value;
-            }
-        }
-
-        public decimal Height
-        {
-            get
-            {
-                return this.height;
-            }
-
-            set
-            {
-                this.height = value;
-            }
-        }
-
-        public int Hi
-        {
-            get
-            {
-                return this.hi;
-            }
-
-            set
-            {
-                this.hi = value;
-            }
-        }
-
-        public int Ti
-        {
-            get
-            {
-                return this.ti;
-            }
-
-            set
-            {
-                this.ti = value;
-            }
-        }
-
-        public bool IsHold
-        {
-            get
-            {
-                return this.isHold;
-            }
-
-            set
-            {
-                this.isHold = value;
-            }
-        }
-
-        public bool IsCHEP
-        {
-            get
-            {
-                return this.isCHEP;
-            }
-
-            set
-            {
-                this.isCHEP = value;
-            }
-        }
+        /// <summary>
+        /// Gets or sets a value indicating whether the skid has a CHEP pallet.
+        /// </summary>
+        public bool IsCHEP { get; set; } = false;
 
         /// <summary>
         /// Gets or sets the user entered or form generated skid code.
         /// </summary>
-        public string SkidCode
-        {
-            get
-            {
-                return this.skidCode;
-            }
-
-            set
-            {
-                this.skidCode = value;
-            }
-        }
+        public string SkidCode { get; set; } = string.Empty;
 
         /// <summary>
         /// Gets or sets the GS1 18 digit skid code. Including the company prefix.
         /// </summary>
-        public string LogisticUnitSkidCode
-        {
-            get
-            {
-                return this.logisticUnitSkidCode;
-            }
+        public string LogisticUnitSkidCode { get; set; } = string.Empty;
 
-            set
-            {
-                this.logisticUnitSkidCode = value;
-            }
-        }
+        /// <summary>
+        /// Gets or sets the skid quantity.
+        /// </summary>
+        public decimal Quantity { get; set; } = 0;
 
-        public decimal Quantity
-        {
-            get
-            {
-                return this.quantity;
-            }
+        /// <summary>
+        /// Gets or sets the skid base quantity.
+        /// </summary>
+        public decimal BaseQuantity { get; set; } = 0;
 
-            set
-            {
-                this.quantity = value;
-            }
-        }
+        /// <summary>
+        /// Gets or sets the skid weight quantity.
+        /// </summary>
+        public decimal WeightQuantity { get; set; } = 0;
 
-        public decimal BaseQuantity
-        {
-            get
-            {
-                return this.baseQuantity;
-            }
+        /// <summary>
+        /// Gets or sets the skid product information.
+        /// </summary>
+        public ProductInfo ProdInfo { get; set; } = new ProductInfo();
 
-            set
-            {
-                this.baseQuantity = value;
-            }
-        }
-
-        public decimal WeightQuantity
-        {
-            get
-            {
-                return this.weightQuantity;
-            }
-
-            set
-            {
-                this.weightQuantity = value;
-            }
-        }
-
-        public ProductInfo ProdInfo
-        {
-            get
-            {
-                return this.prodInfo;
-            }
-
-            set
-            {
-                this.prodInfo = value;
-            }
-        }
-
+        /// <summary>
+        /// Gets or sets the location map reference.
+        /// </summary>
         public int LocMapRefno
         {
             get
             {
-                if (this.LocMap != null)
+                if (this.LocMap != null && this.locMapRefno == 0)
                 {
-                    if (0 < this.LocMap.SlotLocMapRefno)
+                    if (this.LocMap.SlotLocMapRefno > 0)
                     {
                         this.locMapRefno = this.LocMap.SlotLocMapRefno;
                     }
-                    else if (0 < this.LocMap.SectLocMapRefno)
+                    else if (this.LocMap.SectLocMapRefno > 0)
                     {
                         this.locMapRefno = this.LocMap.SectLocMapRefno;
                     }
@@ -314,23 +135,12 @@ namespace dMobile.Bedrock
                 return this.locMapRefno;
             }
 
-            set
-            {
-                this.locMapRefno = value;
-            }
+            set => this.locMapRefno = value;
         }
 
-        public SLocMap LocMap
-        {
-            get
-            {
-                return this.locMap;
-            }
-
-            set
-            {
-                this.locMap = value;
-            }
-        }
+        /// <summary>
+        /// Gets or sets the location map.
+        /// </summary>
+        public SLocMap LocMap { get; set; } = new SLocMap();
     }
 }

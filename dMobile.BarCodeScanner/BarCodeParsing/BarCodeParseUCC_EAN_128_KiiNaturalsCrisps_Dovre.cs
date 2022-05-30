@@ -1,10 +1,14 @@
-﻿using System;
-using System.Linq;
-using System.Collections.Generic;
-using System.Text;
+﻿// <copyright file="BarCodeParseUCC_EAN_128_KiiNaturalsCrisps_Dovre.cs" company="InterSect Business Systems Inc">
+// Copyright (c) InterSect Business Systems Inc. All rights reserved.
+// </copyright>
 
-namespace dMobile.BarCodeScanner
+namespace dMobile.BarCodeScanner.BarCodeParsing
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
+    using System.Text;
+
     public class BarCodeParseUCC_EAN_128_KiiNaturalsCrisps_Dovre : BarCodeParseUCC_EAN_128_Symbol
     {
         public static readonly string KiiNaturalsCrispsVendorNumber = "0678629";
@@ -34,7 +38,7 @@ namespace dMobile.BarCodeScanner
             {
                 // For Vendor # 0678629
                 // stored as DDMMYY and it should be YYMMDD
-                if (GTIN != null && GTIN.Substring(1).StartsWith(KiiNaturalsCrispsVendorNumber))
+                if (this.GTIN != null && this.GTIN.Substring(1).StartsWith(KiiNaturalsCrispsVendorNumber))
                 {
                     // Reverse
                     string years = tempData.Substring(2, 2);

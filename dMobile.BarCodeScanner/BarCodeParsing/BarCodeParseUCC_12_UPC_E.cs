@@ -1,11 +1,15 @@
-﻿namespace dMobile.BarCodeScanner
+﻿// <copyright file="BarCodeParseUCC_12_UPC_E.cs" company="InterSect Business Systems Inc">
+// Copyright (c) InterSect Business Systems Inc. All rights reserved.
+// </copyright>
+
+namespace dMobile.BarCodeScanner.BarCodeParsing
 {
     using System;
 
     public class BarCodeParseUCC_12_UPC_E : BarCodeParse
     {
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="barCodeData"></param>
         /// <returns></returns>
@@ -17,7 +21,7 @@
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="barCodeData"></param>
         /// <returns></returns>
@@ -27,7 +31,7 @@
 
             if (this.Settings.IsRuleEnabled_Parse_UCC_12_UPC_E_as_Deli_PLU)
             {
-                // KLUDGE: PLU (price look up) codes always start with the number 2 according to 
+                // KLUDGE: PLU (price look up) codes always start with the number 2 according to
                 // Fedor March 12 / 2013 - Warning this will bite us later
                 string s = Convert.ToString(Convert.ToInt64(barCodeData));
                 // 2 = deli
@@ -43,14 +47,13 @@
                     if (this.Settings.IsRuleEnabled_Parse_UCC_12_UPC_E_as_Deli_PLU_4_Digit_Amount)
                     {
                         // 4 digit amount
-                        this.DeliScaleAmount = (Convert.ToDecimal(barCodeData.Substring(7, 4)) / 100);
+                        this.DeliScaleAmount = Convert.ToDecimal(barCodeData.Substring(7, 4)) / 100;
                     }
                     else
                     {
                         // 5 digit amount
-                        this.DeliScaleAmount = (Convert.ToDecimal(barCodeData.Substring(6, 5)) / 100);
+                        this.DeliScaleAmount = Convert.ToDecimal(barCodeData.Substring(6, 5)) / 100;
                     }
-
 
                     // this.Remainder = barCodeData.Substring(7);
                 }
@@ -71,14 +74,14 @@
             // remove the Product Identifier from the bar code data
             // barCodeData = barCodeData.Remove(0, strProductIdentifier.Length);
 
-            //(zero suppressed UPC)
-            //CString tmpstr = bcode.Left(3);
-            //CString s4Zeros('0', 4);
-            //CString s5Zeros('0', 5);
-            //TCHAR pch = bcode[6];
+            // (zero suppressed UPC)
+            // CString tmpstr = bcode.Left(3);
+            // CString s4Zeros('0', 4);
+            // CString s5Zeros('0', 5);
+            // TCHAR pch = bcode[6];
 
-            //switch (pch)
-            //{
+            // switch (pch)
+            // {
             //  case '0':
             //  case '1':
             //  case '2':
@@ -96,14 +99,13 @@
             //  case '8':
             //  case '9':
             //    tmpstr += bcode.Mid(3,3) + s4Zeros + bcode[6];
-            //}
-            //tmpstr += bcode[7];
-
+            // }
+            // tmpstr += bcode[7];
             return barCodeData;
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="barCodeData"></param>
         /// <returns></returns>

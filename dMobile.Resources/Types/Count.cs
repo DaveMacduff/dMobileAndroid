@@ -1,27 +1,25 @@
-﻿using System;
+﻿// <copyright file="Count.cs" company="InterSect Business Systems Inc">
+// Copyright (c) InterSect Business Systems Inc. All rights reserved.
+// </copyright>
 
 namespace dMobile.Resources.Types
 {
+    using System;
+
     public class Count
     {
-        private int activityRefno;
-        private int activitySubType;
         private int activityCountFKRefno;
-        private string activityCountStringFKRefno;
-        private int warehouseLocationMapRefno;
         private int activityCountType;
-        private DateTime activityCountDateTime;
-        private string activityCountTypeDescription;
         private string activityCountDescription;
 
-        public int ActivityRefno { get => activityRefno; set => activityRefno = value; }
-        public int ActivitySubType { get => activitySubType; set => activitySubType = value; }
-        public int ActivityCountFKRefno { get => activityCountFKRefno; set => activityCountFKRefno = value; }
-        public string ActivityCountStringFKRefno { get => activityCountStringFKRefno; set => activityCountStringFKRefno = value; }
-        public int WarehouseLocationMapRefno { get => warehouseLocationMapRefno; set => warehouseLocationMapRefno = value; }
-        public int ActivityCountType { get => activityCountType; set => activityCountType = value; }
-        public DateTime ActivityCountDateTime { get => activityCountDateTime; set => activityCountDateTime = value; }
-        public string ActivityCountTypeDescription { get => activityCountTypeDescription; set => activityCountTypeDescription = value; }
-        public string ActivityCountDescription { get => activityCountDescription; set => activityCountDescription = value; }
+        public int ActivityRefno { get; set; }
+        public int ActivitySubType { get; set; }
+        public int ActivityCountFKRefno { get => this.activityCountFKRefno; set => this.activityCountFKRefno = value; }
+        public string ActivityCountStringFKRefno { get; set; }
+        public int WarehouseLocationMapRefno { get; set; }
+        public int ActivityCountType { get => this.activityCountType; set => this.activityCountType = value; }
+        public DateTime ActivityCountDateTime { get; set; }
+        public string ActivityCountTypeDescription { get; set; }
+        public string ActivityCountDescription { get => this.activityCountDescription; set => this.activityCountDescription = value; }
     }
 }

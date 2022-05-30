@@ -1,8 +1,9 @@
-﻿namespace dMobile.GroundWork
+﻿// <copyright file="clsTableActivityDetailAdjustment.cs" company="InterSect Business Systems Inc">
+// Copyright (c) InterSect Business Systems Inc. All rights reserved.
+// </copyright>
+
+namespace dMobile.GroundWork
 {
-    using dMobile.Bedrock;
-    using dMobile.Resources.Models;
-    using SQLite;
     using System;
     using System.Collections.Generic;
     using System.Data;
@@ -10,9 +11,12 @@
     using System.Threading.Tasks;
     using System.Xml;
     using System.Xml.Linq;
+    using dMobile.Bedrock;
+    using dMobile.Resources.Models;
+    using SQLite;
 
     /// <summary>
-    /// Defines the <see cref="TableActivityAdjustmentDetail" />
+    /// Defines the <see cref="TableActivityAdjustmentDetail" />.
     /// </summary>
     public class TableActivityAdjustmentDetail : TableBase
     {
@@ -26,19 +30,17 @@
         }
 
         /// <summary>
-        /// The Request
+        /// The Request.
         /// </summary>
         /// <param name="actItemRefno"></param>
-        public override async Task Request(int actItemRefno)
+        public override async Task RequestData(int actItemRefno)
         {
-            string reqData = string.Empty;
 
-            //GC.Collect();
-            //GC.WaitForPendingFinalizers();
-
-            // TODO: Resource strings
+            // GC.Collect();
+            // GC.WaitForPendingFinalizers();
             this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Seeding adjustment details.", true);
 
+            string reqData;
             if (actItemRefno == 0)
             {
                 List<tActivityItemModel> results = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<tActivityItemModel>("SELECT ActivityItemRefno FROM tActivityItem WHERE ActivityItemSubType = ?", Convert.ToInt32(SysCommon.ActSubTypes.Adjustment));
@@ -48,9 +50,9 @@
                     foreach (tActivityItemModel activityItem in results)
                     {
                         actItemRefno = Convert.ToInt32(activityItem.ActivityItemRefno);
-                        reqData = await this.Send(actItemRefno);
+                        reqData = await this.SendRequest(actItemRefno);
 
-                        if (0 < reqData.Length)
+                        if (reqData.Length > 0)
                         {
                             if (reqData.Contains("<message>ERROR</message>"))
                             {
@@ -66,9 +68,9 @@
             }
             else
             {
-                reqData = await this.Send(actItemRefno);
+                reqData = await this.SendRequest(actItemRefno);
 
-                if (0 < reqData.Length)
+                if (reqData.Length > 0)
                 {
                     if (reqData.Contains("<message>ERROR</message>"))
                     {
@@ -81,29 +83,25 @@
                 }
             }
 
-            // TODO: Resource strings
             this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Seeding adjustment details complete.", true);
         }
 
         /// <summary>
-        /// The DataStatus
+        /// The DataStatus.
         /// </summary>
-        /// <returns>The <see cref="int"/></returns>
+        /// <returns>The <see cref="int"/>.</returns>
         public override async Task<int> DataStatus()
         {
-            int rowsAffected = 0;
-
+            int rowsAffected;
             try
             {
                 string query = "SELECT COUNT(tActivityDetail.ActivityDetailRefno) FROM tActivityDetail WHERE tActivityDetail.ActivityDetailSubType = ?";
                 rowsAffected = await DatabaseConnection.GetInstance().SQLConn.ExecuteScalarAsync<int>(query, Convert.ToInt32(SysCommon.ActSubTypes.Adjustment));
 
-                // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, string.Format("{0} adjustment details.", rowsAffected), true);
             }
             catch (SQLiteException ex)
             {
-                // TODO: Resource strings
                 throw new Exception("Database exception occurred. Adjustment details status failed.", ex);
             }
 
@@ -111,13 +109,12 @@
         }
 
         /// <summary>
-        /// The Purge
+        /// The Purge.
         /// </summary>
-        public override async Task Purge()
+        public override async Task PurgeData()
         {
             try
             {
-                // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging adjustment details.", true);
 
                 string query = "DELETE FROM tActivityDetailProductSchemeVariantXRef "
@@ -144,33 +141,27 @@
                 query = "DELETE FROM tActivityDetail WHERE tActivityDetail.ActivityDetailSubType = ?";
                 await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(query, Convert.ToInt32(SysCommon.ActSubTypes.Adjustment));
 
-                // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging adjustment details complete.", true);
             }
             catch (SQLiteException ex)
             {
-                // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Database exception occurred.", true);
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging adjustment details failed.", true);
 
-                // TODO: Resource strings
                 throw new Exception("Database exception occurred. Purging adjustment details failed.", ex);
             }
         }
 
         /// <summary>
-        /// The Send
+        /// The Send.
         /// </summary>
         /// <param name="actItemAdjRefno"></param>
         /// <returns></returns>
-        protected override async Task<string> Send(int actItemAdjRefno)
+        protected override async Task<string> SendRequest(int actItemAdjRefno)
         {
-            string reqData = string.Empty;
-            int actItemAdjFKRefno = 0;
-
             string query = "SELECT * FROM tActivityItemAdjustment WHERE ActivityItemRefno = ?";
             List<tActivityItemAdjustmentModel> results = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<tActivityItemAdjustmentModel>(query, actItemAdjRefno);
-
+            int actItemAdjFKRefno;
             if (results != null && results.Count > 0)
             {
                 actItemAdjFKRefno = results[0].ActivityItemAdjustmentFKRefno;
@@ -180,11 +171,11 @@
                 throw new Exception(string.Format("Unable to locate item adjustment {0} in tActivityItemAdjustment", actItemAdjRefno));
             }
 
-            return await this.SendComm(await this.Create(actItemAdjFKRefno));
+            return await this.SendComm(await this.CreateRequest(actItemAdjFKRefno));
         }
 
         /// <summary>
-        /// The Save
+        /// The Save.
         /// </summary>
         /// <param name="reqData"></param>
         /// <param name="actItemAdjRefno"></param>
@@ -198,12 +189,10 @@
                 {
                     using (DataSet ds = new DataSet())
                     {
-                        // TODO: Resource strings
                         this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Reading received data.", false);
 
                         ds.ReadXml(SysCommon.GetXmlReader(ref reqData), XmlReadMode.Auto);
 
-                        // TODO: Resource strings
                         this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving adjustment details.", false);
 
                         // Receiving schema but no data results in no table being created in the dataset.
@@ -211,7 +200,6 @@
                         {
                             int progMax = Convert.ToInt32(ds.Tables["tActivityDetailAdjustment"].Rows.Count);
 
-                            // TODO: Resource strings
                             this.DataAccessStatusOutHandler(this, EventArgs.Empty, string.Format("Records {0}", progMax), false);
 
                             int actDetailRefno = 0;
@@ -229,7 +217,6 @@
 
                             foreach (DataRow drow in ds.Tables["tActivityDetailAdjustment"].Rows)
                             {
-                                // TODO: Resource strings
                                 errMsg = "Arguments:";
 
                                 List<object> parametersInsertDetail = new List<object>();
@@ -327,7 +314,7 @@
 
                                 if (locMapRefno == 0)
                                 {
-                                    throw new Exception(string.Format("Unable to identify the location map refno. {0}Whs FK Refno {1}{2}Section FK Refno {3}{4} Slot FK Refno {5}{6}",
+                                    throw new Exception(string.Format("Unable to identify the location map reference number. {0}Whs FK Refno {1}{2}Section FK Refno {3}{4} Slot FK Refno {5}{6}",
                                         Environment.NewLine,
                                         locMapWhsFKRefno,
                                         Environment.NewLine,
@@ -462,7 +449,6 @@
                                 actDetailRefno = Convert.ToInt32(transaction.ExecuteScalar<int>("SELECT last_insert_rowid() FROM tActivityDetail"));
                                 actDetailAdjFKRefno = Convert.ToInt32(drow["ActivityDetailAdjustmentFKRefno"]);
 
-                                // TODO: Resource strings
                                 errMsg += Environment.NewLine + "Detail fk refno " + actDetailAdjFKRefno;
 
                                 transaction.Execute("INSERT INTO tActivityDetailAdjustment (ActivityDetailRefno, ActivityDetailAdjustmentFKRefno) VALUES (?, ?)", actDetailRefno, actDetailAdjFKRefno);
@@ -479,7 +465,7 @@
                                     schemeVariantNo = Convert.ToInt32(drow["ProductSchemeVariantNo"]);
                                 }
 
-                                if (0 < schemeVariantNo)
+                                if (schemeVariantNo > 0)
                                 {
                                     List<tProductSchemeVariantModel> resultsProductSchemeVariant = transaction.Query<tProductSchemeVariantModel>("SELECT * FROM tProductSchemeVariant WHERE ProductSchemeVariantNo = ?", DateTime.Parse(emptyDate));
 
@@ -489,7 +475,6 @@
                                     }
                                     else
                                     {
-                                        // TODO: Resource strings
                                         throw new Exception("drSchemeVar.Read() failed.");
                                     }
                                 }
@@ -511,7 +496,7 @@
                                                         "?, " +
                                                         "?, " +
                                                         "?)";
-                                parametersExtra .Add(actDetailRefno);
+                                parametersExtra.Add(actDetailRefno);
                                 parametersExtra.Add(Convert.ToInt32(SysCommon.ActSubTypes.CycleCounts));
 
                                 if (useFNo)
@@ -546,48 +531,45 @@
 
                     transaction.Commit();
 
-                    // TODO: Resource strings
                     this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving adjustment details complete.", false);
                 }
                 catch (SQLiteException ex)
                 {
                     transaction.Rollback();
 
-                    // TODO: Resource strings
                     this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Database exception occurred.", true);
                     this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving adjustment details failed.", true);
 
-                    // TODO: Resource strings
                     throw new Exception("Database exception occurred. Saving adjustment details failed." + Environment.NewLine + errMsg, ex);
                 }
             });
         }
 
-    /// <summary>
-    /// The Create
-    /// </summary>
-    /// <param name="actItemAdjFKRefno"></param>
-    /// <returns></returns>
-    protected override async Task<string> Create(int actItemAdjFKRefno)
-    {
-        StringBuilder xmlString = new StringBuilder();
-        XmlWriter xml = XmlWriter.Create(xmlString);
+        /// <summary>
+        /// The Create.
+        /// </summary>
+        /// <param name="actItemAdjFKRefno"></param>
+        /// <returns></returns>
+        protected override async Task<string> CreateRequest(int actItemAdjFKRefno)
+        {
+            StringBuilder xmlString = new StringBuilder();
+            XmlWriter xml = XmlWriter.Create(xmlString);
 
-        XDocument request = XDocument.Parse(
-            "<?xml version=\"1.0\" encoding=\"utf-8\" standalone=\"yes\"?>"
-            + "<imclient>"
-            + "<command>"
-            + "<action>REQUEST ADJUSTMENT DETAILS</action>"
-            + await SysCommon.GetRequestDefaults(false)
-            + ("<itm_refno>" + actItemAdjFKRefno + "</itm_refno>")
-            + "</command>"
-            + "</imclient>");
+            XDocument request = XDocument.Parse(
+                "<?xml version=\"1.0\" encoding=\"utf-8\" standalone=\"yes\"?>"
+                + "<imclient>"
+                + "<command>"
+                + "<action>REQUEST ADJUSTMENT DETAILS</action>"
+                + await SysCommon.GetRequestDefaults(false)
+                + "<itm_refno>" + actItemAdjFKRefno + "</itm_refno>"
+                + "</command>"
+                + "</imclient>");
 
-        request.Save(xml);
-        xml.Flush();
-        xml.Close();
+            request.Save(xml);
+            xml.Flush();
+            xml.Close();
 
-        return xmlString.ToString();
+            return xmlString.ToString();
+        }
     }
-}
 }

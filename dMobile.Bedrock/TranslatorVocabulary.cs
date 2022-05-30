@@ -1,4 +1,8 @@
-﻿#if MULTILANGUAGE
+﻿// <copyright file="TranslatorVocabulary.cs" company="InterSect Business Systems Inc">
+// Copyright (c) InterSect Business Systems Inc. All rights reserved.
+// </copyright>
+
+#if MULTILANGUAGE
 //+------------------------------------------------------------------------+
 //| This file has been automatically generated.                            |
 //| Any changes to this file will be lost upon build.                      |
@@ -4892,7 +4896,7 @@ namespace dMobile.Bedrock
         SavingCycleCountItems = 974,
 
         /// <summary>
-        /// Unable to indentify the location map refno.{0}
+        /// Unable to indentify the location map reference number.{0}
         /// </summary>
         UnableToIndentifyTheLocationMapRefno = 975,
 
@@ -7252,7 +7256,7 @@ namespace dMobile.Bedrock
         SavingTransferItems = 1446,
 
         /// <summary>
-        /// Unable to indentify the location map refno.
+        /// Unable to indentify the location map reference number.
         /// </summary>
         UnableToIndentifyTheLocationMapRefnoz = 1447,
 
@@ -9107,7 +9111,7 @@ namespace dMobile.Bedrock
         DrlocmapwhsreadFailed = 1817,
 
         /// <summary>
-        /// Unable to identify the location map refno. {0}
+        /// Unable to identify the location map reference number. {0}
         /// </summary>
         UnableToIdentifyTheLocationMapRefno = 1818,
 
@@ -9117,7 +9121,7 @@ namespace dMobile.Bedrock
         WhsFkRefnoSectionFkRefnoSlotFkRefno = 1819,
 
         /// <summary>
-        /// Unable to locate the location map refno.
+        /// Unable to locate the location map reference number.
         /// </summary>
         UnableToLocateTheLocationMapRefno = 1820,
 

@@ -1,9 +1,14 @@
-﻿namespace dMobile.Controller
+﻿// <copyright file="clsTransferActivityItem.cs" company="InterSect Business Systems Inc">
+// Copyright (c) InterSect Business Systems Inc. All rights reserved.
+// </copyright>
+
+namespace dMobile.Controller
 {
     using System;
+    using System.Collections.Generic;
     using System.Collections.ObjectModel;
     using System.Data;
-    using SQLite;
+    using System.Linq;
     using System.Text;
     using System.Threading.Tasks;
     using System.Xml;
@@ -13,26 +18,56 @@
     using dMobile.Resources.Services;
     using dMobile.Resources.Types;
     using Xamarin.Forms;
-    using System.Collections.Generic;
-    using System.Linq;
 
+    /// <summary>
+    /// Defines the <see cref="TransferActItem" />.
+    /// </summary>
     public class TransferActItem : ActItem
     {
+        /// <summary>
+        /// Defines the columnWidth0.
+        /// </summary>
         private double columnWidth0 = 0;
-        private double columnWidth1 = 0;
-        private double columnWidth2 = 0;
-        private double columnWidth3 = 0;
-        private double columnWidth4 = 0;
-        private double columnWidth5 = 0;
-        private ResourceDictionary resourceDictionary = new ResourceDictionary();
-        List<TransferItem> listTransferItems = new List<TransferItem>();
-
-        #region Constructors
 
         /// <summary>
-        /// 
+        /// Defines the columnWidth1.
         /// </summary>
-        /// <param name="activity"></param>
+        private double columnWidth1 = 0;
+
+        /// <summary>
+        /// Defines the columnWidth2.
+        /// </summary>
+        private double columnWidth2 = 0;
+
+        /// <summary>
+        /// Defines the columnWidth3.
+        /// </summary>
+        private double columnWidth3 = 0;
+
+        /// <summary>
+        /// Defines the columnWidth4.
+        /// </summary>
+        private double columnWidth4 = 0;
+
+        /// <summary>
+        /// Defines the columnWidth5.
+        /// </summary>
+        private double columnWidth5 = 0;
+
+        /// <summary>
+        /// Defines the resourceDictionary.
+        /// </summary>
+        private ResourceDictionary resourceDictionary = new ResourceDictionary();
+
+        /// <summary>
+        /// Defines the listTransferItems.
+        /// </summary>
+        private List<TransferItem> listTransferItems = new List<TransferItem>();
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="TransferActItem"/> class.
+        /// </summary>
+        /// <param name="activity">.</param>
         public TransferActItem(Activity activity)
             : base(activity)
         {
@@ -49,13 +84,13 @@
                     Padding = new Thickness(5),
                     ColumnDefinitions =
                     {
-                            new ColumnDefinition { Width = new GridLength(columnWidth0, GridUnitType.Absolute) },
-                            new ColumnDefinition { Width = new GridLength(columnWidth1, GridUnitType.Absolute) },
-                            new ColumnDefinition { Width = new GridLength(columnWidth2, GridUnitType.Absolute) },
-                            new ColumnDefinition { Width = new GridLength(columnWidth3, GridUnitType.Absolute) },
-                            new ColumnDefinition { Width = new GridLength(columnWidth4, GridUnitType.Absolute) },
-                            new ColumnDefinition { Width = new GridLength(columnWidth5, GridUnitType.Absolute) }
-                    }
+                            new ColumnDefinition { Width = new GridLength(this.columnWidth0, GridUnitType.Absolute) },
+                            new ColumnDefinition { Width = new GridLength(this.columnWidth1, GridUnitType.Absolute) },
+                            new ColumnDefinition { Width = new GridLength(this.columnWidth2, GridUnitType.Absolute) },
+                            new ColumnDefinition { Width = new GridLength(this.columnWidth3, GridUnitType.Absolute) },
+                            new ColumnDefinition { Width = new GridLength(this.columnWidth4, GridUnitType.Absolute) },
+                            new ColumnDefinition { Width = new GridLength(this.columnWidth5, GridUnitType.Absolute) },
+                    },
                 };
 
                 Label labelProductID = new Label { VerticalOptions = LayoutOptions.Center };
@@ -92,17 +127,22 @@
             this.resourceDictionary.Add("dataTemplate", dataTemplate);
         }
 
-        #endregion
-
-        #region Public Members
+        /// <summary>
+        /// Gets or sets a value indicating whether allowed to add skid detail.
+        /// </summary>
+        /// <returns><see cref="bool"/> True if allowed to add skid detail.</returns>
+        public override bool IsAllowAddSkidDetail()
+        {
+            return false;
+        }
 
         /// <summary>
-        /// 
+        /// The IsCatchAsk.
         /// </summary>
-        /// <returns></returns>
+        /// <returns>.</returns>
         public override bool IsCatchAsk()
         {
-            bool isCatchAsk = base.IsCatchAsk();
+            bool isCatchAsk = this.ProdInfo.IsCatchAsk;
 
             if (isCatchAsk)
             {
@@ -114,32 +154,31 @@
         }
 
         /// <summary>
-        /// 
+        /// The IsCatchAskZero.
         /// </summary>
-        /// <returns></returns>
+        /// <returns>.</returns>
         public override bool IsCatchAskZero()
         {
-            bool isCatchAskZero = base.IsCatchAskZero();
-
-            if (isCatchAskZero)
+            bool result = this.IsCatchAsk();
+            if (result && this.ProdInfo.IsCatchAskZero)
             {
-                isCatchAskZero = !this.SysEnv.SysSettings.IsTransferNoCatchAskZeroEnabled;
+                result = !this.SysEnv.SysSettings.IsTransferNoCatchAskZeroEnabled;
             }
 
-            return isCatchAskZero;
+            return result;
         }
 
         /// <summary>
-        /// 
+        /// The IsReadyToApply.
         /// </summary>
-        /// <param name="data"></param>
-        /// <returns></returns>
+        /// <param name="data">.</param>
+        /// <returns>.</returns>
         public override async Task IsReadyToApply(XDocument data)
         {
             await base.IsReadyToApply(data);
 
             // New items are identified with 0 < this.FKRefno, do not validate.
-            if (this.SysEnv.SysSettings.TransQtyOverWarn != SysCommon.ActTransfersQtyOverValLevels.NoValidationOrWarning && 0 < this.FKRefno)
+            if (this.SysEnv.SysSettings.TransQtyOverWarn != SysCommon.ActTransfersQtyOverValLevels.NoValidationOrWarning && this.FKRefno > 0)
             {
                 try
                 {
@@ -150,12 +189,12 @@
                     switch (this.SysEnv.SysSettings.TransQtyOverWarn)
                     {
                         case SysCommon.ActTransfersQtyOverValLevels.ValidateWarnAndContinue:
-                            // TODO: Resource strings
+
                             if (await Device.InvokeOnMainThreadAsync(async () => !await Application.Current.MainPage.DisplayAlert("Quantity Over", ex.Message + Environment.NewLine + "Continue?", "Yes", "No")))
                             {
                                 throw new IsReadyToApplyException(ex.Message, true, false);
                             }
-                            
+
                             break;
 
                         case SysCommon.ActTransfersQtyOverValLevels.ValidateWarnAndStop:
@@ -166,41 +205,40 @@
         }
 
         /// <summary>
-        /// 
+        /// The GetUnableToParseItemFKRefnoMessage.
         /// </summary>
-        /// <param name="actItemStringFKRefno"></param>
-        /// <returns></returns>
+        /// <param name="actItemStringFKRefno">.</param>
+        /// <returns>.</returns>
         public override string GetUnableToParseItemFKRefnoMessage(string actItemStringFKRefno)
         {
-            // TODO: Resource strings
             return string.Format("Unable to parse the transfer item # {0}", actItemStringFKRefno);
         }
 
         /// <summary>
-        /// 
+        /// The GetUnableToFindItemFKRefnoMessage.
         /// </summary>
-        /// <param name="actItemStringFKRefno"></param>
-        /// <returns></returns>
+        /// <param name="actItemStringFKRefno">.</param>
+        /// <returns>.</returns>
         public override string GetUnableToFindItemFKRefnoMessage(string actItemStringFKRefno)
         {
-            // TODO: Resource strings
             return string.Format("Unable to find the transfer item # {0}", actItemStringFKRefno);
         }
 
         /// <summary>
-        /// 
+        /// The GetDataViewSortFKRefnoIdx.
         /// </summary>
-        /// <returns></returns>
+        /// <returns>.</returns>
         public override string GetDataViewSortFKRefnoIdx()
         {
             return "ActivityItemTransferStringFKRefno";
         }
 
         /// <summary>
-        /// 
+        /// The Insert.
         /// </summary>
-        /// <param name="data"></param>
-        /// <param name="askToInsertAsNewItem"></param>
+        /// <param name="data">.</param>
+        /// <param name="askToInsertAsNewItem">.</param>
+        /// <returns>The <see cref="Task"/>.</returns>
         public override async Task Insert(XDocument data, bool askToInsertAsNewItem)
         {
             int prodUnitRefno = int.Parse(data.Root.Element("ProductUnitRefno").Value);
@@ -299,15 +337,16 @@
                     ActivityItemTransferRequiredQuantity = 0,
                     ActivityItemTransferQuantity = 0,
                     ActivityItemTransferBaseQuantity = 0,
-                    ActivityItemTransferWeightQuantity = 0
+                    ActivityItemTransferWeightQuantity = 0,
                 });
             }
         }
 
         /// <summary>
-        /// 
+        /// The Refresh.
         /// </summary>
-        /// <param name="data"></param>
+        /// <param name="data">.</param>
+        /// <returns>The <see cref="Task"/>.</returns>
         public override async Task Refresh(XDocument data)
         {
             if (this.SysEnv.SysSettings.IsDisconnectedMode)
@@ -322,36 +361,41 @@
                 {
                     TableActivityTransferFromItem tableActTransferItem = new TableActivityTransferFromItem();
                     TableActivityTransferFromDetail tableActTransferDetail = new TableActivityTransferFromDetail();
-                    await tableActTransferDetail.Purge();
-                    await tableActTransferItem.Purge();
+                    await tableActTransferDetail.PurgeData();
+                    await tableActTransferItem.PurgeData();
 
                     this.DataLayerProgressOutHandler(this, new EventArgs(), 5);
 
                     tableActTransferItem.RegisterDataAccessListenerProgressOut((TransferActItem)this);
-                    await tableActTransferItem.Request(this.ActHdr.Refno);
+                    await tableActTransferItem.RequestData(this.ActHdr.Refno);
                     tableActTransferItem.UnregisterDataAccessListenerProgressOut((TransferActItem)this);
                 }
                 else
                 {
                     TableActivityTransferToItem tableActTransferItem = new TableActivityTransferToItem();
                     TableActivityTransferToDetail tableActTransferDetail = new TableActivityTransferToDetail();
-                    await tableActTransferDetail.Purge();
-                    await tableActTransferItem.Purge();
+                    await tableActTransferDetail.PurgeData();
+                    await tableActTransferItem.PurgeData();
 
                     this.DataLayerProgressOutHandler(this, new EventArgs(), 5);
 
                     tableActTransferItem.RegisterDataAccessListenerProgressOut((TransferActItem)this);
-                    await tableActTransferItem.Request(this.ActHdr.Refno);
+                    await tableActTransferItem.RequestData(this.ActHdr.Refno);
                     tableActTransferItem.UnregisterDataAccessListenerProgressOut((TransferActItem)this);
                 }
             }
         }
 
-        public override ObservableCollection<object> DesignGrid(ref Grid dataGridMainActivityHeader, ref ListView dataGridMainActivity)
+        /// <summary>
+        /// The DesignGrid.
+        /// </summary>
+        /// <param name="GridMainActivity">The GridMainActivity<see cref="Grid"/>.</param>
+        /// <param name="ListViewMainActivity">The ListViewMainActivity<see cref="ListView"/>.</param>
+        /// <returns>The <see cref="ObservableCollection{object}"/>.</returns>
+        public override ObservableCollection<object> DesignGrid(ref Grid GridMainActivity, ref ListView ListViewMainActivity)
         {
             ObservableCollection<object> observableCollection = new ObservableCollection<object>();
 
-            // TODO: Resource strings
             Label labelProductIDHeader = new Label { Text = "Product ID", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
             Label labelBCHeader = new Label { Text = "BC", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
             Label labelUnitCodeHeader = new Label { Text = string.Empty, VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
@@ -359,18 +403,12 @@
             Label labelQtyHeader = new Label { Text = "Qty", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
             Label labelWhsHeader = new Label { Text = "Whs", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
 
-            columnWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(labelProductIDHeader.Text);
-            columnWidth1 = DependencyService.Get<IGridService>().CalculateTextWidth(labelBCHeader.Text);
-            columnWidth2 = DependencyService.Get<IGridService>().CalculateTextWidth(labelUnitCodeHeader.Text);
-            columnWidth3 = DependencyService.Get<IGridService>().CalculateTextWidth(labelRequiredHeader.Text);
-            columnWidth4 = DependencyService.Get<IGridService>().CalculateTextWidth(labelQtyHeader.Text);
-            columnWidth5 = DependencyService.Get<IGridService>().CalculateTextWidth(labelWhsHeader.Text);
-            double detailWidth0 = 0;
-            double detailWidth1 = 0;
-            double detailWidth2 = 0;
-            double detailWidth3 = 0;
-            double detailWidth4 = 0;
-            double detailWidth5 = 0;
+            this.columnWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(labelProductIDHeader.Text);
+            this.columnWidth1 = DependencyService.Get<IGridService>().CalculateTextWidth(labelBCHeader.Text);
+            this.columnWidth2 = DependencyService.Get<IGridService>().CalculateTextWidth(labelUnitCodeHeader.Text);
+            this.columnWidth3 = DependencyService.Get<IGridService>().CalculateTextWidth(labelRequiredHeader.Text);
+            this.columnWidth4 = DependencyService.Get<IGridService>().CalculateTextWidth(labelQtyHeader.Text);
+            this.columnWidth5 = DependencyService.Get<IGridService>().CalculateTextWidth(labelWhsHeader.Text);
 
             // Create header data template
             Grid gridHeader = new Grid
@@ -378,13 +416,13 @@
                 Padding = new Thickness(5),
                 ColumnDefinitions =
                 {
-                    new ColumnDefinition { Width = new GridLength(columnWidth0, GridUnitType.Absolute) },
-                    new ColumnDefinition { Width = new GridLength(columnWidth1, GridUnitType.Absolute) },
-                    new ColumnDefinition { Width = new GridLength(columnWidth2, GridUnitType.Absolute) },
-                    new ColumnDefinition { Width = new GridLength(columnWidth3, GridUnitType.Absolute) },
-                    new ColumnDefinition { Width = new GridLength(columnWidth4, GridUnitType.Absolute) },
-                    new ColumnDefinition { Width = new GridLength(columnWidth5, GridUnitType.Absolute) }
-                }
+                    new ColumnDefinition { Width = new GridLength(this.columnWidth0, GridUnitType.Absolute) },
+                    new ColumnDefinition { Width = new GridLength(this.columnWidth1, GridUnitType.Absolute) },
+                    new ColumnDefinition { Width = new GridLength(this.columnWidth2, GridUnitType.Absolute) },
+                    new ColumnDefinition { Width = new GridLength(this.columnWidth3, GridUnitType.Absolute) },
+                    new ColumnDefinition { Width = new GridLength(this.columnWidth4, GridUnitType.Absolute) },
+                    new ColumnDefinition { Width = new GridLength(this.columnWidth5, GridUnitType.Absolute) },
+                },
             };
 
             gridHeader.SetDynamicResource(VisualElement.BackgroundColorProperty, "HeaderColor");
@@ -405,12 +443,12 @@
 
             Grid.SetRow(gridHeader, 0);
 
-            dataGridMainActivityHeader.Children.Add(gridHeader);
+            GridMainActivity.Children.Add(gridHeader);
 
             foreach (TransferItem transferItem in this.ListItems)
             {
-                //TransferItem transferItem = new TransferItem
-                //{
+                // TransferItem transferItem = new TransferItem
+                // {
                 //    ActivityItemRefno = Convert.ToInt32(row["ActivityItemRefno"] != DBNull.Value ? row["ActivityItemRefno"] : null),
                 //    ActivityItemStatus = Convert.ToInt32(row["ActivityItemStatus"] != DBNull.Value ? row["ActivityItemStatus"] : null),
                 //    ActivityItemTransferBaseQuantity = Convert.ToDecimal(row["ActivityItemTransferBaseQuantity"] != DBNull.Value ? row["ActivityItemTransferBaseQuantity"] : null),
@@ -429,64 +467,63 @@
                 //    ProductUnitRefno = Convert.ToInt32(row["ProductUnitRefno"] != DBNull.Value ? row["ProductUnitRefno"] : null),
                 //    ProductUnitSizeDescription = Convert.ToString(row["ProductUnitSizeDescription"] != DBNull.Value ? row["ProductUnitSizeDescription"] : null),
                 //    UnitCode = Convert.ToString(row["UnitCode"] != DBNull.Value ? row["UnitCode"] : null)
-                //};
-
+                // };
                 observableCollection.Add(transferItem);
 
-                detailWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(transferItem.ProductCode);
-                detailWidth1 = DependencyService.Get<IGridService>().CalculateTextWidth(transferItem.ProductUnitBC);
-                detailWidth2 = DependencyService.Get<IGridService>().CalculateTextWidth(transferItem.UnitCode);
-                detailWidth3 = DependencyService.Get<IGridService>().CalculateTextWidth(string.Format("{0:F3}", transferItem.ActivityItemTransferRequiredQuantity));
-                detailWidth4 = DependencyService.Get<IGridService>().CalculateTextWidth(string.Format("{0:F3}", transferItem.ActivityItemTransferQuantity));
-                detailWidth5 = DependencyService.Get<IGridService>().CalculateTextWidth(Convert.ToString(transferItem.LocationCode));
+                double detailWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(transferItem.ProductCode);
+                double detailWidth1 = DependencyService.Get<IGridService>().CalculateTextWidth(transferItem.ProductUnitBC);
+                double detailWidth2 = DependencyService.Get<IGridService>().CalculateTextWidth(transferItem.UnitCode);
+                double detailWidth3 = DependencyService.Get<IGridService>().CalculateTextWidth(string.Format("{0:F3}", transferItem.ActivityItemTransferRequiredQuantity));
+                double detailWidth4 = DependencyService.Get<IGridService>().CalculateTextWidth(string.Format("{0:F3}", transferItem.ActivityItemTransferQuantity));
+                double detailWidth5 = DependencyService.Get<IGridService>().CalculateTextWidth(Convert.ToString(transferItem.LocationCode));
 
-                if (detailWidth0 > columnWidth0)
+                if (detailWidth0 > this.columnWidth0)
                 {
-                    columnWidth0 = detailWidth0;
-                    gridHeader.ColumnDefinitions[0].Width = columnWidth0;
+                    this.columnWidth0 = detailWidth0;
+                    gridHeader.ColumnDefinitions[0].Width = this.columnWidth0;
                 }
 
-                if (detailWidth1 > columnWidth1)
+                if (detailWidth1 > this.columnWidth1)
                 {
-                    columnWidth1 = detailWidth1;
-                    gridHeader.ColumnDefinitions[1].Width = columnWidth1;
+                    this.columnWidth1 = detailWidth1;
+                    gridHeader.ColumnDefinitions[1].Width = this.columnWidth1;
                 }
 
-                if (detailWidth2 > columnWidth2)
+                if (detailWidth2 > this.columnWidth2)
                 {
-                    columnWidth2 = detailWidth2;
-                    gridHeader.ColumnDefinitions[2].Width = columnWidth2;
+                    this.columnWidth2 = detailWidth2;
+                    gridHeader.ColumnDefinitions[2].Width = this.columnWidth2;
                 }
 
-                if (detailWidth3 > columnWidth3)
+                if (detailWidth3 > this.columnWidth3)
                 {
-                    columnWidth3 = detailWidth3;
-                    gridHeader.ColumnDefinitions[3].Width = columnWidth3;
+                    this.columnWidth3 = detailWidth3;
+                    gridHeader.ColumnDefinitions[3].Width = this.columnWidth3;
                 }
 
-                if (detailWidth4 > columnWidth4)
+                if (detailWidth4 > this.columnWidth4)
                 {
-                    columnWidth4 = detailWidth4;
-                    gridHeader.ColumnDefinitions[4].Width = columnWidth4;
+                    this.columnWidth4 = detailWidth4;
+                    gridHeader.ColumnDefinitions[4].Width = this.columnWidth4;
                 }
 
-                if (detailWidth5 > columnWidth5)
+                if (detailWidth5 > this.columnWidth5)
                 {
-                    columnWidth5 = detailWidth5;
-                    gridHeader.ColumnDefinitions[5].Width = columnWidth5;
+                    this.columnWidth5 = detailWidth5;
+                    gridHeader.ColumnDefinitions[5].Width = this.columnWidth5;
                 }
             }
 
-            dataGridMainActivity.ItemTemplate = (DataTemplate)this.resourceDictionary["dataTemplate"];
+            ListViewMainActivity.ItemTemplate = (DataTemplate)this.resourceDictionary["dataTemplate"];
 
             return observableCollection;
         }
 
         /// <summary>
-        /// 
+        /// The GetActivityItemList.
         /// </summary>
-        /// <param name="isSubmitBatch"></param>
-        /// <returns></returns>
+        /// <param name="isSubmitBatch">.</param>
+        /// <returns>.</returns>
         public override async Task<List<object>> GetActivityItemList(bool isSubmitBatch)
         {
             StringBuilder sql = new StringBuilder();
@@ -589,8 +626,8 @@
                 sql.Append("ORDER BY tActivityItemTransfer.ActivityItemRefno");
             }
 
-            //using (SQLiteDataAdapter da = new SQLiteDataAdapter(sql.ToString(), DatabaseConnection.GetInstance().SQLConn))
-            //{
+            // using (SQLiteDataAdapter da = new SQLiteDataAdapter(sql.ToString(), DatabaseConnection.GetInstance().SQLConn))
+            // {
             //    using (DataSet ds = new DataSet())
             //    {
             //        da.Fill(ds);
@@ -601,37 +638,34 @@
             //        this.DataViewItems.AllowDelete = true;
             //        this.DataViewItems.Sort = "ActivityItemRefno";
             //    }
-            //}
-
+            // }
             this.listTransferItems = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<TransferItem>(sql.ToString());
             this.ListItems = this.listTransferItems.Cast<object>().ToList();
             return this.ListItems;
-
         }
 
         /// <summary>
-        /// 
+        /// The Search.
         /// </summary>
-        /// <param name="searchText"></param>
-        /// <returns></returns>
+        /// <param name="searchText">.</param>
+        /// <returns>.</returns>
         public override ObservableCollection<object> Search(string searchText)
         {
             ObservableCollection<object> observableCollection = new ObservableCollection<object>();
 
-            //if (string.IsNullOrEmpty(this.ActItemFilter))
-            //{
+            // if (string.IsNullOrEmpty(this.ActItemFilter))
+            // {
             this.ListItems = this.listTransferItems.Where(transferItem => transferItem.ProductCode.ToLower().Contains(searchText.ToLower().Trim())).Cast<object>().ToList();
-            //}
-            //else
-            //{
-                // TODO: Fix filtering
-                //this.DataViewItems.RowFilter = this.ActItemFilter + " AND ProductCode LIKE \'%" + searchText.Trim() + "%\'";
-            //}
-
+            // }
+            // else
+            // {
+            // TODO: Fix filtering
+            // this.DataViewItems.RowFilter = this.ActItemFilter + " AND ProductCode LIKE \'%" + searchText.Trim() + "%\'";
+            // }
             foreach (TransferItem transferItem in this.ListItems)
             {
-                //TransferItem transferItem = new TransferItem
-                //{
+                // TransferItem transferItem = new TransferItem
+                // {
                 //    ActivityItemRefno = Convert.ToInt32(row["ActivityItemRefno"] != DBNull.Value ? row["ActivityItemRefno"] : null),
                 //    ActivityItemStatus = Convert.ToInt32(row["ActivityItemStatus"] != DBNull.Value ? row["ActivityItemStatus"] : null),
                 //    ActivityItemTransferBaseQuantity = Convert.ToDecimal(row["ActivityItemTransferBaseQuantity"] != DBNull.Value ? row["ActivityItemTransferBaseQuantity"] : null),
@@ -650,8 +684,7 @@
                 //    ProductUnitRefno = Convert.ToInt32(row["ProductUnitRefno"] != DBNull.Value ? row["ProductUnitRefno"] : null),
                 //    ProductUnitSizeDescription = Convert.ToString(row["ProductUnitSizeDescription"] != DBNull.Value ? row["ProductUnitSizeDescription"] : null),
                 //    UnitCode = Convert.ToString(row["UnitCode"] != DBNull.Value ? row["UnitCode"] : null)
-                //};
-
+                // };
                 observableCollection.Add(transferItem);
             }
 
@@ -659,24 +692,35 @@
         }
 
         /// <summary>
-        /// 
+        /// Select an activity item.
         /// </summary>
-        /// <param name="idx"></param>
+        /// <param name="selectedActivityItem"><see cref="object"/> Selected activity object.</param>
+        /// <returns><see cref="Task"/> Task operation.</returns>
         public override async Task SelectActivityItem(object selectedActivityItem)
         {
-            if (selectedActivityItem is TransferItem transferItem)
+            int activityItemLocMapRefno = 0;
+            if (selectedActivityItem is TransferItem item)
             {
-                await base.SelectActivityItem(transferItem);
-                this.FKRefno = Convert.ToInt32(transferItem.ActivityItemTransferFKRefno);
+                this.SelectedActivityItem = item;
+                this.Refno = item.ActivityItemRefno;
+                this.FKRefno = Convert.ToInt32(item.ActivityItemTransferFKRefno);
+                this.ProdInfo = await ProductInfoTasks.GetInfoFromUnitRefno(item.ProductUnitRefno);
+                activityItemLocMapRefno = item.LocationMapRefno;
             }
+
+            await this.GetSelectedItemLocation(activityItemLocMapRefno);
+
+            // LocationMap.GetInstance().CurrLocMap needs to be set before call to GetSchemeComponentsFromRefno.
+            this.ProdInfo.Scheme = await ProductInfoTasks.GetSchemeComponentsFromRefno(
+                this.ProdInfo.Refno);
         }
 
         /// <summary>
-        /// 
+        /// The GetActivityItemRefno.
         /// </summary>
-        /// <param name="prodUnitRefno"></param>
-        /// <returns></returns>
-        public override async Task<int> GetRefnoFromProdUnitRefno(int prodUnitRefno)
+        /// <param name="prodUnitRefno">.</param>
+        /// <returns>.</returns>
+        public override async Task<int> GetActivityItemRefno(int prodUnitRefno)
         {
             int foundItemRefno = 0;
 
@@ -708,10 +752,10 @@
         }
 
         /// <summary>
-        /// 
+        /// The CreateSubmitXML.
         /// </summary>
-        /// <param name="data"></param>
-        /// <returns></returns>
+        /// <param name="data">.</param>
+        /// <returns>.</returns>
         public async override Task<string> CreateSubmitXML(XDocument data)
         {
             StringBuilder xmlString = new StringBuilder();
@@ -724,11 +768,11 @@
                 + "<action>SUBMIT TRANSFER ITEM</action>"
                 + "</command>"
                 + await SysCommon.GetRequestDefaults(false)
-                + ("<prod_id>" + data.Root.Element("ProductCode").Value.PadRight(10) + "</prod_id>")
-                + ("<alt_unit>" + data.Root.Element("UnitCode").Value + "</alt_unit>")
-                + ("<is_bc>" + bool.Parse(data.Root.Element("ProductUnitIsBC").Value) + "</is_bc>")
-                + ("<symbology>" + data.Root.Element("ProductUnitBarCodeSymbologyPrefix") + "</symbology>")
-                + ("<gtin>" + data.Root.Element("ProductUnitBarCodeCode").Value.PadRight(20) + "</gtin>")
+                + "<prod_id>" + data.Root.Element("ProductCode").Value.PadRight(10) + "</prod_id>"
+                + "<alt_unit>" + data.Root.Element("UnitCode").Value + "</alt_unit>"
+                + "<is_bc>" + bool.Parse(data.Root.Element("ProductUnitIsBC").Value) + "</is_bc>"
+                + "<symbology>" + data.Root.Element("ProductUnitBarCodeSymbologyPrefix") + "</symbology>"
+                + "<gtin>" + data.Root.Element("ProductUnitBarCodeCode").Value.PadRight(20) + "</gtin>"
                 + "<whs_id></whs_id>"
                 + "<sect_refno></sect_refno>"
                 + "<slot_refno></slot_refno>"
@@ -743,12 +787,12 @@
         }
 
         /// <summary>
-        /// 
+        /// The RefreshQuantity.
         /// </summary>
-        /// <param name="selectedIndex"></param>
-        /// <param name="quantity"></param>
-        /// <param name="baseQuantity"></param>
-        /// <param name="weightQuantity"></param>
+        /// <param name="selectedActivityItem">The selectedActivityItem<see cref="object"/>.</param>
+        /// <param name="quantity">.</param>
+        /// <param name="baseQuantity">.</param>
+        /// <param name="weightQuantity">.</param>
         public override void RefreshQuantity(object selectedActivityItem, decimal quantity, decimal baseQuantity, decimal weightQuantity)
         {
             if (selectedActivityItem is TransferItem transferItem)
@@ -760,13 +804,12 @@
         }
 
         /// <summary>
-        /// 
+        /// The UpdateListItemQuantity.
         /// </summary>
-        /// <param name="rowIdx"></param>
-        /// <param name="quantity"></param>
-        /// <param name="baseQuantity"></param>
-        /// <param name="weightQuantity"></param>
-        /// <returns></returns>
+        /// <param name="selectedActivityItem">The selectedActivityItem<see cref="object"/>.</param>
+        /// <param name="quantity">.</param>
+        /// <param name="baseQuantity">.</param>
+        /// <param name="weightQuantity">.</param>
         public override void UpdateListItemQuantity(object selectedActivityItem, decimal quantity, decimal baseQuantity, decimal weightQuantity)
         {
             if (selectedActivityItem is TransferItem transferItem)
@@ -778,10 +821,11 @@
         }
 
         /// <summary>
-        /// 
+        /// The UpdateQuantityFromActivityItemList.
         /// </summary>
-        /// <param name="selectedIndex"></param>
-        /// <param name="actItemRefno"></param>
+        /// <param name="selectedActivityItem">The selectedActivityItem<see cref="object"/>.</param>
+        /// <param name="actItemRefno">.</param>
+        /// <returns>The <see cref="Task"/>.</returns>
         public override async Task UpdateQuantityFromActivityItemList(object selectedActivityItem, int actItemRefno)
         {
             if (selectedActivityItem is TransferItem transferItem)
@@ -793,15 +837,11 @@
             }
         }
 
-        #endregion
-
-        #region Private Members
-
         /// <summary>
-        /// 
+        /// The TransferModuleQuantityOverCheck.
         /// </summary>
-        /// <param name="actItemTransFKRefno"></param>
-        /// <param name="actItemTransQuantity"></param>
+        /// <param name="actItemTransFKRefno">.</param>
+        /// <param name="actItemTransQuantity">.</param>
         private void TransferModuleQuantityOverCheck(int actItemTransFKRefno, decimal actItemTransQuantity)
         {
             if (this.SelectedActivityItem is TransferItem transferItem)
@@ -816,6 +856,134 @@
             }
         }
 
-        #endregion
+        /// <summary>
+        /// Get the activity item foreign key reference number.
+        /// </summary>
+        /// <param name="resourceType"><see cref="object"/> Resource model type.</param>
+        /// <returns><see cref="int"/> Found activity item foreign key refno, else 0 if not found.</returns>
+        public override int GetFKRefno(object resourceType)
+        {
+            object tmpFKItRefno = ((TransferItem)resourceType).ActivityItemTransferFKRefno;
+            return tmpFKItRefno == null ? 0 : Convert.ToInt32(tmpFKItRefno);
+        }
+
+        /// <summary>
+        /// Get the activity item control description.
+        /// </summary>
+        /// <returns><see cref="string"/> Get activity item control description.</returns>
+        public override string GetControlDescription()
+        {
+            return string.Format("Transfer # {0}", this.ActHdr.FKRefno);
+        }
+
+        /// <summary>
+        /// The Delete.
+        /// </summary>
+        /// <returns>The <see cref="Task{int}"/>.</returns>
+        public override async Task<int> Delete()
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <summary>
+        /// The GetProdSchemeDataFromDetailFKRefno.
+        /// </summary>
+        /// <param name="actDetailFKRefno">The actDetailFKRefno<see cref="int"/>.</param>
+        /// <returns>The <see cref="Task{SActItemSchemeData}"/>.</returns>
+        public override Task<SActItemSchemeData> GetProdSchemeDataFromDetailFKRefno(int actDetailFKRefno)
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <summary>
+        /// The GetComment.
+        /// </summary>
+        /// <param name="selectedActivityItem">The selectedActivityItem<see cref="object"/>.</param>
+        /// <returns>The <see cref="Task{string}"/>.</returns>
+        public override Task<string> GetComment(object selectedActivityItem)
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <summary>
+        /// The Submit.
+        /// </summary>
+        /// <param name="data">The data<see cref="XDocument"/>.</param>
+        /// <param name="selectedActivityItem">The selectedActivityItem<see cref="object"/>.</param>
+        /// <returns>The <see cref="Task"/>.</returns>
+        public override Task Submit(XDocument data, object selectedActivityItem)
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <summary>
+        /// The CreateDeleteXML.
+        /// </summary>
+        /// <param name="data">The data<see cref="XDocument"/>.</param>
+        /// <returns>The <see cref="Task{string}"/>.</returns>
+        public override Task<string> CreateDeleteXML(XDocument data)
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <summary>
+        /// The Update.
+        /// </summary>
+        /// <param name="data">The data<see cref="XDocument"/>.</param>
+        /// <returns>The <see cref="Task"/>.</returns>
+        public override Task Update(XDocument data)
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <summary>
+        /// The GetTotalQuantity.
+        /// </summary>
+        /// <returns>The <see cref="Task{string}"/>.</returns>
+        public override Task<string> GetTotalQuantity()
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <summary>
+        /// Get the default location for the activity base on the sign quantity of the transaction.
+        /// </summary>
+        /// <param name="whsLocMapRefno"><see cref="int"/> Warehouse location map reference number.</param>
+        /// <param name="prodRefno"><see cref="int"/> Product reference number.</param>
+        /// <returns><see cref="int"/> Location map reference number.</returns>
+        public override async Task<int> GetDefaultLocMapRefno(int whsLocMapRefno, int prodRefno)
+        {
+            int locMapRefno = 0;
+            if (this.SelectedActivityItem is TransferItem item)
+            {
+                if (Math.Sign(item.ActivityItemTransferQuantity) == 0 ||
+                    Math.Sign(item.ActivityItemTransferQuantity) == 1)
+                {
+                    locMapRefno = await LocationMapTasks.GetDefaultLocMapRefnoFromProdRefno(
+                        whsLocMapRefno,
+                        prodRefno,
+                        SysCommon.ProdLocMapTypes.Receiving);
+                }
+                else
+                {
+                    locMapRefno = await LocationMapTasks.GetDefaultLocMapRefnoFromProdRefno(
+                        whsLocMapRefno,
+                        prodRefno,
+                        SysCommon.ProdLocMapTypes.Picking);
+                }
+            }
+
+            return locMapRefno;
+        }
+
+        /// <summary>
+        /// The GetLabelQuantity.
+        /// </summary>
+        /// <param name="isRepackQuantityOnly">The isRepackQuantityOnly<see cref="bool"/>.</param>
+        /// <returns>The <see cref="Task{SLabelQuantity}"/>.</returns>
+        public override Task<SLabelQuantity> GetLabelQuantity(bool isRepackQuantityOnly)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

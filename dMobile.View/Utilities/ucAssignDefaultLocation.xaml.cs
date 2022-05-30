@@ -1,47 +1,40 @@
-﻿namespace dMobile.View.Utilities
+﻿// <copyright file="ucAssignDefaultLocation.xaml.cs" company="InterSect Business Systems Inc">
+// Copyright (c) InterSect Business Systems Inc. All rights reserved.
+// </copyright>
+
+namespace dMobile.View.Utilities
 {
-    using Android.Views;
-    using dMobile.BarCodeScanner;
-    using dMobile.Bedrock;
-    using dMobile.Controller;
-    using dMobile.Resources.Enums;
-    using dMobile.View.CustomPages;
-    using dMobile.View.Forms;
     using System;
     using System.Text;
     using System.Threading.Tasks;
     using System.Xml;
     using System.Xml.Linq;
+    using Android.Views;
+    using dMobile.BarCodeScanner.BarCodeParsing;
+    using dMobile.BarCodeScanner.BarCodeScanners;
+    using dMobile.Bedrock;
+    using dMobile.Controller;
+    using dMobile.Resources.Enums;
+    using dMobile.View.CustomPages;
+    using dMobile.View.Forms;
     using Xamarin.Forms;
     using Xamarin.Forms.Xaml;
     using Color = Xamarin.Forms.Color;
+    using Resource = dMobile.Resources.Properties.Resources;
 
+    /// <summary>
+    /// Defines the <see cref="ucAssignDefaultLocation" />.
+    /// </summary>
     [XamlCompilation(XamlCompilationOptions.Compile)]
     public partial class ucAssignDefaultLocation : DMobileContentPage, IAppArea
     {
-        private bool isControlLoaded = false;
-        private bool changesMade = false;
-        private SysEnvironment sysEnv;
-        private LocationMap locMap;
-        private BarCodeScanner scanner;
-        private bool isBarCodeHandlerRegistered = false;
-        private SysCommon.ActSubTypes actSubTypes;
-        private Controller.Activity activity = null;
-        private ActItem actItem = null;
-        private ActDetail actDetail = null;
-        private int currLocMapDefPickingRefno = 0;
-        private int currLocMapDefRecvRefno = 0;
-        private int newLocMapDefPickingRefno = 0;
-        private int newLocMapDefRecvRefno = 0;
-        private SLocMap locMapDefPicking;
-        private SLocMap locMapDefRecv;
-        private bool isFirstAppearance = true;
-
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ucAssignDefaultLocation"/> class.
+        /// </summary>
         public ucAssignDefaultLocation()
         {
             this.InitializeComponent();
 
-            // TODO: Resource strings
             this.Title = this.GetControlDescription();
             this.cmdLocation.Text = "Set Location";
             this.cmdProduct.Text = "Select Product";
@@ -56,428 +49,192 @@
 
             if (!DesignMode.IsDesignModeEnabled)
             {
-                sysEnv = SysEnvironment.GetInstance();
-                locMap = LocationMap.GetInstance();
-                scanner = BarCodeSingleton.GetInstance().Scanner;
-                locMapDefPicking = new SLocMap();
-                locMapDefRecv = new SLocMap();
+                this.SysEnv = SysEnvironment.GetInstance();
+                this.LocMap = LocationMap.GetInstance();
+                this.Scanner = ScannerEngine.GetInstance().Scanner;
+                this.LocMapDefPicking = new SLocMap();
+                this.LocMapDefRecv = new SLocMap();
 
-                this.updnBarCodeModifier1.Items.Clear();
+                ParseAndSeedBarCodeModifier();
+
+                this.Activity = ActivityFacade.GetActivity(SysCommon.ActSubTypes.AssignDefaultLocation);
+                this.ActItem = ActItemFacade.GetActItem(this.Activity, SysCommon.ActSubTypes.AssignDefaultLocation);
+                ////this.ActDetail = ActDetailFacade.GetActDetail(this.ActItem, SysCommon.ActSubTypes.AssignDefaultLocation);
+            }
+
+            void ParseAndSeedBarCodeModifier()
+            {
+                this.BarCodeModifier1Picker.Items.Clear();
 
                 if (this.SysEnv.SysSettings.IsProductUnitBarCodeModifier1)
                 {
-                    this.updnBarCodeModifier1.Items.Add(string.Empty);
+                    this.BarCodeModifier1Picker.Items.Add(string.Empty);
                     string[] modifiers = this.SysEnv.SysSettings.ProductUnitBarCodeModifier1Codes.Split(',');
 
                     foreach (string item in modifiers)
                     {
-                        this.updnBarCodeModifier1.Items.Add(item);
+                        this.BarCodeModifier1Picker.Items.Add(item);
                     }
                 }
                 else
                 {
-                    this.updnBarCodeModifier1.IsVisible = false;
-                    this.updnBarCodeModifier1.IsEnabled = false;
+                    this.BarCodeModifier1Picker.IsVisible = false;
+                    this.BarCodeModifier1Picker.IsEnabled = false;
                 }
 
-                this.updnBarCodeModifier1.SelectedItem = this.SysEnv.CurrentBarCodeModifier1;
-
-                this.Activity = ActivityFacade.GetActivity(SysCommon.ActSubTypes.AssignDefaultLocation);
-                this.ActItem = ActItemFacade.GetActItem(this.Activity, SysCommon.ActSubTypes.AssignDefaultLocation);
-                this.ActDetail = ActDetailFacade.GetActDetail(this.ActItem, SysCommon.ActSubTypes.AssignDefaultLocation);
-            }
-        }
-
-
-        /// <summary>
-        /// The OnAppearing
-        /// </summary>
-        protected override async void OnAppearing()
-        {
-            base.OnAppearing();
-
-            MessagingCenter.Subscribe<string>(this, EventTypes.OnKeyUp.ToString(), async (keyPressed) =>
-            {
-                // TODO: Verify keycodes
-                Enum.TryParse(keyPressed, out Keycode keycode);
-
-                if (keycode == Keycode.Enter || keycode == Keycode.F1)
-                {
-                    if (await this.SaveChanges())
-                    {
-                        await this.Close();
-                    }
-                }
-            });
-
-            try
-            {
-                if (this.isFirstAppearance)
-                {
-                    this.isFirstAppearance = false;
-
-                    if (0 >= this.LocMap.CurrLocMap.WhsLocMapRefno)
-                    {
-                        this.LocMap.CurrLocMap = await LocationMapTasks.GetSLocMapFromLocMapRefno(this.LocMap.LoginWhsLocMapRefno);
-                    }
-
-                    // TODO: Resource strings
-                    await Device.InvokeOnMainThreadAsync(() => this.cmdLocation.Text = LocationMapTasks.GetCurrentReadableLocation(true));
-                }
-
-                await this.AssignDefaultLocation_GotFocus(this, new EventArgs());
-            }
-            catch (Exception ex)
-            {
-                // TODO: Logging
-                Console.WriteLine("this.AssignDefaultLocation_GotFocus threw error " + ex);
+                this.BarCodeModifier1Picker.SelectedItem = this.SysEnv.CurrentBarCodeModifier1;
             }
         }
 
         /// <summary>
-        /// The OnDisappearing
+        /// Gets or sets the current receiving default location map reference number.
         /// </summary>
-        protected override async void OnDisappearing()
-        {
-            MessagingCenter.Unsubscribe<string>(this, EventTypes.OnKeyUp.ToString());
-            await this.AssignDefaultLocation_LostFocus(this, new EventArgs());
+        private int CurrLocMapDefRecvRefno { get; set; } = 0;
 
-            base.OnDisappearing();
-        }
+        /// <summary>
+        /// Gets or sets the current picking default location map reference number.
+        /// </summary>
+        private int CurrLocMapDefPickingRefno { get; set; } = 0;
 
-        protected override bool OnBackButtonPressed()
-        {
-            Device.BeginInvokeOnMainThread(async () =>
-            {
-                base.OnBackButtonPressed();
+        /// <summary>
+        /// Gets or sets the bar code scanner instance.
+        /// </summary>
+        private BarCodeScanner Scanner { get; set; }
 
-                if (await this.CancelChanges())
-                {
-                    await this.Close();
-                }
-            });
+        /// <summary>
+        /// Gets or sets the new receiving default location map reference number.
+        /// </summary>
+        private int NewLocMapDefRecvRefno { get; set; } = 0;
 
-            return true;
-        }
+        /// <summary>
+        /// Gets or sets the new picking default location map reference number.
+        /// </summary>
+        private int NewLocMapDefPickingRefno { get; set; } = 0;
 
-        private int CurrLocMapDefRecvRefno
-        {
-            get
-            {
-                return this.currLocMapDefRecvRefno;
-            }
+        /// <summary>
+        /// Gets or sets the default receiving location map.
+        /// </summary>
+        private SLocMap LocMapDefRecv { get; set; }
 
-            set
-            {
-                this.currLocMapDefRecvRefno = value;
-            }
-        }
+        /// <summary>
+        /// Gets or sets the default picking location map.
+        /// </summary>
+        private SLocMap LocMapDefPicking { get; set; }
 
-        private int CurrLocMapDefPickingRefno
-        {
-            get
-            {
-                return this.currLocMapDefPickingRefno;
-            }
+        /// <summary>
+        /// Gets or sets the ActDetail.
+        /// </summary>
+        ////private ActDetail ActDetail { get; set; } = null;
 
-            set
-            {
-                this.currLocMapDefPickingRefno = value;
-            }
-        }
+        /// <summary>
+        /// Gets or sets the activity item.
+        /// </summary>
+        private ActItem ActItem { get; set; } = null;
 
-        private BarCodeScanner Scanner
-        {
-            get
-            {
-                return this.scanner;
-            }
+        /// <summary>
+        /// Gets or sets the activity.
+        /// </summary>
+        private Activity Activity { get; set; } = null;
 
-            set
-            {
-                this.scanner = value;
-            }
-        }
+        /// <summary>
+        /// Gets or sets the activity sub type.
+        /// </summary>
+        private SysCommon.ActSubTypes ActSubType { get; set; }
 
-        private int NewLocMapDefRecvRefno
-        {
-            get
-            {
-                return this.newLocMapDefRecvRefno;
-            }
+        /// <summary>
+        /// Gets or sets the location map.
+        /// </summary>
+        private LocationMap LocMap { get; set; }
 
-            set
-            {
-                this.newLocMapDefRecvRefno = value;
-            }
-        }
+        /// <summary>
+        /// Gets or sets a value indicating whether changes have been made.
+        /// </summary>
+        private bool IsChangesMade { get; set; } = false;
 
-        private int NewLocMapDefPickingRefno
-        {
-            get
-            {
-                return this.newLocMapDefPickingRefno;
-            }
+        /// <summary>
+        /// Gets or sets a value indicating whether all controls have finished loading.
+        /// </summary>
+        private bool IsControlLoaded { get; set; } = false;
 
-            set
-            {
-                this.newLocMapDefPickingRefno = value;
-            }
-        }
+        /// <summary>
+        /// Gets or sets the system environment.
+        /// </summary>
+        private SysEnvironment SysEnv { get; set; }
 
-        private SLocMap LocMapDefRecv
-        {
-            get
-            {
-                return this.locMapDefRecv;
-            }
+        /// <summary>
+        /// Gets or sets a value indicating whether the bar code handler has been registered.
+        /// </summary>
+        private bool IsBarCodeHandlerRegistered { get; set; } = false;
 
-            set
-            {
-                this.locMapDefRecv = value;
-            }
-        }
+        /// <summary>
+        /// Gets or sets a value indicating whether the saved bar code scanner enabled status.
+        /// </summary>
+        private bool IsSvdBarScannerEnabled { get; set; } = false;
 
-        private SLocMap LocMapDefPicking
-        {
-            get
-            {
-                return this.locMapDefPicking;
-            }
-
-            set
-            {
-                this.locMapDefPicking = value;
-            }
-        }
-
-        private ActDetail ActDetail
-        {
-            get
-            {
-                return this.actDetail;
-            }
-
-            set
-            {
-                this.actDetail = value;
-            }
-        }
-
-        private ActItem ActItem
-        {
-            get
-            {
-                return this.actItem;
-            }
-
-            set
-            {
-                this.actItem = value;
-            }
-        }
-
-        private Controller.Activity Activity
-        {
-            get
-            {
-                return this.activity;
-            }
-
-            set
-            {
-                this.activity = value;
-            }
-        }
-
-        private SysCommon.ActSubTypes ActSubType
-        {
-            get
-            {
-                return this.actSubTypes;
-            }
-
-            set
-            {
-                this.actSubTypes = value;
-            }
-        }
-
-        private LocationMap LocMap
-        {
-            get
-            {
-                return this.locMap;
-            }
-
-            set
-            {
-                this.locMap = value;
-            }
-        }
-
-        private bool ChangesMade
-        {
-            get
-            {
-                return this.changesMade;
-            }
-
-            set
-            {
-                this.changesMade = value;
-            }
-        }
-
-        private bool IsControlLoaded
-        {
-            get
-            {
-                return this.isControlLoaded;
-            }
-
-            set
-            {
-                this.isControlLoaded = value;
-            }
-        }
-
-        private SysEnvironment SysEnv
-        {
-            get
-            {
-                return this.sysEnv;
-            }
-
-            set
-            {
-                this.sysEnv = value;
-            }
-        }
-
-        private bool IsBarCodeHandlerRegistered
-        {
-            get
-            {
-                return this.isBarCodeHandlerRegistered;
-            }
-
-            set
-            {
-                this.isBarCodeHandlerRegistered = value;
-            }
-        }
-
-
+        /// <summary>
+        /// Gets or sets a value indicating whether to performing loading data upon got focus.
+        /// </summary>
+        private bool FirstOnAppearing { get; set; } = true;
 
         /// <summary>
         /// Unregister the bar code scan event handler and disable the scanner.
         /// </summary>
-        /// <remarks></remarks>
+        /// <returns><see cref="Task"/> Task operation.</returns>
         public async Task ScannerDisable()
         {
             if (this.IsBarCodeHandlerRegistered && this.Scanner != null)
             {
                 this.Scanner.BarCodeScan -= new BarCodeScanner.BarCodeScanEventHandler(this.BarCodeHandler);
                 await this.Scanner.Stop();
-                this.IsBarCodeHandlerRegistered = false;
             }
+
+            this.IsBarCodeHandlerRegistered = false;
         }
 
         /// <summary>
         /// Registers the bar code scan event handler and enables the scanner.
         /// </summary>
-        /// <remarks></remarks>
+        /// <returns><see cref="Task"/> Task operation.</returns>
         public async Task ScannerEnable()
         {
-            if (!this.IsBarCodeHandlerRegistered)
+            if (!this.IsBarCodeHandlerRegistered && this.Scanner != null)
             {
-                this.IsBarCodeHandlerRegistered = true;
                 await this.Scanner.Start();
                 this.Scanner.BarCodeScan += new BarCodeScanner.BarCodeScanEventHandler(this.BarCodeHandler);
+                this.IsBarCodeHandlerRegistered = true;
             }
         }
 
         /// <summary>
-        ///
+        /// The IsReadyToSave.
         /// </summary>
-        /// <returns></returns>
-        /// <remarks></remarks>
+        /// <returns>.</returns>
         public async Task<bool> IsReadyToSave()
         {
             bool isReadyToSave = true;
 
             try
             {
-                if (!await LocationMapTasks.IsCompleteLocMapRefno(this.ActItem.LocMap.CurrLocMapRefno))
-                {
-                    if (0 >= this.LocMap.CurrLocMap.WhsLocMapRefno)
-                    {
-                        // TODO: Resource strings
-                        throw new Exceptions.MessageOnlyException("Warehouse is required.");
-                    }
-
-                    if (this.LocMap.CurrLocMap.IsSectionTracked && 0 >= this.LocMap.CurrLocMap.SectLocMapRefno)
-                    {
-                        // TODO: Resource strings
-                        throw new Exceptions.MessageOnlyException("Section is required.");
-                    }
-
-                    if (this.LocMap.CurrLocMap.IsSlotTracked && 0 >= this.LocMap.CurrLocMap.SlotLocMapRefno)
-                    {
-                        // TODO: Resource strings
-                        throw new Exceptions.MessageOnlyException("Slot is required.");
-                    }
-                }
+                this.IsSvdBarScannerEnabled = this.IsBarCodeHandlerRegistered;
+                await this.ScannerDisable();
+                await CheckLocationIsComplete();
 
                 if (this.ActItem.ProdInfo.UnitRefno == 0)
                 {
-                    // TODO: Resource strings
-                    throw new Exceptions.MessageOnlyException("A selected product is required.");
+                    throw new MessageOnlyException("A selected product is required.");
                 }
 
-                if (!(chkDefaultPicking.IsToggled || chkDefaultReceiving.IsToggled))
-                {
-                    // TODO: Resource strings
-                    throw new Exceptions.MessageOnlyException("A selected default picking or receiving option is required.");
-                }
-
-                if (isReadyToSave && this.chkDefaultPicking.IsToggled && this.CurrLocMapDefPickingRefno == this.NewLocMapDefPickingRefno)
-                {
-                    // TODO: Resource strings
-                    string msg = "The current and the new default picking locations are the same." + Environment.NewLine + "Are you sure that you want to update the location anyway?";
-
-                    await Device.InvokeOnMainThreadAsync(async () =>
-                    {
-                        bool result = await DisplayAlert("Ready To Save", msg, "Yes", "No");
-
-                        if (!result)
-                        {
-                            isReadyToSave = false;
-                        }
-                    });
-                }
-
-                if (isReadyToSave && this.chkDefaultReceiving.IsToggled && this.CurrLocMapDefRecvRefno == this.NewLocMapDefRecvRefno)
-                {
-                    // TODO: Resource strings
-                    string msg = "The current and the new default receiving locations are the same." + Environment.NewLine + "Are you sure that you want to update the location anyway?";
-
-                    await Device.InvokeOnMainThreadAsync(async () =>
-                    {
-                        bool result = await DisplayAlert("Ready To Save", msg, "Yes", "No");
-
-                        if (!result)
-                        {
-                            isReadyToSave = false;
-                        }
-                    });
-                }
+                isReadyToSave = await CheckSelectedPickingLocation(isReadyToSave);
+                isReadyToSave = await CheckSelectedReceivingLocation(isReadyToSave);
             }
-            catch (Exceptions.MessageOnlyException ex)
+            catch (MessageOnlyException ex)
             {
                 isReadyToSave = false;
-                ex.Show(this.ActSubType);
+                await Device.InvokeOnMainThreadAsync(async () =>
+                    await Application.Current.MainPage.DisplayAlert(
+                        this.GetControlDescription(),
+                        ex.Message,
+                        Resource.OK));
             }
             catch (Exception ex)
             {
@@ -486,47 +243,119 @@
                 await Device.InvokeOnMainThreadAsync(async () =>
                 {
                     FormErrorReport errRpt = new FormErrorReport(this.ActSubType, ex);
-                    await errRpt.ShowDialog();
+                    _ = await errRpt.ShowDialog();
                 });
-
+            }
+            finally
+            {
+                if (this.IsSvdBarScannerEnabled)
+                {
+                    await this.ScannerEnable();
+                }
             }
 
             return isReadyToSave;
+
+            async Task CheckLocationIsComplete()
+            {
+                if (!await LocationMapTasks.IsCompleteLocMapRefno(this.ActItem.LocMap.CurrLocMapRefno))
+                {
+                    if (this.LocMap.CurrLocMap.WhsLocMapRefno <= 0)
+                    {
+                        throw new MessageOnlyException("Warehouse is required.");
+                    }
+
+                    if (this.LocMap.CurrLocMap.IsSectionTracked && this.LocMap.CurrLocMap.SectLocMapRefno <= 0)
+                    {
+                        throw new MessageOnlyException("Section is required.");
+                    }
+
+                    if (this.LocMap.CurrLocMap.IsSlotTracked && this.LocMap.CurrLocMap.SlotLocMapRefno <= 0)
+                    {
+                        throw new MessageOnlyException("Slot is required.");
+                    }
+                }
+            }
+
+            async Task<bool> CheckSelectedPickingLocation(bool isReadyToSave)
+            {
+                if (!(this.chkDefaultPicking.IsToggled || this.chkDefaultReceiving.IsToggled))
+                {
+                    throw new MessageOnlyException("A selected default picking or receiving option is required.");
+                }
+
+                if (isReadyToSave && this.chkDefaultPicking.IsToggled &&
+                    this.CurrLocMapDefPickingRefno == this.NewLocMapDefPickingRefno)
+                {
+                    string msg = "The current and the new default picking locations are the same." +
+                        Environment.NewLine + "Are you sure that you want to update the location anyway?";
+
+                    await Device.InvokeOnMainThreadAsync(async () =>
+                    {
+                        bool result = await this.DisplayAlert("Ready To Save", msg, "Yes", "No");
+
+                        if (!result)
+                        {
+                            isReadyToSave = false;
+                        }
+                    });
+                }
+
+                return isReadyToSave;
+            }
+
+            async Task<bool> CheckSelectedReceivingLocation(bool isReadyToSave)
+            {
+                if (isReadyToSave && this.chkDefaultReceiving.IsToggled &&
+                    this.CurrLocMapDefRecvRefno == this.NewLocMapDefRecvRefno)
+                {
+                    string msg = "The current and the new default receiving locations are the same." +
+                        Environment.NewLine + "Are you sure that you want to update the location anyway?";
+
+                    await Device.InvokeOnMainThreadAsync(async () =>
+                    {
+                        bool result = await this.DisplayAlert("Ready To Save", msg, "Yes", "No");
+
+                        if (!result)
+                        {
+                            isReadyToSave = false;
+                        }
+                    });
+                }
+
+                return isReadyToSave;
+            }
         }
 
         /// <summary>
-        ///
+        /// The IsReadyToClose.
         /// </summary>
-        /// <returns></returns>
-        /// <remarks></remarks>
+        /// <returns>.</returns>
         public async Task<bool> IsReadyToClose()
         {
             // NOTE: This code is needed to clean up the scanner driver.
             // Symbol had threading issues without this call when dMobile was terminating.
-            // All user controls that initalize a bar code need this code.
+            // All user controls that initialize a bar code need this code.
             // The parent form (not a user control) will call scanner.terminate and dispose
             // of the scanner instance upon exiting dMobile.
             await this.ScannerDisable();
 
-            return !this.ChangesMade;
+            return !this.IsChangesMade;
         }
 
         /// <summary>
-        ///
+        /// The GetControlDescription.
         /// </summary>
-        /// <returns></returns>
-        /// <remarks></remarks>
+        /// <returns>.</returns>
         public string GetControlDescription()
         {
-            // TODO: Resource strings
             return "Assign Default Location";
         }
 
         /// <summary>
-        ///
+        /// The CancelChanges.
         /// </summary>
-        /// <returns></returns>
-        /// <remarks></remarks>
+        /// <returns>.</returns>
         public async Task<bool> CancelChanges()
         {
             bool cancelChanges = true;
@@ -535,14 +364,17 @@
             {
                 if (!await this.IsReadyToClose())
                 {
-                    this.LoadData();
                     cancelChanges = false;
-                    this.ChangesMade = false;
+                    this.IsChangesMade = false;
                 }
             }
-            catch (Exceptions.MessageOnlyException ex)
+            catch (MessageOnlyException ex)
             {
-                ex.Show(this.ActSubType);
+                await Device.InvokeOnMainThreadAsync(async () =>
+                    await Application.Current.MainPage.DisplayAlert(
+                        this.GetControlDescription(),
+                        ex.Message,
+                        Resource.OK));
                 cancelChanges = false;
             }
             catch (Exception ex)
@@ -552,7 +384,7 @@
                 await Device.InvokeOnMainThreadAsync(async () =>
                 {
                     FormErrorReport errRpt = new FormErrorReport(this.ActSubType, ex);
-                    await errRpt.ShowDialog();
+                    _ = await errRpt.ShowDialog();
                 });
             }
 
@@ -560,10 +392,9 @@
         }
 
         /// <summary>
-        ///
+        /// The GetXML.
         /// </summary>
-        /// <returns></returns>
-        /// <remarks></remarks>
+        /// <returns>.</returns>
         public async Task<XDocument> GetXML()
         {
             XDocument xmldocParams = XDocument.Parse(
@@ -575,10 +406,9 @@
         }
 
         /// <summary>
-        ///
+        /// The SaveChanges.
         /// </summary>
-        /// <returns></returns>
-        /// <remarks></remarks>
+        /// <returns>.</returns>
         public async Task<bool> SaveChanges()
         {
             bool saveComplete = false;
@@ -587,7 +417,7 @@
             {
                 if (await this.IsReadyToSave())
                 {
-                    this.ChangesMade = false;
+                    this.IsChangesMade = false;
 
                     string sendRequest = string.Empty;
                     string data = string.Empty;
@@ -597,11 +427,13 @@
 
                     if (this.NewLocMapDefPickingRefno == 0)
                     {
-                        this.LocMapDefPicking = await LocationMapTasks.GetSLocMapFromLocMapRefno(this.CurrLocMapDefPickingRefno);
+                        this.LocMapDefPicking = await LocationMapTasks.GetSLocMapFromLocMapRefno(
+                            this.CurrLocMapDefPickingRefno);
                     }
                     else
                     {
-                        this.LocMapDefPicking = await LocationMapTasks.GetSLocMapFromLocMapRefno(this.NewLocMapDefPickingRefno);
+                        this.LocMapDefPicking = await LocationMapTasks.GetSLocMapFromLocMapRefno(
+                            this.NewLocMapDefPickingRefno);
                     }
 
                     if (this.NewLocMapDefRecvRefno == 0)
@@ -621,18 +453,18 @@
                         + await SysCommon.GetRequestDefaults(false)
                         + "</command>"
                         + "<receiving>"
-                        + ("<prod_refno>" + this.ActItem.ProdInfo.FKRefno + "</prod_refno>")
-                        + ("<is_update>" + this.chkDefaultReceiving.IsToggled + "</is_update>")
-                        + ("<whs_id>" + this.LocMapDefRecv.WhsFKRefno + "</whs_id>")
-                        + ("<section>" + this.LocMapDefRecv.SectName + "</section>")
-                        + ("<slot>" + this.LocMapDefRecv.SlotName + "</slot>")
+                        + "<prod_refno>" + this.ActItem.ProdInfo.FKRefno + "</prod_refno>"
+                        + "<is_update>" + this.chkDefaultReceiving.IsToggled + "</is_update>"
+                        + "<whs_id>" + this.LocMapDefRecv.WhsFKRefno + "</whs_id>"
+                        + "<section>" + this.LocMapDefRecv.SectName + "</section>"
+                        + "<slot>" + this.LocMapDefRecv.SlotName + "</slot>"
                         + "</receiving>"
                         + "<picking>"
-                        + ("<prod_refno>" + this.ActItem.ProdInfo.FKRefno + "</prod_refno>")
-                        + ("<is_update>" + this.chkDefaultPicking.IsToggled + "</is_update>")
-                        + ("<whs_id>" + this.LocMapDefPicking.WhsFKRefno + "</whs_id>")
-                        + ("<section>" + this.LocMapDefPicking.SectName + "</section>")
-                        + ("<slot>" + this.LocMapDefPicking.SlotName + "</slot>")
+                        + "<prod_refno>" + this.ActItem.ProdInfo.FKRefno + "</prod_refno>"
+                        + "<is_update>" + this.chkDefaultPicking.IsToggled + "</is_update>"
+                        + "<whs_id>" + this.LocMapDefPicking.WhsFKRefno + "</whs_id>"
+                        + "<section>" + this.LocMapDefPicking.SectName + "</section>"
+                        + "<slot>" + this.LocMapDefPicking.SlotName + "</slot>"
                         + "</picking>"
                         + "</imclient>");
 
@@ -657,7 +489,7 @@
 
                             if (errorDetail.Contains("MSGBOX-"))
                             {
-                                throw new Exceptions.MessageOnlyException(errorDetail);
+                                throw new MessageOnlyException(errorDetail);
                             }
                             else
                             {
@@ -666,8 +498,14 @@
                         }
                         else
                         {
-                            int origLocMapDefPickingRefno = await LocationMapTasks.GetDefaultLocMapRefnoFromProdRefno(this.LocMap.CurrLocMap.WhsLocMapRefno, this.ActItem.ProdInfo.Refno, SysCommon.ProdLocMapTypes.Picking);
-                            int origLocMapDefRecvRefno = await LocationMapTasks.GetDefaultLocMapRefnoFromProdRefno(this.LocMap.CurrLocMap.WhsLocMapRefno, this.ActItem.ProdInfo.Refno, SysCommon.ProdLocMapTypes.Receiving);
+                            int origLocMapDefPickingRefno = await LocationMapTasks.GetDefaultLocMapRefnoFromProdRefno(
+                                this.LocMap.CurrLocMap.WhsLocMapRefno,
+                                this.ActItem.ProdInfo.Refno,
+                                SysCommon.ProdLocMapTypes.Picking);
+                            int origLocMapDefRecvRefno = await LocationMapTasks.GetDefaultLocMapRefnoFromProdRefno(
+                                this.LocMap.CurrLocMap.WhsLocMapRefno,
+                                this.ActItem.ProdInfo.Refno,
+                                SysCommon.ProdLocMapTypes.Receiving);
 
                             XDocument dataUpdate = XDocument.Parse(
                                 "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>"
@@ -687,32 +525,45 @@
 
                             await this.ActItem.Update(dataUpdate);
 
-                            this.CurrLocMapDefPickingRefno = await LocationMapTasks.GetDefaultLocMapRefnoFromProdRefno(this.LocMap.CurrLocMap.WhsLocMapRefno, this.ActItem.ProdInfo.Refno, SysCommon.ProdLocMapTypes.Picking);
-                            this.LocMapDefPicking = await LocationMapTasks.GetSLocMapFromLocMapRefno(this.CurrLocMapDefPickingRefno);
-                            this.CurrLocMapDefRecvRefno = await LocationMapTasks.GetDefaultLocMapRefnoFromProdRefno(this.LocMap.CurrLocMap.WhsLocMapRefno, this.ActItem.ProdInfo.Refno, SysCommon.ProdLocMapTypes.Receiving);
-                            this.LocMapDefRecv = await LocationMapTasks.GetSLocMapFromLocMapRefno(this.CurrLocMapDefRecvRefno);
+                            this.CurrLocMapDefPickingRefno = await LocationMapTasks.GetDefaultLocMapRefnoFromProdRefno(
+                                this.LocMap.CurrLocMap.WhsLocMapRefno,
+                                this.ActItem.ProdInfo.Refno,
+                                SysCommon.ProdLocMapTypes.Picking);
+                            this.LocMapDefPicking = await LocationMapTasks.GetSLocMapFromLocMapRefno(
+                                this.CurrLocMapDefPickingRefno);
+                            this.CurrLocMapDefRecvRefno = await LocationMapTasks.GetDefaultLocMapRefnoFromProdRefno(
+                                this.LocMap.CurrLocMap.WhsLocMapRefno,
+                                this.ActItem.ProdInfo.Refno,
+                                SysCommon.ProdLocMapTypes.Receiving);
+                            this.LocMapDefRecv = await LocationMapTasks.GetSLocMapFromLocMapRefno(
+                                this.CurrLocMapDefRecvRefno);
 
                             await this.DisplayData();
                             this.lblCurrentPickingLocation.TextColor = Color.Black;
                             this.lblCurrentReceivingLocation.TextColor = Color.Black;
 
-                            // TODO: Resource strings
-                            await Device.InvokeOnMainThreadAsync(async () => await DisplayAlert("Assign Default Location", "Product default location(s) saved.", "OK"));
+                            await Device.InvokeOnMainThreadAsync(async () => await this.DisplayAlert(
+                                "Assign Default Location",
+                                "Product default location(s) saved.",
+                                "OK"));
                         }
                     }
                     else
                     {
-                        // TODO: Resource strings
                         throw new Exception("Assign Default Product Location failed.");
                     }
 
                     saveComplete = false; // Set false to stay in form
                 }
             }
-            catch (Exceptions.MessageOnlyException ex)
+            catch (MessageOnlyException ex)
             {
                 saveComplete = false;
-                ex.Show(this.ActSubType);
+                await Device.InvokeOnMainThreadAsync(async () =>
+                    await Application.Current.MainPage.DisplayAlert(
+                        this.GetControlDescription(),
+                        ex.Message,
+                        Resource.OK));
             }
             catch (Exception ex)
             {
@@ -721,7 +572,7 @@
                 await Device.InvokeOnMainThreadAsync(async () =>
                 {
                     FormErrorReport errRpt = new FormErrorReport(this.ActSubType, ex);
-                    await errRpt.ShowDialog();
+                    _ = await errRpt.ShowDialog();
                 });
             }
 
@@ -729,36 +580,158 @@
         }
 
         /// <summary>
-        ///
+        /// The OnAppearing.
         /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        /// <remarks></remarks>
-        private async Task AssignDefaultLocation_GotFocus(object sender, EventArgs e)
+        protected override async void OnAppearing()
         {
-            if (!SysEnvironment.GetInstance().IsApplicationExitInvoked)
-            {
-                this.LoadData();
-                this.IsControlLoaded = true;
-                this.cmdLocation.Focus();
+            base.OnAppearing();
 
+            // Note: Do we want to disable the scanner here. It may not even be enabled before at all.
+            // It is my understanding that the OnAppearing event only occurs once when the control is loading.
+            await this.ScannerDisable();
+
+            SubscribeKeyUpHandlers();
+
+            this.Loading = true;
+
+            try
+            {
+                if (this.FirstOnAppearing)
+                {
+                    this.FirstOnAppearing = false;
+
+                    if (this.LocMap.CurrLocMap.WhsLocMapRefno <= 0)
+                    {
+                        this.LocMap.CurrLocMap = await LocationMapTasks.GetSLocMapFromLocMapRefno(
+                            this.LocMap.LoginWhsLocMapRefno);
+                    }
+
+                    _ = await Device.InvokeOnMainThreadAsync(() => this.cmdLocation.Text =
+                        LocationMapTasks.GetCurrentReadableLocation(true));
+                }
+
+                this.IsControlLoaded = true;
+                _ = this.cmdLocation.Focus();
                 await this.ScannerEnable();
+            }
+            catch (MessageOnlyException ex)
+            {
+                this.FirstOnAppearing = true;
+                await Device.InvokeOnMainThreadAsync(async () =>
+                    await Application.Current.MainPage.DisplayAlert(
+                        this.GetControlDescription(),
+                        ex.Message,
+                        Resource.OK));
+            }
+            catch (Exception ex)
+            {
+                this.FirstOnAppearing = true;
+                await Device.InvokeOnMainThreadAsync(async () =>
+                {
+                    string msg = "This activity unexpectedly failed to initialize correctly." +
+                        " Please exit and try again.";
+                    FormErrorReport errorReport = new FormErrorReport(msg, ex);
+                    _ = await errorReport.ShowDialog();
+                });
+            }
+            finally
+            {
+                this.Loading = false;
+                await this.ScannerEnable();
+                await Task.Run(() =>
+                {
+                    // Explicit GC, Xamarin forms not disposing of objects properly
+                    GC.Collect();
+                    GC.WaitForPendingFinalizers();
+                });
+            }
+
+            void SubscribeKeyUpHandlers()
+            {
+                MessagingCenter.Subscribe<string>(this, EventTypes.OnKeyUp.ToString(), async (keyPressed) =>
+                {
+                    _ = Enum.TryParse(keyPressed, out Keycode keycode);
+
+                    if (keycode == Keycode.Enter || keycode == Keycode.F1)
+                    {
+                        if (await this.SaveChanges())
+                        {
+                            await this.Close();
+                        }
+                    }
+                });
             }
         }
 
         /// <summary>
-        ///
+        /// The OnDisappearing.
         /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        /// <remarks></remarks>
+        protected override async void OnDisappearing()
+        {
+            MessagingCenter.Unsubscribe<string>(this, EventTypes.OnKeyUp.ToString());
+            await this.ScannerDisable();
+
+            base.OnDisappearing();
+        }
+
+        /// <summary>
+        /// The OnBackButtonPressed.
+        /// </summary>
+        /// <returns>The <see cref="bool"/>.</returns>
+        protected override bool OnBackButtonPressed()
+        {
+            Device.BeginInvokeOnMainThread(async () =>
+            {
+                try
+                {
+                    this.IsSvdBarScannerEnabled = this.IsBarCodeHandlerRegistered;
+                    await this.ScannerDisable();
+                    if (await this.CancelChanges())
+                    {
+                        _ = base.OnBackButtonPressed();
+                        await this.Close();
+                    }
+                }
+                catch (MessageOnlyException ex)
+                {
+                    await Device.InvokeOnMainThreadAsync(async () =>
+                        await Application.Current.MainPage.DisplayAlert(
+                            this.GetControlDescription(),
+                            ex.Message,
+                            Resource.OK));
+                }
+                catch (Exception ex)
+                {
+                    await Device.InvokeOnMainThreadAsync(async () =>
+                    {
+                        FormErrorReport errRpt = new FormErrorReport(this.ActSubType, ex);
+                        _ = await errRpt.ShowDialog();
+                    });
+                }
+                finally
+                {
+                    if (this.IsSvdBarScannerEnabled)
+                    {
+                        await this.ScannerEnable();
+                    }
+                }
+            });
+
+            return true;
+        }
+
+        /// <summary>
+        /// Check if changes have been made.
+        /// </summary>
+        /// <param name="sender"><see cref="object"/> Sender instance.</param>
+        /// <param name="e"><see cref="EventArgs"/> Event arguments.</param>
         private void IdentifyChangesMade(object sender, EventArgs e)
         {
             if (this.IsControlLoaded)
             {
-                this.ChangesMade = true;
+                this.IsChangesMade = true;
 
-                this.SysEnv.CurrentBarCodeModifier1 = this.updnBarCodeModifier1.SelectedItem.ToString();
+                this.SysEnv.CurrentBarCodeModifier1 = this.BarCodeModifier1Picker.SelectedItem.ToString();
 
                 if (this.chkDefaultPicking.IsToggled)
                 {
@@ -781,22 +754,23 @@
         }
 
         /// <summary>
-        ///
+        /// Command location click event handler.
         /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        /// <remarks></remarks>
-        private async void cmdLocation_Click(object sender, EventArgs e)
+        /// <param name="sender"><see cref="object"/> Sender instance.</param>
+        /// <param name="e"><see cref="EventArgs"/> Event arguments.</param>
+        private async void CmdLocation_Click(object sender, EventArgs e)
         {
             await this.ScannerDisable();
 
-            FormDialogContainer form = new FormDialogContainer(FormDialogContainer.EDialogTypes.ucSelectLocationMap, SysCommon.ActSubTypes.NotApplicable);
+            FormDialogContainer form = new FormDialogContainer(
+                EDialogTypes.SelectLocationMap,
+                SysCommon.ActSubTypes.NotApplicable);
 
             if (await form.DisplayControl.ShowDialog() == DialogResult.OK)
             {
+                await LocationMapTasks.AssignLocationMapAsync();
                 if (this.LocMap.CurrLocMap.WhsLocMapRefno == 0)
                 {
-                    // TODO: Resource strings
                     throw new Exception("Unexpected result this.LocMap.CurrLocMap.WhsLocMapRefno == 0.");
                 }
                 else
@@ -828,16 +802,17 @@
         }
 
         /// <summary>
-        ///
+        /// Command select product click event handler.
         /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        /// <remarks></remarks>
-        private async void cmdProduct_Click(object sender, EventArgs e)
+        /// <param name="sender"><see cref="object"/> Sender instance.</param>
+        /// <param name="e"><see cref="EventArgs"/> Event arguments.</param>
+        private async void CmdProduct_Click(object sender, EventArgs e)
         {
             await this.ScannerDisable();
 
-            FormDialogContainer form = new FormDialogContainer(FormDialogContainer.EDialogTypes.ucSelectProduct, SysCommon.ActSubTypes.NotApplicable);
+            FormDialogContainer form = new FormDialogContainer(
+                EDialogTypes.SelectProduct,
+                SysCommon.ActSubTypes.NotApplicable);
 
             if (await form.DisplayControl.ShowDialog() == DialogResult.OK)
             {
@@ -853,8 +828,14 @@
                 if (prodRefno != 0 && this.LocMap.CurrLocMap.WhsLocMapRefno != 0)
                 {
                     this.ActItem.ProdInfo = await ProductInfoTasks.GetInfoFromRefno(prodRefno);
-                    this.CurrLocMapDefPickingRefno = await LocationMapTasks.GetDefaultLocMapRefnoFromProdRefno(this.LocMap.CurrLocMap.WhsLocMapRefno, this.ActItem.ProdInfo.Refno, SysCommon.ProdLocMapTypes.Picking);
-                    this.CurrLocMapDefRecvRefno = await LocationMapTasks.GetDefaultLocMapRefnoFromProdRefno(this.LocMap.CurrLocMap.WhsLocMapRefno, this.ActItem.ProdInfo.Refno, SysCommon.ProdLocMapTypes.Receiving);
+                    this.CurrLocMapDefPickingRefno = await LocationMapTasks.GetDefaultLocMapRefnoFromProdRefno(
+                        this.LocMap.CurrLocMap.WhsLocMapRefno,
+                        this.ActItem.ProdInfo.Refno,
+                        SysCommon.ProdLocMapTypes.Picking);
+                    this.CurrLocMapDefRecvRefno = await LocationMapTasks.GetDefaultLocMapRefnoFromProdRefno(
+                        this.LocMap.CurrLocMap.WhsLocMapRefno,
+                        this.ActItem.ProdInfo.Refno,
+                        SysCommon.ProdLocMapTypes.Receiving);
 
                     // Assigning the new location map will only be done by the set location button.
                 }
@@ -866,11 +847,11 @@
         }
 
         /// <summary>
-        ///
+        /// The BarCodeHandler.
         /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="oBarCodeScanArgs"></param>
-        /// <remarks></remarks>
+        /// <param name="sender">.</param>
+        /// <param name="scanArgs">The scanArgs<see cref="BarCodeScannerEventArgs"/>.</param>
+        /// <returns>The <see cref="Task"/>.</returns>
         private async Task BarCodeHandler(object sender, BarCodeScannerEventArgs scanArgs)
         {
             if (this.Loading || scanArgs == null)
@@ -881,145 +862,143 @@
             int prodUnitRefno = 0;
             BarCodeParse parse = null;
 
-            await Task.Run(async () =>
+            try
             {
-                try
+                this.Loading = true;
+                await this.ScannerDisable();
+
+                parse = scanArgs.ParseInfo;
+
+                // Global location identifier scanned
+                if (!string.IsNullOrEmpty(parse.LocationIdentifier))
                 {
-                    this.Loading = true;
-                    await this.ScannerDisable();
+                    int locMapRefno = await LocationMapTasks.GetLocMapRefnoFromBarCodeGlobalLocIdentifier(
+                        parse.LocationIdentifier);
 
-                    parse = scanArgs.ParseInfo;
+                    this.LocMap.CurrLocMap = await LocationMapTasks.GetSLocMapFromLocMapRefno(locMapRefno);
 
-                    // Global location identifier scanned
-                    if (!string.IsNullOrEmpty(parse.LocationIdentifier))
+                    if (this.LocMap.CurrLocMap.WhsLocMapRefno == 0)
                     {
-                        int locMapRefno = await LocationMapTasks.GetLocMapRefnoFromBarCodeGlobalLocIdentifier(parse.LocationIdentifier);
+                        throw new Exception("Unexpected result this.LocMap.CurrLocMap.WhsLocMapRefno == 0.");
+                    }
 
-                        this.LocMap.CurrLocMap = await LocationMapTasks.GetSLocMapFromLocMapRefno(locMapRefno);
+                    this.ActItem.LocMap = this.LocMap;
 
-                        if (this.LocMap.CurrLocMap.WhsLocMapRefno == 0)
-                        {
-                            throw new Exception("Unexpected result this.LocMap.CurrLocMap.WhsLocMapRefno == 0.");
-                        }
-
-                        this.ActItem.LocMap = this.LocMap;
-
-                        if (this.chkDefaultPicking.IsToggled)
-                        {
-                            this.NewLocMapDefPickingRefno = this.LocMap.CurrLocMapRefno;
-                        }
-                        else
-                        {
-                            this.NewLocMapDefPickingRefno = this.CurrLocMapDefPickingRefno;
-                        }
-
-                        if (this.chkDefaultReceiving.IsToggled)
-                        {
-                            this.NewLocMapDefRecvRefno = this.LocMap.CurrLocMapRefno;
-                        }
-                        else
-                        {
-                            this.NewLocMapDefRecvRefno = this.CurrLocMapDefRecvRefno;
-                        }
-
-                        await Device.InvokeOnMainThreadAsync(async () => await this.DisplayData());
+                    if (this.chkDefaultPicking.IsToggled)
+                    {
+                        this.NewLocMapDefPickingRefno = this.LocMap.CurrLocMapRefno;
                     }
                     else
                     {
-                        // Product identifier
-                        if (!string.IsNullOrEmpty(parse.ProductIdentifier))
+                        this.NewLocMapDefPickingRefno = this.CurrLocMapDefPickingRefno;
+                    }
+
+                    if (this.chkDefaultReceiving.IsToggled)
+                    {
+                        this.NewLocMapDefRecvRefno = this.LocMap.CurrLocMapRefno;
+                    }
+                    else
+                    {
+                        this.NewLocMapDefRecvRefno = this.CurrLocMapDefRecvRefno;
+                    }
+
+                    await Device.InvokeOnMainThreadAsync(async () => await this.DisplayData());
+                }
+                else if (!string.IsNullOrEmpty(parse.ProductIdentifier))
+                {
+                    prodUnitRefno = await SysShared.IdentifyProductScanned(
+                        this.ActSubType,
+                        parse,
+                        prodUnitRefno);
+
+                    if (prodUnitRefno == 0)
+                    {
+                        this.CurrLocMapDefPickingRefno = 0;
+                        this.CurrLocMapDefRecvRefno = 0;
+                    }
+                    else
+                    {
+                        this.ActItem.ProdInfo = await ProductInfoTasks.GetInfoFromUnitRefno(prodUnitRefno);
+
+                        if (this.LocMap.CurrLocMap.WhsLocMapRefno != 0)
                         {
-                            prodUnitRefno = await SysShared.IdentifyProductScanned(this.ActSubType, parse, prodUnitRefno);
-
-                            if (prodUnitRefno == 0)
-                            {
-                                this.CurrLocMapDefPickingRefno = 0;
-                                this.CurrLocMapDefRecvRefno = 0;
-                            }
-                            else
-                            {
-                                this.ActItem.ProdInfo = await ProductInfoTasks.GetInfoFromUnitRefno(prodUnitRefno);
-
-                                if (this.LocMap.CurrLocMap.WhsLocMapRefno != 0)
-                                {
-                                    this.CurrLocMapDefPickingRefno = await LocationMapTasks.GetDefaultLocMapRefnoFromProdRefno(this.LocMap.CurrLocMap.WhsLocMapRefno, this.ActItem.ProdInfo.Refno, SysCommon.ProdLocMapTypes.Picking);
-                                    this.CurrLocMapDefRecvRefno = await LocationMapTasks.GetDefaultLocMapRefnoFromProdRefno(this.LocMap.CurrLocMap.WhsLocMapRefno, this.ActItem.ProdInfo.Refno, SysCommon.ProdLocMapTypes.Receiving);
-                                }
-                            }
-
-                            await Device.InvokeOnMainThreadAsync(async () => await this.DisplayData());
-                        }
-
-                        // Activity item fk refno
-                        if (!string.IsNullOrEmpty(parse.ActItemFKRefno))
-                        {
-                            // TODO: Resource strings
-                            throw new Exception("Scanning a line item bar code is not supported here!");
-                        }
-
-                        // Activity detail fk refno
-                        if (!string.IsNullOrEmpty(parse.ActDetailFKRefno))
-                        {
-                            // TODO: Resource strings
-                            throw new Exception("Scanning a detail bar code is not supported here!");
-                        }
-
-                        // Shipping container scanned, skid
-                        if (!string.IsNullOrEmpty(parse.SSCC18))
-                        {
-                            // TODO: Resource strings
-                            throw new Exception("Scanning an shipping container bar code is not supported here!");
+                            this.CurrLocMapDefPickingRefno = await LocationMapTasks.GetDefaultLocMapRefnoFromProdRefno(
+                                this.LocMap.CurrLocMap.WhsLocMapRefno,
+                                this.ActItem.ProdInfo.Refno,
+                                SysCommon.ProdLocMapTypes.Picking);
+                            this.CurrLocMapDefRecvRefno = await LocationMapTasks.GetDefaultLocMapRefnoFromProdRefno(
+                                this.LocMap.CurrLocMap.WhsLocMapRefno,
+                                this.ActItem.ProdInfo.Refno,
+                                SysCommon.ProdLocMapTypes.Receiving);
                         }
                     }
+
+                    await Device.InvokeOnMainThreadAsync(async () => await this.DisplayData());
                 }
-                catch (TaskCanceledException)
+                else if (!string.IsNullOrEmpty(parse.ActItemFKRefno))
                 {
-                    // Do nothing, task cancelled by user
+                    throw new MessageOnlyException("Scanning a line item bar code is not supported here!");
                 }
-                catch (Exception ex)
+                else if (!string.IsNullOrEmpty(parse.ActDetailFKRefno))
                 {
-                    await Device.InvokeOnMainThreadAsync(async () =>
-                    {
-                        FormErrorReport errRpt = new FormErrorReport(this.ActSubType, ex);
-                        await errRpt.ShowDialog();
-                    });
+                    throw new MessageOnlyException("Scanning a detail bar code is not supported here!");
                 }
-                finally
+                else if (!string.IsNullOrEmpty(parse.SSCC18))
                 {
-                    await this.ScannerEnable();
-                    this.Loading = false;
+                    throw new MessageOnlyException("Scanning an shipping container bar code is not supported here!");
                 }
-            });
+            }
+            catch (TaskCanceledException)
+            {
+                // Do nothing, task cancelled by user
+            }
+            catch (MessageOnlyException ex)
+            {
+                await Device.InvokeOnMainThreadAsync(async () =>
+                    await Application.Current.MainPage.DisplayAlert(
+                        this.GetControlDescription(),
+                        ex.Message,
+                        Resource.OK));
+            }
+            catch (Exception ex)
+            {
+                await Device.InvokeOnMainThreadAsync(async () =>
+                {
+                    FormErrorReport errRpt = new FormErrorReport(this.ActSubType, ex);
+                    _ = await errRpt.ShowDialog();
+                });
+            }
+            finally
+            {
+                await this.ScannerEnable();
+                this.Loading = false;
+            }
         }
 
         /// <summary>
-        ///
+        /// Activity default location display data.
         /// </summary>
-        /// <remarks></remarks>
+        /// <returns><see cref="Task"/> Task operation.</returns>
         private async Task DisplayData()
         {
             if (this.ActItem.ProdInfo.UnitRefno != 0)
             {
-                // TODO: Resource strings
                 this.cmdProduct.Text = "Product " + this.ActItem.ProdInfo.Code;
                 this.lblProdDesc.Text = this.ActItem.ProdInfo.Desc;
             }
             else
             {
-                // TODO: Resource strings
                 this.cmdProduct.Text = "Select Product";
                 this.lblProdDesc.Text = string.Empty;
             }
 
             if (this.LocMap.CurrLocMap.WhsLocMapRefno != 0)
             {
-                // TODO: Resource strings
-                cmdLocation.Text = LocationMapTasks.GetCurrentReadableLocation(true);
+                this.cmdLocation.Text = LocationMapTasks.GetCurrentReadableLocation(true);
             }
             else
             {
-                // TODO: Resource strings
-                cmdLocation.Text = "Set Location";
+                this.cmdLocation.Text = "Set Location";
             }
 
             SLocMap locMap = await LocationMapTasks.GetSLocMapFromLocMapRefno(this.CurrLocMapDefPickingRefno);
@@ -1027,7 +1006,6 @@
 
             if (string.IsNullOrEmpty(this.lblCurrentPickingLocation.Text))
             {
-                // TODO: Resource strings
                 this.lblCurrentPickingLocation.Text = "Not Set";
             }
 
@@ -1036,41 +1014,49 @@
 
             if (string.IsNullOrEmpty(this.lblCurrentReceivingLocation.Text))
             {
-                // TODO: Resource strings
                 this.lblCurrentReceivingLocation.Text = "Not Set";
             }
         }
 
         /// <summary>
-        ///
+        /// The CmdSave_Clicked.
         /// </summary>
-        /// <remarks></remarks>
-        private void LoadData()
-        {
-            if (!this.IsControlLoaded)
-            {
-                //// Me.chkDisconnectMode.Checked = oEnvironment.SysSettings.IsDisconnectedMode
-            }
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private async Task AssignDefaultLocation_LostFocus(object sender, EventArgs e)
-        {
-            if (this.Scanner != null)
-            {
-                await this.ScannerDisable();
-            }
-        }
-
+        /// <param name="sender">The sender<see cref="object"/>.</param>
+        /// <param name="e">The e<see cref="EventArgs"/>.</param>
         private async void CmdSave_Clicked(object sender, EventArgs e)
         {
-            if (await this.SaveChanges())
+            try
             {
-                await this.Close();
+                this.IsSvdBarScannerEnabled = this.IsBarCodeHandlerRegistered;
+                await this.ScannerDisable();
+
+                if (await this.SaveChanges())
+                {
+                    await this.Close();
+                }
+            }
+            catch (MessageOnlyException ex)
+            {
+                await Device.InvokeOnMainThreadAsync(async () =>
+                    await Application.Current.MainPage.DisplayAlert(
+                        this.GetControlDescription(),
+                        ex.Message,
+                        Resource.OK));
+            }
+            catch (Exception ex)
+            {
+                await Device.InvokeOnMainThreadAsync(async () =>
+                {
+                    FormErrorReport errRpt = new FormErrorReport(this.ActSubType, ex);
+                    _ = await errRpt.ShowDialog();
+                });
+            }
+            finally
+            {
+                if (this.IsSvdBarScannerEnabled)
+                {
+                    await this.ScannerEnable();
+                }
             }
         }
     }

@@ -17,24 +17,29 @@
                     <RowDefinition Height="65*"/>
                     <RowDefinition Height="20*"/>
                     <RowDefinition Height="15*"/>
+                    <RowDefinition Height="3*"/>
                 </Grid.RowDefinitions>
 
                 <Label x:Name="lblSkidNumber" Grid.Row="0" FontAttributes="Bold"/>
 
                 <Frame VerticalOptions="Start" Grid.Row="1" Grid.Column="0" OutlineColor="{DynamicResource BorderColor}">
                     <ScrollView Orientation="Horizontal">
-                        <Grid x:Name="dataGridMainActivityHeader">
+                        <Grid x:Name="GridMainActivity">
                             <Grid.RowDefinitions>
                                 <RowDefinition Height="Auto"/>
                             </Grid.RowDefinitions>
 
-                            <ListView x:Name="dataGridMainActivity" ItemSelected="DataGridMainActivity_ItemSelected" HasUnevenRows="true" IsEnabled="{Binding Loading, Converter={Helpers:BoolConverter}}" Grid.Row="1"/>
+                            <ListView x:Name="ListViewMainActivity"
+                                      ItemSelected="ListViewMainActivity_ItemSelected"
+                                      HasUnevenRows="true"
+                                      IsEnabled="{Binding Loading, Converter={Helpers:BoolConverter}}"
+                                      Grid.Row="1"/>
                         </Grid>
                     </ScrollView>
                 </Frame>
 
                 <Frame VerticalOptions="Start" Grid.Row="2" OutlineColor="{DynamicResource BorderColor}">
-                    <ListView x:Name="lstDisplay" SelectionMode="None" HasUnevenRows="true" IsEnabled="{Binding Loading, Converter={Helpers:BoolConverter}}" SeparatorVisibility="None" >
+                    <ListView x:Name="ListViewDisplayExtraInfo" SelectionMode="None" HasUnevenRows="true" IsEnabled="{Binding Loading, Converter={Helpers:BoolConverter}}" SeparatorVisibility="None" >
                         <ListView.ItemTemplate>
                             <DataTemplate>
                                 <ViewCell>
@@ -48,15 +53,24 @@
                 </Frame>
 
                 <Grid Grid.Row="3">
-                    <Entry x:Name="txtSearchDetail" Grid.Row="0" Grid.Column="0" TextChanged="txtSearchHdr_TextChanged" IsEnabled="{Binding Loading, Converter={Helpers:BoolConverter}}"/>
-                    <Button x:Name="cmdAddDetail" Grid.Row="0" Grid.Column="1" Text="Add Detail" Clicked="cmdAddDetail_Click" IsEnabled="{Binding Loading, Converter={Helpers:BoolConverter}}"/>
+                    <Entry x:Name="txtSearchDetail" Grid.Row="0" Grid.Column="0" TextChanged="TxtSearchHdr_TextChanged" IsEnabled="{Binding Loading, Converter={Helpers:BoolConverter}}"/>
+                    <Button x:Name="cmdAddDetail"
+                            Grid.Row="0"
+                            Grid.Column="1"
+                            Text="Add Detail"
+                            Clicked="CmdAddDetail_Click"
+                            IsEnabled="{Binding Loading, Converter={Helpers:BoolConverter}}"/>
                 </Grid>
 
+                <Grid Grid.Row="4">
+                    <ProgressBar x:Name="progBarMain" Grid.Row="0" Grid.Column="0" Visual="Default"></ProgressBar>
+                </Grid>
+                
                 <!--<Grid x:Name="gridButtonContainer" Grid.Row="3" Grid.ColumnSpan="2" IsEnabled="{Binding Loading, Converter={Helpers:BoolConverter}}">-->
-                    <!--<Button x:Name="cmdSelectSkid" Grid.Row="3" Grid.Column="0" Text="Select Skid" Clicked="cmdSelectSkid_Click" IsEnabled="{Binding Loading, Converter={Helpers:BoolConverter}}"/>-->
+                    <!--<Button x:Name="cmdSelectSkid" Grid.Row="3" Grid.Column="0" Text="Select Skid" Clicked="CmdSelectSkid_Click" IsEnabled="{Binding Loading, Converter={Helpers:BoolConverter}}"/>-->
                     
-                    <!--<Button x:Name="cmdLocation" Grid.Row="1" Grid.Column="0" Text="Set Location" Clicked="cmdLocation_Click" IsEnabled="{Binding Loading, Converter={Helpers:BoolConverter}}"/>
-                    <Button x:Name="cmdAddSkid" Grid.Row="1" Grid.Column="1" Text="Add Skid" Clicked="cmdAddSkid_Click" IsEnabled="{Binding Loading, Converter={Helpers:BoolConverter}}"/>-->
+                    <!--<Button x:Name="cmdLocation" Grid.Row="1" Grid.Column="0" Text="Set Location" Clicked="CmdLocation_Click" IsEnabled="{Binding Loading, Converter={Helpers:BoolConverter}}"/>
+                    <Button x:Name="cmdAddSkid" Grid.Row="1" Grid.Column="1" Text="Add Skid" Clicked="CmdAddSkid_Click" IsEnabled="{Binding Loading, Converter={Helpers:BoolConverter}}"/>-->
                 <!--</Grid>-->
             </Grid>
 

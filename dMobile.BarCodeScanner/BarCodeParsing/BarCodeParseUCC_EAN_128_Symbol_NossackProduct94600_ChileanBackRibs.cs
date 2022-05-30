@@ -1,12 +1,21 @@
-namespace dMobile.BarCodeScanner
+// <copyright file="BarCodeParseUCC_EAN_128_Symbol_NossackProduct94600_ChileanBackRibs.cs" company="InterSect Business Systems Inc">
+// Copyright (c) InterSect Business Systems Inc. All rights reserved.
+// </copyright>
+
+namespace dMobile.BarCodeScanner.BarCodeParsing
 {
-    using System;
     using dMobile.Bedrock;
+    using System;
 
-    class BarCodeParseUCC_EAN_128_Symbol_NossackProduct94600_ChileanBackRibs : BarCodeParseUCC_EAN_128_Symbol
+    /// <summary>
+    /// Defines the <see cref="BarCodeParseUCC_EAN_128_Symbol_NossackProduct94600_ChileanBackRibs" />.
+    /// </summary>
+    public class BarCodeParseUCC_EAN_128_Symbol_NossackProduct94600_ChileanBackRibs : BarCodeParseUCC_EAN_128_Symbol
     {
-        #region Public members
-
+        /// <summary>
+        /// The ParseBarCodeData.
+        /// </summary>
+        /// <param name="barCodeData">The barCodeData<see cref="string"/>.</param>
         public override void ParseBarCodeData(string barCodeData)
         {
             try
@@ -44,7 +53,7 @@ namespace dMobile.BarCodeScanner
 
                 this.IdentifyProductIdentifier(barCodeData);
                 this.Remainder = parse;
-                SuppressErrorsRule();
+                this.SuppressErrorsRule();
             }
             catch (BarCodeParseException)
             {
@@ -65,23 +74,18 @@ namespace dMobile.BarCodeScanner
             }
             finally
             {
-                CleanupRules();
+                this.CleanupRules();
             }
         }
 
-        #endregion
-
-        #region Protected members
-
         /// <summary>
-        /// 
+        /// The IdentifyGTIN.
         /// </summary>
-        /// <param name="barCodeData"></param>
-        /// <returns></returns>
+        /// <param name="barCodeData">.</param>
+        /// <returns>.</returns>
         protected override string IdentifyGTIN(string barCodeData)
         {
             string tempData = barCodeData;
-
 
             if (tempData.StartsWith("01") && tempData.Length >= 14)
             {
@@ -91,7 +95,7 @@ namespace dMobile.BarCodeScanner
                 // Barcode AI01 only for this rule has a length 12 for the GTIN.
                 // <WO ID="14938" Comment="Assume they fixed their 12 digit to a 14 digit GTIN" />
                 // assign the GTIN
-                this.GTIN = tempData.Substring(0, 14);//.PadLeft(14, '0');
+                this.GTIN = tempData.Substring(0, 14);// .PadLeft(14, '0');
 
                 // remove the GTIN from the bar code data
                 tempData = tempData.Remove(0, 14);
@@ -103,10 +107,10 @@ namespace dMobile.BarCodeScanner
         }
 
         /// <summary>
-        /// 
+        /// The IdentifyProductIdentifier.
         /// </summary>
-        /// <param name="barCodeData"></param>
-        /// <returns></returns>
+        /// <param name="barCodeData">.</param>
+        /// <returns>.</returns>
         protected override string IdentifyProductIdentifier(string barCodeData)
         {
             string tempData = barCodeData;
@@ -130,12 +134,11 @@ namespace dMobile.BarCodeScanner
             return tempData;
         }
 
-
         /// <summary>
-        /// They want to read DDMMYY instead of the standard YYMMDD
+        /// They want to read DDMMYY instead of the standard YYMMDD.
         /// </summary>
-        /// <param name="barCodeData"></param>
-        /// <returns></returns>
+        /// <param name="barCodeData">.</param>
+        /// <returns>.</returns>
         protected override string IdentifyLogisticUnitProductionDate(string barCodeData)
         {
             string tempData = barCodeData;
@@ -148,7 +151,7 @@ namespace dMobile.BarCodeScanner
                 try
                 {
                     // assign the PRODUCTION DATE
-                    //<issue="13609" comment="DDMMYY"/>
+                    // <issue="13609" comment="DDMMYY"/>
                     int day = Convert.ToInt32(tempData.Substring(0, 2));
                     int month = Convert.ToInt32(tempData.Substring(2, 2));
                     int year = Convert.ToInt32(tempData.Substring(4, 2));
@@ -195,7 +198,5 @@ namespace dMobile.BarCodeScanner
 
             return tempData;
         }
-
-        #endregion
     }
 }

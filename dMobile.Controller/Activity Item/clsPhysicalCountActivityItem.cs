@@ -1,9 +1,14 @@
-﻿namespace dMobile.Controller
+﻿// <copyright file="clsPhysicalCountActivityItem.cs" company="InterSect Business Systems Inc">
+// Copyright (c) InterSect Business Systems Inc. All rights reserved.
+// </copyright>
+
+namespace dMobile.Controller
 {
     using System;
+    using System.Collections.Generic;
     using System.Collections.ObjectModel;
     using System.Data;
-    using SQLite;
+    using System.Linq;
     using System.Text;
     using System.Threading.Tasks;
     using System.Xml;
@@ -12,27 +17,58 @@
     using dMobile.GroundWork;
     using dMobile.Resources.Services;
     using dMobile.Resources.Types;
+    using SQLite;
     using Xamarin.Forms;
-    using System.Collections.Generic;
-    using System.Linq;
 
+    /// <summary>
+    /// Defines the <see cref="PhysicalActItem" />.
+    /// </summary>
     public class PhysicalActItem : ActItem
     {
+        /// <summary>
+        /// Defines the columnWidth0.
+        /// </summary>
         private double columnWidth0 = 0;
-        private double columnWidth1 = 0;
-        private double columnWidth2 = 0;
-        private double columnWidth3 = 0;
-        private double columnWidth4 = 0;
-        private double columnWidth5 = 0;
-        private ResourceDictionary resourceDictionary = new ResourceDictionary();
-        List<CountItem> listCountItems = new List<CountItem>();
-
-        #region Constructors
 
         /// <summary>
-        /// 
+        /// Defines the columnWidth1.
         /// </summary>
-        /// <param name="activity"></param>
+        private double columnWidth1 = 0;
+
+        /// <summary>
+        /// Defines the columnWidth2.
+        /// </summary>
+        private double columnWidth2 = 0;
+
+        /// <summary>
+        /// Defines the columnWidth3.
+        /// </summary>
+        private double columnWidth3 = 0;
+
+        /// <summary>
+        /// Defines the columnWidth4.
+        /// </summary>
+        private double columnWidth4 = 0;
+
+        /// <summary>
+        /// Defines the columnWidth5.
+        /// </summary>
+        private double columnWidth5 = 0;
+
+        /// <summary>
+        /// Defines the resourceDictionary.
+        /// </summary>
+        private ResourceDictionary resourceDictionary = new ResourceDictionary();
+
+        /// <summary>
+        /// Defines the listCountItems.
+        /// </summary>
+        private List<CountItem> listCountItems = new List<CountItem>();
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="PhysicalActItem"/> class.
+        /// </summary>
+        /// <param name="activity">.</param>
         public PhysicalActItem(Activity activity)
           : base(activity)
         {
@@ -48,13 +84,13 @@
                     Padding = new Thickness(5),
                     ColumnDefinitions =
                     {
-                        new ColumnDefinition { Width = new GridLength(columnWidth0, GridUnitType.Absolute) },
-                        new ColumnDefinition { Width = new GridLength(columnWidth1, GridUnitType.Absolute) },
-                        new ColumnDefinition { Width = new GridLength(columnWidth2, GridUnitType.Absolute) },
-                        new ColumnDefinition { Width = new GridLength(columnWidth3, GridUnitType.Absolute) },
-                        new ColumnDefinition { Width = new GridLength(columnWidth4, GridUnitType.Absolute) },
-                        new ColumnDefinition { Width = new GridLength(columnWidth5, GridUnitType.Absolute) }
-                    }
+                        new ColumnDefinition { Width = new GridLength(this.columnWidth0, GridUnitType.Absolute) },
+                        new ColumnDefinition { Width = new GridLength(this.columnWidth1, GridUnitType.Absolute) },
+                        new ColumnDefinition { Width = new GridLength(this.columnWidth2, GridUnitType.Absolute) },
+                        new ColumnDefinition { Width = new GridLength(this.columnWidth3, GridUnitType.Absolute) },
+                        new ColumnDefinition { Width = new GridLength(this.columnWidth4, GridUnitType.Absolute) },
+                        new ColumnDefinition { Width = new GridLength(this.columnWidth5, GridUnitType.Absolute) },
+                    },
                 };
 
                 Label labelProductCode = new Label { VerticalOptions = LayoutOptions.Center };
@@ -91,21 +127,25 @@
                 return new ViewCell { View = gridData };
             });
 
-            resourceDictionary.Add("dataTemplatePhysicalCount", dataTemplatePhysicalCount);
+            this.resourceDictionary.Add("dataTemplatePhysicalCount", dataTemplatePhysicalCount);
         }
 
-        #endregion
-
-        #region Public Members
+        /// <summary>
+        /// Gets or sets a value indicating whether allowed to add skid detail.
+        /// </summary>
+        /// <returns><see cref="bool"/> True if allowed to add skid detail.</returns>
+        public override bool IsAllowAddSkidDetail()
+        {
+            return false;
+        }
 
         /// <summary>
-        ///
+        /// The IsCatchAsk.
         /// </summary>
-        /// <returns></returns>
-        /// <remarks></remarks>
+        /// <returns>.</returns>
         public override bool IsCatchAsk()
         {
-            bool isCatchAsk = base.IsCatchAsk();
+            bool isCatchAsk = this.ProdInfo.IsCatchAsk;
 
             if (isCatchAsk)
             {
@@ -117,58 +157,55 @@
         }
 
         /// <summary>
-        /// 
+        /// The IsCatchAskZero.
         /// </summary>
-        /// <returns></returns>
+        /// <returns>.</returns>
         public override bool IsCatchAskZero()
         {
-            bool isCatchAskZero = base.IsCatchAskZero();
-
-            if (isCatchAskZero)
+            bool result = this.IsCatchAsk();
+            if (result && this.ProdInfo.IsCatchAskZero)
             {
-                isCatchAskZero = !this.SysEnv.SysSettings.IsPhysicalCountNoCatchAskZeroEnabled;
+                result = !this.SysEnv.SysSettings.IsPhysicalCountNoCatchAskZeroEnabled;
             }
 
-            return isCatchAskZero;
+            return result;
         }
 
         /// <summary>
-        /// 
+        /// The GetUnableToParseItemFKRefnoMessage.
         /// </summary>
-        /// <param name="actItemStringFKRefno"></param>
-        /// <returns></returns>
+        /// <param name="actItemStringFKRefno">.</param>
+        /// <returns>.</returns>
         public override string GetUnableToParseItemFKRefnoMessage(string actItemStringFKRefno)
         {
-            // TODO: Resource strings
             return string.Format("Unable to parse count item# {0}", actItemStringFKRefno);
         }
 
         /// <summary>
-        /// 
+        /// The GetUnableToFindItemFKRefnoMessage.
         /// </summary>
-        /// <param name="actItemStringFKRefno"></param>
-        /// <returns></returns>
+        /// <param name="actItemStringFKRefno">.</param>
+        /// <returns>.</returns>
         public override string GetUnableToFindItemFKRefnoMessage(string actItemStringFKRefno)
         {
-            // TODO: Resource strings
             return string.Format("Unable to find count item# {0}", actItemStringFKRefno);
         }
 
         /// <summary>
-        ///
+        /// The GetDataViewSortFKRefnoIdx.
         /// </summary>
-        /// <returns></returns>
-        /// <remarks></remarks>
+        /// <returns>.</returns>
         public override string GetDataViewSortFKRefnoIdx()
         {
             return "ActivityItemCountStringFKRefno";
         }
 
         /// <summary>
-        /// 
+        /// The Insert.
         /// </summary>
-        /// <param name="data"></param>
-        /// <param name="askToInsertAsNewItem"></param>
+        /// <param name="data">.</param>
+        /// <param name="askToInsertAsNewItem">.</param>
+        /// <returns>The <see cref="Task"/>.</returns>
         public override async Task Insert(XDocument data, bool askToInsertAsNewItem)
         {
             int foundActItemRefno = 0;
@@ -184,28 +221,25 @@
 
             if (prodUnitRefno != 0)
             {
-                foundActItemRefno = await this.GetRefnoFromProdUnitRefno(prodUnitRefno);
+                foundActItemRefno = await this.GetActivityItemRefno(prodUnitRefno);
 
                 if (foundActItemRefno > 0)
                 {
-                    // TODO: Resource strings
                     string msg = "A line item already exists for this location and product." + Environment.NewLine + "Do you wish to create one?";
 
-                    // TODO: Resource strings
                     if (await Device.InvokeOnMainThreadAsync(async () => await Application.Current.MainPage.DisplayAlert("New Item", msg, "Yes", "No")))
                     {
                         result = true;
                     }
                     else
                     {
-                        // TODO: Resource strings
                         throw new Exception("A line item already exists for this location and product.");
                     }
 
                 }
                 else
                 {
-                    //if the selected product to insert was not found, force the dialog result to insert it.
+                    // if the selected product to insert was not found, force the dialog result to insert it.
                     result = true;
                 }
 
@@ -260,7 +294,7 @@
                                 Convert.ToInt32(0),
                                 Convert.ToInt32(0),
                                 Convert.ToInt32(0),
-                                Convert.ToInt32(0)
+                                Convert.ToInt32(0),
                             };
 
                             transaction.Execute(query, parameters);
@@ -268,7 +302,6 @@
                         }
                         catch (SQLiteException ex)
                         {
-                            // TODO: Logging
                             Console.WriteLine(ex);
 
                             transaction.Rollback();
@@ -302,7 +335,7 @@
                             ActivityItemCountWeightQuantityOnHand = 0,
                             ActivityItemCountQuantity = 0,
                             ActivityItemCountBaseQuantity = 0,
-                            ActivityItemCountWeightQuantity = 0
+                            ActivityItemCountWeightQuantity = 0,
                         });
                     }
                 }
@@ -310,9 +343,10 @@
         }
 
         /// <summary>
-        /// 
+        /// The Refresh.
         /// </summary>
-        /// <param name="data"></param>
+        /// <param name="data">.</param>
+        /// <returns>The <see cref="Task"/>.</returns>
         public override async Task Refresh(XDocument data)
         {
             if (this.SysEnv.SysSettings.IsDisconnectedMode)
@@ -325,26 +359,32 @@
 
                 TableActivityPhysicalCountItem tableItem = new TableActivityPhysicalCountItem();
                 TableActivityPhysicalCountDetail tableDetail = new TableActivityPhysicalCountDetail();
-                await tableDetail.Purge();
-                await tableItem.Purge();
+                await tableDetail.PurgeData();
+                await tableItem.PurgeData();
 
                 this.DataLayerProgressOutHandler(this, new EventArgs(), 5);
 
                 tableItem.RegisterDataAccessListenerProgressOut((PhysicalActItem)this);
-                await tableItem.Request(this.ActHdr.Refno);
+                await tableItem.RequestData(this.ActHdr.Refno);
                 tableItem.UnregisterDataAccessListenerProgressOut((PhysicalActItem)this);
             }
         }
 
-        public override ObservableCollection<object> DesignGrid(ref Grid dataGridMainActivityHeader, ref ListView dataGridMainActivity)
+        /// <summary>
+        /// The DesignGrid.
+        /// </summary>
+        /// <param name="GridMainActivity">The GridMainActivity<see cref="Grid"/>.</param>
+        /// <param name="ListViewMainActivity">The ListViewMainActivity<see cref="ListView"/>.</param>
+        /// <returns>The <see cref="ObservableCollection{object}"/>.</returns>
+        public override ObservableCollection<object> DesignGrid(ref Grid GridMainActivity, ref ListView ListViewMainActivity)
         {
             ObservableCollection<object> observableCollection = new ObservableCollection<object>();
 
             // Add all items in dataview to observable collection for display
             foreach (CountItem countItem in this.ListItems)
             {
-                //CountItem countItem = new CountItem
-                //{
+                // CountItem countItem = new CountItem
+                // {
                 //    ActivityItemRefno = Convert.ToInt32(row["ActivityItemRefno"]),
                 //    ActivityItemCountFKRefno = Convert.ToInt32(row["ActivityItemCountFKRefno"]),
                 //    ActivityItemCountStringFKRefno = Convert.ToString(row["ActivityItemCountStringFKRefno"]),
@@ -365,12 +405,10 @@
                 //    LocationCode = Convert.ToString(row["LocationCode"]),
                 //    LocationName = Convert.ToString(row["LocationName"]),
                 //    ActivityItemStatus = Convert.ToInt32(row["ActivityItemStatus"])
-                //};
-
+                // };
                 observableCollection.Add(countItem);
             }
 
-            // TODO: Resource strings
             Label labelPhysicalCountCode = new Label { Text = "Code", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
             Label labelPhysicalCountBC = new Label { Text = "BC", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
             Label labelPhysicalCountUnit = new Label { Text = string.Empty, VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
@@ -378,25 +416,25 @@
             Label labelPhysicalCountCounted = new Label { Text = "Counted", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
             Label labelPhysicalCountWtOn = new Label { Text = "Wt On", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
 
-            columnWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(labelPhysicalCountCode.Text);
-            columnWidth1 = DependencyService.Get<IGridService>().CalculateTextWidth(labelPhysicalCountBC.Text);
-            columnWidth2 = DependencyService.Get<IGridService>().CalculateTextWidth(labelPhysicalCountUnit.Text);
-            columnWidth3 = DependencyService.Get<IGridService>().CalculateTextWidth(labelPhysicalCountOnHand.Text);
-            columnWidth4 = DependencyService.Get<IGridService>().CalculateTextWidth(labelPhysicalCountCounted.Text);
-            columnWidth5 = DependencyService.Get<IGridService>().CalculateTextWidth(labelPhysicalCountWtOn.Text);
+            this.columnWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(labelPhysicalCountCode.Text);
+            this.columnWidth1 = DependencyService.Get<IGridService>().CalculateTextWidth(labelPhysicalCountBC.Text);
+            this.columnWidth2 = DependencyService.Get<IGridService>().CalculateTextWidth(labelPhysicalCountUnit.Text);
+            this.columnWidth3 = DependencyService.Get<IGridService>().CalculateTextWidth(labelPhysicalCountOnHand.Text);
+            this.columnWidth4 = DependencyService.Get<IGridService>().CalculateTextWidth(labelPhysicalCountCounted.Text);
+            this.columnWidth5 = DependencyService.Get<IGridService>().CalculateTextWidth(labelPhysicalCountWtOn.Text);
 
             Grid gridHeaderPhysicalCount = new Grid
             {
                 Padding = new Thickness(5),
                 ColumnDefinitions =
                 {
-                    new ColumnDefinition { Width = new GridLength(columnWidth0, GridUnitType.Absolute) },
-                    new ColumnDefinition { Width = new GridLength(columnWidth1, GridUnitType.Absolute) },
-                    new ColumnDefinition { Width = new GridLength(columnWidth2, GridUnitType.Absolute) },
-                    new ColumnDefinition { Width = new GridLength(columnWidth3, GridUnitType.Absolute) },
-                    new ColumnDefinition { Width = new GridLength(columnWidth4, GridUnitType.Absolute) },
-                    new ColumnDefinition { Width = new GridLength(columnWidth5, GridUnitType.Absolute) }
-                }
+                    new ColumnDefinition { Width = new GridLength(this.columnWidth0, GridUnitType.Absolute) },
+                    new ColumnDefinition { Width = new GridLength(this.columnWidth1, GridUnitType.Absolute) },
+                    new ColumnDefinition { Width = new GridLength(this.columnWidth2, GridUnitType.Absolute) },
+                    new ColumnDefinition { Width = new GridLength(this.columnWidth3, GridUnitType.Absolute) },
+                    new ColumnDefinition { Width = new GridLength(this.columnWidth4, GridUnitType.Absolute) },
+                    new ColumnDefinition { Width = new GridLength(this.columnWidth5, GridUnitType.Absolute) },
+                },
             };
 
             gridHeaderPhysicalCount.SetDynamicResource(VisualElement.BackgroundColorProperty, "HeaderColor");
@@ -419,7 +457,7 @@
 
             Grid.SetRow(gridHeaderPhysicalCount, 0);
 
-            dataGridMainActivityHeader.Children.Add(gridHeaderPhysicalCount);
+            GridMainActivity.Children.Add(gridHeaderPhysicalCount);
 
             foreach (CountItem countItem in observableCollection)
             {
@@ -430,45 +468,45 @@
                 double detailWidth4 = DependencyService.Get<IGridService>().CalculateTextWidth(string.Format("{0:F3}", countItem.ActivityItemCountQuantity));
                 double detailWidth5 = DependencyService.Get<IGridService>().CalculateTextWidth(string.Format("{0:F3}", countItem.ActivityItemCountWeightQuantityOnHand));
 
-                if (detailWidth0 > columnWidth0)
+                if (detailWidth0 > this.columnWidth0)
                 {
-                    columnWidth0 = detailWidth0;
-                    gridHeaderPhysicalCount.ColumnDefinitions[0].Width = columnWidth0;
+                    this.columnWidth0 = detailWidth0;
+                    gridHeaderPhysicalCount.ColumnDefinitions[0].Width = this.columnWidth0;
                 }
 
-                if (detailWidth1 > columnWidth1)
+                if (detailWidth1 > this.columnWidth1)
                 {
-                    columnWidth1 = detailWidth1;
-                    gridHeaderPhysicalCount.ColumnDefinitions[1].Width = columnWidth1;
+                    this.columnWidth1 = detailWidth1;
+                    gridHeaderPhysicalCount.ColumnDefinitions[1].Width = this.columnWidth1;
                 }
 
-                if (detailWidth2 > columnWidth2)
+                if (detailWidth2 > this.columnWidth2)
                 {
-                    columnWidth2 = detailWidth2;
-                    gridHeaderPhysicalCount.ColumnDefinitions[2].Width = columnWidth2;
+                    this.columnWidth2 = detailWidth2;
+                    gridHeaderPhysicalCount.ColumnDefinitions[2].Width = this.columnWidth2;
                 }
 
-                if (detailWidth3 > columnWidth3)
+                if (detailWidth3 > this.columnWidth3)
                 {
-                    columnWidth3 = detailWidth3;
-                    gridHeaderPhysicalCount.ColumnDefinitions[3].Width = columnWidth3;
+                    this.columnWidth3 = detailWidth3;
+                    gridHeaderPhysicalCount.ColumnDefinitions[3].Width = this.columnWidth3;
                 }
 
-                if (detailWidth4 > columnWidth4)
+                if (detailWidth4 > this.columnWidth4)
                 {
-                    columnWidth4 = detailWidth4;
-                    gridHeaderPhysicalCount.ColumnDefinitions[4].Width = columnWidth4;
+                    this.columnWidth4 = detailWidth4;
+                    gridHeaderPhysicalCount.ColumnDefinitions[4].Width = this.columnWidth4;
                 }
-                if (detailWidth5 > columnWidth5)
+                if (detailWidth5 > this.columnWidth5)
                 {
-                    columnWidth5 = detailWidth5;
-                    gridHeaderPhysicalCount.ColumnDefinitions[5].Width = columnWidth5;
+                    this.columnWidth5 = detailWidth5;
+                    gridHeaderPhysicalCount.ColumnDefinitions[5].Width = this.columnWidth5;
                 }
             }
 
             try
             {
-                dataGridMainActivity.ItemTemplate = (DataTemplate)this.resourceDictionary["dataTemplatePhysicalCount"];
+                ListViewMainActivity.ItemTemplate = (DataTemplate)this.resourceDictionary["dataTemplatePhysicalCount"];
             }
             catch (Exception ex)
             {
@@ -479,10 +517,10 @@
         }
 
         /// <summary>
-        /// 
+        /// The GetActivityItemList.
         /// </summary>
-        /// <param name="isSubmitBatch"></param>
-        /// <returns></returns>
+        /// <param name="isSubmitBatch">.</param>
+        /// <returns>.</returns>
         public override async Task<List<object>> GetActivityItemList(bool isSubmitBatch)
         {
             StringBuilder sql = new StringBuilder();
@@ -794,8 +832,8 @@
                 sql.Append("ORDER BY tActivityItemCount.ActivityItemRefno");
             }
 
-            //using (SQLiteDataAdapter da = new SQLiteDataAdapter(sql.ToString(), DatabaseConnection.GetInstance().SQLConn))
-            //{
+            // using (SQLiteDataAdapter da = new SQLiteDataAdapter(sql.ToString(), DatabaseConnection.GetInstance().SQLConn))
+            // {
             //    using (DataSet ds = new DataSet())
             //    {
             //        da.Fill(ds);
@@ -806,37 +844,36 @@
             //        this.DataViewItems.AllowDelete = true;
             //        this.DataViewItems.Sort = "ActivityItemRefno";
             //    }
-            //}
-
+            // }
             this.listCountItems = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<CountItem>(sql.ToString());
             this.ListItems = this.listCountItems.Cast<object>().ToList();
             return this.ListItems;
         }
 
         /// <summary>
-        /// 
+        /// The Search.
         /// </summary>
-        /// <param name="searchText"></param>
-        /// <returns></returns>
+        /// <param name="searchText">.</param>
+        /// <returns>.</returns>
         public override ObservableCollection<object> Search(string searchText)
         {
             ObservableCollection<object> observableCollection = new ObservableCollection<object>();
 
-            //if (string.IsNullOrEmpty(this.ActItemFilter))
-            //{
+            // if (string.IsNullOrEmpty(this.ActItemFilter))
+            // {
             this.ListItems = this.listCountItems.Where(countItem => countItem.ProductCode.ToString().ToLower().Contains(searchText.ToLower().Trim())).Cast<object>().ToList();
-            //}
-            //else
-            //{
+            // }
+            // else
+            // {
             // TODO: Fix filtering
-            //this.DataViewItems.RowFilter = this.ActItemFilter + " AND ProductCode LIKE \'%" + searchText.Trim() + "%\'";
-            //}
+            // this.DataViewItems.RowFilter = this.ActItemFilter + " AND ProductCode LIKE \'%" + searchText.Trim() + "%\'";
+            // }
 
             // Add all items in dataview to observable collection for display
             foreach (CountItem countItem in this.ListItems)
             {
-                //CountItem countItem = new CountItem
-                //{
+                // CountItem countItem = new CountItem
+                // {
                 //    ActivityItemRefno = Convert.ToInt32(row["ActivityItemRefno"]),
                 //    ActivityItemCountFKRefno = Convert.ToInt32(row["ActivityItemCountFKRefno"]),
                 //    ActivityItemCountStringFKRefno = Convert.ToString(row["ActivityItemCountStringFKRefno"]),
@@ -857,8 +894,7 @@
                 //    LocationCode = Convert.ToString(row["LocationCode"]),
                 //    LocationName = Convert.ToString(row["LocationName"]),
                 //    ActivityItemStatus = Convert.ToInt32(row["ActivityItemStatus"])
-                //};
-
+                // };
                 observableCollection.Add(countItem);
             }
 
@@ -866,45 +902,35 @@
         }
 
         /// <summary>
-        /// 
+        /// Select an activity item.
         /// </summary>
-        /// <param name="idx"></param>
+        /// <param name="selectedActivityItem"><see cref="object"/> Selected activity object.</param>
+        /// <returns><see cref="Task"/> Task operation.</returns>
         public override async Task SelectActivityItem(object selectedActivityItem)
         {
-            if (selectedActivityItem is CountItem countItem)
+            int activityItemLocMapRefno = 0;
+            if (selectedActivityItem is CountItem item)
             {
-                if (this.SysEnv.SysSettings.IsPhysicalDoNotDefaultProductLocation)
-                {
-                    this.SelectedActivityItem = countItem;
-                    this.Refno = Convert.ToInt32(countItem.ActivityItemRefno);
-                    this.ProdInfo = await ProductInfoTasks.GetInfoFromUnitRefno(Convert.ToInt32(countItem.ProductUnitRefno));
-                    this.ProdInfo.Scheme = await ProductInfoTasks.GetSchemeComponentsFromRefno(this.ProdInfo.Refno);
-
-                    // Do not change the location to the skid location leave it alone for IsPhysicalDoNotDefaultProductLocation.
-                    // Clear the skid if the product changes.
-                    if (this.ActHdr.SkidInfo.CurrSkid.ProdInfo != null && SysEnv.SysSettings.DoesSelectingADifferentProductClearSkid)
-                    {
-                        if (this.ActHdr.SkidInfo.CurrSkid.ProdInfo.UnitRefno != this.ProdInfo.UnitRefno)
-                        {
-                            this.ActHdr.SkidInfo = new SysSkidInfo();
-                        }
-                    }
-                }
-                else
-                {
-                    await base.SelectActivityItem(countItem);
-                }
-
-                this.FKRefno = Convert.ToInt32(countItem.ActivityItemCountFKRefno);
+                this.SelectedActivityItem = item;
+                this.Refno = item.ActivityItemRefno;
+                this.FKRefno = Convert.ToInt32(item.ActivityItemCountFKRefno);
+                this.ProdInfo = await ProductInfoTasks.GetInfoFromUnitRefno(item.ProductUnitRefno);
+                activityItemLocMapRefno = item.LocationMapRefno;
             }
+
+            await this.GetSelectedItemLocation(activityItemLocMapRefno);
+
+            // LocationMap.GetInstance().CurrLocMap needs to be set before call to GetSchemeComponentsFromRefno.
+            this.ProdInfo.Scheme = await ProductInfoTasks.GetSchemeComponentsFromRefno(
+                this.ProdInfo.Refno);
         }
 
         /// <summary>
-        /// 
+        /// The GetActivityItemRefno.
         /// </summary>
-        /// <param name="prodUnitRefno"></param>
-        /// <returns></returns>
-        public override async Task<int> GetRefnoFromProdUnitRefno(int prodUnitRefno)
+        /// <param name="prodUnitRefno">.</param>
+        /// <returns>.</returns>
+        public override async Task<int> GetActivityItemRefno(int prodUnitRefno)
         {
             int foundActItemRefno = 0;
             StringBuilder sql = new StringBuilder();
@@ -965,10 +991,10 @@
         }
 
         /// <summary>
-        /// 
+        /// The CreateSubmitXML.
         /// </summary>
-        /// <param name="data"></param>
-        /// <returns></returns>
+        /// <param name="data">.</param>
+        /// <returns>.</returns>
         public async override Task<string> CreateSubmitXML(XDocument data)
         {
             StringBuilder xmlString = new StringBuilder();
@@ -985,10 +1011,10 @@
                 + "<action>SUBMIT PHYSICAL COUNT ITEM</action>"
                 + "</command>"
                 + await SysCommon.GetRequestDefaults(false)
-                + ("<prod_id>" + prodCode + "</prod_id>")
-                + ("<is_bc>" + prodUnitIsBC.ToString() + "</is_bc>")
-                + ("<symbology>" + symbologyPrefix + "</symbology>")
-                + ("<gtin>" + barCode + "</gtin>")
+                + "<prod_id>" + prodCode + "</prod_id>"
+                + "<is_bc>" + prodUnitIsBC.ToString() + "</is_bc>"
+                + "<symbology>" + symbologyPrefix + "</symbology>"
+                + "<gtin>" + barCode + "</gtin>"
                 + "<whs_id></whs_id>"
                 + "<sect_refno></sect_refno>"
                 + "<slot_refno></slot_refno>"
@@ -1003,12 +1029,12 @@
         }
 
         /// <summary>
-        /// 
+        /// The RefreshQuantity.
         /// </summary>
-        /// <param name="idx"></param>
-        /// <param name="quantity"></param>
-        /// <param name="baseQuantity"></param>
-        /// <param name="weightQuantity"></param>
+        /// <param name="selectedActivityItem">The selectedActivityItem<see cref="object"/>.</param>
+        /// <param name="quantity">.</param>
+        /// <param name="baseQuantity">.</param>
+        /// <param name="weightQuantity">.</param>
         public override void RefreshQuantity(object selectedActivityItem, decimal quantity, decimal baseQuantity, decimal weightQuantity)
         {
             if (selectedActivityItem is CountItem countItem)
@@ -1020,28 +1046,30 @@
         }
 
         /// <summary>
-        /// 
+        /// The UpdateListItemQuantity.
         /// </summary>
-        /// <param name="idx"></param>
-        /// <param name="quantity"></param>
-        /// <param name="baseQuantity"></param>
-        /// <param name="weightQuantity"></param>
-        /// <returns></returns>
+        /// <param name="selectedActivityItem">The selectedActivityItem<see cref="object"/>.</param>
+        /// <param name="quantity">.</param>
+        /// <param name="baseQuantity">.</param>
+        /// <param name="weightQuantity">.</param>
         public override void UpdateListItemQuantity(object selectedActivityItem, decimal quantity, decimal baseQuantity, decimal weightQuantity)
         {
             if (selectedActivityItem is CountItem countItem)
             {
-                countItem.ActivityItemCountQuantity += quantity;
-                countItem.ActivityItemCountBaseQuantity += baseQuantity;
-                countItem.ActivityItemCountWeightQuantity += weightQuantity;
+                this.listCountItems.First(x => x.ActivityItemCountFKRefno == countItem.ActivityItemCountFKRefno).ActivityItemCountQuantity += quantity;
+                this.listCountItems.First(x => x.ActivityItemCountFKRefno == countItem.ActivityItemCountFKRefno).ActivityItemCountBaseQuantity += quantity;
+                this.listCountItems.First(x => x.ActivityItemCountFKRefno == countItem.ActivityItemCountFKRefno).ActivityItemCountWeightQuantity += quantity;
+
+                this.ListItems = this.listCountItems.Cast<object>().ToList();
             }
         }
 
         /// <summary>
-        /// 
+        /// The UpdateQuantityFromActivityItemList.
         /// </summary>
-        /// <param name="idx"></param>
-        /// <param name="actItemRefno"></param>
+        /// <param name="selectedActivityItem">The selectedActivityItem<see cref="object"/>.</param>
+        /// <param name="actItemRefno">.</param>
+        /// <returns>The <see cref="Task"/>.</returns>
         public override async Task UpdateQuantityFromActivityItemList(object selectedActivityItem, int actItemRefno)
         {
             if (selectedActivityItem is CountItem countItem)
@@ -1053,6 +1081,134 @@
             }
         }
 
-        #endregion
+        /// <summary>
+        /// Get the activity item foreign key reference number.
+        /// </summary>
+        /// <param name="resourceType"><see cref="object"/> Resource model type.</param>
+        /// <returns><see cref="int"/> Found activity item foreign key refno, else 0 if not found.</returns>
+        public override int GetFKRefno(object resourceType)
+        {
+            object tmpFKItRefno = ((CountItem)resourceType).ActivityItemCountFKRefno;
+            return tmpFKItRefno == null ? 0 : Convert.ToInt32(tmpFKItRefno);
+        }
+
+        /// <summary>
+        /// Get the activity item control description.
+        /// </summary>
+        /// <returns><see cref="string"/> Get activity item control description.</returns>
+        public override string GetControlDescription()
+        {
+            return string.Format("Physical count # {0}", this.ActHdr.FKRefno);
+        }
+
+        /// <summary>
+        /// The Delete.
+        /// </summary>
+        /// <returns>The <see cref="Task{int}"/>.</returns>
+        public override async Task<int> Delete()
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <summary>
+        /// The GetProdSchemeDataFromDetailFKRefno.
+        /// </summary>
+        /// <param name="actDetailFKRefno">The actDetailFKRefno<see cref="int"/>.</param>
+        /// <returns>The <see cref="Task{SActItemSchemeData}"/>.</returns>
+        public override Task<SActItemSchemeData> GetProdSchemeDataFromDetailFKRefno(int actDetailFKRefno)
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <summary>
+        /// The GetComment.
+        /// </summary>
+        /// <param name="selectedActivityItem">The selectedActivityItem<see cref="object"/>.</param>
+        /// <returns>The <see cref="Task{string}"/>.</returns>
+        public override Task<string> GetComment(object selectedActivityItem)
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <summary>
+        /// The Submit.
+        /// </summary>
+        /// <param name="data">The data<see cref="XDocument"/>.</param>
+        /// <param name="selectedActivityItem">The selectedActivityItem<see cref="object"/>.</param>
+        /// <returns>The <see cref="Task"/>.</returns>
+        public override Task Submit(XDocument data, object selectedActivityItem)
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <summary>
+        /// The CreateDeleteXML.
+        /// </summary>
+        /// <param name="data">The data<see cref="XDocument"/>.</param>
+        /// <returns>The <see cref="Task{string}"/>.</returns>
+        public override Task<string> CreateDeleteXML(XDocument data)
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <summary>
+        /// The Update.
+        /// </summary>
+        /// <param name="data">The data<see cref="XDocument"/>.</param>
+        /// <returns>The <see cref="Task"/>.</returns>
+        public override Task Update(XDocument data)
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <summary>
+        /// The GetTotalQuantity.
+        /// </summary>
+        /// <returns>The <see cref="Task{string}"/>.</returns>
+        public override Task<string> GetTotalQuantity()
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <summary>
+        /// Get the default location for the activity base on the sign quantity of the transaction.
+        /// </summary>
+        /// <param name="whsLocMapRefno"><see cref="int"/> Warehouse location map reference number.</param>
+        /// <param name="prodRefno"><see cref="int"/> Product reference number.</param>
+        /// <returns><see cref="int"/> Location map reference number.</returns>
+        public override async Task<int> GetDefaultLocMapRefno(int whsLocMapRefno, int prodRefno)
+        {
+            int locMapRefno = 0;
+            if (this.SelectedActivityItem is CountItem item)
+            {
+                if (Math.Sign(item.ActivityItemCountQuantity) == 0 ||
+                    Math.Sign(item.ActivityItemCountQuantity) == 1)
+                {
+                    locMapRefno = await LocationMapTasks.GetDefaultLocMapRefnoFromProdRefno(
+                        whsLocMapRefno,
+                        prodRefno,
+                        SysCommon.ProdLocMapTypes.Receiving);
+                }
+                else
+                {
+                    locMapRefno = await LocationMapTasks.GetDefaultLocMapRefnoFromProdRefno(
+                        whsLocMapRefno,
+                        prodRefno,
+                        SysCommon.ProdLocMapTypes.Picking);
+                }
+            }
+
+            return locMapRefno;
+        }
+
+        /// <summary>
+        /// The GetLabelQuantity.
+        /// </summary>
+        /// <param name="isRepackQuantityOnly">The isRepackQuantityOnly<see cref="bool"/>.</param>
+        /// <returns>The <see cref="Task{SLabelQuantity}"/>.</returns>
+        public override Task<SLabelQuantity> GetLabelQuantity(bool isRepackQuantityOnly)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

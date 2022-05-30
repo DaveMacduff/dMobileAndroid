@@ -1,7 +1,18 @@
-﻿namespace dMobile.BarCodeScanner
+﻿// <copyright file="BarCodeParseUnDefinedFactory.cs" company="InterSect Business Systems Inc">
+// Copyright (c) InterSect Business Systems Inc. All rights reserved.
+// </copyright>
+
+namespace dMobile.BarCodeScanner.BarCodeParsing
 {
-    class BarCodeParseUnDefinedFactory : BarCodeParseFactory
+    /// <summary>
+    /// Defines the <see cref="BarCodeParseUnDefinedFactory" />.
+    /// </summary>
+    public class BarCodeParseUnDefinedFactory : BarCodeParseFactory
     {
+        /// <summary>
+        /// The GetBarCodeParse.
+        /// </summary>
+        /// <returns>The <see cref="BarCodeParse"/>.</returns>
         public override BarCodeParse GetBarCodeParse()
         {
             return new BarCodeParseUnDefined();

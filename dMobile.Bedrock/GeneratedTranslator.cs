@@ -1,4 +1,8 @@
-﻿#if MULTILANGUAGE
+﻿// <copyright file="GeneratedTranslator.cs" company="InterSect Business Systems Inc">
+// Copyright (c) InterSect Business Systems Inc. All rights reserved.
+// </copyright>
+
+#if MULTILANGUAGE
 //+------------------------------------------------------------------------+
 //| This file has been automatically generated.                            |
 //| Any changes to this file will be lost upon build.                      |

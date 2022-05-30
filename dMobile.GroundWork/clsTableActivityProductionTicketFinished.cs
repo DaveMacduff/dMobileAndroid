@@ -1,17 +1,21 @@
-﻿namespace dMobile.GroundWork
+﻿// <copyright file="clsTableActivityProductionTicketFinished.cs" company="InterSect Business Systems Inc">
+// Copyright (c) InterSect Business Systems Inc. All rights reserved.
+// </copyright>
+
+namespace dMobile.GroundWork
 {
-    using dMobile.Bedrock;
     using System;
+    using System.Collections.Generic;
     using System.Data;
-    using SQLite;
     using System.Text;
+    using System.Threading.Tasks;
     using System.Xml;
     using System.Xml.Linq;
-    using System.Threading.Tasks;
-    using System.Collections.Generic;
+    using dMobile.Bedrock;
+    using SQLite;
 
     /// <summary>
-    /// Defines the <see cref="TableActivityProductionTicketFinished" />
+    /// Defines the <see cref="TableActivityProductionTicketFinished" />.
     /// </summary>
     public class TableActivityProductionTicketFinished : TableBase
     {
@@ -25,20 +29,16 @@
         }
 
         /// <summary>
-        /// The Request
+        /// The Request.
         /// </summary>
-        public override async Task Request()
+        public override async Task RequestData()
         {
-            string reqData = string.Empty;
-
             try
             {
-                // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Seeding finished tickets.", true);
 
-                reqData = await this.Send("finished ticket");
-
-                if (0 < reqData.Length)
+                string reqData = await this.SendRequest();
+                if (reqData.Length > 0)
                 {
                     if (reqData.Contains("<message>ERROR</message>"))
                     {
@@ -50,37 +50,31 @@
                     await this.Save(reqData);
                 }
 
-                // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Seeding finished tickets complete.", true);
             }
             catch (Exception ex)
             {
-                // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Seeding finished tickets failed.", true);
 
-                // TODO: Resource strings
                 throw new Exception("Database exception occurred. Seeding finished tickets failed.", ex);
             }
         }
 
         /// <summary>
-        /// The DataStatus
+        /// The DataStatus.
         /// </summary>
-        /// <returns>The <see cref="int"/></returns>
+        /// <returns>The <see cref="int"/>.</returns>
         public override async Task<int> DataStatus()
         {
-            int rowsAffected = 0;
-
+            int rowsAffected;
             try
             {
                 rowsAffected = Convert.ToInt32(await DatabaseConnection.GetInstance().SQLConn.ExecuteScalarAsync<int>("SELECT COUNT(ActivityRefno) FROM tActivity WHERE ActivitySubType = ?", Convert.ToInt32(SysCommon.ActSubTypes.TicketFinished)));
 
-                // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, string.Format("{0} finished tickets.", rowsAffected), true);
             }
             catch (SQLiteException ex)
             {
-                // TODO: Resource strings
                 throw new Exception("Database exception occurred. Finished tickets status failed.", ex);
             }
 
@@ -88,13 +82,12 @@
         }
 
         /// <summary>
-        /// The Purge
+        /// The Purge.
         /// </summary>
-        public override async Task Purge()
+        public override async Task PurgeData()
         {
             try
             {
-                // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging finished ticket.", true);
 
                 string query = "DELETE FROM tActivityProductionFinished"
@@ -110,47 +103,39 @@
                 query = "DELETE FROM tActivity WHERE tActivity.ActivitySubType = ?";
                 await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(query, Convert.ToInt32(SysCommon.ActSubTypes.TicketFinished));
 
-                // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging finished ticket complete.", true);
             }
             catch (SQLiteException ex)
             {
-                // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Database exception occurred.", true);
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging finished ticket complete.", true);
 
-                // TODO: Resource strings
                 throw new Exception("Database exception occurred. Purging finished ticket complete.", ex);
             }
         }
 
         /// <summary>
-        /// The Save
+        /// The Save.
         /// </summary>
         /// <param name="reqData"></param>
         protected override async Task Save(string reqData)
         {
-            string errMsg = string.Empty;
-
             await DatabaseConnection.GetInstance().SQLConn.RunInTransactionAsync(transaction =>
             {
                 try
                 {
                     using (DataSet ds = new DataSet())
                     {
-                        // TODO: Resource strings
                         this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Reading received data.", false);
 
                         ds.ReadXml(SysCommon.GetXmlReader(ref reqData), XmlReadMode.Auto);
 
-                        // TODO: Resource strings
                         this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving finished tickets.", false);
 
                         if (ds.Tables.Count != 0)
                         {
                             int progMax = Convert.ToInt32(ds.Tables["tActivityProduction"].Rows.Count);
 
-                            // TODO: Resource strings
                             this.DataAccessStatusOutHandler(this, EventArgs.Empty, string.Format("Records {0}", progMax), false);
 
                             int actRefno = 0;
@@ -161,12 +146,8 @@
 
                             foreach (DataRow drow in ds.Tables["tActivityProduction"].Rows)
                             {
-                                errMsg = "Arguments:";
-
                                 transaction.Execute("INSERT INTO tActivity (ActivityStatus, ActivitySubType) VALUES (?, ?)", 0, Convert.ToInt32(SysCommon.ActSubTypes.TicketFinished));
-
                                 actRefno = Convert.ToInt32(transaction.ExecuteScalar<int>("SELECT last_insert_rowid() FROM tActivity"));
-
                                 string queryActivityProduction = "INSERT INTO tActivityProduction (" +
                                     "ActivityRefno, " +
                                     "ActivitySubType, " +
@@ -184,21 +165,14 @@
                                 parametersActivityProduction.Add(actRefno);
                                 parametersActivityProduction.Add(Convert.ToInt32(SysCommon.ActSubTypes.TicketFinished));
 
-                                whsLocMapRefno = this.GetWhsLocMapRefnoFromDataRow(drow, ref errMsg, transaction);
-
+                                whsLocMapRefno = this.GetWhsLocMapRefnoFromDataRow(drow, transaction);
                                 parametersActivityProduction.Add(whsLocMapRefno);
-
                                 DateTime dt = DateTime.Parse(Convert.ToDateTime(drow["ActivityProductionDateTime"]).ToShortDateString());
-                                errMsg += Environment.NewLine + "Date " + dt.ToShortDateString();
-
                                 parametersActivityProduction.Add(dt);
                                 parametersActivityProduction.Add(drow["ActivityProductionDescription"].ToString());
-
                                 transaction.Execute(queryActivityProduction, parametersActivityProduction.ToArray());
 
                                 int actProductionFKRefno = Convert.ToInt32(drow["ActivityProductionFKRefno"]);
-                                errMsg += Environment.NewLine + "FK refno " + actProductionFKRefno;
-
                                 string queryActivityProductionFinished = "INSERT INTO tActivityProductionFinished (" +
                                     "ActivityRefno, " +
                                     "ActivityProductionFKRefno, " +
@@ -215,7 +189,7 @@
                                     actRefno,
                                     actProductionFKRefno,
                                     actProductionFKRefno.ToString(),
-                                    string.Empty
+                                    string.Empty,
                                 };
 
                                 transaction.Execute(queryActivityProductionFinished, parametersActivityProductionFinished);
@@ -232,7 +206,6 @@
 
                         transaction.Commit();
 
-                        // TODO: Resource strings
                         this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving finished tickets complete.", false);
                     }
                 }
@@ -240,21 +213,19 @@
                 {
                     transaction.Rollback();
 
-                    // TODO: Resource strings
                     this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Database exception occurred.", true);
                     this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving finished tickets failed.", false);
 
-                    // TODO: Resource strings
-                    throw new Exception("Database exception occurred. Saving finished tickets failed." + Environment.NewLine + errMsg, ex);
+                    throw new Exception("Database exception occurred. Saving finished tickets failed.", ex);
                 }
             });
         }
 
         /// <summary>
-        /// The Create
+        /// The Create.
         /// </summary>
         /// <returns></returns>
-        protected override async Task<string> Create()
+        protected override async Task<string> CreateRequest()
         {
             StringBuilder xmlString = new StringBuilder();
             XmlWriter xml = XmlWriter.Create(xmlString);

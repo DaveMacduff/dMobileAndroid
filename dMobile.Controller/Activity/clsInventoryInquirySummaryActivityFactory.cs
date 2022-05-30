@@ -1,5 +1,12 @@
-﻿namespace dMobile.Controller
+﻿// <copyright file="clsInventoryInquirySummaryActivityFactory.cs" company="InterSect Business Systems Inc">
+// Copyright (c) InterSect Business Systems Inc. All rights reserved.
+// </copyright>
+
+namespace dMobile.Controller
 {
+    /// <summary>
+    /// Defines the <see cref="InvInquirySummaryActivityFactory" />.
+    /// </summary>
     public class InvInquirySummaryActivityFactory : ActivityFactory
     {
         /// <summary>

@@ -24,7 +24,7 @@
                 <Label x:Name="lblUnit" Text="KG" Grid.Row="0" Grid.Column="2" VerticalOptions="CenterAndExpand" HorizontalOptions="Center"/>
 
                 <Frame VerticalOptions="Start" Grid.Row="1" Grid.ColumnSpan="3" OutlineColor="{DynamicResource BorderColor}">
-                    <ListView x:Name="lstDisplay" SelectionMode="None" HasUnevenRows="True" SeparatorVisibility="None">
+                    <ListView x:Name="ListViewDisplayExtraInfo" SelectionMode="None" HasUnevenRows="True" SeparatorVisibility="None">
                         <ListView.ItemTemplate>
                             <DataTemplate>
                                 <ViewCell>

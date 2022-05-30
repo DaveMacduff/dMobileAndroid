@@ -1,47 +1,37 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿// <copyright file="AdjustmentItem.cs" company="InterSect Business Systems Inc">
+// Copyright (c) InterSect Business Systems Inc. All rights reserved.
+// </copyright>
 
 namespace dMobile.Resources.Types
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
+    using System.Text;
+    using System.Threading.Tasks;
+
     public class AdjustmentItem
     {
-        private int activityItemRefno;
-        private int activityItemAdjustmentFKRefno;
-        private int productUnitRefno;
-        private int productRefno;
-        private int locationMapRefno;
-        private int locationCode;
         private int activityItemStatus;
-        private decimal activityItemAdjustmentQuantity;
-        private decimal activityItemAdjustmentBaseQuantity;
         private decimal activityItemAdjustmentWeightQuantity;
-        private string activityItemAdjustmentStringFKRefno;
-        private string productUnitBC;
-        private string productUnitSizeDescription;
-        private string productCode;
-        private string productDescription;
-        private string unitCode;
         private string locationName;
 
-        public int ActivityItemRefno { get => activityItemRefno; set => activityItemRefno = value; }
-        public int ActivityItemAdjustmentFKRefno { get => activityItemAdjustmentFKRefno; set => activityItemAdjustmentFKRefno = value; }
-        public int ProductUnitRefno { get => productUnitRefno; set => productUnitRefno = value; }
-        public int ProductRefno { get => productRefno; set => productRefno = value; }
-        public int LocationMapRefno { get => locationMapRefno; set => locationMapRefno = value; }
-        public int LocationCode { get => locationCode; set => locationCode = value; }
-        public int ActivityItemStatus { get => activityItemStatus; set => activityItemStatus = value; }
-        public decimal ActivityItemAdjustmentQuantity { get => activityItemAdjustmentQuantity; set => activityItemAdjustmentQuantity = value; }
-        public decimal ActivityItemAdjustmentBaseQuantity { get => activityItemAdjustmentBaseQuantity; set => activityItemAdjustmentBaseQuantity = value; }
-        public decimal ActivityItemAdjustmentWeightQuantity { get => activityItemAdjustmentWeightQuantity; set => activityItemAdjustmentWeightQuantity = value; }
-        public string ActivityItemAdjustmentStringFKRefno { get => activityItemAdjustmentStringFKRefno; set => activityItemAdjustmentStringFKRefno = value; }
-        public string ProductUnitBC { get => productUnitBC; set => productUnitBC = value; }
-        public string ProductUnitSizeDescription { get => productUnitSizeDescription; set => productUnitSizeDescription = value; }
-        public string ProductCode { get => productCode; set => productCode = value; }
-        public string ProductDescription { get => productDescription; set => productDescription = value; }
-        public string UnitCode { get => unitCode; set => unitCode = value; }
-        public string LocationName { get => locationName; set => locationName = value; }
+        public int ActivityItemRefno { get; set; }
+        public int ActivityItemAdjustmentFKRefno { get; set; }
+        public int ProductUnitRefno { get; set; }
+        public int ProductRefno { get; set; }
+        public int LocationMapRefno { get; set; }
+        public int LocationCode { get; set; }
+        public int ActivityItemStatus { get => this.activityItemStatus; set => this.activityItemStatus = value; }
+        public decimal ActivityItemAdjustmentQuantity { get; set; }
+        public decimal ActivityItemAdjustmentBaseQuantity { get; set; }
+        public decimal ActivityItemAdjustmentWeightQuantity { get => this.activityItemAdjustmentWeightQuantity; set => this.activityItemAdjustmentWeightQuantity = value; }
+        public string ActivityItemAdjustmentStringFKRefno { get; set; }
+        public string ProductUnitBC { get; set; }
+        public string ProductUnitSizeDescription { get; set; }
+        public string ProductCode { get; set; }
+        public string ProductDescription { get; set; }
+        public string UnitCode { get; set; }
+        public string LocationName { get => this.locationName; set => this.locationName = value; }
     }
 }

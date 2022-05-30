@@ -1,18 +1,22 @@
+// <copyright file="clsTableRoute.cs" company="InterSect Business Systems Inc">
+// Copyright (c) InterSect Business Systems Inc. All rights reserved.
+// </copyright>
+
 namespace dMobile.GroundWork
 {
-    using dMobile.Bedrock;
     using System;
+    using System.Collections.Generic;
     using System.Data;
-    using SQLite;
     using System.Text;
+    using System.Threading.Tasks;
     using System.Xml;
     using System.Xml.Linq;
-    using System.Threading.Tasks;
-    using System.Collections.Generic;
+    using dMobile.Bedrock;
     using dMobile.Resources.Models;
+    using SQLite;
 
     /// <summary>
-    /// Defines the <see cref="TableRoute" />
+    /// Defines the <see cref="TableRoute" />.
     /// </summary>
     public class TableRoute : TableBase
     {
@@ -26,20 +30,16 @@ namespace dMobile.GroundWork
         }
 
         /// <summary>
-        /// The Request
+        /// The Request.
         /// </summary>
-        public override async Task Request()
+        public override async Task RequestData()
         {
-            string reqData = string.Empty;
-
             try
             {
-                // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Seeding routes.", true);
 
-                reqData = await this.Send("routes");
-
-                if (0 < reqData.Length)
+                string reqData = await this.SendRequest();
+                if (reqData.Length > 0)
                 {
                     if (reqData.Contains("<message>ERROR</message>"))
                     {
@@ -51,29 +51,26 @@ namespace dMobile.GroundWork
                     await this.Save(reqData);
                 }
 
-                // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Seeding routes complete.", true);
             }
             catch (Exception ex)
             {
-                // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Seeding routes failed.", true);
 
-                // TODO: Resource strings
                 throw new Exception("Seeding routes failed.", ex);
             }
         }
 
         /// <summary>
-        /// The GetiRouteRefnoFromRouteCode
+        /// The GetiRouteRefnoFromRouteCode.
         /// </summary>
         /// <param name="routeCode"></param>
         /// <returns></returns>
-        //public int GetiRouteRefnoFromRouteCode(string routeCode)
-        //{
+        // public int GetiRouteRefnoFromRouteCode(string routeCode)
+        // {
         //    int routeRefno = 0;
 
-        //      try
+        // try
         //      {
         //        using (SQLiteCommand cmndRoute = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
         //        {
@@ -81,7 +78,7 @@ namespace dMobile.GroundWork
         //          cmndRoute.IndexName = "UQ_RouteOnRouteCode";
         //          cmndRoute.CommandType = CommandType.TableDirect;
 
-        //          using (SQLiteDataReader drRoute = cmndRoute.ExecuteReader())
+        // using (SQLiteDataReader drRoute = cmndRoute.ExecuteReader())
         //          {
         //            if (drRoute.Seek(DbSeekOptions.FirstEqual, new object[] { routeCode }))
         //            {
@@ -91,38 +88,38 @@ namespace dMobile.GroundWork
         //              }
         //              else
         //              {
-        //#if MULTILANGUAGE
+        // #if MULTILANGUAGE
         //                throw new Exception(Translator.GetInstance().Translate(TranslatorVocabulary.DrroutereadFailed));
-        //#else
+        // #else
         //                throw new Exception("drRoute.Read() failed.");
-        //#endif
+        // #endif
         //              }
         //            }
         //            else
         //            {
         //              throw new Exception(
-        //#if MULTILANGUAGE
+        // #if MULTILANGUAGE
         //                string.Format(Translator.GetInstance().Translate(TranslatorVocabulary.UnableToLocateRouteRefnoFromRouteCodeInTroute), routeCode));
-        //#else
+        // #else
         //                string.Format("Unable To Locate Route Refno From Route Code {0} In tRoute", routeCode));
-        //#endif
+        // #endif
         //            }
 
-        //            drRoute.Close();
+        // drRoute.Close();
         //          }
         //        }
         //      }
         //      catch (SQLiteException ex)
         //      {
-        //#if MULTILANGUAGE
+        // #if MULTILANGUAGE
         //        throw new Exception(Translator.GetInstance().Translate(TranslatorVocabulary.DatabaseExceptionOccurredGetirouterefnofromroutecodeFailed), ex);
-        //#else
+        // #else
         //        throw new Exception("Database exception occurred. GetiRouteRefnoFromRouteCode failed.", ex);
-        //#endif
+        // #endif
         //      }
 
-        //    return routeRefno;
-        //}
+        // return routeRefno;
+        // }
 
         /// <summary>
         /// The DataStatus
@@ -130,18 +127,15 @@ namespace dMobile.GroundWork
         /// <returns>The <see cref="int"/></returns>
         public override async Task<int> DataStatus()
         {
-            int rowsAffected = 0;
-
+            int rowsAffected;
             try
             {
                 rowsAffected = Convert.ToInt32(await DatabaseConnection.GetInstance().SQLConn.ExecuteScalarAsync<int>("SELECT COUNT(*) FROM tRoute"));
 
-                // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, string.Format("{0} routes.", rowsAffected), true);
             }
             catch (SQLiteException ex)
             {
-                // TODO: Resource strings
                 throw new Exception("Database exception occurred. Routes status failed.", ex);
             }
 
@@ -149,33 +143,29 @@ namespace dMobile.GroundWork
         }
 
         /// <summary>
-        /// The Purge
+        /// The Purge.
         /// </summary>
-        public override async Task Purge()
+        public override async Task PurgeData()
         {
             try
             {
-                // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging routes.", true);
 
                 await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync("DELETE FROM tRoute");
 
-                // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging routes complete.", true);
             }
             catch (SQLiteException ex)
             {
-                // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Database exception occurred.", true);
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging routes failed.", true);
 
-                // TODO: Resource strings
                 throw new Exception("Database exception occurred. Purging routes failed.", ex);
             }
         }
 
         /// <summary>
-        /// The Save
+        /// The Save.
         /// </summary>
         /// <param name="reqData"></param>
         protected override async Task Save(string reqData)
@@ -188,12 +178,10 @@ namespace dMobile.GroundWork
                 {
                     using (DataSet ds = new DataSet())
                     {
-                        // TODO: Resource Strings
                         this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Reading received data.", false);
 
                         ds.ReadXml(SysCommon.GetXmlReader(ref reqData), XmlReadMode.Auto);
 
-                        // TODO: Resource Strings
                         this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving routes.", false);
 
                         if (ds.Tables.Count != 0)
@@ -225,7 +213,7 @@ namespace dMobile.GroundWork
                                 {
                                     isRouteFound = true;
 
-                                    if (SysEnv.RefreshOpt.RefreshDataChangesOnly)
+                                    if (this.SysEnv.RefreshOpt.RefreshDataChangesOnly)
                                     {
                                         transaction.Execute("UPDATE tRoute SET RouteDescription = ?, RouteDayOfWeek = ? WHERE RouteCode = ?", routeDesc, routeDayOfWeek, routeCode);
                                     }
@@ -243,13 +231,11 @@ namespace dMobile.GroundWork
                                 }
                             }
 
-
                             this.DataAccessProgressOutHandler(this, EventArgs.Empty, progMax, 0, progMax);
                         }
 
                         transaction.Commit();
 
-                        // TODO: Resource Strings
                         this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving routes complete.", false);
                     }
                 }
@@ -257,7 +243,6 @@ namespace dMobile.GroundWork
                 {
                     transaction.Rollback();
 
-                    // TODO: Resource Strings
                     this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Database exception occurred.", false);
                     this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving routes failed.", false);
 
@@ -267,10 +252,10 @@ namespace dMobile.GroundWork
         }
 
         /// <summary>
-        /// The Create
+        /// The Create.
         /// </summary>
         /// <returns></returns>
-        protected override async Task<string> Create()
+        protected override async Task<string> CreateRequest()
         {
             StringBuilder xmlString = new StringBuilder();
             XmlWriter xml = XmlWriter.Create(xmlString);

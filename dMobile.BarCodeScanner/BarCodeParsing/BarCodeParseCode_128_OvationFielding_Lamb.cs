@@ -1,4 +1,8 @@
-﻿namespace dMobile.BarCodeScanner
+﻿// <copyright file="BarCodeParseCode_128_OvationFielding_Lamb.cs" company="InterSect Business Systems Inc">
+// Copyright (c) InterSect Business Systems Inc. All rights reserved.
+// </copyright>
+
+namespace dMobile.BarCodeScanner.BarCodeParsing
 {
     using System;
 
@@ -8,7 +12,7 @@
         /// Parsing rule class for Ovation Field New Zealand Lamb.
         /// </summary>
         /// <remarks>
-        /// See WO # 11127
+        /// See WO # 11127.
         /// <para>
         /// 13 = Year
         /// 255 = 255th day of the year, e.g. 255 = Sept 12 (Pack date)
@@ -24,7 +28,7 @@
         /// 0 = Check Digit
         /// 13 = 2013
         /// 254 = 254th day of the year, e.g. 254 = Sept 11 (Slaughter date)
-        /// 87 = Pack Location
+        /// 87 = Pack Location.
         /// </para><para>
         /// 32 total digits.</para>
         /// </remarks>
@@ -52,36 +56,35 @@
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="barCodeData"></param>
         /// <returns></returns>
         protected override string IdentifyProductIdentifier(string barCodeData)
         {
-            ProductIdentifier = barCodeData.Substring(0, 5);
-            barCodeData = barCodeData.Remove(0, ProductIdentifier.Length);
+            this.ProductIdentifier = barCodeData.Substring(0, 5);
+            barCodeData = barCodeData.Remove(0, this.ProductIdentifier.Length);
 
             return barCodeData;
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="barCodeData"></param>
         /// <returns></returns>
         protected override string IdentifyGTIN(string barCodeData)
         {
-            Data = barCodeData;
+            this.Data = barCodeData;
 
-            GTIN = Data.Substring(0, 5).PadLeft(13, '0');
+            this.GTIN = this.Data.Substring(0, 5).PadLeft(13, '0');
 
             // strBarCodeData = strBarCodeData.Remove(0, 5);
-
-            return Data;
+            return this.Data;
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="barCodeData"></param>
         /// <returns></returns>
@@ -111,13 +114,13 @@
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="barCodeData"></param>
         /// <returns></returns>
         protected override string IdentifyNetWeightMetricKG(string barCodeData)
         {
-            NetWeightMetricKGFoundAI = false;
+            this.NetWeightMetricKGFoundAI = false;
 
             // get the number of decimal places
             int iDecPlaces = 2;

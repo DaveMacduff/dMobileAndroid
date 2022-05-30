@@ -14,12 +14,22 @@ namespace dMobile.Bedrock
     using dMobile.Resources.Types;
 
     /// <summary>
-    /// Adjustment Settings Class
+    /// Adjustment Settings Class.
     /// </summary>
     [Serializable]
     public class AdjustmentSettings
     {
-        // VARIABLES
+        /// <summary>
+        /// Mutual-exclusion lock used for file writing.
+        /// </summary>
+        [NonSerialized]
+        private readonly object writeLockObject = new object();
+
+        /// <summary>
+        /// Mutual-exclusion lock used for file reading.
+        /// </summary>
+        [NonSerialized]
+        private readonly object readLockObject = new object();
 
         /// <summary>
         /// Contains full adjustment settings class name.
@@ -38,12 +48,6 @@ namespace dMobile.Bedrock
         /// </summary>
         [NonSerialized]
         private string fileASCIIZ = string.Empty;
-
-        [NonSerialized]
-        private readonly object writeLockObject = new object();
-
-        [NonSerialized]
-        private readonly object readLockObject = new object();
 
         /// <summary>
         /// Contains adjustment settings file name.
@@ -99,7 +103,7 @@ namespace dMobile.Bedrock
         /// <summary>
         /// Contains the date for adjustment date filtering.
         /// </summary>
-        private System.DateTime adjustmentDate = new System.DateTime(1900, 1, 1);
+        private DateTime adjustmentDate = new DateTime(1900, 1, 1);
 
         /// <summary>
         /// Contains the enabler for adjustment date filter.
@@ -195,7 +199,7 @@ namespace dMobile.Bedrock
         }
 
         /// <summary>
-        /// Gets or sets the file name of the xml file. 
+        /// Gets or sets the file name of the xml file.
         /// </summary>
         /// <remarks>
         /// Does not include any path information.
@@ -288,15 +292,15 @@ namespace dMobile.Bedrock
         /// <summary>
         /// Load and object of type AdjustmentsSettings from a serialized xml file.
         /// </summary>
-        /// <returns>Object of AdjustmentSettings</returns>
+        /// <returns>Object of AdjustmentSettings.</returns>
         public AdjustmentSettings LoadData()
         {
-            lock (readLockObject)
+            lock (this.readLockObject)
             {
                 XmlSerializer serializer = new XmlSerializer(typeof(AdjustmentSettings));
                 AdjustmentSettings adjustmentSettings = new AdjustmentSettings();
 
-                // use relection to get the current assembly path for the database
+                // use reflection to get the current assembly path for the database
                 string appDir = Environment.GetFolderPath(Environment.SpecialFolder.Personal);
                 string fullPathToMyFile = Path.Combine(appDir, this.FileName);
 
@@ -306,7 +310,11 @@ namespace dMobile.Bedrock
                 }
 
                 // Create a FileStream to read with.
-                using (FileStream reader = new FileStream(fullPathToMyFile, FileMode.Open, FileAccess.Read, FileShare.Read))
+                using (FileStream reader = new FileStream(
+                    fullPathToMyFile,
+                    FileMode.Open,
+                    FileAccess.Read,
+                    FileShare.Read))
                 {
                     // Deserialize the stream to the object, and close the TextReader
                     adjustmentSettings = (AdjustmentSettings)serializer.Deserialize(reader);
@@ -320,22 +328,26 @@ namespace dMobile.Bedrock
         /// Serialize and save the data into a xml file.
         /// </summary>
         /// <param name="adjustmentSettings"> Instance of PrinterSettings to serialize.</param>
-        /// <returns>True if save was successful else false</returns>
+        /// <returns>True if save was successful else false.</returns>
         public bool SaveData(ref AdjustmentSettings adjustmentSettings)
         {
-            lock (writeLockObject)
+            lock (this.writeLockObject)
             {
                 XmlSerializer serializer = new XmlSerializer(typeof(AdjustmentSettings));
                 bool saveComplete = false;
 
                 try
                 {
-                    // use relection to get the current assembly path for the database
+                    // use reflection to get the current assembly path for the database
                     string appDir = Environment.GetFolderPath(Environment.SpecialFolder.Personal);
                     string fullPathToMyFile = Path.Combine(appDir, this.FileName);
 
                     // Create a FileStream to write with.
-                    using (FileStream writer = new FileStream(fullPathToMyFile, FileMode.Create, FileAccess.Write, FileShare.None))
+                    using (FileStream writer = new FileStream(
+                        fullPathToMyFile,
+                        FileMode.Create,
+                        FileAccess.Write,
+                        FileShare.None))
                     {
                         // Serialize the object, and close the TextWriter
                         serializer.Serialize(writer, adjustmentSettings);

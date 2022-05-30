@@ -1,45 +1,42 @@
-﻿namespace dMobile.GroundWork
+﻿// <copyright file="clsTableActivityReturns.cs" company="InterSect Business Systems Inc">
+// Copyright (c) InterSect Business Systems Inc. All rights reserved.
+// </copyright>
+
+namespace dMobile.GroundWork
 {
     using System;
+    using System.Collections.Generic;
     using System.Data;
-    using SQLite;
     using System.Text;
+    using System.Threading.Tasks;
     using System.Xml;
     using System.Xml.Linq;
     using dMobile.Bedrock;
-    using System.Threading.Tasks;
-    using System.Collections.Generic;
+    using SQLite;
 
     public class TableActivityReturns : TableBase
     {
-        #region Constructors
-
+        /// <summary>
+        /// Initializes a new instance of the <see cref="TableActivityReturns"/> class.
+        /// </summary>
         public TableActivityReturns()
           : base()
         {
             this.FullClassName = "dMobile.GroundWork.TableActivityReturns";
         }
 
-        #endregion
-
-        #region Public Members
-
         /// <summary>
         ///
         /// </summary>
         /// <remarks></remarks>
-        public override async Task Request()
+        public override async Task RequestData()
         {
-            string reqData = string.Empty;
-
             try
             {
-                // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Seeding sales returns.", true);
 
-                reqData = await this.Send("activity returns");
-
-                if (0 < reqData.Length)
+                string reqData = await this.SendRequest();
+                if (reqData.Length > 0)
                 {
                     if (reqData.Contains("<message>ERROR</message>"))
                     {
@@ -51,15 +48,12 @@
                     await this.Save(reqData);
                 }
 
-                // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Seeding sales returns complete.", true);
             }
             catch (Exception ex)
             {
-                // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Seeding sales returns failed.", true);
 
-                // TODO: Resource strings
                 throw new Exception("Seeding sales returns failed.", ex);
             }
         }
@@ -68,9 +62,8 @@
         ///
         /// </summary>
         /// <remarks></remarks>
-        public override async Task Purge()
+        public override async Task PurgeData()
         {
-            // TODO: Resource strings
             this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging sales returns.", true);
 
             try
@@ -78,16 +71,13 @@
                 await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync("DELETE FROM tActivityReturns WHERE ActivitySubType = ?", Convert.ToInt32(SysCommon.ActSubTypes.Returns));
                 await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync("DELETE FROM tActivity WHERE ActivitySubType = ?", Convert.ToInt32(SysCommon.ActSubTypes.Returns));
 
-                // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging sales returns failed.", true);
             }
             catch (SQLiteException ex)
             {
-                // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Database exception occurred.", true);
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging sales returns failed.", true);
 
-                // TODO: Resource strings
                 throw new Exception("Database exception occurred. Purging sales returns failed.", ex);
             }
         }
@@ -98,27 +88,20 @@
         /// <remarks></remarks>
         public override async Task<int> DataStatus()
         {
-            int rowsAffected = 0;
-
+            int rowsAffected;
             try
             {
                 rowsAffected = Convert.ToInt32(await DatabaseConnection.GetInstance().SQLConn.ExecuteScalarAsync<int>("SELECT COUNT(ActivityRefno) FROM tActivity WHERE ActivitySubType = ?", Convert.ToInt32(SysCommon.ActSubTypes.Returns)));
 
-                // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, string.Format("{0} sales returns.", rowsAffected), true);
             }
             catch (SQLiteException ex)
             {
-                // TODO: Resource strings
                 throw new Exception("Database exception occurred. Sales returns status failed.", ex);
             }
 
             return rowsAffected;
         }
-
-        #endregion
-
-        #region Private Members
 
         /// <summary>
         ///
@@ -127,27 +110,22 @@
         /// <remarks></remarks>
         protected override async Task Save(string reqData)
         {
-            string errMsg = string.Empty;
-
             await DatabaseConnection.GetInstance().SQLConn.RunInTransactionAsync(transaction =>
             {
                 try
                 {
                     using (DataSet ds = new DataSet())
                     {
-                        // TODO: Resource strings
                         this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Reading received data.", false);
 
                         ds.ReadXml(SysCommon.GetXmlReader(ref reqData), XmlReadMode.Auto);
 
-                        // TODO: Resource strings
                         this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving sales returns.", false);
 
                         if (ds.Tables.Count != 0)
                         {
                             int progMax = Convert.ToInt32(ds.Tables["tActivityReturns"].Rows.Count);
 
-                            // TODO: Resource strings
                             this.DataAccessStatusOutHandler(this, EventArgs.Empty, string.Format("Records {0}", progMax), false);
 
                             int actRefno = 0;
@@ -159,14 +137,11 @@
 
                             foreach (DataRow drow in ds.Tables["tActivityReturns"].Rows)
                             {
-                                errMsg = "Arguments:";
-
                                 transaction.Execute("INSERT INTO tActivity (ActivitySubType, ActivityStatus) VALUES (?, ?)", Convert.ToInt32(SysCommon.ActSubTypes.Returns), 0);
 
                                 actRefno = Convert.ToInt32(transaction.ExecuteScalar<int>("SELECT last_insert_rowid() FROM tActivity"));
                                 returnsFKRefno = Convert.ToInt32(drow["ActivityReturnsFKRefno"]);
-                                errMsg += Environment.NewLine + "FK refno " + returnsFKRefno;
-                                whsLocMapRefno = this.GetWhsLocMapRefnoFromDataRow(drow, ref errMsg, transaction);
+                                whsLocMapRefno = this.GetWhsLocMapRefnoFromDataRow(drow, transaction);
 
                                 string query = "INSERT INTO tActivityReturns (" +
                                     "ActivityRefno, " +
@@ -199,7 +174,7 @@
                                     Convert.ToDateTime(drow["ActivityReturnsOrderedDateTime"]),
                                     Convert.ToDateTime(drow["ActivityReturnsDeliveryDateTime"]),
                                     Convert.ToString(drow["ActivityReturnsCustomerContactName"]),
-                                    Convert.ToString(drow["ActivityReturnsCustomerShipToInfo"])
+                                    Convert.ToString(drow["ActivityReturnsCustomerShipToInfo"]),
                                 };
 
                                 transaction.Execute(query, parameters);
@@ -217,19 +192,16 @@
 
                     transaction.Commit();
 
-                    // TODO: Resource strings
                     this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving sales returns complete.", false);
                 }
                 catch (SQLiteException ex)
                 {
                     transaction.Rollback();
 
-                    // TODO: Resource strings
                     this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Database exception occurred.", true);
                     this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving sales returns failed.", true);
 
-                    // TODO: Resource strings
-                    throw new Exception("Database exception occurred. Saving sales returns failed." + Environment.NewLine + errMsg, ex);
+                    throw new Exception("Database exception occurred. Saving sales returns failed.", ex);
                 }
             });
         }
@@ -239,7 +211,7 @@
         /// </summary>
         /// <returns></returns>
         /// <remarks></remarks>
-        protected override async Task<string> Create()
+        protected override async Task<string> CreateRequest()
         {
             StringBuilder xmlString = new StringBuilder();
             XmlWriter xml = XmlWriter.Create(xmlString);
@@ -259,7 +231,5 @@
 
             return xmlString.ToString();
         }
-
-        #endregion
     }
 }

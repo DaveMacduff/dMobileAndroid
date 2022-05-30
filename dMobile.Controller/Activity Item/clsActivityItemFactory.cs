@@ -1,11 +1,19 @@
-/// <summary>
-/// This is the abstract activity item class factory.
-/// </summary>
-/// <remarks></remarks>
+// <copyright file="clsActivityItemFactory.cs" company="InterSect Business Systems Inc">
+// Copyright (c) InterSect Business Systems Inc. All rights reserved.
+// </copyright>
+
 namespace dMobile.Controller
 {
-  public abstract class ActItemFactory
-	{
-		public abstract ActItem GetActItem(Activity activity);
-	}
+    /// <summary>
+    /// Activity item factory.
+    /// </summary>
+    public abstract class ActItemFactory
+    {
+        /// <summary>
+        /// Get the activity item.
+        /// </summary>
+        /// <param name="activity">y<see cref="Activity"/> Activity header.</param>
+        /// <returns>The <see cref="ActItem"/> Activity item object.</returns>
+        public abstract ActItem GetActItem(Activity activity);
+    }
 }

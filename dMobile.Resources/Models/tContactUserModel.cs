@@ -1,8 +1,12 @@
-﻿using SQLite;
-using SQLiteNetExtensions.Attributes;
+﻿// <copyright file="tContactUserModel.cs" company="InterSect Business Systems Inc">
+// Copyright (c) InterSect Business Systems Inc. All rights reserved.
+// </copyright>
 
 namespace dMobile.Resources.Models
 {
+    using SQLite;
+    using SQLiteNetExtensions.Attributes;
+
     //    string sqlTable = "CREATE TABLE IF NOT EXISTS tContactUser"
     //+ "("
     //+ "ContactRefno INTEGER NOT NULL CONSTRAINT PK_UserOnContactRefno PRIMARY KEY,"
@@ -35,9 +39,7 @@ namespace dMobile.Resources.Models
     //    sqlNdx = "CREATE UNIQUE INDEX IF NOT EXISTS UQ_ContactUserOnContactUserName ON tContactUser(ContactUserName ASC)";
     //        this.RunDDLCommand(sqlNdx);
 
-
     //[Indexed(Name = "UQ_ActivityOnActivityRefnoAndActivitySubType", Order = 1, Unique = true), NotNull]
-
     [Table("tContactUser")]
     public class tContactUserModel
     {

@@ -1,45 +1,42 @@
+// <copyright file="clsTableUnit.cs" company="InterSect Business Systems Inc">
+// Copyright (c) InterSect Business Systems Inc. All rights reserved.
+// </copyright>
+
 namespace dMobile.GroundWork
 {
     using System;
+    using System.Collections.Generic;
     using System.Data;
-    using SQLite;
     using System.Text;
+    using System.Threading.Tasks;
     using System.Xml;
     using System.Xml.Linq;
     using dMobile.Bedrock;
-    using System.Threading.Tasks;
-    using System.Collections.Generic;
     using dMobile.Resources.Models;
+    using SQLite;
 
     public class TableUnit : TableBase
     {
-        #region Constructors
-
+        /// <summary>
+        /// Initializes a new instance of the <see cref="TableUnit"/> class.
+        /// </summary>
         public TableUnit()
         {
             this.FullClassName = "dMobile.GroundWork.TableUnit";
         }
 
-        #endregion
-
-        #region Public Members
-
         /// <summary>
         ///
         /// </summary>
         /// <remarks></remarks>
-        public override async Task Request()
+        public override async Task RequestData()
         {
-            string reqData = string.Empty;
-
             try
             {
-                // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Seeding units of measure.", true);
 
-                reqData = await this.Send("units of measure");
-
-                if (0 < reqData.Length)
+                string reqData = await this.SendRequest();
+                if (reqData.Length > 0)
                 {
                     if (reqData.Contains("<message>ERROR</message>"))
                     {
@@ -52,38 +49,33 @@ namespace dMobile.GroundWork
                 }
 
                 // Require to have units.
-                if (0 >= await this.DataStatus())
+                if (await this.DataStatus() <= 0)
                 {
-                    // TODO: Resource strings
                     this.DataAccessStatusOutHandler(this, EventArgs.Empty, "No units of measure where received.", true);
 
-                    // TODO: Resource strings
                     throw new Exception("No units of measure where received.");
                 }
 
-                // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Seeding units of measure complete.", true);
             }
             catch (Exception ex)
             {
-                // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Seeding units of measure failed.", true);
 
-                // TODO: Resource strings
                 throw new Exception("Seeding units of measure failed.", ex);
             }
         }
 
         ///// <summary>
-        ///// 
+        /////
         ///// </summary>
         ///// <param name="unitCode"></param>
         ///// <returns></returns>
-        //public int GetiUnitRefnoFromUnitCode(string unitCode)
-        //{
+        // public int GetiUnitRefnoFromUnitCode(string unitCode)
+        // {
         //  int unitRefno = 0;
 
-        //      try
+        // try
         //      {
         //        using (SQLiteCommand cmndUnit = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
         //        {
@@ -91,7 +83,7 @@ namespace dMobile.GroundWork
         //          //cmndUnit.IndexName = "UQ_UnitOnUnitCode";
         //          cmndUnit.CommandType = CommandType.TableDirect;
 
-        //          using (SQLiteDataReader drUnit = cmndUnit.ExecuteReader())
+        // using (SQLiteDataReader drUnit = cmndUnit.ExecuteReader())
         //          {
         //            if (drUnit.Seek(DbSeekOptions.FirstEqual, new object[] { unitCode }))
         //            {
@@ -101,38 +93,38 @@ namespace dMobile.GroundWork
         //              }
         //              else
         //              {
-        //#if MULTILANGUAGE
+        // #if MULTILANGUAGE
         //                throw new Exception(Translator.GetInstance().Translate(TranslatorVocabulary.DrunitreadFailed));
-        //#else
+        // #else
         //                throw new Exception("drUnit.Read() failed.");
-        //#endif
+        // #endif
         //              }
         //            }
         //            else
         //            {
         //              throw new Exception(
-        //#if MULTILANGUAGE
+        // #if MULTILANGUAGE
         //                  string.Format(Translator.GetInstance().Translate(TranslatorVocabulary.UnableToLocateTheUnitRefnoFromUnitCodeInTunit), unitCode));
-        //#else
+        // #else
         //                  string.Format("Unable to locate the unit refno from unit code {0} in tUnit", unitCode));
-        //#endif
+        // #endif
         //            }
 
-        //            drUnit.Close();
+        // drUnit.Close();
         //          }
         //        }
         //      }
         //      catch (SQLiteException ex)
         //      {
-        //#if MULTILANGUAGE
+        // #if MULTILANGUAGE
         //        throw new Exception(Translator.GetInstance().Translate(TranslatorVocabulary.DatabaseExceptionOccurredGetiunitrefnofromunitcodeFailed), ex);
-        //#else
+        // #else
         //        throw new Exception("Database exception occurred. GetiUnitRefnoFromUnitCode failed.", ex);
-        //#endif
+        // #endif
         //      }
 
-        //  return unitRefno;
-        //}
+        // return unitRefno;
+        // }
 
         /// <summary>
         ///
@@ -140,18 +132,15 @@ namespace dMobile.GroundWork
         /// <remarks></remarks>
         public override async Task<int> DataStatus()
         {
-            int rowsAffected = 0;
-
+            int rowsAffected;
             try
             {
                 rowsAffected = Convert.ToInt32(await DatabaseConnection.GetInstance().SQLConn.ExecuteScalarAsync<int>("SELECT COUNT(*) FROM tUnit"));
 
-                // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, string.Format("{0} units of measure.", rowsAffected), true);
             }
             catch (SQLiteException ex)
             {
-                // TODO: Resource strings
                 throw new Exception("Database exception occurred. Units of measure status failed.", ex);
             }
 
@@ -162,32 +151,24 @@ namespace dMobile.GroundWork
         ///
         /// </summary>
         /// <remarks></remarks>
-        public override async Task Purge()
+        public override async Task PurgeData()
         {
             try
             {
-                // TODO: Resource String
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging units of measure.", true);
 
                 await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync("DELETE FROM tUnit");
 
-                // TODO: Resource String
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging units of measure complete.", true);
             }
             catch (SQLiteException ex)
             {
-                // TODO: Resource String
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Database exception occurred.", true);
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging units of measure failed.", true);
 
-                // TODO: Resource String
                 throw new Exception("Database exception occurred. Purging units of measure failed.", ex);
             }
         }
-
-        #endregion
-
-        #region Private Members
 
         /// <summary>
         ///
@@ -204,19 +185,16 @@ namespace dMobile.GroundWork
                 {
                     using (DataSet ds = new DataSet())
                     {
-                        // TODO: Resource String
                         this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Reading received data.", false);
 
                         ds.ReadXml(SysCommon.GetXmlReader(ref reqData), XmlReadMode.Auto);
 
-                        // TODO: Resource String
                         this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving units of measure.", false);
 
                         if (ds.Tables.Count != 0)
                         {
                             int progMax = ds.Tables["tUnit"].Rows.Count;
 
-                            // TODO: Resource String
                             this.DataAccessStatusOutHandler(this, EventArgs.Empty, string.Format("Records {0}", progMax), false);
 
                             int progValue = 0;
@@ -231,7 +209,7 @@ namespace dMobile.GroundWork
                                 errMsg = "Unit code \'" + unitCode + "\'";
                                 isUnitFound = false;
 
-                                if (SysEnv.RefreshOpt.RefreshDataChangesOnly)
+                                if (this.SysEnv.RefreshOpt.RefreshDataChangesOnly)
                                 {
                                     List<tUnitModel> results = transaction.Query<tUnitModel>("SELECT UnitCode FROM tUnit WHERE UnitCode = ?", unitCode);
 
@@ -259,7 +237,6 @@ namespace dMobile.GroundWork
 
                         transaction.Commit();
 
-                        // TODO: Resource String
                         this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving units of measure complete.", false);
                     }
                 }
@@ -267,11 +244,9 @@ namespace dMobile.GroundWork
                 {
                     transaction.Rollback();
 
-                    // TODO: Resource String
                     this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Database exception occurred.", false);
                     this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving units of measure failed.", false);
 
-                    // TODO: Resource String
                     throw new Exception("Database exception occurred. Saving units of measure failed." + Environment.NewLine + errMsg, ex);
                 }
             });
@@ -282,7 +257,7 @@ namespace dMobile.GroundWork
         /// </summary>
         /// <returns></returns>
         /// <remarks></remarks>
-        protected override async Task<string> Create()
+        protected override async Task<string> CreateRequest()
         {
             StringBuilder xmlString = new StringBuilder();
             XmlWriter xml = XmlWriter.Create(xmlString);
@@ -302,7 +277,5 @@ namespace dMobile.GroundWork
 
             return xmlString.ToString();
         }
-
-        #endregion
     }
 }

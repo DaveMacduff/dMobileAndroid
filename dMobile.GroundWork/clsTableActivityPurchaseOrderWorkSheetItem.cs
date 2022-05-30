@@ -1,17 +1,21 @@
-﻿namespace dMobile.GroundWork
+﻿// <copyright file="clsTableActivityPurchaseOrderWorkSheetItem.cs" company="InterSect Business Systems Inc">
+// Copyright (c) InterSect Business Systems Inc. All rights reserved.
+// </copyright>
+
+namespace dMobile.GroundWork
 {
-    using dMobile.Bedrock;
     using System;
+    using System.Collections.Generic;
     using System.Data;
-    using SQLite;
     using System.Text;
+    using System.Threading.Tasks;
     using System.Xml;
     using System.Xml.Linq;
-    using System.Threading.Tasks;
-    using System.Collections.Generic;
+    using dMobile.Bedrock;
+    using SQLite;
 
     /// <summary>
-    /// Defines the <see cref="TableActivityPurchaseOrderWorkSheetItem" />
+    /// Defines the <see cref="TableActivityPurchaseOrderWorkSheetItem" />.
     /// </summary>
     public class TableActivityPurchaseOrderWorkSheetItem : TableBase
     {
@@ -25,21 +29,17 @@
         }
 
         /// <summary>
-        /// The Request
+        /// The Request.
         /// </summary>
-        /// <param name="actRefno">The actRefno<see cref="int"/></param>
-        public override async Task Request(int actRefno)
+        /// <param name="actRefno">The actRefno<see cref="int"/>.</param>
+        public override async Task RequestData(int actRefno)
         {
-            string reqData = string.Empty;
-
             try
             {
-                // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Seeding work sheet items.", true);
 
-                reqData = await this.Send(actRefno);
-
-                if (0 < reqData.Length)
+                string reqData = await this.SendRequest(actRefno);
+                if (reqData.Length > 0)
                 {
                     if (reqData.Contains("<message>ERROR</message>"))
                     {
@@ -51,37 +51,31 @@
                     await this.Save(reqData, actRefno);
                 }
 
-                // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Seeding work sheet items complete.", true);
             }
             catch (Exception ex)
             {
-                // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Seeding work sheet items failed.", true);
 
-                // TODO: Resource strings
                 throw new Exception("Seeding work sheet items failed.", ex);
             }
         }
 
         /// <summary>
-        /// The DataStatus
+        /// The DataStatus.
         /// </summary>
-        /// <returns>The <see cref="int"/></returns>
+        /// <returns>The <see cref="int"/>.</returns>
         public override async Task<int> DataStatus()
         {
-            int rowsAffected = 0;
-
+            int rowsAffected;
             try
             {
                 rowsAffected = Convert.ToInt32(await DatabaseConnection.GetInstance().SQLConn.ExecuteScalarAsync<int>("SELECT COUNT(ActivityItemRefno) FROM tActivityItem WHERE ActivityItemSubType = ?", Convert.ToInt32(SysCommon.ActSubTypes.PurchaseOrderWorkSheet)));
 
-                // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, string.Format("{0} work sheet items.", rowsAffected), true);
             }
             catch (SQLiteException ex)
             {
-                // TODO: Resource strings
                 throw new Exception("Database exception occurred. Work sheet status failed.", ex);
             }
 
@@ -89,13 +83,12 @@
         }
 
         /// <summary>
-        /// The Purge
+        /// The Purge.
         /// </summary>
-        public override async Task Purge()
+        public override async Task PurgeData()
         {
             try
             {
-                // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging work sheet items.", true);
 
                 string query = "DELETE FROM tActivityItemBarCodeAssociationXRef WHERE tActivityItemBarCodeAssociationXRef.ActivityItemRefno " +
@@ -108,59 +101,51 @@
                 query = "DELETE FROM tActivityItem WHERE tActivityItem.ActivityItemSubType = ?";
                 await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(query, Convert.ToInt32(SysCommon.ActSubTypes.PurchaseOrderWorkSheet));
 
-                // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging work sheet items complete.", true);
             }
             catch (SQLiteException ex)
             {
-                // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Database exception occurred.", true);
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging work sheet items failed.", true);
 
-                // TODO: Resource strings
                 throw new Exception("Database exception occurred. Purging work sheet items failed.", ex);
             }
         }
 
         /// <summary>
-        /// The Send
+        /// The Send.
         /// </summary>
-        /// <param name="actRefno">The actRefno<see cref="int"/></param>
+        /// <param name="actRefno">The actRefno<see cref="int"/>.</param>
         /// <returns></returns>
-        protected override async Task<string> Send(int actRefno)
+        protected override async Task<string> SendRequest(int actRefno)
         {
             int actWorkSheetFKRefno = 0;
-            return await this.SendComm(await this.Create(actWorkSheetFKRefno));
+            return await this.SendComm(await this.CreateRequest(actWorkSheetFKRefno));
         }
 
         /// <summary>
-        /// The Save
+        /// The Save.
         /// </summary>
         /// <param name="reqData"></param>
-        /// <param name="actRefno">The actRefno<see cref="int"/></param>
+        /// <param name="actRefno">The actRefno<see cref="int"/>.</param>
         protected override async Task Save(string reqData, int actRefno)
         {
-            string errMsg = string.Empty;
-
             await DatabaseConnection.GetInstance().SQLConn.RunInTransactionAsync(transaction =>
             {
                 try
                 {
                     using (DataSet ds = new DataSet())
                     {
-                        // TODO: Resource strings
                         this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Reading received data.", false);
 
                         ds.ReadXml(SysCommon.GetXmlReader(ref reqData), XmlReadMode.Auto);
 
-                        // TODO: Resource strings
                         this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving work sheet items.", false);
 
                         if (ds.Tables.Count != 0)
                         {
                             int progMax = Convert.ToInt32(ds.Tables["tActivityItemPurchaseOrderWorkSheet"].Rows.Count);
 
-                            // TODO: Resource strings
                             this.DataAccessStatusOutHandler(this, EventArgs.Empty, string.Format("Records {0}", progMax), false);
 
                             int actItemRefno = 0;
@@ -169,21 +154,16 @@
                             int actItemWorkSheetFKRefno = 0;
                             int prodUnitRefno = 0;
 
-                            DataAccessProgressOutHandler(this, EventArgs.Empty, 0, 0, progMax);
+                            this.DataAccessProgressOutHandler(this, EventArgs.Empty, 0, 0, progMax);
 
                             foreach (DataRow drow in ds.Tables["tActivityItemPurchaseOrderWorkSheet"].Rows)
                             {
-                                errMsg = "Arguments:";
-
                                 transaction.Execute("INSERT INTO tActivity (ActivityStatus, ActivitySubType) VALUES (?, ?)", 0, Convert.ToInt32(SysCommon.ActSubTypes.PurchaseOrderWorkSheet));
-
                                 actRefno = Convert.ToInt32(transaction.ExecuteScalar<int>("SELECT last_insert_rowid() FROM tActivity"));
-
                                 transaction.Execute("INSERT INTO tActivityItem (ActivityItemSubType, ActivityItemStatus, ActivityRefno) VALUES (?, ?, ?)", Convert.ToInt32(SysCommon.ActSubTypes.PurchaseOrderWorkSheet), 0, actRefno);
-
                                 actItemRefno = Convert.ToInt32(transaction.ExecuteScalar<int>("SELECT last_insert_rowid() FROM tActivityItem"));
-                                prodUnitRefno = this.GetProductUnitRefnoFromDataRow(drow, transaction, ref errMsg, false);
-                                whsLocMapRefno = this.GetWhsLocMapRefnoFromDataRow(drow, ref errMsg, transaction);
+                                prodUnitRefno = this.GetProductUnitRefnoFromDataRow(drow, transaction, false);
+                                whsLocMapRefno = this.GetWhsLocMapRefnoFromDataRow(drow, transaction);
 
                                 actItemWorkSheetFKRefno = Convert.ToInt32(drow["ActivityItemPurchaseOrderWorkSheetFKRefno"]);
 
@@ -218,7 +198,7 @@
                                     Convert.ToInt32(whsLocMapRefno),
                                     Convert.ToDecimal(drow["ActivityItemPurchaseOrderWorkSheetQuantityOrdered"]),
                                     Convert.ToDecimal(drow["ActivityItemPurchaseOrderWorkSheetBaseQuantityOrdered"]),
-                                    Convert.ToDecimal(drow["ActivityItemPurchaseOrderWorkSheetWeightQuantityOrdered"])
+                                    Convert.ToDecimal(drow["ActivityItemPurchaseOrderWorkSheetWeightQuantityOrdered"]),
                                 };
 
                                 transaction.Execute(query, parameters);
@@ -235,7 +215,6 @@
 
                         transaction.Commit();
 
-                        // TODO: Resource strings
                         this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving work sheet items complete.", false);
                     }
                 }
@@ -243,22 +222,19 @@
                 {
                     transaction.Rollback();
 
-                    // TODO: Resource strings
                     this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Database exception occurred.", false);
                     this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving work sheet items failed.", false);
-
-                    // TODO: Resource strings
-                    throw new Exception("Database exception occurred. Saving work sheet items failed." + Environment.NewLine + errMsg, ex);
+                    throw new Exception("Database exception occurred. Saving work sheet items failed.", ex);
                 }
             });
         }
 
         /// <summary>
-        /// The Create
+        /// The Create.
         /// </summary>
-        /// <param name="actWorkSheetFKRefno">The actWorkSheetFKRefno<see cref="int"/></param>
+        /// <param name="actWorkSheetFKRefno">The actWorkSheetFKRefno<see cref="int"/>.</param>
         /// <returns></returns>
-        protected override async Task<string> Create(int actWorkSheetFKRefno)
+        protected override async Task<string> CreateRequest(int actWorkSheetFKRefno)
         {
             StringBuilder xmlString = new StringBuilder();
             XmlWriter xml = XmlWriter.Create(xmlString);
@@ -269,9 +245,9 @@
                 + "<command>"
                 + "<action>REQUEST PURCHASE ORDER WORK SHEET ITEMS</action>"
                 + await SysCommon.GetRequestDefaults(false)
-                + ("<refno>" + actWorkSheetFKRefno + "</refno>")
+                + "<refno>" + actWorkSheetFKRefno + "</refno>"
                 + "</command>"
-                + ("<whs_id>" + LocationMap.GetInstance().CurrLocMap.WhsFKRefno + "</whs_id>")
+                + "<whs_id>" + LocationMap.GetInstance().CurrLocMap.WhsFKRefno + "</whs_id>"
                 + "</imclient>");
 
             request.Save(xml);

@@ -1,50 +1,47 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.ComponentModel;
-using System.Data;
-using System.Xml.Linq;
-using dMobile.Bedrock;
-using dMobile.Controller;
-using Xamarin.Forms;
-using Xamarin.Forms.Xaml;
-using dMobile.View.Forms;
-using System.Collections.ObjectModel;
-using dMobile.Resources.Enums;
-using Android.Views;
-using dMobile.View.CustomPages.Modal;
+﻿// <copyright file="ucActivityRemoveFromSkid.xaml.cs" company="InterSect Business Systems Inc">
+// Copyright (c) InterSect Business Systems Inc. All rights reserved.
+// </copyright>
 
 namespace dMobile.View.Activity
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Collections.ObjectModel;
+    using System.ComponentModel;
+    using System.Data;
+    using System.Linq;
+    using System.Text;
+    using System.Threading.Tasks;
+    using System.Xml.Linq;
+    using Android.Views;
+    using dMobile.Bedrock;
+    using dMobile.Controller;
+    using dMobile.Resources.Enums;
+    using dMobile.View.CustomPages.Modal;
+    using dMobile.View.Forms;
+    using Xamarin.Forms;
+    using Xamarin.Forms.Xaml;
+    using Resource = dMobile.Resources.Properties.Resources;
+
     [XamlCompilation(XamlCompilationOptions.Compile)]
     public partial class ucActivityRemoveFromSkid : DMobileModal, IAppArea
     {
-        #region Fields
-
-        private ActDetailEdit actDetailEdit;
-        private bool isChangesMade = false;
-        private bool isControlLoaded = false;
-        private ActDetail actDetail = null;
-        private SysCommon.ActSubTypes actSubType;
-        private SysEnvironment sysEnv;
         private ObservableCollection<string> itemsList = new ObservableCollection<string>();
 
-        #endregion
-
-        #region Constructors
-
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="actDetail"></param>
         /// <param name="actSubTypes"></param>
+/// <summary>
+/// Initializes a new instance of the <see cref="ucActivityRemoveFromSkid"/> class.
+/// </summary>
+/// <param name="actDetail"></param>
+/// <param name="actSubTypes"></param>
         public ucActivityRemoveFromSkid(ActDetail actDetail, SysCommon.ActSubTypes actSubTypes)
         {
             this.InitializeComponent();
 
-            // TODO: Resource strings
             this.Title = this.GetControlDescription();
             this.lblWtUnit.Text = "KG";
             this.lblUnit.Text = "Bx";
@@ -65,29 +62,24 @@ namespace dMobile.View.Activity
                 this.ActDetail.ActItem.ActHdr.ActSubType = this.ActSubType;
 
                 this.ActDetailEdit.SchemeData = this.ActDetail.SchemeData;
-                this.ActDetailEdit.Quantity = this.ActDetail.Quantity;
+                this.ActDetailEdit.AltQuantity = this.ActDetail.Quantity;
                 this.ActDetailEdit.BaseQuantity = this.ActDetail.BaseQuantity;
                 this.ActDetailEdit.WeightQuantity = this.ActDetail.WeightQuantity;
             }
         }
 
-        #endregion
-
-        #region OnAppearing/OnDisappearing
-
         /// <summary>
-        /// The OnAppearing
+        /// The OnAppearing.
         /// </summary>
         protected override async void OnAppearing()
         {
             base.OnAppearing();
 
-            this.lstDisplay.ItemsSource = this.ItemsList;
+            this.ListViewDisplayExtraInfo.ItemsSource = this.ExtraInfoItems;
 
             MessagingCenter.Subscribe<string>(this, EventTypes.OnKeyUp.ToString(), async (keyPressed) =>
             {
-                // TODO: Verify keycodes
-                Enum.TryParse(keyPressed, out Keycode keycode);
+                _ = Enum.TryParse(keyPressed, out Keycode keycode);
 
                 if (!this.Loading)
                 {
@@ -108,13 +100,12 @@ namespace dMobile.View.Activity
             }
             catch (Exception ex)
             {
-                // TODO: Resource strings
-                await Device.InvokeOnMainThreadAsync(async () => await DisplayAlert("Error", "this.ucActivityRemoveFromSkid_GotFocus threw an error " + ex, "OK"));
+                await Device.InvokeOnMainThreadAsync(async () => await this.DisplayAlert("Error", "this.ucActivityRemoveFromSkid_GotFocus threw an error " + ex, "OK"));
             }
         }
 
         /// <summary>
-        /// The OnDisappearing
+        /// The OnDisappearing.
         /// </summary>
         protected override async void OnDisappearing()
         {
@@ -128,7 +119,7 @@ namespace dMobile.View.Activity
         {
             Device.BeginInvokeOnMainThread(async () =>
             {
-                base.OnBackButtonPressed();
+                _ = base.OnBackButtonPressed();
 
                 if (await this.SaveChanges())
                 {
@@ -145,93 +136,19 @@ namespace dMobile.View.Activity
             return true;
         }
 
-        #endregion
+        private SysEnvironment SysEnv { get; set; }
 
-        #region Properties
+        private SysCommon.ActSubTypes ActSubType { get; set; }
 
-        private SysEnvironment SysEnv
-        {
-            get
-            {
-                return this.sysEnv;
-            }
+        private ActDetailEdit ActDetailEdit { get; set; }
 
-            set
-            {
-                this.sysEnv = value;
-            }
-        }
+        private bool IsControlLoaded { get; set; } = false;
 
-        private SysCommon.ActSubTypes ActSubType
-        {
-            get
-            {
-                return this.actSubType;
-            }
+        private bool IsChangesMade { get; set; } = false;
 
-            set
-            {
-                this.actSubType = value;
-            }
-        }
+        private ActDetail ActDetail { get; set; } = null;
 
-        private ActDetailEdit ActDetailEdit
-        {
-            get
-            {
-                return this.actDetailEdit;
-            }
-
-            set
-            {
-                this.actDetailEdit = value;
-            }
-        }
-
-        private bool IsControlLoaded
-        {
-            get
-            {
-                return this.isControlLoaded;
-            }
-
-            set
-            {
-                this.isControlLoaded = value;
-            }
-        }
-
-        private bool IsChangesMade
-        {
-            get
-            {
-                return this.isChangesMade;
-            }
-
-            set
-            {
-                this.isChangesMade = value;
-            }
-        }
-
-        private ActDetail ActDetail
-        {
-            get
-            {
-                return this.actDetail;
-            }
-
-            set
-            {
-                this.actDetail = value;
-            }
-        }
-
-        public ObservableCollection<string> ItemsList { get => itemsList; set => itemsList = value; }
-
-        #endregion
-
-        #region Public Members
+        public ObservableCollection<string> ExtraInfoItems { get => this.itemsList; set => this.itemsList = value; }
 
         /// <summary>
         /// Unregister the bar code scan event handler and disable the scanner.
@@ -262,10 +179,14 @@ namespace dMobile.View.Activity
             {
                 isReadyToSave = true;// (decimal.Parse(this.txtAltQty.Text) != 0) && this.IsValidData();
             }
-            catch (Exceptions.MessageOnlyException ex)
+            catch (MessageOnlyException ex)
             {
                 isReadyToSave = false;
-                ex.Show(this.ActSubType);
+                await Device.InvokeOnMainThreadAsync(async () =>
+                    await Application.Current.MainPage.DisplayAlert(
+                        this.GetControlDescription(),
+                        ex.Message,
+                        Resource.OK));
             }
             catch (Exception ex)
             {
@@ -274,7 +195,7 @@ namespace dMobile.View.Activity
                 await Device.InvokeOnMainThreadAsync(async () =>
                 {
                     FormErrorReport errRpt = new FormErrorReport(this.ActSubType, ex);
-                    await errRpt.ShowDialog();
+                    _ = await errRpt.ShowDialog();
                 });
             }
 
@@ -308,10 +229,14 @@ namespace dMobile.View.Activity
                     await this.ScannerDisable();
                 }
             }
-            catch (Exceptions.MessageOnlyException ex)
+            catch (MessageOnlyException ex)
             {
                 isReadyToClose = false;
-                ex.Show(this.ActSubType);
+                await Device.InvokeOnMainThreadAsync(async () =>
+                    await Application.Current.MainPage.DisplayAlert(
+                        this.GetControlDescription(),
+                        ex.Message,
+                        Resource.OK));
             }
             catch (Exception ex)
             {
@@ -322,7 +247,7 @@ namespace dMobile.View.Activity
                 await Device.InvokeOnMainThreadAsync(async () =>
                 {
                     FormErrorReport errRpt = new FormErrorReport(this.ActSubType, ex);
-                    await errRpt.ShowDialog();
+                    _ = await errRpt.ShowDialog();
                 });
             }
 
@@ -336,7 +261,6 @@ namespace dMobile.View.Activity
         /// <remarks></remarks>
         public string GetControlDescription()
         {
-            // TODO: Resource strings
             return "Remove From Skid";
         }
 
@@ -358,7 +282,7 @@ namespace dMobile.View.Activity
                 }
                 else
                 {
-                    await Device.InvokeOnMainThreadAsync(async () => await DisplayAlert(this.GetControlDescription(), "Data failed validation. Check your data.", "OK"));
+                    await Device.InvokeOnMainThreadAsync(async () => await this.DisplayAlert(this.GetControlDescription(), "Data failed validation. Check your data.", "OK"));
                 }
             }
             catch (Exception ex)
@@ -368,7 +292,7 @@ namespace dMobile.View.Activity
                 await Device.InvokeOnMainThreadAsync(async () =>
                 {
                     FormErrorReport errRpt = new FormErrorReport(this.ActSubType, ex);
-                    await errRpt.ShowDialog();
+                    _ = await errRpt.ShowDialog();
                 });
             }
 
@@ -389,7 +313,7 @@ namespace dMobile.View.Activity
                 if (await this.IsReadyToClose())
                 {
                     this.ActDetailEdit.SchemeData = this.ActDetail.SchemeData;
-                    this.ActDetailEdit.Quantity = this.ActDetail.Quantity;
+                    this.ActDetailEdit.AltQuantity = this.ActDetail.Quantity;
                     this.ActDetailEdit.WeightQuantity = this.ActDetail.WeightQuantity;
                     this.ActDetailEdit.BaseQuantity = this.ActDetail.BaseQuantity;
                 }
@@ -406,7 +330,7 @@ namespace dMobile.View.Activity
                 await Device.InvokeOnMainThreadAsync(async () =>
                 {
                     FormErrorReport errRpt = new FormErrorReport(this.ActSubType, ex);
-                    await errRpt.ShowDialog();
+                    _ = await errRpt.ShowDialog();
                 });
             }
 
@@ -422,17 +346,13 @@ namespace dMobile.View.Activity
         {
             XDocument request = XDocument.Parse("<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>"
                 + "<params>"
-                + ("<alt_qty>" + this.ActDetailEdit.Quantity + "</alt_qty>")
-                + ("<wt_qty>" + this.ActDetailEdit.WeightQuantity + "</wt_qty>")
-                + ("<base_qty>" + this.ActDetailEdit.BaseQuantity + "</base_qty>")
+                + "<alt_qty>" + this.ActDetailEdit.AltQuantity + "</alt_qty>"
+                + "<wt_qty>" + this.ActDetailEdit.WeightQuantity + "</wt_qty>"
+                + "<base_qty>" + this.ActDetailEdit.BaseQuantity + "</base_qty>"
                 + "</params>");
 
             return request;
         }
-
-        #endregion
-
-        #region Private Members
 
         /// <summary>
         ///
@@ -457,7 +377,7 @@ namespace dMobile.View.Activity
             }
             else
             {
-                if (this.ActDetailEdit.Quantity != 0 && this.ActDetail.ActItem.ProdInfo.Unit2BaseUnitFactor != 0)
+                if (this.ActDetailEdit.AltQuantity != 0 && this.ActDetail.ActItem.ProdInfo.Unit2BaseUnitFactor != 0)
                 {
                     newBaseQty = newQty * this.ActDetail.ActItem.ProdInfo.Unit2BaseUnitFactor;
                 }
@@ -469,7 +389,7 @@ namespace dMobile.View.Activity
 
             if (qty == lineQty)
             {
-                this.ActDetailEdit.Quantity = newQty;
+                this.ActDetailEdit.AltQuantity = newQty;
                 this.ActDetailEdit.WeightQuantity = newWtQty;
                 this.ActDetailEdit.BaseQuantity = newBaseQty;
 
@@ -482,22 +402,22 @@ namespace dMobile.View.Activity
             }
             else if (qty > lineQty)
             {
-                await Device.InvokeOnMainThreadAsync(async () => await DisplayAlert(this.GetControlDescription(), "Cannot remove more than exists on skid!", "OK"));
+                await Device.InvokeOnMainThreadAsync(async () => await this.DisplayAlert(this.GetControlDescription(), "Cannot remove more than exists on skid!", "OK"));
             }
             else if (qty < 0)
             {
-                await Device.InvokeOnMainThreadAsync(async () => await DisplayAlert(this.GetControlDescription(), "Cannot remove negative quantity!", "OK"));
+                await Device.InvokeOnMainThreadAsync(async () => await this.DisplayAlert(this.GetControlDescription(), "Cannot remove negative quantity!", "OK"));
             }
             else
             {
                 if (Convert.ToInt32(qty) != qty)
                 {
-                    await Device.InvokeOnMainThreadAsync(async () => await DisplayAlert(this.GetControlDescription(), "Cannot remove partial boxes!", "OK"));
+                    await Device.InvokeOnMainThreadAsync(async () => await this.DisplayAlert(this.GetControlDescription(), "Cannot remove partial boxes!", "OK"));
                 }
                 else
                 {
                     // Good
-                    this.ActDetailEdit.Quantity = newQty;
+                    this.ActDetailEdit.AltQuantity = newQty;
                     this.ActDetailEdit.WeightQuantity = newBaseQty;
                     this.ActDetailEdit.BaseQuantity = newBaseQty;
                     isRetVal = true;
@@ -509,15 +429,13 @@ namespace dMobile.View.Activity
 
         private async Task PromptConsumeSkid()
         {
-            // TODO: Resource strings
-            if (await Device.InvokeOnMainThreadAsync(async () => await DisplayAlert(this.GetControlDescription(), "Do You Wish To Consume This Entire Skid?", "Yes", "No")))
+            if (await Device.InvokeOnMainThreadAsync(async () => await this.DisplayAlert(this.GetControlDescription(), "Do You Wish To Consume This Entire Skid?", "Yes", "No")))
             {
                 await this.ActDetail.Delete();
 
                 if (this.ActDetail.ActItem.ActHdr.SkidInfo.CurrSkid.IsConsumed)
                 {
-                    // TODO: Resource strings
-                    await Device.InvokeOnMainThreadAsync(async () => await DisplayAlert(this.GetControlDescription(), "This skid is now consumed.", "OK"));
+                    await Device.InvokeOnMainThreadAsync(async () => await this.DisplayAlert(this.GetControlDescription(), "This skid is now consumed.", "OK"));
 
                     if (await this.SaveChanges())
                     {
@@ -527,7 +445,7 @@ namespace dMobile.View.Activity
                     else
                     {
                         this.DialogResult = DialogResult.None;
-                        await this.CancelChanges();
+                        _ = await this.CancelChanges();
                     }
                 }
             }
@@ -541,12 +459,11 @@ namespace dMobile.View.Activity
         {
             SSkidInfo skid = this.ActDetail.ActItem.ActHdr.SkidInfo.CurrSkid;
 
-            // TODO: Resource strings
-            this.ItemsList.Clear();
-            this.ItemsList.Add("Product: " + this.ActDetail.ActItem.ProdInfo.Code + this.ActDetail.ActItem.ProdInfo.UnitBC + "  " + this.ActDetail.ActItem.ProdInfo.Desc);
-            this.ItemsList.Add(string.Format("Production Date: {0}", this.ActDetail.SchemeData.LogisticUnitProductionDate));
-            this.ItemsList.Add(string.Format("Quantity {0} {1} @ {2} {3}", this.ActDetail.Quantity, skid.ProdInfo.UnitCode, this.ActDetail.WeightQuantity, skid.ProdInfo.WeightUnitCode));
-            this.ItemsList.Add("SIZE: " + this.ActDetail.ActItem.ProdInfo.UnitSizeDesc);
+            this.ExtraInfoItems.Clear();
+            this.ExtraInfoItems.Add("Product: " + this.ActDetail.ActItem.ProdInfo.Code + this.ActDetail.ActItem.ProdInfo.UnitBC + "  " + this.ActDetail.ActItem.ProdInfo.Desc);
+            this.ExtraInfoItems.Add(string.Format("Production Date: {0}", this.ActDetail.SchemeData.LogisticUnitProductionDate));
+            this.ExtraInfoItems.Add(string.Format("Quantity {0} {1} @ {2} {3}", this.ActDetail.Quantity, skid.ProdInfo.UnitCode, this.ActDetail.WeightQuantity, skid.ProdInfo.WeightUnitCode));
+            this.ExtraInfoItems.Add("SIZE: " + this.ActDetail.ActItem.ProdInfo.UnitSizeDesc);
         }
 
         /// <summary>
@@ -569,7 +486,7 @@ namespace dMobile.View.Activity
         /// <remarks></remarks>
         private void LoadData()
         {
-            this.ActDetailEdit.Quantity = 0;
+            this.ActDetailEdit.AltQuantity = 0;
             this.ActDetailEdit.BaseQuantity = 0;
 
             this.txtAltQty.Text = "0";
@@ -584,27 +501,24 @@ namespace dMobile.View.Activity
         /// <remarks></remarks>
         private void ucActivityRemoveFromSkid_GotFocus(object sender, EventArgs e)
         {
-            if (!SysEnvironment.GetInstance().IsApplicationExitInvoked)
+            if (!this.IsControlLoaded)
             {
-                if (!this.IsControlLoaded)
+                this.IsControlLoaded = true;
+                this.lblUnit.Text = this.ActDetail.ActItem.ProdInfo.UnitCode;
+                this.lblWtUnit.Text = this.ActDetail.ActItem.ProdInfo.WeightUnitCode;
+
+                if (!this.ActDetail.ActItem.ProdInfo.IsCatchWeight ||
+                    this.ActDetail.ActItem.ProdInfo.UnitCode == "LB" ||
+                    this.ActDetail.ActItem.ProdInfo.UnitCode == "KG")
                 {
-                    this.IsControlLoaded = true;
-                    this.lblUnit.Text = this.ActDetail.ActItem.ProdInfo.UnitCode;
-                    this.lblWtUnit.Text = this.ActDetail.ActItem.ProdInfo.WeightUnitCode;
-
-                    if (!this.ActDetail.ActItem.ProdInfo.IsCatchWeight ||
-                        (this.ActDetail.ActItem.ProdInfo.UnitCode == "LB" ||
-                        this.ActDetail.ActItem.ProdInfo.UnitCode == "KG"))
-                    {
-                        // disable when not catch weight, or when qty is LB/KG
-                        this.txtWtQty.IsEnabled = false;
-                    }
-
-                    this.LoadData();
-                    this.DisplaySummary();
-
-                    this.txtAltQty.Focus();
+                    // disable when not catch weight, or when qty is LB/KG
+                    this.txtWtQty.IsEnabled = false;
                 }
+
+                this.LoadData();
+                this.DisplaySummary();
+
+                _ = this.txtAltQty.Focus();
             }
         }
 
@@ -614,7 +528,7 @@ namespace dMobile.View.Activity
         /// <param name="sender"></param>
         /// <param name="e"></param>
         /// <remarks></remarks>
-        private void txtAltQty_TextChanged(object sender, Xamarin.Forms.TextChangedEventArgs e)
+        private void txtAltQty_TextChanged(object sender, TextChangedEventArgs e)
         {
             decimal qtyEntered = 0;
             try
@@ -638,17 +552,14 @@ namespace dMobile.View.Activity
             else
             {
                 // Otherwise the weigth = quantity * weightPerOneQty
-                wtQty = qtyEntered * this.ActDetail.ActItem.ProdInfo.UnitWeight;
+                wtQty = qtyEntered * this.ActDetail.ActItem.ProdInfo.UnitGrossWeight;
             }
 
             this.txtWtQty.Text = Math.Round(wtQty, 3).ToString();
         }
 
-        #endregion
-
-        private void txtWtQty_TextChanged(object sender, Xamarin.Forms.TextChangedEventArgs e)
+        private void txtWtQty_TextChanged(object sender, TextChangedEventArgs e)
         {
-
         }
 
         private void txtAltQty_Focused(object sender, FocusEventArgs e)
@@ -681,7 +592,7 @@ namespace dMobile.View.Activity
         private async void btnCancel_Clicked(object sender, EventArgs e)
         {
             this.DialogResult = DialogResult.None;
-            await this.CancelChanges();
+            _ = await this.CancelChanges();
         }
     }
 }

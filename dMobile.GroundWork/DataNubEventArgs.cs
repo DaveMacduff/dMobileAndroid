@@ -1,50 +1,37 @@
-﻿namespace dMobile.GroundWork
+﻿// <copyright file="DataNubEventArgs.cs" company="InterSect Business Systems Inc">
+// Copyright (c) InterSect Business Systems Inc. All rights reserved.
+// </copyright>
+
+namespace dMobile.GroundWork
 {
-  using System;
+    using System;
 
-  public class DataNubEventArgs : EventArgs
-  {
-    #region Fields
-
-    private string statusOutMsg = string.Empty;
-
-    #endregion
-
-    #region Constructors
-
-    /// <summary>
-    /// 
-    /// </summary>
-    public DataNubEventArgs()
+    public class DataNubEventArgs : EventArgs
     {
+
+        /// <summary>
+        ///
+        /// </summary>
+        /// <summary>
+        /// Initializes a new instance of the <see cref="DataNubEventArgs"/> class.
+        /// </summary>
+        public DataNubEventArgs()
+        {
+        }
+
+        /// <summary>
+        ///
+        /// </summary>
+        /// <param name="msgData"></param>
+/// <summary>
+/// Initializes a new instance of the <see cref="DataNubEventArgs"/> class.
+/// </summary>
+/// <param name="msgData"></param>
+        public DataNubEventArgs(string msgData)
+        {
+            this.StatusOutMsg = msgData;
+        }
+
+        public string StatusOutMsg { get; set; } = string.Empty;
     }
-
-    /// <summary>
-    /// 
-    /// </summary>
-    /// <param name="msgData"></param>
-    public DataNubEventArgs(string msgData)
-    {
-      this.StatusOutMsg = msgData;
-    }
-
-    #endregion
-
-    #region Properties
-
-    public string StatusOutMsg
-    {
-      get
-      {
-        return this.statusOutMsg;
-      }
-
-      set
-      {
-        this.statusOutMsg = value;
-      }
-    }
-
-    #endregion
-  }
 }

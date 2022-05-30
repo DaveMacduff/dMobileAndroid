@@ -1,3 +1,7 @@
+// <copyright file="clsCommon.cs" company="InterSect Business Systems Inc">
+// Copyright (c) InterSect Business Systems Inc. All rights reserved.
+// </copyright>
+
 namespace dMobile.Controller
 {
     using System;
@@ -5,61 +9,68 @@ namespace dMobile.Controller
     using System.Xml.Linq;
     using dMobile.Bedrock;
 
+    /// <summary>
+    /// Common shared methods.
+    /// </summary>
     public class Common
     {
         /// <summary>
-        /// 
+        /// Fill product scheme data from XDocument data.
         /// </summary>
-        /// <param name="data"></param>
-        /// <returns></returns>
+        /// <param name="data"><see cref="XDocument"/> Scheme data.</param>
+        /// <returns><see cref="SProductSchemeData"/> Product scheme data.</returns>
         public static SProductSchemeData FillSProductSchemeDataFromXML(XDocument data)
         {
-            SProductSchemeData schemeData = new SProductSchemeData();
-            schemeData.LogisticUnitBestBeforeSellByDate = DateTime.Parse(data.Root.Element("bdate").Value);
-            schemeData.LogisticUnitDueDate = DateTime.Now;
-            schemeData.LogisticUnitExpiryUseByDate = DateTime.Now;
-            schemeData.LogisticUnitExpiryUseByDate = DateTime.Now;
-            schemeData.LogisticUnitPackagingDate = DateTime.Now;
-            schemeData.LogisticUnitProductionDate = DateTime.Parse(data.Root.Element("pdate").Value);
-            schemeData.LogisticUnitBatchLotNumber = data.Root.Element("lot_no").Value;
-            ////schemeData.LogisticUnitSkidNumber = data.Root.Element("skid_no").Value;
-            schemeData.SingleTradeItemSerialNumber = data.Root.Element("serial").Value;
-            schemeData.VariantCode = data.Root.Element("variant_code").Value;
-            schemeData.VariantDescription = string.Empty;
-            schemeData.VariantNumber = int.Parse(data.Root.Element("variant_no").Value);
+            SProductSchemeData schemeData = new SProductSchemeData
+            {
+                LogisticUnitBestBeforeSellByDate = DateTime.Parse(data.Root.Element("bdate").Value),
+                LogisticUnitDueDate = DateTime.Now,
+                LogisticUnitExpiryUseByDate = DateTime.Now,
+                LogisticUnitPackagingDate = DateTime.Now,
+                LogisticUnitProductionDate = DateTime.Parse(data.Root.Element("pdate").Value),
+                LogisticUnitBatchLotNumber = data.Root.Element("lot_no").Value,
+                SingleTradeItemSerialNumber = data.Root.Element("serial").Value,
+                VariantCode = data.Root.Element("variant_code").Value,
+                VariantDescription = string.Empty,
+                VariantNumber = int.Parse(data.Root.Element("variant_no").Value),
+            };
 
             return schemeData;
         }
 
         /// <summary>
-        /// 
+        /// Fill activity item scheme data from XDocument data.
         /// </summary>
-        /// <param name="data"></param>
-        /// <returns></returns>
+        /// <param name="data"><see cref="XDocument"/> Scheme data.</param>
+        /// <returns><see cref="SActItemSchemeData"/> Activity item, product scheme data.</returns>
         public static SActItemSchemeData FillSActItemSchemeDataFromXML(XDocument data)
         {
-            SActItemSchemeData actItemSchemeData = new SActItemSchemeData();
-            actItemSchemeData.ProdSchemeData = FillSProductSchemeDataFromXML(data);
-            actItemSchemeData.ActDetailBaseQuantity = decimal.Parse(data.Root.Element("base_qty").Value);
-            actItemSchemeData.ActDetailQuantity = decimal.Parse(data.Root.Element("alt_qty").Value);
-            actItemSchemeData.ActDetailWeightQuantity = decimal.Parse(data.Root.Element("wt_qty").Value);
+            SActItemSchemeData actItemSchemeData = new SActItemSchemeData
+            {
+                ProdSchemeData = FillSProductSchemeDataFromXML(data),
+                ActDetailBaseQuantity = decimal.Parse(data.Root.Element("base_qty").Value),
+                ActDetailQuantity = decimal.Parse(data.Root.Element("alt_qty").Value),
+                ActDetailWeightQuantity = decimal.Parse(data.Root.Element("wt_qty").Value),
+            };
 
-            ActDetailExtra actDetailExtra = new ActDetailExtra();
-            actDetailExtra.Text1 = data.Root.Element("extra1").Value;
-            actDetailExtra.Text2 = data.Root.Element("extra2").Value;
-            actDetailExtra.Text3 = data.Root.Element("extra3").Value;
-            actDetailExtra.Text4 = data.Root.Element("extra4").Value;
-            actDetailExtra.DateTime5 = DateTime.Parse(data.Root.Element("extra5").Value);
+            ActDetailExtra actDetailExtra = new ActDetailExtra
+            {
+                Text1 = data.Root.Element("extra1").Value,
+                Text2 = data.Root.Element("extra2").Value,
+                Text3 = data.Root.Element("extra3").Value,
+                Text4 = data.Root.Element("extra4").Value,
+                DateTime1 = DateTime.Parse(data.Root.Element("extra5").Value),
+            };
+
             actItemSchemeData.ActDetailExtra = actDetailExtra;
 
             return actItemSchemeData;
         }
 
         /// <summary>
-        ///
+        /// Get the assembly version.
         /// </summary>
-        /// <returns></returns>
-        /// <remarks></remarks>
+        /// <returns><see cref="string"/> Assembly version.</returns>
         public string GetAssemblyVersion()
         {
             int major = Assembly.GetExecutingAssembly().GetName().Version.Major;

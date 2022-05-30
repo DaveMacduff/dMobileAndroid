@@ -7,9 +7,9 @@ set "translatedfrccol=3"
 set "header=1"
 
 
-set "dmobileeng=C:\Work\dMobile\dMobile.Bedrock\Language\dMobileTranslation.ENU.txt"
-set "dmobilefrc=C:\Work\dMobile\dMobile.Bedrock\Language\dMobileTranslation.FRC.txt"
-set "dmobileengfrcmerge=%~dp0%engfrcmerged.txt"
+set "dMobileeng=C:\Work\dMobile\dMobile.Bedrock\Language\dMobileTranslation.ENU.txt"
+set "dMobilefrc=C:\Work\dMobile\dMobile.Bedrock\Language\dMobileTranslation.FRC.txt"
+set "dMobileengfrcmerge=%~dp0%engfrcmerged.txt"
 
 set "exclusion=%~dp0exclusion.txt"
 
@@ -27,20 +27,20 @@ pause
 
 echo.
 echo Step 2 Merge English and French dMobile automatic translations
-"%executable%" merge "%dmobileeng%" "%dmobilefrc%" "%dmobileengfrcmerge%"
+"%executable%" merge "%dMobileeng%" "%dMobilefrc%" "%dMobileengfrcmerge%"
 pause
 
 echo.
 echo Step 3 Create exclusion file
 echo - List of lines where the automatic translation matches the manually translated
 echo - We have less words to give to the translator
-"%executable%" fuzzy "%translatedtoken%" "%dmobileengfrcmerge%" "%exclusion%" 0 1
+"%executable%" fuzzy "%translatedtoken%" "%dMobileengfrcmerge%" "%exclusion%" 0 1
 pause
 
 echo.
 echo Step 4 Remove exclusion list from dMobile translation files
-"%executable%" remove "%dmobileeng%" "%exclusion%" "%cleaneng%"
-"%executable%" remove "%dmobilefrc%" "%exclusion%" "%cleanfrc%"
+"%executable%" remove "%dMobileeng%" "%exclusion%" "%cleaneng%"
+"%executable%" remove "%dMobilefrc%" "%exclusion%" "%cleanfrc%"
 pause
 
 echo.

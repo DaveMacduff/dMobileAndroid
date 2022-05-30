@@ -1,41 +1,38 @@
-﻿using dMobile.View.CustomPages;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using dMobile.Bedrock;
-using Xamarin.Forms;
-using Xamarin.Forms.Xaml;
-using System.Xml.Linq;
-using dMobile.Resources.Enums;
-using Android.Views;
-using dMobile.View.Activity;
+﻿// <copyright file="ucInventoryAdjustmentsMenu.xaml.cs" company="InterSect Business Systems Inc">
+// Copyright (c) InterSect Business Systems Inc. All rights reserved.
+// </copyright>
 
 namespace dMobile.View.Menus
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
+    using System.Text;
+    using System.Threading.Tasks;
+    using System.Xml.Linq;
+    using Android.Views;
+    using dMobile.Bedrock;
+    using dMobile.Resources.Enums;
+    using dMobile.View.Activity;
+    using dMobile.View.CustomPages;
+    using Xamarin.Forms;
+    using Xamarin.Forms.Xaml;
+
     [XamlCompilation(XamlCompilationOptions.Compile)]
     public partial class ucInventoryAdjustmentsMenu : DMobileContentPage, IAppArea
     {
-        #region Fields
-
-        private SysEnvironment sysEnv;
-        private AdjustmentSettings adjSettings;
-        private bool isControlLoaded = false;
-
-        #endregion
-
-        #region Constructors
 
         /// <summary>
         ///
         /// </summary>
         /// <remarks></remarks>
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ucInventoryAdjustmentsMenu"/> class.
+        /// </summary>
         public ucInventoryAdjustmentsMenu()
         {
             this.InitializeComponent();
 
-            // TODO: Resource strings
             this.Title = this.GetControlDescription();
             this.cmdRework.Text = "Rework";
             this.cmdProduction.Text = "Production";
@@ -51,12 +48,8 @@ namespace dMobile.View.Menus
             }
         }
 
-        #endregion
-
-        #region OnAppearing/OnDisappearing
-
         /// <summary>
-        /// The OnAppearing
+        /// The OnAppearing.
         /// </summary>
         protected override async void OnAppearing()
         {
@@ -64,8 +57,7 @@ namespace dMobile.View.Menus
 
             MessagingCenter.Subscribe<string>(this, EventTypes.OnKeyUp.ToString(), async (keyPressed) =>
             {
-                // TODO: Verify keycodes
-                Enum.TryParse(keyPressed, out Keycode keycode);
+                _ = Enum.TryParse(keyPressed, out Keycode keycode);
 
                 if (keycode == Keycode.F1)
                 {
@@ -74,27 +66,27 @@ namespace dMobile.View.Menus
                 }
                 else if (keycode == Keycode.Num1 && this.cmdInventory.IsEnabled)
                 {
-                    await SetAdjustmentType(SysCommon.AdjTypes.Inventory);
+                    await this.SetAdjustmentType(SysCommon.AdjTypes.Inventory);
                 }
                 else if (keycode == Keycode.Num2 && this.cmdProduction.IsEnabled)
                 {
-                    await SetAdjustmentType(SysCommon.AdjTypes.Production);
+                    await this.SetAdjustmentType(SysCommon.AdjTypes.Production);
                 }
                 else if (keycode == Keycode.Num3 && this.cmdRework.IsEnabled)
                 {
-                    await SetAdjustmentType(SysCommon.AdjTypes.Rework);
+                    await this.SetAdjustmentType(SysCommon.AdjTypes.Rework);
                 }
                 else if (keycode == Keycode.Num4 && this.cmdRequisition.IsEnabled)
                 {
-                    await SetAdjustmentType(SysCommon.AdjTypes.Requisition);
+                    await this.SetAdjustmentType(SysCommon.AdjTypes.Requisition);
                 }
                 else if (keycode == Keycode.Num5 && this.cmdDisposal.IsEnabled)
                 {
-                    await SetAdjustmentType(SysCommon.AdjTypes.Disposal);
+                    await this.SetAdjustmentType(SysCommon.AdjTypes.Disposal);
                 }
                 else if (keycode == Keycode.Num6 && this.cmdConvertProduct.IsEnabled)
                 {
-                    await SetAdjustmentType(SysCommon.AdjTypes.ConvertProduct);
+                    await this.SetAdjustmentType(SysCommon.AdjTypes.ConvertProduct);
                 }
             });
 
@@ -104,13 +96,12 @@ namespace dMobile.View.Menus
             }
             catch (Exception ex)
             {
-                // TODO: Resource strings
-                await Device.InvokeOnMainThreadAsync(async () => await DisplayAlert("Error", "this.ucInventoryAdjustmentsMenu_GotFocus threw an error " + ex, "OK"));
+                await Device.InvokeOnMainThreadAsync(async () => await this.DisplayAlert("Error", "this.ucInventoryAdjustmentsMenu_GotFocus threw an error " + ex, "OK"));
             }
         }
 
         /// <summary>
-        /// The OnDisappearing
+        /// The OnDisappearing.
         /// </summary>
         protected override async void OnDisappearing()
         {
@@ -124,7 +115,7 @@ namespace dMobile.View.Menus
         {
             Device.BeginInvokeOnMainThread(async () =>
             {
-                base.OnBackButtonPressed();
+                _ = base.OnBackButtonPressed();
 
                 this.DisableControls();
                 this.IsControlLoaded = false;
@@ -134,54 +125,11 @@ namespace dMobile.View.Menus
             return true;
         }
 
-        #endregion
+        private bool IsControlLoaded { get; set; } = false;
 
-        #region Properties
+        private AdjustmentSettings AdjSettings { get; set; }
 
-        private bool IsControlLoaded
-        {
-            get
-            {
-                return this.isControlLoaded;
-            }
-
-            set
-            {
-                this.isControlLoaded = value;
-            }
-        }
-
-        private AdjustmentSettings AdjSettings
-        {
-            get
-            {
-                return this.adjSettings;
-            }
-
-            set
-            {
-                this.adjSettings = value;
-            }
-        }
-
-        private SysEnvironment SysEnv
-        {
-            get
-            {
-                return this.sysEnv;
-            }
-
-            set
-            {
-                this.sysEnv = value;
-            }
-        }
-
-        #endregion
-
-        #region Public Members
-
-        #region IAppArea Members
+        private SysEnvironment SysEnv { get; set; }
 
         /// <summary>
         /// Unregister the bar code scan event handler and disable the scanner.
@@ -228,7 +176,6 @@ namespace dMobile.View.Menus
         /// <remarks></remarks>
         public string GetControlDescription()
         {
-            // TODO: Resource strings
             return "Adjustments Menu";
         }
 
@@ -267,12 +214,6 @@ namespace dMobile.View.Menus
             return xmldocParams;
         }
 
-        #endregion
-
-        #endregion
-
-        #region Private Members
-
         /// <summary>
         ///
         /// </summary>
@@ -281,98 +222,95 @@ namespace dMobile.View.Menus
         /// <remarks></remarks>
         private void ucInventoryAdjustmentsMenu_GotFocus(object sender, EventArgs e)
         {
-            if (!SysEnvironment.GetInstance().IsApplicationExitInvoked)
+            if (!this.IsControlLoaded)
             {
-                if (!this.IsControlLoaded)
+                this.IsControlLoaded = true;
+
+                this.AdjSettings = this.AdjSettings.LoadData();
+
+                this.cmdInventory.IsEnabled = false;
+                if ((this.SysEnv.IsCommunicationTestSuccessful || this.SysEnv.SysSettings.IsDisconnectedMode)
+                    && this.SysEnv.ContactLog.LoginID != SysCommon.SetupLoginID
+                    && !this.SysEnv.RefreshOpt.IsRefreshDataFailed)
                 {
-                    this.IsControlLoaded = true;
-
-                    this.AdjSettings = this.AdjSettings.LoadData();
-
-                    this.cmdInventory.IsEnabled = false;
-                    if ((this.SysEnv.IsCommunicationTestSuccessful || this.SysEnv.SysSettings.IsDisconnectedMode)
-                        && this.SysEnv.ContactLog.LoginID != SysCommon.SetupLoginID
-                        && !this.SysEnv.RefreshOpt.IsRefreshDataFailed)
-                    {
-                        if (this.SysEnv.SysSettings.IsInventoryAdjustmentModule
-                            || this.SysEnv.ContactLog.LoginID == SysCommon.SystemLoginID)
-                        {
-                            this.cmdInventory.IsEnabled = true;
-                        }
-                    }
-
-                    this.cmdProduction.IsEnabled = false;
-                    if ((this.SysEnv.IsCommunicationTestSuccessful || this.SysEnv.SysSettings.IsDisconnectedMode)
-                        && this.SysEnv.ContactLog.LoginID != SysCommon.SetupLoginID
-                        && !this.SysEnv.RefreshOpt.IsRefreshDataFailed)
-                    {
-                        if (this.SysEnv.SysSettings.IsInventoryAdjustmentModule
-                            || this.SysEnv.ContactLog.LoginID == SysCommon.SystemLoginID)
-                        {
-                            this.cmdProduction.IsEnabled = true;
-                        }
-                    }
-
-                    this.cmdRework.IsEnabled = false;
-                    if ((this.SysEnv.IsCommunicationTestSuccessful || this.SysEnv.SysSettings.IsDisconnectedMode)
-                        && this.SysEnv.ContactLog.LoginID != SysCommon.SetupLoginID
-                        && !this.SysEnv.RefreshOpt.IsRefreshDataFailed)
-                    {
-                        if (this.SysEnv.SysSettings.IsInventoryAdjustmentModule
-                            || this.SysEnv.ContactLog.LoginID == SysCommon.SystemLoginID)
-                        {
-                            this.cmdRework.IsEnabled = true;
-                        }
-                    }
-
-                    this.cmdRequisition.IsEnabled = false;
-                    if ((this.SysEnv.IsCommunicationTestSuccessful || this.SysEnv.SysSettings.IsDisconnectedMode)
-                        && this.SysEnv.ContactLog.LoginID != SysCommon.SetupLoginID
-                        && !this.SysEnv.RefreshOpt.IsRefreshDataFailed)
-                    {
-                        if (this.SysEnv.SysSettings.IsInventoryAdjustmentModule
-                            || this.SysEnv.ContactLog.LoginID == SysCommon.SystemLoginID)
-                        {
-                            this.cmdRequisition.IsEnabled = true;
-                        }
-                    }
-
-                    this.cmdDisposal.IsEnabled = false;
-                    if ((this.SysEnv.IsCommunicationTestSuccessful || this.SysEnv.SysSettings.IsDisconnectedMode)
-                        && this.SysEnv.ContactLog.LoginID != SysCommon.SetupLoginID
-                        && !this.SysEnv.RefreshOpt.IsRefreshDataFailed)
-                    {
-                        if (this.SysEnv.SysSettings.IsInventoryAdjustmentModule
-                            || this.SysEnv.ContactLog.LoginID == SysCommon.SystemLoginID)
-                        {
-                            this.cmdDisposal.IsEnabled = true;
-                        }
-                    }
-
-                    this.cmdConvertProduct.IsEnabled = false;
-                    if ((this.SysEnv.IsCommunicationTestSuccessful || this.SysEnv.SysSettings.IsDisconnectedMode)
-                       && this.SysEnv.ContactLog.LoginID != SysCommon.SetupLoginID
-                       && !this.SysEnv.RefreshOpt.IsRefreshDataFailed)
-                    {
-                        if (this.SysEnv.SysSettings.IsInventoryAdjustmentModule
-                            || this.SysEnv.ContactLog.LoginID == SysCommon.SystemLoginID)
-                        {
-                            this.cmdConvertProduct.IsEnabled = true;
-                        }
-                    }
-
-                    // Override all checks if module bypass enabled.
-                    if ((this.SysEnv.IsCommunicationTestSuccessful || this.SysEnv.SysSettings.IsDisconnectedMode)
-                        && this.SysEnv.IsEnableAllModuleBypassLicense
-                        && !this.SysEnv.RefreshOpt.IsRefreshDataFailed)
+                    if (this.SysEnv.SysSettings.IsInventoryAdjustmentModule
+                        || this.SysEnv.ContactLog.LoginID == SysCommon.SystemLoginID)
                     {
                         this.cmdInventory.IsEnabled = true;
+                    }
+                }
+
+                this.cmdProduction.IsEnabled = false;
+                if ((this.SysEnv.IsCommunicationTestSuccessful || this.SysEnv.SysSettings.IsDisconnectedMode)
+                    && this.SysEnv.ContactLog.LoginID != SysCommon.SetupLoginID
+                    && !this.SysEnv.RefreshOpt.IsRefreshDataFailed)
+                {
+                    if (this.SysEnv.SysSettings.IsInventoryAdjustmentModule
+                        || this.SysEnv.ContactLog.LoginID == SysCommon.SystemLoginID)
+                    {
                         this.cmdProduction.IsEnabled = true;
+                    }
+                }
+
+                this.cmdRework.IsEnabled = false;
+                if ((this.SysEnv.IsCommunicationTestSuccessful || this.SysEnv.SysSettings.IsDisconnectedMode)
+                    && this.SysEnv.ContactLog.LoginID != SysCommon.SetupLoginID
+                    && !this.SysEnv.RefreshOpt.IsRefreshDataFailed)
+                {
+                    if (this.SysEnv.SysSettings.IsInventoryAdjustmentModule
+                        || this.SysEnv.ContactLog.LoginID == SysCommon.SystemLoginID)
+                    {
                         this.cmdRework.IsEnabled = true;
+                    }
+                }
+
+                this.cmdRequisition.IsEnabled = false;
+                if ((this.SysEnv.IsCommunicationTestSuccessful || this.SysEnv.SysSettings.IsDisconnectedMode)
+                    && this.SysEnv.ContactLog.LoginID != SysCommon.SetupLoginID
+                    && !this.SysEnv.RefreshOpt.IsRefreshDataFailed)
+                {
+                    if (this.SysEnv.SysSettings.IsInventoryAdjustmentModule
+                        || this.SysEnv.ContactLog.LoginID == SysCommon.SystemLoginID)
+                    {
                         this.cmdRequisition.IsEnabled = true;
+                    }
+                }
+
+                this.cmdDisposal.IsEnabled = false;
+                if ((this.SysEnv.IsCommunicationTestSuccessful || this.SysEnv.SysSettings.IsDisconnectedMode)
+                    && this.SysEnv.ContactLog.LoginID != SysCommon.SetupLoginID
+                    && !this.SysEnv.RefreshOpt.IsRefreshDataFailed)
+                {
+                    if (this.SysEnv.SysSettings.IsInventoryAdjustmentModule
+                        || this.SysEnv.ContactLog.LoginID == SysCommon.SystemLoginID)
+                    {
                         this.cmdDisposal.IsEnabled = true;
+                    }
+                }
+
+                this.cmdConvertProduct.IsEnabled = false;
+                if ((this.SysEnv.IsCommunicationTestSuccessful || this.SysEnv.SysSettings.IsDisconnectedMode)
+                    && this.SysEnv.ContactLog.LoginID != SysCommon.SetupLoginID
+                    && !this.SysEnv.RefreshOpt.IsRefreshDataFailed)
+                {
+                    if (this.SysEnv.SysSettings.IsInventoryAdjustmentModule
+                        || this.SysEnv.ContactLog.LoginID == SysCommon.SystemLoginID)
+                    {
                         this.cmdConvertProduct.IsEnabled = true;
                     }
+                }
+
+                // Override all checks if module bypass enabled.
+                if ((this.SysEnv.IsCommunicationTestSuccessful || this.SysEnv.SysSettings.IsDisconnectedMode)
+                    && this.SysEnv.IsEnableAllModuleBypassLicense
+                    && !this.SysEnv.RefreshOpt.IsRefreshDataFailed)
+                {
+                    this.cmdInventory.IsEnabled = true;
+                    this.cmdProduction.IsEnabled = true;
+                    this.cmdRework.IsEnabled = true;
+                    this.cmdRequisition.IsEnabled = true;
+                    this.cmdDisposal.IsEnabled = true;
+                    this.cmdConvertProduct.IsEnabled = true;
                 }
             }
         }
@@ -385,7 +323,7 @@ namespace dMobile.View.Menus
         /// <remarks></remarks>
         private async void cmdInventory_Click(object sender, EventArgs e)
         {
-            await SetAdjustmentType(SysCommon.AdjTypes.Inventory);
+            await this.SetAdjustmentType(SysCommon.AdjTypes.Inventory);
         }
 
         /// <summary>
@@ -396,7 +334,7 @@ namespace dMobile.View.Menus
         /// <remarks></remarks>
         private async void cmdProduction_Click(object sender, EventArgs e)
         {
-            await SetAdjustmentType(SysCommon.AdjTypes.Production);
+            await this.SetAdjustmentType(SysCommon.AdjTypes.Production);
         }
 
         /// <summary>
@@ -407,7 +345,7 @@ namespace dMobile.View.Menus
         /// <remarks></remarks>
         private async void cmdRework_Click(object sender, EventArgs e)
         {
-            await SetAdjustmentType(SysCommon.AdjTypes.Rework);
+            await this.SetAdjustmentType(SysCommon.AdjTypes.Rework);
         }
 
         /// <summary>
@@ -418,7 +356,7 @@ namespace dMobile.View.Menus
         /// <remarks></remarks>
         private async void cmdDisposal_Click(object sender, EventArgs e)
         {
-            await SetAdjustmentType(SysCommon.AdjTypes.Disposal);
+            await this.SetAdjustmentType(SysCommon.AdjTypes.Disposal);
         }
 
         /// <summary>
@@ -429,7 +367,7 @@ namespace dMobile.View.Menus
         /// <remarks></remarks>
         private async void cmdRequisition_Click(object sender, EventArgs e)
         {
-            await SetAdjustmentType(SysCommon.AdjTypes.Requisition);
+            await this.SetAdjustmentType(SysCommon.AdjTypes.Requisition);
         }
 
         /// <summary>
@@ -439,7 +377,7 @@ namespace dMobile.View.Menus
         /// <param name="e"></param>
         private async void cmdConvertProduct_Click(object sender, EventArgs e)
         {
-            await SetAdjustmentType(SysCommon.AdjTypes.ConvertProduct);
+            await this.SetAdjustmentType(SysCommon.AdjTypes.ConvertProduct);
         }
 
         /// <summary>
@@ -463,7 +401,7 @@ namespace dMobile.View.Menus
             if (adjType == SysCommon.AdjTypes.ConvertProduct)
             {
                 // Placed here to get the default case of keyhandler as well.
-                await ShowConvertProductForm();
+                await this.ShowConvertProductForm();
             }
             else
             {
@@ -488,7 +426,7 @@ namespace dMobile.View.Menus
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         private async Task SetSaveAdjSettings()
         {
@@ -496,14 +434,12 @@ namespace dMobile.View.Menus
             this.AdjSettings.IsApplyAdjustmentType = true;
             this.AdjSettings.NegateScanQuantity = SysCommon.DefaultNegateQuantityFromAdjType(this.AdjSettings.AdjustmentType);
             AdjustmentSettings tempAdjSettings = this.AdjSettings;
-            this.AdjSettings.SaveData(ref tempAdjSettings);
+            _ = this.AdjSettings.SaveData(ref tempAdjSettings);
             this.AdjSettings = tempAdjSettings;
             this.IsControlLoaded = false;
 
             ucActivityHdr ucActivityHdr = new ucActivityHdr(SysCommon.ActSubTypes.Adjustment);
             await ucActivityHdr.Show();
         }
-
-        #endregion
     }
 }

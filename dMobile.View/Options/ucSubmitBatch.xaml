@@ -17,7 +17,7 @@
 
                 <Frame OutlineColor="{DynamicResource BorderColor}" Grid.Row="0">
                     <ScrollView Orientation="Horizontal">
-                        <Grid x:Name="dataGridMainActivityHeader">
+                        <Grid x:Name="GridMainActivity">
                             <Grid.RowDefinitions>
                                 <RowDefinition Height="Auto"/>
                             </Grid.RowDefinitions>
@@ -25,13 +25,13 @@
                                 <ColumnDefinition x:Name="dataGridWidth" Width="Auto"/>
                             </Grid.ColumnDefinitions>
 
-                            <ListView x:Name="dataGridMainActivity" HasUnevenRows="True" IsEnabled="{Binding Loading, Converter={Helpers:BoolConverter}}" Grid.Row="1"/>
+                            <ListView x:Name="ListViewMainActivity" HasUnevenRows="True" IsEnabled="{Binding Loading, Converter={Helpers:BoolConverter}}" Grid.Row="1"/>
                         </Grid>
                     </ScrollView>
                 </Frame>
 
                 <Frame OutlineColor="{DynamicResource BorderColor}" Grid.Row="1">
-                    <ListView x:Name="lstDisplay" SelectionMode="None">
+                    <ListView x:Name="ListViewDisplayExtraInfo" SelectionMode="None">
                         <ListView.ItemTemplate>
                             <DataTemplate>
                                 <ViewCell IsEnabled="False">

@@ -1,539 +1,478 @@
+// <copyright file="clsActivityDetail.cs" company="InterSect Business Systems Inc">
+// Copyright (c) InterSect Business Systems Inc. All rights reserved.
+// </copyright>
+
 namespace dMobile.Controller
 {
-    using dMobile.Bedrock;
-    using dMobile.GroundWork;
-    using SQLite;
     using System;
+    using System.Collections.Generic;
     using System.Collections.ObjectModel;
+    using System.Threading;
+    using System.Threading.Tasks;
     using System.Xml;
     using System.Xml.Linq;
-    using Xamarin.Forms;
-    using System.Collections.Generic;
-    using System.Threading.Tasks;
+    using dMobile.Bedrock;
+    using dMobile.GroundWork;
     using dMobile.Resources.Models;
-    using System.Linq;
-    using System.Dynamic;
+    using dMobile.Resources.Types;
+    using SQLite;
+    using Xamarin.Forms;
 
     /// <summary>
-    ///
+    /// <see cref="ActDetail" /> Activity detail base class.
     /// </summary>
-    /// <remarks></remarks>
     public abstract class ActDetail : IDataLayerEventPublisher, IDataAccessEventListener
     {
-        #region Fields
-
-        private string mainGridMappingName = "tActivityDetail";
-        private List<object> listDetails = null;
-        private SysCommon.ActSubTypes actSubType;
-        private SysEnvironment sysEnv;
-        private LocationMap locMap;
-        private SProductSchemeData schemeData = new SProductSchemeData();
-        private string uniqueSchemeID = string.Empty;
-        private string schemeID = string.Empty;
-        private decimal quantity = 0;
-        private decimal baseQuantity = 0;
-        private decimal weightQuantity = 0;
-        private ActItem actItem = null;
-        private int fkRefno = Convert.ToInt32(null);
-        private int refno = Convert.ToInt32(null);
-        private ActDetailExtra actExtra = new ActDetailExtra();
-        private DataLayerEventArgs dataEventArgs = new DataLayerEventArgs();
-        private SLocMap selectedLocMap = new SLocMap();
-        private bool isUpdateView = false;
-        private int newItemFKRefno = 0;
-        private string fullClassName = typeof(ActDetail).FullName;
-        private int newFKRefno = Convert.ToInt32(null);
-
-        #endregion
-
-        #region Constructors
-
         /// <summary>
-        /// 
+        /// Initializes a new instance of the <see cref="ActDetail"/> class.
         /// </summary>
-        /// <param name="activityItem"></param>
+        /// <param name="activityItem">.</param>
         public ActDetail(ActItem activityItem)
         {
-            this.SysEnv = SysEnvironment.GetInstance();
-            this.LocMap = LocationMap.GetInstance();
             this.ActItem = activityItem;
             this.ActSubType = this.ActItem.ActSubType;
         }
 
-        #endregion
+        /// <summary>
+        /// On data layer status out event handler.
+        /// </summary>
+        /// <param name="publisher"><see cref="IDataLayerEventPublisher"/> Data layer event publisher.</param>
+        /// <param name="eventArgs"><see cref="DataLayerEventArgs"/> Data layer event arguments.</param>
+        public delegate void OnDataLayerStatusOutEventHandler(
+            IDataLayerEventPublisher publisher,
+            DataLayerEventArgs eventArgs);
 
-        #region Delegates
+        /// <summary>
+        /// On data layer progress out event handler.
+        /// </summary>
+        /// <param name="publisher"><see cref="IDataLayerEventPublisher"/> Data layer event publisher.</param>
+        /// <param name="eventArgs"><see cref="DataLayerEventArgs"/> Data layer event arguments.</param>
+        public delegate void OnDataLayerProgressOutEventHandler(
+            IDataLayerEventPublisher publisher,
+            DataLayerEventArgs eventArgs);
 
-        public delegate void OnDataLayerStatusOutEventHandler(IDataLayerEventPublisher dataLayerEventPublisher, DataLayerEventArgs dataLayerEventArgs);
-        public delegate void OnDataLayerProgressOutEventHandler(IDataLayerEventPublisher dataLayerEventPublisher, DataLayerEventArgs dataLayerEventArgs);
-
-        #endregion
-
-        #region Events
-
+        /// <summary>
+        /// On data layer status out event.
+        /// </summary>
         public event OnDataLayerStatusOutEventHandler OnDataLayerStatusOut;
+
+        /// <summary>
+        /// On data layer progress out event.
+        /// </summary>
         public event OnDataLayerProgressOutEventHandler OnDataLayerProgressOut;
 
-        #endregion
+        /// <summary>
+        /// Gets or sets the new activity detail foreign key reference number.
+        /// </summary>
+        public int NewFKRefno { get; set; } = 0;
 
-        #region Properties
+        /// <summary>
+        /// Gets or sets the full class name.
+        /// </summary>
+        public string FullClassName { get; set; } = string.Empty;
 
-        public int NewFKRefno
-        {
-            get
-            {
-                return this.newFKRefno;
-            }
+        /// <summary>
+        /// Gets or sets the new item foreign key reference number.
+        /// </summary>
+        public int NewItemFKRefno { get; set; } = 0;
 
-            set
-            {
-                this.newFKRefno = value;
-            }
-        }
+        /// <summary>
+        /// Gets or sets a value indicating whether is update the view.
+        /// </summary>
+        public bool IsUpdateView { get; set; } = false;
 
-        public string FullClassName
-        {
-            get
-            {
-                return this.fullClassName;
-            }
+        /// <summary>
+        /// Gets or sets the selected location map.
+        /// </summary>
+        public SLocMap SelectedLocMap { get; set; } = new SLocMap();
 
-            set
-            {
-                this.fullClassName = value;
-            }
-        }
+        /// <summary>
+        /// Gets or sets the data layer event arguments.
+        /// </summary>
+        public DataLayerEventArgs DataEventArgs { get; set; } = new DataLayerEventArgs();
 
-        public int NewItemFKRefno
-        {
-            get
-            {
-                return this.newItemFKRefno;
-            }
+        /// <summary>
+        /// Gets or sets the extra activity detail.
+        /// </summary>
+        public ActDetailExtra ActExtra { get; set; } = new ActDetailExtra();
 
-            set
-            {
-                this.newItemFKRefno = value;
-            }
-        }
+        /// <summary>
+        /// Gets or sets the activity detail reference number.
+        /// </summary>
+        public int Refno { get; set; } = 0;
 
-        public bool IsUpdateView
-        {
-            get
-            {
-                return this.isUpdateView;
-            }
+        /// <summary>
+        /// Gets or sets the activity detail foreign key reference number.
+        /// </summary>
+        public int FKRefno { get; set; } = 0;
 
-            set
-            {
-                this.isUpdateView = value;
-            }
-        }
+        /// <summary>
+        /// Gets or sets the product scheme data.
+        /// </summary>
+        public SProductSchemeData SchemeData { get; set; } = new SProductSchemeData();
 
-        public SLocMap SelectedLocMap
-        {
-            get
-            {
-                return this.selectedLocMap;
-            }
+        /// <summary>
+        /// Gets or sets the unique scheme id.
+        /// </summary>
+        public string UniqueSchemeID { get; set; } = string.Empty;
 
-            set
-            {
-                this.selectedLocMap = value;
-            }
-        }
+        /// <summary>
+        /// Gets or sets the scheme id.
+        /// </summary>
+        public string SchemeID { get; set; } = string.Empty;
 
-        public DataLayerEventArgs DataEventArgs
-        {
-            get
-            {
-                return this.dataEventArgs;
-            }
+        /// <summary>
+        /// Gets or sets the alt quantity.
+        /// </summary>
+        public decimal Quantity { get; set; } = 0;
 
-            set
-            {
-                this.dataEventArgs = value;
-            }
-        }
+        /// <summary>
+        /// Gets or sets the base pack quantity.
+        /// </summary>
+        public decimal BaseQuantity { get; set; } = 0;
 
-        public ActDetailExtra ActExtra
-        {
-            get
-            {
-                return this.actExtra;
-            }
+        /// <summary>
+        /// Gets or sets the weight quantity.
+        /// </summary>
+        public decimal WeightQuantity { get; set; } = 0;
 
-            set
-            {
-                this.actExtra = value;
-            }
-        }
+        /// <summary>
+        /// Gets or sets the activity list details.
+        /// </summary>
+        public List<object> ListDetails { get; set; } = new List<object>();
 
-        public int Refno
-        {
-            get
-            {
-                return this.refno;
-            }
+        /// <summary>
+        /// Gets or sets the activity sub type.
+        /// </summary>
+        public SysCommon.ActSubTypes ActSubType { get; set; } = SysCommon.ActSubTypes.NotApplicable;
 
-            set
-            {
-                this.refno = value;
-            }
-        }
+        /// <summary>
+        /// Gets or sets the system environment settings.
+        /// </summary>
+        public SysEnvironment SysEnv { get; set; } = SysEnvironment.GetInstance();
 
-        public int FKRefno
-        {
-            get
-            {
-                return this.fkRefno;
-            }
+        /// <summary>
+        /// Gets or sets the location map.
+        /// </summary>
+        public LocationMap LocMap { get; set; } = LocationMap.GetInstance();
 
-            set
-            {
-                this.fkRefno = value;
-            }
-        }
+        /// <summary>
+        /// Gets or sets the ActItem.
+        /// </summary>
+        public ActItem ActItem { get; set; }
 
-        public SProductSchemeData SchemeData
-        {
-            get
-            {
-                return this.schemeData;
-            }
+        /// <summary>
+        /// Gets or sets the selected activity detail.
+        /// </summary>
+        public object SelectedActivityDetail { get; set; }
 
-            set
-            {
-                this.schemeData = value;
-            }
-        }
-
-        public string UniqueSchemeID
-        {
-            get
-            {
-                return this.uniqueSchemeID;
-            }
-
-            set
-            {
-                this.uniqueSchemeID = value;
-            }
-        }
-
-        public string SchemeID
-        {
-            get
-            {
-                return this.schemeID;
-            }
-
-            set
-            {
-                this.schemeID = value;
-            }
-        }
-
-        public decimal Quantity
-        {
-            get
-            {
-                return this.quantity;
-            }
-
-            set
-            {
-                this.quantity = value;
-            }
-        }
-
-        public decimal BaseQuantity
-        {
-            get
-            {
-                return this.baseQuantity;
-            }
-
-            set
-            {
-                this.baseQuantity = value;
-            }
-        }
-
-        public decimal WeightQuantity
-        {
-            get
-            {
-                return this.weightQuantity;
-            }
-
-            set
-            {
-                this.weightQuantity = value;
-            }
-        }
-
-        public string MainGridMappingName
-        {
-            get
-            {
-                return this.mainGridMappingName;
-            }
-
-            set
-            {
-                this.mainGridMappingName = value;
-            }
-        }
-
-        public List<object> ListDetails
-        {
-            get
-            {
-                return this.listDetails;
-            }
-
-            set
-            {
-                this.listDetails = value;
-            }
-        }
-
-        public SysCommon.ActSubTypes ActSubType
-        {
-            get
-            {
-                return this.actSubType;
-            }
-
-            set
-            {
-                this.actSubType = value;
-            }
-        }
-
-        public SysEnvironment SysEnv
-        {
-            get
-            {
-                return this.sysEnv;
-            }
-
-            set
-            {
-                this.sysEnv = value;
-            }
-        }
-
-        public LocationMap LocMap
-        {
-            get
-            {
-                return this.locMap;
-            }
-
-            set
-            {
-                this.locMap = value;
-            }
-        }
-
-        public ActItem ActItem
-        {
-            get
-            {
-                return this.actItem;
-            }
-
-            set
-            {
-                this.actItem = value;
-            }
-        }
-
-        #endregion
-
-        #region Public Members
-
+        /// <summary>
+        /// The Insert.
+        /// </summary>
+        /// <param name="data">The data<see cref="XDocument"/>.</param>
+        /// <returns>The <see cref="Task"/> Task operation.</returns>
         public abstract Task Insert(XDocument data);
-        public abstract Task Delete();
+
+        /// <summary>
+        /// Delete one or a set of activity detail.
+        /// </summary>
+        /// <returns><see cref="Task{int}"/> Previous non deleted detail foreign key reference number.</returns>
+        public abstract Task<int> Delete();
+
+        /// <summary>
+        /// Refresh the activity detail.
+        /// </summary>
+        /// <returns>The <see cref="Task"/> Task operation.</returns>
         public abstract Task Refresh();
+
+        /// <summary>
+        ///  Create submission XML.
+        /// </summary>
+        /// <param name="data"><see cref="XDocument"/> Filter criteria.</param>
+        /// <returns>The <see cref="Task{string}"/> Submission XML.</returns>
         public abstract Task<string> CreateSubmitXML(XDocument data);
+
+        /// <summary>
+        ///  Delete submission XML.
+        /// </summary>
+        /// <param name="data"><see cref="XDocument"/> Filter criteria.</param>
+        /// <returns>The <see cref="Task{string}"/> Deletion XML.</returns>
         public abstract Task<string> CreateDeleteXML(XDocument data);
+
+        /// <summary>
+        /// Submit the request to the comm server.
+        /// </summary>
+        /// <param name="selectedActivityDetail"><see cref="object"/> Selected activity detail.</param>
+        /// <param name="data"><see cref="XDocument"/> XML data to submit.</param>
+        /// <returns>The <see cref="Task"/> Task operation.</returns>
         public abstract Task Submit(object selectedActivityDetail, XDocument data);
+
+        /// <summary>
+        /// Perform a search in the detail list for the search text.
+        /// </summary>
+        /// <param name="searchText"><see cref="string"/> Text to search for a match.</param>
+        /// <returns><see cref="ObservableCollection{object}"/> Found activity detail or null.</returns>
         public abstract ObservableCollection<object> Search(string searchText);
+
+        /// <summary>
+        /// Get a list of activity details.
+        /// </summary>
+        /// <param name="isSubmitBatch"><see cref="bool"/> Is this a batch submission.</param>
+        /// <returns><see cref="Task{List{object}}"/>.</returns>
         public abstract Task<List<object>> GetActivityDetailList(bool isSubmitBatch);
-        public abstract ObservableCollection<object> DesignGrid(ref Grid dataGridMainActivityHeader, ref ListView dataGridMainActivity);
-        public abstract Task SelectActivityDetail(object selectedActivityDetail);
+
+        /// <summary>
+        /// Design the activity detail grid.
+        /// </summary>
+        /// <param name="GridMainActivity"><see cref="Grid"/> Main activity grid.</param>
+        /// <param name="ListViewMainActivity"><see cref="ListView"/> List view of activity details.</param>
+        /// <returns><see cref="ObservableCollection{object}"/> Constructed observable collection.</returns>
+        public abstract ObservableCollection<object> DesignGrid(
+            ref Grid GridMainActivity,
+            ref ListView ListViewMainActivity);
+
+        /// <summary>
+        /// Design activity grid template.
+        /// </summary>
+        /// <param name="gridMain"><see cref="Grid"/> Main activity grid.</param>
+        /// <param name="actDetail"><see cref="ActivityDetail"/> Activity detail.</param>
+        /// <param name="mainActivityExtraInfoItems"><see cref="ObservableCollection{T}"/> Activity items list.</param>
+        /// <returns><see cref="Grid"/> Created grid.</returns>
+        public abstract DataTemplate DesignGrid(
+            ref Grid gridMain,
+            ActivityDetail actDetail,
+            ObservableCollection<object> mainActivityExtraInfoItems);
+
+        /// <summary>
+        /// Select an activity detail.
+        /// </summary>
+        /// <param name="selectedActivityDetail"><see cref="object"/> Activity detail to select.</param>
+        /// <returns>The <see cref="Task"/> Task operation.</returns>
+        /// <remarks>
+        /// Assigns this.SelectedActivityDetail.
+        /// Handles verifying product default location.
+        /// Current location is set to the selected skid location.
+        /// Clears the selected skid if the line item product changed (Flag).
+        /// </remarks>
+        public virtual async Task SelectActivityDetail(object selectedActivityDetail)
+        {
+            this.ClearProperties();
+            if (selectedActivityDetail is ActivityDetail detail)
+            {
+                this.Refno = detail.ActivityDetailRefno;
+                this.FKRefno = detail.ActivityDetailFKRefno;
+                this.NewFKRefno = 0;
+                this.NewItemFKRefno = 0;
+
+                this.Quantity = detail.ActivityDetailQuantity;
+                this.BaseQuantity = detail.ActivityDetailBaseQuantity;
+                this.WeightQuantity = detail.ActivityDetailWeightQuantity;
+
+                // SelectedLocMap is used in the activity detail edit for label printing.
+                // detail.LocationMapRefno could be a warehouse or even a slot.
+                this.SelectedLocMap = await LocationMapTasks.GetSLocMapFromLocMapRefno(detail.LocationMapRefno);
+
+                this.SchemeID = detail.ActivityDetailSchemeID;
+                this.UniqueSchemeID = detail.ActivityDetailUniqueSchemeID;
+                this.ActExtra.Text1 = detail.ActivityDetailExtra1Text;
+                this.ActExtra.Text2 = detail.ActivityDetailExtra2Text;
+                this.ActExtra.Text3 = detail.ActivityDetailExtra3Text;
+                this.ActExtra.Text4 = detail.ActivityDetailExtra4Text;
+                if (detail.ActivityDetailExtra5Date == null ||
+                    detail.ActivityDetailExtra5Date <= SysCommon.EmptyDateTime)
+                {
+                    this.ActExtra.DateTime1 = SysCommon.EmptyDateTime;
+                }
+                else
+                {
+                    this.ActExtra.DateTime1 = detail.ActivityDetailExtra5Date;
+                }
+
+                await this.ActItem.GetSelectedItemLocation(detail.LocationMapRefno);
+            }
+        }
+
+        /// <summary>
+        /// Get the activity detail reference number.
+        /// </summary>
+        /// <param name="selectedActivityDetail"><see cref="object"/> Selected activity detail.</param>
+        /// <returns><see cref="int"/> Activity detail reference number.</returns>
         public abstract int GetRefno(object selectedActivityDetail);
+
+        /// <summary>
+        /// Get the activity detail foreign key reference number.
+        /// </summary>
+        /// <param name="selectedActivityDetail"><see cref="object"/> Selected activity detail.</param>
+        /// <returns><see cref="int"/> Activity detail foreign key reference number.</returns>
         public abstract int GetFKRefno(object selectedActivityDetail);
+
+        /// <summary>
+        /// Insert a skid.
+        /// </summary>
+        /// <param name="skidInfo"><see cref="SysSkidInfo"/> Skid information to insert.</param>
+        /// <returns>The <see cref="Task"/> Task operation.</returns>
         public abstract Task InsertSkid(SysSkidInfo skidInfo);
+
+        /// <summary>
+        /// Delete a skid.
+        /// </summary>
+        /// <param name="skidInfo"><see cref="SysSkidInfo"/> Skid information to delete.</param>
+        /// <returns>The <see cref="Task"/> Task operation.</returns>
         public abstract Task DeleteSkid(SysSkidInfo skidInfo);
 
         /// <summary>
-        /// Total all activity detail quantity from the dataview
+        /// Get the activity detail description.
         /// </summary>
-        /// <returns>SFillQuantity structure</returns>
-        public virtual async Task<SysCommon.SFillQuantity> GetDataViewTotalQuantity()
-        {
-            SysCommon.SFillQuantity fillQty = new SysCommon.SFillQuantity();
+        /// <returns>The <see cref="string"/>.</returns>
+        public abstract string GetControlDescription();
 
-            if (this.ListDetails != null && this.ListDetails.Count > 0)
+        /// <summary>
+        /// Total all activity detail quantity from the data view.
+        /// </summary>
+        /// <returns><see cref="SFillQuantity"/> Total quantities.</returns>
+        public virtual async Task<SFillQuantity> GetDataViewTotalQuantity()
+        {
+            SFillQuantity fillQty = new SFillQuantity();
+            await Device.InvokeOnMainThreadAsync(() =>
             {
-                foreach (dynamic detail in this.ListDetails)
+                if (this.ListDetails != null && this.ListDetails.Count > 0)
                 {
-                    fillQty.Quantity += Convert.ToDecimal(detail.ActivityDetailQuantity);
-                    fillQty.BaseQuantity += Convert.ToDecimal(detail.ActivityDetailBaseQuantity);
-                    fillQty.WeightQuantity += Convert.ToDecimal(detail.ActivityDetailWeightQuantity);
+                    foreach (ActivityDetail detail in this.ListDetails)
+                    {
+                        fillQty.Quantity += Convert.ToDecimal(detail.ActivityDetailQuantity);
+                        fillQty.BaseQuantity += Convert.ToDecimal(detail.ActivityDetailBaseQuantity);
+                        fillQty.WeightQuantity += Convert.ToDecimal(detail.ActivityDetailWeightQuantity);
+                    }
                 }
-            }
+
+                return Task.CompletedTask;
+            });
 
             return fillQty;
         }
 
         /// <summary>
-        ///
+        /// Clear the activity properties.
         /// </summary>
-        /// <remarks></remarks>
         public virtual void ClearProperties()
         {
+            this.Refno = 0;
+            this.FKRefno = 0;
+            this.NewItemFKRefno = 0;
+            this.NewFKRefno = 0;
             this.UniqueSchemeID = string.Empty;
-            this.SchemeID = string.Empty;
             this.Quantity = 0;
             this.BaseQuantity = 0;
             this.WeightQuantity = 0;
-            this.FKRefno = 0;
-            this.Refno = 0;
+            this.SchemeID = string.Empty;
+            this.SchemeData = new SProductSchemeData();
             this.ActExtra.Text1 = string.Empty;
             this.ActExtra.Text2 = string.Empty;
             this.ActExtra.Text3 = string.Empty;
             this.ActExtra.Text4 = string.Empty;
-            this.ActExtra.DateTime5 = new DateTime(1900, 1, 1);
-            this.NewItemFKRefno = 0;
-            this.NewFKRefno = 0;
+            this.ActExtra.DateTime1 = SysCommon.EmptyDateTime;
+            ////this.SelectedLocMap = new SLocMap();
+            ////this.SelectedActivityDetail = null;
         }
 
         /// <summary>
-        /// 
+        /// Get the activity detail information.
         /// </summary>
-        /// <param name="idx"></param>
-        /// <param name="isAdd"></param>
-        /// <returns></returns>
+        /// <param name="selectedActivityDetail"><see cref="object"/> Selected activity detail.</param>
+        /// <param name="isAdd"><see cref="bool"/> Is adding activity detail.</param>
+        /// <returns><see cref="Task{ActDetail}"/> Activity detail.</returns>
         public virtual async Task<ActDetail> GetInfo(object selectedActivityDetail, bool isAdd)
         {
+            selectedActivityDetail = selectedActivityDetail ??
+                throw new ArgumentNullException(nameof(selectedActivityDetail));
             SProductSchemeData tmpSchemeData = this.SchemeData;
 
-            if (isAdd)
+            await Device.InvokeOnMainThreadAsync(() =>
             {
-                this.ClearProperties();
-
-                tmpSchemeData.LogisticUnitBestBeforeSellByDate = DateTime.Now;
-                tmpSchemeData.LogisticUnitProductionDate = DateTime.Now;
-                tmpSchemeData.SingleTradeItemSerialNumber = string.Empty;
-                tmpSchemeData.LogisticUnitBatchLotNumber = string.Empty;
-                tmpSchemeData.VariantCode = string.Empty;
-                tmpSchemeData.VariantNumber = 0;
-            }
-            else
-            {
-                if (selectedActivityDetail == null)
+                if (isAdd)
                 {
-                    throw new Exception("Detail is null!");
-                }
-
-                dynamic detail = selectedActivityDetail;
-
-                this.Quantity = Convert.ToDecimal(detail.ActivityDetailQuantity);
-                this.BaseQuantity = Convert.ToDecimal(detail.ActivityDetailBaseQuantity);
-                this.WeightQuantity = Convert.ToDecimal(detail.ActivityDetailWeightQuantity);
-                this.Refno = Convert.ToInt32(detail.ActivityDetailRefno);
-                this.SchemeID = Convert.ToString(detail.ActivityDetailSchemeID);
-                this.UniqueSchemeID = Convert.ToString(detail.ActivityDetailUniqueSchemeID);
-
-                // Check for DBNull because extra detail is in a child table, left join from the dataview query.
-                if (detail.GetType().GetProperty("ActivityDetailExtra1Text")?.GetValue(detail) != null && detail.ActivityDetailExtra1Text != null)
-                {
-                    this.ActExtra.Text1 = Convert.ToString(detail.ActivityDetailExtra1Text);
-                }
-
-                // Check for DBNull because extra detail is in a child table, left join from the dataview query.
-                if (detail.GetType().GetProperty("ActivityDetailExtra2Text")?.GetValue(detail) != null && detail.ActivityDetailExtra2Text != null)
-                {
-                    this.ActExtra.Text2 = Convert.ToString(detail.ActivityDetailExtra2Text);
-                }
-
-                // Check for DBNull because extra detail is in a child table, left join from the dataview query.
-                if (detail.GetType().GetProperty("ActivityDetailExtra3Text")?.GetValue(detail) != null && detail.ActivityDetailExtra3Text != null)
-                {
-                    this.ActExtra.Text3 = Convert.ToString(detail.ActivityDetailExtra3Text);
-                }
-
-                // Check for DBNull because extra detail is in a child table, left join from the dataview query.
-                if (detail.GetType().GetProperty("ActivityDetailExtra4Text")?.GetValue(detail) != null && detail.ActivityDetailExtra4Text != null)
-                {
-                    this.ActExtra.Text4 = Convert.ToString(detail.ActivityDetailExtra4Text);
-                }
-
-                // Check for DBNull because extra detail is in a child table, left join from the dataview query.
-                if (detail.GetType().GetProperty("ActivityDetailExtra5Date")?.GetValue(detail) != null && detail.ActivityDetailExtra5Date != null && !string.IsNullOrEmpty(Convert.ToString(detail.ActivityDetailExtra5Date)))
-                {
-                    this.ActExtra.DateTime5 = Convert.ToDateTime(detail.ActivityDetailExtra5Date);
-                }
-
-                DateTime bestBefore = Convert.ToDateTime(detail.ActivityDetailLogisticUnitBestBeforeSellByDate);
-
-                if (SysCommon.IsEmptyDateTime(bestBefore))
-                {
-                    if (this.ActItem.ProdInfo.Scheme.IsBestBeforeDateTrackedDefault)
-                    {
-                        tmpSchemeData.LogisticUnitBestBeforeSellByDate = DateTime.Now;
-                    }
+                    this.ClearProperties();
+                    tmpSchemeData.LogisticUnitBestBeforeSellByDate = DateTime.Now;
+                    tmpSchemeData.LogisticUnitProductionDate = DateTime.Now;
+                    tmpSchemeData.SingleTradeItemSerialNumber = string.Empty;
+                    tmpSchemeData.LogisticUnitBatchLotNumber = string.Empty;
+                    tmpSchemeData.VariantCode = string.Empty;
+                    tmpSchemeData.VariantNumber = 0;
                 }
                 else
                 {
-                    tmpSchemeData.LogisticUnitBestBeforeSellByDate = bestBefore;
-                }
+                    ActivityDetail detail = (ActivityDetail)selectedActivityDetail;
 
-                DateTime production = Convert.ToDateTime(detail.ActivityDetailLogisticUnitProductionDate);
+                    this.Quantity = Convert.ToDecimal(detail.ActivityDetailQuantity);
+                    this.BaseQuantity = Convert.ToDecimal(detail.ActivityDetailBaseQuantity);
+                    this.WeightQuantity = Convert.ToDecimal(detail.ActivityDetailWeightQuantity);
+                    this.Refno = Convert.ToInt32(detail.ActivityDetailRefno);
+                    this.SchemeID = Convert.ToString(detail.ActivityDetailSchemeID);
+                    this.UniqueSchemeID = Convert.ToString(detail.ActivityDetailUniqueSchemeID);
 
-                if (SysCommon.IsEmptyDateTime(production))
-                {
-                    if (this.ActItem.ProdInfo.Scheme.IsProductionDateTrackedDefault)
+                    // Check for DBNull because extra detail is in a child table, left join from the data query.
+                    if (detail.ActivityDetailExtra1Text != null)
                     {
-                        tmpSchemeData.LogisticUnitProductionDate = DateTime.Now;
+                        this.ActExtra.Text1 = Convert.ToString(detail.ActivityDetailExtra1Text);
+                    }
+
+                    if (detail.ActivityDetailExtra2Text != null)
+                    {
+                        this.ActExtra.Text2 = Convert.ToString(detail.ActivityDetailExtra2Text);
+                    }
+
+                    if (detail.ActivityDetailExtra3Text != null)
+                    {
+                        this.ActExtra.Text3 = Convert.ToString(detail.ActivityDetailExtra3Text);
+                    }
+
+                    if (detail.ActivityDetailExtra4Text != null)
+                    {
+                        this.ActExtra.Text4 = Convert.ToString(detail.ActivityDetailExtra4Text);
+                    }
+
+                    if (detail.ActivityDetailExtra5Date != null &&
+                        !string.IsNullOrEmpty(Convert.ToString(detail.ActivityDetailExtra5Date)))
+                    {
+                        this.ActExtra.DateTime1 = Convert.ToDateTime(detail.ActivityDetailExtra5Date);
+                    }
+
+                    // Default best before date to today.
+                    DateTime bestBefore = Convert.ToDateTime(detail.ActivityDetailLogisticUnitBestBeforeSellByDate);
+                    tmpSchemeData.LogisticUnitBestBeforeSellByDate = SysCommon.IsEmptyDateTime(bestBefore) &&
+                        this.ActItem.ProdInfo.Scheme.IsBestBeforeDateTrackedDefault
+                        ? DateTime.Now
+                        : bestBefore;
+
+                    // Default production date to today.
+                    DateTime production = Convert.ToDateTime(detail.ActivityDetailLogisticUnitProductionDate);
+                    tmpSchemeData.LogisticUnitProductionDate = SysCommon.IsEmptyDateTime(production) &&
+                        this.ActItem.ProdInfo.Scheme.IsProductionDateTrackedDefault
+                        ? DateTime.Now
+                        : production;
+
+                    tmpSchemeData.SingleTradeItemSerialNumber = Convert.ToString(detail.ActivityDetailSingleTradeItemSerialNumber);
+                    tmpSchemeData.LogisticUnitBatchLotNumber = Convert.ToString(detail.ActivityDetailLogisticUnitBatchLotNumber);
+
+                    // Check for DBNull because variants are in a child table, left join from the data query.
+                    if (detail.ProductSchemeVariantCode != null)
+                    {
+                        tmpSchemeData.VariantCode = Convert.ToString(detail.ProductSchemeVariantCode);
+                        tmpSchemeData.VariantNumber = Convert.ToInt32(detail.ProductSchemeVariantNo);
                     }
                 }
-                else
-                {
-                    tmpSchemeData.LogisticUnitProductionDate = production;
-                }
 
-                tmpSchemeData.SingleTradeItemSerialNumber = Convert.ToString(detail.ActivityDetailSingleTradeItemSerialNumber);
-                tmpSchemeData.LogisticUnitBatchLotNumber = Convert.ToString(detail.ActivityDetailLogisticUnitBatchLotNumber);
-
-                // Check for DBNull because variants are in a child table, left join from the dataview query.
-                if (detail.ProductSchemeVariantCode != null)
-                {
-                    tmpSchemeData.VariantCode = Convert.ToString(detail.ProductSchemeVariantCode);
-                }
-
-                // Check for DBNull because variants are in a child table, left join from the dataview query.
-                if (detail.ProductSchemeVariantNo != null)
-                {
-                    tmpSchemeData.VariantNumber = Convert.ToInt32(detail.ProductSchemeVariantNo);
-                }
-            }
-
-            this.SchemeData = tmpSchemeData;
+                this.SchemeData = tmpSchemeData;
+            });
 
             return this;
         }
 
         /// <summary>
-        /// 
+        /// Check if the activity detail can be applied.
         /// </summary>
-        /// <param name="data"></param>
-        /// <returns></returns>
+        /// <param name="data"><see cref="XDocument"/> Activity detail.</param>
+        /// <returns><see cref="bool"/> True if the detail is ready to be applied else false.</returns>
         public virtual async Task IsReadyToApply(XDocument data)
         {
             // Check for duplicate
@@ -545,7 +484,6 @@ namespace dMobile.Controller
 
                     if (isDupSchemeId)
                     {
-                        // TODO: Resource strings
                         throw new Exception("Duplicate scheme ID!" + Environment.NewLine + this.UniqueSchemeID);
                     }
                 }
@@ -553,81 +491,73 @@ namespace dMobile.Controller
         }
 
         /// <summary>
-        /// 
+        /// Create a submit product label XML request.
         /// </summary>
-        /// <param name="data"></param>
-        /// <returns></returns>
+        /// <param name="data"><see cref="XDocument"/> Data to use to populate label.</param>
+        /// <returns><see cref="Task{string}"/> Submission string.</returns>
         public virtual Task<string> CreateSubmitProductLabelXML(XDocument data)
         {
             throw new NotImplementedException();
         }
 
         /// <summary>
-        /// Return a string formatted xml of default detail values.
+        /// Get a string formatted xml of default detail values.
         /// </summary>
-        /// <remarks>
-        /// prod_id, is_bc
-        /// whs_id, sect_refno, slot_refno
-        /// refno, itm_refno, ser_refno
-        /// alt_qty, alt_unit, base_qty, base_unit, wt_qty, wt_unit
-        /// serial, lot_no, pdate, bdate, variant_no
-        /// extra1, extra2, extra3, extra4, extra5
-        /// is_disconnected
-        /// </remarks>
-        /// <returns></returns>
+        /// <returns><see cref="string"/> Activity detail defaults XML string.</returns>
         public virtual string GetRequestDetailDefaults()
         {
-            // Init the production and bestbefore date as empty intentional. 
+            // Init the production and best before date as empty intentional.
             // We want to send a 'blank' date if it is not tracked rather than {01/01/1900} as the empty date.
-
             string bestBeforeDate = string.Empty;
 
-            if (this.ActItem.ProdInfo.Scheme.IsBestBeforeDateTracked && !SysCommon.IsEmptyDateTime(this.SchemeData.LogisticUnitBestBeforeSellByDate))
+            if (this.ActItem.ProdInfo.Scheme.IsBestBeforeDateTracked &&
+                !SysCommon.IsEmptyDateTime(this.SchemeData.LogisticUnitBestBeforeSellByDate))
             {
                 bestBeforeDate = this.SchemeData.LogisticUnitBestBeforeSellByDate.ToString("MM/dd/yyyy");
             }
 
             string productionDate = string.Empty;
 
-            if (this.ActItem.ProdInfo.Scheme.IsProductionDateTracked && !SysCommon.IsEmptyDateTime(this.SchemeData.LogisticUnitProductionDate))
+            if (this.ActItem.ProdInfo.Scheme.IsProductionDateTracked &&
+                !SysCommon.IsEmptyDateTime(this.SchemeData.LogisticUnitProductionDate))
             {
                 productionDate = this.SchemeData.LogisticUnitProductionDate.ToString("MM/dd/yyyy");
             }
 
-            string def = ("<prod_id>" + this.ActItem.ProdInfo.Code + "</prod_id>")
-                + ("<is_bc>" + this.ActItem.ProdInfo.UnitIsBC + "</is_bc>")
-                + ("<whs_id>" + this.LocMap.CurrLocMap.WhsFKRefno + "</whs_id>")
-                + ("<sect_refno>" + this.LocMap.CurrLocMap.SectFKRefno + "</sect_refno>")
-                + ("<slot_refno>" + this.LocMap.CurrLocMap.SlotFKRefno + "</slot_refno>")
-                + ("<refno>" + this.ActItem.ActHdr.FKRefno + "</refno>")
-                + ("<itm_refno>" + this.ActItem.FKRefno + "</itm_refno>")
-                + ("<ser_refno>" + this.FKRefno + "</ser_refno>")
-                + ("<alt_qty>" + this.Quantity + "</alt_qty>")
-                + ("<alt_unit>" + this.ActItem.ProdInfo.UnitCode + "</alt_unit>")
-                + ("<base_qty>" + this.BaseQuantity + "</base_qty>")
-                + ("<base_unit>" + this.ActItem.ProdInfo.BaseUnitCode + "</base_unit>")
-                + ("<wt_qty>" + this.WeightQuantity + "</wt_qty>")
-                + ("<wt_unit>" + this.ActItem.ProdInfo.WeightUnitCode + "</wt_unit>")
-                + ("<serial>" + this.SchemeData.SingleTradeItemSerialNumber + "</serial>")
-                + ("<lot_no>" + this.SchemeData.LogisticUnitBatchLotNumber + "</lot_no>")
-                + ("<pdate>" + productionDate + "</pdate>")
-                + ("<bdate>" + bestBeforeDate + "</bdate>")
-                + ("<variant_no>" + this.SchemeData.VariantNumber + "</variant_no>")
-                + ("<extra1>" + this.ActExtra.Text1 + "</extra1>")
-                + ("<extra2>" + this.ActExtra.Text2 + "</extra2>")
-                + ("<extra3>" + this.ActExtra.Text3 + "</extra3>")
-                + ("<extra4>" + this.ActExtra.Text4 + "</extra4>")
-                + ("<extra5>" + this.ActExtra.DateTime5 + "</extra5>")
-                + ("<is_disconnected>" + this.SysEnv.SysSettings.IsDisconnectedMode + "</is_disconnected>");
+            string def = "<prod_id>" + this.ActItem.ProdInfo.Code + "</prod_id>"
+                + "<is_bc>" + this.ActItem.ProdInfo.UnitIsBC + "</is_bc>"
+                + "<whs_id>" + this.LocMap.CurrLocMap.WhsFKRefno + "</whs_id>"
+                + "<sect_refno>" + this.LocMap.CurrLocMap.SectFKRefno + "</sect_refno>"
+                + "<slot_refno>" + this.LocMap.CurrLocMap.SlotFKRefno + "</slot_refno>"
+                + "<refno>" + this.ActItem.ActHdr.FKRefno + "</refno>"
+                + "<itm_refno>" + this.ActItem.FKRefno + "</itm_refno>"
+                + "<ser_refno>" + this.FKRefno + "</ser_refno>"
+                + "<alt_qty>" + this.Quantity + "</alt_qty>"
+                + "<alt_unit>" + this.ActItem.ProdInfo.UnitCode + "</alt_unit>"
+                + "<base_qty>" + this.BaseQuantity + "</base_qty>"
+                + "<base_unit>" + this.ActItem.ProdInfo.BaseUnitCode + "</base_unit>"
+                + "<wt_qty>" + this.WeightQuantity + "</wt_qty>"
+                + "<wt_unit>" + this.ActItem.ProdInfo.WeightUnitCode + "</wt_unit>"
+                + "<serial>" + this.SchemeData.SingleTradeItemSerialNumber + "</serial>"
+                + "<lot_no>" + this.SchemeData.LogisticUnitBatchLotNumber + "</lot_no>"
+                + "<pdate>" + productionDate + "</pdate>"
+                + "<bdate>" + bestBeforeDate + "</bdate>"
+                + "<variant_no>" + this.SchemeData.VariantNumber + "</variant_no>"
+                + "<extra1>" + this.ActExtra.Text1 + "</extra1>"
+                + "<extra2>" + this.ActExtra.Text2 + "</extra2>"
+                + "<extra3>" + this.ActExtra.Text3 + "</extra3>"
+                + "<extra4>" + this.ActExtra.Text4 + "</extra4>"
+                + "<extra5>" + this.ActExtra.DateTime1 + "</extra5>"
+                + "<is_disconnected>" + this.SysEnv.SysSettings.IsDisconnectedMode + "</is_disconnected>";
 
             return def;
         }
 
         /// <summary>
-        /// 
+        /// Get activity detail XML data.
         /// </summary>
-        /// <param name="actDetail"></param>
-        /// <returns></returns>
+        /// <param name="actDetail"><see cref="ActDetail"/> Activity detail.</param>
+        /// <returns><see cref="XDocument"/> Activity detail XML.</returns>
         public XDocument GetXML(ActDetail actDetail)
         {
             return XDocument.Parse(
@@ -635,51 +565,55 @@ namespace dMobile.Controller
                 + "<params>"
                 + "<refno></refno>"
                 + "<ser_refno></ser_refno>"
-                + ("<serial>" + actDetail.SchemeData.SingleTradeItemSerialNumber + "</serial>")
-                + ("<pdate>" + actDetail.SchemeData.LogisticUnitProductionDate + "</pdate>")
-                + ("<lot_no>" + actDetail.SchemeData.LogisticUnitBatchLotNumber + "</lot_no>")
-                + ("<bdate>" + actDetail.SchemeData.LogisticUnitBestBeforeSellByDate + "</bdate>")
-                + ("<variant_code>" + actDetail.SchemeData.VariantCode + "</variant_code>")
-                + ("<variant_no>" + actDetail.SchemeData.VariantNumber + "</variant_no>")
-                + ("<alt_qty>" + actDetail.Quantity + "</alt_qty>")
-                + ("<wt_qty>" + actDetail.WeightQuantity + "</wt_qty>")
-                + ("<base_qty>" + actDetail.BaseQuantity + "</base_qty>")
-                + ("<skid_code>" + this.ActItem.ActHdr.SkidInfo.CurrSkid.SkidCode + "</skid_code>")
-                + ("<is_batch_print_product_label>" + this.SysEnv.SysSettings.IsPrintProductLabelsAsBatch
-                + "</is_batch_print_product_label>")
-                + ("<extra1>" + actDetail.ActExtra.Text1 + "</extra1>")
-                + ("<extra2>" + actDetail.ActExtra.Text2 + "</extra2>")
-                + ("<extra3>" + actDetail.ActExtra.Text3 + "</extra3>")
-                + ("<extra4>" + actDetail.ActExtra.Text4 + "</extra4>")
-                + ("<extra5>" + actDetail.ActExtra.DateTime5 + "</extra5>")
+                + "<serial>" + actDetail.SchemeData.SingleTradeItemSerialNumber + "</serial>"
+                + "<pdate>" + actDetail.SchemeData.LogisticUnitProductionDate + "</pdate>"
+                + "<lot_no>" + actDetail.SchemeData.LogisticUnitBatchLotNumber + "</lot_no>"
+                + "<bdate>" + actDetail.SchemeData.LogisticUnitBestBeforeSellByDate + "</bdate>"
+                + "<variant_code>" + actDetail.SchemeData.VariantCode + "</variant_code>"
+                + "<variant_no>" + actDetail.SchemeData.VariantNumber + "</variant_no>"
+                + "<alt_qty>" + actDetail.Quantity + "</alt_qty>"
+                + "<wt_qty>" + actDetail.WeightQuantity + "</wt_qty>"
+                + "<base_qty>" + actDetail.BaseQuantity + "</base_qty>"
+                + "<skid_code>" + this.ActItem.ActHdr.SkidInfo.CurrSkid.SkidCode + "</skid_code>"
+                + "<is_batch_print_product_label>" + this.SysEnv.SysSettings.IsPrintProductLabelsAsBatch
+                + "</is_batch_print_product_label>"
+                + "<extra1>" + actDetail.ActExtra.Text1 + "</extra1>"
+                + "<extra2>" + actDetail.ActExtra.Text2 + "</extra2>"
+                + "<extra3>" + actDetail.ActExtra.Text3 + "</extra3>"
+                + "<extra4>" + actDetail.ActExtra.Text4 + "</extra4>"
+                + "<extra5>" + actDetail.ActExtra.DateTime1 + "</extra5>"
                 + "</params>");
         }
 
         /// <summary>
         /// Check if the inventory tracking scheme is complete.
         /// </summary>
-        /// <param name="actItem"></param>
-        /// <returns></returns>
+        /// <param name="actItem"><see cref="ActItem"/> Activity item.</param>
+        /// <returns>.</returns>
         public bool IsSchemeComplete(ActItem actItem)
         {
             bool isComplete = true;
 
-            if (actItem.ProdInfo.Scheme.IsBestBeforeDateTracked && SysCommon.IsEmptyDateTime(this.SchemeData.LogisticUnitBestBeforeSellByDate))
+            if (actItem.ProdInfo.Scheme.IsBestBeforeDateTracked &&
+                SysCommon.IsEmptyDateTime(this.SchemeData.LogisticUnitBestBeforeSellByDate))
             {
                 isComplete = false;
             }
 
-            if (actItem.ProdInfo.Scheme.IsLotTracked && string.IsNullOrEmpty(this.SchemeData.LogisticUnitBatchLotNumber))
+            if (actItem.ProdInfo.Scheme.IsLotTracked &&
+                string.IsNullOrEmpty(this.SchemeData.LogisticUnitBatchLotNumber))
             {
                 isComplete = false;
             }
 
-            if (actItem.ProdInfo.Scheme.IsProductionDateTracked && SysCommon.IsEmptyDateTime(this.SchemeData.LogisticUnitProductionDate))
+            if (actItem.ProdInfo.Scheme.IsProductionDateTracked &&
+                SysCommon.IsEmptyDateTime(this.SchemeData.LogisticUnitProductionDate))
             {
                 isComplete = false;
             }
 
-            if (actItem.ProdInfo.Scheme.IsSerialTracked && string.IsNullOrEmpty(this.SchemeData.SingleTradeItemSerialNumber))
+            if (actItem.ProdInfo.Scheme.IsSerialTracked &&
+                string.IsNullOrEmpty(this.SchemeData.SingleTradeItemSerialNumber))
             {
                 isComplete = false;
             }
@@ -695,42 +629,47 @@ namespace dMobile.Controller
         /// <summary>
         /// Check if the product label scheme is complete.
         /// </summary>
-        /// <returns></returns>
+        /// <returns><see cref="bool"/> True if the label scheme is complete else false.</returns>
         public bool IsLabelSchemeComplete()
         {
             return this.IsLabelSchemeComplete(this.SchemeData);
         }
 
         /// <summary>
-        /// 
+        /// Check if the product label scheme is complete.
         /// </summary>
-        /// <param name="schemeData"></param>
-        /// <returns></returns>
+        /// <param name="schemeData"><see cref="SActItemSchemeData"/> Product scheme data.</param>
+        /// <returns><see cref="bool"/> True if the label scheme is complete else false.</returns>
         public bool IsLabelSchemeComplete(SProductSchemeData schemeData)
         {
             bool isComplete = true;
 
-            if (this.ActItem.ProdInfo.Scheme.LabelInfo.IsBestBeforeDateTracked && SysCommon.IsEmptyDateTime(schemeData.LogisticUnitBestBeforeSellByDate))
+            if (this.ActItem.ProdInfo.Scheme.LabelInfo.IsBestBeforeDateTracked &&
+                SysCommon.IsEmptyDateTime(schemeData.LogisticUnitBestBeforeSellByDate))
             {
                 isComplete = false;
             }
 
-            if (this.ActItem.ProdInfo.Scheme.LabelInfo.IsLotTracked && string.IsNullOrEmpty(schemeData.LogisticUnitBatchLotNumber))
+            if (this.ActItem.ProdInfo.Scheme.LabelInfo.IsLotTracked &&
+                string.IsNullOrEmpty(schemeData.LogisticUnitBatchLotNumber))
             {
                 isComplete = false;
             }
 
-            if (this.ActItem.ProdInfo.Scheme.LabelInfo.IsProductionDateTracked && SysCommon.IsEmptyDateTime(schemeData.LogisticUnitProductionDate))
+            if (this.ActItem.ProdInfo.Scheme.LabelInfo.IsProductionDateTracked &&
+                SysCommon.IsEmptyDateTime(schemeData.LogisticUnitProductionDate))
             {
                 isComplete = false;
             }
 
-            if (this.ActItem.ProdInfo.Scheme.LabelInfo.IsSerialTracked && string.IsNullOrEmpty(schemeData.SingleTradeItemSerialNumber))
+            if (this.ActItem.ProdInfo.Scheme.LabelInfo.IsSerialTracked &&
+                string.IsNullOrEmpty(schemeData.SingleTradeItemSerialNumber))
             {
                 isComplete = false;
             }
 
-            if (this.ActItem.ProdInfo.Scheme.LabelInfo.IsVariantTracked && schemeData.VariantNumber == 0)
+            if (this.ActItem.ProdInfo.Scheme.LabelInfo.IsVariantTracked &&
+                schemeData.VariantNumber == 0)
             {
                 isComplete = false;
             }
@@ -739,15 +678,19 @@ namespace dMobile.Controller
         }
 
         /// <summary>
-        /// 
+        /// Get the scheme data variant information from the scheme data variant number.
         /// </summary>
-        /// <param name="prodSchemeData"></param>
-        /// <returns></returns>
-        public async Task<SProductSchemeData> FillSchemeDataVarInfoFromSchemeDataVarNo(SProductSchemeData prodSchemeData)
+        /// <param name="prodSchemeData"><see cref="SActItemSchemeData"/> Product scheme data.</param>
+        /// <returns><see cref="Task{SProductSchemeData}"/> ProductSchemeData.</returns>
+        public async Task<SProductSchemeData> FillSchemeDataVarInfoFromSchemeDataVarNo(
+            SProductSchemeData prodSchemeData)
         {
-            if (0 < prodSchemeData.VariantNumber)
+            if (prodSchemeData.VariantNumber > 0)
             {
-                List<tProductSchemeVariantModel> results = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<tProductSchemeVariantModel>("SELECT * FROM tProductSchemeVariant WHERE ProductSchemeVariantNo = ?", Convert.ToInt32(prodSchemeData.VariantNumber));
+                SQLiteAsyncConnection conn = DatabaseConnection.GetInstance().SQLConn;
+                List<tProductSchemeVariantModel> results = await conn.QueryAsync<tProductSchemeVariantModel>(
+                    "SELECT * FROM tProductSchemeVariant WHERE ProductSchemeVariantNo = ?",
+                    Convert.ToInt32(prodSchemeData.VariantNumber));
 
                 if (results != null && results.Count > 0)
                 {
@@ -756,7 +699,8 @@ namespace dMobile.Controller
                 }
                 else
                 {
-                    throw new Exception("FillSchemeDataVarInfoFromSchemeDataVarNo in clsActivityDetail returned no results");
+                    throw new Exception("FillSchemeDataVarInfoFromSchemeDataVarNo in" +
+                        " clsActivityDetail returned no results");
                 }
             }
 
@@ -764,9 +708,10 @@ namespace dMobile.Controller
         }
 
         /// <summary>
-        /// 
+        /// Fill the activity detail object from XML data.
         /// </summary>
-        /// <param name="data"></param>
+        /// <param name="data"><see cref="XDocument"/> Activity detail data.</param>
+        /// <returns><see cref="Task"/> Task operation.</returns>
         public async Task FillActDetailObjFromXML(XDocument data)
         {
             if (!string.IsNullOrEmpty(data.Root.Element("ser_refno").Value))
@@ -798,12 +743,14 @@ namespace dMobile.Controller
 
             if (!string.IsNullOrEmpty(data.Root.Element("bdate").Value))
             {
-                tmpSchemeData.LogisticUnitBestBeforeSellByDate = Convert.ToDateTime(data.Root.Element("bdate").Value);
+                tmpSchemeData.LogisticUnitBestBeforeSellByDate =
+                    Convert.ToDateTime(data.Root.Element("bdate").Value);
             }
 
             if (!string.IsNullOrEmpty(data.Root.Element("pdate").Value))
             {
-                tmpSchemeData.LogisticUnitProductionDate = Convert.ToDateTime(data.Root.Element("pdate").Value);
+                tmpSchemeData.LogisticUnitProductionDate =
+                    Convert.ToDateTime(data.Root.Element("pdate").Value);
             }
 
             if (!string.IsNullOrEmpty(data.Root.Element("serial").Value))
@@ -829,8 +776,14 @@ namespace dMobile.Controller
             tmpSchemeData = await this.FillSchemeDataVarInfoFromSchemeDataVarNo(tmpSchemeData);
             this.SchemeData = tmpSchemeData;
 
-            this.SchemeID = ProductInfoTasks.GetActSchemeIDFromSProdSchemeData(actItem.ProdInfo.Code, actItem.ProdInfo.Scheme, this.SchemeData);
-            this.UniqueSchemeID = ProductInfoTasks.GetActUniqueSchemeIDFromSProdSchemeData(actItem.ProdInfo.Code, actItem.ProdInfo.Scheme, this.SchemeData);
+            this.SchemeID = ProductInfoTasks.GetActSchemeIDFromSProdSchemeData(
+                this.ActItem.ProdInfo.Code,
+                this.ActItem.ProdInfo.Scheme,
+                this.SchemeData);
+            this.UniqueSchemeID = ProductInfoTasks.GetUniqueSchemeIDFromSProdSchemeData(
+                this.ActItem.ProdInfo.Code,
+                this.ActItem.ProdInfo.Scheme,
+                this.SchemeData);
 
             if (!string.IsNullOrEmpty(data.Root.Element("extra1").Value))
             {
@@ -854,126 +807,26 @@ namespace dMobile.Controller
 
             if (!string.IsNullOrEmpty(data.Root.Element("extra5").Value))
             {
-                this.ActExtra.DateTime5 = Convert.ToDateTime(data.Root.Element("extra5").Value);
+                this.ActExtra.DateTime1 = Convert.ToDateTime(data.Root.Element("extra5").Value);
             }
         }
 
         /// <summary>
-        /// 
+        /// Insert data view detail.
         /// </summary>
-        /// <param name="dataViewSortKey">Name of the fk refno index to locate the detail if it already exists.</param>
-        /// <param name="actDetailFKRefnoFldName">Name of the fk refno field.</param>
-        /// <example>InsertUpdateDataViewDetail("ActivityDetailPickingFKRefno", "ActivityDetailPickingFKRefno")</example>
-        public void InsertUpdateDataViewDetail(string dataViewSortKey, string actDetailFKRefnoFldName)
-        {
-            if (this.IsUpdateView && this.ListDetails != null)
-            {
-                // TODO: Fix sorting
-                // this is the object to be added/updated
-                dynamic detail = null;
-                bool detailToBeAdded = false;
-                //string oldSort = this.DataViewDetails.Sort;
-                //this.DataViewDetails.Sort = dataViewSortKey;
-                
-                if (this.FKRefno > 0)
-                {
-                    detail = this.ListDetails.Where(obj => Convert.ToInt32(obj.GetType().GetProperty(actDetailFKRefnoFldName).GetValue(obj, null)) == this.FKRefno).FirstOrDefault();
-                }
-
-                if (detail == null)
-                {
-                    detailToBeAdded = true;
-
-                    detail = new ExpandoObject();
-                    detail.ActivityDetailRefno = 0;
-                    detail.ProductRefno = this.ActItem.ProdInfo.Refno;
-                    detail.ProductCode = this.ActItem.ProdInfo.Code;
-                    detail.ProductUnitBC = this.ActItem.ProdInfo.UnitBC;
-                    detail.ProductUnitIsBC = this.ActItem.ProdInfo.UnitIsBC;
-                    detail.ProductDescription = this.ActItem.ProdInfo.Desc;
-                    detail.ProductUnitSizeDescription = this.ActItem.ProdInfo.UnitSizeDesc;
-                    detail.UnitCode = this.ActItem.ProdInfo.UnitCode;
-                    detail.BaseUnitCode = this.ActItem.ProdInfo.BaseUnitCode;
-                    detail.WtUnitCode = this.ActItem.ProdInfo.WeightUnitCode;
-                    detail.ActivityDetailQuantity = 0;
-                    detail.ActivityDetailBaseQuantity = 0;
-                    detail.ActivityDetailWeightQuantity = 0;
-                    detail.actDetailFKRefnoFldName = this.FKRefno;
-                }
-
-                detail.LocationMapRefno = this.LocMap.CurrLocMapRefno;
-                detail.ActivityDetailQuantity = Convert.ToDecimal(detail.ActivityDetailQuantity) + Math.Round(this.Quantity, 3);
-                detail.ActivityDetailBaseQuantity = Convert.ToDecimal(detail.ActivityDetailBaseQuantity) + Math.Round(this.BaseQuantity, 3);
-                detail.ActivityDetailWeightQuantity = Convert.ToDecimal(detail.ActivityDetailWeightQuantity) + Math.Round(this.WeightQuantity, 3);
-                detail.ProductSchemeVariantCode = this.SchemeData.VariantCode;
-                detail.ProductSchemeVariantNo = this.SchemeData.VariantNumber;
-                detail.ActivityDetailSingleTradeItemSerialNumber = this.SchemeData.SingleTradeItemSerialNumber;
-                detail.ActivityDetailLogisticUnitBestBeforeSellByDate = this.SchemeData.LogisticUnitBestBeforeSellByDate;
-                detail.ActivityDetailLogisticUnitBatchLotNumber = this.SchemeData.LogisticUnitBatchLotNumber;
-                detail.ActivityDetailLogisticUnitProductionDate = this.SchemeData.LogisticUnitProductionDate;
-                detail.ActivityDetailLogisticUnitSkidNumber = this.SchemeData.LogisticUnitSkidNumber;
-                detail.ActivityDetailExtra1Text = this.ActExtra.Text1;
-                detail.ActivityDetailExtra2Text = this.ActExtra.Text2;
-                detail.ActivityDetailExtra3Text = this.ActExtra.Text3;
-                detail.ActivityDetailExtra4Text = this.ActExtra.Text4;
-                detail.ActivityDetailExtra5Date = this.ActExtra.DateTime5;
-
-                int locCode = 0;
-                string locName = string.Empty;
-
-                if (this.LocMap.CurrLocMap.SlotLocMapRefno > 0)
-                {
-                    locCode = this.LocMap.CurrLocMap.SlotCode;
-                    locName = this.LocMap.CurrLocMap.SlotName;
-                }
-                else if (this.LocMap.CurrLocMap.SectLocMapRefno > 0)
-                {
-                    locCode = this.LocMap.CurrLocMap.SectCode;
-                    locName = this.LocMap.CurrLocMap.SectName;
-                }
-                else
-                {
-                    locCode = this.LocMap.CurrLocMap.WhsCode;
-                    locName = this.LocMap.CurrLocMap.WhsName;
-                }
-
-                detail.LocationCode = locCode;
-                detail.LocationName = locName;
-                detail.ActivityDetailSchemeID = this.SchemeID;
-                detail.ActivityDetailUniqueSchemeID = this.UniqueSchemeID;
-
-                if (this.ActSubType == SysCommon.ActSubTypes.Returns || this.ActSubType == SysCommon.ActSubTypes.Picking || this.ActSubType == SysCommon.ActSubTypes.PickingSingle)
-                {
-                    detail.ActivityDetailIsConfirmed = true;
-                    detail.ActivityDetailIsConfirmedString = "C";
-                }
-
-                if (this.ActSubType == SysCommon.ActSubTypes.Receiving)
-                {
-                    detail.IsBatchProductLabel = Convert.ToBoolean(this.SysEnv.SysSettings.IsPrintProductLabelsAsBatch);
-                }
-
-                if (detailToBeAdded)
-                {
-                    this.ListDetails.Add(detail);
-                }
-
-                //TODO: Fix sorting
-                //this.DataViewDetails.Sort = oldSort;
-            }
-        }
+        /// <param name="actDetailFKRefnoFldName"><see cref="string"/> Foreign key reference number field name.</param>
+        /// <returns><see cref="ActivityDetail"/> Activity detail inserted.</returns>
+        public abstract ActivityDetail InsertListDetail(string actDetailFKRefnoFldName);
 
         /// <summary>
-        /// 
+        /// Insert the activity detail.
         /// </summary>
-        /// <param name="sendReq"></param>
-        /// <returns></returns>
+        /// <param name="sendReq"><see cref="string"/> Submission request.</param>
+        /// <returns><see cref="bool"/> True if a new activity detail was added else false.</returns>
         public bool InsertDetail(string sendReq)
         {
             bool isNewDetail = false;
-
             string reqData = SysCommon.SubmitComm(sendReq);
-
             if (reqData.Length > 0)
             {
                 XmlDocument xmlData = new XmlDocument();
@@ -999,14 +852,16 @@ namespace dMobile.Controller
 
                 if (this.NewItemFKRefno != this.ActItem.FKRefno)
                 {
-                    this.ActItem.FKRefno = NewItemFKRefno;
-                    // not always new if scanned in and matche. Check for match
+                    this.ActItem.FKRefno = this.NewItemFKRefno;
+
+                    // not always new if scanned in and match. Check for match.
                     isNewDetail = true;
                 }
             }
             else
             {
-                // NOTE: do we need to raise an error here? SubmitComm will raise errors. When will the length be nothing?
+                // NOTE: do we need to raise an error here? SubmitComm will raise errors.
+                // When will the length be nothing?
                 throw new NotImplementedException();
             }
 
@@ -1014,25 +869,23 @@ namespace dMobile.Controller
         }
 
         /// <summary>
-        /// 
+        /// Insert activity detail in disconnected mode.
         /// </summary>
-        /// <returns>Inserted activity detail refno.</returns>
-        /// <remarks>Assumes that 'this' is all filled in. Usually by calling this.FillActDetailObj</remarks>
+        /// <returns><see cref="int"/> Inserted activity detail reference number.</returns>
         public async Task<int> InsertDetailDisconnected()
         {
-            int actDetailRefno = 0;
             SQLiteAsyncConnection conn = DatabaseConnection.GetInstance().SQLConn;
-
+            int actDetailRefno;
             try
             {
                 if (string.Compare(this.UniqueSchemeID, string.Empty) > 0)
                 {
-                    bool isDupSchemeId = await ProductInfoTasks.IsDuplicateUniqueSchemeID(this.UniqueSchemeID);
-
+                    bool isDupSchemeId = await ProductInfoTasks.IsDuplicateUniqueSchemeID(
+                        this.UniqueSchemeID);
                     if (isDupSchemeId)
                     {
-                        // TODO: Resource strings
-                        throw new Exception("Duplicate scheme ID!" + Environment.NewLine + this.UniqueSchemeID);
+                        throw new Exception("Duplicate scheme ID!" + Environment.NewLine +
+                            this.UniqueSchemeID);
                     }
                 }
 
@@ -1098,20 +951,27 @@ namespace dMobile.Controller
                     Convert.ToString(this.SchemeData.LogisticUnitSkidNumber),
                 };
 
-                await conn.ExecuteAsync(query, parameters);
+                _ = await conn.ExecuteAsync(query, parameters);
 
-                actDetailRefno = Convert.ToInt32(await conn.ExecuteScalarAsync<int>("SELECT last_insert_rowid() FROM tActivityDetail"));
+                actDetailRefno = Convert.ToInt32(await conn.ExecuteScalarAsync<int>(
+                    "SELECT last_insert_rowid() FROM tActivityDetail"));
                 this.FKRefno = actDetailRefno * -1;
 
-                if (0 < this.SchemeData.VariantNumber)
+                if (this.SchemeData.VariantNumber > 0)
                 {
                     int schemeVarRefno = 0;
-                    List<tProductSchemeVariantModel> results = await conn.QueryAsync<tProductSchemeVariantModel>("SELECT * FROM tProductSchemeVariant WHERE ProductSchemeVariantNo = ?", Convert.ToInt32(this.SchemeData.VariantNumber));
+                    List<tProductSchemeVariantModel> results = await conn.QueryAsync<tProductSchemeVariantModel>(
+                        "SELECT * FROM tProductSchemeVariant WHERE ProductSchemeVariantNo = ?",
+                        Convert.ToInt32(this.SchemeData.VariantNumber));
 
                     if (results != null && results.Count > 0)
                     {
                         schemeVarRefno = Convert.ToInt32(results[0].ProductSchemeVariantRefno);
-                        await conn.ExecuteAsync("INSERT INTO tActivityDetailProductSchemeVariantXRef (ActivityDetailRefno, ProductSchemeVariantRefno) VALUES (?, ?)", Convert.ToInt32(actDetailRefno), Convert.ToInt32(schemeVarRefno));
+                        _ = await conn.ExecuteAsync(
+                            "INSERT INTO tActivityDetailProductSchemeVariantXRef" +
+                                " (ActivityDetailRefno, ProductSchemeVariantRefno) VALUES (?, ?)",
+                            Convert.ToInt32(actDetailRefno),
+                            Convert.ToInt32(schemeVarRefno));
                     }
                     else
                     {
@@ -1119,7 +979,11 @@ namespace dMobile.Controller
                     }
                 }
 
-                if (!string.IsNullOrEmpty(this.ActExtra.Text1) || string.IsNullOrEmpty(this.ActExtra.Text2) || string.IsNullOrEmpty(this.ActExtra.Text3) || string.IsNullOrEmpty(this.ActExtra.Text4) || SysCommon.IsEmptyDate(this.ActExtra.DateTime5))
+                if (!string.IsNullOrEmpty(this.ActExtra.Text1) ||
+                    string.IsNullOrEmpty(this.ActExtra.Text2) ||
+                    string.IsNullOrEmpty(this.ActExtra.Text3) ||
+                    string.IsNullOrEmpty(this.ActExtra.Text4) ||
+                    SysCommon.IsEmptyDate(this.ActExtra.DateTime1))
                 {
                     string queryExtra = "INSERT INTO tActivityDetailExtra (" +
                         "ActivityDetailRefno, " +
@@ -1147,29 +1011,34 @@ namespace dMobile.Controller
                         Convert.ToString(this.ActExtra.Text2),
                         Convert.ToString(this.ActExtra.Text3),
                         Convert.ToString(this.ActExtra.Text4),
-                        Convert.ToDateTime(this.ActExtra.DateTime5)
+                        Convert.ToDateTime(this.ActExtra.DateTime1),
                     };
 
-                    await conn.ExecuteAsync(queryExtra, parametersExtra);
+                    _ = await conn.ExecuteAsync(queryExtra, parametersExtra);
                 }
             }
             catch (SQLiteException ex)
             {
-                // TODO: Resource strings
-                throw new Exception("Database exception occurred. Inserting detail in disconnected mode failed.", ex);
+                throw new Exception(
+                    "Database exception occurred. Inserting detail in disconnected mode failed.",
+                    ex);
             }
 
             return actDetailRefno;
         }
 
         /// <summary>
-        /// 
+        /// Data layer status out handler.
         /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        /// <param name="outMessage"></param>
-        /// <param name="overrideDisconnectedMode"></param>
-        public void DataLayerStatusOutHandler(object sender, EventArgs e, string outMessage, bool overrideDisconnectedMode)
+        /// <param name="sender"><see cref="object"/> Sender object.</param>
+        /// <param name="e"><see cref="EventArgs"/> Sender event arguments.</param>
+        /// <param name="outMessage"><see cref="string"/> Status out message.</param>
+        /// <param name="overrideDisconnectedMode"><see cref="bool"/> Do not raise event if in disconnected mode.</param>
+        public void DataLayerStatusOutHandler(
+            object sender,
+            EventArgs e,
+            string outMessage,
+            bool overrideDisconnectedMode)
         {
             if (!this.SysEnv.SysSettings.IsDisconnectedMode || overrideDisconnectedMode)
             {
@@ -1183,13 +1052,13 @@ namespace dMobile.Controller
         }
 
         /// <summary>
-        /// 
+        /// Data layer progress out handler.
         /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        /// <param name="currentValue"></param>
-        /// <param name="minValue"></param>
-        /// <param name="maxValue"></param>
+        /// <param name="sender"><see cref="object"/> Sender object.</param>
+        /// <param name="e"><see cref="EventArgs"/> Sender event arguments.</param>
+        /// <param name="currentValue"><see cref="int"/> Current progress value.</param>
+        /// <param name="minValue"><see cref="int"/> Minimum progress value.</param>
+        /// <param name="maxValue"><see cref="int"/> Maximum progress value.</param>
         public void DataLayerProgressOutHandler(object sender, EventArgs e, int currentValue, int minValue, int maxValue)
         {
             if (this.OnDataLayerProgressOut != null)
@@ -1203,11 +1072,11 @@ namespace dMobile.Controller
         }
 
         /// <summary>
-        /// 
+        /// Data layer progress out handler.
         /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        /// <param name="currentValue"></param>
+        /// <param name="sender"><see cref="object"/> Sender object.</param>
+        /// <param name="e"><see cref="EventArgs"/> Sender event arguments.</param>
+        /// <param name="currentValue"><see cref="int"/> Current progress value.</param>
         public void DataLayerProgressOutHandler(object sender, EventArgs e, int currentValue)
         {
             if (this.OnDataLayerProgressOut != null)
@@ -1218,87 +1087,77 @@ namespace dMobile.Controller
             }
         }
 
-        #region IDataLayerEventPublisher Members
-
         /// <summary>
-        /// 
+        /// Register data layer listener status out.
         /// </summary>
-        /// <param name="dataLayerEventListener"></param>
-        public void RegLayerListenerStatOut(IDataLayerEventListener dataLayerEventListener)
+        /// <param name="listener"><see cref="IDataAccessEventListener"/> Event listener.</param>
+        public void RegLayerListenerStatOut(IDataLayerEventListener listener)
         {
-            this.OnDataLayerStatusOut += new OnDataLayerStatusOutEventHandler(dataLayerEventListener.OnLayerStatOut);
+            this.OnDataLayerStatusOut += new OnDataLayerStatusOutEventHandler(listener.OnLayerStatOut);
         }
 
         /// <summary>
-        /// 
+        /// Unregister data layer listener status out.
         /// </summary>
-        /// <param name="dataLayerEventListener"></param>
-        public void UnregLayerListenerStatOut(IDataLayerEventListener dataLayerEventListener)
+        /// <param name="listener"><see cref="IDataAccessEventListener"/> Event listener.</param>
+        public void UnregLayerListenerStatOut(IDataLayerEventListener listener)
         {
-            this.OnDataLayerStatusOut -= new OnDataLayerStatusOutEventHandler(dataLayerEventListener.OnLayerStatOut);
+            this.OnDataLayerStatusOut -= new OnDataLayerStatusOutEventHandler(listener.OnLayerStatOut);
         }
 
         /// <summary>
-        /// 
+        /// Register data layer listener progress out.
         /// </summary>
-        /// <param name="dataLayerEventListener"></param>
-        public void RegLayerListenerProgOut(IDataLayerEventListener dataLayerEventListener)
+        /// <param name="listener"><see cref="IDataAccessEventListener"/> Event listener.</param>
+        public void RegLayerListenerProgOut(IDataLayerEventListener listener)
         {
-            this.OnDataLayerProgressOut += new OnDataLayerProgressOutEventHandler(dataLayerEventListener.OnLayerProgOut);
+            this.OnDataLayerProgressOut += new OnDataLayerProgressOutEventHandler(listener.OnLayerProgOut);
         }
 
         /// <summary>
-        /// 
+        /// Unregister data layer listener progress out.
         /// </summary>
-        /// <param name="dataLayerEventListener"></param>
-        public void UnregLayerListenerProgOut(IDataLayerEventListener dataLayerEventListener)
+        /// <param name="listener"><see cref="IDataAccessEventListener"/> Event listener.</param>
+        public void UnregLayerListenerProgOut(IDataLayerEventListener listener)
         {
-            this.OnDataLayerProgressOut -= new OnDataLayerProgressOutEventHandler(dataLayerEventListener.OnLayerProgOut);
+            this.OnDataLayerProgressOut -= new OnDataLayerProgressOutEventHandler(listener.OnLayerProgOut);
         }
 
-        #endregion
-
-        #region IDataAccessEventListener Members
-
         /// <summary>
-        /// 
+        /// On data access status out event.
         /// </summary>
-        /// <param name="dataAccessEventPublisher"></param>
-        /// <param name="dataAccessEventArgs"></param>
-        public void OnDataAccessStatusOut(IDataAccessEventPublisher dataAccessEventPublisher, DataAccessEventArgs dataAccessEventArgs)
+        /// <param name="publisher"><see cref="IDataAccessEventPublisher"/> Event publisher.</param>
+        /// <param name="eventArgs"><see cref="DataAccessEventArgs"/> Data access event arguments.</param>
+        public void OnDataAccessStatusOut(IDataAccessEventPublisher publisher, DataAccessEventArgs eventArgs)
         {
-            if (!this.SysEnv.SysSettings.IsDisconnectedMode || dataAccessEventArgs.OverrideDisconnectedMode)
+            if (!this.SysEnv.SysSettings.IsDisconnectedMode || eventArgs.OverrideDisconnectedMode)
             {
                 if (this.OnDataLayerStatusOut != null)
                 {
-                    this.DataEventArgs.OverrideDisconnectedMode = dataAccessEventArgs.OverrideDisconnectedMode;
-                    this.DataEventArgs.StatusOutMsg = dataAccessEventArgs.StatusOutMsg;
+                    this.DataEventArgs.OverrideDisconnectedMode = eventArgs.OverrideDisconnectedMode;
+                    this.DataEventArgs.StatusOutMsg = eventArgs.StatusOutMsg;
                     this.OnDataLayerStatusOut(this, this.DataEventArgs);
                 }
             }
         }
 
         /// <summary>
-        /// 
+        /// On data access progress out event.
         /// </summary>
-        /// <param name="dataAccessEventPublisher"></param>
-        /// <param name="dataAccessEventArgs"></param>
-        public void OnDataAccessProgressOut(IDataAccessEventPublisher dataAccessEventPublisher, DataAccessEventArgs dataAccessEventArgs)
+        /// <param name="publisher"><see cref="IDataAccessEventPublisher"/> Event publisher.</param>
+        /// <param name="eventArgs"><see cref="DataAccessEventArgs"/> Data access event arguments.</param>
+        public void OnDataAccessProgressOut(IDataAccessEventPublisher publisher, DataAccessEventArgs eventArgs)
         {
             if (this.OnDataLayerProgressOut != null)
             {
-                this.DataEventArgs.OverrideDisconnectedMode = dataAccessEventArgs.OverrideDisconnectedMode;
-                this.DataEventArgs.CurrentValue = dataAccessEventArgs.CurrentValue;
-                this.DataEventArgs.MinValue = dataAccessEventArgs.MinValue;
-                this.DataEventArgs.MaxValue = dataAccessEventArgs.MaxValue;
-                this.DataEventArgs.SetMinMaxValue = dataAccessEventArgs.SetMinMaxValue;
+                this.DataEventArgs.OverrideDisconnectedMode = eventArgs.OverrideDisconnectedMode;
+                this.DataEventArgs.CurrentValue = eventArgs.CurrentValue;
+                this.DataEventArgs.MinValue = eventArgs.MinValue;
+                this.DataEventArgs.MaxValue = eventArgs.MaxValue;
+                this.DataEventArgs.SetMinMaxValue = eventArgs.SetMinMaxValue;
 
                 this.OnDataLayerProgressOut(this, this.DataEventArgs);
             }
         }
-
-        #endregion
-
-        #endregion
     }
 }

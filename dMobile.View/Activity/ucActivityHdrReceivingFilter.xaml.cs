@@ -1,44 +1,36 @@
-﻿using dMobile.View.CustomPages.Modal;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Collections;
-using System.Xml.Linq;
-using dMobile.Bedrock;
-using Xamarin.Forms;
-using Xamarin.Forms.Xaml;
-using dMobile.Resources.Enums;
-using Android.Views;
-using dMobile.Resources.Types;
+﻿// <copyright file="ucActivityHdrReceivingFilter.xaml.cs" company="InterSect Business Systems Inc">
+// Copyright (c) InterSect Business Systems Inc. All rights reserved.
+// </copyright>
 
 namespace dMobile.View.Activity
 {
+    using System;
+    using System.Collections;
+    using System.Collections.Generic;
+    using System.Linq;
+    using System.Text;
+    using System.Threading.Tasks;
+    using System.Xml.Linq;
+    using Android.Views;
+    using dMobile.Bedrock;
+    using dMobile.Resources.Enums;
+    using dMobile.Resources.Types;
+    using dMobile.View.CustomPages.Modal;
+    using Xamarin.Forms;
+    using Xamarin.Forms.Xaml;
+
     [XamlCompilation(XamlCompilationOptions.Compile)]
     public partial class ucActivityHdrReceivingFilter : DMobileModal, IAppArea
     {
-        #region Fields
-
-        private ReceivingSettings recvSettings = new ReceivingSettings();
-        private ArrayList m_aSortBy1 = new ArrayList();
-        private ArrayList m_aSortBy2 = new ArrayList();
-        private ArrayList m_aSortBy3 = new ArrayList();
-        private string m_strSQLSortBy = string.Empty;
-        private bool isControlLoaded = false;
-        private string m_strFullClassName = "dMobile.ucActivityHdrReceivingFilter";
-        private bool m_bChangesMade = false;
         private Dictionary<string, Sort> filters = new Dictionary<string, Sort>();
 
-        #endregion
-
-        #region Constructors
-
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ucActivityHdrReceivingFilter"/> class.
+        /// </summary>
         public ucActivityHdrReceivingFilter()
         {
-            InitializeComponent();
+            this.InitializeComponent();
 
-            // TODO: Resource strings
             this.Title = this.GetControlDescription();
             this.lblApplyIssuedDate.Text = "Apply Issued Date Filter";
             this.lblPODate.Text = "Issued";
@@ -51,57 +43,54 @@ namespace dMobile.View.Activity
 
             if (!DesignMode.IsDesignModeEnabled)
             {
-                // TODO: Resource strings
-                //At least one sort option must be selected
-                aSortBy1.Clear();
-                aSortBy1.Add("Purchase Order # Ascending");
-                aSortBy1.Add("Purchase Order # Descending");
-                aSortBy1.Add("Issued Date Ascending");
-                aSortBy1.Add("Issued Date Descending");
-                aSortBy1.Add("Arrival Ascending");
-                aSortBy1.Add("Arrival Descending");
+                // At least one sort option must be selected
+                this.aSortBy1.Clear();
+                _ = this.aSortBy1.Add("Purchase Order # Ascending");
+                _ = this.aSortBy1.Add("Purchase Order # Descending");
+                _ = this.aSortBy1.Add("Issued Date Ascending");
+                _ = this.aSortBy1.Add("Issued Date Descending");
+                _ = this.aSortBy1.Add("Arrival Ascending");
+                _ = this.aSortBy1.Add("Arrival Descending");
 
-                cboSortBy1.ItemsSource = aSortBy1;
-                cboSortBy1.SelectedIndex = RecvSettings.iSortBy1Index;
+                this.cboSortBy1.ItemsSource = this.aSortBy1;
+                this.cboSortBy1.SelectedIndex = this.RecvSettings.iSortBy1Index;
 
-                aSortBy2.Clear();
-                aSortBy2.Add(string.Empty);
-                aSortBy2.Add("Purchase Order # Ascending");
-                aSortBy2.Add("Purchase Order # Descending");
-                aSortBy2.Add("Issued Date Ascending");
-                aSortBy2.Add("Issued Date Descending");
-                aSortBy2.Add("Arrival Ascending");
-                aSortBy2.Add("Arrival Descending");
+                this.aSortBy2.Clear();
+                _ = this.aSortBy2.Add(string.Empty);
+                _ = this.aSortBy2.Add("Purchase Order # Ascending");
+                _ = this.aSortBy2.Add("Purchase Order # Descending");
+                _ = this.aSortBy2.Add("Issued Date Ascending");
+                _ = this.aSortBy2.Add("Issued Date Descending");
+                _ = this.aSortBy2.Add("Arrival Ascending");
+                _ = this.aSortBy2.Add("Arrival Descending");
 
-                cboSortBy2.ItemsSource = aSortBy2;
-                cboSortBy2.SelectedIndex = RecvSettings.iSortBy2Index;
+                this.cboSortBy2.ItemsSource = this.aSortBy2;
+                this.cboSortBy2.SelectedIndex = this.RecvSettings.iSortBy2Index;
 
-                aSortBy3.Clear();
-                aSortBy3.Add(string.Empty);
-                aSortBy3.Add("Purchase Order # Ascending");
-                aSortBy3.Add("Purchase Order # Descending");
-                aSortBy3.Add("Issued Date Ascending");
-                aSortBy3.Add("Issued Date Descending");
-                aSortBy3.Add("Arrival Ascending");
-                aSortBy3.Add("Arrival Descending");
+                this.aSortBy3.Clear();
+                _ = this.aSortBy3.Add(string.Empty);
+                _ = this.aSortBy3.Add("Purchase Order # Ascending");
+                _ = this.aSortBy3.Add("Purchase Order # Descending");
+                _ = this.aSortBy3.Add("Issued Date Ascending");
+                _ = this.aSortBy3.Add("Issued Date Descending");
+                _ = this.aSortBy3.Add("Arrival Ascending");
+                _ = this.aSortBy3.Add("Arrival Descending");
 
-                cboSortBy3.ItemsSource = aSortBy3;
-                cboSortBy3.SelectedIndex = RecvSettings.iSortBy3Index;
+                this.cboSortBy3.ItemsSource = this.aSortBy3;
+                this.cboSortBy3.SelectedIndex = this.RecvSettings.iSortBy3Index;
 
-                filters.Add(string.Empty, null);
-                filters.Add("Purchase Order # Ascending", new Sort() { SortValue = "ActivityReceivingPONumber", SortOrder = SortOrder.ASC });
-                filters.Add("Purchase Order # Descending", new Sort() { SortValue = "ActivityReceivingPONumber", SortOrder = SortOrder.DESC });
-                filters.Add("Issued Date Ascending", new Sort() { SortValue = "ActivityReceivingIssuedDateTime", SortOrder = SortOrder.ASC });
-                filters.Add("Issued Date Descending", new Sort() { SortValue = "ActivityReceivingIssuedDateTime", SortOrder = SortOrder.DESC });
-                filters.Add("Arrival Ascending", new Sort() { SortValue = "ActivityReceivingArrivalDateTime", SortOrder = SortOrder.ASC });
-                filters.Add("Arrival Descending", new Sort() { SortValue = "ActivityReceivingArrivalDateTime", SortOrder = SortOrder.DESC });
+                this.filters.Add(string.Empty, null);
+                this.filters.Add("Purchase Order # Ascending", new Sort() { SortValue = "ActivityReceivingPONumber", SortOrder = SortOrder.ASC });
+                this.filters.Add("Purchase Order # Descending", new Sort() { SortValue = "ActivityReceivingPONumber", SortOrder = SortOrder.DESC });
+                this.filters.Add("Issued Date Ascending", new Sort() { SortValue = "ActivityReceivingIssuedDateTime", SortOrder = SortOrder.ASC });
+                this.filters.Add("Issued Date Descending", new Sort() { SortValue = "ActivityReceivingIssuedDateTime", SortOrder = SortOrder.DESC });
+                this.filters.Add("Arrival Ascending", new Sort() { SortValue = "ActivityReceivingArrivalDateTime", SortOrder = SortOrder.ASC });
+                this.filters.Add("Arrival Descending", new Sort() { SortValue = "ActivityReceivingArrivalDateTime", SortOrder = SortOrder.DESC });
             }
         }
 
-        #endregion
-
         /// <summary>
-        /// The OnAppearing
+        /// The OnAppearing.
         /// </summary>
         protected override async void OnAppearing()
         {
@@ -109,14 +98,13 @@ namespace dMobile.View.Activity
 
             MessagingCenter.Subscribe<string>(this, EventTypes.OnKeyUp.ToString(), async (keyPressed) =>
             {
-                // TODO: Verify keycodes
-                Enum.TryParse(keyPressed, out Keycode keycode);
+                _ = Enum.TryParse(keyPressed, out Keycode keycode);
 
                 if (!this.Loading)
                 {
                     if (keycode == Keycode.Grave)
                     {
-                        if (await SaveChanges())
+                        if (await this.SaveChanges())
                         {
                             this.DialogResult = DialogResult.OK;
                             await this.Close();
@@ -124,7 +112,7 @@ namespace dMobile.View.Activity
                         else
                         {
                             this.DialogResult = DialogResult.None;
-                            await CancelChanges();
+                            _ = await this.CancelChanges();
                         }
 
                         await this.Close();
@@ -138,13 +126,12 @@ namespace dMobile.View.Activity
             }
             catch (Exception ex)
             {
-                // TODO: Resource strings
-                await Device.InvokeOnMainThreadAsync(async () => await DisplayAlert("Error", "this.ucActivityReceivingFilter_GotFocus threw an error " + ex, "OK"));
+                await Device.InvokeOnMainThreadAsync(async () => await this.DisplayAlert("Error", "this.ucActivityReceivingFilter_GotFocus threw an error " + ex, "OK"));
             }
         }
 
         /// <summary>
-        /// The OnDisappearing
+        /// The OnDisappearing.
         /// </summary>
         protected override void OnDisappearing()
         {
@@ -157,9 +144,9 @@ namespace dMobile.View.Activity
         {
             Device.BeginInvokeOnMainThread(async () =>
             {
-                base.OnBackButtonPressed();
+                _ = base.OnBackButtonPressed();
 
-                if (await SaveChanges())
+                if (await this.SaveChanges())
                 {
                     this.DialogResult = DialogResult.OK;
                     await this.Close();
@@ -167,7 +154,7 @@ namespace dMobile.View.Activity
                 else
                 {
                     this.DialogResult = DialogResult.None;
-                    await CancelChanges();
+                    _ = await this.CancelChanges();
                     await this.Close();
                 }
             });
@@ -175,101 +162,15 @@ namespace dMobile.View.Activity
             return true;
         }
 
-        #region Properties
+        public ArrayList aSortBy1 { get; set; } = new ArrayList();
+        public ArrayList aSortBy2 { get; set; } = new ArrayList();
+        public ArrayList aSortBy3 { get; set; } = new ArrayList();
 
-        public ArrayList aSortBy1
-        {
-            get
-            {
-                return m_aSortBy1;
-            }
-            set
-            {
-                m_aSortBy1 = value;
-            }
-        }
-        public ArrayList aSortBy2
-        {
-            get
-            {
-                return m_aSortBy2;
-            }
-            set
-            {
-                m_aSortBy2 = value;
-            }
-        }
-        public ArrayList aSortBy3
-        {
-            get
-            {
-                return m_aSortBy3;
-            }
-            set
-            {
-                m_aSortBy3 = value;
-            }
-        }
-
-        public bool IsControlLoaded
-        {
-            get
-            {
-                return isControlLoaded;
-            }
-            set
-            {
-                isControlLoaded = value;
-            }
-        }
-        public ReceivingSettings RecvSettings
-        {
-            get
-            {
-                return recvSettings;
-            }
-            set
-            {
-                recvSettings = value;
-            }
-        }
-        public string strSQLSortBy
-        {
-            get
-            {
-                return m_strSQLSortBy;
-            }
-            set
-            {
-                m_strSQLSortBy = value;
-            }
-        }
-        public string strFullClassName
-        {
-            get
-            {
-                return m_strFullClassName;
-            }
-            set
-            {
-                m_strFullClassName = value;
-            }
-        }
-        public bool bChangesMade
-        {
-            get
-            {
-                return m_bChangesMade;
-            }
-            set
-            {
-                m_bChangesMade = value;
-            }
-        }
-
-        #endregion
-
-        #region Private Members
+        public bool IsControlLoaded { get; set; } = false;
+        public ReceivingSettings RecvSettings { get; set; } = new ReceivingSettings();
+        public string strSQLSortBy { get; set; } = string.Empty;
+        public string strFullClassName { get; set; } = "dMobile.ucActivityHdrReceivingFilter";
+        public bool bChangesMade { get; set; } = false;
 
         /// <summary>
         ///
@@ -277,26 +178,26 @@ namespace dMobile.View.Activity
         /// <remarks></remarks>
         private void MakeSQLSortBy()
         {
-            strSQLSortBy = this.filters[cboSortBy1.Items[cboSortBy1.SelectedIndex]].SortValue;
-            RecvSettings.SortBy1Value = this.filters[cboSortBy1.Items[cboSortBy1.SelectedIndex]];
+            this.strSQLSortBy = this.filters[this.cboSortBy1.Items[this.cboSortBy1.SelectedIndex]].SortValue;
+            this.RecvSettings.SortBy1Value = this.filters[this.cboSortBy1.Items[this.cboSortBy1.SelectedIndex]];
 
-            if (cboSortBy2.SelectedIndex >= 0)
+            if (this.cboSortBy2.SelectedIndex >= 0)
             {
-                RecvSettings.SortBy2Value = this.filters[cboSortBy2.Items[cboSortBy2.SelectedIndex]];
+                this.RecvSettings.SortBy2Value = this.filters[this.cboSortBy2.Items[this.cboSortBy2.SelectedIndex]];
 
-                if (RecvSettings.SortBy2Value != null && !string.IsNullOrEmpty(RecvSettings.SortBy2Value.SortValue))
+                if (this.RecvSettings.SortBy2Value != null && !string.IsNullOrEmpty(this.RecvSettings.SortBy2Value.SortValue))
                 {
-                    strSQLSortBy = strSQLSortBy + ", " + RecvSettings.SortBy2Value;
+                    this.strSQLSortBy = this.strSQLSortBy + ", " + this.RecvSettings.SortBy2Value;
                 }
             }
 
-            if (cboSortBy3.SelectedIndex >= 0)
+            if (this.cboSortBy3.SelectedIndex >= 0)
             {
-                RecvSettings.SortBy3Value = this.filters[cboSortBy3.Items[cboSortBy3.SelectedIndex]];
+                this.RecvSettings.SortBy3Value = this.filters[this.cboSortBy3.Items[this.cboSortBy3.SelectedIndex]];
 
-                if (RecvSettings.SortBy3Value != null && !string.IsNullOrEmpty(RecvSettings.SortBy3Value.SortValue))
+                if (this.RecvSettings.SortBy3Value != null && !string.IsNullOrEmpty(this.RecvSettings.SortBy3Value.SortValue))
                 {
-                    strSQLSortBy = strSQLSortBy + ", " + RecvSettings.SortBy3Value;
+                    this.strSQLSortBy = this.strSQLSortBy + ", " + this.RecvSettings.SortBy3Value;
                 }
             }
         }
@@ -307,24 +208,20 @@ namespace dMobile.View.Activity
         /// <remarks></remarks>
         private void LoadData()
         {
-            RecvSettings = RecvSettings.LoadData();
+            this.RecvSettings = this.RecvSettings.LoadData();
 
-            if (SysCommon.IsEmptyDate(RecvSettings.dtArrivalDateFilter))
+            if (SysCommon.IsEmptyDate(this.RecvSettings.dtArrivalDateFilter))
             {
-                RecvSettings.dtArrivalDateFilter = DateTime.Now;
+                this.RecvSettings.dtArrivalDateFilter = DateTime.Now;
             }
 
-            if (SysCommon.IsEmptyDate(RecvSettings.dtIssuedDateFilter))
+            if (SysCommon.IsEmptyDate(this.RecvSettings.dtIssuedDateFilter))
             {
-                RecvSettings.dtIssuedDateFilter = DateTime.Now;
+                this.RecvSettings.dtIssuedDateFilter = DateTime.Now;
             }
 
-            IsControlLoaded = true;
+            this.IsControlLoaded = true;
         }
-
-        #endregion
-
-        #region Public Members
 
         /// <summary>
         /// Unregister the bar code scan event handler and disable the scanner.
@@ -348,31 +245,34 @@ namespace dMobile.View.Activity
         /// <param name="sender"></param>
         /// <param name="e"></param>
         /// <remarks></remarks>
+/// <summary>
+///
+/// </summary>
+/// <param name="sender"></param>
+/// <param name="e"></param>
+/// <returns>A <see cref="Task"/> representing the result of the asynchronous operation.</returns>
         public async Task ucActivityReceivingFilter_GotFocus(object sender, EventArgs e)
         {
             await Task.Run(async () =>
             {
-                if (!SysEnvironment.GetInstance().IsApplicationExitInvoked)
+                // Reload oReceivingSettings because intial values will be scewed because of SelectedIndexChanged events firing
+                if (!this.IsControlLoaded)
                 {
-                    //Reload oReceivingSettings because intial values will be scewed because of SelectedIndexChanged events firing
-                    if (!IsControlLoaded)
-                    {
-                        LoadData();
-                    }
-
-                    await Device.InvokeOnMainThreadAsync(() =>
-                    {
-                        chkApplyArrivalDate.IsToggled = RecvSettings.IsApplyArrivalDateFilter;
-                        dtpArrivalDate.Date = RecvSettings.dtArrivalDateFilter;
-
-                        chkApplyIssuedDate.IsToggled = RecvSettings.IsApplyIssuedDateFilter;
-                        dtpIssuedDate.Date = RecvSettings.dtIssuedDateFilter;
-
-                        cboSortBy1.SelectedIndex = RecvSettings.iSortBy1Index;
-                        cboSortBy2.SelectedIndex = RecvSettings.iSortBy2Index;
-                        cboSortBy3.SelectedIndex = RecvSettings.iSortBy3Index;
-                    });
+                    this.LoadData();
                 }
+
+                await Device.InvokeOnMainThreadAsync(() =>
+                {
+                    this.chkApplyArrivalDate.IsToggled = this.RecvSettings.IsApplyArrivalDateFilter;
+                    this.dtpArrivalDate.Date = this.RecvSettings.dtArrivalDateFilter;
+
+                    this.chkApplyIssuedDate.IsToggled = this.RecvSettings.IsApplyIssuedDateFilter;
+                    this.dtpIssuedDate.Date = this.RecvSettings.dtIssuedDateFilter;
+
+                    this.cboSortBy1.SelectedIndex = this.RecvSettings.iSortBy1Index;
+                    this.cboSortBy2.SelectedIndex = this.RecvSettings.iSortBy2Index;
+                    this.cboSortBy3.SelectedIndex = this.RecvSettings.iSortBy3Index;
+                });
             });
         }
 
@@ -387,7 +287,6 @@ namespace dMobile.View.Activity
 
             try
             {
-
             }
             catch (Exception)
             {
@@ -404,7 +303,7 @@ namespace dMobile.View.Activity
         /// <remarks></remarks>
         public async Task<bool> IsReadyToClose()
         {
-            return !bChangesMade;
+            return !this.bChangesMade;
         }
 
         /// <summary>
@@ -414,7 +313,6 @@ namespace dMobile.View.Activity
         /// <remarks></remarks>
         public string GetControlDescription()
         {
-            // TODO: Resource strings
             return "Activity Receiving Filter";
         }
 
@@ -428,38 +326,37 @@ namespace dMobile.View.Activity
             bool bSaveComplete = false;
             try
             {
-                if (await IsReadyToSave())
+                if (await this.IsReadyToSave())
                 {
-                    if (chkApplyArrivalDate.IsToggled)
+                    if (this.chkApplyArrivalDate.IsToggled)
                     {
-                        RecvSettings.dtArrivalDateFilter = dtpArrivalDate.Date;
+                        this.RecvSettings.dtArrivalDateFilter = this.dtpArrivalDate.Date;
                     }
 
-                    RecvSettings.IsApplyArrivalDateFilter = chkApplyArrivalDate.IsToggled;
+                    this.RecvSettings.IsApplyArrivalDateFilter = this.chkApplyArrivalDate.IsToggled;
 
-                    if (chkApplyIssuedDate.IsToggled)
+                    if (this.chkApplyIssuedDate.IsToggled)
                     {
-                        RecvSettings.dtIssuedDateFilter = dtpIssuedDate.Date;
+                        this.RecvSettings.dtIssuedDateFilter = this.dtpIssuedDate.Date;
                     }
 
-                    RecvSettings.IsApplyIssuedDateFilter = chkApplyIssuedDate.IsToggled;
+                    this.RecvSettings.IsApplyIssuedDateFilter = this.chkApplyIssuedDate.IsToggled;
 
-                    RecvSettings.iSortBy1Index = cboSortBy1.SelectedIndex;
-                    RecvSettings.iSortBy2Index = cboSortBy2.SelectedIndex;
-                    RecvSettings.iSortBy3Index = cboSortBy3.SelectedIndex;
-                    MakeSQLSortBy();
+                    this.RecvSettings.iSortBy1Index = this.cboSortBy1.SelectedIndex;
+                    this.RecvSettings.iSortBy2Index = this.cboSortBy2.SelectedIndex;
+                    this.RecvSettings.iSortBy3Index = this.cboSortBy3.SelectedIndex;
+                    this.MakeSQLSortBy();
 
-                    ReceivingSettings tempRecvSettings = RecvSettings;
-                    RecvSettings.SaveData(ref tempRecvSettings);
-                    RecvSettings = tempRecvSettings;
+                    ReceivingSettings tempRecvSettings = this.RecvSettings;
+                    _ = this.RecvSettings.SaveData(ref tempRecvSettings);
+                    this.RecvSettings = tempRecvSettings;
 
                     bSaveComplete = true;
-                    bChangesMade = false;
+                    this.bChangesMade = false;
                 }
                 else
                 {
-                    // TODO: Resource strings
-                    await Device.InvokeOnMainThreadAsync(async () => await DisplayAlert("Validation Failed", "Data Failed Validation. Check Your Data.", "OK"));
+                    await Device.InvokeOnMainThreadAsync(async () => await this.DisplayAlert("Validation Failed", "Data Failed Validation. Check Your Data.", "OK"));
                 }
             }
             catch (Exception)
@@ -481,23 +378,23 @@ namespace dMobile.View.Activity
 
             try
             {
-                if (!await IsReadyToClose())
+                if (!await this.IsReadyToClose())
                 {
-                    LoadData();
+                    this.LoadData();
 
-                    chkApplyArrivalDate.IsToggled = RecvSettings.IsApplyArrivalDateFilter;
-                    dtpArrivalDate.Date = RecvSettings.dtArrivalDateFilter;
+                    this.chkApplyArrivalDate.IsToggled = this.RecvSettings.IsApplyArrivalDateFilter;
+                    this.dtpArrivalDate.Date = this.RecvSettings.dtArrivalDateFilter;
 
-                    chkApplyIssuedDate.IsToggled = RecvSettings.IsApplyIssuedDateFilter;
-                    dtpIssuedDate.Date = RecvSettings.dtIssuedDateFilter;
+                    this.chkApplyIssuedDate.IsToggled = this.RecvSettings.IsApplyIssuedDateFilter;
+                    this.dtpIssuedDate.Date = this.RecvSettings.dtIssuedDateFilter;
 
-                    cboSortBy1.SelectedIndex = RecvSettings.iSortBy1Index;
-                    cboSortBy2.SelectedIndex = RecvSettings.iSortBy2Index;
-                    cboSortBy3.SelectedIndex = RecvSettings.iSortBy3Index;
-                    MakeSQLSortBy();
+                    this.cboSortBy1.SelectedIndex = this.RecvSettings.iSortBy1Index;
+                    this.cboSortBy2.SelectedIndex = this.RecvSettings.iSortBy2Index;
+                    this.cboSortBy3.SelectedIndex = this.RecvSettings.iSortBy3Index;
+                    this.MakeSQLSortBy();
 
                     bCancelChanges = false;
-                    bChangesMade = false;
+                    this.bChangesMade = false;
                 }
 
             }
@@ -518,9 +415,9 @@ namespace dMobile.View.Activity
         {
             XDocument request = XDocument.Parse("<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>" +
                       "<params>" +
-                      ("<arrival_date>" + RecvSettings.dtArrivalDateFilter.ToShortDateString() + "</arrival_date>") +
-                      ("<issued_date>" + RecvSettings.dtIssuedDateFilter.ToShortDateString() + "</issued_date>") +
-                      ("<sortby>" + strSQLSortBy + "</sortby>") +
+                      "<arrival_date>" + this.RecvSettings.dtArrivalDateFilter.ToShortDateString() + "</arrival_date>" +
+                      "<issued_date>" + this.RecvSettings.dtIssuedDateFilter.ToShortDateString() + "</issued_date>" +
+                      "<sortby>" + this.strSQLSortBy + "</sortby>" +
                       "</params>");
 
             return request;
@@ -536,9 +433,9 @@ namespace dMobile.View.Activity
         {
             try
             {
-                if (isControlLoaded)
+                if (this.IsControlLoaded)
                 {
-                    m_bChangesMade = true;
+                    this.bChangesMade = true;
                 }
             }
             catch (Exception)
@@ -546,11 +443,9 @@ namespace dMobile.View.Activity
             }
         }
 
-        #endregion
-
         private async void BtnSave_Clicked(object sender, EventArgs e)
         {
-            if (await SaveChanges())
+            if (await this.SaveChanges())
             {
                 this.DialogResult = DialogResult.OK;
                 await this.Close();
@@ -560,13 +455,12 @@ namespace dMobile.View.Activity
         private async void BtnClose_Clicked(object sender, EventArgs e)
         {
             this.DialogResult = DialogResult.None;
-            await CancelChanges();
+            _ = await this.CancelChanges();
             await this.Close();
         }
 
         private void dtpArrivalDate_DateSelected(object sender, DateChangedEventArgs e)
         {
-
         }
     }
 }

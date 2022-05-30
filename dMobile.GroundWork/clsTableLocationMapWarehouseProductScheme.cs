@@ -1,29 +1,36 @@
-﻿namespace dMobile.GroundWork
+﻿// <copyright file="clsTableLocationMapWarehouseProductScheme.cs" company="InterSect Business Systems Inc">
+// Copyright (c) InterSect Business Systems Inc. All rights reserved.
+// </copyright>
+
+namespace dMobile.GroundWork
 {
     using System;
+    using System.Collections.Generic;
     using System.Data;
-    using SQLite;
     using System.Text;
+    using System.Threading.Tasks;
     using System.Xml;
     using System.Xml.Linq;
     using dMobile.Bedrock;
-    using System.Collections.Generic;
-    using System.Threading.Tasks;
     using dMobile.Resources.Models;
+    using SQLite;
 
     public class TableLocationMapWarehouseProductScheme : TableBase
     {
+        /// <summary>
+        /// Initializes a new instance of the <see cref="TableLocationMapWarehouseProductScheme"/> class.
+        /// </summary>
         public TableLocationMapWarehouseProductScheme()
             : base()
         {
-            this.FullClassName = GetType().FullName;
+            this.FullClassName = this.GetType().FullName;
         }
 
         /// <summary>
         ///
         /// </summary>
         /// <remarks></remarks>
-        public override async Task Request()
+        public override async Task RequestData()
         {
             try
             {
@@ -35,12 +42,11 @@
                 {
                     foreach (tFamilyModel family in resultsFamily)
                     {
-                        // TODO: Resource strings
                         this.DataAccessStatusOutHandler(this, EventArgs.Empty, string.Format("For family {0}", family.FamilyCode), true);
 
                         string reqData = await this.SendRequest(family.FamilyCode);
 
-                        if (0 < reqData.Length)
+                        if (reqData.Length > 0)
                         {
                             if (reqData.Contains("<message>ERROR</message>"))
                             {
@@ -54,19 +60,16 @@
                     }
                 }
 
-                // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Seeding warehouse product schemes complete.", true);
             }
             catch (SQLiteException ex)
             {
-                // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Database exception occurred.", true);
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Seeding warehouse product schemes failed.", true);
                 throw new Exception("Database exception occurred. Seeding warehouse product schemes failed.", ex);
             }
             catch (Exception ex)
             {
-                // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Seeding warehouse product schemes failed.", true);
                 throw new Exception("Seeding warehouse product schemes failed.", ex);
             }
@@ -78,18 +81,15 @@
         /// <remarks></remarks>
         public override async Task<int> DataStatus()
         {
-            int rowsAffected = 0;
-
+            int rowsAffected;
             try
             {
                 rowsAffected = Convert.ToInt32(await DatabaseConnection.GetInstance().SQLConn.ExecuteScalarAsync<int>("SELECT COUNT(*) FROM tLocationMapWarehouseProductScheme"));
 
-                // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, string.Format("{0} warehouse product schemes.", rowsAffected), true);
             }
             catch (SQLiteException ex)
             {
-                // TODO: Resource strings
                 throw new Exception("Database exception occurred. Warehouse product schemes status failed.", ex);
             }
 
@@ -100,21 +100,18 @@
         ///
         /// </summary>
         /// <remarks></remarks>
-        public override async Task Purge()
+        public override async Task PurgeData()
         {
             try
             {
-                // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging warehouse product schemes.", true);
 
                 await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync("DELETE FROM tLocationMapWarehouseProductScheme");
 
-                // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging warehouse product schemes failed.", true);
             }
             catch (SQLiteException ex)
             {
-                // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Database exception occurred.", true);
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging warehouse product schemes failed.", true);
                 throw new Exception("Database exception occurred. Purge warehouse product schemes failed.", ex);
@@ -136,19 +133,16 @@
                 {
                     using (DataSet ds = new DataSet())
                     {
-                        // TODO: Resource strings
                         this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Reading received data.", false);
 
                         ds.ReadXml(SysCommon.GetXmlReader(ref reqData), XmlReadMode.Auto);
 
-                        // TODO: Resource strings
                         this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving warehouse product schemes.", false);
 
                         if (ds.Tables.Count != 0)
                         {
                             int progMax = Convert.ToInt32(ds.Tables["tLocationMapWarehouseProductScheme"].Rows.Count);
 
-                            // TODO: Resource strings
                             this.DataAccessStatusOutHandler(this, EventArgs.Empty, string.Format("Records {0}", ds.Tables["tLocationMapWarehouseProductScheme"].Rows.Count), false);
 
                             int progValue = 0;
@@ -182,7 +176,6 @@
                                 }
                                 else
                                 {
-                                    // TODO: Resource strings
                                     throw new Exception("Unable to locate the scheme refno using the scheme code in tProductScheme." + Environment.NewLine + errMsg);
                                 }
 
@@ -195,7 +188,6 @@
                                 }
                                 else
                                 {
-                                    // TODO: Resource strings
                                     throw new Exception(string.Format("Unable to locate the product refno using the product FKRefno {0} in tProduct.", productFKRefno) + Environment.NewLine + errMsg);
                                 }
 
@@ -208,13 +200,12 @@
                                 }
                                 else
                                 {
-                                    // TODO: Resource strings
                                     throw new Exception(string.Format("Unable to locate the locationMapWarehouse location map refno using the locMapWhsFKRefno {0} in tLocationMapWarehouse.", locMapWhsFKRefno) + Environment.NewLine + errMsg);
                                 }
 
                                 isWhsProdSchemeFound = false;
 
-                                if (SysEnv.RefreshOpt.RefreshDataChangesOnly)
+                                if (this.SysEnv.RefreshOpt.RefreshDataChangesOnly)
                                 {
                                     string query = "SELECT * FROM tLocationMapWarehouseProductScheme WHERE WarehouseLocationMapRefno = ? AND ProductRefno = ? AND ProductSchemeRefno = ?";
                                     List<tLocationMapWarehouseProductSchemeModel> resultsLocationMapWarehouseProductScheme = transaction.Query<tLocationMapWarehouseProductSchemeModel>(query, Convert.ToInt32(locMapWhsRefno), Convert.ToInt32(productRefno), Convert.ToInt32(schemeRefno));
@@ -243,18 +234,15 @@
                         transaction.Commit();
                     }
 
-                    // TODO: Resource strings
                     this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving warehouse product schemes complete.", false);
                 }
                 catch (SQLiteException ex)
                 {
                     transaction.Rollback();
 
-                    // TODO: Resource strings
                     this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Database exception occurred.", false);
                     this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving warehouse product schemes failed.", false);
 
-                    // TODO: Resource strings
                     throw new Exception("Database exception occurred. Saving warehouse product schemes failed." + Environment.NewLine + errMsg, ex);
                 }
             });
@@ -276,7 +264,7 @@
                 + "<command>"
                 + "<action>REQUEST WAREHOUSE PRODUCT SCHEMES</action>"
                 + await SysCommon.GetRequestDefaults(true)
-                + ("<family_code>" + strFamilyCode + "</family_code>")
+                + "<family_code>" + strFamilyCode + "</family_code>"
                 + "</command>"
                 + "</imclient>");
 
@@ -288,7 +276,7 @@
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="familyCode"></param>
         /// <returns></returns>

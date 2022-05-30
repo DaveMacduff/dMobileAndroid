@@ -1,7 +1,11 @@
-﻿using SQLite;
+﻿// <copyright file="tLocationMapModel.cs" company="InterSect Business Systems Inc">
+// Copyright (c) InterSect Business Systems Inc. All rights reserved.
+// </copyright>
 
 namespace dMobile.Resources.Models
 {
+    using SQLite;
+
     //string sqlTable = "CREATE TABLE IF NOT EXISTS tLocationMap"
     //   + "("
     //   + "LocationMapRefno INTEGER NOT NULL CONSTRAINT PK_LocationMapOnLocationMapRefno PRIMARY KEY,"
@@ -10,7 +14,7 @@ namespace dMobile.Resources.Models
 
     //if (this.OnNubStatOut != null)
     //{
-    //    // TODO: Resource strings
+    //    
     //    this.MsgEventArgs.StatusOutMsg = "Creating location map table.";
     //    this.OnNubStatOut(this, this.MsgEventArgs);
     //}
@@ -19,7 +23,6 @@ namespace dMobile.Resources.Models
 
     //        string sqlNdx = "CREATE UNIQUE INDEX IF NOT EXISTS UQ_LocationMapOnLocationMapRefnoAndLocationMapSubType ON tLocationMap(LocationMapRefno ASC, LocationMapSubType ASC)";
     //await this.RunDDLCommand(sqlNdx);
-
     [Table("tLocationMap")]
     public class tLocationMapModel
     {

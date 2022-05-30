@@ -1,48 +1,37 @@
-﻿using System;
+﻿// <copyright file="ConvertUnitItem.cs" company="InterSect Business Systems Inc">
+// Copyright (c) InterSect Business Systems Inc. All rights reserved.
+// </copyright>
+
 namespace dMobile.Resources.Types
 {
+    using System;
+
     public class ConvertUnitItem
     {
-        private int productUnitRefno;
-        private int productRefno;
-        private int productSchemeVariantNumber;
-        private int activityDetailFKRefno;
         private int activityDetailRefno;
-        private string productCode;
-        private string productUnitBC;
-        private string unitCode;
-        private string productDescription;
-        private string productUnitSizeDescription;
-        private string activityDetailSchemeID;
-        private string activityDetailUniqueSchemeID;
-        private string activityDetailSingleTradeItemSerialNumber;
-        private string activityDetailLogisticUnitBatchLotNumber;
         private string productSchemeVariantCode;
-        private decimal activityDetailQuantity;
-        private decimal activityDetailBaseQuantity;
         private decimal activityDetailWeightQuantity;
-        private DateTime activityDetailLogisticUnitBestBeforeSellByDate;
         private DateTime activityDetailLogisticUnitProductionDate;
 
-        public int ProductUnitRefno { get => productUnitRefno; set => productUnitRefno = value; }
-        public int ProductRefno { get => productRefno; set => productRefno = value; }
-        public int ProductSchemeVariantNumber { get => productSchemeVariantNumber; set => productSchemeVariantNumber = value; }
-        public int ActivityDetailFKRefno { get => activityDetailFKRefno; set => activityDetailFKRefno = value; }
-        public int ActivityDetailRefno { get => activityDetailRefno; set => activityDetailRefno = value; }
-        public string ProductCode { get => productCode; set => productCode = value; }
-        public string ProductUnitBC { get => productUnitBC; set => productUnitBC = value; }
-        public string UnitCode { get => unitCode; set => unitCode = value; }
-        public string ProductDescription { get => productDescription; set => productDescription = value; }
-        public string ProductUnitSizeDescription { get => productUnitSizeDescription; set => productUnitSizeDescription = value; }
-        public string ActivityDetailSchemeID { get => activityDetailSchemeID; set => activityDetailSchemeID = value; }
-        public string ActivityDetailUniqueSchemeID { get => activityDetailUniqueSchemeID; set => activityDetailUniqueSchemeID = value; }
-        public string ActivityDetailSingleTradeItemSerialNumber { get => activityDetailSingleTradeItemSerialNumber; set => activityDetailSingleTradeItemSerialNumber = value; }
-        public string ActivityDetailLogisticUnitBatchLotNumber { get => activityDetailLogisticUnitBatchLotNumber; set => activityDetailLogisticUnitBatchLotNumber = value; }
-        public string ProductSchemeVariantCode { get => productSchemeVariantCode; set => productSchemeVariantCode = value; }
-        public decimal ActivityDetailQuantity { get => activityDetailQuantity; set => activityDetailQuantity = value; }
-        public decimal ActivityDetailBaseQuantity { get => activityDetailBaseQuantity; set => activityDetailBaseQuantity = value; }
-        public decimal ActivityDetailWeightQuantity { get => activityDetailWeightQuantity; set => activityDetailWeightQuantity = value; }
-        public DateTime ActivityDetailLogisticUnitBestBeforeSellByDate { get => activityDetailLogisticUnitBestBeforeSellByDate; set => activityDetailLogisticUnitBestBeforeSellByDate = value; }
-        public DateTime ActivityDetailLogisticUnitProductionDate { get => activityDetailLogisticUnitProductionDate; set => activityDetailLogisticUnitProductionDate = value; }
+        public int ProductUnitRefno { get; set; }
+        public int ProductRefno { get; set; }
+        public int ProductSchemeVariantNumber { get; set; }
+        public int ActivityDetailFKRefno { get; set; }
+        public int ActivityDetailRefno { get => this.activityDetailRefno; set => this.activityDetailRefno = value; }
+        public string ProductCode { get; set; }
+        public string ProductUnitBC { get; set; }
+        public string UnitCode { get; set; }
+        public string ProductDescription { get; set; }
+        public string ProductUnitSizeDescription { get; set; }
+        public string ActivityDetailSchemeID { get; set; }
+        public string ActivityDetailUniqueSchemeID { get; set; }
+        public string ActivityDetailSingleTradeItemSerialNumber { get; set; }
+        public string ActivityDetailLogisticUnitBatchLotNumber { get; set; }
+        public string ProductSchemeVariantCode { get => this.productSchemeVariantCode; set => this.productSchemeVariantCode = value; }
+        public decimal ActivityDetailQuantity { get; set; }
+        public decimal ActivityDetailBaseQuantity { get; set; }
+        public decimal ActivityDetailWeightQuantity { get => this.activityDetailWeightQuantity; set => this.activityDetailWeightQuantity = value; }
+        public DateTime ActivityDetailLogisticUnitBestBeforeSellByDate { get; set; }
+        public DateTime ActivityDetailLogisticUnitProductionDate { get => this.activityDetailLogisticUnitProductionDate; set => this.activityDetailLogisticUnitProductionDate = value; }
     }
 }

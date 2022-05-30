@@ -1,361 +1,152 @@
-// ----------------------------------------------------------------------
-// <copyright file="ProductInfo.cs" company="InterSect Business Systems Inc.">
-//     Copyright (2013). All right reserved
+// <copyright file="ProductInfo.cs" company="InterSect Business Systems Inc">
+// Copyright (c) InterSect Business Systems Inc. All rights reserved.
 // </copyright>
-//
-// ------------------------------------------------------------------------
+
 namespace dMobile.Bedrock
 {
     using System;
-    using System.Collections.Generic;
-    using System.Data;
-    using System.Text;
-    using System.Xml;
-    using System.Xml.Linq;
 
     /// <summary>
-    /// 
+    /// <see cref="ProductInfo"/> Product information class.
     /// </summary>
     [Serializable]
     public class ProductInfo
     {
-        private int fkRefno = 0;
-        private int unitRefno = 0;
-        private int refno = 0;
-        private string code = string.Empty;
-        private string desc = string.Empty;
-        private string brandDesc = string.Empty;
-        private string unitBC = string.Empty;
-        private bool unitIsBC = false;
-        private string unitCode = string.Empty;
-        private string unitSizeDesc = string.Empty;
-        private string baseUnitCode = string.Empty;
-        private string weightUnitCode = string.Empty;
-        private decimal unit2BaseUnitFactor = 0;
-        private decimal unitWeight = 0;
-        private bool isCatchCount = false;
-        private bool isCatchWeight = false;
-        private bool isCatchAsk = false;
-        private bool isCatchAskZero = false;
-        private bool isAllowConvertProduct = false;
-        private ProdScheme scheme = new ProdScheme();
-        private bool unitIsDefault = false;
-        private bool unitIsSellUnit = false;
-        private decimal boxCount = 0;
-        private decimal weightTolerance = 0.00M;
+        /// <summary>
+        /// Gets or sets a value indicating whether a product is allowed to be converted to another
+        /// product. Part of ConvertProduct or ConvertLabel.
+        /// </summary>
+        public bool IsAllowConvertProduct { get; set; } = false;
 
         /// <summary>
-        /// Checks if a product is allowed to be converted to another product.
-        /// Part of ConvertProduct or ConvertLabel.
+        /// Gets or sets a value indicating whether a product is a catch ask product.
         /// </summary>
-        public bool IsAllowConvertProduct
+        public bool IsCatchAskZero { get; set; } = false;
+
+        /// <summary>
+        /// Gets or sets the box count quantity.
+        /// </summary>
+        public decimal BoxCount { get; set; } = 0;
+
+        /// <summary>
+        /// Gets or sets a value indicating whether the product unit is a sell unit.
+        /// </summary>
+        public bool UnitIsSellUnit { get; set; } = false;
+
+        /// <summary>
+        /// Gets or sets a value indicating whether the product unit is the default unit.
+        /// </summary>
+        public bool UnitIsDefault { get; set; } = false;
+
+        /// <summary>
+        /// Gets or sets the product unit reference number.
+        /// </summary>
+        public int UnitRefno { get; set; } = 0;
+
+        /// <summary>
+        /// Gets or sets the product foreign key reference number. (iv_mast.refno).
+        /// </summary>
+        public int FKRefno { get; set; } = 0;
+
+        /// <summary>
+        /// Gets or sets the product reference number.
+        /// </summary>
+        public int Refno { get; set; } = 0;
+
+        /// <summary>
+        /// Gets or sets the product code.
+        /// </summary>
+        public string Code { get; set; } = string.Empty;
+
+        /// <summary>
+        /// Gets or sets the product description.
+        /// </summary>
+        public string Desc { get; set; } = string.Empty;
+
+        /// <summary>
+        /// Gets or sets the product brand description.
+        /// </summary>
+        public string BrandDesc { get; set; } = string.Empty;
+
+        /// <summary>
+        /// Gets or sets a value indicating whether the unit is broken case.
+        /// </summary>
+        public bool UnitIsBC { get; set; } = false;
+
+        /// <summary>
+        /// Gets or sets the product unit broken case string. "X".
+        /// </summary>
+        public string UnitBC { get; set; } = string.Empty;
+
+        /// <summary>
+        /// Gets or sets the product unit of measure code.
+        /// </summary>
+        public string UnitCode { get; set; } = string.Empty;
+
+        /// <summary>
+        /// Gets or sets the product unit size description.
+        /// </summary>
+        public string UnitSizeDesc { get; set; } = string.Empty;
+
+        /// <summary>
+        /// Gets or sets the product base unit of measure code.
+        /// </summary>
+        public string BaseUnitCode { get; set; } = string.Empty;
+
+        /// <summary>
+        /// Gets or sets the product weight unit of measure code.
+        /// </summary>
+        public string WeightUnitCode { get; set; } = string.Empty;
+
+        /// <summary>
+        /// Gets or sets the product tracking scheme information.
+        /// </summary>
+        public ProdScheme Scheme { get; set; } = new ProdScheme();
+
+        /// <summary>
+        /// Gets or sets the product unit to base unit factor.
+        /// </summary>
+        public decimal Unit2BaseUnitFactor { get; set; } = 0;
+
+        /// <summary>
+        /// Gets or sets the product unit gross weight.
+        /// </summary>
+        public decimal UnitGrossWeight { get; set; } = 0;
+
+        /// <summary>
+        /// Gets or sets a value indicating whether the product is catch count.
+        /// </summary>
+        public bool IsCatchCount { get; set; } = false;
+
+        /// <summary>
+        /// Gets or sets a value indicating whether the product is catch weight.
+        /// </summary>
+        public bool IsCatchWeight { get; set; } = false;
+
+        /// <summary>
+        /// Gets or sets a value indicating whether the product is catch ask.
+        /// </summary>
+        public bool IsCatchAsk { get; set; } = false;
+
+        /// <summary>
+        /// Gets or sets a product units weight tolerance.
+        /// </summary>
+        public decimal WeightTolerance { get; set; } = 0.00M;
+
+        /// <summary>
+        /// Gets a value indicating whether the base unit is a weight unit of measure unit.
+        /// </summary>
+        public bool IsBaseWeightUnit
         {
             get
             {
-                return this.isAllowConvertProduct;
-            }
-            set
-            {
-                this.isAllowConvertProduct = value;
-            }
-        }
+                bool isWeightUnit = false;
+                if (this.BaseUnitCode == "LB" || this.BaseUnitCode == "KG")
+                {
+                    isWeightUnit = true;
+                }
 
-        public bool IsCatchAskZero
-        {
-            get
-            {
-                return this.isCatchAskZero;
-            }
-
-            set
-            {
-                this.isCatchAskZero = value;
-            }
-        }
-
-        public decimal BoxCount
-        {
-            get
-            {
-                return this.boxCount;
-            }
-
-            set
-            {
-                this.boxCount = value;
-            }
-        }
-
-        public bool UnitIsSellUnit
-        {
-            get
-            {
-                return this.unitIsSellUnit;
-            }
-
-            set
-            {
-                this.unitIsSellUnit = value;
-            }
-        }
-
-        public bool UnitIsDefault
-        {
-            get
-            {
-                return this.unitIsDefault;
-            }
-
-            set
-            {
-                this.unitIsDefault = value;
-            }
-        }
-
-        public int UnitRefno
-        {
-            get
-            {
-                return this.unitRefno;
-            }
-
-            set
-            {
-                this.unitRefno = value;
-            }
-        }
-
-        public int FKRefno
-        {
-            get
-            {
-                return this.fkRefno;
-            }
-
-            set
-            {
-                this.fkRefno = value;
-            }
-        }
-
-        public int Refno
-        {
-            get
-            {
-                return this.refno;
-            }
-
-            set
-            {
-                this.refno = value;
-            }
-        }
-
-        public string Code
-        {
-            get
-            {
-                return this.code;
-            }
-
-            set
-            {
-                this.code = value;
-            }
-        }
-
-        public string Desc
-        {
-            get
-            {
-                return this.desc;
-            }
-
-            set
-            {
-                this.desc = value;
-            }
-        }
-
-        public string BrandDesc
-        {
-            get
-            {
-                return this.brandDesc;
-            }
-
-            set
-            {
-                this.brandDesc = value;
-            }
-        }
-
-        public bool UnitIsBC
-        {
-            get
-            {
-                return this.unitIsBC;
-            }
-
-            set
-            {
-                this.unitIsBC = value;
-            }
-        }
-
-        public string UnitBC
-        {
-            get
-            {
-                return this.unitBC;
-            }
-
-            set
-            {
-                this.unitBC = value;
-            }
-        }
-
-        public string UnitCode
-        {
-            get
-            {
-                return this.unitCode;
-            }
-
-            set
-            {
-                this.unitCode = value;
-            }
-        }
-
-        public string UnitSizeDesc
-        {
-            get
-            {
-                return this.unitSizeDesc;
-            }
-
-            set
-            {
-                this.unitSizeDesc = value;
-            }
-        }
-
-        public string BaseUnitCode
-        {
-            get
-            {
-                return this.baseUnitCode;
-            }
-
-            set
-            {
-                this.baseUnitCode = value;
-            }
-        }
-
-        public string WeightUnitCode
-        {
-            get
-            {
-                return this.weightUnitCode;
-            }
-
-            set
-            {
-                this.weightUnitCode = value;
-            }
-        }
-
-        public ProdScheme Scheme
-        {
-            get
-            {
-                return this.scheme;
-            }
-
-            set
-            {
-                this.scheme = value;
-            }
-        }
-
-        public decimal Unit2BaseUnitFactor
-        {
-            get
-            {
-                return this.unit2BaseUnitFactor;
-            }
-
-            set
-            {
-                this.unit2BaseUnitFactor = value;
-            }
-        }
-
-        public decimal UnitWeight
-        {
-            get
-            {
-                return this.unitWeight;
-            }
-
-            set
-            {
-                this.unitWeight = value;
-            }
-        }
-
-        public bool IsCatchCount
-        {
-            get
-            {
-                return this.isCatchCount;
-            }
-
-            set
-            {
-                this.isCatchCount = value;
-            }
-        }
-
-        public bool IsCatchWeight
-        {
-            get
-            {
-                return this.isCatchWeight;
-            }
-
-            set
-            {
-                this.isCatchWeight = value;
-            }
-        }
-
-        public bool IsCatchAsk
-        {
-            get
-            {
-                return this.isCatchAsk;
-            }
-
-            set
-            {
-                this.isCatchAsk = value;
-            }
-        }
-
-        public decimal WeightTolerance
-        {
-            get
-            {
-                return this.weightTolerance;
-            }
-
-            set
-            {
-                this.weightTolerance = value;
+                return isWeightUnit;
             }
         }
     }

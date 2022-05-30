@@ -1,9 +1,13 @@
-﻿using System;
-using SQLite;
-using SQLiteNetExtensions.Attributes;
+﻿// <copyright file="tActivityDetailTransferModel.cs" company="InterSect Business Systems Inc">
+// Copyright (c) InterSect Business Systems Inc. All rights reserved.
+// </copyright>
 
 namespace dMobile.Resources.Models
 {
+    using System;
+    using SQLite;
+    using SQLiteNetExtensions.Attributes;
+
     //string sqlTable = "CREATE TABLE IF NOT EXISTS tActivityDetailTransfer"
     //+ "("
 
@@ -26,7 +30,6 @@ namespace dMobile.Resources.Models
 
     //string sqlNdx = "CREATE UNIQUE INDEX IF NOT EXISTS UQ_ActivityDetailTransferOnActivityDetailTransferFKRefnoAndTransModeEnum ON tActivityDetailTransfer(ActivityDetailTransferFKRefno ASC, ActivityDetailTransferTransModeEnum ASC)";
     //await this.RunDDLCommand(sqlNdx);
-
     [Table("tActivityDetailTransfer")]
     public class tActivityDetailTransferModel
     {
@@ -34,12 +37,12 @@ namespace dMobile.Resources.Models
         public int ActivityDetailRefno { get; set; }
 
         [NotNull, Indexed(Name = "UQ_ActivityDetailTransferOnActivityDetailTransferFKRefnoAndTransModeEnum", Order = 1, Unique = true)]
-        public int ActivityDetailTransferFKRefno { get; set;}
+        public int ActivityDetailTransferFKRefno { get; set; }
 
         [NotNull]
         public bool ActivityDetailTransferIsConfirmed { get; set; }
 
         [NotNull, Indexed(Name = "UQ_ActivityDetailTransferOnActivityDetailTransferFKRefnoAndTransModeEnum", Order = 2, Unique = true)]
-        public int ActivityDetailTransferTransModeEnum { get; set;}
+        public int ActivityDetailTransferTransModeEnum { get; set; }
     }
 }

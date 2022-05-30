@@ -23,9 +23,9 @@
 
             <Custom:BorderedEditor x:Name="textBoxExData" Grid.Row="0" Grid.RowSpan="4" IsReadOnly="True" />
 
-            <Button x:Name="buttonSupportDetail" Grid.Row="4" Text="Support Detail" Clicked="buttonSupportDetail_Click"/>
+            <Button x:Name="buttonSupportDetail" Grid.Row="4" Text="Support Detail" Clicked="ButtonSupportDetail_Click"/>
             <Button x:Name="buttonSendReport" Grid.Row="5" Text="Send Report" Clicked="ButtonSendReport_Clicked"/>
-            <Button x:Name="buttonContinue" Grid.Row="6" Text="Continue" Clicked="buttonContinue_Click"/>
+            <Button x:Name="buttonContinue" Grid.Row="6" Text="Continue" Clicked="ButtonContinue_Click"/>
 
         </Grid>
     </ContentPage.Content>

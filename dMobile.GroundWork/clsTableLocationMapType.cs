@@ -1,18 +1,22 @@
-﻿namespace dMobile.GroundWork
+﻿// <copyright file="clsTableLocationMapType.cs" company="InterSect Business Systems Inc">
+// Copyright (c) InterSect Business Systems Inc. All rights reserved.
+// </copyright>
+
+namespace dMobile.GroundWork
 {
-    using dMobile.Bedrock;
     using System;
+    using System.Collections.Generic;
     using System.Data;
-    using SQLite;
     using System.Text;
+    using System.Threading.Tasks;
     using System.Xml;
     using System.Xml.Linq;
-    using System.Threading.Tasks;
-    using System.Collections.Generic;
+    using dMobile.Bedrock;
     using dMobile.Resources.Models;
+    using SQLite;
 
     /// <summary>
-    /// Defines the <see cref="TableLocationMapType" />
+    /// Defines the <see cref="TableLocationMapType" />.
     /// </summary>
     public class TableLocationMapType : TableBase
     {
@@ -26,21 +30,20 @@
         }
 
         /// <summary>
-        /// The Request
+        /// The Request.
         /// </summary>
-        public override async Task Request()
+        public override async Task RequestData()
         {
             try
             {
-                // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Seeding location map types.", true);
 
                 string reqData = string.Empty;
                 int whsLocMapRefno = 0;
 
-                reqData = await this.Send(whsLocMapRefno);
+                reqData = await this.SendRequest(whsLocMapRefno);
 
-                if (0 < reqData.Length)
+                if (reqData.Length > 0)
                 {
                     if (reqData.Contains("<message>ERROR</message>"))
                     {
@@ -52,63 +55,53 @@
                     await this.Save(reqData);
                 }
 
-                // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Seeding location map types complete.", true);
             }
             catch (Exception ex)
             {
-                // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Seeding location map types failed.", true);
 
-                // TODO: Resource strings
                 throw new Exception("Seeding location map types failed.", ex);
             }
         }
 
         /// <summary>
-        /// The Purge
+        /// The Purge.
         /// </summary>
-        public override async Task Purge()
+        public override async Task PurgeData()
         {
             try
             {
-                // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging location map types.", true);
 
                 await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync("DELETE FROM tLocationMapType");
 
-                // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging location map types complete.", true);
             }
             catch (SQLiteException ex)
             {
-                // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Database exception occurred.", true);
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging location map types failed.", true);
 
-                // TODO: Resource strings
                 throw new Exception("Database exception occurred. Purging location map types failed.", ex);
             }
         }
 
         /// <summary>
-        /// The DataStatus
+        /// The DataStatus.
         /// </summary>
-        /// <returns>The <see cref="int"/></returns>
+        /// <returns>The <see cref="int"/>.</returns>
         public override async Task<int> DataStatus()
         {
-            int rowsAffected = 0;
-
+            int rowsAffected;
             try
             {
                 rowsAffected = Convert.ToInt32(await DatabaseConnection.GetInstance().SQLConn.ExecuteScalarAsync<int>("SELECT COUNT(*) FROM tLocationMapType"));
 
-                // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, string.Format("{0} location map types.", rowsAffected), true);
             }
             catch (SQLiteException ex)
             {
-                // TODO: Resource strings
                 throw new Exception("Database exception occurred. Location map types status failed.", ex);
             }
 
@@ -116,17 +109,17 @@
         }
 
         /// <summary>
-        /// The Send
+        /// The Send.
         /// </summary>
         /// <param name="whsLocMapRefno"></param>
         /// <returns></returns>
-        protected override async Task<string> Send(int whsLocMapRefno)
+        protected override async Task<string> SendRequest(int whsLocMapRefno)
         {
-            return await this.SendComm(await this.Create(whsLocMapRefno));
+            return await this.SendComm(await this.CreateRequest(whsLocMapRefno));
         }
 
         /// <summary>
-        /// The Save
+        /// The Save.
         /// </summary>
         /// <param name="reqData"></param>
         protected override async Task Save(string reqData)
@@ -139,19 +132,16 @@
                 {
                     using (DataSet ds = new DataSet())
                     {
-                        // TODO: Resource Strings
                         this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Reading received data.", false);
 
                         ds.ReadXml(SysCommon.GetXmlReader(ref reqData), XmlReadMode.Auto);
 
-                        // TODO: Resource Strings
                         this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving location map types.", false);
 
                         if (ds.Tables.Count != 0)
                         {
                             int progMax = Convert.ToInt32(ds.Tables["seg"].Rows.Count);
 
-                            // TODO: Resource Strings
                             this.DataAccessStatusOutHandler(this, EventArgs.Empty, string.Format("Records {0}", progMax), false);
 
                             int locMapRefno = 0;
@@ -221,7 +211,6 @@
                                         }
                                         else
                                         {
-                                            // TODO: Resource Strings
                                             throw new Exception("No results in tLocationMapWarehouse for LocationMapWarehouseFKRefno " + locMapFKRefno + Environment.NewLine + this.FullClassName + " Save" + Environment.NewLine + errMsg);
                                         }
 
@@ -237,7 +226,6 @@
                                         }
                                         else
                                         {
-                                            // TODO: Resource Strings
                                             throw new Exception("No results in tLocationMapSection for LocationMapSectionFKRefno " + locMapFKRefno + Environment.NewLine + this.FullClassName + " Save" + Environment.NewLine + errMsg);
                                         }
 
@@ -253,20 +241,19 @@
                                         }
                                         else
                                         {
-                                            // TODO: Resource Strings
                                             throw new Exception("No results in tLocationMapSlot for LocationMapSlotFKRefno " + locMapFKRefno + Environment.NewLine + this.FullClassName + " Save" + Environment.NewLine + errMsg);
                                         }
 
                                         break;
 
                                     default:
-                                        // TODO: Resource Strings
+
                                         throw new Exception(string.Format("Undefined Location Map SubType {0}", locMapSubType));
                                 }
 
                                 isLocMapTypeFound = false;
 
-                                if (SysEnv.RefreshOpt.RefreshDataChangesOnly)
+                                if (this.SysEnv.RefreshOpt.RefreshDataChangesOnly)
                                 {
                                     List<tLocationMapTypeModel> resultsLocationMapType = transaction.Query<tLocationMapTypeModel>("SELECT * FROM tLocationMapType WHERE LocationMapRefno = ? AND LocationMapTypeEnum = ?", locMapRefno, locMapTypeEnum);
 
@@ -293,7 +280,6 @@
 
                         transaction.Commit();
 
-                        // TODO: Resource Strings
                         this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving location map types complete.", false);
                     }
                 }
@@ -301,22 +287,20 @@
                 {
                     transaction.Rollback();
 
-                    // TODO: Resource Strings
                     this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Database exception occurred.", false);
                     this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving location map types failed.", false);
 
-                    // TODO: Resource Strings
                     throw new Exception("Database exception occurred. Saving location map types failed." + Environment.NewLine + errMsg, ex);
                 }
             });
         }
 
         /// <summary>
-        /// The Create
+        /// The Create.
         /// </summary>
         /// <param name="whsLocMapRefno"></param>
         /// <returns></returns>
-        protected override async Task<string> Create(int whsLocMapRefno)
+        protected override async Task<string> CreateRequest(int whsLocMapRefno)
         {
             StringBuilder xmlString = new StringBuilder();
             XmlWriter xml = XmlWriter.Create(xmlString);
@@ -324,7 +308,7 @@
             TableLocationMapWarehouse locMapWhs = new TableLocationMapWarehouse();
 
             // lookup and verify warehouse
-            if (0 < whsLocMapRefno)
+            if (whsLocMapRefno > 0)
             {
                 locMapWhsFKRefno = await locMapWhs.GetLocMapWhsFKRefnoFromLocMapWhsRefno(whsLocMapRefno);
             }
@@ -335,7 +319,7 @@
                 + "<command>"
                 + "<action>REQUEST LOCATION MAP TYPES</action>"
                 + await SysCommon.GetRequestDefaults(true)
-                + ("<LocationMapWarehouseFKRefno>" + locMapWhsFKRefno + "</LocationMapWarehouseFKRefno>")
+                + "<LocationMapWarehouseFKRefno>" + locMapWhsFKRefno + "</LocationMapWarehouseFKRefno>"
                 + "</command>"
                 + "</imclient>");
 

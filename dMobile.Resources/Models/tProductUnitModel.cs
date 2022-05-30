@@ -1,9 +1,13 @@
-﻿using System;
-using SQLite;
-using SQLiteNetExtensions.Attributes;
+﻿// <copyright file="tProductUnitModel.cs" company="InterSect Business Systems Inc">
+// Copyright (c) InterSect Business Systems Inc. All rights reserved.
+// </copyright>
 
 namespace dMobile.Resources.Models
 {
+    using System;
+    using SQLite;
+    using SQLiteNetExtensions.Attributes;
+
     //string sqlTable = "CREATE TABLE IF NOT EXISTS tProductUnit"
     //+ "("
     //+ "ProductUnitRefno INTEGER NOT NULL CONSTRAINT PK_ProductUnitOnProductUnitRefno PRIMARY KEY,"
@@ -48,7 +52,6 @@ namespace dMobile.Resources.Models
 
     //sqlNdx = "CREATE UNIQUE INDEX IF NOT EXISTS UQ_ProductUnitOnProductRefnoAndUnitRefnoAndProductUnitIsBC ON tProductUnit(ProductRefno ASC, UnitRefno ASC, ProductUnitIsBC ASC)";
     //await this.RunDDLCommand(sqlNdx);
-
     [Table("tProductUnit")]
     public class tProductUnitModel
     {
@@ -87,7 +90,7 @@ namespace dMobile.Resources.Models
 
         [NotNull]
         public decimal ProductUnitBoxCount { get; set; }
-        
+
         [NotNull]
         public decimal ProductUnitWeightTolerance { get; set; }
     }

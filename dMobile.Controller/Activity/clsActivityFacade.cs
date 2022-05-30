@@ -1,19 +1,25 @@
+// <copyright file="clsActivityFacade.cs" company="InterSect Business Systems Inc">
+// Copyright (c) InterSect Business Systems Inc. All rights reserved.
+// </copyright>
+
 /// <summary>
 /// This is the activity facade class that return an activity object.
 /// </summary>
-/// <remarks></remarks>
 namespace dMobile.Controller
 {
     using System;
     using dMobile.Bedrock;
 
+    /// <summary>
+    /// Activity facade to create activity objects based on an activity sub type.
+    /// </summary>
     public class ActivityFacade
     {
         /// <summary>
-        /// Creates and returns a generic activity object.
+        /// Creates activity object based on the activity sub type.
         /// </summary>
-        /// <param name="actSubType"></param>
-        /// <returns></returns>
+        /// <param name="actSubType"><see cref="SysCommon.ActSubTypes"/> Activity sub type.</param>
+        /// <returns><see cref="Activity"/> Created activity instance.</returns>
         public static Activity GetActivity(SysCommon.ActSubTypes actSubType)
         {
             ActivityFactory actFactory = null;
@@ -117,13 +123,63 @@ namespace dMobile.Controller
                 case SysCommon.ActSubTypes.ConvertProduct:
                     actFactory = new ConvertProductActivityFactory();
                     break;
+
+                case SysCommon.ActSubTypes.NotApplicable:
+                    throw new NotImplementedException();
+
+                case SysCommon.ActSubTypes.RefreshData:
+                    throw new NotImplementedException();
+
+                case SysCommon.ActSubTypes.DataStatus:
+                    throw new NotImplementedException();
+
+                case SysCommon.ActSubTypes.SelectProduct:
+                    throw new NotImplementedException();
+
+                case SysCommon.ActSubTypes.SelectLocation:
+                    throw new NotImplementedException();
+
+                case SysCommon.ActSubTypes.PurgeActivityData:
+                    throw new NotImplementedException();
+
+                case SysCommon.ActSubTypes.BreakSkid:
+                    throw new NotImplementedException();
+
+                case SysCommon.ActSubTypes.InventoryReplenishment:
+                    throw new NotImplementedException();
+
+                case SysCommon.ActSubTypes.LoginStartup:
+                    throw new NotImplementedException();
+
+                case SysCommon.ActSubTypes.SplashStartup:
+                    throw new NotImplementedException();
+
+                case SysCommon.ActSubTypes.PrintProductLabel:
+                    throw new NotImplementedException();
+
+                case SysCommon.ActSubTypes.PickingSelectCriteria:
+                    throw new NotImplementedException();
+
+                case SysCommon.ActSubTypes.PickingFilter:
+                    throw new NotImplementedException();
+
+                case SysCommon.ActSubTypes.SubmitBatch:
+                    throw new NotImplementedException();
+
+                case SysCommon.ActSubTypes.CommunicationSetup:
+                    throw new NotImplementedException();
+
+                case SysCommon.ActSubTypes.SetupDefaults:
+                    throw new NotImplementedException();
+
+                default:
+                    throw new NotImplementedException();
             }
 
-            Activity activity = null;
+            Activity activity;
 
             if (actFactory == null)
             {
-                // TODO: Resource strings
                 throw new NotImplementedException("Could not create activity object.");
             }
             else

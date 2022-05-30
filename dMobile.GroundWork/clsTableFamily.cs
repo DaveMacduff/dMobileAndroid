@@ -1,46 +1,43 @@
-﻿namespace dMobile.GroundWork
+﻿// <copyright file="clsTableFamily.cs" company="InterSect Business Systems Inc">
+// Copyright (c) InterSect Business Systems Inc. All rights reserved.
+// </copyright>
+
+namespace dMobile.GroundWork
 {
     using System;
+    using System.Collections.Generic;
     using System.Data;
-    using SQLite;
     using System.Text;
+    using System.Threading.Tasks;
     using System.Xml;
     using System.Xml.Linq;
     using dMobile.Bedrock;
-    using System.Threading.Tasks;
-    using System.Collections.Generic;
     using dMobile.Resources.Models;
+    using SQLite;
 
     public class TableFamily : TableBase
     {
-        #region Constructors
-
+        /// <summary>
+        /// Initializes a new instance of the <see cref="TableFamily"/> class.
+        /// </summary>
         public TableFamily()
           : base()
         {
             this.FullClassName = "dMobile.GroundWork.TableFamily";
         }
 
-        #endregion
-
-        #region Public Members
-
         /// <summary>
         ///
         /// </summary>
         /// <remarks></remarks>
-        public override async Task Request()
+        public override async Task RequestData()
         {
-            string reqData = string.Empty;
-
             try
             {
-                // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Seeding families.", true);
 
-                reqData = await this.Send("families");
-
-                if (0 < reqData.Length)
+                string reqData = await this.SendRequest();
+                if (reqData.Length > 0)
                 {
                     if (reqData.Contains("<message>ERROR</message>"))
                     {
@@ -52,15 +49,12 @@
                     await this.Save(reqData);
                 }
 
-                // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Seeding families complete.", true);
             }
             catch (Exception ex)
             {
-                // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Seeding families failed.", true);
 
-                // TODO: Resource strings
                 throw new Exception("Seeding families failed.", ex);
             }
         }
@@ -71,18 +65,15 @@
         /// <remarks></remarks>
         public override async Task<int> DataStatus()
         {
-            int rowsAffected = 0;
-
+            int rowsAffected;
             try
             {
                 rowsAffected = Convert.ToInt32(await DatabaseConnection.GetInstance().SQLConn.ExecuteScalarAsync<int>("SELECT COUNT(*) FROM tFamily"));
 
-                // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, string.Format("{0} families.", rowsAffected), true);
             }
             catch (SQLiteException ex)
             {
-                // TODO: Resource strings
                 throw new Exception("Families status failed.", ex);
             }
 
@@ -93,39 +84,35 @@
         ///
         /// </summary>
         /// <remarks></remarks>
-        public override async Task Purge()
+        public override async Task PurgeData()
         {
             try
             {
-                // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging families.", true);
 
                 await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync("DELETE FROM tFamily");
 
-                // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging families complete.", true);
             }
             catch (SQLiteException ex)
             {
-                // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Database exception occurred.", true);
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging families failed.", true);
 
-                // TODO: Resource strings
                 throw new Exception("Database exception occurred. Purging families failed.", ex);
             }
         }
 
         ///// <summary>
-        ///// 
+        /////
         ///// </summary>
         ///// <param name="familyCode"></param>
         ///// <returns></returns>
-        //public int GetiFamilyRefnoFromFamilyCode(string familyCode)
-        //{
+        // public int GetiFamilyRefnoFromFamilyCode(string familyCode)
+        // {
         //    int familyRefno = 0;
 
-        //    //      try
+        // //      try
         //    //      {
         //    //        using (SQLiteCommand cmndFamily = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
         //    //        {
@@ -133,7 +120,7 @@
         //    //          cmndFamily.IndexName = "UQ_FamilyOnFamilyCode";
         //    //          cmndFamily.CommandType = CommandType.TableDirect;
 
-        //    //          using (SQLiteDataReader drFamily = cmndFamily.ExecuteReader())
+        // //          using (SQLiteDataReader drFamily = cmndFamily.ExecuteReader())
         //    //          {
         //    //            if (drFamily.Seek(DbSeekOptions.FirstEqual, new object[] { familyCode }))
         //    //            {
@@ -162,7 +149,7 @@
         //    //                  familyCode));
         //    //            }
 
-        //    //            drFamily.Close();
+        // //            drFamily.Close();
         //    //          }
         //    //        }
         //    //      }
@@ -175,12 +162,8 @@
         //    //#endif
         //    //      }
 
-        //    return familyRefno;
-        //}
-
-        #endregion
-
-        #region Private Members
+        // return familyRefno;
+        // }
 
         /// <summary>
         ///
@@ -197,19 +180,16 @@
                 {
                     using (DataSet ds = new DataSet())
                     {
-                        // TODO: Resource String
                         this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Reading received data.", false);
 
                         ds.ReadXml(SysCommon.GetXmlReader(ref reqData), XmlReadMode.Auto);
 
-                        // TODO: Resource String
                         this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving families.", false);
 
                         if (ds.Tables.Count != 0)
                         {
                             int progMax = ds.Tables["tFamily"].Rows.Count;
 
-                            // TODO: Resource String
                             this.DataAccessStatusOutHandler(this, EventArgs.Empty, string.Format("Records {0}", progMax), false);
 
                             int progValue = 0;
@@ -224,7 +204,7 @@
                                 errMsg = "Family \'" + familyCode + "\'";
                                 isFamilyFound = false;
 
-                                if (SysEnv.RefreshOpt.RefreshDataChangesOnly)
+                                if (this.SysEnv.RefreshOpt.RefreshDataChangesOnly)
                                 {
                                     List<tFamilyModel> results = transaction.Query<tFamilyModel>("SELECT FamilyCode FROM tFamily WHERE FamilyCode = ?", familyCode);
 
@@ -251,7 +231,6 @@
 
                         transaction.Commit();
 
-                        // TODO: Resource String
                         this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving families complete.", false);
                     }
                 }
@@ -259,11 +238,9 @@
                 {
                     transaction.Rollback();
 
-                    // TODO: Resource String
                     this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Database exception occurred.", false);
                     this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving families failed.", false);
 
-                    // TODO: Resource String
                     throw new Exception("Database exception occurred. Saving families failed." + Environment.NewLine + errMsg, ex);
                 }
             });
@@ -274,7 +251,7 @@
         /// </summary>
         /// <returns></returns>
         /// <remarks></remarks>
-        protected override async Task<string> Create()
+        protected override async Task<string> CreateRequest()
         {
             StringBuilder xmlString = new StringBuilder();
             XmlWriter xml = XmlWriter.Create(xmlString);
@@ -294,7 +271,5 @@
 
             return xmlString.ToString();
         }
-
-        #endregion
     }
 }

@@ -1,192 +1,81 @@
-﻿// ----------------------------------------------------------------------
-// <copyright file="SLocMap.cs" company="InterSect Business Systems Inc.">
-//     Copyright statement. All right reserved
+﻿// <copyright file="SLocMap.cs" company="InterSect Business Systems Inc">
+// Copyright (c) InterSect Business Systems Inc. All rights reserved.
 // </copyright>
-//
-// ------------------------------------------------------------------------
+
 namespace dMobile.Bedrock
 {
     using System;
-    using System.Linq;
-    using System.Collections.Generic;
-    using System.Text;
 
+    /// <summary>
+    /// Warehouse location map.
+    /// </summary>
     public class SLocMap
     {
-        private int whsLocMapRefno;
-        private int whsFKRefno;
-        private int whsCode;
-        private string whsName;
-        private bool isWhsWMS;
-        private int sectLocMapRefno;
-        private int sectFKRefno;
-        private string sectName;
-        private int sectCode;
-        private int slotLocMapRefno;
-        private int slotFKRefno;
-        private int slotCode;
-        private string slotName;
-        private int slotCoord1LocMapRefno;
-        private int slotCoord2LocMapRefno;
-        private int slotCoord3LocMapRefno;
-        private string slotCoord1Name;
-        private string slotCoord2Name;
-        private string slotCoord3Name;
-        private bool isSectionTracked;
-        private bool isSlotTracked;
-        private bool isSlotCoord1Tracked;
-        private bool isSlotCoord2Tracked;
-        private bool isSlotCoord3Tracked;
-        private string whsCodeMask;
-        private string sectMask;
-        private string slotMask;
-        private string slotCoord1Mask;
-        private string slotCoord2Mask;
-        private string slotCoord3Mask;
+        /// <summary>
+        /// Define the slot coordinate 1 name.
+        /// </summary>
+        private string slotCoord1Name = string.Empty;
 
-        public string SlotCoord1Mask
-        {
-            get
-            {
-                return this.slotCoord1Mask;
-            }
+        /// <summary>
+        /// Define the slot coordinate 2 name.
+        /// </summary>
+        private string slotCoord2Name = string.Empty;
 
-            set
-            {
-                this.slotCoord1Mask = value;
-            }
-        }
+        /// <summary>
+        /// Define the slot coordinate 3 name.
+        /// </summary>
+        private string slotCoord3Name = string.Empty;
 
-        public string SlotCoord2Mask
-        {
-            get
-            {
-                return this.slotCoord2Mask;
-            }
+        // SLOT
 
-            set
-            {
-                this.slotCoord2Mask = value;
-            }
-        }
+        /// <summary>
+        /// Gets or sets the slot coordinate 1 mask.
+        /// </summary>
+        public string SlotCoord1Mask { get; set; } = string.Empty;
 
-        public string SlotCoord3Mask
-        {
-            get
-            {
-                return this.slotCoord3Mask;
-            }
+        /// <summary>
+        /// Gets or sets the slot coordinate 2 mask.
+        /// </summary>
+        public string SlotCoord2Mask { get; set; } = string.Empty;
 
-            set
-            {
-                this.slotCoord3Mask = value;
-            }
-        }
+        /// <summary>
+        /// Gets or sets the slot coordinate 3 mask.
+        /// </summary>
+        public string SlotCoord3Mask { get; set; } = string.Empty;
 
-        public string SlotMask
-        {
-            get
-            {
-                return this.slotMask;
-            }
+        /// <summary>
+        /// Gets or sets the combined slot coordinates slot mask.
+        /// </summary>
+        public string SlotMask { get; set; } = string.Empty;
 
-            set
-            {
-                this.slotMask = value;
-            }
-        }
+        /// <summary>
+        /// Gets or sets a value indicating whether slot coordinate 1 is tracked.
+        /// </summary>
+        public bool IsSlotCoord1Tracked { get; set; } = false;
 
-        public string SectMask
-        {
-            get
-            {
-                return this.sectMask;
-            }
+        /// <summary>
+        /// Gets or sets a value indicating whether slot coordinate 2 is tracked.
+        /// </summary>
+        public bool IsSlotCoord2Tracked { get; set; } = false;
 
-            set
-            {
-                this.sectMask = value;
-            }
-        }
+        /// <summary>
+        /// Gets or sets a value indicating whether slot coordinate 3 is tracked.
+        /// </summary>
+        public bool IsSlotCoord3Tracked { get; set; } = false;
 
-        public string WhsCodeMask
-        {
-            get
-            {
-                return this.whsCodeMask;
-            }
+        /// <summary>
+        /// Gets or sets a value indicating whether is slot tracked.
+        /// </summary>
+        public bool IsSlotTracked { get; set; } = false;
 
-            set
-            {
-                this.whsCodeMask = value;
-            }
-        }
+        /// <summary>
+        /// Gets or sets the slot code.
+        /// </summary>
+        public int SlotCode { get; set; } = 0;
 
-        public bool IsSlotCoord1Tracked
-        {
-            get
-            {
-                return this.isSlotCoord1Tracked;
-            }
-
-            set
-            {
-                this.isSlotCoord1Tracked = value;
-            }
-        }
-
-        public bool IsSlotCoord2Tracked
-        {
-            get
-            {
-                return this.isSlotCoord2Tracked;
-            }
-
-            set
-            {
-                this.isSlotCoord2Tracked = value;
-            }
-        }
-
-        public bool IsSlotCoord3Tracked
-        {
-            get
-            {
-                return this.isSlotCoord3Tracked;
-            }
-
-            set
-            {
-                this.isSlotCoord3Tracked = value;
-            }
-        }
-
-        public bool IsSlotTracked
-        {
-            get
-            {
-                return this.isSlotTracked;
-            }
-
-            set
-            {
-                this.isSlotTracked = value;
-            }
-        }
-
-        public bool IsSectionTracked
-        {
-            get
-            {
-                return this.isSectionTracked;
-            }
-
-            set
-            {
-                this.isSectionTracked = value;
-            }
-        }
-
+        /// <summary>
+        /// Gets or sets the slot coordinate 1 name.
+        /// </summary>
         public string SlotCoord1Name
         {
             get
@@ -208,6 +97,9 @@ namespace dMobile.Bedrock
             }
         }
 
+        /// <summary>
+        /// Gets or sets the slot coordinate 2 name.
+        /// </summary>
         public string SlotCoord2Name
         {
             get
@@ -229,6 +121,9 @@ namespace dMobile.Bedrock
             }
         }
 
+        /// <summary>
+        /// Gets or sets the slot coordinate 3 name.
+        /// </summary>
         public string SlotCoord3Name
         {
             get
@@ -250,227 +145,144 @@ namespace dMobile.Bedrock
             }
         }
 
-        public int SlotCode
+        /// <summary>
+        /// Gets or sets the slot location map reference number.
+        /// </summary>
+        public int SlotLocMapRefno { get; set; } = 0;
+
+        /// <summary>
+        /// Gets or sets the slot location map foreign key reference number.
+        /// </summary>
+        public int SlotFKRefno { get; set; } = 0;
+
+        /// <summary>
+        /// Gets or sets the slot name.
+        /// </summary>
+        public string SlotName { get; set; } = string.Empty;
+
+        /// <summary>
+        /// Gets or sets the slot coordinate 1 location map reference number.
+        /// </summary>
+        public int SlotCoord1LocMapRefno { get; set; } = 0;
+
+        /// <summary>
+        /// Gets or sets the slot coordinate 2 location map reference number.
+        /// </summary>
+        public int SlotCoord2LocMapRefno { get; set; } = 0;
+
+        /// <summary>
+        /// Gets or sets the slot coordinate 3 location map reference number.
+        /// </summary>
+        public int SlotCoord3LocMapRefno { get; set; } = 0;
+
+        // SECTION
+
+        /// <summary>
+        /// Gets or sets the section mask.
+        /// </summary>
+        public string SectMask { get; set; } = string.Empty;
+
+        /// <summary>
+        /// Gets or sets a value indicating whether is section tracked.
+        /// </summary>
+        public bool IsSectionTracked { get; set; } = false;
+
+        /// <summary>
+        /// Gets or sets the section location map reference number.
+        /// </summary>
+        public int SectLocMapRefno { get; set; } = 0;
+
+        /// <summary>
+        /// Gets or sets the section foreign key reference number.
+        /// </summary>
+        public int SectFKRefno { get; set; } = 0;
+
+        /// <summary>
+        /// Gets or sets the section name.
+        /// </summary>
+        public string SectName { get; set; } = string.Empty;
+
+        /// <summary>
+        /// Gets or sets the section code.
+        /// </summary>
+        public int SectCode { get; set; } = 0;
+
+        // WAREHOUSE
+
+        /// <summary>
+        /// Gets or sets the warehouse code mask.
+        /// </summary>
+        public string WhsCodeMask { get; set; } = string.Empty;
+
+        /// <summary>
+        /// Gets or sets the warehouse location map reference number.
+        /// </summary>
+        public int WhsLocMapRefno { get; set; } = 0;
+
+        /// <summary>
+        /// Gets or sets the warehouse location map foreign key reference number.
+        /// </summary>
+        public int WhsFKRefno { get; set; } = 0;
+
+        /// <summary>
+        /// Gets or sets the warehouse code.
+        /// </summary>
+        public int WhsCode { get; set; } = 0;
+
+        /// <summary>
+        /// Gets or sets the warehouse name.
+        /// </summary>
+        public string WhsName { get; set; } = string.Empty;
+
+        /// <summary>
+        /// Gets or sets a value indicating whether the warehouse is a WMS one.
+        /// </summary>
+        public bool IsWhsWMS { get; set; } = false;
+
+        /// <summary>
+        /// Create a new copy of SLocMap with values of the current instance.
+        /// </summary>
+        /// <returns><see cref="SLocMap"/> New copy of SLocMap.</returns>
+        public SLocMap Clone()
         {
-            get
+            SLocMap copy = new SLocMap
             {
-                return this.slotCode;
-            }
+                IsWhsWMS = this.IsWhsWMS,
+                IsSectionTracked = this.IsSectionTracked,
+                IsSlotTracked = this.IsSlotTracked,
+                IsSlotCoord1Tracked = this.IsSlotCoord1Tracked,
+                IsSlotCoord2Tracked = this.IsSlotCoord2Tracked,
+                IsSlotCoord3Tracked = this.IsSlotCoord3Tracked,
 
-            set
-            {
-                this.slotCode = value;
-            }
-        }
+                WhsCode = this.WhsCode,
+                WhsCodeMask = this.WhsCodeMask,
+                WhsFKRefno = this.WhsFKRefno,
+                WhsLocMapRefno = this.WhsLocMapRefno,
+                WhsName = this.WhsName,
 
-        public int WhsLocMapRefno
-        {
-            get
-            {
-                return this.whsLocMapRefno;
-            }
+                SectCode = this.SectCode,
+                SectFKRefno = this.SectFKRefno,
+                SectLocMapRefno = this.SectLocMapRefno,
+                SectMask = this.SectMask,
+                SectName = this.SectName,
 
-            set
-            {
-                this.whsLocMapRefno = value;
-            }
-        }
+                SlotCode = this.SlotCode,
+                SlotCoord1LocMapRefno = this.SlotCoord1LocMapRefno,
+                SlotCoord1Mask = this.SlotCoord1Mask,
+                SlotCoord1Name = this.SlotCoord1Name,
+                SlotCoord2LocMapRefno = this.SlotCoord2LocMapRefno,
+                SlotCoord2Mask = this.SlotCoord2Mask,
+                SlotCoord2Name = this.SlotCoord2Name,
+                SlotCoord3LocMapRefno = this.SlotCoord3LocMapRefno,
+                SlotCoord3Mask = this.SlotCoord3Mask,
+                SlotCoord3Name = this.SlotCoord3Name,
+                SlotFKRefno = this.SlotFKRefno,
+                SlotLocMapRefno = this.SlotLocMapRefno,
+                SlotMask = this.SlotMask,
+                SlotName = this.SlotName,
+            };
 
-        public int WhsFKRefno
-        {
-            get
-            {
-                return this.whsFKRefno;
-            }
-
-            set
-            {
-                this.whsFKRefno = value;
-            }
-        }
-
-        public int WhsCode
-        {
-            get
-            {
-                return this.whsCode;
-            }
-
-            set
-            {
-                this.whsCode = value;
-            }
-        }
-
-        public string WhsName
-        {
-            get
-            {
-                if (this.whsName == null)
-                {
-                    this.whsName = string.Empty;
-                }
-
-                return this.whsName;
-            }
-
-            set
-            {
-                this.whsName = value;
-            }
-        }
-
-        public int SectLocMapRefno
-        {
-            get
-            {
-                return this.sectLocMapRefno;
-            }
-
-            set
-            {
-                this.sectLocMapRefno = value;
-            }
-        }
-
-        public int SectFKRefno
-        {
-            get
-            {
-                return this.sectFKRefno;
-            }
-
-            set
-            {
-                this.sectFKRefno = value;
-            }
-        }
-
-        public string SectName
-        {
-            get
-            {
-                if (this.sectName == null)
-                {
-                    this.sectName = string.Empty;
-                }
-
-                return this.sectName;
-            }
-
-            set
-            {
-                this.sectName = value;
-            }
-        }
-
-        public int SectCode
-        {
-            get
-            {
-                return this.sectCode;
-            }
-
-            set
-            {
-                this.sectCode = value;
-            }
-        }
-
-        public int SlotLocMapRefno
-        {
-            get
-            {
-                return this.slotLocMapRefno;
-            }
-
-            set
-            {
-                this.slotLocMapRefno = value;
-            }
-        }
-
-        public int SlotFKRefno
-        {
-            get
-            {
-                return this.slotFKRefno;
-            }
-
-            set
-            {
-                this.slotFKRefno = value;
-            }
-        }
-
-        public string SlotName
-        {
-            get
-            {
-                if (this.slotName == null)
-                {
-                    this.slotName = string.Empty;
-                }
-
-                return this.slotName;
-            }
-
-            set
-            {
-                this.slotName = value;
-            }
-        }
-
-        public int SlotCoord1LocMapRefno
-        {
-            get
-            {
-                return this.slotCoord1LocMapRefno;
-            }
-
-            set
-            {
-                this.slotCoord1LocMapRefno = value;
-            }
-        }
-
-        public int SlotCoord2LocMapRefno
-        {
-            get
-            {
-                return this.slotCoord2LocMapRefno;
-            }
-
-            set
-            {
-                this.slotCoord2LocMapRefno = value;
-            }
-        }
-
-        public int SlotCoord3LocMapRefno
-        {
-            get
-            {
-                return this.slotCoord3LocMapRefno;
-            }
-
-            set
-            {
-                this.slotCoord3LocMapRefno = value;
-            }
-        }
-
-        public bool IsWhsWMS
-        {
-            get
-            {
-                return this.isWhsWMS;
-            }
-
-            set
-            {
-                this.isWhsWMS = value;
-            }
+            return copy;
         }
     }
 }

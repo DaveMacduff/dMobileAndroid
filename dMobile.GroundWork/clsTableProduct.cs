@@ -1,19 +1,23 @@
+// <copyright file="clsTableProduct.cs" company="InterSect Business Systems Inc">
+// Copyright (c) InterSect Business Systems Inc. All rights reserved.
+// </copyright>
+
 namespace dMobile.GroundWork
 {
-    using dMobile.Bedrock;
     using System;
     using System.Collections.Generic;
     using System.Data;
-    using SQLite;
     using System.IO;
     using System.Text;
+    using System.Threading.Tasks;
     using System.Xml;
     using System.Xml.Linq;
-    using System.Threading.Tasks;
+    using dMobile.Bedrock;
     using dMobile.Resources.Models;
+    using SQLite;
 
     /// <summary>
-    /// Defines the <see cref="TableProduct" />
+    /// Defines the <see cref="TableProduct" />.
     /// </summary>
     public class TableProduct : TableBase
     {
@@ -22,17 +26,16 @@ namespace dMobile.GroundWork
         /// </summary>
         public TableProduct() : base()
         {
-            this.FullClassName = GetType().FullName;
+            this.FullClassName = this.GetType().FullName;
         }
 
         /// <summary>
-        /// The Request
+        /// The Request.
         /// </summary>
-        public override async Task Request()
+        public override async Task RequestData()
         {
             try
             {
-                // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Seeding products.", true);
 
                 List<tFamilyModel> resultsFamily = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<tFamilyModel>("SELECT * FROM tFamily");
@@ -43,12 +46,11 @@ namespace dMobile.GroundWork
                     {
                         string reqData = string.Empty;
 
-                        // TODO: Resource strings
                         this.DataAccessStatusOutHandler(this, EventArgs.Empty, string.Format("For family {0}", family.FamilyCode), true);
 
                         reqData = await this.SendRequest(family.FamilyCode);
 
-                        if (0 < reqData.Length)
+                        if (reqData.Length > 0)
                         {
                             if (reqData.Contains("<message>ERROR</message>"))
                             {
@@ -62,63 +64,53 @@ namespace dMobile.GroundWork
                     }
                 }
 
-                // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Seeding products complete.", true);
             }
             catch (SQLiteException ex)
             {
-                // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Database exception occurred.", true);
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Seeding products failed.", true);
 
-                // TODO: Resource strings
                 throw new Exception("Database exception occurred. Seeding products failed.", ex);
             }
             catch (Exception ex)
             {
-                // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Seeding products failed.", true);
 
-                // TODO: Resource strings
                 throw new Exception("Seeding products failed.", ex);
             }
         }
 
         /// <summary>
-        /// The Purge
+        /// The Purge.
         /// </summary>
-        public override async Task Purge()
+        public override async Task PurgeData()
         {
             try
             {
-                // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging products.", true);
 
                 await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync("DELETE FROM tProduct");
 
-                // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging products complete.", true);
             }
             catch (SQLiteException ex)
             {
-                // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Database exception occurred.", true);
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging products failed.", true);
 
-                // TODO: Resource strings
                 throw new Exception("Database exception occurred. Purging products failed.", ex);
             }
         }
 
         /// <summary>
-        /// The GetProdRefnoFromProdFKRefno
+        /// The GetProdRefnoFromProdFKRefno.
         /// </summary>
         /// <param name="prodFKRefno"></param>
         /// <returns></returns>
         public async Task<int> GetProdRefnoFromProdFKRefno(int prodFKRefno)
         {
-            int prodRefno = 0;
-
+            int prodRefno;
             try
             {
                 List<tProductModel> results = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<tProductModel>("SELECT * FROM tProduct WHERE ProductFKRefno = ?", Convert.ToInt32(prodFKRefno));
@@ -129,13 +121,11 @@ namespace dMobile.GroundWork
                 }
                 else
                 {
-                    // TODO: Resource strings
                     throw new Exception(string.Format("Unable to locate product Refno from product FK Refno {0} in tProduct", prodFKRefno));
                 }
             }
             catch (SQLiteException ex)
             {
-                // TODO: Resource strings
                 throw new Exception("Database exception occurred. GetProdRefnoFromProdFKRefno failed.", ex);
             }
 
@@ -143,23 +133,20 @@ namespace dMobile.GroundWork
         }
 
         /// <summary>
-        /// The DataStatus
+        /// The DataStatus.
         /// </summary>
-        /// <returns>The <see cref="int"/></returns>
+        /// <returns>The <see cref="int"/>.</returns>
         public override async Task<int> DataStatus()
         {
-            int rowsAffected = 0;
-
+            int rowsAffected;
             try
             {
                 rowsAffected = Convert.ToInt32(await DatabaseConnection.GetInstance().SQLConn.ExecuteScalarAsync<int>("SELECT COUNT(*) FROM tProduct"));
 
-                // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, string.Format("{0} products.", rowsAffected), true);
             }
             catch (SQLiteException ex)
             {
-                // TODO: Resource strings
                 throw new Exception("Database exception occurred. Products status failed.", ex);
             }
 
@@ -167,7 +154,7 @@ namespace dMobile.GroundWork
         }
 
         /// <summary>
-        /// The SendRequest
+        /// The SendRequest.
         /// </summary>
         /// <param name="familyCode"></param>
         /// <returns></returns>
@@ -177,7 +164,7 @@ namespace dMobile.GroundWork
         }
 
         /// <summary>
-        /// The Save
+        /// The Save.
         /// </summary>
         /// <param name="data"></param>
         protected override async Task Save(string data)
@@ -185,21 +172,21 @@ namespace dMobile.GroundWork
         }
 
         /// <summary>
-        /// The SaveOpt
+        /// The SaveOpt.
         /// </summary>
         /// <param name="data"></param>
         protected async Task SaveOpt(string data)
         {
             int processedCount = 0;
             string errMsg = string.Empty;
-            bool refreshDataChangesOnly = SysEnv.RefreshOpt.RefreshDataChangesOnly;
+            bool refreshDataChangesOnly = this.SysEnv.RefreshOpt.RefreshDataChangesOnly;
 
             await DatabaseConnection.GetInstance().SQLConn.RunInTransactionAsync(transaction =>
             {
                 try
                 {
                     Dictionary<string, int> dictionaryFamily = new Dictionary<string, int>();
-                    // TODO: Resource Strings
+
                     this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Reading received data.", false);
 
                     int startIndex = data.IndexOf("<VFPData");
@@ -216,7 +203,6 @@ namespace dMobile.GroundWork
                     using (StringReader stringReader = new StringReader(data.Substring(startIndex)))
                     using (XmlReader reader = XmlReader.Create(stringReader, sett))
                     {
-                        // TODO: Resource Strings
                         this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving products.", false);
 
                         List<tFamilyModel> resultsFamily = transaction.Query<tFamilyModel>("SELECT * FROM tFamily");
@@ -267,8 +253,7 @@ namespace dMobile.GroundWork
                         // f11
                         bool isAllowConvertProduct = false;
 
-                        //SqlCeUpdatableRecord rec = rs.CreateRecord();
-
+                        // SqlCeUpdatableRecord rec = rs.CreateRecord();
                         this.DataAccessProgressOutHandler(this, EventArgs.Empty, 0, 0, 100);
 
                         while (!reader.EOF)
@@ -328,9 +313,10 @@ namespace dMobile.GroundWork
                                 }
                             } // end of fill record
 
-
                             if (!recordFilled)
+                            {
                                 continue;
+                            }
 
                             dictionaryFamily.TryGetValue(familyCode, out familyRefno);
                             isProdFound = false;
@@ -365,7 +351,7 @@ namespace dMobile.GroundWork
                                         isCatchAsk,
                                         isCatchAskZero,
                                         isAllowConvertProduct,
-                                        prodFKRefno
+                                        prodFKRefno,
                                     };
 
                                     transaction.Execute(queryUpdate, parametersUpdate);
@@ -410,7 +396,7 @@ namespace dMobile.GroundWork
                                     isCatchAsk,
                                     isCatchAskZero,
                                     brandDescription,
-                                    isAllowConvertProduct
+                                    isAllowConvertProduct,
                                 };
 
                                 transaction.Execute(queryInsert, parametersInsert);
@@ -419,41 +405,37 @@ namespace dMobile.GroundWork
                             ++processedCount;
                             if (processedCount % 100 == 0)
                             {
-                                this.DataAccessProgressOutHandler(this, EventArgs.Empty, (processedCount / 10) % 100, 0, 100);
+                                this.DataAccessProgressOutHandler(this, EventArgs.Empty, processedCount / 10 % 100, 0, 100);
                             }
 
                             progValue++;
 
                         } // end while loop of reading data in
 
-                        // TODO: Resource strings
                         this.DataAccessProgressOutHandler(this, EventArgs.Empty, 100, 0, 100); // complete
                         this.DataAccessStatusOutHandler(this, EventArgs.Empty, string.Format("Records {0}", processedCount), false);
                     } // using xml stream reader
 
                     transaction.Commit();
 
-                    // TODO: Resource Strings
                     this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving products complete.", false);
                 }
                 catch (SQLiteException ex)
                 {
                     transaction.Rollback();
 
-                    // TODO: Resource Strings
                     this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Database exception occurred.", false);
                     this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving products failed.", false);
 
-                    // TODO: Resource Strings
                     throw new Exception("Database exception occurred. Saving products failed." + Environment.NewLine + errMsg, ex);
                 }
             });
         }
 
         /// <summary>
-        /// The CreateRequest
+        /// The CreateRequest.
         /// </summary>
-        /// <param name="strFamilyCode">The strFamilyCode<see cref="string"/></param>
+        /// <param name="strFamilyCode">The strFamilyCode<see cref="string"/>.</param>
         /// <returns></returns>
         protected async override Task<string> CreateRequest(string strFamilyCode)
         {
@@ -466,7 +448,7 @@ namespace dMobile.GroundWork
                 + "<command>"
                 + "<action>REQUEST PRODUCTS</action>"
                 + await SysCommon.GetRequestDefaults(true)
-                + ("<family_code>" + strFamilyCode + "</family_code>")
+                + "<family_code>" + strFamilyCode + "</family_code>"
                 + "</command>"
                 + "</imclient>");
 

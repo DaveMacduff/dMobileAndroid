@@ -1,114 +1,112 @@
-﻿using System;
-using System.Linq;
-using System.Collections.Generic;
-using System.Text;
-using System.Xml.Serialization;
-using System.IO;
-using System.Reflection;
-using System.Xml;
-using System.Xml.Linq;
-using System.Data;
+﻿// <copyright file="SystemSettingsTasks.cs" company="InterSect Business Systems Inc">
+// Copyright (c) InterSect Business Systems Inc. All rights reserved.
+// </copyright>
 
 namespace dMobile.Bedrock
 {
+    using System;
+    using System.Data;
+    using System.IO;
+    using System.Text;
+    using System.Xml;
+    using System.Xml.Linq;
+    using System.Xml.Serialization;
+
+    /// <summary>
+    /// <see cref="SystemSettingsTasks" /> System settings tasks class.
+    /// </summary>
     public static class SystemSettingsTasks
     {
-        private static string fileName = "dMobileSystemSettings.xml";
-        private static SysSocket socket = new SysSocket();
-        private static CommunicationSetup commSetup = new CommunicationSetup();
+        /// <summary>
+        /// On system setting status out event handler.
+        /// </summary>
+        /// <param name="publisher"><see cref="ISysSettingsEventPublisher"/> System settings event publisher.</param>
+        /// <param name="eventArgs"><see cref="SysSettingsEventArgs"/> System settings status out event arguments.</param>
+        public delegate void OnSysSettingsStatusOutEventHandler(
+            ISysSettingsEventPublisher publisher,
+            SysSettingsEventArgs eventArgs);
 
-        public delegate void OnSysSettingsStatusOutEventHandler(ISysSettingsEventPublisher sysSettingsEventPublisher, SysSettingsEventArgs sysSettingsEventArgs);
-        public delegate void OnSysSettingsProgressOutEventHandler(ISysSettingsEventPublisher sysSettingsEventPublisher, SysSettingsEventArgs sysSettingsEventArgs);
+        /// <summary>
+        /// On system settings progress out event handler.
+        /// </summary>
+        /// <param name="publisher"><see cref="ISysSettingsEventPublisher"/> System settings event publisher.</param>
+        /// <param name="eventArgs"><see cref="SysSettingsEventArgs"/> System settings progress out event arguments.</param>
+        public delegate void OnSysSettingsProgressOutEventHandler(
+            ISysSettingsEventPublisher publisher,
+            SysSettingsEventArgs eventArgs);
+
+        /// <summary>
+        /// On system settings status out event.
+        /// </summary>
         public static event OnSysSettingsStatusOutEventHandler OnSysSettingsStatusOut;
+
+        /// <summary>
+        /// On system settings progress out event.
+        /// </summary>
         public static event OnSysSettingsProgressOutEventHandler OnSysSettingsProgressOut;
 
-        public static CommunicationSetup CommSetup
-        {
-            get
-            {
-                return commSetup;
-            }
+        /// <summary>
+        /// Gets or sets the communication setup.
+        /// </summary>
+        public static CommunicationSetup CommSetup { get; set; } = new CommunicationSetup();
 
-            set
-            {
-                commSetup = value;
-            }
-        }
+        /// <summary>
+        /// Gets or sets the system socket.
+        /// </summary>
+        public static SysSocket Socket { get; set; } = new SysSocket();
 
-        public static SysSocket Socket
-        {
-            get
-            {
-                return socket;
-            }
+        /// <summary>
+        /// Gets or sets the settings file name.
+        /// </summary>
+        public static string FileName { get; set; } = "dMobileSystemSettings.xml";
 
-            set
-            {
-                socket = value;
-            }
-        }
-
-        public static string FileName
-        {
-            get
-            {
-                return fileName;
-            }
-
-            set
-            {
-                fileName = value;
-            }
-        }
-
+        /// <summary>
+        /// Initialize the system settings.
+        /// </summary>
         public static void Init()
         {
-            CommSetup.LoadData();
-            Socket.BasePort = CommSetup.iBaseSocketPort;
-            Socket.DefSocketPort = CommSetup.iDefaultSocketPort;
-            Socket.MaxPorts = CommSetup.iMaxSocketPorts;
-            Socket.ConnTotalRetries = CommSetup.iConnectionAttempts;
-            Socket.SendTotalRetries = CommSetup.iSendAttempts;
-            Socket.RecvTotalRetries = CommSetup.iReceiveAttempts;
-            Socket.SendTimeOutMilliseconds = CommSetup.iSendTimeOutSeconds * 1000;
-            Socket.ReceiveTimeOutMilliseconds = CommSetup.iReceiveTimeOutSeconds * 1000;
-            Socket.RecvBuffSize = CommSetup.iiReceiveBufferSize;
-            Socket.ServerIP = CommSetup.iHostIPAddressComponent1.ToString() + "."
-                + CommSetup.iHostIPAddressComponent2.ToString() + "."
-                + CommSetup.iHostIPAddressComponent3.ToString() + "."
-                + CommSetup.iHostIPAddressComponent4.ToString();
-            
+            CommSetup = CommSetup.LoadData();
+            Socket.BasePort = CommSetup.BaseSocketPort;
+            Socket.DefSocketPort = CommSetup.DefaultSocketPort;
+            Socket.MaxPorts = CommSetup.MaxSocketPorts;
+            Socket.ConnTotalRetries = CommSetup.ConnectionAttempts;
+            Socket.SendTotalRetries = CommSetup.SendAttempts;
+            Socket.RecvTotalRetries = CommSetup.ReceiveAttempts;
+            Socket.SendTimeOutMilliseconds = CommSetup.SendTimeOutSeconds * 1000;
+            Socket.ReceiveTimeOutMilliseconds = CommSetup.ReceiveTimeOutSeconds * 1000;
+            Socket.RecvBuffSize = CommSetup.ReceiveBufferSize;
+            Socket.ServerIP = CommSetup.HostIPAddressComponent1.ToString() + "."
+                + CommSetup.HostIPAddressComponent2.ToString() + "."
+                + CommSetup.HostIPAddressComponent3.ToString() + "."
+                + CommSetup.HostIPAddressComponent4.ToString();
         }
 
         /// <summary>
-        /// 
+        /// The LoadData.
         /// </summary>
-        /// <returns></returns>
-        /// <remarks></remarks>
+        /// <param name="settings">The settings<see cref="SystemSettings"/>.</param>
         public static void LoadData(ref SystemSettings settings)
         {
             XmlSerializer serializer = new XmlSerializer(typeof(SystemSettings));
-
             string appDir = Environment.GetFolderPath(Environment.SpecialFolder.Personal);
             string fullPathToMyFile = Path.Combine(appDir, SystemSettingsTasks.FileName);
-
             if (!File.Exists(fullPathToMyFile))
             {
-                SaveData(ref settings);
+                _ = SaveData(ref settings);
             }
 
             // Create a FileStream to read with.
             FileStream reader = new FileStream(fullPathToMyFile, FileMode.Open);
+
             // Deserialize the stream to the object, and close the TextReader
             settings = (SystemSettings)serializer.Deserialize(reader);
             reader.Close();
         }
 
         /// <summary>
-        /// 
+        /// The CreateFirstRequest.
         /// </summary>
-        /// <returns></returns>
-        /// <remarks></remarks>
+        /// <returns>.</returns>
         public static string CreateFirstRequest()
         {
             StringBuilder xmlString = new StringBuilder();
@@ -119,13 +117,14 @@ namespace dMobile.Bedrock
             string loginID = login.LoginID.ToString();
 
             XDocument request = new XDocument(
-                new XDeclaration("1.0", "utf-8", "yes"), string.Empty,
-                  new XElement("imclient",
-                    new XElement("command",
-                      new XElement("action", "REQUEST SYSTEM SETTINGS"),
-                      new XElement("device_id", deviceID),
-                      new XElement("login_id", loginID),
-                      new XElement("revision_datetime", revision))));
+                new XDeclaration("1.0", "utf-8", "yes"), string.Empty, new XElement(
+                    "imclient",
+                    new XElement(
+                        "command",
+                        new XElement("action", "REQUEST SYSTEM SETTINGS"),
+                        new XElement("device_id", deviceID),
+                        new XElement("login_id", loginID),
+                        new XElement("revision_datetime", revision))));
 
             request.Save(xml);
             xml.Flush();
@@ -134,15 +133,13 @@ namespace dMobile.Bedrock
             return xmlString.ToString();
         }
 
-
         /// <summary>
         /// Gets the second set of system settings.
-        /// We exceeded the limit of columns in Vfp.
+        /// We exceeded the limit of columns in VFP.
         /// We decided the simplest and easiest way for now was to make
-        /// a second request. June 24, 2016
+        /// a second request. June 24, 2016.
         /// </summary>
-        /// <returns></returns>
-        /// <remarks></remarks>
+        /// <returns>.</returns>
         public static string CreateSecondRequest()
         {
             StringBuilder xmlString = new StringBuilder();
@@ -153,13 +150,14 @@ namespace dMobile.Bedrock
             string loginID = login.LoginID.ToString();
 
             XDocument request = new XDocument(
-                new XDeclaration("1.0", "utf-8", "yes"), string.Empty,
-                  new XElement("imclient",
-                    new XElement("command",
-                      new XElement("action", "REQUEST SYSTEM SETTINGS 2"),
-                      new XElement("device_id", deviceID),
-                      new XElement("login_id", loginID),
-                      new XElement("revision_datetime", revision))));
+                new XDeclaration("1.0", "utf-8", "yes"), string.Empty, new XElement(
+                    "imclient",
+                    new XElement(
+                        "command",
+                        new XElement("action", "REQUEST SYSTEM SETTINGS 2"),
+                        new XElement("device_id", deviceID),
+                        new XElement("login_id", loginID),
+                        new XElement("revision_datetime", revision))));
 
             request.Save(xml);
             xml.Flush();
@@ -169,9 +167,10 @@ namespace dMobile.Bedrock
         }
 
         /// <summary>
-        /// 
+        /// The AssignPropertiesFromDataRowPicking.
         /// </summary>
-        /// <param name="drow"></param>
+        /// <param name="drow">.</param>
+        /// <param name="settings">The settings<see cref="SystemSettings"/>.</param>
         public static void AssignPropertiesFromDataRowPicking(DataRow drow, ref SystemSettings settings)
         {
             settings.IsReturnsNoCatchAskZeroEnabled = Convert.ToBoolean(drow["IsReturnsNoCatchAskZeroEnabled"]);
@@ -231,9 +230,10 @@ namespace dMobile.Bedrock
         }
 
         /// <summary>
-        /// 
+        /// The AssignPropertiesFromDataRowAdjustments.
         /// </summary>
-        /// <param name="drow"></param>
+        /// <param name="drow">.</param>
+        /// <param name="settings">The settings<see cref="SystemSettings"/>.</param>
         public static void AssignPropertiesFromDataRowAdjustments(DataRow drow, ref SystemSettings settings)
         {
             settings.IsAdjustmentNoCatchAskZeroEnabled = Convert.ToBoolean(drow["IsAdjustmentNoCatchAskZeroEnabled"]);
@@ -246,9 +246,10 @@ namespace dMobile.Bedrock
         }
 
         /// <summary>
-        /// 
+        /// The AssignPropertiesFromDataRowProduction.
         /// </summary>
-        /// <param name="drow"></param>
+        /// <param name="drow">.</param>
+        /// <param name="settings">The settings<see cref="SystemSettings"/>.</param>
         public static void AssignPropertiesFromDataRowProduction(DataRow drow, ref SystemSettings settings)
         {
             settings.IsTicketMaterialNoCatchAskZeroEnabled = Convert.ToBoolean(drow["IsTicketMaterialNoCatchAskZeroEnabled"]);
@@ -273,9 +274,10 @@ namespace dMobile.Bedrock
         }
 
         /// <summary>
-        /// 
+        /// The AssignPropertiesFromDataRowReceiving.
         /// </summary>
-        /// <param name="drow"></param>
+        /// <param name="drow">.</param>
+        /// <param name="settings">The settings<see cref="SystemSettings"/>.</param>
         public static void AssignPropertiesFromDataRowReceiving(DataRow drow, ref SystemSettings settings)
         {
             settings.IsPutAwaySkidNoCatchAskZeroEnabled = Convert.ToBoolean(drow["IsPutAwaySkidModuleNoCatchAskZeroEnabled"]);
@@ -298,9 +300,10 @@ namespace dMobile.Bedrock
         }
 
         /// <summary>
-        /// 
+        /// The AssignPropertiesFromDataRowSkids.
         /// </summary>
-        /// <param name="drow"></param>
+        /// <param name="drow">.</param>
+        /// <param name="settings">The settings<see cref="SystemSettings"/>.</param>
         public static void AssignPropertiesFromDataRowSkids(DataRow drow, ref SystemSettings settings)
         {
             settings.IsSkidTrackingModule = Convert.ToBoolean(drow["IsSkidTrackingModule"]);
@@ -312,27 +315,29 @@ namespace dMobile.Bedrock
         }
 
         /// <summary>
-        /// 
+        /// The AssignPropertiesFromDataRowLocationMap.
         /// </summary>
-        /// <param name="drow"></param>
+        /// <param name="drow">.</param>
+        /// <param name="settings">The settings<see cref="SystemSettings"/>.</param>
         public static void AssignPropertiesFromDataRowLocationMap(DataRow drow, ref SystemSettings settings)
         {
-            //settings.LocMapWarehouseMask = Convert.ToString(drow["LocationMapWarehouseMask"]);
-            //settings.LocMapSectionMask = Convert.ToString(drow["LocationMapSectionMask"]);
-            //settings.LocMapSlotMask = Convert.ToString(drow["LocationMapSlotMask"]);
-            //settings.LocMapSlotCoord1Mask = Convert.ToString(drow["LocationMapSlotCoordinate1Mask"]);
-            //settings.LocMapSlotCoord2Mask = Convert.ToString(drow["LocationMapSlotCoordinate2Mask"]);
-            //settings.LocMapSlotCoord3Mask = Convert.ToString(drow["LocationMapSlotCoordinate3Mask"]);
-            //settings.LocMapSlotCoord1Name = Convert.ToString(drow["LocationMapSlotCoordinate1Name"]);
-            //settings.LocMapSlotCoord2Name = Convert.ToString(drow["LocationMapSlotCoordinate2Name"]);
-            //settings.LocMapSlotCoord3Name = Convert.ToString(drow["LocationMapSlotCoordinate3Name"]);
+            ////settings.LocMapWarehouseMask = Convert.ToString(drow["LocationMapWarehouseMask"]);
+            ////settings.LocMapSectionMask = Convert.ToString(drow["LocationMapSectionMask"]);
+            ////settings.LocMapSlotMask = Convert.ToString(drow["LocationMapSlotMask"]);
+            ////settings.LocMapSlotCoord1Mask = Convert.ToString(drow["LocationMapSlotCoordinate1Mask"]);
+            ////settings.LocMapSlotCoord2Mask = Convert.ToString(drow["LocationMapSlotCoordinate2Mask"]);
+            ////settings.LocMapSlotCoord3Mask = Convert.ToString(drow["LocationMapSlotCoordinate3Mask"]);
+            ////settings.LocMapSlotCoord1Name = Convert.ToString(drow["LocationMapSlotCoordinate1Name"]);
+            ////settings.LocMapSlotCoord2Name = Convert.ToString(drow["LocationMapSlotCoordinate2Name"]);
+            ////settings.LocMapSlotCoord3Name = Convert.ToString(drow["LocationMapSlotCoordinate3Name"]);
             settings.IsDefaultLocToProductDefaultLoc = Convert.ToBoolean(drow["IsDefaultLocationToProductDefaultLocation"]);
         }
 
         /// <summary>
-        /// 
+        /// The AssignPropertiesFromDataRowCounts.
         /// </summary>
-        /// <param name="drow"></param>
+        /// <param name="drow">.</param>
+        /// <param name="settings">The settings<see cref="SystemSettings"/>.</param>
         public static void AssignPropertiesFromDataRowCounts(DataRow drow, ref SystemSettings settings)
         {
             settings.IsPhysicalCountNoCatchAskZeroEnabled = Convert.ToBoolean(drow["IsPhysicalCountNoCatchAskZeroEnabled"]);
@@ -353,9 +358,10 @@ namespace dMobile.Bedrock
         }
 
         /// <summary>
-        /// 
+        /// The AssignPropertiesFromDataRowTransfers.
         /// </summary>
-        /// <param name="drow"></param>
+        /// <param name="drow">.</param>
+        /// <param name="settings">The settings<see cref="SystemSettings"/>.</param>
         public static void AssignPropertiesFromDataRowTransfers(DataRow drow, ref SystemSettings settings)
         {
             settings.IsTransferNoCatchAskZeroEnabled = Convert.ToBoolean(drow["IsTransferNoCatchAskZeroEnabled"]);
@@ -364,16 +370,17 @@ namespace dMobile.Bedrock
             settings.IsTransExtraDetEnabled = Convert.ToBoolean(drow["IsTransfersModuleExtraDetailEnabled"]);
             settings.IsTransCatchAskEnabled = Convert.ToBoolean(drow["IsTransferModuleCatchAskEnabled"]);
             settings.IsTransCreateNewItemNoAsk = Convert.ToBoolean(drow["IsTransferCreateNewItemNoAsk"]);
-            //settings.IsTransConfirmFromDet = Convert.ToBoolean(drow["IsTransferModuleConfirmFromDetailMode"]);
+            ////settings.IsTransConfirmFromDet = Convert.ToBoolean(drow["IsTransferModuleConfirmFromDetailMode"]);
             ////settings.IsTransConfirmToDet = Convert.ToBoolean(drow["IsTransferModuleConfirmToDetailMode"]);
             settings.TransQtyOverWarn = (SysCommon.ActTransfersQtyOverValLevels)Convert.ToInt32(drow["IsTransferModuleQuantityOverWarning"]);
             settings.TransQtyUnderWarn = (SysCommon.ActTransfersQtyUnderValLevels)Convert.ToInt32(drow["IsTransferModuleQuantityUnderWarning"]);
         }
 
         /// <summary>
-        /// 
+        /// The AssignPropertiesFromDataRowReturns.
         /// </summary>
-        /// <param name="drow"></param>
+        /// <param name="drow">.</param>
+        /// <param name="settings">The settings<see cref="SystemSettings"/>.</param>
         public static void AssignPropertiesFromDataRowReturns(DataRow drow, ref SystemSettings settings)
         {
             settings.IsRetMod = Convert.ToBoolean(drow["IsReturnsModule"]);
@@ -385,9 +392,10 @@ namespace dMobile.Bedrock
         }
 
         /// <summary>
-        /// 
+        /// The AssignPropertiesFromDataRowConvertUnits.
         /// </summary>
-        /// <param name="drow"></param>
+        /// <param name="drow">.</param>
+        /// <param name="settings">The settings<see cref="SystemSettings"/>.</param>
         public static void AssignPropertiesFromDataRowConvertUnits(DataRow drow, ref SystemSettings settings)
         {
             settings.IsConvertUnitModuleNoCatchAskZeroEnabled = Convert.ToBoolean(drow["IsConvertUnitModuleNoCatchAskZeroEnabled"]);
@@ -397,9 +405,10 @@ namespace dMobile.Bedrock
         }
 
         /// <summary>
-        /// 
+        /// The AssignPropertiesFromDataRowMoves.
         /// </summary>
-        /// <param name="drow"></param>
+        /// <param name="drow">.</param>
+        /// <param name="settings">The settings<see cref="SystemSettings"/>.</param>
         public static void AssignPropertiesFromDataRowMoves(DataRow drow, ref SystemSettings settings)
         {
             settings.IsMoveInventoryModuleNoCatchAskZeroEnabled = Convert.ToBoolean(drow["IsMoveInventoryModuleNoCatchAskZeroEnabled"]);
@@ -410,9 +419,10 @@ namespace dMobile.Bedrock
         }
 
         /// <summary>
-        /// 
+        /// The AssignPropertiesFromDataRow.
         /// </summary>
-        /// <param name="drow"></param>
+        /// <param name="drow">.</param>
+        /// <param name="settings">The settings<see cref="SystemSettings"/>.</param>
         public static void AssignPropertiesFromDataRow(DataRow drow, ref SystemSettings settings)
         {
             settings.IsInvStrict = Convert.ToBoolean(drow["IsInventoryStrict"]);
@@ -446,6 +456,11 @@ namespace dMobile.Bedrock
             AssignPropertiesFromDataRowMoves(drow, ref settings);
         }
 
+        /// <summary>
+        /// The AssignPropertiesFromDataRow2.
+        /// </summary>
+        /// <param name="drow">The drow<see cref="DataRow"/>.</param>
+        /// <param name="settings">The settings<see cref="SystemSettings"/>.</param>
         public static void AssignPropertiesFromDataRow2(DataRow drow, ref SystemSettings settings)
         {
             settings.DoesSelectingADifferentProductClearSkid = Convert.ToBoolean(drow["IsClearSkidUponChangeLineItemProductEnabled"]);
@@ -454,25 +469,28 @@ namespace dMobile.Bedrock
 
             // WO 15547 conflicting with old WO 13770. Huer wants section slot filter, Sysco doesn't
             if (drow.Table.Columns.Contains("InventoryInquirySearchEntireWarehouse"))
-                settings.InventoryInquirySearchEntireWarehouse = Convert.ToBoolean(drow["InventoryInquirySearchEntireWarehouse"]);
+            {
+                settings.InventoryInquirySearchEntireWarehouse =
+                    Convert.ToBoolean(drow["InventoryInquirySearchEntireWarehouse"]);
+            }
             else
+            {
                 settings.InventoryInquirySearchEntireWarehouse = false;
+            }
         }
 
         /// <summary>
-        /// 
+        /// The SaveData.
         /// </summary>
-        /// <param name="oSystemSettings"></param>
-        /// <returns></returns>
-        /// <remarks></remarks>
+        /// <param name="sysSettings">The sysSettings<see cref="SystemSettings"/>.</param>
+        /// <returns>.</returns>
         public static bool SaveData(ref SystemSettings sysSettings)
         {
             XmlSerializer serializer = new XmlSerializer(typeof(SystemSettings));
-            bool saveComplete = false;
-
+            bool saveComplete;
             try
             {
-                // use relection to get the current assembly path for the database
+                // use reflection to get the current assembly path for the database
                 string appDir = Environment.GetFolderPath(Environment.SpecialFolder.Personal);
                 string fullPathToMyFile = Path.Combine(appDir, SystemSettingsTasks.FileName);
 
@@ -495,9 +513,9 @@ namespace dMobile.Bedrock
         }
 
         /// <summary>
-        /// 
+        /// The RequestSystemSettings.
         /// </summary>
-        /// <remarks></remarks>
+        /// <param name="settings">The settings<see cref="SystemSettings"/>.</param>
         public static void RequestSystemSettings(ref SystemSettings settings)
         {
             SysSettingsEventArgs msgEventArg = new SysSettingsEventArgs();
@@ -508,14 +526,13 @@ namespace dMobile.Bedrock
 
                 if (OnSysSettingsStatusOut != null)
                 {
-                    // TODO: Resource strings
                     msgEventArg.StatusOutMsg = "Seeding system settings.";
                     OnSysSettingsStatusOut(settings, msgEventArg);
                 }
 
                 // First request
                 reqData = SendFirstRequest();
-                
+
                 if (reqData.Length > 0)
                 {
                     // check if result is an error message
@@ -547,7 +564,6 @@ namespace dMobile.Bedrock
 
                 if (OnSysSettingsStatusOut != null)
                 {
-                    // TODO: Resource strings
                     msgEventArg.StatusOutMsg = "Seeding system settings complete.";
                     OnSysSettingsStatusOut(settings, msgEventArg);
                 }
@@ -556,137 +572,128 @@ namespace dMobile.Bedrock
             {
                 if (OnSysSettingsStatusOut != null)
                 {
-                    // TODO: Resource strings
                     msgEventArg.StatusOutMsg = "Seeding system settings failed.";
                     OnSysSettingsStatusOut(settings, msgEventArg);
                 }
 
-                // TODO: Resource strings
                 throw new Exception("Seeding system settings failed.", ex);
             }
         }
 
         /// <summary>
-        /// 
+        /// The SendFirstRequest.
         /// </summary>
-        /// <returns></returns>
-        /// <remarks></remarks>
+        /// <returns>.</returns>
         private static string SendFirstRequest()
         {
             return SysCommon.SubmitComm(SystemSettingsTasks.CreateFirstRequest());
         }
 
         /// <summary>
-        /// 
+        /// The SendSecondRequest.
         /// </summary>
-        /// <returns></returns>
-        /// <remarks></remarks>
+        /// <returns>.</returns>
         private static string SendSecondRequest()
         {
             return SysCommon.SubmitComm(SystemSettingsTasks.CreateSecondRequest());
         }
 
         /// <summary>
-        /// 
+        /// The Save.
         /// </summary>
-        /// <param name="reqData"></param>
+        /// <param name="reqData">.</param>
+        /// <param name="sysSettingsNumber">The sysSettingsNumber<see cref="int"/>.</param>
+        /// <param name="settings">The settings<see cref="SystemSettings"/>.</param>
         private static void Save(string reqData, int sysSettingsNumber, ref SystemSettings settings)
         {
             SysSettingsEventArgs msgEventArg = new SysSettingsEventArgs();
 
             try
             {
-                using (DataSet ds = new DataSet())
+                using DataSet ds = new DataSet();
+                if (OnSysSettingsStatusOut != null)
                 {
+                    msgEventArg.StatusOutMsg = "Reading received data.";
+                    OnSysSettingsStatusOut(settings, msgEventArg);
+                }
+
+                _ = ds.ReadXml(SysCommon.GetXmlReader(ref reqData), XmlReadMode.Auto);
+
+                if (OnSysSettingsStatusOut != null)
+                {
+                    msgEventArg.StatusOutMsg = string.Format("Saving system settings {0}.", sysSettingsNumber);
+                    OnSysSettingsStatusOut(settings, msgEventArg);
+                }
+
+                if (ds.Tables.Count != 0)
+                {
+                    int progMax = ds.Tables["tSystemSettings"].Rows.Count;
+
                     if (OnSysSettingsStatusOut != null)
                     {
-                        // TODO: Resource strings
-                        msgEventArg.StatusOutMsg = "Reading received data.";
+                        msgEventArg.StatusOutMsg = string.Format("Records {0}.", progMax);
                         OnSysSettingsStatusOut(settings, msgEventArg);
                     }
 
-                    ds.ReadXml(SysCommon.GetXmlReader(ref reqData), XmlReadMode.Auto);
+                    int progValue = 0;
 
-                    if (OnSysSettingsStatusOut != null)
+                    if (OnSysSettingsProgressOut != null)
                     {
-                        // TODO: Resource strings
-                        msgEventArg.StatusOutMsg = string.Format("Saving system settings {0}.", sysSettingsNumber);
-                        OnSysSettingsStatusOut(settings, msgEventArg);
+                        msgEventArg.CurrentValue = 0;
+                        msgEventArg.MinValue = 0;
+                        msgEventArg.MaxValue = progMax;
+                        OnSysSettingsProgressOut(settings, msgEventArg);
                     }
 
-                    if (ds.Tables.Count != 0)
+                    foreach (DataRow drow in ds.Tables["tSystemSettings"].Rows)
                     {
-                        int progMax = ds.Tables["tSystemSettings"].Rows.Count;
-
-                        if (OnSysSettingsStatusOut != null)
+                        if (sysSettingsNumber == 1)
                         {
-                            // TODO: Resource strings
-                            msgEventArg.StatusOutMsg = string.Format("Records {0}.", progMax);
-                            OnSysSettingsStatusOut(settings, msgEventArg);
+                            SystemSettingsTasks.AssignPropertiesFromDataRow(drow, ref settings);
+
+                            // Set aggregate flags that are dependent upon a set of other flags
+                            settings.IsMoveSkidModule = settings.IsAddToSkidModule | settings.IsBreakSkidModule |
+                                settings.IsCreateSkidModule | settings.IsRemoveFromSkidModule;
+                        }
+                        else if (sysSettingsNumber == 2)
+                        {
+                            AssignPropertiesFromDataRow2(drow, ref settings);
                         }
 
-                        int progValue = 0;
+                        progValue += 1;
 
                         if (OnSysSettingsProgressOut != null)
                         {
-                            msgEventArg.CurrentValue = 0;
-                            msgEventArg.MinValue = 0;
-                            msgEventArg.MaxValue = progMax;
-                            OnSysSettingsProgressOut(settings, msgEventArg);
-                        }
-
-                        foreach (DataRow drow in ds.Tables["tSystemSettings"].Rows)
-                        {
-                            if (sysSettingsNumber == 1)
-                            {
-                                SystemSettingsTasks.AssignPropertiesFromDataRow(drow, ref settings);
-
-                                // Set agregate flags that are dependant upon a set of other flags
-                                settings.IsMoveSkidModule = settings.IsAddToSkidModule | settings.IsBreakSkidModule | settings.IsCreateSkidModule | settings.IsRemoveFromSkidModule;
-                            }
-                            else if (sysSettingsNumber == 2)
-                            {
-                                AssignPropertiesFromDataRow2(drow, ref settings);
-                            }
-                            
-                            progValue += 1;
-
-                            if (OnSysSettingsProgressOut != null)
-                            {
-                                msgEventArg.CurrentValue = progValue;
-                                msgEventArg.MinValue = 0;
-                                msgEventArg.MaxValue = progMax;
-                                OnSysSettingsProgressOut(settings, msgEventArg);
-                            }
-                        }
-
-                        if (OnSysSettingsProgressOut != null)
-                        {
-                            msgEventArg.CurrentValue = progMax;
+                            msgEventArg.CurrentValue = progValue;
                             msgEventArg.MinValue = 0;
                             msgEventArg.MaxValue = progMax;
                             OnSysSettingsProgressOut(settings, msgEventArg);
                         }
                     }
 
-                    if (OnSysSettingsStatusOut != null)
+                    if (OnSysSettingsProgressOut != null)
                     {
-                        // TODO: Resource strings
-                        msgEventArg.StatusOutMsg = string.Format("Saving system settings {0} complete.", sysSettingsNumber);
-                        OnSysSettingsStatusOut(settings, msgEventArg);
+                        msgEventArg.CurrentValue = progMax;
+                        msgEventArg.MinValue = 0;
+                        msgEventArg.MaxValue = progMax;
+                        OnSysSettingsProgressOut(settings, msgEventArg);
                     }
+                }
+
+                if (OnSysSettingsStatusOut != null)
+                {
+                    msgEventArg.StatusOutMsg = string.Format("Saving system settings {0} complete.", sysSettingsNumber);
+                    OnSysSettingsStatusOut(settings, msgEventArg);
                 }
             }
             catch (Exception ex)
             {
                 if (OnSysSettingsStatusOut != null)
                 {
-                    // TODO: Resource strings
                     msgEventArg.StatusOutMsg = "Saving system settings failed.";
                     OnSysSettingsStatusOut(settings, msgEventArg);
                 }
 
-                // TODO: Resource strings
                 throw new Exception("Saving system settings failed.", ex);
             }
         }

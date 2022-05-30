@@ -1,57 +1,34 @@
-﻿namespace dMobile.View.Forms
+﻿// <copyright file="FormErrorReport.xaml.cs" company="InterSect Business Systems Inc">
+// Copyright (c) InterSect Business Systems Inc. All rights reserved.
+// </copyright>
+
+namespace dMobile.View.Forms
 {
+    using System;
+    using System.Threading.Tasks;
     using Android.Util;
     using dMobile.Bedrock;
     using dMobile.Resources.Enums;
     using dMobile.View.CustomPages.Modal;
-    using System;
     using SQLite;
-    using System.Threading.Tasks;
     using Xamarin.Forms;
     using Xamarin.Forms.Xaml;
-    using Resource = Resources.Properties.Resources;
+    using Resource = dMobile.Resources.Properties.Resources;
 
     /// <summary>
-    /// Defines the <see cref="FormErrorReport" />
+    /// Defines the <see cref="FormErrorReport"/> Error reporting form.
     /// </summary>
     [XamlCompilation(XamlCompilationOptions.Compile)]
     public partial class FormErrorReport : DMobileModal
     {
         /// <summary>
-        /// Defines the exData
+        /// Initializes a new instance of the <see cref="FormErrorReport"/> class.
         /// </summary>
-        private Exception exData = null;
-
-        /// <summary>
-        /// Defines the reportingMethod
-        /// </summary>
-        private string reportingMethod = string.Empty;
-
-        /// <summary>
-        /// Defines the fullClassName
-        /// </summary>
-        private string fullClassName = string.Empty;
-
-        //private UserControl callingControl = null;
-        /// <summary>
-        /// Defines the sysEnv
-        /// </summary>
-        private SysEnvironment sysEnv;
-
-        /// <summary>
-        /// Defines the errMsg
-        /// </summary>
-        private string errMsg = string.Empty;
-
-        /// <summary>
-        /// Defines the errMsgDetail
-        /// </summary>
-        private string errMsgDetail = string.Empty;
-
         public FormErrorReport()
         {
             this.InitializeComponent();
-            
+
+            this.Title = Resource.ExceptionReport;
             this.buttonContinue.Text = Resource.Continue;
             this.buttonSendReport.Text = Resource.SendReport;
             this.buttonSupportDetail.Text = Resource.SupportDetail;
@@ -60,7 +37,7 @@
         /// <summary>
         /// Initializes a new instance of the <see cref="FormErrorReport"/> class.
         /// </summary>
-        /// <param name="ex"></param>
+        /// <param name="ex"><see cref="Exception"/> Exception object.</param>
         public FormErrorReport(Exception ex)
         {
             this.InitializeComponent();
@@ -70,20 +47,34 @@
             this.buttonSupportDetail.Text = Resource.SupportDetail;
             this.buttonContinue.Text = Resource.Continue;
 
-            this.SysEnv = SysEnvironment.GetInstance();
-            //this.CallingControl = null;
             this.ExData = ex;
             this.ErrMsg = this.ExData.Message;
             this.textBoxExData.Text = this.ErrMsg;
-
-            //SysSound snd = new SysSound("buzzh.wav");
-            //snd.Play();
         }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="FormErrorReport"/> class.
         /// </summary>
-        /// <param name="ex"></param>
+        /// <param name="errMsg"><see cref="string"/>. </param>
+        /// <param name="exData"><see cref="Exception"/> Exception object used for the detail message.</param>
+        public FormErrorReport(string errMsg, Exception exData)
+        {
+            this.InitializeComponent();
+
+            this.Title = Resource.ExceptionReport;
+            this.buttonSendReport.Text = Resource.SendReport;
+            this.buttonSupportDetail.Text = Resource.SupportDetail;
+            this.buttonContinue.Text = Resource.Continue;
+
+            this.ExData = exData;
+            this.ErrMsg = errMsg;
+            this.textBoxExData.Text = this.ErrMsg;
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="FormErrorReport"/> class.
+        /// </summary>
+        /// <param name="ex"><see cref="Exception"/> Exception object.</param>
         public FormErrorReport(SQLiteException ex)
         {
             this.InitializeComponent();
@@ -93,91 +84,18 @@
             this.buttonSupportDetail.Text = Resource.SupportDetail;
             this.buttonContinue.Text = Resource.Continue;
 
-            this.SysEnv = SysEnvironment.GetInstance();
-            //this.CallingControl = null;
-            this.ExData = ex;
-
-            this.ErrMsg = ex.Message;
-
-            string msg = string.Empty;
-
-            this.ErrMsgDetail = msg;
-            this.textBoxExData.Text = this.ErrMsg;
-
-            //SysSound snd = new SysSound("buzzh.wav");
-            //snd.Play();
-        }
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="FormErrorReport"/> class.
-        /// </summary>
-        /// <param name="activitySubType"></param>
-        /// <param name="callingControl"></param>
-        /// <param name="ex"></param>
-        public FormErrorReport(SysCommon.ActSubTypes activitySubType, /*UserControl callingControl,*/ Exception ex)
-        {
-            this.InitializeComponent();
-
-            this.Title = Resource.ExceptionReport;
-            this.buttonSendReport.Text = Resource.SendReport;
-            this.buttonSupportDetail.Text = Resource.SupportDetail;
-            this.buttonContinue.Text = Resource.Continue;
-
-            this.SysEnv = SysEnvironment.GetInstance();
-            //this.CallingControl = callingControl;
-            this.ExData = ex;
-
-            this.ErrMsg = this.ExData.Message;
-            this.textBoxExData.Text = this.ErrMsg;
-
-            //SysSound snd = new SysSound("buzzh.wav");
-            //snd.Play();
-        }
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="FormErrorReport"/> class.
-        /// </summary>
-        /// <param name="activitySubType"></param>
-        /// <param name="callingControl"></param>
-        /// <param name="ex"></param>
-        public FormErrorReport(SysCommon.ActSubTypes activitySubType, /*UserControl callingControl,*/ SQLiteException ex)
-        {
-            this.InitializeComponent();
-
-            this.Title = Resource.ExceptionReport;
-            this.buttonSendReport.Text = Resource.SendReport;
-            this.buttonSupportDetail.Text = Resource.SupportDetail;
-            this.buttonContinue.Text = Resource.Continue;
-
-            this.SysEnv = SysEnvironment.GetInstance();
-            //this.CallingControl = callingControl;
             this.ExData = ex;
             this.ErrMsg = ex.Message;
-
-            string msg = string.Empty;
-
-            this.ErrMsgDetail = msg;
-
+            this.ErrMsgDetail = string.Empty;
             this.textBoxExData.Text = this.ErrMsg;
-
-            //SysSound snd = new SysSound("buzzh.wav");
-            //snd.Play();
         }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="FormErrorReport"/> class.
         /// </summary>
-        /// <param name="activitySubType"></param>
-        /// <param name="callingControl"></param>
-        /// <param name="ex"></param>
-        /// <param name="fullClassName"></param>
-        /// <param name="reportingMethod"></param>
-        public FormErrorReport(
-        SysCommon.ActSubTypes activitySubType,
-        //UserControl callingControl,
-        Exception ex,
-        string fullClassName,
-        string reportingMethod)
+        /// <param name="activitySubType"><see cref="SysCommon.ActSubTypes"/> Activity sub type.</param>
+        /// <param name="ex"><see cref="Exception"/> Exception object.</param>
+        public FormErrorReport(SysCommon.ActSubTypes activitySubType, Exception ex)
         {
             this.InitializeComponent();
 
@@ -185,36 +103,18 @@
             this.buttonSendReport.Text = Resource.SendReport;
             this.buttonSupportDetail.Text = Resource.SupportDetail;
             this.buttonContinue.Text = Resource.Continue;
-
-            this.SysEnv = SysEnvironment.GetInstance();
-            this.FullClassName = fullClassName;
-            this.ReportingMethod = reportingMethod;
-            //this.CallingControl = callingControl;
             this.ExData = ex;
             this.ErrMsg = this.ExData.Message;
-
-            this.ErrMsgDetail = "Class: " + this.FullClassName + Environment.NewLine + "Method: " + this.ReportingMethod;
-
+            this.ErrMsgDetail = string.Empty;
             this.textBoxExData.Text = this.ErrMsg;
-
-            //SysSound snd = new SysSound("buzzh.wav");
-            //snd.Play();
         }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="FormErrorReport"/> class.
         /// </summary>
-        /// <param name="activitySubType"></param>
-        /// <param name="callingControl"></param>
-        /// <param name="ex"></param>
-        /// <param name="fullClassName"></param>
-        /// <param name="reportingMethod"></param>
-        public FormErrorReport(
-        SysCommon.ActSubTypes activitySubType,
-        //UserControl callingControl,
-        SQLiteException ex,
-        string fullClassName,
-        string reportingMethod)
+        /// <param name="activitySubType"><see cref="SysCommon.ActSubTypes"/> Activity sub type.</param>
+        /// <param name="ex"><see cref="Exception"/> Exception object.</param>
+        public FormErrorReport(SysCommon.ActSubTypes activitySubType, SQLiteException ex)
         {
             this.InitializeComponent();
 
@@ -222,23 +122,97 @@
             this.buttonSendReport.Text = Resource.SendReport;
             this.buttonSupportDetail.Text = Resource.SupportDetail;
             this.buttonContinue.Text = Resource.Continue;
-
-            this.SysEnv = SysEnvironment.GetInstance();
-            this.FullClassName = fullClassName;
-            this.ReportingMethod = reportingMethod;
-            //this.CallingControl = callingControl;
             this.ExData = ex;
             this.ErrMsg = ex.Message;
+            this.ErrMsgDetail = string.Empty;
+            this.textBoxExData.Text = this.ErrMsg;
+        }
 
-            string msg = "Class: " + this.FullClassName + Environment.NewLine + "Method: "
+        /// <summary>
+        /// Initializes a new instance of the <see cref="FormErrorReport"/> class.
+        /// </summary>
+        /// <param name="activitySubType"><see cref="SysCommon.ActSubTypes"/> Activity sub type.</param>
+        /// <param name="ex"><see cref="Exception"/> Exception object.</param>
+        /// <param name="fullClassName"><see cref="string"/> Full class name.</param>
+        /// <param name="reportingMethod"><see cref="string"/> Reporting method.</param>
+        public FormErrorReport(
+            SysCommon.ActSubTypes activitySubType,
+            Exception ex,
+            string fullClassName,
+            string reportingMethod)
+        {
+            this.InitializeComponent();
+
+            this.Title = Resource.ExceptionReport;
+            this.buttonSendReport.Text = Resource.SendReport;
+            this.buttonSupportDetail.Text = Resource.SupportDetail;
+            this.buttonContinue.Text = Resource.Continue;
+            this.FullClassName = fullClassName;
+            this.ReportingMethod = reportingMethod;
+            this.ExData = ex;
+            this.ErrMsg = this.ExData.Message;
+            this.ErrMsgDetail = "Class: " + this.FullClassName + Environment.NewLine + "Method: " +
+                this.ReportingMethod;
+            this.textBoxExData.Text = this.ErrMsg;
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="FormErrorReport"/> class.
+        /// </summary>
+        /// <param name="activitySubType"><see cref="SysCommon.ActSubTypes"/> Activity sub type.</param>
+        /// <param name="ex"><see cref="Exception"/> Exception object.</param>
+        /// <param name="fullClassName"><see cref="string"/> Full class name.</param>
+        /// <param name="reportingMethod"><see cref="string"/> Reporting method.</param>
+        public FormErrorReport(
+            SysCommon.ActSubTypes activitySubType,
+            SQLiteException ex,
+            string fullClassName,
+            string reportingMethod)
+        {
+            this.InitializeComponent();
+
+            this.Title = Resource.ExceptionReport;
+            this.buttonSendReport.Text = Resource.SendReport;
+            this.buttonSupportDetail.Text = Resource.SupportDetail;
+            this.buttonContinue.Text = Resource.Continue;
+            this.FullClassName = fullClassName;
+            this.ReportingMethod = reportingMethod;
+            this.ExData = ex;
+            this.ErrMsg = ex.Message;
+            this.ErrMsgDetail = "Class: " + this.FullClassName + Environment.NewLine + "Method: "
                 + this.ReportingMethod + Environment.NewLine;
-
-            this.ErrMsgDetail = msg;
-
-            //SysSound snd = new SysSound("buzzh.wav");
-            //snd.Play();
+            this.textBoxExData.Text = this.ErrMsg;
         }
 
+        /// <summary>
+        /// Gets or sets the ErrMsg.
+        /// </summary>
+        private string ErrMsg { get; set; } = string.Empty;
+
+        /// <summary>
+        /// Gets or sets the ErrMsgDetail.
+        /// </summary>
+        private string ErrMsgDetail { get; set; } = string.Empty;
+
+        /// <summary>
+        /// Gets or sets the ReportingMethod.
+        /// </summary>
+        private string ReportingMethod { get; set; } = string.Empty;
+
+        /// <summary>
+        /// Gets or sets the FullClassName.
+        /// </summary>
+        private string FullClassName { get; set; } = string.Empty;
+
+        /// <summary>
+        /// Gets or sets the ExData.
+        /// </summary>
+        private Exception ExData { get; set; }
+
+        /// <summary>
+        /// Display the error report to the screen.
+        /// </summary>
+        /// <returns><see cref="Task{DialogResult}"/> Dialog response result.</returns>
         public override async Task<DialogResult> ShowDialog()
         {
             string msg = this.ErrMsg + Environment.NewLine + this.ErrMsgDetail;
@@ -250,11 +224,16 @@
                 inner = this.GetInnerExeception(inner);
             }
 
-            Log.Error(this.FullClassName, msg);
+            _ = Log.Error(this.FullClassName, msg);
 
-            if (await Device.InvokeOnMainThreadAsync(async () => await Application.Current.MainPage.DisplayAlert(this.Title, msg, this.buttonContinue.Text, this.buttonSendReport.Text)))
+            if (await Device.InvokeOnMainThreadAsync(async () =>
+                await Application.Current.MainPage.DisplayAlert(
+                    this.Title,
+                    msg,
+                    this.buttonContinue.Text,
+                    this.buttonSendReport.Text)))
             {
-                this.buttonContinue_Click(this, new EventArgs());
+                this.ButtonContinue_Click(this, new EventArgs());
             }
             else
             {
@@ -265,107 +244,11 @@
         }
 
         /// <summary>
-        /// Gets or sets the ErrMsg
+        /// Support detail button click event handler.
         /// </summary>
-        private string ErrMsg
-        {
-            get
-            {
-                return this.errMsg;
-            }
-
-            set
-            {
-                this.errMsg = value;
-            }
-        }
-
-        /// <summary>
-        /// Gets or sets the ErrMsgDetail
-        /// </summary>
-        private string ErrMsgDetail
-        {
-            get
-            {
-                return this.errMsgDetail;
-            }
-
-            set
-            {
-                this.errMsgDetail = value;
-            }
-        }
-
-        /// <summary>
-        /// Gets or sets the ReportingMethod
-        /// </summary>
-        private string ReportingMethod
-        {
-            get
-            {
-                return this.reportingMethod;
-            }
-
-            set
-            {
-                this.reportingMethod = value;
-            }
-        }
-
-        /// <summary>
-        /// Gets or sets the FullClassName
-        /// </summary>
-        private string FullClassName
-        {
-            get
-            {
-                return this.fullClassName;
-            }
-
-            set
-            {
-                this.fullClassName = value;
-            }
-        }
-
-        /// <summary>
-        /// Gets or sets the ExData
-        /// </summary>
-        private Exception ExData
-        {
-            get
-            {
-                return this.exData;
-            }
-
-            set
-            {
-                this.exData = value;
-            }
-        }
-
-        /// <summary>
-        /// Gets or sets the SysEnv
-        /// </summary>
-        private SysEnvironment SysEnv
-        {
-            get
-            {
-                return this.sysEnv;
-            }
-
-            set
-            {
-                this.sysEnv = value;
-            }
-        }
-
-        /// <summary>
-        /// The buttonSupportDetail_Click
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void buttonSupportDetail_Click(object sender, EventArgs e)
+        /// <param name="sender"><see cref="object"/> Sender object.</param>
+        /// <param name="e"><see cref="EventArgs"/> Sender object event arguments.</param>
+        private void ButtonSupportDetail_Click(object sender, EventArgs e)
         {
             string msg = this.ErrMsg + Environment.NewLine + Environment.NewLine + this.ErrMsgDetail;
 
@@ -376,24 +259,24 @@
                 inner = this.GetInnerExeception(inner);
             }
 
-            this.textBoxExData.Text = msg ;
+            this.textBoxExData.Text = msg;
         }
 
         /// <summary>
-        /// The buttonContinue_Click
+        /// Continue button click event handler.
         /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private async void buttonContinue_Click(object sender, EventArgs e)
+        /// <param name="sender"><see cref="object"/> Sender object.</param>
+        /// <param name="e"><see cref="EventArgs"/> Sender object event arguments.</param>
+        private void ButtonContinue_Click(object sender, EventArgs e)
         {
-            // await Device.InvokeOnMainThreadAsync(async () => await this.Close());
+            // TODO: Continue may not be a good idea. Forcing a close would be one possible option.
         }
 
         /// <summary>
-        /// The GetInnerExeception
+        /// Get the inner exception.
         /// </summary>
-        /// <param name="outer"></param>
-        /// <returns></returns>
+        /// <param name="outer"><see cref="Exception"/> Outer exception object.</param>
+        /// <returns><see cref="Exception"/> Inner exception if any, else null.</returns>
         private Exception GetInnerExeception(Exception outer)
         {
             Exception inner = null;
@@ -405,10 +288,16 @@
             return inner;
         }
 
+        /// <summary>
+        /// Send report button click event handler.
+        /// </summary>
+        /// <param name="sender"><see cref="object"/> Sender object.</param>
+        /// <param name="e"><see cref="EventArgs"/> Sender object event arguments.</param>
         private async void ButtonSendReport_Clicked(object sender, EventArgs e)
         {
             // TODO: Send error report
-            await Device.InvokeOnMainThreadAsync(async () => await Application.Current.MainPage.DisplayAlert("Error", "Not Implemented", "OK"));
+            await Device.InvokeOnMainThreadAsync(async () =>
+            await Application.Current.MainPage.DisplayAlert("Error", "Not Implemented.", "OK"));
         }
     }
 }

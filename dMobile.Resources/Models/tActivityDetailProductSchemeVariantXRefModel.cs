@@ -1,8 +1,12 @@
-﻿using SQLite;
-using SQLiteNetExtensions.Attributes;
+﻿// <copyright file="tActivityDetailProductSchemeVariantXRefModel.cs" company="InterSect Business Systems Inc">
+// Copyright (c) InterSect Business Systems Inc. All rights reserved.
+// </copyright>
 
 namespace dMobile.Resources.Models
 {
+    using SQLite;
+    using SQLiteNetExtensions.Attributes;
+
     //string sqlTable = "CREATE TABLE IF NOT EXISTS tActivityDetailProductSchemeVariantXRef"
     //        + "("
     //        + "ActivityDetailRefno INTEGER NOT NULL,"
@@ -14,7 +18,7 @@ namespace dMobile.Resources.Models
 
     //    if (this.OnNubStatOut != null)
     //    {
-    //    // TODO: Resource strings
+    //    
     //    this.MsgEventArgs.StatusOutMsg = "Creating detail product scheme variant xref table.";
     //    this.OnNubStatOut(this, this.MsgEventArgs);
     //}
@@ -26,18 +30,15 @@ namespace dMobile.Resources.Models
     //        + "tActivityDetailProductSchemeVariantXRef(ActivityDetailRefno ASC, ProductSchemeVariantRefno ASC)";
     //await this.RunDDLCommand(sqlNdx);
 
-
     //sqlNdx = "CREATE UNIQUE INDEX IF NOT EXISTS UQ_ActivityDetailProductSchemeVariantXRefOnActivityDetailRefno ON "
     //    + "tActivityDetailProductSchemeVariantXRef(ActivityDetailRefno ASC)";
 
     //await this.RunDDLCommand(sqlNdx);
 
-
     //sqlNdx = "CREATE INDEX IF NOT EXISTS FK_ActivityDetailProductSchemeVariantXRefOnProductSchemeVariantRefno "
     //    + "ON tActivityDetailProductSchemeVariantXRef(ProductSchemeVariantRefno ASC)";
 
     //await this.RunDDLCommand(sqlNdx);
-
     [Table("tActivityDetailProductSchemeVariantXRef")]
     public class tActivityDetailProductSchemeVariantXRefModel
     {

@@ -1,43 +1,42 @@
-﻿namespace dMobile.GroundWork
+﻿// <copyright file="clsTableActivityTransferFromItem.cs" company="InterSect Business Systems Inc">
+// Copyright (c) InterSect Business Systems Inc. All rights reserved.
+// </copyright>
+
+namespace dMobile.GroundWork
 {
     using System;
+    using System.Collections.Generic;
     using System.Data;
-    using SQLite;
     using System.Text;
+    using System.Threading.Tasks;
     using System.Xml;
     using System.Xml.Linq;
     using dMobile.Bedrock;
-    using System.Threading.Tasks;
     using dMobile.Resources.Models;
-    using System.Collections.Generic;
+    using SQLite;
 
     public class TableActivityTransferFromItem : TableBase
     {
-        #region Constructors
-
+        /// <summary>
+        /// Initializes a new instance of the <see cref="TableActivityTransferFromItem"/> class.
+        /// </summary>
         public TableActivityTransferFromItem()
             : base()
         {
             this.FullClassName = "dMobile.GroundWork.TableActivityTransferFromItem";
         }
 
-        #endregion
-
-        #region Public Members
-
         /// <summary>
         ///
         /// </summary>
         /// <remarks></remarks>
-        public override async Task Request(int actRefno)
+        public override async Task RequestData(int actRefno)
         {
-            string reqData = string.Empty;
-
             try
             {
-                // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Seeding transfer from items.", true);
 
+                string reqData;
                 if (actRefno == 0)
                 {
                     List<tActivityModel> results = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<tActivityModel>("SELECT ActivityRefno FROM tActivity WHERE ActivitySubType = ?", Convert.ToInt32(SysCommon.ActSubTypes.TransferFrom));
@@ -47,9 +46,9 @@
                         foreach (tActivityModel activityModel in results)
                         {
                             actRefno = Convert.ToInt32(activityModel.ActivityRefno);
-                            reqData = await this.Send(actRefno);
+                            reqData = await this.SendRequest(actRefno);
 
-                            if (0 < reqData.Length)
+                            if (reqData.Length > 0)
                             {
                                 if (reqData.Contains("<message>ERROR</message>"))
                                 {
@@ -65,9 +64,9 @@
                 }
                 else
                 {
-                    reqData = await this.Send(actRefno);
+                    reqData = await this.SendRequest(actRefno);
 
-                    if (0 < reqData.Length)
+                    if (reqData.Length > 0)
                     {
                         if (reqData.Contains("<message>ERROR</message>"))
                         {
@@ -80,12 +79,10 @@
                     }
                 }
 
-                // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Seeding transfer items from complete.", true);
             }
             catch (SQLiteException ex)
             {
-                // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Database exception occurred.", true);
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Seeding transfer items from failed.", true);
 
@@ -93,7 +90,6 @@
             }
             catch (Exception ex)
             {
-                // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Seeding transfer items from failed.", true);
                 throw new Exception("Seeding transfer items from failed.", ex);
             }
@@ -103,9 +99,8 @@
         ///
         /// </summary>
         /// <remarks></remarks>
-        public override async Task Purge()
+        public override async Task PurgeData()
         {
-            // TODO: Resource strings
             this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging transfer items from.", true);
 
             try
@@ -123,12 +118,10 @@
                 query = "DELETE FROM tActivityItem WHERE ActivityItemSubType = ?";
                 await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(query, Convert.ToInt32(SysCommon.ActSubTypes.TransferFrom));
 
-                // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging transfer items from complete.", true);
             }
             catch (SQLiteException ex)
             {
-                // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Database exception occurred.", true);
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging transfer items from failed.", true);
                 throw new Exception("Database exception occurred. Purging transfer items from failed.", ex);
@@ -141,49 +134,41 @@
         /// <remarks></remarks>
         public override async Task<int> DataStatus()
         {
-            int rowsAffected = 0;
-
+            int rowsAffected;
             try
             {
                 rowsAffected = Convert.ToInt32(await DatabaseConnection.GetInstance().SQLConn.ExecuteScalarAsync<int>("SELECT COUNT(tActivityItem.ActivityItemRefno) FROM tActivityItem WHERE tActivityItem.ActivityItemSubType = ?", Convert.ToInt32(SysCommon.ActSubTypes.TransferFrom)));
 
-                // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, string.Format("{0} transfer items from.", rowsAffected), true);
             }
             catch (SQLiteException ex)
             {
-                // TODO: Resource strings
                 throw new Exception("Database exception occurred. Transfer items from status failed.", ex);
             }
 
             return rowsAffected;
         }
 
-        #endregion
-
-        #region Private Members
-
         /// <summary>
         ///
         /// </summary>
         /// <returns></returns>
         /// <remarks></remarks>
-        protected override async Task<string> Send(int actRefno)
+        protected override async Task<string> SendRequest(int actRefno)
         {
-            int transFKRefno = 0;
             List<tActivityTransferModel> results = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<tActivityTransferModel>("SELECT * FROM tActivityTransfer WHERE ActivityRefno = ?", Convert.ToInt32(actRefno));
 
+            int transFKRefno;
             if (results?.Count > 0)
             {
                 transFKRefno = results[0].ActivityTransferFKRefno;
             }
             else
             {
-                // TODO: Resource strings
                 throw new Exception("drTrans.Read() failed. " + string.Format("Unable to locate the transfer from refno {0} in tActivityTransfer.", actRefno));
             }
 
-            return await this.SendComm(await this.Create(transFKRefno));
+            return await this.SendComm(await this.CreateRequest(transFKRefno));
         }
 
         /// <summary>
@@ -193,15 +178,12 @@
         /// <remarks></remarks>
         protected override async Task Save(string reqData, int actRefno)
         {
-            string errMsg = string.Empty;
-
             await DatabaseConnection.GetInstance().SQLConn.RunInTransactionAsync(transaction =>
             {
                 try
                 {
                     using (DataSet ds = new DataSet())
                     {
-                        // TODO: Resource strings
                         this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Reading received data.", false);
 
                         ds.ReadXml(SysCommon.GetXmlReader(ref reqData), XmlReadMode.Auto);
@@ -212,7 +194,6 @@
                         {
                             int progMax = Convert.ToInt32(ds.Tables["tActivityItemTransfer"].Rows.Count);
 
-                            // TODO: Resource strings
                             this.DataAccessStatusOutHandler(this, EventArgs.Empty, string.Format("Records {0}", progMax), false);
 
                             int actItemRefno = 0;
@@ -226,19 +207,14 @@
 
                             foreach (DataRow drow in ds.Tables["tActivityItemTransfer"].Rows)
                             {
-                                errMsg = "Arguments:";
-
                                 transaction.Execute("INSERT INTO tActivityItem (ActivityItemSubType, ActivityItemStatus, ActivityRefno) VALUES (?, ?, ?)", Convert.ToInt32(SysCommon.ActSubTypes.TransferFrom), 0, Convert.ToInt32(actRefno));
-
                                 actItemRefno = Convert.ToInt32(transaction.ExecuteScalar<int>("SELECT last_insert_rowid() FROM tActivityItem"));
-                                prodUnitRefno = this.GetProductUnitRefnoFromDataRow(drow, transaction, ref errMsg, false);
+                                prodUnitRefno = this.GetProductUnitRefnoFromDataRow(drow, transaction, false);
                                 locMapRefno = 0;
 
                                 if (locMapRefno == 0)
                                 {
                                     locMapWhsFKRefno = Convert.ToInt32(drow["TransferFromLocationMapWarehouseFKRefno"]);
-                                    errMsg += Environment.NewLine + "whs fk refno " + locMapWhsFKRefno;
-
                                     List<tLocationMapWarehouseModel> resultsWarehouse = transaction.Query<tLocationMapWarehouseModel>("SELECT * FROM tLocationMapWarehouse WHERE LocationMapWarehouseFKRefno = ?", locMapWhsFKRefno);
 
                                     if (resultsWarehouse?.Count > 0)
@@ -249,13 +225,10 @@
 
                                 if (locMapRefno == 0)
                                 {
-                                    // TODO: Resource strings
-                                    throw new Exception("Unable to indentify the location map refno." + Environment.NewLine + errMsg);
+                                    throw new Exception("Unable to indentify the location map reference number.");
                                 }
 
                                 transItemFKRefno = Convert.ToInt32(drow["ActivityItemTransferFKRefno"]);
-                                errMsg += Environment.NewLine + "Item fk refno " + transItemFKRefno;
-
                                 string query = "INSERT INTO tActivityItemTransfer (" +
                                     "ActivityItemRefno, " +
                                     "ActivityItemSubType, " +
@@ -290,7 +263,7 @@
                                     Convert.ToDecimal(drow["ActivityItemTransferRequiredQuantity"]),
                                     Convert.ToDecimal(drow["ActivityItemTransferQuantity"]),
                                     Convert.ToDecimal(drow["ActivityItemTransferBaseQuantity"]),
-                                    Convert.ToDecimal(drow["ActivityItemTransferWeightQuantity"])
+                                    Convert.ToDecimal(drow["ActivityItemTransferWeightQuantity"]),
                                 };
 
                                 transaction.Execute(query, parameters);
@@ -302,36 +275,32 @@
                                 }
                             }
 
-
                             this.DataAccessProgressOutHandler(this, EventArgs.Empty, progMax, 0, progMax);
                         }
 
                         transaction.Commit();
                     }
 
-                    // TODO: Resource strings
                     this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving transfer items from complete.", false);
                 }
                 catch (SQLiteException ex)
                 {
                     transaction.Rollback();
 
-                    // TODO: Resource strings
                     this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Database exception occurred.", false);
                     this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving transfer items found failed.", false);
 
-                    // TODO: Resource strings
-                    throw new Exception("Database exception occurred. Saving transfer items from failed." + Environment.NewLine + errMsg, ex);
+                    throw new Exception("Database exception occurred. Saving transfer items from failed.", ex);
                 }
             });
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="transFKRefno"></param>
         /// <returns></returns>
-        protected override async Task<string> Create(int transFKRefno)
+        protected override async Task<string> CreateRequest(int transFKRefno)
         {
             StringBuilder xmlString = new StringBuilder();
             XmlWriter xml = XmlWriter.Create(xmlString);
@@ -342,7 +311,7 @@
                 + "<command>"
                 + "<action>REQUEST TRANSFER FROM ITEMS</action>"
                 + await SysCommon.GetRequestDefaults(false)
-                + ("<refno>" + transFKRefno.ToString() + "</refno>")
+                + "<refno>" + transFKRefno.ToString() + "</refno>"
                 + "</command>"
                 + "</imclient>");
 
@@ -352,7 +321,5 @@
 
             return xmlString.ToString();
         }
-
-        #endregion
     }
 }

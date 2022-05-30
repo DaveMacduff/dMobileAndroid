@@ -1,25 +1,29 @@
-﻿namespace dMobile.View.Options
+﻿// <copyright file="ucCommunicationSetupStatus.xaml.cs" company="InterSect Business Systems Inc">
+// Copyright (c) InterSect Business Systems Inc. All rights reserved.
+// </copyright>
+
+namespace dMobile.View.Options
 {
-    using Android.Views;
-    using dMobile.Resources.Enums;
-    using dMobile.View.CustomPages.Modal;
     using System;
     using System.Collections.Generic;
     using System.Collections.ObjectModel;
     using System.Linq;
     using System.Text;
     using System.Threading.Tasks;
+    using Android.Views;
+    using dMobile.Resources.Enums;
+    using dMobile.View.CustomPages.Modal;
     using Xamarin.Forms;
     using Xamarin.Forms.Xaml;
 
     /// <summary>
-    /// Defines the <see cref="ucCommunicationSetupStatus" />
+    /// Defines the <see cref="ucCommunicationSetupStatus" />.
     /// </summary>
     [XamlCompilation(XamlCompilationOptions.Compile)]
     public partial class ucCommunicationSetupStatus : DMobileModal
     {
         /// <summary>
-        /// Defines the itemsList
+        /// Defines the itemsList.
         /// </summary>
         private ObservableCollection<string> itemsList;
 
@@ -28,35 +32,33 @@
         /// </summary>
         public ucCommunicationSetupStatus()
         {
-            InitializeComponent();
+            this.InitializeComponent();
 
-            // TODO: Resource strings
             this.Title = "Communication Status";
         }
 
         /// <summary>
-        /// The OnAppearing
+        /// The OnAppearing.
         /// </summary>
         protected override async void OnAppearing()
         {
             base.OnAppearing();
 
-            this.lstStatus.ItemsSource = this.ItemsList;
+            this.lstStatus.ItemsSource = this.ExtraInfoItems;
 
             await Device.InvokeOnMainThreadAsync(() =>
             {
-                this.lstStatus.ScrollTo(this.ItemsList[this.ItemsList.Count - 1], ScrollToPosition.MakeVisible, false);
+                this.lstStatus.ScrollTo(this.ExtraInfoItems[this.ExtraInfoItems.Count - 1], ScrollToPosition.MakeVisible, false);
             });
 
             MessagingCenter.Subscribe<string>(this, EventTypes.OnKeyUp.ToString(), (keyPressed) =>
             {
-                // TODO: Verify keycodes
-                Enum.TryParse(keyPressed, out Keycode keycode);
+                _ = Enum.TryParse(keyPressed, out Keycode keycode);
             });
         }
 
         /// <summary>
-        /// The OnDisappearing
+        /// The OnDisappearing.
         /// </summary>
         protected override void OnDisappearing()
         {
@@ -68,7 +70,7 @@
         {
             Device.BeginInvokeOnMainThread(async () =>
             {
-                base.OnBackButtonPressed();
+                _ = base.OnBackButtonPressed();
 
                 this.DialogResult = DialogResult.None;
                 await this.Close();
@@ -78,9 +80,9 @@
         }
 
         /// <summary>
-        /// Gets or sets the ItemsList
+        /// Gets or sets the ExtraInfoItems.
         /// </summary>
-        public ObservableCollection<string> ItemsList
+        public ObservableCollection<string> ExtraInfoItems
         {
             get
             {
@@ -101,10 +103,10 @@
         }
 
         /// <summary>
-        /// The BtnClose_Clicked
+        /// The BtnClose_Clicked.
         /// </summary>
-        /// <param name="sender">The sender<see cref="object"/></param>
-        /// <param name="e">The e<see cref="EventArgs"/></param>
+        /// <param name="sender">The sender<see cref="object"/>.</param>
+        /// <param name="e">The e<see cref="EventArgs"/>.</param>
         private async void BtnClose_Clicked(object sender, EventArgs e)
         {
             this.DialogResult = DialogResult.None;

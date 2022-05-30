@@ -1,35 +1,55 @@
+// <copyright file="clsPhysicalCountActivity.cs" company="InterSect Business Systems Inc">
+// Copyright (c) InterSect Business Systems Inc. All rights reserved.
+// </copyright>
+
 namespace dMobile.Controller
 {
     using System;
+    using System.Collections.Generic;
     using System.Collections.ObjectModel;
     using System.Data;
-    using SQLite;
+    using System.Linq;
     using System.Text;
+    using System.Threading.Tasks;
     using System.Xml.Linq;
     using dMobile.Bedrock;
     using dMobile.GroundWork;
     using dMobile.Resources.Services;
     using dMobile.Resources.Types;
     using Xamarin.Forms;
-    using System.Threading.Tasks;
-    using System.Collections.Generic;
-    using System.Linq;
 
     /// <summary>
-    /// 
+    /// Defines the <see cref="PhysicalActivity" />.
     /// </summary>
     public class PhysicalActivity : Activity
     {
+        /// <summary>
+        /// Defines the columnWidth0.
+        /// </summary>
         private double columnWidth0 = 0;
-        private double columnWidth1 = 0;
-        private double columnWidth2 = 0;
-        private ResourceDictionary resourceDictionary = new ResourceDictionary();
-        private List<Count> listCounts = new List<Count>();
-
-        #region Constructors
 
         /// <summary>
-        /// 
+        /// Defines the columnWidth1.
+        /// </summary>
+        private double columnWidth1 = 0;
+
+        /// <summary>
+        /// Defines the columnWidth2.
+        /// </summary>
+        private double columnWidth2 = 0;
+
+        /// <summary>
+        /// Defines the resourceDictionary.
+        /// </summary>
+        private ResourceDictionary resourceDictionary = new ResourceDictionary();
+
+        /// <summary>
+        /// Defines the listCounts.
+        /// </summary>
+        private List<Count> listCounts = new List<Count>();
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="PhysicalActivity"/> class.
         /// </summary>
         public PhysicalActivity()
             : base()
@@ -44,10 +64,10 @@ namespace dMobile.Controller
                     Padding = new Thickness(5),
                     ColumnDefinitions =
                     {
-                        new ColumnDefinition { Width = new GridLength(columnWidth0, GridUnitType.Absolute) },
-                        new ColumnDefinition { Width = new GridLength(columnWidth1, GridUnitType.Absolute) },
-                        new ColumnDefinition { Width = new GridLength(columnWidth2, GridUnitType.Absolute) }
-                    }
+                        new ColumnDefinition { Width = new GridLength(this.columnWidth0, GridUnitType.Absolute) },
+                        new ColumnDefinition { Width = new GridLength(this.columnWidth1, GridUnitType.Absolute) },
+                        new ColumnDefinition { Width = new GridLength(this.columnWidth2, GridUnitType.Absolute) },
+                    },
                 };
 
                 Label labelActivityRefno = new Label { VerticalOptions = LayoutOptions.Center };
@@ -69,59 +89,53 @@ namespace dMobile.Controller
                 return new ViewCell { View = gridData };
             });
 
-            resourceDictionary.Add("dataTemplate", dataTemplate);
+            this.resourceDictionary.Add("dataTemplate", dataTemplate);
         }
 
-        #endregion
-
-        #region Public Members
-
         /// <summary>
-        ///
+        /// The GetFKRefnoIdx.
         /// </summary>
-        /// <returns></returns>
-        /// <remarks></remarks>
+        /// <returns>.</returns>
         public override string GetFKRefnoIdx()
         {
             return "ActivityCountStringFKRefno";
         }
 
         /// <summary>
-        ///
+        /// The GetControlDescription.
         /// </summary>
-        /// <returns></returns>
-        /// <remarks></remarks>
+        /// <returns>.</returns>
         public override string GetControlDescription()
         {
-            // TODO: Resource strings
             return "Physical Counts";
         }
 
-        public override ObservableCollection<object> DesignGrid(ref Grid dataGridMainActivityHeader, ref ListView dataGridMainActivity)
+        /// <summary>
+        /// The DesignGrid.
+        /// </summary>
+        /// <param name="GridMainActivity">The GridMainActivity<see cref="Grid"/>.</param>
+        /// <param name="ListViewMainActivity">The ListViewMainActivity<see cref="ListView"/>.</param>
+        /// <returns>The <see cref="ObservableCollection{object}"/>.</returns>
+        public override ObservableCollection<object> DesignGrid(ref Grid GridMainActivity, ref ListView ListViewMainActivity)
         {
             ObservableCollection<object> observableCollection = new ObservableCollection<object>();
 
-            // TODO: Resource Strings
             Label labelPhysicalCountNumber = new Label { Text = "Count #", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
             Label labelPhysicalCountDate = new Label { Text = "Date", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
             Label labelPhysicalCountType = new Label { Text = "Count Type", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
 
-            columnWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(labelPhysicalCountNumber.Text);
-            columnWidth1 = DependencyService.Get<IGridService>().CalculateTextWidth(labelPhysicalCountDate.Text);
-            columnWidth2 = DependencyService.Get<IGridService>().CalculateTextWidth(labelPhysicalCountType.Text);
-            double dataColumnWidth0 = 0;
-            double dataColumnWidth1 = 0;
-            double dataColumnWidth2 = 0;
-
+            this.columnWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(labelPhysicalCountNumber.Text);
+            this.columnWidth1 = DependencyService.Get<IGridService>().CalculateTextWidth(labelPhysicalCountDate.Text);
+            this.columnWidth2 = DependencyService.Get<IGridService>().CalculateTextWidth(labelPhysicalCountType.Text);
             Grid gridHeaderPhysicalCount = new Grid
             {
                 Padding = new Thickness(5),
                 ColumnDefinitions =
                 {
-                    new ColumnDefinition { Width = new GridLength(columnWidth0, GridUnitType.Absolute) },
-                    new ColumnDefinition { Width = new GridLength(columnWidth1, GridUnitType.Absolute) },
-                    new ColumnDefinition { Width = new GridLength(columnWidth2, GridUnitType.Absolute) }
-                }
+                    new ColumnDefinition { Width = new GridLength(this.columnWidth0, GridUnitType.Absolute) },
+                    new ColumnDefinition { Width = new GridLength(this.columnWidth1, GridUnitType.Absolute) },
+                    new ColumnDefinition { Width = new GridLength(this.columnWidth2, GridUnitType.Absolute) },
+                },
             };
 
             gridHeaderPhysicalCount.SetDynamicResource(VisualElement.BackgroundColorProperty, "HeaderColor");
@@ -136,7 +150,7 @@ namespace dMobile.Controller
 
             Grid.SetRow(gridHeaderPhysicalCount, 0);
 
-            dataGridMainActivityHeader.Children.Add(gridHeaderPhysicalCount);
+            GridMainActivity.Children.Add(gridHeaderPhysicalCount);
 
             foreach (Count count in this.ListHdrs)
             {
@@ -148,49 +162,46 @@ namespace dMobile.Controller
                     description = descriptionSubstring[0] + " " + descriptionSubstring[1];
                 }
 
-                //Count count = new Count
-                //{
+                // Count count = new Count
+                // {
                 //    ActivityCountStringFKRefno = Convert.ToString(row["ActivityCountStringFKRefno"]),
                 //    ActivityCountDateTime = Convert.ToDateTime(row["ActivityCountDateTime"]),
                 //    ActivityCountTypeDescription = description,
-                //};
-
+                // };
                 observableCollection.Add(count);
 
-                dataColumnWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(count.ActivityCountStringFKRefno);
-                dataColumnWidth1 = DependencyService.Get<IGridService>().CalculateTextWidth(Convert.ToString(count.ActivityCountDateTime.ToString("MM/dd/yyyy")));
-                dataColumnWidth2 = DependencyService.Get<IGridService>().CalculateTextWidth(count.ActivityCountTypeDescription);
-
-                if (dataColumnWidth0 > columnWidth0)
+                double dataColumnWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(count.ActivityCountStringFKRefno);
+                double dataColumnWidth1 = DependencyService.Get<IGridService>().CalculateTextWidth(Convert.ToString(count.ActivityCountDateTime.ToString("MM/dd/yyyy")));
+                double dataColumnWidth2 = DependencyService.Get<IGridService>().CalculateTextWidth(count.ActivityCountTypeDescription);
+                if (dataColumnWidth0 > this.columnWidth0)
                 {
-                    columnWidth0 = dataColumnWidth0;
-                    gridHeaderPhysicalCount.ColumnDefinitions[0].Width = columnWidth0;
+                    this.columnWidth0 = dataColumnWidth0;
+                    gridHeaderPhysicalCount.ColumnDefinitions[0].Width = this.columnWidth0;
                 }
 
-                if (dataColumnWidth1 > columnWidth1)
+                if (dataColumnWidth1 > this.columnWidth1)
                 {
-                    columnWidth1 = dataColumnWidth1;
-                    gridHeaderPhysicalCount.ColumnDefinitions[1].Width = columnWidth1;
+                    this.columnWidth1 = dataColumnWidth1;
+                    gridHeaderPhysicalCount.ColumnDefinitions[1].Width = this.columnWidth1;
                 }
 
-                if (dataColumnWidth2 > columnWidth2)
+                if (dataColumnWidth2 > this.columnWidth2)
                 {
-                    columnWidth2 = dataColumnWidth2;
-                    gridHeaderPhysicalCount.ColumnDefinitions[2].Width = columnWidth2;
+                    this.columnWidth2 = dataColumnWidth2;
+                    gridHeaderPhysicalCount.ColumnDefinitions[2].Width = this.columnWidth2;
                 }
             }
 
-            dataGridMainActivity.ItemTemplate = (DataTemplate)this.resourceDictionary["dataTemplate"];
+            ListViewMainActivity.ItemTemplate = (DataTemplate)this.resourceDictionary["dataTemplate"];
 
             return observableCollection;
         }
 
         /// <summary>
-        ///
+        /// The GetActivityList.
         /// </summary>
-        /// <param name="isSubmitBatch"></param>
-        /// <returns></returns>
-        /// <remarks></remarks>
+        /// <param name="isSubmitBatch">.</param>
+        /// <returns>.</returns>
         public override async Task<List<object>> GetActivityList(bool isSubmitBatch)
         {
             PhysicalCountSettings countSettings = new PhysicalCountSettings().LoadData();
@@ -275,19 +286,18 @@ namespace dMobile.Controller
                 sql.AppendFormat("WHERE tActivityCount.ActivitySubType = {0}", Convert.ToInt32(SysCommon.ActSubTypes.PhysicalCounts));
             }
 
-            //using (SQLiteDataAdapter dataAdapterPhysical = new SQLiteDataAdapter(sql.ToString(), DatabaseConnection.GetInstance().SQLConn))
-            //{
+            // using (SQLiteDataAdapter dataAdapterPhysical = new SQLiteDataAdapter(sql.ToString(), DatabaseConnection.GetInstance().SQLConn))
+            // {
             //    using (DataSet dataSetPhysical = new DataSet())
             //    {
             //        dataAdapterPhysical.Fill(dataSetPhysical);
 
-            //        this.DataViewHdrs = dataSetPhysical.Tables[0].DefaultView;
+            // this.DataViewHdrs = dataSetPhysical.Tables[0].DefaultView;
             //        this.DataViewHdrs.Table.TableName = this.MainGridMappingName;
             //        this.DataViewHdrs.Sort = countSettings.GetDataViewSortBy();
             //        this.DataViewHdrs.RowFilter = this.GetFilter();
             //    }
-            //}
-
+            // }
             this.listCounts = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<Count>(sql.ToString());
 
             foreach (Sort sort in countSettings.GetDataViewSortBy())
@@ -309,11 +319,10 @@ namespace dMobile.Controller
         }
 
         /// <summary>
-        ///
+        /// The Search.
         /// </summary>
-        /// <param name="searchText"></param>
-        /// <returns></returns>
-        /// <remarks></remarks>
+        /// <param name="searchText">.</param>
+        /// <returns>.</returns>
         public override ObservableCollection<object> Search(string searchText)
         {
             ObservableCollection<object> observableCollection = new ObservableCollection<object>();
@@ -322,14 +331,13 @@ namespace dMobile.Controller
 
             foreach (Count count in this.ListHdrs)
             {
-                //string description = string.Empty;
-                //string[] descriptionSubstring = Convert.ToString(count.ActivityCountTypeDescription).Split();
+                // string description = string.Empty;
+                // string[] descriptionSubstring = Convert.ToString(count.ActivityCountTypeDescription).Split();
 
-                //if (descriptionSubstring != null && descriptionSubstring.Length > 1)
-                //{
+                // if (descriptionSubstring != null && descriptionSubstring.Length > 1)
+                // {
                 //    description = descriptionSubstring[0] + " " + descriptionSubstring[1];
-                //}
-
+                // }
                 observableCollection.Add(count);
             }
 
@@ -337,9 +345,10 @@ namespace dMobile.Controller
         }
 
         /// <summary>
-        /// 
+        /// The SelectActivity.
         /// </summary>
-        /// <remarks></remarks>
+        /// <param name="selectedActivity">The selectedActivity<see cref="object"/>.</param>
+        /// <returns>The <see cref="Task"/>.</returns>
         public override async Task SelectActivity(object selectedActivity)
         {
             if (selectedActivity is Count count)
@@ -357,11 +366,10 @@ namespace dMobile.Controller
         }
 
         /// <summary>
-        ///
+        /// The GetRefnoFromRowIdx.
         /// </summary>
-        /// <param name="i"></param>
-        /// <returns></returns>
-        /// <remarks></remarks>
+        /// <param name="selectedItem">The selectedItem<see cref="object"/>.</param>
+        /// <returns>.</returns>
         public override int GetRefnoFromRowIdx(object selectedItem)
         {
             if (selectedItem is Count count)
@@ -374,9 +382,10 @@ namespace dMobile.Controller
         }
 
         /// <summary>
-        ///
+        /// The Refresh.
         /// </summary>
-        /// <remarks></remarks>
+        /// <param name="data">The data<see cref="XDocument"/>.</param>
+        /// <returns>The <see cref="Task"/>.</returns>
         public override async Task Refresh(XDocument data)
         {
             if (this.SysEnv.SysSettings.IsDisconnectedMode)
@@ -392,31 +401,29 @@ namespace dMobile.Controller
                 TableActivityPhysicalCount tableActPhysicalCount = new TableActivityPhysicalCount();
 
                 tableActPhysicalCount.RegisterDataAccessListenerProgressOut((IDataAccessEventListener)this);
-                await tableActPhysicalCount.Request();
+                await tableActPhysicalCount.RequestData();
                 tableActPhysicalCount.UnregisterDataAccessListenerProgressOut((IDataAccessEventListener)this);
             }
         }
 
         /// <summary>
-        ///
+        /// The Purge.
         /// </summary>
-        /// <remarks></remarks>
+        /// <returns>The <see cref="Task"/>.</returns>
         public override async Task Purge()
         {
             TableActivityPhysicalCount tableActPhysicalCount = new TableActivityPhysicalCount();
             TableActivityPhysicalCountItem tableActPhysicalCountItem = new TableActivityPhysicalCountItem();
             TableActivityPhysicalCountDetail tableActPhysicalCountDetail = new TableActivityPhysicalCountDetail();
 
-            await tableActPhysicalCountDetail.Purge();
-            await tableActPhysicalCountItem.Purge();
-            await tableActPhysicalCount.Purge();
+            await tableActPhysicalCountDetail.PurgeData();
+            await tableActPhysicalCountItem.PurgeData();
+            await tableActPhysicalCount.PurgeData();
         }
 
         /// <summary>
-        ///
+        /// The GetFilter.
         /// </summary>
-        /// <returns></returns>
-        /// <remarks></remarks>
         public override void GetFilter()
         {
             string filter = string.Empty;
@@ -436,11 +443,9 @@ namespace dMobile.Controller
         }
 
         /// <summary>
-        ///
+        /// The GetFilter.
         /// </summary>
-        /// <param name="xmlDoc"></param>
-        /// <returns></returns>
-        /// <remarks></remarks>
+        /// <param name="data">The data<see cref="XDocument"/>.</param>
         public override void GetFilter(XDocument data)
         {
             string filter = string.Empty;
@@ -459,6 +464,65 @@ namespace dMobile.Controller
             }
         }
 
-        #endregion
+        /// <summary>
+        /// Get the activity foreign key reference number.
+        /// </summary>
+        /// <param name="resourceType"><see cref="object"/> Resource model (tActivityCountModel).</param>
+        /// <returns><see cref="int"/> Found activity foreign key refno, else 0 if not found.</returns>
+        public override int GetFKRefno(object resourceType)
+        {
+            // Not sure why the cast to tActivityCountModel fails.
+            object tmpFKRefno = ((Count)resourceType).ActivityCountFKRefno;
+            return tmpFKRefno != null ? Convert.ToInt32(tmpFKRefno) : 0;
+        }
+
+        /// <summary>
+        /// The Insert.
+        /// </summary>
+        /// <param name="xmlParams">The xmlParams<see cref="XDocument"/>.</param>
+        /// <returns>The <see cref="Task{int}"/>.</returns>
+        public override Task<int> Insert(XDocument xmlParams)
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <summary>
+        /// The Delete.
+        /// </summary>
+        /// <returns>The <see cref="Task"/>.</returns>
+        public override Task Delete()
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <summary>
+        /// The PrintLabel.
+        /// </summary>
+        /// <param name="xmlParam">The xmlParam<see cref="XDocument"/>.</param>
+        /// <returns>The <see cref="Task"/>.</returns>
+        public override Task PrintLabel(XDocument xmlParam)
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <summary>
+        /// The GetLabelQuantity.
+        /// </summary>
+        /// <param name="isRepackQuantityOnly">The isRepackQuantityOnly<see cref="bool"/>.</param>
+        /// <returns>The <see cref="Task{SLabelQuantity}"/>.</returns>
+        public override Task<SLabelQuantity> GetLabelQuantity(bool isRepackQuantityOnly)
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <summary>
+        /// The ChangeStatus.
+        /// </summary>
+        /// <param name="selectedActivity">The selectedActivity<see cref="object"/>.</param>
+        /// <returns>The <see cref="Task{bool}"/>.</returns>
+        public override Task<bool> ChangeStatus(object selectedActivity)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

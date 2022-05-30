@@ -1,4 +1,8 @@
-﻿using System;
+﻿// <copyright file="CustomButtonRenderer.cs" company="InterSect Business Systems Inc">
+// Copyright (c) InterSect Business Systems Inc. All rights reserved.
+// </copyright>
+
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -19,6 +23,10 @@ namespace dMobile.Droid.CustomRenderers
 {
     public class CustomButtonRenderer : ButtonRenderer
     {
+        /// <summary>
+        /// Initializes a new instance of the <see cref="CustomButtonRenderer"/> class.
+        /// </summary>
+        /// <param name="context"></param>
         public CustomButtonRenderer(Context context) : base(context)
         {
         }

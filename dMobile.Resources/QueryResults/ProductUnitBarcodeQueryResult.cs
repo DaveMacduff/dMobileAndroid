@@ -1,4 +1,8 @@
-﻿namespace dMobile.Resources.QueryResults
+﻿// <copyright file="ProductUnitBarcodeQueryResult.cs" company="InterSect Business Systems Inc">
+// Copyright (c) InterSect Business Systems Inc. All rights reserved.
+// </copyright>
+
+namespace dMobile.Resources.QueryResults
 {
     //string queryProductUnitBarcode = "SELECT tProductUnit.ProductUnitRefno,"
     // + "tProductUnitBarCode.ProductUnitBarCodeRefno,"
@@ -16,26 +20,19 @@
     // + "WHERE tProductUnitBarCode.ProductUnitBarCodeCode = ? "
     // + "AND tLocationMapWarehouseProductScheme.WarehouseLocationMapRefno = ? "
     // + "AND tProductUnitBarCode.ProductUnitBarCodeModifier1 = ?";
-
     public class ProductUnitBarcodeQueryResult
     {
-        private int productUnitRefno;
-        private int productUnitBarCodeRefno;
-        private int warehouseProductSchemeRefno;
         private int productSchemeRefno;
-        private string productCode;
-        private string productDescription;
-        private string productUnitBC;
         private string unitCode;
 
-        public int ProductUnitRefno { get => productUnitRefno; set => productUnitRefno = value; }
-        public int ProductUnitBarCodeRefno { get => productUnitBarCodeRefno; set => productUnitBarCodeRefno = value; }
-        public int WarehouseProductSchemeRefno { get => warehouseProductSchemeRefno; set => warehouseProductSchemeRefno = value; }
-        public int ProductSchemeRefno { get => productSchemeRefno; set => productSchemeRefno = value; }
-        public string ProductCode { get => productCode; set => productCode = value; }
-        public string ProductDescription { get => productDescription; set => productDescription = value; }
-        public string ProductUnitBC { get => productUnitBC; set => productUnitBC = value; }
-        public string UnitCode { get => unitCode; set => unitCode = value; }
+        public int ProductUnitRefno { get; set; }
+        public int ProductUnitBarCodeRefno { get; set; }
+        public int WarehouseProductSchemeRefno { get; set; }
+        public int ProductSchemeRefno { get => this.productSchemeRefno; set => this.productSchemeRefno = value; }
+        public string ProductCode { get; set; }
+        public string ProductDescription { get; set; }
+        public string ProductUnitBC { get; set; }
+        public string UnitCode { get => this.unitCode; set => this.unitCode = value; }
     }
 }
 

@@ -1,17 +1,17 @@
-﻿namespace dMobile.Resources.Types
+﻿// <copyright file="PickingItemSummary.cs" company="InterSect Business Systems Inc">
+// Copyright (c) InterSect Business Systems Inc. All rights reserved.
+// </copyright>
+
+namespace dMobile.Resources.Types
 {
     public class PickingItemSummary
     {
-        private decimal ordered;
-        private decimal weightOrdered;
-        private decimal shipped;
         private decimal weightShipped;
-        private string wtUnitCode;
 
-        public decimal Ordered { get => ordered; set => ordered = value; }
-        public decimal WeightOrdered { get => weightOrdered; set => weightOrdered = value; }
-        public decimal Shipped { get => shipped; set => shipped = value; }
-        public decimal WeightShipped { get => weightShipped; set => weightShipped = value; }
-        public string WtUnitCode { get => wtUnitCode; set => wtUnitCode = value; }
+        public decimal Ordered { get; set; }
+        public decimal WeightOrdered { get; set; }
+        public decimal Shipped { get; set; }
+        public decimal WeightShipped { get => this.weightShipped; set => this.weightShipped = value; }
+        public string WtUnitCode { get; set; }
     }
 }

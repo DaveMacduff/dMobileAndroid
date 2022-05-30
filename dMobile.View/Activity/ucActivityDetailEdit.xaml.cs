@@ -1,65 +1,46 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Data;
-using System.Threading.Tasks;
-using System.Xml;
-using System.Xml.Linq;
-using Android.Views;
-using dMobile.Bedrock;
-using dMobile.Controller;
-using dMobile.Resources.Enums;
-using dMobile.Resources.Types;
-using dMobile.View.CustomPages.Modal;
-using dMobile.View.Forms;
-using Xamarin.Forms;
-using Xamarin.Forms.Xaml;
+﻿// <copyright file="ucActivityDetailEdit.xaml.cs" company="InterSect Business Systems Inc">
+// Copyright (c) InterSect Business Systems Inc. All rights reserved.
+// </copyright>
 
 namespace dMobile.View.Activity
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Collections.ObjectModel;
+    using System.Threading.Tasks;
+    using System.Xml;
+    using System.Xml.Linq;
+    using Android.Views;
+    using dMobile.BarCodeScanner.BarCodeScanners;
+    using dMobile.Bedrock;
+    using dMobile.Controller;
+    using dMobile.Resources.Enums;
+    using dMobile.Resources.Types;
+    using dMobile.View.CustomPages.Modal;
+    using dMobile.View.Forms;
+    using Xamarin.Forms;
+    using Xamarin.Forms.Xaml;
+    using Resource = dMobile.Resources.Properties.Resources;
+
+    /// <summary>
+    /// Define the <see cref="ucActivityDetailEdit"/> activity detail edit.
+    /// </summary>
     [XamlCompilation(XamlCompilationOptions.Compile)]
     public partial class ucActivityDetailEdit : DMobileModal, IAppArea
     {
-        #region Fields
-
-        private ActDetailEdit actDetailEdit;
-        private DataTable dataTableActDetails;
-        private int selectedIndex = 0;
-        private bool isChangesMade = false;
-        private bool isControlLoaded = false;
-        private List<ProductVariant> listVariants = null;
-        private List<LotNumber> listLots = null;
-        private List<SerialNumber> listSerialNumbers = null;
-        private string fullClassName = "dMobile.ucActivityDetailEdit";
-        private bool isNumericTrapped = false;
-        private ActDetail actDetail = null;
-        private bool isEditTrapped = false;
-        private SysCommon.ActSubTypes actSubType = SysCommon.ActSubTypes.NotApplicable;
-        private SysEnvironment sysEnv;
-        private ObservableCollection<string> itemsList;
-        private bool printLabels;
-
-        #endregion
-
-        #region Constructors
-
-        public ucActivityDetailEdit()
-        {
-            this.InitializeComponent();
-        }
-
         /// <summary>
-        /// 
+        /// Initializes a new instance of the <see cref="ucActivityDetailEdit"/> class.
         /// </summary>
-        /// <param name="actDetail"></param>
-        /// <param name="actSubTypes"></param>
+        /// <param name="actDetail"><see cref="ActDetail"/> Activity detail object.</param>
+        /// <param name="actSubTypes"><see cref="SysCommon.ActSubTypes"/> Activity sub types.</param>
         public ucActivityDetailEdit(ActDetail actDetail, SysCommon.ActSubTypes actSubTypes)
         {
             this.InitializeComponent();
 
-            // TODO: Resource strings
             this.lblQty.Text = "Quantity";
             this.lblUnit.Text = "KG";
+            this.lblBaseQty.Text = "Base Qty";
+            this.lblBaseUnit.Text = "KG";
             this.lblWeight.Text = "Weight";
             this.lblWtUnit.Text = "KG";
             this.lblSerialNo.Text = "Serial No";
@@ -70,7 +51,7 @@ namespace dMobile.View.Activity
 
             if (!DesignMode.IsDesignModeEnabled)
             {
-                this.ItemsList = new ObservableCollection<string>();
+                this.ExtraInfoItems = new ObservableCollection<string>();
                 this.SysEnv = SysEnvironment.GetInstance();
 
                 this.ActSubType = actSubTypes;
@@ -80,18 +61,19 @@ namespace dMobile.View.Activity
                 this.ActDetail.ActItem.ActSubType = this.ActSubType;
                 this.ActDetail.ActItem.ActHdr.ActSubType = this.ActSubType;
 
-                this.ActDetailEdit = new ActDetailEdit();
-                this.ActDetailEdit.SchemeData = this.ActDetail.SchemeData;
-
-                this.ActDetailEdit.Quantity = this.ActDetail.Quantity;
-                this.ActDetailEdit.BaseQuantity = this.ActDetail.BaseQuantity;
-                this.ActDetailEdit.WeightQuantity = this.ActDetail.WeightQuantity;
+                this.ActDetailEdit = new ActDetailEdit
+                {
+                    SchemeData = this.ActDetail.SchemeData,
+                    AltQuantity = this.ActDetail.Quantity,
+                    BaseQuantity = this.ActDetail.BaseQuantity,
+                    WeightQuantity = this.ActDetail.WeightQuantity,
+                };
 
                 this.ActDetailEdit.ActExtra.Text1 = this.ActDetail.ActExtra.Text1;
                 this.ActDetailEdit.ActExtra.Text2 = this.ActDetail.ActExtra.Text2;
                 this.ActDetailEdit.ActExtra.Text3 = this.ActDetail.ActExtra.Text3;
                 this.ActDetailEdit.ActExtra.Text4 = this.ActDetail.ActExtra.Text4;
-                this.ActDetailEdit.ActExtra.DateTime5 = this.ActDetail.ActExtra.DateTime5;
+                this.ActDetailEdit.ActExtra.DateTime1 = this.ActDetail.ActExtra.DateTime1;
 
                 if (!this.ActDetail.ActItem.ProdInfo.Scheme.IsBestBeforeDateTrackedDefault)
                 {
@@ -105,339 +87,127 @@ namespace dMobile.View.Activity
                     this.dtProductionDate.Date = DateTime.Now;
                 }
 
-                this.Title = this.GetControlDescription();
+                this.Title = this.ActDetail.GetControlDescription();
                 this.lbl1.Text = this.ActDetail.ActItem.ProdInfo.Scheme.Extra1Caption;
                 this.lbl2.Text = this.ActDetail.ActItem.ProdInfo.Scheme.Extra2Caption;
                 this.lbl3.Text = this.ActDetail.ActItem.ProdInfo.Scheme.Extra3Caption;
                 this.lbl4.Text = this.ActDetail.ActItem.ProdInfo.Scheme.Extra4Caption;
                 this.lbl5.Text = this.ActDetail.ActItem.ProdInfo.Scheme.Extra5Caption;
 
-                this.txtAltQty.TextChanged += this.txtAltQty_TextChanged;
-            }
-        }
-
-        #endregion
-
-        /// <summary>
-        /// The OnAppearing
-        /// </summary>
-        protected override async void OnAppearing()
-        {
-            base.OnAppearing();
-
-            this.lstDisplay.ItemsSource = this.ItemsList;
-
-            MessagingCenter.Subscribe<string>(this, EventTypes.OnKeyUp.ToString(), async (keyPressed) =>
-            {
-                // TODO: Verify keycodes
-                Enum.TryParse(keyPressed, out Keycode keycode);
-
-                if (!this.Loading)
-                {
-                    if (keycode == Keycode.F1 || keycode == Keycode.Enter)
-                    {
-                        if (await this.SaveChanges())
-                        {
-                            if (this.printLabels)
-                            {
-                                if (!this.SysEnv.SysSettings.IsPrintProductLabelsAsBatch)
-                                {
-                                    // TODO: Resource strings
-                                    if (await Device.InvokeOnMainThreadAsync(async () => await DisplayAlert(this.GetControlDescription(), "Print product labels?", "Yes", "No")))
-                                    {
-                                        try
-                                        {
-                                            await this.PrintProductLabels();
-                                        }
-                                        catch (Exceptions.MessageOnlyException ex)
-                                        {
-                                            // Even though an error was raised, during label printing allow the control to close.
-                                            ex.Show(this.ActSubType);
-                                        }
-                                        catch (Exception ex)
-                                        {
-                                            // Even though an error was raised, during label printing allow the control to close.
-
-                                            await Device.InvokeOnMainThreadAsync(async () =>
-                                            {
-                                                FormErrorReport errRpt = new FormErrorReport(this.ActSubType, ex);
-                                                await errRpt.ShowDialog();
-                                            });
-                                        }
-                                    }
-                                }
-                            }
-
-                            this.DialogResult = DialogResult.OK;
-                            await this.Close();
-                        }
-                    }
-                }
-            });
-
-            try
-            {
-                await this.ucActivityDetailEdit_GotFocus(this, new EventArgs());
-            }
-            catch (Exception ex)
-            {
-                // TODO: Resource strings
-                await Device.InvokeOnMainThreadAsync(async () => await DisplayAlert("Error", "this.ucActivityDetailEdit_GotFocus threw an error " + ex, "OK"));
+                this.txtAltQty.TextChanged += this.TxtAltQty_TextChanged;
+                this.txtBaseQty.TextChanged += this.TxtBaseQty_TextChanged;
             }
         }
 
         /// <summary>
-        /// The OnDisappearing
+        /// Gets or sets a value indicating whether to print product labels.
         /// </summary>
-        protected override async void OnDisappearing()
+        private bool AskToPrintProductLabels { get; set; } = false;
+
+        /// <summary>
+        /// Gets or sets the system environment object.
+        /// </summary>
+        private SysEnvironment SysEnv { get; set; } = SysEnvironment.GetInstance();
+
+        /// <summary>
+        /// Gets or sets the activity sub type.
+        /// </summary>
+        private SysCommon.ActSubTypes ActSubType { get; set; } = SysCommon.ActSubTypes.NotApplicable;
+
+        /// <summary>
+        /// Gets or sets a list of logistic unit serial numbers.
+        /// </summary>
+        private List<SerialNumber> ListSerialNumbers { get; set; } = new List<SerialNumber>();
+
+        /// <summary>
+        /// Gets or sets a list of logistic unit batch lot numbers.
+        /// </summary>
+        private List<LotNumber> ListLots { get; set; } = new List<LotNumber>();
+
+        /// <summary>
+        /// Gets or sets a list of logistic product variants.
+        /// </summary>
+        private List<ProductVariant> ListVariants { get; set; } = new List<ProductVariant>();
+
+        /// <summary>
+        /// Gets or sets the activity detail edit.
+        /// </summary>
+        private ActDetailEdit ActDetailEdit { get; set; } = new ActDetailEdit();
+
+        /// <summary>
+        /// Gets or sets a value indicating whether changes have been made.
+        /// </summary>
+        private bool IsChangesMade { get; set; } = false;
+
+        /// <summary>
+        /// Gets or sets the activity detail.
+        /// </summary>
+        private ActDetail ActDetail { get; set; }
+
+        /// <summary>
+        /// Gets or sets the activity detail edit items list.
+        /// </summary>
+        private ObservableCollection<string> ExtraInfoItems { get; set; } = new ObservableCollection<string>();
+
+        /// <summary>
+        /// Gets or sets a value indicating whether the bar code handler has been registered.
+        /// </summary>
+        private bool IsBarCodeHandlerRegistered { get; set; } = false;
+
+        /// <summary>
+        /// Gets or sets the bar code scanner instance.
+        /// </summary>
+        private BarCodeScanner Scanner { get; set; } = ScannerEngine.GetInstance().Scanner;
+
+        /// <summary>
+        /// Get the control description.
+        /// </summary>
+        /// <returns><see cref="string"/> Control description.</returns>
+        public string GetControlDescription()
         {
-            base.OnDisappearing();
-
-            await this.ScannerDisable();
-            MessagingCenter.Unsubscribe<string>(this, EventTypes.OnKeyUp.ToString());
+            return "Activity Detail Editing";
         }
-
-        protected override bool OnBackButtonPressed()
-        {
-            Device.BeginInvokeOnMainThread(async () =>
-            {
-                base.OnBackButtonPressed();
-
-                if (await this.SaveChanges())
-                {
-                    this.DialogResult = DialogResult.OK;
-                    await this.Close();
-                }
-                else if (await this.CancelChanges())
-                {
-                    this.DialogResult = DialogResult.None;
-                    await this.Close();
-                }
-            });
-
-            return true;
-        }
-
-        #region Properties
-
-        public SysEnvironment SysEnv
-        {
-            get
-            {
-                return this.sysEnv;
-            }
-
-            set
-            {
-                this.sysEnv = value;
-            }
-        }
-
-        public SysCommon.ActSubTypes ActSubType
-        {
-            get
-            {
-                return this.actSubType;
-            }
-
-            set
-            {
-                this.actSubType = value;
-            }
-        }
-
-        public bool IsEditTrapped
-        {
-            get
-            {
-                return this.isEditTrapped;
-            }
-
-            set
-            {
-                this.isEditTrapped = value;
-            }
-        }
-
-        public bool IsNumericTrapped
-        {
-            get
-            {
-                return this.isNumericTrapped;
-            }
-
-            set
-            {
-                this.isNumericTrapped = value;
-            }
-        }
-
-        public string FullClassName
-        {
-            get
-            {
-                return this.fullClassName;
-            }
-
-            set
-            {
-                this.fullClassName = value;
-            }
-        }
-
-        public List<SerialNumber> ListSerialNumbers
-        {
-            get
-            {
-                return this.listSerialNumbers;
-            }
-
-            set
-            {
-                this.listSerialNumbers = value;
-            }
-        }
-
-        public List<LotNumber> ListLots
-        {
-            get
-            {
-                return this.listLots;
-            }
-
-            set
-            {
-                this.listLots = value;
-            }
-        }
-
-        public List<ProductVariant> ListVariants
-        {
-            get
-            {
-                return this.listVariants;
-            }
-
-            set
-            {
-                this.listVariants = value;
-            }
-        }
-
-        public int SelectedIndex
-        {
-            get
-            {
-                return this.selectedIndex;
-            }
-
-            set
-            {
-                this.selectedIndex = value;
-            }
-        }
-
-        public DataTable DataTableActDetails
-        {
-            get
-            {
-                return this.dataTableActDetails;
-            }
-
-            set
-            {
-                this.dataTableActDetails = value;
-            }
-        }
-
-        public ActDetailEdit ActDetailEdit
-        {
-            get
-            {
-                return this.actDetailEdit;
-            }
-
-            set
-            {
-                this.actDetailEdit = value;
-            }
-        }
-
-        public bool IsControlLoaded
-        {
-            get
-            {
-                return this.isControlLoaded;
-            }
-
-            set
-            {
-                this.isControlLoaded = value;
-            }
-        }
-
-        public bool IsChangesMade
-        {
-            get
-            {
-                return this.isChangesMade;
-            }
-
-            set
-            {
-                this.isChangesMade = value;
-            }
-        }
-
-        public ActDetail ActDetail
-        {
-            get
-            {
-                return this.actDetail;
-            }
-
-            set
-            {
-                this.actDetail = value;
-            }
-        }
-
-        public ObservableCollection<string> ItemsList { get => itemsList; set => itemsList = value; }
-
-        #endregion
-
-        #region Public Members
-
-        #region IAppArea
 
         /// <summary>
         /// Unregister the bar code scan event handler and disable the scanner.
         /// </summary>
-        /// <remarks></remarks>
+        /// <returns><see cref="Task"/> Task operation.</returns>
         public async Task ScannerDisable()
         {
+            if (this.IsBarCodeHandlerRegistered && this.Scanner != null)
+            {
+                this.Scanner.BarCodeScan -= new BarCodeScanner.BarCodeScanEventHandler(this.BarCodeHandler);
+                await this.Scanner.Stop();
+            }
+
+            this.IsBarCodeHandlerRegistered = false;
         }
 
         /// <summary>
         /// Registers the bar code scan event handler and enables the scanner.
         /// </summary>
-        /// <remarks></remarks>
+        /// <returns><see cref="Task"/> Task operation.</returns>
         public async Task ScannerEnable()
         {
+            if (!this.IsBarCodeHandlerRegistered && this.Scanner != null)
+            {
+                await this.Scanner.Start();
+                this.Scanner.BarCodeScan += new BarCodeScanner.BarCodeScanEventHandler(this.BarCodeHandler);
+                this.IsBarCodeHandlerRegistered = true;
+            }
         }
 
         /// <summary>
-        ///
+        /// Check if the activity item is ready to save.
         /// </summary>
-        /// <returns></returns>
-        /// <remarks></remarks>
+        /// <returns><see cref="bool"/> True if it is ready to save, else false.</returns>
         public async Task<bool> IsReadyToSave()
         {
             bool isReadyToSave = true;
 
             try
             {
-                await this.IsValidData();
+                await IsValidData();
             }
             catch (IsReadyToApplyException ex)
             {
@@ -452,58 +222,647 @@ namespace dMobile.View.Activity
                 else
                 {
                     isReadyToSave = false;
-
                     await Device.InvokeOnMainThreadAsync(async () =>
                     {
                         FormErrorReport errRpt = new FormErrorReport(this.ActSubType, ex);
-                        await errRpt.ShowDialog();
+                        _ = await errRpt.ShowDialog();
                     });
                 }
             }
-            catch (Exceptions.MessageOnlyException ex)
+            catch (MessageOnlyException ex)
             {
-                isReadyToSave = false;
-                //ex.Show(this.ActSubType);
-                await Device.InvokeOnMainThreadAsync(async () => await DisplayAlert(this.ActSubType.ToString(), ex.Message, "OK"));
+                await Device.InvokeOnMainThreadAsync(async () =>
+                    await Application.Current.MainPage.DisplayAlert(
+                        this.ActDetail.GetControlDescription(),
+                        ex.Message,
+                        Resource.OK));
             }
             catch (Exception ex)
             {
                 isReadyToSave = false;
-
                 await Device.InvokeOnMainThreadAsync(async () =>
                 {
                     FormErrorReport errRpt = new FormErrorReport(this.ActSubType, ex);
-                    await errRpt.ShowDialog();
+                    _ = await errRpt.ShowDialog();
                 });
             }
 
             return isReadyToSave;
+
+            //////////////////////////////////////////////////////////////////////////
+            async Task IsValidData()
+            {
+                await ValidateQuantity();
+                ValidateScheme();
+                ValidateSchemeExtra();
+
+                ProductInfo prodInfo = this.ActDetail.ActItem.ProdInfo;
+                this.ActDetail.UniqueSchemeID = ProductInfoTasks.GetUniqueSchemeIDFromSProdSchemeData(
+                    prodInfo.Code,
+                    prodInfo.Scheme,
+                    this.ActDetail.SchemeData);
+
+                this.ActDetail.SchemeID = ProductInfoTasks.GetActSchemeIDFromSProdSchemeData(
+                    prodInfo.Code,
+                    prodInfo.Scheme,
+                    this.ActDetail.SchemeData);
+
+                // IsReadyToApply will perform any validations, such as duplicate checks and
+                // quantity validations.
+                XDocument xmlParam = XDocument.Parse(
+                    "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>"
+                    + "<imclient>"
+                    + "<itm_refno>" + this.ActDetail.ActItem.FKRefno + "</itm_refno>"
+                    + "<alt_qty>" + this.ActDetailEdit.AltQuantity + "</alt_qty>"
+                    + "<wt_qty>" + this.ActDetailEdit.WeightQuantity + "</wt_qty>"
+                    + "<ActivityDetailUniqueSchemeID>" +
+                        this.ActDetail.UniqueSchemeID +
+                        "</ActivityDetailUniqueSchemeID>"
+                    + "</imclient>");
+
+                await this.ActDetail.ActItem.IsReadyToApply(xmlParam);
+
+                //////////////////////////////////////////////////////////////////////////
+                async Task ValidateQuantity()
+                {
+                    // Round captured screen quantity to 3 decimals.
+                    this.ActDetailEdit.AltQuantity = Math.Round(decimal.Parse(this.txtAltQty.Text), 3);
+                    this.ActDetailEdit.BaseQuantity = Math.Round(decimal.Parse(this.txtBaseQty.Text), 3);
+                    this.ActDetailEdit.WeightQuantity = Math.Round(decimal.Parse(this.txtWtQty.Text), 3);
+
+                    // Check if UOM's are the same quantity should be the same.
+                    ProductInfo prodInfo = this.ActDetail.ActItem.ProdInfo;
+                    CheckEqualQuantity(prodInfo);
+
+                    if (this.ActDetailEdit.BaseQuantity == 0)
+                    {
+                        throw new MessageOnlyException("Base quantity is expected to have a value not equal to zero.");
+                    }
+
+                    if (this.ActDetailEdit.WeightQuantity == 0)
+                    {
+                        throw new MessageOnlyException("Weight quantity is expected to have a value not equal to zero.");
+                    }
+
+                    // Alt quantity equal to zero will be considered valid for these activity sub types.
+                    decimal expectedWeightQty = 0;
+                    if (this.ActDetail.ActItem.ProdInfo.IsBaseWeightUnit)
+                    {
+                        expectedWeightQty = this.ActDetailEdit.BaseQuantity;
+                    }
+                    else
+                    {
+                        expectedWeightQty = Math.Round(this.ActDetailEdit.BaseQuantity * prodInfo.UnitGrossWeight, 3);
+                    }
+
+                    if (Math.Sign(this.ActDetailEdit.AltQuantity) == 0 &&
+                        (this.ActDetail.ActSubType == SysCommon.ActSubTypes.Adjustment ||
+                            this.ActDetail.ActSubType == SysCommon.ActSubTypes.TicketMaterial))
+                    {
+                        // Alt quantity is not validated.
+                        await ValidateBaseAndWeightAsync(prodInfo, expectedWeightQty);
+                    }
+                    else
+                    {
+                        await ValidateAltBaseAndWeightAsync(prodInfo, expectedWeightQty);
+                    }
+
+                    //////////////////////////////////////////////////////////////////////////
+                    // Check the quantity if the UOM match.
+                    void CheckEqualQuantity(ProductInfo prodInfo)
+                    {
+                        if (prodInfo.UnitCode == prodInfo.BaseUnitCode &&
+                            this.ActDetailEdit.AltQuantity != this.ActDetailEdit.BaseQuantity)
+                        {
+                            throw new MessageOnlyException("Quantity and base quantity are expected" +
+                                " to be the same, because the units are the same.");
+                        }
+
+                        if (prodInfo.UnitCode == prodInfo.WeightUnitCode &&
+                            this.ActDetailEdit.AltQuantity != this.ActDetailEdit.WeightQuantity)
+                        {
+                            throw new MessageOnlyException("Quantity and weight quantity are expected" +
+                                " to be the same, because the units are the same.");
+                        }
+
+                        if (prodInfo.BaseUnitCode == prodInfo.WeightUnitCode &&
+                            this.ActDetailEdit.BaseQuantity != this.ActDetailEdit.WeightQuantity)
+                        {
+                            throw new MessageOnlyException("Base quantity and weight quantity are expected" +
+                                " to be the same, because the units are the same.");
+                        }
+                    }
+
+                    //////////////////////////////////////////////////////////////////////////
+                    async Task ValidateBaseAndWeightAsync(ProductInfo prodInfo, decimal expectedWeightQty)
+                    {
+                        // Base and weight quantity sign check.
+                        const int TotalSignQtyBaseWeight = 2;
+                        int totalSign = Math.Sign(this.ActDetailEdit.BaseQuantity) +
+                            Math.Sign(this.ActDetailEdit.WeightQuantity);
+                        if (totalSign != TotalSignQtyBaseWeight && totalSign != -TotalSignQtyBaseWeight)
+                        {
+                            throw new MessageOnlyException(
+                                "The sign of the base and weight quantity must be the same.");
+                        }
+
+                        if (this.SysEnv.SysSettings.IsIntegerCheckOverride)
+                        {
+                            // If the alt unit and base unit are the same. Quantity check was already done.
+                            // If the base and weight unit are the same. Quantity check was already done.
+                            if (prodInfo.BaseUnitCode == "LB" || prodInfo.BaseUnitCode == "KG")
+                            {
+                                // Any base quantity value is acceptable.
+                                // Integer check override does not apply to weighted units.
+                                if (!prodInfo.IsCatchWeight && expectedWeightQty != this.ActDetailEdit.WeightQuantity)
+                                {
+                                    throw new MessageOnlyException($"Weight quantity {this.ActDetailEdit.WeightQuantity}" +
+                                        $" {prodInfo.WeightUnitCode} does not match the expected weight quantity" +
+                                        $"{expectedWeightQty} {prodInfo.WeightUnitCode}.");
+                                }
+                                else if (prodInfo.IsCatchWeight)
+                                {
+                                    // TODO: Add weight tolerance check warning.
+                                }
+                                else if (prodInfo.IsCatchCount)
+                                {
+                                    throw new NotSupportedException($"Product '{prodInfo.Code}' cannot be flagged as" +
+                                        $" catch count and the base unit code be a weighted unit.");
+                                }
+                            }
+                            else if (prodInfo.IsCatchWeight)
+                            {
+                                throw new NotSupportedException($"Product '{prodInfo.Code}' cannot be flagged as" +
+                                    $" catch weight and the base unit code not be a weighted unit.");
+                            }
+                            else
+                            {
+                                // Catch count is validate the same as here.
+                                // Base unit is not a weighted unit.
+                                // Any quantity value is acceptable.
+                                // Weight quantity must match the expected.
+                                if (expectedWeightQty != this.ActDetailEdit.WeightQuantity)
+                                {
+                                    throw new MessageOnlyException($"Weight quantity {this.ActDetailEdit.WeightQuantity}" +
+                                        $" {prodInfo.WeightUnitCode} does not match the expected weight quantity" +
+                                        $"{expectedWeightQty} {prodInfo.WeightUnitCode}.");
+                                }
+                            }
+                        }
+                        else
+                        {
+                            if (prodInfo.BaseUnitCode == "LB" || prodInfo.BaseUnitCode == "KG")
+                            {
+                                // Any base quantity value is acceptable.
+                                // Integer check override does not apply to weighted units.
+                                if (!prodInfo.IsCatchWeight && expectedWeightQty != this.ActDetailEdit.WeightQuantity)
+                                {
+                                    throw new MessageOnlyException($"Weight quantity {this.ActDetailEdit.WeightQuantity}" +
+                                        $" {prodInfo.WeightUnitCode} does not match the expected weight quantity" +
+                                        $"{expectedWeightQty} {prodInfo.WeightUnitCode}.");
+                                }
+                                else if (prodInfo.IsCatchWeight)
+                                {
+                                    // TODO: Add weight tolerance check warning.
+                                }
+                                else if (prodInfo.IsCatchCount)
+                                {
+                                    throw new NotSupportedException($"Product '{prodInfo.Code}' cannot be flagged as" +
+                                        $" catch count and the base unit code be a weighted unit.");
+                                }
+                            }
+                            else if (prodInfo.IsCatchWeight)
+                            {
+                                throw new NotSupportedException($"Product '{prodInfo.Code}' cannot be flagged as" +
+                                    $" catch weight and the base unit code not be a weighted unit.");
+                            }
+                            else
+                            {
+                                // Catch count is validate the same as here.
+                                // Integer check is performed, yet any whole number is valid because we have no
+                                // Alt quantity to base a validation on.
+                                if (Math.Abs(this.ActDetailEdit.BaseQuantity) != this.ActDetailEdit.BaseQuantity)
+                                {
+                                    // Warn with message box, do not raise message info exception.
+                                    await Device.InvokeOnMainThreadAsync(async () =>
+                                        await Application.Current.MainPage.DisplayAlert(
+                                            this.ActDetail.GetControlDescription(),
+                                            "Warning! Base quantity is expected to be a whole number.",
+                                            Resource.OK));
+                                }
+
+                                // Base unit is not a weighted unit.
+                                // Any quantity value is acceptable.
+                                // Weight quantity must match the expected.
+                                if (expectedWeightQty != this.ActDetailEdit.WeightQuantity)
+                                {
+                                    throw new MessageOnlyException($"Weight quantity {this.ActDetailEdit.WeightQuantity}" +
+                                        $" {prodInfo.WeightUnitCode} does not match the expected weight quantity" +
+                                        $"{expectedWeightQty} {prodInfo.WeightUnitCode}.");
+                                }
+                            }
+                        }
+                    }
+
+                    //////////////////////////////////////////////////////////////////////////
+                    async Task ValidateAltBaseAndWeightAsync(ProductInfo prodInfo, decimal expectedWeightQty)
+                    {
+                        // Alt, base and weight quantity sign check.
+                        const int TotalSignQtyBaseWeight = 3;
+                        int totalSign = Math.Sign(this.ActDetailEdit.AltQuantity) +
+                            Math.Sign(this.ActDetailEdit.BaseQuantity) +
+                            Math.Sign(this.ActDetailEdit.WeightQuantity);
+                        if (totalSign != TotalSignQtyBaseWeight && totalSign != -TotalSignQtyBaseWeight)
+                        {
+                            throw new MessageOnlyException(
+                                "The sign of the quantity, base, and weight quantity must be the same.");
+                        }
+
+                        if (this.SysEnv.SysSettings.IsIntegerCheckOverride)
+                        {
+                            // If the alt unit and base unit are the same. Quantity check was already done.
+                            // If the base and weight unit are the same. Quantity check was already done.
+                            if (prodInfo.UnitCode == "LB" || prodInfo.UnitCode == "KG")
+                            {
+                                // Any base quantity value is acceptable.
+                                // Integer check override does not apply to weighted units.
+                                if (!prodInfo.IsCatchWeight && expectedWeightQty != this.ActDetailEdit.WeightQuantity)
+                                {
+                                    throw new MessageOnlyException($"Weight quantity {this.ActDetailEdit.WeightQuantity}" +
+                                        $" {prodInfo.WeightUnitCode} does not match the expected weight quantity" +
+                                        $"{expectedWeightQty} {prodInfo.WeightUnitCode}.");
+                                }
+                            }
+
+                            if (prodInfo.BaseUnitCode == "LB" || prodInfo.BaseUnitCode == "KG")
+                            {
+                                // Any base quantity value is acceptable.
+                                // Integer check override does not apply to weighted units.
+                                if (!prodInfo.IsCatchWeight && expectedWeightQty != this.ActDetailEdit.WeightQuantity)
+                                {
+                                    throw new MessageOnlyException($"Weight quantity {this.ActDetailEdit.WeightQuantity}" +
+                                        $" {prodInfo.WeightUnitCode} does not match the expected weight quantity" +
+                                        $"{expectedWeightQty} {prodInfo.WeightUnitCode}.");
+                                }
+                                else if (prodInfo.IsCatchCount)
+                                {
+                                    throw new NotSupportedException($"Product '{prodInfo.Code}' cannot be flagged as" +
+                                        $" catch count and the base unit code be a weighted unit.");
+                                }
+                            }
+                            else if (prodInfo.IsCatchWeight)
+                            {
+                                throw new NotSupportedException($"Product '{prodInfo.Code}' cannot be flagged as" +
+                                    $" catch weight and the base unit code not be a weighted unit.");
+                            }
+                            else if (prodInfo.IsCatchCount)
+                            {
+                                // Any alt quantity is valid.
+                                // Any base quantity is valid.
+                                // Weight must be match calculated.
+                                if (expectedWeightQty != this.ActDetailEdit.WeightQuantity)
+                                {
+                                    throw new MessageOnlyException($"Weight quantity {this.ActDetailEdit.WeightQuantity}" +
+                                        $" {prodInfo.WeightUnitCode} does not match the expected weight quantity" +
+                                        $"{expectedWeightQty} {prodInfo.WeightUnitCode}.");
+                                }
+                            }
+                            else
+                            {
+                                // Base unit is not a weighted unit.
+                                // Any quantity value is acceptable.
+                                // Weight quantity must match the expected.
+                                if (expectedWeightQty != this.ActDetailEdit.WeightQuantity)
+                                {
+                                    throw new MessageOnlyException($"Weight quantity {this.ActDetailEdit.WeightQuantity}" +
+                                        $" {prodInfo.WeightUnitCode} does not match the expected weight quantity" +
+                                        $"{expectedWeightQty} {prodInfo.WeightUnitCode}.");
+                                }
+                            }
+                        }
+                        else
+                        {
+                            // If the alt unit and base unit are the same. Quantity check was already done.
+                            // If the base and weight unit are the same. Quantity check was already done.
+                            if (prodInfo.UnitCode == "LB" || prodInfo.UnitCode == "KG")
+                            {
+                                // Any base quantity value is acceptable.
+                                // Integer check override does not apply to weighted units.
+                                if (!prodInfo.IsCatchWeight && expectedWeightQty != this.ActDetailEdit.WeightQuantity)
+                                {
+                                    throw new MessageOnlyException($"Weight quantity {this.ActDetailEdit.WeightQuantity}" +
+                                        $" {prodInfo.WeightUnitCode} does not match the expected weight quantity" +
+                                        $"{expectedWeightQty} {prodInfo.WeightUnitCode}.");
+                                }
+                                else if (prodInfo.IsCatchWeight)
+                                {
+                                    // TODO: Add weight tolerance check warning.
+                                }
+                            }
+                            else if (Math.Abs(this.ActDetailEdit.AltQuantity) != this.ActDetailEdit.AltQuantity)
+                            {
+                                // Warn with message box, do not raise message info exception.
+                                await Device.InvokeOnMainThreadAsync(async () =>
+                                    await Application.Current.MainPage.DisplayAlert(
+                                        this.ActDetail.GetControlDescription(),
+                                        "Warning! Quantity is expected to be a whole number.",
+                                        Resource.OK));
+                            }
+
+                            if (prodInfo.BaseUnitCode == "LB" || prodInfo.BaseUnitCode == "KG")
+                            {
+                                // Any base quantity value is acceptable.
+                                // Integer check override does not apply to weighted units.
+                                if (!prodInfo.IsCatchWeight && expectedWeightQty != this.ActDetailEdit.WeightQuantity)
+                                {
+                                    throw new MessageOnlyException($"Weight quantity {this.ActDetailEdit.WeightQuantity}" +
+                                        $" {prodInfo.WeightUnitCode} does not match the expected weight quantity" +
+                                        $"{expectedWeightQty} {prodInfo.WeightUnitCode}.");
+                                }
+                                else if (prodInfo.IsCatchWeight)
+                                {
+                                    // TODO: Add weight tolerance check warning.
+                                }
+                                else if (prodInfo.IsCatchCount)
+                                {
+                                    throw new NotSupportedException($"Product '{prodInfo.Code}' cannot be flagged as" +
+                                        $" catch count and the base unit code be a weighted unit.");
+                                }
+                            }
+                            else if (prodInfo.IsCatchWeight)
+                            {
+                                throw new NotSupportedException($"Product '{prodInfo.Code}' cannot be flagged as" +
+                                    $" catch weight and the base unit code not be a weighted unit.");
+                            }
+                            else if (prodInfo.IsCatchCount)
+                            {
+                                // Any alt quantity is valid.
+                                // Any base quantity is valid.
+                                // Weight must be match calculated.
+                                if (expectedWeightQty != this.ActDetailEdit.WeightQuantity)
+                                {
+                                    throw new MessageOnlyException($"Weight quantity {this.ActDetailEdit.WeightQuantity}" +
+                                        $" {prodInfo.WeightUnitCode} does not match the expected weight quantity" +
+                                        $"{expectedWeightQty} {prodInfo.WeightUnitCode}.");
+                                }
+                            }
+                            else if (Math.Abs(this.ActDetailEdit.BaseQuantity) != this.ActDetailEdit.BaseQuantity)
+                            {
+                                // Warn with message box, do not raise message info exception.
+                                await Device.InvokeOnMainThreadAsync(async () =>
+                                    await Application.Current.MainPage.DisplayAlert(
+                                        this.ActDetail.GetControlDescription(),
+                                        "Warning! Base quantity is expected to be a whole number.",
+                                        Resource.OK));
+                            }
+                            else
+                            {
+                                decimal expectedBaseQty = Math.Round(
+                                    this.ActDetailEdit.AltQuantity / prodInfo.Unit2BaseUnitFactor, 3);
+                                if (this.ActDetailEdit.BaseQuantity != expectedBaseQty)
+                                {
+                                    throw new MessageOnlyException($"Base quantity {this.ActDetailEdit.BaseQuantity}" +
+                                        $" {prodInfo.BaseUnitCode} does not match the expected base quantity" +
+                                        $"{expectedBaseQty} {prodInfo.BaseUnitCode}.");
+                                }
+
+                                // Base unit is not a weighted unit.
+                                // Any quantity value is acceptable.
+                                // Weight quantity must match the expected.
+                                if (expectedWeightQty != this.ActDetailEdit.WeightQuantity)
+                                {
+                                    throw new MessageOnlyException($"Weight quantity {this.ActDetailEdit.WeightQuantity}" +
+                                        $" {prodInfo.WeightUnitCode} does not match the expected weight quantity" +
+                                        $"{expectedWeightQty} {prodInfo.WeightUnitCode}.");
+                                }
+                            }
+                        }
+                    }
+                }
+
+                //////////////////////////////////////////////////////////////////////////
+                async void ValidateScheme()
+                {
+                    await AssignScheme();
+                    ValidateSchemeSerialTracked();
+                    ValidateSchemeLotTracked();
+                    ValidateSchemeBestBeforeDateTracked();
+                    ValidateSchemeProductionDateTracked();
+                    ValidateSchemeIsVariantTracked();
+
+                    //////////////////////////////////////////////////////////////////////////
+                    async Task AssignScheme()
+                    {
+                        SProductSchemeData scheme = this.ActDetailEdit.SchemeData;
+                        scheme.SingleTradeItemSerialNumber = this.cboSerialNo.Text;
+                        scheme.LogisticUnitBatchLotNumber = this.cboLotNo.Text;
+                        scheme.LogisticUnitProductionDate = this.dtProductionDate.Date;
+                        scheme.LogisticUnitBestBeforeSellByDate = this.dtBestBeforeDate.Date;
+                        scheme = await AssignSchemeVariant(scheme);
+                        this.ActDetailEdit.SchemeData = scheme;
+                    }
+
+                    //////////////////////////////////////////////////////////////////////////
+                    void ValidateSchemeSerialTracked()
+                    {
+                        if (this.ActDetail.ActItem.ProdInfo.Scheme.IsSerialTracked &&
+                            this.ActDetailEdit.SchemeData.SingleTradeItemSerialNumber == string.Empty)
+                        {
+                            throw new MessageOnlyException("Serial number required.");
+                        }
+                    }
+
+                    //////////////////////////////////////////////////////////////////////////
+                    void ValidateSchemeLotTracked()
+                    {
+                        if (this.ActDetail.ActItem.ProdInfo.Scheme.IsLotTracked &&
+                            this.ActDetailEdit.SchemeData.LogisticUnitBatchLotNumber == string.Empty)
+                        {
+                            throw new MessageOnlyException("Lot number required.");
+                        }
+                    }
+
+                    //////////////////////////////////////////////////////////////////////////
+                    void ValidateSchemeBestBeforeDateTracked()
+                    {
+                        // Validate best before date empty.
+                        if (this.ActDetail.ActItem.ProdInfo.Scheme.IsBestBeforeDateTracked &&
+                            SysCommon.IsEmptyDateTime(this.ActDetailEdit.SchemeData.LogisticUnitBestBeforeSellByDate))
+                        {
+                            throw new MessageOnlyException("Best before date required.");
+                        }
+
+                        // Validate best before date range.
+                        if (this.ActDetail.ActItem.ProdInfo.Scheme.IsBestBeforeDateTracked &&
+                            this.SysEnv.SysSettings.DetailDateMinMaxValidYearRange != 0)
+                        {
+                            DateTime lower = DateTime.Now.AddYears(
+                                this.SysEnv.SysSettings.DetailDateMinMaxValidYearRange * -1);
+                            DateTime upper = DateTime.Now.AddYears(
+                                this.SysEnv.SysSettings.DetailDateMinMaxValidYearRange);
+
+                            if (this.dtBestBeforeDate.Date < lower || this.dtBestBeforeDate.Date > upper)
+                            {
+                                throw new MessageOnlyException(
+                                    "The entered best before date is outside an acceptable range.");
+                            }
+                        }
+                    }
+
+                    //////////////////////////////////////////////////////////////////////////
+                    void ValidateSchemeProductionDateTracked()
+                    {
+                        // Validate production date empty.
+                        if (this.ActDetail.ActItem.ProdInfo.Scheme.IsProductionDateTracked &&
+                            SysCommon.IsEmptyDateTime(this.ActDetailEdit.SchemeData.LogisticUnitProductionDate))
+                        {
+                            throw new MessageOnlyException("Production date required.");
+                        }
+
+                        // Validate production date range.
+                        if (this.ActDetail.ActItem.ProdInfo.Scheme.IsProductionDateTracked &&
+                            this.SysEnv.SysSettings.DetailDateMinMaxValidYearRange != 0)
+                        {
+                            DateTime lower = DateTime.Now.AddYears(
+                                this.SysEnv.SysSettings.DetailDateMinMaxValidYearRange * -1);
+                            DateTime upper = DateTime.Now.AddYears(
+                                this.SysEnv.SysSettings.DetailDateMinMaxValidYearRange);
+
+                            if (this.dtProductionDate.Date < lower || this.dtProductionDate.Date > upper)
+                            {
+                                throw new MessageOnlyException(
+                                    "The entered production date is outside an acceptable range.");
+                            }
+                        }
+                    }
+
+                    //////////////////////////////////////////////////////////////////////////
+                    void ValidateSchemeIsVariantTracked()
+                    {
+                        if (this.ActDetail.ActItem.ProdInfo.Scheme.IsVariantTracked &&
+                            this.ActDetailEdit.SchemeData.VariantCode == string.Empty)
+                        {
+                            throw new MessageOnlyException("Variant code required.");
+                        }
+                    }
+
+                    //////////////////////////////////////////////////////////////////////////
+                    async Task<SProductSchemeData> AssignSchemeVariant(SProductSchemeData scheme)
+                    {
+                        if (this.ActDetail.ActItem.ProdInfo.Scheme.IsVariantTracked)
+                        {
+                            ProductVariant variant = this.cboVariantCode != null ?
+                                this.cboVariantCode.SelectedItem as ProductVariant : null;
+                            scheme.VariantNumber = Convert.ToInt32(variant != null ?
+                                variant.ProductSchemeVariantNo : -1);
+                            scheme = await this.ActDetail.FillSchemeDataVarInfoFromSchemeDataVarNo(scheme);
+                        }
+
+                        return scheme;
+                    }
+                }
+
+                //////////////////////////////////////////////////////////////////////////
+                void ValidateSchemeExtra()
+                {
+                    ProdScheme scheme = this.ActDetail.ActItem.ProdInfo.Scheme;
+
+                    AssignSchemeExtraDefault();
+
+                    ValidateSchemeExtra1Required(scheme);
+                    ValidateSchemeExtra2Required(scheme);
+                    ValidateSchemeExtra3Required(scheme);
+                    ValidateSchemeExtra4Required(scheme);
+                    ValidateSchemeExtra5Required(scheme);
+
+                    //////////////////////////////////////////////////////////////////////////
+                    void ValidateSchemeExtra1Required(ProdScheme scheme)
+                    {
+                        if (scheme.Extra1Type != (int)SysCommon.SchemeExtraTypes.Disabled &&
+                            scheme.Extra1IsRequired &&
+                            string.IsNullOrEmpty(this.ActDetailEdit.ActExtra.Text1))
+                        {
+                            throw new MessageOnlyException(scheme.Extra1Caption.TrimEnd() + " is required.");
+                        }
+                    }
+
+                    //////////////////////////////////////////////////////////////////////////
+                    void ValidateSchemeExtra2Required(ProdScheme scheme)
+                    {
+                        if (scheme.Extra2Type != (int)SysCommon.SchemeExtraTypes.Disabled &&
+                            scheme.Extra2IsRequired &&
+                            string.IsNullOrEmpty(this.ActDetailEdit.ActExtra.Text2))
+                        {
+                            throw new MessageOnlyException(scheme.Extra2Caption.TrimEnd() + " is required.");
+                        }
+                    }
+
+                    //////////////////////////////////////////////////////////////////////////
+                    void ValidateSchemeExtra3Required(ProdScheme scheme)
+                    {
+                        if (scheme.Extra3Type != (int)SysCommon.SchemeExtraTypes.Disabled &&
+                            scheme.Extra3IsRequired &&
+                            string.IsNullOrEmpty(this.ActDetailEdit.ActExtra.Text3))
+                        {
+                            throw new MessageOnlyException(scheme.Extra3Caption.TrimEnd() + " is required.");
+                        }
+                    }
+
+                    //////////////////////////////////////////////////////////////////////////
+                    void ValidateSchemeExtra4Required(ProdScheme scheme)
+                    {
+                        if (scheme.Extra4Type != (int)SysCommon.SchemeExtraTypes.Disabled &&
+                            scheme.Extra4IsRequired &&
+                            string.IsNullOrEmpty(this.ActDetailEdit.ActExtra.Text4))
+                        {
+                            throw new MessageOnlyException(scheme.Extra4Caption.TrimEnd() + " is required.");
+                        }
+                    }
+
+                    //////////////////////////////////////////////////////////////////////////
+                    void ValidateSchemeExtra5Required(ProdScheme scheme)
+                    {
+                        if (scheme.Extra5Type != (int)SysCommon.SchemeExtraTypes.Disabled &&
+                            scheme.Extra5IsRequired &&
+                            SysCommon.IsEmptyDate(this.ActDetailEdit.ActExtra.DateTime1))
+                        {
+                            throw new MessageOnlyException(scheme.Extra5Caption.TrimEnd() + " is required.");
+                        }
+                    }
+
+                    //////////////////////////////////////////////////////////////////////////
+                    void AssignSchemeExtraDefault()
+                    {
+                        this.ActDetailEdit.ActExtra.Text1 = this.txtExtraDetail1.Text ?? string.Empty;
+                        this.ActDetailEdit.ActExtra.Text2 = this.txtExtraDetail2.Text ?? string.Empty;
+                        this.ActDetailEdit.ActExtra.Text3 = this.txtExtraDetail3.Text ?? string.Empty;
+                        this.ActDetailEdit.ActExtra.Text4 = this.txtExtraDetail4.Text ?? string.Empty;
+                        this.ActDetailEdit.ActExtra.DateTime1 = this.dtExtraDetail5.Date;
+                    }
+                }
+            }
         }
 
         /// <summary>
-        ///
+        /// Check if the activity detail edit is ready to close.
         /// </summary>
-        /// <returns></returns>
-        /// <remarks></remarks>
+        /// <returns><see cref="bool"/> True if the activity detail edit is ready to close,
+        /// else false.</returns>
         public async Task<bool> IsReadyToClose()
         {
-            bool isReadyToClose = true;
+            bool isReadyToClose = !this.IsChangesMade;
 
             try
             {
-                if (this.IsChangesMade)
-                {
-                    isReadyToClose = false;
-                }
-
-                if (isReadyToClose)
-                {
-                }
             }
-            catch (Exceptions.MessageOnlyException ex)
+            catch (MessageOnlyException ex)
             {
                 isReadyToClose = false;
-                ex.Show(this.ActSubType);
+                await Device.InvokeOnMainThreadAsync(async () =>
+                    await Application.Current.MainPage.DisplayAlert(
+                        this.GetControlDescription(),
+                        ex.Message,
+                        Resource.OK));
             }
             catch (Exception ex)
             {
@@ -514,7 +873,7 @@ namespace dMobile.View.Activity
                 await Device.InvokeOnMainThreadAsync(async () =>
                 {
                     FormErrorReport errRpt = new FormErrorReport(this.ActSubType, ex);
-                    await errRpt.ShowDialog();
+                    _ = await errRpt.ShowDialog();
                 });
             }
 
@@ -522,21 +881,9 @@ namespace dMobile.View.Activity
         }
 
         /// <summary>
-        ///
+        /// Save any activity detail edit data changes.
         /// </summary>
-        /// <returns></returns>
-        /// <remarks></remarks>
-        public string GetControlDescription()
-        {
-            // TODO: Resource strings
-            return "Detail Edit";
-        }
-
-        /// <summary>
-        ///
-        /// </summary>
-        /// <returns></returns>
-        /// <remarks></remarks>
+        /// <returns><see cref="bool"/> True if the save was successful, else false.</returns>
         public async Task<bool> SaveChanges()
         {
             bool saveComplete = true;
@@ -545,15 +892,18 @@ namespace dMobile.View.Activity
             {
                 if (await this.IsReadyToSave())
                 {
-                    this.printLabels = false;
+                    this.AskToPrintProductLabels = false;
 
-                    if (this.ActSubType == SysCommon.ActSubTypes.Receiving && this.SysEnv.SysSettings.CanPrintProductLabelReceiving)
+                    if (this.ActSubType == SysCommon.ActSubTypes.Receiving &&
+                        this.SysEnv.SysSettings.CanPrintProductLabelReceiving)
                     {
-                        this.printLabels = true;
+                        this.AskToPrintProductLabels = true;
                     }
-                    else if ((this.ActSubType == SysCommon.ActSubTypes.TransferFrom || this.ActSubType == SysCommon.ActSubTypes.TransferTo) && this.SysEnv.SysSettings.CanPrintProductLabelTransfers)
+                    else if ((this.ActSubType == SysCommon.ActSubTypes.TransferFrom ||
+                        this.ActSubType == SysCommon.ActSubTypes.TransferTo) &&
+                        this.SysEnv.SysSettings.CanPrintProductLabelTransfers)
                     {
-                        this.printLabels = true;
+                        this.AskToPrintProductLabels = true;
                     }
 
                     this.IsChangesMade = false;
@@ -563,12 +913,14 @@ namespace dMobile.View.Activity
                     saveComplete = false;
                 }
             }
-            catch (Exceptions.MessageOnlyException ex)
+            catch (MessageOnlyException ex)
             {
                 saveComplete = false;
-                //ex.Show(this.ActSubType);
-                // TODO: Resource strings
-                await Device.InvokeOnMainThreadAsync(async () => await DisplayAlert(this.ActSubType.ToString(), ex.Message, "OK"));
+                await Device.InvokeOnMainThreadAsync(async () =>
+                    await Application.Current.MainPage.DisplayAlert(
+                        this.ActDetail.GetControlDescription(),
+                        ex.Message,
+                        Resource.OK));
             }
             catch (Exception ex)
             {
@@ -577,7 +929,7 @@ namespace dMobile.View.Activity
                 await Device.InvokeOnMainThreadAsync(async () =>
                 {
                     FormErrorReport errRpt = new FormErrorReport(this.ActSubType, ex);
-                    await errRpt.ShowDialog();
+                    _ = await errRpt.ShowDialog();
                 });
             }
 
@@ -585,10 +937,9 @@ namespace dMobile.View.Activity
         }
 
         /// <summary>
-        ///
+        /// Cancel any pending activity detail edit changes.
         /// </summary>
-        /// <returns></returns>
-        /// <remarks></remarks>
+        /// <returns><see cref="bool"/> True if the pending changes where canceled, else false.</returns>
         public async Task<bool> CancelChanges()
         {
             bool cancelChanges = true;
@@ -598,14 +949,14 @@ namespace dMobile.View.Activity
                 if (await this.IsReadyToClose())
                 {
                     this.ActDetailEdit.SchemeData = this.ActDetail.SchemeData;
-                    this.ActDetailEdit.Quantity = this.ActDetail.Quantity;
+                    this.ActDetailEdit.AltQuantity = this.ActDetail.Quantity;
                     this.ActDetailEdit.WeightQuantity = this.ActDetail.WeightQuantity;
                     this.ActDetailEdit.BaseQuantity = this.ActDetail.BaseQuantity;
                     this.ActDetailEdit.ActExtra.Text1 = this.ActDetail.ActExtra.Text1;
                     this.ActDetailEdit.ActExtra.Text2 = this.ActDetail.ActExtra.Text2;
                     this.ActDetailEdit.ActExtra.Text3 = this.ActDetail.ActExtra.Text3;
                     this.ActDetailEdit.ActExtra.Text4 = this.ActDetail.ActExtra.Text4;
-                    this.ActDetailEdit.ActExtra.DateTime5 = this.ActDetail.ActExtra.DateTime5;
+                    this.ActDetailEdit.ActExtra.DateTime1 = this.ActDetail.ActExtra.DateTime1;
                 }
                 else
                 {
@@ -613,17 +964,21 @@ namespace dMobile.View.Activity
                     this.IsChangesMade = false;
                 }
             }
-            catch (Exceptions.MessageOnlyException ex)
+            catch (MessageOnlyException ex)
             {
                 cancelChanges = false;
-                ex.Show(this.ActSubType);
+                await Device.InvokeOnMainThreadAsync(async () =>
+                    await Application.Current.MainPage.DisplayAlert(
+                        this.ActDetail.GetControlDescription(),
+                        ex.Message,
+                        Resource.OK));
             }
             catch (Exception ex)
             {
                 await Device.InvokeOnMainThreadAsync(async () =>
                 {
                     FormErrorReport errRpt = new FormErrorReport(this.ActSubType, ex);
-                    await errRpt.ShowDialog();
+                    _ = await errRpt.ShowDialog();
                 });
 
                 cancelChanges = false;
@@ -633,36 +988,646 @@ namespace dMobile.View.Activity
         }
 
         /// <summary>
-        ///
+        /// Get the activity detail edit return XDocument information.
         /// </summary>
-        /// <returns></returns>
-        /// <remarks></remarks>
+        /// <returns><see cref="XDocument"/> Activity item return information.</returns>
         public async Task<XDocument> GetXML()
         {
-            return this.ActDetailEdit.GetXMLFromActivityDetailEdit(this.ActDetailEdit);
+            return await this.ActDetailEdit.GetXMLFromActivityDetailEdit(this.ActDetailEdit);
         }
 
-        #endregion
+        /// <summary>
+        /// On appearing event handler.
+        /// </summary>
+        protected override async void OnAppearing()
+        {
+            base.OnAppearing();
 
-        #endregion
+            // Note: Do we want to disable the scanner here. It may not even be enabled before at all.
+            // It is my understanding that the OnAppearing event only occurs once when the control
+            // is loading.
+            await this.ScannerDisable();
 
-        #region Private Members
+            this.ListViewDisplayExtraInfo.ItemsSource = this.ExtraInfoItems;
+
+            SubscribeKeyUpHandlers();
+
+            try
+            {
+                await Task.Run(async () =>
+                {
+                    try
+                    {
+                        this.Loading = true;
+                        await InitControlState();
+                        await LoadData();
+                        await ShowProductInfo();
+                        await SetStartingFocus();
+                    }
+                    catch (Exception ex)
+                    {
+                        throw ex;
+                    }
+                    finally
+                    {
+                        this.Loading = false;
+                    }
+                });
+            }
+            catch (Exception ex)
+            {
+                await Device.InvokeOnMainThreadAsync(async () =>
+                    await this.DisplayAlert(
+                        "Error",
+                        "this.ucActivityDetailEdit_GotFocus threw an error " + ex,
+                        "OK"));
+            }
+
+            //////////////////////////////////////////////////////////////////////////
+            async Task ShowProductInfo()
+            {
+                await Device.InvokeOnMainThreadAsync(() =>
+                {
+                    this.ExtraInfoItems.Clear();
+
+                    this.ExtraInfoItems.Add("PROD: " + this.ActDetail.ActItem.ProdInfo.Code +
+                        this.ActDetail.ActItem.ProdInfo.UnitBC + "  " +
+                        this.ActDetail.ActItem.ProdInfo.Desc);
+                    this.ExtraInfoItems.Add("SIZE: " + this.ActDetail.ActItem.ProdInfo.UnitSizeDesc);
+                });
+            }
+
+            //////////////////////////////////////////////////////////////////////////
+            async Task InitControlState()
+            {
+                ProductInfo prodInfo = this.ActDetail.ActItem.ProdInfo;
+                ProdScheme scheme = prodInfo.Scheme;
+
+                await Device.InvokeOnMainThreadAsync(() =>
+                {
+                    this.lblUnit.Text = prodInfo.UnitCode;
+                    this.lblBaseUnit.Text = prodInfo.BaseUnitCode;
+                    this.lblWtUnit.Text = prodInfo.WeightUnitCode;
+                    if (!prodInfo.IsCatchWeight || prodInfo.UnitCode == "LB" || prodInfo.UnitCode == "KG")
+                    {
+                        this.txtWtQty.IsEnabled = false;
+                    }
+
+                    InitControlStateScheme(scheme);
+                    InitControlStateExtra(scheme);
+                });
+
+                //////////////////////////////////////////////////////////////////////////
+                // Enable scheme controls state.
+                void InitControlStateScheme(ProdScheme scheme)
+                {
+                    if (!scheme.IsBestBeforeDateTracked)
+                    {
+                        this.dtBestBeforeDate.IsEnabled = false;
+                    }
+
+                    if (!scheme.IsProductionDateTracked)
+                    {
+                        this.dtProductionDate.IsEnabled = false;
+                    }
+
+                    if (!scheme.IsLotTracked)
+                    {
+                        this.cboLotNo.IsEnabled = false;
+                    }
+
+                    if (!scheme.IsSerialTracked)
+                    {
+                        this.cboSerialNo.IsEnabled = false;
+                    }
+
+                    if (!scheme.IsVariantTracked)
+                    {
+                        this.cboVariantCode.IsEnabled = false;
+                    }
+                }
+
+                /////////////////////////////////////////////////////////////////////////
+                // Enable extra data controls state.
+                void InitControlStateExtra(ProdScheme scheme)
+                {
+                    if (scheme.Extra1Type == (int)SysCommon.SchemeExtraTypes.Disabled)
+                    {
+                        this.txtExtraDetail1.IsEnabled = false;
+                    }
+
+                    if (scheme.Extra2Type == (int)SysCommon.SchemeExtraTypes.Disabled)
+                    {
+                        this.txtExtraDetail2.IsEnabled = false;
+                    }
+
+                    if (scheme.Extra3Type == (int)SysCommon.SchemeExtraTypes.Disabled)
+                    {
+                        this.txtExtraDetail3.IsEnabled = false;
+                    }
+
+                    if (scheme.Extra4Type == (int)SysCommon.SchemeExtraTypes.Disabled)
+                    {
+                        this.txtExtraDetail4.IsEnabled = false;
+                    }
+
+                    if (scheme.Extra5Type == (int)SysCommon.SchemeExtraTypes.Disabled)
+                    {
+                        this.dtExtraDetail5.IsEnabled = false;
+                    }
+                }
+            }
+
+            //////////////////////////////////////////////////////////////////////////
+            async Task LoadData()
+            {
+                await Device.InvokeOnMainThreadAsync(() =>
+                {
+                    LoadQuantityDetailAltQuantity();
+                    LoadQuantityDetailWeightQuantity();
+                    LoadQuantityDetailBaseQuantity();
+                    LoadSchemeDetail();
+                    LoadExtraDetail();
+                });
+
+                await LoadProductVariants();
+                await GetSerialNumbers();
+                await GetLotNumbers();
+
+                //////////////////////////////////////////////////////////////////////////
+                // Load the product variants list and bind it to the variant display control.
+                async Task LoadProductVariants()
+                {
+                    this.ListVariants = await this.ActDetailEdit.GetVariantList(
+                        prodRefno: this.ActDetail.ActItem.ProdInfo.Refno);
+
+                    ObservableCollection<object> variants = new ObservableCollection<object>();
+                    foreach (ProductVariant productVariant in this.ListVariants)
+                    {
+                        variants.Add(productVariant);
+                    }
+
+                    await Device.InvokeOnMainThreadAsync(() =>
+                    {
+                        this.cboVariantCode.ItemDisplayBinding = new Binding("ProductSchemeVariantDisplay");
+                        this.cboVariantCode.ItemsSource = variants;
+                    });
+                }
+
+                //////////////////////////////////////////////////////////////////////////
+                // Load the lot numbers list and bind it to the lot display control.
+                async Task GetLotNumbers()
+                {
+                    this.ListLots = await this.ActDetailEdit.GetLotList(
+                        prodRefno: this.ActDetail.ActItem.ProdInfo.Refno);
+                    ObservableCollection<object> lotNumberList = new ObservableCollection<object>();
+
+                    foreach (LotNumber lotNumber in this.ListLots)
+                    {
+                        lotNumberList.Add(lotNumber);
+                    }
+
+                    await Device.InvokeOnMainThreadAsync(() =>
+                    {
+                        this.cboLotNo.ItemDisplayBinding = new Binding("ActivityDetailLogisticUnitBatchLotNumber");
+                        this.cboLotNo.ItemsSource = lotNumberList;
+                    });
+                }
+
+                //////////////////////////////////////////////////////////////////////////
+                // Load the serial numbers list and bind it to the serial number display control.
+                async Task GetSerialNumbers()
+                {
+                    this.ListSerialNumbers = await this.ActDetailEdit.GetSerialNumberList(
+                        prodRefno: this.ActDetail.ActItem.ProdInfo.Refno);
+                    ObservableCollection<SerialNumber> serialNumberList = new ObservableCollection<SerialNumber>();
+                    string selectedSerialNumberItem = this.cboSerialNo.Text;
+                    SerialNumber selectedSerialNumber = new SerialNumber();
+
+                    if (!string.IsNullOrEmpty(selectedSerialNumberItem))
+                    {
+                        selectedSerialNumber.ActivityDetailSingleTradeItemSerialNumber =
+                            Convert.ToString(selectedSerialNumberItem);
+                        serialNumberList.Add(selectedSerialNumber);
+                    }
+
+                    foreach (SerialNumber serialNumber in this.ListSerialNumbers)
+                    {
+                        serialNumberList.Add(serialNumber);
+                    }
+
+                    if (selectedSerialNumber.ActivityDetailSingleTradeItemSerialNumber != null)
+                    {
+                        _ = await Device.InvokeOnMainThreadAsync(() =>
+                            this.cboSerialNo.Text = selectedSerialNumber.ActivityDetailSingleTradeItemSerialNumber);
+                    }
+                }
+
+                //////////////////////////////////////////////////////////////////////////
+                // Load the extra detail controls with the activity detail extra values.
+                void LoadExtraDetail()
+                {
+                    if (!string.IsNullOrEmpty(this.ActDetail.ActExtra.Text1))
+                    {
+                        this.txtExtraDetail1.Text = this.ActDetail.ActExtra.Text1;
+                    }
+
+                    if (!string.IsNullOrEmpty(this.ActDetail.ActExtra.Text2))
+                    {
+                        this.txtExtraDetail2.Text = this.ActDetail.ActExtra.Text2;
+                    }
+
+                    if (!string.IsNullOrEmpty(this.ActDetail.ActExtra.Text3))
+                    {
+                        this.txtExtraDetail3.Text = this.ActDetail.ActExtra.Text3;
+                    }
+
+                    if (!string.IsNullOrEmpty(this.ActDetail.ActExtra.Text4))
+                    {
+                        this.txtExtraDetail4.Text = this.ActDetail.ActExtra.Text4;
+                    }
+
+                    if (!SysCommon.IsEmptyDate(this.ActDetail.ActExtra.DateTime1))
+                    {
+                        this.dtExtraDetail5.Date = this.ActDetail.ActExtra.DateTime1;
+                    }
+                }
+
+                //////////////////////////////////////////////////////////////////////////
+                // Load the scheme controls with the activity detail scheme values.
+                void LoadSchemeDetail()
+                {
+                    SProductSchemeData schemeData = this.ActDetailEdit.SchemeData;
+                    ProductInfo prodInfo = this.ActDetail.ActItem.ProdInfo;
+
+                    if (prodInfo.Scheme.IsBestBeforeDateTracked)
+                    {
+                        if (!SysCommon.IsEmptyDateTime(schemeData.LogisticUnitBestBeforeSellByDate))
+                        {
+                            this.dtBestBeforeDate.Date = schemeData.LogisticUnitBestBeforeSellByDate;
+                        }
+                    }
+
+                    if (prodInfo.Scheme.IsProductionDateTracked)
+                    {
+                        if (!SysCommon.IsEmptyDate(this.ActDetailEdit.SchemeData.LogisticUnitProductionDate))
+                        {
+                            this.dtProductionDate.Date = schemeData.LogisticUnitProductionDate;
+                        }
+                    }
+
+                    if (prodInfo.Scheme.IsSerialTracked)
+                    {
+                        GetNextDefaultSerialNumber(schemeData);
+
+                        this.cboSerialNo.Text = schemeData.SingleTradeItemSerialNumber;
+                    }
+
+                    if (prodInfo.Scheme.IsLotTracked)
+                    {
+                        this.cboLotNo.SelectedItem = schemeData.LogisticUnitBatchLotNumber;
+
+                        if (this.cboLotNo.SelectedIndex < 0)
+                        {
+                            this.cboLotNo.SelectedItem = schemeData.LogisticUnitBatchLotNumber;
+                        }
+                    }
+
+                    if (prodInfo.Scheme.IsVariantTracked)
+                    {
+                        this.cboVariantCode.SelectedItem = schemeData.VariantNumber;
+                    }
+
+                    //////////////////////////////////////////////////////////////////////////
+                    // Get the default serial number and assign it to the activity edit detail scheme data.
+                    void GetNextDefaultSerialNumber(SProductSchemeData schemeData)
+                    {
+                        if (string.IsNullOrEmpty(schemeData.SingleTradeItemSerialNumber))
+                        {
+                            schemeData.SingleTradeItemSerialNumber =
+                                ProductInfoTasks.GetProdSchemeSingleTradeItemSerialNumber();
+                            this.ActDetailEdit.SchemeData = schemeData;
+                        }
+                    }
+                }
+
+                //////////////////////////////////////////////////////////////////////////
+                void LoadQuantityDetailAltQuantity()
+                {
+                    ProductInfo prodInfo = this.ActDetail.ActItem.ProdInfo;
+                    if (this.ActDetail.ActItem.IsCatchAskZero())
+                    {
+                        this.ActDetailEdit.AltQuantity = 0;
+                    }
+                    else if (this.ActDetail.ActItem.ProdInfo.IsCatchWeight &&
+                        this.SysEnv.SysSettings.IsSetCatchWeightZero &&
+                        (prodInfo.UnitCode == "LB" || prodInfo.UnitCode == "KG"))
+                    {
+                        this.ActDetailEdit.AltQuantity = 0;
+                    }
+                    else if (this.ActDetail.ActItem.ProdInfo.IsCatchCount &&
+                        this.SysEnv.SysSettings.IsSetCatchCountZero &&
+                        prodInfo.UnitCode == prodInfo.BaseUnitCode)
+                    {
+                        this.ActDetailEdit.AltQuantity = 0;
+                    }
+                    else if (this.ActDetail.Quantity == 0)
+                    {
+                        if (prodInfo.UnitCode == "LB" || prodInfo.UnitCode == "KG")
+                        {
+                            if (this.ActDetail.WeightQuantity != 0)
+                            {
+                                this.ActDetailEdit.AltQuantity = this.ActDetail.WeightQuantity;
+                            }
+                            else
+                            {
+                                this.ActDetailEdit.AltQuantity = prodInfo.UnitGrossWeight;
+                            }
+                        }
+                        else if (prodInfo.UnitBC == prodInfo.UnitBC &&
+                            prodInfo.UnitCode == prodInfo.BaseUnitCode &&
+                            this.ActDetailEdit.BaseQuantity != 0)
+                        {
+                            this.ActDetailEdit.AltQuantity = this.ActDetailEdit.BaseQuantity;
+                        }
+                        else
+                        {
+                            this.ActDetailEdit.AltQuantity = 1;
+                        }
+                    }
+                    else
+                    {
+                        this.ActDetailEdit.AltQuantity = this.ActDetail.Quantity;
+                    }
+
+                    this.ActDetailEdit.AltQuantity = decimal.Round(this.ActDetailEdit.AltQuantity, 3);
+                    this.txtAltQty.Text = this.ActDetailEdit.AltQuantity.ToString();
+                }
+
+                //////////////////////////////////////////////////////////////////////////
+                void LoadQuantityDetailBaseQuantity()
+                {
+                    ProductInfo prodInfo = this.ActDetail.ActItem.ProdInfo;
+                    if (this.ActDetail.ActItem.IsCatchAskZero())
+                    {
+                        this.ActDetailEdit.BaseQuantity = 0;
+                    }
+                    else if (this.ActDetail.ActItem.ProdInfo.IsCatchWeight &&
+                        this.SysEnv.SysSettings.IsSetCatchWeightZero &&
+                        (prodInfo.BaseUnitCode == "LB" || prodInfo.BaseUnitCode == "KG"))
+                    {
+                        this.ActDetailEdit.BaseQuantity = 0;
+                    }
+                    else if (this.ActDetail.ActItem.ProdInfo.IsCatchCount &&
+                        this.SysEnv.SysSettings.IsSetCatchCountZero &&
+                        prodInfo.UnitCode == prodInfo.BaseUnitCode)
+                    {
+                        this.ActDetailEdit.BaseQuantity = 0;
+                    }
+                    else if (this.ActDetail.BaseQuantity == 0)
+                    {
+                        if (prodInfo.BaseUnitCode == "LB" || prodInfo.BaseUnitCode == "KG")
+                        {
+                            if (this.ActDetail.WeightQuantity != 0)
+                            {
+                                this.ActDetailEdit.BaseQuantity = this.ActDetail.WeightQuantity;
+                            }
+                            else
+                            {
+                                this.ActDetailEdit.BaseQuantity = prodInfo.UnitGrossWeight;
+                            }
+                        }
+                        else if (prodInfo.UnitBC == prodInfo.UnitBC &&
+                            prodInfo.UnitCode == prodInfo.BaseUnitCode &&
+                            this.ActDetailEdit.AltQuantity != 0)
+                        {
+                            this.ActDetailEdit.BaseQuantity = this.ActDetailEdit.AltQuantity;
+                        }
+                        else
+                        {
+                            if (this.ActDetail.Quantity != 0 && prodInfo.Unit2BaseUnitFactor != 0)
+                            {
+                                this.ActDetailEdit.BaseQuantity =
+                                    this.ActDetail.Quantity * prodInfo.Unit2BaseUnitFactor;
+                            }
+                            else
+                            {
+                                this.ActDetailEdit.BaseQuantity = this.ActDetail.Quantity;
+                            }
+                        }
+                    }
+                    else
+                    {
+                        this.ActDetailEdit.BaseQuantity = this.ActDetail.BaseQuantity;
+                    }
+
+                    this.ActDetailEdit.BaseQuantity = decimal.Round(this.ActDetailEdit.BaseQuantity, 3);
+                    this.txtBaseQty.Text = this.ActDetailEdit.BaseQuantity.ToString();
+                }
+
+                //////////////////////////////////////////////////////////////////////////
+                void LoadQuantityDetailWeightQuantity()
+                {
+                    ProductInfo prodInfo = this.ActDetail.ActItem.ProdInfo;
+                    if (this.ActDetail.ActItem.IsCatchAskZero())
+                    {
+                        this.ActDetailEdit.WeightQuantity = 0;
+                    }
+                    else if (this.ActDetail.ActItem.ProdInfo.IsCatchWeight &&
+                        this.SysEnv.SysSettings.IsSetCatchWeightZero &&
+                        (prodInfo.BaseUnitCode == "LB" || prodInfo.BaseUnitCode == "KG"))
+                    {
+                        this.ActDetailEdit.WeightQuantity = 0;
+                    }
+                    else if (this.ActDetail.WeightQuantity == 0)
+                    {
+                        if (this.ActDetail.BaseQuantity != 0 &&
+                            (prodInfo.BaseUnitCode == "LB" || prodInfo.BaseUnitCode == "KG"))
+                        {
+                            this.ActDetailEdit.WeightQuantity = this.ActDetail.BaseQuantity;
+                        }
+                        else if (this.ActDetail.Quantity != 0 &&
+                            (prodInfo.UnitCode == "LB" || prodInfo.UnitCode == "KG"))
+                        {
+                            this.ActDetailEdit.WeightQuantity = this.ActDetail.Quantity;
+                        }
+                        else if (this.ActDetail.BaseQuantity != 0)
+                        {
+                            this.ActDetailEdit.WeightQuantity =
+                                this.ActDetail.BaseQuantity * prodInfo.UnitGrossWeight;
+                        }
+                    }
+                    else
+                    {
+                        this.ActDetailEdit.WeightQuantity = this.ActDetail.WeightQuantity;
+                    }
+
+                    this.ActDetailEdit.WeightQuantity = decimal.Round(this.ActDetailEdit.WeightQuantity, 3);
+                    this.txtWtQty.Text = this.ActDetailEdit.WeightQuantity.ToString();
+                }
+            }
+
+            //////////////////////////////////////////////////////////////////////////
+            void SubscribeKeyUpHandlers()
+            {
+                MessagingCenter.Subscribe<string>(
+                    this,
+                    EventTypes.OnKeyUp.ToString(),
+                    async (keyPressed) =>
+                    {
+                        if (this.Loading)
+                        {
+                            return;
+                        }
+
+                        bool svdIsScanReg = this.IsBarCodeHandlerRegistered;
+                        await this.ScannerDisable();
+
+                        // TODO: Verify key codes.
+                        _ = Enum.TryParse(keyPressed, out Keycode keycode);
+
+                        if (!this.Loading)
+                        {
+                            if (keycode == Keycode.F1 || keycode == Keycode.Enter)
+                            {
+                                await OnAppearingEnterKey();
+                            }
+                        }
+
+                        if (svdIsScanReg)
+                        {
+                            await this.ScannerEnable();
+                        }
+                    });
+
+                //////////////////////////////////////////////////////////////////////////
+                async Task OnAppearingEnterKey()
+                {
+                    if (await this.SaveChanges())
+                    {
+                        if (this.AskToPrintProductLabels &&
+                            !this.SysEnv.SysSettings.IsPrintProductLabelsAsBatch)
+                        {
+                            await AskToPrintProductLabels();
+                        }
+
+                        this.DialogResult = DialogResult.OK;
+                        await this.Close();
+                    }
+
+                    //////////////////////////////////////////////////////////////////////////
+                    async Task AskToPrintProductLabels()
+                    {
+                        if (await Device.InvokeOnMainThreadAsync(async () =>
+                            await this.DisplayAlert(
+                                this.ActDetail.GetControlDescription(),
+                                "Print product labels?",
+                                "Yes",
+                                "No")))
+                        {
+                            try
+                            {
+                                await this.PrintProductLabels();
+                            }
+                            catch (MessageOnlyException ex)
+                            {
+                                // Even though an error was raised, during label printing
+                                // allow the control to close.
+                                await Device.InvokeOnMainThreadAsync(async () =>
+                                    await Application.Current.MainPage.DisplayAlert(
+                                        this.GetControlDescription(),
+                                        ex.Message,
+                                        Resource.OK));
+                            }
+                            catch (Exception ex)
+                            {
+                                // Even though an error was raised, during label printing
+                                // allow the control to close.
+                                await Device.InvokeOnMainThreadAsync(async () =>
+                                {
+                                    FormErrorReport errRpt = new FormErrorReport(
+                                        this.ActSubType,
+                                        ex);
+                                    _ = await errRpt.ShowDialog();
+                                });
+                            }
+                        }
+                    }
+                }
+            }
+
+            //////////////////////////////////////////////////////////////////////////
+            async Task SetStartingFocus()
+            {
+                await Device.InvokeOnMainThreadAsync(() =>
+                {
+                    ProductInfo prodInfo = this.ActDetail.ActItem.ProdInfo;
+                    ProdScheme scheme = prodInfo.Scheme;
+                    _ = this.SysEnv.SysSettings.IsDetailEditScreenSetFocus2CatchWeight
+                        ? prodInfo.IsCatchWeight ? this.txtWtQty.Focus() : this.txtAltQty.Focus()
+                        : scheme.IsSerialTracked && prodInfo.IsCatchWeight ?
+                            this.txtWtQty.Focus() : this.txtAltQty.Focus();
+                });
+            }
+        }
 
         /// <summary>
-        /// 
+        /// Fires just before the page disappears.
         /// </summary>
+        protected override async void OnDisappearing()
+        {
+            MessagingCenter.Unsubscribe<string>(this, EventTypes.OnKeyUp.ToString());
+            await this.ScannerDisable();
+
+            base.OnDisappearing();
+        }
+
+        /// <summary>
+        /// On back button pressed handler.
+        /// </summary>
+        /// <returns><see cref="bool"/> True upon completion.</returns>
+        /// <remarks>Code lens reports no references yet this event does fire.</remarks>
+        protected override bool OnBackButtonPressed()
+        {
+            Device.BeginInvokeOnMainThread(async () =>
+            {
+                // Disable the scanner even though the on disappearing event will turn it off also
+                // upon closing. SaveChanges or CancelChanges may show dialogs.
+                await this.ScannerDisable();
+                if (await this.SaveChanges())
+                {
+                    this.DialogResult = DialogResult.OK;
+                    _ = base.OnBackButtonPressed();
+                    await this.Close();
+                }
+                else if (await this.CancelChanges())
+                {
+                    this.DialogResult = DialogResult.None;
+                    _ = base.OnBackButtonPressed();
+                    await this.Close();
+                }
+            });
+
+            return true;
+        }
+
+        /// <summary>
+        /// Print product labels.
+        /// </summary>
+        /// <returns><see cref="Task"/> Task operation.</returns>
         private async Task PrintProductLabels()
         {
-            string sendReq = string.Empty;
-            string reqData = string.Empty;
-
-            if (this.ActDetail.ActSubType == SysCommon.ActSubTypes.Receiving || this.ActDetail.ActSubType == SysCommon.ActSubTypes.TransferFrom || this.ActDetail.ActSubType == SysCommon.ActSubTypes.TransferTo)
+            if (this.ActDetail.ActSubType == SysCommon.ActSubTypes.Receiving ||
+                this.ActDetail.ActSubType == SysCommon.ActSubTypes.TransferFrom ||
+                this.ActDetail.ActSubType == SysCommon.ActSubTypes.TransferTo)
             {
-                bool editLabelBeforePrint = !this.ActDetail.IsLabelSchemeComplete(this.actDetailEdit.SchemeData) || SysEnv.SysSettings.IsProductLabelCatchAsk;
-
+                bool editLabelBeforePrint = !this.ActDetail.IsLabelSchemeComplete(
+                    this.ActDetailEdit.SchemeData) || this.SysEnv.SysSettings.IsProductLabelCatchAsk;
                 if (editLabelBeforePrint)
                 {
-                    ActDetail actDetailLabel = ActDetailFacade.GetActDetail(this.ActDetail.ActItem, this.ActSubType);
+                    ActDetail actDetailLabel = ActDetailFacade.GetActDetail(
+                        this.ActDetail.ActItem,
+                        this.ActSubType);
 
                     actDetailLabel.Refno = this.ActDetail.Refno;
                     actDetailLabel.FullClassName = this.ActDetail.FullClassName;
@@ -671,21 +1636,25 @@ namespace dMobile.View.Activity
                     actDetailLabel.FKRefno = this.ActDetail.FKRefno;
                     actDetailLabel.SelectedLocMap = this.ActDetail.SelectedLocMap;
 
-                    actDetailLabel.Quantity = this.ActDetailEdit.Quantity;
+                    actDetailLabel.Quantity = this.ActDetailEdit.AltQuantity;
                     actDetailLabel.BaseQuantity = this.ActDetailEdit.BaseQuantity;
                     actDetailLabel.WeightQuantity = this.ActDetailEdit.WeightQuantity;
                     actDetailLabel.SchemeData = this.ActDetailEdit.SchemeData;
                     actDetailLabel.ActExtra = this.ActDetailEdit.ActExtra;
 
-                    FormDialogContainer form = new FormDialogContainer(FormDialogContainer.EDialogTypes.ucActivityProductLabel, actDetailLabel, this.ActSubType);
-                    await form.DisplayControl.ShowDialog();
+                    FormDialogContainer form = new FormDialogContainer(
+                        EDialogTypes.ActivityProductLabel,
+                        actDetailLabel,
+                        this.ActSubType);
+                    _ = await form.DisplayControl.ShowDialog();
+
                     // Printing of product labels will be handled in ucActivityProductLabel
                 }
                 else
                 {
-                    sendReq = await this.ActDetail.CreateSubmitProductLabelXML(this.ActDetailEdit.GetXMLFromActivityDetailEdit(this.ActDetailEdit));
-                    reqData = SysCommon.SubmitComm(sendReq);
-
+                    string sendReq = await this.ActDetail.CreateSubmitProductLabelXML(
+                        await this.ActDetailEdit.GetXMLFromActivityDetailEdit(this.ActDetailEdit));
+                    string reqData = SysCommon.SubmitComm(sendReq);
                     if (reqData.Length > 0)
                     {
                         if (reqData.Contains("<message>ERROR</message>"))
@@ -696,7 +1665,7 @@ namespace dMobile.View.Activity
 
                             if (errorDetail.Contains("MSGBOX-"))
                             {
-                                throw new Exceptions.MessageOnlyException(errorDetail);
+                                throw new MessageOnlyException(errorDetail);
                             }
                             else
                             {
@@ -709,668 +1678,67 @@ namespace dMobile.View.Activity
         }
 
         /// <summary>
-        ///
+        /// Bar code scan event handler.
         /// </summary>
-        /// <remarks></remarks>
-        private async Task LoadData()
+        /// <param name="sender"><see cref="object"/> Sender instance.</param>
+        /// <param name="scanArgs"><see cref="BarCodeScannerEventArgs"/> Sender bar code scanner
+        /// event arguments.</param>
+        private async Task BarCodeHandler(object sender, BarCodeScannerEventArgs scanArgs)
         {
-            ProductInfo prodInfo = this.ActDetail.ActItem.ProdInfo;
-
-            if (prodInfo.Scheme.IsBestBeforeDateTracked)
+            if (this.Loading)
             {
-                if (!SysCommon.IsEmptyDateTime(this.ActDetailEdit.SchemeData.LogisticUnitBestBeforeSellByDate))
-                {
-                    await Device.InvokeOnMainThreadAsync(() => this.dtBestBeforeDate.Date = this.ActDetailEdit.SchemeData.LogisticUnitBestBeforeSellByDate);
-                }
+                return;
             }
 
-            if (prodInfo.Scheme.IsProductionDateTracked)
-            {
-                if (!SysCommon.IsEmptyDate(this.ActDetailEdit.SchemeData.LogisticUnitProductionDate))
-                {
-                    await Device.InvokeOnMainThreadAsync(() => this.dtProductionDate.Date = this.ActDetailEdit.SchemeData.LogisticUnitProductionDate);
-                }
-            }
+            _ = scanArgs ?? throw new ArgumentNullException(nameof(scanArgs));
 
-            if (prodInfo.Scheme.IsSerialTracked)
-            {
-                if (string.IsNullOrEmpty(this.ActDetailEdit.SchemeData.SingleTradeItemSerialNumber))
-                {
-                    SProductSchemeData schemeData = this.ActDetailEdit.SchemeData;
-                    schemeData.SingleTradeItemSerialNumber = ProductInfoTasks.GetProdSchemeSingleTradeItemSerialNumber();
-                    this.ActDetailEdit.SchemeData = schemeData;
-                }
+            // Allowing scanning does not make sense here. Unless you are scanning a secondary
+            // supporting bar code with other AI's.
+            this.Loading = true;
 
-                await Device.InvokeOnMainThreadAsync(() => this.cboSerialNo.Text = this.ActDetailEdit.SchemeData.SingleTradeItemSerialNumber);
-            }
-
-            if (prodInfo.Scheme.IsLotTracked)
-            {
-                await Device.InvokeOnMainThreadAsync(() => this.cboLotNo.SelectedItem = this.ActDetailEdit.SchemeData.LogisticUnitBatchLotNumber);
-
-                if (this.cboLotNo.SelectedIndex < 0)
-                {
-                    await Device.InvokeOnMainThreadAsync(() => this.cboLotNo.SelectedItem = this.ActDetailEdit.SchemeData.LogisticUnitBatchLotNumber);
-                }
-            }
-
-            if (prodInfo.Scheme.IsVariantTracked)
-            {
-                await Device.InvokeOnMainThreadAsync(() => this.cboVariantCode.SelectedItem = this.ActDetailEdit.SchemeData.VariantNumber);
-            }
-
-            // default quantities if zero
-            if (this.ActDetail.Quantity == 0)
-            {
-                if (prodInfo.UnitCode == "LB" || prodInfo.UnitCode == "KG")
-                {
-                    if (this.ActDetail.WeightQuantity != 0)
-                    {
-                        this.ActDetailEdit.Quantity = this.ActDetail.WeightQuantity;
-                    }
-                    else
-                    {
-                        this.ActDetailEdit.Quantity = prodInfo.UnitWeight;
-                    }
-                }
-                else
-                {
-                    this.ActDetailEdit.Quantity = 1;
-                }
-            }
-            else
-            {
-                this.ActDetailEdit.Quantity = this.ActDetail.Quantity;
-            }
-
-            if (prodInfo.IsCatchAskZero)
-            {
-                this.ActDetailEdit.Quantity = 0;
-            }
-
-            if (this.ActDetail.WeightQuantity == 0)
-            {
-                if (prodInfo.UnitCode == "LB" || prodInfo.UnitCode == "KG")
-                {
-                    if (this.ActDetail.Quantity != 0)
-                    {
-                        this.ActDetailEdit.WeightQuantity = this.ActDetail.Quantity;
-                    }
-                    else
-                    {
-                        if (!(this.SysEnv.SysSettings.IsSetCatchWeightZero && prodInfo.IsCatchWeight))
-                        {
-                            this.ActDetailEdit.WeightQuantity = prodInfo.UnitWeight;
-                        }
-                    }
-                }
-                else
-                {
-                    if (prodInfo.BaseUnitCode == "KG" || prodInfo.BaseUnitCode == "LB")
-                    {
-                        if (!(this.SysEnv.SysSettings.IsSetCatchWeightZero && prodInfo.IsCatchWeight))
-                        {
-                            this.ActDetailEdit.WeightQuantity = prodInfo.UnitWeight;
-                        }
-                    }
-                    else
-                    {
-                        if (prodInfo.Unit2BaseUnitFactor != 0)
-                        {
-                            if (!(this.SysEnv.SysSettings.IsSetCatchWeightZero && prodInfo.IsCatchWeight))
-                            {
-                                this.ActDetailEdit.WeightQuantity = prodInfo.Unit2BaseUnitFactor * prodInfo.UnitWeight;
-                            }
-                        }
-                        else
-                        {
-                            this.ActDetailEdit.WeightQuantity = prodInfo.UnitWeight;
-                        }
-                    }
-                }
-            }
-            else
-            {
-                this.ActDetailEdit.WeightQuantity = this.ActDetail.WeightQuantity;
-            }
-
-            if (prodInfo.IsCatchAskZero) // always ask for weight if catchaskzero enabled
-            {
-                this.ActDetailEdit.WeightQuantity = 0;
-            }
-
-            if (this.ActDetail.BaseQuantity == 0)
-            {
-                if (prodInfo.BaseUnitCode == "LB" || prodInfo.BaseUnitCode == "KG")
-                {
-                    this.ActDetailEdit.BaseQuantity = this.ActDetail.WeightQuantity;
-                }
-                else
-                {
-                    if (this.ActDetail.Quantity != 0 && prodInfo.Unit2BaseUnitFactor != 0)
-                    {
-                        if (this.SysEnv.SysSettings.IsSetCatchCountZero && prodInfo.IsCatchCount)
-                        {
-                            this.ActDetailEdit.BaseQuantity = this.ActDetail.Quantity * prodInfo.Unit2BaseUnitFactor;
-                        }
-                    }
-                    else
-                    {
-                        this.ActDetailEdit.BaseQuantity = this.ActDetail.Quantity;
-                    }
-                }
-            }
-            else
-            {
-                this.ActDetailEdit.BaseQuantity = this.ActDetail.BaseQuantity;
-            }
-
-            if (prodInfo.IsCatchAskZero) // always ask for weight if catchaskzero enabled
-            {
-                this.ActDetailEdit.BaseQuantity = 0;
-            }
-
-            this.ActDetailEdit.Quantity = decimal.Round(this.ActDetailEdit.Quantity, 3);
-            this.ActDetailEdit.BaseQuantity = decimal.Round(this.ActDetailEdit.BaseQuantity, 3);
-            this.ActDetailEdit.WeightQuantity = decimal.Round(this.ActDetailEdit.WeightQuantity, 3);
-
-            await Device.InvokeOnMainThreadAsync(() =>
-            {
-                this.txtAltQty.Text = this.ActDetailEdit.Quantity.ToString();
-                if (prodInfo.IsCatchWeight)
-                {
-                    this.txtWtQty.Text = this.ActDetailEdit.WeightQuantity.ToString();
-                }
-            });
-
-            if (!string.IsNullOrEmpty(this.ActDetail.ActExtra.Text1))
-            {
-                await Device.InvokeOnMainThreadAsync(() => this.txtExtraDetail1.Text = this.ActDetail.ActExtra.Text1);
-            }
-
-            if (!string.IsNullOrEmpty(this.ActDetail.ActExtra.Text2))
-            {
-                await Device.InvokeOnMainThreadAsync(() => this.txtExtraDetail2.Text = this.ActDetail.ActExtra.Text2);
-            }
-
-            if (!string.IsNullOrEmpty(this.ActDetail.ActExtra.Text3))
-            {
-                await Device.InvokeOnMainThreadAsync(() => this.txtExtraDetail3.Text = this.ActDetail.ActExtra.Text3);
-            }
-
-            if (!string.IsNullOrEmpty(this.ActDetail.ActExtra.Text4))
-            {
-                await Device.InvokeOnMainThreadAsync(() => this.txtExtraDetail4.Text = this.ActDetail.ActExtra.Text4);
-            }
-
-            if (!SysCommon.IsEmptyDate(this.ActDetail.ActExtra.DateTime5))
-            {
-                await Device.InvokeOnMainThreadAsync(() => this.dtExtraDetail5.Date = this.ActDetail.ActExtra.DateTime5);
-            }
+            await this.ScannerDisable();
         }
 
         /// <summary>
-        /// 
+        /// Button save click event handler.
         /// </summary>
-        /// <param name="prodRefno"></param>
-        private async Task GetProductVariantList(int prodRefno)
-        {
-            this.ListVariants = await this.ActDetailEdit.GetVariantList(prodRefno);
-            ObservableCollection<object> productVariantObservableCollection = new ObservableCollection<object>();
-
-            foreach (ProductVariant productVariant in this.ListVariants)
-            {
-                //ProductVariant productVariant = new ProductVariant()
-                //{
-                //    ProductSchemeVariantCode = Convert.ToString(row["ProductSchemeVariantCode"] != DBNull.Value ? row["ProductSchemeVariantCode"] : null),
-                //    ProductSchemeVariantNo = Convert.ToInt32(row["ProductSchemeVariantNo"] != DBNull.Value ? row["ProductSchemeVariantNo"] : null),
-                //    ProductSchemeVariantDisplay = Convert.ToString(row["ProductSchemeVariantDisplay"] != DBNull.Value ? row["ProductSchemeVariantDisplay"] : null),
-                //};
-
-                productVariantObservableCollection.Add(productVariant);
-            }
-
-            await Device.InvokeOnMainThreadAsync(() =>
-            {
-                this.cboVariantCode.ItemDisplayBinding = new Binding("ProductSchemeVariantDisplay");
-                this.cboVariantCode.ItemsSource = productVariantObservableCollection;
-            });
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="prodRefno"></param>
-        private async Task GetLotNumberList(int prodRefno)
-        {
-            this.ListLots = await this.ActDetailEdit.GetLotList(prodRefno);
-            ObservableCollection<object> lotNumberList = new ObservableCollection<object>();
-
-            foreach (LotNumber lotNumber in this.ListLots)
-            {
-                //LotNumber lotNumber = new LotNumber()
-                //{
-                //    ActivityDetailLogisticUnitBatchLotNumber = Convert.ToString(row["ActivityDetailLogisticUnitBatchLotNumber"] != DBNull.Value ? row["ActivityDetailLogisticUnitBatchLotNumber"] : null)
-                //};
-
-                lotNumberList.Add(lotNumber);
-            }
-
-            await Device.InvokeOnMainThreadAsync(() =>
-            {
-                this.cboLotNo.ItemDisplayBinding = new Binding("ActivityDetailLogisticUnitBatchLotNumber");
-                this.cboLotNo.ItemsSource = lotNumberList;
-            });
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="prodRefno"></param>
-        private async Task GetSerialNumberList(int prodRefno)
-        {
-            this.ListSerialNumbers = await this.ActDetailEdit.GetSerialNumberList(prodRefno);
-            ObservableCollection<SerialNumber> serialNumberList = new ObservableCollection<SerialNumber>();
-            string selectedSerialNumberItem = this.cboSerialNo.Text;
-            SerialNumber selectedSerialNumber = new SerialNumber();
-
-            if (!string.IsNullOrEmpty(selectedSerialNumberItem))
-            {
-                selectedSerialNumber.ActivityDetailSingleTradeItemSerialNumber = Convert.ToString(selectedSerialNumberItem);
-                serialNumberList.Add(selectedSerialNumber);
-            }
-
-            foreach (SerialNumber serialNumber in this.ListSerialNumbers)
-            {
-                //SerialNumber serialNumber = new SerialNumber()
-                //{
-                //    ActivityDetailSingleTradeItemSerialNumber = Convert.ToString(row["ActivityDetailSingleTradeItemSerialNumber"] != DBNull.Value ? row["ActivityDetailSingleTradeItemSerialNumber"] : null)
-                //};
-
-                serialNumberList.Add(serialNumber);
-            }
-
-            if (selectedSerialNumber.ActivityDetailSingleTradeItemSerialNumber != null)
-            {
-                await Device.InvokeOnMainThreadAsync(() => this.cboSerialNo.Text = selectedSerialNumber.ActivityDetailSingleTradeItemSerialNumber);
-            }
-        }
-
-        /// <summary>
-        ///
-        /// </summary>
-        /// <returns></returns>
-        /// <remarks></remarks>
-        private async Task IsValidData()
-        {
-            SProductSchemeData s = this.ActDetailEdit.SchemeData;
-
-            s.SingleTradeItemSerialNumber = this.cboSerialNo.Text;
-            s.LogisticUnitBatchLotNumber = this.cboLotNo.Text;
-
-            if (this.ActDetail.ActItem.ProdInfo.Scheme.IsVariantTracked)
-            {
-                ProductVariant variant = this.cboVariantCode != null ? this.cboVariantCode.SelectedItem as ProductVariant : null;
-                s.VariantNumber = Convert.ToInt32(variant != null ? variant.ProductSchemeVariantNo : -1);
-                s = await this.ActDetail.FillSchemeDataVarInfoFromSchemeDataVarNo(s);
-            }
-
-            s.LogisticUnitProductionDate = this.dtProductionDate.Date;
-            s.LogisticUnitBestBeforeSellByDate = this.dtBestBeforeDate.Date;
-            this.ActDetailEdit.SchemeData = s;
-
-            this.ActDetailEdit.ActExtra.Text1 = this.txtExtraDetail1.Text ?? string.Empty;
-            this.ActDetailEdit.ActExtra.Text2 = this.txtExtraDetail2.Text ?? string.Empty;
-            this.ActDetailEdit.ActExtra.Text3 = this.txtExtraDetail3.Text ?? string.Empty;
-            this.ActDetailEdit.ActExtra.Text4 = this.txtExtraDetail4.Text ?? string.Empty;
-            this.ActDetailEdit.ActExtra.DateTime5 = this.dtExtraDetail5.Date;
-
-            this.ActDetailEdit.Quantity = decimal.Parse(this.txtAltQty.Text);
-            this.ActDetailEdit.WeightQuantity = decimal.Parse(this.txtWtQty.Text);
-
-            if (0 != Math.Sign(this.ActDetailEdit.WeightQuantity) && 0 != Math.Sign(this.ActDetailEdit.Quantity))
-            {
-                if (Math.Sign(this.ActDetailEdit.Quantity) != Math.Sign(this.ActDetailEdit.WeightQuantity))
-                {
-                    // TODO: Resource strings
-                    throw new Exceptions.MessageOnlyException("The sign of quantities must be the same.");
-                }
-            }
-
-            if (this.ActDetail.ActItem.ProdInfo.BaseUnitCode == "LB" || this.ActDetail.ActItem.ProdInfo.BaseUnitCode == "KG")
-            {
-                this.ActDetailEdit.BaseQuantity = this.ActDetailEdit.WeightQuantity;
-            }
-            else
-            {
-                if (this.ActDetailEdit.Quantity != 0 && this.ActDetail.ActItem.ProdInfo.Unit2BaseUnitFactor != 0)
-                {
-                    this.ActDetailEdit.BaseQuantity = this.ActDetailEdit.Quantity * this.ActDetail.ActItem.ProdInfo.Unit2BaseUnitFactor;
-                }
-                else
-                {
-                    this.ActDetailEdit.BaseQuantity = this.ActDetailEdit.Quantity;
-                }
-            }
-            //}
-
-            if (decimal.Parse(this.txtAltQty.Text) == 0 && decimal.Parse(this.txtWtQty.Text) == 0)
-            {
-                // TODO: Resource strings
-                throw new Exceptions.MessageOnlyException("Both quantity and weight quantity cannot be zero.");
-            }
-
-            if (this.ActDetail.ActItem.ProdInfo.Scheme.IsSerialTracked && this.ActDetailEdit.SchemeData.SingleTradeItemSerialNumber == string.Empty)
-            {
-                // TODO: Resource strings
-                throw new Exceptions.MessageOnlyException("Serial number required.");
-            }
-
-            if (this.ActDetail.ActItem.ProdInfo.Scheme.IsLotTracked && this.ActDetailEdit.SchemeData.LogisticUnitBatchLotNumber == string.Empty)
-            {
-                // TODO: Resource strings
-                throw new Exceptions.MessageOnlyException("Lot number required.");
-            }
-
-            if (this.ActDetail.ActItem.ProdInfo.Scheme.IsBestBeforeDateTracked && SysCommon.IsEmptyDateTime(this.ActDetailEdit.SchemeData.LogisticUnitBestBeforeSellByDate))
-            {
-                // TODO: Resource strings
-                throw new Exceptions.MessageOnlyException("Best before date required.");
-            }
-
-            if (this.ActDetail.ActItem.ProdInfo.Scheme.IsBestBeforeDateTracked && this.SysEnv.SysSettings.DetailDateMinMaxValidYearRange != 0)
-            {
-                DateTime lower = DateTime.Now.AddYears(this.SysEnv.SysSettings.DetailDateMinMaxValidYearRange * -1);
-                DateTime upper = DateTime.Now.AddYears(this.SysEnv.SysSettings.DetailDateMinMaxValidYearRange);
-
-                if (this.dtBestBeforeDate.Date < lower || this.dtBestBeforeDate.Date > upper)
-                {
-                    // TODO: Resource strings
-                    throw new Exceptions.MessageOnlyException("The entered best before date is outside an acceptable range.");
-                }
-            }
-
-            if (this.ActDetail.ActItem.ProdInfo.Scheme.IsProductionDateTracked && SysCommon.IsEmptyDateTime(this.ActDetailEdit.SchemeData.LogisticUnitProductionDate))
-            {
-                // TODO: Resource strings
-                throw new Exceptions.MessageOnlyException("Production date required.");
-            }
-
-            if (this.ActDetail.ActItem.ProdInfo.Scheme.IsProductionDateTracked && this.SysEnv.SysSettings.DetailDateMinMaxValidYearRange != 0)
-            {
-                DateTime lower = DateTime.Now.AddYears(this.SysEnv.SysSettings.DetailDateMinMaxValidYearRange * -1);
-                DateTime upper = DateTime.Now.AddYears(this.SysEnv.SysSettings.DetailDateMinMaxValidYearRange);
-
-                if (this.dtProductionDate.Date < lower || this.dtProductionDate.Date > upper)
-                {
-                    // TODO: Resource strings
-                    throw new Exceptions.MessageOnlyException("The entered production date is outside an acceptable range.");
-                }
-            }
-
-            if (this.ActDetail.ActItem.ProdInfo.Scheme.IsVariantTracked && this.ActDetailEdit.SchemeData.VariantCode == string.Empty)
-            {
-                // TODO: Resource strings
-                throw new Exceptions.MessageOnlyException("Variant code required.");
-            }
-
-            if (this.ActDetail.ActItem.ProdInfo.Scheme.Extra1Type != (int)SysCommon.SchemeExtraTypes.Disabled && this.ActDetail.ActItem.ProdInfo.Scheme.Extra1IsRequired && string.IsNullOrEmpty(this.ActDetailEdit.ActExtra.Text1))
-            {
-                // TODO: Resource strings
-                throw new Exceptions.MessageOnlyException(this.ActDetail.ActItem.ProdInfo.Scheme.Extra1Caption.TrimEnd() + " is required.");
-            }
-
-            if (this.ActDetail.ActItem.ProdInfo.Scheme.Extra2Type != (int)SysCommon.SchemeExtraTypes.Disabled && this.ActDetail.ActItem.ProdInfo.Scheme.Extra2IsRequired && string.IsNullOrEmpty(this.ActDetailEdit.ActExtra.Text2))
-            {
-                // TODO: Resource strings
-                throw new Exceptions.MessageOnlyException(this.ActDetail.ActItem.ProdInfo.Scheme.Extra2Caption.TrimEnd() + " is required.");
-            }
-
-            if (this.ActDetail.ActItem.ProdInfo.Scheme.Extra3Type != (int)SysCommon.SchemeExtraTypes.Disabled && this.ActDetail.ActItem.ProdInfo.Scheme.Extra3IsRequired && string.IsNullOrEmpty(this.ActDetailEdit.ActExtra.Text3))
-            {
-                // TODO: Resource strings
-                throw new Exceptions.MessageOnlyException(this.ActDetail.ActItem.ProdInfo.Scheme.Extra3Caption.TrimEnd() + " is required.");
-            }
-
-            if (this.ActDetail.ActItem.ProdInfo.Scheme.Extra4Type != (int)SysCommon.SchemeExtraTypes.Disabled && this.ActDetail.ActItem.ProdInfo.Scheme.Extra4IsRequired && string.IsNullOrEmpty(this.ActDetailEdit.ActExtra.Text4))
-            {
-                // TODO: Resource strings
-                throw new Exceptions.MessageOnlyException(this.ActDetail.ActItem.ProdInfo.Scheme.Extra4Caption.TrimEnd() + " is required.");
-            }
-
-            if (this.ActDetail.ActItem.ProdInfo.Scheme.Extra5Type != (int)SysCommon.SchemeExtraTypes.Disabled && this.ActDetail.ActItem.ProdInfo.Scheme.Extra5IsRequired && SysCommon.IsEmptyDate(this.ActDetailEdit.ActExtra.DateTime5))
-            {
-                // TODO: Resource strings
-                throw new Exceptions.MessageOnlyException(this.ActDetail.ActItem.ProdInfo.Scheme.Extra5Caption.TrimEnd() + " is required.");
-            }
-
-            this.ActDetail.UniqueSchemeID = ProductInfoTasks.GetActUniqueSchemeIDFromSProdSchemeData(
-                this.ActDetail.ActItem.ProdInfo.Code,
-                this.ActDetail.ActItem.ProdInfo.Scheme,
-                this.ActDetail.SchemeData);
-
-            this.ActDetail.SchemeID = ProductInfoTasks.GetActSchemeIDFromSProdSchemeData(
-                this.ActDetail.ActItem.ProdInfo.Code,
-                this.ActDetail.ActItem.ProdInfo.Scheme,
-                this.ActDetail.SchemeData);
-
-            // IsReadyToApply will perform any validations, such as duplicate checks and quantity validations.
-            XDocument xmlParam = XDocument.Parse(
-                "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>"
-                + "<imclient>"
-                + ("<itm_refno>" + this.ActDetail.ActItem.FKRefno + "</itm_refno>")
-                + ("<alt_qty>" + this.ActDetailEdit.Quantity + "</alt_qty>")
-                + ("<wt_qty>" + this.ActDetailEdit.WeightQuantity + "</wt_qty>")
-                + ("<ActivityDetailUniqueSchemeID>" + this.ActDetail.UniqueSchemeID + "</ActivityDetailUniqueSchemeID>")
-                + "</imclient>");
-
-            await this.ActDetail.ActItem.IsReadyToApply(xmlParam);
-        }
-
-        /// <summary>
-        ///
-        /// </summary>
-        /// <remarks></remarks>
-        private async Task ShowProductInfo()
-        {
-            await Device.InvokeOnMainThreadAsync(() =>
-            {
-                this.ItemsList.Clear();
-
-                // TODO: Resource strings
-                this.ItemsList.Add("PROD: " + this.ActDetail.ActItem.ProdInfo.Code + this.ActDetail.ActItem.ProdInfo.UnitBC + "  " + this.ActDetail.ActItem.ProdInfo.Desc);
-                this.ItemsList.Add("SIZE: " + this.ActDetail.ActItem.ProdInfo.UnitSizeDesc);
-            });
-        }
-
-        /// <summary>
-        ///
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        /// <remarks></remarks>
-        private async Task ucActivityDetailEdit_GotFocus(object sender, EventArgs e)
-        {
-            await Task.Run(async () =>
-            {
-                try
-                {
-                    this.Loading = true;
-
-                    if (!SysEnvironment.GetInstance().IsApplicationExitInvoked)
-                    {
-                        if (!this.IsControlLoaded)
-                        {
-                            ProductInfo prodInfo = this.ActDetail.ActItem.ProdInfo;
-                            ProdScheme scheme = prodInfo.Scheme;
-
-                            await Device.InvokeOnMainThreadAsync(() =>
-                            {
-                                this.lblUnit.Text = prodInfo.UnitCode;
-                                this.lblWtUnit.Text = prodInfo.WeightUnitCode;
-                            });
-
-                            if (!scheme.IsBestBeforeDateTracked)
-                            {
-                                await Device.InvokeOnMainThreadAsync(() => this.dtBestBeforeDate.IsEnabled = false);
-                            }
-
-                            if (!scheme.IsProductionDateTracked)
-                            {
-                                await Device.InvokeOnMainThreadAsync(() => this.dtProductionDate.IsEnabled = false);
-                            }
-
-                            if (!scheme.IsLotTracked)
-                            {
-                                await Device.InvokeOnMainThreadAsync(() => this.cboLotNo.IsEnabled = false);
-                            }
-
-                            if (!scheme.IsSerialTracked)
-                            {
-                                await Device.InvokeOnMainThreadAsync(() => this.cboSerialNo.IsEnabled = false);
-                            }
-
-                            if (!scheme.IsVariantTracked)
-                            {
-                                await Device.InvokeOnMainThreadAsync(() => this.cboVariantCode.IsEnabled = false);
-                            }
-
-                            if (!prodInfo.IsCatchWeight || (prodInfo.UnitCode == "LB" || prodInfo.UnitCode == "KG"))
-                            {
-                                await Device.InvokeOnMainThreadAsync(() => this.txtWtQty.IsEnabled = false);
-                            }
-
-                            if (scheme.Extra1Type == (int)SysCommon.SchemeExtraTypes.Disabled)
-                            {
-                                await Device.InvokeOnMainThreadAsync(() => this.txtExtraDetail1.IsEnabled = false);
-                            }
-
-                            if (scheme.Extra2Type == (int)SysCommon.SchemeExtraTypes.Disabled)
-                            {
-                                await Device.InvokeOnMainThreadAsync(() => this.txtExtraDetail2.IsEnabled = false);
-                            }
-
-                            if (scheme.Extra3Type == (int)SysCommon.SchemeExtraTypes.Disabled)
-                            {
-                                await Device.InvokeOnMainThreadAsync(() => this.txtExtraDetail3.IsEnabled = false);
-                            }
-
-                            if (scheme.Extra4Type == (int)SysCommon.SchemeExtraTypes.Disabled)
-                            {
-                                await Device.InvokeOnMainThreadAsync(() => this.txtExtraDetail4.IsEnabled = false);
-                            }
-
-                            if (scheme.Extra5Type == (int)SysCommon.SchemeExtraTypes.Disabled)
-                            {
-                                await Device.InvokeOnMainThreadAsync(() => this.dtExtraDetail5.IsEnabled = false);
-                            }
-
-                            await this.LoadData();
-                            await this.ShowProductInfo();
-
-                            await this.GetProductVariantList(prodInfo.Refno);
-                            await this.GetSerialNumberList(prodInfo.Refno);
-                            await this.GetLotNumberList(prodInfo.Refno);
-
-                            if (this.SysEnv.SysSettings.IsDetailEditScreenSetFocus2CatchWeight)
-                            {
-                                if (prodInfo.IsCatchWeight)
-                                {
-                                    await Device.InvokeOnMainThreadAsync(() => this.txtWtQty.Focus());
-                                }
-                                else
-                                {
-                                    await Device.InvokeOnMainThreadAsync(() => this.txtAltQty.Focus());
-                                }
-                            }
-                            else
-                            {
-                                if (scheme.IsSerialTracked && prodInfo.IsCatchWeight)
-                                {
-                                    await Device.InvokeOnMainThreadAsync(() => this.txtWtQty.Focus());
-                                }
-                                else
-                                {
-                                    await Device.InvokeOnMainThreadAsync(() => this.txtAltQty.Focus());
-                                }
-                            }
-                        }
-
-                        this.IsControlLoaded = true;
-                    }
-
-                }
-                catch (Exception ex)
-                {
-                    throw ex;
-                }
-                finally
-                {
-                    this.Loading = false;
-                }
-            });
-        }
-
-        /// <summary>
-        ///
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        /// <remarks></remarks>
-        private void TxtAltQty_GotFocus(object sender, EventArgs e)
-        {
-            if (this.txtAltQty.Text != null)
-            {
-                this.txtAltQty.CursorPosition = 0;
-                this.txtAltQty.SelectionLength = this.txtAltQty.Text.Length;
-            }
-        }
-
-        /// <summary>
-        ///
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        /// <remarks></remarks>
-        private void TxtWtQty_GotFocus(object sender, EventArgs e)
-        {
-            if (this.txtWtQty.Text != null)
-            {
-                this.txtWtQty.CursorPosition = 0;
-                this.txtWtQty.SelectionLength = this.txtWtQty.Text.Length;
-            }
-        }
-
-        #endregion
-
+        /// <param name="sender"><see cref="object"/> Sender object.</param>
+        /// <param name="e"><see cref="EventArgs"/> Event arguments.</param>
         private async void BtnSave_Clicked(object sender, EventArgs e)
         {
             if (await this.SaveChanges())
             {
-                if (this.printLabels)
+                if (this.AskToPrintProductLabels)
                 {
                     if (!this.SysEnv.SysSettings.IsPrintProductLabelsAsBatch)
                     {
-                        // TODO: Resource strings
-                        if (await Device.InvokeOnMainThreadAsync(async () => await DisplayAlert(this.GetControlDescription(), "Print product labels?", "Yes", "No")))
+                        if (await Device.InvokeOnMainThreadAsync(async () =>
+                            await this.DisplayAlert(
+                                this.ActDetail.GetControlDescription(),
+                                "Print product labels?",
+                                "Yes",
+                                "No")))
                         {
                             try
                             {
                                 await this.PrintProductLabels();
                             }
-                            catch (Exceptions.MessageOnlyException ex)
+                            catch (MessageOnlyException ex)
                             {
                                 // Even though an error was raised, during label printing allow the control to close.
-                                ex.Show(this.ActSubType);
+                                await Device.InvokeOnMainThreadAsync(async () =>
+                                    await Application.Current.MainPage.DisplayAlert(
+                                        this.GetControlDescription(),
+                                        ex.Message,
+                                        Resource.OK));
                             }
                             catch (Exception ex)
                             {
                                 // Even though an error was raised, during label printing allow the control to close.
-
                                 await Device.InvokeOnMainThreadAsync(async () =>
                                 {
                                     FormErrorReport errRpt = new FormErrorReport(this.ActSubType, ex);
-                                    await errRpt.ShowDialog();
+                                    _ = await errRpt.ShowDialog();
                                 });
                             }
                         }
@@ -1382,6 +1750,11 @@ namespace dMobile.View.Activity
             }
         }
 
+        /// <summary>
+        /// Button cancel click handler.
+        /// </summary>
+        /// <param name="sender"><see cref="object"/> Sender object.</param>
+        /// <param name="e"><see cref="EventArgs"/> Event arguments.</param>
         private async void BtnCancel_Clicked(object sender, EventArgs e)
         {
             if (await this.CancelChanges())
@@ -1391,35 +1764,116 @@ namespace dMobile.View.Activity
             }
         }
 
-        private void txtAltQty_TextChanged(object sender, TextChangedEventArgs e)
+        /// <summary>
+        /// Text box alt quantity changed handler.
+        /// </summary>
+        /// <param name="sender"><see cref="object"/> Sender object.</param>
+        /// <param name="e"><see cref="TextChangedEventArgs"/> Event arguments.</param>
+        /// <remarks>Catch weight or catch ask is checked upon save validation.</remarks>
+        private void TxtAltQty_TextChanged(object sender, TextChangedEventArgs e)
         {
-            decimal qtyEntered = 0;
-            decimal wtQty;
+            ProductInfo prodInfo = this.ActDetail.ActItem.ProdInfo;
 
+            decimal altQtyEntered = 0;
             try
             {
                 if (!string.IsNullOrEmpty(this.txtAltQty.Text))
                 {
-                    decimal.TryParse(this.txtAltQty.Text, out decimal result);
-                    qtyEntered = result;
+                    _ = decimal.TryParse(this.txtAltQty.Text, out decimal result);
+                    altQtyEntered = result;
                 }
             }
             catch
             {
+                altQtyEntered = 0;
             }
 
-            if (this.ActDetail.ActItem.ProdInfo.UnitCode == "LB" || this.ActDetail.ActItem.ProdInfo.UnitCode == "KG")
+            decimal baseQty;
+            if (prodInfo.UnitCode == prodInfo.BaseUnitCode && prodInfo.Unit2BaseUnitFactor <= 1)
             {
-                // if the unit code is in LBs or KGs then just use that value
-                wtQty = qtyEntered;
+                baseQty = altQtyEntered;
+                this.txtBaseQty.Text = Convert.ToString(Math.Round(baseQty, 3));
+            }
+            else if (prodInfo.BaseUnitCode == "LB" || prodInfo.BaseUnitCode == "KG")
+            {
+                baseQty = altQtyEntered * prodInfo.UnitGrossWeight;
+                this.txtBaseQty.Text = Convert.ToString(Math.Round(baseQty, 3));
             }
             else
             {
-                // Otherwise the weigth = quantity * weightPerOneQty
-                wtQty = qtyEntered * this.ActDetail.ActItem.ProdInfo.UnitWeight;
+                baseQty = altQtyEntered * prodInfo.Unit2BaseUnitFactor;
+                this.txtBaseQty.Text = Convert.ToString(Math.Round(baseQty, 3));
             }
 
-            this.txtWtQty.Text = Convert.ToString(Math.Round(wtQty, 3));
+            decimal weightQty;
+            if (prodInfo.UnitCode == prodInfo.WeightUnitCode)
+            {
+                weightQty = altQtyEntered;
+                this.txtWtQty.Text = Convert.ToString(Math.Round(weightQty, 3));
+            }
+            else if (prodInfo.BaseUnitCode == prodInfo.WeightUnitCode)
+            {
+                weightQty = baseQty;
+                this.txtWtQty.Text = Convert.ToString(Math.Round(weightQty, 3));
+            }
+            else
+            {
+                weightQty = altQtyEntered * prodInfo.UnitGrossWeight;
+                this.txtWtQty.Text = Convert.ToString(Math.Round(weightQty, 3));
+            }
+        }
+
+        /// <summary>
+        /// Text box base quantity changed handler.
+        /// </summary>
+        /// <param name="sender"><see cref="object"/> Sender object.</param>
+        /// <param name="e"><see cref="TextChangedEventArgs"/> Event arguments.</param>
+        private void TxtBaseQty_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            ProductInfo prodInfo = this.ActDetail.ActItem.ProdInfo;
+
+            decimal baseQtyEntered = 0;
+            try
+            {
+                if (!string.IsNullOrEmpty(this.txtBaseQty.Text))
+                {
+                    _ = decimal.TryParse(this.txtBaseQty.Text, out decimal result);
+                    baseQtyEntered = result;
+                }
+            }
+            catch
+            {
+                baseQtyEntered = 0;
+            }
+
+            decimal weightQty;
+            if (prodInfo.WeightUnitCode == prodInfo.BaseUnitCode)
+            {
+                weightQty = baseQtyEntered;
+                this.txtWtQty.Text = Convert.ToString(Math.Round(weightQty, 3));
+            }
+            else
+            {
+                weightQty = baseQtyEntered * prodInfo.UnitGrossWeight;
+                this.txtWtQty.Text = Convert.ToString(Math.Round(weightQty, 3));
+            }
+
+            decimal altQty;
+            if (prodInfo.UnitCode == prodInfo.BaseUnitCode)
+            {
+                altQty = baseQtyEntered;
+                this.txtAltQty.Text = Convert.ToString(Math.Round(altQty, 3));
+            }
+            else if (prodInfo.UnitCode == prodInfo.WeightUnitCode)
+            {
+                altQty = weightQty;
+                this.txtAltQty.Text = Convert.ToString(Math.Round(altQty, 3));
+            }
+            else if (!(prodInfo.IsCatchWeight || prodInfo.IsCatchCount))
+            {
+                altQty = baseQtyEntered / prodInfo.Unit2BaseUnitFactor;
+                this.txtAltQty.Text = Convert.ToString(Math.Round(altQty, 3));
+            }
         }
     }
 }

@@ -1,16 +1,20 @@
-﻿namespace dMobile.BarCodeScanner
+﻿// <copyright file="BarCodeParseCode_128_FINICA_as_EAN_UCC_128.cs" company="InterSect Business Systems Inc">
+// Copyright (c) InterSect Business Systems Inc. All rights reserved.
+// </copyright>
+
+namespace dMobile.BarCodeScanner.BarCodeParsing
 {
     using System;
 
-    class BarCodeParseCode_128_FINICA_as_EAN_UCC_128 : BarCodeParse
+    /// <summary>
+    /// Defines the <see cref="BarCodeParseCode_128_FINICA_as_EAN_UCC_128" />.
+    /// </summary>
+    public class BarCodeParseCode_128_FINICA_as_EAN_UCC_128 : BarCodeParse
     {
-        #region Public Members
-
         /// <summary>
-        /// Parsing rules reviewed
+        /// Parsing rules reviewed.
         /// </summary>
-        /// <param name="barCodeData"></param>
-        /// <returns></returns>
+        /// <param name="barCodeData">.</param>
         public override void ParseBarCodeData(string barCodeData)
         {
             barCodeData = this.IdentifyGTIN(barCodeData);    // do not remove data
@@ -20,15 +24,11 @@
             this.Remainder = barCodeData;
         }
 
-        #endregion
-
-        #region Protected Methods
-
         /// <summary>
-        /// 
+        /// The IdentifyProductIdentifier.
         /// </summary>
-        /// <param name="barCodeData"></param>
-        /// <returns></returns>
+        /// <param name="barCodeData">.</param>
+        /// <returns>.</returns>
         protected override string IdentifyProductIdentifier(string barCodeData)
         {
             if (barCodeData.Length < 14)
@@ -50,10 +50,10 @@
         }
 
         /// <summary>
-        /// 
+        /// The IdentifyGTIN.
         /// </summary>
-        /// <param name="barCodeData"></param>
-        /// <returns></returns>
+        /// <param name="barCodeData">.</param>
+        /// <returns>.</returns>
         protected override string IdentifyGTIN(string barCodeData)
         {
             this.Data = barCodeData;
@@ -61,15 +61,14 @@
             this.GTIN = this.Data.Substring(0, 14);
 
             // Do not remove the gtin from the data
-
             return this.Data;
         }
 
         /// <summary>
-        /// 
+        /// The IdentifyLogisticUnitBestBeforeSellByDate.
         /// </summary>
-        /// <param name="barCodeData"></param>
-        /// <returns></returns>
+        /// <param name="barCodeData">.</param>
+        /// <returns>.</returns>
         protected override string IdentifyLogisticUnitBestBeforeSellByDate(string barCodeData)
         {
             // Assign the BEST BEFORE SELL BY DATE
@@ -84,7 +83,7 @@
             }
 
             DateTime dt = new DateTime(year, Convert.ToInt32(barCodeData.Substring(2, 2)),
-                Convert.ToInt32(barCodeData.Substring(4, 2)));   //101026
+                Convert.ToInt32(barCodeData.Substring(4, 2)));   // 101026
             this.LogisticUnitBestBeforeSellByDate = dt;
 
             // remove the BEST BEFORE SELL BY DATE from the bar code data
@@ -94,10 +93,10 @@
         }
 
         /// <summary>
-        /// 
+        /// The IdentifyNetWeightMetricKG.
         /// </summary>
-        /// <param name="barCodeData"></param>
-        /// <returns></returns>
+        /// <param name="barCodeData">.</param>
+        /// <returns>.</returns>
         protected override string IdentifyNetWeightMetricKG(string barCodeData)
         {
             this.NetWeightMetricKGFoundAI = true;
@@ -122,7 +121,5 @@
 
             return barCodeData;
         }
-
-        #endregion
     }
 }

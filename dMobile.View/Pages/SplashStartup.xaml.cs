@@ -1,14 +1,9 @@
-﻿namespace dMobile.View
+﻿// <copyright file="SplashStartup.xaml.cs" company="InterSect Business Systems Inc">
+// Copyright (c) InterSect Business Systems Inc. All rights reserved.
+// </copyright>
+
+namespace dMobile.View
 {
-    using Android.Content;
-    using Android.Views;
-    using dMobile.BarCodeScanner;
-    using dMobile.Bedrock;
-    using dMobile.GroundWork;
-    using dMobile.Resources.Enums;
-    using dMobile.View.CustomPages;
-    using dMobile.View.Forms;
-    using dMobile.View.Themes;
     using System;
     using System.Collections.Generic;
     using System.Collections.ObjectModel;
@@ -19,38 +14,47 @@
     using System.Threading.Tasks;
     using System.Xml;
     using System.Xml.Linq;
+    using Android.Content;
+    using Android.Views;
+    using dMobile.BarCodeScanner.BarCodeScanners;
+    using dMobile.Bedrock;
+    using dMobile.GroundWork;
+    using dMobile.Resources.Enums;
+    using dMobile.View.CustomPages;
+    using dMobile.View.Forms;
+    using dMobile.View.Themes;
     using Xamarin.Forms;
     using Xamarin.Forms.Xaml;
 
     [XamlCompilation(XamlCompilationOptions.Compile)]
     public partial class SplashStartup : DMobileContentPage, IAppArea, IDataNubListener
     {
-        private bool isErrorRaised = false;
-        private SysEnvironment sysEnv = null;
-        private ObservableCollection<string> itemsList;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="SplashStartup"/> class.
+        /// </summary>
         public SplashStartup()
         {
             this.InitializeComponent();
 
-            this.Title = GetControlDescription();
-            this.ItemsList = new ObservableCollection<string>();
+            this.Title = this.GetControlDescription();
+            this.ExtraInfoItems = new ObservableCollection<string>();
         }
 
         /// <summary>
-        /// The OnAppearing
+        /// The OnAppearing.
         /// </summary>
         protected override async void OnAppearing()
         {
             base.OnAppearing();
 
-            this.listBoxStatus.ItemsSource = this.ItemsList;
+            this.listBoxStatus.ItemsSource = this.ExtraInfoItems;
 
             MessagingCenter.Subscribe<string>(this, EventTypes.OnKeyUp.ToString(), (keyPressed) =>
             {
                 try
                 {
-                    Enum.TryParse(keyPressed, out Keycode keycode);
+                    _ = Enum.TryParse(keyPressed, out Keycode keycode);
 
                     if (keycode == Keycode.Enter)
                     {
@@ -70,7 +74,7 @@
         }
 
         /// <summary>
-        /// The OnDisappearing
+        /// The OnDisappearing.
         /// </summary>
         protected override void OnDisappearing()
         {
@@ -79,44 +83,11 @@
             MessagingCenter.Unsubscribe<string>(this, EventTypes.OnKeyUp.ToString());
         }
 
-        public bool IsErrorRaised
-        {
-            get
-            {
-                return this.isErrorRaised;
-            }
+        public bool IsErrorRaised { get; set; } = false;
 
-            set
-            {
-                this.isErrorRaised = value;
-            }
-        }
+        public ObservableCollection<string> ExtraInfoItems { get; set; }
 
-        public ObservableCollection<string> ItemsList
-        {
-            get
-            {
-                return this.itemsList;
-            }
-
-            set
-            {
-                this.itemsList = value;
-            }
-        }
-
-        private SysEnvironment SysEnv
-        {
-            get
-            {
-                return this.sysEnv;
-            }
-
-            set
-            {
-                this.sysEnv = value;
-            }
-        }
+        private SysEnvironment SysEnv { get; set; } = null;
 
         /// <summary>
         /// Unregister the bar code scan event handler and disable the scanner.
@@ -215,34 +186,29 @@
         /// <remarks></remarks>
         private void LoadLocationMap(object sender, EventArgs e)
         {
-            // TODO: Resource Strings
             this.StartUpStatusOut(sender, e, "Loading location map.");
 
-            LocationMap locMap = LocationMap.GetInstance();
-            locMap.Load();
+            _ = LocationMap.GetInstance();
 
-            // TODO: Resource Strings
             this.StartUpStatusOut(sender, e, "Loading location map completed.");
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         private void DataIntegrityCheck()
         {
-            if (SysEnv.RefreshOpt.IsRefreshDataFailed)
+            if (this.SysEnv.RefreshOpt.IsRefreshDataFailed)
             {
-                //MessageBox.Show(
+                // MessageBox.Show(
                 //    "The last data refresh did not complete. You must refresh the data again.",
                 //    this.GetControlDescription(),
                 //    MessageBoxButtons.OK,
                 //    MessageBoxIcon.Exclamation,
                 //    MessageBoxDefaultButton.Button1);
-
                 Device.BeginInvokeOnMainThread(async () =>
                 {
-                    // TODO: Resource Strings
-                    await DisplayAlert(this.GetControlDescription(), "The last data refresh did not complete. You must refresh the data again.", "OK");
+                    await this.DisplayAlert(this.GetControlDescription(), "The last data refresh did not complete. You must refresh the data again.", "OK");
                 });
             }
         }
@@ -258,16 +224,15 @@
         {
             bool isDateTimeChanged = false;
 
-            //if (!this.SysEnv.SysSettings.IsDisconnectedMode
+            // if (!this.SysEnv.SysSettings.IsDisconnectedMode
             //    && (this.SysEnv.CommSetup.iHostIPAddressComponent1
             //    + this.SysEnv.CommSetup.iHostIPAddressComponent2
             //    + this.SysEnv.CommSetup.iHostIPAddressComponent3) != 0)
-            //{
+            // {
 
+            // this.StartUpStatusOut(sender, e, "Attempting to sync date & time.");
 
-            //    this.StartUpStatusOut(sender, e, "Attempting to sync date & time.");
-
-            //    SysSocket sysSock = new SysSocket();
+            // SysSocket sysSock = new SysSocket();
             //    sysSock.BasePort = this.SysEnv.CommSetup.iBaseSocketPort;
             //    sysSock.DefSocketPort = this.SysEnv.CommSetup.iDefaultSocketPort;
             //    sysSock.MaxPorts = this.SysEnv.CommSetup.iMaxSocketPorts;
@@ -286,30 +251,30 @@
             //        System.Net.Sockets.Socket socket;
             //        socket = sysSock.Connect();
 
-            //        if (socket == null)
+            // if (socket == null)
             //        {
-            //            // TODO: Resource strings
+            //            
             //            this.StartUpStatusOut(sender, e, "Connection failed.");
             //        }
             //        else
             //        {
-            //            // TODO: Resource strings
+            //            
             //            this.StartUpStatusOut(sender, e, "Requesting date & time.");
 
-            //            string sendRequest = this.CreateXMLSyncDateTime();
+            // string sendRequest = this.CreateXMLSyncDateTime();
             //            int bytesSent = sysSock.SendRequest(socket, sendRequest);
             //            List<byte> recvData = sysSock.ReceiveResponse(socket);
             //            socket.Close();
 
-            //            string data = Compress.UnZip(recvData.ToArray());
+            // string data = Compress.UnZip(recvData.ToArray());
             //            if (data.Contains("<message>ERROR</message>"))
             //            {
             //                XmlDocument docError = new XmlDocument();
             //                docError.LoadXml(data);
 
-            //                string errorDetail = docError.DocumentElement["detail"].InnerText;
+            // string errorDetail = docError.DocumentElement["detail"].InnerText;
 
-            //                // TODO: Resource strings
+            // 
             //                this.StartUpStatusOut(sender, e, "Request date & time error.");
             //                this.StartUpStatusOut(sender, e, errorDetail);
             //            }
@@ -323,7 +288,7 @@
             //                        //OpenNETCF.Runtime.InteropServices.SYSTEMTIME sysTime = new OpenNETCF.Runtime.InteropServices.SYSTEMTIME();
             //                        //OpenNETCF.Runtime.InteropServices.SYSTEMTIME sysTimeLocal = new OpenNETCF.Runtime.InteropServices.SYSTEMTIME();
 
-            //                        foreach (DataRow drow in ds.Tables["tDateTime"].Rows)
+            // foreach (DataRow drow in ds.Tables["tDateTime"].Rows)
             //                        {
             //                            //sysTime.wYear = Convert.ToInt16(drow["system_year"]);
             //                            //sysTime.wMonth = Convert.ToInt16(drow["system_month"]);
@@ -334,7 +299,7 @@
             //                            //sysTime.wDayOfWeek = Convert.ToInt16(drow["system_dayofweek"]);
             //                            //DateTimeHelper.SystemTime = sysTime.ToDateTime();
 
-            //                            //sysTimeLocal.wYear = Convert.ToInt16(drow["local_year"]);
+            // //sysTimeLocal.wYear = Convert.ToInt16(drow["local_year"]);
             //                            //sysTimeLocal.wMonth = Convert.ToInt16(drow["local_month"]);
             //                            //sysTimeLocal.wDay = Convert.ToInt16(drow["local_day"]);
             //                            //sysTimeLocal.wHour = Convert.ToInt16(drow["local_hour"]);
@@ -344,7 +309,7 @@
             //                            //DateTimeHelper.LocalTime = sysTimeLocal.ToDateTime();
             //                        }
 
-            //                        this.StartUpStatusOut(sender, e, "Date & time synchronized.");
+            // this.StartUpStatusOut(sender, e, "Date & time synchronized.");
             //                        isDateTimeChanged = true;
             //                    }
             //                }
@@ -353,12 +318,11 @@
             //    }
             //    catch (System.Net.Sockets.SocketException)
             //    {
-            //        // TODO: Resource strings
+            //        
             //        this.StartUpStatusOut(sender, e, "Socket exception occurred.");
             //        this.StartUpStatusOut(sender, e, "Sync date & time failed.");
             //    }
-            //}
-
+            // }
             return isDateTimeChanged;
         }
 
@@ -373,12 +337,12 @@
             XmlWriter xml = XmlWriter.Create(xmlString);
             string deviceID = SysDeviceID.GetDeviceID();
 
-            XDocument request = System.Xml.Linq.XDocument.Parse(
+            XDocument request = XDocument.Parse(
                 "<?xml version=\"1.0\" encoding=\"utf-8\" standalone=\"yes\"?>"
                 + "<imclient>"
                 + "<command>"
                 + "<action>REQUEST TIME</action>"
-                + ("<device_id>" + deviceID + "</device_id>")
+                + "<device_id>" + deviceID + "</device_id>"
                 + "</command>"
                 + "</imclient>");
 
@@ -403,25 +367,21 @@
 
             db.RegNubListenerStatOut(this);
 
-            // TODO: Resource Strings
             this.StartUpStatusOut(sender, e, "Locating database.");
 
             if (File.Exists(DatabaseConnection.GetInstance().DBASCIIZ) && new FileInfo(DatabaseConnection.GetInstance().DBASCIIZ).Length > 0)
             {
-                // TODO: Resource Strings
                 this.StartUpStatusOut(sender, e, "Database found.");
                 this.StartUpStatusOut(sender, e, DatabaseConnection.GetInstance().DBASCIIZ);
             }
             else
             {
-                // TODO: Resource Strings
                 this.StartUpStatusOut(sender, e, "Database missing.");
                 this.StartUpStatusOut(sender, e, "Creating database.");
 
                 await db.CreateNewDatabase();
                 await db.CreateTables();
 
-                // TODO: Resource Strings
                 this.StartUpStatusOut(sender, e, "Seeding system users.");
 
                 TableContactUsers users = new TableContactUsers();
@@ -433,13 +393,11 @@
                 {
                     await Device.InvokeOnMainThreadAsync(async () =>
                     {
-                        //TODO: Resource Strings
-                        await DisplayAlert(this.GetControlDescription(), "Database creation failed.", "OK");
+                        await this.DisplayAlert(this.GetControlDescription(), "Database creation failed.", "OK");
                     });
                 }
                 else
                 {
-                    // TODO: Resource Strings
                     this.StartUpStatusOut(sender, e, "Database creation completed.");
 
                     this.SysEnv.RefreshOpt.IsDataCreatedInStartUp = true;
@@ -447,7 +405,7 @@
             }
 
             RefreshDataOptions tempRefreshDataOptions = this.SysEnv.RefreshOpt;
-            this.SysEnv.RefreshOpt.SaveData(ref tempRefreshDataOptions);
+            _ = this.SysEnv.RefreshOpt.SaveData(ref tempRefreshDataOptions);
             db.UnregNubListenerStatOut(this);
         }
 
@@ -459,24 +417,21 @@
         /// <remarks></remarks>
         private void InitializeScanner(object sender, EventArgs e)
         {
-            // TODO: Resource Strings
             this.StartUpStatusOut(sender, e, "Identifying bar code scanner.");
 
-            BarCodeScanner scanner = BarCodeSingleton.GetInstance().Scanner;
+            BarCodeScanner scanner = ScannerEngine.GetInstance().Scanner;
 
             if (scanner == null)
             {
-                //MessageBox.Show(
+                // MessageBox.Show(
                 //    "Unable to identify bar code scanner.",
                 //    this.GetControlDescription(),
                 //    MessageBoxButtons.OK,
                 //    MessageBoxIcon.Exclamation,
                 //    MessageBoxDefaultButton.Button1);
-
                 Device.BeginInvokeOnMainThread(async () =>
                 {
-                    //TODO: Resource Strings
-                    await DisplayAlert(this.GetControlDescription(), "Unable to identify bar code scanner.", "OK", "Cancel");
+                    _ = await this.DisplayAlert(this.GetControlDescription(), "Unable to identify bar code scanner.", "OK", "Cancel");
                 });
             }
         }
@@ -489,14 +444,12 @@
         /// <remarks></remarks>
         private void LoadProducts(object sender, EventArgs e)
         {
-            // TODO: Resource Strings
             this.StartUpStatusOut(sender, e, "Loading products.");
 
             ////Products productList = Products.GetInstance();
             ////productList.GetProductList();
             ////productList.GetProductUnitList();
 
-            // TODO: Resource Strings
             this.StartUpStatusOut(sender, e, "Loading products completed.");
         }
 
@@ -511,13 +464,13 @@
         {
             Device.BeginInvokeOnMainThread(() =>
             {
-                this.ItemsList.Add(message);
+                this.ExtraInfoItems.Add(message);
                 this.listBoxStatus.ScrollTo(message, ScrollToPosition.MakeVisible, false);
             });
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
@@ -529,7 +482,6 @@
                 {
                     this.Loading = true;
 
-                    // TODO: Resource Strings
                     this.StartUpStatusOut(sender, e, "Initializing environment.");
 
                     this.SysEnv = SysEnvironment.GetInstance();
@@ -538,7 +490,7 @@
                     if (this.SysEnv.IsCommunicationTestSuccessful)
                     {
                         // Cannot do this
-                        //this.SyncDateTime(sender, e);
+                        // this.SyncDateTime(sender, e);
                     }
 
                     this.InitializeScanner(sender, e);
@@ -555,14 +507,14 @@
                         this.LoadLocationMap(sender, e);
                     }
 
-                    DataIntegrityCheck();
+                    this.DataIntegrityCheck();
                 }
                 catch (Exception ex)
                 {
                     await Device.InvokeOnMainThreadAsync(async () =>
                     {
                         FormErrorReport errReport = new FormErrorReport(SysCommon.ActSubTypes.SplashStartup, ex, this.GetControlDescription(), "timerStatus_Tick");
-                        await errReport.ShowDialog();
+                        _ = await errReport.ShowDialog();
                         Android.OS.Process.KillProcess(Android.OS.Process.MyPid());
                     });
                 }
@@ -584,19 +536,18 @@
         {
             bool testSuccessful = false;
 
-            if (!this.SysEnv.SysSettings.IsDisconnectedMode && (this.SysEnv.CommSetup.iHostIPAddressComponent1 + this.SysEnv.CommSetup.iHostIPAddressComponent2 + this.SysEnv.CommSetup.iHostIPAddressComponent3) != 0)
+            if (!this.SysEnv.SysSettings.IsDisconnectedMode && (this.SysEnv.CommSetup.HostIPAddressComponent1 + this.SysEnv.CommSetup.HostIPAddressComponent2 + this.SysEnv.CommSetup.HostIPAddressComponent3) != 0)
             {
-                // TODO: Resource Strings
                 this.StartUpStatusOut(sender, e, "Attempting communication test.");
 
                 SysSocket sysSock = new SysSocket();
 
-                sysSock.BasePort = this.SysEnv.CommSetup.iBaseSocketPort;
-                sysSock.DefSocketPort = this.SysEnv.CommSetup.iDefaultSocketPort;
-                sysSock.MaxPorts = this.SysEnv.CommSetup.iMaxSocketPorts;
-                sysSock.ConnTotalRetries = this.SysEnv.CommSetup.iConnectionAttempts;
-                sysSock.SendTotalRetries = this.SysEnv.CommSetup.iSendAttempts;
-                sysSock.RecvTotalRetries = this.SysEnv.CommSetup.iReceiveAttempts;
+                sysSock.BasePort = this.SysEnv.CommSetup.BaseSocketPort;
+                sysSock.DefSocketPort = this.SysEnv.CommSetup.DefaultSocketPort;
+                sysSock.MaxPorts = this.SysEnv.CommSetup.MaxSocketPorts;
+                sysSock.ConnTotalRetries = this.SysEnv.CommSetup.ConnectionAttempts;
+                sysSock.SendTotalRetries = this.SysEnv.CommSetup.SendAttempts;
+                sysSock.RecvTotalRetries = this.SysEnv.CommSetup.ReceiveAttempts;
 
                 this.StartUpStatusOut(sender, e, string.Format("Base socket port: {0}", sysSock.BasePort));
                 this.StartUpStatusOut(sender, e, string.Format("Default socket port: {0}", sysSock.DefSocketPort));
@@ -605,27 +556,23 @@
                 this.StartUpStatusOut(sender, e, string.Format("Socket send retries: {0}", sysSock.SendTotalRetries));
                 this.StartUpStatusOut(sender, e, string.Format("Socket receive retries: {0}", sysSock.RecvTotalRetries));
 
-                sysSock.SendTimeOutMilliseconds = this.SysEnv.CommSetup.iSendTimeOutSeconds * 1000;
+                sysSock.SendTimeOutMilliseconds = this.SysEnv.CommSetup.SendTimeOutSeconds * 1000;
 
-                // TODO: Resource Strings
-                this.StartUpStatusOut(sender, e, string.Format("Send time out: {0} seconds.", this.SysEnv.CommSetup.iSendTimeOutSeconds));
+                this.StartUpStatusOut(sender, e, string.Format("Send time out: {0} seconds.", this.SysEnv.CommSetup.SendTimeOutSeconds));
 
-                sysSock.ReceiveTimeOutMilliseconds = this.SysEnv.CommSetup.iReceiveTimeOutSeconds * 1000;
+                sysSock.ReceiveTimeOutMilliseconds = this.SysEnv.CommSetup.ReceiveTimeOutSeconds * 1000;
 
-                // TODO: Resource Strings
-                this.StartUpStatusOut(sender, e, string.Format("Receive time out: {0} seconds.", this.SysEnv.CommSetup.iReceiveTimeOutSeconds));
+                this.StartUpStatusOut(sender, e, string.Format("Receive time out: {0} seconds.", this.SysEnv.CommSetup.ReceiveTimeOutSeconds));
 
-                sysSock.RecvBuffSize = this.SysEnv.CommSetup.iiReceiveBufferSize;
+                sysSock.RecvBuffSize = this.SysEnv.CommSetup.ReceiveBufferSize;
 
-                // TODO: Resource Strings
                 this.StartUpStatusOut(sender, e, string.Format("Receive buffer size: {0} ", sysSock.RecvBuffSize));
 
-                sysSock.ServerIP = this.SysEnv.CommSetup.iHostIPAddressComponent1 + "."
-                    + this.SysEnv.CommSetup.iHostIPAddressComponent2 + "."
-                    + this.SysEnv.CommSetup.iHostIPAddressComponent3 + "."
-                    + this.SysEnv.CommSetup.iHostIPAddressComponent4;
+                sysSock.ServerIP = this.SysEnv.CommSetup.HostIPAddressComponent1 + "."
+                    + this.SysEnv.CommSetup.HostIPAddressComponent2 + "."
+                    + this.SysEnv.CommSetup.HostIPAddressComponent3 + "."
+                    + this.SysEnv.CommSetup.HostIPAddressComponent4;
 
-                // TODO: Resource Strings
                 this.StartUpStatusOut(sender, e, string.Format("Server host IP: {0}", sysSock.ServerIP));
                 this.StartUpStatusOut(sender, e, "Creating connection request.");
 
@@ -636,18 +583,15 @@
 
                     if (socket == null)
                     {
-                        // TODO: Resource Strings
                         this.StartUpStatusOut(sender, e, "Connection failed.");
                     }
                     else
                     {
-                        // TODO: Resource Strings
                         this.StartUpStatusOut(sender, e, "Sending device ID.");
 
                         string sendReq = CommunicationSetup.CreateXMLSubmitDeviceID();
                         int bytesSent = sysSock.SendRequest(socket, sendReq);
 
-                        // TODO: Resource Strings
                         this.StartUpStatusOut(sender, e, string.Format("Bytes sent: {0}", bytesSent));
                         this.StartUpStatusOut(sender, e, "Waiting for response.");
 
@@ -656,7 +600,6 @@
                         socket.Disconnect(true);
                         socket.Close();
 
-                        // TODO: Resource Strings
                         this.StartUpStatusOut(sender, e, "Socket closed.");
 
                         string recvData = Compress.UnZip(bytRecvData.ToArray());
@@ -667,7 +610,6 @@
 
                             string errorDetail = docError.DocumentElement["detail"].InnerText;
 
-                            // TODO: Resource Strings
                             this.StartUpStatusOut(sender, e, "Submit device id error.");
                             this.StartUpStatusOut(sender, e, errorDetail);
                         }
@@ -680,16 +622,13 @@
                 }
                 catch (System.Net.Sockets.SocketException)
                 {
-                    // TODO: Resource Strings
                     this.StartUpStatusOut(sender, e, "Socket exception occurred.");
                     this.StartUpStatusOut(sender, e, "Connection failed.");
 
-                    //MessageBox.Show("Communication test failed.", this.GetControlDescription(), MessageBoxButtons.OK, MessageBoxIcon.Hand, MessageBoxDefaultButton.Button1);
-
+                    // MessageBox.Show("Communication test failed.", this.GetControlDescription(), MessageBoxButtons.OK, MessageBoxIcon.Hand, MessageBoxDefaultButton.Button1);
                     Device.BeginInvokeOnMainThread(async () =>
                     {
-                        //TODO: Resource Strings
-                        await DisplayAlert(this.GetControlDescription(), "Communication test failed.", "OK");
+                        await this.DisplayAlert(this.GetControlDescription(), "Communication test failed.", "OK");
                     });
                 }
             }

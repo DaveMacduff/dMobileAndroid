@@ -1,32 +1,36 @@
-﻿using dMobile.View.CustomPages;
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
-using System.ComponentModel;
-using System.Data;
-using System.Xml.Linq;
-using dMobile.Bedrock;
-using Xamarin.Forms;
-using Xamarin.Forms.Xaml;
-using SQLite;
-using dMobile.View.Forms;
-using dMobile.Resources.Enums;
-using Android.Views;
-using dMobile.View.Themes;
-using System.Collections.ObjectModel;
+﻿// <copyright file="ucSetupDefaults.xaml.cs" company="InterSect Business Systems Inc">
+// Copyright (c) InterSect Business Systems Inc. All rights reserved.
+// </copyright>
 
 namespace dMobile.View.Options
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Collections.ObjectModel;
+    using System.ComponentModel;
+    using System.Data;
+    using System.Threading.Tasks;
+    using System.Xml.Linq;
+    using Android.Views;
+    using dMobile.Bedrock;
+    using dMobile.Resources.Enums;
+    using dMobile.View.CustomPages;
+    using dMobile.View.Forms;
+    using dMobile.View.Themes;
+    using SQLite;
+    using Xamarin.Forms;
+    using Xamarin.Forms.Xaml;
+    using Resource = dMobile.Resources.Properties.Resources;
+
     [XamlCompilation(XamlCompilationOptions.Compile)]
     public partial class ucSetupDefaults : DMobileContentPage
     {
-        private bool isControlLoaded;
         private bool isChangesMade;
         public ObservableCollection<Theme> themesList;
-        private SysEnvironment sysEnv;
-        private PrinterSettings prnSettings;
-        private SysCommon.ActSubTypes actSubType;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ucSetupDefaults"/> class.
+        /// </summary>
         public ucSetupDefaults()
         {
             this.InitializeComponent();
@@ -37,10 +41,10 @@ namespace dMobile.View.Options
 
             if (!DesignMode.IsDesignModeEnabled)
             {
-                sysEnv = SysEnvironment.GetInstance();
-                prnSettings = new PrinterSettings().LoadData();
-                actSubType = SysCommon.ActSubTypes.SetupDefaults;
-                themesList = new ObservableCollection<Theme>();
+                this.SysEnv = SysEnvironment.GetInstance();
+                this.PrnSettings = new PrinterSettings().LoadData();
+                this.ActSubType = SysCommon.ActSubTypes.SetupDefaults;
+                this.themesList = new ObservableCollection<Theme>();
 
                 foreach (Theme theme in (Theme[])Enum.GetValues(typeof(Theme)))
                 {
@@ -53,11 +57,10 @@ namespace dMobile.View.Options
                 }
                 catch (Exception ex)
                 {
-                    Device.BeginInvokeOnMainThread(() => DisplayAlert("Error", "ucSetupDefaults_GotFocus exception: " + ex.Message, "OK"));
+                    Device.BeginInvokeOnMainThread(() => this.DisplayAlert("Error", "ucSetupDefaults_GotFocus exception: " + ex.Message, "OK"));
                 }
             }
 
-            // TODO: Resource strings
             this.tabSetupDefaults.Text = "Setup";
             this.lblDisconnectMode.Text = "Disconnected Mode";
             this.lblDisconnectedModeLoadDetail.Text = "Disconnected Mode Load Detail";
@@ -70,7 +73,7 @@ namespace dMobile.View.Options
         }
 
         /// <summary>
-        /// The OnAppearing
+        /// The OnAppearing.
         /// </summary>
         protected override void OnAppearing()
         {
@@ -78,8 +81,7 @@ namespace dMobile.View.Options
 
             MessagingCenter.Subscribe<string>(this, EventTypes.OnKeyUp.ToString(), async (keyPressed) =>
             {
-                // TODO: Verify keycodes
-                Enum.TryParse(keyPressed, out Keycode keycode);
+                _ = Enum.TryParse(keyPressed, out Keycode keycode);
 
                 if (keycode == Keycode.Enter)
                 {
@@ -96,7 +98,7 @@ namespace dMobile.View.Options
         }
 
         /// <summary>
-        /// The OnDisappearing
+        /// The OnDisappearing.
         /// </summary>
         protected override void OnDisappearing()
         {
@@ -108,7 +110,7 @@ namespace dMobile.View.Options
         {
             Device.BeginInvokeOnMainThread(async () =>
             {
-                base.OnBackButtonPressed();
+                _ = base.OnBackButtonPressed();
 
                 if (await this.SaveChanges())
                 {
@@ -123,31 +125,9 @@ namespace dMobile.View.Options
             return true;
         }
 
-        private SysCommon.ActSubTypes ActSubType
-        {
-            get
-            {
-                return this.actSubType;
-            }
+        private SysCommon.ActSubTypes ActSubType { get; set; }
 
-            set
-            {
-                this.actSubType = value;
-            }
-        }
-
-        private PrinterSettings PrnSettings
-        {
-            get
-            {
-                return this.prnSettings;
-            }
-
-            set
-            {
-                this.prnSettings = value;
-            }
-        }
+        private PrinterSettings PrnSettings { get; set; }
 
         public bool IsChangesMade
         {
@@ -159,35 +139,13 @@ namespace dMobile.View.Options
             set
             {
                 this.isChangesMade = value;
-                OnPropertyChanged();
+                this.OnPropertyChanged();
             }
         }
 
-        private bool IsControlLoaded
-        {
-            get
-            {
-                return this.isControlLoaded;
-            }
+        private bool IsControlLoaded { get; set; }
 
-            set
-            {
-                this.isControlLoaded = value;
-            }
-        }
-
-        private SysEnvironment SysEnv
-        {
-            get
-            {
-                return this.sysEnv;
-            }
-
-            set
-            {
-                this.sysEnv = value;
-            }
-        }
+        private SysEnvironment SysEnv { get; set; }
 
         /// <summary>
         /// Unregister the bar code scan event handler and disable the scanner.
@@ -218,10 +176,14 @@ namespace dMobile.View.Options
             {
                 isReadyToSave = true;
             }
-            catch (Exceptions.MessageOnlyException ex)
+            catch (MessageOnlyException ex)
             {
                 isReadyToSave = false;
-                ex.Show(this.ActSubType);
+                _ = Device.InvokeOnMainThreadAsync(async () =>
+                      await Application.Current.MainPage.DisplayAlert(
+                          this.GetControlDescription(),
+                          ex.Message,
+                          Resource.OK));
             }
             catch (Exception ex)
             {
@@ -230,7 +192,7 @@ namespace dMobile.View.Options
                 Device.BeginInvokeOnMainThread(async () =>
                 {
                     FormErrorReport errRpt = new FormErrorReport(this.ActSubType, /*this, */ex);
-                    await errRpt.ShowDialog();
+                    _ = await errRpt.ShowDialog();
                 });
             }
 
@@ -242,6 +204,10 @@ namespace dMobile.View.Options
         /// </summary>
         /// <returns></returns>
         /// <remarks></remarks>
+/// <summary>
+///
+/// </summary>
+/// <returns>A <see cref="Task{TResult}"/> representing the result of the asynchronous operation.</returns>
         public async Task<bool> IsReadyToClose()
         {
             bool isReadyToClose = true;
@@ -264,10 +230,14 @@ namespace dMobile.View.Options
                     await this.ScannerDisable();
                 }
             }
-            catch (Exceptions.MessageOnlyException ex)
+            catch (MessageOnlyException ex)
             {
                 isReadyToClose = false;
-                ex.Show(this.ActSubType);
+                await Device.InvokeOnMainThreadAsync(async () =>
+                    await Application.Current.MainPage.DisplayAlert(
+                        this.GetControlDescription(),
+                        ex.Message,
+                        Resource.OK));
             }
             catch (Exception ex)
             {
@@ -278,7 +248,7 @@ namespace dMobile.View.Options
                 await Device.InvokeOnMainThreadAsync(async () =>
                 {
                     FormErrorReport errRpt = new FormErrorReport(this.ActSubType, /*this,*/ ex);
-                    await errRpt.ShowDialog();
+                    _ = await errRpt.ShowDialog();
                 });
             }
 
@@ -292,7 +262,6 @@ namespace dMobile.View.Options
         /// <remarks></remarks>
         public string GetControlDescription()
         {
-            // TODO: Resource Strings
             return "Setup Defaults";
         }
 
@@ -301,6 +270,10 @@ namespace dMobile.View.Options
         /// </summary>
         /// <returns></returns>
         /// <remarks></remarks>
+/// <summary>
+///
+/// </summary>
+/// <returns>A <see cref="Task{TResult}"/> representing the result of the asynchronous operation.</returns>
         public async Task<bool> SaveChanges()
         {
             bool saveComplete = false;
@@ -311,25 +284,25 @@ namespace dMobile.View.Options
                 {
                     if (this.IsChangesMade && !(this.chkDisconnectMode.IsToggled == this.SysEnv.SysSettings.IsDisconnectedMode && this.chkDisconnectedModeLoadDetail.IsToggled == this.SysEnv.SysSettings.IsDisconnectedModeLoadDetail))
                     {
-                        await DisplayAlert(this.GetControlDescription(), "Confirm disconnected mode changes?" + Environment.NewLine + "This will purge any unsubmitted data.", "Yes", "No").ContinueWith(async (result) =>
-                        {
-                            if (result.Result)
-                            {
-                                FormDialogContainer form = new FormDialogContainer(FormDialogContainer.EDialogTypes.ucRefreshDataStatus, SysCommon.ActSubTypes.PurgeActivityData);
-                                await Device.InvokeOnMainThreadAsync(async () => await form.DisplayControl.ShowDialog());
-                                XDocument xmlDoc = await form.GetXML();
-                            }
-                            else
-                            {
-                                await Device.InvokeOnMainThreadAsync(() =>
-                                {
-                                    this.chkDisconnectMode.IsToggled = this.SysEnv.SysSettings.IsDisconnectedMode;
-                                    this.chkDisconnectedModeLoadDetail.IsToggled = this.SysEnv.SysSettings.IsDisconnectedModeLoadDetail;
-                                    this.chkVerifyLocationWhenProductChanged.IsToggled = this.SysEnv.SysSettings.IsVerifyProductLocation;
-                                    this.chkPrintProductLabelsAsBatch.IsToggled = this.SysEnv.SysSettings.IsPrintProductLabelsAsBatch;
-                                });
-                            }
-                        });
+                        _ = await this.DisplayAlert(this.GetControlDescription(), "Confirm disconnected mode changes?" + Environment.NewLine + "This will purge any un-submitted data.", "Yes", "No").ContinueWith(async (result) =>
+                          {
+                              if (result.Result)
+                              {
+                                  FormDialogContainer form = new FormDialogContainer(EDialogTypes.RefreshDataStatus, SysCommon.ActSubTypes.PurgeActivityData);
+                                  _ = await Device.InvokeOnMainThreadAsync(async () => await form.DisplayControl.ShowDialog());
+                                  XDocument xmlDoc = await form.GetXML();
+                              }
+                              else
+                              {
+                                  await Device.InvokeOnMainThreadAsync(() =>
+                                  {
+                                      this.chkDisconnectMode.IsToggled = this.SysEnv.SysSettings.IsDisconnectedMode;
+                                      this.chkDisconnectedModeLoadDetail.IsToggled = this.SysEnv.SysSettings.IsDisconnectedModeLoadDetail;
+                                      this.chkVerifyLocationWhenProductChanged.IsToggled = this.SysEnv.SysSettings.IsVerifyProductLocation;
+                                      this.chkPrintProductLabelsAsBatch.IsToggled = this.SysEnv.SysSettings.IsPrintProductLabelsAsBatch;
+                                  });
+                              }
+                          });
                     }
 
                     this.SysEnv.SysSettings.IsDisconnectedMode = this.chkDisconnectMode.IsToggled;
@@ -338,7 +311,7 @@ namespace dMobile.View.Options
                     this.SysEnv.SysSettings.IsPrintProductLabelsAsBatch = this.chkPrintProductLabelsAsBatch.IsToggled;
 
                     SystemSettings tempSystemSettings = this.SysEnv.SysSettings;
-                    SystemSettingsTasks.SaveData(ref tempSystemSettings);
+                    _ = SystemSettingsTasks.SaveData(ref tempSystemSettings);
                     this.SysEnv.SysSettings = tempSystemSettings;
 
                     this.PrnSettings.ShippingLabelPrinterName = string.Empty;
@@ -376,7 +349,7 @@ namespace dMobile.View.Options
                     }
 
                     PrinterSettings tempPrnSettings = this.PrnSettings;
-                    this.PrnSettings.SaveData(ref tempPrnSettings);
+                    _ = this.PrnSettings.SaveData(ref tempPrnSettings);
                     this.PrnSettings = tempPrnSettings;
 
                     this.IsChangesMade = false;
@@ -384,24 +357,26 @@ namespace dMobile.View.Options
                 }
                 else
                 {
-                    // IsReadyToSave will raise errors for invalid data. This is a catch all 
+                    // IsReadyToSave will raise errors for invalid data. This is a catch all
                     // in the event that IsReadyToSave just returns false.
-
-                    // TODO: Resource Strings
                     throw new MessageOnlyException("Data failed validation. Check your data.");
                 }
             }
-            catch (Exceptions.MessageOnlyException ex)
+            catch (MessageOnlyException ex)
             {
                 saveComplete = false;
-                ex.Show(this.ActSubType);
+                await Device.InvokeOnMainThreadAsync(async () =>
+                    await Application.Current.MainPage.DisplayAlert(
+                        this.GetControlDescription(),
+                        ex.Message,
+                        Resource.OK));
             }
             catch (Exception ex)
             {
                 Device.BeginInvokeOnMainThread(async () =>
                 {
                     FormErrorReport errRpt = new FormErrorReport(this.ActSubType, /*this,*/ ex);
-                    await errRpt.ShowDialog();
+                    _ = await errRpt.ShowDialog();
                 });
             }
 
@@ -413,6 +388,10 @@ namespace dMobile.View.Options
         /// </summary>
         /// <returns></returns>
         /// <remarks></remarks>
+/// <summary>
+///
+/// </summary>
+/// <returns>A <see cref="Task{TResult}"/> representing the result of the asynchronous operation.</returns>
         public async Task<bool> CancelChanges()
         {
             bool cancelChanges = true;
@@ -437,10 +416,14 @@ namespace dMobile.View.Options
                     this.IsChangesMade = false;
                 }
             }
-            catch (Exceptions.MessageOnlyException ex)
+            catch (MessageOnlyException ex)
             {
                 cancelChanges = false;
-                ex.Show(this.ActSubType);
+                await Device.InvokeOnMainThreadAsync(async () =>
+                    await Application.Current.MainPage.DisplayAlert(
+                        this.GetControlDescription(),
+                        ex.Message,
+                        Resource.OK));
             }
             catch (Exception ex)
             {
@@ -449,7 +432,7 @@ namespace dMobile.View.Options
                 Device.BeginInvokeOnMainThread(async () =>
                 {
                     FormErrorReport errorReport = new FormErrorReport(this.ActSubType, /*this,*/ ex);
-                    await errorReport.ShowDialog();
+                    _ = await errorReport.ShowDialog();
                 });
             }
 
@@ -461,6 +444,10 @@ namespace dMobile.View.Options
         /// </summary>
         /// <returns></returns>
         /// <remarks></remarks>
+/// <summary>
+///
+/// </summary>
+/// <returns>A <see cref="Task{TResult}"/> representing the result of the asynchronous operation.</returns>
         public async Task<XDocument> GetXML()
         {
             XDocument xmldocParams = XDocument.Parse(
@@ -479,11 +466,8 @@ namespace dMobile.View.Options
         /// <remarks></remarks>
         private void ucSetupDefaults_GotFocus(object sender, EventArgs e)
         {
-            if (!SysEnvironment.GetInstance().IsApplicationExitInvoked)
-            {
-                this.LoadData();
-                this.IsControlLoaded = true;
-            }
+            this.LoadData();
+            this.IsControlLoaded = true;
         }
 
         /// <summary>
@@ -501,11 +485,15 @@ namespace dMobile.View.Options
                     this.IsChangesMade = true;
                 }
             }
-            catch (Exceptions.MessageOnlyException ex)
+            catch (MessageOnlyException ex)
             {
-                // Do not set the IsChangesMade. MessageOnlyException is really not and error. 
+                // Do not set the IsChangesMade. MessageOnlyException is really not and error.
                 // Allow the validation to handle the setting for IsChangesMade.
-                ex.Show(this.ActSubType);
+                _ = Device.InvokeOnMainThreadAsync(async () =>
+                      await Application.Current.MainPage.DisplayAlert(
+                          this.GetControlDescription(),
+                          ex.Message,
+                          Resource.OK));
             }
             catch (Exception ex)
             {
@@ -514,7 +502,7 @@ namespace dMobile.View.Options
                 Device.BeginInvokeOnMainThread(async () =>
                 {
                     FormErrorReport errRpt = new FormErrorReport(this.ActSubType, /*this,*/ ex);
-                    await errRpt.ShowDialog();
+                    _ = await errRpt.ShowDialog();
                 });
             }
         }
@@ -613,7 +601,7 @@ namespace dMobile.View.Options
                         if (this.cboProductMobilePrinter.Items[idx].ToString() == this.PrnSettings.ProductLabelPrinterName)
                         {
                             isPrinterMatchFound = true;
-                            cboProductMobilePrinter.SelectedIndex = idx;
+                            this.cboProductMobilePrinter.SelectedIndex = idx;
                             this.PrnSettings.IsEnabledProductLabelPrinter = true;
                             this.PrnSettings.ProductLabelPrinterName = this.cboProductMobilePrinter.Items[idx].ToString();
                             break;
@@ -687,13 +675,17 @@ namespace dMobile.View.Options
                 Device.BeginInvokeOnMainThread(async () =>
                 {
                     FormErrorReport errorReport = new FormErrorReport(this.ActSubType, /*this,*/ ex);
-                    await errorReport.ShowDialog();
+                    _ = await errorReport.ShowDialog();
                 });
             }
-            catch (Exceptions.MessageOnlyException ex)
+            catch (MessageOnlyException ex)
             {
                 e.Cancel = false;
-                ex.Show(this.ActSubType);
+                await Device.InvokeOnMainThreadAsync(async () =>
+                    await Application.Current.MainPage.DisplayAlert(
+                        this.GetControlDescription(),
+                        ex.Message,
+                        Resource.OK));
             }
             catch (Exception ex)
             {
@@ -702,7 +694,7 @@ namespace dMobile.View.Options
                 Device.BeginInvokeOnMainThread(async () =>
                 {
                     FormErrorReport errorReport = new FormErrorReport(this.ActSubType, /*this,*/ ex);
-                    await errorReport.ShowDialog();
+                    _ = await errorReport.ShowDialog();
                 });
             }
         }

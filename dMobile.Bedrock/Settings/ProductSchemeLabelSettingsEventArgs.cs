@@ -1,85 +1,50 @@
-﻿namespace dMobile.Bedrock
+﻿// <copyright file="ProductSchemeLabelSettingsEventArgs.cs" company="InterSect Business Systems Inc">
+// Copyright (c) InterSect Business Systems Inc. All rights reserved.
+// </copyright>
+
+namespace dMobile.Bedrock
 {
     using System;
 
+    /// <summary>
+    /// Defines the <see cref="ProdSchemeLabelSettingsEventArgs" />.
+    /// </summary>
     public class ProdSchemeLabelSettingsEventArgs : EventArgs
     {
-        #region Fields
-
-        private string statusOutMsg = string.Empty;
-        private int minValue = 0;
-        private int maxValue = 0;
-        private int currentValue = 0;
-
-        #endregion
-
-        #region Constructors
-
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ProdSchemeLabelSettingsEventArgs"/> class.
+        /// </summary>
         public ProdSchemeLabelSettingsEventArgs()
         {
         }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ProdSchemeLabelSettingsEventArgs"/> class.
+        /// </summary>
+        /// <param name="msgData">.</param>
         public ProdSchemeLabelSettingsEventArgs(string msgData)
         {
             this.StatusOutMsg = msgData;
         }
 
-        #endregion
+        /// <summary>
+        /// Gets or sets the StatusOutMsg.
+        /// </summary>
+        public string StatusOutMsg { get; set; } = string.Empty;
 
-        #region Properties
+        /// <summary>
+        /// Gets or sets the MinValue.
+        /// </summary>
+        public int MinValue { get; set; } = 0;
 
-        public string StatusOutMsg
-        {
-            get
-            {
-                return this.statusOutMsg;
-            }
+        /// <summary>
+        /// Gets or sets the MaxValue.
+        /// </summary>
+        public int MaxValue { get; set; } = 0;
 
-            set
-            {
-                this.statusOutMsg = value;
-            }
-        }
-
-        public int MinValue
-        {
-            get
-            {
-                return this.minValue;
-            }
-
-            set
-            {
-                this.minValue = value;
-            }
-        }
-
-        public int MaxValue
-        {
-            get
-            {
-                return this.maxValue;
-            }
-
-            set
-            {
-                this.maxValue = value;
-            }
-        }
-
-        public int CurrentValue
-        {
-            get
-            {
-                return this.currentValue;
-            }
-
-            set
-            {
-                this.currentValue = value;
-            }
-        }
-
-        #endregion
+        /// <summary>
+        /// Gets or sets the CurrentValue.
+        /// </summary>
+        public int CurrentValue { get; set; } = 0;
     }
 }

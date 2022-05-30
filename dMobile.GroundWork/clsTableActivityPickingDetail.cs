@@ -1,44 +1,42 @@
-﻿namespace dMobile.GroundWork
+﻿// <copyright file="clsTableActivityPickingDetail.cs" company="InterSect Business Systems Inc">
+// Copyright (c) InterSect Business Systems Inc. All rights reserved.
+// </copyright>
+
+namespace dMobile.GroundWork
 {
     using System;
+    using System.Collections.Generic;
     using System.Data;
-    using SQLite;
     using System.Text;
+    using System.Threading.Tasks;
     using System.Xml;
     using System.Xml.Linq;
     using dMobile.Bedrock;
-    using System.Threading.Tasks;
     using dMobile.Resources.Models;
-    using System.Collections.Generic;
+    using SQLite;
 
     public class TableActivityPickingDetail : TableBase
     {
-        #region Constructors
-
+        /// <summary>
+        /// Initializes a new instance of the <see cref="TableActivityPickingDetail"/> class.
+        /// </summary>
         public TableActivityPickingDetail()
           : base()
         {
             this.FullClassName = "dMobile.GroundWork.TableActivityPickingDetail";
         }
 
-        #endregion
-
-        #region Public Members
-
         /// <summary>
         ///
         /// </summary>
         /// <remarks></remarks>
-        public override async Task Request(int actItemRefno)
+        public override async Task RequestData(int actItemRefno)
         {
-            string reqData = string.Empty;
-
             try
             {
-
-                // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Seeding sales order details.", true);
 
+                string reqData;
                 if (actItemRefno == 0)
                 {
                     List<tActivityItemModel> results = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<tActivityItemModel>("SELECT * FROM tActivityItem WHERE ActivityItemSubType = ?", Convert.ToInt32(SysCommon.ActSubTypes.Picking));
@@ -48,9 +46,9 @@
                         foreach (tActivityItemModel activityItemModel in results)
                         {
                             actItemRefno = Convert.ToInt32(activityItemModel.ActivityItemRefno);
-                            reqData = await this.Send(actItemRefno);
+                            reqData = await this.SendRequest(actItemRefno);
 
-                            if (0 < reqData.Length)
+                            if (reqData.Length > 0)
                             {
                                 if (reqData.Contains("<message>ERROR</message>"))
                                 {
@@ -66,9 +64,9 @@
                 }
                 else
                 {
-                    reqData = await this.Send(actItemRefno);
+                    reqData = await this.SendRequest(actItemRefno);
 
-                    if (0 < reqData.Length)
+                    if (reqData.Length > 0)
                     {
                         if (reqData.Contains("<message>ERROR</message>"))
                         {
@@ -81,24 +79,19 @@
                     }
                 }
 
-                // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Seeding sales order details complete.", true);
             }
             catch (SQLiteException ex)
             {
-                // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Database exception occurred.", true);
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Seeding picking details failed.", true);
 
-                // TODO: Resource strings
                 throw new Exception("Database exception occurred. Seeding picking details failed.", ex);
             }
             catch (Exception ex)
             {
-                // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Seeding sales order details failed.", true);
 
-                // TODO: Resource strings
                 throw new Exception("Seeding sales order details failed.", ex);
             }
         }
@@ -107,11 +100,10 @@
         ///
         /// </summary>
         /// <remarks></remarks>
-        public override async Task Purge()
+        public override async Task PurgeData()
         {
             try
             {
-                // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging sales order details.", true);
 
                 string query = "DELETE FROM tActivityDetailProductSchemeVariantXRef "
@@ -138,16 +130,13 @@
                 query = "DELETE FROM tActivityDetail WHERE tActivityDetail.ActivityDetailSubType = ?";
                 await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(query, Convert.ToInt32(SysCommon.ActSubTypes.Picking));
 
-                // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging sales order details complete.", true);
             }
             catch (SQLiteException ex)
             {
-                // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Database exception occurred.", true);
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging sales order details failed.", true);
 
-                // TODO: Resource strings
                 throw new Exception("Database exception occurred. Purging sales order details failed.", ex);
             }
         }
@@ -158,53 +147,45 @@
         /// <remarks></remarks>
         public override async Task<int> DataStatus()
         {
-            int rowsAffected = 0;
-
+            int rowsAffected;
             try
             {
                 rowsAffected = Convert.ToInt32(await DatabaseConnection.GetInstance().SQLConn.ExecuteScalarAsync<int>("SELECT COUNT(ActivityDetailRefno) FROM tActivityDetail WHERE ActivityDetailSubType = ?", Convert.ToInt32(SysCommon.ActSubTypes.Picking)));
 
-                // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, string.Format("{0} Sales order details.", rowsAffected), true);
             }
             catch (SQLiteException ex)
             {
-                // TODO: Resource strings
                 throw new Exception("Database exception occurred. Sales order details status failed.", ex);
             }
 
             return rowsAffected;
         }
 
-        #endregion
-
-        #region Private Members
-
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="actItemPickRefno"></param>
         /// <returns></returns>
-        protected override async Task<string> Send(int actItemPickRefno)
+        protected override async Task<string> SendRequest(int actItemPickRefno)
         {
-            int actItemPickFKRefno = 0;
             List<tActivityItemPickingModel> results = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<tActivityItemPickingModel>("SELECT * FROM tActivityItemPicking WHERE ActivityItemRefno = ?", actItemPickRefno);
 
+            int actItemPickFKRefno;
             if (results?.Count > 0)
             {
                 actItemPickFKRefno = Convert.ToInt32(results[0].ActivityItemPickingFKRefno);
             }
             else
             {
-                // TODO: Resource strings
                 throw new Exception("drItemPick.Read() failed.");
             }
 
-            return await this.SendComm(await this.Create(actItemPickFKRefno));
+            return await this.SendComm(await this.CreateRequest(actItemPickFKRefno));
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="reqData"></param>
         /// <param name="actItemPickRefno"></param>
@@ -218,12 +199,10 @@
                 {
                     using (DataSet ds = new DataSet())
                     {
-                        // TODO: Resource strings
                         this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Reading received data.", false);
 
                         ds.ReadXml(SysCommon.GetXmlReader(ref reqData), XmlReadMode.Auto);
 
-                        // TODO: Resource strings
                         this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving sales order details.", false);
 
                         if (ds.Tables.Count != 0)
@@ -243,7 +222,6 @@
 
                             if (resultPickingItems == null || (resultPickingItems != null && resultPickingItems.Count == 0))
                             {
-                                // TODO: Resource strings
                                 throw new Exception("No results in tActivityItemPicking for ActivityItemRefno " + actItemPickRefno);
                             }
 
@@ -300,7 +278,7 @@
                                 parametersInsertDetail.Add(Convert.ToInt32(SysCommon.ActSubTypes.Picking));
                                 parametersInsertDetail.Add(0);
                                 parametersInsertDetail.Add(actItemPickRefno);
-                                parametersInsertDetail.Add(this.SaveDetailLocation(drow, transaction, useFNo));
+                                parametersInsertDetail.Add(this.GetDetailLocation(drow, transaction, useFNo));
                                 parametersInsertDetail.Add(productUnitRefno);
                                 parametersInsertDetail.AddRange(this.SaveDetail(drow, transaction, useFNo));
 
@@ -337,7 +315,6 @@
 
                         transaction.Commit();
 
-                        // TODO: Resource strings
                         this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving sales order details completed.", false);
                     }
                 }
@@ -345,22 +322,20 @@
                 {
                     transaction.Rollback();
 
-                    // TODO: Resource strings
                     this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Database exception occurred.", false);
                     this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving sales order details failed.", false);
 
-                    // TODO: Resource strings
                     throw new Exception("Database exception occurred. Saving sales order details failed." + Environment.NewLine + errMsg, ex);
                 }
             });
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="actItemPickFKRefno"></param>
         /// <returns></returns>
-        protected override async Task<string> Create(int actItemPickFKRefno)
+        protected override async Task<string> CreateRequest(int actItemPickFKRefno)
         {
             StringBuilder xmlString = new StringBuilder();
             XmlWriter xml = XmlWriter.Create(xmlString);
@@ -371,7 +346,7 @@
                 + "<command>"
                 + "<action>REQUEST SALES ORDER DETAILS</action>"
                 + await SysCommon.GetRequestDefaults(false)
-                + ("<itm_refno>" + actItemPickFKRefno.ToString() + "</itm_refno>")
+                + "<itm_refno>" + actItemPickFKRefno.ToString() + "</itm_refno>"
                 + "</command>"
                 + "</imclient>");
 
@@ -381,7 +356,5 @@
 
             return xmlString.ToString();
         }
-
-        #endregion
     }
 }

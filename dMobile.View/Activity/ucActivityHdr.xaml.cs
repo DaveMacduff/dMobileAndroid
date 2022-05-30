@@ -1,528 +1,336 @@
-﻿namespace dMobile.View.Activity
+﻿// <copyright file="ucActivityHdr.xaml.cs" company="InterSect Business Systems Inc">
+// Copyright (c) InterSect Business Systems Inc. All rights reserved.
+// </copyright>
+
+namespace dMobile.View.Activity
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Collections.ObjectModel;
+    using System.Linq;
+    using System.Runtime.CompilerServices;
+    using System.Threading.Tasks;
+    using System.Xml.Linq;
     using Android.Views;
-    using dMobile.BarCodeScanner;
+    using dMobile.BarCodeScanner.BarCodeParsing;
+    using dMobile.BarCodeScanner.BarCodeScanners;
     using dMobile.Bedrock;
     using dMobile.Controller;
     using dMobile.Resources.Enums;
     using dMobile.Resources.Types;
     using dMobile.View.CustomPages;
     using dMobile.View.Forms;
-    using System;
-    using System.Collections.Generic;
-    using System.Collections.ObjectModel;
-    using System.Data;
-    using System.Linq;
-    using System.Runtime.CompilerServices;
-    using System.Threading.Tasks;
-    using System.Xml.Linq;
     using Xamarin.Forms;
     using Xamarin.Forms.Xaml;
-    using static Android.Views.View;
+    using Resource = dMobile.Resources.Properties.Resources;
 
+    /// <summary>
+    /// Defines the <see cref="ucActivityHdr" /> Activity header.
+    /// </summary>
     [XamlCompilation(XamlCompilationOptions.Compile)]
     public partial class ucActivityHdr : DMobileContentPage, IAppArea, IDataLayerEventListener
     {
-        private Controller.Activity actHdr;
-        private SysCommon.ActSubTypes actSubType;
-        private BarCodeParse barParse;
-        private BarCodeScanner barScanner;
-        private bool isBarCodeHandlerRegistered = false;
-        private SysEnvironment sysEnv;
-        private bool isChangesMade = false;
-        private bool isControlLoaded = false;
-        private ObservableCollection<string> itemsList = new ObservableCollection<string>();
-        private ObservableCollection<object> dataGridMainActivityItemsList = new ObservableCollection<object>();
-        private List<string> optionsMenuItems = new List<string>();
-        private string filterText;
-        private bool filterIsEnabled;
-        private bool isRefreshing;
-        private int selectedIndex = 0;
-
-        // For handling double click on listview item
-        private int numTaps = 0;
-        private object previousSender;
-
-        private bool firstOnAppearing = true;
-
-        public ucActivityHdr()
-        {
-            this.InitializeComponent();
-        }
+        /// <summary>
+        /// Defines the text filter.
+        /// </summary>
+        private string filterText = string.Empty;
 
         /// <summary>
-        ///
+        /// Define the filter text was enabled.
         /// </summary>
-        /// <param name="_ActivitySubTypes"></param>
-        /// <remarks></remarks>
+        private bool filterIsEnabled = false;
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ucActivityHdr"/> class.
+        /// </summary>
+        /// <param name="activitySubType"><see cref="SysCommon.ActSubTypes"/> Activity sub type.</param>
         public ucActivityHdr(SysCommon.ActSubTypes activitySubType)
         {
             this.InitializeComponent();
 
-            // TODO: Resource strings
             this.cmdAdd.Text = "Add";
-            this.FilterText = "Filter";
-
             this.cmdAdd.IsEnabled = false;
+            this.FilterText = "Filter";
             this.FilterIsEnabled = true;
+            this.FirstOnAppearing = true;
 
             if (!DesignMode.IsDesignModeEnabled)
             {
                 this.SysEnv = SysEnvironment.GetInstance();
-                this.BarScanner = BarCodeSingleton.GetInstance().Scanner;
-
+                this.Scanner = ScannerEngine.GetInstance().Scanner;
                 this.ActSubType = activitySubType;
                 this.ActHdr = ActivityFacade.GetActivity(this.ActSubType);
+                this.Title = this.ActHdr.GetControlDescription();
 
+                // If the activity header object does not have a skid already initialize the instance.
                 if (this.ActHdr.SkidInfo == null)
                 {
                     this.ActHdr.SkidInfo = new SysSkidInfo();
                 }
-
-                this.Title = this.GetControlDescription();
             }
         }
 
         /// <summary>
-        /// Check if options in displayActionSheet are enabled/disabled and rebuild list
+        /// Gets or sets the selected activity foreign key reference number.
         /// </summary>
-        /// <param name="propertyName"></param>
-        protected override void OnPropertyChanged([CallerMemberName] string propertyName = null)
-        {
-            base.OnPropertyChanged(propertyName);
+        private int SelectedActivityFKRefno { get; set; } = 0;
 
-            if (propertyName == nameof(FilterIsEnabled) || propertyName == nameof(FilterText))
+        /// <summary>
+        /// Gets or sets a value indicating whether any data changes have be made.
+        /// </summary>
+        private bool IsChangesMade { get; set; } = false;
+
+        /// <summary>
+        /// Gets or sets the bar code parsed data.
+        /// </summary>
+        private BarCodeParse BarParse { get; set; }
+
+        /// <summary>
+        /// Gets or sets the bar code scanner instance.
+        /// </summary>
+        private BarCodeScanner Scanner { get; set; } = ScannerEngine.GetInstance().Scanner;
+
+        /// <summary>
+        /// Gets or sets the global system environment object.
+        /// </summary>
+        private SysEnvironment SysEnv { get; set; }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether bar code handler is registered / enabled.
+        /// </summary>
+        private bool IsBarCodeHandlerRegistered { get; set; }
+
+        /// <summary>
+        /// Gets or sets the activity header instance.
+        /// </summary>
+        private Activity ActHdr { get; set; }
+
+        /// <summary>
+        /// Gets or sets the activity header sub type.
+        /// </summary>
+        private SysCommon.ActSubTypes ActSubType { get; set; } = SysCommon.ActSubTypes.NotApplicable;
+
+        /// <summary>
+        /// Gets or sets the list of items.
+        /// </summary>
+        private ObservableCollection<string> ExtraInfoItems { get; set; } =
+            new ObservableCollection<string>();
+
+        /// <summary>
+        /// Gets or sets the list of items bound to data grid / list main activity.
+        /// </summary>
+        private ObservableCollection<object> MainActivityItems { get; set; } =
+            new ObservableCollection<object>();
+
+        /// <summary>
+        /// Gets or sets the OptionsMenuItems.
+        /// </summary>
+        private List<string> OptionsMenuItems { get; set; } = new List<string>();
+
+        /// <summary>
+        /// Gets or sets the filter text.
+        /// </summary>
+        private string FilterText
+        {
+            get => this.filterText;
+            set
             {
-                this.PopulateOptionsMenu();
+                this.filterText = value;
+                this.OnPropertyChanged();
             }
         }
 
         /// <summary>
-        /// The OnAppearing
+        /// Gets or sets a value indicating whether entering a filter was performed.
         /// </summary>
-        protected override async void OnAppearing()
+        private bool FilterIsEnabled
         {
-            base.OnAppearing();
-
-            this.lstDisplay.ItemsSource = this.ItemsList;
-            this.dataGridMainActivity.ItemsSource = this.DataGridMainActivityItemsList;
-            this.dataGridMainActivity.ItemTapped += this.DataGridMainActivity_ItemTapped;
-
-            MessagingCenter.Subscribe<string>(this, EventTypes.OnKeyUp.ToString(), async (keyPressed) =>
+            get => this.filterIsEnabled;
+            set
             {
-                // TODO: Verify keycodes
-                Enum.TryParse(keyPressed, out Keycode keycode);
-
-                if (!this.Loading)
-                {
-                    if (keycode == Keycode.Enter)
-                    {
-                        await this.DataGridMainActivity_KeyUpEnter();
-                    }
-                    else if (keycode == Keycode.F1)
-                    {
-                        if (await this.SaveChanges())
-                        {
-                            await this.Close();
-                        }
-                    }
-                    else if (keycode == Keycode.F4 && !this.SysEnv.SysSettings.IsDisconnectedMode)
-                    {
-                        // Release order.
-                        this.DataGridMainActivity_KeyUpF4(this, null);
-                    }
-                    else if (keycode == Keycode.F5)
-                    {
-                        // Change pick selection.
-                        this.DataGridMainActivity_KeyUpF5(this, null);
-                    }
-                    else if (keycode == Keycode.DpadDown)
-                    {
-                        if (this.dataGridMainActivity.SelectedItem != null && Convert.ToInt32(this.DataGridMainActivityItemsList.IndexOf(this.dataGridMainActivity.SelectedItem)) < this.DataGridMainActivityItemsList.Count - 1)
-                        {
-                            this.dataGridMainActivity.SelectedItem = this.DataGridMainActivityItemsList[this.DataGridMainActivityItemsList.IndexOf(this.dataGridMainActivity.SelectedItem) + 1];
-                            this.dataGridMainActivity.ScrollTo(this.dataGridMainActivity.SelectedItem, ScrollToPosition.MakeVisible, true);
-                        }
-                    }
-                    else if (keycode == Keycode.DpadUp)
-                    {
-                        if (this.dataGridMainActivity.SelectedItem != null && Convert.ToInt32(this.DataGridMainActivityItemsList.IndexOf(this.dataGridMainActivity.SelectedItem)) > 0)
-                        {
-                            this.dataGridMainActivity.SelectedItem = this.DataGridMainActivityItemsList[this.DataGridMainActivityItemsList.IndexOf(this.dataGridMainActivity.SelectedItem) - 1];
-                            this.dataGridMainActivity.ScrollTo(this.dataGridMainActivity.SelectedItem, ScrollToPosition.MakeVisible, true);
-                        }
-                    }
-                }
-            });
-
-            try
-            {
-                this.Loading = true;
-                await this.ucActivityHdr_GotFocus(this, new EventArgs());
-                await this.tmrActivityLoaded_Tick(this, new EventArgs());
-            }
-            catch (Exception ex)
-            {
-                // TODO: Resource strings
-                await Device.InvokeOnMainThreadAsync(async () => await DisplayAlert("Error", "this.ucActivityHdr_GotFocus threw an error " + ex, "OK"));
-            }
-            finally
-            {
-                this.Loading = false;
+                this.filterIsEnabled = value;
+                this.OnPropertyChanged();
             }
         }
 
         /// <summary>
-        /// The OnDisappearing
+        /// Gets or sets the selected header list item index.
         /// </summary>
-        protected override async void OnDisappearing()
-        {
-            MessagingCenter.Unsubscribe<string>(this, EventTypes.OnKeyUp.ToString());
-            this.dataGridMainActivity.ItemTapped -= this.DataGridMainActivity_ItemTapped;
-            await this.ScannerDisable();
-
-            base.OnDisappearing();
-        }
-
-        protected override bool OnBackButtonPressed()
-        {
-            Device.BeginInvokeOnMainThread(async () =>
-            {
-                if (await this.CancelChanges())
-                {
-                    base.OnBackButtonPressed();
-                    await this.Close();
-                }
-            });
-
-            return true;
-        }
+        private int SelectedIndex { get; set; } = 0;
 
         /// <summary>
-        /// Handle double click on listview item
-        /// Using a tap gesture recognizer in the designGrid would be optimal, however there is currently a known bug that prevents selectedItemChanged from firing
+        /// Gets or sets a number of screen taps tracker for Xamarin bug that prevents
+        /// selectedItemChanged from firing.
         /// </summary>
-        private async void DataGridMainActivity_ItemTapped(object sender, ItemTappedEventArgs e)
-        {
-            if (this.Loading)
-            {
-                return;
-            }
+        private int NumTaps { get; set; } = 0;
 
-            this.numTaps++;
+        /// <summary>
+        /// Gets or sets the previous sender used in tracking the number of screen taps for
+        /// Xamarin bug that prevents selectedItemChanged from firing.
+        /// </summary>
+        private object PreviousSender { get; set; }
 
-            if (this.previousSender == e.Item)
-            {
-                if (this.numTaps == 2)
-                {
-                    this.numTaps = 0;
+        /// <summary>
+        /// Gets or sets a value indicating whether to show the pick selection screen during the
+        /// the form appearing event. We only want to show it once.
+        /// </summary>
+        private bool FirstOnAppearing { get; set; } = true;
 
-                    await this.DataGridMainActivity_KeyUpEnter();
-                }
-            }
-            else
-            {
-                this.previousSender = e.Item;
-                this.numTaps = 1;
-            }
-
-            await Task.Delay(500);
-            this.numTaps = 0;
-        }
-
-        private bool IsControlLoaded
-        {
-            get
-            {
-                return this.isControlLoaded;
-            }
-
-            set
-            {
-                this.isControlLoaded = value;
-            }
-        }
-
-        private bool IsChangesMade
-        {
-            get
-            {
-                return this.isChangesMade;
-            }
-
-            set
-            {
-                this.isChangesMade = value;
-            }
-        }
-
-        private BarCodeParse BarParse
-        {
-            get
-            {
-                return this.barParse;
-            }
-
-            set
-            {
-                this.barParse = value;
-            }
-        }
-
-        private BarCodeScanner BarScanner
-        {
-            get
-            {
-                return this.barScanner;
-            }
-
-            set
-            {
-                this.barScanner = value;
-            }
-        }
-
-        private SysEnvironment SysEnv
-        {
-            get
-            {
-                return this.sysEnv;
-            }
-
-            set
-            {
-                this.sysEnv = value;
-            }
-        }
-
-        private bool IsBarCodeHandlerRegistered
-        {
-            get
-            {
-                return this.isBarCodeHandlerRegistered;
-            }
-
-            set
-            {
-                this.isBarCodeHandlerRegistered = value;
-            }
-        }
-
-        private Controller.Activity ActHdr
-        {
-            get
-            {
-                return this.actHdr;
-            }
-
-            set
-            {
-                this.actHdr = value;
-            }
-        }
-
-        private SysCommon.ActSubTypes ActSubType
-        {
-            get
-            {
-                return this.actSubType;
-            }
-
-            set
-            {
-                this.actSubType = value;
-            }
-        }
-
-        public ObservableCollection<string> ItemsList { get => itemsList; set => itemsList = value; }
-        public ObservableCollection<object> DataGridMainActivityItemsList { get => dataGridMainActivityItemsList; set => dataGridMainActivityItemsList = value; }
-        public List<string> OptionsMenuItems { get => optionsMenuItems; set => optionsMenuItems = value; }
-        public string FilterText { get => filterText; set { filterText = value; this.OnPropertyChanged(); } }
-        public bool FilterIsEnabled { get => filterIsEnabled; set { filterIsEnabled = value; this.OnPropertyChanged(); } }
-
-        public int SelectedIndex { get => selectedIndex; set => selectedIndex = value; }
+        /// <summary>
+        /// Gets or sets a value indicating whether the saved bar code scanner enabled status.
+        /// </summary>
+        private bool IsSvdBarScannerEnabled { get; set; } = false;
 
         /// <summary>
         /// Unregister the bar code scan event handler and disable the scanner.
         /// </summary>
-        /// <remarks></remarks>
+        /// <returns><see cref="Task"/> Task operation.</returns>
         public async Task ScannerDisable()
         {
-            if (this.IsBarCodeHandlerRegistered && this.BarScanner != null)
+            if (this.IsBarCodeHandlerRegistered && this.Scanner != null)
             {
-                this.BarScanner.BarCodeScan -= this.BarCodeHandler;
-                await this.BarScanner.Stop();
-                this.IsBarCodeHandlerRegistered = false;
+                this.Scanner.BarCodeScan -= new BarCodeScanner.BarCodeScanEventHandler(this.BarCodeHandler);
+                await this.Scanner.Stop();
             }
+
+            this.IsBarCodeHandlerRegistered = false;
         }
 
         /// <summary>
         /// Registers the bar code scan event handler and enables the scanner.
         /// </summary>
-        /// <remarks></remarks>
+        /// <returns><see cref="Task"/> Task operation.</returns>
         public async Task ScannerEnable()
         {
-            if (!this.IsBarCodeHandlerRegistered)
+            if (!this.IsBarCodeHandlerRegistered && this.Scanner != null)
             {
+                await this.Scanner.Start();
+                this.Scanner.BarCodeScan += new BarCodeScanner.BarCodeScanEventHandler(this.BarCodeHandler);
                 this.IsBarCodeHandlerRegistered = true;
-                this.BarScanner.BarCodeScan += this.BarCodeHandler;
-                await this.BarScanner.Start();
             }
         }
 
         /// <summary>
-        ///
+        /// Check if the activity header data is ready to be saved.
         /// </summary>
-        /// <returns></returns>
-        /// <remarks></remarks>
+        /// <returns><see cref="bool"/> True if the data is ready to be saved else false.</returns>
         public async Task<bool> IsReadyToSave()
         {
-            bool isReadyToSave = false;
-
-            try
-            {
-                isReadyToSave = true;
-            }
-            catch (Exceptions.MessageOnlyException ex)
-            {
-                ex.Show(this.ActSubType);
-            }
-            catch (Exception ex)
-            {
-                isReadyToSave = false;
-
-                await Device.InvokeOnMainThreadAsync(async () =>
-                {
-                    FormErrorReport errRpt = new FormErrorReport(this.ActSubType, ex);
-                    await errRpt.ShowDialog();
-                });
-            }
-
+            bool isReadyToSave = !this.IsChangesMade;
+            isReadyToSave = await IsReadyToSavePicking(isReadyToSave);
             return isReadyToSave;
+
+            async Task<bool> IsReadyToSavePicking(bool isReadyToSave)
+            {
+                // If activity is picking and confirm to exit form is enabled.
+                // This code should be moved into an picking header class inherited from ucActivityHdr.
+                if (isReadyToSave
+                    && this.SysEnv.SysSettings.IsPickConfirmExit
+                    && (this.ActSubType == SysCommon.ActSubTypes.Picking
+                        || this.ActSubType == SysCommon.ActSubTypes.PickingSingle))
+                {
+                    await Device.InvokeOnMainThreadAsync(async () =>
+                    {
+                        isReadyToSave = await this.AskConfirmExit();
+                    });
+                }
+
+                return isReadyToSave;
+            }
         }
 
         /// <summary>
-        ///
+        /// Check if this form is ready to close, that is can be closed.
         /// </summary>
-        /// <returns></returns>
-        /// <remarks></remarks>
+        /// <returns><see cref="Task{bool}"/> True if the form is ready to close else false.</returns>
         public async Task<bool> IsReadyToClose()
         {
             bool isReadyToClose = !this.IsChangesMade;
 
-            try
+            // If activity is picking and confirm to exit form is enabled.
+            // This code should be moved into an picking header class inherited from ucActivityHdr.
+            if (isReadyToClose
+                && this.SysEnv.SysSettings.IsPickConfirmExit
+                && (this.ActSubType == SysCommon.ActSubTypes.Picking
+                    || this.ActSubType == SysCommon.ActSubTypes.PickingSingle))
             {
-                if (isReadyToClose && (this.ActSubType == SysCommon.ActSubTypes.Picking || this.ActSubType == SysCommon.ActSubTypes.PickingSingle))
-                {
-                    if (this.SysEnv.SysSettings.IsPickConfirmExit)
-                    {
-                        await Device.InvokeOnMainThreadAsync(async () =>
-                        {
-                            // TODO: Resource strings
-                            await DisplayAlert(this.GetControlDescription(), "Confirm exit?", "Yes", "No").ContinueWith(async (result) =>
-                            {
-                                if (!result.Result)
-                                {
-                                    isReadyToClose = false;
-                                }
-
-                                if (isReadyToClose)
-                                {
-                                    // NOTE: This code is needed to clean up the scanner driver.
-                                    // Symbol had threading issues without this call when dMobile was terminating.
-                                    // All user controls that initalize a bar code need this code.
-                                    // The parent form (not a user control) will call scanner.terminate and dispose
-                                    // of the scanner instance upon exiting dMobile.
-                                    await this.ScannerDisable();
-                                }
-                            });
-                        });
-                    }
-                }
-            }
-            catch (Exceptions.MessageOnlyException ex)
-            {
-                ex.Show(this.ActSubType);
-            }
-            catch (Exception ex)
-            {
-                isReadyToClose = false;
-
-                await Device.InvokeOnMainThreadAsync(async () =>
-                {
-                    FormErrorReport errRpt = new FormErrorReport(this.ActSubType, ex);
-                    await errRpt.ShowDialog();
-                });
+                isReadyToClose = await this.AskConfirmExit();
+                ////await Device.InvokeOnMainThreadAsync(async () =>
+                ////{
+                ////    isReadyToClose = await this.AskConfirmExit();
+                ////});
             }
 
             return isReadyToClose;
         }
 
         /// <summary>
-        ///
+        /// Check if a save can be performed and do so.
         /// </summary>
-        /// <returns></returns>
-        /// <remarks></remarks>
-        public string GetControlDescription()
-        {
-            return this.ActHdr.GetControlDescription();
-        }
-
-        /// <summary>
-        ///
-        /// </summary>
-        /// <returns></returns>
-        /// <remarks></remarks>
+        /// <returns><see cref="bool"/> True if a save was performed successfully else false.</returns>
         public async Task<bool> SaveChanges()
         {
             bool saveComplete = false;
 
             try
             {
+                this.IsSvdBarScannerEnabled = this.IsBarCodeHandlerRegistered;
+                await this.ScannerDisable();
                 if (await this.IsReadyToSave())
                 {
                     saveComplete = true;
+                    this.IsChangesMade = false;
                 }
                 else
                 {
-                    // IsReadyToSave will raise errors for invalid data. This is a catch all 
+                    // IsReadyToSave will raise errors for invalid data. This is a catch all
                     // in the event that IsReadyToSave just returns false.
-
-                    // TODO: Resource strings
                     throw new Exception("Data failed validation. Check your data.");
                 }
             }
-            catch (Exceptions.MessageOnlyException ex)
+            catch (MessageOnlyException ex)
             {
                 saveComplete = false;
-                ex.Show(this.ActSubType);
+                await Device.InvokeOnMainThreadAsync(async () =>
+                    await Application.Current.MainPage.DisplayAlert(
+                        this.ActHdr.GetControlDescription(),
+                        ex.Message,
+                        Resource.OK));
             }
             catch (Exception ex)
             {
                 saveComplete = false;
-
                 await Device.InvokeOnMainThreadAsync(async () =>
                 {
                     FormErrorReport errRpt = new FormErrorReport(this.ActSubType, ex);
-                    await errRpt.ShowDialog();
+                    _ = await errRpt.ShowDialog();
                 });
+            }
+            finally
+            {
+                if (this.IsSvdBarScannerEnabled)
+                {
+                    await this.ScannerEnable();
+                }
             }
 
             return saveComplete;
         }
 
         /// <summary>
-        ///
+        /// Check if there are any pending changes, if so cancel them.
         /// </summary>
-        /// <returns></returns>
-        /// <remarks></remarks>
+        /// <returns><see cref="bool"/>. True if the changes where canceled, else false.</returns>
         public async Task<bool> CancelChanges()
         {
             bool cancelChanges = true;
 
+            // NOTE: Do not need to set scanner off or on. Caller will handle.
             try
             {
                 // IsReadyToClose checks if any changes where made.
+                this.IsSvdBarScannerEnabled = this.IsBarCodeHandlerRegistered;
+                await this.ScannerDisable();
                 if (await this.IsReadyToClose())
                 {
                     // Expect the control to close.
@@ -538,30 +346,39 @@
                     cancelChanges = false;
                 }
             }
-            catch (Exceptions.MessageOnlyException ex)
+            catch (MessageOnlyException ex)
             {
                 cancelChanges = false;
-                ex.Show(this.ActSubType);
+                await Device.InvokeOnMainThreadAsync(async () =>
+                    await Application.Current.MainPage.DisplayAlert(
+                        this.ActHdr.GetControlDescription(),
+                        ex.Message,
+                        Resource.OK));
             }
             catch (Exception ex)
             {
                 cancelChanges = false;
-
                 await Device.InvokeOnMainThreadAsync(async () =>
                 {
                     FormErrorReport errRpt = new FormErrorReport(this.ActSubType, ex);
-                    await errRpt.ShowDialog();
+                    _ = await errRpt.ShowDialog();
                 });
+            }
+            finally
+            {
+                if (this.IsSvdBarScannerEnabled)
+                {
+                    await this.ScannerEnable();
+                }
             }
 
             return cancelChanges;
         }
 
         /// <summary>
-        ///
+        /// Assemble a XML string of activity data to return to the calling parent form.
         /// </summary>
-        /// <returns></returns>
-        /// <remarks></remarks>
+        /// <returns><see cref="Task"/> Task operation containing an XDocument.</returns>
         public async Task<XDocument> GetXML()
         {
             XDocument xmldocParams = XDocument.Parse(
@@ -573,43 +390,593 @@
         }
 
         /// <summary>
-        /// 
+        /// Data layer status out event handler.
         /// </summary>
-        /// <param name="dataLayerEventPublisher"></param>
-        /// <param name="dataLayerEventArgs"></param>
-        public void OnLayerStatOut(IDataLayerEventPublisher dataLayerEventPublisher, DataLayerEventArgs dataLayerEventArgs)
+        /// <param name="publisher"><see cref="IDataLayerEventPublisher"/> Data layer
+        /// publisher delegate.</param>
+        /// <param name="dataLayerEventArgs"><see cref="DataGridEnableEventArgs"/> Data layer
+        /// publisher event arguments.</param>
+        public void OnLayerStatOut(
+            IDataLayerEventPublisher publisher,
+            DataLayerEventArgs dataLayerEventArgs)
         {
-            //this.lstDisplay.Items.Clear();
-            this.ItemsList.Clear();
-
-            if (this.ActHdr.ListHdrs.Count > 0)
+            // NOTE: Do not set the scanner off or on here. Scan events can occur even though
+            // this method could be invoked asynchronously in the future.
+            ////this.ListViewDisplayExtraInfo.Items.Clear();
+            this.ExtraInfoItems.Clear();
+            if (!string.IsNullOrEmpty(dataLayerEventArgs.StatusOutMsg))
             {
-                const int LineLength = 30;
-                List<string> lines = SysCommon.WordWrap2List(dataLayerEventArgs.StatusOutMsg, LineLength);
+                this.ExtraInfoItems.Add(dataLayerEventArgs.StatusOutMsg);
+            }
 
-                for (int i = 0; i < lines.Count; i++)
+            ////if (this.ActHdr.ListHdrs.Count > 0)
+            ////{
+            ////    const int LineLength = 30;      // Magic number why 30? Number of column characters?
+            ////    List<string> lines = SysCommon.WordWrap2List(dataLayerEventArgs.StatusOutMsg, LineLength);
+
+            ////    for (int i = 0; i < lines.Count; i++)
+            ////    {
+            ////        ////this.ListViewDisplayExtraInfo.Items.Add(lines[i]);
+            ////        this.ExtraInfoItems.Add(lines[i]);
+            ////    }
+            ////}
+        }
+
+        /// <summary>
+        /// Data layer progress out event handler.
+        /// </summary>
+        /// <param name="publisher"><see cref="IDataLayerEventPublisher"/> Data layer
+        /// publisher delegate.</param>
+        /// <param name="dataLayerEventArgs"><see cref="DataGridEnableEventArgs"/> Data layer
+        /// publisher event arguments.</param>
+        public void OnLayerProgOut(
+            IDataLayerEventPublisher publisher,
+            DataLayerEventArgs dataLayerEventArgs)
+        {
+            if (dataLayerEventArgs.CurrentValue > 0 && dataLayerEventArgs.MaxValue > 0)
+            {
+                double percent = 100 * dataLayerEventArgs.CurrentValue / dataLayerEventArgs.MaxValue;
+                ////this.progBarMain.Progress = percent / 100;
+            }
+        }
+
+        /// <summary>
+        /// Back button pressed event handler.
+        /// </summary>
+        /// <returns>The <see cref="bool"/> True.</returns>
+        protected override bool OnBackButtonPressed()
+        {
+            Device.BeginInvokeOnMainThread(async () =>
+            {
+                if (await this.CancelChanges())
                 {
-                    //this.lstDisplay.Items.Add(lines[i]);
-                    this.ItemsList.Add(lines[i]);
+                    _ = base.OnBackButtonPressed();
+                    await this.Close();
+                }
+            });
+
+            return true;
+        }
+
+        /// <summary>
+        /// Check if options in displayActionSheet are enabled/disabled and rebuild list.
+        /// </summary>
+        /// <param name="propertyName"><see cref="string"/> Option property name..</param>
+        protected override void OnPropertyChanged([CallerMemberName] string propertyName = null)
+        {
+            base.OnPropertyChanged(propertyName);
+            if (propertyName == nameof(this.FilterIsEnabled) || propertyName == nameof(this.FilterText))
+            {
+                this.OptionsMenuItems.Clear();
+
+                if (this.FilterIsEnabled)
+                {
+                    this.OptionsMenuItems.Add(this.FilterText);
                 }
             }
         }
 
         /// <summary>
-        /// 
+        /// Customize behavior immediately prior to the 'Page' becoming visible.
         /// </summary>
-        /// <param name="dataLayerEventPublisher"></param>
-        /// <param name="dataLayerEventArgs"></param>
-        public void OnLayerProgOut(IDataLayerEventPublisher dataLayerEventPublisher, DataLayerEventArgs dataLayerEventArgs)
+        protected override async void OnAppearing()
         {
+            base.OnAppearing();
+            await this.ScannerDisable();
+            SubscribeKeyUpHandlers();
+            this.Loading = true;
+            this.ListViewDisplayExtraInfo.ItemsSource = this.ExtraInfoItems;
+            this.ListViewMainActivity.ItemsSource = this.MainActivityItems;
+            this.ListViewMainActivity.ItemTapped += this.ListViewMainActivity_ItemTapped;
+
+            this.ActHdr.XMLDataCriteria = XDocument.Parse(
+                        "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>" +
+                        "<params>" +
+                        "<whs_id>0</whs_id>" +
+                        "<sect_refno>0</sect_refno>" +
+                        "</params>");
+
+            bool performRefreshData = true;
+
+            try
+            {
+                // This code should be moved into an picking header class inherited from ucActivityHdr.
+                if ((this.ActSubType == SysCommon.ActSubTypes.Picking
+                    || this.ActSubType == SysCommon.ActSubTypes.PickingSingle)
+                    && this.SysEnv.SysSettings.IsPrePickCrit
+                    && this.FirstOnAppearing)
+                {
+                    this.FirstOnAppearing = false;
+                    performRefreshData = await HandlePrePickCriteria();
+                }
+
+                // See WO#12906 do not load any orders if no section was selected.
+                if (performRefreshData)
+                {
+                    await this.RefreshData();
+                }
+            }
+            catch (MessageOnlyException ex)
+            {
+                await Device.InvokeOnMainThreadAsync(async () =>
+                    await Application.Current.MainPage.DisplayAlert(
+                        this.ActHdr.GetControlDescription(),
+                        ex.Message,
+                        Resource.OK));
+            }
+            catch (Exception ex)
+            {
+                this.FirstOnAppearing = true;
+                await Device.InvokeOnMainThreadAsync(async () =>
+                {
+                    string msg = "This activity unexpectedly failed to initialize correctly." +
+                        " Please exit and try again.";
+                    FormErrorReport errorReport = new FormErrorReport(msg, ex);
+                    _ = await errorReport.ShowDialog();
+                });
+            }
+            finally
+            {
+                this.ActHdr.UnregLayerListenerProgOut(this);
+                this.Loading = false;
+
+                // See WO#12906 do not load any orders if no section was selected.
+                // Close picking activity.
+                if (performRefreshData)
+                {
+                    await this.ScannerEnable();
+                }
+                else
+                {
+                    await this.Close();
+                }
+
+                await Task.Run(() =>
+                {
+                    // Explicit GC, Xamarin forms not disposing of objects properly
+                    GC.Collect();
+                    GC.WaitForPendingFinalizers();
+                });
+            }
+
+            //////////////////////////////////////////////////////////////////////////
+            async Task<bool> HandlePrePickCriteria()
+            {
+                bool performRefreshData = true;
+
+                // This code should be moved into an picking header class inherited from ucActivityHdr.
+                int sectFKRefno = 0;
+
+                // Scanning in the picking selection criteria form is possible, which means the
+                // the last parse bar code data would be overwritten.
+                // However because the bar code parse object at this point does not contain any
+                // valuable data we do not need to preserve it before calling the picking
+                // selection form.
+                FormDialogContainer formPickSelect = new FormDialogContainer(
+                    EDialogTypes.ActivityPickingSelectCriteria,
+                    this.ActSubType);
+
+                if (await Device.InvokeOnMainThreadAsync(async () =>
+                    await formPickSelect.DisplayControl.ShowDialog() == DialogResult.OK))
+                {
+                    XDocument xmlResult = await formPickSelect.GetXML();
+                    LocationMap locMap = LocationMap.GetInstance();
+                    SLocMap tmpLocMap = await LocationMapTasks.GetSLocMapFromLocMapRefno(
+                        int.Parse(xmlResult.Root.Element("LocationMapRefno").Value));
+                    locMap.CurrLocMap = tmpLocMap;
+                    ((PickingActivity)this.ActHdr).PickingLocationMapFilter = tmpLocMap;
+                    sectFKRefno = tmpLocMap.SectFKRefno;
+
+                    this.ActHdr.XMLDataCriteria = XDocument.Parse(
+                                "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>"
+                                + "<params>"
+                                + "<whs_id>" + tmpLocMap.WhsFKRefno + "</whs_id>"
+                                + "<sect_refno>" + tmpLocMap.SectFKRefno + "</sect_refno>"
+                                + "</params>");
+                }
+
+                // See WO#12906 do not load any orders if no section was selected, rather than
+                // load all the orders.
+                if (this.SysEnv.SysSettings.IsPickingModuleDisallowLoadingAllOrders && sectFKRefno == 0)
+                {
+                    performRefreshData = false;
+                }
+
+                return performRefreshData;
+            }
+
+            //////////////////////////////////////////////////////////////////////////
+            void OnAppearingDpadDownKey()
+            {
+                object selItem = this.ListViewMainActivity.SelectedItem;
+                if (selItem != null)
+                {
+                    int selItemIdx = this.MainActivityItems.IndexOf(selItem);
+                    if (selItemIdx < this.MainActivityItems.Count - 1)
+                    {
+                        this.ListViewMainActivity.SelectedItem =
+                            this.MainActivityItems[selItemIdx + 1];
+                        this.ListViewMainActivity.ScrollTo(
+                            item: this.ListViewMainActivity.SelectedItem,
+                            position: ScrollToPosition.MakeVisible,
+                            animated: true);
+                    }
+                }
+            }
+
+            //////////////////////////////////////////////////////////////////////////
+            void OnAppearingDpadUpKey()
+            {
+                object selItem = this.ListViewMainActivity.SelectedItem;
+                if (selItem != null)
+                {
+                    int selItemIdx = this.MainActivityItems.IndexOf(selItem);
+                    if (selItemIdx > 0)
+                    {
+                        this.ListViewMainActivity.SelectedItem =
+                            this.MainActivityItems[selItemIdx - 1];
+                        this.ListViewMainActivity.ScrollTo(
+                            item: this.ListViewMainActivity.SelectedItem,
+                            position: ScrollToPosition.MakeVisible,
+                            animated: true);
+                    }
+                }
+            }
+
+            //////////////////////////////////////////////////////////////////////////
+            async Task OnAppearingF1()
+            {
+                if (await this.SaveChanges())
+                {
+                    await this.Close();
+                }
+            }
+
+            //////////////////////////////////////////////////////////////////////////
+            async Task ReleaseOrder()
+            {
+                // Release order.
+                await Task.Run(async () =>
+                {
+                    try
+                    {
+                        this.IsSvdBarScannerEnabled = this.IsBarCodeHandlerRegistered;
+                        await this.ScannerDisable();
+                        if (this.ListViewMainActivity.SelectedItem == null ||
+                            Convert.ToInt32(this.MainActivityItems.IndexOf(
+                                this.ListViewMainActivity.SelectedItem)) < 0)
+                        {
+                            throw new MessageOnlyException("Please select a record to release.");
+                        }
+
+                        // Important! Need to ask for label quantity before the change status AND set
+                        // this.ActHdr.Refno
+                        this.ActHdr.Refno = this.ActHdr.GetRefnoFromRowIdx(
+                            this.ListViewMainActivity.SelectedItem);
+
+                        SLabelQuantity labelQuantity = new SLabelQuantity();
+
+                        if (this.ActSubType == SysCommon.ActSubTypes.PickingSingle &&
+                            this.SysEnv.SysSettings.CanPrintShippingLabel &&
+                            !this.SysEnv.SysSettings.IsDisconnectedMode)
+                        {
+                            labelQuantity = await this.ActHdr.GetLabelQuantity(
+                                this.SysEnv.SysSettings.IsPickSinglePrintShipLabelFullQuantity);
+                        }
+
+                        if (await Device.InvokeOnMainThreadAsync(async () =>
+                            await this.ActHdr.ChangeStatus(this.ListViewMainActivity.SelectedItem)))
+                        {
+                            // Print labels after release
+                            // Lekker Foods wants to be ask to print labels after the order has been released.
+                            // There is no opportunity to reprint after the release.
+                            if (this.ActSubType == SysCommon.ActSubTypes.Picking ||
+                                this.ActSubType == SysCommon.ActSubTypes.PickingSingle)
+                            {
+                                // Shipping labels
+                                if (this.SysEnv.SysSettings.CanPrintShippingLabel &&
+                                    !this.SysEnv.SysSettings.IsDisconnectedMode)
+                                {
+                                    labelQuantity = await PrintLabelsAfterRelease(labelQuantity);
+                                }
+
+                                if (this.SysEnv.SysSettings.IsPickRefreshOrdAfterRel)
+                                {
+                                    await this.RefreshData();
+                                }
+                                else
+                                {
+                                    _ = this.ActHdr.ListHdrs.Remove(this.ListViewMainActivity.SelectedItem);
+                                    await this.DesignGrid();
+                                    await this.FindSelectedItemAsync();
+                                    ////await this.DisplayData();
+                                }
+                            }
+                            else if (this.ActSubType == SysCommon.ActSubTypes.Adjustment)
+                            {
+                                // <WO ID="14748" comment="Printing after deboxing" />
+                                // If DEBOX, prompt for label
+                                if (this.ActHdr is AdjActivity adjustment)
+                                {
+                                    if (adjustment.AdjSettings != null &&
+                                        adjustment.AdjSettings.AdjustmentType == SysCommon.AdjTypes.Debox)
+                                    {
+                                        await this.ScannerDisable();
+
+                                        // Show pop up screen
+                                        FormDialogContainer form = new FormDialogContainer(
+                                            EDialogTypes.ActivityDeboxLabelCount,
+                                            this.ActSubType);
+
+                                        if (await Device.InvokeOnMainThreadAsync(async () =>
+                                            await form.DisplayControl.ShowDialog() == DialogResult.OK))
+                                        {
+                                            XDocument doc = await form.GetXML();
+                                            await this.ActHdr.PrintLabel(doc);
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    catch (MessageOnlyException ex)
+                    {
+                        await Device.InvokeOnMainThreadAsync(async () =>
+                            await Application.Current.MainPage.DisplayAlert(
+                                this.ActHdr.GetControlDescription(),
+                                ex.Message,
+                                Resource.OK));
+                    }
+                    catch (Exception ex)
+                    {
+                        await Device.InvokeOnMainThreadAsync(async () =>
+                        {
+                            FormErrorReport errRpt = new FormErrorReport(this.ActSubType, ex);
+                            _ = await errRpt.ShowDialog();
+                        });
+                    }
+                    finally
+                    {
+                        if (this.IsSvdBarScannerEnabled)
+                        {
+                            await this.ScannerEnable();
+                        }
+                    }
+                });
+
+                //////////////////////////////////////////////////////////////////////////
+                async Task<SLabelQuantity> PrintLabelsAfterRelease(
+                    SLabelQuantity labelQuantity)
+                {
+                    if (this.ActSubType == SysCommon.ActSubTypes.PickingSingle ||
+                        this.ActSubType == SysCommon.ActSubTypes.Picking)
+                    {
+                        if (this.SysEnv.SysSettings.IsPickSinglePrintShipLabelFullQuantity)
+                        {
+                            FormDialogContainer form = new FormDialogContainer(
+                                EDialogTypes.ActivityShippingLabelEdit,
+                                labelQuantity,
+                                this.ActHdr,
+                                SysCommon.ShippingLabelQuantitySelectionMode.RepackOnly);
+
+                            if (await Device.InvokeOnMainThreadAsync(async () =>
+                                await form.DisplayControl.ShowDialog() == DialogResult.OK))
+                            {
+                                XDocument request = await form.GetXML();
+
+                                // The itm_refno elements is used to mark the ar_oeitm.slbl_prtd as true.
+                                // If itm_refno is zero then no line is updated as printed.
+                                request.Element("params").Element("whs_id").AddAfterSelf(
+                                    new XElement("itm_refno", 0));
+                                await this.ActHdr.PrintLabel(request);
+                            }
+                        }
+                        else
+                        {
+                            FormDialogContainer form = new FormDialogContainer(
+                                EDialogTypes.ActivityShippingLabelEdit,
+                                labelQuantity,
+                                this.ActHdr,
+                                SysCommon.ShippingLabelQuantitySelectionMode.BothFullRepack);
+
+                            if (await Device.InvokeOnMainThreadAsync(async () =>
+                                await form.DisplayControl.ShowDialog() == DialogResult.OK))
+                            {
+                                XDocument request = await form.GetXML();
+
+                                // The itm_refno elements is used to mark the ar_oeitm.slbl_prtd as true.
+                                // If itm_refno is zero then no line is updated as printed.
+                                request.Element("params").Element("whs_id").AddAfterSelf(
+                                    new XElement("itm_refno", 0));
+                                await this.ActHdr.PrintLabel(request);
+                            }
+                        }
+                    }
+
+                    return labelQuantity;
+                }
+            }
+
+            //////////////////////////////////////////////////////////////////////////
+            async Task ChangePickCriteria()
+            {
+                // Change pick selection.
+                await Task.Run(async () =>
+                {
+                    this.Loading = true;
+
+                    try
+                    {
+                        if ((this.ActSubType == SysCommon.ActSubTypes.Picking ||
+                            this.ActSubType == SysCommon.ActSubTypes.PickingSingle) &&
+                            this.SysEnv.SysSettings.IsPrePickCrit)
+                        {
+                            // NOTE: oBarCodeParse is not initialized yet so there is not reason to
+                            // preserve its values
+                            FormDialogContainer form = new FormDialogContainer(
+                                EDialogTypes.ActivityPickingSelectCriteria,
+                                this.ActSubType);
+
+                            if (await Device.InvokeOnMainThreadAsync(async () =>
+                                await form.DisplayControl.ShowDialog() == DialogResult.OK))
+                            {
+                                LocationMap locMap = LocationMap.GetInstance();
+                                XDocument result = await form.GetXML();
+                                SLocMap sLocMap = await LocationMapTasks.GetSLocMapFromLocMapRefno(
+                                    int.Parse(result.Root.Element("LocationMapRefno").Value));
+                                locMap.CurrLocMap = sLocMap;
+
+                                this.ActHdr.XMLDataCriteria = XDocument.Parse(
+                                    "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>"
+                                    + "<params>"
+                                    + "<whs_id>" + sLocMap.WhsFKRefno + "</whs_id>"
+                                    + "<sect_refno>" + sLocMap.SectFKRefno + "</sect_refno>"
+                                    + "</params>");
+                            }
+
+                            await this.RefreshData();
+                        }
+                    }
+                    catch (MessageOnlyException ex)
+                    {
+                        await Device.InvokeOnMainThreadAsync(async () =>
+                            await Application.Current.MainPage.DisplayAlert(
+                                this.ActHdr.GetControlDescription(),
+                                ex.Message,
+                                Resource.OK));
+                    }
+                    catch (Exception ex)
+                    {
+                        await Device.InvokeOnMainThreadAsync(async () =>
+                        {
+                            FormErrorReport errRpt = new FormErrorReport(this.ActSubType, ex);
+                            _ = await errRpt.ShowDialog();
+                        });
+                    }
+                    finally
+                    {
+                        this.Loading = false;
+                    }
+                });
+            }
+
+            //////////////////////////////////////////////////////////////////////////
+            void SubscribeKeyUpHandlers()
+            {
+                MessagingCenter.Subscribe<string>(this, EventTypes.OnKeyUp.ToString(), async (keyPressed) =>
+                {
+                    if (this.Loading)
+                    {
+                        return;
+                    }
+
+                    _ = Enum.TryParse(keyPressed, out Keycode keycode);
+
+                    if (keycode == Keycode.Enter)
+                    {
+                        await this.ListViewMainActivity_KeyUpEnter();
+                    }
+                    else if (keycode == Keycode.F1)
+                    {
+                        await OnAppearingF1();
+                    }
+                    else if (keycode == Keycode.F4 && !this.SysEnv.SysSettings.IsDisconnectedMode)
+                    {
+                        await ReleaseOrder();
+                    }
+                    else if (keycode == Keycode.F5)
+                    {
+                        await ChangePickCriteria();
+                    }
+                    else if (keycode == Keycode.DpadDown)
+                    {
+                        OnAppearingDpadDownKey();
+                    }
+                    else if (keycode == Keycode.DpadUp)
+                    {
+                        OnAppearingDpadUpKey();
+                    }
+                });
+            }
         }
 
         /// <summary>
-        ///
+        /// Clean up before the 'Page' becomes invisible.
         /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="oBarCodeScanArgs"></param>
-        /// <remarks></remarks>
+        protected override async void OnDisappearing()
+        {
+            await this.ScannerDisable();
+            MessagingCenter.Unsubscribe<string>(this, EventTypes.OnKeyUp.ToString());
+            this.ListViewMainActivity.ItemTapped -= this.ListViewMainActivity_ItemTapped;
+            base.OnDisappearing();
+        }
+
+        /// <summary>
+        /// Ask to confirm to exit.
+        /// </summary>
+        /// <returns><see cref="Task"/> Task operation.</returns>
+        private async Task<bool> AskConfirmExit()
+        {
+            bool isReadyToClose = false;
+            try
+            {
+                this.IsSvdBarScannerEnabled = this.IsBarCodeHandlerRegistered;
+                await this.ScannerDisable();
+                await this.DisplayAlert(this.ActHdr.GetControlDescription(), "Confirm exit?", "Yes", "No")
+                    .ContinueWith((result) =>
+                    {
+                        if (!result.Result)
+                        {
+                            isReadyToClose = false;
+                        }
+                    });
+
+                if (this.IsSvdBarScannerEnabled)
+                {
+                    await this.ScannerEnable();
+                }
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+            finally
+            {
+                if (this.IsSvdBarScannerEnabled)
+                {
+                    await this.ScannerEnable();
+                }
+            }
+
+            return isReadyToClose;
+        }
+
+        /// <summary>
+        /// Bar code event handler.
+        /// </summary>
+        /// <param name="sender">.</param>
+        /// <param name="scanArgs"><see cref="BarCodeScannerEventArgs"/> Bar code information.</param>
+        /// <returns>The <see cref="Task"/>. Task operation.</returns>
         private async Task BarCodeHandler(object sender, BarCodeScannerEventArgs scanArgs)
         {
             if (this.Loading || scanArgs == null)
@@ -618,1059 +985,789 @@
             }
 
             this.Loading = true;
-            await this.ScannerDisable();
 
             string message = string.Empty;
-            //string savedViewSort = string.Empty;
 
             try
             {
+                this.IsSvdBarScannerEnabled = this.IsBarCodeHandlerRegistered;
+                await this.ScannerDisable();
                 this.BarParse = scanArgs.ParseInfo;
-
-                // TODO: Fix sorting
-                //savedViewSort = this.ActHdr.ListHdrs.Sort;
-
                 if (!string.IsNullOrEmpty(this.BarParse.ActFKRefno))
                 {
-                    // this.BarParse.ActFKRefno e.g. format is 'OE:12345678' 
-                    // Start at 3th pos for the fk refno
-                    string actHdrStringFKRefno = this.BarParse.ActFKRefno;
-
-                    if (!string.IsNullOrEmpty(actHdrStringFKRefno))
-                    {
-                        // TODO: Fix sorting
-                        //this.ActHdr.DataViewHdrs.Sort = this.ActHdr.GetFKRefnoIdx();
-
-                        // TODO: Test that this returns the correct value
-                        //this.ActHdr.DataViewHdrs.Find(actHdrStringFKRefno);
-                        object selectedActivity = this.ActHdr.ListHdrs.OfType<object>().Where(activity => Convert.ToString(activity.GetType().GetProperty(this.ActHdr.GetFKRefnoIdx()).GetValue(activity)) == actHdrStringFKRefno).FirstOrDefault();
-
-                        if (selectedActivity != null)
-                        {
-                            this.ActHdr.Refno = this.ActHdr.GetRefnoFromRowIdx(selectedActivity);
-
-                            await Device.InvokeOnMainThreadAsync(async () =>
-                            {
-                                FormDialogContainer form = new FormDialogContainer(FormDialogContainer.EDialogTypes.ucActivityItem, this.ActHdr, this.ActSubType);
-                                this.IsChangesMade = false;
-                                await form.DisplayControl.ShowDialog();
-                            });
-                        }
-                        else
-                        {
-                            this.ActHdr.FKRefno = 0;
-                            this.ActHdr.Refno = 0;
-
-                            // TODO: Resource strings
-                            throw new Exceptions.MessageOnlyException(string.Format("Unable to find reference # {0}", actHdrStringFKRefno));
-                        }
-                    }
-                    else
-                    {
-                        // TODO: Resource strings
-                        throw new Exceptions.MessageOnlyException(string.Format("Unable to parse reference # {0}", actHdrStringFKRefno));
-                    }
+                    // this.BarParse.ActFKRefno e.g. format is 'OE:12345678'.
+                    // Start at 3th position for the foreign key reference number.
+                    await BarCodeHandlerFKRefno(this.BarParse.ActFKRefno);
                 }
                 else if (!string.IsNullOrEmpty(this.BarParse.ActItemFKRefno))
                 {
-                    // TODO: Resource strings
-                    throw new Exceptions.MessageOnlyException("Scanning an activity item reference # is not supported here!");
+                    throw new MessageOnlyException(
+                        "Scanning an activity item reference # is not supported here!");
                 }
                 else if (!string.IsNullOrEmpty(this.BarParse.ProductIdentifier))
                 {
-                    // TODO: Resource strings
-                    throw new Exceptions.MessageOnlyException("Scanning a product bar code is not supported here!");
+                    throw new MessageOnlyException(
+                        "Scanning a product bar code is not supported here!");
                 }
                 else if (!string.IsNullOrEmpty(this.BarParse.SSCC18))
                 {
-                    // TODO: Resource strings
-                    throw new Exceptions.MessageOnlyException("Scanning a shipping container bar code is not supported here!");
+                    throw new MessageOnlyException(
+                        "Scanning a shipping container bar code is not supported here!");
                 }
                 else if (!string.IsNullOrEmpty(this.BarParse.LocationIdentifier))
                 {
-                    // TODO: Resource strings
-                    throw new Exceptions.MessageOnlyException("Scanning a location identifier bar code is not supported here!");
+                    throw new MessageOnlyException(
+                        "Scanning a location identifier bar code is not supported here!");
                 }
                 else
                 {
-                    // TODO: Resource strings
-                    throw new Exceptions.MessageOnlyException("Scanned bar code type is not supported here!");
+                    throw new MessageOnlyException(
+                        "Scanned bar code type is not supported here!");
                 }
             }
-            catch (Exceptions.MessageOnlyException ex)
+            catch (MessageOnlyException ex)
             {
-                await Device.InvokeOnMainThreadAsync(() => ex.Show(this.ActSubType));
+                await Device.InvokeOnMainThreadAsync(async () =>
+                    await Application.Current.MainPage.DisplayAlert(
+                        this.ActHdr.GetControlDescription(),
+                        ex.Message,
+                        Resource.OK));
             }
             catch (Exception ex)
             {
                 await Device.InvokeOnMainThreadAsync(async () =>
                 {
                     FormErrorReport errRpt = new FormErrorReport(this.ActSubType, ex);
-                    await errRpt.ShowDialog();
+                    _ = await errRpt.ShowDialog();
                 });
             }
             finally
             {
-                // TODO: Fix sorting
-                //this.ActHdr.DataViewHdrs.Sort = savedViewSort;
-                await this.ScannerEnable();
+                if (this.IsSvdBarScannerEnabled)
+                {
+                    await this.ScannerEnable();
+                }
 
                 this.Loading = false;
             }
-        }
 
-        /// <summary>
-        /// Populates a string array to be used in DisplayActionSheet
-        /// </summary>
-        private void PopulateOptionsMenu()
-        {
-            this.OptionsMenuItems.Clear();
-
-            if (this.FilterIsEnabled)
+            //////////////////////////////////////////////////////////////////////////
+            async Task BarCodeHandlerFKRefno(string actHdrStringFKRefno)
             {
-                this.OptionsMenuItems.Add(this.FilterText);
+                object selectedActivity = this.ActHdr.ListHdrs.OfType<object>().FirstOrDefault(
+                    activity => Convert.ToString(activity.GetType().GetProperty(
+                        this.ActHdr.GetFKRefnoIdx()).GetValue(activity)) ==
+                        actHdrStringFKRefno);
+
+                if (selectedActivity != null)
+                {
+                    this.ActHdr.Refno = this.ActHdr.GetRefnoFromRowIdx(selectedActivity);
+
+                    await Device.InvokeOnMainThreadAsync(async () =>
+                    {
+                        FormDialogContainer form = new FormDialogContainer(
+                            EDialogTypes.ActivityItem,
+                            this.ActHdr,
+                            this.ActSubType);
+                        this.IsChangesMade = false;
+                        _ = await form.DisplayControl.ShowDialog();
+                    });
+                }
+                else
+                {
+                    this.ActHdr.FKRefno = 0;
+                    this.ActHdr.Refno = 0;
+
+                    throw new MessageOnlyException(
+                        string.Format("Unable to find reference # {0}", actHdrStringFKRefno));
+                }
             }
         }
 
         /// <summary>
-        ///
+        /// Handle double click on list view item.
+        /// Using a tap gesture recognizer in the designGrid would be optimal, however there is
+        /// currently a known bug that prevents selectedItemChanged from firing.
         /// </summary>
-        /// <remarks></remarks>
+        /// <param name="sender"><see cref="object"/> Sender object.</param>
+        /// <param name="e">The e<see cref="ItemTappedEventArgs"/> Item tapped event arguments.</param>
+        private async void ListViewMainActivity_ItemTapped(object sender, ItemTappedEventArgs e)
+        {
+            if (this.Loading)
+            {
+                return;
+            }
+
+            this.NumTaps++;
+
+            if (this.PreviousSender == e.Item)
+            {
+                if (this.NumTaps == 2)
+                {
+                    this.NumTaps = 0;
+
+                    await this.ListViewMainActivity_KeyUpEnter();
+                }
+            }
+            else
+            {
+                this.PreviousSender = e.Item;
+                this.NumTaps = 1;
+            }
+
+            await Task.Delay(500);
+            this.NumTaps = 0;
+        }
+
+        /// <summary>
+        /// The refresh data.
+        /// </summary>
+        /// <returns>The <see cref="Task"/> Task operation.</returns>
         private async Task RefreshData()
         {
             try
             {
-                if (!this.isRefreshing)
+                this.ActHdr.RegLayerListenerStatOut(this);
+                this.ActHdr.RegLayerListenerProgOut(this);
+                this.IsSvdBarScannerEnabled = this.IsBarCodeHandlerRegistered;
+                await this.ScannerDisable();
+                if (this.FirstOnAppearing)
                 {
-                    this.isRefreshing = true;
-
-                    await Task.Run(async () =>
-                    {
-                        try
-                        {
-                            this.ActHdr.RegLayerListenerProgOut(this);
-                            await this.ActHdr.Refresh(this.ActHdr.XMLDataCriteria);
-                        }
-                        catch (Exception ex)
-                        {
-                            await Device.InvokeOnMainThreadAsync(async () =>
-                            {
-                                FormErrorReport errRpt = new FormErrorReport(this.ActSubType, ex);
-                                await errRpt.ShowDialog();
-                            });
-                        }
-                        finally
-                        {
-                            this.ActHdr.UnregLayerListenerProgOut(this);
-                        }
-
-                        await Device.InvokeOnMainThreadAsync(() => this.ItemsList.Clear());
-                        this.ActHdr.ListHdrs = await this.ActHdr.GetActivityList(false);
-
-                        await this.DesignGrid();
-                    });
+                    await this.ActHdr.Refresh(this.ActHdr.XMLDataCriteria);
+                    this.ActHdr.ListHdrs = await this.ActHdr.GetActivityList(false);
+                    this.ExtraInfoItems.Clear();
+                    await this.DesignGrid();
+                    await this.FindSelectedItemAsync();
+                    this.FirstOnAppearing = false;
                 }
             }
             catch (Exception ex)
             {
-                // TODO: logging
-                // TODO: Resource strings
-                await Device.InvokeOnMainThreadAsync(async () => await DisplayAlert("Error", "An error occurred while refreshing data: " + ex.Message, "OK"));
+                await Device.InvokeOnMainThreadAsync(async () =>
+                {
+                    FormErrorReport errRpt = new FormErrorReport(
+                        this.ActSubType,
+                        ex,
+                        this.ActHdr.GetControlDescription(),
+                        "Refresh");
+                    _ = await errRpt.ShowDialog();
+                });
             }
             finally
             {
-                //this.Loading = false;
-                await Task.Run(() =>
+                this.ActHdr.UnregLayerListenerStatOut(this);
+                this.ActHdr.UnregLayerListenerProgOut(this);
+                if (this.IsSvdBarScannerEnabled)
                 {
-                    // Explicit GC, Xamarin forms not disposing of objects properly
-                    GC.Collect();
-                    GC.WaitForPendingFinalizers();
-                });
-
-                this.isRefreshing = false;
+                    await this.ScannerEnable();
+                }
             }
         }
 
+        /// <summary>
+        /// Design the main activity grid / list.
+        /// </summary>
+        /// <returns>The <see cref="Task"/>. Task operation.</returns>
         private async Task DesignGrid()
         {
-            await Device.InvokeOnMainThreadAsync(async () =>
+            await Device.InvokeOnMainThreadAsync(() =>
             {
-                this.DataGridMainActivityItemsList = this.ActHdr.DesignGrid(ref this.dataGridMainActivityHeader, ref this.dataGridMainActivity);
+                this.MainActivityItems = this.ActHdr.DesignGrid(
+                    ref this.GridMainActivity,
+                    ref this.ListViewMainActivity);
 
                 if (!string.IsNullOrEmpty(this.txtSearchHdr.Text))
                 {
-                    this.DataGridMainActivityItemsList = this.ActHdr.Search(this.txtSearchHdr.Text);
+                    this.MainActivityItems = this.ActHdr.Search(this.txtSearchHdr.Text);
                 }
 
-                this.dataGridMainActivity.ItemsSource = this.DataGridMainActivityItemsList;
-
-                if (this.ActHdr.ListHdrs.Count > 0 && this.DataGridMainActivityItemsList.Count > 0)
-                {
-                    if (this.dataGridMainActivity.SelectedItem == null)
-                    {
-                        this.dataGridMainActivity.SelectedItem = this.DataGridMainActivityItemsList[0];
-                    }
-                    else
-                    {
-                        if (this.SelectedIndex > -1 && this.DataGridMainActivityItemsList.Count > this.SelectedIndex)
-                        {
-                            this.dataGridMainActivity.SelectedItem = this.DataGridMainActivityItemsList[this.SelectedIndex];
-                        }
-                        else
-                        {
-                            this.dataGridMainActivity.SelectedItem = this.DataGridMainActivityItemsList[0];
-                        }
-                    }
-                }
-                else if (this.dataGridMainActivity.SelectedItem != null)
-                {
-                    this.ActHdr.SelectedActivity = null;
-                    this.dataGridMainActivity.SelectedItem = null;
-                }
-
-                await this.DisplayData();
+                this.ListViewMainActivity.ItemsSource = this.MainActivityItems;
             });
         }
 
         /// <summary>
-        ///
+        /// Find the selected item in the data list.
         /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        /// <remarks></remarks>
-        private async Task ucActivityHdr_GotFocus(object sender, EventArgs e)
+        /// <returns><see cref="Task"/> Task operation.</returns>
+        private async Task FindSelectedItemAsync()
         {
-            if (!SysEnvironment.GetInstance().IsApplicationExitInvoked)
+            if (this.ActHdr.ListHdrs.Count > 0 && this.MainActivityItems.Count > 0)
             {
-                await this.ScannerEnable();
-            }
-        }
-
-        /// <summary>
-        ///
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        /// <remarks></remarks>
-        private async Task tmrActivityLoaded_Tick(object sender, EventArgs e)
-        {
-            await Task.Run(async () =>
-            {
-                bool performRefreshData = true;
-
-                try
+                object selectedItem = null;
+                foreach (object hdr in this.ActHdr.ListHdrs)
                 {
-                    this.ActHdr.XMLDataCriteria = XDocument.Parse(
-                                "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>" +
-                                "<params>" + "<whs_id>0</whs_id>" + "<sect_refno>0</sect_refno>" + "</params>");
-
-                    if ((this.ActSubType == SysCommon.ActSubTypes.Picking || this.ActSubType == SysCommon.ActSubTypes.PickingSingle) && this.SysEnv.SysSettings.IsPrePickCrit && this.firstOnAppearing)
+                    if (this.SelectedActivityFKRefno == this.ActHdr.GetFKRefno(hdr))
                     {
-                        this.firstOnAppearing = false;
-                        await this.ScannerDisable();
-                        int sectFKRefno = 0;
-
-                        // Scanning in the picking selection criteria form is possible, which means the
-                        // the last parse bar code data would be overwritten.
-                        // However because the bar code parse object at this point does not contain any valuable data we do not
-                        // need to preserve it before calling the picking selection form.
-                        FormDialogContainer formPickSelect = new FormDialogContainer(FormDialogContainer.EDialogTypes.ucActivityPickingSelectCriteria, this.ActSubType);
-
-                        if (await Device.InvokeOnMainThreadAsync(async () => await formPickSelect.DisplayControl.ShowDialog() == DialogResult.OK))
-                        {
-                            XDocument xmlResult = await formPickSelect.GetXML();
-                            LocationMap locMap = LocationMap.GetInstance();
-                            SLocMap tmpLocMap = await LocationMapTasks.GetSLocMapFromLocMapRefno(int.Parse(xmlResult.Root.Element("LocationMapRefno").Value));
-                            locMap.CurrLocMap = tmpLocMap;
-                            sectFKRefno = tmpLocMap.SectFKRefno;
-
-                            this.ActHdr.XMLDataCriteria = XDocument.Parse(
-                                        "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>"
-                                        + "<params>"
-                                        + ("<whs_id>" + tmpLocMap.WhsFKRefno + "</whs_id>")
-                                        + ("<sect_refno>" + tmpLocMap.SectFKRefno + "</sect_refno>")
-                                        + "</params>");
-                        }
-
-                        // See WO#12906 do not load any orders if no section was selected.
-                        if (this.SysEnv.SysSettings.IsPickingModuleDisallowLoadingAllOrders && sectFKRefno == 0)
-                        {
-                            performRefreshData = false;
-                        }
-                    }
-
-                    if (performRefreshData)
-                    {
-                        await this.RefreshData();
+                        selectedItem = hdr;
+                        break;
                     }
                 }
-                catch (Exceptions.MessageOnlyException ex)
+
+                if (selectedItem == null)
                 {
-                    ex.Show(this.ActSubType);
-                }
-                catch (Exception ex)
-                {
-                    await Device.InvokeOnMainThreadAsync(async () =>
-                    {
-                        FormErrorReport errRpt = new FormErrorReport(this.ActSubType, ex);
-                        await errRpt.ShowDialog();
-                    });
-                }
-                finally
-                {
-                    await this.ScannerEnable();
-
-                    this.isControlLoaded = true;
-
-                    // See WO#12906 do not load any orders if no section was selected.
-                    // Close picking activity.
-                    if (!performRefreshData)
-                    {
-                        await this.Close();
-                    }
-                }
-            });
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        private async Task DisplayData()
-        {
-            // TODO: Test this function after sql changes
-            switch (this.ActSubType)
-            {
-                case SysCommon.ActSubTypes.Adjustment:
-                    await Device.InvokeOnMainThreadAsync(() =>
-                    {
-                        this.ItemsList.Clear();
-
-                        if (this.ActHdr.SelectedActivity is Adjustment adjustment)
-                        {
-                            // TODO: Resource strings
-                            this.ItemsList.Add(adjustment.ActivityAdjustmentType.ToString());
-                            this.ItemsList.Add("WHS:  " + adjustment.LocationMapWarehouseName.ToString());
-                        }
-                    });
-
-                    break;
-
-                case SysCommon.ActSubTypes.AssignDefaultLocation:
-                    break;
-
-                case SysCommon.ActSubTypes.BarCodeAssociation:
-                    await Device.InvokeOnMainThreadAsync(() =>
-                    {
-                        this.ItemsList.Clear();
-
-                        if (this.ActHdr.SelectedActivity is BarcodeAssociation barcodeAssociation)
-                        {
-                            // TODO: Resource strings
-                            this.ItemsList.Add(barcodeAssociation.ProductUnitBarCodeCode.TrimEnd());
-                            this.ItemsList.Add(barcodeAssociation.ProductUnitBarCodeModifier1.TrimEnd());
-                        }
-                    });
-
-                    break;
-
-                case SysCommon.ActSubTypes.BreakSkid:
-                    break;
-
-                case SysCommon.ActSubTypes.ConvertUnit:
-                    break;
-
-                case SysCommon.ActSubTypes.CycleCounts:
-                    await Device.InvokeOnMainThreadAsync(() =>
-                    {
-                        this.ItemsList.Clear();
-
-                        if (this.ActHdr.SelectedActivity is Count count)
-                        {
-                            const int LineLength = 30;
-                            List<string> lines = SysCommon.WordWrap2List(count.ActivityCountDescription.TrimEnd(), LineLength);
-
-                            for (int i = 0; i < lines.Count; i++)
-                            {
-                                this.ItemsList.Add(lines[i]);
-                            }
-                        }
-                    });
-
-                    break;
-
-                case SysCommon.ActSubTypes.DataStatus:
-                    break;
-
-                case SysCommon.ActSubTypes.InventoryInquiry:
-                    break;
-
-                case SysCommon.ActSubTypes.InventoryReplenishment:
-                    break;
-
-                case SysCommon.ActSubTypes.MoveInventory:
-                    break;
-
-                case SysCommon.ActSubTypes.MoveSkid:
-                    break;
-
-                case SysCommon.ActSubTypes.NotApplicable:
-                    break;
-
-                case SysCommon.ActSubTypes.PhysicalCounts:
-                    await Device.InvokeOnMainThreadAsync(() =>
-                    {
-                        this.ItemsList.Clear();
-
-                        if (this.ActHdr.SelectedActivity is Count count)
-                        {
-                            const int LineLength = 30;
-                            List<string> lines = SysCommon.WordWrap2List(count.ActivityCountDescription.TrimEnd(), LineLength);
-
-                            for (int i = 0; i < lines.Count; i++)
-                            {
-                                this.ItemsList.Add(lines[i]);
-                            }
-                        }
-                    });
-
-                    break;
-
-                case SysCommon.ActSubTypes.Picking:
-                    await Device.InvokeOnMainThreadAsync(() =>
-                    {
-                        this.ItemsList.Clear();
-
-                        if (this.ActHdr.SelectedActivity is Picking picking)
-                        {
-                            // TODO: Resource strings
-                            this.ItemsList.Add("CUSTOMER: " + picking.ActivityPickingCustomerContactName);
-                            this.ItemsList.Add("SHIPTO:   " + picking.ActivityPickingCustomerShipToInfo);
-                        }
-                    });
-
-                    break;
-
-                case SysCommon.ActSubTypes.PickingSingle:
-                    await Device.InvokeOnMainThreadAsync(() =>
-                    {
-                        this.ItemsList.Clear();
-
-                        if (this.ActHdr.SelectedActivity is Picking pickingSingle)
-                        {
-                            // TODO: Resource strings
-
-                            this.ItemsList.Add("CUSTOMER: " + pickingSingle.ActivityPickingCustomerContactName);
-                            this.ItemsList.Add("SHIPTO:   " + pickingSingle.ActivityPickingCustomerShipToInfo);
-                        }
-                    });
-
-                    break;
-
-                case SysCommon.ActSubTypes.TicketAddProduct:
-                    await Device.InvokeOnMainThreadAsync(() =>
-                    {
-                        this.ItemsList.Clear();
-
-                        if (this.ActHdr.SelectedActivity is ProductionTicketByProduct productionTicketByProduct)
-                        {
-                            // TODO: Resource strings
-                            this.ItemsList.Add(productionTicketByProduct.ActivityProductionDescription);
-                            this.ItemsList.Add("WHS:  " + productionTicketByProduct.LocationMapWarehouseName);
-                        }
-                    });
-
-                    break;
-
-                case SysCommon.ActSubTypes.TicketFinished:
-                    await Device.InvokeOnMainThreadAsync(() =>
-                    {
-                        this.ItemsList.Clear();
-
-                        if (this.ActHdr.SelectedActivity is ProductionTicketFinished productionTicketFinished)
-                        {
-                            // TODO: Resource strings
-                            this.ItemsList.Add(productionTicketFinished.ActivityProductionDescription);
-                            this.ItemsList.Add("WHS:  " + productionTicketFinished.LocationMapWarehouseName);
-                        }
-                    });
-
-                    break;
-
-                case SysCommon.ActSubTypes.TicketMaterial:
-                    await Device.InvokeOnMainThreadAsync(() =>
-                    {
-                        this.ItemsList.Clear();
-
-                        if (this.ActHdr.SelectedActivity is ProductionTicketMaterial productionTicketMaterial)
-                        {
-                            // TODO: Resource strings
-                            this.ItemsList.Add(productionTicketMaterial.ActivityProductionDescription);
-                            this.ItemsList.Add("WHS:  " + productionTicketMaterial.LocationMapWarehouseName);
-                        }
-                    });
-
-                    break;
-
-                case SysCommon.ActSubTypes.PurchaseOrderWorkSheet:
-                    await Device.InvokeOnMainThreadAsync(() => this.ItemsList.Clear());
-
-                    break;
-
-                case SysCommon.ActSubTypes.PurgeActivityData:
-                    break;
-
-                case SysCommon.ActSubTypes.PutAwaySkid:
-                    break;
-
-                case SysCommon.ActSubTypes.Receiving:
-                    await Device.InvokeOnMainThreadAsync(() =>
-                    {
-                        this.ItemsList.Clear();
-
-                        if (this.ActHdr.SelectedActivity is Receive receive)
-                        {
-                            // TODO: Resource strings
-                            this.ItemsList.Add("VENDOR:  " + receive.ActivityReceivingVendorContactName);
-                            this.ItemsList.Add("SUPPLIER:  " + receive.ActivityReceivingVendorSupplierContactName);
-                        }
-                    });
-
-                    break;
-
-                case SysCommon.ActSubTypes.RefreshData:
-                    break;
-
-                case SysCommon.ActSubTypes.ReleaseByItemSection:
-                    break;
-
-                case SysCommon.ActSubTypes.ReleaseByOrder:
-                    await Device.InvokeOnMainThreadAsync(() =>
-                    {
-                        this.ItemsList.Clear();
-
-                        if (this.ActHdr.SelectedActivity is Picking pickingReleaseByOrder)
-                        {
-                            // TODO: Resource strings
-                            this.ItemsList.Add("CUSTOMER: " + pickingReleaseByOrder.ActivityPickingCustomerContactName);
-                            this.ItemsList.Add("SHIPTO:   " + pickingReleaseByOrder.ActivityPickingCustomerShipToInfo);
-                        }
-                    });
-
-                    break;
-
-                case SysCommon.ActSubTypes.Returns:
-                    await Device.InvokeOnMainThreadAsync(() =>
-                    {
-                        this.ItemsList.Clear();
-
-                        if (this.ActHdr.SelectedActivity is Return returns)
-                        {
-                            // TODO: Resource strings
-                            this.ItemsList.Add("CUSTOMER: " + returns.ActivityReturnsCustomerContactName);
-                            this.ItemsList.Add("SHIPTO:   " + returns.ActivityReturnsCustomerShipToInfo);
-                        }
-                    });
-
-                    break;
-
-                case SysCommon.ActSubTypes.SelectLocation:
-                    break;
-
-                case SysCommon.ActSubTypes.SelectProduct:
-                    break;
-
-                case SysCommon.ActSubTypes.SkidInfo:
-                    break;
-
-                case SysCommon.ActSubTypes.TransferFrom:
-                    await Device.InvokeOnMainThreadAsync(() =>
-                    {
-                        this.ItemsList.Clear();
-
-                        if (this.ActHdr.SelectedActivity is Transfer transfer)
-                        {
-                            // TODO: Resource strings
-                            this.ItemsList.Add(transfer.ActivityTransferDescription);
-                            this.ItemsList.Add("TO WHS:  " + transfer.LocationMapWarehouseName);
-                        }
-                    });
-
-                    break;
-            }
-        }
-
-        /// <summary>
-        ///
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        /// <remarks></remarks>
-        private async void cmdFilter_Click(object sender, EventArgs e)
-        {
-            if (this.IsControlLoaded)
-            {
-                try
-                {
-                    FormDialogContainer.EDialogTypes dlgType = 0;
-
-                    await this.ScannerDisable();
-
-                    switch (this.ActSubType)
-                    {
-                        case SysCommon.ActSubTypes.Picking:
-                            dlgType = FormDialogContainer.EDialogTypes.ucActivityHdrPickingFilter;
-                            break;
-
-                        case SysCommon.ActSubTypes.PickingSingle:
-                            dlgType = FormDialogContainer.EDialogTypes.ucActivityHdrPickingFilter;
-                            break;
-
-                        case SysCommon.ActSubTypes.Receiving:
-                            dlgType = FormDialogContainer.EDialogTypes.ucActivityHdrReceivingFilter;
-                            break;
-
-                        case SysCommon.ActSubTypes.TransferFrom:
-                            dlgType = FormDialogContainer.EDialogTypes.ucActivityHdrTransferFilter;
-                            break;
-
-                        case SysCommon.ActSubTypes.TransferTo:
-                            dlgType = FormDialogContainer.EDialogTypes.ucActivityHdrTransferFilter;
-                            break;
-
-                        case SysCommon.ActSubTypes.PhysicalCounts:
-                            dlgType = FormDialogContainer.EDialogTypes.ucActivityHdrPhysicalCountFilter;
-                            break;
-
-                        case SysCommon.ActSubTypes.CycleCounts:
-                            dlgType = FormDialogContainer.EDialogTypes.ucActivityHdrCycleCountFilter;
-                            break;
-
-                        case SysCommon.ActSubTypes.Adjustment:
-                            dlgType = FormDialogContainer.EDialogTypes.ucActivityAdjustmentFilter;
-                            break;
-
-                        case SysCommon.ActSubTypes.Returns:
-                            dlgType = FormDialogContainer.EDialogTypes.ucActivityHdrReturnsFilter;
-                            break;
-
-                        case SysCommon.ActSubTypes.TicketFinished:
-                            dlgType = FormDialogContainer.EDialogTypes.ucActivityProductionTicketFinishedFilter;
-                            break;
-
-                        case SysCommon.ActSubTypes.TicketMaterial:
-                            dlgType = FormDialogContainer.EDialogTypes.ucActivityProductionTicketMaterialFilter;
-                            break;
-
-                        case SysCommon.ActSubTypes.TicketAddProduct:
-                            dlgType = FormDialogContainer.EDialogTypes.ucActivityProductionTicketByProductFilter;
-                            break;
-
-                        default:
-                            throw new NotImplementedException("eActivitySubType");
-                    }
-
-                    FormDialogContainer form = new FormDialogContainer(dlgType, this.ActSubType);
-
-                    await Device.InvokeOnMainThreadAsync(async () =>
-                    {
-                        if (await form.DisplayControl.ShowDialog() == DialogResult.OK)
-                        {
-                            XDocument xmlDoc = await form.GetXML();
-
-                            // TODO: Fix filtering
-                            // this.ActHdr.DataViewHdrs.RowFilter = this.ActHdr.GetFilter(xmlDoc);
-
-                            if (!string.IsNullOrEmpty(xmlDoc.Root.Element("sortby").Value))
-                            {
-                                // TODO: Fix sorting
-                                //this.ActHdr.DataViewHdrs.Sort = xmlDoc.Root.Element("sortby").Value;
-                            }
-
-                            if (!string.IsNullOrEmpty(this.txtSearchHdr.Text))
-                            {
-                                this.DataGridMainActivityItemsList = this.ActHdr.Search(this.txtSearchHdr.Text);
-                            }
-                        }
-                    });
-
-                    await this.ScannerEnable();
-                }
-                catch (Exceptions.MessageOnlyException ex)
-                {
-                    // Do not set the IsChangesMade. Exceptions.MessageOnlyException is really not and error. 
-                    // Allow the validation to handle the setting for IsChangesMade.
-                    ex.Show(this.ActSubType);
-                }
-                catch (Exception ex)
-                {
-                    await Device.InvokeOnMainThreadAsync(async () =>
-                    {
-                        FormErrorReport errRpt = new FormErrorReport(this.ActSubType, ex);
-                        await errRpt.ShowDialog();
-                    });
-                }
-            }
-        }
-
-        /// <summary>
-        ///
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        /// <remarks></remarks>
-        private async void cmdAdd_Click(object sender, EventArgs e)
-        {
-            if (this.IsControlLoaded)
-            {
-                try
-                {
-                    // Needed to check if the enter key was pressed last, because it seems that 
-                    // SelectNextControl in the keypress event causes a click event to fire
-                    // if a command button is the next control rather than just giving the button focus.
-                    XDocument xmlDoc = null;
-                    await this.ActHdr.Insert(xmlDoc);
-                }
-                catch (Exceptions.MessageOnlyException ex)
-                {
-                    // Do not set the IsChangesMade. Exceptions.MessageOnlyException is really not and error. 
-                    // Allow the validation to handle the setting for IsChangesMade.
-                    ex.Show(this.ActSubType);
-                }
-                catch (Exception ex)
-                {
-                    await Device.InvokeOnMainThreadAsync(async () =>
-                    {
-                        FormErrorReport errRpt = new FormErrorReport(this.ActSubType, ex);
-                        await errRpt.ShowDialog();
-                    });
-                }
-            }
-        }
-
-        /// <summary>
-        /// Change the pick selection.
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private async void DataGridMainActivity_KeyUpF5(object sender, KeyEventArgs e)
-        {
-            await this.KeyUpF5_ChangePickingCriteria(sender, e);
-        }
-
-        /// <summary>
-        /// Release order.
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private async void DataGridMainActivity_KeyUpF4(object sender, KeyEventArgs e)
-        {
-            await this.KeyUpF4_ReleaseOrder(sender, e);
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private async Task DataGridMainActivity_KeyUpEnter()
-        {
-            if (!this.Loading && this.dataGridMainActivity.SelectedItem != null && (Convert.ToInt32(this.DataGridMainActivityItemsList.IndexOf(this.dataGridMainActivity.SelectedItem)) > -1))
-            {
-                try
-                {
-                    await Task.Run(async () =>
-                    {
-
-                        this.Loading = true;
-
-                        await this.ScannerDisable();
-                        this.ActHdr.Refno = this.ActHdr.GetRefnoFromRowIdx(this.dataGridMainActivity.SelectedItem);
-
-                        if (this.SysEnv.SysSettings.IsPickSingleProd && this.ActSubType == SysCommon.ActSubTypes.PickingSingle)
-                        {
-                            bool isAllowedToPick = true;
-
-                            if (await ((PickingActivity)this.ActHdr).IsSalesOrderBeingPicked())
-                            {
-                                isAllowedToPick = false;
-
-                                if (this.SysEnv.ContactLog.IsAllowedPickingModuleOverridePicker)
-                                {
-                                    // TODO: Test
-                                    if (await Device.InvokeOnMainThreadAsync(async () => await DisplayAlert("Picker Override", "Do you wish to clear the current picker?", "Yes", "No")))
-                                    {
-                                        if (await ((PickingActivity)this.ActHdr).ClearSalesOrderBeingPicked(false))
-                                        {
-                                            await Device.InvokeOnMainThreadAsync(async () => await DisplayAlert("Picker Override", "Picker cleared.", "OK"));
-                                        }
-                                        else
-                                        {
-                                            await Device.InvokeOnMainThreadAsync(async () => await DisplayAlert("Picker Override", "Unable to clear the current picker.", "OK"));
-                                        }
-                                    }
-                                }
-                            }
-
-                            if (isAllowedToPick)
-                            {
-                                FormDialogContainer form = new FormDialogContainer(FormDialogContainer.EDialogTypes.ucActivityItemSingle, this.ActHdr, this.ActSubType);
-                                this.IsChangesMade = false;
-                                await Device.InvokeOnMainThreadAsync(async () => await form.DisplayControl.ShowDialog());
-                            }
-                        }
-                        else
-                        {
-                            FormDialogContainer form = new FormDialogContainer(FormDialogContainer.EDialogTypes.ucActivityItem, this.ActHdr, this.ActSubType);
-                            this.IsChangesMade = false;
-                            await Device.InvokeOnMainThreadAsync(async () => await form.DisplayControl.ShowDialog());
-                        }
-                    });
-                }
-                catch (Exceptions.MessageOnlyException ex)
-                {
-                    ex.Show(this.ActSubType);
-                }
-                catch (Exception ex)
-                {
-                    await Device.InvokeOnMainThreadAsync(async () =>
-                    {
-                        FormErrorReport errRpt = new FormErrorReport(this.ActSubType, ex);
-                        await errRpt.ShowDialog();
-                    });
-                }
-                finally
-                {
-                    await this.ScannerEnable();
-                    this.Loading = false;
-                }
-            }
-        }
-
-        /// <summary>
-        /// Release order
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private async Task KeyUpF4_ReleaseOrder(object sender, KeyEventArgs e)
-        {
-            await Task.Run(async () =>
-            {
-                try
-                {
-                    if (this.dataGridMainActivity.SelectedItem == null || Convert.ToInt32(this.DataGridMainActivityItemsList.IndexOf(this.dataGridMainActivity.SelectedItem)) < 0)
-                    {
-                        // TODO: Resource strings
-                        throw new Exceptions.MessageOnlyException("Please select a record to release.");
-                    }
-
-                    // Important! Need to ask for label quantity before the change status AND set this.ActHdr.Refno
-                    this.ActHdr.Refno = this.ActHdr.GetRefnoFromRowIdx(this.dataGridMainActivity.SelectedItem);
-
-                    SysCommon.SLabelQuantity labelQuantity = new SysCommon.SLabelQuantity();
-
-                    if (this.ActSubType == SysCommon.ActSubTypes.PickingSingle && this.SysEnv.SysSettings.CanPrintShippingLabel && !this.SysEnv.SysSettings.IsDisconnectedMode)
-                    {
-                        labelQuantity = await this.ActHdr.GetLabelQuantity(this.SysEnv.SysSettings.IsPickSinglePrintShipLabelFullQuantity);
-                    }
-
-                    if (await Device.InvokeOnMainThreadAsync(async () => await this.ActHdr.ChangeStatus(this.dataGridMainActivity.SelectedItem)))
-                    {
-                        // Print labels after release
-                        await this.ScannerDisable();
-
-                        // Lekker Foods wants to be ask to print labels after the order has been released.
-                        // There is no opportunity to reprint after the release.
-                        if (this.ActSubType == SysCommon.ActSubTypes.Picking || this.ActSubType == SysCommon.ActSubTypes.PickingSingle)
-                        {
-                            // Shipping labels
-                            if (this.SysEnv.SysSettings.CanPrintShippingLabel && !this.SysEnv.SysSettings.IsDisconnectedMode)
-                            {
-                                labelQuantity = await PrintLabelsAfterRelease(labelQuantity);
-                            }
-
-                            if (this.SysEnv.SysSettings.IsPickRefreshOrdAfterRel)
-                            {
-                                await this.RefreshData();
-                            }
-                            else
-                            {
-                                this.ActHdr.ListHdrs.Remove(dataGridMainActivity.SelectedItem);
-                                await this.DesignGrid();
-                            }
-                        }
-                        else if (this.ActSubType == SysCommon.ActSubTypes.Adjustment)
-                        {
-                            // <WO ID="14748" comment="Printing after deboxing" />
-                            // If DEBOX, prompt for label
-                            AdjActivity adjustment = ActHdr as AdjActivity;
-
-                            if (adjustment != null)
-                            {
-                                if (adjustment.AdjSettings != null && adjustment.AdjSettings.AdjustmentType == SysCommon.AdjTypes.Debox)
-                                {
-                                    // Show pop up screen
-                                    FormDialogContainer form = new FormDialogContainer(FormDialogContainer.EDialogTypes.ucActivityDeboxLabelCount, ActSubType);
-
-                                    if (await Device.InvokeOnMainThreadAsync(async () => await form.DisplayControl.ShowDialog() == DialogResult.OK))
-                                    {
-                                        XDocument doc = await form.GetXML();
-                                        await actHdr.PrintLabel(doc);
-                                    }
-                                }
-                            }
-                        }
-
-                        await this.ScannerEnable();
-                    }
-                }
-                catch (Exceptions.MessageOnlyException ex)
-                {
-                    ex.Show(this.ActSubType);
-                }
-                catch (Exception ex)
-                {
-                    await Device.InvokeOnMainThreadAsync(async () =>
-                    {
-                        FormErrorReport errRpt = new FormErrorReport(this.ActSubType, ex);
-                        await errRpt.ShowDialog();
-                    });
-                }
-            });
-        }
-
-        private async Task<SysCommon.SLabelQuantity> PrintLabelsAfterRelease(SysCommon.SLabelQuantity labelQuantity)
-        {
-            if (this.ActSubType == SysCommon.ActSubTypes.PickingSingle || this.ActSubType == SysCommon.ActSubTypes.Picking)
-            {
-                if (this.SysEnv.SysSettings.IsPickSinglePrintShipLabelFullQuantity)
-                {
-                    FormDialogContainer form = new FormDialogContainer(FormDialogContainer.EDialogTypes.ucActivityShippingLabelEdit, this.ActSubType, labelQuantity, this.ActHdr, SysCommon.ShippingLabelQuantitySelectionMode.RepackOnly);
-
-                    if (await Device.InvokeOnMainThreadAsync(async () => await form.DisplayControl.ShowDialog() == DialogResult.OK))
-                    {
-                        XDocument request = await form.GetXML();
-
-                        // The itm_refno elements is used to mark the ar_oeitm.slbl_prtd as true.
-                        // If itm_refno is zero then no line is updated as printed.
-                        request.Element("params").Element("whs_id").AddAfterSelf(new XElement("itm_refno", 0));
-                        await this.ActHdr.PrintLabel(request);
-                    }
+                    // Goto the first one in the list.
+                    this.ListViewMainActivity.SelectedItem = this.MainActivityItems[0];
+                    await this.ActHdr.SelectActivity(this.ListViewMainActivity.SelectedItem);
+                    this.SelectedIndex = 0;
                 }
                 else
                 {
-                    FormDialogContainer form = new FormDialogContainer(FormDialogContainer.EDialogTypes.ucActivityShippingLabelEdit, this.ActSubType, labelQuantity, this.ActHdr, SysCommon.ShippingLabelQuantitySelectionMode.BothFullRepack);
-
-                    if (await Device.InvokeOnMainThreadAsync(async () => await form.DisplayControl.ShowDialog() == DialogResult.OK))
-                    {
-                        XDocument request = await form.GetXML();
-
-                        // The itm_refno elements is used to mark the ar_oeitm.slbl_prtd as true.
-                        // If itm_refno is zero then no line is updated as printed.
-                        request.Element("params").Element("whs_id").AddAfterSelf(new XElement("itm_refno", 0));
-                        await this.ActHdr.PrintLabel(request);
-                    }
+                    await this.ActHdr.SelectActivity(selectedItem);
+                    this.ListViewMainActivity.SelectedItem = this.ActHdr.SelectedActivity;
                 }
             }
-
-            return labelQuantity;
+            else
+            {
+                // Clear the activity nothing can be selected.
+                this.ActHdr.SelectedActivity = null;
+                this.ActHdr.FKRefno = 0;
+                this.ActHdr.Refno = 0;
+                this.ListViewMainActivity.SelectedItem = null;
+            }
         }
 
         /// <summary>
-        /// 
+        /// Display the activity data on the form controls with exception of the list view / grid.
         /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private async Task KeyUpF5_ChangePickingCriteria(object sender, KeyEventArgs e)
+        /// <returns>The <see cref="Task"/>. Task operation.</returns>
+        private async Task DisplayData()
         {
-            await Task.Run(async () =>
+            await Device.InvokeOnMainThreadAsync(() =>
             {
-                this.Loading = true;
+                this.ExtraInfoItems.Clear();
 
-                try
+                // TODO: Test this function after SQL changes
+                // This code should be moved into an activity header classes inherited from ucActivityHdr
+                // for each subtype.
+                switch (this.ActSubType)
                 {
-                    if ((this.ActSubType == SysCommon.ActSubTypes.Picking || this.ActSubType == SysCommon.ActSubTypes.PickingSingle) && this.SysEnv.SysSettings.IsPrePickCrit)
-                    {
-                        // NOTE: oBarCodeParse is not initialized yet so there is not reason to preserve its values
-                        FormDialogContainer form = new FormDialogContainer(FormDialogContainer.EDialogTypes.ucActivityPickingSelectCriteria, this.ActSubType);
+                    case SysCommon.ActSubTypes.Adjustment:
+                        DisplayDataAdjustments();
 
-                        if (await Device.InvokeOnMainThreadAsync(async () => await form.DisplayControl.ShowDialog() == DialogResult.OK))
-                        {
-                            LocationMap locMap = LocationMap.GetInstance();
-                            XDocument result = await form.GetXML();
-                            SLocMap sLocMap = await LocationMapTasks.GetSLocMapFromLocMapRefno(int.Parse(result.Root.Element("LocationMapRefno").Value));
-                            locMap.CurrLocMap = sLocMap;
+                        break;
 
-                            this.ActHdr.XMLDataCriteria = XDocument.Parse(
-                                "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>"
-                                + "<params>"
-                                + ("<whs_id>" + sLocMap.WhsFKRefno + "</whs_id>")
-                                + ("<sect_refno>" + sLocMap.SectFKRefno + "</sect_refno>")
-                                + "</params>");
-                        }
+                    case SysCommon.ActSubTypes.AssignDefaultLocation:
+                        break;
 
-                        await this.RefreshData();
-                    }
-                }
-                catch (Exceptions.MessageOnlyException ex)
-                {
-                    ex.Show(this.ActSubType);
-                }
-                catch (Exception ex)
-                {
-                    await Device.InvokeOnMainThreadAsync(async () =>
-                    {
-                        FormErrorReport errRpt = new FormErrorReport(this.ActSubType, ex);
-                        await errRpt.ShowDialog();
-                    });
-                }
-                finally
-                {
-                    this.Loading = false;
+                    case SysCommon.ActSubTypes.BarCodeAssociation:
+                        DisplayDataBarCodeAssoc();
+
+                        break;
+
+                    case SysCommon.ActSubTypes.CycleCounts:
+                        DisplayDataCycleCounts();
+
+                        break;
+
+                    case SysCommon.ActSubTypes.PhysicalCounts:
+                        DisplayDataPhysicalCounts();
+
+                        break;
+
+                    case SysCommon.ActSubTypes.Picking:
+                        DisplayDataPicking();
+
+                        break;
+
+                    case SysCommon.ActSubTypes.PickingSingle:
+                        DisplayDataPickingSingle();
+
+                        break;
+
+                    case SysCommon.ActSubTypes.TicketAddProduct:
+                        DisplayDataAddProduct();
+
+                        break;
+
+                    case SysCommon.ActSubTypes.TicketFinished:
+                        DisplayDataTicketFinished();
+
+                        break;
+
+                    case SysCommon.ActSubTypes.TicketMaterial:
+                        DisplayDataTicketMaterial();
+
+                        break;
+
+                    case SysCommon.ActSubTypes.PurchaseOrderWorkSheet:
+                        break;
+
+                    case SysCommon.ActSubTypes.Receiving:
+                        DisplayDataReceiving();
+
+                        break;
+
+                    case SysCommon.ActSubTypes.ReleaseByOrder:
+                        DisplayDataReleaseByOrder();
+
+                        break;
+
+                    case SysCommon.ActSubTypes.Returns:
+                        DisplayDataReturns();
+
+                        break;
+
+                    case SysCommon.ActSubTypes.TransferFrom:
+                        DisplayDataTransferFrom();
+
+                        break;
+
+                    case SysCommon.ActSubTypes.NotApplicable:
+                        throw new NotImplementedException("SysCommon.ActSubTypes.NotApplicable");
+
+                    case SysCommon.ActSubTypes.RefreshData:
+                        throw new NotImplementedException("SysCommon.ActSubTypes.RefreshData");
+
+                    case SysCommon.ActSubTypes.DataStatus:
+                        throw new NotImplementedException("SysCommon.ActSubTypes.DataStatus");
+
+                    case SysCommon.ActSubTypes.SelectProduct:
+                        throw new NotImplementedException("SysCommon.ActSubTypes.SelectProduct");
+
+                    case SysCommon.ActSubTypes.SelectLocation:
+                        throw new NotImplementedException("SysCommon.ActSubTypes.SelectLocation");
+
+                    case SysCommon.ActSubTypes.ConvertUnit:
+                        throw new NotImplementedException("SysCommon.ActSubTypes.ConvertUnit");
+
+                    case SysCommon.ActSubTypes.MoveInventory:
+                        throw new NotImplementedException("SysCommon.ActSubTypes.MoveInventory");
+
+                    case SysCommon.ActSubTypes.PurgeActivityData:
+                        throw new NotImplementedException("SysCommon.ActSubTypes.PurgeActivityData");
+
+                    case SysCommon.ActSubTypes.ReleaseByItemSection:
+                        throw new NotImplementedException("SysCommon.ActSubTypes.ReleaseByItemSection");
+
+                    case SysCommon.ActSubTypes.SkidInfo:
+                        throw new NotImplementedException("SysCommon.ActSubTypes.SkidInfo");
+
+                    case SysCommon.ActSubTypes.MoveSkid:
+                        throw new NotImplementedException("SysCommon.ActSubTypes.MoveSkid");
+
+                    case SysCommon.ActSubTypes.BreakSkid:
+                        throw new NotImplementedException("SysCommon.ActSubTypes.BreakSkid");
+
+                    case SysCommon.ActSubTypes.PutAwaySkid:
+                        throw new NotImplementedException("SysCommon.ActSubTypes.PutAwaySkid");
+
+                    case SysCommon.ActSubTypes.InventoryInquiry:
+                        throw new NotImplementedException("SysCommon.ActSubTypes.InventoryInquiry");
+
+                    case SysCommon.ActSubTypes.InventoryReplenishment:
+                        throw new NotImplementedException("SysCommon.ActSubTypes.InventoryReplenishment");
+
+                    case SysCommon.ActSubTypes.LoginStartup:
+                        throw new NotImplementedException("SysCommon.ActSubTypes.LoginStartup");
+
+                    case SysCommon.ActSubTypes.SplashStartup:
+                        throw new NotImplementedException("SysCommon.ActSubTypes.SplashStartup");
+
+                    case SysCommon.ActSubTypes.PrintProductLabel:
+                        throw new NotImplementedException("SysCommon.ActSubTypes.PrintProductLabel");
+
+                    case SysCommon.ActSubTypes.PickingSelectCriteria:
+                        throw new NotImplementedException("SysCommon.ActSubTypes.PickingSelectCriteria");
+
+                    case SysCommon.ActSubTypes.PickingFilter:
+                        throw new NotImplementedException("SysCommon.ActSubTypes.PickingFilter");
+
+                    case SysCommon.ActSubTypes.SubmitBatch:
+                        throw new NotImplementedException("SysCommon.ActSubTypes.SubmitBatch");
+
+                    case SysCommon.ActSubTypes.CommunicationSetup:
+                        throw new NotImplementedException("SysCommon.ActSubTypes.CommunicationSetup");
+
+                    case SysCommon.ActSubTypes.SetupDefaults:
+                        throw new NotImplementedException("SysCommon.ActSubTypes.SetupDefaults");
+
+                    case SysCommon.ActSubTypes.InventoryInquirySummary:
+                        throw new NotImplementedException("SysCommon.ActSubTypes.InventoryInquirySummary");
+
+                    case SysCommon.ActSubTypes.ConvertProduct:
+                        throw new NotImplementedException("SysCommon.ActSubTypes.ConvertProduct");
+
+                    case SysCommon.ActSubTypes.TransferTo:
+                        throw new NotImplementedException("SysCommon.ActSubTypes.TransferTo");
+
+                    default:
+                        break;
                 }
             });
+
+            //////////////////////////////////////////////////////////////////////////
+            void DisplayDataAdjustments()
+            {
+                if (this.ActHdr.SelectedActivity is Adjustment adjustment)
+                {
+                    this.ExtraInfoItems.Add(adjustment.ActivityAdjustmentType.ToString());
+                    this.ExtraInfoItems.Add("WHS:  " + adjustment.LocationMapWarehouseName.ToString());
+                }
+            }
+
+            //////////////////////////////////////////////////////////////////////////
+            void DisplayDataBarCodeAssoc()
+            {
+                if (this.ActHdr.SelectedActivity is BarcodeAssociation barcodeAssociation)
+                {
+                    this.ExtraInfoItems.Add(barcodeAssociation.ProductUnitBarCodeCode.TrimEnd());
+                    this.ExtraInfoItems.Add(barcodeAssociation.ProductUnitBarCodeModifier1.TrimEnd());
+                }
+            }
+
+            //////////////////////////////////////////////////////////////////////////
+            void DisplayDataCycleCounts()
+            {
+                if (this.ActHdr.SelectedActivity is Count count)
+                {
+                    const int LineLength = 30;
+                    List<string> lines = SysCommon.WordWrap2List(
+                        count.ActivityCountDescription.TrimEnd(),
+                        LineLength);
+
+                    for (int i = 0; i < lines.Count; i++)
+                    {
+                        this.ExtraInfoItems.Add(lines[i]);
+                    }
+                }
+            }
+
+            //////////////////////////////////////////////////////////////////////////
+            void DisplayDataPhysicalCounts()
+            {
+                if (this.ActHdr.SelectedActivity is Count count)
+                {
+                    const int LineLength = 30;
+                    List<string> lines = SysCommon.WordWrap2List(
+                        count.ActivityCountDescription.TrimEnd(),
+                        LineLength);
+
+                    for (int i = 0; i < lines.Count; i++)
+                    {
+                        this.ExtraInfoItems.Add(lines[i]);
+                    }
+                }
+            }
+
+            //////////////////////////////////////////////////////////////////////////
+            void DisplayDataPicking()
+            {
+                if (this.ActHdr.SelectedActivity is Picking picking)
+                {
+                    this.ExtraInfoItems.Add("CUSTOMER: " + picking.ActivityPickingCustomerContactName);
+                    this.ExtraInfoItems.Add("SHIPTO:   " + picking.ActivityPickingCustomerShipToInfo);
+                }
+            }
+
+            //////////////////////////////////////////////////////////////////////////
+            void DisplayDataPickingSingle()
+            {
+                if (this.ActHdr.SelectedActivity is Picking pickingSingle)
+                {
+                    this.ExtraInfoItems.Add("CUSTOMER: " + pickingSingle.ActivityPickingCustomerContactName);
+                    this.ExtraInfoItems.Add("SHIPTO:   " + pickingSingle.ActivityPickingCustomerShipToInfo);
+                }
+            }
+
+            //////////////////////////////////////////////////////////////////////////
+            void DisplayDataAddProduct()
+            {
+                if (this.ActHdr.SelectedActivity is ProductionTicketByProduct productionTicketByProduct)
+                {
+                    this.ExtraInfoItems.Add(productionTicketByProduct.ActivityProductionDescription);
+                    this.ExtraInfoItems.Add("WHS:  " + productionTicketByProduct.LocationMapWarehouseName);
+                }
+            }
+
+            //////////////////////////////////////////////////////////////////////////
+            void DisplayDataTicketFinished()
+            {
+                if (this.ActHdr.SelectedActivity is ProductionTicketFinished productionTicketFinished)
+                {
+                    this.ExtraInfoItems.Add(productionTicketFinished.ActivityProductionDescription);
+                    this.ExtraInfoItems.Add("WHS:  " + productionTicketFinished.LocationMapWarehouseName);
+                }
+            }
+
+            //////////////////////////////////////////////////////////////////////////
+            void DisplayDataTicketMaterial()
+            {
+                if (this.ActHdr.SelectedActivity is ProductionTicketMaterial productionTicketMaterial)
+                {
+                    this.ExtraInfoItems.Add(productionTicketMaterial.ActivityProductionDescription);
+                    this.ExtraInfoItems.Add("WHS:  " + productionTicketMaterial.LocationMapWarehouseName);
+                }
+            }
+
+            //////////////////////////////////////////////////////////////////////////
+            void DisplayDataReceiving()
+            {
+                if (this.ActHdr.SelectedActivity is Receive receive)
+                {
+                    this.ExtraInfoItems.Add("VENDOR:  " + receive.ActivityReceivingVendorContactName);
+                    this.ExtraInfoItems.Add("SUPPLIER:  " + receive.ActivityReceivingVendorSupplierContactName);
+                }
+            }
+
+            //////////////////////////////////////////////////////////////////////////
+            void DisplayDataReleaseByOrder()
+            {
+                if (this.ActHdr.SelectedActivity is Picking pickingReleaseByOrder)
+                {
+                    this.ExtraInfoItems.Add("CUSTOMER: " + pickingReleaseByOrder.ActivityPickingCustomerContactName);
+                    this.ExtraInfoItems.Add("SHIPTO:   " + pickingReleaseByOrder.ActivityPickingCustomerShipToInfo);
+                }
+            }
+
+            //////////////////////////////////////////////////////////////////////////
+            void DisplayDataReturns()
+            {
+                if (this.ActHdr.SelectedActivity is Return returns)
+                {
+                    this.ExtraInfoItems.Add("CUSTOMER: " + returns.ActivityReturnsCustomerContactName);
+                    this.ExtraInfoItems.Add("SHIPTO:   " + returns.ActivityReturnsCustomerShipToInfo);
+                }
+            }
+
+            //////////////////////////////////////////////////////////////////////////
+            void DisplayDataTransferFrom()
+            {
+                if (this.ActHdr.SelectedActivity is Transfer transfer)
+                {
+                    this.ExtraInfoItems.Add(transfer.ActivityTransferDescription);
+                    this.ExtraInfoItems.Add("TO WHS:  " + transfer.LocationMapWarehouseName);
+                }
+            }
         }
 
-        private async void DataGridMainActivity_ItemSelected(object sender, SelectedItemChangedEventArgs e)
-        {
-            this.SelectedIndex = e.SelectedItemIndex;
-            await this.ActHdr.SelectActivity(e.SelectedItem);
-            await this.DisplayData();
-        }
-
-        private async void TxtSearchHdr_TextChanged(object sender, TextChangedEventArgs e)
+        /// <summary>
+        /// Add item command button event handler.
+        /// </summary>
+        /// <param name="sender"><see cref="object"/> Sender object.</param>
+        /// <param name="e"><see cref="EventArgs"/> Event arguments.</param>
+        private async void CmdAdd_Click(object sender, EventArgs e)
         {
             try
             {
-                if (this.IsControlLoaded)
-                {
-                    this.DataGridMainActivityItemsList = this.ActHdr.Search(this.txtSearchHdr.Text);
+                this.IsSvdBarScannerEnabled = this.IsBarCodeHandlerRegistered;
+                await this.ScannerDisable();
 
-                    await Device.InvokeOnMainThreadAsync(() =>
-                    {
-                        this.dataGridMainActivity.SelectedItem = null;
-                        this.dataGridMainActivity.ItemsSource = this.DataGridMainActivityItemsList;
-
-                        if (this.DataGridMainActivityItemsList?.Count > 0)
-                        {
-                            this.dataGridMainActivity.SelectedItem = this.DataGridMainActivityItemsList[0];
-                        }
-                    });
-                }
+                // Needed to check if the enter key was pressed last, because it seems that
+                // SelectNextControl in the key press event causes a click event to fire if a
+                // command button is the next control rather than just giving the button focus.
+                XDocument xmlDoc = null;
+                _ = await this.ActHdr.Insert(xmlDoc);
             }
-            catch (Exceptions.MessageOnlyException ex)
+            catch (MessageOnlyException ex)
             {
-                ex.Show(this.ActSubType);
+                // Do not set the IsChangesMade. MessageOnlyException is really not
+                // and error.
+                // Allow the validation to handle the setting for IsChangesMade.
+                await Device.InvokeOnMainThreadAsync(async () =>
+                    await Application.Current.MainPage.DisplayAlert(
+                        this.ActHdr.GetControlDescription(),
+                        ex.Message,
+                        Resource.OK));
             }
             catch (Exception ex)
             {
                 await Device.InvokeOnMainThreadAsync(async () =>
                 {
                     FormErrorReport errRpt = new FormErrorReport(this.ActSubType, ex);
-                    await errRpt.ShowDialog();
+                    _ = await errRpt.ShowDialog();
                 });
+            }
+            finally
+            {
+                if (this.IsSvdBarScannerEnabled)
+                {
+                    await this.ScannerEnable();
+                }
             }
         }
 
+        /// <summary>
+        /// Main data grid key up enter event handler.
+        /// </summary>
+        /// <returns>The <see cref="Task"/> Task operation.</returns>
+        private async Task ListViewMainActivity_KeyUpEnter()
+        {
+            if (this.Loading)
+            {
+                return;
+            }
+
+            if (this.ListViewMainActivity.SelectedItem == null)
+            {
+                return;
+            }
+
+            if (Convert.ToInt32(this.MainActivityItems.IndexOf(
+                this.ListViewMainActivity.SelectedItem)) < 0)
+            {
+                return;
+            }
+
+            await Task.Run(async () =>
+            {
+                try
+                {
+                    this.IsSvdBarScannerEnabled = this.IsBarCodeHandlerRegistered;
+                    this.Loading = true;
+
+                    await this.ScannerDisable();
+                    this.ActHdr.Refno = this.ActHdr.GetRefnoFromRowIdx(this.ListViewMainActivity.SelectedItem);
+                    if (this.SysEnv.SysSettings.IsPickSingleProd &&
+                        this.ActSubType == SysCommon.ActSubTypes.PickingSingle)
+                    {
+                        await ListViewMainActivity_KeyUpEnter_PickingSingle();
+                    }
+                    else
+                    {
+                        FormDialogContainer form = new FormDialogContainer(
+                            EDialogTypes.ActivityItem,
+                            this.ActHdr,
+                            this.ActSubType);
+                        this.IsChangesMade = false;
+                        _ = await Device.InvokeOnMainThreadAsync(async () =>
+                                await form.DisplayControl.ShowDialog());
+                    }
+                }
+                catch (MessageOnlyException ex)
+                {
+                    await Device.InvokeOnMainThreadAsync(async () =>
+                        await Application.Current.MainPage.DisplayAlert(
+                            this.ActHdr.GetControlDescription(),
+                            ex.Message,
+                            Resource.OK));
+                }
+                catch (Exception ex)
+                {
+                    await Device.InvokeOnMainThreadAsync(async () =>
+                    {
+                        FormErrorReport errRpt = new FormErrorReport(this.ActSubType, ex);
+                        _ = await errRpt.ShowDialog();
+                    });
+                }
+                finally
+                {
+                    if (this.IsSvdBarScannerEnabled)
+                    {
+                        await this.ScannerEnable();
+                    }
+
+                    this.Loading = false;
+                }
+            });
+
+            //////////////////////////////////////////////////////////////////////////
+            async Task ListViewMainActivity_KeyUpEnter_PickingSingle()
+            {
+                bool isAllowedToPick = true;
+
+                if (await ((PickingActivity)this.ActHdr).IsSalesOrderBeingPicked())
+                {
+                    isAllowedToPick = false;
+                    if (this.SysEnv.ContactLog.IsAllowedPickingModuleOverridePicker)
+                    {
+                        // TODO: Test
+                        if (await Device.InvokeOnMainThreadAsync(async () =>
+                            await this.DisplayAlert(
+                                "Picker Override",
+                                "Do you wish to clear the current picker?",
+                                "Yes",
+                                "No")))
+                        {
+                            if (await ((PickingActivity)this.ActHdr).ClearSalesOrderBeingPicked(false))
+                            {
+                                await Device.InvokeOnMainThreadAsync(async () =>
+                                    await this.DisplayAlert(
+                                        "Picker Override",
+                                        "Picker cleared.",
+                                        "OK"));
+                                isAllowedToPick = true;
+                            }
+                            else
+                            {
+                                await Device.InvokeOnMainThreadAsync(async () =>
+                                    await this.DisplayAlert(
+                                        "Picker Override",
+                                        "Unable to clear the current picker.",
+                                        "OK"));
+                            }
+                        }
+                    }
+                }
+
+                if (isAllowedToPick)
+                {
+                    FormDialogContainer form = new FormDialogContainer(
+                        EDialogTypes.ActivityItemSingle,
+                        this.ActHdr,
+                        this.ActSubType);
+                    this.IsChangesMade = false;
+                    _ = await Device.InvokeOnMainThreadAsync(async () =>
+                            await form.DisplayControl.ShowDialog());
+                }
+            }
+        }
+
+        /// <summary>
+        /// The ListViewMainActivity_ItemSelected.
+        /// </summary>
+        /// <param name="sender"><see cref="object"/> Sender object.</param>
+        /// <param name="e"><see cref="SelectedItemChangedEventArgs"/> Select item changed event arguments.</param>
+        private async void ListViewMainActivity_ItemSelected(object sender, SelectedItemChangedEventArgs e)
+        {
+            this.SelectedIndex = e.SelectedItemIndex;
+            await this.ActHdr.SelectActivity(e.SelectedItem);
+            this.SelectedActivityFKRefno = this.ActHdr.FKRefno;
+            await this.DisplayData();
+        }
+
+        /// <summary>
+        /// Text search text changed event handler.
+        /// </summary>
+        /// <param name="sender"><see cref="object"/> Sender object.</param>
+        /// <param name="e"><see cref="TextChangedEventArgs"/> Text changed event arguments.</param>
+        private async void TxtSearchHdr_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            try
+            {
+                this.IsSvdBarScannerEnabled = this.IsBarCodeHandlerRegistered;
+                await this.ScannerDisable();
+                await this.DesignGrid();
+            }
+            catch (MessageOnlyException ex)
+            {
+                await Device.InvokeOnMainThreadAsync(async () =>
+                    await Application.Current.MainPage.DisplayAlert(
+                        this.ActHdr.GetControlDescription(),
+                        ex.Message,
+                        Resource.OK));
+            }
+            catch (Exception ex)
+            {
+                await Device.InvokeOnMainThreadAsync(async () =>
+                {
+                    FormErrorReport errRpt = new FormErrorReport(this.ActSubType, ex);
+                    _ = await errRpt.ShowDialog();
+                });
+            }
+            finally
+            {
+                if (this.IsSvdBarScannerEnabled)
+                {
+                    await this.ScannerEnable();
+                }
+            }
+        }
+
+        /// <summary>
+        /// Option menu click handler.
+        /// </summary>
+        /// <param name="sender"><see cref="object"/> Sender object.</param>
+        /// <param name="e"><see cref="EventArgs"/> Event arguments.</param>
         private async void OptionsMenu_Clicked(object sender, EventArgs e)
         {
             if (this.Loading)
@@ -1678,12 +1775,126 @@
                 return;
             }
 
-            // TODO: Resource strings
-            string result = await DisplayActionSheet("Activity Options", "Close", null, this.OptionsMenuItems.ToArray());
+            this.IsSvdBarScannerEnabled = this.IsBarCodeHandlerRegistered;
+            await this.ScannerDisable();
+            string result = await this.DisplayActionSheet(
+                "Activity Options",
+                "Close",
+                null,
+                this.OptionsMenuItems.ToArray());
 
-            if (result == this.FilterText && this.FilterIsEnabled)
+            if (this.IsSvdBarScannerEnabled)
             {
-                this.cmdFilter_Click(sender, e);
+                await this.ScannerEnable();
+            }
+
+            if (!(result == this.FilterText && this.FilterIsEnabled))
+            {
+                return;
+            }
+
+            try
+            {
+                this.IsSvdBarScannerEnabled = this.IsBarCodeHandlerRegistered;
+                await this.ScannerDisable();
+
+                EDialogTypes dlgType = 0;
+
+                dlgType = this.ActSubType switch
+                {
+                    SysCommon.ActSubTypes.Picking => EDialogTypes.ActivityHdrPickingFilter,
+                    SysCommon.ActSubTypes.PickingSingle => EDialogTypes.ActivityHdrPickingFilter,
+                    SysCommon.ActSubTypes.Receiving => EDialogTypes.ActivityHdrReceivingFilter,
+                    SysCommon.ActSubTypes.TransferFrom => EDialogTypes.ActivityHdrTransferFilter,
+                    SysCommon.ActSubTypes.TransferTo => EDialogTypes.ActivityHdrTransferFilter,
+                    SysCommon.ActSubTypes.PhysicalCounts => EDialogTypes.ActivityHdrPhysicalCountFilter,
+                    SysCommon.ActSubTypes.CycleCounts => EDialogTypes.ActivityHdrCycleCountFilter,
+                    SysCommon.ActSubTypes.Adjustment => EDialogTypes.ActivityAdjustmentFilter,
+                    SysCommon.ActSubTypes.Returns => EDialogTypes.ActivityHdrReturnsFilter,
+                    SysCommon.ActSubTypes.TicketFinished => EDialogTypes.ActivityProductionTicketFinishedFilter,
+                    SysCommon.ActSubTypes.TicketMaterial => EDialogTypes.ActivityProductionTicketMaterialFilter,
+                    SysCommon.ActSubTypes.TicketAddProduct => EDialogTypes.ActivityProductionTicketByProductFilter,
+                    SysCommon.ActSubTypes.NotApplicable => throw new NotImplementedException(),
+                    SysCommon.ActSubTypes.BarCodeAssociation => throw new NotImplementedException(),
+                    SysCommon.ActSubTypes.RefreshData => throw new NotImplementedException(),
+                    SysCommon.ActSubTypes.DataStatus => throw new NotImplementedException(),
+                    SysCommon.ActSubTypes.SelectProduct => throw new NotImplementedException(),
+                    SysCommon.ActSubTypes.SelectLocation => throw new NotImplementedException(),
+                    SysCommon.ActSubTypes.ConvertUnit => throw new NotImplementedException(),
+                    SysCommon.ActSubTypes.MoveInventory => throw new NotImplementedException(),
+                    SysCommon.ActSubTypes.PurgeActivityData => throw new NotImplementedException(),
+                    SysCommon.ActSubTypes.ReleaseByOrder => throw new NotImplementedException(),
+                    SysCommon.ActSubTypes.ReleaseByItemSection => throw new NotImplementedException(),
+                    SysCommon.ActSubTypes.PurchaseOrderWorkSheet => throw new NotImplementedException(),
+                    SysCommon.ActSubTypes.SkidInfo => throw new NotImplementedException(),
+                    SysCommon.ActSubTypes.MoveSkid => throw new NotImplementedException(),
+                    SysCommon.ActSubTypes.BreakSkid => throw new NotImplementedException(),
+                    SysCommon.ActSubTypes.PutAwaySkid => throw new NotImplementedException(),
+                    SysCommon.ActSubTypes.AssignDefaultLocation => throw new NotImplementedException(),
+                    SysCommon.ActSubTypes.InventoryInquiry => throw new NotImplementedException(),
+                    SysCommon.ActSubTypes.InventoryReplenishment => throw new NotImplementedException(),
+                    SysCommon.ActSubTypes.LoginStartup => throw new NotImplementedException(),
+                    SysCommon.ActSubTypes.SplashStartup => throw new NotImplementedException(),
+                    SysCommon.ActSubTypes.PrintProductLabel => throw new NotImplementedException(),
+                    SysCommon.ActSubTypes.PickingSelectCriteria => throw new NotImplementedException(),
+                    SysCommon.ActSubTypes.PickingFilter => throw new NotImplementedException(),
+                    SysCommon.ActSubTypes.SubmitBatch => throw new NotImplementedException(),
+                    SysCommon.ActSubTypes.CommunicationSetup => throw new NotImplementedException(),
+                    SysCommon.ActSubTypes.SetupDefaults => throw new NotImplementedException(),
+                    SysCommon.ActSubTypes.InventoryInquirySummary => throw new NotImplementedException(),
+                    SysCommon.ActSubTypes.ConvertProduct => throw new NotImplementedException(),
+                    _ => throw new NotImplementedException("eActivitySubType"),
+                };
+                FormDialogContainer form = new FormDialogContainer(dlgType, this.ActSubType);
+
+                await Device.InvokeOnMainThreadAsync(async () =>
+                {
+                    if (await form.DisplayControl.ShowDialog() == DialogResult.OK)
+                    {
+                        XDocument xmlDoc = await form.GetXML();
+
+                        // TODO: Fix filtering
+                        //// this.ActHdr.DataViewHdrs.RowFilter = this.ActHdr.GetFilter(xmlDoc);
+
+                        if (!string.IsNullOrEmpty(xmlDoc.Root.Element("sortby").Value))
+                        {
+                            // TODO: Fix sorting
+                            ////this.ActHdr.DataViewHdrs.Sort = xmlDoc.Root.Element("sortby").Value;
+                        }
+
+                        if (!string.IsNullOrEmpty(this.txtSearchHdr.Text))
+                        {
+                            this.MainActivityItems = this.ActHdr.Search(
+                                this.txtSearchHdr.Text);
+                        }
+                    }
+                });
+            }
+            catch (MessageOnlyException ex)
+            {
+                // Do not set the IsChangesMade. MessageOnlyException is really not
+                // an error.
+                // Allow the validation to handle the setting for IsChangesMade.
+                await Device.InvokeOnMainThreadAsync(async () =>
+                    await Application.Current.MainPage.DisplayAlert(
+                        this.ActHdr.GetControlDescription(),
+                        ex.Message,
+                        Resource.OK));
+            }
+            catch (Exception ex)
+            {
+                await Device.InvokeOnMainThreadAsync(async () =>
+                {
+                    FormErrorReport errRpt = new FormErrorReport(this.ActSubType, ex);
+                    _ = await errRpt.ShowDialog();
+                });
+            }
+            finally
+            {
+                if (this.IsSvdBarScannerEnabled)
+                {
+                    await this.ScannerEnable();
+                }
             }
         }
     }

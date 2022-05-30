@@ -1,4 +1,8 @@
-﻿namespace dMobile.Controller
+﻿// <copyright file="clsConvertProductActivityItem.cs" company="InterSect Business Systems Inc">
+// Copyright (c) InterSect Business Systems Inc. All rights reserved.
+// </copyright>
+
+namespace dMobile.Controller
 {
     using System;
     using System.Collections.Generic;
@@ -13,36 +17,42 @@
     using dMobile.Resources.Types;
     using Xamarin.Forms;
 
+    /// <summary>
+    /// Defines the <see cref="ConvertProductActItem" />.
+    /// </summary>
     public class ConvertProductActItem : ActItem
     {
-
-        private int fromProdRefno;
+        /// <summary>
+        /// Defines the toProdRefno.
+        /// </summary>
         private int toProdRefno;
 
-        #region Constructors
-
         /// <summary>
-        /// Constructor.
+        /// Initializes a new instance of the <see cref="ConvertProductActItem"/> class.
         /// </summary>
-        /// <param name="activity"></param>
+        /// <param name="activity">.</param>
         public ConvertProductActItem(Activity activity)
             : base(activity)
         {
             this.FullClassName = typeof(ConvertProductActItem).FullName;
         }
 
-        #endregion
-
-        #region Public Members
+        /// <summary>
+        /// Gets or sets a value indicating whether allowed to add skid detail.
+        /// </summary>
+        /// <returns><see cref="bool"/> True if allowed to add skid detail.</returns>
+        public override bool IsAllowAddSkidDetail()
+        {
+            return false;
+        }
 
         /// <summary>
-        ///
+        /// The IsCatchAsk.
         /// </summary>
-        /// <returns></returns>
-        /// <remarks></remarks>
+        /// <returns>.</returns>
         public override bool IsCatchAsk()
         {
-            bool isCatchAsk = base.IsCatchAsk();
+            bool isCatchAsk = this.ProdInfo.IsCatchAsk;
             if (isCatchAsk)
             {
                 // modules are for exclusions
@@ -53,79 +63,67 @@
         }
 
         /// <summary>
-        /// 
+        /// The IsCatchAskZero.
         /// </summary>
-        /// <returns></returns>
+        /// <returns>.</returns>
         public override bool IsCatchAskZero()
         {
-            bool isCatchAskZero = base.IsCatchAskZero();
-            if (isCatchAskZero)
+            bool result = this.IsCatchAsk();
+            if (result && this.ProdInfo.IsCatchAskZero)
             {
-                isCatchAskZero = !this.SysEnv.SysSettings.IsConvertUnitModuleNoCatchAskZeroEnabled;
+                result = !this.SysEnv.SysSettings.IsConvertUnitModuleNoCatchAskZeroEnabled;
             }
 
-            return isCatchAskZero;
+            return result;
         }
 
         /// <summary>
-        ///
+        /// The UpdateListItemQuantity.
         /// </summary>
-        /// <remarks></remarks>
-        public override async Task Delete()
-        {
-            if (this.ListItems != null)
-            {
-                this.ListItems.Clear();
-            }
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="rowIdx"></param>
-        /// <param name="quantity"></param>
-        /// <param name="baseQuantity"></param>
-        /// <param name="weightQuantity"></param>
-        /// <returns></returns>
+        /// <param name="selectedActivityItem">The selectedActivityItem<see cref="object"/>.</param>
+        /// <param name="quantity">.</param>
+        /// <param name="baseQuantity">.</param>
+        /// <param name="weightQuantity">.</param>
         public override void UpdateListItemQuantity(object selectedActivityItem, decimal quantity, decimal baseQuantity, decimal weightQuantity)
         {
             throw new NotImplementedException();
         }
 
         /// <summary>
-        /// 
+        /// The GetUnableToParseItemFKRefnoMessage.
         /// </summary>
-        /// <param name="actItemStringFKRefno"></param>
-        /// <returns></returns>
+        /// <param name="actItemStringFKRefno">.</param>
+        /// <returns>.</returns>
         public override string GetUnableToParseItemFKRefnoMessage(string actItemStringFKRefno)
         {
             return string.Empty;
         }
 
         /// <summary>
-        /// 
+        /// The GetUnableToFindItemFKRefnoMessage.
         /// </summary>
-        /// <param name="actItemStringFKRefno"></param>
-        /// <returns></returns>
+        /// <param name="actItemStringFKRefno">.</param>
+        /// <returns>.</returns>
         public override string GetUnableToFindItemFKRefnoMessage(string actItemStringFKRefno)
         {
             return string.Empty;
         }
 
         /// <summary>
-        ///
+        /// The GetDataViewSortFKRefnoIdx.
         /// </summary>
-        /// <returns></returns>
-        /// <remarks></remarks>
+        /// <returns>.</returns>
         public override string GetDataViewSortFKRefnoIdx()
         {
             return string.Empty;
         }
 
         /// <summary>
-        ///
+        /// The Insert.
         /// </summary>
-        /// <remarks></remarks>
+        /// <param name="data">The data<see cref="XDocument"/>.</param>
+        /// <param name="askToInsertAsNewItem">The askToInsertAsNewItem<see cref="bool"/>.</param>
+        /// <returns>The <see cref="Task"/>.</returns>
         public override async Task Insert(XDocument data, bool askToInsertAsNewItem)
         {
             if (this.ListItems != null)
@@ -134,33 +132,29 @@
                 {
                     From_prod_fk_refno = Convert.ToInt32(data.Root.Element("from_prod_fk_refno").Value),
                     To_prod_fk_refno = Convert.ToInt32(data.Root.Element("to_prod_fk_refno").Value),
-                    Location_map_refno = Convert.ToInt32(data.Root.Element("location_map_refno").Value)
+                    Location_map_refno = Convert.ToInt32(data.Root.Element("location_map_refno").Value),
                 };
 
                 this.ListItems.Add(convertProductItem);
             }
         }
 
-        ///// <summary>
-        /////
-        ///// </summary>
-        ///// <param name="dataGridMain"></param>
-        ///// <remarks></remarks>
-        //public override void DesignDataGrid(DataGrid dataGridMain)
-        //{
-        //    throw new NotImplementedException();
-        //}
-
-        public override ObservableCollection<object> DesignGrid(ref Grid dataGridMainActivityHeader, ref ListView dataGridMainActivity)
+        /// <summary>
+        /// The DesignGrid.
+        /// </summary>
+        /// <param name="GridMainActivity">The GridMainActivity<see cref="Grid"/>.</param>
+        /// <param name="ListViewMainActivity">The ListViewMainActivity<see cref="ListView"/>.</param>
+        /// <returns>The <see cref="ObservableCollection{object}"/>.</returns>
+        public override ObservableCollection<object> DesignGrid(ref Grid GridMainActivity, ref ListView ListViewMainActivity)
         {
             throw new NotImplementedException();
         }
 
         /// <summary>
-        /// 
+        /// The GetActivityItemList.
         /// </summary>
-        /// <param name="isSubmitBatch"></param>
-        /// <returns></returns>
+        /// <param name="isSubmitBatch">.</param>
+        /// <returns>.</returns>
         public override async Task<List<object>> GetActivityItemList(bool isSubmitBatch)
         {
             DataTable moveTable = new DataTable("ActivityConvertProductItem");
@@ -169,57 +163,58 @@
             moveTable.Columns.Add("to_prod_fk_refno", Type.GetType("System.Int32"));
             moveTable.Columns.Add("location_map_refno", Type.GetType("System.Int32"));
 
-            //this.DataViewItems = moveTable.DefaultView;
-            //this.DataViewItems.Table.TableName = this.MainGridMappingName;
-
+            // this.DataViewItems = moveTable.DefaultView;
+            // this.DataViewItems.Table.TableName = this.MainGridMappingName;
             this.ListItems = moveTable.Select().ToList<object>();
             return this.ListItems;
         }
 
         /// <summary>
-        /// 
+        /// The Search.
         /// </summary>
-        /// <param name="searchText"></param>
-        /// <returns></returns>
+        /// <param name="searchText">.</param>
+        /// <returns>.</returns>
         public override ObservableCollection<object> Search(string searchText)
         {
             throw new NotImplementedException();
         }
 
         /// <summary>
-        /// 
+        /// The GetActivityItemRefno.
         /// </summary>
-        /// <param name="productUnitRefno"></param>
-        /// <returns></returns>
-        public override Task<int> GetRefnoFromProdUnitRefno(int prodUnitRefno)
+        /// <param name="prodUnitRefno">The prodUnitRefno<see cref="int"/>.</param>
+        /// <returns>.</returns>
+        public override Task<int> GetActivityItemRefno(int prodUnitRefno)
         {
             throw new NotImplementedException();
         }
 
         /// <summary>
-        ///
+        /// The SelectActivityItem.
         /// </summary>
-        /// <remarks></remarks>
+        /// <param name="selectedActivityItem">The selectedActivityItem<see cref="object"/>.</param>
+        /// <returns>The <see cref="Task"/>.</returns>
         public override Task SelectActivityItem(object selectedActivityItem)
         {
             throw new NotImplementedException();
         }
 
         /// <summary>
-        ///
+        /// The Refresh.
         /// </summary>
-        /// <param name="pbProgressBar"></param>
-        /// <remarks></remarks>
+        /// <param name="data">The data<see cref="XDocument"/>.</param>
+        /// <returns>The <see cref="Task"/>.</returns>
         public override Task Refresh(XDocument data)
         {
             throw new NotImplementedException();
         }
 
         /// <summary>
-        /// 
+        /// The Submit.
         /// </summary>
-        /// <param name="data"></param>
-        /// <param name="idx"></param>
+        /// <param name="data">.</param>
+        /// <param name="selectedActivityItem">The selectedActivityItem<see cref="object"/>.</param>
+        /// <returns>The <see cref="Task"/>.</returns>
         public override async Task Submit(XDocument data, object selectedActivityItem)
         {
             string reqData = SysCommon.SubmitComm(await this.CreateSubmitXML(data));
@@ -245,14 +240,14 @@
         }
 
         /// <summary>
-        /// 
+        /// The CreateSubmitXML.
         /// </summary>
-        /// <param name="data"></param>
-        /// <returns></returns>
+        /// <param name="data">.</param>
+        /// <returns>.</returns>
         public async override Task<string> CreateSubmitXML(XDocument data)
         {
             StringBuilder strXML = new StringBuilder();
-            XmlWriter writer = XmlWriter.Create(strXML);
+            using XmlWriter writer = XmlWriter.Create(strXML);
             string prodCode = data.Root.Element("ProductCode").Value.PadRight(10);
             string barCodeCode = data.Root.Element("ProductUnitBarCodeCode").Value.PadRight(20);
             bool isBC = bool.Parse(data.Root.Element("ProductUnitIsBC").Value);
@@ -265,12 +260,12 @@
                 + "<action>SUBMIT CONVERT PRODUCT</action>"
                 + "</command>"
                 + await SysCommon.GetRequestDefaults(false)
-                + ("<prod_id>" + prodCode + "</prod_id>")
-                + ("<is_bc>" + isBC.ToString() + "</is_bc>")
-                + ("<symbology>" + symbologyPrefix + "</symbology>")
-                + ("<alt_unit>" + unitCode + "</alt_unit>")
-                + ("<gtin>" + barCodeCode + "</gtin>")
-                + ("<modifier1>" + this.SysEnv.CurrentBarCodeModifier1 + "</modifier1>")
+                + "<prod_id>" + prodCode + "</prod_id>"
+                + "<is_bc>" + isBC.ToString() + "</is_bc>"
+                + "<symbology>" + symbologyPrefix + "</symbology>"
+                + "<alt_unit>" + unitCode + "</alt_unit>"
+                + "<gtin>" + barCodeCode + "</gtin>"
+                + "<modifier1>" + this.SysEnv.CurrentBarCodeModifier1 + "</modifier1>"
                 + "</imclient>");
 
             request.Save(writer);
@@ -281,46 +276,147 @@
         }
 
         /// <summary>
-        /// 
+        /// The RefreshQuantity.
         /// </summary>
-        /// <param name="idx"></param>
-        /// <param name="quantity"></param>
-        /// <param name="baseQuantity"></param>
-        /// <param name="weightQuantity"></param>
+        /// <param name="selectedActivityItem">The selectedActivityItem<see cref="object"/>.</param>
+        /// <param name="quantity">.</param>
+        /// <param name="baseQuantity">.</param>
+        /// <param name="weightQuantity">.</param>
         public override void RefreshQuantity(object selectedActivityItem, decimal quantity, decimal baseQuantity, decimal weightQuantity)
         {
             throw new NotImplementedException();
         }
 
         /// <summary>
-        /// 
+        /// The UpdateQuantityFromActivityItemList.
         /// </summary>
-        /// <param name="idx"></param>
-        /// <param name="actItemRefno"></param>
+        /// <param name="selectedActivityItem">The selectedActivityItem<see cref="object"/>.</param>
+        /// <param name="actItemRefno">.</param>
+        /// <returns>The <see cref="Task"/>.</returns>
         public override Task UpdateQuantityFromActivityItemList(object selectedActivityItem, int actItemRefno)
         {
             throw new NotImplementedException();
         }
 
-        #endregion
-
         /// <summary>
-        /// Gets the FROM product refno.
+        /// Get the activity item foreign key reference number.
         /// </summary>
-        public int FromProdRefno
+        /// <param name="resourceType"><see cref="object"/> Resource model type.</param>
+        /// <returns><see cref="int"/> Found activity item foreign key refno, else 0 if not found.</returns>
+        public override int GetFKRefno(object resourceType)
         {
-            get
-            {
-                return this.fromProdRefno;
-            }
-            set
-            {
-                this.fromProdRefno = value;
-            }
+            throw new NotImplementedException();
         }
 
         /// <summary>
-        /// Gets the TO product refno.
+        /// Get the activity item control description.
+        /// </summary>
+        /// <returns><see cref="string"/> Get activity item control description.</returns>
+        public override string GetControlDescription()
+        {
+            return "Convert product.";
+        }
+
+        /// <summary>
+        /// The Delete.
+        /// </summary>
+        /// <returns>The <see cref="Task{int}"/>.</returns>
+        public override async Task<int> Delete()
+        {
+            int fkRefno = 0;
+
+            if (this.ListItems != null)
+            {
+                this.ListItems.Clear();
+            }
+
+            return fkRefno;
+        }
+
+        /// <summary>
+        /// The GetProdSchemeDataFromDetailFKRefno.
+        /// </summary>
+        /// <param name="actDetailFKRefno">The actDetailFKRefno<see cref="int"/>.</param>
+        /// <returns>The <see cref="Task{SActItemSchemeData}"/>.</returns>
+        public override Task<SActItemSchemeData> GetProdSchemeDataFromDetailFKRefno(int actDetailFKRefno)
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <summary>
+        /// The GetComment.
+        /// </summary>
+        /// <param name="selectedActivityItem">The selectedActivityItem<see cref="object"/>.</param>
+        /// <returns>The <see cref="Task{string}"/>.</returns>
+        public override Task<string> GetComment(object selectedActivityItem)
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <summary>
+        /// The CreateDeleteXML.
+        /// </summary>
+        /// <param name="data">The data<see cref="XDocument"/>.</param>
+        /// <returns>The <see cref="Task{string}"/>.</returns>
+        public override Task<string> CreateDeleteXML(XDocument data)
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <summary>
+        /// The Update.
+        /// </summary>
+        /// <param name="data">The data<see cref="XDocument"/>.</param>
+        /// <returns>The <see cref="Task"/>.</returns>
+        public override Task Update(XDocument data)
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <summary>
+        /// The GetTotalQuantity.
+        /// </summary>
+        /// <returns>The <see cref="Task{string}"/>.</returns>
+        public override Task<string> GetTotalQuantity()
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <summary>
+        /// Get the default location for the activity base on the sign quantity of the transaction.
+        /// </summary>
+        /// <param name="whsLocMapRefno"><see cref="int"/> Warehouse location map reference number.</param>
+        /// <param name="prodRefno"><see cref="int"/> Product reference number.</param>
+        /// <returns><see cref="int"/> Location map reference number.</returns>
+        public override async Task<int> GetDefaultLocMapRefno(int whsLocMapRefno, int prodRefno)
+        {
+            int locMapRefno = await LocationMapTasks.GetDefaultLocMapRefnoFromProdRefno(
+                whsLocMapRefno,
+                prodRefno,
+                SysCommon.ProdLocMapTypes.Picking);
+
+            return locMapRefno;
+        }
+
+        /// <summary>
+        /// The GetLabelQuantity.
+        /// </summary>
+        /// <param name="isRepackQuantityOnly">The isRepackQuantityOnly<see cref="bool"/>.</param>
+        /// <returns>The <see cref="Task{SLabelQuantity}"/>.</returns>
+        public override Task<SLabelQuantity> GetLabelQuantity(bool isRepackQuantityOnly)
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <summary>
+        /// Gets or sets the FromProdRefno
+        /// Gets the FROM product reference number..
+        /// </summary>
+        public int FromProdRefno { get; set; }
+
+        /// <summary>
+        /// Gets or sets the ToProdRefno
+        /// Gets the TO product reference number..
         /// </summary>
         public int ToProdRefno
         {

@@ -1,4 +1,8 @@
-﻿namespace dMobile.Bedrock
+﻿// <copyright file="ISysSocket.cs" company="InterSect Business Systems Inc">
+// Copyright (c) InterSect Business Systems Inc. All rights reserved.
+// </copyright>
+
+namespace dMobile.Bedrock
 {
     public interface ISysSocketEventListener
     {

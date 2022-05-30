@@ -1,52 +1,39 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.ComponentModel;
-using System.Xml.Linq;
-using dMobile.Bedrock;
-using Xamarin.Forms;
-using Xamarin.Forms.Xaml;
-using System.Collections;
-using dMobile.View.Forms;
-using dMobile.Resources.Enums;
-using Android.Views;
-using dMobile.View.CustomPages.Modal;
-using dMobile.Resources.Types;
+﻿// <copyright file="ucActivityHdrReturnsFilter.xaml.cs" company="InterSect Business Systems Inc">
+// Copyright (c) InterSect Business Systems Inc. All rights reserved.
+// </copyright>
 
 namespace dMobile.View.Activity
 {
+    using System;
+    using System.Collections;
+    using System.Collections.Generic;
+    using System.ComponentModel;
+    using System.Linq;
+    using System.Text;
+    using System.Threading.Tasks;
+    using System.Xml.Linq;
+    using Android.Views;
+    using dMobile.Bedrock;
+    using dMobile.Resources.Enums;
+    using dMobile.Resources.Types;
+    using dMobile.View.CustomPages.Modal;
+    using dMobile.View.Forms;
+    using Xamarin.Forms;
+    using Xamarin.Forms.Xaml;
+    using Resource = dMobile.Resources.Properties.Resources;
+
     [XamlCompilation(XamlCompilationOptions.Compile)]
     public partial class ucActivityHdrReturnsFilter : DMobileModal, IAppArea
     {
-        #region Fields
-
-        private ReturnsSettings retSettings = new ReturnsSettings();
-        private ArrayList sortBy1 = new ArrayList();
-        private ArrayList sortBy2 = new ArrayList();
-        private ArrayList sortBy3 = new ArrayList();
-        private string sqlSortBy = string.Empty;
-        private bool isEnterTrapped = false;
-        private bool isControlLoaded = false;
-        private string fullClassName = "dMobile.ucActivityHdrReturnsFilter";
-        private bool isChangesMade = false;
-        private SysCommon.ActSubTypes actSubType = SysCommon.ActSubTypes.Returns;
         private Dictionary<string, Sort> filters = new Dictionary<string, Sort>();
 
-        #endregion
-
-        #region Constructors
-
         /// <summary>
-        /// 
+        /// Initializes a new instance of the <see cref="ucActivityHdrReturnsFilter"/> class.
         /// </summary>
-        /// <param name="callingControl"></param>
         public ucActivityHdrReturnsFilter()
         {
             this.InitializeComponent();
 
-            // TODO: Resource strings
             this.Title = this.GetControlDescription();
             this.lblApplyReturnedDate.Text = "Apply Returned Date Filter";
             this.lblReturnedDate.Text = "Returned";
@@ -60,42 +47,39 @@ namespace dMobile.View.Activity
             this.btnClose.Text = "Close";
 
             // At least one sort option must be selected
-            // TODO: Resource strings
             this.SortBy1.Clear();
-            this.SortBy1.Add("Order # Ascending");
-            this.SortBy1.Add("Order # Descending");
-            this.SortBy1.Add("Entered Date Ascending");
-            this.SortBy1.Add("Entered Date Descending");
-            this.SortBy1.Add("Returned Ascending");
-            this.SortBy1.Add("Returned Descending");
+            _ = this.SortBy1.Add("Order # Ascending");
+            _ = this.SortBy1.Add("Order # Descending");
+            _ = this.SortBy1.Add("Entered Date Ascending");
+            _ = this.SortBy1.Add("Entered Date Descending");
+            _ = this.SortBy1.Add("Returned Ascending");
+            _ = this.SortBy1.Add("Returned Descending");
             this.cboSortBy1.ItemsSource = this.SortBy1;
             this.cboSortBy1.SelectedIndex = this.RetSettings.iSortBy1Index;
 
-            // TODO: Resource strings
             this.SortBy2.Clear();
-            this.SortBy2.Add(string.Empty);
-            this.SortBy2.Add("Order # Ascending");
-            this.SortBy2.Add("Order # Descending");
-            this.SortBy2.Add("Entered Date Ascending");
-            this.SortBy2.Add("Entered Date Descending");
-            this.SortBy2.Add("Returned Ascending");
-            this.SortBy2.Add("Returned Descending");
+            _ = this.SortBy2.Add(string.Empty);
+            _ = this.SortBy2.Add("Order # Ascending");
+            _ = this.SortBy2.Add("Order # Descending");
+            _ = this.SortBy2.Add("Entered Date Ascending");
+            _ = this.SortBy2.Add("Entered Date Descending");
+            _ = this.SortBy2.Add("Returned Ascending");
+            _ = this.SortBy2.Add("Returned Descending");
             this.cboSortBy2.ItemsSource = this.SortBy2;
             this.cboSortBy2.SelectedIndex = this.RetSettings.iSortBy2Index;
 
-            // TODO: Resource strings
             this.SortBy3.Clear();
-            this.SortBy3.Add(string.Empty);
-            this.SortBy3.Add("Order # Ascending");
-            this.SortBy3.Add("Order # Descending");
-            this.SortBy3.Add("Entered Date Ascending");
-            this.SortBy3.Add("Entered Date Descending");
-            this.SortBy3.Add("Returned Ascending");
-            this.SortBy3.Add("Returned Descending");
+            _ = this.SortBy3.Add(string.Empty);
+            _ = this.SortBy3.Add("Order # Ascending");
+            _ = this.SortBy3.Add("Order # Descending");
+            _ = this.SortBy3.Add("Entered Date Ascending");
+            _ = this.SortBy3.Add("Entered Date Descending");
+            _ = this.SortBy3.Add("Returned Ascending");
+            _ = this.SortBy3.Add("Returned Descending");
             this.cboSortBy3.ItemsSource = this.SortBy3;
             this.cboSortBy3.SelectedIndex = this.RetSettings.iSortBy3Index;
 
-            filters.Add(string.Empty, null);
+            this.filters.Add(string.Empty, null);
             this.filters.Add("Order # Ascending", new Sort() { SortValue = "ActivityReturnsFKRefno", SortOrder = SortOrder.ASC });
             this.filters.Add("Order # Descending", new Sort() { SortValue = "ActivityReturnsFKRefno", SortOrder = SortOrder.DESC });
             this.filters.Add("Entered Date Ascending", new Sort() { SortValue = "ActivityReturnsOrderedDateTime", SortOrder = SortOrder.ASC });
@@ -104,12 +88,8 @@ namespace dMobile.View.Activity
             this.filters.Add("Returned Descending", new Sort() { SortValue = "ActivityReturnsDeliveryDateTime", SortOrder = SortOrder.DESC });
         }
 
-        #endregion
-
-        #region OnAppearing/OnDisappearing
-
         /// <summary>
-        /// The OnAppearing
+        /// The OnAppearing.
         /// </summary>
         protected override async void OnAppearing()
         {
@@ -117,8 +97,7 @@ namespace dMobile.View.Activity
 
             MessagingCenter.Subscribe<string>(this, EventTypes.OnKeyUp.ToString(), async (keyPressed) =>
             {
-                // TODO: Verify keycodes
-                Enum.TryParse(keyPressed, out Keycode keycode);
+                _ = Enum.TryParse(keyPressed, out Keycode keycode);
 
                 if (!this.Loading)
                 {
@@ -139,13 +118,12 @@ namespace dMobile.View.Activity
             }
             catch (Exception ex)
             {
-                // TODO: Resource strings
-                await Device.InvokeOnMainThreadAsync(async () => await DisplayAlert("Error", "this.ucActivityReturnsFilter_GotFocus threw an error " + ex, "OK"));
+                await Device.InvokeOnMainThreadAsync(async () => await this.DisplayAlert("Error", "this.ucActivityReturnsFilter_GotFocus threw an error " + ex, "OK"));
             }
         }
 
         /// <summary>
-        /// The OnDisappearing
+        /// The OnDisappearing.
         /// </summary>
         protected override async void OnDisappearing()
         {
@@ -159,7 +137,7 @@ namespace dMobile.View.Activity
         {
             Device.BeginInvokeOnMainThread(async () =>
             {
-                base.OnBackButtonPressed();
+                _ = base.OnBackButtonPressed();
 
                 if (await this.SaveChanges())
                 {
@@ -176,145 +154,25 @@ namespace dMobile.View.Activity
             return true;
         }
 
-        #endregion
+        private ArrayList SortBy1 { get; set; } = new ArrayList();
 
-        #region Properties
+        private ArrayList SortBy2 { get; set; } = new ArrayList();
 
-        private ArrayList SortBy1
-        {
-            get
-            {
-                return this.sortBy1;
-            }
+        private ArrayList SortBy3 { get; set; } = new ArrayList();
 
-            set
-            {
-                this.sortBy1 = value;
-            }
-        }
+        private bool IsEnterTrapped { get; set; } = false;
 
-        private ArrayList SortBy2
-        {
-            get
-            {
-                return this.sortBy2;
-            }
+        private bool IsControlLoaded { get; set; } = false;
 
-            set
-            {
-                this.sortBy2 = value;
-            }
-        }
+        private ReturnsSettings RetSettings { get; set; } = new ReturnsSettings();
 
-        private ArrayList SortBy3
-        {
-            get
-            {
-                return this.sortBy3;
-            }
+        private string SQLSortBy { get; set; } = string.Empty;
 
-            set
-            {
-                this.sortBy3 = value;
-            }
-        }
+        private string FullClassName { get; set; } = "dMobile.ucActivityHdrReturnsFilter";
 
-        private bool IsEnterTrapped
-        {
-            get
-            {
-                return this.isEnterTrapped;
-            }
+        private bool IsChangesMade { get; set; } = false;
 
-            set
-            {
-                this.isEnterTrapped = value;
-            }
-        }
-
-        private bool IsControlLoaded
-        {
-            get
-            {
-                return this.isControlLoaded;
-            }
-
-            set
-            {
-                this.isControlLoaded = value;
-            }
-        }
-
-        private ReturnsSettings RetSettings
-        {
-            get
-            {
-                return this.retSettings;
-            }
-
-            set
-            {
-                this.retSettings = value;
-            }
-        }
-
-        private string SQLSortBy
-        {
-            get
-            {
-                return this.sqlSortBy;
-            }
-
-            set
-            {
-                this.sqlSortBy = value;
-            }
-        }
-
-        private string FullClassName
-        {
-            get
-            {
-                return this.fullClassName;
-            }
-
-            set
-            {
-                this.fullClassName = value;
-            }
-        }
-
-        private bool IsChangesMade
-        {
-            get
-            {
-                return this.isChangesMade;
-            }
-
-            set
-            {
-                this.isChangesMade = value;
-            }
-        }
-
-        private SysCommon.ActSubTypes ActSubType
-        {
-            get
-            {
-                return this.actSubType;
-            }
-
-            set
-            {
-                this.actSubType = value;
-            }
-        }
-
-        #endregion
-
-        #region Public Members
-
-        #region IAppArea Members
+        private SysCommon.ActSubTypes ActSubType { get; set; } = SysCommon.ActSubTypes.Returns;
 
         /// <summary>
         /// Unregister the bar code scan event handler and disable the scanner.
@@ -345,10 +203,14 @@ namespace dMobile.View.Activity
             {
                 isReadyToSave = true;
             }
-            catch (Exceptions.MessageOnlyException ex)
+            catch (MessageOnlyException ex)
             {
                 isReadyToSave = false;
-                ex.Show(this.ActSubType);
+                await Device.InvokeOnMainThreadAsync(async () =>
+                    await Application.Current.MainPage.DisplayAlert(
+                        this.GetControlDescription(),
+                        ex.Message,
+                        Resource.OK));
             }
             catch (Exception ex)
             {
@@ -357,7 +219,7 @@ namespace dMobile.View.Activity
                 await Device.InvokeOnMainThreadAsync(async () =>
                 {
                     FormErrorReport errRpt = new FormErrorReport(this.ActSubType, ex);
-                    await errRpt.ShowDialog();
+                    _ = await errRpt.ShowDialog();
                 });
             }
 
@@ -385,10 +247,14 @@ namespace dMobile.View.Activity
                 {
                 }
             }
-            catch (Exceptions.MessageOnlyException ex)
+            catch (MessageOnlyException ex)
             {
                 isReadyToClose = false;
-                ex.Show(this.ActSubType);
+                await Device.InvokeOnMainThreadAsync(async () =>
+                    await Application.Current.MainPage.DisplayAlert(
+                        this.GetControlDescription(),
+                        ex.Message,
+                        Resource.OK));
             }
             catch (Exception ex)
             {
@@ -399,7 +265,7 @@ namespace dMobile.View.Activity
                 await Device.InvokeOnMainThreadAsync(async () =>
                 {
                     FormErrorReport errRpt = new FormErrorReport(this.ActSubType, ex);
-                    await errRpt.ShowDialog();
+                    _ = await errRpt.ShowDialog();
                 });
             }
 
@@ -413,7 +279,6 @@ namespace dMobile.View.Activity
         /// <remarks></remarks>
         public string GetControlDescription()
         {
-            // TODO: Resource strings
             return "Returns Filter";
         }
 
@@ -450,7 +315,7 @@ namespace dMobile.View.Activity
                     this.MakeSQLSortBy();
 
                     ReturnsSettings tempRetSettings = this.RetSettings;
-                    this.RetSettings.SaveData(ref tempRetSettings);
+                    _ = this.RetSettings.SaveData(ref tempRetSettings);
                     this.RetSettings = tempRetSettings;
 
                     saveComplete = true;
@@ -458,24 +323,26 @@ namespace dMobile.View.Activity
                 }
                 else
                 {
-                    // IsReadyToSave will raise errors for invalid data. This is a catch all 
+                    // IsReadyToSave will raise errors for invalid data. This is a catch all
                     // in the event that IsReadyToSave just returns false.
-
-                    // TODO: Resource strings
-                    throw new Exceptions.MessageOnlyException("Data failed validation. Check your data.");
+                    throw new MessageOnlyException("Data failed validation. Check your data.");
                 }
             }
-            catch (Exceptions.MessageOnlyException ex)
+            catch (MessageOnlyException ex)
             {
                 saveComplete = false;
-                ex.Show(this.ActSubType);
+                await Device.InvokeOnMainThreadAsync(async () =>
+                    await Application.Current.MainPage.DisplayAlert(
+                        this.GetControlDescription(),
+                        ex.Message,
+                        Resource.OK));
             }
             catch (Exception ex)
             {
                 await Device.InvokeOnMainThreadAsync(async () =>
                 {
                     FormErrorReport errRpt = new FormErrorReport(this.ActSubType, ex);
-                    await errRpt.ShowDialog();
+                    _ = await errRpt.ShowDialog();
                 });
             }
 
@@ -520,10 +387,14 @@ namespace dMobile.View.Activity
                     this.IsChangesMade = false;
                 }
             }
-            catch (Exceptions.MessageOnlyException ex)
+            catch (MessageOnlyException ex)
             {
                 cancelChanges = false;
-                ex.Show(this.ActSubType);
+                await Device.InvokeOnMainThreadAsync(async () =>
+                    await Application.Current.MainPage.DisplayAlert(
+                        this.GetControlDescription(),
+                        ex.Message,
+                        Resource.OK));
             }
             catch (Exception ex)
             {
@@ -532,7 +403,7 @@ namespace dMobile.View.Activity
                 await Device.InvokeOnMainThreadAsync(async () =>
                 {
                     FormErrorReport errRpt = new FormErrorReport(this.ActSubType, ex);
-                    await errRpt.ShowDialog();
+                    _ = await errRpt.ShowDialog();
                 });
             }
 
@@ -549,19 +420,13 @@ namespace dMobile.View.Activity
             XDocument request = XDocument.Parse(
                 "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>"
                 + "<params>"
-                + ("<returned_date>" + this.RetSettings.ReturnedDateFilter.ToShortDateString() + "</returned_date>")
-                + ("<entered_date>" + this.RetSettings.EnteredDateFilter.ToShortDateString() + "</entered_date>")
-                + ("<sortby>" + this.SQLSortBy + "</sortby>")
+                + "<returned_date>" + this.RetSettings.ReturnedDateFilter.ToShortDateString() + "</returned_date>"
+                + "<entered_date>" + this.RetSettings.EnteredDateFilter.ToShortDateString() + "</entered_date>"
+                + "<sortby>" + this.SQLSortBy + "</sortby>"
                 + "</params>");
 
             return request;
         }
-
-        #endregion
-
-        #endregion
-
-        #region Private Members
 
         /// <summary>
         ///
@@ -571,24 +436,21 @@ namespace dMobile.View.Activity
         /// <remarks></remarks>
         private void ucActivityReturnsFilter_GotFocus(object sender, EventArgs e)
         {
-            if (!SysEnvironment.GetInstance().IsApplicationExitInvoked)
+            // Reload oReturnsSettings because intial values will be scewed because of SelectedIndexChanged events firing
+            if (!this.IsControlLoaded)
             {
-                // Reload oReturnsSettings because intial values will be scewed because of SelectedIndexChanged events firing
-                if (!this.IsControlLoaded)
-                {
-                    this.LoadData();
-                }
-
-                this.chkApplyEnteredDate.IsToggled = this.RetSettings.IsApplyEnteredDateFilter;
-                this.dtpEnteredDate.Date = this.RetSettings.EnteredDateFilter;
-
-                this.chkApplyReturnedDate.IsToggled = this.RetSettings.IsApplyReturnedDateFilter;
-                this.dtpReturnedDate.Date = this.RetSettings.ReturnedDateFilter;
-
-                this.cboSortBy1.SelectedIndex = this.RetSettings.iSortBy1Index;
-                this.cboSortBy2.SelectedIndex = this.RetSettings.iSortBy2Index;
-                this.cboSortBy3.SelectedIndex = this.RetSettings.iSortBy3Index;
+                this.LoadData();
             }
+
+            this.chkApplyEnteredDate.IsToggled = this.RetSettings.IsApplyEnteredDateFilter;
+            this.dtpEnteredDate.Date = this.RetSettings.EnteredDateFilter;
+
+            this.chkApplyReturnedDate.IsToggled = this.RetSettings.IsApplyReturnedDateFilter;
+            this.dtpReturnedDate.Date = this.RetSettings.ReturnedDateFilter;
+
+            this.cboSortBy1.SelectedIndex = this.RetSettings.iSortBy1Index;
+            this.cboSortBy2.SelectedIndex = this.RetSettings.iSortBy2Index;
+            this.cboSortBy3.SelectedIndex = this.RetSettings.iSortBy3Index;
         }
 
         /// <summary>
@@ -597,12 +459,12 @@ namespace dMobile.View.Activity
         /// <remarks></remarks>
         private void MakeSQLSortBy()
         {
-            this.SQLSortBy = this.filters[cboSortBy1.Items[cboSortBy1.SelectedIndex]].SortValue;
-            this.RetSettings.SortBy1Value = this.filters[cboSortBy1.Items[cboSortBy1.SelectedIndex]];
+            this.SQLSortBy = this.filters[this.cboSortBy1.Items[this.cboSortBy1.SelectedIndex]].SortValue;
+            this.RetSettings.SortBy1Value = this.filters[this.cboSortBy1.Items[this.cboSortBy1.SelectedIndex]];
 
             if (this.cboSortBy2.SelectedIndex >= 0)
             {
-                this.RetSettings.SortBy2Value = this.filters[cboSortBy2.Items[cboSortBy2.SelectedIndex]];
+                this.RetSettings.SortBy2Value = this.filters[this.cboSortBy2.Items[this.cboSortBy2.SelectedIndex]];
 
                 if (this.RetSettings.SortBy2Value != null && !string.IsNullOrEmpty(this.RetSettings.SortBy2Value.SortValue))
                 {
@@ -612,7 +474,7 @@ namespace dMobile.View.Activity
 
             if (this.cboSortBy3.SelectedIndex >= 0)
             {
-                this.RetSettings.SortBy3Value = this.filters[cboSortBy3.Items[cboSortBy3.SelectedIndex]];
+                this.RetSettings.SortBy3Value = this.filters[this.cboSortBy3.Items[this.cboSortBy3.SelectedIndex]];
 
                 if (this.RetSettings.SortBy3Value != null && !string.IsNullOrEmpty(this.RetSettings.SortBy3Value.SortValue))
                 {
@@ -659,7 +521,5 @@ namespace dMobile.View.Activity
                 await this.Close();
             }
         }
-
-        #endregion
     }
 }
