@@ -128,12 +128,6 @@ namespace dMobile.Controller
         public ResourceDictionary ResourceDictionary { get; set; } = new ResourceDictionary();
 
         /// <summary>
-        /// Gets or sets the ListSkidInfoDetails
-        /// Gets or sets a list of skid information details.
-        /// </summary>
-        public List<SkidInfoDetail> ListSkidInfoDetails { get; set; } = new List<SkidInfoDetail>();
-
-        /// <summary>
         /// Insert a new skid into the detail.
         /// </summary>
         /// <param name="skidInfo"><see cref="SysSkidInfo"/> Skid information to insert.</param>
@@ -189,7 +183,7 @@ namespace dMobile.Controller
                     this.Refno = this.FKRefno;
                 }
 
-                this.FillDataView();
+                ////this.FillDataView();
             }
         }
 
@@ -417,30 +411,30 @@ namespace dMobile.Controller
         }
 
         /// <summary>
-        /// The GetRefno.
+        /// Get the selected activity detail reference number.
         /// </summary>
-        /// <param name="selectedActivityDetail">The selectedActivityDetail<see cref="object"/>.</param>
-        /// <returns>.</returns>
+        /// <param name="selectedActivityDetail"><see cref="object"/> Selected activity detail.</param>
+        /// <returns><see cref="int"/> Activity detail reference number.</returns>
         public override int GetRefno(object selectedActivityDetail)
         {
             return (selectedActivityDetail as SkidInfoDetail).ActivityDetailRefno;
         }
 
         /// <summary>
-        /// The GetFKRefno.
+        /// Get the selected activity detail foreign key reference number.
         /// </summary>
-        /// <param name="selectedActivityDetail">The selectedActivityDetail<see cref="object"/>.</param>
-        /// <returns>.</returns>
+        /// <param name="selectedActivityDetail"><see cref="object"/> Selected activity detail.</param>
+        /// <returns><see cref="int"/> Selected activity detail foreign key reference number.</returns>
         public override int GetFKRefno(object selectedActivityDetail)
         {
             return (selectedActivityDetail as SkidInfoDetail).ActivityDetailFKRefno;
         }
 
         /// <summary>
-        /// The GetActivityDetailList.
+        /// Get the activity skid detail list.
         /// </summary>
-        /// <param name="isSubmitBatch">.</param>
-        /// <returns>.</returns>
+        /// <param name="isSubmitBatch"><see cref="bool"/> Are we in batch submission mode.</param>
+        /// <returns><see cref="List{object}"/> List of skid details.</returns>
         public override async Task<List<object>> GetActivityDetailList(bool isSubmitBatch)
         {
             DataTable table = new DataTable("ActivitySkidDetail");
@@ -469,8 +463,8 @@ namespace dMobile.Controller
             table.Columns.Add("ActivityDetailFKRefno", Type.GetType("System.Int32"));
             table.Columns.Add("ActivityDetailRefno", Type.GetType("System.Int32"));
 
-            this.ListSkidInfoDetails = table.Rows.Cast<SkidInfoDetail>().ToList();
-            this.ListDetails = this.ListSkidInfoDetails.Cast<object>().ToList();
+            List<SkidInfoDetail> details = table.Rows.Cast<SkidInfoDetail>().ToList();
+            this.ListDetails = details.Cast<object>().ToList();
             return this.ListDetails;
         }
 
@@ -596,10 +590,10 @@ namespace dMobile.Controller
         }
 
         /// <summary>
-        /// The Search.
+        /// Perform a search for an activity detail.
         /// </summary>
-        /// <param name="searchText">.</param>
-        /// <returns>.</returns>
+        /// <param name="searchText"><see cref="string"/> Search text.</param>
+        /// <returns><see cref="ObservableCollection{object}"/> Found object or null.</returns>
         public override ObservableCollection<object> Search(string searchText)
         {
             throw new NotImplementedException();
@@ -616,14 +610,16 @@ namespace dMobile.Controller
         }
 
         /// <summary>
-        /// The CreateDeleteXML.
+        /// Create delete product from skid XML.
         /// </summary>
-        /// <param name="data">.</param>
-        /// <returns>.</returns>
+        /// <param name="data"><see cref="XDocument"/> Skid product detail to delete.</param>
+        /// <returns><see cref="string"/> Request string.</returns>
         public override async Task<string> CreateDeleteXML(XDocument data)
         {
             StringBuilder xmlString = new StringBuilder();
             XmlWriter xml = XmlWriter.Create(xmlString);
+
+            ////await this.FillActDetailObjFromXML(data);
 
             XDocument request = XDocument.Parse(
                 "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>"
@@ -646,14 +642,18 @@ namespace dMobile.Controller
         }
 
         /// <summary>
-        /// The CreateSubmitXML.
+        /// Add a product detail to a skid.
         /// </summary>
-        /// <param name="data">.</param>
-        /// <returns>.</returns>
+        /// <param name="data"><see cref="XDocument"/> Skid and product info to add.</param>
+        /// <returns><see cref="string"/> Request string.</returns>
         public override async Task<string> CreateSubmitXML(XDocument data)
         {
             StringBuilder xmlString = new StringBuilder();
             XmlWriter xml = XmlWriter.Create(xmlString);
+
+            ////await this.FillActDetailObjFromXML(data);
+            string reqDetail = this.GetRequestDetailDefaults();
+            string def = await SysCommon.GetRequestDefaults(false);
 
             XDocument request = XDocument.Parse(
                 "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>"
@@ -663,8 +663,8 @@ namespace dMobile.Controller
                 + "<whs_id>0</whs_id>"
                 + "<sect_refno>0</sect_refno>"
                 + "</command>"
-                + await SysCommon.GetRequestDefaults(false)
-                + this.GetRequestDetailDefaults()
+                + def
+                + reqDetail
                 + "<skid_fk_refno>" + this.ActItem.ActHdr.SkidInfo.CurrSkid.SkidFKRefno + "</skid_fk_refno>"
                 + "</imclient>");
 
@@ -676,14 +676,37 @@ namespace dMobile.Controller
         }
 
         /// <summary>
-        /// The FillDataView.
+        /// Add to the detail list a skid detail information.
         /// </summary>
         public void FillDataView()
         {
             if (this.ListDetails != null)
             {
+                SLocMap locMap = LocationMap.GetInstance().CurrLocMap;
+
+                string locName;
+                int locCode;
+                if (locMap.SlotLocMapRefno > 0)
+                {
+                    locCode = locMap.SlotCode;
+                    locName = locMap.SlotName;
+                }
+                else if (locMap.SectLocMapRefno > 0)
+                {
+                    locCode = locMap.SectCode;
+                    locName = locMap.SectName;
+                }
+                else
+                {
+                    locCode = locMap.WhsCode;
+                    locName = locMap.WhsName;
+                }
+
                 this.ListDetails.Add(new SkidInfoDetail()
                 {
+                    LocationMapRefno = LocationMap.GetInstance().CurrLocMapRefno,
+                    LocationCode = locCode,
+                    LocationName = locName,
                     ProductRefno = this.ActItem.ProdInfo.Refno,
                     ProductCode = this.ActItem.ProdInfo.Code,
                     ProductUnitBC = this.ActItem.ProdInfo.UnitBC,
@@ -717,25 +740,26 @@ namespace dMobile.Controller
         /// <returns><see cref="string"/> Get activity item control description.</returns>
         public override string GetControlDescription()
         {
-            return string.Format("Skid # {0}", this.ActItem.ActHdr.FKRefno);
+            return string.Format("Skid # {0}", this.ActItem.ActHdr.SkidInfo.CurrSkid.SkidCode);
         }
 
         /// <summary>
         /// Find or insert an activity detail into the list details.
         /// </summary>
-        /// <param name="actDetailFKRefnoFldName">The actDetailFKRefnoFldName<see cref="string"/>.</param>
-        /// <returns>The <see cref="ActivityDetail"/>.</returns>
+        /// <param name="actDetailFKRefnoFldName"><see cref="string"/> Activity detail foreign key reference number
+        /// field name.</param>
+        /// <returns><see cref="ActivityDetail"/> Activity detail to insert.</returns>
         public override ActivityDetail InsertListDetail(string actDetailFKRefnoFldName)
         {
             SkidInfoDetail detail = null;
             if (this.IsUpdateView && this.ListDetails != null)
             {
                 bool detailToBeAdded = false;
-                if (this.FKRefno > 0)
-                {
-                    detail = this.ListDetails.OfType<SkidInfoDetail>().FirstOrDefault(adjDetail =>
-                        adjDetail.ActivityDetailFKRefno == this.FKRefno);
-                }
+                ////if (this.FKRefno > 0)
+                ////{
+                ////    detail = this.ListDetails.OfType<SkidInfoDetail>().FirstOrDefault(adjDetail =>
+                ////        adjDetail.ActivityDetailFKRefno == this.FKRefno);
+                ////}
 
                 if (detail == null)
                 {
@@ -825,10 +849,7 @@ namespace dMobile.Controller
         {
             ObservableCollection<object> observableCollection = new ObservableCollection<object>();
 
-            foreach (SkidInfoDetail skidInfoDetail in this.ListDetails)
-            {
-                observableCollection.Add(skidInfoDetail);
-            }
+            observableCollection.Add(actDetail);
 
             Label labelQtyHeader = new Label
             {

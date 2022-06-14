@@ -4,38 +4,30 @@
 
 namespace dMobile.View.Activity
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Collections.ObjectModel;
-    using System.Linq;
-    using System.Text;
-    using System.Threading.Tasks;
-    using System.Xml.Linq;
-    using dMobile.BarCodeScanner;
     using dMobile.BarCodeScanner.BarCodeParsing;
     using dMobile.BarCodeScanner.BarCodeScanners;
     using dMobile.Bedrock;
     using dMobile.Controller;
     using dMobile.View.CustomPages.Modal;
     using dMobile.View.Forms;
-    using Java.Util.Functions;
+    using System;
+    using System.Collections.ObjectModel;
+    using System.Threading.Tasks;
+    using System.Xml.Linq;
     using Xamarin.Forms;
     using Xamarin.Forms.Xaml;
 
+    /// <summary>
+    /// Defines the <see cref="ucActivityDetailInventoryInquiry" />.
+    /// </summary>
     [XamlCompilation(XamlCompilationOptions.Compile)]
     public partial class ucActivityDetailInventoryInquiry : DMobileModal, IAppArea
     {
-
-        /// <summary>
-        ///
-        /// </summary>
-        /// <param name="actDetail"></param>
-        /// <param name="actSubType"></param>
         /// <summary>
         /// Initializes a new instance of the <see cref="ucActivityDetailInventoryInquiry"/> class.
         /// </summary>
-        /// <param name="actDetail"></param>
-        /// <param name="actSubType"></param>
+        /// <param name="actDetail">.</param>
+        /// <param name="actSubType">.</param>
         public ucActivityDetailInventoryInquiry(ActDetail actDetail, SysCommon.ActSubTypes actSubType)
         {
             this.InitializeComponent();
@@ -74,19 +66,44 @@ namespace dMobile.View.Activity
             base.OnDisappearing();
         }
 
+        /// <summary>
+        /// Gets or sets the SysEnv.
+        /// </summary>
         public SysEnvironment SysEnv { get; set; }
 
+        /// <summary>
+        /// Gets or sets a value indicating whether IsBarCodeHandlerRegistered.
+        /// </summary>
         public bool IsBarCodeHandlerRegistered { get; set; } = false;
 
+        /// <summary>
+        /// Gets or sets the ActSubType.
+        /// </summary>
         public SysCommon.ActSubTypes ActSubType { get; set; }
 
+        /// <summary>
+        /// Gets or sets the BarParse.
+        /// </summary>
         private BarCodeParse BarParse { get; set; }
 
+        /// <summary>
+        /// Gets or sets the Scanner.
+        /// </summary>
         private BarCodeScanner Scanner { get; set; }
 
+        /// <summary>
+        /// Gets or sets the ActDetail.
+        /// </summary>
         private ActDetail ActDetail { get; set; }
 
+        /// <summary>
+        /// Gets or sets the ExtraInfoItems.
+        /// </summary>
         public ObservableCollection<string> ExtraInfoItems { get; set; } = new ObservableCollection<string>();
+
+        /// <summary>
+        /// Gets or sets the MainActivityItems.
+        /// </summary>
         public ObservableCollection<object> MainActivityItems { get; set; } = new ObservableCollection<object>();
 
         /// <summary>
@@ -95,7 +112,7 @@ namespace dMobile.View.Activity
         /// <returns><see cref="Task"/> Task operation.</returns>
         public async Task ScannerDisable()
         {
-            if (this.IsBarCodeHandlerRegistered && this.Scanner != null)
+            if (this.Scanner != null)
             {
                 this.Scanner.BarCodeScan -= new BarCodeScanner.BarCodeScanEventHandler(this.BarCodeHandler);
                 await this.Scanner.Stop();
@@ -119,20 +136,18 @@ namespace dMobile.View.Activity
         }
 
         /// <summary>
-        ///
+        /// The GetControlDescription.
         /// </summary>
-        /// <returns></returns>
-        /// <remarks></remarks>
+        /// <returns>.</returns>
         public string GetControlDescription()
         {
             return "Inventory Inquiry Detail";
         }
 
         /// <summary>
-        ///
+        /// The GetXML.
         /// </summary>
-        /// <returns></returns>
-        /// <remarks></remarks>
+        /// <returns>.</returns>
         public async Task<XDocument> GetXML()
         {
             XDocument xmldocParams = XDocument.Parse(
@@ -144,20 +159,18 @@ namespace dMobile.View.Activity
         }
 
         /// <summary>
-        ///
+        /// The IsReadyToSave.
         /// </summary>
-        /// <returns></returns>
-        /// <remarks></remarks>
+        /// <returns>.</returns>
         public async Task<bool> IsReadyToSave()
         {
             return this.IsValidData();
         }
 
         /// <summary>
-        ///
+        /// The IsReadyToClose.
         /// </summary>
-        /// <returns></returns>
-        /// <remarks></remarks>
+        /// <returns>.</returns>
         public async Task<bool> IsReadyToClose()
         {
             bool isReadyToClose = true;
@@ -179,10 +192,9 @@ namespace dMobile.View.Activity
         }
 
         /// <summary>
-        ///
+        /// The SaveChanges.
         /// </summary>
-        /// <returns></returns>
-        /// <remarks></remarks>
+        /// <returns>.</returns>
         public async Task<bool> SaveChanges()
         {
             try
@@ -207,10 +219,9 @@ namespace dMobile.View.Activity
         }
 
         /// <summary>
-        ///
+        /// The CancelChanges.
         /// </summary>
-        /// <returns></returns>
-        /// <remarks></remarks>
+        /// <returns>.</returns>
         public async Task<bool> CancelChanges()
         {
             bool cancelChanges = true;
@@ -252,13 +263,12 @@ namespace dMobile.View.Activity
         }
 
         /// <summary>
-        ///
-        /// </summary>
+        /// /// </summary>
         /// <remarks></remarks>
-/// <summary>
-///
-/// </summary>
-/// <returns>A <see cref="Task"/> representing the result of the asynchronous operation.</returns>
+        /// <summary>
+        ///.
+        /// </summary>
+        /// <returns>A <see cref="Task"/> representing the result of the asynchronous operation.</returns>
         public async Task RefreshData()
         {
             await Task.Run(async () =>
@@ -306,27 +316,27 @@ namespace dMobile.View.Activity
         }
 
         /// <summary>
-        ///
-        /// </summary>
+        /// /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
         /// <remarks></remarks>
-/// <summary>
-///
-/// </summary>
-/// <param name="sender"></param>
-/// <param name="e"></param>
-/// <returns>A <see cref="Task"/> representing the result of the asynchronous operation.</returns>
+        /// <summary>
+        ///.
+        /// </summary>
+        /// <param name="sender">.</param>
+        /// <param name="e">.</param>
+        /// <returns>A <see cref="Task"/> representing the result of the asynchronous operation.</returns>
         public async Task tmrActivityItemInventoryInquiry_Tick(object sender, EventArgs e)
         {
             await this.RefreshData();
         }
 
         /// <summary>
-        ///
+        /// The BarCodeHandler.
         /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="scanArgs"></param>
+        /// <param name="sender">.</param>
+        /// <param name="scanArgs">.</param>
+        /// <returns>The <see cref="Task"/>.</returns>
         private async Task BarCodeHandler(object sender, BarCodeScannerEventArgs scanArgs)
         {
             if (this.Loading || scanArgs == null)
@@ -387,25 +397,30 @@ namespace dMobile.View.Activity
         }
 
         /// <summary>
-        ///
+        /// The IsValidData.
         /// </summary>
-        /// <returns></returns>
-        /// <remarks></remarks>
+        /// <returns>.</returns>
         private bool IsValidData()
         {
             return true;
         }
 
         /// <summary>
-        ///
+        /// The ucActivityDetailInventoryInquiry_GotFocus.
         /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
+        /// <param name="sender">.</param>
+        /// <param name="e">.</param>
+        /// <returns>The <see cref="Task"/>.</returns>
         private async Task ucActivityDetailInventoryInquiry_GotFocus(object sender, EventArgs e)
         {
             await this.ScannerEnable();
         }
 
+        /// <summary>
+        /// The ListViewMainActivity_ItemSelected.
+        /// </summary>
+        /// <param name="sender">The sender<see cref="object"/>.</param>
+        /// <param name="e">The e<see cref="SelectedItemChangedEventArgs"/>.</param>
         private void ListViewMainActivity_ItemSelected(object sender, SelectedItemChangedEventArgs e)
         {
         }

@@ -93,7 +93,7 @@ namespace dMobile.Bedrock
                 {
                     this.chosenLocMapRefno = this.ChosenLocMap.SlotLocMapRefno;
                 }
-                else if (this.CurrLocMap.SectLocMapRefno != 0)
+                else if (this.ChosenLocMap.SectLocMapRefno != 0)
                 {
                     this.chosenLocMapRefno = this.ChosenLocMap.SectLocMapRefno;
                 }

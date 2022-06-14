@@ -12,6 +12,7 @@ namespace dMobile.View.Options
     using System.Threading.Tasks;
     using System.Xml.Linq;
     using Android.Views;
+    using dMobile.BarCodeScanner;
     using dMobile.Bedrock;
     using dMobile.Controller;
     using dMobile.Resources.Enums;
@@ -628,8 +629,8 @@ namespace dMobile.View.Options
 
                                     if (this.SubmitBatchSettings.eActivitySubType == SysCommon.ActSubTypes.BarCodeAssociation)
                                     {
-                                        SysCommon.BarCodeSymbologies i = (SysCommon.BarCodeSymbologies)Convert.ToInt32((actItem.ListItems[itemIdx] as dynamic).ProductUnitBarCodeSymbologyEnum);
-                                        string symbologyPrefix = SysCommon.GetSymbologyPrefixFromSymbologyEnum(i);
+                                        BarCodeSymbologies i = (BarCodeSymbologies)Convert.ToInt32((actItem.ListItems[itemIdx] as dynamic).ProductUnitBarCodeSymbologyEnum);
+                                        string symbologyPrefix = clsCommon.GetSymbologyPrefixFromSymbologyEnum(i);
 
                                         XDocument xmlParams = XDocument.Parse(
                                                 "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>"

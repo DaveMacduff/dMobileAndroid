@@ -187,7 +187,7 @@ namespace dMobile.View.Activity
         /// <returns><see cref="Task"/> Task operation.</returns>
         public async Task ScannerDisable()
         {
-            if (this.IsBarCodeHandlerRegistered && this.Scanner != null)
+            if (this.Scanner != null)
             {
                 this.Scanner.BarCodeScan -= new BarCodeScanner.BarCodeScanEventHandler(this.BarCodeHandler);
                 await this.Scanner.Stop();
@@ -777,7 +777,7 @@ namespace dMobile.View.Activity
                                 EDialogTypes.ActivityShippingLabelEdit,
                                 labelQuantity,
                                 this.ActHdr,
-                                SysCommon.ShippingLabelQuantitySelectionMode.RepackOnly);
+                                ShippingLabelQuantitySelectionMode.RepackOnly);
 
                             if (await Device.InvokeOnMainThreadAsync(async () =>
                                 await form.DisplayControl.ShowDialog() == DialogResult.OK))
@@ -797,7 +797,7 @@ namespace dMobile.View.Activity
                                 EDialogTypes.ActivityShippingLabelEdit,
                                 labelQuantity,
                                 this.ActHdr,
-                                SysCommon.ShippingLabelQuantitySelectionMode.BothFullRepack);
+                                ShippingLabelQuantitySelectionMode.BothFullRepack);
 
                             if (await Device.InvokeOnMainThreadAsync(async () =>
                                 await form.DisplayControl.ShowDialog() == DialogResult.OK))

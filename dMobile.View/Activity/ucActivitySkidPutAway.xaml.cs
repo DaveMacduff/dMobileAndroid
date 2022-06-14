@@ -210,7 +210,7 @@ namespace dMobile.View.Activity
         /// <returns><see cref="Task"/> Task operation.</returns>
         public async Task ScannerDisable()
         {
-            if (this.IsBarCodeHandlerRegistered && this.Scanner != null)
+            if (this.Scanner != null)
             {
                 this.Scanner.BarCodeScan -= new BarCodeScanner.BarCodeScanEventHandler(this.BarCodeHandler);
                 await this.Scanner.Stop();
@@ -225,7 +225,7 @@ namespace dMobile.View.Activity
         /// <returns><see cref="Task"/> Task operation.</returns>
         public async Task ScannerEnable()
         {
-            if (!this.IsBarCodeHandlerRegistered)
+            if (!this.IsBarCodeHandlerRegistered && this.Scanner != null)
             {
                 await this.Scanner.Start();
                 this.Scanner.BarCodeScan += new BarCodeScanner.BarCodeScanEventHandler(this.BarCodeHandler);
@@ -262,13 +262,13 @@ namespace dMobile.View.Activity
 
                         this.ExtraInfoItems.Clear();
                         this.ExtraInfoItems.Add("Skid Product: " + ProductInfoTasks.GetCurrReadableProdBCUnit(this.Activity.SkidInfo.CurrSkid.ProdInfo));
-                        this.ExtraInfoItems.Add("Skid Location: " + LocationMapTasks.GetCurrentReadableLocation(this.Activity.SkidInfo.CurrSkid.LocMap));
+                        this.ExtraInfoItems.Add("Skid Location: " + LocationMapTasks.GetReadableLocation(this.Activity.SkidInfo.CurrSkid.LocMap));
                         this.cmdLocation.IsEnabled = true;
 
                         // Set the global location to the skid location,
                         // need to enforce that the skid and location warehouses match.
                         this.LocMap.CurrLocMap = this.Activity.SkidInfo.CurrSkid.LocMap;
-                        this.cmdLocation.Text = LocationMapTasks.GetCurrentReadableLocation(this.Activity.SkidInfo.CurrSkid.LocMap);
+                        this.cmdLocation.Text = LocationMapTasks.GetReadableLocation(this.Activity.SkidInfo.CurrSkid.LocMap);
 
                         this.Activity.FKRefno = this.Activity.SkidInfo.CurrSkid.SkidFKRefno;
                         this.Activity.Refno = this.Activity.SkidInfo.CurrSkid.SkidFKRefno;
@@ -1153,10 +1153,10 @@ namespace dMobile.View.Activity
                                 await Device.InvokeOnMainThreadAsync(() => this.ExtraInfoItems.Clear());
 
                                 this.ExtraInfoItems.Add("Skid Product: " + ProductInfoTasks.GetCurrReadableProdBCUnit(this.Activity.SkidInfo.CurrSkid.ProdInfo));
-                                this.ExtraInfoItems.Add("Skid Location: " + LocationMapTasks.GetCurrentReadableLocation(this.Activity.SkidInfo.CurrSkid.LocMap));
+                                this.ExtraInfoItems.Add("Skid Location: " + LocationMapTasks.GetReadableLocation(this.Activity.SkidInfo.CurrSkid.LocMap));
 
                                 _ = await Device.InvokeOnMainThreadAsync(() => this.cmdLocation.IsEnabled = true);
-                                _ = await Device.InvokeOnMainThreadAsync(() => this.cmdLocation.Text = LocationMapTasks.GetCurrentReadableLocation(this.Activity.SkidInfo.CurrSkid.LocMap));
+                                _ = await Device.InvokeOnMainThreadAsync(() => this.cmdLocation.Text = LocationMapTasks.GetReadableLocation(this.Activity.SkidInfo.CurrSkid.LocMap));
 
                                 this.Activity.FKRefno = this.Activity.SkidInfo.CurrSkid.SkidFKRefno;
                                 this.Activity.Refno = this.Activity.SkidInfo.CurrSkid.SkidFKRefno;

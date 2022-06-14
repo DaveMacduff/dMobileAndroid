@@ -16,6 +16,7 @@ namespace dMobile.View.Activity
     using dMobile.Bedrock;
     using dMobile.Controller;
     using dMobile.Resources.Enums;
+    using dMobile.Resources.Types;
     using dMobile.View.CustomPages.Modal;
     using dMobile.View.Forms;
     using Xamarin.Forms;
@@ -100,14 +101,9 @@ namespace dMobile.View.Activity
         private ActDetail ActDetail { get; set; } = null;
 
         /// <summary>
-        /// Gets or sets the list of activity details.
-        /// </summary>
-        private List<object> ListActivityDetails { get; set; } = new List<object>();
-
-        /// <summary>
         /// Gets or sets a value indicating whether to performing loading data upon got focus.
         /// </summary>
-        private bool IsFirstAppearance { get; set; } = false;
+        private bool IsFirstAppearance { get; set; } = true;
 
         /// <summary>
         /// Gets or sets a value indicating whether ScannerModeAdd
@@ -159,7 +155,7 @@ namespace dMobile.View.Activity
         /// <returns><see cref="Task"/> Task operation.</returns>
         public async Task ScannerDisable()
         {
-            if (this.IsBarCodeHandlerRegistered && this.Scanner != null)
+            if (this.Scanner != null)
             {
                 this.Scanner.BarCodeScan -= new BarCodeScanner.BarCodeScanEventHandler(this.BarCodeHandler);
                 await this.Scanner.Stop();
@@ -420,48 +416,57 @@ namespace dMobile.View.Activity
         /// </summary>
         protected override async void OnAppearing()
         {
-            base.OnAppearing();
-
-            // Note: Do we want to disable the scanner here. It may not even be enabled before at all.
-            // It is my understanding that the OnAppearing event only occurs once when the control is loading.
-            await this.ScannerDisable();
-            SubscribeKeyUpHandlers();
-
-            try
+            if (this.IsFirstAppearance)
             {
-                this.ListViewDisplayExtraInfo.ItemsSource = this.ExtraInfoItems;
-                this.ListViewMainActivity.ItemsSource = this.MainActivityItems;
+                base.OnAppearing();
 
-                this.UpdateScannerMode();
+                this.Loading = true;
 
-                if (this.IsFirstAppearance == false)
+                // Note: Do we want to disable the scanner here. It may not even be enabled before at all.
+                // It is my understanding that the OnAppearing event only occurs once when the control is loading.
+                await this.ScannerDisable();
+
+                try
                 {
-                    this.IsFirstAppearance = true;
+                    this.IsFirstAppearance = false;
+                    SubscribeKeyUpHandlers();
+                    this.ListViewDisplayExtraInfo.ItemsSource = this.ExtraInfoItems;
+                    this.ListViewMainActivity.ItemsSource = this.MainActivityItems;
+                    this.cmdAdd.IsEnabled = this.CallingActSubType == SysCommon.ActSubTypes.SkidInfo;
+                    this.UpdateScannerMode();
+                    await this.RefreshData();
                 }
-
-                await this.RefreshData();
-
-                this.cmdAdd.IsEnabled = this.CallingActSubType == SysCommon.ActSubTypes.SkidInfo;
-            }
-            catch (MessageOnlyException ex)
-            {
-                ////this.FirstOnAppearing = true;
-                await Device.InvokeOnMainThreadAsync(async () =>
-                    await Application.Current.MainPage.DisplayAlert(
-                        this.GetControlDescription(),
-                        ex.Message,
-                        Resource.OK));
-            }
-            catch (Exception ex)
-            {
-                ////this.FirstOnAppearing = true;
-                await Device.InvokeOnMainThreadAsync(async () =>
+                catch (MessageOnlyException ex)
                 {
-                    string msg = "This activity unexpectedly failed to initialize correctly." +
-                        " Please exit and try again.";
-                    FormErrorReport errorReport = new FormErrorReport(msg, ex);
-                    _ = await errorReport.ShowDialog();
-                });
+                    ////this.FirstOnAppearing = true;
+                    await Device.InvokeOnMainThreadAsync(async () =>
+                        await Application.Current.MainPage.DisplayAlert(
+                            this.GetControlDescription(),
+                            ex.Message,
+                            Resource.OK));
+                }
+                catch (Exception ex)
+                {
+                    ////this.FirstOnAppearing = true;
+                    await Device.InvokeOnMainThreadAsync(async () =>
+                    {
+                        string msg = "This activity unexpectedly failed to initialize correctly." +
+                            " Please exit and try again.";
+                        FormErrorReport errorReport = new FormErrorReport(msg, ex);
+                        _ = await errorReport.ShowDialog();
+                    });
+                }
+                finally
+                {
+                    this.Loading = false;
+                    ////await this.ScannerEnable();
+                    ////await Task.Run(() =>
+                    ////{
+                    ////    // Explicit GC, Xamarin forms not disposing of objects properly
+                    ////    GC.Collect();
+                    ////    GC.WaitForPendingFinalizers();
+                    ////});
+                }
             }
 
             //////////////////////////////////////////////////////////////////////////
@@ -826,6 +831,19 @@ namespace dMobile.View.Activity
                         await this.RemoveActivityDetail();
                     }
 
+                    ActivityDetail detail = this.ActDetail.InsertListDetail(string.Empty);
+                    await Device.InvokeOnMainThreadAsync(() =>
+                    {
+                        ////this.ListViewMainActivity.ItemTemplate = this.ActDetail.DesignGrid(
+                        ////    ref this.GridMainActivity,
+                        ////    detail,
+                        ////    this.MainActivityItems);
+
+                        this.MainActivityItems = this.ActDetail.DesignGrid(
+                            ref this.GridMainActivity,
+                            ref this.ListViewMainActivity);
+                    });
+
                     await this.ActDetail.SelectActivityDetail(this.MainActivityItems[currRowIdx]);
 
                     if (this.MainActivityItems.Count > currRowIdx)
@@ -924,8 +942,13 @@ namespace dMobile.View.Activity
             {
                 actDetail.FKRefno = 0;
                 XDocument xmlDoc = actDetail.GetXML(actDetail);
+                actDetail.InsertListDetail("ActivityDetailPickingFKRefno");
                 await actDetail.Insert(xmlDoc);
             }
+
+            this.MainActivityItems = this.ActDetail.DesignGrid(
+                ref this.GridMainActivity,
+                ref this.ListViewMainActivity);
 
             if (actDetail.ListDetails.Count > 0 && this.MainActivityItems.Count > 0)
             {
@@ -970,18 +993,18 @@ namespace dMobile.View.Activity
         {
             SFillQuantity fillQty = new SFillQuantity();
 
-            if (this.ListActivityDetails != null)
+            if (this.ActDetail.ListDetails != null)
             {
-                if (this.ListActivityDetails.Count > 0)
+                if (this.ActDetail.ListDetails.Count > 0)
                 {
-                    for (int i = 0; i <= this.ListActivityDetails.Count - 1; i++)
+                    for (int i = 0; i <= this.ActDetail.ListDetails.Count - 1; i++)
                     {
-                        fillQty.Quantity += Convert.ToDecimal(this.ListActivityDetails[i].GetType().
-                            GetProperty("ActivityDetailQuantity")?.GetValue(this.ListActivityDetails[i]));
-                        fillQty.BaseQuantity += Convert.ToDecimal(this.ListActivityDetails[i].GetType().
-                            GetProperty("ActivityDetailBaseQuantity")?.GetValue(this.ListActivityDetails[i]));
-                        fillQty.WeightQuantity += Convert.ToDecimal(this.ListActivityDetails[i].GetType().
-                            GetProperty("ActivityDetailWeightQuantity")?.GetValue(this.ListActivityDetails[i]));
+                        fillQty.Quantity += Convert.ToDecimal(this.ActDetail.ListDetails[i].GetType().
+                            GetProperty("ActivityDetailQuantity")?.GetValue(this.ActDetail.ListDetails[i]));
+                        fillQty.BaseQuantity += Convert.ToDecimal(this.ActDetail.ListDetails[i].GetType().
+                            GetProperty("ActivityDetailBaseQuantity")?.GetValue(this.ActDetail.ListDetails[i]));
+                        fillQty.WeightQuantity += Convert.ToDecimal(this.ActDetail.ListDetails[i].GetType().
+                            GetProperty("ActivityDetailWeightQuantity")?.GetValue(this.ActDetail.ListDetails[i]));
                     }
                 }
             }
@@ -1018,7 +1041,7 @@ namespace dMobile.View.Activity
                 this.IsSvdBarScannerEnabled = this.IsBarCodeHandlerRegistered;
                 await this.ScannerDisable();
 
-                this.ListActivityDetails = await this.ActDetail.GetActivityDetailList(false);
+                this.ActDetail.ListDetails = await this.ActDetail.GetActivityDetailList(false);
                 await this.ActDetail.Refresh();
 
                 this.MainActivityItems = this.ActDetail.DesignGrid(
@@ -1028,7 +1051,7 @@ namespace dMobile.View.Activity
                 this.ExtraInfoItems.Clear();
                 this.ListViewMainActivity.ItemsSource = this.MainActivityItems;
 
-                if (this.ListActivityDetails.Count > 0 && this.MainActivityItems.Count > 0)
+                if (this.ActDetail.ListDetails.Count > 0 && this.MainActivityItems.Count > 0)
                 {
                     this.ListViewMainActivity.SelectedItem = this.MainActivityItems[0];
                     await this.ActDetail.SelectActivityDetail(this.ListViewMainActivity.SelectedItem);
@@ -1136,7 +1159,7 @@ namespace dMobile.View.Activity
                 selectedItem.ActivityDetailBaseQuantity = Convert.ToString(currBaseQty - fillQty.BaseQuantity);
                 selectedItem.ActivityDetailWeightQuantity = Convert.ToString(currWtQty - fillQty.WeightQuantity);
 
-                await this.RefreshData();
+                ////await this.RefreshData();
                 this.DisplaySummaryData();
             }
         }
@@ -1206,10 +1229,26 @@ namespace dMobile.View.Activity
                     this.ActDetail,
                     true);
 
+                this.ActDetail.IsUpdateView = true;
                 await this.InsertActivityDetail(this.ActDetail, isInsertReady);
-                await this.ActDetail.SelectActivityDetail(this.ListViewMainActivity.SelectedItem);
 
+                this.MainActivityItems = this.ActDetail.DesignGrid(
+                                    ref this.GridMainActivity,
+                                    ref this.ListViewMainActivity);
+
+                await this.ActDetail.SelectActivityDetail(this.ListViewMainActivity.SelectedItem);
                 this.DisplaySummaryData();
+
+                await Device.InvokeOnMainThreadAsync(() =>
+                {
+                    this.ListViewMainActivity.ScrollTo(
+                    this.ListViewMainActivity.SelectedItem,
+                    ScrollToPosition.MakeVisible,
+                    false);
+                });
+
+                this.ListViewMainActivity.ItemsSource = this.MainActivityItems;
+                this.ListViewMainActivity.Focus();
             }
             catch (GatherProductDataException ex)
             {

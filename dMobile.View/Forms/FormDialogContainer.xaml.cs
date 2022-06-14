@@ -83,7 +83,7 @@ namespace dMobile.View.Forms
             EDialogTypes modelType,
             SLabelQuantity labelQtyEdit,
             Activity activity,
-            SysCommon.ShippingLabelQuantitySelectionMode selectMode)
+            ShippingLabelQuantitySelectionMode selectMode)
         {
             this.InitializeComponent();
 
@@ -378,7 +378,7 @@ namespace dMobile.View.Forms
             SysCommon.ActSubTypes actSubType,
             SLabelQuantity labelQtyEdit,
             Activity activity,
-            SysCommon.ShippingLabelQuantitySelectionMode selectMode)
+            ShippingLabelQuantitySelectionMode selectMode)
         {
             IDMobileModal model = modelType switch
             {

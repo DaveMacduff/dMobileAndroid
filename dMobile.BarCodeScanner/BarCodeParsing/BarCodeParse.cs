@@ -34,7 +34,7 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
         /// <summary>
         /// Bar code symbology, enumeration type.
         /// </summary>
-        private static SysCommon.BarCodeSymbologies symbology = SysCommon.BarCodeSymbologies.UNDEFINED;
+        private static BarCodeSymbologies symbology = BarCodeSymbologies.UNDEFINED;
 
         /// <summary>
         /// Bar code symbology characters.
@@ -457,7 +457,7 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
         /// <summary>
         /// Gets or sets the bar code symbology, enumeration type.
         /// </summary>
-        public SysCommon.BarCodeSymbologies Symbology
+        public BarCodeSymbologies Symbology
         {
             get
             {
@@ -1215,7 +1215,7 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
             {
                 this.Raw = string.Empty;
                 this.SymbologyPrefix = string.Empty;
-                this.Symbology = SysCommon.BarCodeSymbologies.UNDEFINED;
+                this.Symbology = BarCodeSymbologies.UNDEFINED;
                 this.Data = string.Empty;
                 this.Length = 0;
             }

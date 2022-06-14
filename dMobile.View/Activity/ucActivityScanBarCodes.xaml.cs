@@ -10,6 +10,7 @@ namespace dMobile.View.Activity
     using System.Threading.Tasks;
     using System.Xml.Linq;
     using Android.Views;
+    using dMobile.BarCodeScanner;
     using dMobile.BarCodeScanner.BarCodeParsing;
     using dMobile.BarCodeScanner.BarCodeScanners;
     using dMobile.Bedrock;
@@ -147,7 +148,7 @@ namespace dMobile.View.Activity
         /// <returns><see cref="Task"/> Task operation.</returns>
         public async Task ScannerDisable()
         {
-            if (this.IsBarCodeHandlerRegistered && this.Scanner != null)
+            if (this.Scanner != null)
             {
                 this.Scanner.BarCodeScan -= new BarCodeScanner.BarCodeScanEventHandler(this.BarCodeHandler);
                 await this.Scanner.Stop();
@@ -602,7 +603,7 @@ namespace dMobile.View.Activity
                         {
                             try
                             {
-                                DeliProductInfo unitRefnoFromBarcode = await ProductInfoTasks.GetDeliProdInfoFromBarCode(
+                                DeliProductInfo unitRefnoFromBarcode = await clsCommon.GetDeliProdInfoFromBarCode(
                                     prodIdentifier,
                                     this.SysEnv.CurrentBarCodeModifier1,
                                     this.Parse.Symbology,
@@ -659,8 +660,8 @@ namespace dMobile.View.Activity
                                         await this.AddScanMsg(sender, scanArgs, prodbcuom);
 
                                         if (this.Parse.DeliScaleAmount != 0 &&
-                                            (this.Parse.Symbology == SysCommon.BarCodeSymbologies.UCC_12_UPC_E ||
-                                            this.Parse.Symbology == SysCommon.BarCodeSymbologies.EAN_UCC_13))
+                                            (this.Parse.Symbology == BarCodeSymbologies.UCC_12_UPC_E ||
+                                            this.Parse.Symbology == BarCodeSymbologies.EAN_UCC_13))
                                         {
                                             await this.AddScanMsg(sender, scanArgs, string.Format(
                                                 "Product Deli Scale Amount {0}",
@@ -947,7 +948,7 @@ namespace dMobile.View.Activity
                                 scanArgs,
                                 string.Format("Number: {0}", skid.CurrSkid.SkidCode));
 
-                            string locReadable = LocationMapTasks.GetCurrentReadableLocation(
+                            string locReadable = LocationMapTasks.GetReadableLocation(
                                 skid.CurrSkid.LocMap);
 
                             string skidQty = string.Format(
@@ -1383,7 +1384,7 @@ namespace dMobile.View.Activity
                 }
 
                 string svdProductIdentifier = this.Parse.ProductIdentifier;
-                SysCommon.BarCodeSymbologies svdSymbology = this.Parse.Symbology;
+                BarCodeSymbologies svdSymbology = this.Parse.Symbology;
                 string svdSymbologyPrefix = this.Parse.SymbologyPrefix;
 
                 FormDialogContainer form = new FormDialogContainer(EDialogTypes.SelectProductUnit, this.ActSubType);

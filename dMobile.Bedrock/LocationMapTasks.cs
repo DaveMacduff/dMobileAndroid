@@ -690,6 +690,36 @@ namespace dMobile.Bedrock
         }
 
         /// <summary>
+        /// Returns a human readable (nice) formatted location string e.g. '001.FREEZER.123.45.6'.
+        /// </summary>
+        /// <returns><see cref="string"/> Location string.</returns>
+        public static string GetChosenReadableLocation()
+        {
+            string location = string.Empty;
+            LocationMap locMap = LocationMap.GetInstance();
+
+            if (locMap.ChosenLocMap.WhsLocMapRefno != 0)
+            {
+                // Warehouse Example 001M
+                location = location + locMap.ChosenLocMap.WhsCode.ToString().TrimEnd().PadLeft(
+                    locMap.ChosenLocMap.WhsCodeMask.Length,
+                    Convert.ToChar("0")) + "M";
+            }
+
+            if (locMap.ChosenLocMap.SectLocMapRefno != 0 && locMap.ChosenLocMap.SectName != null)
+            {
+                location = location + "." + locMap.ChosenLocMap.SectName.TrimEnd();
+            }
+
+            if (locMap.ChosenLocMap.SlotLocMapRefno != 0 && locMap.ChosenLocMap.SlotName != null)
+            {
+                location = location + "." + locMap.ChosenLocMap.SlotName.TrimEnd();
+            }
+
+            return location;
+        }
+
+        /// <summary>
         /// Returns a human readable (nice) formatted location string e.g. '001145'.
         /// </summary>
         /// <returns><see cref="string"/> Location string.</returns>
@@ -715,6 +745,37 @@ namespace dMobile.Bedrock
             if (locMap.CurrLocMap.IsSlotTracked && locMap.CurrLocMap.SlotLocMapRefno != 0)
             {
                 location += locMap.CurrLocMap.SlotName.TrimEnd();
+            }
+
+            return location;
+        }
+
+        /// <summary>
+        /// Returns a human readable (nice) formatted location string e.g. '001145'.
+        /// </summary>
+        /// <returns><see cref="string"/> Location string.</returns>
+        public static string GetChosenLocation()
+        {
+            string location = string.Empty;
+            LocationMap locMap = LocationMap.GetInstance();
+
+            if (locMap.ChosenLocMap.WhsLocMapRefno != 0)
+            {
+                // Warehouse Example 001M
+                location += locMap.ChosenLocMap.WhsCode.ToString().TrimEnd().PadLeft(
+                    locMap.ChosenLocMap.WhsCodeMask.Length,
+                    Convert.ToChar("0"));
+            }
+
+            if (locMap.ChosenLocMap.IsSectionTracked && locMap.ChosenLocMap.SectLocMapRefno != 0)
+            {
+                location += locMap.ChosenLocMap.SectCode.ToString().TrimEnd().PadLeft(
+                    locMap.ChosenLocMap.SectMask.Length, Convert.ToChar("0"));
+            }
+
+            if (locMap.ChosenLocMap.IsSlotTracked && locMap.ChosenLocMap.SlotLocMapRefno != 0)
+            {
+                location += locMap.ChosenLocMap.SlotName.TrimEnd();
             }
 
             return location;
@@ -778,11 +839,68 @@ namespace dMobile.Bedrock
         }
 
         /// <summary>
+        /// Returns a human readable (nice) formatted location string e.g. '001.FREEZER.123.45.6'.
+        /// </summary>
+        /// <param name="isSeparateSlotCoords"><see cref="bool"/> Separate slot coordinates.</param>
+        /// <returns><see cref="string"/> Location string.</returns>
+        public static string GetChosenReadableLocation(bool isSeparateSlotCoords)
+        {
+            string location = string.Empty;
+            LocationMap locMap = LocationMap.GetInstance();
+
+            if (locMap.ChosenLocMap.WhsLocMapRefno != 0)
+            {
+                // Warehouse Example 001M
+                location = location + locMap.ChosenLocMap.WhsCode.ToString().TrimEnd().PadLeft(
+                    locMap.ChosenLocMap.WhsCodeMask.Length,
+                    Convert.ToChar("0")) + "M";
+            }
+
+            if (locMap.ChosenLocMap.SectLocMapRefno != 0 && locMap.ChosenLocMap.SectName != null)
+            {
+                location = location + "." + locMap.ChosenLocMap.SectName.TrimEnd();
+            }
+
+            if (locMap.ChosenLocMap.SlotLocMapRefno != 0 && locMap.ChosenLocMap.SlotName != null)
+            {
+                if (isSeparateSlotCoords)
+                {
+                    if (locMap.ChosenLocMap.IsSlotCoord1Tracked)
+                    {
+                        location = location + "." + locMap.ChosenLocMap.SlotName.Substring(
+                            0,
+                            locMap.ChosenLocMap.SlotCoord1Mask.Length);
+                    }
+
+                    if (locMap.ChosenLocMap.IsSlotCoord2Tracked)
+                    {
+                        location = location + "." + locMap.ChosenLocMap.SlotName.Substring(
+                            locMap.ChosenLocMap.SlotCoord1Mask.Length,
+                            locMap.ChosenLocMap.SlotCoord2Mask.Length);
+                    }
+
+                    if (locMap.ChosenLocMap.IsSlotCoord3Tracked)
+                    {
+                        location = location + "." + locMap.ChosenLocMap.SlotName[
+                            (locMap.ChosenLocMap.SlotCoord1Mask.Length +
+                            locMap.ChosenLocMap.SlotCoord2Mask.Length)..];
+                    }
+                }
+                else
+                {
+                    location = location + "." + locMap.ChosenLocMap.SlotName.TrimEnd();
+                }
+            }
+
+            return location;
+        }
+
+        /// <summary>
         /// Returns a formatted location string e.g. '00112345'.
         /// </summary>
         /// <param name="locMapInfo"><see cref="SLocMap"/> Location map.</param>
         /// <returns><see cref="string"/> Location string.</returns>
-        public static string GetCurrentLocation(SLocMap locMapInfo)
+        public static string GetLocation(SLocMap locMapInfo)
         {
             string location = string.Empty;
 
@@ -813,7 +931,7 @@ namespace dMobile.Bedrock
         /// <param name="locMapInfo"><see cref="SLocMap"/> Location map.</param>
         /// <param name="isSepSlotCoords"><see cref="bool"/> Separate slot coordinates.</param>
         /// <returns><see cref="string"/> Location string.</returns>
-        public static string GetCurrentReadableLocation(SLocMap locMapInfo, bool isSepSlotCoords = false)
+        public static string GetReadableLocation(SLocMap locMapInfo, bool isSepSlotCoords = false)
         {
             string location = string.Empty;
 
@@ -876,6 +994,24 @@ namespace dMobile.Bedrock
             {
                 location += locMap.CurrLocMap.WhsCode.ToString().TrimEnd().PadLeft(
                     locMap.CurrLocMap.WhsCodeMask.Length, Convert.ToChar("0"));
+            }
+
+            return location;
+        }
+
+        /// <summary>
+        /// Get a formatted location string for uniqueness checking.
+        /// </summary>
+        /// <returns><see cref="string"/> Location string.</returns>
+        public static string GetChosenLocationForUniquenessChecking()
+        {
+            string location = string.Empty;
+            LocationMap locMap = LocationMap.GetInstance();
+
+            if (locMap.ChosenLocMap.WhsFKRefno != 0)
+            {
+                location += locMap.ChosenLocMap.WhsCode.ToString().TrimEnd().PadLeft(
+                    locMap.ChosenLocMap.WhsCodeMask.Length, Convert.ToChar("0"));
             }
 
             return location;

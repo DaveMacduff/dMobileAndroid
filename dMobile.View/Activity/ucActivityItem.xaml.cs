@@ -413,7 +413,7 @@ namespace dMobile.View.Activity
         /// <returns><see cref="Task"/> Task operation.</returns>
         public async Task ScannerDisable()
         {
-            if (this.IsBarCodeHandlerRegistered && this.Scanner != null)
+            if (this.Scanner != null)
             {
                 this.Scanner.BarCodeScan -= new BarCodeScanner.BarCodeScanEventHandler(this.BarCodeHandler);
                 await this.Scanner.Stop();
@@ -2784,7 +2784,7 @@ namespace dMobile.View.Activity
                                 adjustmentItem.ProductRefno);
                             SLocMap sLocMap = await LocationMapTasks.GetSLocMapFromLocMapRefno(
                                 defLocMapRefno);
-                            defLoc = LocationMapTasks.GetCurrentReadableLocation(sLocMap);
+                            defLoc = LocationMapTasks.GetReadableLocation(sLocMap);
 
                             this.ExtraInfoItems.Add("DEF LOC: " + defLoc);
                         }
@@ -2811,7 +2811,7 @@ namespace dMobile.View.Activity
                             // Get the cycle count line item location.
                             SLocMap countItemLocMap = await LocationMapTasks.GetSLocMapFromLocMapRefno(
                                 Convert.ToInt32(cycleCountItem.LocationMapRefno));
-                            countLoc = LocationMapTasks.GetCurrentReadableLocation(countItemLocMap);
+                            countLoc = LocationMapTasks.GetReadableLocation(countItemLocMap);
 
                             // Using the cycle count line item warehouse, get the product default
                             // picking location.
@@ -2819,7 +2819,7 @@ namespace dMobile.View.Activity
                                 countItemLocMap.WhsLocMapRefno,
                                 Convert.ToInt32(cycleCountItem.ProductRefno),
                                 SysCommon.ProdLocMapTypes.Picking);
-                            defProdLoc = LocationMapTasks.GetCurrentReadableLocation(
+                            defProdLoc = LocationMapTasks.GetReadableLocation(
                                 await LocationMapTasks.GetSLocMapFromLocMapRefno(defLocMapRefno));
 
                             prodDesc = cycleCountItem.ProductDescription.ToString();
@@ -2874,7 +2874,7 @@ namespace dMobile.View.Activity
                                 tempLocMap.WhsLocMapRefno,
                                 Convert.ToInt32(physicalCountItem.ProductRefno),
                                 SysCommon.ProdLocMapTypes.Picking);
-                            defProdLoc = LocationMapTasks.GetCurrentReadableLocation(
+                            defProdLoc = LocationMapTasks.GetReadableLocation(
                                 await LocationMapTasks.GetSLocMapFromLocMapRefno(defLocMapRefno));
 
                             prodDesc = physicalCountItem.ProductDescription.ToString();
@@ -2902,7 +2902,7 @@ namespace dMobile.View.Activity
                                 pickingItem.ProductRefno);
                             SLocMap sLocMap = await LocationMapTasks.GetSLocMapFromLocMapRefno(
                                 defLocMapRefno);
-                            defLoc = LocationMapTasks.GetCurrentReadableLocation(sLocMap);
+                            defLoc = LocationMapTasks.GetReadableLocation(sLocMap);
                         }
 
                         switch (this.SysEnv.SysSettings.PickItemDescOpt)
@@ -2938,7 +2938,7 @@ namespace dMobile.View.Activity
                                 pickingItemSingle.ProductRefno);
                             SLocMap sLocMap = await LocationMapTasks.GetSLocMapFromLocMapRefno(
                                 defLocMapRefno);
-                            defLoc = LocationMapTasks.GetCurrentReadableLocation(sLocMap);
+                            defLoc = LocationMapTasks.GetReadableLocation(sLocMap);
                         }
 
                         switch (this.SysEnv.SysSettings.PickItemDescOpt)
@@ -2974,7 +2974,7 @@ namespace dMobile.View.Activity
                                 productionTicketByProductItem.ProductRefno);
                             SLocMap sLocMap = await LocationMapTasks.GetSLocMapFromLocMapRefno(
                                 defLocMapRefno);
-                            defLoc = LocationMapTasks.GetCurrentReadableLocation(sLocMap);
+                            defLoc = LocationMapTasks.GetReadableLocation(sLocMap);
                         }
 
                         this.ExtraInfoItems.Add(prodDesc.Trim() + " " + prodUnitSizeDesc.Trim());
@@ -2997,7 +2997,7 @@ namespace dMobile.View.Activity
                                 productionTicketFinishedItem.ProductRefno);
                             SLocMap sLocMap = await LocationMapTasks.GetSLocMapFromLocMapRefno(
                                 defLocMapRefno);
-                            defLoc = LocationMapTasks.GetCurrentReadableLocation(sLocMap);
+                            defLoc = LocationMapTasks.GetReadableLocation(sLocMap);
                         }
 
                         this.ExtraInfoItems.Add(prodDesc.Trim() + " " + prodUnitSizeDesc.Trim());
@@ -3020,7 +3020,7 @@ namespace dMobile.View.Activity
                                 productionTicketMaterialItem.ProductRefno);
                             SLocMap sLocMap = await LocationMapTasks.GetSLocMapFromLocMapRefno(
                                 defLocMapRefno);
-                            defLoc = LocationMapTasks.GetCurrentReadableLocation(sLocMap);
+                            defLoc = LocationMapTasks.GetReadableLocation(sLocMap);
                         }
 
                         this.ExtraInfoItems.Add(prodDesc.Trim() + " " + prodUnitSizeDesc.Trim());
@@ -3043,7 +3043,7 @@ namespace dMobile.View.Activity
                                 purchaseOrderWorkSheetItem.ProductRefno);
                             SLocMap sLocMap = await LocationMapTasks.GetSLocMapFromLocMapRefno(
                                 defLocMapRefno);
-                            defLoc = LocationMapTasks.GetCurrentReadableLocation(sLocMap);
+                            defLoc = LocationMapTasks.GetReadableLocation(sLocMap);
                         }
 
                         this.ExtraInfoItems.Add(prodDesc.Trim() + " " + prodUnitSizeDesc.Trim());
@@ -3071,7 +3071,7 @@ namespace dMobile.View.Activity
                                 receiveItem.ProductRefno);
                             SLocMap sLocMap = await LocationMapTasks.GetSLocMapFromLocMapRefno(
                                 defLocMapRefno);
-                            defLoc = LocationMapTasks.GetCurrentReadableLocation(sLocMap);
+                            defLoc = LocationMapTasks.GetReadableLocation(sLocMap);
                         }
 
                         this.ExtraInfoItems.Add(prodDesc.Trim() + " " + prodUnitSizeDesc.Trim());
@@ -3104,7 +3104,7 @@ namespace dMobile.View.Activity
                                 returnItem.ProductRefno);
                             SLocMap sLocMap = await LocationMapTasks.GetSLocMapFromLocMapRefno(
                                 defLocMapRefno);
-                            defLoc = LocationMapTasks.GetCurrentReadableLocation(sLocMap);
+                            defLoc = LocationMapTasks.GetReadableLocation(sLocMap);
                         }
 
                         switch (this.SysEnv.SysSettings.PickItemDescOpt)
@@ -3148,7 +3148,7 @@ namespace dMobile.View.Activity
                                 transferItemFrom.ProductRefno);
                             SLocMap sLocMap = await LocationMapTasks.GetSLocMapFromLocMapRefno(
                                 defLocMapRefno);
-                            defLoc = LocationMapTasks.GetCurrentReadableLocation(sLocMap);
+                            defLoc = LocationMapTasks.GetReadableLocation(sLocMap);
                         }
 
                         this.ExtraInfoItems.Add(prodDesc.Trim() + " " + prodUnitSizeDesc.Trim());
@@ -3170,7 +3170,7 @@ namespace dMobile.View.Activity
                                 transferItemTo.ProductRefno);
                             SLocMap sLocMap = await LocationMapTasks.GetSLocMapFromLocMapRefno(
                                 defLocMapRefno);
-                            defLoc = LocationMapTasks.GetCurrentReadableLocation(sLocMap);
+                            defLoc = LocationMapTasks.GetReadableLocation(sLocMap);
                         }
 
                         this.ExtraInfoItems.Add(prodDesc.Trim() + " " + prodUnitSizeDesc.Trim());

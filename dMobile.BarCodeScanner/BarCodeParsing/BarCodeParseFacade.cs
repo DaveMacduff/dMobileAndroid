@@ -35,7 +35,7 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
         /// <summary>
         /// Gets or sets the symbology identification.
         /// </summary>
-        private static SysCommon.BarCodeSymbologies Symbology { get; set; } = SysCommon.BarCodeSymbologies.UNDEFINED;
+        private static BarCodeSymbologies Symbology { get; set; } = BarCodeSymbologies.UNDEFINED;
 
         /// <summary>
         /// Parse the bar code scan data.
@@ -49,119 +49,119 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
 
             switch (Symbology)
             {
-                case SysCommon.BarCodeSymbologies.UNDEFINED:
+                case BarCodeSymbologies.UNDEFINED:
                     parseFactory = new BarCodeParseUnDefinedFactory();
                     break;
 
-                case SysCommon.BarCodeSymbologies.UCC_12_UPC_E:
+                case BarCodeSymbologies.UCC_12_UPC_E:
                     parseFactory = new BarCodeParseUCC_12_UPC_EFactory();
                     break;
 
-                case SysCommon.BarCodeSymbologies.EAN_UCC_14:
+                case BarCodeSymbologies.EAN_UCC_14:
                     parseFactory = new BarCodeParseEAN_UCC_14Factory();
                     break;
 
-                case SysCommon.BarCodeSymbologies.EAN_UCC_13:
+                case BarCodeSymbologies.EAN_UCC_13:
                     parseFactory = new BarCodeParseEAN_UCC_13Factory();
                     break;
 
-                case SysCommon.BarCodeSymbologies.EAN_UCC_8:
+                case BarCodeSymbologies.EAN_UCC_8:
                     parseFactory = new BarCodeParseEAN_UCC_8Factory();
                     break;
 
-                case SysCommon.BarCodeSymbologies.ITF_14_Symbol:
+                case BarCodeSymbologies.ITF_14_Symbol:
                     parseFactory = new BarCodeParseITF_14_SymbolFactory();
                     break;
 
-                case SysCommon.BarCodeSymbologies.UCC_EAN_128_Symbol:
+                case BarCodeSymbologies.UCC_EAN_128_Symbol:
                     parseFactory = new BarCodeParseUCC_EAN_128_SymbolFactory();
                     break;
 
-                case SysCommon.BarCodeSymbologies.Code_128:
+                case BarCodeSymbologies.Code_128:
                     parseFactory = new BarCodeParseCode_128Factory();
                     break;
 
-                case SysCommon.BarCodeSymbologies.SSCC_18:
+                case BarCodeSymbologies.SSCC_18:
                     parseFactory = new BarCodeParseSSCC_18Factory();
                     break;
 
-                case SysCommon.BarCodeSymbologies.Code_39:
+                case BarCodeSymbologies.Code_39:
                     parseFactory = new BarCodeParseCode_39Factory();
                     break;
 
-                case SysCommon.BarCodeSymbologies.EAN_UPC_Symbol:
+                case BarCodeSymbologies.EAN_UPC_Symbol:
                     parseFactory = new BarCodeParseEAN_UPC_SymbolFactory();
                     break;
 
-                case SysCommon.BarCodeSymbologies.Code_93:
+                case BarCodeSymbologies.Code_93:
                     parseFactory = new BarCodeParseCode_93Factory();
                     break;
 
-                case SysCommon.BarCodeSymbologies.Codabar:
+                case BarCodeSymbologies.Codabar:
                     parseFactory = new BarCodeParseCodabarFactory();
                     break;
 
-                case SysCommon.BarCodeSymbologies.Code_2_of_5:
+                case BarCodeSymbologies.Code_2_of_5:
                     parseFactory = new BarCodeParseCode_2_of_5Factory();
                     break;
 
-                case SysCommon.BarCodeSymbologies.MSI:
+                case BarCodeSymbologies.MSI:
                     parseFactory = new BarCodeParseMSIFactory();
                     break;
 
-                case SysCommon.BarCodeSymbologies.Plessey:
+                case BarCodeSymbologies.Plessey:
                     parseFactory = new BarCodeParsePlesseyFactory();
                     break;
 
-                case SysCommon.BarCodeSymbologies.Code_11:
+                case BarCodeSymbologies.Code_11:
                     parseFactory = new BarCodeParseCode_11Factory();
                     break;
 
-                case SysCommon.BarCodeSymbologies.Matrix_2_of_5:
+                case BarCodeSymbologies.Matrix_2_of_5:
                     parseFactory = new BarCodeParseMatrix_2_of_5Factory();
                     break;
 
-                case SysCommon.BarCodeSymbologies.Telepen:
+                case BarCodeSymbologies.Telepen:
                     parseFactory = new BarCodeParseTelepenFactory();
                     break;
 
-                case SysCommon.BarCodeSymbologies.PDF417:
+                case BarCodeSymbologies.PDF417:
                     parseFactory = new BarCodeParsePDF417Factory();
                     break;
 
-                case SysCommon.BarCodeSymbologies.Micro_PDF417:
+                case BarCodeSymbologies.Micro_PDF417:
                     parseFactory = new BarCodeParseMicro_PDF417Factory();
                     break;
 
-                case SysCommon.BarCodeSymbologies.RSS_14:
+                case BarCodeSymbologies.RSS_14:
                     parseFactory = new BarCodeParseRSS_14Factory();
                     break;
 
-                case SysCommon.BarCodeSymbologies.RSS_Limited:
+                case BarCodeSymbologies.RSS_Limited:
                     parseFactory = new BarCodeParseRSS_LimitedFactory();
                     break;
 
-                case SysCommon.BarCodeSymbologies.RSS_Expanded:
+                case BarCodeSymbologies.RSS_Expanded:
                     parseFactory = new BarCodeParseRSS_ExpandedFactory();
                     break;
 
-                case SysCommon.BarCodeSymbologies.Codablock_A:
+                case BarCodeSymbologies.Codablock_A:
                     parseFactory = new BarCodeParseCodablock_AFactory();
                     break;
 
-                case SysCommon.BarCodeSymbologies.Codablock_F:
+                case BarCodeSymbologies.Codablock_F:
                     parseFactory = new BarCodeParseCodablock_FFactory();
                     break;
 
-                case SysCommon.BarCodeSymbologies.TLC_39:
+                case BarCodeSymbologies.TLC_39:
                     parseFactory = new BarCodeParseTLC_39Factory();
                     break;
 
-                case SysCommon.BarCodeSymbologies.Codablock:
+                case BarCodeSymbologies.Codablock:
                     parseFactory = new BarCodeParseCodablockFactory();
                     break;
 
-                case SysCommon.BarCodeSymbologies.Codablock256:
+                case BarCodeSymbologies.Codablock256:
                     parseFactory = new BarCodeParseCodablock256Factory();
                     break;
             }
@@ -315,104 +315,104 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
 
                         if (Prefix.StartsWith("]O"))
                         {
-                            Symbology = SysCommon.BarCodeSymbologies.Codablock;
+                            Symbology = BarCodeSymbologies.Codablock;
 
                             if (Prefix == "]O1")
                             {
-                                Symbology = SysCommon.BarCodeSymbologies.UNDEFINED;
+                                Symbology = BarCodeSymbologies.UNDEFINED;
                             }
                             else if (Prefix == "]02")
                             {
-                                Symbology = SysCommon.BarCodeSymbologies.Codablock256;
+                                Symbology = BarCodeSymbologies.Codablock256;
                             }
                             else if (Prefix == "]O4")
                             {
-                                Symbology = SysCommon.BarCodeSymbologies.UNDEFINED;
+                                Symbology = BarCodeSymbologies.UNDEFINED;
                             }
                             else if (Prefix == "]O5")
                             {
-                                Symbology = SysCommon.BarCodeSymbologies.Codablock_F;
+                                Symbology = BarCodeSymbologies.Codablock_F;
                             }
                             else if (Prefix == "]O6")
                             {
-                                Symbology = SysCommon.BarCodeSymbologies.Codablock_A;
+                                Symbology = BarCodeSymbologies.Codablock_A;
                             }
                         }
                         else if (Prefix.StartsWith("]C"))
                         {
-                            Symbology = SysCommon.BarCodeSymbologies.Code_128;
+                            Symbology = BarCodeSymbologies.Code_128;
                             if (Prefix == "]C1")
                             {
                                 // "UCC/EAN-128"
-                                Symbology = SysCommon.BarCodeSymbologies.UCC_EAN_128_Symbol;
+                                Symbology = BarCodeSymbologies.UCC_EAN_128_Symbol;
                             }
                         }
                         else if (Prefix.StartsWith("]G"))
                         {
-                            Symbology = SysCommon.BarCodeSymbologies.Code_93;
+                            Symbology = BarCodeSymbologies.Code_93;
                         }
                         else if (Prefix.StartsWith("]A"))
                         {
-                            Symbology = SysCommon.BarCodeSymbologies.Code_39;
+                            Symbology = BarCodeSymbologies.Code_39;
                         }
                         else if (Prefix.StartsWith("]H"))
                         {
-                            Symbology = SysCommon.BarCodeSymbologies.Code_11;
+                            Symbology = BarCodeSymbologies.Code_11;
                         }
                         else if (Prefix.StartsWith("]F"))
                         {
-                            Symbology = SysCommon.BarCodeSymbologies.Codabar;
+                            Symbology = BarCodeSymbologies.Codabar;
                         }
                         else if (Prefix.StartsWith("]E"))
                         {
-                            Symbology = SysCommon.BarCodeSymbologies.EAN_UPC_Symbol;
+                            Symbology = BarCodeSymbologies.EAN_UPC_Symbol;
                             if (Prefix == "]E0")
                             {
                                 // EAN 13
-                                Symbology = SysCommon.BarCodeSymbologies.EAN_UCC_13;
+                                Symbology = BarCodeSymbologies.EAN_UCC_13;
                             }
                             else if (Prefix == "]E4")
                             {
                                 // EAN-8
-                                Symbology = SysCommon.BarCodeSymbologies.EAN_UCC_8;
+                                Symbology = BarCodeSymbologies.EAN_UCC_8;
                             }
                         }
                         else if (Prefix.StartsWith("]I"))
                         {
                             // "Interleaved 2 of 5" 'SCC-14
-                            Symbology = SysCommon.BarCodeSymbologies.ITF_14_Symbol;
+                            Symbology = BarCodeSymbologies.ITF_14_Symbol;
                         }
                         else if (Prefix.StartsWith("]M"))
                         {
-                            Symbology = SysCommon.BarCodeSymbologies.MSI;
+                            Symbology = BarCodeSymbologies.MSI;
                         }
                         else if (Prefix.StartsWith("]L"))
                         {
-                            Symbology = SysCommon.BarCodeSymbologies.PDF417;
+                            Symbology = BarCodeSymbologies.PDF417;
                         }
                         else if (Prefix.StartsWith("]e0"))
                         {
-                            Symbology = SysCommon.BarCodeSymbologies.RSS_Expanded;
+                            Symbology = BarCodeSymbologies.RSS_Expanded;
                         }
                         else if (Prefix.StartsWith("]B"))
                         {
-                            Symbology = SysCommon.BarCodeSymbologies.Telepen;
+                            Symbology = BarCodeSymbologies.Telepen;
                         }
                         else if (Prefix.StartsWith("]X0"))
                         {
                             // UPC-E
-                            Symbology = SysCommon.BarCodeSymbologies.UCC_12_UPC_E;
+                            Symbology = BarCodeSymbologies.UCC_12_UPC_E;
                         }
                         else
                         {
-                            Symbology = SysCommon.BarCodeSymbologies.UNDEFINED;
+                            Symbology = BarCodeSymbologies.UNDEFINED;
                         }
                     }
                 }
             }
             else
             {
-                Symbology = SysCommon.BarCodeSymbologies.UNDEFINED;
+                Symbology = BarCodeSymbologies.UNDEFINED;
 
                 // Otherwise, doesn't have the Symbology info
                 if (!string.IsNullOrEmpty(rawData))

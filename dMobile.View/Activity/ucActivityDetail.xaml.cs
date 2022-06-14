@@ -262,7 +262,7 @@ namespace dMobile.View.Activity
         /// <returns><see cref="Task"/> Task operation.</returns>
         public async Task ScannerDisable()
         {
-            if (this.IsBarCodeHandlerRegistered && this.Scanner != null)
+            if (this.Scanner != null)
             {
                 this.Scanner.BarCodeScan -= new BarCodeScanner.BarCodeScanEventHandler(this.BarCodeHandler);
                 await this.Scanner.Stop();
@@ -2056,7 +2056,7 @@ namespace dMobile.View.Activity
                             // Get the cycle count line item location.
                             SLocMap countItemLocMap = await LocationMapTasks.GetSLocMapFromLocMapRefno(
                                 Convert.ToInt32(countDetail.LocationMapRefno));
-                            string countLoc = LocationMapTasks.GetCurrentReadableLocation(countItemLocMap);
+                            string countLoc = LocationMapTasks.GetReadableLocation(countItemLocMap);
 
                             // Using the cycle count line item warehouse, get the product default
                             // picking location.
@@ -2064,7 +2064,7 @@ namespace dMobile.View.Activity
                                 countItemLocMap.WhsLocMapRefno,
                                 Convert.ToInt32(countDetail.ProductRefno),
                                 SysCommon.ProdLocMapTypes.Picking);
-                            string defProdLoc = LocationMapTasks.GetCurrentReadableLocation(
+                            string defProdLoc = LocationMapTasks.GetReadableLocation(
                             await LocationMapTasks.GetSLocMapFromLocMapRefno(defLocMapRefno));
                             string prodDesc = countDetail.ProductDescription.ToString();
                             string prodUnitSizeDesc = countDetail.ProductUnitSizeDescription.ToString();

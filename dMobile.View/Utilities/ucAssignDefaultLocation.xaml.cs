@@ -182,7 +182,7 @@ namespace dMobile.View.Utilities
         /// <returns><see cref="Task"/> Task operation.</returns>
         public async Task ScannerDisable()
         {
-            if (this.IsBarCodeHandlerRegistered && this.Scanner != null)
+            if (this.Scanner != null)
             {
                 this.Scanner.BarCodeScan -= new BarCodeScanner.BarCodeScanEventHandler(this.BarCodeHandler);
                 await this.Scanner.Stop();
@@ -197,7 +197,7 @@ namespace dMobile.View.Utilities
         /// <returns><see cref="Task"/> Task operation.</returns>
         public async Task ScannerEnable()
         {
-            if (!this.IsBarCodeHandlerRegistered && this.Scanner != null)
+            if (this.Scanner != null)
             {
                 await this.Scanner.Start();
                 this.Scanner.BarCodeScan += new BarCodeScanner.BarCodeScanEventHandler(this.BarCodeHandler);
@@ -1002,7 +1002,7 @@ namespace dMobile.View.Utilities
             }
 
             SLocMap locMap = await LocationMapTasks.GetSLocMapFromLocMapRefno(this.CurrLocMapDefPickingRefno);
-            this.lblCurrentPickingLocation.Text = LocationMapTasks.GetCurrentReadableLocation(locMap, true);
+            this.lblCurrentPickingLocation.Text = LocationMapTasks.GetReadableLocation(locMap, true);
 
             if (string.IsNullOrEmpty(this.lblCurrentPickingLocation.Text))
             {
@@ -1010,7 +1010,7 @@ namespace dMobile.View.Utilities
             }
 
             locMap = await LocationMapTasks.GetSLocMapFromLocMapRefno(this.CurrLocMapDefRecvRefno);
-            this.lblCurrentReceivingLocation.Text = LocationMapTasks.GetCurrentReadableLocation(locMap, true);
+            this.lblCurrentReceivingLocation.Text = LocationMapTasks.GetReadableLocation(locMap, true);
 
             if (string.IsNullOrEmpty(this.lblCurrentReceivingLocation.Text))
             {

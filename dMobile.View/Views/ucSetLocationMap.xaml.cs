@@ -260,7 +260,7 @@ namespace dMobile.View
         /// <returns><see cref="Task"/> Task operation.</returns>
         public async Task ScannerDisable()
         {
-            if (this.IsBarCodeHandlerRegistered && this.Scanner != null)
+            if (this.Scanner != null)
             {
                 this.Scanner.BarCodeScan -= new BarCodeScanner.BarCodeScanEventHandler(this.BarCodeHandler);
                 await this.Scanner.Stop();
@@ -275,6 +275,7 @@ namespace dMobile.View
         /// <returns><see cref="Task"/> Task operation.</returns>
         public async Task ScannerEnable()
         {
+
             if (!this.IsBarCodeHandlerRegistered && this.Scanner != null)
             {
                 await this.Scanner.Start();
@@ -401,7 +402,6 @@ namespace dMobile.View
                     this.IsChangesMade = false;
                     saveComplete = true;
                     this.LocMap.ChosenLocMap = this.LocMapInfo.Clone();
-                    this.LocMap.ChosenLocMapRefno = LocationMapTasks.GetLocMapRefnoFromSLocMap(this.LocMapInfo);
                 }
                 else
                 {
@@ -503,7 +503,7 @@ namespace dMobile.View
             XDocument request = XDocument.Parse(
                 "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>"
                 + "<params>"
-                + "<LocationMapRefno>" + LocationMapTasks.GetLocMapRefnoFromSLocMap() + "</LocationMapRefno>"
+                + "<LocationMapRefno>" + LocationMapTasks.GetLocMapRefnoFromSLocMap(this.LocMap.ChosenLocMap) + "</LocationMapRefno>"
                 + "</params>");
 
             return request;
@@ -1649,7 +1649,7 @@ namespace dMobile.View
                 {
                     this.IsChangesMade = true;
 
-                    if (this.IsControlLoaded && e.SelectedItem is Warehouse warehouse)
+                    if (e.SelectedItem is Warehouse warehouse)
                     {
                         this.LocMapInfo = await LocationMapTasks.GetSLocMapFromLocMapRefno(
                             Convert.ToInt32(warehouse.LocationMapRefno));
@@ -1701,17 +1701,19 @@ namespace dMobile.View
             {
                 this.IsSvdBarScannerEnabled = this.IsBarCodeHandlerRegistered;
                 await this.ScannerDisable();
-                this.IsChangesMade = true;
-
-                if (this.IsControlLoaded && e.SelectedItem is Section section)
+                if (this.IsControlLoaded)
                 {
-                    this.LocMapInfo = await LocationMapTasks.GetSLocMapFromLocMapRefno(
-                        Convert.ToInt32(section.LocationMapRefno));
-                    this.dgCoord1.SelectedItem = null;
-                    this.dgCoord2.SelectedItem = null;
-                    this.dgCoord3.SelectedItem = null;
-                    await this.LoadSlots();
-                    await this.UpdateLocationDisplay();
+                    this.IsChangesMade = true;
+                    if (e.SelectedItem is Section section)
+                    {
+                        this.LocMapInfo = await LocationMapTasks.GetSLocMapFromLocMapRefno(
+                            Convert.ToInt32(section.LocationMapRefno));
+                        this.dgCoord1.SelectedItem = null;
+                        this.dgCoord2.SelectedItem = null;
+                        this.dgCoord3.SelectedItem = null;
+                        await this.LoadSlots();
+                        await this.UpdateLocationDisplay();
+                    }
                 }
             }
             catch (MessageOnlyException ex)

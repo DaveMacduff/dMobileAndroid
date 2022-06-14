@@ -27,7 +27,7 @@ namespace dMobile.View.Activity
         private SLabelQuantity labelQtyEdit = new SLabelQuantity();
         private bool isFirstAppearance = true;
         Activity Activity;
-        SysCommon.ShippingLabelQuantitySelectionMode SelectMode;
+        ShippingLabelQuantitySelectionMode SelectMode;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ucActivityShippingLabelEdit"/> class.
@@ -36,7 +36,11 @@ namespace dMobile.View.Activity
         /// <param name="labelQtyEdit"></param>
         /// <param name="activity"></param>
         /// <param name="selectMode"></param>
-        public ucActivityShippingLabelEdit(SysCommon.ActSubTypes actSubTypes, SLabelQuantity labelQtyEdit, Activity activity, SysCommon.ShippingLabelQuantitySelectionMode selectMode)
+        public ucActivityShippingLabelEdit(
+            SysCommon.ActSubTypes actSubTypes,
+            SLabelQuantity labelQtyEdit,
+            Activity activity,
+            ShippingLabelQuantitySelectionMode selectMode)
         {
             this.InitializeComponent();
 
@@ -104,7 +108,7 @@ namespace dMobile.View.Activity
 
                     _ = await Device.InvokeOnMainThreadAsync(() => this.lblOrderNumber.Text = Convert.ToString("Order # " + this.Activity.FKRefno.ToString()));
 
-                    if (this.SelectMode == SysCommon.ShippingLabelQuantitySelectionMode.BothFullRepack || this.SelectMode == SysCommon.ShippingLabelQuantitySelectionMode.FullOnly)
+                    if (this.SelectMode == ShippingLabelQuantitySelectionMode.BothFullRepack || this.SelectMode == ShippingLabelQuantitySelectionMode.FullOnly)
                     {
                         this.txtFullCaseAltQty.IsEnabled = this.SysEnv.SysSettings.IsFullQuantityEnabled;
                         this.txtFreshAltQty.IsEnabled = this.SysEnv.SysSettings.IsFreshQuantityEnabled;
@@ -114,7 +118,7 @@ namespace dMobile.View.Activity
                         this.txtPalletAltQty.IsEnabled = this.SysEnv.SysSettings.IsPalletQuantityEnabled;
                     }
 
-                    if (this.SelectMode == SysCommon.ShippingLabelQuantitySelectionMode.BothFullRepack || this.SelectMode == SysCommon.ShippingLabelQuantitySelectionMode.RepackOnly)
+                    if (this.SelectMode == ShippingLabelQuantitySelectionMode.BothFullRepack || this.SelectMode == ShippingLabelQuantitySelectionMode.RepackOnly)
                     {
                         this.txtRepackAltQty.IsEnabled = this.SysEnv.SysSettings.IsRepackQuantityEnabled;
                         this.txtRepackFreshAltQty.IsEnabled = this.SysEnv.SysSettings.IsFreshRepackQuantityEnabled;

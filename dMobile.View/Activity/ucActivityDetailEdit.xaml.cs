@@ -174,7 +174,7 @@ namespace dMobile.View.Activity
         /// <returns><see cref="Task"/> Task operation.</returns>
         public async Task ScannerDisable()
         {
-            if (this.IsBarCodeHandlerRegistered && this.Scanner != null)
+            if (this.Scanner != null)
             {
                 this.Scanner.BarCodeScan -= new BarCodeScanner.BarCodeScanEventHandler(this.BarCodeHandler);
                 await this.Scanner.Stop();
@@ -1014,25 +1014,11 @@ namespace dMobile.View.Activity
 
             try
             {
-                await Task.Run(async () =>
-                {
-                    try
-                    {
-                        this.Loading = true;
-                        await InitControlState();
-                        await LoadData();
-                        await ShowProductInfo();
-                        await SetStartingFocus();
-                    }
-                    catch (Exception ex)
-                    {
-                        throw ex;
-                    }
-                    finally
-                    {
-                        this.Loading = false;
-                    }
-                });
+                this.Loading = true;
+                await InitControlState();
+                await LoadData();
+                await ShowProductInfo();
+                await SetStartingFocus();
             }
             catch (Exception ex)
             {
@@ -1041,6 +1027,17 @@ namespace dMobile.View.Activity
                         "Error",
                         "this.ucActivityDetailEdit_GotFocus threw an error " + ex,
                         "OK"));
+            }
+            finally
+            {
+                this.Loading = false;
+                ////await this.ScannerEnable();
+                ////await Task.Run(() =>
+                ////{
+                ////    // Explicit GC, Xamarin forms not disposing of objects properly
+                ////    GC.Collect();
+                ////    GC.WaitForPendingFinalizers();
+                ////});
             }
 
             //////////////////////////////////////////////////////////////////////////

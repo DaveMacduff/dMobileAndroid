@@ -151,7 +151,7 @@ namespace dMobile.View
                             ProductInfo prod = new ProductInfo();
                             decimal deliScaleWeight = 0;
                             string deliScaleWeightUnit = string.Empty;
-                            DeliProductInfo unitRefnoFromBarCode = await GetDeliProdInfoFromBarCode(
+                            DeliProductInfo unitRefnoFromBarCode = await clsCommon.GetDeliProdInfoFromBarCode(
                                 barCodeParse.ProductIdentifier,
                                 sysEnv.CurrentBarCodeModifier1,
                                 barCodeParse.Symbology,
@@ -1019,7 +1019,7 @@ namespace dMobile.View
 
             // UCC EAN 128
             // Suppress Rule Enabled
-            if (parse.Symbology == SysCommon.BarCodeSymbologies.UCC_EAN_128_Symbol &&
+            if (parse.Symbology == BarCodeSymbologies.UCC_EAN_128_Symbol &&
                 parse.Settings.IsRuleEnabled_ParseEAN_UCC128_SuppressAllParseErrorsForNonTrackedComponents)
             {
                 ProdScheme scheme;

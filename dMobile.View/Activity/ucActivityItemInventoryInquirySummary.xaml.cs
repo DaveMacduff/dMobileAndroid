@@ -5,14 +5,10 @@
 namespace dMobile.View.Activity
 {
     using System;
-    using System.Collections.Generic;
     using System.Collections.ObjectModel;
-    using System.Linq;
-    using System.Text;
     using System.Threading.Tasks;
     using System.Xml.Linq;
     using Android.Views;
-    using dMobile.BarCodeScanner;
     using dMobile.BarCodeScanner.BarCodeParsing;
     using dMobile.BarCodeScanner.BarCodeScanners;
     using dMobile.Bedrock;
@@ -24,19 +20,16 @@ namespace dMobile.View.Activity
     using Xamarin.Forms;
     using Xamarin.Forms.Xaml;
 
+    /// <summary>
+    /// Defines the <see cref="ucActivityItemInventoryInquirySummary" />.
+    /// </summary>
     [XamlCompilation(XamlCompilationOptions.Compile)]
     public partial class ucActivityItemInventoryInquirySummary : DMobileModal, IAppArea, IDataLayerEventListener
     {
-
-        /// <summary>
-        ///
-        /// </summary>
-        /// <param name="_ActivitySubTypes"></param>
-        /// <remarks></remarks>
         /// <summary>
         /// Initializes a new instance of the <see cref="ucActivityItemInventoryInquirySummary"/> class.
         /// </summary>
-        /// <param name="actItem"></param>
+        /// <param name="actItem">.</param>
         public ucActivityItemInventoryInquirySummary(ActItem actItem)
         {
             this.InitializeComponent();
@@ -63,145 +56,59 @@ namespace dMobile.View.Activity
         }
 
         /// <summary>
-        /// The OnAppearing.
+        /// Gets or sets the SysEnv.
         /// </summary>
-        protected override async void OnAppearing()
-        {
-            base.OnAppearing();
-
-            this.ListViewMainActivity.ItemsSource = this.MainActivityItems;
-            this.ListViewDisplayExtraInfo.ItemsSource = this.ExtraInfoItems;
-
-            MessagingCenter.Subscribe<string>(this, EventTypes.OnKeyUp.ToString(), async (keyPressed) =>
-            {
-                _ = Enum.TryParse(keyPressed, out Keycode keycode);
-
-                if (!this.Loading)
-                {
-                    if (keycode == Keycode.Enter)
-                    {
-                        ProductInfo svdProdInfo = this.ActItem.ProdInfo;
-
-                        try
-                        {
-                            this.IsEnabled = false;
-
-                            await this.ScannerDisable();
-
-                            int currentIndex = this.MainActivityItems.IndexOf(this.ListViewMainActivity.SelectedItem);
-
-                            if (currentIndex < 0)
-                            {
-                                return;
-                            }
-
-                            // TODO: Test
-                            this.ActItem.ProdInfo = await ProductInfoTasks.GetInfoFromCodeBCUnit(
-                                Convert.ToString((this.ActItem.ListItems[currentIndex] as ActivityItem).ProductCode),
-                                Convert.ToString((this.ActItem.ListItems[currentIndex] as ActivityItem).ProductUnitBC),
-                                Convert.ToString((this.ActItem.ListItems[currentIndex] as ActivityItem).UnitCode));
-
-                            ActDetail actDetail = ActDetailFacade.GetActDetail(this.ActItem, SysCommon.ActSubTypes.InventoryInquiry);
-
-                            await Device.InvokeOnMainThreadAsync(async () =>
-                            {
-                                FormDialogContainer form = new FormDialogContainer(EDialogTypes.ActivityInventoryInquiryDetail, actDetail, this.ActSubType);
-                                _ = await form.DisplayControl.ShowDialog();
-                            });
-                        }
-                        catch (Exception ex)
-                        {
-                            await Device.InvokeOnMainThreadAsync(async () =>
-                            {
-                                FormErrorReport errRpt = new FormErrorReport(ex);
-                                _ = await errRpt.ShowDialog();
-                            });
-                        }
-                        finally
-                        {
-                            this.ActItem.ProdInfo = svdProdInfo;
-
-                            await this.ScannerEnable();
-
-                            this.IsEnabled = true;
-                        }
-                    }
-                    else if (keycode == Keycode.F1)
-                    {
-                        if (await this.SaveChanges())
-                        {
-                            this.DialogResult = DialogResult.OK;
-                            await this.Close();
-                        }
-                        else
-                        {
-                            this.DialogResult = DialogResult.None;
-                            _ = await this.CancelChanges();
-                            await this.Close();
-                        }
-                    }
-                }
-            });
-
-            try
-            {
-                await this.ActItemInventoryInquiry_GotFocus(this, new EventArgs());
-                await this.RefreshData();
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine("ActItemInventoryInquiry_GotFocus error: " + ex.Message);
-            }
-        }
+        private SysEnvironment SysEnv { get; set; }
 
         /// <summary>
-        /// The OnDisappearing.
+        /// Gets or sets a value indicating whether IsBarCodeHandlerRegistered.
         /// </summary>
-        protected override async void OnDisappearing()
-        {
-            MessagingCenter.Unsubscribe<string>(this, EventTypes.OnKeyUp.ToString());
-            await this.ScannerDisable();
-            base.OnDisappearing();
-        }
+        private bool IsBarCodeHandlerRegistered { get; set; } = false;
 
-        protected override bool OnBackButtonPressed()
-        {
-            Device.BeginInvokeOnMainThread(async () =>
-            {
-                _ = base.OnBackButtonPressed();
+        /// <summary>
+        /// Gets or sets the ActItem.
+        /// </summary>
+        private ActItem ActItem { get; set; }
 
-                if (await this.SaveChanges())
-                {
-                    this.DialogResult = DialogResult.OK;
-                    await this.Close();
-                }
-                else
-                {
-                    this.DialogResult = DialogResult.None;
-                    _ = await this.CancelChanges();
-                    await this.Close();
-                }
-            });
-
-            return true;
-        }
-
-        public SysEnvironment SysEnv { get; set; }
-
-        public bool IsBarCodeHandlerRegistered { get; set; } = false;
-
-        public ActItem ActItem { get; set; }
-
+        /// <summary>
+        /// Gets or sets the Activity.
+        /// </summary>
         private Activity Activity { get; set; }
 
-        public SysCommon.ActSubTypes ActSubType { get; set; }
+        /// <summary>
+        /// Gets or sets the ActSubType.
+        /// </summary>
+        private SysCommon.ActSubTypes ActSubType { get; set; }
 
+        /// <summary>
+        /// Gets or sets the BarParse.
+        /// </summary>
         private BarCodeParse BarParse { get; set; }
 
+        /// <summary>
+        /// Gets or sets the Scanner.
+        /// </summary>
         private BarCodeScanner Scanner { get; set; }
 
-        public ObservableCollection<string> ExtraInfoItems { get; set; } = new ObservableCollection<string>();
-        public ObservableCollection<object> MainActivityItems { get; set; } = new ObservableCollection<object>();
+        /// <summary>
+        /// Gets or sets the extra information items.
+        /// </summary>
+        private ObservableCollection<string> ExtraInfoItems { get; set; } = new ObservableCollection<string>();
+
+        /// <summary>
+        /// Gets or sets the main activity items.
+        /// </summary>
+        private ObservableCollection<object> MainActivityItems { get; set; } = new ObservableCollection<object>();
+
+        /// <summary>
+        /// Gets or sets a value indicating whether the saved bar code scanner enabled status.
+        /// </summary>
+        private bool IsSvdBarScannerEnabled { get; set; } = false;
+
+        /// <summary>
+        /// Gets or sets a value indicating whether to performing loading data upon got focus.
+        /// </summary>
+        private bool FirstOnAppearing { get; set; } = true;
 
         /// <summary>
         /// Unregister the bar code scan event handler and disable the scanner.
@@ -209,7 +116,7 @@ namespace dMobile.View.Activity
         /// <returns><see cref="Task"/> Task operation.</returns>
         public async Task ScannerDisable()
         {
-            if (this.IsBarCodeHandlerRegistered && this.Scanner != null)
+            if (this.Scanner != null)
             {
                 this.Scanner.BarCodeScan -= new BarCodeScanner.BarCodeScanEventHandler(this.BarCodeHandler);
                 await this.Scanner.Stop();
@@ -232,9 +139,8 @@ namespace dMobile.View.Activity
             }
         }
 
-        ///// <summary>
-        /////
-        ///// </summary>
+        /// <summary>
+        /// ///// </summary>
         ///// <returns></returns>
         ///// <remarks></remarks>
         // public UserControl GetCallingControl()
@@ -243,20 +149,18 @@ namespace dMobile.View.Activity
         // }
 
         /// <summary>
-        ///
+        ///.
         /// </summary>
-        /// <returns></returns>
-        /// <remarks></remarks>
+        /// <returns>.</returns>
         public string GetControlDescription()
         {
             return "Inventory Inquiry Summary";
         }
 
         /// <summary>
-        ///
+        /// The GetXML.
         /// </summary>
-        /// <returns></returns>
-        /// <remarks></remarks>
+        /// <returns>.</returns>
         public async Task<XDocument> GetXML()
         {
             XDocument xmldocParams = XDocument.Parse(
@@ -268,20 +172,18 @@ namespace dMobile.View.Activity
         }
 
         /// <summary>
-        ///
+        /// The IsReadyToSave.
         /// </summary>
-        /// <returns></returns>
-        /// <remarks></remarks>
+        /// <returns>.</returns>
         public async Task<bool> IsReadyToSave()
         {
             return this.IsValidData();
         }
 
         /// <summary>
-        ///
+        /// The IsReadyToClose.
         /// </summary>
-        /// <returns></returns>
-        /// <remarks></remarks>
+        /// <returns>.</returns>
         public async Task<bool> IsReadyToClose()
         {
             bool isReadyToClose = true;
@@ -303,10 +205,9 @@ namespace dMobile.View.Activity
         }
 
         /// <summary>
-        ///
+        /// The SaveChanges.
         /// </summary>
-        /// <returns></returns>
-        /// <remarks></remarks>
+        /// <returns>.</returns>
         public async Task<bool> SaveChanges()
         {
             try
@@ -331,10 +232,9 @@ namespace dMobile.View.Activity
         }
 
         /// <summary>
-        ///
+        /// The CancelChanges.
         /// </summary>
-        /// <returns></returns>
-        /// <remarks></remarks>
+        /// <returns>.</returns>
         public async Task<bool> CancelChanges()
         {
             bool cancelChanges = true;
@@ -374,13 +274,12 @@ namespace dMobile.View.Activity
         }
 
         /// <summary>
-        ///
-        /// </summary>
+        /// /// </summary>
         /// <remarks></remarks>
-/// <summary>
-///
-/// </summary>
-/// <returns>A <see cref="Task"/> representing the result of the asynchronous operation.</returns>
+        /// <summary>
+        ///.
+        /// </summary>
+        /// <returns>A <see cref="Task"/> representing the result of the asynchronous operation.</returns>
         public async Task RefreshData()
         {
             try
@@ -431,6 +330,158 @@ namespace dMobile.View.Activity
         }
 
         /// <summary>
+        /// The OnAppearing.
+        /// </summary>
+        protected override async void OnAppearing()
+        {
+            base.OnAppearing();
+
+            this.IsSvdBarScannerEnabled = this.IsBarCodeHandlerRegistered;
+            await this.ScannerDisable();
+
+            this.ListViewMainActivity.ItemsSource = this.MainActivityItems;
+            this.ListViewDisplayExtraInfo.ItemsSource = this.ExtraInfoItems;
+            SubscribeKeyUpHandlers();
+
+            this.Loading = true;
+
+            try
+            {
+                if (this.FirstOnAppearing)
+                {
+                    await this.ActItemInventoryInquiry_GotFocus(this, new EventArgs());
+                    await this.RefreshData();
+                    this.FirstOnAppearing = false;
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("ActItemInventoryInquiry_GotFocus error: " + ex.Message);
+            }
+
+            //////////////////////////////////////////////////////////////////////////
+            void SubscribeKeyUpHandlers()
+            {
+                MessagingCenter.Subscribe<string>(this, EventTypes.OnKeyUp.ToString(), async (keyPressed) =>
+                {
+                    if (this.Loading)
+                    {
+                        return;
+                    }
+
+                    _ = Enum.TryParse(keyPressed, out Keycode keycode);
+
+                    if (keycode == Keycode.Enter)
+                    {
+                        ProductInfo svdProdInfo = this.ActItem.ProdInfo;
+
+                        try
+                        {
+                            this.IsEnabled = false;
+                            await this.ScannerDisable();
+                            int currentIndex = this.MainActivityItems.IndexOf(this.ListViewMainActivity.SelectedItem);
+                            if (currentIndex < 0)
+                            {
+                                return;
+                            }
+
+                            // TODO: Test
+                            this.ActItem.ProdInfo = await ProductInfoTasks.GetInfoFromCodeBCUnit(
+                                Convert.ToString((this.ActItem.ListItems[currentIndex] as ActivityItem).ProductCode),
+                                Convert.ToString((this.ActItem.ListItems[currentIndex] as ActivityItem).ProductUnitBC),
+                                Convert.ToString((this.ActItem.ListItems[currentIndex] as ActivityItem).UnitCode));
+                            ActDetail actDetail = ActDetailFacade.GetActDetail(
+                                this.ActItem,
+                                SysCommon.ActSubTypes.InventoryInquiry);
+                            await Device.InvokeOnMainThreadAsync(async () =>
+                            {
+                                FormDialogContainer form = new FormDialogContainer(
+                                    EDialogTypes.ActivityInventoryInquiryDetail,
+                                    actDetail,
+                                    this.ActSubType);
+                                _ = await form.DisplayControl.ShowDialog();
+                            });
+                        }
+                        catch (Exception ex)
+                        {
+                            await Device.InvokeOnMainThreadAsync(async () =>
+                            {
+                                FormErrorReport errRpt = new FormErrorReport(this.ActSubType, ex);
+                                _ = await errRpt.ShowDialog();
+                            });
+                        }
+                        finally
+                        {
+                            this.ActItem.ProdInfo = svdProdInfo;
+                            if (this.IsSvdBarScannerEnabled)
+                            {
+                                await this.ScannerEnable();
+                            }
+
+                            this.IsEnabled = true;
+                        }
+                    }
+                    else if (keycode == Keycode.F1)
+                    {
+                        await OnAppearingKeyUpF1();
+                    }
+                });
+
+                //////////////////////////////////////////////////////////////////////////
+                async Task OnAppearingKeyUpF1()
+                {
+                    if (await this.SaveChanges())
+                    {
+                        this.DialogResult = DialogResult.OK;
+                        await this.Close();
+                    }
+                    else
+                    {
+                        this.DialogResult = DialogResult.None;
+                        _ = await this.CancelChanges();
+                        await this.Close();
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        /// The OnDisappearing.
+        /// </summary>
+        protected override async void OnDisappearing()
+        {
+            MessagingCenter.Unsubscribe<string>(this, EventTypes.OnKeyUp.ToString());
+            await this.ScannerDisable();
+            base.OnDisappearing();
+        }
+
+        /// <summary>
+        /// The OnBackButtonPressed.
+        /// </summary>
+        /// <returns>The <see cref="bool"/>.</returns>
+        protected override bool OnBackButtonPressed()
+        {
+            Device.BeginInvokeOnMainThread(async () =>
+            {
+                _ = base.OnBackButtonPressed();
+
+                if (await this.SaveChanges())
+                {
+                    this.DialogResult = DialogResult.OK;
+                    await this.Close();
+                }
+                else
+                {
+                    this.DialogResult = DialogResult.None;
+                    _ = await this.CancelChanges();
+                    await this.Close();
+                }
+            });
+
+            return true;
+        }
+
+        /// <summary>
         /// Adds data to the bottom list box to show
         /// Product ID, Qty and Weight.
         /// </summary>
@@ -472,31 +523,31 @@ namespace dMobile.View.Activity
         }
 
         /// <summary>
-        ///
+        /// The ActItemInventoryInquiry_GotFocus.
         /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
+        /// <param name="sender">.</param>
+        /// <param name="e">.</param>
+        /// <returns>The <see cref="Task"/>.</returns>
         private async Task ActItemInventoryInquiry_GotFocus(object sender, EventArgs e)
         {
             await this.ScannerEnable();
         }
 
         /// <summary>
-        ///
+        /// The IsValidData.
         /// </summary>
-        /// <returns></returns>
-        /// <remarks></remarks>
+        /// <returns>.</returns>
         private bool IsValidData()
         {
             return true;
         }
 
         /// <summary>
-        ///
+        /// The BarCodeHandler.
         /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="oBarCodeScanArgs"></param>
-        /// <remarks></remarks>
+        /// <param name="sender">.</param>
+        /// <param name="scanArgs">The scanArgs<see cref="BarCodeScannerEventArgs"/>.</param>
+        /// <returns>The <see cref="Task"/>.</returns>
         private async Task BarCodeHandler(object sender, BarCodeScannerEventArgs scanArgs)
         {
             if (this.Loading || scanArgs == null)
@@ -550,19 +601,29 @@ namespace dMobile.View.Activity
             }
         }
 
+        /// <summary>
+        /// The OnLayerStatOut.
+        /// </summary>
+        /// <param name="publisher">The publisher<see cref="IDataLayerEventPublisher"/>.</param>
+        /// <param name="dataLayerEventArgs">The dataLayerEventArgs<see cref="DataLayerEventArgs"/>.</param>
         public void OnLayerStatOut(IDataLayerEventPublisher publisher, DataLayerEventArgs dataLayerEventArgs)
         {
         }
 
         /// <summary>
-        ///
+        /// The OnLayerProgOut.
         /// </summary>
-        /// <param name="publisher"></param>
-        /// <param name="dataLayerEventArgs"></param>
+        /// <param name="publisher">.</param>
+        /// <param name="dataLayerEventArgs">.</param>
         public void OnLayerProgOut(IDataLayerEventPublisher publisher, DataLayerEventArgs dataLayerEventArgs)
         {
         }
 
+        /// <summary>
+        /// The ListViewMainActivity_ItemSelected.
+        /// </summary>
+        /// <param name="sender">The sender<see cref="object"/>.</param>
+        /// <param name="e">The e<see cref="SelectedItemChangedEventArgs"/>.</param>
         private void ListViewMainActivity_ItemSelected(object sender, SelectedItemChangedEventArgs e)
         {
             this.ActItem.SelectedActivityItem = e.SelectedItem;

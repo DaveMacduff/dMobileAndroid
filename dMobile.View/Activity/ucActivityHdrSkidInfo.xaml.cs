@@ -251,7 +251,7 @@ namespace dMobile.View.Activity
         /// <returns><see cref="Task"/> Task operation.</returns>
         public async Task ScannerDisable()
         {
-            if (this.IsBarCodeHandlerRegistered && this.Scanner != null)
+            if (this.Scanner != null)
             {
                 this.Scanner.BarCodeScan -= new BarCodeScanner.BarCodeScanEventHandler(this.BarCodeHandler);
                 await this.Scanner.Stop();
@@ -311,7 +311,7 @@ namespace dMobile.View.Activity
         /// Check if the form can be closed.
         /// </summary>
         /// <returns><see cref="bool"/> True if the form can be closed.</returns>
-        public async Task<bool> IsReadyToClose()
+        public Task<bool> IsReadyToClose()
         {
             bool isReadyToClose = true;
 
@@ -329,7 +329,7 @@ namespace dMobile.View.Activity
                 }
             }
 
-            return isReadyToClose;
+            return Task.FromResult(isReadyToClose);
         }
 
         /// <summary>
@@ -679,13 +679,12 @@ namespace dMobile.View.Activity
             {
                 this.Loading = false;
                 await this.ScannerEnable();
-
-                ////await Task.Run(() =>
-                ////{
-                ////    // Explicit GC, Xamarin forms not disposing of objects properly
-                ////    GC.Collect();
-                ////    GC.WaitForPendingFinalizers();
-                ////});
+                await Task.Run(() =>
+                {
+                    // Explicit GC, Xamarin forms not disposing of objects properly
+                    GC.Collect();
+                    GC.WaitForPendingFinalizers();
+                });
             }
 
             //////////////////////////////////////////////////////////////////////////
@@ -772,11 +771,11 @@ namespace dMobile.View.Activity
         {
             bool isClose = true;
 
-            this.IsSvdBarScannerEnabled = this.IsBarCodeHandlerRegistered;
             Device.BeginInvokeOnMainThread(async () =>
             {
                 try
                 {
+                    this.IsSvdBarScannerEnabled = this.IsBarCodeHandlerRegistered;
                     await this.ScannerDisable();
                     if (string.IsNullOrEmpty(this.txtSkidCode.Text.TrimEnd()))
                     {
@@ -891,7 +890,7 @@ namespace dMobile.View.Activity
             try
             {
                 this.Loading = true;
-                this.IsSvdBarScannerEnabled = this.IsBarCodeHandlerRegistered;
+                ////this.IsSvdBarScannerEnabled = this.IsBarCodeHandlerRegistered;
                 await this.ScannerDisable();
 
                 codeParse = scanArgs.ParseInfo;
@@ -944,7 +943,7 @@ namespace dMobile.View.Activity
                     {
                         this.SkidInfo = await SysSkidInfo.GetSkidInfoFromBarCodeOrCode(codeParse.SSCC18.TrimEnd());
                         this.SavedSkidInfo = SysSkidInfo.DeepCopy(this.SkidInfo);
-                        this.LocMap.CurrLocMap = this.SkidInfo.CurrSkid.LocMap;
+                        this.LocMap.CurrLocMap = this.SkidInfo.CurrSkid.LocMap.Clone();
                         this.ProdUnitRefno = this.SkidInfo.CurrSkid.ProdInfo.UnitRefno;
                         this.IsNewSkid = false;
                         await Device.InvokeOnMainThreadAsync(() => this.EnableControls());
@@ -1033,10 +1032,11 @@ namespace dMobile.View.Activity
             }
             finally
             {
-                if (this.IsSvdBarScannerEnabled)
-                {
-                    await this.ScannerEnable();
-                }
+                ////if (this.IsSvdBarScannerEnabled)
+                ////{
+                ////    await this.ScannerEnable();
+                ////}
+                await this.ScannerEnable();
 
                 this.Loading = false;
             }
@@ -1203,7 +1203,7 @@ namespace dMobile.View.Activity
 
             if (this.SkidInfo.CurrSkid.LocMapRefno > 0)
             {
-                this.cmdLocation.Text = LocationMapTasks.GetCurrentReadableLocation(this.SkidInfo.CurrSkid.LocMap);
+                this.cmdLocation.Text = LocationMapTasks.GetReadableLocation(this.SkidInfo.CurrSkid.LocMap);
             }
 
             this.cmdSkidProduct.Text = "Select Product";
@@ -1232,7 +1232,7 @@ namespace dMobile.View.Activity
                 this.chkIsPutAway.IsToggled = this.SkidInfo.CurrSkid.IsPutAway;
                 this.lblCubeUOM.Text = this.SkidInfo.CurrSkid.CubeUnit;
                 this.lblHeightUOM.Text = this.SkidInfo.CurrSkid.HeightUnit;
-                this.cmdLocation.Text = LocationMapTasks.GetCurrentReadableLocation(this.SkidInfo.CurrSkid.LocMap);
+                this.cmdLocation.Text = LocationMapTasks.GetReadableLocation(this.SkidInfo.CurrSkid.LocMap);
                 this.cmdSkidProduct.Text = ProductInfoTasks.GetCurrReadableProdBCUnit(
                     this.SkidInfo.CurrSkid.ProdInfo);
                 this.cmdDetail.IsEnabled = true;
@@ -1279,6 +1279,7 @@ namespace dMobile.View.Activity
                 if (await Device.InvokeOnMainThreadAsync(async () =>
                     await form.DisplayControl.ShowDialog() == DialogResult.OK))
                 {
+                    this.LocMap.CurrLocMap = this.LocMap.ChosenLocMap.Clone();
                     if (this.LocMap.CurrLocMap.WhsLocMapRefno != 0)
                     {
                         SSkidInfo tempSkidInfo = this.SkidInfo.CurrSkid;
@@ -1368,6 +1369,8 @@ namespace dMobile.View.Activity
                     async () => await form.DisplayControl.ShowDialog() == DialogResult.OK))
                 {
                     XDocument xmlDoc = await form.GetXML();
+                    this.Loading = true;
+                    this.IsChangesMade = false;
 
                     if (this.SkidInfo.CurrSkid.IsConsumed)
                     {
@@ -1523,7 +1526,7 @@ namespace dMobile.View.Activity
             try
             {
                 this.IsSvdBarScannerEnabled = this.IsBarCodeHandlerRegistered;
-                Device.BeginInvokeOnMainThread(async () => await this.ScannerDisable());
+                ////Device.BeginInvokeOnMainThread(async () => await this.ScannerDisable());
 
                 // Set as changed only after form has been loaded.
                 if (!this.Loading)
@@ -1592,10 +1595,10 @@ namespace dMobile.View.Activity
             }
             finally
             {
-                if (this.IsSvdBarScannerEnabled)
-                {
-                    Device.BeginInvokeOnMainThread(async () => await this.ScannerEnable());
-                }
+                ////if (this.IsSvdBarScannerEnabled)
+                ////{
+                ////    Device.BeginInvokeOnMainThread(async () => await this.ScannerEnable());
+                ////}
             }
 
             //////////////////////////////////////////////////////////////////////////
@@ -1844,6 +1847,7 @@ namespace dMobile.View.Activity
                 if (await this.IsReadyToSave())
                 {
                     await this.SaveSkid();
+                    this.IsNewSkid = false;
                     await Application.Current.MainPage.DisplayAlert(
                             this.GetControlDescription(),
                             "Skid created in DTEC.",
