@@ -19,7 +19,7 @@ namespace dMobile.Droid.Services
     {
         public double CalculateTextWidth(string text)
         {
-            Rect bounds = new Rect();
+            Android.Graphics.Rect bounds = new Android.Graphics.Rect();
             TextView textView = new TextView(Forms.Context);
             textView.Paint.GetTextBounds(text, 0, text.Length, bounds);
             // Adding 10 to accommodate cases where last letter being cut off
