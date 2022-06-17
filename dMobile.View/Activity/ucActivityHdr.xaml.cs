@@ -937,7 +937,7 @@ namespace dMobile.View.Activity
         /// <returns><see cref="Task"/> Task operation.</returns>
         private async Task<bool> AskConfirmExit()
         {
-            bool isReadyToClose = false;
+            bool isReadyToClose = !this.IsChangesMade;
             try
             {
                 this.IsSvdBarScannerEnabled = this.IsBarCodeHandlerRegistered;
