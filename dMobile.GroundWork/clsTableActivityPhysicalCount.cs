@@ -146,12 +146,12 @@ namespace dMobile.GroundWork
                                 transaction.Execute("INSERT INTO tActivity (ActivityStatus, ActivitySubType) VALUES (?, ?)", 0, Convert.ToInt32(SysCommon.ActSubTypes.PhysicalCounts));
 
                                 actRefno = Convert.ToInt32(transaction.ExecuteScalar<int>("SELECT last_insert_rowid() FROM tActivity"));
-                                countFKRefno = Convert.ToInt32(drow["ActivityCountFKRefno"]);
+                                countFKRefno = Convert.ToInt32(drow["ActivityFKRefno"]);
                                 string query = "INSERT INTO tActivityCount (" +
                                 "ActivityRefno, " +
                                 "ActivitySubType, " +
-                                "ActivityCountFKRefno, " +
-                                "ActivityCountStringFKRefno, " +
+                                "ActivityFKRefno, " +
+                                "ActivityStringFKRefno, " +
                                 "WarehouseLocationMapRefno, " +
                                 "ActivityCountType, " +
                                 "ActivityCountDateTime, " +

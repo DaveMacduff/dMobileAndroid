@@ -301,7 +301,7 @@ namespace dMobile.GroundWork
 
                                 errMsg += Environment.NewLine + "Detail fk refno" + actDetailCycleFKRefno;
 
-                                transaction.Execute("INSERT INTO tActivityDetailCount (ActivityDetailRefno, ActivityDetailCountFKRefno) VALUES (?, ?)", actDetailRefno, actDetailCycleFKRefno);
+                                transaction.Execute("INSERT INTO tActivityDetailCount (ActivityDetailRefno, ActivityDetailFKRefno) VALUES (?, ?)", actDetailRefno, actDetailCycleFKRefno);
 
                                 this.SaveCommonDetailVariant(drow, transaction, actDetailRefno, true);
                                 this.SaveDetailExtra(drow, transaction, actDetailRefno, true);

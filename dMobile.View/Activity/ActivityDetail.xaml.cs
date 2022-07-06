@@ -2000,7 +2000,7 @@ namespace dMobile.View.Activity
             actDetail.DetailFKRefno = 0;
             XDocument xmlDoc = actDetail.GetXML(actDetail);
             await actDetail.Insert(xmlDoc);
-            Resources.Types.ActivityDetail detail = this.ActDetail.InsertListDetail("ActivityDetailPickingFKRefno");
+            Resources.Types.ActivityDetail detail = this.ActDetail.InsertListDetail("ActivityDetailFKRefno");
             this.SelectedActivityDetailFKRefno = this.ActDetail.DetailFKRefno;
 
             await Device.InvokeOnMainThreadAsync(() =>

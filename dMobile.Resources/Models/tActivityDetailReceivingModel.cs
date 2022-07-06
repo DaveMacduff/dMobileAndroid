@@ -16,8 +16,8 @@ namespace dMobile.Resources.Models
         [ForeignKey(typeof(tActivityDetailModel))]
         public int ActivityDetailRefno { get; set; }
 
-        [Indexed(Name = "UQ_ActivityDetailReceivingOnActivityDetailReceivingFKRefno", Order = 1, Unique = true)]
+        [Indexed(Name = "UQ_ActivityDetailReceivingOnActivityDetailFKRefno", Order = 1, Unique = true)]
         [NotNull]
-        public int ActivityDetailReceivingFKRefno { get; set; }
+        public int ActivityDetailFKRefno { get; set; }
     }
 }

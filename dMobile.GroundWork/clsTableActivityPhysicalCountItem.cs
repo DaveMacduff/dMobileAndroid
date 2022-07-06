@@ -169,7 +169,7 @@ namespace dMobile.GroundWork
 
             if (results?.Count > 0)
             {
-                actCountFKRefno = results[0].ActivityCountFKRefno;
+                actCountFKRefno = results[0].ActivityFKRefno;
             }
 
             return await this.SendComm(await this.CreateRequest(actCountFKRefno));

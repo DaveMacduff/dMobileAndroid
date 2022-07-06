@@ -64,8 +64,8 @@ namespace dMobile.View.Activity
             this.cboSortBy2.SelectedIndex = this.CountSettings.iSortBy2Index;
 
             this.filters.Add(string.Empty, null);
-            this.filters.Add("Count # Ascending", new Sort() { SortValue = "ActivityCountFKRefno", SortOrder = SortOrder.ASC });
-            this.filters.Add("Count # Descending", new Sort() { SortValue = "ActivityCountFKRefno", SortOrder = SortOrder.DESC });
+            this.filters.Add("Count # Ascending", new Sort() { SortValue = "ActivityFKRefno", SortOrder = SortOrder.ASC });
+            this.filters.Add("Count # Descending", new Sort() { SortValue = "ActivityFKRefno", SortOrder = SortOrder.DESC });
             this.filters.Add("Count Date Ascending", new Sort() { SortValue = "ActivityCountDateTime", SortOrder = SortOrder.ASC });
             this.filters.Add("Count Date Descending", new Sort() { SortValue = "ActivityCountDateTime", SortOrder = SortOrder.DESC });
         }

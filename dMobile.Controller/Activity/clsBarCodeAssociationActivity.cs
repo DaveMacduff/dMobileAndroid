@@ -140,7 +140,7 @@ namespace dMobile.Controller
         /// <returns>.</returns>
         public override string GetFKRefnoIdx()
         {
-            return "ActivityCountStringFKRefno";
+            return "ActivityStringFKRefno";
         }
 
         /// <summary>

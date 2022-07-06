@@ -447,11 +447,11 @@ namespace dMobile.GroundWork
                                 transaction.Execute(queryInsertDetail, parametersInsertDetail.ToArray());
 
                                 actDetailRefno = Convert.ToInt32(transaction.ExecuteScalar<int>("SELECT last_insert_rowid() FROM tActivityDetail"));
-                                actDetailAdjFKRefno = Convert.ToInt32(drow["ActivityDetailAdjustmentFKRefno"]);
+                                actDetailAdjFKRefno = Convert.ToInt32(drow["ActivityDetailFKRefno"]);
 
                                 errMsg += Environment.NewLine + "Detail fk refno " + actDetailAdjFKRefno;
 
-                                transaction.Execute("INSERT INTO tActivityDetailAdjustment (ActivityDetailRefno, ActivityDetailAdjustmentFKRefno) VALUES (?, ?)", actDetailRefno, actDetailAdjFKRefno);
+                                transaction.Execute("INSERT INTO tActivityDetailAdjustment (ActivityDetailRefno, ActivityDetailFKRefno) VALUES (?, ?)", actDetailRefno, actDetailAdjFKRefno);
 
                                 int schemeVariantNo = 0;
                                 bool isNeedToSave = false;

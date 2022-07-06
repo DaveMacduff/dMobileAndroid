@@ -942,7 +942,7 @@ namespace dMobile.View.Activity
             {
                 actDetail.DetailFKRefno = 0;
                 XDocument xmlDoc = actDetail.GetXML(actDetail);
-                actDetail.InsertListDetail("ActivityDetailPickingFKRefno");
+                actDetail.InsertListDetail("ActivityDetailFKRefno");
                 await actDetail.Insert(xmlDoc);
             }
 

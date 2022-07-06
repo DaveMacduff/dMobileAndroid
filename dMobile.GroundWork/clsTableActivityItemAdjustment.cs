@@ -165,7 +165,7 @@ namespace dMobile.GroundWork
             int actAdjFKRefno;
             if (results?.Count > 0)
             {
-                actAdjFKRefno = results[0].ActivityAdjustmentFKRefno;
+                actAdjFKRefno = results[0].ActivityFKRefno;
             }
             else
             {

@@ -150,7 +150,7 @@ namespace dMobile.GroundWork
                                 transaction.Execute("INSERT INTO tActivity (ActivityStatus, ActivitySubType) VALUES (?, ?)", 0, Convert.ToInt32(SysCommon.ActSubTypes.CycleCounts));
                                 actRefno = Convert.ToInt32(transaction.ExecuteScalar<int>("SELECT last_insert_rowid() FROM tActivity"));
 
-                                countFKRefno = Convert.ToInt32(drow["ActivityCountFKRefno"]);
+                                countFKRefno = Convert.ToInt32(drow["ActivityFKRefno"]);
                                 whsLocMapRefno = this.GetWhsLocMapRefnoFromDataRow(drow, transaction);
                                 // To remove time - convert twice
                                 DateTime dt = Convert.ToDateTime(drow["ActivityCountDateTime"]);
@@ -199,8 +199,8 @@ namespace dMobile.GroundWork
                                 string sql = "INSERT INTO tActivityCount (" +
                                     "ActivityRefno, " +
                                     "ActivitySubType, " +
-                                    "ActivityCountFKRefno, " +
-                                    "ActivityCountStringFKRefno, " +
+                                    "ActivityFKRefno, " +
+                                    "ActivityStringFKRefno, " +
                                     "WarehouseLocationMapRefno, " +
                                     "ActivityCountType, " +
                                     "ActivityCountDateTime, " +

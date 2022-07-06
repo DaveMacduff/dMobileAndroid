@@ -287,7 +287,7 @@ namespace dMobile.GroundWork
 
                                 errMsg = "FK detail refno " + actDetailFKRefno;
 
-                                transaction.Execute("INSERT INTO tActivityDetailProductionFinished (ActivityDetailRefno, ActivityDetailProductionFinishedFKRefno) VALUES (?, ?)", actDetailRefno, actDetailFKRefno);
+                                transaction.Execute("INSERT INTO tActivityDetailProductionFinished (ActivityDetailRefno, ActivityDetailFKRefno) VALUES (?, ?)", actDetailRefno, actDetailFKRefno);
 
                                 this.SaveCommonDetailVariant(drow, transaction, actDetailRefno, false);
                                 this.SaveDetailExtra(drow, transaction, actDetailRefno, false);

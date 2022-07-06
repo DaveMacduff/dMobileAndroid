@@ -7,38 +7,6 @@ namespace dMobile.Resources.Models
     using SQLite;
     using SQLiteNetExtensions.Attributes;
 
-    //string sqlTable = "CREATE TABLE IF NOT EXISTS tActivityDetailProductSchemeVariantXRef"
-    //        + "("
-    //        + "ActivityDetailRefno INTEGER NOT NULL,"
-    //        + "ProductSchemeVariantRefno INTEGER NOT NULL, "
-    //        + "CONSTRAINT ActivityDetailProductSchemeVariantXRefTactDetailOnActivityDetailRefno FOREIGN KEY (ActivityDetailRefno) REFERENCES tActivityDetail(ActivityDetailRefno) ON DELETE CASCADE ON UPDATE CASCADE, "
-    //        + "CONSTRAINT ActivityDetailProductSchemeVariantXRefToProductSchemeVariantOnProductSchemeVariantRefno FOREIGN KEY (ProductSchemeVariantRefno) "
-    //        + "REFERENCES tProductSchemeVariant(ProductSchemeVariantRefno) ON DELETE CASCADE ON UPDATE CASCADE"
-    //        + ")";
-
-    //    if (this.OnNubStatOut != null)
-    //    {
-    //    
-    //    this.MsgEventArgs.StatusOutMsg = "Creating detail product scheme variant xref table.";
-    //    this.OnNubStatOut(this, this.MsgEventArgs);
-    //}
-
-    //await this.RunDDLCommand(sqlTable);
-
-    //    string sqlNdx = "CREATE UNIQUE INDEX IF NOT EXISTS "
-    //        + "PK_ActivityDetailProductSchemeVariantXRefOnActivityDetailRefnoAndProductSchemeVariantRefno ON "
-    //        + "tActivityDetailProductSchemeVariantXRef(ActivityDetailRefno ASC, ProductSchemeVariantRefno ASC)";
-    //await this.RunDDLCommand(sqlNdx);
-
-    //sqlNdx = "CREATE UNIQUE INDEX IF NOT EXISTS UQ_ActivityDetailProductSchemeVariantXRefOnActivityDetailRefno ON "
-    //    + "tActivityDetailProductSchemeVariantXRef(ActivityDetailRefno ASC)";
-
-    //await this.RunDDLCommand(sqlNdx);
-
-    //sqlNdx = "CREATE INDEX IF NOT EXISTS FK_ActivityDetailProductSchemeVariantXRefOnProductSchemeVariantRefno "
-    //    + "ON tActivityDetailProductSchemeVariantXRef(ProductSchemeVariantRefno ASC)";
-
-    //await this.RunDDLCommand(sqlNdx);
     [Table("tActivityDetailProductSchemeVariantXRef")]
     public class tActivityDetailProductSchemeVariantXRefModel
     {

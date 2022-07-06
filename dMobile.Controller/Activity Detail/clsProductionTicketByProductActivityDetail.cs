@@ -230,7 +230,7 @@ namespace dMobile.Controller
             if (this.SysEnv.SysSettings.IsDisconnectedMode)
             {
                 int actDetailRefno = await this.InsertDetailDisconnected();
-                await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync("INSERT INTO tActivityDetailProductionByProduct (ActivityDetailRefno, ActivityDetailProductionByProductFKRefno) VALUES (?, ?)", Convert.ToInt32(actDetailRefno), Convert.ToInt32(this.DetailFKRefno));
+                await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync("INSERT INTO tActivityDetailProductionByProduct (ActivityDetailRefno, ActivityDetailFKRefno) VALUES (?, ?)", Convert.ToInt32(actDetailRefno), Convert.ToInt32(this.DetailFKRefno));
                 this.IsUpdateView = true;
             }
             else
@@ -259,7 +259,7 @@ namespace dMobile.Controller
                 }
             }
 
-            this.InsertListDetail("ActivityDetailProductionByProductFKRefno");
+            this.InsertListDetail("ActivityDetailFKRefno");
         }
 
         /// <summary>
@@ -301,7 +301,7 @@ namespace dMobile.Controller
             // delete row from DataView
             // TODO: Fix sorting
             // string oldSort = this.DataViewDetails.Sort;
-            // this.DataViewDetails.Sort = "ActivityDetailProductionByProductFKRefno";
+            // this.DataViewDetails.Sort = "ActivityDetailFKRefno";
             // int rowIdx = this.DataViewDetails.Find(this.FKRefno);
             ProductionTicketByProductDetail productionTicketByProductDetail = this.ActItem.ListItems.
                 OfType<ProductionTicketByProductDetail>().Where(productionTicketByProductDetail =>
@@ -453,7 +453,7 @@ namespace dMobile.Controller
             {
                 sql.Append("SELECT tActivityDetail.ActivityDetailRefno AS ActivityDetailRefno,");
                 sql.Append("tActivityDetail.LocationMapRefno AS LocationMapRefno,");
-                sql.Append("tActivityDetailProductionByProduct.ActivityDetailProductionByProductFKRefno AS ActivityDetailProductionByProductFKRefno,");
+                sql.Append("tActivityDetailProductionByProduct.ActivityDetailFKRefno AS ActivityDetailFKRefno,");
                 sql.Append("tUnit.UnitCode AS UnitCode,");
                 sql.Append("aUnitWeight.UnitCode AS WtUnitCode,");
                 sql.Append("aUnitBase.UnitCode AS BaseUnitCode,");
@@ -508,7 +508,7 @@ namespace dMobile.Controller
                 sql.Append("UNION ");
                 sql.Append("SELECT tActivityDetail.ActivityDetailRefno,");
                 sql.Append("tActivityDetail.LocationMapRefno,");
-                sql.Append("tActivityDetailProductionByProduct.ActivityDetailProductionByProductFKRefno,");
+                sql.Append("tActivityDetailProductionByProduct.ActivityDetailFKRefno,");
                 sql.Append("tUnit.UnitCode,");
                 sql.Append("aUnitWeight.UnitCode AS WtUnitCode,");
                 sql.Append("aUnitBase.UnitCode AS BaseUnitCode,");
@@ -563,7 +563,7 @@ namespace dMobile.Controller
                 sql.Append("UNION ");
                 sql.Append("SELECT tActivityDetail.ActivityDetailRefno,");
                 sql.Append("tActivityDetail.LocationMapRefno,");
-                sql.Append("tActivityDetailProductionByProduct.ActivityDetailProductionByProductFKRefno,");
+                sql.Append("tActivityDetailProductionByProduct.ActivityDetailFKRefno,");
                 sql.Append("tUnit.UnitCode,");
                 sql.Append("aUnitWeight.UnitCode AS WtUnitCode,");
                 sql.Append("aUnitBase.UnitCode AS BaseUnitCode,");
@@ -621,7 +621,7 @@ namespace dMobile.Controller
             {
                 sql.Append("SELECT tActivityDetail.ActivityDetailRefno AS ActivityDetailRefno,");
                 sql.Append("tActivityDetail.LocationMapRefno AS LocationMapRefno,");
-                sql.Append("tActivityDetailProductionByProduct.ActivityDetailProductionByProductFKRefno AS ActivityDetailProductionByProductFKRefno,");
+                sql.Append("tActivityDetailProductionByProduct.ActivityDetailFKRefno AS ActivityDetailFKRefno,");
                 sql.Append("tUnit.UnitCode AS UnitCode,");
                 sql.Append("aUnitWeight.UnitCode AS WtUnitCode,");
                 sql.Append("aUnitBase.UnitCode AS BaseUnitCode,");
@@ -675,7 +675,7 @@ namespace dMobile.Controller
                 sql.Append("UNION ");
                 sql.Append("SELECT tActivityDetail.ActivityDetailRefno,");
                 sql.Append("tActivityDetail.LocationMapRefno,");
-                sql.Append("tActivityDetailProductionByProduct.ActivityDetailProductionByProductFKRefno,");
+                sql.Append("tActivityDetailProductionByProduct.ActivityDetailFKRefno,");
                 sql.Append("tUnit.UnitCode,");
                 sql.Append("aUnitWeight.UnitCode AS WtUnitCode,");
                 sql.Append("aUnitBase.UnitCode AS BaseUnitCode,");
@@ -729,7 +729,7 @@ namespace dMobile.Controller
                 sql.Append("UNION ");
                 sql.Append("SELECT tActivityDetail.ActivityDetailRefno,");
                 sql.Append("tActivityDetail.LocationMapRefno,");
-                sql.Append("tActivityDetailProductionByProduct.ActivityDetailProductionByProductFKRefno,");
+                sql.Append("tActivityDetailProductionByProduct.ActivityDetailFKRefno,");
                 sql.Append("tUnit.UnitCode,");
                 sql.Append("aUnitWeight.UnitCode AS WtUnitCode,");
                 sql.Append("aUnitBase.UnitCode AS BaseUnitCode,");
@@ -898,7 +898,7 @@ namespace dMobile.Controller
                 //        ActivityDetailRefno = Convert.ToInt32(row["ActivityDetailRefno"] != DBNull.Value ? row["ActivityDetailRefno"] : null),
                 //        ActivityDetailLogisticUnitExpiryUseByDate = Convert.ToDateTime(row["ActivityDetailLogisticUnitExpiryUseByDate"] != DBNull.Value ? row["ActivityDetailLogisticUnitExpiryUseByDate"] : null),
                 //        ActivityDetailStatus = Convert.ToInt32(row["ActivityDetailStatus"] != DBNull.Value ? row["ActivityDetailStatus"] : null),
-                //        ActivityDetailProductionByProductFKRefno = Convert.ToInt32(row["ActivityDetailProductionByProductFKRefno"] != DBNull.Value ? row["ActivityDetailProductionByProductFKRefno"] : null),
+                //        ActivityDetailFKRefno = Convert.ToInt32(row["ActivityDetailFKRefno"] != DBNull.Value ? row["ActivityDetailFKRefno"] : null),
                 //        BaseUnitCode = Convert.ToString(row["BaseUnitCode"] != DBNull.Value ? row["BaseUnitCode"] : null),
                 //        Location = Convert.ToString(row["Location"] != DBNull.Value ? row["Location"] : null),
                 //        ProductSchemeVariantDescription = Convert.ToString(row["ProductSchemeVariantDescription"] != DBNull.Value ? row["ProductSchemeVariantDescription"] : null),

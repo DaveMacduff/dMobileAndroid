@@ -80,7 +80,7 @@ namespace dMobile.Controller
                 Label labelActivityCountDateTime = new Label { VerticalOptions = LayoutOptions.Center };
                 Label labelActivityCountTypeDescription = new Label { VerticalOptions = LayoutOptions.Center };
 
-                labelActivityRefno.SetBinding(Label.TextProperty, new Binding("ActivityCountStringFKRefno"));
+                labelActivityRefno.SetBinding(Label.TextProperty, new Binding("ActivityStringFKRefno"));
                 labelActivityCountDateTime.SetBinding(Label.TextProperty, new Binding("ActivityCountDateTime", BindingMode.Default, null, null, "{0:MM/dd/yyyy}"));
                 labelActivityCountTypeDescription.SetBinding(Label.TextProperty, new Binding("ActivityCountTypeDescription"));
 
@@ -104,7 +104,7 @@ namespace dMobile.Controller
         /// <returns>.</returns>
         public override string GetFKRefnoIdx()
         {
-            return "ActivityCountStringFKRefno";
+            return "ActivityStringFKRefno";
         }
 
         /// <summary>
@@ -171,13 +171,13 @@ namespace dMobile.Controller
 
                 // Count count = new Count
                 // {
-                //    ActivityCountStringFKRefno = Convert.ToString(row["ActivityCountStringFKRefno"] != DBNull.Value ? row["ActivityCountStringFKRefno"] : null),
+                //    ActivityStringFKRefno = Convert.ToString(row["ActivityStringFKRefno"] != DBNull.Value ? row["ActivityStringFKRefno"] : null),
                 //    ActivityCountDateTime = Convert.ToDateTime(row["ActivityCountDateTime"] != DBNull.Value ? row["ActivityCountDateTime"] : null),
                 //    ActivityCountTypeDescription = description,
                 // };
                 observableCollection.Add(count);
 
-                double dataColumnWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(count.ActivityCountStringFKRefno);
+                double dataColumnWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(count.ActivityStringFKRefno);
                 double dataColumnWidth1 = DependencyService.Get<IGridService>().CalculateTextWidth(Convert.ToString(count.ActivityCountDateTime.ToString("MM/dd/yyyy")));
                 double dataColumnWidth2 = DependencyService.Get<IGridService>().CalculateTextWidth(count.ActivityCountTypeDescription);
                 if (dataColumnWidth0 > this.columnWidth0)
@@ -216,8 +216,8 @@ namespace dMobile.Controller
             if (isSubmitBatch)
             {
                 sql.Append("SELECT tActivityCount.ActivityRefno AS ActivityRefno,");
-                sql.Append("tActivityCount.ActivityCountFKRefno AS ActivityCountFKRefno,");
-                sql.Append("tActivityCount.ActivityCountStringFKRefno AS ActivityCountStringFKRefno,");
+                sql.Append("tActivityCount.ActivityFKRefno AS ActivityFKRefno,");
+                sql.Append("tActivityCount.ActivityStringFKRefno AS ActivityStringFKRefno,");
                 sql.Append("tLocationMapWarehouse.LocationMapRefno AS LocationMapRefno,");
                 sql.Append("tLocationMapWarehouse.LocationMapWarehouseFKRefno AS LocationMapWarehouseFKRefno,");
                 sql.Append("tLocationMapWarehouse.LocationMapWarehouseName AS LocationMapWarehouseName,");
@@ -233,8 +233,8 @@ namespace dMobile.Controller
                 sql.AppendFormat("AND tActivity.ActivityStatus <> {0} ", Convert.ToInt32(SysCommon.ActStatus.NoChange));
                 sql.Append("UNION ");
                 sql.Append("SELECT tActivityCount.ActivityRefno,");
-                sql.Append("tActivityCount.ActivityCountFKRefno,");
-                sql.Append("tActivityCount.ActivityCountStringFKRefno,");
+                sql.Append("tActivityCount.ActivityFKRefno,");
+                sql.Append("tActivityCount.ActivityStringFKRefno,");
                 sql.Append("tLocationMapWarehouse.LocationMapRefno,");
                 sql.Append("tLocationMapWarehouse.LocationMapWarehouseFKRefno,");
                 sql.Append("tLocationMapWarehouse.LocationMapWarehouseName,");
@@ -252,8 +252,8 @@ namespace dMobile.Controller
                 sql.AppendFormat("AND tActivityItem.ActivityItemStatus <> {0} ", Convert.ToInt32(SysCommon.ActStatus.NoChange));
                 sql.Append("UNION ");
                 sql.Append("SELECT tActivityCount.ActivityRefno,");
-                sql.Append("tActivityCount.ActivityCountFKRefno,");
-                sql.Append("tActivityCount.ActivityCountStringFKRefno,");
+                sql.Append("tActivityCount.ActivityFKRefno,");
+                sql.Append("tActivityCount.ActivityStringFKRefno,");
                 sql.Append("tLocationMapWarehouse.LocationMapRefno,");
                 sql.Append("tLocationMapWarehouse.LocationMapWarehouseFKRefno,");
                 sql.Append("tLocationMapWarehouse.LocationMapWarehouseName,");
@@ -275,8 +275,8 @@ namespace dMobile.Controller
             else
             {
                 sql.Append("SELECT tActivityCount.ActivityRefno AS ActivityRefno,");
-                sql.Append("tActivityCount.ActivityCountFKRefno AS ActivityCountFKRefno,");
-                sql.Append("tActivityCount.ActivityCountStringFKRefno AS ActivityCountStringFKRefno,");
+                sql.Append("tActivityCount.ActivityFKRefno AS ActivityFKRefno,");
+                sql.Append("tActivityCount.ActivityStringFKRefno AS ActivityStringFKRefno,");
                 sql.Append("tLocationMapWarehouse.LocationMapRefno AS LocationMapRefno,");
                 sql.Append("tLocationMapWarehouse.LocationMapWarehouseFKRefno AS LocationMapWarehouseFKRefno,");
                 sql.Append("tLocationMapWarehouse.LocationMapWarehouseName AS LocationMapWarehouseName,");
@@ -335,7 +335,7 @@ namespace dMobile.Controller
             // TODO: verify filtering
             ObservableCollection<object> observableCollection = new ObservableCollection<object>();
 
-            this.ListHdrs = this.listCounts.Where(count => count.ActivityCountStringFKRefno.ToLower().Contains(searchText.ToLower().Trim())).Cast<object>().ToList();
+            this.ListHdrs = this.listCounts.Where(count => count.ActivityStringFKRefno.ToLower().Contains(searchText.ToLower().Trim())).Cast<object>().ToList();
 
             foreach (Count count in this.ListHdrs)
             {
@@ -349,7 +349,7 @@ namespace dMobile.Controller
 
                 // Count count = new Count
                 // {
-                //    ActivityCountStringFKRefno = Convert.ToString(row["ActivityCountStringFKRefno"] != DBNull.Value ? row["ActivityCountStringFKRefno"] : null),
+                //    ActivityStringFKRefno = Convert.ToString(row["ActivityStringFKRefno"] != DBNull.Value ? row["ActivityStringFKRefno"] : null),
                 //    ActivityCountDateTime = Convert.ToDateTime(row["ActivityCountDateTime"] != DBNull.Value ? row["ActivityCountDateTime"] : null),
                 //    ActivityCountTypeDescription = description,
                 // };
@@ -369,7 +369,7 @@ namespace dMobile.Controller
             if (selectedActivity is Count count)
             {
                 this.SelectedActivity = count;
-                this.HdrFKRefno = Convert.ToInt32(count.ActivityCountFKRefno);
+                this.HdrFKRefno = Convert.ToInt32(count.ActivityFKRefno);
                 this.HdrRefno = Convert.ToInt32(count.ActivityRefno);
 
                 // Set the selected warehouse to the activity header warehouse.
@@ -389,7 +389,7 @@ namespace dMobile.Controller
         {
             if (selectedItem is Count count)
             {
-                this.HdrFKRefno = Convert.ToInt32(count.ActivityCountFKRefno);
+                this.HdrFKRefno = Convert.ToInt32(count.ActivityFKRefno);
                 this.HdrRefno = Convert.ToInt32(count.ActivityRefno);
 
             }
@@ -504,7 +504,7 @@ namespace dMobile.Controller
         /// <returns><see cref="int"/> Found activity foreign key refno, else 0 if not found.</returns>
         public override int GetFKRefno(object resourceType)
         {
-            object tmpFKRefno = ((Count)resourceType).ActivityCountFKRefno;
+            object tmpFKRefno = ((Count)resourceType).ActivityFKRefno;
             return tmpFKRefno == null ? 0 : Convert.ToInt32(tmpFKRefno);
         }
 

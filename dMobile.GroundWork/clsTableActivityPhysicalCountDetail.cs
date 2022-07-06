@@ -282,7 +282,7 @@ namespace dMobile.GroundWork
                                 actDetailPhysicalFKRefno = Convert.ToInt32(drow["f01"]);
                                 errMsg += Environment.NewLine + "Detail fk refno " + actDetailPhysicalFKRefno;
 
-                                transaction.Execute("INSERT INTO tActivityDetailCount (ActivityDetailRefno, ActivityDetailCountFKRefno) VALUES (?, ?)", actDetailRefno, actDetailPhysicalFKRefno);
+                                transaction.Execute("INSERT INTO tActivityDetailCount (ActivityDetailRefno, ActivityDetailFKRefno) VALUES (?, ?)", actDetailRefno, actDetailPhysicalFKRefno);
 
                                 this.SaveCommonDetailVariant(drow, transaction, actDetailRefno, true);
                                 this.SaveDetailExtra(drow, transaction, actDetailRefno, true);

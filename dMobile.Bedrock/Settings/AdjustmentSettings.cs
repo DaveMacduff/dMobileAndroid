@@ -73,7 +73,7 @@ namespace dMobile.Bedrock
         /// <summary>
         /// Contains first sort option selected index value.
         /// </summary>
-        private Sort sortBy1Value = new Sort() { SortValue = "ActivityAdjustmentFKRefno", SortOrder = SortOrder.ASC };
+        private Sort sortBy1Value = new Sort() { SortValue = "ActivityFKRefno", SortOrder = SortOrder.ASC };
 
         /// <summary>
         /// Contains second sort option selected index.

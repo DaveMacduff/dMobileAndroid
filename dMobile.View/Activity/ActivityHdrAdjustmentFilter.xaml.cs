@@ -88,8 +88,8 @@ namespace dMobile.View.Activity
 
             this.filters.Clear();
             this.filters.Add(string.Empty, null);
-            this.filters.Add("Adjustment # Ascending", new Sort() { SortValue = "ActivityAdjustmentFKRefno", SortOrder = SortOrder.ASC });
-            this.filters.Add("Adjustment # Descending", new Sort() { SortValue = "ActivityAdjustmentFKRefno", SortOrder = SortOrder.DESC });
+            this.filters.Add("Adjustment # Ascending", new Sort() { SortValue = "ActivityFKRefno", SortOrder = SortOrder.ASC });
+            this.filters.Add("Adjustment # Descending", new Sort() { SortValue = "ActivityFKRefno", SortOrder = SortOrder.DESC });
             this.filters.Add("Adjustment Type # Ascending", new Sort() { SortValue = "ActivityAdjustmentType", SortOrder = SortOrder.ASC });
             this.filters.Add("Adjustment Type # Descending", new Sort() { SortValue = "ActivityAdjustmentType", SortOrder = SortOrder.DESC });
             this.filters.Add("Adjustment Date Ascending", new Sort() { SortValue = "ActivityAdjustmentDateTime", SortOrder = SortOrder.ASC });

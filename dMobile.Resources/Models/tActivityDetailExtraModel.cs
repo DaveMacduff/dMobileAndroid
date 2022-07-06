@@ -8,31 +8,6 @@ namespace dMobile.Resources.Models
     using SQLite;
     using SQLiteNetExtensions.Attributes;
 
-    //string sqlTable = "CREATE TABLE IF NOT EXISTS tActivityDetailExtra"
-    //            + "("
-    //            + "ActivityDetailRefno INTEGER NOT NULL CONSTRAINT PK_ActivityDetailExtraOnActivityDetailRefno PRIMARY KEY,"
-    //            + "ActivityDetailSubType INTEGER NOT NULL,"
-    //            + "ActivityDetailExtra1Text nvarchar(10) NOT NULL,"
-    //            + "ActivityDetailExtra2Text nvarchar(10) NOT NULL,"
-    //            + "ActivityDetailExtra3Text nvarchar(10) NOT NULL,"
-    //            + "ActivityDetailExtra4Text nvarchar(10) NOT NULL,"
-    //            + "ActivityDetailExtra5Date datetime NOT NULL, "
-
-    //            + "CONSTRAINT ActivityDetailExtraToActivityDetailOnActivityDetailRefno FOREIGN KEY (ActivityDetailRefno) REFERENCES tActivityDetail(ActivityDetailRefno) ON DELETE CASCADE ON UPDATE CASCADE"
-    //            + ")";
-
-    //        if (this.OnNubStatOut != null)
-    //        {
-    //    
-    //    this.MsgEventArgs.StatusOutMsg = "Creating detail extra table.";
-    //    this.OnNubStatOut(this, this.MsgEventArgs);
-    //}
-
-    //await this.RunDDLCommand(sqlTable);
-
-    //        string sqlNdx = "CREATE UNIQUE INDEX IF NOT EXISTS UQ_ActivityDetailExtraOnActivityDetailRefnoAndActivityDetailSubType "
-    //            + "ON tActivityDetailExtra(ActivityDetailRefno ASC, ActivityDetailSubType ASC)";
-    //await this.RunDDLCommand(sqlNdx);
     [Table("tActivityDetailExtra")]
     public class tActivityDetailExtraModel
     {

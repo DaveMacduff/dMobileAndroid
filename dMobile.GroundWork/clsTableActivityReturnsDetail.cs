@@ -279,10 +279,10 @@ namespace dMobile.GroundWork
                                 transaction.Execute(queryInsertDetail, parametersInsertDetail.ToArray());
 
                                 actDetailRefno = Convert.ToInt32(transaction.ExecuteScalar<int>("SELECT last_insert_rowid() FROM tActivityDetail"));
-                                detailRetFKRefno = Convert.ToInt32(drow["ActivityDetailReturnsFKRefno"]);
+                                detailRetFKRefno = Convert.ToInt32(drow["ActivityDetailFKRefno"]);
                                 errMsg += Environment.NewLine + "Detail fk refno " + detailRetFKRefno;
 
-                                transaction.Execute("INSERT INTO tActivityDetailReturns (ActivityDetailRefno, ActivityDetailReturnsFKRefno, ActivityDetailReturnsIsConfirmed) VALUES (?, ?, ?)",
+                                transaction.Execute("INSERT INTO tActivityDetailReturns (ActivityDetailRefno, ActivityDetailFKRefno, ActivityDetailReturnsIsConfirmed) VALUES (?, ?, ?)",
                                     Convert.ToInt32(actDetailRefno),
                                     Convert.ToInt32(detailRetFKRefno),
                                     Convert.ToBoolean(drow["ActivityDetailReturnsIsConfirmed"]));

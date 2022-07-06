@@ -8,41 +8,6 @@ namespace dMobile.Resources.Models
     using SQLite;
     using SQLiteNetExtensions.Attributes;
 
-    //string sqlTable = "CREATE TABLE IF NOT EXISTS tActivityItemAdjustment"
-    //+ "("
-    //+ "ActivityItemRefno INTEGER NOT NULL CONSTRAINT PK_ActivityItemAdjustmentOnActivityItemRefno PRIMARY KEY,"
-    //+ "ActivityItemSubType INTEGER NOT NULL,"
-    //+ "ActivityItemAdjustmentFKRefno INTEGER NOT NULL,"
-    //+ "ActivityItemAdjustmentStringFKRefno nvarchar(8) NOT NULL,"
-    //+ "ProductUnitRefno INTEGER NOT NULL,"
-    //+ "WarehouseLocationMapRefno INTEGER NOT NULL,"
-    //+ "ActivityItemAdjustmentQuantity numeric(11, 3) NOT NULL,"
-    //+ "ActivityItemAdjustmentBaseQuantity numeric(11, 3) NOT NULL,"
-    //+ "ActivityItemAdjustmentWeightQuantity numeric(11, 3) NOT NULL,"
-    //+ "ActivityItemAdjustmentDescription nvarchar(42) NOT NULL, "
-
-    //+ "CONSTRAINT ActivityItemAdjustmentTactItemOnActivityItemRefno FOREIGN KEY (ActivityItemRefno) REFERENCES tActivityItem(ActivityItemRefno) ON DELETE CASCADE ON UPDATE CASCADE, "
-    //+ "CONSTRAINT ActivityItemAdjustmentToLocationMapWarehouseOnWarehouseLocationMapRefno FOREIGN KEY (WarehouseLocationMapRefno) REFERENCES tLocationMapWarehouse(LocationMapRefno) ON DELETE CASCADE ON UPDATE CASCADE, "
-    //+ "CONSTRAINT ActivityItemAdjustmentTactItemOnProductUnitRefno FOREIGN KEY (ProductUnitRefno) REFERENCES tProductUnit(ProductUnitRefno) ON DELETE CASCADE ON UPDATE CASCADE"
-
-    //+ ")";
-
-    //if (this.OnNubStatOut != null)
-    //{
-    //    this.MsgEventArgs.StatusOutMsg = "Creating item adjustment table.";
-    //    this.OnNubStatOut(this, this.MsgEventArgs);
-    //}
-
-    //await this.RunDDLCommand(sqlTable);
-
-    //string sqlNdx = "CREATE UNIQUE INDEX IF NOT EXISTS UQ_ActivityItemAdjustmentOnActivityItemRefnoAndActivityItemSubType ON tActivityItemAdjustment(ActivityItemRefno ASC, ActivityItemSubType ASC)";
-    //await this.RunDDLCommand(sqlNdx);
-
-    //sqlNdx = "CREATE UNIQUE INDEX IF NOT EXISTS UQ_ActivityItemAdjustmentOnActivityItemAdjustmentFKRefno ON tActivityItemAdjustment(ActivityItemAdjustmentFKRefno ASC)";
-    //await this.RunDDLCommand(sqlNdx);
-
-    //sqlNdx = "CREATE INDEX IF NOT EXISTS FK_ActivityItemAdjustmentOnWarehouseLocationMapRefno ON tActivityItemAdjustment(WarehouseLocationMapRefno ASC)";
-    //await this.RunDDLCommand(sqlNdx);
     [Table("tActivityItemAdjustment")]
     public class tActivityItemAdjustmentModel
     {

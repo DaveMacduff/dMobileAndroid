@@ -209,7 +209,7 @@ namespace dMobile.Controller
         /// <returns>.</returns>
         public override int GetFKRefno(object selectedActivityDetail)
         {
-            return (selectedActivityDetail as dynamic).ActivityDetailCountFKRefno;
+            return (selectedActivityDetail as dynamic).ActivityDetailFKRefno;
         }
 
         /// <summary>

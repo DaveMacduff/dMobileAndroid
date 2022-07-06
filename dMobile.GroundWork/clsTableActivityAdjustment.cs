@@ -253,7 +253,7 @@ namespace dMobile.GroundWork
 
                                 actRefno = Convert.ToInt32(transaction.ExecuteScalar<int>("SELECT last_insert_rowid() FROM tActivity"));
 
-                                adjFKRefno = Convert.ToInt32(drow["ActivityAdjustmentFKRefno"]);
+                                adjFKRefno = Convert.ToInt32(drow["ActivityFKRefno"]);
                                 DateTime dt = Convert.ToDateTime(drow["ActivityAdjustmentDateTime"]);
 
                                 errMsg += Environment.NewLine + "FK refno " + adjFKRefno;
@@ -261,8 +261,8 @@ namespace dMobile.GroundWork
 
                                 string sql = "INSERT INTO tActivityAdjustment (ActivityRefno, " +
                                 "ActivitySubType, " +
-                                "ActivityAdjustmentFKRefno, " +
-                                "ActivityAdjustmentStringFKRefno, " +
+                                "ActivityFKRefno, " +
+                                "ActivityStringFKRefno, " +
                                 "ActivityAdjustmentType, " +
                                 "WarehouseLocationMapRefno, " +
                                 "ActivityAdjustmentDateTime, " +

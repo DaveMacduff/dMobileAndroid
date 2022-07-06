@@ -316,7 +316,7 @@ namespace dMobile.Controller
             if (this.SysEnv.SysSettings.IsDisconnectedMode)
             {
                 int actDetailRefno = await this.InsertDetailDisconnected();
-                string query = "INSERT INTO tActivityDetailReceiving (ActivityDetailRefno, ActivityDetailReceivingFKRefno) VALUES (?, ?)";
+                string query = "INSERT INTO tActivityDetailReceiving (ActivityDetailRefno, ActivityDetailFKRefno) VALUES (?, ?)";
                 await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(
                     query,
                     Convert.ToInt32(actDetailRefno),
@@ -331,7 +331,7 @@ namespace dMobile.Controller
                 if (isNewDetail)
                 {
                     await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(
-                        "UPDATE tActivityDetailReceiving SET ActivityDetailReceivingFKRefno = ? WHERE ActivityDetailRefno = ?",
+                        "UPDATE tActivityDetailReceiving SET ActivityDetailFKRefno = ? WHERE ActivityDetailRefno = ?",
                         this.DetailFKRefno,
                         this.DetailRefno);
                     this.IsUpdateView = true;
@@ -378,7 +378,7 @@ namespace dMobile.Controller
             // delete row from DataView
             // TODO: Fix sorting
             // string oldSort = this.DataViewDetails.Sort;
-            // this.DataViewDetails.Sort = "ActivityDetailReceivingFKRefno";
+            // this.DataViewDetails.Sort = "ActivityDetailFKRefno";
             // int rowIdx = this.DataViewDetails.Find(this.FKRefno);
             ReceiveDetail receiveDetail = this.ListDetails.OfType<ReceiveDetail>().Where(receiveDetail =>
             receiveDetail.ActivityDetailFKRefno == this.DetailFKRefno).FirstOrDefault();
@@ -533,7 +533,7 @@ namespace dMobile.Controller
             {
                 sql.Append("SELECT tActivityDetail.ActivityDetailRefno AS ActivityDetailRefno,");
                 sql.Append("tActivityDetail.LocationMapRefno AS LocationMapRefno,");
-                sql.Append("tActivityDetailReceiving.ActivityDetailReceivingFKRefno AS ActivityDetailFKRefno,");
+                sql.Append("tActivityDetailReceiving.ActivityDetailFKRefno AS ActivityDetailFKRefno,");
                 sql.Append("tUnit.UnitCode AS UnitCode,");
                 sql.Append("aUnitWeight.UnitCode AS WtUnitCode,");
                 sql.Append("aUnitBase.UnitCode AS BaseUnitCode,");
@@ -590,7 +590,7 @@ namespace dMobile.Controller
                 sql.Append("UNION ");
                 sql.Append("SELECT tActivityDetail.ActivityDetailRefno,");
                 sql.Append("tActivityDetail.LocationMapRefno,");
-                sql.Append("tActivityDetailReceiving.ActivityDetailReceivingFKRefno as ActivityDetailFKRefno,");
+                sql.Append("tActivityDetailReceiving.ActivityDetailFKRefno as ActivityDetailFKRefno,");
                 sql.Append("tUnit.UnitCode,");
                 sql.Append("aUnitWeight.UnitCode AS WtUnitCode,");
                 sql.Append("aUnitBase.UnitCode AS BaseUnitCode,");
@@ -647,7 +647,7 @@ namespace dMobile.Controller
                 sql.Append("UNION ");
                 sql.Append("SELECT tActivityDetail.ActivityDetailRefno,");
                 sql.Append("tActivityDetail.LocationMapRefno,");
-                sql.Append("tActivityDetailReceiving.ActivityDetailReceivingFKRefno as ActivityDetailFKRefno,");
+                sql.Append("tActivityDetailReceiving.ActivityDetailFKRefno as ActivityDetailFKRefno,");
                 sql.Append("tUnit.UnitCode,");
                 sql.Append("aUnitWeight.UnitCode AS WtUnitCode,");
                 sql.Append("aUnitBase.UnitCode AS BaseUnitCode,");
@@ -707,7 +707,7 @@ namespace dMobile.Controller
             {
                 sql.Append("SELECT tActivityDetail.ActivityDetailRefno AS ActivityDetailRefno,");
                 sql.Append("tActivityDetail.LocationMapRefno AS LocationMapRefno,");
-                sql.Append("tActivityDetailReceiving.ActivityDetailReceivingFKRefno AS ActivityDetailFKRefno,");
+                sql.Append("tActivityDetailReceiving.ActivityDetailFKRefno AS ActivityDetailFKRefno,");
                 sql.Append("tUnit.UnitCode AS UnitCode,");
                 sql.Append("aUnitWeight.UnitCode AS WtUnitCode,");
                 sql.Append("aUnitBase.UnitCode AS BaseUnitCode,");
@@ -763,7 +763,7 @@ namespace dMobile.Controller
                 sql.Append("UNION ");
                 sql.Append("SELECT tActivityDetail.ActivityDetailRefno,");
                 sql.Append("tActivityDetail.LocationMapRefno,");
-                sql.Append("tActivityDetailReceiving.ActivityDetailReceivingFKRefno as ActivityDetailFKRefno,");
+                sql.Append("tActivityDetailReceiving.ActivityDetailFKRefno as ActivityDetailFKRefno,");
                 sql.Append("tUnit.UnitCode,");
                 sql.Append("aUnitWeight.UnitCode AS WtUnitCode,");
                 sql.Append("aUnitBase.UnitCode AS BaseUnitCode,");
@@ -819,7 +819,7 @@ namespace dMobile.Controller
                 sql.Append("UNION ");
                 sql.Append("SELECT tActivityDetail.ActivityDetailRefno,");
                 sql.Append("tActivityDetail.LocationMapRefno,");
-                sql.Append("tActivityDetailReceiving.ActivityDetailReceivingFKRefno as ActivityDetailFKRefno,");
+                sql.Append("tActivityDetailReceiving.ActivityDetailFKRefno as ActivityDetailFKRefno,");
                 sql.Append("tUnit.UnitCode,");
                 sql.Append("aUnitWeight.UnitCode AS WtUnitCode,");
                 sql.Append("aUnitBase.UnitCode AS BaseUnitCode,");

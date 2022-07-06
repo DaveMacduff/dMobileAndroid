@@ -167,7 +167,7 @@ namespace dMobile.GroundWork
             int actCountFKRefno;
             if (results != null && results.Count > 0)
             {
-                actCountFKRefno = Convert.ToInt32(results[0].ActivityCountFKRefno);
+                actCountFKRefno = Convert.ToInt32(results[0].ActivityFKRefno);
             }
             else
             {

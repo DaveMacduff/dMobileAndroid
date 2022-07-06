@@ -45,13 +45,13 @@ namespace dMobile.Controller
                     },
                 };
 
-                Label labelActivityAdjustmentStringFKRefno = new Label { VerticalOptions = LayoutOptions.Center };
+                Label labelActivityStringFKRefno = new Label { VerticalOptions = LayoutOptions.Center };
                 Label labelActivityAdjustmentDateTime = new Label { VerticalOptions = LayoutOptions.Center };
                 Label labelActivityAdjustmentDescription = new Label { VerticalOptions = LayoutOptions.Center };
 
-                labelActivityAdjustmentStringFKRefno.SetBinding(
+                labelActivityStringFKRefno.SetBinding(
                     Label.TextProperty,
-                    new Binding("ActivityAdjustmentStringFKRefno"));
+                    new Binding("ActivityStringFKRefno"));
                 labelActivityAdjustmentDateTime.SetBinding(
                     Label.TextProperty,
                     new Binding("ActivityAdjustmentDateTime", BindingMode.Default, null, null, "{0:MM/dd/yyyy}"));
@@ -59,11 +59,11 @@ namespace dMobile.Controller
                     Label.TextProperty,
                     new Binding("ActivityAdjustmentDescription"));
 
-                gridData.Children.Add(labelActivityAdjustmentStringFKRefno, 0, 0);
+                gridData.Children.Add(labelActivityStringFKRefno, 0, 0);
                 gridData.Children.Add(labelActivityAdjustmentDateTime, 0, 0);
                 gridData.Children.Add(labelActivityAdjustmentDescription, 0, 0);
 
-                Grid.SetColumn(labelActivityAdjustmentStringFKRefno, 0);
+                Grid.SetColumn(labelActivityStringFKRefno, 0);
                 Grid.SetColumn(labelActivityAdjustmentDateTime, 1);
                 Grid.SetColumn(labelActivityAdjustmentDescription, 2);
 
@@ -125,7 +125,7 @@ namespace dMobile.Controller
         /// <returns><see cref="string"/> Index name.</returns>
         public override string GetFKRefnoIdx()
         {
-            return "ActivityAdjustmentStringFKRefno";
+            return "ActivityStringFKRefno";
         }
 
         /// <summary>
@@ -205,7 +205,7 @@ namespace dMobile.Controller
                 headersList.Add(adjustment);
 
                 double dataColumnWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(
-                    adjustment.ActivityAdjustmentStringFKRefno);
+                    adjustment.ActivityStringFKRefno);
                 double dataColumnWidth1 = DependencyService.Get<IGridService>().CalculateTextWidth(
                     Convert.ToString(adjustment.ActivityAdjustmentDateTime.ToString("MM/dd/yyyy")));
                 double dataColumnWidth2 = DependencyService.Get<IGridService>().CalculateTextWidth(
@@ -247,8 +247,8 @@ namespace dMobile.Controller
             if (isSubmitBatch)
             {
                 _ = sql.Append("SELECT tActivityAdjustment.ActivityRefno AS ActivityRefno,");
-                _ = sql.Append("tActivityAdjustment.ActivityAdjustmentFKRefno AS ActivityAdjustmentFKRefno,");
-                _ = sql.Append("tActivityAdjustment.ActivityAdjustmentStringFKRefno AS ActivityAdjustmentStringFKRefno,");
+                _ = sql.Append("tActivityAdjustment.ActivityFKRefno AS ActivityFKRefno,");
+                _ = sql.Append("tActivityAdjustment.ActivityStringFKRefno AS ActivityStringFKRefno,");
                 _ = sql.Append("tLocationMapWarehouse.LocationMapWarehouseFKRefno AS LocationMapWarehouseFKRefno,");
                 _ = sql.Append("tLocationMapWarehouse.LocationMapRefno AS LocationMapRefno,");
                 _ = sql.Append("tLocationMapWarehouse.LocationMapWarehouseName AS LocationMapWarehouseName,");
@@ -264,8 +264,8 @@ namespace dMobile.Controller
                 _ = sql.AppendFormat(" WHERE tActivity.ActivityStatus <> {0}", Convert.ToInt32(SysCommon.ActStatus.NoChange));
                 _ = sql.Append(" UNION ");
                 _ = sql.Append(" SELECT tActivityAdjustment.ActivityRefno,");
-                _ = sql.Append("tActivityAdjustment.ActivityAdjustmentFKRefno,");
-                _ = sql.Append("tActivityAdjustment.ActivityAdjustmentStringFKRefno,");
+                _ = sql.Append("tActivityAdjustment.ActivityFKRefno,");
+                _ = sql.Append("tActivityAdjustment.ActivityStringFKRefno,");
                 _ = sql.Append("tLocationMapWarehouse.LocationMapWarehouseFKRefno,");
                 _ = sql.Append("tLocationMapWarehouse.LocationMapRefno,");
                 _ = sql.Append("tLocationMapWarehouse.LocationMapWarehouseName,");
@@ -284,8 +284,8 @@ namespace dMobile.Controller
                     Convert.ToInt32(SysCommon.ActStatus.NoChange));
                 _ = sql.Append(" UNION ");
                 _ = sql.Append(" SELECT tActivityAdjustment.ActivityRefno,");
-                _ = sql.Append("tActivityAdjustment.ActivityAdjustmentFKRefno,");
-                _ = sql.Append("tActivityAdjustment.ActivityAdjustmentStringFKRefno,");
+                _ = sql.Append("tActivityAdjustment.ActivityFKRefno,");
+                _ = sql.Append("tActivityAdjustment.ActivityStringFKRefno,");
                 _ = sql.Append("tLocationMapWarehouse.LocationMapWarehouseFKRefno,");
                 _ = sql.Append("tLocationMapWarehouse.LocationMapRefno,");
                 _ = sql.Append("tLocationMapWarehouse.LocationMapWarehouseName,");
@@ -307,8 +307,8 @@ namespace dMobile.Controller
             else
             {
                 _ = sql.Append("SELECT tActivityAdjustment.ActivityRefno AS ActivityRefno,");
-                _ = sql.Append("tActivityAdjustment.ActivityAdjustmentFKRefno AS ActivityAdjustmentFKRefno,");
-                _ = sql.Append("tActivityAdjustment.ActivityAdjustmentStringFKRefno AS ActivityAdjustmentStringFKRefno,");
+                _ = sql.Append("tActivityAdjustment.ActivityFKRefno AS ActivityFKRefno,");
+                _ = sql.Append("tActivityAdjustment.ActivityStringFKRefno AS ActivityStringFKRefno,");
                 _ = sql.Append("tLocationMapWarehouse.LocationMapWarehouseFKRefno AS LocationMapWarehouseFKRefno,");
                 _ = sql.Append("tLocationMapWarehouse.LocationMapRefno AS LocationMapRefno,");
                 _ = sql.Append("tLocationMapWarehouse.LocationMapWarehouseName AS LocationMapWarehouseName,");
@@ -356,7 +356,7 @@ namespace dMobile.Controller
             ObservableCollection<object> activityHeaders = new ObservableCollection<object>();
 
             this.ListHdrs = this.ListAdjustments.Where(adjustment =>
-                adjustment.ActivityAdjustmentStringFKRefno.ToLower().Contains(
+                adjustment.ActivityStringFKRefno.ToLower().Contains(
                     searchText.ToLower().Trim())).Cast<object>().ToList();
 
             foreach (Adjustment adjustment in this.ListHdrs)
@@ -377,7 +377,7 @@ namespace dMobile.Controller
             if (selectedActivity is Adjustment adjustment)
             {
                 this.SelectedActivity = adjustment;
-                this.HdrFKRefno = adjustment.ActivityAdjustmentFKRefno;
+                this.HdrFKRefno = adjustment.ActivityFKRefno;
                 this.HdrRefno = adjustment.ActivityRefno;
 
                 // Set the selected warehouse to the activity header warehouse.
@@ -410,7 +410,7 @@ namespace dMobile.Controller
         {
             if (selectedItem is Adjustment adjustment)
             {
-                this.HdrFKRefno = Convert.ToInt32(adjustment.ActivityAdjustmentFKRefno);
+                this.HdrFKRefno = Convert.ToInt32(adjustment.ActivityFKRefno);
                 this.HdrRefno = Convert.ToInt32(adjustment.ActivityRefno);
             }
 
@@ -612,7 +612,7 @@ namespace dMobile.Controller
         /// <returns><see cref="int"/> Found activity foreign key refno, else 0 if not found.</returns>
         public override int GetFKRefno(object resourceType)
         {
-            object tmpFKRefno = ((Adjustment)resourceType).ActivityAdjustmentFKRefno;
+            object tmpFKRefno = ((Adjustment)resourceType).ActivityFKRefno;
             return tmpFKRefno == null ? 0 : Convert.ToInt32(tmpFKRefno);
         }
 

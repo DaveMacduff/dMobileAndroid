@@ -62,7 +62,7 @@ namespace dMobile.Bedrock
         /// <summary>
         /// Defines the sortBy1Value.
         /// </summary>
-        private Sort sortBy1Value = new Sort() { SortValue = "ActivityCountFKRefno", SortOrder = SortOrder.ASC };
+        private Sort sortBy1Value = new Sort() { SortValue = "ActivityFKRefno", SortOrder = SortOrder.ASC };
 
         /// <summary>
         /// Defines the m_iSortBy2Index.

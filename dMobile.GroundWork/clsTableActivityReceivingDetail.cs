@@ -290,7 +290,7 @@ namespace dMobile.GroundWork
                                 recvDetailFKRefno = Convert.ToInt32(drow["ActivityDetailPurchaseOrderFKRefno"]);
                                 errMsg += Environment.NewLine + "Detail fk refno " + recvDetailFKRefno;
 
-                                transaction.Execute("INSERT INTO tActivityDetailReceiving (ActivityDetailRefno, ActivityDetailReceivingFKRefno) VALUES (?, ?)", actDetailRefno, recvDetailFKRefno);
+                                transaction.Execute("INSERT INTO tActivityDetailReceiving (ActivityDetailRefno, ActivityDetailFKRefno) VALUES (?, ?)", actDetailRefno, recvDetailFKRefno);
 
                                 this.SaveCommonDetailVariant(drow, transaction, actDetailRefno, false);
                                 this.SaveDetailExtra(drow, transaction, actDetailRefno, false);

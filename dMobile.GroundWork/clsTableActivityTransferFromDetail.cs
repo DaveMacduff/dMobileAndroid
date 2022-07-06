@@ -279,12 +279,12 @@ namespace dMobile.GroundWork
 
                                 transaction.Execute(queryInsertDetail, parametersInsertDetail.ToArray());
 
-                                actDetailTransferFKRefno = Convert.ToInt32(drow["ActivityDetailTransferFKRefno"]);
+                                actDetailTransferFKRefno = Convert.ToInt32(drow["ActivityDetailFKRefno"]);
                                 errMsg += Environment.NewLine + "Detail fk refno " + actDetailTransferFKRefno;
                                 actDetailRefno = Convert.ToInt32(transaction.ExecuteScalar<int>("SELECT last_insert_rowid() FROM tActivityDetail"));
 
                                 string queryInsertTransferDetail = "INSERT INTO tActivityDetailTransfer (ActivityDetailRefno, " +
-                                    "ActivityDetailTransferFKRefno, " +
+                                    "ActivityDetailFKRefno, " +
                                     "ActivityDetailTransferIsConfirmed, " +
                                     "ActivityDetailTransferTransModeEnum" +
                                     ") VALUES (" +

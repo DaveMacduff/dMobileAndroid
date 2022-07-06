@@ -8,60 +8,6 @@ namespace dMobile.Resources.Models
     using SQLite;
     using SQLiteNetExtensions.Attributes;
 
-    //string sqlTable = "CREATE TABLE IF NOT EXISTS tActivityDetail"
-    //+ "("
-    //+ "ActivityDetailRefno INTEGER NOT NULL CONSTRAINT PK_ActivityDetailOnActivityDetailRefno PRIMARY KEY,"
-    //+ "ActivityDetailSubType INTEGER NOT NULL,"
-    //+ "ActivityDetailStatus INTEGER NOT NULL,"
-    //+ "ActivityItemRefno INTEGER NOT NULL,"
-    //+ "LocationMapRefno INTEGER NOT NULL,"
-    //+ "ProductUnitRefno INTEGER NOT NULL,"
-    //+ "ActivityDetailUniqueSchemeID nvarchar(80),"
-    //+ "ActivityDetailSchemeID nvarchar(80),"
-    //+ "ActivityDetailQuantity numeric(11, 3) NOT NULL,"
-    //+ "ActivityDetailBaseQuantity numeric(11, 3) NOT NULL,"
-    //+ "ActivityDetailWeightQuantity numeric(11, 3) NOT NULL,"
-    //+ "ActivityDetailSingleTradeItemSerialNumber nvarchar(20) NOT NULL,"
-    //+ "ActivityDetailLogisticUnitBatchLotNumber nvarchar(20) NOT NULL,"
-    //+ "ActivityDetailLogisticUnitBestBeforeSellByDate datetime NOT NULL,"
-    //+ "ActivityDetailLogisticUnitExpiryUseByDate datetime NOT NULL,"
-    //+ "ActivityDetailLogisticUnitProductionDate datetime NOT NULL,"
-    //+ "ActivityDetailLogisticUnitDueDate datetime NOT NULL,"
-    //+ "ActivityDetailLogisticUnitPackagingDate datetime NOT NULL,"
-    //+ "ActivityDetailLogisticUnitSkidNumber nvarchar(18) NOT NULL, "
-
-    //+ "CONSTRAINT ActivityDetailTactItemOnActivityItemRefno FOREIGN KEY (ActivityItemRefno) REFERENCES tActivityItem(ActivityItemRefno) ON DELETE CASCADE ON UPDATE CASCADE, "
-    //+ "CONSTRAINT ActivityDetailTactItemOnLocationMapRefno FOREIGN KEY (LocationMapRefno) REFERENCES tLocationMap(LocationMapRefno) ON DELETE CASCADE ON UPDATE CASCADE, "
-    //+ "CONSTRAINT ActivityDetailTactItemOnProductUnitRefno FOREIGN KEY (ProductUnitRefno) REFERENCES tProductUnit(ProductUnitRefno) ON DELETE CASCADE ON UPDATE CASCADE"
-    //+ ")";
-
-    //if (this.OnNubStatOut != null)
-    //{
-    //    this.MsgEventArgs.StatusOutMsg = "Creating activity detail table.";
-    //    this.OnNubStatOut(this, this.MsgEventArgs);
-    //}
-
-    //await this.RunDDLCommand(sqlTable);
-
-    //        string sqlNdx = "CREATE UNIQUE INDEX IF NOT EXISTS UQ_ActivityDetailOnActivityDetailRefnoAndActivityDetailSubType "
-    //            + "ON tActivityDetail(ActivityDetailRefno ASC, ActivityDetailSubType ASC)";
-    //await this.RunDDLCommand(sqlNdx);
-
-    //sqlNdx = "CREATE INDEX IF NOT EXISTS ActivityDetailOnActivityDetailUniqueSchemeID ON "
-    //            + "tActivityDetail(ActivityDetailUniqueSchemeID ASC)";
-    //await this.RunDDLCommand(sqlNdx);
-
-    //sqlNdx = "CREATE INDEX IF NOT EXISTS FK_ActivityDetailOnActivityItemRefno ON "
-    //            + "tActivityDetail(ActivityItemRefno ASC)";
-    //await this.RunDDLCommand(sqlNdx);
-
-    //sqlNdx = "CREATE INDEX IF NOT EXISTS FK_ActivityDetailOnLocationMapRefno ON "
-    //            + "tActivityDetail(LocationMapRefno ASC)";                                                             
-    //await this.RunDDLCommand(sqlNdx);
-
-    //sqlNdx = "CREATE INDEX IF NOT EXISTS FK_ActivityDetailOnProductUnitRefno ON "
-    //            + "tActivityDetail(ProductUnitRefno ASC)";
-    //await this.RunDDLCommand(sqlNdx);
     [Table("tActivityDetail")]
     public class tActivityDetailModel
     {

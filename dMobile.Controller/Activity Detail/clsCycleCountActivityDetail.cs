@@ -223,7 +223,7 @@ namespace dMobile.Controller
             if (this.SysEnv.SysSettings.IsDisconnectedMode)
             {
                 int actDetailRefno = await this.InsertDetailDisconnected();
-                await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync("INSERT INTO tActivityDetailCount (ActivityDetailRefno, ActivityDetailCountFKRefno) VALUES (?, ?)", Convert.ToInt32(actDetailRefno), Convert.ToInt32(this.DetailFKRefno));
+                await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync("INSERT INTO tActivityDetailCount (ActivityDetailRefno, ActivityDetailFKRefno) VALUES (?, ?)", Convert.ToInt32(actDetailRefno), Convert.ToInt32(this.DetailFKRefno));
                 this.IsUpdateView = true;
             }
             else
@@ -268,7 +268,7 @@ namespace dMobile.Controller
                 }
             }
 
-            this.InsertListDetail("ActivityDetailCountFKRefno");
+            this.InsertListDetail("ActivityDetailFKRefno");
         }
 
         /// <summary>
@@ -457,7 +457,7 @@ namespace dMobile.Controller
             {
                 sql.Append("SELECT tActivityDetail.ActivityDetailRefno AS ActivityDetailRefno,");
                 sql.Append("tActivityDetail.LocationMapRefno AS LocationMapRefno,");
-                sql.Append("tActivityDetailCount.ActivityDetailCountFKRefno AS ActivityDetailFKRefno,");
+                sql.Append("tActivityDetailCount.ActivityDetailFKRefno AS ActivityDetailFKRefno,");
                 sql.Append("tUnit.UnitCode AS UnitCode,");
                 sql.Append("aUnitWeight.UnitCode AS WtUnitCode,");
                 sql.Append("aUnitBase.UnitCode AS BaseUnitCode,");
@@ -513,7 +513,7 @@ namespace dMobile.Controller
                 sql.Append("UNION ");
                 sql.Append("SELECT tActivityDetail.ActivityDetailRefno,");
                 sql.Append("tActivityDetail.LocationMapRefno,");
-                sql.Append("tActivityDetailCount.ActivityDetailCountFKRefno AS ActivityDetailFKRefno,");
+                sql.Append("tActivityDetailCount.ActivityDetailFKRefno AS ActivityDetailFKRefno,");
                 sql.Append("tUnit.UnitCode,");
                 sql.Append("aUnitWeight.UnitCode AS WtUnitCode,");
                 sql.Append("aUnitBase.UnitCode AS BaseUnitCode,");
@@ -569,7 +569,7 @@ namespace dMobile.Controller
                 sql.Append("UNION ");
                 sql.Append("SELECT tActivityDetail.ActivityDetailRefno,");
                 sql.Append("tActivityDetail.LocationMapRefno,");
-                sql.Append("tActivityDetailCount.ActivityDetailCountFKRefno AS ActivityDetailFKRefno,");
+                sql.Append("tActivityDetailCount.ActivityDetailFKRefno AS ActivityDetailFKRefno,");
                 sql.Append("tUnit.UnitCode,");
                 sql.Append("aUnitWeight.UnitCode AS WtUnitCode,");
                 sql.Append("aUnitBase.UnitCode AS BaseUnitCode,");
@@ -661,7 +661,7 @@ namespace dMobile.Controller
         {
             string slotQuery = "SELECT tActivityDetail.ActivityDetailRefno AS ActivityDetailRefno, " +
             "tActivityDetail.LocationMapRefno AS LocationMapRefno, " +
-            "tActivityDetailCount.ActivityDetailCountFKRefno AS ActivityDetailCountFKRefno, " +
+            "tActivityDetailCount.ActivityDetailFKRefno AS ActivityDetailFKRefno, " +
             "tUnit.UnitCode AS UnitCode, " +
             "aUnitWeight.UnitCode AS WtUnitCode, " +
             "aUnitBase.UnitCode AS BaseUnitCode, " +
@@ -726,7 +726,7 @@ namespace dMobile.Controller
         {
             string sectionQuery = "SELECT tActivityDetail.ActivityDetailRefno AS ActivityDetailRefno, " +
              "tActivityDetail.LocationMapRefno AS LocationMapRefno, " +
-             "tActivityDetailCount.ActivityDetailCountFKRefno AS ActivityDetailCountFKRefno, " +
+             "tActivityDetailCount.ActivityDetailFKRefno AS ActivityDetailFKRefno, " +
              "tUnit.UnitCode AS UnitCode, " +
              "aUnitWeight.UnitCode AS WtUnitCode, " +
              "aUnitBase.UnitCode AS BaseUnitCode, " +
@@ -792,7 +792,7 @@ namespace dMobile.Controller
             string warehouseQuery =
                 "SELECT tActivityDetail.ActivityDetailRefno AS ActivityDetailRefno, " +
                  "tActivityDetail.LocationMapRefno AS LocationMapRefno, " +
-                 "tActivityDetailCount.ActivityDetailCountFKRefno AS ActivityDetailCountFKRefno, " +
+                 "tActivityDetailCount.ActivityDetailFKRefno AS ActivityDetailFKRefno, " +
                  "tUnit.UnitCode AS UnitCode, " +
                  "aUnitWeight.UnitCode AS WtUnitCode, " +
                  "aUnitBase.UnitCode AS BaseUnitCode, " +
