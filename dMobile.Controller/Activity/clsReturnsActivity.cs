@@ -219,9 +219,9 @@ namespace dMobile.Controller
 
             if (isSubmitBatch)
             {
-                sql.Append("SELECT tActivityReturns.ActivityRefno AS ActivityRefno,");
-                sql.Append("tActivityReturns.ActivityFKRefno AS ActivityFKRefno,");
-                sql.Append("tActivityReturns.ActivityStringFKRefno AS ActivityStringFKRefno,");
+                sql.Append("SELECT tActivityReturns.ActivityRefno,");
+                sql.Append("tActivityReturns.ActivityFKRefno,");
+                sql.Append("tActivityReturns.ActivityStringFKRefno,");
                 sql.Append("tActivityReturns.ActivityReturnsOrderedDateTime AS ActivityReturnsOrderedDateTime,");
                 sql.Append("tActivityReturns.ActivityReturnsDeliveryDateTime AS ActivityReturnsDeliveryDateTime,");
                 sql.Append("tLocationMapWarehouse.LocationMapRefno AS LocationMapRefno,");
@@ -275,9 +275,9 @@ namespace dMobile.Controller
             }
             else
             {
-                sql.Append("SELECT tActivityReturns.ActivityRefno AS ActivityRefno,");
-                sql.Append("tActivityReturns.ActivityFKRefno AS ActivityFKRefno,");
-                sql.Append("tActivityReturns.ActivityStringFKRefno AS ActivityStringFKRefno,");
+                sql.Append("SELECT tActivityReturns.ActivityRefno,");
+                sql.Append("tActivityReturns.ActivityFKRefno,");
+                sql.Append("tActivityReturns.ActivityStringFKRefno,");
                 sql.Append("tActivityReturns.ActivityReturnsOrderedDateTime AS ActivityReturnsOrderedDateTime,");
                 sql.Append("tActivityReturns.ActivityReturnsDeliveryDateTime AS ActivityReturnsDeliveryDateTime,");
                 sql.Append("tLocationMapWarehouse.LocationMapRefno AS LocationMapRefno,");

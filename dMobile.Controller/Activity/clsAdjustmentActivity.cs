@@ -246,9 +246,9 @@ namespace dMobile.Controller
 
             if (isSubmitBatch)
             {
-                _ = sql.Append("SELECT tActivityAdjustment.ActivityRefno AS ActivityRefno,");
-                _ = sql.Append("tActivityAdjustment.ActivityFKRefno AS ActivityFKRefno,");
-                _ = sql.Append("tActivityAdjustment.ActivityStringFKRefno AS ActivityStringFKRefno,");
+                _ = sql.Append("SELECT tActivityAdjustment.ActivityRefno,");
+                _ = sql.Append("tActivityAdjustment.ActivityFKRefno,");
+                _ = sql.Append("tActivityAdjustment.ActivityStringFKRefno,");
                 _ = sql.Append("tLocationMapWarehouse.LocationMapWarehouseFKRefno AS LocationMapWarehouseFKRefno,");
                 _ = sql.Append("tLocationMapWarehouse.LocationMapRefno AS LocationMapRefno,");
                 _ = sql.Append("tLocationMapWarehouse.LocationMapWarehouseName AS LocationMapWarehouseName,");
@@ -306,9 +306,9 @@ namespace dMobile.Controller
             }
             else
             {
-                _ = sql.Append("SELECT tActivityAdjustment.ActivityRefno AS ActivityRefno,");
-                _ = sql.Append("tActivityAdjustment.ActivityFKRefno AS ActivityFKRefno,");
-                _ = sql.Append("tActivityAdjustment.ActivityStringFKRefno AS ActivityStringFKRefno,");
+                _ = sql.Append("SELECT tActivityAdjustment.ActivityRefno,");
+                _ = sql.Append("tActivityAdjustment.ActivityFKRefno,");
+                _ = sql.Append("tActivityAdjustment.ActivityStringFKRefno,");
                 _ = sql.Append("tLocationMapWarehouse.LocationMapWarehouseFKRefno AS LocationMapWarehouseFKRefno,");
                 _ = sql.Append("tLocationMapWarehouse.LocationMapRefno AS LocationMapRefno,");
                 _ = sql.Append("tLocationMapWarehouse.LocationMapWarehouseName AS LocationMapWarehouseName,");

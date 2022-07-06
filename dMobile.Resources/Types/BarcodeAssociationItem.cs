@@ -6,7 +6,7 @@ namespace dMobile.Resources.Types
 {
     using System;
 
-    //sql.Append("SELECT tActivityItem.ActivityItemRefno AS ActivityItemRefno,"); int
+    //sql.Append("SELECT tActivityItem.ActivityItemRefno,"); int
     //sql.Append("tProduct.ProductCode AS ProductCode,"); string
     //sql.Append("tProductUnit.ProductUnitRefno AS ProductUnitRefno,"); int
     //sql.Append("tProductUnit.ProductUnitBC AS ProductUnitBC,"); string

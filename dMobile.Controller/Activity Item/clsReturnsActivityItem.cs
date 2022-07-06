@@ -409,9 +409,9 @@ namespace dMobile.Controller
             string query;
             if (isSubmitBatch)
             {
-                query = "SELECT tActivityItemReturns.ActivityItemRefno AS ActivityItemRefno, " +
-                "tActivityItemReturns.ActivityItemFKRefno AS ActivityItemFKRefno, " +
-                "tActivityItemReturns.ActivityItemStringFKRefno AS ActivityItemStringFKRefno, " +
+                query = "SELECT tActivityItemReturns.ActivityItemRefno, " +
+                "tActivityItemReturns.ActivityItemFKRefno, " +
+                "tActivityItemReturns.ActivityItemStringFKRefno, " +
                 "tProductUnit.ProductUnitRefno AS ProductUnitRefno, " +
                 "tProduct.ProductRefno AS ProductRefno, " +
                 "tProduct.ProductCode AS ProductCode, " +
@@ -485,9 +485,9 @@ namespace dMobile.Controller
             }
             else
             {
-                query = "SELECT tActivityItemReturns.ActivityItemRefno AS ActivityItemRefno, " +
-                "tActivityItemReturns.ActivityItemFKRefno AS ActivityItemFKRefno, " +
-                "tActivityItemReturns.ActivityItemStringFKRefno AS ActivityItemStringFKRefno, " +
+                query = "SELECT tActivityItemReturns.ActivityItemRefno, " +
+                "tActivityItemReturns.ActivityItemFKRefno, " +
+                "tActivityItemReturns.ActivityItemStringFKRefno, " +
                 "tProductUnit.ProductUnitRefno AS ProductUnitRefno, " +
                 "tProduct.ProductRefno AS ProductRefno, " +
                 "tProduct.ProductCode AS ProductCode, " +

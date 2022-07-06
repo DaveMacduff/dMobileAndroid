@@ -273,7 +273,7 @@ namespace dMobile.Controller
 
             if (isSubmitBatch)
             {
-                sql.Append("SELECT tActivityItem.ActivityItemRefno AS ActivityItemRefno,");
+                sql.Append("SELECT tActivityItem.ActivityItemRefno,");
                 sql.Append("tProduct.ProductCode AS ProductCode,");
                 sql.Append("tProductUnit.ProductUnitRefno AS ProductUnitRefno,");
                 sql.Append("tProductUnit.ProductUnitBC AS ProductUnitBC,");
@@ -298,7 +298,7 @@ namespace dMobile.Controller
             }
             else
             {
-                sql.Append("SELECT tActivityItem.ActivityItemRefno AS ActivityItemRefno,");
+                sql.Append("SELECT tActivityItem.ActivityItemRefno,");
                 sql.Append("tProduct.ProductCode AS ProductCode,");
                 sql.Append("tProductUnit.ProductUnitRefno AS ProductUnitRefno,");
                 sql.Append("tProductUnit.ProductUnitBC AS ProductUnitBC,");

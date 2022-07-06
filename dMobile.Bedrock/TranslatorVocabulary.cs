@@ -6481,69 +6481,69 @@ namespace dMobile.Bedrock
         DatabaseExceptionOccurredSavingWorkSheetItemsFailed = 1291,
 
         /// <summary>
-        /// Seeding receivings.
+        /// Seeding receiving.
         /// </summary>
-        SeedingReceivings = 1292,
+        Seedingreceiving = 1292,
 
         /// <summary>
-        /// Seeding receivings complete.
+        /// Seeding receiving complete.
         /// </summary>
-        SeedingReceivingsComplete = 1293,
+        SeedingreceivingComplete = 1293,
 
         /// <summary>
-        /// Seeding receivings failed.
+        /// Seeding receiving failed.
         /// </summary>
-        SeedingReceivingsFailed = 1294,
+        SeedingreceivingFailed = 1294,
 
         /// <summary>
-        /// {0} receivings.
+        /// {0} receiving.
         /// </summary>
-        Receivings = 1295,
+        receiving = 1295,
 
         /// <summary>
-        /// Database exception occurred. Receivings status failed.
+        /// Database exception occurred. receiving status failed.
         /// </summary>
-        DatabaseExceptionOccurredReceivingsStatusFailed = 1296,
+        DatabaseExceptionOccurredreceivingStatusFailed = 1296,
 
         /// <summary>
-        /// Purging receivings.
+        /// Purging receiving.
         /// </summary>
-        PurgingReceivings = 1297,
+        Purgingreceiving = 1297,
 
         /// <summary>
-        /// Purging receivings completed.
+        /// Purging receiving completed.
         /// </summary>
-        PurgingReceivingsCompleted = 1298,
+        PurgingreceivingCompleted = 1298,
 
         /// <summary>
-        /// Purging receivings failed.
+        /// Purging receiving failed.
         /// </summary>
-        PurgingReceivingsFailed = 1299,
+        PurgingreceivingFailed = 1299,
 
         /// <summary>
-        /// Database exception occurred. Purging receivings failed.
+        /// Database exception occurred. Purging receiving failed.
         /// </summary>
-        DatabaseExceptionOccurredPurgingReceivingsFailed = 1300,
+        DatabaseExceptionOccurredPurgingreceivingFailed = 1300,
 
         /// <summary>
-        /// Saving receivings.
+        /// Saving receiving.
         /// </summary>
-        SavingReceivings = 1301,
+        Savingreceiving = 1301,
 
         /// <summary>
-        /// Saving receivings complete.
+        /// Saving receiving complete.
         /// </summary>
-        SavingReceivingsComplete = 1302,
+        SavingreceivingComplete = 1302,
 
         /// <summary>
-        /// Saving receivings failed.
+        /// Saving receiving failed.
         /// </summary>
-        SavingReceivingsFailed = 1303,
+        SavingreceivingFailed = 1303,
 
         /// <summary>
-        /// Database exception occurred. Saving receivings failed.
+        /// Database exception occurred. Saving receiving failed.
         /// </summary>
-        DatabaseExceptionOccurredSavingReceivingsFailed = 1304,
+        DatabaseExceptionOccurredSavingreceivingFailed = 1304,
 
         /// <summary>
         /// Seeding receiving details.

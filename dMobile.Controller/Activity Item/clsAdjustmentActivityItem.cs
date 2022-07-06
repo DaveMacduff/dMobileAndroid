@@ -489,9 +489,9 @@ namespace dMobile.Controller
             {
                 // Gather any newly added line items.
                 // Also perform union into tActivityDetail to check of detail exists.
-                sql.Append("SELECT tActivityItemAdjustment.ActivityItemRefno AS ActivityItemRefno, ");
-                sql.Append("tActivityItemAdjustment.ActivityItemFKRefno AS ActivityItemFKRefno,");
-                sql.Append("tActivityItemAdjustment.ActivityItemStringFKRefno AS ActivityItemStringFKRefno,");
+                sql.Append("SELECT tActivityItemAdjustment.ActivityItemRefno, ");
+                sql.Append("tActivityItemAdjustment.ActivityItemFKRefno,");
+                sql.Append("tActivityItemAdjustment.ActivityItemStringFKRefno,");
                 sql.Append("tProductUnit.ProductUnitRefno AS ProductUnitRefno,");
                 sql.Append("tProduct.ProductRefno AS ProductRefno,");
                 sql.Append("tProduct.ProductCode AS ProductCode,");
@@ -552,9 +552,9 @@ namespace dMobile.Controller
             }
             else
             {
-                sql.Append("SELECT tActivityItemAdjustment.ActivityItemRefno AS ActivityItemRefno,");
-                sql.Append("tActivityItemAdjustment.ActivityItemFKRefno AS ActivityItemFKRefno,");
-                sql.Append("tActivityItemAdjustment.ActivityItemStringFKRefno AS ActivityItemStringFKRefno,");
+                sql.Append("SELECT tActivityItemAdjustment.ActivityItemRefno,");
+                sql.Append("tActivityItemAdjustment.ActivityItemFKRefno,");
+                sql.Append("tActivityItemAdjustment.ActivityItemStringFKRefno,");
                 sql.Append("tProductUnit.ProductUnitRefno AS ProductUnitRefno,");
                 sql.Append("tProduct.ProductRefno AS ProductRefno,");
                 sql.Append("tProduct.ProductCode AS ProductCode,");
@@ -641,8 +641,8 @@ namespace dMobile.Controller
         {
             int foundActItemRefno = 0;
             StringBuilder sql = new StringBuilder();
-            sql.Append("SELECT tActivityItem.ActivityItemRefno AS ActivityItemRefno,");
-            sql.Append("tActivityItemAdjustment.ActivityItemFKRefno AS ActivityItemFKRefno,");
+            sql.Append("SELECT tActivityItem.ActivityItemRefno,");
+            sql.Append("tActivityItemAdjustment.ActivityItemFKRefno,");
             sql.Append("tActivityItemAdjustment.ProductUnitRefno AS ProductUnitRefno,");
             sql.Append("tLocationMapWarehouse.LocationMapRefno AS LocationMapRefno ");
             sql.Append("FROM tActivityItemAdjustment ");

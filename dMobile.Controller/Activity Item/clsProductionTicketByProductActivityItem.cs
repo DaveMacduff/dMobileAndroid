@@ -518,9 +518,9 @@ namespace dMobile.Controller
             {
                 // Gather any newly added line items.
                 // Also perform union into tActivityDetail to check of detail exists.
-                sql.Append("SELECT tActivityItemProduction.ActivityItemRefno AS ActivityItemRefno,");
-                sql.Append("tActivityItemProductionByProduct.ActivityItemFKRefno AS ActivityItemFKRefno,");
-                sql.Append("tActivityItemProductionByProduct.ActivityItemStringFKRefno AS ActivityItemStringFKRefno,");
+                sql.Append("SELECT tActivityItemProduction.ActivityItemRefno,");
+                sql.Append("tActivityItemProductionByProduct.ActivityItemFKRefno,");
+                sql.Append("tActivityItemProductionByProduct.ActivityItemStringFKRefno,");
                 sql.Append("tProductUnit.ProductUnitRefno AS ProductUnitRefno,");
                 sql.Append("tProduct.ProductRefno AS ProductRefno,");
                 sql.Append("tProduct.ProductCode AS ProductCode,");
@@ -597,9 +597,9 @@ namespace dMobile.Controller
             }
             else
             {
-                sql.Append("SELECT tActivityItemProduction.ActivityItemRefno AS ActivityItemRefno,");
-                sql.Append("tActivityItemProductionByProduct.ActivityItemFKRefno AS ActivityItemFKRefno,");
-                sql.Append("tActivityItemProductionByProduct.ActivityItemStringFKRefno AS ActivityItemStringFKRefno,");
+                sql.Append("SELECT tActivityItemProduction.ActivityItemRefno,");
+                sql.Append("tActivityItemProductionByProduct.ActivityItemFKRefno,");
+                sql.Append("tActivityItemProductionByProduct.ActivityItemStringFKRefno,");
                 sql.Append("tProductUnit.ProductUnitRefno AS ProductUnitRefno,");
                 sql.Append("tProduct.ProductRefno AS ProductRefno,");
                 sql.Append("tProduct.ProductCode AS ProductCode,");

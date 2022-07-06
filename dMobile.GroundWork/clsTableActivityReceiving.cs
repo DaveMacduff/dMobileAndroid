@@ -35,7 +35,7 @@ namespace dMobile.GroundWork
         {
             try
             {
-                this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Seeding receivings.", true);
+                this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Seeding receiving.", true);
 
                 string reqData = await this.SendRequest();
 
@@ -51,13 +51,13 @@ namespace dMobile.GroundWork
                     await this.Save(reqData);
                 }
 
-                this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Seeding receivings complete.", true);
+                this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Seeding receiving complete.", true);
             }
             catch (Exception ex)
             {
-                this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Seeding receivings failed.", true);
+                this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Seeding receiving failed.", true);
 
-                throw new Exception("Seeding receivings failed.", ex);
+                throw new Exception("Seeding receiving failed.", ex);
             }
         }
 
@@ -72,11 +72,11 @@ namespace dMobile.GroundWork
             {
                 rowsAffected = Convert.ToInt32(await DatabaseConnection.GetInstance().SQLConn.ExecuteScalarAsync<int>("SELECT COUNT(ActivityRefno) FROM tActivity WHERE ActivitySubType = ?", Convert.ToInt32(SysCommon.ActSubTypes.Receiving)));
 
-                this.DataAccessStatusOutHandler(this, EventArgs.Empty, string.Format("{0} receivings.", rowsAffected), true);
+                this.DataAccessStatusOutHandler(this, EventArgs.Empty, string.Format("{0} receiving.", rowsAffected), true);
             }
             catch (SQLiteException ex)
             {
-                throw new Exception("Database exception occurred. Receivings status failed.", ex);
+                throw new Exception("Database exception occurred. Receiving status failed.", ex);
             }
 
             return rowsAffected;
@@ -89,7 +89,7 @@ namespace dMobile.GroundWork
         {
             try
             {
-                this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging receivings.", true);
+                this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging receiving.", true);
 
                 string query = "DELETE FROM tActivityReceiving";
                 await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(query, Convert.ToInt32(SysCommon.ActSubTypes.Receiving));
@@ -97,14 +97,14 @@ namespace dMobile.GroundWork
                 query = "DELETE FROM tActivity WHERE ActivitySubType = ?";
                 await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(query, Convert.ToInt32(SysCommon.ActSubTypes.Receiving));
 
-                this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging receivings completed.", true);
+                this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging receiving completed.", true);
             }
             catch (SQLiteException ex)
             {
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Database exception occurred.", true);
-                this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging receivings failed.", true);
+                this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging receiving failed.", true);
 
-                throw new Exception("Database exception occurred. Purging receivings failed.", ex);
+                throw new Exception("Database exception occurred. Purging receiving failed.", ex);
             }
         }
 
@@ -124,7 +124,7 @@ namespace dMobile.GroundWork
 
                         ds.ReadXml(SysCommon.GetXmlReader(ref reqData), XmlReadMode.Auto);
 
-                        this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving receivings.", false);
+                        this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving receiving.", false);
 
                         if (ds.Tables.Count != 0)
                         {
@@ -144,7 +144,7 @@ namespace dMobile.GroundWork
                             {
                                 transaction.Execute("INSERT INTO tActivity (ActivityStatus, ActivitySubType) VALUES (?, ?)", 0, Convert.ToInt32(SysCommon.ActSubTypes.Receiving));
                                 actRefno = Convert.ToInt32(transaction.ExecuteScalar<int>("SELECT last_insert_rowid() FROM tActivity"));
-                                recvFKRefno = Convert.ToInt32(drow["ActivityPurchaseOrderFKRefno"]);
+                                recvFKRefno = Convert.ToInt32(drow["ActivityFKRefno"]);
                                 recvPONumber = drow["ActivityPurchaseOrderPONumber"].ToString();
                                 whsLocMapRefno = this.GetWhsLocMapRefnoFromDataRow(drow, transaction);
 
@@ -202,7 +202,7 @@ namespace dMobile.GroundWork
 
                         transaction.Commit();
 
-                        this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving receivings complete.", false);
+                        this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving receiving complete.", false);
                     }
                 }
                 catch (SQLiteException ex)
@@ -210,8 +210,8 @@ namespace dMobile.GroundWork
                     transaction.Rollback();
 
                     this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Database exception occurred.", false);
-                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving receivings failed.", false);
-                    throw new Exception("Database exception occurred. Saving receivings failed.", ex);
+                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving receiving failed.", false);
+                    throw new Exception("Database exception occurred. Saving receiving failed.", ex);
                 }
             });
         }

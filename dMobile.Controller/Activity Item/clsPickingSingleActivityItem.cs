@@ -730,9 +730,9 @@ namespace dMobile.Controller
 
             if (isSubmitBatch)
             {
-                sql.Append("SELECT tActivityItemPicking.ActivityItemRefno AS ActivityItemRefno,");
-                sql.Append("tActivityItemPicking.ActivityItemFKRefno AS ActivityItemFKRefno,");
-                sql.Append("tActivityItemPicking.ActivityItemStringFKRefno AS ActivityItemStringFKRefno,");
+                sql.Append("SELECT tActivityItemPicking.ActivityItemRefno,");
+                sql.Append("tActivityItemPicking.ActivityItemFKRefno,");
+                sql.Append("tActivityItemPicking.ActivityItemStringFKRefno,");
                 sql.Append("tProductUnit.ProductUnitRefno AS ProductUnitRefno,");
                 sql.Append("tProduct.ProductRefno AS ProductRefno,");
                 sql.Append("tProduct.ProductCode AS ProductCode,");
@@ -821,9 +821,9 @@ namespace dMobile.Controller
             }
             else
             {
-                sql.Append("SELECT tActivityItemPicking.ActivityItemRefno AS ActivityItemRefno,");
-                sql.Append("tActivityItemPicking.ActivityItemFKRefno AS ActivityItemFKRefno,");
-                sql.Append("tActivityItemPicking.ActivityItemStringFKRefno AS ActivityItemStringFKRefno,");
+                sql.Append("SELECT tActivityItemPicking.ActivityItemRefno,");
+                sql.Append("tActivityItemPicking.ActivityItemFKRefno,");
+                sql.Append("tActivityItemPicking.ActivityItemStringFKRefno,");
                 sql.Append("tProductUnit.ProductUnitRefno AS ProductUnitRefno,");
                 sql.Append("tProduct.ProductRefno AS ProductRefno,");
                 sql.Append("tProduct.ProductCode AS ProductCode,");

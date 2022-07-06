@@ -527,9 +527,9 @@ namespace dMobile.Controller
 
             if (isSubmitBatch)
             {
-                sql.Append("SELECT tActivityItemCount.ActivityItemRefno AS ActivityItemRefno,");
-                sql.Append("tActivityItemCount.ActivityItemFKRefno AS ActivityItemFKRefno,");
-                sql.Append("tActivityItemCount.ActivityItemStringFKRefno AS ActivityItemStringFKRefno,");
+                sql.Append("SELECT tActivityItemCount.ActivityItemRefno,");
+                sql.Append("tActivityItemCount.ActivityItemFKRefno,");
+                sql.Append("tActivityItemCount.ActivityItemStringFKRefno,");
                 sql.Append("tProductUnit.ProductUnitRefno AS ProductUnitRefno,");
                 sql.Append("tProduct.ProductRefno AS ProductRefno,");
                 sql.Append("tProduct.ProductCode AS ProductCode,");
@@ -737,9 +737,9 @@ namespace dMobile.Controller
             }
             else
             {
-                sql.Append("SELECT tActivityItemCount.ActivityItemRefno AS ActivityItemRefno,");
-                sql.Append("tActivityItemCount.ActivityItemFKRefno AS ActivityItemFKRefno,");
-                sql.Append("tActivityItemCount.ActivityItemStringFKRefno AS ActivityItemStringFKRefno,");
+                sql.Append("SELECT tActivityItemCount.ActivityItemRefno,");
+                sql.Append("tActivityItemCount.ActivityItemFKRefno,");
+                sql.Append("tActivityItemCount.ActivityItemStringFKRefno,");
                 sql.Append("tProductUnit.ProductUnitRefno AS ProductUnitRefno,");
                 sql.Append("tProduct.ProductRefno AS ProductRefno,");
                 sql.Append("tProduct.ProductCode AS ProductCode,");
@@ -935,8 +935,8 @@ namespace dMobile.Controller
             int foundActItemRefno = 0;
             StringBuilder sql = new StringBuilder();
 
-            sql.Append("SELECT tActivityItem.ActivityItemRefno AS ActivityItemRefno,");
-            sql.Append("tActivityItemCount.ActivityItemFKRefno AS ActivityItemFKRefno,");
+            sql.Append("SELECT tActivityItem.ActivityItemRefno,");
+            sql.Append("tActivityItemCount.ActivityItemFKRefno,");
             sql.Append("tActivityItemCount.ProductUnitRefno AS ProductUnitRefno,");
             sql.Append("tLocationMapSlot.LocationMapRefno AS LocationMapRefno ");
             sql.Append("FROM tActivityItemCount ");

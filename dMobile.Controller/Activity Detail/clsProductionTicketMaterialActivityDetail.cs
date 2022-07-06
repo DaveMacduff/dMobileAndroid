@@ -449,9 +449,9 @@ namespace dMobile.Controller
 
             if (isSubmitBatch)
             {
-                sql.Append("SELECT tActivityDetail.ActivityDetailRefno AS ActivityDetailRefno,");
+                sql.Append("SELECT tActivityDetail.ActivityDetailRefno,");
                 sql.Append("tActivityDetail.LocationMapRefno AS LocationMapRefno,");
-                sql.Append("tActivityDetailProductionMaterial.ActivityDetailFKRefno AS ActivityDetailFKRefno,");
+                sql.Append("tActivityDetailProductionMaterial.ActivityDetailFKRefno,");
                 sql.Append("tUnit.UnitCode AS UnitCode,");
                 sql.Append("aUnitWeight.UnitCode AS WtUnitCode,");
                 sql.Append("aUnitBase.UnitCode AS BaseUnitCode,");
@@ -617,9 +617,9 @@ namespace dMobile.Controller
             }
             else
             {
-                sql.Append("SELECT tActivityDetail.ActivityDetailRefno AS ActivityDetailRefno,");
+                sql.Append("SELECT tActivityDetail.ActivityDetailRefno,");
                 sql.Append("tActivityDetail.LocationMapRefno AS LocationMapRefno,");
-                sql.Append("tActivityDetailProductionMaterial.ActivityDetailFKRefno AS ActivityDetailFKRefno,");
+                sql.Append("tActivityDetailProductionMaterial.ActivityDetailFKRefno,");
                 sql.Append("tUnit.UnitCode AS UnitCode,");
                 sql.Append("aUnitWeight.UnitCode AS WtUnitCode,");
                 sql.Append("aUnitBase.UnitCode AS BaseUnitCode,");
@@ -1095,21 +1095,12 @@ namespace dMobile.Controller
                 {
                     detail = new ProductionTicketMaterialDetail();
                     detailToBeAdded = true;
-                    detail.ActivityDetailRefno = 0;
-                    detail.ProductRefno = this.ActItem.ProdInfo.Refno;
-                    detail.ProductUnitRefno = this.ActItem.ProdInfo.UnitRefno;
-                    detail.ProductCode = this.ActItem.ProdInfo.Code;
-                    detail.ProductUnitBC = this.ActItem.ProdInfo.UnitBC;
-                    detail.ProductUnitIsBC = this.ActItem.ProdInfo.UnitIsBC;
-                    detail.ProductDescription = this.ActItem.ProdInfo.Desc;
-                    detail.ProductUnitSizeDescription = this.ActItem.ProdInfo.UnitSizeDesc;
-                    detail.UnitCode = this.ActItem.ProdInfo.UnitCode;
-                    detail.BaseUnitCode = this.ActItem.ProdInfo.BaseUnitCode;
-                    detail.WtUnitCode = this.ActItem.ProdInfo.WeightUnitCode;
-                    detail.ActivityDetailQuantity = 0;
-                    detail.ActivityDetailBaseQuantity = 0;
-                    detail.ActivityDetailWeightQuantity = 0;
+                    detail.ActivityDetailRefno = this.DetailRefno;
+                    detail.ActivityDetailFKRefno = this.DetailFKRefno;
                     detail.ActDetailFKRefnoFldName = actDetailFKRefnoFldName;
+
+                    InsertListDetailProduct(detail);
+
                     detail.ActivityDetailStatus = (int)SysCommon.ActStatus.Inserted;
                 }
                 else
@@ -1117,25 +1108,42 @@ namespace dMobile.Controller
                     detail.ActivityDetailStatus = (int)SysCommon.ActStatus.Updated;
                 }
 
+                InsertListDetailQuantity(detail);
+                InsertListDetailScheme(detail);
+                InsertListDetailExtra(detail);
+                InsertListDetailLocation(detail);
+
+                detail.ActivityDetailSchemeID = this.SchemeID;
+                detail.ActivityDetailUniqueSchemeID = this.UniqueSchemeID;
+
+                if (detailToBeAdded)
+                {
+                    this.ListDetails.Add(detail);
+                }
+            }
+
+            return detail;
+
+            //////////////////////////////////////////////////////////////////////////
+            void InsertListDetailProduct(ProductionTicketMaterialDetail detail)
+            {
+                detail.ProductRefno = this.ActItem.ProdInfo.Refno;
+                detail.ProductUnitRefno = this.ActItem.ProdInfo.UnitRefno;
+                detail.ProductCode = this.ActItem.ProdInfo.Code;
+                detail.ProductUnitBC = this.ActItem.ProdInfo.UnitBC;
+                detail.ProductUnitIsBC = this.ActItem.ProdInfo.UnitIsBC;
+                detail.ProductDescription = this.ActItem.ProdInfo.Desc;
+                detail.ProductUnitSizeDescription = this.ActItem.ProdInfo.UnitSizeDesc;
+
+                detail.UnitCode = this.ActItem.ProdInfo.UnitCode;
+                detail.BaseUnitCode = this.ActItem.ProdInfo.BaseUnitCode;
+                detail.WtUnitCode = this.ActItem.ProdInfo.WeightUnitCode;
+            }
+
+            //////////////////////////////////////////////////////////////////////////
+            void InsertListDetailLocation(ProductionTicketMaterialDetail detail)
+            {
                 detail.LocationMapRefno = this.LocMap.CurrLocMapRefno;
-                detail.ActivityDetailQuantity = Convert.ToDecimal(detail.ActivityDetailQuantity) +
-                    Math.Round(this.Quantity, 3);
-                detail.ActivityDetailBaseQuantity = Convert.ToDecimal(detail.ActivityDetailBaseQuantity) +
-                    Math.Round(this.BaseQuantity, 3);
-                detail.ActivityDetailWeightQuantity = Convert.ToDecimal(detail.ActivityDetailWeightQuantity) +
-                    Math.Round(this.WeightQuantity, 3);
-                detail.ProductSchemeVariantCode = this.SchemeData.VariantCode;
-                detail.ProductSchemeVariantNo = this.SchemeData.VariantNumber;
-                detail.ActivityDetailSingleTradeItemSerialNumber = this.SchemeData.SingleTradeItemSerialNumber;
-                detail.ActivityDetailLogisticUnitBestBeforeSellByDate = this.SchemeData.LogisticUnitBestBeforeSellByDate;
-                detail.ActivityDetailLogisticUnitBatchLotNumber = this.SchemeData.LogisticUnitBatchLotNumber;
-                detail.ActivityDetailLogisticUnitProductionDate = this.SchemeData.LogisticUnitProductionDate;
-                detail.ActivityDetailLogisticUnitSkidNumber = this.SchemeData.LogisticUnitSkidNumber;
-                detail.ActivityDetailExtra1Text = this.ActExtra.Text1;
-                detail.ActivityDetailExtra2Text = this.ActExtra.Text2;
-                detail.ActivityDetailExtra3Text = this.ActExtra.Text3;
-                detail.ActivityDetailExtra4Text = this.ActExtra.Text4;
-                detail.ActivityDetailExtra5Date = this.ActExtra.DateTime1;
 
                 int locCode = 0;
                 string locName = string.Empty;
@@ -1158,16 +1166,40 @@ namespace dMobile.Controller
 
                 detail.LocationCode = locCode;
                 detail.LocationName = locName;
-                detail.ActivityDetailSchemeID = this.SchemeID;
-                detail.ActivityDetailUniqueSchemeID = this.UniqueSchemeID;
-
-                if (detailToBeAdded)
-                {
-                    this.ListDetails.Add(detail);
-                }
             }
 
-            return detail;
+            //////////////////////////////////////////////////////////////////////////
+            void InsertListDetailScheme(ProductionTicketMaterialDetail detail)
+            {
+                detail.ProductSchemeVariantCode = this.SchemeData.VariantCode;
+                detail.ProductSchemeVariantNo = this.SchemeData.VariantNumber;
+                detail.ActivityDetailSingleTradeItemSerialNumber = this.SchemeData.SingleTradeItemSerialNumber;
+                detail.ActivityDetailLogisticUnitBestBeforeSellByDate = this.SchemeData.LogisticUnitBestBeforeSellByDate;
+                detail.ActivityDetailLogisticUnitBatchLotNumber = this.SchemeData.LogisticUnitBatchLotNumber;
+                detail.ActivityDetailLogisticUnitProductionDate = this.SchemeData.LogisticUnitProductionDate;
+                detail.ActivityDetailLogisticUnitSkidNumber = this.SchemeData.LogisticUnitSkidNumber;
+            }
+
+            //////////////////////////////////////////////////////////////////////////
+            void InsertListDetailExtra(ProductionTicketMaterialDetail detail)
+            {
+                detail.ActivityDetailExtra1Text = this.ActExtra.Text1;
+                detail.ActivityDetailExtra2Text = this.ActExtra.Text2;
+                detail.ActivityDetailExtra3Text = this.ActExtra.Text3;
+                detail.ActivityDetailExtra4Text = this.ActExtra.Text4;
+                detail.ActivityDetailExtra5Date = this.ActExtra.DateTime1;
+            }
+
+            //////////////////////////////////////////////////////////////////////////
+            void InsertListDetailQuantity(ProductionTicketMaterialDetail detail)
+            {
+                detail.ActivityDetailQuantity = Convert.ToDecimal(detail.ActivityDetailQuantity) +
+                    Math.Round(this.Quantity, 3);
+                detail.ActivityDetailBaseQuantity = Convert.ToDecimal(detail.ActivityDetailBaseQuantity) +
+                    Math.Round(this.BaseQuantity, 3);
+                detail.ActivityDetailWeightQuantity = Convert.ToDecimal(detail.ActivityDetailWeightQuantity) +
+                    Math.Round(this.WeightQuantity, 3);
+            }
         }
 
         /// <summary>

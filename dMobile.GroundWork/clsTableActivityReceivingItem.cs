@@ -216,7 +216,7 @@ namespace dMobile.GroundWork
                                 actItemRefno = Convert.ToInt32(transaction.ExecuteScalar<int>("SELECT last_insert_rowid() FROM tActivityItem"));
                                 prodUnitRefno = this.GetProductUnitRefnoFromDataRow(drow, transaction, false);
                                 locMapRefno = this.GetWhsLocMapRefnoFromDataRow(drow, transaction);
-                                recvItemFKRefno = Convert.ToInt32(drow["ActivityItemPurchaseOrderFKRefno"]);
+                                recvItemFKRefno = Convert.ToInt32(drow["ActivityItemFKRefno"]);
 
                                 string queryInsertActivityItemReceiving = "INSERT INTO tActivityItemReceiving (" +
                                     "ActivityItemRefno, " +

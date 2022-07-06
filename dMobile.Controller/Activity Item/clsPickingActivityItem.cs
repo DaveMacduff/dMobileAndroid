@@ -808,9 +808,9 @@ namespace dMobile.Controller
             {
                 // Gather any newly added line items.
                 // Also perform union into tActivityDetail to check of detail exists.
-                sql.Append("SELECT tActivityItemPicking.ActivityItemRefno AS ActivityItemRefno,");
-                sql.Append("tActivityItemPicking.ActivityItemFKRefno AS ActivityItemFKRefno,");
-                sql.Append("tActivityItemPicking.ActivityItemStringFKRefno AS ActivityItemStringFKRefno,");
+                sql.Append("SELECT tActivityItemPicking.ActivityItemRefno,");
+                sql.Append("tActivityItemPicking.ActivityItemFKRefno,");
+                sql.Append("tActivityItemPicking.ActivityItemStringFKRefno,");
                 sql.Append("tProductUnit.ProductUnitRefno AS ProductUnitRefno,");
                 sql.Append("tProduct.ProductRefno AS ProductRefno,");
                 sql.Append("tProduct.ProductCode AS ProductCode,");
@@ -849,9 +849,9 @@ namespace dMobile.Controller
                 sql.AppendFormat("WHERE tActivityItem.ActivityRefno = {0} ", this.ActHdr.HdrRefno);
                 sql.AppendFormat("AND tActivityItem.ActivityItemStatus <> {0} ", Convert.ToInt32(SysCommon.ActStatus.NoChange));
                 sql.Append("UNION ");
-                sql.Append("SELECT tActivityItemPicking.ActivityItemRefno AS ActivityItemRefno,");
-                sql.Append("tActivityItemPicking.ActivityItemFKRefno AS ActivityItemFKRefno,");
-                sql.Append("tActivityItemPicking.ActivityItemStringFKRefno AS ActivityItemStringFKRefno,");
+                sql.Append("SELECT tActivityItemPicking.ActivityItemRefno,");
+                sql.Append("tActivityItemPicking.ActivityItemFKRefno,");
+                sql.Append("tActivityItemPicking.ActivityItemStringFKRefno,");
                 sql.Append("tProductUnit.ProductUnitRefno AS ProductUnitRefno,");
                 sql.Append("tProduct.ProductRefno AS ProductRefno,");
                 sql.Append("tProduct.ProductCode AS ProductCode,");
@@ -894,9 +894,9 @@ namespace dMobile.Controller
             }
             else
             {
-                sql.Append("SELECT tActivityItemPicking.ActivityItemRefno AS ActivityItemRefno,");
-                sql.Append("tActivityItemPicking.ActivityItemFKRefno AS ActivityItemFKRefno,");
-                sql.Append("tActivityItemPicking.ActivityItemStringFKRefno AS ActivityItemStringFKRefno,");
+                sql.Append("SELECT tActivityItemPicking.ActivityItemRefno,");
+                sql.Append("tActivityItemPicking.ActivityItemFKRefno,");
+                sql.Append("tActivityItemPicking.ActivityItemStringFKRefno,");
                 sql.Append("tProductUnit.ProductUnitRefno AS ProductUnitRefno,");
                 sql.Append("tProduct.ProductRefno AS ProductRefno,");
                 sql.Append("tProduct.ProductCode AS ProductCode,");

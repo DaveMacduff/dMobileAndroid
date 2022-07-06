@@ -209,9 +209,9 @@ namespace dMobile.Controller
 
             if (isSubmitBatch)
             {
-                sql.Append("SELECT tActivityCount.ActivityRefno AS ActivityRefno,");
-                sql.Append("tActivityCount.ActivityFKRefno AS ActivityFKRefno,");
-                sql.Append("tActivityCount.ActivityStringFKRefno AS ActivityStringFKRefno,");
+                sql.Append("SELECT tActivityCount.ActivityRefno,");
+                sql.Append("tActivityCount.ActivityFKRefno,");
+                sql.Append("tActivityCount.ActivityStringFKRefno,");
                 sql.Append("tLocationMapWarehouse.LocationMapRefno AS LocationMapRefno,");
                 sql.Append("tLocationMapWarehouse.LocationMapWarehouseFKRefno AS LocationMapWarehouseFKRefno,");
                 sql.Append("tLocationMapWarehouse.LocationMapWarehouseName AS LocationMapWarehouseName,");
@@ -269,9 +269,9 @@ namespace dMobile.Controller
             }
             else
             {
-                sql.Append("SELECT tActivityCount.ActivityRefno AS ActivityRefno,");
-                sql.Append("tActivityCount.ActivityFKRefno AS ActivityFKRefno,");
-                sql.Append("tActivityCount.ActivityStringFKRefno AS ActivityStringFKRefno,");
+                sql.Append("SELECT tActivityCount.ActivityRefno,");
+                sql.Append("tActivityCount.ActivityFKRefno,");
+                sql.Append("tActivityCount.ActivityStringFKRefno,");
                 sql.Append("tLocationMapWarehouse.LocationMapRefno AS LocationMapRefno,");
                 sql.Append("tLocationMapWarehouse.LocationMapWarehouseFKRefno AS LocationMapWarehouseFKRefno,");
                 sql.Append("tLocationMapWarehouse.LocationMapWarehouseName AS LocationMapWarehouseName,");
