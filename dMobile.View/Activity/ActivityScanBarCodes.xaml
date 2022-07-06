@@ -1,0 +1,51 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<custompages:DMobileContentPage
+    xmlns:custompages="clr-namespace:dMobile.View.CustomPages"
+    xmlns="http://xamarin.com/schemas/2014/forms"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    x:Class="dMobile.View.Activity.ActivityScanBarCodes">
+    <ContentPage.Content>
+        <AbsoluteLayout>
+            <Grid Padding="10" AbsoluteLayout.LayoutFlags="All" AbsoluteLayout.LayoutBounds="0,0,1,1">
+                
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="*" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+                
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+
+                <Label x:Name="lblProduct" Text="Product:" Grid.Row="0" Grid.Column="0" FontAttributes="Bold"/>
+                <Label x:Name="lblProductData" Text="Unidentified" Grid.Row="0" Grid.Column="1"/>
+
+                <Frame VerticalOptions="Start" Grid.Row="1" Grid.ColumnSpan="2" OutlineColor="{DynamicResource BorderColor}">
+                    <ListView x:Name="lstScannedData" SelectionMode="None" HasUnevenRows="True" SeparatorVisibility="None">
+                        <ListView.ItemTemplate>
+                            <DataTemplate>
+                                <ViewCell>
+                                    <StackLayout Padding="5">
+                                        <Label Text="{Binding}" VerticalOptions="CenterAndExpand"/>
+                                    </StackLayout>
+                                </ViewCell>
+                            </DataTemplate>
+                        </ListView.ItemTemplate>
+                    </ListView>
+                </Frame>
+
+                <Picker x:Name="BarCodeModifier1Picker" Grid.Row="3" Grid.Column="0" SelectedIndexChanged="BarCodeModifierChangesMade"/>
+                <Button x:Name="cmdAssignProduct" Grid.Row="3" Grid.Column="1" Text="Assign Scan To Product" Clicked="CmdAssignProduct_Click" IsEnabled="{Binding HasData}"/>
+                
+            </Grid>
+
+            <ActivityIndicator IsVisible="{Binding Loading}" 
+                               IsRunning="{Binding Loading}" 
+                               AbsoluteLayout.LayoutFlags="All" 
+                               AbsoluteLayout.LayoutBounds="0.5,0.5,0.3,0.3"/>
+        </AbsoluteLayout>
+    </ContentPage.Content>
+</custompages:DMobileContentPage>

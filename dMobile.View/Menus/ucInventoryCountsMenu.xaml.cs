@@ -55,7 +55,7 @@ namespace dMobile.View.Menus
                     this.DisableControls();
                     this.IsControlLoaded = false;
 
-                    ucActivityHdr physicalCountHdr = new ucActivityHdr(SysCommon.ActSubTypes.PhysicalCounts);
+                    ActivityHdr physicalCountHdr = new ActivityHdr(SysCommon.ActSubTypes.PhysicalCounts);
                     await physicalCountHdr.Show();
                 }
                 else if (keycode == Keycode.Num1 && this.cmdPhysicalCount.IsEnabled)
@@ -63,7 +63,7 @@ namespace dMobile.View.Menus
                     this.DisableControls();
                     this.IsControlLoaded = false;
 
-                    ucActivityHdr physicalCountHdr = new ucActivityHdr(SysCommon.ActSubTypes.PhysicalCounts);
+                    ActivityHdr physicalCountHdr = new ActivityHdr(SysCommon.ActSubTypes.PhysicalCounts);
                     await physicalCountHdr.Show();
                 }
                 else if (keycode == Keycode.Num2 && this.cmdCycleCount.IsEnabled)
@@ -71,7 +71,7 @@ namespace dMobile.View.Menus
                     this.DisableControls();
                     this.IsControlLoaded = false;
 
-                    ucActivityHdr cycleCountHdr = new ucActivityHdr(SysCommon.ActSubTypes.CycleCounts);
+                    ActivityHdr cycleCountHdr = new ActivityHdr(SysCommon.ActSubTypes.CycleCounts);
                     await cycleCountHdr.Show();
                 }
             });
@@ -216,7 +216,7 @@ namespace dMobile.View.Menus
             this.DisableControls();
             this.IsControlLoaded = false;
 
-            ucActivityHdr physicalCountActivityHdr = new ucActivityHdr(SysCommon.ActSubTypes.PhysicalCounts);
+            ActivityHdr physicalCountActivityHdr = new ActivityHdr(SysCommon.ActSubTypes.PhysicalCounts);
             await physicalCountActivityHdr.Show();
         }
 
@@ -231,7 +231,7 @@ namespace dMobile.View.Menus
             this.DisableControls();
             this.IsControlLoaded = false;
 
-            ucActivityHdr cycleCountActivityHdr = new ucActivityHdr(SysCommon.ActSubTypes.CycleCounts);
+            ActivityHdr cycleCountActivityHdr = new ActivityHdr(SysCommon.ActSubTypes.CycleCounts);
             await cycleCountActivityHdr.Show();
         }
 

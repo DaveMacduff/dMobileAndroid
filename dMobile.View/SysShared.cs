@@ -437,7 +437,7 @@ namespace dMobile.View
                 XDocument xmlParam = XDocument.Parse(
                     "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>"
                     + "<imclient>"
-                    + "<itm_refno>" + actItem.FKRefno + "</itm_refno>"
+                    + "<itm_refno>" + actItem.ItemFKRefno + "</itm_refno>"
                     + "<alt_qty>" + actDetail.Quantity + "</alt_qty>"
                     + "<wt_qty>" + actDetail.WeightQuantity + "</wt_qty>"
                     + "<ActivityDetailUniqueSchemeID>" + actDetail.UniqueSchemeID + "</ActivityDetailUniqueSchemeID>"

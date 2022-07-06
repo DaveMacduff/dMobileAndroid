@@ -80,7 +80,7 @@ namespace dMobile.View.Menus
                     this.DisableControls();
                     this.IsControlLoaded = false;
 
-                    ucActivityConvertUnit convertUnit = new ucActivityConvertUnit();
+                    ActivityConvertUnit convertUnit = new ActivityConvertUnit();
                     await convertUnit.Show();
                 }
                 else if (keycode == Keycode.Num3 && this.cmdInventoryCounts.IsEnabled)
@@ -96,7 +96,7 @@ namespace dMobile.View.Menus
                     this.DisableControls();
                     this.IsControlLoaded = false;
 
-                    ucActivityHdrSkidInfo skidInfo = new ucActivityHdrSkidInfo();
+                    ActivityHdrSkidInfo skidInfo = new ActivityHdrSkidInfo();
                     _ = await skidInfo.ShowDialog();
                 }
                 else if (keycode == Keycode.Num5 && this.cmdInquiry.IsEnabled)
@@ -104,7 +104,7 @@ namespace dMobile.View.Menus
                     this.DisableControls();
                     this.IsControlLoaded = false;
 
-                    ucActivityInventoryInquiry inquiry = new ucActivityInventoryInquiry();
+                    ActivityInventoryInquiry inquiry = new ActivityInventoryInquiry();
                     _ = await inquiry.ShowDialog();
                 }
                 else if (keycode == Keycode.Num6 && this.cmdAdjustments.IsEnabled)
@@ -358,7 +358,7 @@ namespace dMobile.View.Menus
             this.DisableControls();
             this.IsControlLoaded = false;
 
-            ucActivityConvertUnit convertUnit = new ucActivityConvertUnit();
+            ActivityConvertUnit convertUnit = new ActivityConvertUnit();
             await convertUnit.Show();
         }
 
@@ -388,7 +388,7 @@ namespace dMobile.View.Menus
             this.DisableControls();
             this.IsControlLoaded = false;
 
-            ucActivityHdrSkidInfo skidInfo = new ucActivityHdrSkidInfo();
+            ActivityHdrSkidInfo skidInfo = new ActivityHdrSkidInfo();
             _ = await skidInfo.ShowDialog();
         }
 
@@ -403,7 +403,7 @@ namespace dMobile.View.Menus
             this.DisableControls();
             this.IsControlLoaded = false;
 
-            ucActivityInventoryInquiry inquiry = new ucActivityInventoryInquiry();
+            ActivityInventoryInquiry inquiry = new ActivityInventoryInquiry();
             _ = await inquiry.ShowDialog();
         }
 

@@ -203,12 +203,12 @@ namespace dMobile.Controller
                             transaction.Execute("INSERT INTO tActivity (ActivityStatus, ActivitySubType) VALUES (?, ?)", Convert.ToInt32(SysCommon.ActStatus.Inserted), Convert.ToInt32(SysCommon.ActSubTypes.PurchaseOrderWorkSheet));
 
                             actRefno = Convert.ToInt32(transaction.ExecuteScalar<int>("SELECT last_insert_rowid() FROM tActivity"));
-                            this.ActHdr.Refno = actRefno;
-                            this.ActHdr.FKRefno = actRefno;
+                            this.ActHdr.HdrRefno = actRefno;
+                            this.ActHdr.HdrFKRefno = actRefno;
 
-                            transaction.Execute("INSERT INTO tActivityItem (ActivityItemSubType, ActivityItemStatus, ActivityRefno) VALUES (?, ?, ?)", Convert.ToInt32(SysCommon.ActSubTypes.PurchaseOrderWorkSheet), Convert.ToInt32(SysCommon.ActStatus.Inserted), Convert.ToInt32(this.ActHdr.Refno));
+                            transaction.Execute("INSERT INTO tActivityItem (ActivityItemSubType, ActivityItemStatus, ActivityRefno) VALUES (?, ?, ?)", Convert.ToInt32(SysCommon.ActSubTypes.PurchaseOrderWorkSheet), Convert.ToInt32(SysCommon.ActStatus.Inserted), Convert.ToInt32(this.ActHdr.HdrRefno));
 
-                            this.Refno = Convert.ToInt32(transaction.ExecuteScalar<int>("SELECT last_insert_rowid() FROM tActivityItem"));
+                            this.ItemRefno = Convert.ToInt32(transaction.ExecuteScalar<int>("SELECT last_insert_rowid() FROM tActivityItem"));
 
                             string queryActSheetItem = "INSERT INTO tActivityItemPurchaseOrderWorkSheet (" +
                                 "ActivityItemRefno, " +
@@ -233,10 +233,10 @@ namespace dMobile.Controller
                                 ")";
                             object[] parametersActSheetItem = new object[]
                             {
-                                Convert.ToInt32(this.Refno),
+                                Convert.ToInt32(this.ItemRefno),
                                 Convert.ToInt32(SysCommon.ActSubTypes.PurchaseOrderWorkSheet),
-                                Convert.ToInt32(this.Refno * -1),
-                                Convert.ToString(this.Refno * -1),
+                                Convert.ToInt32(this.ItemRefno * -1),
+                                Convert.ToString(this.ItemRefno * -1),
                                 Convert.ToInt32(prodUnitRefno),
                                 Convert.ToInt32(this.LocMap.CurrLocMap.WhsLocMapRefno),
                                 decimal.Parse(data.Root.Element("alt_qty").Value),
@@ -247,7 +247,7 @@ namespace dMobile.Controller
                             transaction.Execute(queryActSheetItem, parametersActSheetItem);
                             transaction.Commit();
 
-                            this.FKRefno = this.Refno * -1;
+                            this.ItemFKRefno = this.ItemRefno * -1;
                             this.IsUpdateView = true;
                         }
                         catch (SQLiteException ex)
@@ -292,9 +292,9 @@ namespace dMobile.Controller
                         {
                             this.IsUpdateView = true;
                             this.NewActItemFKRefno = -Math.Abs(int.Parse(xmlDoc.DocumentElement["itm_refno"].InnerText));
-                            this.FKRefno = -Math.Abs(int.Parse(xmlDoc.DocumentElement["itm_refno"].InnerText));
-                            this.ActHdr.FKRefno = this.FKRefno;
-                            this.Refno = Math.Abs(this.FKRefno);
+                            this.ItemFKRefno = -Math.Abs(int.Parse(xmlDoc.DocumentElement["itm_refno"].InnerText));
+                            this.ActHdr.HdrFKRefno = this.ItemFKRefno;
+                            this.ItemRefno = Math.Abs(this.ItemFKRefno);
                         }
                     }
                 }
@@ -312,23 +312,23 @@ namespace dMobile.Controller
                 PurchaseOrderWorkSheetItem purchaseOrderWorkSheetItem = null;
                 bool toBeAdded = false;
 
-                if (this.FKRefno > 0)
+                if (this.ItemFKRefno > 0)
                 {
-                    purchaseOrderWorkSheetItem = this.ListItems.OfType<PurchaseOrderWorkSheetItem>().Where(worksheetItem => worksheetItem.ActivityItemPurchaseOrderWorkSheetFKRefno == this.FKRefno).FirstOrDefault();
+                    purchaseOrderWorkSheetItem = this.ListItems.OfType<PurchaseOrderWorkSheetItem>().Where(worksheetItem => worksheetItem.ActivityItemPurchaseOrderWorkSheetFKRefno == this.ItemFKRefno).FirstOrDefault();
                 }
 
                 if (purchaseOrderWorkSheetItem == null)
                 {
                     purchaseOrderWorkSheetItem = new PurchaseOrderWorkSheetItem();
-                    purchaseOrderWorkSheetItem.ActivityItemRefno = this.Refno;
+                    purchaseOrderWorkSheetItem.ActivityItemRefno = this.ItemRefno;
                     purchaseOrderWorkSheetItem.ProductUnitRefno = this.ProdInfo.UnitRefno;
                     purchaseOrderWorkSheetItem.ProductRefno = this.ProdInfo.Refno;
                     purchaseOrderWorkSheetItem.ProductCode = this.ProdInfo.Code;
                     purchaseOrderWorkSheetItem.ProductDescription = this.ProdInfo.Desc;
                     purchaseOrderWorkSheetItem.ProductUnitSizeDescription = this.ProdInfo.UnitSizeDesc;
                     purchaseOrderWorkSheetItem.UnitCode = this.ProdInfo.UnitCode;
-                    purchaseOrderWorkSheetItem.ActivityItemPurchaseOrderWorkSheetFKRefno = this.FKRefno;
-                    purchaseOrderWorkSheetItem.ActivityItemPurchaseOrderWorkSheetStringFKRefno = this.FKRefno.ToString();
+                    purchaseOrderWorkSheetItem.ActivityItemPurchaseOrderWorkSheetFKRefno = this.ItemFKRefno;
+                    purchaseOrderWorkSheetItem.ActivityItemPurchaseOrderWorkSheetStringFKRefno = this.ItemFKRefno.ToString();
 
                     toBeAdded = true;
                 }
@@ -373,9 +373,9 @@ namespace dMobile.Controller
                             "ActivityItemPurchaseOrderWorkSheetBaseQuantityOrdered = ?, " +
                             "ActivityItemPurchaseOrderWorkSheetWeightQuantityOrdered = ? " +
                             "WHERE ActivityItemRefno = ?";
-                        transaction.Execute(query, decQty, decBaseQty, decWeightQty, this.Refno);
-                        transaction.Execute("UPDATE tActivityItem SET ActivityItemStatus = ? WHERE ActivityItemRefno = ?", Convert.ToInt32(SysCommon.ActStatus.Updated), this.Refno);
-                        transaction.Execute("UPDATE tActivity SET ActivityStatus = ? WHERE ActivityRefno = ?", Convert.ToInt32(SysCommon.ActStatus.Updated), this.ActHdr.Refno);
+                        transaction.Execute(query, decQty, decBaseQty, decWeightQty, this.ItemRefno);
+                        transaction.Execute("UPDATE tActivityItem SET ActivityItemStatus = ? WHERE ActivityItemRefno = ?", Convert.ToInt32(SysCommon.ActStatus.Updated), this.ItemRefno);
+                        transaction.Execute("UPDATE tActivity SET ActivityStatus = ? WHERE ActivityRefno = ?", Convert.ToInt32(SysCommon.ActStatus.Updated), this.ActHdr.HdrRefno);
                         transaction.Commit();
                     }
                     catch (SQLiteException ex)
@@ -418,8 +418,8 @@ namespace dMobile.Controller
                     {
                         this.IsUpdateView = true;
                         this.NewActItemFKRefno = int.Parse(xmlDoc.DocumentElement["itm_refno"].InnerText);
-                        this.FKRefno = int.Parse(xmlDoc.DocumentElement["itm_refno"].InnerText);
-                        this.ActHdr.FKRefno = this.FKRefno;
+                        this.ItemFKRefno = int.Parse(xmlDoc.DocumentElement["itm_refno"].InnerText);
+                        this.ActHdr.HdrFKRefno = this.ItemFKRefno;
                     }
                 }
             }
@@ -432,21 +432,21 @@ namespace dMobile.Controller
                 // int rowIdx = 0;
                 // this.DataViewItems.Sort = "ActivityItemPurchaseOrderWorkSheetFKRefno";
                 // rowIdx = DataViewItems.Find(new object[] { this.FKRefno });
-                PurchaseOrderWorkSheetItem purchaseOrderWorkSheetItem = this.ListItems.OfType<PurchaseOrderWorkSheetItem>().Where(worksheetItem => worksheetItem.ActivityItemPurchaseOrderWorkSheetFKRefno == this.FKRefno).FirstOrDefault();
+                PurchaseOrderWorkSheetItem purchaseOrderWorkSheetItem = this.ListItems.OfType<PurchaseOrderWorkSheetItem>().Where(worksheetItem => worksheetItem.ActivityItemPurchaseOrderWorkSheetFKRefno == this.ItemFKRefno).FirstOrDefault();
                 bool toBeUpdated = false;
 
                 if (purchaseOrderWorkSheetItem == null)
                 {
                     purchaseOrderWorkSheetItem = new PurchaseOrderWorkSheetItem();
-                    purchaseOrderWorkSheetItem.ActivityItemRefno = this.Refno;
+                    purchaseOrderWorkSheetItem.ActivityItemRefno = this.ItemRefno;
                     purchaseOrderWorkSheetItem.ProductUnitRefno = this.ProdInfo.UnitRefno;
                     purchaseOrderWorkSheetItem.ProductRefno = this.ProdInfo.Refno;
                     purchaseOrderWorkSheetItem.ProductCode = this.ProdInfo.Code;
                     purchaseOrderWorkSheetItem.ProductDescription = this.ProdInfo.Desc;
                     purchaseOrderWorkSheetItem.ProductUnitSizeDescription = this.ProdInfo.UnitSizeDesc;
                     purchaseOrderWorkSheetItem.UnitCode = this.ProdInfo.UnitCode;
-                    purchaseOrderWorkSheetItem.ActivityItemPurchaseOrderWorkSheetFKRefno = this.FKRefno;
-                    purchaseOrderWorkSheetItem.ActivityItemPurchaseOrderWorkSheetStringFKRefno = this.FKRefno.ToString();
+                    purchaseOrderWorkSheetItem.ActivityItemPurchaseOrderWorkSheetFKRefno = this.ItemFKRefno;
+                    purchaseOrderWorkSheetItem.ActivityItemPurchaseOrderWorkSheetStringFKRefno = this.ItemFKRefno.ToString();
 
                     toBeUpdated = true;
                 }
@@ -500,15 +500,15 @@ namespace dMobile.Controller
                 }
                 else
                 {
-                    this.FKRefno = int.Parse(xmlDoc.DocumentElement["ser_refno"].InnerText);
+                    this.ItemFKRefno = int.Parse(xmlDoc.DocumentElement["ser_refno"].InnerText);
 
                     if (selectedActivityItem is PurchaseOrderWorkSheetItem purchaseOrderWorkSheetItem)
                     {
-                        purchaseOrderWorkSheetItem.ActivityItemPurchaseOrderWorkSheetFKRefno = this.FKRefno;
+                        purchaseOrderWorkSheetItem.ActivityItemPurchaseOrderWorkSheetFKRefno = this.ItemFKRefno;
                         purchaseOrderWorkSheetItem.ActivityItemStatus = Convert.ToInt32(SysCommon.ActStatus.NoChange);
                     }
 
-                    await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync("UPDATE tActivityItem SET tActivityItem.ActivityItemStatus = ? WHERE ActivityItemRefno = ?", (int)SysCommon.ActStatus.NoChange, this.Refno);
+                    await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync("UPDATE tActivityItem SET tActivityItem.ActivityItemStatus = ? WHERE ActivityItemRefno = ?", (int)SysCommon.ActStatus.NoChange, this.ItemRefno);
                 }
             }
         }
@@ -534,7 +534,7 @@ namespace dMobile.Controller
                 this.DataLayerProgressOutHandler(this, new EventArgs(), 5);
 
                 tableActPOWorkSheetItem.RegisterDataAccessListenerProgressOut((POWorkSheetActItem)this);
-                await tableActPOWorkSheetItem.RequestData(this.ActHdr.Refno);
+                await tableActPOWorkSheetItem.RequestData(this.ActHdr.HdrRefno);
                 tableActPOWorkSheetItem.UnregisterDataAccessListenerProgressOut((POWorkSheetActItem)this);
             }
         }
@@ -780,8 +780,8 @@ namespace dMobile.Controller
             if (selectedActivityItem is PurchaseOrderWorkSheetItem item)
             {
                 this.SelectedActivityItem = item;
-                this.Refno = item.ActivityItemRefno;
-                this.FKRefno = Convert.ToInt32(item.ActivityItemPurchaseOrderWorkSheetFKRefno);
+                this.ItemRefno = item.ActivityItemRefno;
+                this.ItemFKRefno = Convert.ToInt32(item.ActivityItemPurchaseOrderWorkSheetFKRefno);
                 this.ProdInfo = await ProductInfoTasks.GetInfoFromUnitRefno(item.ProductUnitRefno);
                 activityItemLocMapRefno = item.LocationMapRefno;
             }
@@ -822,11 +822,11 @@ namespace dMobile.Controller
             if (results != null && results.Count > 0)
             {
                 this.LocMap.CurrLocMap = await LocationMapTasks.GetSLocMapFromLocMapRefno(Convert.ToInt32(results[0].LocationMapRefno));
-                this.Refno = Convert.ToInt32(results[0].ActivityItemRefno);
-                this.FKRefno = Convert.ToInt32(results[0].ActivityItemPurchaseOrderWorkSheetFKRefno);
+                this.ItemRefno = Convert.ToInt32(results[0].ActivityItemRefno);
+                this.ItemFKRefno = Convert.ToInt32(results[0].ActivityItemPurchaseOrderWorkSheetFKRefno);
                 this.ProdInfo = await ProductInfoTasks.GetInfoFromUnitRefno(Convert.ToInt32(results[0].ProductUnitRefno));
                 this.ProdInfo.Scheme = await ProductInfoTasks.GetSchemeComponentsFromRefno(this.ProdInfo.Refno);
-                foundActItemRefno = this.Refno;
+                foundActItemRefno = this.ItemRefno;
             }
 
             return foundActItemRefno;
@@ -859,8 +859,8 @@ namespace dMobile.Controller
                 + "<symbology>" + symbologyPrefix + "</symbology>"
                 + "<gtin>" + barCodeCode + "</gtin>"
                 + "<whs_id>" + this.LocMap.CurrLocMap.WhsFKRefno + "</whs_id>"
-                + "<refno>" + this.FKRefno + "</refno>"
-                + "<itm_refno>" + this.FKRefno + "</itm_refno>"
+                + "<refno>" + this.ItemFKRefno + "</refno>"
+                + "<itm_refno>" + this.ItemFKRefno + "</itm_refno>"
                 + "<alt_qty>" + data.Root.Element("alt_qty").Value + "</alt_qty>"
                 + "<base_qty>" + data.Root.Element("base_qty").Value + "</base_qty>"
                 + "<wt_qty>" + data.Root.Element("wt_qty").Value + "</wt_qty>"
@@ -953,7 +953,7 @@ namespace dMobile.Controller
         /// <returns><see cref="string"/> Get activity item control description.</returns>
         public override string GetControlDescription()
         {
-            return string.Format("PO worksheet # {0}", this.ActHdr.FKRefno);
+            return string.Format("PO worksheet # {0}", this.ActHdr.HdrFKRefno);
         }
 
         /// <summary>

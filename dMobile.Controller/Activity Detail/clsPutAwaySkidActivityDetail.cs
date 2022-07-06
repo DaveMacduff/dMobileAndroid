@@ -153,8 +153,8 @@ namespace dMobile.Controller
                     ActivityDetailLogisticUnitSkidNumber = this.SchemeData.LogisticUnitSkidNumber,
                     ActivityDetailSchemeID = this.SchemeID,
                     ActivityDetailUniqueSchemeID = this.UniqueSchemeID,
-                    ActivityDetailFKRefno = this.FKRefno,
-                    ActivityDetailRefno = this.Refno,
+                    ActivityDetailFKRefno = this.DetailFKRefno,
+                    ActivityDetailRefno = this.DetailRefno,
                     ActivityDetailExtra1Text = this.ActExtra.Text1,
                     ActivityDetailExtra2Text = this.ActExtra.Text2,
                     ActivityDetailExtra3Text = this.ActExtra.Text3,
@@ -213,7 +213,7 @@ namespace dMobile.Controller
 
             if (!isAdd && selectedActivityDetail is SkidPutAwayDetail skidPutAwayDetail)
             {
-                this.FKRefno = Convert.ToInt32(skidPutAwayDetail.ActivityDetailFKRefno);
+                this.DetailFKRefno = Convert.ToInt32(skidPutAwayDetail.ActivityDetailFKRefno);
                 this.LocMap.CurrLocMap = await LocationMapTasks.GetSLocMapFromLocMapRefno(Convert.ToInt32(skidPutAwayDetail.LocationMapRefno));
             }
 
@@ -253,14 +253,14 @@ namespace dMobile.Controller
                 }
                 else
                 {
-                    this.FKRefno = int.Parse(xmlDoc.DocumentElement["ser_refno"].InnerText);
+                    this.DetailFKRefno = int.Parse(xmlDoc.DocumentElement["ser_refno"].InnerText);
 
                     if (selectedActivityDetail is SkidPutAwayDetail skidPutAwayDetail)
                     {
                         skidPutAwayDetail.ActivityDetailStatus = Convert.ToInt32(SysCommon.ActStatus.NoChange);
                     }
 
-                    await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync("UPDATE tActivityDetail SET ActivityDetailStatus = ? WHERE ActivityDetailRefno = ?", Convert.ToInt32(SysCommon.ActStatus.NoChange), this.Refno);
+                    await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync("UPDATE tActivityDetail SET ActivityDetailStatus = ? WHERE ActivityDetailRefno = ?", Convert.ToInt32(SysCommon.ActStatus.NoChange), this.DetailRefno);
                 }
             }
 

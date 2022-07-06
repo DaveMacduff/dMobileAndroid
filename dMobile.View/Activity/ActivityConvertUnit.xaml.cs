@@ -28,12 +28,12 @@ namespace dMobile.View.Activity
     using Resource = dMobile.Resources.Properties.Resources;
 
     [XamlCompilation(XamlCompilationOptions.Compile)]
-    public partial class ucActivityConvertUnit : DMobileContentPage, IAppArea
+    public partial class ActivityConvertUnit : DMobileContentPage, IAppArea
     {
         /// <summary>
-        /// Initializes a new instance of the <see cref="ucActivityConvertUnit"/> class.
+        /// Initializes a new instance of the <see cref="ActivityConvertUnit"/> class.
         /// </summary>
-        public ucActivityConvertUnit()
+        public ActivityConvertUnit()
         {
             this.InitializeComponent();
 
@@ -855,8 +855,8 @@ namespace dMobile.View.Activity
             _ = req.AppendFormat("<whs_id>{0}</whs_id>", this.LocMap.CurrLocMap.WhsFKRefno);
             _ = req.AppendFormat("<sect_refno>{0}</sect_refno>", this.LocMap.CurrLocMap.SectFKRefno);
             _ = req.AppendFormat("<slot_refno>{0}</slot_refno>", this.LocMap.CurrLocMap.SlotFKRefno);
-            _ = req.AppendFormat("<refno>{0}</refno>", this.ActItem.ActHdr.FKRefno);
-            _ = req.AppendFormat("<itm_refno>{0}</itm_refno>", this.ActItem.FKRefno);
+            _ = req.AppendFormat("<refno>{0}</refno>", this.ActItem.ActHdr.HdrFKRefno);
+            _ = req.AppendFormat("<itm_refno>{0}</itm_refno>", this.ActItem.ItemFKRefno);
             _ = req.AppendFormat("<prod_id>{0}</prod_id>", this.ActDetail.ListDetails[idx].GetType().GetProperty("ProductCode")?.GetValue(this.ActDetail.ListDetails[idx]));
             _ = req.AppendFormat("<bc>{0}</bc>", this.ActDetail.ListDetails[idx].GetType().GetProperty("ProductUnitBC")?.GetValue(this.ActDetail.ListDetails[idx]));
             _ = req.AppendFormat("<alt_unit>{0}</alt_unit>", this.ActDetail.ListDetails[idx].GetType().GetProperty("UnitCode")?.GetValue(this.ActDetail.ListDetails[idx]));
@@ -911,8 +911,8 @@ namespace dMobile.View.Activity
             _ = req.AppendFormat("<whs_id>{0}</whs_id>", this.LocMap.CurrLocMap.WhsFKRefno);
             _ = req.AppendFormat("<sect_refno>{0}</sect_refno>", this.LocMap.CurrLocMap.SectFKRefno);
             _ = req.AppendFormat("<slot_refno>{0}</slot_refno>", this.LocMap.CurrLocMap.SlotFKRefno);
-            _ = req.AppendFormat("<refno>{0}</refno>", this.ActItem.ActHdr.FKRefno);
-            _ = req.AppendFormat("<itm_refno>{0}</itm_refno>", this.ActItem.FKRefno);
+            _ = req.AppendFormat("<refno>{0}</refno>", this.ActItem.ActHdr.HdrFKRefno);
+            _ = req.AppendFormat("<itm_refno>{0}</itm_refno>", this.ActItem.ItemFKRefno);
             _ = req.AppendFormat("<prod_id>{0}</prod_id>", items[0].GetType().GetProperty("ProductCode")?.GetValue(items[0]));
             _ = req.AppendFormat("<bc>{0}</bc>", items[0].GetType().GetProperty("ProductUnitBC")?.GetValue(items[0]));
             _ = req.AppendFormat("<alt_unit>{0}</alt_unit>", items[0].GetType().GetProperty("UnitCode")?.GetValue(items[0]));
@@ -938,8 +938,8 @@ namespace dMobile.View.Activity
                 _ = req.AppendFormat("<whs_id>{0}</whs_id>", this.LocMap.CurrLocMap.WhsFKRefno);
                 _ = req.AppendFormat("<sect_refno>{0}</sect_refno>", this.LocMap.CurrLocMap.SectFKRefno);
                 _ = req.AppendFormat("<slot_refno>{0}</slot_refno>", this.LocMap.CurrLocMap.SlotFKRefno);
-                _ = req.AppendFormat("<refno>{0}</refno>", this.ActItem.ActHdr.FKRefno);
-                _ = req.AppendFormat("<itm_refno>{0}</itm_refno>", this.ActItem.FKRefno);
+                _ = req.AppendFormat("<refno>{0}</refno>", this.ActItem.ActHdr.HdrFKRefno);
+                _ = req.AppendFormat("<itm_refno>{0}</itm_refno>", this.ActItem.ItemFKRefno);
                 _ = req.AppendFormat("<prod_id>{0}</prod_id>", detail[idx].GetType().GetProperty("ProductCode")?.GetValue(detail[idx]));
                 _ = req.AppendFormat("<bc>{0}</bc>", detail[idx].GetType().GetProperty("ProductUnitBC")?.GetValue(detail[idx]));
                 _ = req.AppendFormat("<alt_unit>{0}</alt_unit>", detail[idx].GetType().GetProperty("UnitCode")?.GetValue(detail[idx]));

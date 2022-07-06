@@ -25,10 +25,12 @@ namespace dMobile.View
     using Xamarin.Forms.Xaml;
     using Resource = dMobile.Resources.Properties.Resources;
 
+    /// <summary>
+    /// Defines the <see cref="ucLoginStartup" /> Login startup form.
+    /// </summary>
     [XamlCompilation(XamlCompilationOptions.Compile)]
     public partial class ucLoginStartup : DMobileContentPage, IAppArea
     {
-
         /// <summary>
         /// Initializes a new instance of the <see cref="ucLoginStartup"/> class.
         /// </summary>
@@ -49,70 +51,50 @@ namespace dMobile.View
             }
         }
 
+        /// <summary>
+        /// Gets or sets a value indicating whether LogInPressed.
+        /// </summary>
         private bool LogInPressed { get; set; } = false;
 
+        /// <summary>
+        /// Gets or sets a value indicating whether ChangesMade.
+        /// </summary>
         private bool ChangesMade { get; set; } = false;
 
+        /// <summary>
+        /// Gets or sets a value indicating whether IsAllowedOverridePicker.
+        /// </summary>
         private bool IsAllowedOverridePicker { get; set; } = false;
 
+        /// <summary>
+        /// Gets or sets a value indicating whether IsAllowedAssocBarCode.
+        /// </summary>
         private bool IsAllowedAssocBarCode { get; set; } = true;
 
+        /// <summary>
+        /// Gets or sets a value indicating whether IsOverrideAddManualDetail.
+        /// </summary>
         private bool IsOverrideAddManualDetail { get; set; } = false;
 
+        /// <summary>
+        /// Gets or sets a value indicating whether IsControlLoaded.
+        /// </summary>
         private bool IsControlLoaded { get; set; } = false;
 
+        /// <summary>
+        /// Gets or sets the SysEnv.
+        /// </summary>
         private SysEnvironment SysEnv { get; set; }
 
+        /// <summary>
+        /// Gets or sets a value indicating whether IsEnableAllModuleBypassLicense.
+        /// </summary>
         private bool IsEnableAllModuleBypassLicense { get; set; } = false;
-
-        /// <summary>
-        /// The OnAppearing.
-        /// </summary>
-        protected override async void OnAppearing()
-        {
-            base.OnAppearing();
-
-            MessagingCenter.Subscribe<string>(this, EventTypes.OnKeyUp.ToString(), async (keyPressed) =>
-            {
-                try
-                {
-                    _ = Enum.TryParse(keyPressed, out Keycode keycode);
-
-                    if (keycode == Keycode.Enter)
-                    {
-                        _ = await this.IsReadyToClose();
-                        this.cmdLogin_Click(this, new EventArgs());
-                    }
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine(ex);
-                }
-            });
-
-            try
-            {
-                await this.LoginStartup_GotFocus();
-            }
-            catch (Exception ex)
-            {
-                await Device.InvokeOnMainThreadAsync(async () => await this.DisplayAlert(Resource.Error, "LoginStartup_GotFocus threw an error: " + ex.Message, Resource.OK));
-            }
-        }
-
-        /// <summary>
-        /// The OnDisappearing.
-        /// </summary>
-        protected override void OnDisappearing()
-        {
-            MessagingCenter.Unsubscribe<string>(this, EventTypes.OnKeyUp.ToString());
-            base.OnDisappearing();
-        }
 
         /// <summary>
         /// Unregister the bar code scan event handler and disable the scanner.
         /// </summary>
-        /// <remarks></remarks>
+        /// <returns>The <see cref="Task"/>.</returns>
         public async Task ScannerDisable()
         {
         }
@@ -120,16 +102,15 @@ namespace dMobile.View
         /// <summary>
         /// Registers the bar code scan event handler and enables the scanner.
         /// </summary>
-        /// <remarks></remarks>
+        /// <returns>The <see cref="Task"/>.</returns>
         public async Task ScannerEnable()
         {
         }
 
         /// <summary>
-        ///
+        /// Check if the activity header data is ready to be saved.
         /// </summary>
-        /// <returns></returns>
-        /// <remarks></remarks>
+        /// <returns><see cref="bool"/> True if the data is ready to be saved else false.</returns>
         public async Task<bool> IsReadyToSave()
         {
             bool isReadyToSave = true;
@@ -138,19 +119,26 @@ namespace dMobile.View
 
             try
             {
+                // Validate captured information is complete.
+
+                // Check for empty data.
                 if (string.IsNullOrEmpty(this.txtLoginID.Text) || string.IsNullOrEmpty(this.txtLoginPassword.Text))
                 {
                     isReadyToSave = false;
                     return isReadyToSave;
                 }
 
-                List<tContactUserModel> results = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<tContactUserModel>("SELECT * FROM tContactUser WHERE ContactUserCode = ?", Convert.ToInt32(this.txtLoginID.Text));
+                // Check if user exists.
+                List<tContactUserModel> results = await DatabaseConnection.GetInstance().SQLConn.
+                    QueryAsync<tContactUserModel>(
+                    "SELECT * FROM tContactUser WHERE ContactUserCode = ?",
+                    Convert.ToInt32(this.txtLoginID.Text));
 
+                // If user code is valid load the user specific system preferences.
                 if (results?.Count > 0)
                 {
                     userCode = results[0].ContactUserCode;
                     password = results[0].ContactUserPassword;
-
                     this.IsAllowedAssocBarCode = results[0].ContactUserIsAllowedAssociateProductBarCode;
                     this.IsAllowedOverridePicker = results[0].ContactUserIsAllowedPickingModuleOverridePicker;
                     this.IsOverrideAddManualDetail = results[0].ContactUserIsAllowedPickingModuleOverrideAddManualDetail;
@@ -194,10 +182,9 @@ namespace dMobile.View
         }
 
         /// <summary>
-        ///
+        /// Check if this form is ready to close, that is can be closed.
         /// </summary>
-        /// <returns></returns>
-        /// <remarks></remarks>
+        /// <returns><see cref="Task{bool}"/> True if the form is ready to close else false.</returns>
         public async Task<bool> IsReadyToClose()
         {
             if (!this.LogInPressed)
@@ -237,10 +224,9 @@ namespace dMobile.View
         }
 
         /// <summary>
-        ///
+        /// Check if a save can be performed and do so.
         /// </summary>
-        /// <returns></returns>
-        /// <remarks></remarks>
+        /// <returns><see cref="bool"/> True if a save was performed successfully else false.</returns>
         public async Task<bool> SaveChanges()
         {
             bool saveComplete = false;
@@ -326,10 +312,9 @@ namespace dMobile.View
         }
 
         /// <summary>
-        ///
+        /// Check if there are any pending changes, if so cancel them.
         /// </summary>
-        /// <returns></returns>
-        /// <remarks></remarks>
+        /// <returns><see cref="bool"/>. True if the changes where canceled, else false.</returns>
         public async Task<bool> CancelChanges()
         {
             bool cancelChanges = true;
@@ -355,10 +340,9 @@ namespace dMobile.View
         }
 
         /// <summary>
-        ///
+        /// Assemble a XML string of activity data to return to the calling parent form.
         /// </summary>
-        /// <returns></returns>
-        /// <remarks></remarks>
+        /// <returns><see cref="Task"/> Task operation containing an XDocument.</returns>
         public async Task<XDocument> GetXML()
         {
             XDocument xmldocParams = XDocument.Parse(
@@ -370,15 +354,106 @@ namespace dMobile.View
         }
 
         /// <summary>
-        ///
+        /// Customize behavior immediately prior to the 'Page' becoming visible.
         /// </summary>
-        /// <remarks></remarks>
+        protected override async void OnAppearing()
+        {
+            await Task.Run(async () =>
+            {
+                try
+                {
+                    base.OnAppearing();
+                    this.Loading = true;
+                    SubscribeKeyUpHandlers();
+                    await this.LoginStartup_GotFocus();
+                }
+                catch (MessageOnlyException ex)
+                {
+                    await Device.InvokeOnMainThreadAsync(async () =>
+                        await Application.Current.MainPage.DisplayAlert(
+                            this.GetControlDescription(),
+                            ex.Message,
+                            Resource.OK));
+                }
+                catch (Exception ex)
+                {
+                    await Device.InvokeOnMainThreadAsync(async () =>
+                    {
+                        string msg = "This activity unexpectedly failed to initialize correctly." +
+                            " Please exit and try again.";
+                        FormErrorReport errorReport = new FormErrorReport(msg, ex);
+                        _ = await errorReport.ShowDialog();
+                    });
+                }
+                finally
+                {
+                    this.Loading = false;
+                }
+            });
+
+            void SubscribeKeyUpHandlers()
+            {
+                MessagingCenter.Subscribe<string>(this, EventTypes.OnKeyUp.ToString(), async (keyPressed) =>
+                {
+                    try
+                    {
+                        _ = Enum.TryParse(keyPressed, out Keycode keycode);
+
+                        if (keycode == Keycode.Enter)
+                        {
+                            _ = await this.IsReadyToClose();
+                            this.cmdLogin_Click(this, new EventArgs());
+                        }
+
+                        await this.LoginStartup_GotFocus();
+                    }
+                    catch (MessageOnlyException ex)
+                    {
+                        await Device.InvokeOnMainThreadAsync(async () =>
+                            await Application.Current.MainPage.DisplayAlert(
+                                this.GetControlDescription(),
+                                ex.Message,
+                                Resource.OK));
+                    }
+                    catch (Exception ex)
+                    {
+                        await Device.InvokeOnMainThreadAsync(async () =>
+                        {
+                            string msg = "This activity unexpectedly failed to initialize correctly." +
+                                " Please exit and try again.";
+                            FormErrorReport errorReport = new FormErrorReport(msg, ex);
+                            _ = await errorReport.ShowDialog();
+                        });
+                    }
+                    finally
+                    {
+                        this.Loading = false;
+                    }
+                });
+            }
+        }
+
+        /// <summary>
+        /// Clean up before the 'Page' becomes invisible.
+        /// </summary>
+        protected override void OnDisappearing()
+        {
+            MessagingCenter.Unsubscribe<string>(this, EventTypes.OnKeyUp.ToString());
+            base.OnDisappearing();
+        }
+
+        /// <summary>
+        /// Load the warehouses to display for selection.
+        /// </summary>
+        /// <returns><see cref="Task"/> Task operation.</returns>
         private async Task LoadData()
         {
             this.txtLoginID.Text = this.SysEnv.ContactLog.LoginID.ToString();
             this.txtLoginPassword.Text = this.SysEnv.ContactLog.LoginPassword;
 
-            List<Warehouse> resultsWarehouse = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<Warehouse>("SELECT LocationMapRefno, LocationMapWarehouseCode, LocationMapWarehouseName FROM tLocationMapWarehouse");
+            List<Warehouse> resultsWarehouse = await DatabaseConnection.GetInstance().SQLConn.
+                QueryAsync<Warehouse>(
+                "SELECT LocationMapRefno, LocationMapWarehouseCode, LocationMapWarehouseName FROM tLocationMapWarehouse");
 
             if (resultsWarehouse?.Count > 0)
             {
@@ -389,7 +464,8 @@ namespace dMobile.View
 
                 this.lstWarehouse.ItemsSource = resultsWarehouse;
                 this.lstWarehouse.ItemDisplayBinding = new Binding("DisplayName");
-                Warehouse selectedWarehouse = resultsWarehouse.Where(warehouse => warehouse.LocationMapRefno == this.SysEnv.ContactLog.WarehouseLocationMapRefno).FirstOrDefault();
+                Warehouse selectedWarehouse = resultsWarehouse.Where(warehouse => warehouse.LocationMapRefno ==
+                    this.SysEnv.ContactLog.WarehouseLocationMapRefno).FirstOrDefault();
 
                 if (selectedWarehouse != null)
                 {
@@ -400,11 +476,9 @@ namespace dMobile.View
         }
 
         /// <summary>
-        ///
+        /// The LoginStartup_GotFocus.
         /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        /// <remarks></remarks>
+        /// <returns>The <see cref="Task"/>.</returns>
         private async Task LoginStartup_GotFocus()
         {
             if (!this.IsControlLoaded)
@@ -428,11 +502,10 @@ namespace dMobile.View
         }
 
         /// <summary>
-        ///
+        /// The IdentifyChangesMade.
         /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        /// <remarks></remarks>
+        /// <param name="sender">.</param>
+        /// <param name="e">.</param>
         private void IdentifyChangesMade(object sender, EventArgs e)
         {
             if (this.IsControlLoaded)
@@ -442,11 +515,11 @@ namespace dMobile.View
         }
 
         /// <summary>
-        ///
+        /// The ValidateEntry.
         /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        /// <remarks></remarks>
+        /// <param name="sender">.</param>
+        /// <param name="e">.</param>
+        /// <returns>The <see cref="Task"/>.</returns>
         private async Task ValidateEntry(object sender, CancelEventArgs e)
         {
             int userCode = 0;
@@ -454,7 +527,10 @@ namespace dMobile.View
 
             try
             {
-                List<tContactUserModel> results = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<tContactUserModel>("SELECT * FROM tContactUser WHERE ContactUserCode = ?", Convert.ToInt32(this.txtLoginID.Text));
+                List<tContactUserModel> results = await DatabaseConnection.GetInstance().SQLConn.
+                    QueryAsync<tContactUserModel>(
+                    "SELECT * FROM tContactUser WHERE ContactUserCode = ?",
+                    Convert.ToInt32(this.txtLoginID.Text));
 
                 if (results?.Count > 0)
                 {
@@ -462,7 +538,8 @@ namespace dMobile.View
                     password = results[0].ContactUserPassword;
 
                     // TODO: Where are these used anymore?
-                    // March 28, 2016 - IsAllowedAssocBarCode is set later in this file  in function SaveChanges(); and used in SysShared.IdentifyProductScanned.
+                    // March 28, 2016 - IsAllowedAssocBarCode is set later in this file  in function SaveChanges()
+                    // and used in SysShared.IdentifyProductScanned.
                     this.IsAllowedAssocBarCode = results[0].ContactUserIsAllowedAssociateProductBarCode;
                     this.IsAllowedOverridePicker = results[0].ContactUserIsAllowedPickingModuleOverridePicker;
                     this.IsOverrideAddManualDetail = results[0].ContactUserIsAllowedPickingModuleOverrideAddManualDetail;
@@ -538,11 +615,10 @@ namespace dMobile.View
         }
 
         /// <summary>
-        ///
+        /// The cmdLogin_Click.
         /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        /// <remarks></remarks>
+        /// <param name="sender">.</param>
+        /// <param name="e">.</param>
         private async void cmdLogin_Click(object sender, EventArgs e)
         {
             try
@@ -556,9 +632,15 @@ namespace dMobile.View
                     if (await this.SaveChanges())
                     {
                         // <WO ID="14734" Comment="Show message after login when data is older than 48 hours" />
-                        if (this.SysEnv == null || this.SysEnv.RefreshOpt == null || this.SysEnv.RefreshOpt.RefreshedDataLast == null || (DateTime.Now - this.SysEnv.RefreshOpt.RefreshedDataLast).TotalHours > 48)
+                        if (this.SysEnv == null
+                            || this.SysEnv.RefreshOpt == null
+                            || this.SysEnv.RefreshOpt.RefreshedDataLast == null
+                            || (DateTime.Now - this.SysEnv.RefreshOpt.RefreshedDataLast).TotalHours > 48)
                         {
-                            await Device.InvokeOnMainThreadAsync(async () => await this.DisplayAlert(Resource.RefreshRequired, Resource.DataIsOutOfDatePleaseRefreshImmediately, Resource.OK));
+                            await Device.InvokeOnMainThreadAsync(async () => await this.DisplayAlert(
+                                Resource.RefreshRequired,
+                                Resource.DataIsOutOfDatePleaseRefreshImmediately,
+                                Resource.OK));
                         }
 
                         _ = await Device.InvokeOnMainThreadAsync(() => Application.Current.MainPage = new MainPage());
@@ -576,10 +658,10 @@ namespace dMobile.View
         }
 
         /// <summary>
-        ///
+        /// The PictureBoxLogo_DoubleClick.
         /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
+        /// <param name="sender">.</param>
+        /// <param name="e">.</param>
         private async void PictureBoxLogo_DoubleClick(object sender, EventArgs e)
         {
             if (this.IsEnableAllModuleBypassLicense)
@@ -593,14 +675,26 @@ namespace dMobile.View
                 this.IsEnableAllModuleBypassLicense = true;
             }
 
-            await Device.InvokeOnMainThreadAsync(async () => await this.DisplayAlert(Resource.DMobile, Resource.AllModulesEnabledBypassingDeviceLicenses, Resource.OK));
+            await Device.InvokeOnMainThreadAsync(async () => await this.DisplayAlert(
+                Resource.DMobile,
+                Resource.AllModulesEnabledBypassingDeviceLicenses,
+                Resource.OK));
         }
 
-        public string GetControlDescription()
+        /// <summary>
+        /// The GetControlDescription.
+        /// </summary>
+        /// <returns>The <see cref="string"/>.</returns>
+        private string GetControlDescription()
         {
-            throw new NotImplementedException();
+            return "dMobile Login";
         }
 
+        /// <summary>
+        /// The LstWarehouse_SelectedIndexChanged.
+        /// </summary>
+        /// <param name="sender">The sender<see cref="object"/>.</param>
+        /// <param name="e">The e<see cref="EventArgs"/>.</param>
         private void LstWarehouse_SelectedIndexChanged(object sender, EventArgs e)
         {
             Warehouse selectedWarehouse = (Warehouse)this.lstWarehouse.SelectedItem;

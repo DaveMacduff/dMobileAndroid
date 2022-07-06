@@ -55,6 +55,32 @@ namespace dMobile.View
         }
 
         /// <summary>
+        /// Gets or sets a value indicating whether FilterOnAllowConvertProduct
+        /// Sets a filter on product list for AllowConvertProduct.
+        /// Will automatically load the data on the grid again if set to a different value..
+        /// </summary>
+        public bool FilterOnAllowConvertProduct
+        {
+            get
+            {
+                return this.filterOnAllowConvertProduct;
+            }
+
+            set
+            {
+                this.filterOnAllowConvertProduct = value;
+
+                // we only load when value is true.
+                // This allows the variable to be set back to false without causing infinite loop.
+                if (value)
+                {
+                    // TODO: Test loading
+                    Task.Run(async () => await this.LoadData()).Wait();
+                }
+            }
+        }
+
+        /// <summary>
         /// The OnAppearing.
         /// </summary>
         protected override async void OnAppearing()
@@ -75,17 +101,24 @@ namespace dMobile.View
                 }
                 else if (keycode == Keycode.DpadDown)
                 {
-                    if (this.dgProducts.SelectedItem != null && Convert.ToInt32(this.ProductFilteredObservableCollection.IndexOf(this.dgProducts.SelectedItem as Product)) < this.ProductFilteredObservableCollection.Count - 1)
+                    if (this.dgProducts.SelectedItem != null && Convert.ToInt32(
+                        this.ProductFilteredObservableCollection.IndexOf(
+                            this.dgProducts.SelectedItem as Product)) < this.ProductFilteredObservableCollection.Count - 1)
                     {
-                        this.dgProducts.SelectedItem = this.ProductFilteredObservableCollection[this.ProductFilteredObservableCollection.IndexOf(this.dgProducts.SelectedItem as Product) + 1];
+                        this.dgProducts.SelectedItem =
+                            this.ProductFilteredObservableCollection[this.ProductFilteredObservableCollection.IndexOf(
+                                this.dgProducts.SelectedItem as Product) + 1];
                         this.dgProducts.ScrollTo(this.dgProducts.SelectedItem, ScrollToPosition.MakeVisible, true);
                     }
                 }
                 else if (keycode == Keycode.DpadUp)
                 {
-                    if (this.dgProducts.SelectedItem != null && Convert.ToInt32(this.ProductFilteredObservableCollection.IndexOf(this.dgProducts.SelectedItem as Product)) > 0)
+                    if (this.dgProducts.SelectedItem != null && Convert.ToInt32(
+                        this.ProductFilteredObservableCollection.IndexOf(this.dgProducts.SelectedItem as Product)) > 0)
                     {
-                        this.dgProducts.SelectedItem = this.ProductFilteredObservableCollection[this.ProductFilteredObservableCollection.IndexOf(this.dgProducts.SelectedItem as Product) - 1];
+                        this.dgProducts.SelectedItem =
+                            this.ProductFilteredObservableCollection[this.ProductFilteredObservableCollection.IndexOf(
+                                this.dgProducts.SelectedItem as Product) - 1];
                         this.dgProducts.ScrollTo(this.dgProducts.SelectedItem, ScrollToPosition.MakeVisible, true);
                     }
                 }
@@ -134,30 +167,6 @@ namespace dMobile.View
             });
 
             return true;
-        }
-
-        /// <summary>
-        /// Gets or sets a value indicating whether FilterOnAllowConvertProduct
-        /// Sets a filter on product list for AllowConvertProduct.
-        /// Will automatically load the data on the grid again if set to a different value..
-        /// </summary>
-        public bool FilterOnAllowConvertProduct
-        {
-            get
-            {
-                return this.filterOnAllowConvertProduct;
-            }
-            set
-            {
-                this.filterOnAllowConvertProduct = value;
-                // we only load when value is true.
-                // This allows the variable to be set back to false without causing infinite loop.
-                if (value)
-                {
-                    // TODO: Test loading
-                    Task.Run(async () => await this.LoadData()).Wait();
-                }
-            }
         }
 
         /// <summary>
@@ -473,18 +482,23 @@ namespace dMobile.View
         {
             this.IsChangesMade = true;
 
-            if (!string.IsNullOrEmpty(this.textBoxSearchProduct.Text) || (string.Compare(this.textBoxSearchProduct.Text.Trim(), string.Empty) > 0))
+            if (!string.IsNullOrEmpty(this.textBoxSearchProduct.Text) ||
+                (string.Compare(this.textBoxSearchProduct.Text.Trim(), string.Empty) > 0))
             {
                 // By Code
                 if (this.cboSearch.SelectedIndex == 0)
                 {
                     // this.DataViewProducts.RowFilter = "ProductCode LIKE \'" + this.textBoxSearchProduct.Text.Trim() + "%\'";
-                    this.ProductFilteredObservableCollection = new ObservableCollection<Product>(this.ProductObservableCollection.Where((prod) => prod.ProductCode.ToLower().Contains(this.textBoxSearchProduct.Text.ToLower().Trim())));
+                    this.ProductFilteredObservableCollection = new ObservableCollection<Product>(
+                        this.ProductObservableCollection.Where((prod) => prod.ProductCode.ToLower().Contains(
+                            this.textBoxSearchProduct.Text.ToLower().Trim())));
                 }
                 else
                 {
                     // this.DataViewProducts.RowFilter = "ProductDescription LIKE \'" + this.textBoxSearchProduct.Text.Trim() + "%\'";
-                    this.ProductFilteredObservableCollection = new ObservableCollection<Product>(this.ProductObservableCollection.Where((prod) => prod.ProductDescription.ToLower().Contains(this.textBoxSearchProduct.Text.ToLower().Trim())));
+                    this.ProductFilteredObservableCollection = new ObservableCollection<Product>(
+                        this.ProductObservableCollection.Where((prod) => prod.ProductDescription.ToLower().Contains(
+                            this.textBoxSearchProduct.Text.ToLower().Trim())));
                 }
             }
             else
@@ -579,7 +593,8 @@ namespace dMobile.View
         private void TextBoxSearchProduct_Focused(object sender, FocusEventArgs e)
         {
             this.textBoxSearchProduct.CursorPosition = 0;
-            this.textBoxSearchProduct.SelectionLength = this.textBoxSearchProduct.Text != null ? this.textBoxSearchProduct.Text.Length : 0;
+            this.textBoxSearchProduct.SelectionLength =
+                this.textBoxSearchProduct.Text != null ? this.textBoxSearchProduct.Text.Length : 0;
         }
 
         /// <summary>

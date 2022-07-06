@@ -369,8 +369,8 @@ namespace dMobile.Controller
             if (selectedActivity is Count count)
             {
                 this.SelectedActivity = count;
-                this.FKRefno = Convert.ToInt32(count.ActivityCountFKRefno);
-                this.Refno = Convert.ToInt32(count.ActivityRefno);
+                this.HdrFKRefno = Convert.ToInt32(count.ActivityCountFKRefno);
+                this.HdrRefno = Convert.ToInt32(count.ActivityRefno);
 
                 // Set the selected warehouse to the activity header warehouse.
                 if (LocationMap.GetInstance().CurrLocMap.WhsLocMapRefno != Convert.ToInt32(count.WarehouseLocationMapRefno))
@@ -389,11 +389,11 @@ namespace dMobile.Controller
         {
             if (selectedItem is Count count)
             {
-                this.FKRefno = Convert.ToInt32(count.ActivityCountFKRefno);
-                this.Refno = Convert.ToInt32(count.ActivityRefno);
+                this.HdrFKRefno = Convert.ToInt32(count.ActivityCountFKRefno);
+                this.HdrRefno = Convert.ToInt32(count.ActivityRefno);
 
             }
-            return this.Refno;
+            return this.HdrRefno;
         }
 
         /// <summary>

@@ -178,7 +178,7 @@ namespace dMobile.Controller
             await base.IsReadyToApply(data);
 
             // New items are identified with 0 < this.FKRefno, do not validate.
-            if (this.SysEnv.SysSettings.TransQtyOverWarn != SysCommon.ActTransfersQtyOverValLevels.NoValidationOrWarning && this.FKRefno > 0)
+            if (this.SysEnv.SysSettings.TransQtyOverWarn != SysCommon.ActTransfersQtyOverValLevels.NoValidationOrWarning && this.ItemFKRefno > 0)
             {
                 try
                 {
@@ -258,12 +258,12 @@ namespace dMobile.Controller
                 }
 
                 parametersActivityItem.Add(Convert.ToInt32(SysCommon.ActStatus.NoChange));
-                parametersActivityItem.Add(Convert.ToInt32(this.ActHdr.Refno));
+                parametersActivityItem.Add(Convert.ToInt32(this.ActHdr.HdrRefno));
 
                 transaction.Execute(queryActivityItem, parametersActivityItem.ToArray());
 
-                this.Refno = Convert.ToInt32(transaction.ExecuteScalar<int>("SELECT last_insert_rowid() FROM tActivityItem"));
-                this.FKRefno = this.Refno * -1;
+                this.ItemRefno = Convert.ToInt32(transaction.ExecuteScalar<int>("SELECT last_insert_rowid() FROM tActivityItem"));
+                this.ItemFKRefno = this.ItemRefno * -1;
 
                 string queryTransferItem = "INSERT INTO tActivityItemTransfer (" +
                     "ActivityItemRefno, " +
@@ -289,7 +289,7 @@ namespace dMobile.Controller
                     "?" +
                     ")";
                 List<object> parametersTransferItem = new List<object>();
-                parametersTransferItem.Add(Convert.ToInt32(this.Refno));
+                parametersTransferItem.Add(Convert.ToInt32(this.ItemRefno));
 
                 if (this.ActSubType == SysCommon.ActSubTypes.TransferFrom)
                 {
@@ -300,8 +300,8 @@ namespace dMobile.Controller
                     parametersTransferItem.Add(Convert.ToInt32(SysCommon.ActSubTypes.TransferTo));
                 }
 
-                parametersTransferItem.Add(Convert.ToInt32(this.FKRefno));
-                parametersTransferItem.Add(Convert.ToString(this.FKRefno));
+                parametersTransferItem.Add(Convert.ToInt32(this.ItemFKRefno));
+                parametersTransferItem.Add(Convert.ToString(this.ItemFKRefno));
                 parametersTransferItem.Add(Convert.ToInt32(prodUnitRefno));
                 parametersTransferItem.Add(Convert.ToInt32(this.LocMap.CurrLocMap.WhsLocMapRefno));
                 parametersTransferItem.Add(Convert.ToInt32(0));
@@ -320,9 +320,9 @@ namespace dMobile.Controller
             {
                 this.ListItems.Add(new TransferItem()
                 {
-                    ActivityItemRefno = this.Refno,
-                    ActivityItemTransferFKRefno = this.FKRefno,
-                    ActivityItemTransferStringFKRefno = this.FKRefno.ToString(),
+                    ActivityItemRefno = this.ItemRefno,
+                    ActivityItemTransferFKRefno = this.ItemFKRefno,
+                    ActivityItemTransferStringFKRefno = this.ItemFKRefno.ToString(),
                     ProductUnitRefno = prodUnitRefno,
                     ProductRefno = int.Parse(data.Root.Element("ProductRefno").Value),
                     ProductCode = data.Root.Element("ProductCode").Value,
@@ -367,7 +367,7 @@ namespace dMobile.Controller
                     this.DataLayerProgressOutHandler(this, new EventArgs(), 5);
 
                     tableActTransferItem.RegisterDataAccessListenerProgressOut((TransferActItem)this);
-                    await tableActTransferItem.RequestData(this.ActHdr.Refno);
+                    await tableActTransferItem.RequestData(this.ActHdr.HdrRefno);
                     tableActTransferItem.UnregisterDataAccessListenerProgressOut((TransferActItem)this);
                 }
                 else
@@ -380,7 +380,7 @@ namespace dMobile.Controller
                     this.DataLayerProgressOutHandler(this, new EventArgs(), 5);
 
                     tableActTransferItem.RegisterDataAccessListenerProgressOut((TransferActItem)this);
-                    await tableActTransferItem.RequestData(this.ActHdr.Refno);
+                    await tableActTransferItem.RequestData(this.ActHdr.HdrRefno);
                     tableActTransferItem.UnregisterDataAccessListenerProgressOut((TransferActItem)this);
                 }
             }
@@ -557,7 +557,7 @@ namespace dMobile.Controller
                 sql.Append("INNER JOIN tProduct ON tProduct.ProductRefno = tProductUnit.ProductRefno ");
                 sql.Append("INNER JOIN tLocationMapWarehouse ON tLocationMapWarehouse.LocationMapRefno ");
                 sql.Append("= tActivityItemTransfer.TransferFromWarehouseLocationMapRefno ");
-                sql.AppendFormat("WHERE tActivityItem.ActivityRefno = {0} ", this.ActHdr.Refno);
+                sql.AppendFormat("WHERE tActivityItem.ActivityRefno = {0} ", this.ActHdr.HdrRefno);
                 sql.AppendFormat("AND tActivityItem.ActivityItemStatus <> {0} ", Convert.ToInt32(SysCommon.ActStatus.NoChange));
                 sql.Append("UNION ");
                 sql.Append("SELECT tActivityItemTransfer.ActivityItemRefno,");
@@ -589,7 +589,7 @@ namespace dMobile.Controller
                 sql.Append("INNER JOIN tProduct ON tProduct.ProductRefno = tProductUnit.ProductRefno ");
                 sql.Append("INNER JOIN tLocationMapWarehouse ON tLocationMapWarehouse.LocationMapRefno ");
                 sql.Append("= tActivityItemTransfer.TransferFromWarehouseLocationMapRefno ");
-                sql.AppendFormat("WHERE tActivityItem.ActivityRefno = {0} ", this.ActHdr.Refno);
+                sql.AppendFormat("WHERE tActivityItem.ActivityRefno = {0} ", this.ActHdr.HdrRefno);
                 sql.AppendFormat(" AND tActivityDetail.ActivityDetailStatus <> {0} ", Convert.ToInt32(SysCommon.ActStatus.NoChange));
                 sql.Append(" ORDER BY tActivityItemTransfer.ActivityItemRefno");
             }
@@ -622,7 +622,7 @@ namespace dMobile.Controller
                 sql.Append("INNER JOIN tProduct ON tProduct.ProductRefno = tProductUnit.ProductRefno ");
                 sql.Append("INNER JOIN tLocationMapWarehouse ON tLocationMapWarehouse.LocationMapRefno ");
                 sql.Append("= tActivityItemTransfer.TransferFromWarehouseLocationMapRefno ");
-                sql.AppendFormat("WHERE tActivityItem.ActivityRefno = {0} ", this.ActHdr.Refno);
+                sql.AppendFormat("WHERE tActivityItem.ActivityRefno = {0} ", this.ActHdr.HdrRefno);
                 sql.Append("ORDER BY tActivityItemTransfer.ActivityItemRefno");
             }
 
@@ -702,8 +702,8 @@ namespace dMobile.Controller
             if (selectedActivityItem is TransferItem item)
             {
                 this.SelectedActivityItem = item;
-                this.Refno = item.ActivityItemRefno;
-                this.FKRefno = Convert.ToInt32(item.ActivityItemTransferFKRefno);
+                this.ItemRefno = item.ActivityItemRefno;
+                this.ItemFKRefno = Convert.ToInt32(item.ActivityItemTransferFKRefno);
                 this.ProdInfo = await ProductInfoTasks.GetInfoFromUnitRefno(item.ProductUnitRefno);
                 activityItemLocMapRefno = item.LocationMapRefno;
             }
@@ -736,16 +736,16 @@ namespace dMobile.Controller
                 + "AND tActivityItemTransfer.TransferFromWarehouseLocationMapRefno = ? "
                 + "AND tActivityItemTransfer.ProductUnitRefno = ?";
 
-            List<TransferItem> results = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<TransferItem>(query, this.ActHdr.Refno, this.LocMap.CurrLocMap.WhsLocMapRefno, prodUnitRefno);
+            List<TransferItem> results = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<TransferItem>(query, this.ActHdr.HdrRefno, this.LocMap.CurrLocMap.WhsLocMapRefno, prodUnitRefno);
 
             if (results?.Count > 0)
             {
-                this.Refno = Convert.ToInt32(results[0].ActivityItemRefno);
-                this.FKRefno = Convert.ToInt32(results[0].ActivityItemTransferFKRefno);
+                this.ItemRefno = Convert.ToInt32(results[0].ActivityItemRefno);
+                this.ItemFKRefno = Convert.ToInt32(results[0].ActivityItemTransferFKRefno);
                 this.ProdInfo = await ProductInfoTasks.GetInfoFromUnitRefno(Convert.ToInt32(results[0].ProductUnitRefno));
                 this.ProdInfo.Scheme = await ProductInfoTasks.GetSchemeComponentsFromRefno(this.ProdInfo.Refno);
 
-                foundItemRefno = this.Refno;
+                foundItemRefno = this.ItemRefno;
             }
 
             return foundItemRefno;
@@ -873,7 +873,7 @@ namespace dMobile.Controller
         /// <returns><see cref="string"/> Get activity item control description.</returns>
         public override string GetControlDescription()
         {
-            return string.Format("Transfer # {0}", this.ActHdr.FKRefno);
+            return string.Format("Transfer # {0}", this.ActHdr.HdrFKRefno);
         }
 
         /// <summary>

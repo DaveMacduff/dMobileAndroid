@@ -178,7 +178,7 @@ namespace dMobile.Controller
                     + "<action>REQUEST SHIPPING LABEL ITEM QUANTITY</action>"
                     + "</command>"
                     + await SysCommon.GetRequestDefaults(false)
-                    + "<itm_refno>" + this.FKRefno + "</itm_refno>"
+                    + "<itm_refno>" + this.ItemFKRefno + "</itm_refno>"
                     + "</imclient>");
 
                 request.Save(xml);
@@ -200,7 +200,7 @@ namespace dMobile.Controller
 
                 "Order# {0} request shipping label(s) quantity failed." + Environment.NewLine + "{1}",
 
-                this.FKRefno,
+                this.ItemFKRefno,
                             xmlResult.DocumentElement["detail"].InnerText);
                         if (errorDetail.Contains("MSGBOX-"))
                         {
@@ -263,7 +263,7 @@ namespace dMobile.Controller
                 }
                 else
                 {
-                    throw new Exception(string.Format("Order # {0} item request shipping label(s) quantity failed.", this.FKRefno));
+                    throw new Exception(string.Format("Order # {0} item request shipping label(s) quantity failed.", this.ItemFKRefno));
                 }
             }
             catch (Exception ex)
@@ -331,7 +331,7 @@ namespace dMobile.Controller
             }
 
             // New items are identified with 0 < this.FKRefno, do not validate.
-            if (this.SysEnv.SysSettings.PickQtyOverWarn != SysCommon.ActPickingQtyOverValLevels.NoValidationOrWarning && this.FKRefno > 0)
+            if (this.SysEnv.SysSettings.PickQtyOverWarn != SysCommon.ActPickingQtyOverValLevels.NoValidationOrWarning && this.ItemFKRefno > 0)
             {
                 try
                 {
@@ -547,7 +547,7 @@ namespace dMobile.Controller
                 this.DataLayerProgressOutHandler(this, new EventArgs(), 5);
 
                 tableActPickItem.RegisterDataAccessListenerProgressOut((PickSingleActItem)this);
-                await tableActPickItem.RequestData(this.ActHdr.Refno, data);
+                await tableActPickItem.RequestData(this.ActHdr.HdrRefno, data);
                 tableActPickItem.UnregisterDataAccessListenerProgressOut((PickSingleActItem)this);
             }
         }
@@ -770,7 +770,7 @@ namespace dMobile.Controller
                 sql.Append("tActivityItemPicking.WarehouseLocationMapRefno ");
                 sql.Append("LEFT JOIN tActivityItemPickingComment ON tActivityItemPickingComment.ActivityItemRefno = ");
                 sql.Append("tActivityItemPicking.ActivityItemRefno ");
-                sql.AppendFormat("WHERE tActivityItem.ActivityRefno = {0} ", this.ActHdr.Refno);
+                sql.AppendFormat("WHERE tActivityItem.ActivityRefno = {0} ", this.ActHdr.HdrRefno);
                 sql.AppendFormat("AND tActivityItem.ActivityItemStatus <> {0} ", Convert.ToInt32(SysCommon.ActStatus.NoChange));
                 sql.Append("UNION ");
                 sql.Append("SELECT tActivityItemPicking.ActivityItemRefno,");
@@ -815,7 +815,7 @@ namespace dMobile.Controller
                 sql.Append("tActivityItemPicking.WarehouseLocationMapRefno ");
                 sql.Append("LEFT JOIN tActivityItemPickingComment ON tActivityItemPickingComment.ActivityItemRefno = ");
                 sql.Append("tActivityItemPicking.ActivityItemRefno ");
-                sql.AppendFormat("WHERE tActivityItem.ActivityRefno = {0} ", this.ActHdr.Refno);
+                sql.AppendFormat("WHERE tActivityItem.ActivityRefno = {0} ", this.ActHdr.HdrRefno);
                 sql.AppendFormat("AND tActivityDetail.ActivityDetailStatus <> {0} ", Convert.ToInt32(SysCommon.ActStatus.NoChange));
                 sql.Append("ORDER BY tActivityItemPicking.ActivityItemRefno");
             }
@@ -860,7 +860,7 @@ namespace dMobile.Controller
                 sql.Append("tActivityItemPicking.WarehouseLocationMapRefno ");
                 sql.Append("LEFT JOIN tActivityItemPickingComment ON tActivityItemPickingComment.ActivityItemRefno = ");
                 sql.Append("tActivityItemPicking.ActivityItemRefno ");
-                sql.AppendFormat("WHERE tActivityItem.ActivityRefno = {0} ", this.ActHdr.Refno);
+                sql.AppendFormat("WHERE tActivityItem.ActivityRefno = {0} ", this.ActHdr.HdrRefno);
                 sql.Append("ORDER BY tActivityItemPicking.ActivityItemRefno");
             }
 
@@ -947,8 +947,8 @@ namespace dMobile.Controller
             if (selectedActivityItem is PickingItem item)
             {
                 this.SelectedActivityItem = item;
-                this.Refno = item.ActivityItemRefno;
-                this.FKRefno = Convert.ToInt32(item.ActivityItemPickingFKRefno);
+                this.ItemRefno = item.ActivityItemRefno;
+                this.ItemFKRefno = Convert.ToInt32(item.ActivityItemPickingFKRefno);
                 this.ProdInfo = await ProductInfoTasks.GetInfoFromUnitRefno(item.ProductUnitRefno);
                 activityItemLocMapRefno = item.LocationMapRefno;
             }
@@ -967,7 +967,7 @@ namespace dMobile.Controller
         /// <returns>.</returns>
         public override async Task<int> GetActivityItemRefno(int prodUnitRefno)
         {
-            int foundActItemRefno = this.Refno;
+            int foundActItemRefno = this.ItemRefno;
             return foundActItemRefno;
         }
 
@@ -1095,7 +1095,7 @@ namespace dMobile.Controller
         /// <returns><see cref="string"/> Get activity item control description.</returns>
         public override string GetControlDescription()
         {
-            return string.Format("Pick # {0}", this.ActHdr.FKRefno);
+            return string.Format("Pick # {0}", this.ActHdr.HdrFKRefno);
         }
 
         /// <summary>

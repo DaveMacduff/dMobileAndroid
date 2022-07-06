@@ -388,8 +388,8 @@ namespace dMobile.Controller
             if (selectedActivity is Transfer transfer)
             {
                 this.SelectedActivity = transfer;
-                this.FKRefno = Convert.ToInt32(transfer.ActivityTransferFKRefno);
-                this.Refno = Convert.ToInt32(transfer.ActivityRefno);
+                this.HdrFKRefno = Convert.ToInt32(transfer.ActivityTransferFKRefno);
+                this.HdrRefno = Convert.ToInt32(transfer.ActivityRefno);
 
                 // Set the selected warehouse to the activity header warehouse.
                 if (LocationMap.GetInstance().CurrLocMap.WhsLocMapRefno != Convert.ToInt32(transfer.LocationMapRefno))
@@ -408,11 +408,11 @@ namespace dMobile.Controller
         {
             if (selectedItem is Transfer transfer)
             {
-                this.FKRefno = Convert.ToInt32(transfer.ActivityTransferFKRefno);
-                this.Refno = Convert.ToInt32(transfer.ActivityRefno);
+                this.HdrFKRefno = Convert.ToInt32(transfer.ActivityTransferFKRefno);
+                this.HdrRefno = Convert.ToInt32(transfer.ActivityRefno);
             }
 
-            return this.Refno;
+            return this.HdrRefno;
         }
 
         /// <summary>

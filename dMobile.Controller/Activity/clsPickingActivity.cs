@@ -171,7 +171,7 @@ namespace dMobile.Controller
         + "<action>SUBMIT PRINT SHIPPING LABEL</action>"
         + "</command>"
         + await SysCommon.GetRequestDefaults(false)
-        + "<refno>" + this.FKRefno + "</refno>"
+        + "<refno>" + this.HdrFKRefno + "</refno>"
         + "<itm_refno>" + data.Root.Element("itm_refno").Value + "</itm_refno>"
         + "<whs_id>" + locMap.WhsFKRefno + "</whs_id>"
         + "<sect_refno>" + locMap.SectFKRefno + "</sect_refno>"
@@ -207,12 +207,12 @@ namespace dMobile.Controller
                         XmlDocument docError = new XmlDocument();
                         docError.LoadXml(reqData);
 
-                        throw new MessageOnlyException(string.Format("Order# {0} print shipping label(s) failed." + Environment.NewLine + "{1}", this.FKRefno, docError.DocumentElement["detail"].InnerText));
+                        throw new MessageOnlyException(string.Format("Order# {0} print shipping label(s) failed." + Environment.NewLine + "{1}", this.HdrFKRefno, docError.DocumentElement["detail"].InnerText));
                     }
                 }
                 else
                 {
-                    throw new Exception(string.Format("Order# {0} Print shipping label(s) failed.", this.FKRefno));
+                    throw new Exception(string.Format("Order# {0} Print shipping label(s) failed.", this.HdrFKRefno));
                 }
             }
         }
@@ -246,7 +246,7 @@ namespace dMobile.Controller
                     + "<action>REQUEST SHIPPING LABEL QUANTITY</action>"
                     + "</command>"
                     + await SysCommon.GetRequestDefaults(false)
-                    + "<refno>" + this.FKRefno + "</refno>"
+                    + "<refno>" + this.HdrFKRefno + "</refno>"
                     + "<sect_refno>" + locMap.SectFKRefno + "</sect_refno>"
                     + "</imclient>");
 
@@ -265,7 +265,7 @@ namespace dMobile.Controller
                     // Check if result is an error message
                     if (reqData.Contains("<message>ERROR</message>"))
                     {
-                        throw new Exception(string.Format("Order# {0} request shipping label(s) quantity failed." + Environment.NewLine + "{1}", this.FKRefno, xmlResult.DocumentElement["detail"].InnerText));
+                        throw new Exception(string.Format("Order# {0} request shipping label(s) quantity failed." + Environment.NewLine + "{1}", this.HdrFKRefno, xmlResult.DocumentElement["detail"].InnerText));
                     }
                     else
                     {
@@ -296,7 +296,7 @@ namespace dMobile.Controller
                 }
                 else
                 {
-                    throw new Exception(string.Format("Order# {0} request shipping label(s) quantity failed.", this.FKRefno));
+                    throw new Exception(string.Format("Order# {0} request shipping label(s) quantity failed.", this.HdrFKRefno));
                 }
             }
             catch (Exception ex)
@@ -334,7 +334,7 @@ namespace dMobile.Controller
                 + "<command>"
                 + "<action>REQUEST SALES ORDER IS BEING PICKED</action>"
                 + await SysCommon.GetRequestDefaults(false)
-                + "<refno>" + this.FKRefno.ToString() + "</refno>"
+                + "<refno>" + this.HdrFKRefno.ToString() + "</refno>"
                 + "<whs_id>" + locMap.WhsFKRefno + "</whs_id>"
                 + "<sect_refno>" + locMap.SectFKRefno + "</sect_refno>"
                 + "</command>"
@@ -396,7 +396,7 @@ namespace dMobile.Controller
                     + "<command>"
                     + "<action>SUBMIT SALES ORDER CLEAR BEING PICKED</action>"
                     + await SysCommon.GetRequestDefaults(false)
-                    + "<refno>" + this.FKRefno.ToString() + "</refno>"
+                    + "<refno>" + this.HdrFKRefno.ToString() + "</refno>"
                     + "<whs_id>" + locMap.WhsFKRefno + "</whs_id>"
                     + "<sect_refno>" + locMap.SectFKRefno + "</sect_refno>"
                     + "<device_only>" + clearDeviceOnly + "</device_only>"
@@ -441,7 +441,7 @@ namespace dMobile.Controller
         {
             bool isReleased = false;
 
-            if (await Device.InvokeOnMainThreadAsync(async () => await Application.Current.MainPage.DisplayAlert(this.GetControlDescription(), string.Format("Release order# {0} ?", this.FKRefno), "Yes", "No")))
+            if (await Device.InvokeOnMainThreadAsync(async () => await Application.Current.MainPage.DisplayAlert(this.GetControlDescription(), string.Format("Release order# {0} ?", this.HdrFKRefno), "Yes", "No")))
             {
                 string reqResult = string.Empty;
                 StringBuilder xmlString = new StringBuilder();
@@ -454,7 +454,7 @@ namespace dMobile.Controller
                     + "<action>RELEASE SALES ORDER BY ORDER</action>"
                     + "</command>"
                     + await SysCommon.GetRequestDefaults(false)
-                    + "<refno>" + this.FKRefno.ToString() + "</refno>"
+                    + "<refno>" + this.HdrFKRefno.ToString() + "</refno>"
                     + "</imclient>");
 
                 request.Save(xml);
@@ -471,14 +471,14 @@ namespace dMobile.Controller
                         docError.LoadXml(reqResult);
                         string errorDetail = docError.DocumentElement["detail"].InnerText;
 
-                        throw new Exception(string.Format("Release order# {0} failed." + Environment.NewLine + errorDetail, this.FKRefno, null));
+                        throw new Exception(string.Format("Release order# {0} failed." + Environment.NewLine + errorDetail, this.HdrFKRefno, null));
                     }
 
                     isReleased = true;
                 }
                 else
                 {
-                    throw new Exception(string.Format("Release order# {0} failed.", this.FKRefno));
+                    throw new Exception(string.Format("Release order# {0} failed.", this.HdrFKRefno));
                 }
             }
 
@@ -502,7 +502,7 @@ namespace dMobile.Controller
                     + "FROM tActivityItem "
                     + "INNER JOIN tActivityItemPicking ON tActivityItemPicking.ActivityItemRefno "
                     + "= tActivityItem.ActivityItemRefno "
-                    + "WHERE tActivityItem.ActivityRefno = " + this.Refno + " "
+                    + "WHERE tActivityItem.ActivityRefno = " + this.HdrRefno + " "
                     + "AND 0 < tActivityItemPicking.ActivityItemPickingBaseQuantityAvailable "
                     + "AND tActivityItemPicking.ActivityItemPickingQuantityShipped "
                     + "< tActivityItemPicking.ActivityItemPickingQuantityOrdered";
@@ -512,7 +512,7 @@ namespace dMobile.Controller
                 // Do not warn if product is out of stock WO# 12054
                 if (rowsAffected > 0)
                 {
-                    throw new Exception(string.Format("Order# {0} quantity under check failed." + Environment.NewLine + "{1} Items exist where the quantity shipped is less than the quantity ordered.", this.FKRefno, rowsAffected));
+                    throw new Exception(string.Format("Order# {0} quantity under check failed." + Environment.NewLine + "{1} Items exist where the quantity shipped is less than the quantity ordered.", this.HdrFKRefno, rowsAffected));
                 }
             }
             else
@@ -528,7 +528,7 @@ namespace dMobile.Controller
                     + "<action>REQUEST SALES ORDER QUANTITY UNDER CHECK</action>"
                     + "</command>"
                     + await SysCommon.GetRequestDefaults(false)
-                    + "<refno>" + this.FKRefno + "</refno>"
+                    + "<refno>" + this.HdrFKRefno + "</refno>"
                     + "<whs_id>" + locMap.CurrLocMap.WhsFKRefno + "</whs_id>"
                     + "<sect_refno>" + locMap.CurrLocMap.SectFKRefno + "</sect_refno>"
                     + "</imclient>");
@@ -547,12 +547,12 @@ namespace dMobile.Controller
                         docError.LoadXml(reqResult);
                         string errorDetail = docError.DocumentElement["detail"].InnerText;
 
-                        throw new Exception(string.Format("Order# {0} quantity under check failed." + Environment.NewLine + "{1}", this.FKRefno, errorDetail));
+                        throw new Exception(string.Format("Order# {0} quantity under check failed." + Environment.NewLine + "{1}", this.HdrFKRefno, errorDetail));
                     }
                 }
                 else
                 {
-                    throw new Exception(string.Format("Order# {0} quantity under check failed.", this.FKRefno));
+                    throw new Exception(string.Format("Order# {0} quantity under check failed.", this.HdrFKRefno));
                 }
             }
         }
@@ -1031,8 +1031,8 @@ namespace dMobile.Controller
             if (selectedActivity is Picking picking)
             {
                 this.SelectedActivity = picking;
-                this.FKRefno = Convert.ToInt32(picking.ActivityPickingFKRefno);
-                this.Refno = Convert.ToInt32(picking.ActivityRefno);
+                this.HdrFKRefno = Convert.ToInt32(picking.ActivityPickingFKRefno);
+                this.HdrRefno = Convert.ToInt32(picking.ActivityRefno);
 
                 // Set the selected warehouse to the activity header warehouse.
                 if (LocationMap.GetInstance().CurrLocMap.WhsLocMapRefno != Convert.ToInt32(picking.LocationMapRefno))
@@ -1051,11 +1051,11 @@ namespace dMobile.Controller
         {
             if (selectedItem is Picking picking)
             {
-                this.FKRefno = Convert.ToInt32(picking.ActivityPickingFKRefno);
-                this.Refno = Convert.ToInt32(picking.ActivityRefno);
+                this.HdrFKRefno = Convert.ToInt32(picking.ActivityPickingFKRefno);
+                this.HdrRefno = Convert.ToInt32(picking.ActivityRefno);
             }
 
-            return this.Refno;
+            return this.HdrRefno;
         }
 
         /// <summary>
@@ -1208,7 +1208,7 @@ namespace dMobile.Controller
                 slotLocMapFKRefno: 0);
             SLocMap locMap = sLocMapAndRefno.SLocMap;
 
-            string msg = string.Format("Release order# {0} for warehouse {1}, section {2}?", this.FKRefno, locMap.WhsName, locMap.SectName);
+            string msg = string.Format("Release order# {0} for warehouse {1}, section {2}?", this.HdrFKRefno, locMap.WhsName, locMap.SectName);
 
             // if (MessageBox.Show(
             //    msg,
@@ -1230,7 +1230,7 @@ namespace dMobile.Controller
                     + "<action>RELEASE SALES ORDER BY ORDER ITEM SECTION</action>"
                     + "</command>"
                     + await SysCommon.GetRequestDefaults(false)
-                    + "<refno>" + this.FKRefno.ToString() + "</refno>"
+                    + "<refno>" + this.HdrFKRefno.ToString() + "</refno>"
                     + "<whs_id>" + locMap.WhsFKRefno + "</whs_id>"
                     + "<sect_refno>" + locMap.SectFKRefno + "</sect_refno>"
                     + "</imclient>");
@@ -1249,14 +1249,14 @@ namespace dMobile.Controller
                         docError.LoadXml(reqData);
                         string errorDetail = docError.DocumentElement["detail"].InnerText;
 
-                        throw new Exception(string.Format("Release order# {0} by order item section {1} failed." + Environment.NewLine + errorDetail, this.FKRefno.ToString(), locMap.SectName));
+                        throw new Exception(string.Format("Release order# {0} by order item section {1} failed." + Environment.NewLine + errorDetail, this.HdrFKRefno.ToString(), locMap.SectName));
                     }
 
                     isReleased = true;
                 }
                 else
                 {
-                    throw new Exception(string.Format("Release order# {0} by order item section {1} failed.", this.FKRefno, locMap.SectName));
+                    throw new Exception(string.Format("Release order# {0} by order item section {1} failed.", this.HdrFKRefno, locMap.SectName));
                 }
             }
 

@@ -228,8 +228,8 @@ namespace dMobile.Controller
                     + await SysCommon.GetRequestDefaults(false)
                     + "<skid_data>" + data.Root.Element("skid_data").Value + "</skid_data>"
                     + "<whs_id>" + this.LocMap.CurrLocMap.WhsFKRefno + "</whs_id>"
-                    + "<refno>" + this.ActHdr.FKRefno + "</refno>"
-                    + "<itm_refno>" + this.FKRefno + "</itm_refno>"
+                    + "<refno>" + this.ActHdr.HdrFKRefno + "</refno>"
+                    + "<itm_refno>" + this.ItemFKRefno + "</itm_refno>"
                     + "<is_negate_qty>false</is_negate_qty>"
                     + "</imclient>");
             }
@@ -361,7 +361,7 @@ namespace dMobile.Controller
                 this.DataLayerProgressOutHandler(this, new EventArgs(), 5);
 
                 tableActRecvItem.RegisterDataAccessListenerProgressOut((RecvActItem)this);
-                await tableActRecvItem.RequestData(this.ActHdr.Refno);
+                await tableActRecvItem.RequestData(this.ActHdr.HdrRefno);
                 tableActRecvItem.UnregisterDataAccessListenerProgressOut((RecvActItem)this);
             }
         }
@@ -564,7 +564,7 @@ namespace dMobile.Controller
                 sql.Append("tActivityItemReceiving.WarehouseLocationMapRefno ");
                 sql.Append("LEFT JOIN tActivityItemReceivingComment ON tActivityItemReceivingComment.ActivityItemRefno = ");
                 sql.Append("tActivityItemReceiving.ActivityItemRefno ");
-                sql.AppendFormat("WHERE tActivityItem.ActivityRefno = {0} ", this.ActHdr.Refno);
+                sql.AppendFormat("WHERE tActivityItem.ActivityRefno = {0} ", this.ActHdr.HdrRefno);
                 sql.AppendFormat("AND tActivityItem.ActivityItemSubType = {0} ", Convert.ToInt32(SysCommon.ActSubTypes.Receiving));
                 sql.AppendFormat("AND tActivityItem.ActivityItemStatus <> {0} ", Convert.ToInt32(SysCommon.ActStatus.NoChange));
                 sql.Append("UNION ");
@@ -613,7 +613,7 @@ namespace dMobile.Controller
                 sql.Append("tActivityItemReceiving.WarehouseLocationMapRefno ");
                 sql.Append("LEFT JOIN tActivityItemReceivingComment ON tActivityItemReceivingComment.ActivityItemRefno = ");
                 sql.Append("tActivityItemReceiving.ActivityItemRefno ");
-                sql.AppendFormat("WHERE tActivityItem.ActivityRefno = {0} ", this.ActHdr.Refno);
+                sql.AppendFormat("WHERE tActivityItem.ActivityRefno = {0} ", this.ActHdr.HdrRefno);
                 sql.AppendFormat("AND tActivityItem.ActivityItemStatus = {0} ", Convert.ToInt32(SysCommon.ActStatus.NoChange));
                 sql.AppendFormat("AND tActivityDetail.ActivityDetailStatus <> {0} ", Convert.ToInt32(SysCommon.ActStatus.NoChange));
                 sql.AppendFormat("AND tActivityItem.ActivityItemSubType = {0} ", Convert.ToInt32(SysCommon.ActSubTypes.Receiving));
@@ -664,7 +664,7 @@ namespace dMobile.Controller
                 sql.Append("tActivityItemReceiving.WarehouseLocationMapRefno ");
                 sql.Append("LEFT JOIN tActivityItemReceivingComment ON tActivityItemReceivingComment.ActivityItemRefno = ");
                 sql.Append("tActivityItemReceiving.ActivityItemRefno ");
-                sql.AppendFormat("WHERE tActivityItem.ActivityRefno = {0} ", this.ActHdr.Refno);
+                sql.AppendFormat("WHERE tActivityItem.ActivityRefno = {0} ", this.ActHdr.HdrRefno);
                 sql.Append("ORDER BY tActivityItemReceiving.ActivityItemRefno");
             }
 
@@ -743,8 +743,8 @@ namespace dMobile.Controller
             if (selectedActivityItem is ReceiveItem item)
             {
                 this.SelectedActivityItem = item;
-                this.Refno = item.ActivityItemRefno;
-                this.FKRefno = Convert.ToInt32(item.ActivityItemReceivingFKRefno);
+                this.ItemRefno = item.ActivityItemRefno;
+                this.ItemFKRefno = Convert.ToInt32(item.ActivityItemReceivingFKRefno);
                 this.ProdInfo = await ProductInfoTasks.GetInfoFromUnitRefno(item.ProductUnitRefno);
                 activityItemLocMapRefno = item.LocationMapRefno;
             }
@@ -774,7 +774,7 @@ namespace dMobile.Controller
             sql.Append("tActivityItemReceiving.ActivityItemRefno ");
             sql.Append("INNER JOIN tLocationMapWarehouse ON tLocationMapWarehouse.LocationMapRefno = ");
             sql.Append("tActivityItemReceiving.WarehouseLocationMapRefno ");
-            sql.AppendFormat("WHERE tActivityItem.ActivityRefno = {0} ", this.ActHdr.Refno);
+            sql.AppendFormat("WHERE tActivityItem.ActivityRefno = {0} ", this.ActHdr.HdrRefno);
             sql.AppendFormat("AND tActivityItemReceiving.WarehouseLocationMapRefno = {0} ", this.LocMap.CurrLocMap.WhsLocMapRefno);
             sql.AppendFormat("AND tActivityItemReceiving.ProductUnitRefno = {0}", prodUnitRefno);
 
@@ -782,11 +782,11 @@ namespace dMobile.Controller
 
             if (results != null && results.Count > 0)
             {
-                this.Refno = Convert.ToInt32(results[0].ActivityItemRefno);
-                this.FKRefno = Convert.ToInt32(results[0].ActivityItemReceivingFKRefno);
+                this.ItemRefno = Convert.ToInt32(results[0].ActivityItemRefno);
+                this.ItemFKRefno = Convert.ToInt32(results[0].ActivityItemReceivingFKRefno);
                 this.ProdInfo = await ProductInfoTasks.GetInfoFromUnitRefno(Convert.ToInt32(results[0].ProductUnitRefno));
                 this.ProdInfo.Scheme = await ProductInfoTasks.GetSchemeComponentsFromRefno(this.ProdInfo.Refno);
-                foundActItemRefno = this.Refno;
+                foundActItemRefno = this.ItemRefno;
             }
 
             return foundActItemRefno;
@@ -894,7 +894,7 @@ namespace dMobile.Controller
                 + "FROM tActivityItem "
                 + "INNER JOIN tActivityItemReceiving ON tActivityItemReceiving.ActivityItemRefno = "
                 + "tActivityItem.ActivityItemRefno "
-                + string.Format("WHERE tActivityItem.ActivityRefno = {0}", this.ActHdr.Refno);
+                + string.Format("WHERE tActivityItem.ActivityRefno = {0}", this.ActHdr.HdrRefno);
 
             List<TotalQuantity> results = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<TotalQuantity>(query);
 
@@ -922,7 +922,7 @@ namespace dMobile.Controller
             await base.IsReadyToApply(data);
 
             // New items are identified with 0 < this.FKRefno, do not validate.
-            if (this.SysEnv.SysSettings.RecvQtyOverWarn != SysCommon.ActReceivingQtyOverValLevels.NoValidationOrWarning && this.FKRefno > 0)
+            if (this.SysEnv.SysSettings.RecvQtyOverWarn != SysCommon.ActReceivingQtyOverValLevels.NoValidationOrWarning && this.ItemFKRefno > 0)
             {
                 try
                 {
@@ -984,7 +984,7 @@ namespace dMobile.Controller
         /// <returns><see cref="string"/> Get activity item control description.</returns>
         public override string GetControlDescription()
         {
-            return string.Format("Receive # {0}", this.ActHdr.FKRefno);
+            return string.Format("Receive # {0}", this.ActHdr.HdrFKRefno);
         }
 
         /// <summary>

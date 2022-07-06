@@ -60,19 +60,19 @@ namespace dMobile.View.Menus
                 if (keycode == Keycode.Num1 && this.cmdMoveProduct.IsEnabled)
                 {
                     this.DisableControls();
-                    ucActivityMoveInventory ucActivityMoveInventory = new ucActivityMoveInventory(SysCommon.ActSubTypes.MoveInventory);
+                    ActivityMoveInventory ucActivityMoveInventory = new ActivityMoveInventory(SysCommon.ActSubTypes.MoveInventory);
                     await ucActivityMoveInventory.Show();
                 }
                 else if (keycode == Keycode.Num2 && this.cmdTransferFrom.IsEnabled)
                 {
                     this.DisableControls();
-                    ucActivityHdr transferFrom = new ucActivityHdr(SysCommon.ActSubTypes.TransferFrom);
+                    ActivityHdr transferFrom = new ActivityHdr(SysCommon.ActSubTypes.TransferFrom);
                     await transferFrom.Show();
                 }
                 else if (keycode == Keycode.Num3 && this.cmdTransferTo.IsEnabled)
                 {
                     this.DisableControls();
-                    ucActivityHdr transferTo = new ucActivityHdr(SysCommon.ActSubTypes.TransferTo);
+                    ActivityHdr transferTo = new ActivityHdr(SysCommon.ActSubTypes.TransferTo);
                     await transferTo.Show();
                 }
                 else if (keycode == Keycode.Num4 && this.cmdMoveSkid.IsEnabled)
@@ -282,7 +282,7 @@ namespace dMobile.View.Menus
         {
             this.DisableControls();
 
-            ucActivityMoveInventory ucActivityMoveInventory = new ucActivityMoveInventory(SysCommon.ActSubTypes.MoveInventory);
+            ActivityMoveInventory ucActivityMoveInventory = new ActivityMoveInventory(SysCommon.ActSubTypes.MoveInventory);
             await ucActivityMoveInventory.Show();
         }
 
@@ -297,7 +297,7 @@ namespace dMobile.View.Menus
             this.SetSaveTransSettings();
             this.DisableControls();
 
-            ucActivityHdr transferFrom = new ucActivityHdr(SysCommon.ActSubTypes.TransferFrom);
+            ActivityHdr transferFrom = new ActivityHdr(SysCommon.ActSubTypes.TransferFrom);
             await transferFrom.Show();
         }
 
@@ -311,7 +311,7 @@ namespace dMobile.View.Menus
             this.SetSaveTransSettings();
             this.DisableControls();
 
-            ucActivityHdr transferTo = new ucActivityHdr(SysCommon.ActSubTypes.TransferTo);
+            ActivityHdr transferTo = new ActivityHdr(SysCommon.ActSubTypes.TransferTo);
             await transferTo.Show();
         }
 
@@ -333,7 +333,7 @@ namespace dMobile.View.Menus
         {
             this.DisableControls();
 
-            ucActivityMoveSkid moveSkid = new ucActivityMoveSkid(SysCommon.ActSubTypes.MoveSkid);
+            ActivityMoveSkid moveSkid = new ActivityMoveSkid(SysCommon.ActSubTypes.MoveSkid);
             await moveSkid.Show();
         }
 

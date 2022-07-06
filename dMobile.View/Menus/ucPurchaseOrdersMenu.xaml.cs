@@ -55,28 +55,28 @@ namespace dMobile.View.Menus
                 {
                     this.DisableControls();
                     this.IsControlLoaded = false;
-                    ucActivityHdr worksheet = new ucActivityHdr(SysCommon.ActSubTypes.PurchaseOrderWorkSheet);
+                    ActivityHdr worksheet = new ActivityHdr(SysCommon.ActSubTypes.PurchaseOrderWorkSheet);
                     await worksheet.Show();
                 }
                 else if (keycode == Keycode.Num1 && this.cmdReceiving.IsEnabled)
                 {
                     this.DisableControls();
                     this.IsControlLoaded = false;
-                    ucActivityHdr receiving = new ucActivityHdr(SysCommon.ActSubTypes.Receiving);
+                    ActivityHdr receiving = new ActivityHdr(SysCommon.ActSubTypes.Receiving);
                     await receiving.Show();
                 }
                 else if (keycode == Keycode.Num2 && this.cmdPutAway.IsEnabled)
                 {
                     this.DisableControls();
                     this.IsControlLoaded = false;
-                    ucActivitySkidPutAway putAway = new ucActivitySkidPutAway();
+                    ActivitySkidPutAway putAway = new ActivitySkidPutAway();
                     await putAway.Show();
                 }
                 else if (keycode == Keycode.Num3 && this.cmdWorkSheet.IsEnabled)
                 {
                     this.DisableControls();
                     this.IsControlLoaded = false;
-                    ucActivityHdr worksheet = new ucActivityHdr(SysCommon.ActSubTypes.PurchaseOrderWorkSheet);
+                    ActivityHdr worksheet = new ActivityHdr(SysCommon.ActSubTypes.PurchaseOrderWorkSheet);
                     await worksheet.Show();
                 }
             });
@@ -277,7 +277,7 @@ namespace dMobile.View.Menus
         {
             this.DisableControls();
             this.IsControlLoaded = false;
-            ucActivityHdr receiving = new ucActivityHdr(SysCommon.ActSubTypes.Receiving);
+            ActivityHdr receiving = new ActivityHdr(SysCommon.ActSubTypes.Receiving);
             await receiving.Show();
         }
 
@@ -291,7 +291,7 @@ namespace dMobile.View.Menus
         {
             this.DisableControls();
             this.IsControlLoaded = false;
-            ucActivitySkidPutAway putAway = new ucActivitySkidPutAway();
+            ActivitySkidPutAway putAway = new ActivitySkidPutAway();
             await putAway.Show();
         }
 
@@ -305,7 +305,7 @@ namespace dMobile.View.Menus
         {
             this.DisableControls();
             this.IsControlLoaded = false;
-            ucActivityPurchaseOrderWorkSheet worksheet = new ucActivityPurchaseOrderWorkSheet(SysCommon.ActSubTypes.PurchaseOrderWorkSheet);
+            ActivityPurchaseOrderWorkSheet worksheet = new ActivityPurchaseOrderWorkSheet(SysCommon.ActSubTypes.PurchaseOrderWorkSheet);
             await worksheet.Show();
         }
     }

@@ -1,0 +1,83 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<modal:DMobileModal  xmlns:modal="clr-namespace:dMobile.View.CustomPages.Modal"
+                     xmlns="http://xamarin.com/schemas/2014/forms"
+                     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml" 
+                     xmlns:Helpers="clr-namespace:dMobile.View.Helpers"
+                     x:Class="dMobile.View.Activity.ActivityConvertUnitEdit">
+    <ContentPage.Content>
+        <AbsoluteLayout VerticalOptions="Center" >
+            <Grid Padding="10" AbsoluteLayout.LayoutFlags="All" AbsoluteLayout.LayoutBounds="0,0,1,1">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="10*"/>
+                    <RowDefinition Height="10*"/>
+                    <RowDefinition Height="50*"/>
+                    <RowDefinition Height="20*"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+                
+                <!--Row 0-->
+                <Label x:Name="lblFromUnitDesc" Grid.Row="0" VerticalOptions="Center" HorizontalOptions="Center" FontAttributes="Bold"/>
+                
+                <!--Row 1-->
+                <Label x:Name="lblEquals" Grid.Row="1" VerticalOptions="Center" HorizontalOptions="Center" FontAttributes="Bold"/>
+                
+                <!--Row 2-->
+                <Grid Grid.Row="2">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="30*"/>
+                        <ColumnDefinition Width="40*"/>
+                        <ColumnDefinition Width="30*"/>
+                    </Grid.ColumnDefinitions>
+
+                    <Label x:Name="lblQty" Grid.Row="0" Grid.Column="0" VerticalOptions="Center" HorizontalOptions="Center"/>
+                    <Entry x:Name="txtAltQty" Grid.Row="0" Grid.Column="1" Keyboard="Numeric" TextChanged="txtAltQty_TextChanged" HorizontalTextAlignment="Center"/>
+                    <Label x:Name="lblUnit" Grid.Row="0" Grid.Column="2" VerticalOptions="Center" FontAttributes="Bold" HorizontalOptions="Center"/>
+
+                    <Label x:Name="lblWeight" Grid.Row="1" Grid.Column="0" VerticalOptions="Center" HorizontalOptions="Center"/>
+                    <Entry x:Name="txtWtQty" Grid.Row="1" Grid.Column="1" Keyboard="Numeric" HorizontalTextAlignment="Center"/>
+                    <Label x:Name="lblWtUnit" Grid.Row="1" Grid.Column="2" VerticalOptions="Center" FontAttributes="Bold" HorizontalOptions="Center"/>
+
+                    <Label x:Name="lblSplitToSingles" Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2" VerticalOptions="Center" HorizontalOptions="Center" FontAttributes="Bold"/>
+                    <Switch x:Name="chkSplitToSingles" Grid.Row="2" Grid.Column="2"/>
+                </Grid>
+
+                <!--Row 3-->
+                <Frame Grid.Row="3" OutlineColor="{DynamicResource BorderColor}">
+                    <ListView x:Name="ListViewDisplayExtraInfo" SelectionMode="None" HasUnevenRows="True" IsEnabled="{Binding Loading, Converter={Helpers:BoolConverter}}" SeparatorVisibility="None">
+                        <ListView.ItemTemplate>
+                            <DataTemplate>
+                                <ViewCell>
+                                    <StackLayout Padding="5,1,5,1">
+                                        <Label Text="{Binding}" VerticalOptions="Center"/>
+                                    </StackLayout>
+                                </ViewCell>
+                            </DataTemplate>
+                        </ListView.ItemTemplate>
+                    </ListView>
+                </Frame>
+
+                <!--Row 4-->
+                <Grid Grid.Row="4">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+
+                    <Button x:Name="cmdSave" Grid.Row="0" Grid.Column="0" Clicked="cmdSave_Clicked" IsEnabled="{Binding Loading, Converter={Helpers:BoolConverter}}"/>
+                    <Button x:Name="cmdCancel" Grid.Row="0" Grid.Column="1" Clicked="cmdCancel_Clicked" IsEnabled="{Binding Loading, Converter={Helpers:BoolConverter}}"/>
+                </Grid>
+
+            </Grid>
+
+            <ActivityIndicator IsVisible="{Binding Loading}" 
+                               IsRunning="{Binding Loading}"
+                               AbsoluteLayout.LayoutFlags="All" 
+                               AbsoluteLayout.LayoutBounds="0.5,0.5,0.3,0.3"/>
+        </AbsoluteLayout>
+    </ContentPage.Content>
+</modal:DMobileModal>

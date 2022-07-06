@@ -123,7 +123,7 @@ namespace dMobile.Controller
             if (this.SysEnv.SysSettings.IsRelByOrder && !this.SysEnv.SysSettings.IsDisconnectedMode)
             {
                 // if (MessageBox.Show(string.Format("Release Order# {0} To Invoice Status?", this.FKRefno), "Release Order", MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button2) == DialogResult.Yes)
-                if (await Device.InvokeOnMainThreadAsync(async () => await Application.Current.MainPage.DisplayAlert("Release Order", string.Format("Release Order# {0} To Invoice Status?", this.FKRefno), "Yes", "No")))
+                if (await Device.InvokeOnMainThreadAsync(async () => await Application.Current.MainPage.DisplayAlert("Release Order", string.Format("Release Order# {0} To Invoice Status?", this.HdrFKRefno), "Yes", "No")))
                 {
                     // GC.Collect();
                     // GC.WaitForPendingFinalizers();
@@ -138,7 +138,7 @@ namespace dMobile.Controller
                         + "<action>RELEASE SALES ORDER BY ORDER</action>"
                         + "</command>"
                         + await SysCommon.GetRequestDefaults(false)
-                        + "<refno>" + this.FKRefno + "</refno>"
+                        + "<refno>" + this.HdrFKRefno + "</refno>"
                         + "</imclient>");
 
                     request.Save(xml);
@@ -155,12 +155,12 @@ namespace dMobile.Controller
                             docError.LoadXml(reqData);
                             string errorDetail = docError.DocumentElement["detail"].InnerText;
 
-                            throw new Exception(string.Format("Release order # {0} to invoice status failed." + Environment.NewLine + errorDetail, this.FKRefno, null));
+                            throw new Exception(string.Format("Release order # {0} to invoice status failed." + Environment.NewLine + errorDetail, this.HdrFKRefno, null));
                         }
                     }
                     else
                     {
-                        throw new Exception(string.Format("Release order # {0} to invoice status failed.", this.FKRefno));
+                        throw new Exception(string.Format("Release order # {0} to invoice status failed.", this.HdrFKRefno));
                     }
 
                     isResult = true;
@@ -499,8 +499,8 @@ namespace dMobile.Controller
             if (selectedActivity is Picking picking)
             {
                 this.SelectedActivity = picking;
-                this.FKRefno = Convert.ToInt32(picking.ActivityPickingFKRefno);
-                this.Refno = Convert.ToInt32(picking.ActivityRefno);
+                this.HdrFKRefno = Convert.ToInt32(picking.ActivityPickingFKRefno);
+                this.HdrRefno = Convert.ToInt32(picking.ActivityRefno);
             }
         }
 
@@ -513,11 +513,11 @@ namespace dMobile.Controller
         {
             if (selectedItem is Picking picking)
             {
-                this.FKRefno = Convert.ToInt32(picking.ActivityPickingFKRefno);
-                this.Refno = Convert.ToInt32(picking.ActivityRefno);
+                this.HdrFKRefno = Convert.ToInt32(picking.ActivityPickingFKRefno);
+                this.HdrRefno = Convert.ToInt32(picking.ActivityRefno);
             }
 
-            return this.Refno;
+            return this.HdrRefno;
         }
 
         /// <summary>

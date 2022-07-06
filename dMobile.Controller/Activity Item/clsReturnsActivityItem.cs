@@ -272,7 +272,7 @@ namespace dMobile.Controller
                 this.DataLayerProgressOutHandler(this, new EventArgs(), 5);
 
                 tableActReturnsItem.RegisterDataAccessListenerProgressOut((ReturnsActItem)this);
-                await tableActReturnsItem.RequestData(this.ActHdr.Refno);
+                await tableActReturnsItem.RequestData(this.ActHdr.HdrRefno);
                 tableActReturnsItem.UnregisterDataAccessListenerProgressOut((ReturnsActItem)this);
             }
         }
@@ -480,7 +480,7 @@ namespace dMobile.Controller
                 "AND tActivityDetail.ActivityDetailStatus <> ? " +
                 "ORDER BY tActivityItemReturns.ActivityItemRefno";
 
-                parameters.Add(this.ActHdr.Refno);
+                parameters.Add(this.ActHdr.HdrRefno);
                 parameters.Add(Convert.ToInt32(SysCommon.ActStatus.NoChange));
             }
             else
@@ -518,7 +518,7 @@ namespace dMobile.Controller
                 "tActivityItemReturns.ActivityItemRefno " +
                 "WHERE tActivityItem.ActivityRefno = ? " +
                 "ORDER BY tActivityItemReturns.ActivityItemRefno";
-                parameters.Add(this.ActHdr.Refno);
+                parameters.Add(this.ActHdr.HdrRefno);
             }
 
             // using (SQLiteDataAdapter dataAdapterReturnItems = new SQLiteDataAdapter(cmd))
@@ -599,8 +599,8 @@ namespace dMobile.Controller
             if (selectedActivityItem is ReturnItem item)
             {
                 this.SelectedActivityItem = item;
-                this.Refno = item.ActivityItemRefno;
-                this.FKRefno = Convert.ToInt32(item.ActivityItemReturnsFKRefno);
+                this.ItemRefno = item.ActivityItemRefno;
+                this.ItemFKRefno = Convert.ToInt32(item.ActivityItemReturnsFKRefno);
                 this.ProdInfo = await ProductInfoTasks.GetInfoFromUnitRefno(item.ProductUnitRefno);
                 activityItemLocMapRefno = item.LocationMapRefno;
             }
@@ -634,16 +634,16 @@ namespace dMobile.Controller
             "AND tActivityItemReturns.WarehouseLocationMapRefno = ? " +
             "AND tActivityItemReturns.ProductUnitRefno = ?";
 
-            List<ReturnItem> results = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<ReturnItem>(query, this.ActHdr.Refno, whsLocMapRefno, prodUnitRefno);
+            List<ReturnItem> results = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<ReturnItem>(query, this.ActHdr.HdrRefno, whsLocMapRefno, prodUnitRefno);
 
             if (results != null && results.Count > 0)
             {
                 // <WO ID="14777" comment="The last of the uncommented locmap code was removed here. We do not wish to set location map when we just want refnos." />
-                this.Refno = Convert.ToInt32(results[0].ActivityItemRefno);
-                this.FKRefno = Convert.ToInt32(results[0].ActivityItemReturnsFKRefno);
+                this.ItemRefno = Convert.ToInt32(results[0].ActivityItemRefno);
+                this.ItemFKRefno = Convert.ToInt32(results[0].ActivityItemReturnsFKRefno);
                 this.ProdInfo = await ProductInfoTasks.GetInfoFromUnitRefno(Convert.ToInt32(results[0].ProductUnitRefno));
                 this.ProdInfo.Scheme = await ProductInfoTasks.GetSchemeComponentsFromRefno(this.ProdInfo.Refno);
-                foundActItemRefno = this.Refno;
+                foundActItemRefno = this.ItemRefno;
             }
 
             return foundActItemRefno;
@@ -773,7 +773,7 @@ namespace dMobile.Controller
         /// <returns><see cref="string"/> Get activity item control description.</returns>
         public override string GetControlDescription()
         {
-            return string.Format("Return # {0}", this.ActHdr.FKRefno);
+            return string.Format("Return # {0}", this.ActHdr.HdrFKRefno);
         }
 
         /// <summary>

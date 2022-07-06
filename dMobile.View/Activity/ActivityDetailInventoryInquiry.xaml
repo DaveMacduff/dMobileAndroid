@@ -1,0 +1,51 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<modal:DMobileModal  xmlns:modal="clr-namespace:dMobile.View.CustomPages.Modal"
+                     xmlns="http://xamarin.com/schemas/2014/forms"
+                     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml" 
+                     xmlns:Helpers="clr-namespace:dMobile.View.Helpers"
+                     x:Class="dMobile.View.Activity.ActivityDetailInventoryInquiry">
+    <!--<ContentPage.ToolbarItems>
+        <ToolbarItem x:Name="optionsMenu" IconImageSource="{Binding OptionsIconSource}" Clicked="OptionsMenu_Clicked" IsEnabled="{Binding Loading, Converter={Helpers:BoolConverter}}"/>
+    </ContentPage.ToolbarItems>-->
+    <ContentPage.Content>
+        <AbsoluteLayout VerticalOptions="Center">
+            <Grid x:Name="gridContainer" Padding="10" AbsoluteLayout.LayoutFlags="All" AbsoluteLayout.LayoutBounds="0,0,1,1">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="80*"/>
+                    <RowDefinition Height="20*"/>
+                </Grid.RowDefinitions>
+
+                <Frame VerticalOptions="Start" Grid.Row="0" Grid.Column="0" OutlineColor="{DynamicResource BorderColor}">
+                    <ScrollView Orientation="Horizontal">
+                        <Grid x:Name="GridMainActivity">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
+
+                            <ListView x:Name="ListViewMainActivity" ItemSelected="ListViewMainActivity_ItemSelected" HasUnevenRows="true" IsEnabled="{Binding Loading, Converter={Helpers:BoolConverter}}" Grid.Row="1"/>
+                        </Grid>
+                    </ScrollView>
+                </Frame>
+
+                <Frame VerticalOptions="Start" Grid.Row="1" OutlineColor="{DynamicResource BorderColor}">
+                    <ListView x:Name="ListViewDisplayExtraInfo" SelectionMode="None" HasUnevenRows="true" IsEnabled="{Binding Loading, Converter={Helpers:BoolConverter}}" SeparatorVisibility="None" >
+                        <ListView.ItemTemplate>
+                            <DataTemplate>
+                                <ViewCell>
+                                    <StackLayout Padding="5,1,5,1">
+                                        <Label Text="{Binding}" VerticalTextAlignment="Center"/>
+                                    </StackLayout>
+                                </ViewCell>
+                            </DataTemplate>
+                        </ListView.ItemTemplate>
+                    </ListView>
+                </Frame>
+            </Grid>
+
+            <ActivityIndicator IsVisible="{Binding Loading}" 
+                               IsRunning="{Binding Loading}"
+                               AbsoluteLayout.LayoutFlags="All" 
+                               AbsoluteLayout.LayoutBounds="0.5,0.5,0.3,0.3"/>
+        </AbsoluteLayout>
+    </ContentPage.Content>
+</modal:DMobileModal>

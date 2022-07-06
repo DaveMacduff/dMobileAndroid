@@ -150,7 +150,7 @@ namespace dMobile.Controller
 
             if (!isAdd && selectedActivityDetail != null)
             {
-                this.FKRefno = Convert.ToInt32(selectedActivityDetail.GetType().GetProperty("ActivityDetailFKRefno")?.GetValue(selectedActivityDetail));
+                this.DetailFKRefno = Convert.ToInt32(selectedActivityDetail.GetType().GetProperty("ActivityDetailFKRefno")?.GetValue(selectedActivityDetail));
             }
 
             return this;
@@ -443,10 +443,10 @@ namespace dMobile.Controller
             if (this.IsUpdateView && this.ListDetails != null)
             {
                 bool detailToBeAdded = false;
-                if (this.FKRefno > 0)
+                if (this.DetailFKRefno > 0)
                 {
                     detail = this.ListDetails.OfType<InventoryInquiryDetail>().FirstOrDefault(adjDetail =>
-                        adjDetail.ActivityDetailFKRefno == this.FKRefno);
+                        adjDetail.ActivityDetailFKRefno == this.DetailFKRefno);
                 }
 
                 if (detail == null)

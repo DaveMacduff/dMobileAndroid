@@ -304,8 +304,8 @@ namespace dMobile.Controller
             if (selectedActivity is PurchaseOrderWorkSheetItem purchaseOrderWorkSheetItem)
             {
                 this.SelectedActivity = purchaseOrderWorkSheetItem;
-                this.FKRefno = Convert.ToInt32(purchaseOrderWorkSheetItem.ActivityRefno);
-                this.Refno = Convert.ToInt32(purchaseOrderWorkSheetItem.ActivityRefno);
+                this.HdrFKRefno = Convert.ToInt32(purchaseOrderWorkSheetItem.ActivityRefno);
+                this.HdrRefno = Convert.ToInt32(purchaseOrderWorkSheetItem.ActivityRefno);
 
                 // Set the selected warehouse to the activity header warehouse.
                 if (LocationMap.GetInstance().CurrLocMap.WhsLocMapRefno != Convert.ToInt32(purchaseOrderWorkSheetItem.LocationMapRefno))
@@ -326,11 +326,11 @@ namespace dMobile.Controller
 
             if (poWorkSheet != null)
             {
-                this.FKRefno = Convert.ToInt32(poWorkSheet.ActivityRefno);
-                this.Refno = Convert.ToInt32(poWorkSheet.ActivityRefno);
+                this.HdrFKRefno = Convert.ToInt32(poWorkSheet.ActivityRefno);
+                this.HdrRefno = Convert.ToInt32(poWorkSheet.ActivityRefno);
             }
 
-            return this.Refno;
+            return this.HdrRefno;
         }
 
         /// <summary>

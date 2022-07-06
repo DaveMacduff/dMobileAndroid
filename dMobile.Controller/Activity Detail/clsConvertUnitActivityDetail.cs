@@ -152,8 +152,8 @@ namespace dMobile.Controller
                     ActivityDetailLogisticUnitBatchLotNumber = this.SchemeData.LogisticUnitBatchLotNumber,
                     ProductSchemeVariantCode = this.SchemeData.VariantCode,
                     ProductSchemeVariantNo = this.SchemeData.VariantNumber,
-                    ActivityDetailFKRefno = this.FKRefno,
-                    ActivityDetailRefno = this.Refno,
+                    ActivityDetailFKRefno = this.DetailFKRefno,
+                    ActivityDetailRefno = this.DetailRefno,
                 });
             }
         }
@@ -387,10 +387,10 @@ namespace dMobile.Controller
             if (this.IsUpdateView && this.ListDetails != null)
             {
                 bool detailToBeAdded = false;
-                if (this.FKRefno > 0)
+                if (this.DetailFKRefno > 0)
                 {
                     detail = this.ListDetails.OfType<ConvertUnitDetail>().FirstOrDefault(adjDetail =>
-                        adjDetail.ActivityDetailFKRefno == this.FKRefno);
+                        adjDetail.ActivityDetailFKRefno == this.DetailFKRefno);
                 }
 
                 if (detail == null)
@@ -414,7 +414,7 @@ namespace dMobile.Controller
                     detail.ActDetailFKRefnoFldName = actDetailFKRefnoFldName;
 
                     // NOTE; Not sure about this assignment.
-                    detail.CountNumber = this.ActItem.ActHdr.FKRefno;
+                    detail.CountNumber = this.ActItem.ActHdr.HdrFKRefno;
                 }
 
                 detail.LocationMapRefno = this.LocMap.CurrLocMapRefno;

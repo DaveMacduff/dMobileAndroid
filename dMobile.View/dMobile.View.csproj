@@ -48,6 +48,108 @@
     <PackageReference Include="Honeywell.BarcodeReader" Version="1.35.0.17" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Update="Activity\ActivityHdr.xaml.cs">
+      <DependentUpon>ActivityHdr.xaml</DependentUpon>
+    </Compile>
+    <Compile Update="Activity\ActivityConvertProduct.xaml.cs">
+      <DependentUpon>ActivityConvertProduct.xaml</DependentUpon>
+    </Compile>
+    <Compile Update="Activity\ActivityConvertProductDetail.xaml.cs">
+      <DependentUpon>ActivityConvertProductDetail.xaml</DependentUpon>
+    </Compile>
+    <Compile Update="Activity\ActivityConvertUnitEdit.xaml.cs">
+      <DependentUpon>ActivityConvertUnitEdit.xaml</DependentUpon>
+    </Compile>
+    <Compile Update="Activity\ActivityDeboxLabelCount.xaml.cs">
+      <DependentUpon>ActivityDeboxLabelCount.xaml</DependentUpon>
+    </Compile>
+    <Compile Update="Activity\ActivityDetail.xaml.cs">
+      <DependentUpon>ActivityDetail.xaml</DependentUpon>
+    </Compile>
+    <Compile Update="Activity\ActivityDetailEdit.xaml.cs">
+      <DependentUpon>ActivityDetailEdit.xaml</DependentUpon>
+    </Compile>
+    <Compile Update="Activity\ActivityDetailInventoryInquiry.xaml.cs">
+      <DependentUpon>ActivityDetailInventoryInquiry.xaml</DependentUpon>
+    </Compile>
+    <Compile Update="Activity\ActivityDetailSkid.xaml.cs">
+      <DependentUpon>ActivityDetailSkid.xaml</DependentUpon>
+    </Compile>
+    <Compile Update="Activity\ActivityHdrAdjustmentFilter.xaml.cs">
+      <DependentUpon>ActivityHdrAdjustmentFilter.xaml</DependentUpon>
+    </Compile>
+    <Compile Update="Activity\ActivityHdrCycleCountFilter.xaml.cs">
+      <DependentUpon>ActivityHdrCycleCountFilter.xaml</DependentUpon>
+    </Compile>
+    <Compile Update="Activity\ActivityHdrPhysicalCountFilter.xaml.cs">
+      <DependentUpon>ActivityHdrPhysicalCountFilter.xaml</DependentUpon>
+    </Compile>
+    <Compile Update="Activity\ActivityHdrPickingFilter.xaml.cs">
+      <DependentUpon>ActivityHdrPickingFilter.xaml</DependentUpon>
+    </Compile>
+    <Compile Update="Activity\ActivityHdrPickingSelectCriteria.xaml.cs">
+      <DependentUpon>ActivityHdrPickingSelectCriteria.xaml</DependentUpon>
+    </Compile>
+    <Compile Update="Activity\ActivityHdrProductionTicketFilter.xaml.cs">
+      <DependentUpon>ActivityHdrProductionTicketFilter.xaml</DependentUpon>
+    </Compile>
+    <Compile Update="Activity\ActivityItem.xaml.cs">
+      <DependentUpon>ActivityItem.xaml</DependentUpon>
+    </Compile>
+    <Compile Update="Activity\ActivityHdrReceivingFilter.xaml.cs">
+      <DependentUpon>ActivityHdrReceivingFilter.xaml</DependentUpon>
+    </Compile>
+    <Compile Update="Activity\ActivityHdrReleaseByOrder.xaml.cs">
+      <DependentUpon>ActivityHdrReleaseByOrder.xaml</DependentUpon>
+    </Compile>
+    <Compile Update="Activity\ActivityHdrReturnsFilter.xaml.cs">
+      <DependentUpon>ActivityHdrReturnsFilter.xaml</DependentUpon>
+    </Compile>
+    <Compile Update="Activity\ActivityHdrSkidInfo.xaml.cs">
+      <DependentUpon>ActivityHdrSkidInfo.xaml</DependentUpon>
+    </Compile>
+    <Compile Update="Activity\ActivityHdrTransferFilter.xaml.cs">
+      <DependentUpon>ActivityHdrTransferFilter.xaml</DependentUpon>
+    </Compile>
+    <Compile Update="Activity\ActivityInventoryInquiry.xaml.cs">
+      <DependentUpon>ActivityInventoryInquiry.xaml</DependentUpon>
+    </Compile>
+    <Compile Update="Activity\ActivityItemInventoryInquiry.xaml.cs">
+      <DependentUpon>ActivityItemInventoryInquiry.xaml</DependentUpon>
+    </Compile>
+    <Compile Update="Activity\ActivityItemInventoryInquirySummary.xaml.cs">
+      <DependentUpon>ActivityItemInventoryInquirySummary.xaml</DependentUpon>
+    </Compile>
+    <Compile Update="Activity\ActivityItemPurchaseOrderWorkSheetEdit.xaml.cs">
+      <DependentUpon>ActivityItemPurchaseOrderWorkSheetEdit.xaml</DependentUpon>
+    </Compile>
+    <Compile Update="Activity\ActivityItemSingle.xaml.cs">
+      <DependentUpon>ActivityItemSingle.xaml</DependentUpon>
+    </Compile>
+    <Compile Update="Activity\ActivityMoveInventory.xaml.cs">
+      <DependentUpon>ActivityMoveInventory.xaml</DependentUpon>
+    </Compile>
+    <Compile Update="Activity\ActivityMoveSkid.xaml.cs">
+      <DependentUpon>ActivityMoveSkid.xaml</DependentUpon>
+    </Compile>
+    <Compile Update="Activity\ActivityProductLabel.xaml.cs">
+      <DependentUpon>ActivityProductLabel.xaml</DependentUpon>
+    </Compile>
+    <Compile Update="Activity\ActivityPurchaseOrderWorkSheet.xaml.cs">
+      <DependentUpon>ActivityPurchaseOrderWorkSheet.xaml</DependentUpon>
+    </Compile>
+    <Compile Update="Activity\ActivityRemoveFromSkid.xaml.cs">
+      <DependentUpon>ActivityRemoveFromSkid.xaml</DependentUpon>
+    </Compile>
+    <Compile Update="Activity\ActivityScanBarCodes.xaml.cs">
+      <DependentUpon>ActivityScanBarCodes.xaml</DependentUpon>
+    </Compile>
+    <Compile Update="Activity\ActivityShippingLabelEdit.xaml.cs">
+      <DependentUpon>ActivityShippingLabelEdit.xaml</DependentUpon>
+    </Compile>
+    <Compile Update="Activity\ActivitySkidPutAway.xaml.cs">
+      <DependentUpon>ActivitySkidPutAway.xaml</DependentUpon>
+    </Compile>
     <Compile Update="CustomControls\LocationMapInfo.xaml.cs">
       <DependentUpon>LocationMapInfo.xaml</DependentUpon>
     </Compile>

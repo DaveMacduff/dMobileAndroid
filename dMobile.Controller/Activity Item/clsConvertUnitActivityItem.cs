@@ -150,8 +150,8 @@ namespace dMobile.Controller
                         ProductSchemeVariantNumber = schemeData.ProdSchemeData.VariantNumber,
                         ActivityDetailSchemeID = ProductInfoTasks.GetActSchemeIDFromSProdSchemeData(this.ProdInfo.Code, this.ProdInfo.Scheme, schemeData.ProdSchemeData),
                         ActivityDetailUniqueSchemeID = ProductInfoTasks.GetUniqueSchemeIDFromSProdSchemeData(this.ProdInfo.Code, this.ProdInfo.Scheme, schemeData.ProdSchemeData),
-                        ActivityDetailFKRefno = this.FKRefno,
-                        ActivityDetailRefno = this.Refno,
+                        ActivityDetailFKRefno = this.ItemFKRefno,
+                        ActivityDetailRefno = this.ItemRefno,
                     });
             }
         }

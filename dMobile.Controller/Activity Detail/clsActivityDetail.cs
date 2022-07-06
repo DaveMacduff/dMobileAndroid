@@ -64,7 +64,7 @@ namespace dMobile.Controller
         /// <summary>
         /// Gets or sets the new activity detail foreign key reference number.
         /// </summary>
-        public int NewFKRefno { get; set; } = 0;
+        public int NewDetailFKRefno { get; set; } = 0;
 
         /// <summary>
         /// Gets or sets the full class name.
@@ -99,12 +99,12 @@ namespace dMobile.Controller
         /// <summary>
         /// Gets or sets the activity detail reference number.
         /// </summary>
-        public int Refno { get; set; } = 0;
+        public int DetailRefno { get; set; } = 0;
 
         /// <summary>
         /// Gets or sets the activity detail foreign key reference number.
         /// </summary>
-        public int FKRefno { get; set; } = 0;
+        public int DetailFKRefno { get; set; } = 0;
 
         /// <summary>
         /// Gets or sets the product scheme data.
@@ -256,12 +256,11 @@ namespace dMobile.Controller
         /// </remarks>
         public virtual async Task SelectActivityDetail(object selectedActivityDetail)
         {
-            this.ClearProperties();
             if (selectedActivityDetail is ActivityDetail detail)
             {
-                this.Refno = detail.ActivityDetailRefno;
-                this.FKRefno = detail.ActivityDetailFKRefno;
-                this.NewFKRefno = 0;
+                this.DetailRefno = detail.ActivityDetailRefno;
+                this.DetailFKRefno = detail.ActivityDetailFKRefno;
+                this.NewDetailFKRefno = 0;
                 this.NewItemFKRefno = 0;
 
                 this.Quantity = detail.ActivityDetailQuantity;
@@ -289,6 +288,10 @@ namespace dMobile.Controller
                 }
 
                 await this.ActItem.GetSelectedItemLocation(detail.LocationMapRefno);
+            }
+            else
+            {
+                this.ClearProperties();
             }
         }
 
@@ -356,10 +359,10 @@ namespace dMobile.Controller
         /// </summary>
         public virtual void ClearProperties()
         {
-            this.Refno = 0;
-            this.FKRefno = 0;
+            this.DetailRefno = 0;
+            this.DetailFKRefno = 0;
             this.NewItemFKRefno = 0;
-            this.NewFKRefno = 0;
+            this.NewDetailFKRefno = 0;
             this.UniqueSchemeID = string.Empty;
             this.Quantity = 0;
             this.BaseQuantity = 0;
@@ -406,7 +409,7 @@ namespace dMobile.Controller
                     this.Quantity = Convert.ToDecimal(detail.ActivityDetailQuantity);
                     this.BaseQuantity = Convert.ToDecimal(detail.ActivityDetailBaseQuantity);
                     this.WeightQuantity = Convert.ToDecimal(detail.ActivityDetailWeightQuantity);
-                    this.Refno = Convert.ToInt32(detail.ActivityDetailRefno);
+                    this.DetailRefno = Convert.ToInt32(detail.ActivityDetailRefno);
                     this.SchemeID = Convert.ToString(detail.ActivityDetailSchemeID);
                     this.UniqueSchemeID = Convert.ToString(detail.ActivityDetailUniqueSchemeID);
 
@@ -529,9 +532,9 @@ namespace dMobile.Controller
                 + "<whs_id>" + this.LocMap.CurrLocMap.WhsFKRefno + "</whs_id>"
                 + "<sect_refno>" + this.LocMap.CurrLocMap.SectFKRefno + "</sect_refno>"
                 + "<slot_refno>" + this.LocMap.CurrLocMap.SlotFKRefno + "</slot_refno>"
-                + "<refno>" + this.ActItem.ActHdr.FKRefno + "</refno>"
-                + "<itm_refno>" + this.ActItem.FKRefno + "</itm_refno>"
-                + "<ser_refno>" + this.FKRefno + "</ser_refno>"
+                + "<refno>" + this.ActItem.ActHdr.HdrFKRefno + "</refno>"
+                + "<itm_refno>" + this.ActItem.ItemFKRefno + "</itm_refno>"
+                + "<ser_refno>" + this.DetailFKRefno + "</ser_refno>"
                 + "<alt_qty>" + this.Quantity + "</alt_qty>"
                 + "<alt_unit>" + this.ActItem.ProdInfo.UnitCode + "</alt_unit>"
                 + "<base_qty>" + this.BaseQuantity + "</base_qty>"
@@ -716,12 +719,12 @@ namespace dMobile.Controller
         {
             if (!string.IsNullOrEmpty(data.Root.Element("ser_refno").Value))
             {
-                this.FKRefno = int.Parse(data.Root.Element("ser_refno").Value);
+                this.DetailFKRefno = int.Parse(data.Root.Element("ser_refno").Value);
             }
 
             if (!string.IsNullOrEmpty(data.Root.Element("refno").Value))
             {
-                this.Refno = int.Parse(data.Root.Element("refno").Value);
+                this.DetailRefno = int.Parse(data.Root.Element("refno").Value);
             }
 
             if (!string.IsNullOrEmpty(data.Root.Element("alt_qty").Value))
@@ -848,13 +851,15 @@ namespace dMobile.Controller
 
                 this.IsUpdateView = true;
                 this.NewItemFKRefno = int.Parse(xmlData.DocumentElement["itm_refno"].InnerText);
-                this.FKRefno = int.Parse(xmlData.DocumentElement["ser_refno"].InnerText);
+                this.NewDetailFKRefno = int.Parse(xmlData.DocumentElement["ser_refno"].InnerText);
 
-                if (this.NewItemFKRefno != this.ActItem.FKRefno)
+                // Assign a temporary activity detail until a full activity detail refresh occurs.
+                this.DetailRefno = this.NewDetailFKRefno * -1;
+
+                if (this.NewItemFKRefno != this.ActItem.ItemFKRefno || this.NewDetailFKRefno != this.DetailFKRefno)
                 {
-                    this.ActItem.FKRefno = this.NewItemFKRefno;
-
-                    // not always new if scanned in and match. Check for match.
+                    this.ActItem.ItemFKRefno = this.NewItemFKRefno;
+                    this.DetailFKRefno = this.NewDetailFKRefno;
                     isNewDetail = true;
                 }
             }
@@ -933,7 +938,7 @@ namespace dMobile.Controller
                 {
                     Convert.ToInt32(this.ActSubType),
                     Convert.ToInt32(SysCommon.ActStatus.Inserted),
-                    Convert.ToInt32(this.ActItem.Refno),
+                    Convert.ToInt32(this.ActItem.ItemRefno),
                     Convert.ToInt32(this.LocMap.CurrLocMapRefno),
                     Convert.ToInt32(this.ActItem.ProdInfo.UnitRefno),
                     Convert.ToString(this.UniqueSchemeID),
@@ -955,7 +960,7 @@ namespace dMobile.Controller
 
                 actDetailRefno = Convert.ToInt32(await conn.ExecuteScalarAsync<int>(
                     "SELECT last_insert_rowid() FROM tActivityDetail"));
-                this.FKRefno = actDetailRefno * -1;
+                this.DetailFKRefno = actDetailRefno * -1;
 
                 if (this.SchemeData.VariantNumber > 0)
                 {

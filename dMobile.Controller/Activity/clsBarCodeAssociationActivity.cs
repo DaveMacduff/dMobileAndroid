@@ -162,8 +162,8 @@ namespace dMobile.Controller
             if (selectedActivity is BarcodeAssociation barcodeAssociation)
             {
                 this.SelectedActivity = barcodeAssociation;
-                this.FKRefno = barcodeAssociation.ActivityRefno;
-                this.Refno = barcodeAssociation.ActivityRefno;
+                this.HdrFKRefno = barcodeAssociation.ActivityRefno;
+                this.HdrRefno = barcodeAssociation.ActivityRefno;
             }
         }
 
@@ -176,11 +176,11 @@ namespace dMobile.Controller
         {
             if (selectedObject is BarcodeAssociation barcodeAssociation)
             {
-                this.FKRefno = Convert.ToInt32(barcodeAssociation.ActivityRefno);
-                this.Refno = Convert.ToInt32(barcodeAssociation.ActivityRefno);
+                this.HdrFKRefno = Convert.ToInt32(barcodeAssociation.ActivityRefno);
+                this.HdrRefno = Convert.ToInt32(barcodeAssociation.ActivityRefno);
             }
 
-            return this.Refno;
+            return this.HdrRefno;
         }
 
         /// <summary>

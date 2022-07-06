@@ -249,7 +249,7 @@ namespace dMobile.Controller
         /// <returns><see cref="string"/> Get activity item control description.</returns>
         public override string GetControlDescription()
         {
-            return string.Format("Skid # {0}", this.ActHdr.FKRefno);
+            return string.Format("Skid # {0}", this.ActHdr.HdrFKRefno);
         }
 
         /// <summary>

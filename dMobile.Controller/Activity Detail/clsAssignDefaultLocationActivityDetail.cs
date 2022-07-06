@@ -191,8 +191,8 @@ namespace dMobile.Controller
                     ActivityDetailLogisticUnitBatchLotNumber = this.SchemeData.LogisticUnitBatchLotNumber,
                     ProductSchemeVariantCode = this.SchemeData.VariantCode,
                     ProductSchemeVariantNo = this.SchemeData.VariantNumber,
-                    ActivityDetailFKRefno = this.FKRefno,
-                    ActivityDetailRefno = this.Refno,
+                    ActivityDetailFKRefno = this.DetailFKRefno,
+                    ActivityDetailRefno = this.DetailRefno,
                 });
             }
         }
@@ -218,7 +218,7 @@ namespace dMobile.Controller
 
             if (!isAdd && selectedActivityDetail is MoveDetail moveDetail)
             {
-                this.FKRefno = Convert.ToInt32(moveDetail.ActivityDetailFKRefno);
+                this.DetailFKRefno = Convert.ToInt32(moveDetail.ActivityDetailFKRefno);
             }
 
             return this;
@@ -259,10 +259,10 @@ namespace dMobile.Controller
                     }
                     else
                     {
-                        this.FKRefno = int.Parse(xmlDoc.DocumentElement["ser_refno"].InnerText);
+                        this.DetailFKRefno = int.Parse(xmlDoc.DocumentElement["ser_refno"].InnerText);
                         moveDetail.ActivityDetailStatus = Convert.ToInt32(SysCommon.ActStatus.NoChange);
 
-                        await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync("UPDATE tActivityDetail SET ActivityDetailStatus = ? WHERE ActivityDetailRefno = ?", Convert.ToInt32(SysCommon.ActStatus.NoChange), this.Refno);
+                        await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync("UPDATE tActivityDetail SET ActivityDetailStatus = ? WHERE ActivityDetailRefno = ?", Convert.ToInt32(SysCommon.ActStatus.NoChange), this.DetailRefno);
                     }
                 }
 
@@ -515,8 +515,8 @@ namespace dMobile.Controller
                 + "<slot_refno>" + data.Root.Element("slot_refno").Value + "</slot_refno>"
                 + "<to_sect_refno>" + data.Root.Element("to_sect_refno").Value + "</to_sect_refno>"
                 + "<to_slot_refno>" + data.Root.Element("to_slot_refno").Value + "</to_slot_refno>"
-                + "<refno>" + this.ActItem.ActHdr.FKRefno + "</refno>"
-                + "<itm_refno>" + this.ActItem.FKRefno + "</itm_refno>"
+                + "<refno>" + this.ActItem.ActHdr.HdrFKRefno + "</refno>"
+                + "<itm_refno>" + this.ActItem.ItemFKRefno + "</itm_refno>"
                 + "<alt_qty>" + this.Quantity + "</alt_qty>"
                 + "<alt_unit>" + this.ActItem.ProdInfo.UnitCode + "</alt_unit>"
                 + "<base_qty>" + this.BaseQuantity + "</base_qty>"
@@ -528,7 +528,7 @@ namespace dMobile.Controller
                 + "<pdate>" + production + "</pdate>"
                 + "<bdate>" + bestBefore + "</bdate>"
                 + "<variant_no>" + this.SchemeData.VariantNumber + "</variant_no>"
-                + "<ser_refno>" + this.FKRefno + "</ser_refno>"
+                + "<ser_refno>" + this.DetailFKRefno + "</ser_refno>"
                 + "</imclient>");
 
             request.Save(xml);

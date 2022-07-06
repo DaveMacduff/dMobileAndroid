@@ -192,7 +192,7 @@ namespace dMobile.Controller
                         prodUnitBarCodeRefno = Convert.ToInt32(transaction.ExecuteScalar<int>("SELECT last_insert_rowid() FROM tProductUnitBarCode"));
 
                         // Create Activity to Bar Code XRef
-                        transaction.Execute("INSERT INTO tActivityItemBarCodeAssociationXRef (ActivityItemRefno, ProductUnitBarCodeRefno) VALUES (?, ?)", Convert.ToInt32(this.Refno), Convert.ToInt32(prodUnitBarCodeRefno));
+                        transaction.Execute("INSERT INTO tActivityItemBarCodeAssociationXRef (ActivityItemRefno, ProductUnitBarCodeRefno) VALUES (?, ?)", Convert.ToInt32(this.ItemRefno), Convert.ToInt32(prodUnitBarCodeRefno));
                         transaction.Commit();
 
                         data = XDocument.Parse(
@@ -292,7 +292,7 @@ namespace dMobile.Controller
                 sql.Append("INNER JOIN tProductUnit ON tProductUnit.ProductUnitRefno = tProductUnitBarCode.ProductUnitRefno ");
                 sql.Append("INNER JOIN tProduct ON tProduct.ProductRefno = tProductUnit.ProductRefno ");
                 sql.Append("INNER JOIN tUnit ON tUnit.UnitRefno = tProductUnit.UnitRefno ");
-                sql.AppendFormat("WHERE tActivityItem.ActivityRefno = {0} ", this.ActHdr.Refno);
+                sql.AppendFormat("WHERE tActivityItem.ActivityRefno = {0} ", this.ActHdr.HdrRefno);
                 sql.AppendFormat("AND tActivityItem.ActivityItemStatus <> {0} ", Convert.ToInt32(SysCommon.ActStatus.NoChange));
                 sql.Append("ORDER BY tActivityItem.ActivityItemRefno");
             }
@@ -317,7 +317,7 @@ namespace dMobile.Controller
                 sql.Append("INNER JOIN tProductUnit ON tProductUnit.ProductUnitRefno = tProductUnitBarCode.ProductUnitRefno ");
                 sql.Append("INNER JOIN tProduct ON tProduct.ProductRefno = tProductUnit.ProductRefno ");
                 sql.Append("INNER JOIN tUnit ON tUnit.UnitRefno = tProductUnit.UnitRefno ");
-                sql.AppendFormat("WHERE tActivityItem.ActivityRefno = {0} ", this.ActHdr.Refno);
+                sql.AppendFormat("WHERE tActivityItem.ActivityRefno = {0} ", this.ActHdr.HdrRefno);
                 sql.Append("ORDER BY tActivityItem.ActivityItemRefno");
             }
 
@@ -370,10 +370,10 @@ namespace dMobile.Controller
             if (selectedActivityItem is BarcodeAssociationItem barcodeAssociationItem)
             {
                 this.SelectedActivityItem = barcodeAssociationItem;
-                this.Refno = Convert.ToInt32(barcodeAssociationItem.ActivityItemRefno);
+                this.ItemRefno = Convert.ToInt32(barcodeAssociationItem.ActivityItemRefno);
                 this.ProdInfo = await ProductInfoTasks.GetInfoFromUnitRefno(Convert.ToInt32(barcodeAssociationItem.ProductUnitRefno));
                 this.ProdInfo.Scheme = await ProductInfoTasks.GetSchemeComponentsFromRefno(this.ProdInfo.Refno);
-                this.FKRefno = Convert.ToInt32(barcodeAssociationItem.ActivityItemRefno);
+                this.ItemFKRefno = Convert.ToInt32(barcodeAssociationItem.ActivityItemRefno);
             }
         }
 
@@ -417,7 +417,7 @@ namespace dMobile.Controller
                 }
                 else
                 {
-                    await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync("UPDATE tActivityItem SET ActivityItemStatus = ? WHERE ActivityItemRefno = ?", Convert.ToInt32(SysCommon.ActStatus.NoChange), this.Refno);
+                    await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync("UPDATE tActivityItem SET ActivityItemStatus = ? WHERE ActivityItemRefno = ?", Convert.ToInt32(SysCommon.ActStatus.NoChange), this.ItemRefno);
 
                     if (this.ListItems != null && selectedActivityItem is BarcodeAssociationItem barcodeAssociationItem)
                     {

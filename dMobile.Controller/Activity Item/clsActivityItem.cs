@@ -107,12 +107,12 @@ namespace dMobile.Controller
         /// <summary>
         /// Gets or sets the activity item reference number..
         /// </summary>
-        public int Refno { get; set; } = 0;
+        public int ItemRefno { get; set; } = 0;
 
         /// <summary>
         /// Gets or sets the activity item foreign key reference number..
         /// </summary>
-        public int FKRefno { get; set; } = 0;
+        public int ItemFKRefno { get; set; } = 0;
 
         /// <summary>
         /// Gets or sets the activity header..
@@ -465,9 +465,9 @@ namespace dMobile.Controller
                     " ActivityRefno) VALUES (?, ?, ?)",
                     Convert.ToInt32(actSubTypes),
                     Convert.ToInt32(SysCommon.ActStatus.Inserted),
-                    Convert.ToInt32(this.ActHdr.Refno));
+                    Convert.ToInt32(this.ActHdr.HdrRefno));
 
-                this.Refno = Convert.ToInt32(await conn.ExecuteScalarAsync<int>(
+                this.ItemRefno = Convert.ToInt32(await conn.ExecuteScalarAsync<int>(
                     "SELECT last_insert_rowid() FROM tActivityItem"));
             }
             catch (SQLiteException ex)

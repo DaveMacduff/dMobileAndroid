@@ -226,11 +226,11 @@ namespace dMobile.Controller
                                     " ActivityRefno) VALUES (?, ?, ?)",
                                 Convert.ToInt32(SysCommon.ActSubTypes.Adjustment),
                                 Convert.ToInt32(SysCommon.ActStatus.NoChange),
-                                Convert.ToInt32(this.ActHdr.Refno));
+                                Convert.ToInt32(this.ActHdr.HdrRefno));
 
-                            this.Refno = Convert.ToInt32(transaction.ExecuteScalar<int>(
+                            this.ItemRefno = Convert.ToInt32(transaction.ExecuteScalar<int>(
                                 "SELECT last_insert_rowid() FROM tActivityItem"));
-                            this.FKRefno = this.Refno * -1;
+                            this.ItemFKRefno = this.ItemRefno * -1;
 
                             string query = "INSERT INTO tActivityItemAdjustment (" +
                                 "ActivityItemRefno, " +
@@ -258,10 +258,10 @@ namespace dMobile.Controller
 
                             object[] parameters = new object[]
                             {
-                                Convert.ToInt32(this.Refno),
+                                Convert.ToInt32(this.ItemRefno),
                                 Convert.ToInt32(SysCommon.ActSubTypes.Adjustment),
-                                Convert.ToInt32(this.FKRefno),
-                                Convert.ToString(this.FKRefno),
+                                Convert.ToInt32(this.ItemFKRefno),
+                                Convert.ToString(this.ItemFKRefno),
                                 Convert.ToInt32(prodUnitRefno),
                                 Convert.ToInt32(this.LocMap.CurrLocMap.WhsLocMapRefno),
                                 Convert.ToDecimal(0),
@@ -288,9 +288,9 @@ namespace dMobile.Controller
                     {
                         this.ListItems.Add(new
                         {
-                            ActivityItemRefno = this.Refno,
-                            ActivityItemAdjustmentFKRefno = this.FKRefno,
-                            ActivityItemAdjustmentStringFKRefno = this.FKRefno.ToString(),
+                            ActivityItemRefno = this.ItemRefno,
+                            ActivityItemAdjustmentFKRefno = this.ItemFKRefno,
+                            ActivityItemAdjustmentStringFKRefno = this.ItemFKRefno.ToString(),
                             ProductUnitRefno = prodUnitRefno,
                             ProductRefno = this.ProdInfo.Refno,
                             ProductCode = this.ProdInfo.Code,
@@ -334,7 +334,7 @@ namespace dMobile.Controller
                 this.DataLayerProgressOutHandler(this, new EventArgs(), 5);
 
                 adjItem.RegisterDataAccessListenerProgressOut(this);
-                await adjItem.RequestData(this.ActHdr.Refno);
+                await adjItem.RequestData(this.ActHdr.HdrRefno);
                 adjItem.UnregisterDataAccessListenerProgressOut(this);
             }
         }
@@ -515,7 +515,7 @@ namespace dMobile.Controller
                 sql.Append("INNER JOIN tProduct ON tProduct.ProductRefno = tProductUnit.ProductRefno ");
                 sql.Append("INNER JOIN tLocationMapWarehouse ON tLocationMapWarehouse.LocationMapRefno ");
                 sql.Append("= tActivityItemAdjustment.WarehouseLocationMapRefno ");
-                sql.AppendFormat("WHERE tActivityItem.ActivityRefno = {0} ", this.ActHdr.Refno);
+                sql.AppendFormat("WHERE tActivityItem.ActivityRefno = {0} ", this.ActHdr.HdrRefno);
                 sql.AppendFormat("AND tActivityItem.ActivityItemStatus <> {0} ", Convert.ToInt32(SysCommon.ActStatus.NoChange));
                 sql.Append("UNION ");
                 sql.Append("SELECT tActivityItemAdjustment.ActivityItemRefno,");
@@ -546,7 +546,7 @@ namespace dMobile.Controller
                 sql.Append("INNER JOIN tProduct ON tProduct.ProductRefno = tProductUnit.ProductRefno ");
                 sql.Append("INNER JOIN tLocationMapWarehouse ON tLocationMapWarehouse.LocationMapRefno ");
                 sql.Append("= tActivityItemAdjustment.WarehouseLocationMapRefno ");
-                sql.AppendFormat("WHERE tActivityItem.ActivityRefno = {0} ", this.ActHdr.Refno);
+                sql.AppendFormat("WHERE tActivityItem.ActivityRefno = {0} ", this.ActHdr.HdrRefno);
                 sql.AppendFormat("AND tActivityDetail.ActivityDetailStatus <> {0} ", Convert.ToInt32(SysCommon.ActStatus.NoChange));
                 sql.Append("ORDER BY tActivityItemAdjustment.ActivityItemRefno");
             }
@@ -578,7 +578,7 @@ namespace dMobile.Controller
                 sql.Append("INNER JOIN tProduct ON tProduct.ProductRefno = tProductUnit.ProductRefno ");
                 sql.Append("INNER JOIN tLocationMapWarehouse ON tLocationMapWarehouse.LocationMapRefno ");
                 sql.Append("= tActivityItemAdjustment.WarehouseLocationMapRefno ");
-                sql.AppendFormat("WHERE tActivityItem.ActivityRefno = {0} ", this.ActHdr.Refno);
+                sql.AppendFormat("WHERE tActivityItem.ActivityRefno = {0} ", this.ActHdr.HdrRefno);
                 sql.Append("ORDER BY tActivityItemAdjustment.ActivityItemRefno");
             }
 
@@ -619,8 +619,8 @@ namespace dMobile.Controller
             if (selectedActivityItem is AdjustmentItem item)
             {
                 this.SelectedActivityItem = item;
-                this.Refno = item.ActivityItemRefno;
-                this.FKRefno = item.ActivityItemAdjustmentFKRefno;
+                this.ItemRefno = item.ActivityItemRefno;
+                this.ItemFKRefno = item.ActivityItemAdjustmentFKRefno;
                 this.ProdInfo = await ProductInfoTasks.GetInfoFromUnitRefno(item.ProductUnitRefno);
                 activityItemLocMapRefno = item.LocationMapRefno;
             }
@@ -650,7 +650,7 @@ namespace dMobile.Controller
             sql.Append("= tActivityItemAdjustment.ActivityItemRefno ");
             sql.Append("INNER JOIN tLocationMapWarehouse ON tLocationMapWarehouse.LocationMapRefno ");
             sql.Append("= tActivityItemAdjustment.WarehouseLocationMapRefno ");
-            sql.AppendFormat("WHERE tActivityItem.ActivityRefno = {0}", this.ActHdr.Refno);
+            sql.AppendFormat("WHERE tActivityItem.ActivityRefno = {0}", this.ActHdr.HdrRefno);
             sql.AppendFormat(
                 " AND tActivityItemAdjustment.WarehouseLocationMapRefno = {0}",
                 this.LocMap.CurrLocMap.WhsLocMapRefno);
@@ -661,12 +661,12 @@ namespace dMobile.Controller
 
             if (results != null && results.Count > 0)
             {
-                this.Refno = Convert.ToInt32(results[0].ActivityItemRefno);
-                this.FKRefno = Convert.ToInt32(results[0].ActivityItemAdjustmentFKRefno);
+                this.ItemRefno = Convert.ToInt32(results[0].ActivityItemRefno);
+                this.ItemFKRefno = Convert.ToInt32(results[0].ActivityItemAdjustmentFKRefno);
                 this.ProdInfo = await ProductInfoTasks.GetInfoFromUnitRefno(Convert.ToInt32(results[0].ProductUnitRefno));
                 this.ProdInfo.Scheme = await ProductInfoTasks.GetSchemeComponentsFromRefno(this.ProdInfo.Refno);
 
-                foundActItemRefno = this.Refno;
+                foundActItemRefno = this.ItemRefno;
             }
 
             return foundActItemRefno;
@@ -795,7 +795,7 @@ namespace dMobile.Controller
         /// <returns><see cref="string"/> Get activity item control description.</returns>
         public override string GetControlDescription()
         {
-            return string.Format("Adjustment # {0}", this.ActHdr.FKRefno);
+            return string.Format("Adjustment # {0}", this.ActHdr.HdrFKRefno);
         }
 
         /// <summary>

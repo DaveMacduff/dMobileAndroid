@@ -377,8 +377,8 @@ namespace dMobile.Controller
             if (selectedActivity is Adjustment adjustment)
             {
                 this.SelectedActivity = adjustment;
-                this.FKRefno = adjustment.ActivityAdjustmentFKRefno;
-                this.Refno = adjustment.ActivityRefno;
+                this.HdrFKRefno = adjustment.ActivityAdjustmentFKRefno;
+                this.HdrRefno = adjustment.ActivityRefno;
 
                 // Set the selected warehouse to the activity header warehouse.
                 if (LocationMap.GetInstance().CurrLocMap.WhsLocMapRefno != Convert.ToInt32(adjustment.LocationMapRefno))
@@ -410,11 +410,11 @@ namespace dMobile.Controller
         {
             if (selectedItem is Adjustment adjustment)
             {
-                this.FKRefno = Convert.ToInt32(adjustment.ActivityAdjustmentFKRefno);
-                this.Refno = Convert.ToInt32(adjustment.ActivityRefno);
+                this.HdrFKRefno = Convert.ToInt32(adjustment.ActivityAdjustmentFKRefno);
+                this.HdrRefno = Convert.ToInt32(adjustment.ActivityRefno);
             }
 
-            return this.Refno;
+            return this.HdrRefno;
         }
 
         /// <summary>
@@ -528,7 +528,7 @@ namespace dMobile.Controller
                     + "<action>SUBMIT PRINT DEBOX PRODUCT LABEL</action>"
                     + "</command>"
                     + await SysCommon.GetRequestDefaults(false)
-                    + "<refno>" + this.FKRefno + "</refno>"
+                    + "<refno>" + this.HdrFKRefno + "</refno>"
                     + "<whs_id>" + locMap.WhsFKRefno + "</whs_id>"
                     + "<sect_refno>" + locMap.SectFKRefno + "</sect_refno>"
                     + "<label_qty>" + labelQuantity + "</label_qty>"
@@ -548,13 +548,13 @@ namespace dMobile.Controller
                             docError.LoadXml(reqData);
                             throw new MessageOnlyException(string.Format(
                                 "Order# {0} print shipping label(s) failed." + Environment.NewLine + "{1}",
-                                this.FKRefno,
+                                this.HdrFKRefno,
                                 docError.DocumentElement["detail"].InnerText));
                         }
                     }
                     else
                     {
-                        throw new Exception(string.Format("Order# {0} Print shipping label(s) failed.", this.FKRefno));
+                        throw new Exception(string.Format("Order# {0} Print shipping label(s) failed.", this.HdrFKRefno));
                     }
                 }
             }
@@ -578,7 +578,7 @@ namespace dMobile.Controller
                       + "<action>COMPLETE DEBOX ADJUSTMENT</action>"
                       + "</command>"
                       + await SysCommon.GetRequestDefaults(false)
-                      + "<refno>" + this.FKRefno + "</refno>"
+                      + "<refno>" + this.HdrFKRefno + "</refno>"
                       + "</imclient>";
 
                 string reqData = SysCommon.SubmitComm(xml);

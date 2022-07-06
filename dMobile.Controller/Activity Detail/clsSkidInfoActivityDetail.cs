@@ -179,8 +179,8 @@ namespace dMobile.Controller
                 }
                 else
                 {
-                    this.FKRefno = int.Parse(xmlDoc.DocumentElement["ser_refno"].InnerText);
-                    this.Refno = this.FKRefno;
+                    this.DetailFKRefno = int.Parse(xmlDoc.DocumentElement["ser_refno"].InnerText);
+                    this.DetailRefno = this.DetailFKRefno;
                 }
 
                 ////this.FillDataView();
@@ -231,7 +231,7 @@ namespace dMobile.Controller
             }
 
             SkidInfoDetail skidInfoDetail = this.ListDetails.OfType<SkidInfoDetail>().Where(
-                skidInfoDetail => skidInfoDetail.ActivityDetailFKRefno == this.FKRefno).FirstOrDefault();
+                skidInfoDetail => skidInfoDetail.ActivityDetailFKRefno == this.DetailFKRefno).FirstOrDefault();
 
             if (skidInfoDetail != null)
             {
@@ -253,7 +253,7 @@ namespace dMobile.Controller
 
             if (!isAdd && selectedActivityDetail is SkidInfoDetail skidInfoDetail)
             {
-                this.FKRefno = Convert.ToInt32(skidInfoDetail.ActivityDetailFKRefno);
+                this.DetailFKRefno = Convert.ToInt32(skidInfoDetail.ActivityDetailFKRefno);
             }
 
             return this;
@@ -291,12 +291,12 @@ namespace dMobile.Controller
                 }
                 else
                 {
-                    this.FKRefno = int.Parse(xmlDoc.DocumentElement["ser_refno"].InnerText);
-                    this.Refno = this.FKRefno;
+                    this.DetailFKRefno = int.Parse(xmlDoc.DocumentElement["ser_refno"].InnerText);
+                    this.DetailRefno = this.DetailFKRefno;
 
                     if (selectedActivityDetail is SkidInfoDetail skidInfoDetail)
                     {
-                        skidInfoDetail.ActivityDetailFKRefno = this.FKRefno;
+                        skidInfoDetail.ActivityDetailFKRefno = this.DetailFKRefno;
                     }
                 }
             }
@@ -322,12 +322,12 @@ namespace dMobile.Controller
                 {
                     // NOTE: The drow data is all strings because it was filled from xml data in SysSkidInfo.GetSkidDetail.
                     // Need to do a data type conversion not just a cast.
-                    this.ActItem.ActHdr.FKRefno = Convert.ToInt32(drow["ActivityFKRefno"]);
-                    this.ActItem.ActHdr.Refno = Convert.ToInt32(drow["ActivityFKRefno"]);
-                    this.ActItem.FKRefno = Convert.ToInt32(drow["ActivityItemFKRefno"]);
-                    this.ActItem.Refno = Convert.ToInt32(drow["ActivityItemFKRefno"]);
-                    this.FKRefno = Convert.ToInt32(drow["ActivityDetailFKRefno"]);
-                    this.Refno = Convert.ToInt32(drow["ActivityDetailFKRefno"]);
+                    this.ActItem.ActHdr.HdrFKRefno = Convert.ToInt32(drow["ActivityFKRefno"]);
+                    this.ActItem.ActHdr.HdrRefno = Convert.ToInt32(drow["ActivityFKRefno"]);
+                    this.ActItem.ItemFKRefno = Convert.ToInt32(drow["ActivityItemFKRefno"]);
+                    this.ActItem.ItemRefno = Convert.ToInt32(drow["ActivityItemFKRefno"]);
+                    this.DetailFKRefno = Convert.ToInt32(drow["ActivityDetailFKRefno"]);
+                    this.DetailRefno = Convert.ToInt32(drow["ActivityDetailFKRefno"]);
                     this.SchemeID = Convert.ToString(drow["ActivityDetailSchemeID"]);
                     this.UniqueSchemeID = Convert.ToString(drow["ActivityDetailUniqueSchemeID"]);
                     this.Quantity = Convert.ToDecimal(drow["ActivityDetailQuantity"]);
@@ -728,8 +728,8 @@ namespace dMobile.Controller
                     ActivityDetailLogisticUnitBatchLotNumber = this.SchemeData.LogisticUnitBatchLotNumber,
                     ProductSchemeVariantCode = this.SchemeData.VariantCode,
                     ProductSchemeVariantNo = this.SchemeData.VariantNumber,
-                    ActivityDetailFKRefno = this.FKRefno,
-                    ActivityDetailRefno = this.Refno,
+                    ActivityDetailFKRefno = this.DetailFKRefno,
+                    ActivityDetailRefno = this.DetailRefno,
                 });
             }
         }

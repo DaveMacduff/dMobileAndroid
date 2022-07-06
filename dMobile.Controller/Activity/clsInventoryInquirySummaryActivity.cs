@@ -64,8 +64,8 @@ namespace dMobile.Controller
 
             if (inventoryInquiry != null)
             {
-                this.FKRefno = Convert.ToInt32(inventoryInquiry.ActivityRefno);
-                this.Refno = Convert.ToInt32(inventoryInquiry.ActivityRefno);
+                this.HdrFKRefno = Convert.ToInt32(inventoryInquiry.ActivityRefno);
+                this.HdrRefno = Convert.ToInt32(inventoryInquiry.ActivityRefno);
             }
         }
 
@@ -81,11 +81,11 @@ namespace dMobile.Controller
             if (inventoryInquiry != null)
             {
                 this.SelectedActivity = inventoryInquiry;
-                this.FKRefno = Convert.ToInt32(inventoryInquiry.ActivityRefno);
-                this.Refno = Convert.ToInt32(inventoryInquiry.ActivityRefno);
+                this.HdrFKRefno = Convert.ToInt32(inventoryInquiry.ActivityRefno);
+                this.HdrRefno = Convert.ToInt32(inventoryInquiry.ActivityRefno);
             }
 
-            return this.Refno;
+            return this.HdrRefno;
         }
 
         /// <summary>

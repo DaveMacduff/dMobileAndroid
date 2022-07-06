@@ -363,8 +363,8 @@ namespace dMobile.Controller
             if (selectedActivity is ProductionTicketByProduct productionTicketByProduct)
             {
                 this.SelectedActivity = productionTicketByProduct;
-                this.FKRefno = Convert.ToInt32(productionTicketByProduct.ActivityProductionFKRefno);
-                this.Refno = Convert.ToInt32(productionTicketByProduct.ActivityRefno);
+                this.HdrFKRefno = Convert.ToInt32(productionTicketByProduct.ActivityProductionFKRefno);
+                this.HdrRefno = Convert.ToInt32(productionTicketByProduct.ActivityRefno);
 
                 // Set the selected warehouse to the activity header warehouse.
                 if (LocationMap.GetInstance().CurrLocMap.WhsLocMapRefno != Convert.ToInt32(productionTicketByProduct.LocationMapRefno))
@@ -383,11 +383,11 @@ namespace dMobile.Controller
         {
             if (selectedItem is ProductionTicketByProduct productionTicketByProduct)
             {
-                this.FKRefno = Convert.ToInt32(productionTicketByProduct.ActivityProductionFKRefno);
-                this.Refno = Convert.ToInt32(productionTicketByProduct.ActivityRefno);
+                this.HdrFKRefno = Convert.ToInt32(productionTicketByProduct.ActivityProductionFKRefno);
+                this.HdrRefno = Convert.ToInt32(productionTicketByProduct.ActivityRefno);
             }
 
-            return this.Refno;
+            return this.HdrRefno;
         }
 
         /// <summary>

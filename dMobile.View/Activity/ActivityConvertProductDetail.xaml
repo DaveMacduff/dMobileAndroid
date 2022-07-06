@@ -1,0 +1,69 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<modal:DMobileModal  xmlns:modal="clr-namespace:dMobile.View.CustomPages.Modal" 
+                     xmlns="http://xamarin.com/schemas/2014/forms"
+                     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml" 
+                     xmlns:Helpers="clr-namespace:dMobile.View.Helpers"
+                     x:Class="dMobile.View.Activity.ActivityConvertProductDetail">
+    <!--<ContentPage.ToolbarItems>
+            <ToolbarItem x:Name="optionsMenu" IconImageSource="{Binding OptionsIconSource}" Clicked="OptionsMenu_Clicked" IsEnabled="{Binding Loading, Converter={Helpers:BoolConverter}}"/>
+        </ContentPage.ToolbarItems>-->
+    <ContentPage.Content>
+        <AbsoluteLayout VerticalOptions="Center">
+            <Grid x:Name="gridContainer" Padding="10" AbsoluteLayout.LayoutFlags="All" AbsoluteLayout.LayoutBounds="0,0,1,1">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="65*"/>
+                    <RowDefinition Height="20*"/>
+                    <RowDefinition Height="15*"/>
+                </Grid.RowDefinitions>
+
+                <Frame Grid.Row="0" OutlineColor="{DynamicResource BorderColor}">
+                    <ScrollView Orientation="Horizontal">
+                        <Grid x:Name="GridMainActivity">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
+
+                            <ListView x:Name="ListViewMainActivity" ItemSelected="ListViewMainActivity_ItemSelected" HasUnevenRows="True" IsEnabled="{Binding Loading, Converter={Helpers:BoolConverter}}" Grid.Row="1"/>
+                        </Grid>
+                    </ScrollView>
+                </Frame>
+
+                <Frame Grid.Row="1" OutlineColor="{DynamicResource BorderColor}">
+                    <ListView x:Name="ListViewDisplayExtraInfo" SelectionMode="None" HasUnevenRows="True" IsEnabled="{Binding Loading, Converter={Helpers:BoolConverter}}" SeparatorVisibility="None">
+                        <ListView.ItemTemplate>
+                            <DataTemplate>
+                                <ViewCell>
+                                    <StackLayout Padding="5,1,5,1">
+                                        <Label Text="{Binding}" VerticalOptions="Center"/>
+                                    </StackLayout>
+                                </ViewCell>
+                            </DataTemplate>
+                        </ListView.ItemTemplate>
+                    </ListView>
+                </Frame>
+
+                <!--
+                <Button x:Name="cmdFilter" Grid.Row="2" Grid.Column="1" Text="Filter" Clicked="cmdFilter_Click" IsEnabled="{Binding Loading, Converter={Helpers:BoolConverter}}"/>
+                -->
+                <Grid Grid.Row="2">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/> 
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="70*"/>
+                        <ColumnDefinition Width="30*"/>
+                    </Grid.ColumnDefinitions>
+
+                    <Entry x:Name="txtSearch" Grid.Row="0" TextChanged="txtSearch_TextChanged" IsEnabled="{Binding Loading, Converter={Helpers:BoolConverter}}"/>
+                    <Button x:Name="cmdAdd" Grid.Row="0" Grid.Column="1" Text="Add" Clicked="cmdAdd_Click" IsEnabled="{Binding Loading, Converter={Helpers:BoolConverter}}"/>
+                </Grid>
+
+            </Grid>
+
+            <ActivityIndicator IsVisible="{Binding Loading}" 
+                               IsRunning="{Binding Loading}"
+                               AbsoluteLayout.LayoutFlags="All" 
+                               AbsoluteLayout.LayoutBounds="0.5,0.5,0.3,0.3"/>
+        </AbsoluteLayout>
+    </ContentPage.Content>
+</modal:DMobileModal>

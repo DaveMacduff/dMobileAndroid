@@ -218,8 +218,8 @@ namespace dMobile.Controller
             if (selectedActivity is Skid skid)
             {
                 this.SelectedActivity = skid;
-                this.FKRefno = Convert.ToInt32(skid.SkidFKRefno);
-                this.Refno = Convert.ToInt32(skid.SkidFKRefno);
+                this.HdrFKRefno = Convert.ToInt32(skid.SkidFKRefno);
+                this.HdrRefno = Convert.ToInt32(skid.SkidFKRefno);
 
                 SSkidInfo info = new SSkidInfo();
                 info.SkidCode = Convert.ToString(skid.SkidCode);
@@ -248,8 +248,8 @@ namespace dMobile.Controller
             }
             else
             {
-                this.FKRefno = 0;
-                this.Refno = 0;
+                this.HdrFKRefno = 0;
+                this.HdrRefno = 0;
                 this.SkidInfo = new SysSkidInfo();
             }
         }
@@ -261,7 +261,7 @@ namespace dMobile.Controller
         /// <returns>.</returns>
         public override int GetRefnoFromRowIdx(object selectedItem)
         {
-            return this.Refno;
+            return this.HdrRefno;
         }
 
         /// <summary>

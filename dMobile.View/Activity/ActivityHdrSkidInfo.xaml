@@ -1,0 +1,119 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<modal:DMobileModal  xmlns:modal="clr-namespace:dMobile.View.CustomPages.Modal"
+                     xmlns="http://xamarin.com/schemas/2014/forms"
+                     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml" 
+                     xmlns:customcontrols="clr-namespace:dMobile.View.CustomControls" 
+                     xmlns:Helpers="clr-namespace:dMobile.View.Helpers"
+                     x:Class="dMobile.View.Activity.ActivityHdrSkidInfo">
+    <!--<ContentPage.ToolbarItems>
+        <ToolbarItem x:Name="optionsMenu" IconImageSource="{Binding OptionsIconSource}" Clicked="OptionsMenu_Clicked" />
+    </ContentPage.ToolbarItems>-->
+    <ContentPage.Content>
+        <AbsoluteLayout VerticalOptions="Center">
+            <Grid x:Name="gridContainer" Padding="10">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="3*"/>
+                    <RowDefinition Height="2*"/>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+
+                <Grid Grid.Row="0">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+
+                    <Label x:Name="cmdSkidNo" Grid.Row="0" Grid.Column="0" VerticalOptions="Center" FontAttributes="Bold"/>
+                    <Entry x:Name="txtSkidCode" Grid.Row="0" Grid.Column="1" Completed="TxtSkidCode_Completed" TextChanged="IdentifyChangesMade"/>
+                    <Button x:Name="cmdNewSkid" Grid.Row="0" Grid.Column="2" Clicked="CmdNewSkid_Click"/>
+
+                    <Button x:Name="cmdSkidProduct" Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" Clicked="CmdSkidProduct_Click"/>
+                    <Picker x:Name="BarCodeModifier1Picker" Grid.Row="1" Grid.Column="2" SelectedIndexChanged="UpdnBarCodeModifier1_SelectedIndexChanged"/>
+
+                    <Button x:Name="cmdLocation" Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="3" Clicked="CmdLocation_Click"/>
+                </Grid>
+
+                <Frame Grid.Row="1" OutlineColor="{DynamicResource BorderColor}">
+                    <ScrollView Padding="15, 1, 15, 1">
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="*"/>
+                                <RowDefinition Height="*"/>
+                                <RowDefinition Height="*"/>
+                                <RowDefinition Height="*"/>
+                                <RowDefinition Height="*"/>
+                            </Grid.RowDefinitions>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+
+                            <Label x:Name="lblTi" Grid.Row="0" Grid.Column="0" VerticalOptions="Center"/>
+                            <Entry x:Name="txtTi" Grid.Row="0" Grid.Column="1" Grid.ColumnSpan="2" TextChanged="IdentifyChangesMade"/>
+
+                            <Label x:Name="lblHi" Grid.Row="1" Grid.Column="0" VerticalOptions="Center"/>
+                            <Entry x:Name="txtHi" Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="2" TextChanged="IdentifyChangesMade"/>
+
+                            <Label x:Name="lblHeight" Grid.Row="2" Grid.Column="0" VerticalOptions="Center"/>
+                            <Entry x:Name="txtHeight" Grid.Row="2" Grid.Column="1" Grid.ColumnSpan="2" TextChanged="IdentifyChangesMade"/>
+                            <Label x:Name="lblHeightUOM" Grid.Row="2" Grid.Column="3" VerticalOptions="Center"/>
+
+                            <Label x:Name="lblCube" Grid.Row="3" Grid.Column="0" VerticalOptions="Center"/>
+                            <Entry x:Name="txtCube" Grid.Row="3" Grid.Column="1" Grid.ColumnSpan="2" TextChanged="IdentifyChangesMade"/>
+                            <Label x:Name="lblCubeUOM" Grid.Row="3" Grid.Column="3" VerticalOptions="Center"/>
+
+                            <Label x:Name="lblIsPutAway" Grid.Row="4" Grid.Column="0" Grid.ColumnSpan="2" VerticalOptions="Center"/>
+                            <customcontrols:CustomSwitch x:Name="chkIsPutAway" Grid.Row="4" Grid.Column="2" Grid.ColumnSpan="2" Toggled="ChkIsPutAway_Toggled"/>
+                        </Grid>
+                    </ScrollView>
+                </Frame>
+
+                <Grid Grid.Row="2">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="2*"/>
+                        <ColumnDefinition Width="2*"/>
+                    </Grid.ColumnDefinitions>
+
+                    <Button x:Name="pictureBoxPrintLabel" Grid.Row="0" Grid.Column="0" Clicked="PictureBoxPrintLabel_Click"/>
+                    <Button x:Name="cmdDetail" Grid.Row="0" Grid.Column="1" Clicked="CmdDetail_Click"/>
+                    <Button x:Name="cmdComplete" Grid.Row="0" Grid.Column="2" Clicked="CmdComplete_Click"/>
+                </Grid>
+
+                <Grid Grid.Row="3">
+                    <Frame Grid.Row="0" OutlineColor="{DynamicResource BorderColor}">
+                        <ListView x:Name="ListViewDisplayExtraInfo" SelectionMode="None" HasUnevenRows="True" IsEnabled="{Binding Loading, Converter={Helpers:BoolConverter}}" SeparatorVisibility="None">
+                            <ListView.ItemTemplate>
+                                <DataTemplate>
+                                    <ViewCell>
+                                        <StackLayout Padding="5,1,5,1">
+                                            <Label Text="{Binding}" VerticalTextAlignment="Center"/>
+                                        </StackLayout>
+                                    </ViewCell>
+                                </DataTemplate>
+                            </ListView.ItemTemplate>
+                        </ListView>
+                    </Frame>
+                </Grid>
+            </Grid>
+
+            <ActivityIndicator IsVisible="{Binding Loading}" 
+                               IsRunning="{Binding Loading}"
+                               AbsoluteLayout.LayoutFlags="All" 
+                               AbsoluteLayout.LayoutBounds="0.5,0.5,0.3,0.3"/>
+
+        </AbsoluteLayout>
+    </ContentPage.Content>
+</modal:DMobileModal>

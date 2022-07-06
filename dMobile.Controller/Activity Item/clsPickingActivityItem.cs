@@ -252,7 +252,7 @@ namespace dMobile.Controller
             }
 
             // New items are identified with 0 < this.FKRefno, do not validate.
-            if (this.SysEnv.SysSettings.PickQtyOverWarn != SysCommon.ActPickingQtyOverValLevels.NoValidationOrWarning && this.FKRefno > 0)
+            if (this.SysEnv.SysSettings.PickQtyOverWarn != SysCommon.ActPickingQtyOverValLevels.NoValidationOrWarning && this.ItemFKRefno > 0)
             {
                 try
                 {
@@ -486,9 +486,9 @@ namespace dMobile.Controller
                     {
                         try
                         {
-                            transaction.Execute("INSERT INTO tActivityItem (ActivityItemSubType, ActivityItemStatus, ActivityRefno) VALUES (?, ?, ?)", Convert.ToInt32(SysCommon.ActSubTypes.Picking), Convert.ToInt32(SysCommon.ActStatus.NoChange), Convert.ToInt32(this.ActHdr.Refno));
+                            transaction.Execute("INSERT INTO tActivityItem (ActivityItemSubType, ActivityItemStatus, ActivityRefno) VALUES (?, ?, ?)", Convert.ToInt32(SysCommon.ActSubTypes.Picking), Convert.ToInt32(SysCommon.ActStatus.NoChange), Convert.ToInt32(this.ActHdr.HdrRefno));
 
-                            this.Refno = Convert.ToInt32(transaction.ExecuteScalar<int>("SELECT last_insert_rowid() FROM tActivityItem"));
+                            this.ItemRefno = Convert.ToInt32(transaction.ExecuteScalar<int>("SELECT last_insert_rowid() FROM tActivityItem"));
 
                             string query = "INSERT INTO tActivityItemPicking (" +
                                 "ActivityItemRefno, " +
@@ -531,10 +531,10 @@ namespace dMobile.Controller
                                 ")";
                             object[] parameters = new object[]
                             {
-                                Convert.ToInt32(this.Refno),
+                                Convert.ToInt32(this.ItemRefno),
                                 Convert.ToInt32(SysCommon.ActSubTypes.Picking),
-                                Convert.ToInt32(this.Refno * -1),
-                                Convert.ToString(this.Refno * -1),
+                                Convert.ToInt32(this.ItemRefno * -1),
+                                Convert.ToString(this.ItemRefno * -1),
                                 Convert.ToInt32(prodUnitRefno),
                                 Convert.ToInt32(this.LocMap.CurrLocMap.WhsLocMapRefno),
                                 Convert.ToInt32(0),
@@ -561,7 +561,7 @@ namespace dMobile.Controller
                         }
                     });
 
-                    this.FKRefno = this.Refno * -1;
+                    this.ItemFKRefno = this.ItemRefno * -1;
                     this.ProdInfo = await ProductInfoTasks.GetInfoFromUnitRefno(prodUnitRefno);
                     this.ProdInfo.Scheme = await ProductInfoTasks.GetSchemeComponentsFromRefno(this.ProdInfo.Refno);
 
@@ -569,9 +569,9 @@ namespace dMobile.Controller
                     {
                         this.ListItems.Add(new PickingItem()
                         {
-                            ActivityItemRefno = this.Refno,
-                            ActivityItemPickingFKRefno = this.FKRefno,
-                            ActivityItemPickingStringFKRefno = this.FKRefno.ToString(),
+                            ActivityItemRefno = this.ItemRefno,
+                            ActivityItemPickingFKRefno = this.ItemFKRefno,
+                            ActivityItemPickingStringFKRefno = this.ItemFKRefno.ToString(),
                             ProductUnitRefno = prodUnitRefno,
                             ProductRefno = this.ProdInfo.Refno,
                             ProductCode = this.ProdInfo.Code,
@@ -623,7 +623,7 @@ namespace dMobile.Controller
                 this.DataLayerProgressOutHandler(this, new EventArgs(), 5);
 
                 tableActPickingItem.RegisterDataAccessListenerProgressOut((PickingActItem)this);
-                await tableActPickingItem.RequestData(this.ActHdr.Refno, data);
+                await tableActPickingItem.RequestData(this.ActHdr.HdrRefno, data);
                 tableActPickingItem.UnregisterDataAccessListenerProgressOut((PickingActItem)this);
             }
         }
@@ -846,7 +846,7 @@ namespace dMobile.Controller
                 sql.Append("= tActivityItemPicking.WarehouseLocationMapRefno ");
                 sql.Append("LEFT JOIN tActivityItemPickingComment ON tActivityItemPickingComment.ActivityItemRefno ");
                 sql.Append("= tActivityItemPicking.ActivityItemRefno ");
-                sql.AppendFormat("WHERE tActivityItem.ActivityRefno = {0} ", this.ActHdr.Refno);
+                sql.AppendFormat("WHERE tActivityItem.ActivityRefno = {0} ", this.ActHdr.HdrRefno);
                 sql.AppendFormat("AND tActivityItem.ActivityItemStatus <> {0} ", Convert.ToInt32(SysCommon.ActStatus.NoChange));
                 sql.Append("UNION ");
                 sql.Append("SELECT tActivityItemPicking.ActivityItemRefno AS ActivityItemRefno,");
@@ -889,7 +889,7 @@ namespace dMobile.Controller
                 sql.Append("= tActivityItemPicking.WarehouseLocationMapRefno ");
                 sql.Append("LEFT JOIN tActivityItemPickingComment ON tActivityItemPickingComment.ActivityItemRefno ");
                 sql.Append("= tActivityItemPicking.ActivityItemRefno ");
-                sql.AppendFormat("WHERE tActivityItem.ActivityRefno = {0} ", this.ActHdr.Refno);
+                sql.AppendFormat("WHERE tActivityItem.ActivityRefno = {0} ", this.ActHdr.HdrRefno);
                 sql.AppendFormat("AND tActivityDetail.ActivityDetailStatus <> {0}", Convert.ToInt32(SysCommon.ActStatus.NoChange));
             }
             else
@@ -932,7 +932,7 @@ namespace dMobile.Controller
                 sql.Append("= tActivityItemPicking.WarehouseLocationMapRefno ");
                 sql.Append("LEFT JOIN tActivityItemPickingComment ON tActivityItemPickingComment.ActivityItemRefno ");
                 sql.Append("= tActivityItemPicking.ActivityItemRefno ");
-                sql.AppendFormat("WHERE tActivityItem.ActivityRefno = {0}", this.ActHdr.Refno);
+                sql.AppendFormat("WHERE tActivityItem.ActivityRefno = {0}", this.ActHdr.HdrRefno);
             }
 
             // using (SQLiteDataAdapter da = new SQLiteDataAdapter(sql.ToString(), DatabaseConnection.GetInstance().SQLConn))
@@ -1018,8 +1018,8 @@ namespace dMobile.Controller
             if (selectedActivityItem is PickingItem item)
             {
                 this.SelectedActivityItem = item;
-                this.Refno = item.ActivityItemRefno;
-                this.FKRefno = Convert.ToInt32(item.ActivityItemPickingFKRefno);
+                this.ItemRefno = item.ActivityItemRefno;
+                this.ItemFKRefno = Convert.ToInt32(item.ActivityItemPickingFKRefno);
                 this.ProdInfo = await ProductInfoTasks.GetInfoFromUnitRefno(item.ProductUnitRefno);
                 int activityItemLocMapRefno = item.LocationMapRefno;
             }
@@ -1100,7 +1100,7 @@ namespace dMobile.Controller
             sql.Append("= tActivityItemPicking.ActivityItemRefno ");
             sql.Append("INNER JOIN tLocationMapWarehouse ON tLocationMapWarehouse.LocationMapRefno ");
             sql.Append("= tActivityItemPicking.WarehouseLocationMapRefno ");
-            sql.AppendFormat("WHERE tActivityItem.ActivityRefno = {0} ", this.ActHdr.Refno);
+            sql.AppendFormat("WHERE tActivityItem.ActivityRefno = {0} ", this.ActHdr.HdrRefno);
             sql.AppendFormat("AND tActivityItemPicking.WarehouseLocationMapRefno = {0} ", this.LocMap.CurrLocMap.WhsLocMapRefno);
             sql.AppendFormat("AND tActivityItemPicking.ProductUnitRefno = {0}", prodUnitRefno);
 
@@ -1108,11 +1108,11 @@ namespace dMobile.Controller
 
             if (results != null && results.Count > 0)
             {
-                this.FKRefno = Convert.ToInt32(results[0].ActivityItemPickingFKRefno);
+                this.ItemFKRefno = Convert.ToInt32(results[0].ActivityItemPickingFKRefno);
                 this.ProdInfo = await ProductInfoTasks.GetInfoFromUnitRefno(Convert.ToInt32(results[0].ProductUnitRefno));
                 this.ProdInfo.Scheme = await ProductInfoTasks.GetSchemeComponentsFromRefno(this.ProdInfo.Refno);
-                this.Refno = Convert.ToInt32(results[0].ActivityItemRefno);
-                foundActItemRefno = this.Refno;
+                this.ItemRefno = Convert.ToInt32(results[0].ActivityItemRefno);
+                foundActItemRefno = this.ItemRefno;
             }
 
             return foundActItemRefno;
@@ -1182,8 +1182,8 @@ namespace dMobile.Controller
                     + await SysCommon.GetRequestDefaults(false)
                     + "<skid_data>" + data.Root.Element("skid_data").Value + "</skid_data>"
                     + "<whs_id>" + this.LocMap.CurrLocMap.WhsFKRefno + "</whs_id>"
-                    + "<refno>" + this.ActHdr.FKRefno + "</refno>"
-                    + "<itm_refno>" + this.FKRefno + "</itm_refno>"
+                    + "<refno>" + this.ActHdr.HdrFKRefno + "</refno>"
+                    + "<itm_refno>" + this.ItemFKRefno + "</itm_refno>"
                     + "<is_negate_qty>false</is_negate_qty>"
                     + "</imclient>");
             }
@@ -1339,7 +1339,7 @@ namespace dMobile.Controller
                         + "tActivityItem.ActivityItemRefno "
                         + "INNER JOIN tProductUnit ON tProductUnit.ProductUnitRefno = tActivityItemPicking.ProductUnitRefno "
                         + "INNER JOIN tUnit ON tUnit.UnitRefno = tProductUnit.WtUnitRefno "
-                        + string.Format("WHERE tActivityItem.ActivityRefno = {0} ", this.ActHdr.Refno)
+                        + string.Format("WHERE tActivityItem.ActivityRefno = {0} ", this.ActHdr.HdrRefno)
                         + "GROUP BY tUnit.UnitCode";
 
                 List<PickingItemSummary> results = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<PickingItemSummary>(query);
@@ -1404,7 +1404,7 @@ namespace dMobile.Controller
         /// <returns><see cref="string"/> Get activity item control description.</returns>
         public override string GetControlDescription()
         {
-            return string.Format("Pick # {0}", this.ActHdr.FKRefno);
+            return string.Format("Pick # {0}", this.ActHdr.HdrFKRefno);
         }
 
         /// <summary>

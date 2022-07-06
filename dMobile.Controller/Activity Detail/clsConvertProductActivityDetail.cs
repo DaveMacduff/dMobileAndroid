@@ -194,9 +194,9 @@ namespace dMobile.Controller
                 this.Quantity = Convert.ToDecimal(data.Root.Element("alt_qty").Value);
                 this.BaseQuantity = Convert.ToDecimal(data.Root.Element("base_qty").Value);
                 this.WeightQuantity = Convert.ToDecimal(data.Root.Element("wt_qty").Value);
-                this.FKRefno = Convert.ToInt32(data.Root.Element("ser_refno").Value);
-                this.ActItem.FKRefno = Convert.ToInt32(data.Root.Element("itm_refno").Value);
-                this.ActItem.ActHdr.FKRefno = Convert.ToInt32(data.Root.Element("hdr_refno").Value);
+                this.DetailFKRefno = Convert.ToInt32(data.Root.Element("ser_refno").Value);
+                this.ActItem.ItemFKRefno = Convert.ToInt32(data.Root.Element("itm_refno").Value);
+                this.ActItem.ActHdr.HdrFKRefno = Convert.ToInt32(data.Root.Element("hdr_refno").Value);
 
                 // Update Scheme data
                 SProductSchemeData schemeData = new SProductSchemeData();
@@ -220,9 +220,9 @@ namespace dMobile.Controller
                     ActivityDetailLogisticUnitBatchLotNumber = this.SchemeData.LogisticUnitBatchLotNumber,
                     ProductSchemeVariantCode = this.SchemeData.VariantCode,
                     ProductSchemeVariantNo = this.SchemeData.VariantNumber,
-                    ActivityDetailFKRefno = this.FKRefno,
-                    ActivityItemFKRefno = this.ActItem.FKRefno,
-                    ActivityHdrFKRefno = this.ActItem.ActHdr.FKRefno,
+                    ActivityDetailFKRefno = this.DetailFKRefno,
+                    ActivityItemFKRefno = this.ActItem.ItemFKRefno,
+                    ActivityHdrFKRefno = this.ActItem.ActHdr.HdrFKRefno,
                 });
             }
         }
@@ -321,7 +321,7 @@ namespace dMobile.Controller
 
             if (!isAdd && selectedActivityDetail is ConvertProductDetail convertProductDetail)
             {
-                this.FKRefno = Convert.ToInt32(convertProductDetail.ActivityDetailFKRefno);
+                this.DetailFKRefno = Convert.ToInt32(convertProductDetail.ActivityDetailFKRefno);
             }
 
             return this;
@@ -549,9 +549,9 @@ namespace dMobile.Controller
 
             // Set the FK refno to be the selected row
             dynamic selectedActivityItem = this.ActItem.SelectedActivityItem;
-            this.ActItem.ActHdr.FKRefno = Convert.ToInt32(selectedActivityItem.ActivityHdrFKRefno);
-            this.ActItem.FKRefno = Convert.ToInt32(selectedActivityItem.ActivityItemFKRefno);
-            this.FKRefno = Convert.ToInt32(selectedActivityItem.ActivityDetailFKRefno);
+            this.ActItem.ActHdr.HdrFKRefno = Convert.ToInt32(selectedActivityItem.ActivityHdrFKRefno);
+            this.ActItem.ItemFKRefno = Convert.ToInt32(selectedActivityItem.ActivityItemFKRefno);
+            this.DetailFKRefno = Convert.ToInt32(selectedActivityItem.ActivityDetailFKRefno);
             XDocument request = XDocument.Parse(
     "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>"
       + "<imclient>"
@@ -643,8 +643,8 @@ namespace dMobile.Controller
             req.AppendFormat("<whs_id>{0}</whs_id>", this.LocMap.CurrLocMap.WhsFKRefno);
             req.AppendFormat("<sect_refno>{0}</sect_refno>", this.LocMap.CurrLocMap.SectFKRefno);
             req.AppendFormat("<slot_refno>{0}</slot_refno>", this.LocMap.CurrLocMap.SlotFKRefno);
-            req.AppendFormat("<hdr_refno>{0}</hdr_refno>", this.ActItem.ActHdr.FKRefno);
-            req.AppendFormat("<itm_refno>{0}</itm_refno>", this.ActItem.FKRefno);
+            req.AppendFormat("<hdr_refno>{0}</hdr_refno>", this.ActItem.ActHdr.HdrFKRefno);
+            req.AppendFormat("<itm_refno>{0}</itm_refno>", this.ActItem.ItemFKRefno);
             req.AppendFormat("<prod_id>{0}</prod_id>", fromProd.Code);
             req.AppendFormat("<bc>{0}</bc>", fromProd.UnitBC);
             req.AppendFormat("<alt_unit>{0}</alt_unit>", fromProd.UnitCode);
@@ -665,8 +665,8 @@ namespace dMobile.Controller
             req.AppendFormat("<whs_id>{0}</whs_id>", this.LocMap.CurrLocMap.WhsFKRefno);
             req.AppendFormat("<sect_refno>{0}</sect_refno>", this.LocMap.CurrLocMap.SectFKRefno);
             req.AppendFormat("<slot_refno>{0}</slot_refno>", this.LocMap.CurrLocMap.SlotFKRefno);
-            req.AppendFormat("<hdr_refno>{0}</hdr_refno>", this.ActItem.ActHdr.FKRefno);
-            req.AppendFormat("<itm_refno>{0}</itm_refno>", this.ActItem.FKRefno);
+            req.AppendFormat("<hdr_refno>{0}</hdr_refno>", this.ActItem.ActHdr.HdrFKRefno);
+            req.AppendFormat("<itm_refno>{0}</itm_refno>", this.ActItem.ItemFKRefno);
             req.AppendFormat("<prod_id>{0}</prod_id>", toProd.Code);
             req.AppendFormat("<bc>{0}</bc>", toProd.UnitBC);
             req.AppendFormat("<alt_unit>{0}</alt_unit>", toProd.UnitCode);
@@ -713,10 +713,10 @@ namespace dMobile.Controller
             if (this.IsUpdateView && this.ListDetails != null)
             {
                 bool detailToBeAdded = false;
-                if (this.FKRefno > 0)
+                if (this.DetailFKRefno > 0)
                 {
                     detail = this.ListDetails.OfType<ConvertProductDetail>().FirstOrDefault(adjDetail =>
-                        adjDetail.ActivityDetailFKRefno == this.FKRefno);
+                        adjDetail.ActivityDetailFKRefno == this.DetailFKRefno);
                 }
 
                 if (detail == null)
@@ -738,8 +738,8 @@ namespace dMobile.Controller
                     detail.ActivityDetailBaseQuantity = 0;
                     detail.ActivityDetailWeightQuantity = 0;
                     detail.ActDetailFKRefnoFldName = actDetailFKRefnoFldName;
-                    detail.ActivityHdrFKRefno = this.ActItem.ActHdr.FKRefno;
-                    detail.ActivityItemFKRefno = this.ActItem.FKRefno;
+                    detail.ActivityHdrFKRefno = this.ActItem.ActHdr.HdrFKRefno;
+                    detail.ActivityItemFKRefno = this.ActItem.ItemFKRefno;
                 }
 
                 detail.LocationMapRefno = this.LocMap.CurrLocMapRefno;

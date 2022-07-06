@@ -61,7 +61,7 @@ namespace dMobile.Controller
         /// <returns>.</returns>
         public override int GetRefnoFromRowIdx(object selectedItem)
         {
-            return this.Refno;
+            return this.HdrRefno;
         }
 
         /// <summary>

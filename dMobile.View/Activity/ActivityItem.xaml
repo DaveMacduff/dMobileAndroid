@@ -1,0 +1,108 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<custompages:DMobileModal
+    xmlns:custompages="clr-namespace:dMobile.View.CustomPages.Modal"
+    xmlns="http://xamarin.com/schemas/2014/forms"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:Helpers="clr-namespace:dMobile.View.Helpers" xmlns:customcontrols="clr-namespace:dMobile.View.CustomControls"
+    x:Class="dMobile.View.Activity.ActivityItem">
+    <ContentPage.ToolbarItems>
+        <ToolbarItem x:Name="optionsMenu"
+                     IconImageSource="{Binding OptionsIconSource}"
+                     Clicked="OptionsMenu_Clicked"
+                     IsEnabled="{Binding Loading, Converter={Helpers:BoolConverter}}"/>
+    </ContentPage.ToolbarItems>
+    <ContentPage.Content>
+        <AbsoluteLayout VerticalOptions="Center">
+            <Grid Padding="10" AbsoluteLayout.LayoutFlags="All" AbsoluteLayout.LayoutBounds="0,0,1,1">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="65*"/>
+                    <RowDefinition Height="20*"/>
+                    <RowDefinition Height="15*"/>
+                    <!--<RowDefinition Height="3*"/>-->
+                </Grid.RowDefinitions>
+
+                <Label x:Name="lblSelectedLocation" Grid.Row="0" FontAttributes="Bold"/>
+                <Label x:Name="lblSkidNumber" Grid.Row="1" FontAttributes="Bold"/>
+
+                <Frame VerticalOptions="Start" OutlineColor="{DynamicResource BorderColor}" Grid.Row="2">
+                    <ScrollView Orientation="Horizontal">
+                        <Grid x:Name="GridMainActivity">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
+
+                            <ListView x:Name="ListViewMainActivity"
+                                      ItemSelected="ListViewMainActivity_ItemSelected"
+                                      HasUnevenRows="True"
+                                      IsEnabled="{Binding Loading, Converter={Helpers:BoolConverter}}"
+                                      Grid.Row="1"/>
+                        </Grid>
+                    </ScrollView>
+                </Frame>
+
+                <Frame VerticalOptions="Start" Grid.Row="3" OutlineColor="{DynamicResource BorderColor}">
+                    <ListView x:Name="ListViewDisplayExtraInfo"
+                              SelectionMode="None"
+                              HasUnevenRows="True"
+                              IsEnabled="{Binding Loading, Converter={Helpers:BoolConverter}}"
+                              SeparatorVisibility="None">
+                        <ListView.ItemTemplate>
+                            <DataTemplate>
+                                <ViewCell>
+                                    <StackLayout Padding="5,1,5,1">
+                                        <Label Text="{Binding}" VerticalTextAlignment="Center"/>
+                                    </StackLayout>
+                                </ViewCell>
+                            </DataTemplate>
+                        </ListView.ItemTemplate>
+                    </ListView>
+                </Frame>
+
+                <Grid x:Name="gridControls" Grid.Row="4">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="70*"/>
+                        <ColumnDefinition Width="30*"/>
+                    </Grid.ColumnDefinitions>
+                    
+                    <Entry x:Name="txtSearchItem" Grid.Row="0"
+                           Grid.Column="0"
+                           TextChanged="TxtSearchItem_TextChanged"
+                           IsEnabled="{Binding Loading, Converter={Helpers:BoolConverter}}"/>
+                    <customcontrols:CustomPicker x:Name="BarCodeModifier1Picker"
+                                                 Grid.Row="0"
+                                                 Grid.Column="1"
+                                                 Image="arrow_drop_down"
+                                                 SelectedIndexChanged="UpdnBarCodeModifier1_SelectedIndexChanged"
+                                                 IsEnabled="{Binding Loading, Converter={Helpers:BoolConverter}}"/>
+                    <!--<Button x:Name="cmdFilter"
+                                Grid.Row="0"
+                                Grid.Column="1"
+                                Clicked="CmdFilter_Clicked"
+                                IsEnabled="{Binding Loading, Converter={Helpers:BoolConverter}}"/>-->
+                </Grid>
+
+                <!--<Grid Grid.Row="5">
+                    <ProgressBar x:Name="progBarMain" Grid.Row="0" Grid.Column="0" Visual="Default"></ProgressBar>
+                </Grid>-->
+                
+                <!--<StackLayout Grid.Row="5">
+                    <Grid>
+                    <Button x:Name="cmdAddProduct" Grid.Row="0" Grid.Column="0" Clicked="cmdAddProduct_Click" IsEnabled="{Binding Loading, Converter={Helpers:BoolConverter}}"/>
+                    <Button x:Name="cmdAddSkid" Grid.Row="0" Grid.Column="1" Clicked="cmdAddSkid_Click" IsEnabled="{Binding Loading, Converter={Helpers:BoolConverter}}"/>
+
+                    <Button x:Name="cmdLocation" Grid.Row="1" Grid.Column="0" Clicked="cmdLocation_Click" IsEnabled="{Binding Loading, Converter={Helpers:BoolConverter}}"/>
+                    <Button x:Name="cmdSelectSkid" Grid.Row="1" Grid.Column="1" Clicked="cmdSelectSkid_Click" IsEnabled="{Binding Loading, Converter={Helpers:BoolConverter}}"/>
+                </Grid>
+                </StackLayout>-->
+
+            </Grid>
+
+            <ActivityIndicator IsVisible="{Binding Loading}" 
+                                   IsRunning="{Binding Loading}"
+                                   AbsoluteLayout.LayoutFlags="All" 
+                                   AbsoluteLayout.LayoutBounds="0.5,0.5,0.3,0.3"/>
+        </AbsoluteLayout>
+    </ContentPage.Content>
+</custompages:DMobileModal>

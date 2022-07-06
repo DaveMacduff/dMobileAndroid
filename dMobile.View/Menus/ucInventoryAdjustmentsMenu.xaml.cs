@@ -388,7 +388,7 @@ namespace dMobile.View.Menus
             this.DisableControls();
             this.IsControlLoaded = false;
 
-            ucActivityConvertProduct convertProduct = new ucActivityConvertProduct();
+            ActivityConvertProduct convertProduct = new ActivityConvertProduct();
             await convertProduct.Show();
         }
 
@@ -438,7 +438,7 @@ namespace dMobile.View.Menus
             this.AdjSettings = tempAdjSettings;
             this.IsControlLoaded = false;
 
-            ucActivityHdr ucActivityHdr = new ucActivityHdr(SysCommon.ActSubTypes.Adjustment);
+            ActivityHdr ucActivityHdr = new ActivityHdr(SysCommon.ActSubTypes.Adjustment);
             await ucActivityHdr.Show();
         }
     }

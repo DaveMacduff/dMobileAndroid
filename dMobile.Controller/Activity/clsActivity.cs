@@ -69,7 +69,7 @@ namespace dMobile.Controller
         /// <summary>
         /// Gets or sets the activity foreign key reference number.
         /// </summary>
-        public int FKRefno { get; set; } = 0;
+        public int HdrFKRefno { get; set; } = 0;
 
         /// <summary>
         /// Gets or sets the list of activity headers.
@@ -84,7 +84,7 @@ namespace dMobile.Controller
         /// <summary>
         /// Gets or sets the Refno.
         /// </summary>
-        public int Refno { get; set; } = 0;
+        public int HdrRefno { get; set; } = 0;
 
         /// <summary>
         /// Gets or sets the SysEnv.
@@ -247,7 +247,7 @@ namespace dMobile.Controller
                     Convert.ToInt32(actSubType));
 
                 string queryID = "select last_insert_rowid() from tActivity";
-                this.Refno = Convert.ToInt32(
+                this.HdrRefno = Convert.ToInt32(
                     await DatabaseConnection.GetInstance().SQLConn.ExecuteScalarAsync<int>(queryID));
             }
             catch (SQLiteException ex)

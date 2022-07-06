@@ -31,8 +31,8 @@ namespace dMobile.View.Forms
             IDMobileModal model = modelType switch
             {
                 EDialogTypes.RefreshDataStatus => new ucRefreshDataStatus(actSubType),
-                EDialogTypes.ActivityInventoryInquiry => new ucActivityInventoryInquiry(),
-                EDialogTypes.ActivityDeboxLabelCount => new ucActivityDeboxLabelCount(),
+                EDialogTypes.ActivityInventoryInquiry => new ActivityInventoryInquiry(),
+                EDialogTypes.ActivityDeboxLabelCount => new ActivityDeboxLabelCount(),
                 EDialogTypes.SelectProductUnit => this.GetModel(modelType, actSubType),
                 EDialogTypes.SelectProductUnitFilterToProduct => this.GetModel(modelType, actSubType),
                 EDialogTypes.SelectLocationMap => this.GetModel(modelType, actSubType),
@@ -90,7 +90,7 @@ namespace dMobile.View.Forms
             string msg = $"Model object for {SysCommon.SourceEnum2String(modelType)}.";
             IDMobileModal model = modelType switch
             {
-                EDialogTypes.ActivityShippingLabelEdit => new ucActivityShippingLabelEdit(
+                EDialogTypes.ActivityShippingLabelEdit => new ActivityShippingLabelEdit(
                     SysCommon.ActSubTypes.Picking,  // Override the subtype to Picking
                     labelQtyEdit,
                     activity,
@@ -150,7 +150,7 @@ namespace dMobile.View.Forms
             IDMobileModal model = modelType switch
             {
                 EDialogTypes.RefreshDataStatus => new ucRefreshDataStatus(actSubType),
-                EDialogTypes.ActivityInventoryInquiry => new ucActivityInventoryInquiry(),
+                EDialogTypes.ActivityInventoryInquiry => new ActivityInventoryInquiry(),
                 EDialogTypes.SelectProductUnit => this.GetModel(modelType, activity, actSubType),
                 EDialogTypes.SelectProductUnitFilterToProduct => this.GetModel(modelType, activity, actSubType),
                 EDialogTypes.SelectLocationMap => this.GetModel(modelType, activity, actSubType),
@@ -207,8 +207,8 @@ namespace dMobile.View.Forms
             IDMobileModal model = modelType switch
             {
                 EDialogTypes.RefreshDataStatus => new ucRefreshDataStatus(actSubType),
-                EDialogTypes.ActivityInventoryInquiry => new ucActivityInventoryInquiry(actItem.ProdInfo),
-                EDialogTypes.ActivityInventoryInquirySummary => new ucActivityItemInventoryInquirySummary(actItem),
+                EDialogTypes.ActivityInventoryInquiry => new ActivityInventoryInquiry(actItem.ProdInfo),
+                EDialogTypes.ActivityInventoryInquirySummary => new ActivityItemInventoryInquirySummary(actItem),
                 EDialogTypes.SelectProductUnit => this.GetModel(modelType, actItem, actSubType, callingActSubType),
                 EDialogTypes.SelectProductUnitFilterToProduct => this.GetModel(modelType, actItem, actSubType, callingActSubType),
                 EDialogTypes.SelectLocationMap => this.GetModel(modelType, actItem, actSubType, callingActSubType),
@@ -259,7 +259,7 @@ namespace dMobile.View.Forms
             IDMobileModal model = modelType switch
             {
                 EDialogTypes.RefreshDataStatus => new ucRefreshDataStatus(actSubType),
-                EDialogTypes.ActivityInventoryInquiry => new ucActivityInventoryInquiry(actDetail.ActItem.ProdInfo),
+                EDialogTypes.ActivityInventoryInquiry => new ActivityInventoryInquiry(actDetail.ActItem.ProdInfo),
                 EDialogTypes.SelectProductUnit => this.GetModel(modelType, actDetail, actSubType),
                 EDialogTypes.SelectProductUnitFilterToProduct => this.GetModel(modelType, actDetail, actSubType),
                 EDialogTypes.SelectLocationMap => this.GetModel(modelType, actDetail, actSubType),
@@ -382,9 +382,9 @@ namespace dMobile.View.Forms
         {
             IDMobileModal model = modelType switch
             {
-                EDialogTypes.ActivityItem => new ucActivityItem(activity, actSubType),
-                EDialogTypes.ActivityItemSingle => new ucActivityItemSingle(activity, actSubType),
-                EDialogTypes.SkidInfo => new ucActivityHdrSkidInfo(actSubType, activity),
+                EDialogTypes.ActivityItem => new ActivityItem(activity, actSubType),
+                EDialogTypes.ActivityItemSingle => new ActivityItemSingle(activity, actSubType),
+                EDialogTypes.SkidInfo => new ActivityHdrSkidInfo(actSubType, activity),
                 EDialogTypes.RefreshDataStatus => null,
                 EDialogTypes.SelectProductUnit => null,
                 EDialogTypes.SelectProductUnitFilterToProduct => null,
@@ -404,7 +404,7 @@ namespace dMobile.View.Forms
                 EDialogTypes.ActivityProductionTicketByProductFilter => null,
                 EDialogTypes.ActivityPurchaseOrderWorkSheetEdit => null,
                 EDialogTypes.ActivityPickingSelectCriteria => null,
-                EDialogTypes.ActivityShippingLabelEdit => new ucActivityShippingLabelEdit(actSubType, labelQtyEdit, activity, selectMode),
+                EDialogTypes.ActivityShippingLabelEdit => new ActivityShippingLabelEdit(actSubType, labelQtyEdit, activity, selectMode),
                 EDialogTypes.ActivityConvertUnitEdit => null,
                 EDialogTypes.SkidInfoEdit => null,
                 EDialogTypes.ActivityDetailSkid => null,
@@ -437,9 +437,9 @@ namespace dMobile.View.Forms
         {
             IDMobileModal model = modelType switch
             {
-                EDialogTypes.ActivityItem => new ucActivityItem(activity, actSubType),
-                EDialogTypes.ActivityItemSingle => new ucActivityItemSingle(activity, actSubType),
-                EDialogTypes.SkidInfo => new ucActivityHdrSkidInfo(actSubType, activity),
+                EDialogTypes.ActivityItem => new ActivityItem(activity, actSubType),
+                EDialogTypes.ActivityItemSingle => new ActivityItemSingle(activity, actSubType),
+                EDialogTypes.SkidInfo => new ActivityHdrSkidInfo(actSubType, activity),
                 EDialogTypes.RefreshDataStatus => null,
                 EDialogTypes.SelectProductUnit => null,
                 EDialogTypes.SelectProductUnitFilterToProduct => null,
@@ -492,17 +492,17 @@ namespace dMobile.View.Forms
         {
             IDMobileModal model = modelType switch
             {
-                EDialogTypes.ActivityDetailEdit => new ucActivityDetailEdit(actDetail, actSubType),
-                EDialogTypes.ActivityProductLabel => new ucActivityProductLabel(actDetail, actSubType),
-                EDialogTypes.ActivityPurchaseOrderWorkSheetEdit => new ucActivityItemPurchaseOrderWorkSheetEdit(
+                EDialogTypes.ActivityDetailEdit => new ActivityDetailEdit(actDetail, actSubType),
+                EDialogTypes.ActivityProductLabel => new ActivityProductLabel(actDetail, actSubType),
+                EDialogTypes.ActivityPurchaseOrderWorkSheetEdit => new ActivityItemPurchaseOrderWorkSheetEdit(
                     actDetail,
                     SysCommon.ActSubTypes.PurchaseOrderWorkSheet), // Override the subtype to PurchaseOrderWorkSheet
-                EDialogTypes.ActivityConvertUnitEdit => new ucActivityConvertUnitEdit(
+                EDialogTypes.ActivityConvertUnitEdit => new ActivityConvertUnitEdit(
                     actDetail,
                     SysCommon.ActSubTypes.ConvertUnit), // Override the subtype to ConvertUnit
-                EDialogTypes.ActivityInventoryInquiryDetail => new ucActivityDetailInventoryInquiry(actDetail, actSubType),
-                EDialogTypes.ActivityConvertProductDetail => new ucActivityConvertProductDetail(actDetail, actSubType),
-                EDialogTypes.ActivityRemoveFromSkid => new ucActivityRemoveFromSkid(actDetail, actSubType),
+                EDialogTypes.ActivityInventoryInquiryDetail => new ActivityDetailInventoryInquiry(actDetail, actSubType),
+                EDialogTypes.ActivityConvertProductDetail => new ActivityConvertProductDetail(actDetail, actSubType),
+                EDialogTypes.ActivityRemoveFromSkid => new ActivityRemoveFromSkid(actDetail, actSubType),
                 EDialogTypes.RefreshDataStatus => null,
                 EDialogTypes.SelectProductUnit => null,
                 EDialogTypes.SelectProductUnitFilterToProduct => null,
@@ -553,14 +553,14 @@ namespace dMobile.View.Forms
         {
             IDMobileModal model = modelType switch
             {
-                EDialogTypes.ActivityDetail => new ucActivityDetail(actItem, actSubType),
+                EDialogTypes.ActivityDetail => new ActivityDetail(actItem, actSubType),
                 EDialogTypes.SelectProductUnitFilterToProduct => new ucSelectProductUnit(
                     actItem.ProdInfo.Refno,
                     actItem.ProdInfo.UnitRefno,
                     actSubType),
-                EDialogTypes.SkidInfo => new ucActivityHdrSkidInfo(actSubType, actItem),
-                EDialogTypes.ActivityDetailSkid => new ucActivityDetailSkid(actItem, actSubType, callingActSubType),
-                EDialogTypes.ActivityInventoryInquiryItem => new ucActivityItemInventoryInquiry(actItem, actSubType),
+                EDialogTypes.SkidInfo => new ActivityHdrSkidInfo(actSubType, actItem),
+                EDialogTypes.ActivityDetailSkid => new ActivityDetailSkid(actItem, actSubType, callingActSubType),
+                EDialogTypes.ActivityInventoryInquiryItem => new ActivityItemInventoryInquiry(actItem, actSubType),
                 EDialogTypes.RefreshDataStatus => null,
                 EDialogTypes.SelectProductUnit => null,
                 EDialogTypes.SelectLocationMap => null,
@@ -660,18 +660,18 @@ namespace dMobile.View.Forms
                 EDialogTypes.SelectProduct => new ucSelectProduct(),
                 EDialogTypes.SelectLocationMap => new ucSetLocationMap(),
                 EDialogTypes.ActivityHdrPickingFilter => new ucActivityHdrPickingFilter(),
-                EDialogTypes.ActivityHdrReceivingFilter => new ucActivityHdrReceivingFilter(),
-                EDialogTypes.ActivityHdrPhysicalCountFilter => new ucActivityHdrPhysicalCountFilter(),
+                EDialogTypes.ActivityHdrReceivingFilter => new ActivityHdrReceivingFilter(),
+                EDialogTypes.ActivityHdrPhysicalCountFilter => new ActivityHdrPhysicalCountFilter(),
                 EDialogTypes.ActivityHdrCycleCountFilter => new ucActivityHdrCycleCountFilter(),
-                EDialogTypes.ActivityHdrReturnsFilter => new ucActivityHdrReturnsFilter(),
-                EDialogTypes.ActivityHdrTransferFilter => new ucActivityHdrTransferFilter(),
+                EDialogTypes.ActivityHdrReturnsFilter => new ActivityHdrReturnsFilter(),
+                EDialogTypes.ActivityHdrTransferFilter => new ActivityHdrTransferFilter(),
                 EDialogTypes.SubmitBatchFilter => new ucSubmitBatchFilter(),
                 EDialogTypes.ActivityAdjustmentFilter => new ucActivityHdrAdjustmentFilter(),
-                EDialogTypes.ActivityProductionTicketFinishedFilter => new ucActivityHdrProductionTicketFilter(),
-                EDialogTypes.ActivityProductionTicketMaterialFilter => new ucActivityHdrProductionTicketFilter(),
-                EDialogTypes.ActivityProductionTicketByProductFilter => new ucActivityHdrProductionTicketFilter(),
-                EDialogTypes.ActivityPickingSelectCriteria => new ucActivityHdrPickingSelectCriteria(),
-                EDialogTypes.SkidInfo => new ucActivityHdrSkidInfo(),
+                EDialogTypes.ActivityProductionTicketFinishedFilter => new ActivityHdrProductionTicketFilter(),
+                EDialogTypes.ActivityProductionTicketMaterialFilter => new ActivityHdrProductionTicketFilter(),
+                EDialogTypes.ActivityProductionTicketByProductFilter => new ActivityHdrProductionTicketFilter(),
+                EDialogTypes.ActivityPickingSelectCriteria => new ActivityHdrPickingSelectCriteria(),
+                EDialogTypes.SkidInfo => new ActivityHdrSkidInfo(),
                 EDialogTypes.RefreshDataStatus => null,
                 EDialogTypes.SelectProductUnit => null,
                 EDialogTypes.SelectProductUnitFilterToProduct => null,

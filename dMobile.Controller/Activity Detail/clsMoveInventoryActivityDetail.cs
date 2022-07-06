@@ -173,8 +173,8 @@ namespace dMobile.Controller
                     ActivityDetailLogisticUnitBatchLotNumber = this.SchemeData.LogisticUnitBatchLotNumber,
                     ProductSchemeVariantCode = this.SchemeData.VariantCode,
                     ProductSchemeVariantNo = this.SchemeData.VariantNumber,
-                    ActivityDetailFKRefno = this.FKRefno,
-                    ActivityDetailRefno = this.Refno,
+                    ActivityDetailFKRefno = this.DetailFKRefno,
+                    ActivityDetailRefno = this.DetailRefno,
                 });
             }
         }
@@ -200,7 +200,7 @@ namespace dMobile.Controller
 
             if (!isAdd && selectedActivityDetail is MoveInventoryDetail moveInventoryDetail)
             {
-                this.FKRefno = Convert.ToInt32(moveInventoryDetail.ActivityDetailFKRefno);
+                this.DetailFKRefno = Convert.ToInt32(moveInventoryDetail.ActivityDetailFKRefno);
             }
 
             return this;
@@ -240,7 +240,7 @@ namespace dMobile.Controller
                 }
                 else
                 {
-                    this.FKRefno = int.Parse(xmlDoc.DocumentElement["ser_refno"].InnerText);
+                    this.DetailFKRefno = int.Parse(xmlDoc.DocumentElement["ser_refno"].InnerText);
                 }
             }
 
@@ -494,8 +494,8 @@ namespace dMobile.Controller
                 + "<slot_refno>" + data.Root.Element("slot_refno").Value + "</slot_refno>"
                 + "<to_sect_refno>" + data.Root.Element("to_sect_refno").Value + "</to_sect_refno>"
                 + "<to_slot_refno>" + data.Root.Element("to_slot_refno").Value + "</to_slot_refno>"
-                + "<refno>" + this.ActItem.ActHdr.FKRefno + "</refno>"
-                + "<itm_refno>" + this.ActItem.FKRefno + "</itm_refno>"
+                + "<refno>" + this.ActItem.ActHdr.HdrFKRefno + "</refno>"
+                + "<itm_refno>" + this.ActItem.ItemFKRefno + "</itm_refno>"
                 + "<alt_qty>" + this.Quantity + "</alt_qty>"
                 + "<alt_unit>" + this.ActItem.ProdInfo.UnitCode + "</alt_unit>"
                 + "<base_qty>" + this.BaseQuantity + "</base_qty>"
@@ -507,7 +507,7 @@ namespace dMobile.Controller
                 + "<pdate>" + production + "</pdate>"
                 + "<bdate>" + bestBefore + "</bdate>"
                 + "<variant_no>" + this.SchemeData.VariantNumber + "</variant_no>"
-                + "<ser_refno>" + this.FKRefno + "</ser_refno>"
+                + "<ser_refno>" + this.DetailFKRefno + "</ser_refno>"
                 + "</imclient>");
 
             request.Save(xml);
@@ -537,10 +537,10 @@ namespace dMobile.Controller
             if (this.IsUpdateView && this.ListDetails != null)
             {
                 bool detailToBeAdded = false;
-                if (this.FKRefno > 0)
+                if (this.DetailFKRefno > 0)
                 {
                     detail = this.ListDetails.OfType<MoveDetail>().FirstOrDefault(adjDetail =>
-                        adjDetail.ActivityDetailFKRefno == this.FKRefno);
+                        adjDetail.ActivityDetailFKRefno == this.DetailFKRefno);
                 }
 
                 if (detail == null)

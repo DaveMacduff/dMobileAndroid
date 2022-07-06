@@ -49,11 +49,6 @@ namespace dMobile.Controller
         private List<Receive> listReceives = new List<Receive>();
 
         /// <summary>
-        /// Gets or sets the PONO.
-        /// </summary>
-        public string PONO { get; set; } = string.Empty;
-
-        /// <summary>
         /// Initializes a new instance of the <see cref="RecvActivity"/> class.
         /// </summary>
         public RecvActivity()
@@ -75,13 +70,31 @@ namespace dMobile.Controller
                     },
                 };
 
-                Label labelActivityReceivingPONumber = new Label { VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start };
-                Label labelActivityReceivingIssuedDateTime = new Label { VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start };
-                Label labelActivityReceivingArrivalDateTime = new Label { VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start };
+                Label labelActivityReceivingPONumber = new Label
+                {
+                    VerticalOptions = LayoutOptions.Center,
+                    HorizontalOptions = LayoutOptions.Start,
+                };
+
+                Label labelActivityReceivingIssuedDateTime = new Label
+                {
+                    VerticalOptions = LayoutOptions.Center,
+                    HorizontalOptions = LayoutOptions.Start,
+                };
+
+                Label labelActivityReceivingArrivalDateTime = new Label
+                {
+                    VerticalOptions = LayoutOptions.Center,
+                    HorizontalOptions = LayoutOptions.Start,
+                };
 
                 labelActivityReceivingPONumber.SetBinding(Label.TextProperty, new Binding("ActivityReceivingPONumber"));
-                labelActivityReceivingIssuedDateTime.SetBinding(Label.TextProperty, new Binding("ActivityReceivingIssuedDateTime", BindingMode.Default, null, null, "{0:MM/dd/yyyy}"));
-                labelActivityReceivingArrivalDateTime.SetBinding(Label.TextProperty, new Binding("ActivityReceivingArrivalDateTime", BindingMode.Default, null, null, "{0:MM/dd/yyyy}"));
+                labelActivityReceivingIssuedDateTime.SetBinding(
+                    Label.TextProperty,
+                    new Binding("ActivityReceivingIssuedDateTime", BindingMode.Default, null, null, "{0:MM/dd/yyyy}"));
+                labelActivityReceivingArrivalDateTime.SetBinding(
+                    Label.TextProperty,
+                    new Binding("ActivityReceivingArrivalDateTime", BindingMode.Default, null, null, "{0:MM/dd/yyyy}"));
 
                 gridData.Children.Add(labelActivityReceivingPONumber);
                 gridData.Children.Add(labelActivityReceivingIssuedDateTime);
@@ -96,6 +109,11 @@ namespace dMobile.Controller
 
             this.resourceDictionary.Add("dataTemplate", dataTemplate);
         }
+
+        /// <summary>
+        /// Gets or sets the PONO.
+        /// </summary>
+        public string PONO { get; set; } = string.Empty;
 
         /// <summary>
         /// The GetFKRefnoIdx.
@@ -123,27 +141,33 @@ namespace dMobile.Controller
         /// <returns>The <see cref="ObservableCollection{object}"/>.</returns>
         public override ObservableCollection<object> DesignGrid(ref Grid GridMainActivity, ref ListView ListViewMainActivity)
         {
-            ObservableCollection<object> observableCollection = new ObservableCollection<object>();
-
-            foreach (Receive receive in this.ListHdrs)
+            Label labelPOReceiving = new Label
             {
-                // Receive receive = new Receive
-                // {
-                //    ActivityReceivingPONumber = Convert.ToString(row["ActivityReceivingPONumber"]),
-                //    ActivityReceivingIssuedDateTime = Convert.ToDateTime(row["ActivityReceivingIssuedDateTime"]),
-                //    ActivityReceivingArrivalDateTime = Convert.ToDateTime(row["ActivityReceivingArrivalDateTime"])
-                // };
-                observableCollection.Add(receive);
-            }
+                Text = "PO #",
+                VerticalOptions = LayoutOptions.Center,
+                HorizontalOptions = LayoutOptions.Start,
+                FontAttributes = FontAttributes.Bold,
+            };
 
-            Label labelPOReceiving = new Label { Text = "PO #", VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start, FontAttributes = FontAttributes.Bold };
-            Label labelIssuedReceiving = new Label { Text = "Issued", VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start, FontAttributes = FontAttributes.Bold };
-            Label labelArrivedReceiving = new Label { Text = "Arrived", VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start, FontAttributes = FontAttributes.Bold };
+            Label labelIssuedReceiving = new Label
+            {
+                Text = "Issued",
+                VerticalOptions = LayoutOptions.Center,
+                HorizontalOptions = LayoutOptions.Start,
+                FontAttributes = FontAttributes.Bold,
+            };
+
+            Label labelArrivedReceiving = new Label
+            {
+                Text = "Arrived",
+                VerticalOptions = LayoutOptions.Center,
+                HorizontalOptions = LayoutOptions.Start,
+                FontAttributes = FontAttributes.Bold,
+            };
 
             this.columnWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(labelPOReceiving.Text);
             this.columnWidth1 = DependencyService.Get<IGridService>().CalculateTextWidth(labelIssuedReceiving.Text);
             this.columnWidth2 = DependencyService.Get<IGridService>().CalculateTextWidth(labelArrivedReceiving.Text);
-
             Grid gridHeader = new Grid
             {
                 Padding = new Thickness(5),
@@ -169,11 +193,20 @@ namespace dMobile.Controller
 
             GridMainActivity.Children.Add(gridHeader);
 
+            ObservableCollection<object> observableCollection = new ObservableCollection<object>();
+            foreach (Receive receive in this.ListHdrs)
+            {
+                observableCollection.Add(receive);
+            }
+
             foreach (Receive receive in observableCollection)
             {
-                double detailWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(receive.ActivityReceivingPONumber);
-                double detailWidth1 = DependencyService.Get<IGridService>().CalculateTextWidth(receive.ActivityReceivingIssuedDateTime.ToString("MM/dd/yyyy"));
-                double detailWidth2 = DependencyService.Get<IGridService>().CalculateTextWidth(receive.ActivityReceivingArrivalDateTime.ToString("MM/dd/yyyy"));
+                double detailWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(
+                    receive.ActivityReceivingPONumber);
+                double detailWidth1 = DependencyService.Get<IGridService>().CalculateTextWidth(
+                    receive.ActivityReceivingIssuedDateTime.ToString("MM/dd/yyyy"));
+                double detailWidth2 = DependencyService.Get<IGridService>().CalculateTextWidth(
+                    receive.ActivityReceivingArrivalDateTime.ToString("MM/dd/yyyy"));
 
                 if (detailWidth0 > this.columnWidth0)
                 {
@@ -339,37 +372,19 @@ namespace dMobile.Controller
             return this.ListHdrs;
         }
 
-        ///
+        /// <summary>
+        /// 
         /// </summary>
         /// <param name="searchText"></param>
         /// <returns></returns>
-        /// <remarks></remarks>
-        /// <summary>
-        /// The Search.
-        /// </summary>
-        /// <param name="searchText">.</param>
-        /// <returns>.</returns>
         public override ObservableCollection<object> Search(string searchText)
         {
             ObservableCollection<object> observableCollection = new ObservableCollection<object>();
 
-            // if (string.IsNullOrEmpty(this.ActFilter))
-            // {
-            this.ListHdrs = this.listReceives.Where(receive => receive.ActivityReceivingPONumber.ToLower().Contains(searchText.ToLower().Trim())).Cast<object>().ToList();
-            // }
-            // else
-            // {
-            // TODO: Fix filtering
-            // this.DataViewHdrs.RowFilter = this.ActFilter + " AND ActivityReceivingPONumber LIKE \'%" + searchText.Trim() + "%\'";
-            // }
+            this.ListHdrs = this.listReceives.Where(receive => receive.ActivityReceivingPONumber.ToLower().Contains(
+                searchText.ToLower().Trim())).Cast<object>().ToList();
             foreach (Receive receive in this.ListHdrs)
             {
-                // Receive receive = new Receive
-                // {
-                //    ActivityReceivingPONumber = Convert.ToString(row["ActivityReceivingPONumber"]),
-                //    ActivityReceivingIssuedDateTime = Convert.ToDateTime(row["ActivityReceivingIssuedDateTime"]),
-                //    ActivityReceivingArrivalDateTime = Convert.ToDateTime(row["ActivityReceivingArrivalDateTime"])
-                // };
                 observableCollection.Add(receive);
             }
 
@@ -386,8 +401,8 @@ namespace dMobile.Controller
             if (selectedActivity is Receive receive)
             {
                 this.SelectedActivity = receive;
-                this.FKRefno = Convert.ToInt32(receive.ActivityReceivingFKRefno);
-                this.Refno = Convert.ToInt32(receive.ActivityRefno);
+                this.HdrFKRefno = Convert.ToInt32(receive.ActivityReceivingFKRefno);
+                this.HdrRefno = Convert.ToInt32(receive.ActivityRefno);
                 this.PONO = Convert.ToString(receive.ActivityReceivingPONumber);
 
                 // Set the selected warehouse to the activity header warehouse.
@@ -407,12 +422,12 @@ namespace dMobile.Controller
         {
             if (selectedItem is Receive receive)
             {
-                this.FKRefno = Convert.ToInt32(receive.ActivityReceivingFKRefno);
-                this.Refno = Convert.ToInt32(receive.ActivityRefno);
+                this.HdrFKRefno = Convert.ToInt32(receive.ActivityReceivingFKRefno);
+                this.HdrRefno = Convert.ToInt32(receive.ActivityRefno);
                 this.PONO = Convert.ToString(receive.ActivityReceivingPONumber);
             }
 
-            return this.Refno;
+            return this.HdrRefno;
         }
 
         /// <summary>

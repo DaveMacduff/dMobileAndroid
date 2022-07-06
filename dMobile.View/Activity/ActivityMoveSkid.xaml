@@ -1,0 +1,52 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<custompages:DMobileContentPage  
+    xmlns:custompages="clr-namespace:dMobile.View.CustomPages"
+    xmlns="http://xamarin.com/schemas/2014/forms"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml" xmlns:Helpers="clr-namespace:dMobile.View.Helpers"
+    x:Class="dMobile.View.Activity.ActivityMoveSkid">
+    <ContentPage.Content>
+        <AbsoluteLayout VerticalOptions="Center">
+            <Grid Padding="10" AbsoluteLayout.LayoutFlags="All" AbsoluteLayout.LayoutBounds="0,0,1,1">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="30*"/>
+                    <RowDefinition Height="55*"/>
+                    <RowDefinition Height="15*"/>
+                </Grid.RowDefinitions>
+
+                <Grid Grid.Row="0">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="20*"/>
+                        <ColumnDefinition Width="80*"/>
+                    </Grid.ColumnDefinitions>
+
+                    <Label x:Name="lblSkidCode" Grid.Row="0" Grid.Column="0" FontAttributes="Bold" VerticalOptions="Center"/>
+                    <Entry x:Name="txtSkidCode" Grid.Row="0" Grid.Column="1" Completed="TxtSkidCode_Completed"/>
+
+                    <Label x:Name="lblProductBCUnit" Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" FontAttributes="Bold" VerticalOptions="Center"/>
+
+                </Grid>
+
+                <Frame Grid.Row="1" OutlineColor="{DynamicResource BorderColor}">
+                    <ListView x:Name="lstSkidStats" SelectionMode="None" HasUnevenRows="True" IsEnabled="{Binding Loading, Converter={Helpers:BoolConverter}}" SeparatorVisibility="None">
+                        <ListView.ItemTemplate>
+                            <DataTemplate>
+                                <ViewCell>
+                                    <StackLayout Padding="5,1,5,1">
+                                        <Label Text="{Binding}" VerticalTextAlignment="Center"/>
+                                    </StackLayout>
+                                </ViewCell>
+                            </DataTemplate>
+                        </ListView.ItemTemplate>
+                    </ListView>
+                </Frame>
+
+                <Button x:Name="cmdToLocation" Grid.Row="2" Clicked="CmdToLocation_Click"/>
+            </Grid>
+
+            <ActivityIndicator IsVisible="{Binding Loading}" 
+                                   IsRunning="{Binding Loading}"
+                                   AbsoluteLayout.LayoutFlags="All" 
+                                   AbsoluteLayout.LayoutBounds="0.5,0.5,0.3,0.3"/>
+        </AbsoluteLayout>
+    </ContentPage.Content>
+</custompages:DMobileContentPage>

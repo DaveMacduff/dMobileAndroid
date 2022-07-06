@@ -140,27 +140,27 @@ namespace dMobile.Controller
                 else
                 {
                     this.IsUpdateView = true;
-                    this.FKRefno = int.Parse(xmlDoc.DocumentElement["ser_refno"].InnerText);
+                    this.DetailFKRefno = int.Parse(xmlDoc.DocumentElement["ser_refno"].InnerText);
                     this.NewItemFKRefno = int.Parse(xmlDoc.DocumentElement["itm_refno"].InnerText);
                     this.Quantity = decimal.Parse(xmlDoc.DocumentElement["alt_qty"].InnerText);
                     this.BaseQuantity = decimal.Parse(xmlDoc.DocumentElement["base_qty"].InnerText);
                     this.WeightQuantity = decimal.Parse(xmlDoc.DocumentElement["wt_qty"].InnerText);
 
                     // Update the Activity Item quantity transferred
-                    if (this.NewItemFKRefno != this.ActItem.FKRefno)
+                    if (this.NewItemFKRefno != this.ActItem.ItemFKRefno)
                     {
                         await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync("UPDATE tActivityItemTransfer SET ActivityItemTransferStringFKRefno = ?, ActivityItemTransferFKRefno = ? WHERE ActivityItemRefno = ?",
                             Convert.ToString(this.NewItemFKRefno),
                             this.NewItemFKRefno,
-                            this.ActItem.Refno);
+                            this.ActItem.ItemRefno);
 
-                        this.ActItem.FKRefno = this.NewItemFKRefno;
+                        this.ActItem.ItemFKRefno = this.NewItemFKRefno;
 
                         // TODO: Fix sorting
                         // string oldSort = this.ActItem.DataViewItems.Sort;
                         // this.ActItem.DataViewItems.Sort = "ActivityItemRefno";
                         // int rowIdx = this.ActItem.DataViewItems.Find(new object[] { this.ActItem.Refno });
-                        TransferItem transferItem = this.ActItem.ListItems.OfType<TransferItem>().Where(transferItem => transferItem.ActivityItemRefno == this.ActItem.Refno).FirstOrDefault();
+                        TransferItem transferItem = this.ActItem.ListItems.OfType<TransferItem>().Where(transferItem => transferItem.ActivityItemRefno == this.ActItem.ItemRefno).FirstOrDefault();
 
                         if (transferItem != null)
                         {
@@ -220,7 +220,7 @@ namespace dMobile.Controller
             if (this.SysEnv.SysSettings.IsDisconnectedMode)
             {
                 int actDetailRefno = await this.InsertDetailDisconnected();
-                await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync("INSERT INTO tActivityDetailTransfer (ActivityDetailRefno, ActivityDetailTransferFKRefno) VALUES (?, ?)", Convert.ToInt32(actDetailRefno), Convert.ToInt32(this.FKRefno));
+                await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync("INSERT INTO tActivityDetailTransfer (ActivityDetailRefno, ActivityDetailTransferFKRefno) VALUES (?, ?)", Convert.ToInt32(actDetailRefno), Convert.ToInt32(this.DetailFKRefno));
                 this.IsUpdateView = true;
             }
             else
@@ -230,13 +230,13 @@ namespace dMobile.Controller
                     await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync("UPDATE tActivityItemTransfer SET ActivityItemTransferStringFKRefno = ?, ActivityItemTransferFKRefno = ? WHERE ActivityItemRefno = ?",
                         Convert.ToString(this.NewItemFKRefno),
                         this.NewItemFKRefno,
-                        this.ActItem.Refno);
+                        this.ActItem.ItemRefno);
 
                     // TODO: Fix sorting
                     // string oldSort = this.ActItem.DataViewItems.Sort;
                     // this.ActItem.DataViewItems.Sort = "ActivityItemRefno";
                     // int rowIdx = this.ActItem.DataViewItems.Find(new object[] { this.ActItem.Refno });
-                    TransferItem transferItem = this.ActItem.ListItems.OfType<TransferItem>().Where(transferItem => transferItem.ActivityItemRefno == this.ActItem.Refno).FirstOrDefault();
+                    TransferItem transferItem = this.ActItem.ListItems.OfType<TransferItem>().Where(transferItem => transferItem.ActivityItemRefno == this.ActItem.ItemRefno).FirstOrDefault();
 
                     if (transferItem != null)
                     {
@@ -293,7 +293,7 @@ namespace dMobile.Controller
             // this.DataViewDetails.Sort = "ActivityDetailTransferFKRefno";
             // int rowIdx = this.DataViewDetails.Find(FKRefno);
             TransferDetail transferDetail = this.ListDetails.OfType<TransferDetail>().Where(transferDetail =>
-            transferDetail.ActivityDetailFKRefno == this.FKRefno).FirstOrDefault();
+            transferDetail.ActivityDetailFKRefno == this.DetailFKRefno).FirstOrDefault();
 
             if (transferDetail != null)
             {
@@ -304,16 +304,16 @@ namespace dMobile.Controller
             // this.DataViewDetails.Sort = oldSort;
             // Delete from database.
             string query = "DELETE FROM tActivityDetailProductSchemeVariantXRef WHERE ActivityDetailRefno = ?";
-            await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(query, this.Refno);
+            await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(query, this.DetailRefno);
 
             query = "DELETE FROM tActivityDetailTransfer WHERE ActivityDetailRefno = ?";
-            await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(query, this.Refno);
+            await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(query, this.DetailRefno);
 
             query = "DELETE FROM tActivityDetailExtra WHERE ActivityDetailRefno = ?";
-            await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(query, this.Refno);
+            await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(query, this.DetailRefno);
 
             query = "DELETE FROM tActivityDetail WHERE ActivityDetailRefno = ?";
-            await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(query, this.Refno);
+            await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(query, this.DetailRefno);
 
             return 0;
         }
@@ -347,18 +347,18 @@ namespace dMobile.Controller
                 }
                 else
                 {
-                    this.FKRefno = int.Parse(xmlDoc.DocumentElement["ser_refno"].InnerText);
+                    this.DetailFKRefno = int.Parse(xmlDoc.DocumentElement["ser_refno"].InnerText);
 
                     if (selectedActivityDetail is TransferDetail transferDetail)
                     {
-                        transferDetail.ActivityDetailFKRefno = this.FKRefno;
+                        transferDetail.ActivityDetailFKRefno = this.DetailFKRefno;
                         transferDetail.ActivityDetailStatus = Convert.ToInt32(SysCommon.ActStatus.NoChange);
                     }
 
                     await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(
                         "UPDATE tActivityDetail SET ActivityDetailStatus = ? WHERE ActivityDetailRefno = ?",
                         Convert.ToInt32(SysCommon.ActStatus.NoChange),
-                        this.Refno);
+                        this.DetailRefno);
                 }
             }
         }
@@ -375,7 +375,7 @@ namespace dMobile.Controller
 
             if (!isAdd && selectedActivityDetail is TransferDetail transferDetail)
             {
-                this.FKRefno = Convert.ToInt32(transferDetail.ActivityDetailFKRefno);
+                this.DetailFKRefno = Convert.ToInt32(transferDetail.ActivityDetailFKRefno);
                 this.LocMap.CurrLocMap = await LocationMapTasks.GetSLocMapFromLocMapRefno(
                     Convert.ToInt32(transferDetail.LocationMapRefno));
             }
@@ -405,7 +405,7 @@ namespace dMobile.Controller
                     this.DataLayerProgressOutHandler(this, new EventArgs(), 5);
 
                     tableActTransferDetail.RegisterDataAccessListenerProgressOut((TransferActDetail)this);
-                    await tableActTransferDetail.RequestData(this.ActItem.Refno);
+                    await tableActTransferDetail.RequestData(this.ActItem.ItemRefno);
                     tableActTransferDetail.UnregisterDataAccessListenerProgressOut((TransferActDetail)this);
                 }
                 else
@@ -416,7 +416,7 @@ namespace dMobile.Controller
                     this.DataLayerProgressOutHandler(this, new EventArgs(), 5);
 
                     tableActTransferDetail.RegisterDataAccessListenerProgressOut((TransferActDetail)this);
-                    await tableActTransferDetail.RequestData(this.ActItem.Refno);
+                    await tableActTransferDetail.RequestData(this.ActItem.ItemRefno);
                     tableActTransferDetail.UnregisterDataAccessListenerProgressOut((TransferActDetail)this);
                 }
             }
@@ -508,7 +508,7 @@ namespace dMobile.Controller
                 sql.Append("= tActivityDetailProductSchemeVariantXRef.ProductSchemeVariantRefno ");
                 sql.Append("LEFT JOIN tActivityDetailExtra ON tActivityDetailExtra.ActivityDetailRefno ");
                 sql.Append("= tActivityDetail.ActivityDetailRefno ");
-                sql.AppendFormat("WHERE tActivityDetail.ActivityItemRefno = {0} ", this.ActItem.Refno);
+                sql.AppendFormat("WHERE tActivityDetail.ActivityItemRefno = {0} ", this.ActItem.ItemRefno);
                 sql.AppendFormat("AND tActivityDetail.ActivityDetailStatus <> {0} ", Convert.ToInt32(SysCommon.ActStatus.NoChange));
                 sql.Append("UNION ");
                 sql.Append("SELECT tActivityDetail.ActivityDetailRefno,");
@@ -566,7 +566,7 @@ namespace dMobile.Controller
                 sql.Append("= tActivityDetailProductSchemeVariantXRef.ProductSchemeVariantRefno ");
                 sql.Append("LEFT JOIN tActivityDetailExtra ON tActivityDetailExtra.ActivityDetailRefno ");
                 sql.Append("= tActivityDetail.ActivityDetailRefno ");
-                sql.AppendFormat("WHERE tActivityDetail.ActivityItemRefno = {0} ", this.ActItem.Refno);
+                sql.AppendFormat("WHERE tActivityDetail.ActivityItemRefno = {0} ", this.ActItem.ItemRefno);
                 sql.AppendFormat("AND tActivityDetail.ActivityDetailStatus <> {0} ", Convert.ToInt32(SysCommon.ActStatus.NoChange));
                 sql.Append("UNION ");
                 sql.Append("SELECT tActivityDetail.ActivityDetailRefno,");
@@ -625,7 +625,7 @@ namespace dMobile.Controller
                 sql.Append("= tActivityDetailProductSchemeVariantXRef.ProductSchemeVariantRefno ");
                 sql.Append("LEFT JOIN tActivityDetailExtra ON tActivityDetailExtra.ActivityDetailRefno ");
                 sql.Append("= tActivityDetail.ActivityDetailRefno ");
-                sql.AppendFormat("WHERE tActivityDetail.ActivityItemRefno = {0} ", this.ActItem.Refno);
+                sql.AppendFormat("WHERE tActivityDetail.ActivityItemRefno = {0} ", this.ActItem.ItemRefno);
                 sql.AppendFormat("AND tActivityDetail.ActivityDetailStatus <> {0} ", Convert.ToInt32(SysCommon.ActStatus.NoChange));
                 sql.Append("ORDER BY tActivityDetail.ActivityDetailRefno");
             }
@@ -686,7 +686,7 @@ namespace dMobile.Controller
                 sql.Append("= tActivityDetailProductSchemeVariantXRef.ProductSchemeVariantRefno ");
                 sql.Append("LEFT JOIN tActivityDetailExtra ON tActivityDetailExtra.ActivityDetailRefno ");
                 sql.Append("= tActivityDetail.ActivityDetailRefno ");
-                sql.AppendFormat("WHERE tActivityDetail.ActivityItemRefno = {0} ", this.ActItem.Refno);
+                sql.AppendFormat("WHERE tActivityDetail.ActivityItemRefno = {0} ", this.ActItem.ItemRefno);
                 sql.Append("UNION ");
                 sql.Append("SELECT tActivityDetail.ActivityDetailRefno,");
                 sql.Append("tActivityDetail.LocationMapRefno,");
@@ -743,7 +743,7 @@ namespace dMobile.Controller
                 sql.Append("= tActivityDetailProductSchemeVariantXRef.ProductSchemeVariantRefno ");
                 sql.Append("LEFT JOIN tActivityDetailExtra ON tActivityDetailExtra.ActivityDetailRefno ");
                 sql.Append("= tActivityDetail.ActivityDetailRefno ");
-                sql.AppendFormat(" WHERE tActivityDetail.ActivityItemRefno = {0} ", this.ActItem.Refno);
+                sql.AppendFormat(" WHERE tActivityDetail.ActivityItemRefno = {0} ", this.ActItem.ItemRefno);
                 sql.Append("UNION ");
                 sql.Append("SELECT tActivityDetail.ActivityDetailRefno,");
                 sql.Append("tActivityDetail.LocationMapRefno,");
@@ -800,7 +800,7 @@ namespace dMobile.Controller
                 sql.Append("= tActivityDetailProductSchemeVariantXRef.ProductSchemeVariantRefno ");
                 sql.Append("LEFT JOIN tActivityDetailExtra ON tActivityDetailExtra.ActivityDetailRefno ");
                 sql.Append("= tActivityDetail.ActivityDetailRefno ");
-                sql.AppendFormat("WHERE tActivityDetail.ActivityItemRefno = {0} ", this.ActItem.Refno);
+                sql.AppendFormat("WHERE tActivityDetail.ActivityItemRefno = {0} ", this.ActItem.ItemRefno);
                 sql.Append("ORDER BY tActivityDetail.ActivityDetailRefno");
             }
 
@@ -1036,8 +1036,8 @@ namespace dMobile.Controller
                 + "<whs_id>" + this.LocMap.CurrLocMap.WhsFKRefno + "</whs_id>"
                 + "<sect_refno>" + this.LocMap.CurrLocMap.SectFKRefno + "</sect_refno>"
                 + "<slot_refno>" + this.LocMap.CurrLocMap.SlotFKRefno + "</slot_refno>"
-                + "<refno>" + this.ActItem.ActHdr.FKRefno + "</refno>"
-                + "<itm_refno>" + this.ActItem.FKRefno + "</itm_refno>"
+                + "<refno>" + this.ActItem.ActHdr.HdrFKRefno + "</refno>"
+                + "<itm_refno>" + this.ActItem.ItemFKRefno + "</itm_refno>"
                 + "<alt_qty>" + altQty + "</alt_qty>"
                 + "<alt_unit>" + this.ActItem.ProdInfo.UnitCode + "</alt_unit>"
                 + "<base_qty>" + data.Root.Element("base_qty").Value + "</base_qty>"
@@ -1121,8 +1121,8 @@ namespace dMobile.Controller
                         + await SysCommon.GetRequestDefaults(false)
                         + "<skid_data>" + data.Root.Element("skid_data").Value + "</skid_data>"
                         + "<whs_id>" + this.LocMap.CurrLocMap.WhsFKRefno + "</whs_id>"
-                        + "<refno>" + this.ActItem.ActHdr.FKRefno + "</refno>"
-                        + "<itm_refno>" + this.ActItem.FKRefno + "</itm_refno>"
+                        + "<refno>" + this.ActItem.ActHdr.HdrFKRefno + "</refno>"
+                        + "<itm_refno>" + this.ActItem.ItemFKRefno + "</itm_refno>"
                         + "<is_negate_qty>false</is_negate_qty>"
                         + "<extra1>" + this.ActExtra.Text1 + "</extra1>"
                         + "<extra2>" + this.ActExtra.Text2 + "</extra2>"
@@ -1144,8 +1144,8 @@ namespace dMobile.Controller
                         + await SysCommon.GetRequestDefaults(false)
                         + "<skid_data>" + data.Root.Element("skid_data").Value + "</skid_data>"
                         + "<whs_id>" + this.LocMap.CurrLocMap.WhsFKRefno + "</whs_id>"
-                        + "<refno>" + this.ActItem.ActHdr.FKRefno + "</refno>"
-                        + "<itm_refno>" + this.ActItem.FKRefno + "</itm_refno>"
+                        + "<refno>" + this.ActItem.ActHdr.HdrFKRefno + "</refno>"
+                        + "<itm_refno>" + this.ActItem.ItemFKRefno + "</itm_refno>"
                         + "<is_negate_qty>false</is_negate_qty>"
                         + "<extra1>" + this.ActExtra.Text1 + "</extra1>"
                         + "<extra2>" + this.ActExtra.Text2 + "</extra2>"
@@ -1211,9 +1211,9 @@ namespace dMobile.Controller
                     + await SysCommon.GetRequestDefaults(false)
                     + "<skid_data>" + data.Root.Element("skid_data").Value + "</skid_data>"
                     + "<whs_id>" + this.LocMap.CurrLocMap.WhsFKRefno + "</whs_id>"
-                    + "<refno>" + this.ActItem.ActHdr.FKRefno + "</refno>"
-                    + "<itm_refno>" + this.ActItem.FKRefno + "</itm_refno>"
-                    + "<ser_refno>" + this.FKRefno + "</ser_refno>"
+                    + "<refno>" + this.ActItem.ActHdr.HdrFKRefno + "</refno>"
+                    + "<itm_refno>" + this.ActItem.ItemFKRefno + "</itm_refno>"
+                    + "<ser_refno>" + this.DetailFKRefno + "</ser_refno>"
                     + "<is_negate_qty>false</is_negate_qty>"
                     + "<extra1>" + this.ActExtra.Text1 + "</extra1>"
                     + "<extra2>" + this.ActExtra.Text2 + "</extra2>"
@@ -1236,7 +1236,7 @@ namespace dMobile.Controller
         /// <returns><see cref="string"/> Get activity item control description.</returns>
         public override string GetControlDescription()
         {
-            return string.Format("Transfer # {0}", this.ActItem.ActHdr.FKRefno);
+            return string.Format("Transfer # {0}", this.ActItem.ActHdr.HdrFKRefno);
         }
 
         /// <summary>
@@ -1250,10 +1250,10 @@ namespace dMobile.Controller
             if (this.IsUpdateView && this.ListDetails != null)
             {
                 bool detailToBeAdded = false;
-                if (this.FKRefno > 0)
+                if (this.DetailFKRefno > 0)
                 {
                     detail = this.ListDetails.OfType<TransferDetail>().FirstOrDefault(adjDetail =>
-                        adjDetail.ActivityDetailFKRefno == this.FKRefno);
+                        adjDetail.ActivityDetailFKRefno == this.DetailFKRefno);
                 }
 
                 if (detail == null)

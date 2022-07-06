@@ -52,7 +52,7 @@ namespace dMobile.View.Menus
                     this.DisableControls();
                     this.UnloadControl();
 
-                    ucActivityHdr ticketFinished = new ucActivityHdr(SysCommon.ActSubTypes.TicketFinished);
+                    ActivityHdr ticketFinished = new ActivityHdr(SysCommon.ActSubTypes.TicketFinished);
                     await ticketFinished.Show();
                 }
                 else if (keycode == Keycode.Num2 && this.cmdIngredientMaterial.IsEnabled)
@@ -60,7 +60,7 @@ namespace dMobile.View.Menus
                     this.DisableControls();
                     this.UnloadControl();
 
-                    ucActivityHdr ticketMaterial = new ucActivityHdr(SysCommon.ActSubTypes.TicketMaterial);
+                    ActivityHdr ticketMaterial = new ActivityHdr(SysCommon.ActSubTypes.TicketMaterial);
                     await ticketMaterial.Show();
                 }
                 else if (keycode == Keycode.Num3 && this.cmdByProduct.IsEnabled)
@@ -68,7 +68,7 @@ namespace dMobile.View.Menus
                     this.DisableControls();
                     this.UnloadControl();
 
-                    ucActivityHdr ticketAddProduct = new ucActivityHdr(SysCommon.ActSubTypes.TicketAddProduct);
+                    ActivityHdr ticketAddProduct = new ActivityHdr(SysCommon.ActSubTypes.TicketAddProduct);
                     await ticketAddProduct.Show();
                 }
                 else if (keycode == Keycode.Num4 && this.cmdDebox.IsEnabled)
@@ -76,7 +76,7 @@ namespace dMobile.View.Menus
                     this.DisableControls();
                     this.UnloadControl();
 
-                    ucActivityHdr adjustment = new ucActivityHdr(SysCommon.ActSubTypes.Adjustment);
+                    ActivityHdr adjustment = new ActivityHdr(SysCommon.ActSubTypes.Adjustment);
                     await adjustment.Show();
                 }
             });
@@ -255,7 +255,7 @@ namespace dMobile.View.Menus
             this.DisableControls();
             this.UnloadControl();
 
-            ucActivityHdr ticketFinished = new ucActivityHdr(SysCommon.ActSubTypes.TicketFinished);
+            ActivityHdr ticketFinished = new ActivityHdr(SysCommon.ActSubTypes.TicketFinished);
             await ticketFinished.Show();
         }
 
@@ -270,7 +270,7 @@ namespace dMobile.View.Menus
             this.DisableControls();
             this.UnloadControl();
 
-            ucActivityHdr ticketMaterial = new ucActivityHdr(SysCommon.ActSubTypes.TicketMaterial);
+            ActivityHdr ticketMaterial = new ActivityHdr(SysCommon.ActSubTypes.TicketMaterial);
             await ticketMaterial.Show();
         }
 
@@ -285,7 +285,7 @@ namespace dMobile.View.Menus
             this.DisableControls();
             this.UnloadControl();
 
-            ucActivityHdr ticketAddProduct = new ucActivityHdr(SysCommon.ActSubTypes.TicketAddProduct);
+            ActivityHdr ticketAddProduct = new ActivityHdr(SysCommon.ActSubTypes.TicketAddProduct);
             await ticketAddProduct.Show();
         }
 
@@ -331,7 +331,7 @@ namespace dMobile.View.Menus
             this.DisableControls();
             this.UnloadControl();
 
-            ucActivityHdr adjustment = new ucActivityHdr(SysCommon.ActSubTypes.Adjustment);
+            ActivityHdr adjustment = new ActivityHdr(SysCommon.ActSubTypes.Adjustment);
             await adjustment.Show();
         }
     }

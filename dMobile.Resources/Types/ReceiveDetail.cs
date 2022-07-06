@@ -10,7 +10,7 @@ namespace dMobile.Resources.Types
     public class ReceiveDetail : ActivityDetail
     {
         /// <summary>
-        /// Gets or sets the activity detail status.
+        /// Gets or sets the status to track if, changed, inserted, updated.
         /// </summary>
         public int ActivityDetailStatus { get; set; } = 0;
     }

@@ -55,7 +55,7 @@ namespace dMobile.View.Menus
                     this.DisableControls();
                     this.IsControlLoaded = false;
 
-                    ucActivityProductLabel productLabel = new ucActivityProductLabel();
+                    ActivityProductLabel productLabel = new ActivityProductLabel();
                     _ = await productLabel.ShowDialog();
                 }
                 else if (keycode == Keycode.Num1 && this.cmdScanBarCodes.IsEnabled)
@@ -63,7 +63,7 @@ namespace dMobile.View.Menus
                     this.DisableControls();
                     this.IsControlLoaded = false;
 
-                    ucActivityScanBarCodes scanBarcodes = new ucActivityScanBarCodes();
+                    ActivityScanBarCodes scanBarcodes = new ActivityScanBarCodes();
                     await scanBarcodes.Show();
                 }
                 else if (keycode == Keycode.Num2 && this.cmdProductLabels.IsEnabled)
@@ -71,7 +71,7 @@ namespace dMobile.View.Menus
                     this.DisableControls();
                     this.IsControlLoaded = false;
 
-                    ucActivityProductLabel productLabel = new ucActivityProductLabel();
+                    ActivityProductLabel productLabel = new ActivityProductLabel();
                     _ = await productLabel.ShowDialog();
                 }
                 else if (keycode == Keycode.Num3 && this.cmdAssignDefaultLocation.IsEnabled)
@@ -210,7 +210,7 @@ namespace dMobile.View.Menus
             this.DisableControls();
             this.IsControlLoaded = false;
 
-            ucActivityScanBarCodes scanBarcodes = new ucActivityScanBarCodes();
+            ActivityScanBarCodes scanBarcodes = new ActivityScanBarCodes();
             await scanBarcodes.Show();
         }
 
@@ -225,7 +225,7 @@ namespace dMobile.View.Menus
             this.DisableControls();
             this.IsControlLoaded = false;
 
-            ucActivityProductLabel productLabel = new ucActivityProductLabel();
+            ActivityProductLabel productLabel = new ActivityProductLabel();
             _ = await productLabel.ShowDialog();
         }
 
