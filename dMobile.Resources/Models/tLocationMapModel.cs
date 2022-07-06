@@ -6,23 +6,6 @@ namespace dMobile.Resources.Models
 {
     using SQLite;
 
-    //string sqlTable = "CREATE TABLE IF NOT EXISTS tLocationMap"
-    //   + "("
-    //   + "LocationMapRefno INTEGER NOT NULL CONSTRAINT PK_LocationMapOnLocationMapRefno PRIMARY KEY,"
-    //   + "LocationMapSubType INTEGER NOT NULL"
-    //   + ")";
-
-    //if (this.OnNubStatOut != null)
-    //{
-    //    
-    //    this.MsgEventArgs.StatusOutMsg = "Creating location map table.";
-    //    this.OnNubStatOut(this, this.MsgEventArgs);
-    //}
-
-    //await this.RunDDLCommand(sqlTable);
-
-    //        string sqlNdx = "CREATE UNIQUE INDEX IF NOT EXISTS UQ_LocationMapOnLocationMapRefnoAndLocationMapSubType ON tLocationMap(LocationMapRefno ASC, LocationMapSubType ASC)";
-    //await this.RunDDLCommand(sqlNdx);
     [Table("tLocationMap")]
     public class tLocationMapModel
     {

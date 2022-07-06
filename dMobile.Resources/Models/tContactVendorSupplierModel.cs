@@ -8,39 +8,6 @@ namespace dMobile.Resources.Models
     using SQLite;
     using SQLiteNetExtensions.Attributes;
 
-    //string sqlTable = "CREATE TABLE IF NOT EXISTS tContactVendorSupplier"
-    //+ "("
-    //+ "ContactRefno INTEGER NOT NULL CONSTRAINT PK_UserOnContactRefno PRIMARY KEY,"
-    //+ "ContactSubType INTEGER NOT NULL,"
-    //+ "VendorContactRefno INTEGER NOT NULL,"
-    //+ "ContactVendorSupplierFKRefno INTEGER NOT NULL,"
-    //+ "ContactVendorSupplierCode nvarchar(8) NOT NULL,"
-    //+ "ContactVendorSupplierName nvarchar(40) NOT NULL, "
-
-    //+ "CONSTRAINT ContactVendorSupplierToContactOnContactRefno FOREIGN KEY (ContactRefno) REFERENCES tContact(ContactRefno) ON DELETE CASCADE ON UPDATE CASCADE, "
-    //+ "CONSTRAINT ContactVendorSupplierToVendorContactOnVendorContactRefno FOREIGN KEY (VendorContactRefno) REFERENCES tContactVendor(ContactRefno)"
-
-    //+ ")";
-
-    //if (this.OnNubStatOut != null)
-    //{
-    //    this.MsgEventArgs.StatusOutMsg = "Creating contact vendor suppliers table.";
-    //    this.OnNubStatOut(this, this.MsgEventArgs);
-    //}
-
-    //await this.RunDDLCommand(sqlTable);
-
-    //string sqlNdx = "CREATE UNIQUE INDEX IF NOT EXISTS UQ_ContactVendorSupplierOnContactRefnoAndContactSubType ON tContactVendorSupplier(ContactRefno ASC, ContactSubType ASC)";
-    //await this.RunDDLCommand(sqlNdx);
-
-    //sqlNdx = "CREATE UNIQUE INDEX IF NOT EXISTS UQ_ContactVendorSupplierOnContactVendorSupplierFKRefno ON tContactVendorSupplier(ContactVendorSupplierFKRefno ASC)";
-    //await this.RunDDLCommand(sqlNdx);
-
-    //sqlNdx = "CREATE UNIQUE INDEX IF NOT EXISTS UQ_ContactVendorSupplierOnContactVendorSupplierCode ON tContactVendorSupplier(ContactVendorSupplierCode ASC)";
-    //await this.RunDDLCommand(sqlNdx);
-
-    //sqlNdx = "CREATE UNIQUE INDEX IF NOT EXISTS UQ_ContactVendorSupplierOnContactVendorSupplierName ON tContactVendorSupplier(ContactVendorSupplierName ASC)";
-    //await this.RunDDLCommand(sqlNdx);
     [Table("tContactVendorSupplier")]
     public class tContactVendorSupplierModel
     {

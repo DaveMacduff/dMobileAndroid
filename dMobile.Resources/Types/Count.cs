@@ -8,18 +8,14 @@ namespace dMobile.Resources.Types
 
     public class Count
     {
-        private int ActivityFKRefno;
-        private int activityCountType;
-        private string activityCountDescription;
-
         public int ActivityRefno { get; set; }
         public int ActivitySubType { get; set; }
-        public int ActivityFKRefno { get => this.ActivityFKRefno; set => this.ActivityFKRefno = value; }
+        public int ActivityFKRefno { get; set; }
         public string ActivityStringFKRefno { get; set; }
         public int WarehouseLocationMapRefno { get; set; }
-        public int ActivityCountType { get => this.activityCountType; set => this.activityCountType = value; }
+        public int ActivityCountType { get; set; }
         public DateTime ActivityCountDateTime { get; set; }
         public string ActivityCountTypeDescription { get; set; }
-        public string ActivityCountDescription { get => this.activityCountDescription; set => this.activityCountDescription = value; }
+        public string ActivityCountDescription { get; set; }
     }
 }

@@ -8,21 +8,16 @@ namespace dMobile.Resources.Types
 
     public class Receive
     {
-        private int ActivityFKRefno;
-        private string activityReceivingPONumber;
-        private DateTime activityReceivingArrivalDateTime;
-        private string activityReceivingVendorSupplierGTINCompanyPrefix;
-
         public int ActivityRefno { get; set; }
         public int ActivitySubType { get; set; }
-        public int ActivityFKRefno { get => this.ActivityFKRefno; set => this.ActivityFKRefno = value; }
+        public int ActivityFKRefno { get; set; }
         public string ActivityStringFKRefno { get; set; }
-        public string ActivityReceivingPONumber { get => this.activityReceivingPONumber; set => this.activityReceivingPONumber = value; }
+        public string ActivityReceivingPONumber { get; set; }
         public int WarehouseLocationMapRefno { get; set; }
         public DateTime ActivityReceivingIssuedDateTime { get; set; }
-        public DateTime ActivityReceivingArrivalDateTime { get => this.activityReceivingArrivalDateTime; set => this.activityReceivingArrivalDateTime = value; }
+        public DateTime ActivityReceivingArrivalDateTime { get; set; }
         public string ActivityReceivingVendorContactName { get; set; }
         public string ActivityReceivingVendorSupplierContactName { get; set; }
-        public string ActivityReceivingVendorSupplierGTINCompanyPrefix { get => this.activityReceivingVendorSupplierGTINCompanyPrefix; set => this.activityReceivingVendorSupplierGTINCompanyPrefix = value; }
+        public string ActivityReceivingVendorSupplierGTINCompanyPrefix { get; set; }
     }
 }

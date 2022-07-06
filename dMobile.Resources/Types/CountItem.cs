@@ -6,22 +6,17 @@ namespace dMobile.Resources.Types
 {
     public class CountItem
     {
-        private int ActivityItemFKRefno;
-        private int locationMapRefno;
-        private decimal activityItemCountWeightQuantity;
-        private string locationName;
-
         public int ActivityItemRefno { get; set; }
-        public int ActivityItemFKRefno { get => this.ActivityItemFKRefno; set => this.ActivityItemFKRefno = value; }
+        public int ActivityItemFKRefno { get; set; }
         public string ActivityItemStringFKRefno { get; set; }
         public int ProductUnitRefno { get; set; }
-        public int LocationMapRefno { get => this.locationMapRefno; set => this.locationMapRefno = value; }
+        public int LocationMapRefno { get; set; }
         public decimal ActivityItemCountQuantityOnHand { get; set; }
         public decimal ActivityItemCountBaseQuantityOnHand { get; set; }
         public decimal ActivityItemCountWeightQuantityOnHand { get; set; }
         public decimal ActivityItemCountQuantity { get; set; }
         public decimal ActivityItemCountBaseQuantity { get; set; }
-        public decimal ActivityItemCountWeightQuantity { get => this.activityItemCountWeightQuantity; set => this.activityItemCountWeightQuantity = value; }
+        public decimal ActivityItemCountWeightQuantity { get; set; }
         public int ProductRefno { get; set; }
         public string ProductCode { get; set; }
         public string ProductDescription { get; set; }
@@ -29,7 +24,7 @@ namespace dMobile.Resources.Types
         public string ProductUnitBC { get; set; }
         public string ProductUnitSizeDescription { get; set; }
         public string LocationCode { get; set; }
-        public string LocationName { get => this.locationName; set => this.locationName = value; }
+        public string LocationName { get; set; }
         public int ActivityItemStatus { get; set; }
     }
 }

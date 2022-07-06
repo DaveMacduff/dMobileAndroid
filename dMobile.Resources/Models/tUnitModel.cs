@@ -8,24 +8,6 @@ namespace dMobile.Resources.Models
     using SQLite;
     using SQLiteNetExtensions.Attributes;
 
-    //    string sqlTable = "CREATE TABLE IF NOT EXISTS tUnit"
-    //    + "("
-
-    //    + "UnitRefno INTEGER NOT NULL CONSTRAINT PK_UnitOnUnitRefno PRIMARY KEY,"
-    //    + "UnitCode nvarchar(2) NOT NULL"
-
-    //    + ")";
-
-    //if (this.OnNubStatOut != null)
-    //{
-    //  this.MsgEventArgs.StatusOutMsg = "Creating unit of measure table.";
-    //  this.OnNubStatOut(this, this.MsgEventArgs);
-    //}
-
-    //await this.RunDDLCommand(sqlTable);
-
-    //string sqlNdx = "CREATE UNIQUE INDEX IF NOT EXISTS UQ_UnitOnUnitCode ON tUnit(UnitCode ASC)";
-    //await this.RunDDLCommand(sqlNdx);
     [Table("tUnit")]
     public class tUnitModel
     {

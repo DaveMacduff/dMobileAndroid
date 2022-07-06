@@ -12,37 +12,29 @@ namespace dMobile.Resources.Types
 
     public class ReceiveItem
     {
-        private int ActivityItemFKRefno;
-        private int productRefno;
-        private string productUnitSizeDescription;
-        private decimal activityItemReceivingWeightQuantityReceived;
-        private string activityItemReceivingDescription;
-        private int locationCode;
-        private decimal activityItemReceivingWeightQuantityReceivedToDate;
-
         public int ActivityItemRefno { get; set; }
-        public int ActivityItemFKRefno { get => this.ActivityItemFKRefno; set => this.ActivityItemFKRefno = value; }
+        public int ActivityItemFKRefno { get; set; }
         public string ActivityItemStringFKRefno { get; set; }
         public int ProductUnitRefno { get; set; }
-        public int ProductRefno { get => this.productRefno; set => this.productRefno = value; }
+        public int ProductRefno { get; set; }
         public string ProductCode { get; set; }
         public string ProductDescription { get; set; }
         public string UnitCode { get; set; }
         public string ProductUnitBC { get; set; }
-        public string ProductUnitSizeDescription { get => this.productUnitSizeDescription; set => this.productUnitSizeDescription = value; }
+        public string ProductUnitSizeDescription { get; set; }
         public decimal ActivityItemReceivingQuantityOrdered { get; set; }
         public decimal ActivityItemReceivingBaseQuantityOrdered { get; set; }
         public decimal ActivityItemReceivingWeightQuantityOrdered { get; set; }
         public decimal ActivityItemReceivingQuantityReceived { get; set; }
         public decimal ActivityItemReceivingBaseQuantityReceived { get; set; }
-        public decimal ActivityItemReceivingWeightQuantityReceived { get => this.activityItemReceivingWeightQuantityReceived; set => this.activityItemReceivingWeightQuantityReceived = value; }
+        public decimal ActivityItemReceivingWeightQuantityReceived { get; set; }
         public string ActivityItemReceivingVendorProductUnitCode { get; set; }
-        public string ActivityItemReceivingDescription { get => this.activityItemReceivingDescription; set => this.activityItemReceivingDescription = value; }
+        public string ActivityItemReceivingDescription { get; set; }
         public int LocationMapRefno { get; set; }
-        public int LocationCode { get => this.locationCode; set => this.locationCode = value; }
+        public int LocationCode { get; set; }
         public string LocationName { get; set; }
         public decimal ActivityItemReceivingQuantityReceivedToDate { get; set; }
-        public decimal ActivityItemReceivingWeightQuantityReceivedToDate { get => this.activityItemReceivingWeightQuantityReceivedToDate; set => this.activityItemReceivingWeightQuantityReceivedToDate = value; }
+        public decimal ActivityItemReceivingWeightQuantityReceivedToDate { get; set; }
         public string IsActivityItemReceivingComment { get; set; }
     }
 }

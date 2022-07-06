@@ -7,50 +7,6 @@ namespace dMobile.Resources.Models
     using System;
     using SQLite;
 
-    //string sqlTable = "CREATE TABLE IF NOT EXISTS tProductScheme"
-    //+ "("
-    //+ "ProductSchemeRefno INTEGER NOT NULL CONSTRAINT PK_ProductSchemeOnProductSchemeRefno PRIMARY KEY,"
-    //+ "ProductSchemeCode nvarchar(10) NOT NULL,"
-    //+ "ProductSchemeIsSerialTracked bit NOT NULL,"
-    //+ "ProductSchemeIsProductionDateTracked bit NOT NULL,"
-    //+ "ProductSchemeIsLotTracked bit NOT NULL,"
-    //+ "ProductSchemeIsBestBeforeDateTracked bit NOT NULL,"
-    //+ "ProductSchemeIsVariantTracked bit NOT NULL,"
-    //+ "ProductSchemeIsLotUniqueComponent bit NOT NULL,"
-    //+ "ProductSchemeIsProductionDateUniqueComponent bit NOT NULL,"
-    //+ "ProductSchemeIsBestBeforeDateUniqueComponent bit NOT NULL,"
-    //+ "ProductSchemeIsVariantUniqueComponent bit NOT NULL,"
-    //+ "ProductSchemeExtra1Type INTEGER NOT NULL,"
-    //+ "ProductSchemeExtra2Type INTEGER NOT NULL,"
-    //+ "ProductSchemeExtra3Type INTEGER NOT NULL,"
-    //+ "ProductSchemeExtra4Type INTEGER NOT NULL,"
-    //+ "ProductSchemeExtra5Type INTEGER NOT NULL,"
-    //+ "ProductSchemeExtra1Caption nvarchar(10) NOT NULL,"
-    //+ "ProductSchemeExtra2Caption nvarchar(10) NOT NULL,"
-    //+ "ProductSchemeExtra3Caption nvarchar(10) NOT NULL,"
-    //+ "ProductSchemeExtra4Caption nvarchar(10) NOT NULL,"
-    //+ "ProductSchemeExtra5Caption nvarchar(10) NOT NULL,"
-    //+ "ProductSchemeExtra1IsRequired bit NOT NULL,"
-    //+ "ProductSchemeExtra2IsRequired bit NOT NULL,"
-    //+ "ProductSchemeExtra3IsRequired bit NOT NULL,"
-    //+ "ProductSchemeExtra4IsRequired bit NOT NULL,"
-    //+ "ProductSchemeExtra5IsRequired bit NOT NULL,"
-    //+ "ProductSchemeIsLotTrackedDefault bit NOT NULL,"
-    //+ "ProductSchemeIsProductionDateTrackedDefault bit NOT NULL,"
-    //+ "ProductSchemeIsBestBeforeDateTrackedDefault bit NOT NULL"
-
-    //+ ")";
-
-    //if (this.OnNubStatOut != null)
-    //{
-    //    this.MsgEventArgs.StatusOutMsg = "Creating product scheme table.";
-    //    this.OnNubStatOut(this, this.MsgEventArgs);
-    //}
-
-    //await this.RunDDLCommand(sqlTable);
-
-    //string sqlNdx = "CREATE UNIQUE INDEX IF NOT EXISTS UQ_ProductSchemeOnProductSchemeCode ON tProductScheme(ProductSchemeCode ASC)";
-    //await this.RunDDLCommand(sqlNdx);
     [Table("tProductScheme")]
     public class tProductSchemeModel
     {
