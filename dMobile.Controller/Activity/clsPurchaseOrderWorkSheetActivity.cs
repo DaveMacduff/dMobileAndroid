@@ -125,8 +125,8 @@ namespace dMobile.Controller
                 // PurchaseOrderWorkSheetItem purchaseOrderWorkSheetItem = new PurchaseOrderWorkSheetItem
                 // {
                 //    ActivityItemRefno = Convert.ToInt32(row["ActivityItemRefno"] != DBNull.Value ? row["ActivityItemRefno"] : null),
-                //    ActivityItemPurchaseOrderWorkSheetFKRefno = Convert.ToInt32(row["ActivityItemPurchaseOrderWorkSheetFKRefno"] != DBNull.Value ? row["ActivityItemPurchaseOrderWorkSheetFKRefno"] : null),
-                //    ActivityItemPurchaseOrderWorkSheetStringFKRefno = Convert.ToString(row["ActivityItemPurchaseOrderWorkSheetStringFKRefno"] != DBNull.Value ? row["ActivityItemPurchaseOrderWorkSheetStringFKRefno"] : null),
+                //    ActivityItemFKRefno = Convert.ToInt32(row["ActivityItemFKRefno"] != DBNull.Value ? row["ActivityItemFKRefno"] : null),
+                //    ActivityItemStringFKRefno = Convert.ToString(row["ActivityItemStringFKRefno"] != DBNull.Value ? row["ActivityItemStringFKRefno"] : null),
                 //    ProductUnitRefno = Convert.ToInt32(row["ProductUnitRefno"] != DBNull.Value ? row["ProductUnitRefno"] : null),
                 //    ProductRefno = Convert.ToInt32(row["ProductRefno"] != DBNull.Value ? row["ProductRefno"] : null),
                 //    ProductCode = Convert.ToString(row["ProductCode"] != DBNull.Value ? row["ProductCode"] : null),
@@ -221,8 +221,8 @@ namespace dMobile.Controller
             {
                 sql.Append("SELECT tActivityItemPurchaseOrderWorkSheet.ActivityItemRefno AS ActivityItemRefno,");
                 sql.Append(" tActivityItem.ActivityRefno AS ActivityRefno,");
-                sql.Append(" tActivityItemPurchaseOrderWorkSheet.ActivityItemPurchaseOrderWorkSheetFKRefno AS ActivityItemPurchaseOrderWorkSheetFKRefno, ");
-                sql.Append(" tActivityItemPurchaseOrderWorkSheet.ActivityItemPurchaseOrderWorkSheetStringFKRefno AS ActivityItemPurchaseOrderWorkSheetStringFKRefno, ");
+                sql.Append(" tActivityItemPurchaseOrderWorkSheet.ActivityItemFKRefno AS ActivityItemFKRefno, ");
+                sql.Append(" tActivityItemPurchaseOrderWorkSheet.ActivityItemStringFKRefno AS ActivityItemStringFKRefno, ");
                 sql.Append(" tProductUnit.ProductUnitRefno AS ProductUnitRefno,");
                 sql.Append(" tProduct.ProductRefno AS ProductRefno,");
                 sql.Append(" tProduct.ProductCode AS ProductCode,");
@@ -252,8 +252,8 @@ namespace dMobile.Controller
             {
                 sql.Append("SELECT tActivityItemPurchaseOrderWorkSheet.ActivityItemRefno AS ActivityItemRefno,");
                 sql.Append(" tActivityItem.ActivityRefno AS ActivityRefno,");
-                sql.Append(" tActivityItemPurchaseOrderWorkSheet.ActivityItemPurchaseOrderWorkSheetFKRefno AS ActivityItemPurchaseOrderWorkSheetFKRefno,");
-                sql.Append(" tActivityItemPurchaseOrderWorkSheet.ActivityItemPurchaseOrderWorkSheetStringFKRefno AS ActivityItemPurchaseOrderWorkSheetStringFKRefno,");
+                sql.Append(" tActivityItemPurchaseOrderWorkSheet.ActivityItemFKRefno AS ActivityItemFKRefno,");
+                sql.Append(" tActivityItemPurchaseOrderWorkSheet.ActivityItemStringFKRefno AS ActivityItemStringFKRefno,");
                 sql.Append(" tProductUnit.ProductUnitRefno AS ProductUnitRefno,");
                 sql.Append(" tProduct.ProductRefno AS ProductRefno,");
                 sql.Append(" tProduct.ProductCode AS ProductCode,");

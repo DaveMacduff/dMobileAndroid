@@ -214,15 +214,15 @@ namespace dMobile.GroundWork
                                 transaction.Execute("INSERT INTO tActivityItem (ActivityItemSubType, ActivityItemStatus, ActivityRefno) VALUES (?, ?, ?)", Convert.ToInt32(SysCommon.ActSubTypes.Picking), 0, actRefno);
 
                                 actItemRefno = Convert.ToInt32(transaction.ExecuteScalar<int>("SELECT last_insert_rowid() FROM tActivityItem"));
-                                actItemPickFKRefno = Convert.ToInt32(drow["ActivityItemPickingFKRefno"]);
+                                actItemPickFKRefno = Convert.ToInt32(drow["ActivityItemFKRefno"]);
                                 prodUnitRefno = this.GetProductUnitRefnoFromDataRow(drow, transaction, false);
                                 locMapRefno = this.GetWhsLocMapRefnoFromDataRow(drow, transaction);
 
                                 string queryInsertItemPicking = "INSERT INTO tActivityItemPicking (" +
                                     "ActivityItemRefno, " +
                                     "ActivityItemSubType, " +
-                                    "ActivityItemPickingFKRefno, " +
-                                    "ActivityItemPickingStringFKRefno, " +
+                                    "ActivityItemFKRefno, " +
+                                    "ActivityItemStringFKRefno, " +
                                     "ProductUnitRefno, " +
                                     "WarehouseLocationMapRefno, " +
                                     "ActivityItemPickingQuantityOrdered, " +

@@ -155,7 +155,7 @@ namespace dMobile.Controller
 
                     if (this.NewItemFKRefno != this.ActItem.ItemFKRefno)
                     {
-                        string query = "UPDATE tActivityItemCount SET ActivityItemCountStringFKRefno = ?, ActivityItemCountFKRefno = ? WHERE ActivityItemRefno = ?";
+                        string query = "UPDATE tActivityItemCount SET ActivityItemStringFKRefno = ?, ActivityItemFKRefno = ? WHERE ActivityItemRefno = ?";
                         await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(query, Convert.ToString(this.NewItemFKRefno), this.NewItemFKRefno, this.ActItem.ItemRefno);
 
                         this.ActItem.ItemFKRefno = this.NewItemFKRefno;
@@ -167,8 +167,8 @@ namespace dMobile.Controller
 
                         if (countItem != null)
                         {
-                            countItem.ActivityItemCountFKRefno = this.NewItemFKRefno;
-                            countItem.ActivityItemCountStringFKRefno = this.NewItemFKRefno.ToString();
+                            countItem.ActivityItemFKRefno = this.NewItemFKRefno;
+                            countItem.ActivityItemStringFKRefno = this.NewItemFKRefno.ToString();
                         }
 
                         // TODO: Fix sorting
@@ -234,7 +234,7 @@ namespace dMobile.Controller
 
                     // Check for a FK already existing with that value.
                     // if it does, add or subtract from it and then return false for new detail
-                    CountItem countItem = this.ActItem.ListItems.OfType<CountItem>().Where(countItem => countItem.ActivityItemCountFKRefno == this.ActItem.ItemFKRefno).FirstOrDefault();
+                    CountItem countItem = this.ActItem.ListItems.OfType<CountItem>().Where(countItem => countItem.ActivityItemFKRefno == this.ActItem.ItemFKRefno).FirstOrDefault();
 
                     if (countItem != null)
                     {
@@ -249,7 +249,7 @@ namespace dMobile.Controller
                     if (newDetail)
                     {
                         // <WO ID="14711" comment="Changed Refno to FKRefno. They are the same when no barcode modifier present. Opposite +/- when modifier exists." />
-                        await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync("UPDATE tActivityItemCount SET ActivityItemCountStringFKRefno = ?, ActivityItemCountFKRefno = ? WHERE ActivityItemRefno = ?", Convert.ToString(this.NewItemFKRefno), this.NewItemFKRefno, this.ActItem.ItemRefno);
+                        await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync("UPDATE tActivityItemCount SET ActivityItemStringFKRefno = ?, ActivityItemFKRefno = ? WHERE ActivityItemRefno = ?", Convert.ToString(this.NewItemFKRefno), this.NewItemFKRefno, this.ActItem.ItemRefno);
 
                         // TODO: Fix sorting
                         // string oldSort = this.ActItem.DataViewItems.Sort;
@@ -258,8 +258,8 @@ namespace dMobile.Controller
 
                         if (countItemNew != null)
                         {
-                            countItemNew.ActivityItemCountFKRefno = this.NewItemFKRefno;
-                            countItemNew.ActivityItemCountStringFKRefno = this.NewItemFKRefno.ToString();
+                            countItemNew.ActivityItemFKRefno = this.NewItemFKRefno;
+                            countItemNew.ActivityItemStringFKRefno = this.NewItemFKRefno.ToString();
                         }
 
                         // TODO: Fix sorting

@@ -178,7 +178,7 @@ namespace dMobile.Controller
         /// <returns><see cref="string"/> Sort by foreign key reference number index name.</returns>
         public override string GetDataViewSortFKRefnoIdx()
         {
-            return "ActivityItemAdjustmentStringFKRefno";
+            return "ActivityItemStringFKRefno";
         }
 
         /// <summary>
@@ -235,8 +235,8 @@ namespace dMobile.Controller
                             string query = "INSERT INTO tActivityItemAdjustment (" +
                                 "ActivityItemRefno, " +
                                 "ActivityItemSubType, " +
-                                "ActivityItemAdjustmentFKRefno, " +
-                                "ActivityItemAdjustmentStringFKRefno, " +
+                                "ActivityItemFKRefno, " +
+                                "ActivityItemStringFKRefno, " +
                                 "ProductUnitRefno, " +
                                 "WarehouseLocationMapRefno, " +
                                 "ActivityItemAdjustmentQuantity, " +
@@ -289,8 +289,8 @@ namespace dMobile.Controller
                         this.ListItems.Add(new
                         {
                             ActivityItemRefno = this.ItemRefno,
-                            ActivityItemAdjustmentFKRefno = this.ItemFKRefno,
-                            ActivityItemAdjustmentStringFKRefno = this.ItemFKRefno.ToString(),
+                            ActivityItemFKRefno = this.ItemFKRefno,
+                            ActivityItemStringFKRefno = this.ItemFKRefno.ToString(),
                             ProductUnitRefno = prodUnitRefno,
                             ProductRefno = this.ProdInfo.Refno,
                             ProductCode = this.ProdInfo.Code,
@@ -490,8 +490,8 @@ namespace dMobile.Controller
                 // Gather any newly added line items.
                 // Also perform union into tActivityDetail to check of detail exists.
                 sql.Append("SELECT tActivityItemAdjustment.ActivityItemRefno AS ActivityItemRefno, ");
-                sql.Append("tActivityItemAdjustment.ActivityItemAdjustmentFKRefno AS ActivityItemAdjustmentFKRefno,");
-                sql.Append("tActivityItemAdjustment.ActivityItemAdjustmentStringFKRefno AS ActivityItemAdjustmentStringFKRefno,");
+                sql.Append("tActivityItemAdjustment.ActivityItemFKRefno AS ActivityItemFKRefno,");
+                sql.Append("tActivityItemAdjustment.ActivityItemStringFKRefno AS ActivityItemStringFKRefno,");
                 sql.Append("tProductUnit.ProductUnitRefno AS ProductUnitRefno,");
                 sql.Append("tProduct.ProductRefno AS ProductRefno,");
                 sql.Append("tProduct.ProductCode AS ProductCode,");
@@ -519,8 +519,8 @@ namespace dMobile.Controller
                 sql.AppendFormat("AND tActivityItem.ActivityItemStatus <> {0} ", Convert.ToInt32(SysCommon.ActStatus.NoChange));
                 sql.Append("UNION ");
                 sql.Append("SELECT tActivityItemAdjustment.ActivityItemRefno,");
-                sql.Append("tActivityItemAdjustment.ActivityItemAdjustmentFKRefno,");
-                sql.Append("tActivityItemAdjustment.ActivityItemAdjustmentStringFKRefno,");
+                sql.Append("tActivityItemAdjustment.ActivityItemFKRefno,");
+                sql.Append("tActivityItemAdjustment.ActivityItemStringFKRefno,");
                 sql.Append("tProductUnit.ProductUnitRefno,");
                 sql.Append("tProduct.ProductRefno,");
                 sql.Append("tProduct.ProductCode,");
@@ -553,8 +553,8 @@ namespace dMobile.Controller
             else
             {
                 sql.Append("SELECT tActivityItemAdjustment.ActivityItemRefno AS ActivityItemRefno,");
-                sql.Append("tActivityItemAdjustment.ActivityItemAdjustmentFKRefno AS ActivityItemAdjustmentFKRefno,");
-                sql.Append("tActivityItemAdjustment.ActivityItemAdjustmentStringFKRefno AS ActivityItemAdjustmentStringFKRefno,");
+                sql.Append("tActivityItemAdjustment.ActivityItemFKRefno AS ActivityItemFKRefno,");
+                sql.Append("tActivityItemAdjustment.ActivityItemStringFKRefno AS ActivityItemStringFKRefno,");
                 sql.Append("tProductUnit.ProductUnitRefno AS ProductUnitRefno,");
                 sql.Append("tProduct.ProductRefno AS ProductRefno,");
                 sql.Append("tProduct.ProductCode AS ProductCode,");
@@ -620,7 +620,7 @@ namespace dMobile.Controller
             {
                 this.SelectedActivityItem = item;
                 this.ItemRefno = item.ActivityItemRefno;
-                this.ItemFKRefno = item.ActivityItemAdjustmentFKRefno;
+                this.ItemFKRefno = item.ActivityItemFKRefno;
                 this.ProdInfo = await ProductInfoTasks.GetInfoFromUnitRefno(item.ProductUnitRefno);
                 activityItemLocMapRefno = item.LocationMapRefno;
             }
@@ -642,7 +642,7 @@ namespace dMobile.Controller
             int foundActItemRefno = 0;
             StringBuilder sql = new StringBuilder();
             sql.Append("SELECT tActivityItem.ActivityItemRefno AS ActivityItemRefno,");
-            sql.Append("tActivityItemAdjustment.ActivityItemAdjustmentFKRefno AS ActivityItemAdjustmentFKRefno,");
+            sql.Append("tActivityItemAdjustment.ActivityItemFKRefno AS ActivityItemFKRefno,");
             sql.Append("tActivityItemAdjustment.ProductUnitRefno AS ProductUnitRefno,");
             sql.Append("tLocationMapWarehouse.LocationMapRefno AS LocationMapRefno ");
             sql.Append("FROM tActivityItemAdjustment ");
@@ -662,7 +662,7 @@ namespace dMobile.Controller
             if (results != null && results.Count > 0)
             {
                 this.ItemRefno = Convert.ToInt32(results[0].ActivityItemRefno);
-                this.ItemFKRefno = Convert.ToInt32(results[0].ActivityItemAdjustmentFKRefno);
+                this.ItemFKRefno = Convert.ToInt32(results[0].ActivityItemFKRefno);
                 this.ProdInfo = await ProductInfoTasks.GetInfoFromUnitRefno(Convert.ToInt32(results[0].ProductUnitRefno));
                 this.ProdInfo.Scheme = await ProductInfoTasks.GetSchemeComponentsFromRefno(this.ProdInfo.Refno);
 
@@ -785,7 +785,7 @@ namespace dMobile.Controller
         /// <returns><see cref="int"/> Found activity item foreign key reference number, else 0 if not found.</returns>
         public override int GetFKRefno(object resourceType)
         {
-            object tmpFKItRefno = ((AdjustmentItem)resourceType).ActivityItemAdjustmentFKRefno;
+            object tmpFKItRefno = ((AdjustmentItem)resourceType).ActivityItemFKRefno;
             return tmpFKItRefno == null ? 0 : Convert.ToInt32(tmpFKItRefno);
         }
 

@@ -175,7 +175,7 @@ namespace dMobile.GroundWork
             int actItemRecvFKRefno;
             if (results?.Count > 0)
             {
-                actItemRecvFKRefno = results[0].ActivityItemReceivingFKRefno;
+                actItemRecvFKRefno = results[0].ActivityItemFKRefno;
             }
             else
             {
@@ -325,9 +325,9 @@ namespace dMobile.GroundWork
         /// <summary>
         /// The Create.
         /// </summary>
-        /// <param name="iActivityItemReceivingFKRefno">The iActivityItemReceivingFKRefno<see cref="int"/>.</param>
+        /// <param name="iActivityItemFKRefno">The iActivityItemFKRefno<see cref="int"/>.</param>
         /// <returns></returns>
-        protected override async Task<string> CreateRequest(int iActivityItemReceivingFKRefno)
+        protected override async Task<string> CreateRequest(int iActivityItemFKRefno)
         {
             StringBuilder xmlString = new StringBuilder();
             XmlWriter xml = XmlWriter.Create(xmlString);
@@ -338,7 +338,7 @@ namespace dMobile.GroundWork
                 + "<command>"
                 + "<action>REQUEST PURCHASE ORDER DETAILS</action>"
                 + await SysCommon.GetRequestDefaults(false)
-                + "<itm_refno>" + iActivityItemReceivingFKRefno.ToString() + "</itm_refno>"
+                + "<itm_refno>" + iActivityItemFKRefno.ToString() + "</itm_refno>"
                 + "</command>"
                 + "</imclient>");
 

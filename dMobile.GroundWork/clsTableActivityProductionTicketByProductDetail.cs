@@ -179,7 +179,7 @@ namespace dMobile.GroundWork
 
                 if (results != null && results.Count > 0)
                 {
-                    actItemRefno = results[0].ActivityItemProductionByProductFKRefno;
+                    actItemRefno = results[0].ActivityItemFKRefno;
                 }
                 else
                 {

@@ -14,8 +14,8 @@ namespace dMobile.Resources.Types
         private bool activityItemPickingIsReviewed;
 
         public int ActivityItemRefno { get; set; }
-        public int ActivityItemPickingFKRefno { get; set; }
-        public string ActivityItemPickingStringFKRefno { get; set; }
+        public int ActivityItemFKRefno { get; set; }
+        public string ActivityItemStringFKRefno { get; set; }
         public int ProductUnitRefno { get; set; }
         public int ProductRefno { get => this.productRefno; set => this.productRefno = value; }
         public string ProductCode { get; set; }

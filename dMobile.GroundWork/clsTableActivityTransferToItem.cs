@@ -227,12 +227,12 @@ namespace dMobile.GroundWork
                                     throw new Exception("Unable to indentify the location map reference number.");
                                 }
 
-                                transItemFKRefno = Convert.ToInt32(drow["ActivityItemTransferFKRefno"]);
+                                transItemFKRefno = Convert.ToInt32(drow["ActivityItemFKRefno"]);
                                 string query = "INSERT INTO tActivityItemTransfer (" +
                                 "ActivityItemRefno, " +
                                 "ActivityItemSubType, " +
-                                "ActivityItemTransferFKRefno, " +
-                                "ActivityItemTransferStringFKRefno, " +
+                                "ActivityItemFKRefno, " +
+                                "ActivityItemStringFKRefno, " +
                                 "ProductUnitRefno, " +
                                 "TransferFromWarehouseLocationMapRefno, " +
                                 "ActivityItemTransferRequiredQuantity, " +

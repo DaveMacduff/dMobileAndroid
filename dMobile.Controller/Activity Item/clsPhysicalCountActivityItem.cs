@@ -197,7 +197,7 @@ namespace dMobile.Controller
         /// <returns>.</returns>
         public override string GetDataViewSortFKRefnoIdx()
         {
-            return "ActivityItemCountStringFKRefno";
+            return "ActivityItemStringFKRefno";
         }
 
         /// <summary>
@@ -257,8 +257,8 @@ namespace dMobile.Controller
                             string query = "INSERT INTO tActivityItemCount (" +
                                 "ActivityItemRefno, " +
                                 "ActivityItemSubType, " +
-                                "ActivityItemCountFKRefno, " +
-                                "ActivityItemCountStringFKRefno, " +
+                                "ActivityItemFKRefno, " +
+                                "ActivityItemStringFKRefno, " +
                                 "ProductUnitRefno, " +
                                 "LocationMapRefno, " +
                                 "ActivityItemCountQuantityOnHand, " +
@@ -317,8 +317,8 @@ namespace dMobile.Controller
                         this.ListItems.Add(new CountItem()
                         {
                             ActivityItemRefno = this.ItemRefno,
-                            ActivityItemCountFKRefno = this.ItemFKRefno,
-                            ActivityItemCountStringFKRefno = this.ItemFKRefno.ToString(),
+                            ActivityItemFKRefno = this.ItemFKRefno,
+                            ActivityItemStringFKRefno = this.ItemFKRefno.ToString(),
                             ProductUnitRefno = prodUnitRefno,
                             ProductRefno = this.ProdInfo.Refno,
                             ProductCode = this.ProdInfo.Code,
@@ -386,8 +386,8 @@ namespace dMobile.Controller
                 // CountItem countItem = new CountItem
                 // {
                 //    ActivityItemRefno = Convert.ToInt32(row["ActivityItemRefno"]),
-                //    ActivityItemCountFKRefno = Convert.ToInt32(row["ActivityItemCountFKRefno"]),
-                //    ActivityItemCountStringFKRefno = Convert.ToString(row["ActivityItemCountStringFKRefno"]),
+                //    ActivityItemFKRefno = Convert.ToInt32(row["ActivityItemFKRefno"]),
+                //    ActivityItemStringFKRefno = Convert.ToString(row["ActivityItemStringFKRefno"]),
                 //    ActivityItemCountQuantityOnHand = Convert.ToDecimal(row["ActivityItemCountQuantityOnHand"]),
                 //    ActivityItemCountBaseQuantityOnHand = Convert.ToDecimal(row["ActivityItemCountBaseQuantityOnHand"]),
                 //    ActivityItemCountWeightQuantityOnHand = Convert.ToDecimal(row["ActivityItemCountWeightQuantityOnHand"]),
@@ -528,8 +528,8 @@ namespace dMobile.Controller
             if (isSubmitBatch)
             {
                 sql.Append("SELECT tActivityItemCount.ActivityItemRefno AS ActivityItemRefno,");
-                sql.Append("tActivityItemCount.ActivityItemCountFKRefno AS ActivityItemCountFKRefno,");
-                sql.Append("tActivityItemCount.ActivityItemCountStringFKRefno AS ActivityItemCountStringFKRefno,");
+                sql.Append("tActivityItemCount.ActivityItemFKRefno AS ActivityItemFKRefno,");
+                sql.Append("tActivityItemCount.ActivityItemStringFKRefno AS ActivityItemStringFKRefno,");
                 sql.Append("tProductUnit.ProductUnitRefno AS ProductUnitRefno,");
                 sql.Append("tProduct.ProductRefno AS ProductRefno,");
                 sql.Append("tProduct.ProductCode AS ProductCode,");
@@ -563,8 +563,8 @@ namespace dMobile.Controller
                 sql.AppendFormat("AND tActivityItem.ActivityItemStatus <> {0} ", Convert.ToInt32(SysCommon.ActStatus.NoChange));
                 sql.Append("UNION ");
                 sql.Append("SELECT tActivityItemCount.ActivityItemRefno,");
-                sql.Append("tActivityItemCount.ActivityItemCountFKRefno,");
-                sql.Append("tActivityItemCount.ActivityItemCountStringFKRefno,");
+                sql.Append("tActivityItemCount.ActivityItemFKRefno,");
+                sql.Append("tActivityItemCount.ActivityItemStringFKRefno,");
                 sql.Append("tProductUnit.ProductUnitRefno,");
                 sql.Append("tProduct.ProductRefno,");
                 sql.Append("tProduct.ProductCode,");
@@ -595,8 +595,8 @@ namespace dMobile.Controller
                 sql.AppendFormat("AND tActivityItem.ActivityItemStatus <> {0} ", Convert.ToInt32(SysCommon.ActStatus.NoChange));
                 sql.Append("UNION ");
                 sql.Append("SELECT tActivityItemCount.ActivityItemRefno,");
-                sql.Append("tActivityItemCount.ActivityItemCountFKRefno,");
-                sql.Append("tActivityItemCount.ActivityItemCountStringFKRefno,");
+                sql.Append("tActivityItemCount.ActivityItemFKRefno,");
+                sql.Append("tActivityItemCount.ActivityItemStringFKRefno,");
                 sql.Append("tProductUnit.ProductUnitRefno,");
                 sql.Append("tProduct.ProductRefno,");
                 sql.Append("tProduct.ProductCode,");
@@ -627,8 +627,8 @@ namespace dMobile.Controller
                 sql.AppendFormat("AND tActivityItem.ActivityItemStatus <> {0} ", Convert.ToInt32(SysCommon.ActStatus.NoChange));
                 sql.Append("UNION ");
                 sql.Append(" SELECT tActivityItemCount.ActivityItemRefno,");
-                sql.Append("tActivityItemCount.ActivityItemCountFKRefno,");
-                sql.Append("tActivityItemCount.ActivityItemCountStringFKRefno,");
+                sql.Append("tActivityItemCount.ActivityItemFKRefno,");
+                sql.Append("tActivityItemCount.ActivityItemStringFKRefno,");
                 sql.Append("tProductUnit.ProductUnitRefno,");
                 sql.Append("tProduct.ProductRefno,");
                 sql.Append("tProduct.ProductCode,");
@@ -665,8 +665,8 @@ namespace dMobile.Controller
                 sql.AppendFormat("AND tActivityDetail.ActivityDetailStatus <> {0} ", Convert.ToInt32(SysCommon.ActStatus.NoChange));
                 sql.Append("UNION ");
                 sql.Append("SELECT tActivityItemCount.ActivityItemRefno,");
-                sql.Append("tActivityItemCount.ActivityItemCountFKRefno,");
-                sql.Append("tActivityItemCount.ActivityItemCountStringFKRefno,");
+                sql.Append("tActivityItemCount.ActivityItemFKRefno,");
+                sql.Append("tActivityItemCount.ActivityItemStringFKRefno,");
                 sql.Append("tProductUnit.ProductUnitRefno,");
                 sql.Append("tProduct.ProductRefno,");
                 sql.Append("tProduct.ProductCode,");
@@ -700,8 +700,8 @@ namespace dMobile.Controller
                 sql.AppendFormat("AND tActivityDetail.ActivityDetailStatus <> {0} ", Convert.ToInt32(SysCommon.ActStatus.NoChange));
                 sql.Append("UNION ");
                 sql.Append("SELECT tActivityItemCount.ActivityItemRefno,");
-                sql.Append("tActivityItemCount.ActivityItemCountFKRefno,");
-                sql.Append("tActivityItemCount.ActivityItemCountStringFKRefno,");
+                sql.Append("tActivityItemCount.ActivityItemFKRefno,");
+                sql.Append("tActivityItemCount.ActivityItemStringFKRefno,");
                 sql.Append("tProductUnit.ProductUnitRefno,");
                 sql.Append("tProduct.ProductRefno,");
                 sql.Append("tProduct.ProductCode,");
@@ -738,8 +738,8 @@ namespace dMobile.Controller
             else
             {
                 sql.Append("SELECT tActivityItemCount.ActivityItemRefno AS ActivityItemRefno,");
-                sql.Append("tActivityItemCount.ActivityItemCountFKRefno AS ActivityItemCountFKRefno,");
-                sql.Append("tActivityItemCount.ActivityItemCountStringFKRefno AS ActivityItemCountStringFKRefno,");
+                sql.Append("tActivityItemCount.ActivityItemFKRefno AS ActivityItemFKRefno,");
+                sql.Append("tActivityItemCount.ActivityItemStringFKRefno AS ActivityItemStringFKRefno,");
                 sql.Append("tProductUnit.ProductUnitRefno AS ProductUnitRefno,");
                 sql.Append("tProduct.ProductRefno AS ProductRefno,");
                 sql.Append("tProduct.ProductCode AS ProductCode,");
@@ -771,8 +771,8 @@ namespace dMobile.Controller
                 sql.AppendFormat("WHERE tActivityItem.ActivityRefno = {0} ", this.ActHdr.HdrRefno);
                 sql.Append("UNION ");
                 sql.Append("SELECT tActivityItemCount.ActivityItemRefno,");
-                sql.Append("tActivityItemCount.ActivityItemCountFKRefno,");
-                sql.Append("tActivityItemCount.ActivityItemCountStringFKRefno,");
+                sql.Append("tActivityItemCount.ActivityItemFKRefno,");
+                sql.Append("tActivityItemCount.ActivityItemStringFKRefno,");
                 sql.Append("tProductUnit.ProductUnitRefno,");
                 sql.Append("tProduct.ProductRefno,");
                 sql.Append("tProduct.ProductCode,");
@@ -801,8 +801,8 @@ namespace dMobile.Controller
                 sql.AppendFormat("WHERE tActivityItem.ActivityRefno = {0} ", this.ActHdr.HdrRefno);
                 sql.Append("UNION ");
                 sql.Append(" SELECT tActivityItemCount.ActivityItemRefno,");
-                sql.Append("tActivityItemCount.ActivityItemCountFKRefno,");
-                sql.Append("tActivityItemCount.ActivityItemCountStringFKRefno,");
+                sql.Append("tActivityItemCount.ActivityItemFKRefno,");
+                sql.Append("tActivityItemCount.ActivityItemStringFKRefno,");
                 sql.Append("tProductUnit.ProductUnitRefno,");
                 sql.Append("tProduct.ProductRefno,");
                 sql.Append("tProduct.ProductCode,");
@@ -875,8 +875,8 @@ namespace dMobile.Controller
                 // CountItem countItem = new CountItem
                 // {
                 //    ActivityItemRefno = Convert.ToInt32(row["ActivityItemRefno"]),
-                //    ActivityItemCountFKRefno = Convert.ToInt32(row["ActivityItemCountFKRefno"]),
-                //    ActivityItemCountStringFKRefno = Convert.ToString(row["ActivityItemCountStringFKRefno"]),
+                //    ActivityItemFKRefno = Convert.ToInt32(row["ActivityItemFKRefno"]),
+                //    ActivityItemStringFKRefno = Convert.ToString(row["ActivityItemStringFKRefno"]),
                 //    ActivityItemCountQuantityOnHand = Convert.ToDecimal(row["ActivityItemCountQuantityOnHand"]),
                 //    ActivityItemCountBaseQuantityOnHand = Convert.ToDecimal(row["ActivityItemCountBaseQuantityOnHand"]),
                 //    ActivityItemCountWeightQuantityOnHand = Convert.ToDecimal(row["ActivityItemCountWeightQuantityOnHand"]),
@@ -913,7 +913,7 @@ namespace dMobile.Controller
             {
                 this.SelectedActivityItem = item;
                 this.ItemRefno = item.ActivityItemRefno;
-                this.ItemFKRefno = Convert.ToInt32(item.ActivityItemCountFKRefno);
+                this.ItemFKRefno = Convert.ToInt32(item.ActivityItemFKRefno);
                 this.ProdInfo = await ProductInfoTasks.GetInfoFromUnitRefno(item.ProductUnitRefno);
                 activityItemLocMapRefno = item.LocationMapRefno;
             }
@@ -936,7 +936,7 @@ namespace dMobile.Controller
             StringBuilder sql = new StringBuilder();
 
             sql.Append("SELECT tActivityItem.ActivityItemRefno AS ActivityItemRefno,");
-            sql.Append("tActivityItemCount.ActivityItemCountFKRefno AS ActivityItemCountFKRefno,");
+            sql.Append("tActivityItemCount.ActivityItemFKRefno AS ActivityItemFKRefno,");
             sql.Append("tActivityItemCount.ProductUnitRefno AS ProductUnitRefno,");
             sql.Append("tLocationMapSlot.LocationMapRefno AS LocationMapRefno ");
             sql.Append("FROM tActivityItemCount ");
@@ -951,7 +951,7 @@ namespace dMobile.Controller
             sql.AppendFormat("AND tActivityItemCount.ProductUnitRefno = {0} ", prodUnitRefno);
             sql.Append("UNION ");
             sql.Append("SELECT tActivityItem.ActivityItemRefno,");
-            sql.Append("tActivityItemCount.ActivityItemCountFKRefno,");
+            sql.Append("tActivityItemCount.ActivityItemFKRefno,");
             sql.Append("tActivityItemCount.ProductUnitRefno,");
             sql.Append("tLocationMapSection.LocationMapRefno ");
             sql.Append("FROM tActivityItemCount ");
@@ -964,7 +964,7 @@ namespace dMobile.Controller
             sql.AppendFormat("AND tActivityItemCount.ProductUnitRefno = {0} ", prodUnitRefno);
             sql.Append("UNION ");
             sql.Append("SELECT tActivityItem.ActivityItemRefno,");
-            sql.Append("tActivityItemCount.ActivityItemCountFKRefno,");
+            sql.Append("tActivityItemCount.ActivityItemFKRefno,");
             sql.Append("tActivityItemCount.ProductUnitRefno,");
             sql.Append("tLocationMapWarehouse.LocationMapRefno ");
             sql.Append("FROM tActivityItemCount ");
@@ -981,7 +981,7 @@ namespace dMobile.Controller
             if (results != null && results.Count > 0)
             {
                 this.ItemRefno = Convert.ToInt32(results[0].ActivityItemRefno);
-                this.ItemFKRefno = Convert.ToInt32(results[0].ActivityItemCountFKRefno);
+                this.ItemFKRefno = Convert.ToInt32(results[0].ActivityItemFKRefno);
                 this.ProdInfo = await ProductInfoTasks.GetInfoFromUnitRefno(Convert.ToInt32(results[0].ProductUnitRefno));
                 this.ProdInfo.Scheme = await ProductInfoTasks.GetSchemeComponentsFromRefno(this.ProdInfo.Refno);
                 foundActItemRefno = this.ItemRefno;
@@ -1056,9 +1056,9 @@ namespace dMobile.Controller
         {
             if (selectedActivityItem is CountItem countItem)
             {
-                this.listCountItems.First(x => x.ActivityItemCountFKRefno == countItem.ActivityItemCountFKRefno).ActivityItemCountQuantity += quantity;
-                this.listCountItems.First(x => x.ActivityItemCountFKRefno == countItem.ActivityItemCountFKRefno).ActivityItemCountBaseQuantity += quantity;
-                this.listCountItems.First(x => x.ActivityItemCountFKRefno == countItem.ActivityItemCountFKRefno).ActivityItemCountWeightQuantity += quantity;
+                this.listCountItems.First(x => x.ActivityItemFKRefno == countItem.ActivityItemFKRefno).ActivityItemCountQuantity += quantity;
+                this.listCountItems.First(x => x.ActivityItemFKRefno == countItem.ActivityItemFKRefno).ActivityItemCountBaseQuantity += quantity;
+                this.listCountItems.First(x => x.ActivityItemFKRefno == countItem.ActivityItemFKRefno).ActivityItemCountWeightQuantity += quantity;
 
                 this.ListItems = this.listCountItems.Cast<object>().ToList();
             }
@@ -1088,7 +1088,7 @@ namespace dMobile.Controller
         /// <returns><see cref="int"/> Found activity item foreign key refno, else 0 if not found.</returns>
         public override int GetFKRefno(object resourceType)
         {
-            object tmpFKItRefno = ((CountItem)resourceType).ActivityItemCountFKRefno;
+            object tmpFKItRefno = ((CountItem)resourceType).ActivityItemFKRefno;
             return tmpFKItRefno == null ? 0 : Convert.ToInt32(tmpFKItRefno);
         }
 

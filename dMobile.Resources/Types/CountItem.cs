@@ -6,14 +6,14 @@ namespace dMobile.Resources.Types
 {
     public class CountItem
     {
-        private int activityItemCountFKRefno;
+        private int ActivityItemFKRefno;
         private int locationMapRefno;
         private decimal activityItemCountWeightQuantity;
         private string locationName;
 
         public int ActivityItemRefno { get; set; }
-        public int ActivityItemCountFKRefno { get => this.activityItemCountFKRefno; set => this.activityItemCountFKRefno = value; }
-        public string ActivityItemCountStringFKRefno { get; set; }
+        public int ActivityItemFKRefno { get => this.ActivityItemFKRefno; set => this.ActivityItemFKRefno = value; }
+        public string ActivityItemStringFKRefno { get; set; }
         public int ProductUnitRefno { get; set; }
         public int LocationMapRefno { get => this.locationMapRefno; set => this.locationMapRefno = value; }
         public decimal ActivityItemCountQuantityOnHand { get; set; }

@@ -156,7 +156,7 @@ namespace dMobile.Controller
 
                     if (this.NewItemFKRefno != this.ActItem.ItemFKRefno)
                     {
-                        string query = "UPDATE tActivityItemProductionMaterial SET ActivityItemProductionMaterialStringFKRefno = ?, ActivityItemProductionMaterialFKRefno = ? WHERE ActivityItemRefno = ?";
+                        string query = "UPDATE tActivityItemProductionMaterial SET ActivityItemStringFKRefno = ?, ActivityItemFKRefno = ? WHERE ActivityItemRefno = ?";
                         await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(query, Convert.ToString(this.NewItemFKRefno), this.NewItemFKRefno, this.ActItem.ItemRefno);
 
                         this.ActItem.ItemFKRefno = this.NewItemFKRefno;
@@ -169,8 +169,8 @@ namespace dMobile.Controller
 
                         if (productionTicketMaterialItem != null)
                         {
-                            productionTicketMaterialItem.ActivityItemProductionMaterialFKRefno = this.NewItemFKRefno;
-                            productionTicketMaterialItem.ActivityItemProductionMaterialStringFKRefno = Convert.ToString(this.NewItemFKRefno);
+                            productionTicketMaterialItem.ActivityItemFKRefno = this.NewItemFKRefno;
+                            productionTicketMaterialItem.ActivityItemStringFKRefno = Convert.ToString(this.NewItemFKRefno);
                         }
 
                         // TODO: Fix sorting
@@ -234,7 +234,7 @@ namespace dMobile.Controller
             {
                 if (this.InsertDetail(await this.CreateSubmitXML(XDocument.Parse("<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?><params></params>"))))
                 {
-                    await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync("UPDATE tActivityItemProductionMaterial SET ActivityItemProductionMaterialStringFKRefno = ?, ActivityItemProductionMaterialFKRefno = ? WHERE ActivityItemRefno = ?",
+                    await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync("UPDATE tActivityItemProductionMaterial SET ActivityItemStringFKRefno = ?, ActivityItemFKRefno = ? WHERE ActivityItemRefno = ?",
                         Convert.ToString(this.NewItemFKRefno),
                         this.NewItemFKRefno,
                         this.ActItem.ItemRefno);
@@ -247,8 +247,8 @@ namespace dMobile.Controller
 
                     if (productionTicketMaterialItem != null)
                     {
-                        productionTicketMaterialItem.ActivityItemProductionMaterialFKRefno = this.NewItemFKRefno;
-                        productionTicketMaterialItem.ActivityItemProductionMaterialStringFKRefno = Convert.ToString(this.NewItemFKRefno);
+                        productionTicketMaterialItem.ActivityItemFKRefno = this.NewItemFKRefno;
+                        productionTicketMaterialItem.ActivityItemStringFKRefno = Convert.ToString(this.NewItemFKRefno);
                     }
 
                     // TODO: Fix sorting

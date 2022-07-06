@@ -190,7 +190,7 @@ namespace dMobile.View.Activity
 
         private BarCodeScanner Scanner { get; set; }
 
-        private string ItemSortByIdx { get; set; } = "ActivityItemPurchaseOrderWorkSheetFKRefno";
+        private string ItemSortByIdx { get; set; } = "ActivityItemFKRefno";
 
         private ActDetail ActDetail { get; set; }
 
@@ -383,8 +383,8 @@ namespace dMobile.View.Activity
                         }
 
                         // TODO: Fix sorting
-                        // ActItem.DataViewItems.Sort = "ActivityItemPurchaseOrderWorkSheetFKRefno";
-                        PurchaseOrderWorkSheetItem purchaseOrderWorkSheetItem = this.ActItem.ListItems.OfType<PurchaseOrderWorkSheetItem>().Where(item => item.ActivityItemPurchaseOrderWorkSheetFKRefno == this.ActItem.ItemFKRefno).FirstOrDefault();
+                        // ActItem.DataViewItems.Sort = "ActivityItemFKRefno";
+                        PurchaseOrderWorkSheetItem purchaseOrderWorkSheetItem = this.ActItem.ListItems.OfType<PurchaseOrderWorkSheetItem>().Where(item => item.ActivityItemFKRefno == this.ActItem.ItemFKRefno).FirstOrDefault();
 
                         if (purchaseOrderWorkSheetItem == null)
                         {
@@ -779,8 +779,8 @@ namespace dMobile.View.Activity
                                 {
                                     // TODO: Fix sorting
                                     // string strOldSort = ActItem.DataViewItems.Sort;
-                                    // ActItem.DataViewItems.Sort = "ActivityItemPurchaseOrderWorkSheetFKRefno";
-                                    PurchaseOrderWorkSheetItem purchaseOrderWorkSheetItem = this.ActItem.ListItems.OfType<PurchaseOrderWorkSheetItem>().Where(item => item.ActivityItemPurchaseOrderWorkSheetFKRefno == this.ActItem.ItemFKRefno).FirstOrDefault();
+                                    // ActItem.DataViewItems.Sort = "ActivityItemFKRefno";
+                                    PurchaseOrderWorkSheetItem purchaseOrderWorkSheetItem = this.ActItem.ListItems.OfType<PurchaseOrderWorkSheetItem>().Where(item => item.ActivityItemFKRefno == this.ActItem.ItemFKRefno).FirstOrDefault();
 
                                     if (purchaseOrderWorkSheetItem == null)
                                     {

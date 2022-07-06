@@ -216,12 +216,12 @@ namespace dMobile.GroundWork
                                 actItemRefno = Convert.ToInt32(transaction.ExecuteScalar<int>("SELECT last_insert_rowid() FROM tActivityItem"));
                                 prodUnitRefno = this.GetProductUnitRefnoFromDataRow(drow, transaction, false);
                                 locMapRefno = this.GetWhsLocMapRefnoFromDataRow(drow, transaction);
-                                actItemReturnsFKRefno = Convert.ToInt32(drow["ActivityItemReturnsFKRefno"]);
+                                actItemReturnsFKRefno = Convert.ToInt32(drow["ActivityItemFKRefno"]);
                                 string queryInsertItem = "INSERT INTO tActivityItemReturns (" +
                                     "ActivityItemRefno, " +
                                     "ActivityItemSubType, " +
-                                    "ActivityItemReturnsFKRefno, " +
-                                    "ActivityItemReturnsStringFKRefno, " +
+                                    "ActivityItemFKRefno, " +
+                                    "ActivityItemStringFKRefno, " +
                                     "ProductUnitRefno, " +
                                     "WarehouseLocationMapRefno, " +
                                     "ActivityItemReturnsQuantityReturned, " +

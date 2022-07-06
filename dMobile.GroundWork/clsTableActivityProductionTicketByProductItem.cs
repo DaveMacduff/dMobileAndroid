@@ -277,8 +277,8 @@ namespace dMobile.GroundWork
                                 string queryActivityItemProductionByProduct = "INSERT INTO tActivityItemProductionByProduct " +
                                     "(" +
                                     "ActivityItemRefno, " +
-                                    "ActivityItemProductionByProductFKRefno, " +
-                                    "ActivityItemProductionByProductStringFKRefno" +
+                                    "ActivityItemFKRefno, " +
+                                    "ActivityItemStringFKRefno" +
                                     ") VALUES (" +
                                     "?, " +
                                     "?, " +

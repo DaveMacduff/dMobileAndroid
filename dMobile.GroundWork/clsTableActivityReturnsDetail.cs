@@ -175,7 +175,7 @@ namespace dMobile.GroundWork
             int actItemRetFKRefno;
             if (results?.Count > 0)
             {
-                actItemRetFKRefno = Convert.ToInt32(results[0].ActivityItemReturnsFKRefno);
+                actItemRetFKRefno = Convert.ToInt32(results[0].ActivityItemFKRefno);
             }
             else
             {
@@ -322,7 +322,7 @@ namespace dMobile.GroundWork
         /// </summary>
         /// <returns></returns>
         /// <remarks></remarks>
-        protected override async Task<string> CreateRequest(int iActivityItemReturnsFKRefno)
+        protected override async Task<string> CreateRequest(int iActivityItemFKRefno)
         {
             StringBuilder xmlString = new StringBuilder();
             XmlWriter xml = XmlWriter.Create(xmlString);
@@ -333,7 +333,7 @@ namespace dMobile.GroundWork
                 + "<command>"
                 + "<action>REQUEST SALES RETURN DETAILS</action>"
                 + await SysCommon.GetRequestDefaults(false)
-                + "<itm_refno>" + iActivityItemReturnsFKRefno.ToString() + "</itm_refno>"
+                + "<itm_refno>" + iActivityItemFKRefno.ToString() + "</itm_refno>"
                 + "</command>"
                 + "</imclient>");
 

@@ -6,7 +6,7 @@ namespace dMobile.Resources.Types
 {
     public class PurchaseOrderWorkSheetItem
     {
-        private int activityItemPurchaseOrderWorkSheetFKRefno;
+        private int ActivityItemFKRefno;
         private int productRefno;
         private string productUnitSizeDescription;
         private decimal activityItemPurchaseOrderWorkSheetWeightQuantityOrdered;
@@ -15,8 +15,8 @@ namespace dMobile.Resources.Types
 
         public int ActivityItemRefno { get; set; }
         public int ActivityRefno { get; set; }
-        public int ActivityItemPurchaseOrderWorkSheetFKRefno { get => this.activityItemPurchaseOrderWorkSheetFKRefno; set => this.activityItemPurchaseOrderWorkSheetFKRefno = value; }
-        public string ActivityItemPurchaseOrderWorkSheetStringFKRefno { get; set; }
+        public int ActivityItemFKRefno { get => this.ActivityItemFKRefno; set => this.ActivityItemFKRefno = value; }
+        public string ActivityItemStringFKRefno { get; set; }
         public int ProductUnitRefno { get; set; }
         public int ProductRefno { get => this.productRefno; set => this.productRefno = value; }
         public string ProductCode { get; set; }

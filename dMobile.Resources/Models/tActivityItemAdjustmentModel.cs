@@ -17,11 +17,11 @@ namespace dMobile.Resources.Models
         [NotNull, Indexed(Name = "UQ_ActivityItemAdjustmentOnActivityItemRefnoAndActivityItemSubType", Order = 2, Unique = true)]
         public int ActivityItemSubType { get; set; }
 
-        [NotNull, Indexed(Name = "UQ_ActivityItemAdjustmentOnActivityItemAdjustmentFKRefno", Order = 1, Unique = true)]
-        public int ActivityItemAdjustmentFKRefno { get; set; }
+        [NotNull, Indexed(Name = "UQ_ActivityItemAdjustmentOnActivityItemFKRefno", Order = 1, Unique = true)]
+        public int ActivityItemFKRefno { get; set; }
 
         [NotNull]
-        public string ActivityItemAdjustmentStringFKRefno { get; set; }
+        public string ActivityItemStringFKRefno { get; set; }
 
         [NotNull, ForeignKey(typeof(tProductUnitModel))]
         public int ProductUnitRefno { get; set; }

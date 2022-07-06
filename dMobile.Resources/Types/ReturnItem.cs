@@ -13,8 +13,8 @@ namespace dMobile.Resources.Types
         private string isActivityItemReturnsComment;
 
         public int ActivityItemRefno { get; set; }
-        public int ActivityItemReturnsFKRefno { get; set; }
-        public string ActivityItemReturnsStringFKRefno { get; set; }
+        public int ActivityItemFKRefno { get; set; }
+        public string ActivityItemStringFKRefno { get; set; }
         public int ProductUnitRefno { get; set; }
         public int ProductRefno { get => this.productRefno; set => this.productRefno = value; }
         public string ProductCode { get; set; }

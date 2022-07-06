@@ -217,7 +217,7 @@ namespace dMobile.Controller
         /// <returns>.</returns>
         public override string GetDataViewSortFKRefnoIdx()
         {
-            return "ActivityItemProductionFinishedStringFKRefno";
+            return "ActivityItemStringFKRefno";
         }
 
         /// <summary>
@@ -303,7 +303,7 @@ namespace dMobile.Controller
 
                             this.ItemFKRefno = this.ItemRefno * -1;
 
-                            transaction.Execute("INSERT INTO tActivityItemProductionFinished (ActivityItemRefno, ActivityItemProductionFinishedFKRefno, ActivityItemProductionFinishedStringFKRefno) VALUES (?, ?, ?)",
+                            transaction.Execute("INSERT INTO tActivityItemProductionFinished (ActivityItemRefno, ActivityItemFKRefno, ActivityItemStringFKRefno) VALUES (?, ?, ?)",
                                 Convert.ToInt32(this.ItemRefno),
                                 Convert.ToInt32(this.ItemFKRefno),
                                 Convert.ToString(this.ItemFKRefno));
@@ -325,8 +325,8 @@ namespace dMobile.Controller
                         this.ListItems.Add(new ProductionTicketFinishedItem()
                         {
                             ActivityItemRefno = this.ItemRefno,
-                            ActivityItemProductionFinishedFKRefno = this.ItemFKRefno,
-                            ActivityItemProductionFinishedStringFKRefno = this.ItemFKRefno.ToString(),
+                            ActivityItemFKRefno = this.ItemFKRefno,
+                            ActivityItemStringFKRefno = this.ItemFKRefno.ToString(),
                             ProductUnitRefno = prodUnitRefno,
                             ProductRefno = int.Parse(data.Root.Element("ProductRefno").Value),
                             ProductCode = data.Root.Element("ProductCode").Value,
@@ -407,8 +407,8 @@ namespace dMobile.Controller
                 //    LocationName = Convert.ToString(row["LocationName"] != DBNull.Value ? row["LocationName"] : null),
                 //    ActivityItemStatus = Convert.ToInt32(row["ActivityItemStatus"] != DBNull.Value ? row["ActivityItemStatus"] : null),
                 //    ActivityItemProductionBaseQuantityExpected = Convert.ToDecimal(row["ActivityItemProductionBaseQuantityExpected"] != DBNull.Value ? row["ActivityItemProductionBaseQuantityExpected"] : null),
-                //    ActivityItemProductionFinishedFKRefno = Convert.ToInt32(row["ActivityItemProductionFinishedFKRefno"] != DBNull.Value ? row["ActivityItemProductionFinishedFKRefno"] : null),
-                //    ActivityItemProductionFinishedStringFKRefno = Convert.ToString(row["ActivityItemProductionFinishedStringFKRefno"] != DBNull.Value ? row["ActivityItemProductionFinishedStringFKRefno"] : null),
+                //    ActivityItemFKRefno = Convert.ToInt32(row["ActivityItemFKRefno"] != DBNull.Value ? row["ActivityItemFKRefno"] : null),
+                //    ActivityItemStringFKRefno = Convert.ToString(row["ActivityItemStringFKRefno"] != DBNull.Value ? row["ActivityItemStringFKRefno"] : null),
                 //    ActivityItemProductionQuantityExpected = Convert.ToDecimal(row["ActivityItemProductionQuantityExpected"] != DBNull.Value ? row["ActivityItemProductionQuantityExpected"] : null),
                 //    ActivityItemProductionWeightQuantityExpected = Convert.ToDecimal(row["ActivityItemProductionWeightQuantityExpected"] != DBNull.Value ? row["ActivityItemProductionWeightQuantityExpected"] : null),
                 //    BaseUnitCode = Convert.ToString(row["BaseUnitCode"] != DBNull.Value ? row["BaseUnitCode"] : null),
@@ -518,8 +518,8 @@ namespace dMobile.Controller
             if (isSubmitBatch)
             {
                 sql.Append("SELECT tActivityItemProduction.ActivityItemRefno AS ActivityItemRefno,");
-                sql.Append("tActivityItemProductionFinished.ActivityItemProductionFinishedFKRefno AS ActivityItemProductionFinishedFKRefno,");
-                sql.Append("tActivityItemProductionFinished.ActivityItemProductionFinishedStringFKRefno AS ActivityItemProductionFinishedStringFKRefno,");
+                sql.Append("tActivityItemProductionFinished.ActivityItemFKRefno AS ActivityItemFKRefno,");
+                sql.Append("tActivityItemProductionFinished.ActivityItemStringFKRefno AS ActivityItemStringFKRefno,");
                 sql.Append("tProductUnit.ProductUnitRefno AS ProductUnitRefno,");
                 sql.Append("tProduct.ProductRefno AS ProductRefno,");
                 sql.Append("tProduct.ProductCode AS ProductCode,");
@@ -553,8 +553,8 @@ namespace dMobile.Controller
                 sql.AppendFormat("AND tActivityItem.ActivityItemSubType = {0} ", Convert.ToInt32(SysCommon.ActSubTypes.TicketFinished));
                 sql.Append("UNION ");
                 sql.Append("SELECT tActivityItemProduction.ActivityItemRefno,");
-                sql.Append("tActivityItemProductionFinished.ActivityItemProductionFinishedFKRefno,");
-                sql.Append("tActivityItemProductionFinished.ActivityItemProductionFinishedStringFKRefno,");
+                sql.Append("tActivityItemProductionFinished.ActivityItemFKRefno,");
+                sql.Append("tActivityItemProductionFinished.ActivityItemStringFKRefno,");
                 sql.Append("tProductUnit.ProductUnitRefno,");
                 sql.Append("tProduct.ProductRefno,");
                 sql.Append("tProduct.ProductCode,");
@@ -593,8 +593,8 @@ namespace dMobile.Controller
             else
             {
                 sql.Append("SELECT tActivityItemProduction.ActivityItemRefno AS ActivityItemRefno,");
-                sql.Append("tActivityItemProductionFinished.ActivityItemProductionFinishedFKRefno AS ActivityItemProductionFinishedFKRefno,");
-                sql.Append("tActivityItemProductionFinished.ActivityItemProductionFinishedStringFKRefno AS ActivityItemProductionFinishedStringFKRefno,");
+                sql.Append("tActivityItemProductionFinished.ActivityItemFKRefno AS ActivityItemFKRefno,");
+                sql.Append("tActivityItemProductionFinished.ActivityItemStringFKRefno AS ActivityItemStringFKRefno,");
                 sql.Append("tProductUnit.ProductUnitRefno AS ProductUnitRefno,");
                 sql.Append("tProduct.ProductRefno AS ProductRefno,");
                 sql.Append("tProduct.ProductCode AS ProductCode,");
@@ -630,8 +630,8 @@ namespace dMobile.Controller
                 sql.AppendFormat("AND tActivityItem.ActivityItemSubType = {0} ", Convert.ToInt32(SysCommon.ActSubTypes.TicketFinished));
                 sql.Append("UNION ");
                 sql.Append("SELECT tActivityItemProduction.ActivityItemRefno,");
-                sql.Append("tActivityItemProductionFinished.ActivityItemProductionFinishedFKRefno,");
-                sql.Append("tActivityItemProductionFinished.ActivityItemProductionFinishedStringFKRefno,");
+                sql.Append("tActivityItemProductionFinished.ActivityItemFKRefno,");
+                sql.Append("tActivityItemProductionFinished.ActivityItemStringFKRefno,");
                 sql.Append("tProductUnit.ProductUnitRefno,");
                 sql.Append("tProduct.ProductRefno,");
                 sql.Append("tProduct.ProductCode,");
@@ -664,8 +664,8 @@ namespace dMobile.Controller
                 sql.AppendFormat("AND tActivityItem.ActivityItemSubType = {0} ", Convert.ToInt32(SysCommon.ActSubTypes.TicketFinished));
                 sql.Append("UNION ");
                 sql.Append("SELECT tActivityItemProduction.ActivityItemRefno,");
-                sql.Append("tActivityItemProductionFinished.ActivityItemProductionFinishedFKRefno,");
-                sql.Append("tActivityItemProductionFinished.ActivityItemProductionFinishedStringFKRefno,");
+                sql.Append("tActivityItemProductionFinished.ActivityItemFKRefno,");
+                sql.Append("tActivityItemProductionFinished.ActivityItemStringFKRefno,");
                 sql.Append("tProductUnit.ProductUnitRefno,");
                 sql.Append("tProduct.ProductRefno,");
                 sql.Append("tProduct.ProductCode,");
@@ -755,8 +755,8 @@ namespace dMobile.Controller
                 //    LocationName = Convert.ToString(row["LocationName"] != DBNull.Value ? row["LocationName"] : null),
                 //    ActivityItemStatus = Convert.ToInt32(row["ActivityItemStatus"] != DBNull.Value ? row["ActivityItemStatus"] : null),
                 //    ActivityItemProductionBaseQuantityExpected = Convert.ToDecimal(row["ActivityItemProductionBaseQuantityExpected"] != DBNull.Value ? row["ActivityItemProductionBaseQuantityExpected"] : null),
-                //    ActivityItemProductionFinishedFKRefno = Convert.ToInt32(row["ActivityItemProductionFinishedFKRefno"] != DBNull.Value ? row["ActivityItemProductionFinishedFKRefno"] : null),
-                //    ActivityItemProductionFinishedStringFKRefno = Convert.ToString(row["ActivityItemProductionFinishedStringFKRefno"] != DBNull.Value ? row["ActivityItemProductionFinishedStringFKRefno"] : null),
+                //    ActivityItemFKRefno = Convert.ToInt32(row["ActivityItemFKRefno"] != DBNull.Value ? row["ActivityItemFKRefno"] : null),
+                //    ActivityItemStringFKRefno = Convert.ToString(row["ActivityItemStringFKRefno"] != DBNull.Value ? row["ActivityItemStringFKRefno"] : null),
                 //    ActivityItemProductionQuantityExpected = Convert.ToDecimal(row["ActivityItemProductionQuantityExpected"] != DBNull.Value ? row["ActivityItemProductionQuantityExpected"] : null),
                 //    ActivityItemProductionWeightQuantityExpected = Convert.ToDecimal(row["ActivityItemProductionWeightQuantityExpected"] != DBNull.Value ? row["ActivityItemProductionWeightQuantityExpected"] : null),
                 //    BaseUnitCode = Convert.ToString(row["BaseUnitCode"] != DBNull.Value ? row["BaseUnitCode"] : null),
@@ -780,7 +780,7 @@ namespace dMobile.Controller
             {
                 this.SelectedActivityItem = item;
                 this.ItemRefno = item.ActivityItemRefno;
-                this.ItemFKRefno = Convert.ToInt32(item.ActivityItemProductionFinishedFKRefno);
+                this.ItemFKRefno = Convert.ToInt32(item.ActivityItemFKRefno);
                 this.ProdInfo = await ProductInfoTasks.GetInfoFromUnitRefno(item.ProductUnitRefno);
                 activityItemLocMapRefno = item.LocationMapRefno;
             }
@@ -802,7 +802,7 @@ namespace dMobile.Controller
             int foundActItemRefno = 0;
             StringBuilder sql = new StringBuilder();
             sql.Append("SELECT tActivityItem.ActivityItemRefno,");
-            sql.Append("tActivityItemProductionFinished.ActivityItemProductionFinishedFKRefno,");
+            sql.Append("tActivityItemProductionFinished.ActivityItemFKRefno,");
             sql.Append("tActivityItemProduction.ProductUnitRefno,");
             sql.Append("tLocationMapWarehouse.LocationMapRefno ");
             sql.Append("FROM tActivityItemProduction ");
@@ -823,7 +823,7 @@ namespace dMobile.Controller
             {
                 this.LocMap.CurrLocMap = await LocationMapTasks.GetSLocMapFromLocMapRefno(Convert.ToInt32(results[0].LocationMapRefno));
                 this.ItemRefno = Convert.ToInt32(results[0].ActivityItemRefno);
-                this.ItemFKRefno = Convert.ToInt32(results[0].ActivityItemProductionFinishedFKRefno);
+                this.ItemFKRefno = Convert.ToInt32(results[0].ActivityItemFKRefno);
                 this.ProdInfo = await ProductInfoTasks.GetInfoFromUnitRefno(Convert.ToInt32(results[0].ProductUnitRefno));
                 this.ProdInfo.Scheme = await ProductInfoTasks.GetSchemeComponentsFromRefno(this.ProdInfo.Refno);
                 foundActItemRefno = this.ItemRefno;
@@ -929,7 +929,7 @@ namespace dMobile.Controller
         /// <returns><see cref="int"/> Found activity item foreign key refno, else 0 if not found.</returns>
         public override int GetFKRefno(object resourceType)
         {
-            object tmpFKItRefno = ((ProductionTicketFinishedItem)resourceType).ActivityItemProductionFinishedFKRefno;
+            object tmpFKItRefno = ((ProductionTicketFinishedItem)resourceType).ActivityItemFKRefno;
             return tmpFKItRefno == null ? 0 : Convert.ToInt32(tmpFKItRefno);
         }
 

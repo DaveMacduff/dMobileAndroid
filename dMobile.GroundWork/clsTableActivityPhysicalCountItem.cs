@@ -273,8 +273,8 @@ namespace dMobile.GroundWork
                                     "INSERT INTO tActivityItemCount (" +
                                     "ActivityItemRefno, " +
                                     "ActivityItemSubType, " +
-                                    "ActivityItemCountFKRefno, " +
-                                    "ActivityItemCountStringFKRefno, " +
+                                    "ActivityItemFKRefno, " +
+                                    "ActivityItemStringFKRefno, " +
                                     "ProductUnitRefno, " +
                                     "LocationMapRefno, " +
                                     "ActivityItemCountQuantityOnHand, " +

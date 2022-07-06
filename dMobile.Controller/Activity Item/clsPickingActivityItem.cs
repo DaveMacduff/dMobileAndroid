@@ -319,7 +319,7 @@ namespace dMobile.Controller
                 {
                     SProductSchemeData tempSchemeData = new SProductSchemeData();
                     itemSchemeData.ActItemFKRefno = int.Parse(
-                        xmlDoc.SelectSingleNode("/VFPData/seg/activityitempickingfkrefno").InnerText);
+                        xmlDoc.SelectSingleNode("/VFPData/seg/ActivityItemFKRefno").InnerText);
                     itemSchemeData.ActDetailQuantity = decimal.Parse(
                         xmlDoc.SelectSingleNode("/VFPData/seg/activitydetailquantity").InnerText);
                     itemSchemeData.UnitCode = xmlDoc.SelectSingleNode("/VFPData/seg/unitcode").InnerText;
@@ -448,7 +448,7 @@ namespace dMobile.Controller
         /// <returns>.</returns>
         public override string GetDataViewSortFKRefnoIdx()
         {
-            return "ActivityItemPickingStringFKRefno";
+            return "ActivityItemStringFKRefno";
         }
 
         /// <summary>
@@ -493,8 +493,8 @@ namespace dMobile.Controller
                             string query = "INSERT INTO tActivityItemPicking (" +
                                 "ActivityItemRefno, " +
                                 "ActivityItemSubType, " +
-                                "ActivityItemPickingFKRefno, " +
-                                "ActivityItemPickingStringFKRefno, " +
+                                "ActivityItemFKRefno, " +
+                                "ActivityItemStringFKRefno, " +
                                 "ProductUnitRefno, " +
                                 "WarehouseLocationMapRefno, " +
                                 "ActivityItemPickingQuantityOrdered, " +
@@ -570,8 +570,8 @@ namespace dMobile.Controller
                         this.ListItems.Add(new PickingItem()
                         {
                             ActivityItemRefno = this.ItemRefno,
-                            ActivityItemPickingFKRefno = this.ItemFKRefno,
-                            ActivityItemPickingStringFKRefno = this.ItemFKRefno.ToString(),
+                            ActivityItemFKRefno = this.ItemFKRefno,
+                            ActivityItemStringFKRefno = this.ItemFKRefno.ToString(),
                             ProductUnitRefno = prodUnitRefno,
                             ProductRefno = this.ProdInfo.Refno,
                             ProductCode = this.ProdInfo.Code,
@@ -705,8 +705,8 @@ namespace dMobile.Controller
                 // PickingItem pickingItem = new PickingItem
                 // {
                 //    ActivityItemRefno = Convert.ToInt32(row["ActivityItemRefno"] != DBNull.Value ? row["ActivityItemRefno"] : null),
-                //    ActivityItemPickingFKRefno = Convert.ToInt32(row["ActivityItemPickingFKRefno"] != DBNull.Value ? row["ActivityItemPickingFKRefno"] : null),
-                //    ActivityItemPickingStringFKRefno = Convert.ToString(row["ActivityItemPickingStringFKRefno"] != DBNull.Value ? row["ActivityItemPickingStringFKRefno"] : null),
+                //    ActivityItemFKRefno = Convert.ToInt32(row["ActivityItemFKRefno"] != DBNull.Value ? row["ActivityItemFKRefno"] : null),
+                //    ActivityItemStringFKRefno = Convert.ToString(row["ActivityItemStringFKRefno"] != DBNull.Value ? row["ActivityItemStringFKRefno"] : null),
                 //    ProductUnitRefno = Convert.ToInt32(row["ProductUnitRefno"] != DBNull.Value ? row["ProductUnitRefno"] : null),
                 //    ProductCode = Convert.ToString(row["ProductCode"] != DBNull.Value ? row["ProductCode"] : null),
                 //    ProductDescription = Convert.ToString(row["ProductDescription"] != DBNull.Value ? row["ProductDescription"] : null),
@@ -809,8 +809,8 @@ namespace dMobile.Controller
                 // Gather any newly added line items.
                 // Also perform union into tActivityDetail to check of detail exists.
                 sql.Append("SELECT tActivityItemPicking.ActivityItemRefno AS ActivityItemRefno,");
-                sql.Append("tActivityItemPicking.ActivityItemPickingFKRefno AS ActivityItemPickingFKRefno,");
-                sql.Append("tActivityItemPicking.ActivityItemPickingStringFKRefno AS ActivityItemPickingStringFKRefno,");
+                sql.Append("tActivityItemPicking.ActivityItemFKRefno AS ActivityItemFKRefno,");
+                sql.Append("tActivityItemPicking.ActivityItemStringFKRefno AS ActivityItemStringFKRefno,");
                 sql.Append("tProductUnit.ProductUnitRefno AS ProductUnitRefno,");
                 sql.Append("tProduct.ProductRefno AS ProductRefno,");
                 sql.Append("tProduct.ProductCode AS ProductCode,");
@@ -850,8 +850,8 @@ namespace dMobile.Controller
                 sql.AppendFormat("AND tActivityItem.ActivityItemStatus <> {0} ", Convert.ToInt32(SysCommon.ActStatus.NoChange));
                 sql.Append("UNION ");
                 sql.Append("SELECT tActivityItemPicking.ActivityItemRefno AS ActivityItemRefno,");
-                sql.Append("tActivityItemPicking.ActivityItemPickingFKRefno AS ActivityItemPickingFKRefno,");
-                sql.Append("tActivityItemPicking.ActivityItemPickingStringFKRefno AS ActivityItemPickingStringFKRefno,");
+                sql.Append("tActivityItemPicking.ActivityItemFKRefno AS ActivityItemFKRefno,");
+                sql.Append("tActivityItemPicking.ActivityItemStringFKRefno AS ActivityItemStringFKRefno,");
                 sql.Append("tProductUnit.ProductUnitRefno AS ProductUnitRefno,");
                 sql.Append("tProduct.ProductRefno AS ProductRefno,");
                 sql.Append("tProduct.ProductCode AS ProductCode,");
@@ -895,8 +895,8 @@ namespace dMobile.Controller
             else
             {
                 sql.Append("SELECT tActivityItemPicking.ActivityItemRefno AS ActivityItemRefno,");
-                sql.Append("tActivityItemPicking.ActivityItemPickingFKRefno AS ActivityItemPickingFKRefno,");
-                sql.Append("tActivityItemPicking.ActivityItemPickingStringFKRefno AS ActivityItemPickingStringFKRefno,");
+                sql.Append("tActivityItemPicking.ActivityItemFKRefno AS ActivityItemFKRefno,");
+                sql.Append("tActivityItemPicking.ActivityItemStringFKRefno AS ActivityItemStringFKRefno,");
                 sql.Append("tProductUnit.ProductUnitRefno AS ProductUnitRefno,");
                 sql.Append("tProduct.ProductRefno AS ProductRefno,");
                 sql.Append("tProduct.ProductCode AS ProductCode,");
@@ -978,8 +978,8 @@ namespace dMobile.Controller
                 // PickingItem pickingItem = new PickingItem
                 // {
                 //    ActivityItemRefno = Convert.ToInt32(row["ActivityItemRefno"] != DBNull.Value ? row["ActivityItemRefno"] : null),
-                //    ActivityItemPickingFKRefno = Convert.ToInt32(row["ActivityItemPickingFKRefno"] != DBNull.Value ? row["ActivityItemPickingFKRefno"] : null),
-                //    ActivityItemPickingStringFKRefno = Convert.ToString(row["ActivityItemPickingStringFKRefno"] != DBNull.Value ? row["ActivityItemPickingStringFKRefno"] : null),
+                //    ActivityItemFKRefno = Convert.ToInt32(row["ActivityItemFKRefno"] != DBNull.Value ? row["ActivityItemFKRefno"] : null),
+                //    ActivityItemStringFKRefno = Convert.ToString(row["ActivityItemStringFKRefno"] != DBNull.Value ? row["ActivityItemStringFKRefno"] : null),
                 //    ProductUnitRefno = Convert.ToInt32(row["ProductUnitRefno"] != DBNull.Value ? row["ProductUnitRefno"] : null),
                 //    ProductCode = Convert.ToString(row["ProductCode"] != DBNull.Value ? row["ProductCode"] : null),
                 //    ProductDescription = Convert.ToString(row["ProductDescription"] != DBNull.Value ? row["ProductDescription"] : null),
@@ -1019,7 +1019,7 @@ namespace dMobile.Controller
             {
                 this.SelectedActivityItem = item;
                 this.ItemRefno = item.ActivityItemRefno;
-                this.ItemFKRefno = Convert.ToInt32(item.ActivityItemPickingFKRefno);
+                this.ItemFKRefno = Convert.ToInt32(item.ActivityItemFKRefno);
                 this.ProdInfo = await ProductInfoTasks.GetInfoFromUnitRefno(item.ProductUnitRefno);
                 int activityItemLocMapRefno = item.LocationMapRefno;
             }
@@ -1092,7 +1092,7 @@ namespace dMobile.Controller
 
             StringBuilder sql = new StringBuilder();
             sql.Append("SELECT tActivityItem.ActivityItemRefno,");
-            sql.Append("tActivityItemPicking.ActivityItemPickingFKRefno,");
+            sql.Append("tActivityItemPicking.ActivityItemFKRefno,");
             sql.Append("tActivityItemPicking.ProductUnitRefno,");
             sql.Append("tLocationMapWarehouse.LocationMapRefno ");
             sql.Append("FROM tActivityItemPicking ");
@@ -1108,7 +1108,7 @@ namespace dMobile.Controller
 
             if (results != null && results.Count > 0)
             {
-                this.ItemFKRefno = Convert.ToInt32(results[0].ActivityItemPickingFKRefno);
+                this.ItemFKRefno = Convert.ToInt32(results[0].ActivityItemFKRefno);
                 this.ProdInfo = await ProductInfoTasks.GetInfoFromUnitRefno(Convert.ToInt32(results[0].ProductUnitRefno));
                 this.ProdInfo.Scheme = await ProductInfoTasks.GetSchemeComponentsFromRefno(this.ProdInfo.Refno);
                 this.ItemRefno = Convert.ToInt32(results[0].ActivityItemRefno);
@@ -1263,9 +1263,9 @@ namespace dMobile.Controller
             if (selectedActivityItem is PickingItem pickingItem)
             {
                 //// Update UI here?
-                this.listPickingItems.First(x => x.ActivityItemPickingFKRefno == pickingItem.ActivityItemPickingFKRefno).ActivityItemPickingQuantityShipped += quantity;
-                this.listPickingItems.First(x => x.ActivityItemPickingFKRefno == pickingItem.ActivityItemPickingFKRefno).ActivityItemPickingBaseQuantityShipped += quantity;
-                this.listPickingItems.First(x => x.ActivityItemPickingFKRefno == pickingItem.ActivityItemPickingFKRefno).ActivityItemPickingWeightQuantityShipped += quantity;
+                this.listPickingItems.First(x => x.ActivityItemFKRefno == pickingItem.ActivityItemFKRefno).ActivityItemPickingQuantityShipped += quantity;
+                this.listPickingItems.First(x => x.ActivityItemFKRefno == pickingItem.ActivityItemFKRefno).ActivityItemPickingBaseQuantityShipped += quantity;
+                this.listPickingItems.First(x => x.ActivityItemFKRefno == pickingItem.ActivityItemFKRefno).ActivityItemPickingWeightQuantityShipped += quantity;
 
                 this.ListItems = this.listPickingItems.Cast<object>().ToList();
             }
@@ -1394,7 +1394,7 @@ namespace dMobile.Controller
         /// <returns><see cref="int"/> Found activity item foreign key refno, else 0 if not found.</returns>
         public override int GetFKRefno(object resourceType)
         {
-            object tmpFKItRefno = ((PickingItem)resourceType).ActivityItemPickingFKRefno;
+            object tmpFKItRefno = ((PickingItem)resourceType).ActivityItemFKRefno;
             return tmpFKItRefno == null ? 0 : Convert.ToInt32(tmpFKItRefno);
         }
 

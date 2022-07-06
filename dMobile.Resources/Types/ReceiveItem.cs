@@ -12,7 +12,7 @@ namespace dMobile.Resources.Types
 
     public class ReceiveItem
     {
-        private int activityItemReceivingFKRefno;
+        private int ActivityItemFKRefno;
         private int productRefno;
         private string productUnitSizeDescription;
         private decimal activityItemReceivingWeightQuantityReceived;
@@ -21,8 +21,8 @@ namespace dMobile.Resources.Types
         private decimal activityItemReceivingWeightQuantityReceivedToDate;
 
         public int ActivityItemRefno { get; set; }
-        public int ActivityItemReceivingFKRefno { get => this.activityItemReceivingFKRefno; set => this.activityItemReceivingFKRefno = value; }
-        public string ActivityItemReceivingStringFKRefno { get; set; }
+        public int ActivityItemFKRefno { get => this.ActivityItemFKRefno; set => this.ActivityItemFKRefno = value; }
+        public string ActivityItemStringFKRefno { get; set; }
         public int ProductUnitRefno { get; set; }
         public int ProductRefno { get => this.productRefno; set => this.productRefno = value; }
         public string ProductCode { get; set; }

@@ -202,8 +202,8 @@ namespace dMobile.Controller
                     if (this.NewItemFKRefno != this.ActItem.ItemFKRefno)
                     {
                         await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(
-                            "UPDATE tActivityItemPicking SET ActivityItemPickingStringFKRefno = ?," +
-                            " ActivityItemPickingFKRefno = ? WHERE ActivityItemRefno = ?",
+                            "UPDATE tActivityItemPicking SET ActivityItemStringFKRefno = ?," +
+                            " ActivityItemFKRefno = ? WHERE ActivityItemRefno = ?",
                             Convert.ToString(this.NewItemFKRefno),
                             this.NewItemFKRefno,
                             this.ActItem.ItemRefno);
@@ -215,8 +215,8 @@ namespace dMobile.Controller
 
                         if (pickingItem != null)
                         {
-                            pickingItem.ActivityItemPickingFKRefno = this.NewItemFKRefno;
-                            pickingItem.ActivityItemPickingStringFKRefno = this.NewItemFKRefno.ToString();
+                            pickingItem.ActivityItemFKRefno = this.NewItemFKRefno;
+                            pickingItem.ActivityItemStringFKRefno = this.NewItemFKRefno.ToString();
                         }
                     }
                 }
@@ -287,8 +287,8 @@ namespace dMobile.Controller
                 if (this.InsertDetail(await this.CreateSubmitXML(XDocument.Parse(
                     "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?><params></params>"))))
                 {
-                    string query = "UPDATE tActivityItemPicking SET ActivityItemPickingStringFKRefno = ?," +
-                        " ActivityItemPickingFKRefno = ? WHERE ActivityItemRefno = ?";
+                    string query = "UPDATE tActivityItemPicking SET ActivityItemStringFKRefno = ?," +
+                        " ActivityItemFKRefno = ? WHERE ActivityItemRefno = ?";
                     _ = await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(
                         query,
                         Convert.ToString(this.NewItemFKRefno),
@@ -304,8 +304,8 @@ namespace dMobile.Controller
 
                     if (pickingItem != null)
                     {
-                        pickingItem.ActivityItemPickingFKRefno = this.NewItemFKRefno;
-                        pickingItem.ActivityItemPickingStringFKRefno = Convert.ToString(this.NewItemFKRefno);
+                        pickingItem.ActivityItemFKRefno = this.NewItemFKRefno;
+                        pickingItem.ActivityItemStringFKRefno = Convert.ToString(this.NewItemFKRefno);
                     }
 
                     // TODO: Fix sorting

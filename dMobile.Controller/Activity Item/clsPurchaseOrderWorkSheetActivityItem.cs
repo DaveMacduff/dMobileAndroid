@@ -176,7 +176,7 @@ namespace dMobile.Controller
         /// <returns>.</returns>
         public override string GetDataViewSortFKRefnoIdx()
         {
-            return "ActivityItemPurchaseOrderWorkSheetStringFKRefno";
+            return "ActivityItemStringFKRefno";
         }
 
         /// <summary>
@@ -213,8 +213,8 @@ namespace dMobile.Controller
                             string queryActSheetItem = "INSERT INTO tActivityItemPurchaseOrderWorkSheet (" +
                                 "ActivityItemRefno, " +
                                 "ActivityItemSubType, " +
-                                "ActivityItemPurchaseOrderWorkSheetFKRefno, " +
-                                "ActivityItemPurchaseOrderWorkSheetStringFKRefno, " +
+                                "ActivityItemFKRefno, " +
+                                "ActivityItemStringFKRefno, " +
                                 "ProductUnitRefno, " +
                                 "WarehouseLocationMapRefno, " +
                                 "ActivityItemPurchaseOrderWorkSheetQuantityOrdered, " +
@@ -308,13 +308,13 @@ namespace dMobile.Controller
                 // TODO: Fix sorting
                 // string oldSort = DataViewItems.Sort;
                 // int rowIdx = 0;
-                // this.DataViewItems.Sort = "ActivityItemPurchaseOrderWorkSheetFKRefno";
+                // this.DataViewItems.Sort = "ActivityItemFKRefno";
                 PurchaseOrderWorkSheetItem purchaseOrderWorkSheetItem = null;
                 bool toBeAdded = false;
 
                 if (this.ItemFKRefno > 0)
                 {
-                    purchaseOrderWorkSheetItem = this.ListItems.OfType<PurchaseOrderWorkSheetItem>().Where(worksheetItem => worksheetItem.ActivityItemPurchaseOrderWorkSheetFKRefno == this.ItemFKRefno).FirstOrDefault();
+                    purchaseOrderWorkSheetItem = this.ListItems.OfType<PurchaseOrderWorkSheetItem>().Where(worksheetItem => worksheetItem.ActivityItemFKRefno == this.ItemFKRefno).FirstOrDefault();
                 }
 
                 if (purchaseOrderWorkSheetItem == null)
@@ -327,8 +327,8 @@ namespace dMobile.Controller
                     purchaseOrderWorkSheetItem.ProductDescription = this.ProdInfo.Desc;
                     purchaseOrderWorkSheetItem.ProductUnitSizeDescription = this.ProdInfo.UnitSizeDesc;
                     purchaseOrderWorkSheetItem.UnitCode = this.ProdInfo.UnitCode;
-                    purchaseOrderWorkSheetItem.ActivityItemPurchaseOrderWorkSheetFKRefno = this.ItemFKRefno;
-                    purchaseOrderWorkSheetItem.ActivityItemPurchaseOrderWorkSheetStringFKRefno = this.ItemFKRefno.ToString();
+                    purchaseOrderWorkSheetItem.ActivityItemFKRefno = this.ItemFKRefno;
+                    purchaseOrderWorkSheetItem.ActivityItemStringFKRefno = this.ItemFKRefno.ToString();
 
                     toBeAdded = true;
                 }
@@ -430,9 +430,9 @@ namespace dMobile.Controller
                 // DataRowView rowView = null;
                 // string oldSort = this.DataViewItems.Sort;
                 // int rowIdx = 0;
-                // this.DataViewItems.Sort = "ActivityItemPurchaseOrderWorkSheetFKRefno";
+                // this.DataViewItems.Sort = "ActivityItemFKRefno";
                 // rowIdx = DataViewItems.Find(new object[] { this.FKRefno });
-                PurchaseOrderWorkSheetItem purchaseOrderWorkSheetItem = this.ListItems.OfType<PurchaseOrderWorkSheetItem>().Where(worksheetItem => worksheetItem.ActivityItemPurchaseOrderWorkSheetFKRefno == this.ItemFKRefno).FirstOrDefault();
+                PurchaseOrderWorkSheetItem purchaseOrderWorkSheetItem = this.ListItems.OfType<PurchaseOrderWorkSheetItem>().Where(worksheetItem => worksheetItem.ActivityItemFKRefno == this.ItemFKRefno).FirstOrDefault();
                 bool toBeUpdated = false;
 
                 if (purchaseOrderWorkSheetItem == null)
@@ -445,8 +445,8 @@ namespace dMobile.Controller
                     purchaseOrderWorkSheetItem.ProductDescription = this.ProdInfo.Desc;
                     purchaseOrderWorkSheetItem.ProductUnitSizeDescription = this.ProdInfo.UnitSizeDesc;
                     purchaseOrderWorkSheetItem.UnitCode = this.ProdInfo.UnitCode;
-                    purchaseOrderWorkSheetItem.ActivityItemPurchaseOrderWorkSheetFKRefno = this.ItemFKRefno;
-                    purchaseOrderWorkSheetItem.ActivityItemPurchaseOrderWorkSheetStringFKRefno = this.ItemFKRefno.ToString();
+                    purchaseOrderWorkSheetItem.ActivityItemFKRefno = this.ItemFKRefno;
+                    purchaseOrderWorkSheetItem.ActivityItemStringFKRefno = this.ItemFKRefno.ToString();
 
                     toBeUpdated = true;
                 }
@@ -504,7 +504,7 @@ namespace dMobile.Controller
 
                     if (selectedActivityItem is PurchaseOrderWorkSheetItem purchaseOrderWorkSheetItem)
                     {
-                        purchaseOrderWorkSheetItem.ActivityItemPurchaseOrderWorkSheetFKRefno = this.ItemFKRefno;
+                        purchaseOrderWorkSheetItem.ActivityItemFKRefno = this.ItemFKRefno;
                         purchaseOrderWorkSheetItem.ActivityItemStatus = Convert.ToInt32(SysCommon.ActStatus.NoChange);
                     }
 
@@ -554,8 +554,8 @@ namespace dMobile.Controller
                 // PurchaseOrderWorkSheetItem purchaseOrderWorkSheetItem = new PurchaseOrderWorkSheetItem
                 // {
                 //    ActivityItemRefno = Convert.ToInt32(row["ActivityItemRefno"] != DBNull.Value ? row["ActivityItemRefno"] : null),
-                //    ActivityItemPurchaseOrderWorkSheetFKRefno = Convert.ToInt32(row["ActivityItemPurchaseOrderWorkSheetFKRefno"] != DBNull.Value ? row["ActivityItemPurchaseOrderWorkSheetFKRefno"] : null),
-                //    ActivityItemPurchaseOrderWorkSheetStringFKRefno = Convert.ToString(row["ActivityItemPurchaseOrderWorkSheetStringFKRefno"] != DBNull.Value ? row["ActivityItemPurchaseOrderWorkSheetStringFKRefno"] : null),
+                //    ActivityItemFKRefno = Convert.ToInt32(row["ActivityItemFKRefno"] != DBNull.Value ? row["ActivityItemFKRefno"] : null),
+                //    ActivityItemStringFKRefno = Convert.ToString(row["ActivityItemStringFKRefno"] != DBNull.Value ? row["ActivityItemStringFKRefno"] : null),
                 //    ProductUnitRefno = Convert.ToInt32(row["ProductUnitRefno"] != DBNull.Value ? row["ProductUnitRefno"] : null),
                 //    ProductRefno = Convert.ToInt32(row["ProductRefno"] != DBNull.Value ? row["ProductRefno"] : null),
                 //    ProductCode = Convert.ToString(row["ProductCode"] != DBNull.Value ? row["ProductCode"] : null),
@@ -649,8 +649,8 @@ namespace dMobile.Controller
             if (isSubmitBatch)
             {
                 sql.Append("SELECT tActivityItemPurchaseOrderWorkSheet.ActivityItemRefno AS ActivityItemRefno,");
-                sql.Append("tActivityItemPurchaseOrderWorkSheet.ActivityItemPurchaseOrderWorkSheetFKRefno AS ActivityItemPurchaseOrderWorkSheetFKRefno,");
-                sql.Append("tActivityItemPurchaseOrderWorkSheet.ActivityItemPurchaseOrderWorkSheetStringFKRefno AS ActivityItemPurchaseOrderWorkSheetStringFKRefno,");
+                sql.Append("tActivityItemPurchaseOrderWorkSheet.ActivityItemFKRefno AS ActivityItemFKRefno,");
+                sql.Append("tActivityItemPurchaseOrderWorkSheet.ActivityItemStringFKRefno AS ActivityItemStringFKRefno,");
                 sql.Append("tProductUnit.ProductUnitRefno AS ProductUnitRefno,");
                 sql.Append("tProduct.ProductRefno AS ProductRefno,");
                 sql.Append("tProduct.ProductCode AS ProductCode,");
@@ -679,8 +679,8 @@ namespace dMobile.Controller
             else
             {
                 sql.Append("SELECT tActivityItemPurchaseOrderWorkSheet.ActivityItemRefno AS ActivityItemRefno,");
-                sql.Append("tActivityItemPurchaseOrderWorkSheet.ActivityItemPurchaseOrderWorkSheetFKRefno AS ActivityItemPurchaseOrderWorkSheetFKRefno,");
-                sql.Append("tActivityItemPurchaseOrderWorkSheet.ActivityItemPurchaseOrderWorkSheetStringFKRefno AS ActivityItemPurchaseOrderWorkSheetStringFKRefno,");
+                sql.Append("tActivityItemPurchaseOrderWorkSheet.ActivityItemFKRefno AS ActivityItemFKRefno,");
+                sql.Append("tActivityItemPurchaseOrderWorkSheet.ActivityItemStringFKRefno AS ActivityItemStringFKRefno,");
                 sql.Append("tProductUnit.ProductUnitRefno AS ProductUnitRefno,");
                 sql.Append("tProduct.ProductRefno AS ProductRefno,");
                 sql.Append("tProduct.ProductCode AS ProductCode,");
@@ -713,14 +713,14 @@ namespace dMobile.Controller
             //        da.Fill(ds);
             //        this.DataViewItems = ds.Tables[0].DefaultView;
             //        this.DataViewItems.Table.TableName = this.MainGridMappingName;
-            //        this.DataViewItems.Sort = "ActivityItemPurchaseOrderWorkSheetFKRefno";
+            //        this.DataViewItems.Sort = "ActivityItemFKRefno";
             //        this.DataViewItems.AllowNew = true;
             //        this.DataViewItems.AllowEdit = true;
             //        this.DataViewItems.AllowDelete = true;
             //    }
             // }
             this.listPurchaseOrderWorkSheetItems = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<PurchaseOrderWorkSheetItem>(sql.ToString());
-            this.ListItems = this.listPurchaseOrderWorkSheetItems.OrderBy(poItem => poItem.ActivityItemPurchaseOrderWorkSheetFKRefno).Cast<object>().ToList();
+            this.ListItems = this.listPurchaseOrderWorkSheetItems.OrderBy(poItem => poItem.ActivityItemFKRefno).Cast<object>().ToList();
             return this.ListItems;
         }
 
@@ -747,8 +747,8 @@ namespace dMobile.Controller
                 // PurchaseOrderWorkSheetItem purchaseOrderWorkSheetItem = new PurchaseOrderWorkSheetItem
                 // {
                 //    ActivityItemRefno = Convert.ToInt32(row["ActivityItemRefno"] != DBNull.Value ? row["ActivityItemRefno"] : null),
-                //    ActivityItemPurchaseOrderWorkSheetFKRefno = Convert.ToInt32(row["ActivityItemPurchaseOrderWorkSheetFKRefno"] != DBNull.Value ? row["ActivityItemPurchaseOrderWorkSheetFKRefno"] : null),
-                //    ActivityItemPurchaseOrderWorkSheetStringFKRefno = Convert.ToString(row["ActivityItemPurchaseOrderWorkSheetStringFKRefno"] != DBNull.Value ? row["ActivityItemPurchaseOrderWorkSheetStringFKRefno"] : null),
+                //    ActivityItemFKRefno = Convert.ToInt32(row["ActivityItemFKRefno"] != DBNull.Value ? row["ActivityItemFKRefno"] : null),
+                //    ActivityItemStringFKRefno = Convert.ToString(row["ActivityItemStringFKRefno"] != DBNull.Value ? row["ActivityItemStringFKRefno"] : null),
                 //    ProductUnitRefno = Convert.ToInt32(row["ProductUnitRefno"] != DBNull.Value ? row["ProductUnitRefno"] : null),
                 //    ProductRefno = Convert.ToInt32(row["ProductRefno"] != DBNull.Value ? row["ProductRefno"] : null),
                 //    ProductCode = Convert.ToString(row["ProductCode"] != DBNull.Value ? row["ProductCode"] : null),
@@ -781,7 +781,7 @@ namespace dMobile.Controller
             {
                 this.SelectedActivityItem = item;
                 this.ItemRefno = item.ActivityItemRefno;
-                this.ItemFKRefno = Convert.ToInt32(item.ActivityItemPurchaseOrderWorkSheetFKRefno);
+                this.ItemFKRefno = Convert.ToInt32(item.ActivityItemFKRefno);
                 this.ProdInfo = await ProductInfoTasks.GetInfoFromUnitRefno(item.ProductUnitRefno);
                 activityItemLocMapRefno = item.LocationMapRefno;
             }
@@ -804,7 +804,7 @@ namespace dMobile.Controller
 
             StringBuilder sql = new StringBuilder();
             sql.Append("SELECT tActivityItem.ActivityItemRefno,");
-            sql.Append("tActivityItemPurchaseOrderWorkSheet.ActivityItemPurchaseOrderWorkSheetFKRefno,");
+            sql.Append("tActivityItemPurchaseOrderWorkSheet.ActivityItemFKRefno,");
             sql.Append("tActivityItemPurchaseOrderWorkSheet.ProductUnitRefno,");
             sql.Append("tLocationMapWarehouse.LocationMapRefno ");
             sql.Append("FROM tActivityItemPurchaseOrderWorkSheet ");
@@ -823,7 +823,7 @@ namespace dMobile.Controller
             {
                 this.LocMap.CurrLocMap = await LocationMapTasks.GetSLocMapFromLocMapRefno(Convert.ToInt32(results[0].LocationMapRefno));
                 this.ItemRefno = Convert.ToInt32(results[0].ActivityItemRefno);
-                this.ItemFKRefno = Convert.ToInt32(results[0].ActivityItemPurchaseOrderWorkSheetFKRefno);
+                this.ItemFKRefno = Convert.ToInt32(results[0].ActivityItemFKRefno);
                 this.ProdInfo = await ProductInfoTasks.GetInfoFromUnitRefno(Convert.ToInt32(results[0].ProductUnitRefno));
                 this.ProdInfo.Scheme = await ProductInfoTasks.GetSchemeComponentsFromRefno(this.ProdInfo.Refno);
                 foundActItemRefno = this.ItemRefno;

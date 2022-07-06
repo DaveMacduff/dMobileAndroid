@@ -676,9 +676,9 @@ namespace dMobile.View.Options
                                                 + (actItem.ListItems[itemIdx] as dynamic).ActivityItemPurchaseOrderWorkSheetWeightQuantityOrdered
                                                 + "</wt_qty>"
                                                 + "<whs_id>" + (actItem.ListItems[itemIdx] as dynamic).LocationCode + "</whs_id>"
-                                                + "<refno>" + (actItem.ListItems[itemIdx] as dynamic).ActivityItemPurchaseOrderWorkSheetFKRefno
+                                                + "<refno>" + (actItem.ListItems[itemIdx] as dynamic).ActivityItemFKRefno
                                                 + "</refno>"
-                                                + "<itm_refno>" + (actItem.ListItems[itemIdx] as dynamic).ActivityItemPurchaseOrderWorkSheetFKRefno
+                                                + "<itm_refno>" + (actItem.ListItems[itemIdx] as dynamic).ActivityItemFKRefno
                                                 + "</itm_refno>"
                                                 + "<alt_unit>" + (actItem.ListItems[itemIdx] as dynamic).UnitCode + "</alt_unit>"
                                                 + "<base_unit>" + actItem.ProdInfo.BaseUnitCode + "</base_unit>"

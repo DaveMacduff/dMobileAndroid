@@ -17,7 +17,7 @@ namespace dMobile.Resources.Types
         private string locationName;
 
         public int ActivityItemRefno { get; set; }
-        public int ActivityItemProductionFinishedFKRefno { get; set; }
+        public int ActivityItemFKRefno { get; set; }
         public int ProductUnitRefno { get; set; }
         public int ProductRefno { get; set; }
         public int LocationMapRefno { get; set; }
@@ -29,7 +29,7 @@ namespace dMobile.Resources.Types
         public decimal ActivityItemProductionQuantityExpected { get; set; }
         public decimal ActivityItemProductionBaseQuantityExpected { get; set; }
         public decimal ActivityItemProductionWeightQuantityExpected { get => this.activityItemProductionWeightQuantityExpected; set => this.activityItemProductionWeightQuantityExpected = value; }
-        public string ActivityItemProductionFinishedStringFKRefno { get; set; }
+        public string ActivityItemStringFKRefno { get; set; }
         public string ProductUnitBC { get; set; }
         public string ProductUnitSizeDescription { get; set; }
         public string ProductCode { get; set; }

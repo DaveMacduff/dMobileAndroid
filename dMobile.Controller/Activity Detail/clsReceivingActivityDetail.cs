@@ -180,7 +180,7 @@ namespace dMobile.Controller
 
                     if (this.NewItemFKRefno != this.ActItem.ItemFKRefno)
                     {
-                        await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync("UPDATE tActivityItemReceiving SET ActivityItemReceivingStringFKRefno = ?, ActivityItemReceivingFKRefno = ? WHERE ActivityItemRefno = ?",
+                        await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync("UPDATE tActivityItemReceiving SET ActivityItemStringFKRefno = ?, ActivityItemFKRefno = ? WHERE ActivityItemRefno = ?",
                             Convert.ToString(this.NewItemFKRefno),
                             this.NewItemFKRefno,
                             this.ActItem.ItemRefno);
@@ -195,8 +195,8 @@ namespace dMobile.Controller
 
                         if (receiveItem != null)
                         {
-                            receiveItem.ActivityItemReceivingFKRefno = this.NewItemFKRefno;
-                            receiveItem.ActivityItemReceivingStringFKRefno = Convert.ToString(this.NewItemFKRefno);
+                            receiveItem.ActivityItemFKRefno = this.NewItemFKRefno;
+                            receiveItem.ActivityItemStringFKRefno = Convert.ToString(this.NewItemFKRefno);
                         }
 
                         // TODO: Fix sorting

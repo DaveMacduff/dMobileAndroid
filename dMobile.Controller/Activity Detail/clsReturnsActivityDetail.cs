@@ -166,7 +166,7 @@ namespace dMobile.Controller
 
                 if (this.NewItemFKRefno != this.ActItem.ItemFKRefno)
                 {
-                    await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync("UPDATE tActivityItemReturns SET ActivityItemReturnsStringFKRefno = ?, ActivityItemReturnsFKRefno = ? WHERE ActivityItemRefno = ?",
+                    await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync("UPDATE tActivityItemReturns SET ActivityItemStringFKRefno = ?, ActivityItemFKRefno = ? WHERE ActivityItemRefno = ?",
                         Convert.ToString(this.NewItemFKRefno),
                         this.NewItemFKRefno,
                         this.ActItem.ItemRefno);
@@ -181,8 +181,8 @@ namespace dMobile.Controller
 
                     if (returnItem != null)
                     {
-                        returnItem.ActivityItemReturnsFKRefno = this.NewItemFKRefno;
-                        returnItem.ActivityItemReturnsStringFKRefno = Convert.ToString(this.NewItemFKRefno);
+                        returnItem.ActivityItemFKRefno = this.NewItemFKRefno;
+                        returnItem.ActivityItemStringFKRefno = Convert.ToString(this.NewItemFKRefno);
                     }
 
                     // TODO: Fix sorting
@@ -246,7 +246,7 @@ namespace dMobile.Controller
             {
                 if (this.InsertDetail(await this.CreateSubmitXML(XDocument.Parse("<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?><params></params>"))))
                 {
-                    await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync("UPDATE tActivityItemReturns SET ActivityItemReturnsStringFKRefno = ? ActivityItemReturnsFKRefno = ? WHERE ActivityItemRefno = ?", Convert.ToString(this.NewItemFKRefno), this.NewItemFKRefno, this.ActItem.ItemRefno);
+                    await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync("UPDATE tActivityItemReturns SET ActivityItemStringFKRefno = ? ActivityItemFKRefno = ? WHERE ActivityItemRefno = ?", Convert.ToString(this.NewItemFKRefno), this.NewItemFKRefno, this.ActItem.ItemRefno);
 
                     // TODO: Fix sorting
                     // string oldSort = this.ActItem.DataViewItems.Sort;
@@ -256,8 +256,8 @@ namespace dMobile.Controller
 
                     if (returnItem != null)
                     {
-                        returnItem.ActivityItemReturnsFKRefno = this.NewItemFKRefno;
-                        returnItem.ActivityItemReturnsStringFKRefno = Convert.ToString(this.NewItemFKRefno);
+                        returnItem.ActivityItemFKRefno = this.NewItemFKRefno;
+                        returnItem.ActivityItemStringFKRefno = Convert.ToString(this.NewItemFKRefno);
                     }
 
                     // TODO: Fix sorting

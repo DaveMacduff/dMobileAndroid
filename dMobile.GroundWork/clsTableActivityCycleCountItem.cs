@@ -272,8 +272,8 @@ namespace dMobile.GroundWork
                                 string query = "INSERT INTO tActivityItemCount (" +
                                 "ActivityItemRefno, " +
                                 "ActivityItemSubType, " +
-                                "ActivityItemCountFKRefno, " +
-                                "ActivityItemCountStringFKRefno, " +
+                                "ActivityItemFKRefno, " +
+                                "ActivityItemStringFKRefno, " +
                                 "ProductUnitRefno, " +
                                 "LocationMapRefno, " +
                                 "ActivityItemCountQuantityOnHand, " +

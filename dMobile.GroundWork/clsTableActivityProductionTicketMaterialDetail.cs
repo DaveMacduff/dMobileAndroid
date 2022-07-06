@@ -176,7 +176,7 @@ namespace dMobile.GroundWork
             int actItemMaterialFKRefno;
             if (results?.Count > 0)
             {
-                actItemMaterialFKRefno = results[0].ActivityItemProductionMaterialFKRefno;
+                actItemMaterialFKRefno = results[0].ActivityItemFKRefno;
             }
             else
             {

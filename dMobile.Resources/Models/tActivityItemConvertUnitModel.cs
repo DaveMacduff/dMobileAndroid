@@ -8,36 +8,6 @@ namespace dMobile.Resources.Models
     using SQLite;
     using SQLiteNetExtensions.Attributes;
 
-    //string sqlTable = "CREATE TABLE IF NOT EXISTS tActivityItemConvertUnit"
-    //+ "("
-    //+ "ActivityItemRefno INTEGER NOT NULL CONSTRAINT PK_ActivityItemConvertUnitOnActivityItemRefno PRIMARY KEY,"
-    //+ "ActivityItemSubType INTEGER NOT NULL,"
-    //+ "ActivityItemConvertUnitType INTEGER NOT NULL,"
-    //+ "ProductUnitRefno INTEGER NOT NULL"
-    //+ ")";
-
-    //        if (this.OnNubStatOut != null)
-    //        { 
-    //    this.MsgEventArgs.StatusOutMsg = "Creating item convert units table.";
-    //    this.OnNubStatOut(this, this.MsgEventArgs);
-    //}
-
-    //await this.RunDDLCommand(sqlTable);
-
-    //        string sqlNdx = "CREATE UNIQUE NONCLUSTERED INDEX "
-    //            + "UQ_ActivityItemConvertUnitOnActivityItemRefnoAndActivityItemSubType ON "
-    //            + "tActivityItemConvertUnit(ActivityItemRefno ASC, ActivityItemSubType ASC)";
-    //await this.RunDDLCommand(sqlNdx);
-
-    //        string alterTable = "ALTER TABLE tActivityItemConvertUnit ADD CONSTRAINT "
-    //            + "ActivityItemConvertUnitTactItemOnActivityItemRefno FOREIGN KEY (ActivityItemRefno) REFERENCES "
-    //            + "tActivityItem(ActivityItemRefno) ON DELETE CASCADE ON UPDATE CASCADE";
-    //await this.RunDDLCommand(alterTable);
-
-    //alterTable = "ALTER TABLE tActivityItemConvertUnit ADD CONSTRAINT "
-    //            + "ActivityItemConvertUnitTactItemOnProductUnitRefno FOREIGN KEY (ProductUnitRefno) REFERENCES "
-    //            + "tProductUnit(ProductUnitRefno) ON DELETE CASCADE ON UPDATE CASCADE";
-    //await this.RunDDLCommand(alterTable);
     [Table("tActivityItemConvertUnit")]
     public class tActivityItemConvertUnitModel
     {

@@ -267,7 +267,7 @@ namespace dMobile.GroundWork
                                 transaction.Execute(queryActivityItemProduction, parametersActivityItemProduction);
 
                                 int actItemProductionFKRefno = Convert.ToInt32(drow["ActivityItemProductionFKRefno"]);
-                                transaction.Execute("INSERT INTO tActivityItemProductionFinished (ActivityItemRefno, ActivityItemProductionFinishedFKRefno, ActivityItemProductionFinishedStringFKRefno) VALUES (?, ?, ?)", actItemRefno, actItemProductionFKRefno, Convert.ToString(actItemProductionFKRefno));
+                                transaction.Execute("INSERT INTO tActivityItemProductionFinished (ActivityItemRefno, ActivityItemFKRefno, ActivityItemStringFKRefno) VALUES (?, ?, ?)", actItemRefno, actItemProductionFKRefno, Convert.ToString(actItemProductionFKRefno));
 
                                 progValue++;
                                 if (progValue % 100 == 0)

@@ -149,7 +149,7 @@ namespace dMobile.Controller
                     // Update the Activity Item quantity transferred
                     if (this.NewItemFKRefno != this.ActItem.ItemFKRefno)
                     {
-                        await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync("UPDATE tActivityItemTransfer SET ActivityItemTransferStringFKRefno = ?, ActivityItemTransferFKRefno = ? WHERE ActivityItemRefno = ?",
+                        await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync("UPDATE tActivityItemTransfer SET ActivityItemStringFKRefno = ?, ActivityItemFKRefno = ? WHERE ActivityItemRefno = ?",
                             Convert.ToString(this.NewItemFKRefno),
                             this.NewItemFKRefno,
                             this.ActItem.ItemRefno);
@@ -164,8 +164,8 @@ namespace dMobile.Controller
 
                         if (transferItem != null)
                         {
-                            transferItem.ActivityItemTransferFKRefno = this.NewItemFKRefno;
-                            transferItem.ActivityItemTransferStringFKRefno = Convert.ToString(this.NewItemFKRefno);
+                            transferItem.ActivityItemFKRefno = this.NewItemFKRefno;
+                            transferItem.ActivityItemStringFKRefno = Convert.ToString(this.NewItemFKRefno);
                         }
 
                         // TODO: Fix sorting
@@ -227,7 +227,7 @@ namespace dMobile.Controller
             {
                 if (this.InsertDetail(await this.CreateSubmitXML(XDocument.Parse("<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?><params></params>"))))
                 {
-                    await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync("UPDATE tActivityItemTransfer SET ActivityItemTransferStringFKRefno = ?, ActivityItemTransferFKRefno = ? WHERE ActivityItemRefno = ?",
+                    await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync("UPDATE tActivityItemTransfer SET ActivityItemStringFKRefno = ?, ActivityItemFKRefno = ? WHERE ActivityItemRefno = ?",
                         Convert.ToString(this.NewItemFKRefno),
                         this.NewItemFKRefno,
                         this.ActItem.ItemRefno);
@@ -240,8 +240,8 @@ namespace dMobile.Controller
 
                     if (transferItem != null)
                     {
-                        transferItem.ActivityItemTransferFKRefno = this.NewItemFKRefno;
-                        transferItem.ActivityItemTransferStringFKRefno = Convert.ToString(this.NewItemFKRefno);
+                        transferItem.ActivityItemFKRefno = this.NewItemFKRefno;
+                        transferItem.ActivityItemStringFKRefno = Convert.ToString(this.NewItemFKRefno);
                     }
 
                     // TODO: Fix sorting

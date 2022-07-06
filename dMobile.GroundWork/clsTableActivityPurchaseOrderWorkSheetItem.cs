@@ -165,13 +165,13 @@ namespace dMobile.GroundWork
                                 prodUnitRefno = this.GetProductUnitRefnoFromDataRow(drow, transaction, false);
                                 whsLocMapRefno = this.GetWhsLocMapRefnoFromDataRow(drow, transaction);
 
-                                actItemWorkSheetFKRefno = Convert.ToInt32(drow["ActivityItemPurchaseOrderWorkSheetFKRefno"]);
+                                actItemWorkSheetFKRefno = Convert.ToInt32(drow["ActivityItemFKRefno"]);
 
                                 string query = "INSERT INTO tActivityItemPurchaseOrderWorkSheet (" +
                                     "ActivityItemRefno, " +
                                     "ActivityItemSubType, " +
-                                    "ActivityItemPurchaseOrderWorkSheetFKRefno, " +
-                                    "ActivityItemPurchaseOrderWorkSheetStringFKRefno, " +
+                                    "ActivityItemFKRefno, " +
+                                    "ActivityItemStringFKRefno, " +
                                     "ProductUnitRefno, " +
                                     "WarehouseLocationMapRefno, " +
                                     "ActivityItemPurchaseOrderWorkSheetQuantityOrdered, " +

@@ -235,7 +235,7 @@ namespace dMobile.Controller
         /// <returns>.</returns>
         public override string GetDataViewSortFKRefnoIdx()
         {
-            return "ActivityItemReturnsStringFKRefno";
+            return "ActivityItemStringFKRefno";
         }
 
         /// <summary>
@@ -334,8 +334,8 @@ namespace dMobile.Controller
                 // ReturnItem returnItem = new ReturnItem
                 // {
                 //    ActivityItemRefno = Convert.ToInt32(row["ActivityItemRefno"] != DBNull.Value ? row["ActivityItemRefno"] : null),
-                //    ActivityItemReturnsFKRefno = Convert.ToInt32(row["ActivityItemReturnsFKRefno"] != DBNull.Value ? row["ActivityItemReturnsFKRefno"] : null),
-                //    ActivityItemReturnsStringFKRefno = Convert.ToString(row["ActivityItemReturnsStringFKRefno"] != DBNull.Value ? row["ActivityItemReturnsStringFKRefno"] : null),
+                //    ActivityItemFKRefno = Convert.ToInt32(row["ActivityItemFKRefno"] != DBNull.Value ? row["ActivityItemFKRefno"] : null),
+                //    ActivityItemStringFKRefno = Convert.ToString(row["ActivityItemStringFKRefno"] != DBNull.Value ? row["ActivityItemStringFKRefno"] : null),
                 //    ProductUnitRefno = Convert.ToInt32(row["ProductUnitRefno"] != DBNull.Value ? row["ProductUnitRefno"] : null),
                 //    ProductRefno = Convert.ToInt32(row["ProductRefno"] != DBNull.Value ? row["ProductRefno"] : null),
                 //    ProductCode = Convert.ToString(row["ProductCode"] != DBNull.Value ? row["ProductCode"] : null),
@@ -410,8 +410,8 @@ namespace dMobile.Controller
             if (isSubmitBatch)
             {
                 query = "SELECT tActivityItemReturns.ActivityItemRefno AS ActivityItemRefno, " +
-                "tActivityItemReturns.ActivityItemReturnsFKRefno AS ActivityItemReturnsFKRefno, " +
-                "tActivityItemReturns.ActivityItemReturnsStringFKRefno AS ActivityItemReturnsStringFKRefno, " +
+                "tActivityItemReturns.ActivityItemFKRefno AS ActivityItemFKRefno, " +
+                "tActivityItemReturns.ActivityItemStringFKRefno AS ActivityItemStringFKRefno, " +
                 "tProductUnit.ProductUnitRefno AS ProductUnitRefno, " +
                 "tProduct.ProductRefno AS ProductRefno, " +
                 "tProduct.ProductCode AS ProductCode, " +
@@ -444,8 +444,8 @@ namespace dMobile.Controller
                 "AND tActivityItem.ActivityItemStatus <> ? " +
                 "UNION " +
                 "SELECT tActivityItemReturns.ActivityItemRefno, " +
-                "tActivityItemReturns.ActivityItemReturnsFKRefno, " +
-                "tActivityItemReturns.ActivityItemReturnsStringFKRefno, " +
+                "tActivityItemReturns.ActivityItemFKRefno, " +
+                "tActivityItemReturns.ActivityItemStringFKRefno, " +
                 "tProductUnit.ProductUnitRefno, " +
                 "tProduct.ProductRefno, " +
                 "tProduct.ProductCode, " +
@@ -486,8 +486,8 @@ namespace dMobile.Controller
             else
             {
                 query = "SELECT tActivityItemReturns.ActivityItemRefno AS ActivityItemRefno, " +
-                "tActivityItemReturns.ActivityItemReturnsFKRefno AS ActivityItemReturnsFKRefno, " +
-                "tActivityItemReturns.ActivityItemReturnsStringFKRefno AS ActivityItemReturnsStringFKRefno, " +
+                "tActivityItemReturns.ActivityItemFKRefno AS ActivityItemFKRefno, " +
+                "tActivityItemReturns.ActivityItemStringFKRefno AS ActivityItemStringFKRefno, " +
                 "tProductUnit.ProductUnitRefno AS ProductUnitRefno, " +
                 "tProduct.ProductRefno AS ProductRefno, " +
                 "tProduct.ProductCode AS ProductCode, " +
@@ -562,8 +562,8 @@ namespace dMobile.Controller
                 // ReturnItem returnItem = new ReturnItem
                 // {
                 //    ActivityItemRefno = Convert.ToInt32(row["ActivityItemRefno"] != DBNull.Value ? row["ActivityItemRefno"] : null),
-                //    ActivityItemReturnsFKRefno = Convert.ToInt32(row["ActivityItemReturnsFKRefno"] != DBNull.Value ? row["ActivityItemReturnsFKRefno"] : null),
-                //    ActivityItemReturnsStringFKRefno = Convert.ToString(row["ActivityItemReturnsStringFKRefno"] != DBNull.Value ? row["ActivityItemReturnsStringFKRefno"] : null),
+                //    ActivityItemFKRefno = Convert.ToInt32(row["ActivityItemFKRefno"] != DBNull.Value ? row["ActivityItemFKRefno"] : null),
+                //    ActivityItemStringFKRefno = Convert.ToString(row["ActivityItemStringFKRefno"] != DBNull.Value ? row["ActivityItemStringFKRefno"] : null),
                 //    ProductUnitRefno = Convert.ToInt32(row["ProductUnitRefno"] != DBNull.Value ? row["ProductUnitRefno"] : null),
                 //    ProductRefno = Convert.ToInt32(row["ProductRefno"] != DBNull.Value ? row["ProductRefno"] : null),
                 //    ProductCode = Convert.ToString(row["ProductCode"] != DBNull.Value ? row["ProductCode"] : null),
@@ -600,7 +600,7 @@ namespace dMobile.Controller
             {
                 this.SelectedActivityItem = item;
                 this.ItemRefno = item.ActivityItemRefno;
-                this.ItemFKRefno = Convert.ToInt32(item.ActivityItemReturnsFKRefno);
+                this.ItemFKRefno = Convert.ToInt32(item.ActivityItemFKRefno);
                 this.ProdInfo = await ProductInfoTasks.GetInfoFromUnitRefno(item.ProductUnitRefno);
                 activityItemLocMapRefno = item.LocationMapRefno;
             }
@@ -622,7 +622,7 @@ namespace dMobile.Controller
             int foundActItemRefno = 0;
             int whsLocMapRefno = this.LocMap.CurrLocMap.WhsLocMapRefno;
             string query = "SELECT tActivityItem.ActivityItemRefno, " +
-            "tActivityItemReturns.ActivityItemReturnsFKRefno, " +
+            "tActivityItemReturns.ActivityItemFKRefno, " +
             "tActivityItemReturns.ProductUnitRefno, " +
             "tLocationMapWarehouse.LocationMapRefno " +
             "FROM tActivityItemReturns " +
@@ -640,7 +640,7 @@ namespace dMobile.Controller
             {
                 // <WO ID="14777" comment="The last of the uncommented locmap code was removed here. We do not wish to set location map when we just want refnos." />
                 this.ItemRefno = Convert.ToInt32(results[0].ActivityItemRefno);
-                this.ItemFKRefno = Convert.ToInt32(results[0].ActivityItemReturnsFKRefno);
+                this.ItemFKRefno = Convert.ToInt32(results[0].ActivityItemFKRefno);
                 this.ProdInfo = await ProductInfoTasks.GetInfoFromUnitRefno(Convert.ToInt32(results[0].ProductUnitRefno));
                 this.ProdInfo.Scheme = await ProductInfoTasks.GetSchemeComponentsFromRefno(this.ProdInfo.Refno);
                 foundActItemRefno = this.ItemRefno;
@@ -763,7 +763,7 @@ namespace dMobile.Controller
         /// <returns><see cref="int"/> Found activity item foreign key refno, else 0 if not found.</returns>
         public override int GetFKRefno(object resourceType)
         {
-            object tmpFKItRefno = ((ReceiveItem)resourceType).ActivityItemReceivingFKRefno;
+            object tmpFKItRefno = ((ReceiveItem)resourceType).ActivityItemFKRefno;
             return tmpFKItRefno == null ? 0 : Convert.ToInt32(tmpFKItRefno);
         }
 

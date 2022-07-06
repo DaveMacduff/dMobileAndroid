@@ -8,49 +8,6 @@ namespace dMobile.Resources.Models
     using SQLite;
     using SQLiteNetExtensions.Attributes;
 
-    //string sqlTable = "CREATE TABLE IF NOT EXISTS tActivityItemPicking"
-    //+ "("
-    //+ "ActivityItemRefno INTEGER NOT NULL CONSTRAINT PK_ActivityItemPickingOnActivityItemRefno PRIMARY KEY,"
-    //+ "ActivityItemSubType INTEGER NOT NULL,"
-    //+ "ActivityItemPickingFKRefno INTEGER NOT NULL,"
-    //+ "ActivityItemPickingStringFKRefno nvarchar(8) NOT NULL,"
-    //+ "ProductUnitRefno INTEGER NOT NULL,"
-    //+ "WarehouseLocationMapRefno INTEGER NOT NULL,"
-    //+ "ActivityItemPickingQuantityOrdered numeric(11, 3) NOT NULL,"
-    //+ "ActivityItemPickingBaseQuantityOrdered numeric(11, 3) NOT NULL,"
-    //+ "ActivityItemPickingWeightQuantityOrdered numeric(11, 3) NOT NULL,"
-    //+ "ActivityItemPickingQuantityShipped numeric(11, 3) NOT NULL,"
-    //+ "ActivityItemPickingBaseQuantityShipped numeric(11, 3) NOT NULL,"
-    //+ "ActivityItemPickingWeightQuantityShipped numeric(11, 3) NOT NULL,"
-    //+ "ActivityItemPickingCustomerProductUnitCode nvarchar(10) NOT NULL,"
-    //+ "ActivityItemPickingDescription nvarchar(40) NOT NULL,"
-    //+ "ActivityItemPickingQuantityAvailable numeric(11, 3) NOT NULL,"
-    //+ "ActivityItemPickingBaseQuantityAvailable numeric(11, 3) NOT NULL,"
-    //+ "ActivityItemPickingWeightQuantityAvailable numeric(11, 3) NOT NULL,"
-    //+ "ActivityItemPickingIsReviewed bit NOT NULL, "
-
-    //+ "CONSTRAINT ActivityItemPickingTactItemOnActivityItemRefno FOREIGN KEY (ActivityItemRefno) REFERENCES tActivityItem(ActivityItemRefno) ON DELETE CASCADE ON UPDATE CASCADE, "
-    //+ "CONSTRAINT ActivityItemPickingToLocationMapWarehouseOnWarehouseLocationMapRefno FOREIGN KEY (WarehouseLocationMapRefno) REFERENCES tLocationMapWarehouse(LocationMapRefno) ON DELETE CASCADE ON UPDATE CASCADE, "
-    //+ "CONSTRAINT ActivityItemPickingTactItemOnProductUnitRefno FOREIGN KEY (ProductUnitRefno) REFERENCES tProductUnit(ProductUnitRefno) ON DELETE CASCADE ON UPDATE CASCADE"
-
-    //+ ")";
-
-    //if (this.OnNubStatOut != null)
-    //{
-    //    this.MsgEventArgs.StatusOutMsg = "Creating picking item table.";
-    //    this.OnNubStatOut(this, this.MsgEventArgs);
-    //}
-
-    //await this.RunDDLCommand(sqlTable);
-
-    //string sqlNdx = "CREATE UNIQUE INDEX IF NOT EXISTS UQ_ActivityItemPickingOnActivityItemRefnoAndActivityItemSubType ON tActivityItemPicking(ActivityItemRefno ASC, ActivityItemSubType ASC)";
-    //await this.RunDDLCommand(sqlNdx);
-
-    //sqlNdx = "CREATE UNIQUE INDEX IF NOT EXISTS UQ_ActivityItemPickingOnActivityItemPickingFKRefno ON tActivityItemPicking(ActivityItemPickingFKRefno ASC)";
-    //await this.RunDDLCommand(sqlNdx);
-
-    //sqlNdx = "CREATE INDEX IF NOT EXISTS FK_ActivityItemPickingOnWarehouseLocationMapRefno ON tActivityItemPicking(WarehouseLocationMapRefno ASC)";
-    //await this.RunDDLCommand(sqlNdx);
     [Table("tActivityItemPicking")]
     public class tActivityItemPickingModel
     {
@@ -60,11 +17,11 @@ namespace dMobile.Resources.Models
         [NotNull, Indexed(Name = "UQ_ActivityItemPickingOnActivityItemRefnoAndActivityItemSubType", Order = 2, Unique = true)]
         public int ActivityItemSubType { get; set; }
 
-        [NotNull, Indexed(Name = "UQ_ActivityItemPickingOnActivityItemPickingFKRefno", Order = 1, Unique = true)]
-        public int ActivityItemPickingFKRefno { get; set; }
+        [NotNull, Indexed(Name = "UQ_ActivityItemPickingOnActivityItemFKRefno", Order = 1, Unique = true)]
+        public int ActivityItemFKRefno { get; set; }
 
         [NotNull]
-        public string ActivityItemPickingStringFKRefno { get; set; }
+        public string ActivityItemStringFKRefno { get; set; }
 
         [NotNull, ForeignKey(typeof(tProductUnitModel))]
         public int ProductUnitRefno { get; set; }

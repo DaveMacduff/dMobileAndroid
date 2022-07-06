@@ -230,7 +230,7 @@ namespace dMobile.Controller
         /// <returns>.</returns>
         public override string GetDataViewSortFKRefnoIdx()
         {
-            return "ActivityItemTransferStringFKRefno";
+            return "ActivityItemStringFKRefno";
         }
 
         /// <summary>
@@ -268,8 +268,8 @@ namespace dMobile.Controller
                 string queryTransferItem = "INSERT INTO tActivityItemTransfer (" +
                     "ActivityItemRefno, " +
                     "ActivityItemSubType, " +
-                    "ActivityItemTransferFKRefno, " +
-                    "ActivityItemTransferStringFKRefno, " +
+                    "ActivityItemFKRefno, " +
+                    "ActivityItemStringFKRefno, " +
                     "ProductUnitRefno, " +
                     "TransferFromWarehouseLocationMapRefno, " +
                     "ActivityItemTransferRequiredQuantity, " +
@@ -321,8 +321,8 @@ namespace dMobile.Controller
                 this.ListItems.Add(new TransferItem()
                 {
                     ActivityItemRefno = this.ItemRefno,
-                    ActivityItemTransferFKRefno = this.ItemFKRefno,
-                    ActivityItemTransferStringFKRefno = this.ItemFKRefno.ToString(),
+                    ActivityItemFKRefno = this.ItemFKRefno,
+                    ActivityItemStringFKRefno = this.ItemFKRefno.ToString(),
                     ProductUnitRefno = prodUnitRefno,
                     ProductRefno = int.Parse(data.Root.Element("ProductRefno").Value),
                     ProductCode = data.Root.Element("ProductCode").Value,
@@ -452,10 +452,10 @@ namespace dMobile.Controller
                 //    ActivityItemRefno = Convert.ToInt32(row["ActivityItemRefno"] != DBNull.Value ? row["ActivityItemRefno"] : null),
                 //    ActivityItemStatus = Convert.ToInt32(row["ActivityItemStatus"] != DBNull.Value ? row["ActivityItemStatus"] : null),
                 //    ActivityItemTransferBaseQuantity = Convert.ToDecimal(row["ActivityItemTransferBaseQuantity"] != DBNull.Value ? row["ActivityItemTransferBaseQuantity"] : null),
-                //    ActivityItemTransferFKRefno = Convert.ToInt32(row["ActivityItemTransferFKRefno"] != DBNull.Value ? row["ActivityItemTransferFKRefno"] : null),
+                //    ActivityItemFKRefno = Convert.ToInt32(row["ActivityItemFKRefno"] != DBNull.Value ? row["ActivityItemFKRefno"] : null),
                 //    ActivityItemTransferQuantity = Convert.ToDecimal(row["ActivityItemTransferQuantity"] != DBNull.Value ? row["ActivityItemTransferQuantity"] : null),
                 //    ActivityItemTransferRequiredQuantity = Convert.ToDecimal(row["ActivityItemTransferRequiredQuantity"] != DBNull.Value ? row["ActivityItemTransferRequiredQuantity"] : null),
-                //    ActivityItemTransferStringFKRefno = Convert.ToString(row["ActivityItemTransferStringFKRefno"] != DBNull.Value ? row["ActivityItemTransferStringFKRefno"] : null),
+                //    ActivityItemStringFKRefno = Convert.ToString(row["ActivityItemStringFKRefno"] != DBNull.Value ? row["ActivityItemStringFKRefno"] : null),
                 //    ActivityItemTransferWeightQuantity = Convert.ToDecimal(row["ActivityItemTransferWeightQuantity"] != DBNull.Value ? row["ActivityItemTransferWeightQuantity"] : null),
                 //    LocationCode = Convert.ToInt32(row["LocationCode"] != DBNull.Value ? row["LocationCode"] : null),
                 //    LocationMapRefno = Convert.ToInt32(row["LocationMapRefno"] != DBNull.Value ? row["LocationMapRefno"] : null),
@@ -531,8 +531,8 @@ namespace dMobile.Controller
             if (isSubmitBatch)
             {
                 sql.Append("SELECT tActivityItemTransfer.ActivityItemRefno AS ActivityItemRefno,");
-                sql.Append("tActivityItemTransfer.ActivityItemTransferFKRefno AS ActivityItemTransferFKRefno,");
-                sql.Append("tActivityItemTransfer.ActivityItemTransferStringFKRefno AS ActivityItemTransferStringFKRefno,");
+                sql.Append("tActivityItemTransfer.ActivityItemFKRefno AS ActivityItemFKRefno,");
+                sql.Append("tActivityItemTransfer.ActivityItemStringFKRefno AS ActivityItemStringFKRefno,");
                 sql.Append("tProductUnit.ProductUnitRefno AS ProductUnitRefno,");
                 sql.Append("tProduct.ProductRefno AS ProductRefno,");
                 sql.Append("tProduct.ProductCode AS ProductCode,");
@@ -561,8 +561,8 @@ namespace dMobile.Controller
                 sql.AppendFormat("AND tActivityItem.ActivityItemStatus <> {0} ", Convert.ToInt32(SysCommon.ActStatus.NoChange));
                 sql.Append("UNION ");
                 sql.Append("SELECT tActivityItemTransfer.ActivityItemRefno,");
-                sql.Append("tActivityItemTransfer.ActivityItemTransferFKRefno,");
-                sql.Append("tActivityItemTransfer.ActivityItemTransferStringFKRefno,");
+                sql.Append("tActivityItemTransfer.ActivityItemFKRefno,");
+                sql.Append("tActivityItemTransfer.ActivityItemStringFKRefno,");
                 sql.Append("tProductUnit.ProductUnitRefno,");
                 sql.Append("tProduct.ProductRefno,");
                 sql.Append("tProduct.ProductCode,");
@@ -596,8 +596,8 @@ namespace dMobile.Controller
             else
             {
                 sql.Append("SELECT tActivityItemTransfer.ActivityItemRefno AS ActivityItemRefno, ");
-                sql.Append("tActivityItemTransfer.ActivityItemTransferFKRefno AS ActivityItemTransferFKRefno, ");
-                sql.Append("tActivityItemTransfer.ActivityItemTransferStringFKRefno AS ActivityItemTransferStringFKRefno, ");
+                sql.Append("tActivityItemTransfer.ActivityItemFKRefno AS ActivityItemFKRefno, ");
+                sql.Append("tActivityItemTransfer.ActivityItemStringFKRefno AS ActivityItemStringFKRefno, ");
                 sql.Append("tProductUnit.ProductUnitRefno AS ProductUnitRefno, ");
                 sql.Append("tProduct.ProductRefno AS ProductRefno,");
                 sql.Append("tProduct.ProductCode AS ProductCode, ");
@@ -669,10 +669,10 @@ namespace dMobile.Controller
                 //    ActivityItemRefno = Convert.ToInt32(row["ActivityItemRefno"] != DBNull.Value ? row["ActivityItemRefno"] : null),
                 //    ActivityItemStatus = Convert.ToInt32(row["ActivityItemStatus"] != DBNull.Value ? row["ActivityItemStatus"] : null),
                 //    ActivityItemTransferBaseQuantity = Convert.ToDecimal(row["ActivityItemTransferBaseQuantity"] != DBNull.Value ? row["ActivityItemTransferBaseQuantity"] : null),
-                //    ActivityItemTransferFKRefno = Convert.ToInt32(row["ActivityItemTransferFKRefno"] != DBNull.Value ? row["ActivityItemTransferFKRefno"] : null),
+                //    ActivityItemFKRefno = Convert.ToInt32(row["ActivityItemFKRefno"] != DBNull.Value ? row["ActivityItemFKRefno"] : null),
                 //    ActivityItemTransferQuantity = Convert.ToDecimal(row["ActivityItemTransferQuantity"] != DBNull.Value ? row["ActivityItemTransferQuantity"] : null),
                 //    ActivityItemTransferRequiredQuantity = Convert.ToDecimal(row["ActivityItemTransferRequiredQuantity"] != DBNull.Value ? row["ActivityItemTransferRequiredQuantity"] : null),
-                //    ActivityItemTransferStringFKRefno = Convert.ToString(row["ActivityItemTransferStringFKRefno"] != DBNull.Value ? row["ActivityItemTransferStringFKRefno"] : null),
+                //    ActivityItemStringFKRefno = Convert.ToString(row["ActivityItemStringFKRefno"] != DBNull.Value ? row["ActivityItemStringFKRefno"] : null),
                 //    ActivityItemTransferWeightQuantity = Convert.ToDecimal(row["ActivityItemTransferWeightQuantity"] != DBNull.Value ? row["ActivityItemTransferWeightQuantity"] : null),
                 //    LocationCode = Convert.ToInt32(row["LocationCode"] != DBNull.Value ? row["LocationCode"] : null),
                 //    LocationMapRefno = Convert.ToInt32(row["LocationMapRefno"] != DBNull.Value ? row["LocationMapRefno"] : null),
@@ -703,7 +703,7 @@ namespace dMobile.Controller
             {
                 this.SelectedActivityItem = item;
                 this.ItemRefno = item.ActivityItemRefno;
-                this.ItemFKRefno = Convert.ToInt32(item.ActivityItemTransferFKRefno);
+                this.ItemFKRefno = Convert.ToInt32(item.ActivityItemFKRefno);
                 this.ProdInfo = await ProductInfoTasks.GetInfoFromUnitRefno(item.ProductUnitRefno);
                 activityItemLocMapRefno = item.LocationMapRefno;
             }
@@ -725,7 +725,7 @@ namespace dMobile.Controller
             int foundItemRefno = 0;
 
             string query = "SELECT tActivityItem.ActivityItemRefno,"
-                + "tActivityItemTransfer.ActivityItemTransferFKRefno,"
+                + "tActivityItemTransfer.ActivityItemFKRefno,"
                 + "tActivityItemTransfer.ProductUnitRefno,"
                 + "tLocationMapWarehouse.LocationMapRefno "
                 + "FROM tActivityItemTransfer "
@@ -741,7 +741,7 @@ namespace dMobile.Controller
             if (results?.Count > 0)
             {
                 this.ItemRefno = Convert.ToInt32(results[0].ActivityItemRefno);
-                this.ItemFKRefno = Convert.ToInt32(results[0].ActivityItemTransferFKRefno);
+                this.ItemFKRefno = Convert.ToInt32(results[0].ActivityItemFKRefno);
                 this.ProdInfo = await ProductInfoTasks.GetInfoFromUnitRefno(Convert.ToInt32(results[0].ProductUnitRefno));
                 this.ProdInfo.Scheme = await ProductInfoTasks.GetSchemeComponentsFromRefno(this.ProdInfo.Refno);
 
@@ -863,7 +863,7 @@ namespace dMobile.Controller
         /// <returns><see cref="int"/> Found activity item foreign key refno, else 0 if not found.</returns>
         public override int GetFKRefno(object resourceType)
         {
-            object tmpFKItRefno = ((TransferItem)resourceType).ActivityItemTransferFKRefno;
+            object tmpFKItRefno = ((TransferItem)resourceType).ActivityItemFKRefno;
             return tmpFKItRefno == null ? 0 : Convert.ToInt32(tmpFKItRefno);
         }
 
