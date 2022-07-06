@@ -164,7 +164,7 @@ namespace dMobile.GroundWork
             int returnsFKRefno;
             if (results?.Count > 0)
             {
-                returnsFKRefno = results[0].ActivityReturnsFKRefno;
+                returnsFKRefno = results[0].ActivityFKRefno;
             }
             else
             {

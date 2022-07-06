@@ -165,7 +165,7 @@ namespace dMobile.GroundWork
             int recvFKRefno;
             if (results?.Count > 0)
             {
-                recvFKRefno = results[0].ActivityReceivingFKRefno;
+                recvFKRefno = results[0].ActivityFKRefno;
             }
             else
             {

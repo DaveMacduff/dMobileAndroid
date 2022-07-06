@@ -83,19 +83,19 @@ namespace dMobile.Controller
                     },
                 };
 
-                Label labelActivityPickingStringFKRefno = new Label { VerticalOptions = LayoutOptions.Center };
+                Label labelActivityStringFKRefno = new Label { VerticalOptions = LayoutOptions.Center };
                 Label labelActivityPickingDeliveryDateTime = new Label { VerticalOptions = LayoutOptions.Center };
                 Label labelActivityPickingRouteCode = new Label { VerticalOptions = LayoutOptions.Center };
                 Label labelActivityPickingRouteStop = new Label { VerticalOptions = LayoutOptions.Center };
                 Label labelActivityPickingCustomerShipToInfo = new Label { VerticalOptions = LayoutOptions.Center };
 
-                labelActivityPickingStringFKRefno.SetBinding(Label.TextProperty, new Binding("ActivityPickingStringFKRefno"));
+                labelActivityStringFKRefno.SetBinding(Label.TextProperty, new Binding("ActivityStringFKRefno"));
                 labelActivityPickingDeliveryDateTime.SetBinding(Label.TextProperty, new Binding("ActivityPickingDeliveryDateTime", BindingMode.Default, null, null, "{0:MM/dd/yyyy}"));
                 labelActivityPickingRouteCode.SetBinding(Label.TextProperty, new Binding("RouteCode"));
                 labelActivityPickingRouteStop.SetBinding(Label.TextProperty, new Binding("RouteStop"));
                 labelActivityPickingCustomerShipToInfo.SetBinding(Label.TextProperty, new Binding("ActivityPickingCustomerShipToInfo"));
 
-                gridData.Children.Add(labelActivityPickingStringFKRefno);
+                gridData.Children.Add(labelActivityStringFKRefno);
                 gridData.Children.Add(labelActivityPickingDeliveryDateTime);
 
                 if (!this.SysEnv.SysSettings.IsPickHideRouteCol)
@@ -106,7 +106,7 @@ namespace dMobile.Controller
 
                 gridData.Children.Add(labelActivityPickingCustomerShipToInfo);
 
-                Grid.SetColumn(labelActivityPickingStringFKRefno, 0);
+                Grid.SetColumn(labelActivityStringFKRefno, 0);
                 Grid.SetColumn(labelActivityPickingDeliveryDateTime, 1);
 
                 if (!this.SysEnv.SysSettings.IsPickHideRouteCol)
@@ -650,7 +650,7 @@ namespace dMobile.Controller
         /// <returns>.</returns>
         public override string GetFKRefnoIdx()
         {
-            return "ActivityPickingStringFKRefno";
+            return "ActivityStringFKRefno";
         }
 
         /// <summary>
@@ -731,8 +731,8 @@ namespace dMobile.Controller
                 // Picking picking = new Picking
                 // {
                 //    ActivityRefno = Convert.ToInt32(row["ActivityRefno"] != DBNull.Value ? row["ActivityRefno"] : null),
-                //    ActivityPickingFKRefno = Convert.ToInt32(row["ActivityPickingFKRefno"] != DBNull.Value ? row["ActivityPickingFKRefno"] : null),
-                //    ActivityPickingStringFKRefno = Convert.ToString(row["ActivityPickingStringFKRefno"] != DBNull.Value ? row["ActivityPickingStringFKRefno"] : null),
+                //    ActivityFKRefno = Convert.ToInt32(row["ActivityFKRefno"] != DBNull.Value ? row["ActivityFKRefno"] : null),
+                //    ActivityStringFKRefno = Convert.ToString(row["ActivityStringFKRefno"] != DBNull.Value ? row["ActivityStringFKRefno"] : null),
                 //    LocationMapRefno = Convert.ToInt32(row["LocationMapRefno"] != DBNull.Value ? row["LocationMapRefno"] : null),
                 //    LocationMapWarehouseFKRefno = Convert.ToInt32(row["LocationMapWarehouseFKRefno"] != DBNull.Value ? row["LocationMapWarehouseFKRefno"] : null),
                 //    LocationMapWarehouseName = Convert.ToString(row["LocationMapWarehouseName"] != DBNull.Value ? row["LocationMapWarehouseName"] : null),
@@ -749,7 +749,7 @@ namespace dMobile.Controller
                 // };
                 observableCollection.Add(picking);
 
-                double detailWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(picking.ActivityPickingStringFKRefno);
+                double detailWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(picking.ActivityStringFKRefno);
                 double detailWidth1 = DependencyService.Get<IGridService>().CalculateTextWidth(picking.ActivityPickingDeliveryDateTime.ToString("MM/dd/yyyy"));
                 double detailWidth2 = DependencyService.Get<IGridService>().CalculateTextWidth(picking.RouteCode ?? string.Empty);
                 double detailWidth3 = DependencyService.Get<IGridService>().CalculateTextWidth(Convert.ToString(picking.RouteStop) ?? string.Empty);
@@ -807,7 +807,7 @@ namespace dMobile.Controller
         //    public override void DesignDataGrid(DataGrid dataGridMain)
         //    {
         //      DataGridTextBoxColumn dataGridCol = new DataGridTextBoxColumn();
-        //      dataGridCol.MappingName = "ActivityPickingStringFKRefno";
+        //      dataGridCol.MappingName = "ActivityStringFKRefno";
         //      dataGridCol.HeaderText = "Order #";
 
         // dataGridCol = new DataGridTextBoxColumn();
@@ -846,8 +846,8 @@ namespace dMobile.Controller
             if (isSubmitBatch)
             {
                 sql.Append("SELECT tActivityPicking.ActivityRefno AS ActivityRefno,");
-                sql.Append("tActivityPicking.ActivityPickingFKRefno AS ActivityPickingFKRefno,");
-                sql.Append("tActivityPicking.ActivityPickingStringFKRefno AS ActivityPickingStringFKRefno,");
+                sql.Append("tActivityPicking.ActivityFKRefno AS ActivityFKRefno,");
+                sql.Append("tActivityPicking.ActivityStringFKRefno AS ActivityStringFKRefno,");
                 sql.Append("tLocationMapWarehouse.LocationMapRefno AS LocationMapRefno,");
                 sql.Append("tLocationMapWarehouse.LocationMapWarehouseFKRefno AS LocationMapWarehouseFKRefno,");
                 sql.Append("tLocationMapWarehouse.LocationMapWarehouseName AS LocationMapWarehouseName,");
@@ -871,8 +871,8 @@ namespace dMobile.Controller
                 sql.AppendFormat("WHERE tActivity.ActivityStatus <> {0} ", Convert.ToInt32(SysCommon.ActStatus.NoChange));
                 sql.Append("UNION ");
                 sql.Append("SELECT tActivityPicking.ActivityRefno,");
-                sql.Append("tActivityPicking.ActivityPickingFKRefno,");
-                sql.Append("tActivityPicking.ActivityPickingStringFKRefno,");
+                sql.Append("tActivityPicking.ActivityFKRefno,");
+                sql.Append("tActivityPicking.ActivityStringFKRefno,");
                 sql.Append("tLocationMapWarehouse.LocationMapRefno,");
                 sql.Append("tLocationMapWarehouse.LocationMapWarehouseFKRefno,");
                 sql.Append("tLocationMapWarehouse.LocationMapWarehouseName,");
@@ -897,8 +897,8 @@ namespace dMobile.Controller
                 sql.AppendFormat("WHERE tActivityItem.ActivityItemStatus <> {0} ", Convert.ToInt32(SysCommon.ActStatus.NoChange));
                 sql.Append("UNION ");
                 sql.Append("SELECT tActivityPicking.ActivityRefno,");
-                sql.Append("tActivityPicking.ActivityPickingFKRefno,");
-                sql.Append("tActivityPicking.ActivityPickingStringFKRefno,");
+                sql.Append("tActivityPicking.ActivityFKRefno,");
+                sql.Append("tActivityPicking.ActivityStringFKRefno,");
                 sql.Append("tLocationMapWarehouse.LocationMapRefno,");
                 sql.Append("tLocationMapWarehouse.LocationMapWarehouseFKRefno,");
                 sql.Append("tLocationMapWarehouse.LocationMapWarehouseName,");
@@ -927,8 +927,8 @@ namespace dMobile.Controller
             else
             {
                 sql.Append("SELECT tActivityPicking.ActivityRefno AS ActivityRefno,");
-                sql.Append("tActivityPicking.ActivityPickingFKRefno AS ActivityPickingFKRefno,");
-                sql.Append("tActivityPicking.ActivityPickingStringFKRefno AS ActivityPickingStringFKRefno,");
+                sql.Append("tActivityPicking.ActivityFKRefno AS ActivityFKRefno,");
+                sql.Append("tActivityPicking.ActivityStringFKRefno AS ActivityStringFKRefno,");
                 sql.Append("tLocationMapWarehouse.LocationMapRefno AS LocationMapRefno,");
                 sql.Append("tLocationMapWarehouse.LocationMapWarehouseFKRefno AS LocationMapWarehouseFKRefno,");
                 sql.Append("tLocationMapWarehouse.LocationMapWarehouseName AS LocationMapWarehouseName,");
@@ -992,15 +992,15 @@ namespace dMobile.Controller
         {
             ObservableCollection<object> observableCollection = new ObservableCollection<object>();
 
-            this.ListHdrs = this.listPicking.Where(picking => picking.ActivityPickingStringFKRefno.ToLower().Contains(searchText.ToLower().Trim())).Cast<object>().ToList();
+            this.ListHdrs = this.listPicking.Where(picking => picking.ActivityStringFKRefno.ToLower().Contains(searchText.ToLower().Trim())).Cast<object>().ToList();
 
             foreach (Picking picking in this.ListHdrs)
             {
                 // Picking picking = new Picking
                 // {
                 //    ActivityRefno = Convert.ToInt32(row["ActivityRefno"] != DBNull.Value ? row["ActivityRefno"] : null),
-                //    ActivityPickingFKRefno = Convert.ToInt32(row["ActivityPickingFKRefno"] != DBNull.Value ? row["ActivityPickingFKRefno"] : null),
-                //    ActivityPickingStringFKRefno = Convert.ToString(row["ActivityPickingStringFKRefno"] != DBNull.Value ? row["ActivityPickingStringFKRefno"] : null),
+                //    ActivityFKRefno = Convert.ToInt32(row["ActivityFKRefno"] != DBNull.Value ? row["ActivityFKRefno"] : null),
+                //    ActivityStringFKRefno = Convert.ToString(row["ActivityStringFKRefno"] != DBNull.Value ? row["ActivityStringFKRefno"] : null),
                 //    LocationMapRefno = Convert.ToInt32(row["LocationMapRefno"] != DBNull.Value ? row["LocationMapRefno"] : null),
                 //    LocationMapWarehouseFKRefno = Convert.ToInt32(row["LocationMapWarehouseFKRefno"] != DBNull.Value ? row["LocationMapWarehouseFKRefno"] : null),
                 //    LocationMapWarehouseName = Convert.ToString(row["LocationMapWarehouseName"] != DBNull.Value ? row["LocationMapWarehouseName"] : null),
@@ -1031,7 +1031,7 @@ namespace dMobile.Controller
             if (selectedActivity is Picking picking)
             {
                 this.SelectedActivity = picking;
-                this.HdrFKRefno = Convert.ToInt32(picking.ActivityPickingFKRefno);
+                this.HdrFKRefno = Convert.ToInt32(picking.ActivityFKRefno);
                 this.HdrRefno = Convert.ToInt32(picking.ActivityRefno);
 
                 // Set the selected warehouse to the activity header warehouse.
@@ -1051,7 +1051,7 @@ namespace dMobile.Controller
         {
             if (selectedItem is Picking picking)
             {
-                this.HdrFKRefno = Convert.ToInt32(picking.ActivityPickingFKRefno);
+                this.HdrFKRefno = Convert.ToInt32(picking.ActivityFKRefno);
                 this.HdrRefno = Convert.ToInt32(picking.ActivityRefno);
             }
 
@@ -1270,7 +1270,7 @@ namespace dMobile.Controller
         /// <returns><see cref="int"/> Found activity foreign key refno, else 0 if not found.</returns>
         public override int GetFKRefno(object resourceType)
         {
-            object tmpFKRefno = ((Picking)resourceType).ActivityPickingFKRefno;
+            object tmpFKRefno = ((Picking)resourceType).ActivityFKRefno;
             return tmpFKRefno == null ? 0 : Convert.ToInt32(tmpFKRefno);
         }
 

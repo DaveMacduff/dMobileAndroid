@@ -49,7 +49,7 @@ namespace dMobile.Controller
                 Label orderedDateTime = new Label { VerticalOptions = LayoutOptions.Center };
                 Label deliveryDateTime = new Label { VerticalOptions = LayoutOptions.Center };
 
-                stringFKRefno.SetBinding(Label.TextProperty, new Binding("ActivityReturnsStringFKRefno"));
+                stringFKRefno.SetBinding(Label.TextProperty, new Binding("ActivityStringFKRefno"));
                 orderedDateTime.SetBinding(Label.TextProperty, new Binding(
                     "ActivityReturnsOrderedDateTime",
                     BindingMode.Default,
@@ -96,7 +96,7 @@ namespace dMobile.Controller
         /// <returns>.</returns>
         public override string GetFKRefnoIdx()
         {
-            return "ActivityReturnsStringFKRefno";
+            return "ActivityStringFKRefno";
         }
 
         /// <summary>
@@ -178,7 +178,7 @@ namespace dMobile.Controller
             foreach (Return orderReturn in orderReturns)
             {
                 double detailWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(
-                    orderReturn.ActivityReturnsStringFKRefno);
+                    orderReturn.ActivityStringFKRefno);
                 double detailWidth1 = DependencyService.Get<IGridService>().CalculateTextWidth(
                     orderReturn.ActivityReturnsOrderedDateTime.ToString("MM/dd/yyyy"));
                 double detailWidth2 = DependencyService.Get<IGridService>().CalculateTextWidth(
@@ -220,8 +220,8 @@ namespace dMobile.Controller
             if (isSubmitBatch)
             {
                 sql.Append("SELECT tActivityReturns.ActivityRefno AS ActivityRefno,");
-                sql.Append("tActivityReturns.ActivityReturnsFKRefno AS ActivityReturnsFKRefno,");
-                sql.Append("tActivityReturns.ActivityReturnsStringFKRefno AS ActivityReturnsStringFKRefno,");
+                sql.Append("tActivityReturns.ActivityFKRefno AS ActivityFKRefno,");
+                sql.Append("tActivityReturns.ActivityStringFKRefno AS ActivityStringFKRefno,");
                 sql.Append("tActivityReturns.ActivityReturnsOrderedDateTime AS ActivityReturnsOrderedDateTime,");
                 sql.Append("tActivityReturns.ActivityReturnsDeliveryDateTime AS ActivityReturnsDeliveryDateTime,");
                 sql.Append("tLocationMapWarehouse.LocationMapRefno AS LocationMapRefno,");
@@ -237,8 +237,8 @@ namespace dMobile.Controller
                 sql.AppendFormat(" WHERE tActivity.ActivityStatus <> {0}", Convert.ToInt32(SysCommon.ActStatus.NoChange));
                 sql.Append(" UNION ");
                 sql.Append(" SELECT tActivityReturns.ActivityRefno,");
-                sql.Append("tActivityReturns.ActivityReturnsFKRefno,");
-                sql.Append("tActivityReturns.ActivityReturnsStringFKRefno,");
+                sql.Append("tActivityReturns.ActivityFKRefno,");
+                sql.Append("tActivityReturns.ActivityStringFKRefno,");
                 sql.Append("tActivityReturns.ActivityReturnsOrderedDateTime,");
                 sql.Append("tActivityReturns.ActivityReturnsDeliveryDateTime,");
                 sql.Append("tLocationMapWarehouse.LocationMapRefno,");
@@ -255,8 +255,8 @@ namespace dMobile.Controller
                 sql.AppendFormat(" WHERE tActivityItem.ActivityItemStatus <> {0}", Convert.ToInt32(SysCommon.ActStatus.NoChange));
                 sql.Append(" UNION ");
                 sql.Append(" SELECT tActivityReturns.ActivityRefno,");
-                sql.Append("tActivityReturns.ActivityReturnsFKRefno,");
-                sql.Append("tActivityReturns.ActivityReturnsStringFKRefno,");
+                sql.Append("tActivityReturns.ActivityFKRefno,");
+                sql.Append("tActivityReturns.ActivityStringFKRefno,");
                 sql.Append("tActivityReturns.ActivityReturnsOrderedDateTime,");
                 sql.Append("tActivityReturns.ActivityReturnsDeliveryDateTime,");
                 sql.Append("tLocationMapWarehouse.LocationMapRefno,");
@@ -276,8 +276,8 @@ namespace dMobile.Controller
             else
             {
                 sql.Append("SELECT tActivityReturns.ActivityRefno AS ActivityRefno,");
-                sql.Append("tActivityReturns.ActivityReturnsFKRefno AS ActivityReturnsFKRefno,");
-                sql.Append("tActivityReturns.ActivityReturnsStringFKRefno AS ActivityReturnsStringFKRefno,");
+                sql.Append("tActivityReturns.ActivityFKRefno AS ActivityFKRefno,");
+                sql.Append("tActivityReturns.ActivityStringFKRefno AS ActivityStringFKRefno,");
                 sql.Append("tActivityReturns.ActivityReturnsOrderedDateTime AS ActivityReturnsOrderedDateTime,");
                 sql.Append("tActivityReturns.ActivityReturnsDeliveryDateTime AS ActivityReturnsDeliveryDateTime,");
                 sql.Append("tLocationMapWarehouse.LocationMapRefno AS LocationMapRefno,");
@@ -323,7 +323,7 @@ namespace dMobile.Controller
         {
             ObservableCollection<object> observableCollection = new ObservableCollection<object>();
 
-            this.ListHdrs = this.ListReturns.Where(returns => returns.ActivityReturnsStringFKRefno.ToLower().
+            this.ListHdrs = this.ListReturns.Where(returns => returns.ActivityStringFKRefno.ToLower().
                 Contains(searchText.ToLower().Trim())).Cast<object>().ToList();
 
             foreach (Return returns in this.ListHdrs)
@@ -344,7 +344,7 @@ namespace dMobile.Controller
             if (selectedActivity is Return returns)
             {
                 this.SelectedActivity = returns;
-                this.HdrFKRefno = Convert.ToInt32(returns.ActivityReturnsFKRefno);
+                this.HdrFKRefno = Convert.ToInt32(returns.ActivityFKRefno);
                 this.HdrRefno = Convert.ToInt32(returns.ActivityRefno);
 
                 // Set the selected warehouse to the activity header warehouse.
@@ -365,7 +365,7 @@ namespace dMobile.Controller
         {
             if (selectedItem is Return returns)
             {
-                this.HdrFKRefno = Convert.ToInt32(returns.ActivityReturnsFKRefno);
+                this.HdrFKRefno = Convert.ToInt32(returns.ActivityFKRefno);
                 this.HdrRefno = Convert.ToInt32(returns.ActivityRefno);
             }
 
@@ -455,7 +455,7 @@ namespace dMobile.Controller
         /// <returns><see cref="int"/> Found activity foreign key refno, else 0 if not found.</returns>
         public override int GetFKRefno(object resourceType)
         {
-            object tmpFKRefno = ((Return)resourceType).ActivityReturnsFKRefno;
+            object tmpFKRefno = ((Return)resourceType).ActivityFKRefno;
             return tmpFKRefno == null ? 0 : Convert.ToInt32(tmpFKRefno);
         }
 

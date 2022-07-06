@@ -95,8 +95,8 @@ namespace dMobile.View.Activity
             this.cboSortBy4.SelectedIndex = this.TransSettings.iSortBy4Index;
 
             this.filters.Add(string.Empty, null);
-            this.filters.Add("Transfer # Ascending", new Sort() { SortValue = "ActivityTransferFKRefno", SortOrder = SortOrder.ASC });
-            this.filters.Add("Transfer # Descending", new Sort() { SortValue = "ActivityTransferFKRefno", SortOrder = SortOrder.DESC });
+            this.filters.Add("Transfer # Ascending", new Sort() { SortValue = "ActivityFKRefno", SortOrder = SortOrder.ASC });
+            this.filters.Add("Transfer # Descending", new Sort() { SortValue = "ActivityFKRefno", SortOrder = SortOrder.DESC });
             this.filters.Add("Date Ascending", new Sort() { SortValue = "ActivityTransferDateTime", SortOrder = SortOrder.ASC });
             this.filters.Add("Date Descending", new Sort() { SortValue = "ActivityTransferDateTime", SortOrder = SortOrder.DESC });
             this.filters.Add("Whs # Ascending", new Sort() { SortValue = "LocationMapWarehouseFKRefno", SortOrder = SortOrder.ASC });

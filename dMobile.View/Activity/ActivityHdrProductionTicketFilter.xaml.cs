@@ -68,8 +68,8 @@ namespace dMobile.View.Activity
             this.cboSortBy3.ItemsSource = this.aSortBy3;
             this.cboSortBy3.SelectedIndex = this.TicketSettings.iSortBy3Index;
 
-            this.filters.Add("Production # Ascending", new Sort() { SortValue = "ActivityProductionFKRefno", SortOrder = SortOrder.ASC });
-            this.filters.Add("Production # Descending", new Sort() { SortValue = "ActivityProductionFKRefno", SortOrder = SortOrder.DESC });
+            this.filters.Add("Production # Ascending", new Sort() { SortValue = "ActivityFKRefno", SortOrder = SortOrder.ASC });
+            this.filters.Add("Production # Descending", new Sort() { SortValue = "ActivityFKRefno", SortOrder = SortOrder.DESC });
             this.filters.Add("Production Date Ascending", new Sort() { SortValue = "ActivityProductionDateTime", SortOrder = SortOrder.ASC });
             this.filters.Add("Production Date Descending", new Sort() { SortValue = "ActivityProductionDateTime", SortOrder = SortOrder.DESC });
         }

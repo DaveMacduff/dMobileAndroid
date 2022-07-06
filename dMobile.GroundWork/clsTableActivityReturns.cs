@@ -140,14 +140,14 @@ namespace dMobile.GroundWork
                                 transaction.Execute("INSERT INTO tActivity (ActivitySubType, ActivityStatus) VALUES (?, ?)", Convert.ToInt32(SysCommon.ActSubTypes.Returns), 0);
 
                                 actRefno = Convert.ToInt32(transaction.ExecuteScalar<int>("SELECT last_insert_rowid() FROM tActivity"));
-                                returnsFKRefno = Convert.ToInt32(drow["ActivityReturnsFKRefno"]);
+                                returnsFKRefno = Convert.ToInt32(drow["ActivityFKRefno"]);
                                 whsLocMapRefno = this.GetWhsLocMapRefnoFromDataRow(drow, transaction);
 
                                 string query = "INSERT INTO tActivityReturns (" +
                                     "ActivityRefno, " +
                                     "ActivitySubType, " +
-                                    "ActivityReturnsFKRefno, " +
-                                    "ActivityReturnsStringFKRefno, " +
+                                    "ActivityFKRefno, " +
+                                    "ActivityStringFKRefno, " +
                                     "WarehouseLocationMapRefno, " +
                                     "ActivityReturnsOrderedDateTime, " +
                                     "ActivityReturnsDeliveryDateTime, " +

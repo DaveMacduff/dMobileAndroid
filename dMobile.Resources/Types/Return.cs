@@ -17,8 +17,8 @@ namespace dMobile.Resources.Types
         private string activityReturnsCustomerShipToInfo;
 
         public int ActivityRefno { get; set; }
-        public int ActivityReturnsFKRefno { get; set; }
-        public string ActivityReturnsStringFKRefno { get; set; }
+        public int ActivityFKRefno { get; set; }
+        public string ActivityStringFKRefno { get; set; }
         public DateTime ActivityReturnsOrderedDateTime { get; set; }
         public DateTime ActivityReturnsDeliveryDateTime { get => this.activityReturnsDeliveryDateTime; set => this.activityReturnsDeliveryDateTime = value; }
         public int LocationMapRefno { get; set; }

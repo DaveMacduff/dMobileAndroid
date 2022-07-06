@@ -74,7 +74,7 @@ namespace dMobile.Controller
                 Label labelActivityDateTime = new Label { VerticalOptions = LayoutOptions.Center };
                 Label labelActivityDescription = new Label { VerticalOptions = LayoutOptions.Center };
 
-                labelActivityRefno.SetBinding(Label.TextProperty, new Binding("ActivityProductionStringFKRefno"));
+                labelActivityRefno.SetBinding(Label.TextProperty, new Binding("ActivityStringFKRefno"));
                 labelActivityDateTime.SetBinding(Label.TextProperty, new Binding("ActivityProductionDateTime", BindingMode.Default, null, null, "{0:MM/dd/yyyy}"));
                 labelActivityDescription.SetBinding(Label.TextProperty, new Binding("ActivityProductionDescription"));
 
@@ -98,7 +98,7 @@ namespace dMobile.Controller
         /// <returns>.</returns>
         public override string GetFKRefnoIdx()
         {
-            return "ActivityProductionStringFKRefno";
+            return "ActivityStringFKRefno";
         }
 
         /// <summary>
@@ -126,8 +126,8 @@ namespace dMobile.Controller
                 // {
                 //    ActivityProductionDateTime = Convert.ToDateTime(row["ActivityProductionDateTime"] != DBNull.Value ? row["ActivityProductionDateTime"] : null),
                 //    ActivityProductionDescription = Convert.ToString(row["ActivityProductionDescription"] != DBNull.Value ? row["ActivityProductionDescription"] : null),
-                //    ActivityProductionFKRefno = Convert.ToInt32(row["ActivityProductionFKRefno"] != DBNull.Value ? row["ActivityProductionFKRefno"] : null),
-                //    ActivityProductionStringFKRefno = Convert.ToString(row["ActivityProductionStringFKRefno"] != DBNull.Value ? row["ActivityProductionStringFKRefno"] : null),
+                //    ActivityFKRefno = Convert.ToInt32(row["ActivityFKRefno"] != DBNull.Value ? row["ActivityFKRefno"] : null),
+                //    ActivityStringFKRefno = Convert.ToString(row["ActivityStringFKRefno"] != DBNull.Value ? row["ActivityStringFKRefno"] : null),
                 //    ActivityRefno = Convert.ToInt32(row["ActivityRefno"] != DBNull.Value ? row["ActivityRefno"] : null),
                 //    ActivityStatus = Convert.ToInt32(row["ActivityStatus"] != DBNull.Value ? row["ActivityStatus"] : null),
                 //    LocationMapRefno = Convert.ToInt32(row["LocationMapRefno"] != DBNull.Value ? row["LocationMapRefno"] : null),
@@ -173,7 +173,7 @@ namespace dMobile.Controller
 
             foreach (ProductionTicketByProduct productionTicket in observableCollection)
             {
-                double dataColumnWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(productionTicket.ActivityProductionStringFKRefno);
+                double dataColumnWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(productionTicket.ActivityStringFKRefno);
                 double dataColumnWidth1 = DependencyService.Get<IGridService>().CalculateTextWidth(Convert.ToString(productionTicket.ActivityProductionDateTime.ToString("MM/dd/yyyy")));
                 double dataColumnWidth2 = DependencyService.Get<IGridService>().CalculateTextWidth(productionTicket.ActivityProductionDescription);
 
@@ -214,8 +214,8 @@ namespace dMobile.Controller
             if (isSubmitBatch)
             {
                 sql.Append("SELECT tActivityProduction.ActivityRefno AS ActivityRefno,");
-                sql.Append("tActivityProductionByProduct.ActivityProductionFKRefno AS ActivityProductionFKRefno,");
-                sql.Append("tActivityProductionByProduct.ActivityProductionStringFKRefno AS ActivityProductionStringFKRefno,");
+                sql.Append("tActivityProductionByProduct.ActivityFKRefno AS ActivityFKRefno,");
+                sql.Append("tActivityProductionByProduct.ActivityStringFKRefno AS ActivityStringFKRefno,");
                 sql.Append("tLocationMapWarehouse.LocationMapRefno AS LocationMapRefno,");
                 sql.Append("tLocationMapWarehouse.LocationMapWarehouseFKRefno AS LocationMapWarehouseFKRefno,");
                 sql.Append("tLocationMapWarehouse.LocationMapWarehouseName AS LocationMapWarehouseName,");
@@ -232,8 +232,8 @@ namespace dMobile.Controller
                 sql.AppendFormat("AND tActivity.ActivitySubType = {0} ", Convert.ToInt32(SysCommon.ActSubTypes.TicketAddProduct));
                 sql.Append("UNION ");
                 sql.Append("SELECT tActivityProduction.ActivityRefno,");
-                sql.Append("tActivityProductionByProduct.ActivityProductionFKRefno,");
-                sql.Append("tActivityProductionByProduct.ActivityProductionStringFKRefno,");
+                sql.Append("tActivityProductionByProduct.ActivityFKRefno,");
+                sql.Append("tActivityProductionByProduct.ActivityStringFKRefno,");
                 sql.Append("tLocationMapWarehouse.LocationMapRefno,");
                 sql.Append("tLocationMapWarehouse.LocationMapWarehouseFKRefno,");
                 sql.Append("tLocationMapWarehouse.LocationMapWarehouseName,");
@@ -251,8 +251,8 @@ namespace dMobile.Controller
                 sql.AppendFormat("AND tActivity.ActivitySubType = {0} ", Convert.ToInt32(SysCommon.ActSubTypes.TicketAddProduct));
                 sql.Append("UNION ");
                 sql.Append("SELECT tActivityProduction.ActivityRefno,");
-                sql.Append("tActivityProductionByProduct.ActivityProductionFKRefno,");
-                sql.Append("tActivityProductionByProduct.ActivityProductionStringFKRefno,");
+                sql.Append("tActivityProductionByProduct.ActivityFKRefno,");
+                sql.Append("tActivityProductionByProduct.ActivityStringFKRefno,");
                 sql.Append("tLocationMapWarehouse.LocationMapRefno,");
                 sql.Append("tLocationMapWarehouse.LocationMapWarehouseFKRefno,");
                 sql.Append("tLocationMapWarehouse.LocationMapWarehouseName,");
@@ -274,8 +274,8 @@ namespace dMobile.Controller
             else
             {
                 sql.Append("SELECT tActivityProduction.ActivityRefno AS ActivityRefno,");
-                sql.Append("tActivityProductionByProduct.ActivityProductionFKRefno AS ActivityProductionFKRefno,");
-                sql.Append("tActivityProductionByProduct.ActivityProductionStringFKRefno AS ActivityProductionStringFKRefno,");
+                sql.Append("tActivityProductionByProduct.ActivityFKRefno AS ActivityFKRefno,");
+                sql.Append("tActivityProductionByProduct.ActivityStringFKRefno AS ActivityStringFKRefno,");
                 sql.Append("tLocationMapWarehouse.LocationMapRefno AS LocationMapRefno,");
                 sql.Append("tLocationMapWarehouse.LocationMapWarehouseFKRefno AS LocationMapWarehouseFKRefno,");
                 sql.Append("tLocationMapWarehouse.LocationMapWarehouseName AS LocationMapWarehouseName,");
@@ -331,7 +331,7 @@ namespace dMobile.Controller
         {
             ObservableCollection<object> observableCollection = new ObservableCollection<object>();
 
-            this.ListHdrs = this.listProductionTicketByProducts.Where(prodTicket => prodTicket.ActivityProductionStringFKRefno.ToLower().Contains(searchText.ToLower().Trim())).Cast<object>().ToList();
+            this.ListHdrs = this.listProductionTicketByProducts.Where(prodTicket => prodTicket.ActivityStringFKRefno.ToLower().Contains(searchText.ToLower().Trim())).Cast<object>().ToList();
 
             foreach (ProductionTicketByProduct productionTicketByProduct in this.ListHdrs)
             {
@@ -339,8 +339,8 @@ namespace dMobile.Controller
                 // {
                 //    ActivityProductionDateTime = Convert.ToDateTime(row["ActivityProductionDateTime"] != DBNull.Value ? row["ActivityProductionDateTime"] : null),
                 //    ActivityProductionDescription = Convert.ToString(row["ActivityProductionDescription"] != DBNull.Value ? row["ActivityProductionDescription"] : null),
-                //    ActivityProductionFKRefno = Convert.ToInt32(row["ActivityProductionFKRefno"] != DBNull.Value ? row["ActivityProductionFKRefno"] : null),
-                //    ActivityProductionStringFKRefno = Convert.ToString(row["ActivityProductionStringFKRefno"] != DBNull.Value ? row["ActivityProductionStringFKRefno"] : null),
+                //    ActivityFKRefno = Convert.ToInt32(row["ActivityFKRefno"] != DBNull.Value ? row["ActivityFKRefno"] : null),
+                //    ActivityStringFKRefno = Convert.ToString(row["ActivityStringFKRefno"] != DBNull.Value ? row["ActivityStringFKRefno"] : null),
                 //    ActivityRefno = Convert.ToInt32(row["ActivityRefno"] != DBNull.Value ? row["ActivityRefno"] : null),
                 //    ActivityStatus = Convert.ToInt32(row["ActivityStatus"] != DBNull.Value ? row["ActivityStatus"] : null),
                 //    LocationMapRefno = Convert.ToInt32(row["LocationMapRefno"] != DBNull.Value ? row["LocationMapRefno"] : null),
@@ -363,7 +363,7 @@ namespace dMobile.Controller
             if (selectedActivity is ProductionTicketByProduct productionTicketByProduct)
             {
                 this.SelectedActivity = productionTicketByProduct;
-                this.HdrFKRefno = Convert.ToInt32(productionTicketByProduct.ActivityProductionFKRefno);
+                this.HdrFKRefno = Convert.ToInt32(productionTicketByProduct.ActivityFKRefno);
                 this.HdrRefno = Convert.ToInt32(productionTicketByProduct.ActivityRefno);
 
                 // Set the selected warehouse to the activity header warehouse.
@@ -383,7 +383,7 @@ namespace dMobile.Controller
         {
             if (selectedItem is ProductionTicketByProduct productionTicketByProduct)
             {
-                this.HdrFKRefno = Convert.ToInt32(productionTicketByProduct.ActivityProductionFKRefno);
+                this.HdrFKRefno = Convert.ToInt32(productionTicketByProduct.ActivityFKRefno);
                 this.HdrRefno = Convert.ToInt32(productionTicketByProduct.ActivityRefno);
             }
 
@@ -480,7 +480,7 @@ namespace dMobile.Controller
         /// <returns><see cref="int"/> Found activity foreign key refno, else 0 if not found.</returns>
         public override int GetFKRefno(object resourceType)
         {
-            object tmpFKRefno = ((ProductionTicketByProduct)resourceType).ActivityProductionFKRefno;
+            object tmpFKRefno = ((ProductionTicketByProduct)resourceType).ActivityFKRefno;
             return tmpFKRefno == null ? 0 : Convert.ToInt32(tmpFKRefno);
         }
 

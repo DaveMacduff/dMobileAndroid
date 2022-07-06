@@ -13,11 +13,11 @@ namespace dMobile.Resources.Types
         private DateTime activityTransferDateTime;
 
         public int ActivityRefno { get; set; }
-        public int ActivityTransferFKRefno { get; set; }
+        public int ActivityFKRefno { get; set; }
         public int LocationMapRefno { get; set; }
         public int LocationMapWarehouseFKRefno { get; set; }
         public int ActivityStatus { get => this.activityStatus; set => this.activityStatus = value; }
-        public string ActivityTransferStringFKRefno { get; set; }
+        public string ActivityStringFKRefno { get; set; }
         public string ActivityTransferDescription { get; set; }
         public string LocationMapWarehouseName { get => this.locationMapWarehouseName; set => this.locationMapWarehouseName = value; }
         public DateTime ActivityTransferArrivalDateTime { get; set; }

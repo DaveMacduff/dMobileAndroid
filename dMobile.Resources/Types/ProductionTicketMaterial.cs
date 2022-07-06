@@ -13,12 +13,12 @@ namespace dMobile.Resources.Types
 
         public int ActivityStatus { get; set; }
         public int ActivityRefno { get; set; }
-        public int ActivityProductionFKRefno { get; set; }
+        public int ActivityFKRefno { get; set; }
         public int LocationMapRefno { get; set; }
         public int LocationMapWarehouseFKRefno { get => this.locationMapWarehouseFKRefno; set => this.locationMapWarehouseFKRefno = value; }
         public DateTime ActivityProductionDateTime { get; set; }
         public string ActivityProductionDescription { get; set; }
-        public string ActivityProductionStringFKRefno { get; set; }
+        public string ActivityStringFKRefno { get; set; }
         public string LocationMapWarehouseName { get => this.locationMapWarehouseName; set => this.locationMapWarehouseName = value; }
     }
 }

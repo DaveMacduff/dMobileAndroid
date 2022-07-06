@@ -144,7 +144,7 @@ namespace dMobile.GroundWork
                             {
                                 errMsg = "Arguments:";
 
-                                transFKRefno = Convert.ToInt32(drow["ActivityTransferFKRefno"]);
+                                transFKRefno = Convert.ToInt32(drow["ActivityFKRefno"]);
                                 errMsg = "Trans fk refno " + transFKRefno;
                                 transDesc = Convert.ToString(drow["ActivityTransferDescription"]);
                                 errMsg += Environment.NewLine + "Trans desc \'" + transDesc + "\'";
@@ -173,8 +173,8 @@ namespace dMobile.GroundWork
                                 string query = "INSERT INTO tActivityTransfer (" +
                                     "ActivityRefno, " +
                                     "ActivitySubType, " +
-                                    "ActivityTransferFKRefno, " +
-                                    "ActivityTransferStringFKRefno, " +
+                                    "ActivityFKRefno, " +
+                                    "ActivityStringFKRefno, " +
                                     "TransferToWarehouseLocationMapRefno, " +
                                     "ActivityTransferDescription, " +
                                     "ActivityTransferDateTime, " +

@@ -151,8 +151,8 @@ namespace dMobile.GroundWork
                                 string query = "INSERT INTO tActivityReceiving (" +
                                     "ActivityRefno, " +
                                     "ActivitySubType, " +
-                                    "ActivityReceivingFKRefno, " +
-                                    "ActivityReceivingStringFKRefno, " +
+                                    "ActivityFKRefno, " +
+                                    "ActivityStringFKRefno, " +
                                     "ActivityReceivingPONumber, " +
                                     "WarehouseLocationMapRefno, " +
                                     "ActivityReceivingIssuedDateTime, " +

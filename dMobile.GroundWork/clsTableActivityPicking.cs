@@ -160,14 +160,14 @@ namespace dMobile.GroundWork
                                 transaction.Execute("INSERT INTO tActivity (ActivityStatus, ActivitySubType) VALUES (?, ?)", 0, Convert.ToInt32(SysCommon.ActSubTypes.Picking));
 
                                 actRefno = Convert.ToInt32(transaction.ExecuteScalar<int>("SELECT last_insert_rowid() FROM tActivity"));
-                                actPickFKRefno = Convert.ToInt32(drow["ActivityPickingFKRefno"]);
+                                actPickFKRefno = Convert.ToInt32(drow["ActivityFKRefno"]);
                                 whsLocMapRefno = this.GetWhsLocMapRefnoFromDataRow(drow, transaction);
 
                                 string queryInsertPicking = "INSERT INTO tActivityPicking (" +
                                     "ActivityRefno, " +
                                     "ActivitySubType, " +
-                                    "ActivityPickingFKRefno, " +
-                                    "ActivityPickingStringFKRefno, " +
+                                    "ActivityFKRefno, " +
+                                    "ActivityStringFKRefno, " +
                                     "WarehouseLocationMapRefno, " +
                                     "ActivityPickingOrderedDateTime, " +
                                     "ActivityPickingDeliveryDateTime, " +

@@ -176,7 +176,7 @@ namespace dMobile.GroundWork
             int productionFKRefno;
             if (results?.Count > 0)
             {
-                productionFKRefno = results[0].ActivityProductionFKRefno;
+                productionFKRefno = results[0].ActivityFKRefno;
             }
             else
             {

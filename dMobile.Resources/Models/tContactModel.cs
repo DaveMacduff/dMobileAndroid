@@ -6,23 +6,6 @@ namespace dMobile.Resources.Models
 {
     using SQLite;
 
-    //string sqlTable = "CREATE TABLE IF NOT EXISTS tContact"
-    //                + "("
-    //                + "ContactRefno INTEGER NOT NULL CONSTRAINT PK_ContactOnContactRefno PRIMARY KEY,"
-    //                + "ContactSubType INTEGER NOT NULL"
-    //                + ")";
-
-    //        if (this.OnNubStatOut != null)
-    //        {
-    //    this.MsgEventArgs.StatusOutMsg = "Creating contacts table.";
-    //    this.OnNubStatOut(this, this.MsgEventArgs);
-    //}
-
-    //        this.RunDDLCommand(sqlTable);
-
-    //        string sqlNdx = "CREATE UNIQUE INDEX IF NOT EXISTS UQ_ContactOnContactRefnoAndContactSubType ON "
-    //            + "tContact(ContactRefno ASC, ContactSubType ASC)";
-    //        this.RunDDLCommand(sqlNdx);
     [Table("tContact")]
     public class tContactModel
     {

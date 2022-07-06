@@ -172,11 +172,11 @@ namespace dMobile.GroundWork
                                 parametersActivityProduction.Add(drow["ActivityProductionDescription"].ToString());
                                 transaction.Execute(queryActivityProduction, parametersActivityProduction.ToArray());
 
-                                int actProductionFKRefno = Convert.ToInt32(drow["ActivityProductionFKRefno"]);
+                                int actProductionFKRefno = Convert.ToInt32(drow["ActivityFKRefno"]);
                                 string queryActivityProductionFinished = "INSERT INTO tActivityProductionFinished (" +
                                     "ActivityRefno, " +
-                                    "ActivityProductionFKRefno, " +
-                                    "ActivityProductionStringFKRefno, " +
+                                    "ActivityFKRefno, " +
+                                    "ActivityStringFKRefno, " +
                                     "ActivityProductionFinishedDefaultLogisticUnitBatchLotNumber" +
                                     ") VALUES (" +
                                     "?, " +

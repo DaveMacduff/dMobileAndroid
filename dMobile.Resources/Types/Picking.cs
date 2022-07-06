@@ -14,8 +14,8 @@ namespace dMobile.Resources.Types
         private int activityStatus;
 
         public int ActivityRefno { get; set; }
-        public int ActivityPickingFKRefno { get; set; }
-        public string ActivityPickingStringFKRefno { get; set; }
+        public int ActivityFKRefno { get; set; }
+        public string ActivityStringFKRefno { get; set; }
         public int LocationMapRefno { get; set; }
         public int LocationMapWarehouseFKRefno { get => this.locationMapWarehouseFKRefno; set => this.locationMapWarehouseFKRefno = value; }
         public string LocationMapWarehouseName { get; set; }

@@ -141,8 +141,8 @@ namespace dMobile.View.Activity
                     this.cboSortBy4.SelectedIndex = this.PickSettings.iSortBy4Index;
 
                     this.Filters.Add(string.Empty, null);
-                    this.Filters.Add("Order # Ascending", new Sort() { SortValue = "ActivityPickingFKRefno", SortOrder = SortOrder.ASC });
-                    this.Filters.Add("Order # Descending", new Sort() { SortValue = "ActivityPickingFKRefno", SortOrder = SortOrder.DESC });
+                    this.Filters.Add("Order # Ascending", new Sort() { SortValue = "ActivityFKRefno", SortOrder = SortOrder.ASC });
+                    this.Filters.Add("Order # Descending", new Sort() { SortValue = "ActivityFKRefno", SortOrder = SortOrder.DESC });
                     this.Filters.Add("Route # Ascending", new Sort() { SortValue = "RouteCode", SortOrder = SortOrder.ASC });
                     this.Filters.Add("Route # Descending", new Sort() { SortValue = "RouteCode", SortOrder = SortOrder.DESC });
                     this.Filters.Add("Ordered Date Ascending", new Sort() { SortValue = "ActivityPickingOrderedDateTime", SortOrder = SortOrder.ASC });

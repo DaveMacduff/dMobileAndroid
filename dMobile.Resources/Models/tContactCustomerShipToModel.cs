@@ -8,40 +8,6 @@ namespace dMobile.Resources.Models
     using SQLite;
     using SQLiteNetExtensions.Attributes;
 
-    //string sqlTable = "CREATE TABLE IF NOT EXISTS tContactCustomerShipTo"
-    //+ "("
-
-    //+ "ContactRefno INTEGER NOT NULL CONSTRAINT PK_UserOnContactRefno PRIMARY KEY,"
-    //+ "ContactSubType INTEGER NOT NULL,"
-    //+ "CustomerContactRefno INTEGER NOT NULL,"
-    //+ "ContactCustomerShipToFKRefno INTEGER NOT NULL,"
-    //+ "ContactCustomerShipToCode nvarchar(8) NOT NULL,"
-    //+ "ContactCustomerShipToName nvarchar(40) NOT NULL,"
-
-    //+ "CONSTRAINT ContactCustomerShipToContactOnContactRefno FOREIGN KEY (ContactRefno) REFERENCES tContact(ContactRefno) ON DELETE CASCADE ON UPDATE CASCADE, "
-    //+ "CONSTRAINT ContactCustomerShipToContactCustomerOnCustomerContactRefno FOREIGN KEY (CustomerContactRefno) REFERENCES tContactCustomer(ContactRefno)"
-
-    //+ ")";
-
-    //if (this.OnNubStatOut != null)
-    //{
-    //    this.MsgEventArgs.StatusOutMsg = "Creating contact customer shipto's table.";
-    //    this.OnNubStatOut(this, this.MsgEventArgs);
-    //}
-
-    //await this.RunDDLCommand(sqlTable);
-
-    //string sqlNdx = "CREATE UNIQUE INDEX IF NOT EXISTS UQ_ContactCustomerShipToOnContactRefnoAndContactSubType ON tContactCustomerShipTo(ContactRefno ASC, ContactSubType ASC)";
-    //await this.RunDDLCommand(sqlNdx);
-
-    //sqlNdx = "CREATE UNIQUE INDEX IF NOT EXISTS UQ_ContactCustomerShipToOnContactCustomerShipToFKRefno ON tContactCustomerShipTo(ContactCustomerShipToFKRefno ASC)";
-    //await this.RunDDLCommand(sqlNdx);
-
-    //sqlNdx = "CREATE UNIQUE INDEX IF NOT EXISTS UQ_ContactCustomerShipToOnContactCustomerShipToCode ON tContactCustomerShipTo(ContactCustomerShipToCode ASC)";
-    //await this.RunDDLCommand(sqlNdx);
-
-    //sqlNdx = "CREATE UNIQUE INDEX IF NOT EXISTS UQ_ContactCustomerShipToOnContactCustomerShipToName ON tContactCustomerShipTo(ContactCustomerShipToName ASC)";
-    //await this.RunDDLCommand(sqlNdx);
     [Table("tContactCustomerShipTo")]
     public class tContactCustomerShipToModel
     {

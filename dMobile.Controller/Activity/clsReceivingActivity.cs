@@ -121,7 +121,7 @@ namespace dMobile.Controller
         /// <returns>.</returns>
         public override string GetFKRefnoIdx()
         {
-            return "ActivityReceivingStringFKRefno";
+            return "ActivityStringFKRefno";
         }
 
         /// <summary>
@@ -247,8 +247,8 @@ namespace dMobile.Controller
             if (isSubmitBatch)
             {
                 sql.Append("SELECT tActivityReceiving.ActivityRefno AS ActivityRefno,");
-                sql.Append("tActivityReceiving.ActivityReceivingFKRefno AS ActivityReceivingFKRefno,");
-                sql.Append("tActivityReceiving.ActivityReceivingStringFKRefno AS ActivityReceivingStringFKRefno,");
+                sql.Append("tActivityReceiving.ActivityFKRefno AS ActivityFKRefno,");
+                sql.Append("tActivityReceiving.ActivityStringFKRefno AS ActivityStringFKRefno,");
                 sql.Append("tLocationMapWarehouse.LocationMapRefno AS LocationMapRefno,");
                 sql.Append("tLocationMapWarehouse.LocationMapWarehouseFKRefno AS LocationMapWarehouseFKRefno,");
                 sql.Append("tLocationMapWarehouse.LocationMapWarehouseName AS LocationMapWarehouseName,");
@@ -267,8 +267,8 @@ namespace dMobile.Controller
                 sql.AppendFormat("AND tActivity.ActivitySubType = {0} ", Convert.ToInt32(SysCommon.ActSubTypes.Receiving));
                 sql.Append("UNION ");
                 sql.Append("SELECT tActivityReceiving.ActivityRefno,");
-                sql.Append("tActivityReceiving.ActivityReceivingFKRefno,");
-                sql.Append("tActivityReceiving.ActivityReceivingStringFKRefno,");
+                sql.Append("tActivityReceiving.ActivityFKRefno,");
+                sql.Append("tActivityReceiving.ActivityStringFKRefno,");
                 sql.Append("tLocationMapWarehouse.LocationMapRefno,");
                 sql.Append("tLocationMapWarehouse.LocationMapWarehouseFKRefno,");
                 sql.Append("tLocationMapWarehouse.LocationMapWarehouseName,");
@@ -290,8 +290,8 @@ namespace dMobile.Controller
                 sql.AppendFormat("AND tActivityItem.ActivityItemStatus <> {0} ", Convert.ToInt32(SysCommon.ActStatus.NoChange));
                 sql.Append("UNION ");
                 sql.Append("SELECT tActivityReceiving.ActivityRefno,");
-                sql.Append("tActivityReceiving.ActivityReceivingFKRefno,");
-                sql.Append("tActivityReceiving.ActivityReceivingStringFKRefno,");
+                sql.Append("tActivityReceiving.ActivityFKRefno,");
+                sql.Append("tActivityReceiving.ActivityStringFKRefno,");
                 sql.Append("tLocationMapWarehouse.LocationMapRefno,");
                 sql.Append("tLocationMapWarehouse.LocationMapWarehouseFKRefno,");
                 sql.Append("tLocationMapWarehouse.LocationMapWarehouseName,");
@@ -319,8 +319,8 @@ namespace dMobile.Controller
             else
             {
                 sql.Append("SELECT tActivityReceiving.ActivityRefno AS ActivityRefno,");
-                sql.Append("tActivityReceiving.ActivityReceivingFKRefno AS ActivityReceivingFKRefno,");
-                sql.Append("tActivityReceiving.ActivityReceivingStringFKRefno AS ActivityReceivingStringFKRefno,");
+                sql.Append("tActivityReceiving.ActivityFKRefno AS ActivityFKRefno,");
+                sql.Append("tActivityReceiving.ActivityStringFKRefno AS ActivityStringFKRefno,");
                 sql.Append("tLocationMapWarehouse.LocationMapRefno AS LocationMapRefno,");
                 sql.Append("tLocationMapWarehouse.LocationMapWarehouseFKRefno AS LocationMapWarehouseFKRefno,");
                 sql.Append("tLocationMapWarehouse.LocationMapWarehouseName AS LocationMapWarehouseName,");
@@ -401,7 +401,7 @@ namespace dMobile.Controller
             if (selectedActivity is Receive receive)
             {
                 this.SelectedActivity = receive;
-                this.HdrFKRefno = Convert.ToInt32(receive.ActivityReceivingFKRefno);
+                this.HdrFKRefno = Convert.ToInt32(receive.ActivityFKRefno);
                 this.HdrRefno = Convert.ToInt32(receive.ActivityRefno);
                 this.PONO = Convert.ToString(receive.ActivityReceivingPONumber);
 
@@ -422,7 +422,7 @@ namespace dMobile.Controller
         {
             if (selectedItem is Receive receive)
             {
-                this.HdrFKRefno = Convert.ToInt32(receive.ActivityReceivingFKRefno);
+                this.HdrFKRefno = Convert.ToInt32(receive.ActivityFKRefno);
                 this.HdrRefno = Convert.ToInt32(receive.ActivityRefno);
                 this.PONO = Convert.ToString(receive.ActivityReceivingPONumber);
             }
@@ -542,7 +542,7 @@ namespace dMobile.Controller
         /// <returns><see cref="int"/> Found activity foreign key refno, else 0 if not found.</returns>
         public override int GetFKRefno(object resourceType)
         {
-            object tmpFKRefno = ((Receive)resourceType).ActivityReceivingFKRefno;
+            object tmpFKRefno = ((Receive)resourceType).ActivityFKRefno;
             return tmpFKRefno == null ? 0 : Convert.ToInt32(tmpFKRefno);
         }
 

@@ -82,7 +82,7 @@ namespace dMobile.Controller
                 Label labelDate = new Label { VerticalOptions = LayoutOptions.Center };
                 Label labelArrived = new Label { VerticalOptions = LayoutOptions.Center };
 
-                labelTransferNumber.SetBinding(Label.TextProperty, new Binding("ActivityTransferStringFKRefno"));
+                labelTransferNumber.SetBinding(Label.TextProperty, new Binding("ActivityStringFKRefno"));
                 labelWhs.SetBinding(Label.TextProperty, new Binding("LocationMapWarehouseFKRefno"));
                 labelDate.SetBinding(Label.TextProperty, new Binding("ActivityTransferDateTime", BindingMode.Default, null, null, "{0:MM/dd/yyyy}"));
                 labelArrived.SetBinding(Label.TextProperty, new Binding("ActivityTransferArrivalDateTime", BindingMode.Default, null, null, "{0:MM/dd/yyyy}"));
@@ -114,7 +114,7 @@ namespace dMobile.Controller
         /// <returns>.</returns>
         public override string GetFKRefnoIdx()
         {
-            return "ActivityTransferStringFKRefno";
+            return "ActivityStringFKRefno";
         }
 
         /// <summary>
@@ -145,8 +145,8 @@ namespace dMobile.Controller
                 //    ActivityTransferArrivalDateTime = Convert.ToDateTime(row["ActivityTransferArrivalDateTime"] != DBNull.Value ? row["ActivityTransferArrivalDateTime"] : null),
                 //    ActivityTransferDateTime = Convert.ToDateTime(row["ActivityTransferDateTime"] != DBNull.Value ? row["ActivityTransferDateTime"] : null),
                 //    ActivityTransferDescription = Convert.ToString(row["ActivityTransferDescription"] != DBNull.Value ? row["ActivityTransferDescription"] : null),
-                //    ActivityTransferFKRefno = Convert.ToInt32(row["ActivityTransferFKRefno"] != DBNull.Value ? row["ActivityTransferFKRefno"] : null),
-                //    ActivityTransferStringFKRefno = Convert.ToString(row["ActivityTransferStringFKRefno"] != DBNull.Value ? row["ActivityTransferStringFKRefno"] : null),
+                //    ActivityFKRefno = Convert.ToInt32(row["ActivityFKRefno"] != DBNull.Value ? row["ActivityFKRefno"] : null),
+                //    ActivityStringFKRefno = Convert.ToString(row["ActivityStringFKRefno"] != DBNull.Value ? row["ActivityStringFKRefno"] : null),
                 //    LocationMapRefno = Convert.ToInt32(row["LocationMapRefno"] != DBNull.Value ? row["LocationMapRefno"] : null),
                 //    LocationMapWarehouseFKRefno = Convert.ToInt32(row["LocationMapWarehouseFKRefno"] != DBNull.Value ? row["LocationMapWarehouseFKRefno"] : null),
                 //    LocationMapWarehouseName = Convert.ToString(row["LocationMapWarehouseName"] != DBNull.Value ? row["LocationMapWarehouseName"] : null)
@@ -195,7 +195,7 @@ namespace dMobile.Controller
 
             foreach (Transfer transfer in observableCollection)
             {
-                double detailWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(transfer.ActivityTransferStringFKRefno);
+                double detailWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(transfer.ActivityStringFKRefno);
                 double detailWidth1 = DependencyService.Get<IGridService>().CalculateTextWidth(Convert.ToString(transfer.LocationMapWarehouseFKRefno));
                 double detailWidth2 = DependencyService.Get<IGridService>().CalculateTextWidth(transfer.ActivityTransferDateTime.ToString("MM/dd/yyyy"));
                 double detailWidth3 = DependencyService.Get<IGridService>().CalculateTextWidth(transfer.ActivityTransferArrivalDateTime.ToString("MM/dd/yyyy"));
@@ -242,8 +242,8 @@ namespace dMobile.Controller
             if (isSubmitBatch)
             {
                 sql.Append("SELECT tActivityTransfer.ActivityRefno AS ActivityRefno,");
-                sql.Append("tActivityTransfer.ActivityTransferFKRefno AS ActivityTransferFKRefno,");
-                sql.Append("tActivityTransfer.ActivityTransferStringFKRefno AS ActivityTransferStringFKRefno,");
+                sql.Append("tActivityTransfer.ActivityFKRefno AS ActivityFKRefno,");
+                sql.Append("tActivityTransfer.ActivityStringFKRefno AS ActivityStringFKRefno,");
                 sql.Append("tLocationMapWarehouse.LocationMapRefno AS LocationMapRefno,");
                 sql.Append("tLocationMapWarehouse.LocationMapWarehouseFKRefno AS LocationMapWarehouseFKRefno,");
                 sql.Append("tLocationMapWarehouse.LocationMapWarehouseName AS LocationMapWarehouseName,");
@@ -258,8 +258,8 @@ namespace dMobile.Controller
                 sql.AppendFormat("WHERE tActivity.ActivityStatus <> {0} ", Convert.ToInt32(SysCommon.ActStatus.NoChange));
                 sql.Append("UNION ");
                 sql.Append("SELECT tActivityTransfer.ActivityRefno,");
-                sql.Append("tActivityTransfer.ActivityTransferFKRefno,");
-                sql.Append("tActivityTransfer.ActivityTransferStringFKRefno,");
+                sql.Append("tActivityTransfer.ActivityFKRefno,");
+                sql.Append("tActivityTransfer.ActivityStringFKRefno,");
                 sql.Append("tLocationMapWarehouse.LocationMapRefno,");
                 sql.Append("tLocationMapWarehouse.LocationMapWarehouseFKRefno,");
                 sql.Append("tLocationMapWarehouse.LocationMapWarehouseName,");
@@ -275,8 +275,8 @@ namespace dMobile.Controller
                 sql.AppendFormat("WHERE tActivityItem.ActivityItemStatus <> {0} ", Convert.ToInt32(SysCommon.ActStatus.NoChange));
                 sql.Append("UNION ");
                 sql.Append("SELECT tActivityTransfer.ActivityRefno,");
-                sql.Append("tActivityTransfer.ActivityTransferFKRefno,");
-                sql.Append("tActivityTransfer.ActivityTransferStringFKRefno,");
+                sql.Append("tActivityTransfer.ActivityFKRefno,");
+                sql.Append("tActivityTransfer.ActivityStringFKRefno,");
                 sql.Append("tLocationMapWarehouse.LocationMapRefno,");
                 sql.Append("tLocationMapWarehouse.LocationMapWarehouseFKRefno,");
                 sql.Append("tLocationMapWarehouse.LocationMapWarehouseName,");
@@ -297,8 +297,8 @@ namespace dMobile.Controller
             else
             {
                 sql.Append("SELECT tActivityTransfer.ActivityRefno AS ActivityRefno,");
-                sql.Append("tActivityTransfer.ActivityTransferFKRefno AS ActivityTransferFKRefno,");
-                sql.Append("tActivityTransfer.ActivityTransferStringFKRefno AS ActivityTransferStringFKRefno,");
+                sql.Append("tActivityTransfer.ActivityFKRefno AS ActivityFKRefno,");
+                sql.Append("tActivityTransfer.ActivityStringFKRefno AS ActivityStringFKRefno,");
                 sql.Append("tLocationMapWarehouse.LocationMapRefno AS LocationMapRefno,");
                 sql.Append("tLocationMapWarehouse.LocationMapWarehouseFKRefno AS LocationMapWarehouseFKRefno,");
                 sql.Append("tLocationMapWarehouse.LocationMapWarehouseName AS LocationMapWarehouseName,");
@@ -355,7 +355,7 @@ namespace dMobile.Controller
         {
             ObservableCollection<object> observableCollection = new ObservableCollection<object>();
 
-            this.ListHdrs = this.listTransfers.Where(transfer => transfer.ActivityTransferStringFKRefno.ToLower().Contains(searchText.ToLower().Trim())).Cast<object>().ToList();
+            this.ListHdrs = this.listTransfers.Where(transfer => transfer.ActivityStringFKRefno.ToLower().Contains(searchText.ToLower().Trim())).Cast<object>().ToList();
 
             foreach (Transfer transfer in this.ListHdrs)
             {
@@ -366,8 +366,8 @@ namespace dMobile.Controller
                 //    ActivityTransferArrivalDateTime = Convert.ToDateTime(row["ActivityTransferArrivalDateTime"] != DBNull.Value ? row["ActivityTransferArrivalDateTime"] : null),
                 //    ActivityTransferDateTime = Convert.ToDateTime(row["ActivityTransferDateTime"] != DBNull.Value ? row["ActivityTransferDateTime"] : null),
                 //    ActivityTransferDescription = Convert.ToString(row["ActivityTransferDescription"] != DBNull.Value ? row["ActivityTransferDescription"] : null),
-                //    ActivityTransferFKRefno = Convert.ToInt32(row["ActivityTransferFKRefno"] != DBNull.Value ? row["ActivityTransferFKRefno"] : null),
-                //    ActivityTransferStringFKRefno = Convert.ToString(row["ActivityTransferStringFKRefno"] != DBNull.Value ? row["ActivityTransferStringFKRefno"] : null),
+                //    ActivityFKRefno = Convert.ToInt32(row["ActivityFKRefno"] != DBNull.Value ? row["ActivityFKRefno"] : null),
+                //    ActivityStringFKRefno = Convert.ToString(row["ActivityStringFKRefno"] != DBNull.Value ? row["ActivityStringFKRefno"] : null),
                 //    LocationMapRefno = Convert.ToInt32(row["LocationMapRefno"] != DBNull.Value ? row["LocationMapRefno"] : null),
                 //    LocationMapWarehouseFKRefno = Convert.ToInt32(row["LocationMapWarehouseFKRefno"] != DBNull.Value ? row["LocationMapWarehouseFKRefno"] : null),
                 //    LocationMapWarehouseName = Convert.ToString(row["LocationMapWarehouseName"] != DBNull.Value ? row["LocationMapWarehouseName"] : null)
@@ -388,7 +388,7 @@ namespace dMobile.Controller
             if (selectedActivity is Transfer transfer)
             {
                 this.SelectedActivity = transfer;
-                this.HdrFKRefno = Convert.ToInt32(transfer.ActivityTransferFKRefno);
+                this.HdrFKRefno = Convert.ToInt32(transfer.ActivityFKRefno);
                 this.HdrRefno = Convert.ToInt32(transfer.ActivityRefno);
 
                 // Set the selected warehouse to the activity header warehouse.
@@ -408,7 +408,7 @@ namespace dMobile.Controller
         {
             if (selectedItem is Transfer transfer)
             {
-                this.HdrFKRefno = Convert.ToInt32(transfer.ActivityTransferFKRefno);
+                this.HdrFKRefno = Convert.ToInt32(transfer.ActivityFKRefno);
                 this.HdrRefno = Convert.ToInt32(transfer.ActivityRefno);
             }
 
@@ -525,7 +525,7 @@ namespace dMobile.Controller
         /// <returns><see cref="int"/> Found activity foreign key refno, else 0 if not found.</returns>
         public override int GetFKRefno(object resourceType)
         {
-            object tmpFKRefno = ((Transfer)resourceType).ActivityTransferFKRefno;
+            object tmpFKRefno = ((Transfer)resourceType).ActivityFKRefno;
             return tmpFKRefno == null ? 0 : Convert.ToInt32(tmpFKRefno);
         }
 

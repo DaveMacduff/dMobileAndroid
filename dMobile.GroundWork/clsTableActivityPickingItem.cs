@@ -165,7 +165,7 @@ namespace dMobile.GroundWork
             int actPickFKRefno;
             if (results?.Count > 0)
             {
-                actPickFKRefno = Convert.ToInt32(results[0].ActivityPickingFKRefno);
+                actPickFKRefno = Convert.ToInt32(results[0].ActivityFKRefno);
             }
             else
             {

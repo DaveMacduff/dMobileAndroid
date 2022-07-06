@@ -163,7 +163,7 @@ namespace dMobile.GroundWork
             int transFKRefno;
             if (results?.Count > 0)
             {
-                transFKRefno = results[0].ActivityTransferFKRefno;
+                transFKRefno = results[0].ActivityFKRefno;
             }
             else
             {

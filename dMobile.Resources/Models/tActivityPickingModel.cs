@@ -8,44 +8,6 @@ namespace dMobile.Resources.Models
     using SQLite;
     using SQLiteNetExtensions.Attributes;
 
-    //string sqlTable = "CREATE TABLE IF NOT EXISTS tActivityPicking"
-    //+ "("
-    //+ "ActivityRefno INTEGER NOT NULL CONSTRAINT PK_ActivityPickingOnActivityRefno PRIMARY KEY,"
-    //+ "ActivitySubType INTEGER NOT NULL,"
-    //+ "ActivityPickingFKRefno INTEGER NOT NULL,"
-    //+ "ActivityPickingStringFKRefno nvarchar(8) NOT NULL,"
-    //+ "WarehouseLocationMapRefno INTEGER NOT NULL,"
-    //+ "ActivityPickingOrderedDateTime datetime NOT NULL,"
-    //+ "ActivityPickingDeliveryDateTime datetime NOT NULL,"
-    //+ "ActivityPickingCustomerContactName nvarchar(40) NOT NULL,"
-    //+ "ActivityPickingCustomerShipToInfo nvarchar(40) NOT NULL,"
-    //+ "ActivityPickingIsReviewed bit NOT NULL, "
-
-    //+ "CONSTRAINT ActivityPickingToActivityOnActivityRefno FOREIGN KEY (ActivityRefno) REFERENCES tActivity(ActivityRefno) ON DELETE CASCADE ON UPDATE CASCADE, "
-    //+ "CONSTRAINT ActivityPickingToLocationMapWarehouseOnWarehouseLocationMapRefnoAndLocationMapRefno FOREIGN KEY (WarehouseLocationMapRefno) REFERENCES tLocationMapWarehouse(LocationMapRefno) ON DELETE CASCADE ON UPDATE CASCADE"
-
-    //+ ")";
-
-    //if (this.OnNubStatOut != null)
-    //{
-    //    
-    //    this.MsgEventArgs.StatusOutMsg = "Creating picking table.";
-    //    this.OnNubStatOut(this, this.MsgEventArgs);
-    //}
-
-    //await this.RunDDLCommand(sqlTable);
-
-    //        string sqlNdx = "CREATE UNIQUE INDEX IF NOT EXISTS UQ_ActivityPickingOnActivityRefnoAndActivitySubType "
-    //            + "ON tActivityPicking(ActivityRefno ASC, ActivitySubType ASC)";
-    //await this.RunDDLCommand(sqlNdx);
-
-    //sqlNdx = "CREATE UNIQUE INDEX IF NOT EXISTS UQ_ActivityPickingOnActivityPickingFKRefno ON "
-    //            + "tActivityPicking(ActivityPickingFKRefno ASC)";
-    //await this.RunDDLCommand(sqlNdx);
-
-    //sqlNdx = "CREATE INDEX IF NOT EXISTS FK_ActivityPickingOnWarehouseLocationMapRefno ON "
-    //            + "tActivityPicking(WarehouseLocationMapRefno ASC)";
-    //await this.RunDDLCommand(sqlNdx);
     [Table("tActivityPicking")]
     public class tActivityPickingModel
     {
@@ -55,11 +17,11 @@ namespace dMobile.Resources.Models
         [Indexed(Name = "UQ_ActivityPickingOnActivityRefnoAndActivitySubType", Order = 2, Unique = true), NotNull]
         public int ActivitySubType { get; set; }
 
-        [Indexed(Name = "UQ_ActivityPickingOnActivityPickingFKRefno", Order = 1, Unique = true), NotNull]
-        public int ActivityPickingFKRefno { get; set; }
+        [Indexed(Name = "UQ_ActivityPickingOnActivityFKRefno", Order = 1, Unique = true), NotNull]
+        public int ActivityFKRefno { get; set; }
 
         [NotNull]
-        public string ActivityPickingStringFKRefno { get; set; }
+        public string ActivityStringFKRefno { get; set; }
 
         [Indexed(Name = "FK_ActivityPickingOnWarehouseLocationMapRefno", Order = 1, Unique = false), ForeignKey(typeof(tLocationMapWarehouseModel)), NotNull]
         public int WarehouseLocationMapRefno { get; set; }

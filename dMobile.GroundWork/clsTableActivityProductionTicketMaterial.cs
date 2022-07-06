@@ -178,11 +178,11 @@ namespace dMobile.GroundWork
 
                                 transaction.Execute(queryActivityProduction, parametersActivityProduction);
 
-                                actProductionFKRefno = Convert.ToInt32(drow["ActivityProductionFKRefno"]);
+                                actProductionFKRefno = Convert.ToInt32(drow["ActivityFKRefno"]);
                                 string queryActivityProductionMaterial = "INSERT INTO tActivityProductionMaterial (" +
                                     "ActivityRefno, " +
-                                    "ActivityProductionFKRefno, " +
-                                    "ActivityProductionStringFKRefno " +
+                                    "ActivityFKRefno, " +
+                                    "ActivityStringFKRefno " +
                                     ") VALUES (" +
                                     "?, " +
                                     "?, " +
