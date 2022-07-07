@@ -1,0 +1,535 @@
+// <copyright file="TicketFinishedActivity.cs" company="InterSect Business Systems Inc">
+// Copyright (c) InterSect Business Systems Inc. All rights reserved.
+// </copyright>
+
+namespace dMobile.Controller
+{
+    using System;
+    using System.Collections.Generic;
+    using System.Collections.ObjectModel;
+    using System.Data;
+    using System.Linq;
+    using System.Text;
+    using System.Threading.Tasks;
+    using System.Xml.Linq;
+    using dMobile.Bedrock;
+    using dMobile.GroundWork;
+    using dMobile.Resources.Services;
+    using dMobile.Resources.Types;
+    using Xamarin.Forms;
+
+    /// <summary>
+    /// Defines the <see cref="TicketFinishedActivity" />.
+    /// </summary>
+    public class TicketFinishedActivity : Activity
+    {
+        /// <summary>
+        /// Defines the columnWidth0.
+        /// </summary>
+        private double columnWidth0 = 0;
+
+        /// <summary>
+        /// Defines the columnWidth1.
+        /// </summary>
+        private double columnWidth1 = 0;
+
+        /// <summary>
+        /// Defines the columnWidth2.
+        /// </summary>
+        private double columnWidth2 = 0;
+
+        /// <summary>
+        /// Defines the resourceDictionary.
+        /// </summary>
+        private ResourceDictionary resourceDictionary = new ResourceDictionary();
+
+        /// <summary>
+        /// Defines the listProductionTicketFinished.
+        /// </summary>
+        private List<ProductionTicketFinished> listProductionTicketFinished = new List<ProductionTicketFinished>();
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="TicketFinishedActivity"/> class.
+        /// </summary>
+        public TicketFinishedActivity()
+          : base()
+        {
+            this.FullClassName = typeof(TicketFinishedActivity).FullName;
+
+            // Data grid
+            DataTemplate dataTemplate = new DataTemplate(() =>
+            {
+                Grid gridData = new Grid
+                {
+                    Padding = new Thickness(5),
+                    ColumnDefinitions =
+                    {
+                        new ColumnDefinition { Width = new GridLength(this.columnWidth0, GridUnitType.Absolute) },
+                        new ColumnDefinition { Width = new GridLength(this.columnWidth1, GridUnitType.Absolute) },
+                        new ColumnDefinition { Width = new GridLength(this.columnWidth2, GridUnitType.Absolute) },
+                    },
+                };
+
+                Label labelActivityRefno = new Label { VerticalOptions = LayoutOptions.Center };
+                Label labelActivityDateTime = new Label { VerticalOptions = LayoutOptions.Center };
+                Label labelActivityDescription = new Label { VerticalOptions = LayoutOptions.Center };
+
+                labelActivityRefno.SetBinding(Label.TextProperty, new Binding("ActivityStringFKRefno"));
+                labelActivityDateTime.SetBinding(Label.TextProperty, new Binding("ActivityProductionDateTime", BindingMode.Default, null, null, "{0:MM/dd/yyyy}"));
+                labelActivityDescription.SetBinding(Label.TextProperty, new Binding("ActivityProductionDescription"));
+
+                gridData.Children.Add(labelActivityRefno, 0, 0);
+                gridData.Children.Add(labelActivityDateTime, 0, 0);
+                gridData.Children.Add(labelActivityDescription, 0, 0);
+
+                Grid.SetColumn(labelActivityRefno, 0);
+                Grid.SetColumn(labelActivityDateTime, 1);
+                Grid.SetColumn(labelActivityDescription, 2);
+
+                return new ViewCell { View = gridData };
+            });
+
+            this.resourceDictionary.Add("dataTemplate", dataTemplate);
+        }
+
+        /// <summary>
+        /// The GetFKRefnoIdx.
+        /// </summary>
+        /// <returns>.</returns>
+        public override string GetFKRefnoIdx()
+        {
+            return "ActivityStringFKRefno";
+        }
+
+        /// <summary>
+        /// The GetControlDescription.
+        /// </summary>
+        /// <returns>.</returns>
+        public override string GetControlDescription()
+        {
+            return "Tickets Finished";
+        }
+
+        /// <summary>
+        /// The DesignGrid.
+        /// </summary>
+        /// <param name="GridMainActivity">The GridMainActivity<see cref="Grid"/>.</param>
+        /// <param name="ListViewMainActivity">The ListViewMainActivity<see cref="ListView"/>.</param>
+        /// <returns>The <see cref="ObservableCollection{object}"/>.</returns>
+        public override ObservableCollection<object> DesignGrid(ref Grid GridMainActivity, ref ListView ListViewMainActivity)
+        {
+            ObservableCollection<object> observableCollection = new ObservableCollection<object>();
+
+            foreach (ProductionTicketFinished productionTicketFinished in this.ListHdrs)
+            {
+                // ProductionTicketFinished productionTicket = new ProductionTicketFinished
+                // {
+                //    ActivityProductionDateTime = Convert.ToDateTime(row["ActivityProductionDateTime"] != DBNull.Value ? row["ActivityProductionDateTime"] : null),
+                //    ActivityProductionDescription = Convert.ToString(row["ActivityProductionDescription"] != DBNull.Value ? row["ActivityProductionDescription"] : null),
+                //    ActivityFKRefno = Convert.ToInt32(row["ActivityFKRefno"] != DBNull.Value ? row["ActivityFKRefno"] : null),
+                //    ActivityStringFKRefno = Convert.ToString(row["ActivityStringFKRefno"] != DBNull.Value ? row["ActivityStringFKRefno"] : null),
+                //    ActivityRefno = Convert.ToInt32(row["ActivityRefno"] != DBNull.Value ? row["ActivityRefno"] : null),
+                //    ActivityStatus = Convert.ToInt32(row["ActivityStatus"] != DBNull.Value ? row["ActivityStatus"] : null),
+                //    LocationMapRefno = Convert.ToInt32(row["LocationMapRefno"] != DBNull.Value ? row["LocationMapRefno"] : null),
+                //    LocationMapWarehouseFKRefno = Convert.ToInt32(row["LocationMapWarehouseFKRefno"] != DBNull.Value ? row["LocationMapWarehouseFKRefno"] : null),
+                //    LocationMapWarehouseName = Convert.ToString(row["LocationMapWarehouseName"] != DBNull.Value ? row["LocationMapWarehouseName"] : null),
+                // };
+                observableCollection.Add(productionTicketFinished);
+            }
+
+            Label labelTicketNumber = new Label { Text = "Ticket #", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
+            Label labelTicketDate = new Label { Text = "Date", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
+            Label labelTicketDescription = new Label { Text = "Description", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
+
+            // Calculate text size
+            this.columnWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(labelTicketNumber.Text);
+            this.columnWidth1 = DependencyService.Get<IGridService>().CalculateTextWidth(labelTicketDate.Text);
+            this.columnWidth2 = DependencyService.Get<IGridService>().CalculateTextWidth(labelTicketDescription.Text);
+
+            Grid gridHeader = new Grid
+            {
+                Padding = new Thickness(5),
+                ColumnDefinitions =
+                {
+                    new ColumnDefinition { Width = new GridLength(this.columnWidth0, GridUnitType.Absolute) },
+                    new ColumnDefinition { Width = new GridLength(this.columnWidth1, GridUnitType.Absolute) },
+                    new ColumnDefinition { Width = new GridLength(this.columnWidth2, GridUnitType.Absolute) },
+                },
+            };
+
+            gridHeader.SetDynamicResource(VisualElement.BackgroundColorProperty, "HeaderColor");
+
+            gridHeader.Children.Add(labelTicketNumber);
+            gridHeader.Children.Add(labelTicketDate);
+            gridHeader.Children.Add(labelTicketDescription);
+
+            Grid.SetColumn(labelTicketNumber, 0);
+            Grid.SetColumn(labelTicketDate, 1);
+            Grid.SetColumn(labelTicketDescription, 2);
+
+            Grid.SetRow(gridHeader, 0);
+
+            GridMainActivity.Children.Add(gridHeader);
+
+            foreach (ProductionTicketFinished productionTicket in observableCollection)
+            {
+                double dataColumnWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(productionTicket.ActivityStringFKRefno);
+                double dataColumnWidth1 = DependencyService.Get<IGridService>().CalculateTextWidth(Convert.ToString(productionTicket.ActivityProductionDateTime.ToString("MM/dd/yyyy")));
+                double dataColumnWidth2 = DependencyService.Get<IGridService>().CalculateTextWidth(productionTicket.ActivityProductionDescription);
+
+                if (dataColumnWidth0 > this.columnWidth0)
+                {
+                    this.columnWidth0 = dataColumnWidth0;
+                    gridHeader.ColumnDefinitions[0].Width = this.columnWidth0;
+                }
+
+                if (dataColumnWidth1 > this.columnWidth1)
+                {
+                    this.columnWidth1 = dataColumnWidth1;
+                    gridHeader.ColumnDefinitions[1].Width = this.columnWidth1;
+                }
+
+                if (dataColumnWidth2 > this.columnWidth2)
+                {
+                    this.columnWidth2 = dataColumnWidth2;
+                    gridHeader.ColumnDefinitions[2].Width = this.columnWidth2;
+                }
+            }
+
+            ListViewMainActivity.ItemTemplate = (DataTemplate)this.resourceDictionary["dataTemplate"];
+
+            return observableCollection;
+        }
+
+        /// <summary>
+        /// The GetActivityList.
+        /// </summary>
+        /// <param name="isSubmitBatch">The isSubmitBatch<see cref="bool"/>.</param>
+        /// <returns>.</returns>
+        public override async Task<List<object>> GetActivityList(bool isSubmitBatch)
+        {
+            ProductionTicketSettings ticketSettings = new ProductionTicketSettings().LoadData();
+            StringBuilder sql = new StringBuilder();
+
+            if (isSubmitBatch)
+            {
+                sql.Append("SELECT tActivityProduction.ActivityRefno,");
+                sql.Append("tActivityProductionFinished.ActivityFKRefno,");
+                sql.Append("tActivityProductionFinished.ActivityStringFKRefno,");
+                sql.Append("tLocationMapWarehouse.LocationMapRefno AS LocationMapRefno,");
+                sql.Append("tLocationMapWarehouse.LocationMapWarehouseFKRefno AS LocationMapWarehouseFKRefno,");
+                sql.Append("tLocationMapWarehouse.LocationMapWarehouseName AS LocationMapWarehouseName,");
+                sql.Append("tActivityProduction.ActivityProductionDateTime AS ActivityProductionDateTime,");
+                sql.Append("tActivityProduction.ActivityProductionDescription AS ActivityProductionDescription,");
+                sql.Append("tActivity.ActivityStatus AS ActivityStatus ");
+                sql.Append("FROM tActivityProduction ");
+                sql.Append("INNER JOIN tActivity ON tActivity.ActivityRefno = tActivityProduction.ActivityRefno ");
+                sql.Append("INNER JOIN tActivityProductionFinished ON tActivityProductionFinished.ActivityRefno ");
+                sql.Append("= tActivityProduction.ActivityRefno ");
+                sql.Append("INNER JOIN tLocationMapWarehouse ON tLocationMapWarehouse.LocationMapRefno ");
+                sql.Append("= tActivityProduction.WarehouseLocationMapRefno ");
+                sql.AppendFormat("WHERE tActivity.ActivityStatus <> {0} ", Convert.ToInt32(SysCommon.ActStatus.NoChange));
+                sql.AppendFormat("AND tActivity.ActivitySubType = {0} ", Convert.ToInt32(SysCommon.ActSubTypes.TicketFinished));
+                sql.Append("UNION ");
+                sql.Append("SELECT tActivityProduction.ActivityRefno,");
+                sql.Append("tActivityProductionFinished.ActivityFKRefno,");
+                sql.Append("tActivityProductionFinished.ActivityStringFKRefno,");
+                sql.Append("tLocationMapWarehouse.LocationMapRefno,");
+                sql.Append("tLocationMapWarehouse.LocationMapWarehouseFKRefno,");
+                sql.Append("tLocationMapWarehouse.LocationMapWarehouseName,");
+                sql.Append("tActivityProduction.ActivityProductionDateTime,");
+                sql.Append("tActivityProduction.ActivityProductionDescription,");
+                sql.Append("tActivity.ActivityStatus ");
+                sql.Append("FROM tActivityProduction ");
+                sql.Append("INNER JOIN tActivity ON tActivity.ActivityRefno = tActivityProduction.ActivityRefno ");
+                sql.Append("INNER JOIN tActivityProductionFinished ON tActivityProductionFinished.ActivityRefno ");
+                sql.Append("= tActivityProduction.ActivityRefno ");
+                sql.Append("INNER JOIN tLocationMapWarehouse ON tLocationMapWarehouse.LocationMapRefno ");
+                sql.Append("= tActivityProduction.WarehouseLocationMapRefno ");
+                sql.Append("INNER JOIN tActivityItem ON tActivityItem.ActivityRefno = tActivity.ActivityRefno ");
+                sql.AppendFormat("WHERE tActivityItem.ActivityItemStatus <> {0} ", Convert.ToInt32(SysCommon.ActStatus.NoChange));
+                sql.AppendFormat("AND tActivity.ActivitySubType = {0} ", Convert.ToInt32(SysCommon.ActSubTypes.TicketFinished));
+                sql.Append("UNION ");
+                sql.Append("SELECT tActivityProduction.ActivityRefno,");
+                sql.Append("tActivityProductionFinished.ActivityFKRefno,");
+                sql.Append("tActivityProductionFinished.ActivityStringFKRefno,");
+                sql.Append("tLocationMapWarehouse.LocationMapRefno,");
+                sql.Append("tLocationMapWarehouse.LocationMapWarehouseFKRefno,");
+                sql.Append("tLocationMapWarehouse.LocationMapWarehouseName,");
+                sql.Append("tActivityProduction.ActivityProductionDateTime,");
+                sql.Append("tActivityProduction.ActivityProductionDescription,");
+                sql.Append("tActivity.ActivityStatus ");
+                sql.Append("FROM tActivityProduction ");
+                sql.Append("INNER JOIN tActivity ON tActivity.ActivityRefno = tActivityProduction.ActivityRefno ");
+                sql.Append("INNER JOIN tActivityProductionFinished ON tActivityProductionFinished.ActivityRefno ");
+                sql.Append("= tActivityProduction.ActivityRefno ");
+                sql.Append("INNER JOIN tActivityItem ON tActivityItem.ActivityRefno = tActivity.ActivityRefno ");
+                sql.Append("INNER JOIN tLocationMapWarehouse ON tLocationMapWarehouse.LocationMapRefno ");
+                sql.Append("= tActivityProduction.WarehouseLocationMapRefno ");
+                sql.Append("INNER JOIN tActivityDetail ON tActivityDetail.ActivityItemRefno ");
+                sql.Append("= tActivityItem.ActivityItemRefno ");
+                sql.AppendFormat("WHERE tActivityDetail.ActivityDetailStatus <> {0} ", Convert.ToInt32(SysCommon.ActStatus.NoChange));
+                sql.AppendFormat("AND tActivity.ActivitySubType = {0}", Convert.ToInt32(SysCommon.ActSubTypes.TicketFinished));
+            }
+            else
+            {
+                sql.Append("SELECT tActivityProduction.ActivityRefno,");
+                sql.Append("tActivityProductionFinished.ActivityFKRefno,");
+                sql.Append("tActivityProductionFinished.ActivityStringFKRefno,");
+                sql.Append("tLocationMapWarehouse.LocationMapRefno AS LocationMapRefno,");
+                sql.Append("tLocationMapWarehouse.LocationMapWarehouseFKRefno AS LocationMapWarehouseFKRefno,");
+                sql.Append("tLocationMapWarehouse.LocationMapWarehouseName AS LocationMapWarehouseName,");
+                sql.Append("tActivityProduction.ActivityProductionDateTime AS ActivityProductionDateTime,");
+                sql.Append("tActivityProduction.ActivityProductionDescription AS ActivityProductionDescription,");
+                sql.Append("tActivity.ActivityStatus AS ActivityStatus ");
+                sql.Append("FROM tActivityProduction ");
+                sql.Append("INNER JOIN tLocationMapWarehouse ON tLocationMapWarehouse.LocationMapRefno ");
+                sql.Append("= tActivityProduction.WarehouseLocationMapRefno ");
+                sql.Append("INNER JOIN tActivity ON tActivity.ActivityRefno = tActivityProduction.ActivityRefno ");
+                sql.Append("INNER JOIN tActivityProductionFinished ON tActivityProductionFinished.ActivityRefno ");
+                sql.Append("= tActivityProduction.ActivityRefno ");
+                sql.AppendFormat("WHERE tActivity.ActivitySubType = {0}", Convert.ToInt32(SysCommon.ActSubTypes.TicketFinished));
+            }
+
+            // using (SQLiteDataAdapter da = new SQLiteDataAdapter(sql.ToString(), DatabaseConnection.GetInstance().SQLConn))
+            // {
+            //    using (DataSet ds = new DataSet())
+            //    {
+            //        da.Fill(ds);
+
+            // this.DataViewHdrs = ds.Tables[0].DefaultView;
+            //        this.DataViewHdrs.Table.TableName = this.MainGridMappingName;
+            // TODO: Fix sorting
+            //        this.DataViewHdrs.Sort = ticketSettings.GetDataViewSortBy();
+            //    }
+            // }
+            this.listProductionTicketFinished = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<ProductionTicketFinished>(sql.ToString());
+
+            foreach (Sort sort in ticketSettings.GetDataViewSortBy())
+            {
+                if (sort.SortOrder == Resources.Enums.SortOrder.ASC)
+                {
+                    this.listProductionTicketFinished = this.listProductionTicketFinished.OrderBy(adj => adj.GetType().GetProperty(sort.SortValue).GetValue(adj)).ToList();
+                }
+                else
+                {
+                    this.listProductionTicketFinished = this.listProductionTicketFinished.OrderByDescending(adj => adj.GetType().GetProperty(sort.SortValue).GetValue(adj)).ToList();
+                }
+            }
+
+            this.GetFilter();
+
+            this.ListHdrs = this.listProductionTicketFinished.Cast<object>().ToList();
+            return this.ListHdrs;
+        }
+
+        /// <summary>
+        /// The Search.
+        /// </summary>
+        /// <param name="searchText">.</param>
+        /// <returns>.</returns>
+        public override ObservableCollection<object> Search(string searchText)
+        {
+            ObservableCollection<object> observableCollection = new ObservableCollection<object>();
+
+            this.ListHdrs = this.listProductionTicketFinished.Where(prodTicket => prodTicket.ActivityStringFKRefno.ToLower().Contains(searchText.ToLower().Trim())).Cast<object>().ToList();
+
+            foreach (ProductionTicketFinished productionTicketFinished in this.ListHdrs)
+            {
+                // ProductionTicketFinished productionTicket = new ProductionTicketFinished
+                // {
+                //    ActivityProductionDateTime = Convert.ToDateTime(row["ActivityProductionDateTime"] != DBNull.Value ? row["ActivityProductionDateTime"] : null),
+                //    ActivityProductionDescription = Convert.ToString(row["ActivityProductionDescription"] != DBNull.Value ? row["ActivityProductionDescription"] : null),
+                //    ActivityFKRefno = Convert.ToInt32(row["ActivityFKRefno"] != DBNull.Value ? row["ActivityFKRefno"] : null),
+                //    ActivityStringFKRefno = Convert.ToString(row["ActivityStringFKRefno"] != DBNull.Value ? row["ActivityStringFKRefno"] : null),
+                //    ActivityRefno = Convert.ToInt32(row["ActivityRefno"] != DBNull.Value ? row["ActivityRefno"] : null),
+                //    ActivityStatus = Convert.ToInt32(row["ActivityStatus"] != DBNull.Value ? row["ActivityStatus"] : null),
+                //    LocationMapRefno = Convert.ToInt32(row["LocationMapRefno"] != DBNull.Value ? row["LocationMapRefno"] : null),
+                //    LocationMapWarehouseFKRefno = Convert.ToInt32(row["LocationMapWarehouseFKRefno"] != DBNull.Value ? row["LocationMapWarehouseFKRefno"] : null),
+                //    LocationMapWarehouseName = Convert.ToString(row["LocationMapWarehouseName"] != DBNull.Value ? row["LocationMapWarehouseName"] : null),
+                // };
+                observableCollection.Add(productionTicketFinished);
+            }
+
+            return observableCollection;
+        }
+
+        /// <summary>
+        /// The SelectActivity.
+        /// </summary>
+        /// <param name="selectedActivity">The selectedActivity<see cref="object"/>.</param>
+        /// <returns>The <see cref="Task"/>.</returns>
+        public override async Task SelectActivity(object selectedActivity)
+        {
+            if (selectedActivity is ProductionTicketFinished productionTicketFinished)
+            {
+                this.SelectedActivity = productionTicketFinished;
+                this.HdrFKRefno = Convert.ToInt32(productionTicketFinished.ActivityFKRefno);
+                this.HdrRefno = Convert.ToInt32(productionTicketFinished.ActivityRefno);
+
+                // Set the selected warehouse to the activity header warehouse.
+                if (LocationMap.GetInstance().CurrLocMap.WhsLocMapRefno != Convert.ToInt32(productionTicketFinished.LocationMapRefno))
+                {
+                    LocationMap.GetInstance().CurrLocMap = await LocationMapTasks.GetSLocMapFromLocMapRefno(Convert.ToInt32(productionTicketFinished.LocationMapRefno));
+                }
+            }
+        }
+
+        /// <summary>
+        /// The GetRefnoFromRowIdx.
+        /// </summary>
+        /// <param name="selectedItem">The selectedItem<see cref="object"/>.</param>
+        /// <returns>.</returns>
+        public override int GetRefnoFromRowIdx(object selectedItem)
+        {
+            if (selectedItem is ProductionTicketFinished productionTicketFinished)
+            {
+                this.HdrFKRefno = Convert.ToInt32(productionTicketFinished.ActivityFKRefno);
+                this.HdrRefno = Convert.ToInt32(productionTicketFinished.ActivityRefno);
+            }
+            return this.HdrRefno;
+        }
+
+        /// <summary>
+        /// The Refresh.
+        /// </summary>
+        /// <param name="xmlParam">.</param>
+        /// <returns>The <see cref="Task"/>.</returns>
+        public override async Task Refresh(XDocument xmlParam)
+        {
+            if (this.SysEnv.SysSettings.IsDisconnectedMode)
+            {
+                this.DataLayerProgressOutHandler(this, new EventArgs(), 5);
+            }
+            else
+            {
+                this.DataLayerProgressOutHandler(this, new EventArgs(), 2);
+                await this.Purge();
+
+                this.DataLayerProgressOutHandler(this, new EventArgs(), 5);
+
+                TableActivityProductionTicketFinished tableFinished = new TableActivityProductionTicketFinished();
+
+                tableFinished.RegisterDataAccessListenerProgressOut((TicketFinishedActivity)this);
+                await tableFinished.RequestData();
+                tableFinished.UnregisterDataAccessListenerProgressOut((TicketFinishedActivity)this);
+            }
+        }
+
+        /// <summary>
+        /// The Purge.
+        /// </summary>
+        /// <returns>The <see cref="Task"/>.</returns>
+        public override async Task Purge()
+        {
+            TableActivityProductionTicketFinished tableFinished = new TableActivityProductionTicketFinished();
+            TableActivityProductionTicketFinishedItem tableFinishedItem = new TableActivityProductionTicketFinishedItem();
+            TableActivityProductionTicketFinishedDetail tableFinishedDetail = new TableActivityProductionTicketFinishedDetail();
+
+            await tableFinishedDetail.PurgeData();
+            await tableFinishedItem.PurgeData();
+            await tableFinished.PurgeData();
+        }
+
+        /// <summary>
+        /// The GetFilter.
+        /// </summary>
+        public override void GetFilter()
+        {
+            ProductionTicketSettings ticketSettings = new ProductionTicketSettings().LoadData();
+
+            if (ticketSettings.IsApplyProductionDateFilter)
+            {
+                if (!SysCommon.IsEmptyDateTime(ticketSettings.ProductionDateFilter))
+                {
+                    DateTime dt = ticketSettings.ProductionDateFilter;
+                    DateTime minDate = new DateTime(dt.Year, dt.Month, dt.Day, 00, 00, 00);
+                    DateTime maxDate = new DateTime(dt.Year, dt.Month, dt.Day, 23, 59, 59);
+
+                    this.listProductionTicketFinished = this.listProductionTicketFinished.Where(prodTicket => prodTicket.ActivityProductionDateTime >= minDate && prodTicket.ActivityProductionDateTime <= maxDate).ToList();
+                }
+            }
+        }
+
+        /// <summary>
+        /// The GetFilter.
+        /// </summary>
+        /// <param name="data">The data<see cref="XDocument"/>.</param>
+        public override void GetFilter(XDocument data)
+        {
+            ProductionTicketSettings ticketSettings = new ProductionTicketSettings().LoadData();
+
+            if (ticketSettings.IsApplyProductionDateFilter)
+            {
+                if (string.Compare(data.Root.Element("production_date").Value, string.Empty) > 0)
+                {
+                    DateTime dt = DateTime.Parse(data.Root.Element("production_date").Value);
+                    DateTime minDate = new DateTime(dt.Year, dt.Month, dt.Day, 00, 00, 00);
+                    DateTime maxDate = new DateTime(dt.Year, dt.Month, dt.Day, 23, 59, 59);
+
+                    this.listProductionTicketFinished = this.listProductionTicketFinished.Where(prodTicket => prodTicket.ActivityProductionDateTime >= minDate && prodTicket.ActivityProductionDateTime <= maxDate).ToList();
+                }
+            }
+        }
+
+        /// <summary>
+        /// Get the activity foreign key reference number.
+        /// </summary>
+        /// <param name="resourceType"><see cref="object"/> Resource model (tActivity??Model).</param>
+        /// <returns><see cref="int"/> Found activity foreign key refno, else 0 if not found.</returns>
+        public override int GetFKRefno(object resourceType)
+        {
+            object tmpFKRefno = ((ProductionTicketFinished)resourceType).ActivityFKRefno;
+            return tmpFKRefno == null ? 0 : Convert.ToInt32(tmpFKRefno);
+        }
+
+        /// <summary>
+        /// The Insert.
+        /// </summary>
+        /// <param name="xmlParams">The xmlParams<see cref="XDocument"/>.</param>
+        /// <returns>The <see cref="Task{int}"/>.</returns>
+        public override Task<int> Insert(XDocument xmlParams)
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <summary>
+        /// The Delete.
+        /// </summary>
+        /// <returns>The <see cref="Task"/>.</returns>
+        public override Task Delete()
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <summary>
+        /// The PrintLabel.
+        /// </summary>
+        /// <param name="xmlParam">The xmlParam<see cref="XDocument"/>.</param>
+        /// <returns>The <see cref="Task"/>.</returns>
+        public override Task PrintLabel(XDocument xmlParam)
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <summary>
+        /// The GetLabelQuantity.
+        /// </summary>
+        /// <param name="isRepackQuantityOnly">The isRepackQuantityOnly<see cref="bool"/>.</param>
+        /// <returns>The <see cref="Task{SLabelQuantity}"/>.</returns>
+        public override Task<SLabelQuantity> GetLabelQuantity(bool isRepackQuantityOnly)
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <summary>
+        /// The ChangeStatus.
+        /// </summary>
+        /// <param name="selectedActivity">The selectedActivity<see cref="object"/>.</param>
+        /// <returns>The <see cref="Task{bool}"/>.</returns>
+        public override Task<bool> ChangeStatus(object selectedActivity)
+        {
+            throw new NotImplementedException();
+        }
+    }
+}
