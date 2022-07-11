@@ -129,7 +129,6 @@ namespace dMobile.View.Activity
                             request.Element("params").Element("whs_id").AddAfterSelf(new XElement("itm_refno", 0));
                             await this.Activity.PrintLabel(request);
                         }
-
                     }
 
                     if (this.SysEnv.SysSettings.IsPickRefreshOrdAfterRel)

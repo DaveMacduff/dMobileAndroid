@@ -447,7 +447,6 @@ namespace dMobile.Controller
                     await tableActTransfer.RequestData();
                     tableActTransfer.UnregisterDataAccessListenerProgressOut((TransferActivity)this);
                 }
-
             }
         }
 

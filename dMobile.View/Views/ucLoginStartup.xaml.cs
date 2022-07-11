@@ -543,7 +543,6 @@ namespace dMobile.View
                     this.IsAllowedAssocBarCode = results[0].ContactUserIsAllowedAssociateProductBarCode;
                     this.IsAllowedOverridePicker = results[0].ContactUserIsAllowedPickingModuleOverridePicker;
                     this.IsOverrideAddManualDetail = results[0].ContactUserIsAllowedPickingModuleOverrideAddManualDetail;
-
                 }
 
                 if (string.IsNullOrEmpty(this.txtLoginID.Text))

@@ -153,7 +153,6 @@ namespace dMobile.View.Activity
             this.adjustmentTypeFilters.Add("Convert Product", Convert.ToInt32(SysCommon.AdjTypes.ConvertProduct).ToString());
             this.adjustmentTypeFilters.Add("Debox", Convert.ToInt32(SysCommon.AdjTypes.Debox).ToString());
             this.adjustmentTypeFilters.Add("Convert Skid", Convert.ToInt32(SysCommon.AdjTypes.ConvertSkid).ToString());
-
         }
 
         /// <summary>

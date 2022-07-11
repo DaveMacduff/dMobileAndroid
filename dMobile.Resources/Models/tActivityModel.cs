@@ -27,6 +27,5 @@ namespace dMobile.Resources.Models
 
         [Indexed(Name = "UQ_ActivityOnActivityRefnoAndActivitySubType", Order = 2, Unique = true), NotNull]
         public int ActivitySubType { get; set; }
-
     }
 }

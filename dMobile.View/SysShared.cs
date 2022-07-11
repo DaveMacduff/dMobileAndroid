@@ -1147,7 +1147,6 @@ namespace dMobile.View
 
                         default: // Assume default will be thrown
                             break;
-
                     }
                 }
             }

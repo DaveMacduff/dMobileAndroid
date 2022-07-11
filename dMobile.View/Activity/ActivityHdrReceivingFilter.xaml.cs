@@ -396,7 +396,6 @@ namespace dMobile.View.Activity
                     bCancelChanges = false;
                     this.bChangesMade = false;
                 }
-
             }
             catch (Exception)
             {

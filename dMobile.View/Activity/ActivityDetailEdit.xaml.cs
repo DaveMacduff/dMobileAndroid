@@ -49,54 +49,48 @@ namespace dMobile.View.Activity
             this.lblBestBeforeDate.Text = "Best Before";
             this.lblVariantCode.Text = "Variant";
 
-            if (!DesignMode.IsDesignModeEnabled)
+            this.ExtraInfoItems = new ObservableCollection<string>();
+            this.SysEnv = SysEnvironment.GetInstance();
+
+            this.ActSubType = actSubTypes;
+
+            this.ActDetail = actDetail;
+            this.ActDetail.ActSubType = this.ActSubType;
+            this.ActDetail.ActItem.ActSubType = this.ActSubType;
+            this.ActDetail.ActItem.ActHdr.ActSubType = this.ActSubType;
+
+            this.ActDetailEdit = new ActDetailEdit
             {
-                this.ExtraInfoItems = new ObservableCollection<string>();
-                this.SysEnv = SysEnvironment.GetInstance();
+                SchemeData = this.ActDetail.SchemeData,
+                AltQuantity = this.ActDetail.Quantity,
+                BaseQuantity = this.ActDetail.BaseQuantity,
+                WeightQuantity = this.ActDetail.WeightQuantity,
+            };
 
-                this.ActSubType = actSubTypes;
+            this.ActDetailEdit.ActExtra.Text1 = this.ActDetail.ActExtra.Text1;
+            this.ActDetailEdit.ActExtra.Text2 = this.ActDetail.ActExtra.Text2;
+            this.ActDetailEdit.ActExtra.Text3 = this.ActDetail.ActExtra.Text3;
+            this.ActDetailEdit.ActExtra.Text4 = this.ActDetail.ActExtra.Text4;
+            this.ActDetailEdit.ActExtra.DateTime1 = this.ActDetail.ActExtra.DateTime1;
 
-                this.ActDetail = actDetail;
-                this.ActDetail.ActSubType = this.ActSubType;
-                this.ActDetail.ActItem.ActSubType = this.ActSubType;
-                this.ActDetail.ActItem.ActHdr.ActSubType = this.ActSubType;
-
-                this.ActDetailEdit = new ActDetailEdit
-                {
-                    SchemeData = this.ActDetail.SchemeData,
-                    AltQuantity = this.ActDetail.Quantity,
-                    BaseQuantity = this.ActDetail.BaseQuantity,
-                    WeightQuantity = this.ActDetail.WeightQuantity,
-                };
-
-                this.ActDetailEdit.ActExtra.Text1 = this.ActDetail.ActExtra.Text1;
-                this.ActDetailEdit.ActExtra.Text2 = this.ActDetail.ActExtra.Text2;
-                this.ActDetailEdit.ActExtra.Text3 = this.ActDetail.ActExtra.Text3;
-                this.ActDetailEdit.ActExtra.Text4 = this.ActDetail.ActExtra.Text4;
-                this.ActDetailEdit.ActExtra.DateTime1 = this.ActDetail.ActExtra.DateTime1;
-
-                if (!this.ActDetail.ActItem.ProdInfo.Scheme.IsBestBeforeDateTrackedDefault)
-                {
-                    // Default to current date
-                    this.dtBestBeforeDate.Date = DateTime.Now;
-                }
-
-                if (!this.ActDetail.ActItem.ProdInfo.Scheme.IsProductionDateTrackedDefault)
-                {
-                    // Default to current date
-                    this.dtProductionDate.Date = DateTime.Now;
-                }
-
-                this.Title = this.ActDetail.GetControlDescription();
-                this.lbl1.Text = this.ActDetail.ActItem.ProdInfo.Scheme.Extra1Caption;
-                this.lbl2.Text = this.ActDetail.ActItem.ProdInfo.Scheme.Extra2Caption;
-                this.lbl3.Text = this.ActDetail.ActItem.ProdInfo.Scheme.Extra3Caption;
-                this.lbl4.Text = this.ActDetail.ActItem.ProdInfo.Scheme.Extra4Caption;
-                this.lbl5.Text = this.ActDetail.ActItem.ProdInfo.Scheme.Extra5Caption;
-
-                this.txtAltQty.TextChanged += this.TxtAltQty_TextChanged;
-                this.txtBaseQty.TextChanged += this.TxtBaseQty_TextChanged;
+            if (!this.ActDetail.ActItem.ProdInfo.Scheme.IsBestBeforeDateTrackedDefault)
+            {
+                // Default to current date
+                this.dtBestBeforeDate.Date = DateTime.Now;
             }
+
+            if (!this.ActDetail.ActItem.ProdInfo.Scheme.IsProductionDateTrackedDefault)
+            {
+                // Default to current date
+                this.dtProductionDate.Date = DateTime.Now;
+            }
+
+            this.Title = this.ActDetail.GetControlDescription();
+            this.lbl1.Text = this.ActDetail.ActItem.ProdInfo.Scheme.Extra1Caption;
+            this.lbl2.Text = this.ActDetail.ActItem.ProdInfo.Scheme.Extra2Caption;
+            this.lbl3.Text = this.ActDetail.ActItem.ProdInfo.Scheme.Extra3Caption;
+            this.lbl4.Text = this.ActDetail.ActItem.ProdInfo.Scheme.Extra4Caption;
+            this.lbl5.Text = this.ActDetail.ActItem.ProdInfo.Scheme.Extra5Caption;
         }
 
         /// <summary>
@@ -155,9 +149,19 @@ namespace dMobile.View.Activity
         private bool IsBarCodeHandlerRegistered { get; set; } = false;
 
         /// <summary>
+        /// Gets or sets a value indicating whether the saved bar code scanner enabled status.
+        /// </summary>
+        private bool IsSvdBarScannerEnabled { get; set; } = false;
+
+        /// <summary>
         /// Gets or sets the bar code scanner instance.
         /// </summary>
         private BarCodeScanner Scanner { get; set; } = ScannerEngine.GetInstance().Scanner;
+
+        /// <summary>
+        /// Gets or sets a value indicating whether to performing loading data upon got focus.
+        /// </summary>
+        private bool FirstOnAppearing { get; set; } = true;
 
         /// <summary>
         /// Get the control description.
@@ -174,6 +178,7 @@ namespace dMobile.View.Activity
         /// <returns><see cref="Task"/> Task operation.</returns>
         public async Task ScannerDisable()
         {
+            this.IsSvdBarScannerEnabled = this.IsBarCodeHandlerRegistered;
             if (this.Scanner != null)
             {
                 this.Scanner.BarCodeScan -= new BarCodeScanner.BarCodeScanEventHandler(this.BarCodeHandler);
@@ -189,11 +194,26 @@ namespace dMobile.View.Activity
         /// <returns><see cref="Task"/> Task operation.</returns>
         public async Task ScannerEnable()
         {
-            if (!this.IsBarCodeHandlerRegistered && this.Scanner != null)
+            if (this.IsSvdBarScannerEnabled && !this.IsBarCodeHandlerRegistered && this.Scanner != null)
             {
                 await this.Scanner.Start();
                 this.Scanner.BarCodeScan += new BarCodeScanner.BarCodeScanEventHandler(this.BarCodeHandler);
                 this.IsBarCodeHandlerRegistered = true;
+            }
+        }
+
+        /// <summary>
+        /// Registers the bar code scan event handler and enables the scanner.
+        /// </summary>
+        /// <returns><see cref="Task"/> Task operation.</returns>
+        public async Task ScannerStart()
+        {
+            if (this.Scanner != null)
+            {
+                await this.Scanner.Start();
+                this.Scanner.BarCodeScan += new BarCodeScanner.BarCodeScanEventHandler(this.BarCodeHandler);
+                this.IsBarCodeHandlerRegistered = true;
+                this.IsSvdBarScannerEnabled = true;
             }
         }
 
@@ -1008,19 +1028,23 @@ namespace dMobile.View.Activity
             // is loading.
             await this.ScannerDisable();
             SubscribeKeyUpHandlers();
+            this.txtAltQty.TextChanged += this.TxtAltQty_TextChanged;
+            this.txtBaseQty.TextChanged += this.TxtBaseQty_TextChanged;
 
             try
             {
-                await Task.Run(async () =>
+                this.Loading = true;
+                if (this.FirstOnAppearing)
                 {
-                    this.Loading = true;
+                    this.FirstOnAppearing = false;
                     ////this.ListViewDisplayExtraInfo.ItemsSource = this.ExtraInfoItems;
                     await InitControlState();
+                    await this.ScannerStart();
                     await LoadData();
                     await ShowProductInfo();
-                });
 
-                ////await SetStartingFocus();
+                    ////await SetStartingFocus();
+                }
             }
             catch (Exception ex)
             {
@@ -1033,7 +1057,6 @@ namespace dMobile.View.Activity
             finally
             {
                 this.Loading = false;
-                await this.ScannerEnable();
                 await Task.Run(() =>
                 {
                     // Explicit GC, Xamarin forms not disposing of objects properly
@@ -1575,6 +1598,8 @@ namespace dMobile.View.Activity
         /// </summary>
         protected override async void OnDisappearing()
         {
+            this.txtAltQty.TextChanged -= this.TxtAltQty_TextChanged;
+            this.txtBaseQty.TextChanged -= this.TxtBaseQty_TextChanged;
             MessagingCenter.Unsubscribe<string>(this, EventTypes.OnKeyUp.ToString());
             await this.ScannerDisable();
 

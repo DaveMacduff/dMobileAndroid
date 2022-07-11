@@ -282,7 +282,6 @@ namespace dMobile.View.Activity
             {
                 IsReadyToSave = IsReadyToSave && !(decimal.Parse(this.txtAltQty.Text) == 0);
                 IsReadyToSave = IsReadyToSave && this.IsValidData();
-
             }
             catch (Exception Ex)
             {

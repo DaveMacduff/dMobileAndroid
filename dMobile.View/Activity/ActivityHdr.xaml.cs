@@ -387,7 +387,9 @@ namespace dMobile.View.Activity
         /// Assemble a XML string of activity data to return to the calling parent form.
         /// </summary>
         /// <returns><see cref="Task"/> Task operation containing an XDocument.</returns>
+#pragma warning disable CS1998 // Async method lacks 'await' operators and will run synchronously
         public async Task<XDocument> GetXML()
+#pragma warning restore CS1998 // Async method lacks 'await' operators and will run synchronously
         {
             XDocument xmldocParams = XDocument.Parse(
                 "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>"

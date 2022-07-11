@@ -655,7 +655,7 @@ namespace dMobile.View.Options
                         }
                         else if (this.SysEnv.RefreshOpt.RefreshDataChangesOnly && this.ActSubType != SysCommon.ActSubTypes.PurgeActivityData)
                         {
-                            DatabaseConnection.OpenDataBaseConnection();
+                            DatabaseConnection.Open();
                             await this.RefreshSystemData();
                         }
 
@@ -1871,7 +1871,6 @@ namespace dMobile.View.Options
                         this.TransferToDetail.UnregisterDataAccessListenerStatusOut(this);
                         this.TransferToDetail.UnregisterDataAccessListenerProgressOut(this);
                         this.StatusOut(string.Empty);
-
                     }
                 }
             }

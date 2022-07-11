@@ -260,7 +260,6 @@ namespace dMobile.Bedrock
                     }
 
                     bSaveComplete = true;
-
                 }
                 catch
                 {

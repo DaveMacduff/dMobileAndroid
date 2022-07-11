@@ -59,8 +59,8 @@ namespace dMobile.GroundWork
         {
             string dbASCIIZ = Path.Combine(this.DBConn.DBPath, this.DBConn.DBName);
 
-            await DatabaseConnection.CloseDataBaseConnection();
-            DatabaseConnection.DisposeDataBaseConnection();
+            await DatabaseConnection.Close();
+            DatabaseConnection.Dispose();
 
             if (File.Exists(dbASCIIZ))
             {

@@ -304,14 +304,12 @@ namespace dMobile.View.Activity
                     isReadyToSave = false;
 
                     await Device.InvokeOnMainThreadAsync(async () => await this.DisplayAlert("Send Moves", "Invalid Move \'From\' Location", "OK"));
-
                 }
                 else if (!await LocationMapTasks.IsCompleteLocMapRefno(this.SelToLocMap))
                 {
                     isReadyToSave = false;
 
                     await Device.InvokeOnMainThreadAsync(async () => await this.DisplayAlert("Send Moves", "Invalid Move \'To\' Location", "OK"));
-
                 }
                 else if (this.SelFromLocMap.WhsLocMapRefno != this.SelToLocMap.WhsLocMapRefno)
                 {
@@ -392,7 +390,6 @@ namespace dMobile.View.Activity
                                     {
                                         goto endOfForLoop;
                                     }
-
                                 }
                                 catch (Exception ex)
                                 {
@@ -402,7 +399,6 @@ namespace dMobile.View.Activity
                                     {
                                         bSaveComplete = false;
                                         goto endOfForLoop;
-
                                     }
                                     else
                                     {
@@ -877,7 +873,6 @@ namespace dMobile.View.Activity
 
                         isInsertReady = await SysShared.GatherProductData(this.BarCodeParse, this.ActSubType, this.ActItem, tempItemSchemeData, isInsertReady, this.ActDetail, false);
                         await this.InsertActivityDetail(foundRowIdx, this.ActDetail, this.BarCodeParse, isInsertReady);
-
                     }
                     else if (!string.IsNullOrEmpty(this.BarCodeParse.ActFKRefno))
                     {

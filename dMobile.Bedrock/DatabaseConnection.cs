@@ -163,13 +163,14 @@ namespace dMobile.Bedrock
             {
                 dataConnUniq = new DatabaseConnection();
                 dbASCIIZ = Path.Combine(dbPath, dbName);
+
                 // connString = new SQLiteConnectionString(dbASCIIZ);
                 // foreign keys=true HAS to be specified or SQLite will not enforce foreign key constraints
                 // connString = "Data Source = '" + dbASCIIZ + "'; foreign keys=true;";
                 // connString = "Data Source = '" + dbPath + dbName + "'; Password = " + dbPassword;
             }
 
-            OpenDataBaseConnection();
+            Open();
 
             return dataConnUniq;
         }
@@ -177,7 +178,7 @@ namespace dMobile.Bedrock
         /// <summary>
         /// The OpenDataBaseConnection.
         /// </summary>
-        public static void OpenDataBaseConnection()
+        public static void Open()
         {
             if (File.Exists(dbASCIIZ) & sqlConn == null)
             {
@@ -188,7 +189,7 @@ namespace dMobile.Bedrock
         /// <summary>
         /// The DisposeDataBaseConnection.
         /// </summary>
-        public static void DisposeDataBaseConnection()
+        public static void Dispose()
         {
             if (sqlConn != null)
             {
@@ -205,7 +206,7 @@ namespace dMobile.Bedrock
         /// The CloseDataBaseConnection.
         /// </summary>
         /// <returns>The <see cref="Task"/>.</returns>
-        public static async Task CloseDataBaseConnection()
+        public static async Task Close()
         {
             if (sqlConn != null)
             {

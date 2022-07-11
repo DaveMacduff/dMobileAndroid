@@ -458,7 +458,6 @@ namespace dMobile.View.Activity
             {
                 await this.ScannerEnable();
             }
-
         }
 
         /// <summary>

@@ -408,7 +408,6 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
                 }
                 // remove the Batch / Lot Number from the bar code data
                 tempData = tempData.Remove(0, aiIndex);
-
             }
 
             return tempData;
@@ -1165,7 +1164,6 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
                     {
                         this.NetWeightNonMetricLB = Convert.ToDecimal(strWholeNumber);
                     }
-
                 }
                 catch (Exception e)
                 {
@@ -1285,7 +1283,6 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
                 // Change to substring of original to remove what was consumed.
                 // This works even if an exception was thrown prior which would've removed the leading 4
                 tempData = barCodeData.Substring(10);
-
             }
 
             return tempData;
@@ -1326,7 +1323,6 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
                     {
                         this.GrossWeightNonMetricLB = Convert.ToDecimal(strWholeNumber);
                     }
-
                 }
                 catch (Exception e)
                 {
@@ -1404,7 +1400,6 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
                     {
                         this.LengthOr1stDimensionMeters = Convert.ToDecimal(strWholeNumber);
                     }
-
                 }
                 catch (Exception e)
                 {
@@ -1492,7 +1487,6 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
 
                     // assign the Activity FK Refno
                     this.ActFKRefno = tempData.Substring(0, dataLength);
-
                 }
                 catch (Exception e)
                 {
@@ -1557,7 +1551,6 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
 
                     // assign the Activity Item FK Refno
                     this.ActItemFKRefno = tempData.Substring(0, dataLength);
-
                 }
                 catch (Exception e)
                 {
@@ -1621,7 +1614,6 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
 
                     // assign the Activity Detail FK Refno
                     this.ActDetailFKRefno = tempData.Substring(0, dataLength);
-
                 }
                 catch (Exception e)
                 {

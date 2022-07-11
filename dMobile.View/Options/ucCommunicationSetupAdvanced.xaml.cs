@@ -70,7 +70,6 @@ namespace dMobile.View.Options
                     Console.WriteLine("ucCommunicationSetupAdvanced_GotFocus threw an error" + ex);
                 }
             }
-
         }
 
         /// <summary>

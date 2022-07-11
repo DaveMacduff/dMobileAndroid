@@ -653,7 +653,6 @@ namespace dMobile.View.Activity
                         {
                             await this.PrintProductLabel();
                         }
-
                     });
                 }
                 catch (Exception ex)

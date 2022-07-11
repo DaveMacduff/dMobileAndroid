@@ -196,7 +196,6 @@ namespace dMobile.GroundWork
                             }
 
                             this.DataAccessProgressOutHandler(this, EventArgs.Empty, progMax, 0, progMax);
-
                         }
 
                         transaction.Commit();

@@ -88,7 +88,6 @@ namespace dMobile.View.Menus
 
                     ucCommunicationSetup commSetup = new ucCommunicationSetup();
                     await commSetup.Show();
-
                 }
                 else if (keycode == Keycode.Num3 && this.cmdRefreshData.IsEnabled)
                 {

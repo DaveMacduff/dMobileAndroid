@@ -1788,7 +1788,6 @@ namespace dMobile.View.Activity
             catch (Exception ex)
             {
                 await Device.InvokeOnMainThreadAsync(async () => await this.DisplayAlert(this.GetControlDescription(), ex.Message, "OK"));
-
             }
 
             this.ActItem.ListItems = await this.ActItem.GetActivityItemList(false);

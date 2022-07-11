@@ -1297,19 +1297,22 @@ namespace dMobile.View.Activity
         /// </summary>
         private void DisplayDataSkid()
         {
-            SSkidInfo currSkid = this.ActDetail.ActItem.ActHdr.SkidInfo.CurrSkid;
-            this.CmdSelectSkidIsEnabled = this.SysEnv.SysSettings.IsSkidTrackingModule;
+            _ = Device.InvokeOnMainThreadAsync(() =>
+              {
+                  SSkidInfo currSkid = this.ActDetail.ActItem.ActHdr.SkidInfo.CurrSkid;
+                  this.CmdSelectSkidIsEnabled = this.SysEnv.SysSettings.IsSkidTrackingModule;
 
-            if (currSkid.SkidFKRefno > 0)
-            {
-                this.CmdAddSkidIsEnabled = true;
-                this.CmdSelectSkidText = "Skid# " + currSkid.SkidCode;
-            }
-            else
-            {
-                this.CmdAddSkidIsEnabled = false;
-                this.CmdSelectSkidText = "Select Skid";
-            }
+                  if (currSkid.SkidFKRefno > 0)
+                  {
+                      this.CmdAddSkidIsEnabled = true;
+                      this.CmdSelectSkidText = "Skid# " + currSkid.SkidCode;
+                  }
+                  else
+                  {
+                      this.CmdAddSkidIsEnabled = false;
+                      this.CmdSelectSkidText = "Select Skid";
+                  }
+              });
         }
 
         /// <summary>
@@ -1317,25 +1320,28 @@ namespace dMobile.View.Activity
         /// </summary>
         private void DisplayDataLocation()
         {
-            SSkidInfo currSkid = this.ActDetail.ActItem.ActHdr.SkidInfo.CurrSkid;
-            if (currSkid.SkidFKRefno > 0)
+            _ = Device.InvokeOnMainThreadAsync(() =>
             {
-                this.CmdLocationIsEnabled = false;
-            }
-            else
-            {
-                this.CmdLocationIsEnabled = true;
-            }
+                SSkidInfo currSkid = this.ActDetail.ActItem.ActHdr.SkidInfo.CurrSkid;
+                if (currSkid.SkidFKRefno > 0)
+                {
+                    this.CmdLocationIsEnabled = false;
+                }
+                else
+                {
+                    this.CmdLocationIsEnabled = true;
+                }
 
-            if (this.LocMap.CurrLocMap.WhsLocMapRefno > 0)
-            {
-                this.CmdLocationText = "Location: " + Environment.NewLine +
-                    LocationMapTasks.GetCurrentReadableLocation();
-            }
-            else
-            {
-                this.CmdLocationText = "Set Location";
-            }
+                if (this.LocMap.CurrLocMap.WhsLocMapRefno > 0)
+                {
+                    this.CmdLocationText = "Location: " + Environment.NewLine +
+                        LocationMapTasks.GetCurrentReadableLocation();
+                }
+                else
+                {
+                    this.CmdLocationText = "Set Location";
+                }
+            });
         }
 
         /// <summary>
@@ -2428,6 +2434,8 @@ namespace dMobile.View.Activity
             //////////////////////////////////////////////////////////////////////////
             async Task PerformAddDetail()
             {
+                bool isInsertReady = false;
+
                 // Not allowed to count individual boxes on a skid. Skids must be
                 // scanned as a whole unit or built in skid maintenance.
 
@@ -2443,16 +2451,27 @@ namespace dMobile.View.Activity
 
                 BarCodeParse parse = BarCodeParseFacade.ParseData(string.Empty);
 
-                bool isInsertReady = false;
-                SActItemSchemeData tempItemProdSchemeData = InitDetailBeforeGather();
-                isInsertReady = await SysShared.GatherProductData(
-                    parse,
-                    this.ActSubType,
-                    this.ActDetail.ActItem,
-                    tempItemProdSchemeData,
-                    isInsertReady,
-                    this.ActDetail,
-                    true);
+                try
+                {
+                    await this.ActDisappearing();
+                    SActItemSchemeData tempItemProdSchemeData = InitDetailBeforeGather();
+                    isInsertReady = await SysShared.GatherProductData(
+                        parse,
+                        this.ActSubType,
+                        this.ActDetail.ActItem,
+                        tempItemProdSchemeData,
+                        isInsertReady,
+                        this.ActDetail,
+                        true);
+                }
+                catch
+                {
+                    throw;
+                }
+                finally
+                {
+                    await this.ActAppearing();
+                }
 
                 if (isInsertReady)
                 {

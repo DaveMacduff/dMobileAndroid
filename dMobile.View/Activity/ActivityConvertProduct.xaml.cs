@@ -622,7 +622,6 @@ namespace dMobile.View.Activity
             {
                 throw new MessageOnlyException("Location must be set.");
             }
-
         }
 
         /// <summary>
@@ -851,7 +850,6 @@ namespace dMobile.View.Activity
             if (results?.Count > 0)
             {
                 _ = await Device.InvokeOnMainThreadAsync(() => this.cmdSelectFromProduct.Text = Convert.ToString(results[0].ProductCode).TrimEnd() + " " + Convert.ToString(results[0].ProductDescription).TrimEnd());
-
             }
         }
 
@@ -874,9 +872,7 @@ namespace dMobile.View.Activity
             if (results?.Count > 0)
             {
                 _ = await Device.InvokeOnMainThreadAsync(() => this.cmdSelectToProduct.Text = Convert.ToString(results[0].ProductCode).TrimEnd() + " " + Convert.ToString(results[0].ProductDescription).TrimEnd());
-
             }
-
         }
 
         /// <summary>

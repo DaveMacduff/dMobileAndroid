@@ -951,7 +951,9 @@ namespace dMobile.View.Activity
         /// Get the activity item return XDocument information.
         /// </summary>
         /// <returns><see cref="XDocument"/> Activity item return information.</returns>
+#pragma warning disable CS1998 // Async method lacks 'await' operators and will run synchronously
         public async Task<XDocument> GetXML()
+#pragma warning restore CS1998 // Async method lacks 'await' operators and will run synchronously
         {
             XDocument xmldocParams = XDocument.Parse(
                 "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>"
@@ -1176,7 +1178,6 @@ namespace dMobile.View.Activity
                     GC.WaitForPendingFinalizers();
                 });
             }
-
         }
 
         /// <summary>
@@ -1854,7 +1855,7 @@ namespace dMobile.View.Activity
                 }
                 finally
                 {
-                    await this.ActDisappearing();
+                    await this.ActAppearing();
                     this.Loading = false;
                 }
             });
@@ -1957,7 +1958,7 @@ namespace dMobile.View.Activity
                             }
                             else
                             {
-                                throw new Exception(this.ActItem.GetItemNotFoundMessage(this.LocMap, scannedProdInfo));
+                                throw new MessageOnlyException(this.ActItem.GetItemNotFoundMessage(this.LocMap, scannedProdInfo));
                             }
                         }
                     }
@@ -2124,15 +2125,26 @@ namespace dMobile.View.Activity
                         tempItemProdSchemeData.ProdSchemeData = schemeData;
                         actDetail.SchemeData = schemeData;
 
-                        await this.ActDisappearing();
-                        isInsertReady = await SysShared.GatherProductData(
-                            parse,
-                            this.ActSubType,
-                            this.ActItem,
-                            tempItemProdSchemeData,
-                            isInsertReady,
-                            actDetail,
-                            false);
+                        try
+                        {
+                            await this.ActDisappearing();
+                            isInsertReady = await SysShared.GatherProductData(
+                                parse,
+                                this.ActSubType,
+                                this.ActItem,
+                                tempItemProdSchemeData,
+                                isInsertReady,
+                                actDetail,
+                                false);
+                        }
+                        catch
+                        {
+                            throw;
+                        }
+                        finally
+                        {
+                            await this.ActAppearing();
+                        }
 
                         if (isInsertReady)
                         {
@@ -2156,8 +2168,6 @@ namespace dMobile.View.Activity
                                     this.ActItem.ItemRefno);
                             }
                         }
-
-                        await this.ActAppearing();
                     }
                     else
                     {
@@ -2709,27 +2719,29 @@ namespace dMobile.View.Activity
         /// </summary>
         private void DisplayDataLocation()
         {
-            this.ExtraInfoItems.Add("Selected Location: " + LocationMapTasks.GetCurrentReadableLocation());
+            _ = Device.InvokeOnMainThreadAsync(() =>
+            {
+                this.ExtraInfoItems.Add("Selected Location: " + LocationMapTasks.GetCurrentReadableLocation());
 
-            if (this.LocMap.CurrLocMap.WhsLocMapRefno > 0)
-            {
-                this.CmdLocationText = "Location: " + Environment.NewLine +
-                    LocationMapTasks.GetCurrentReadableLocation();
-            }
-            else
-            {
-                this.CmdLocationText = "Set Location";
-            }
+                if (this.LocMap.CurrLocMap.WhsLocMapRefno > 0)
+                {
+                    this.CmdLocationText = "Location: " + Environment.NewLine +
+                        LocationMapTasks.GetCurrentReadableLocation();
+                }
+                else
+                {
+                    this.CmdLocationText = "Set Location";
+                }
 
-            if (this.ActItem.ActHdr.SkidInfo.CurrSkid.SkidFKRefno > 0)
-            {
-                this.CmdLocationIsEnabled = false;
-            }
-            else
-            {
-                this.CmdLocationIsEnabled = true;
-            }
-
+                if (this.ActItem.ActHdr.SkidInfo.CurrSkid.SkidFKRefno > 0)
+                {
+                    this.CmdLocationIsEnabled = false;
+                }
+                else
+                {
+                    this.CmdLocationIsEnabled = true;
+                }
+            });
         }
 
         /// <summary>
@@ -2737,17 +2749,20 @@ namespace dMobile.View.Activity
         /// </summary>
         private void DisplayDataSkid()
         {
-            if (this.ActItem.ActHdr.SkidInfo.CurrSkid.SkidFKRefno > 0)
+            _ = Device.InvokeOnMainThreadAsync(() =>
             {
-                this.CmdAddSkidIsEnabled = true;
-                this.CmdSelectSkidText = "Skid# " + this.ActItem.ActHdr.SkidInfo.CurrSkid.SkidCode;
-                ////this.ExtraInfoItems.Add("Selected Skid #: " + this.ActItem.ActHdr.SkidInfo.CurrSkid.SkidCode);
-            }
-            else
-            {
-                this.CmdAddSkidIsEnabled = false;
-                this.CmdSelectSkidText = "Select Skid";
-            }
+                if (this.ActItem.ActHdr.SkidInfo.CurrSkid.SkidFKRefno > 0)
+                {
+                    this.CmdAddSkidIsEnabled = true;
+                    this.CmdSelectSkidText = "Skid# " + this.ActItem.ActHdr.SkidInfo.CurrSkid.SkidCode;
+                    ////this.ExtraInfoItems.Add("Selected Skid #: " + this.ActItem.ActHdr.SkidInfo.CurrSkid.SkidCode);
+                }
+                else
+                {
+                    this.CmdAddSkidIsEnabled = false;
+                    this.CmdSelectSkidText = "Select Skid";
+                }
+            });
         }
 
         /// <summary>
@@ -2773,7 +2788,7 @@ namespace dMobile.View.Activity
                 }
 
                 this.ExtraInfoItems.Clear();
-                DisplayDataSkid();
+                this.DisplayDataSkid();
 
                 switch (this.ActItem.ActSubType)
                 {
@@ -3053,7 +3068,6 @@ namespace dMobile.View.Activity
                         }
 
                         this.ExtraInfoItems.Add(prodDesc.Trim() + " " + prodUnitSizeDesc.Trim());
-
                         this.ExtraInfoItems.Add("DEF LOC: " + defLoc);
                         break;
 
@@ -3081,7 +3095,6 @@ namespace dMobile.View.Activity
                         }
 
                         this.ExtraInfoItems.Add(prodDesc.Trim() + " " + prodUnitSizeDesc.Trim());
-
                         this.ExtraInfoItems.Add("DEF LOC: " + defLoc);
                         break;
 
@@ -3180,7 +3193,6 @@ namespace dMobile.View.Activity
                         }
 
                         this.ExtraInfoItems.Add(prodDesc.Trim() + " " + prodUnitSizeDesc.Trim());
-
                         this.ExtraInfoItems.Add("DEF LOC: " + defLoc);
                         break;
 

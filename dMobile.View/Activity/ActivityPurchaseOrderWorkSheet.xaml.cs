@@ -253,7 +253,6 @@ namespace dMobile.View.Activity
                     {
                         // MessageBox.Show("Scanning an Activity Detail Reference # Is Not Supported Here", GetControlDescription(), MessageBoxButtons.OK, MessageBoxIcon.Exclamation, MessageBoxDefaultButton.Button1);
                         await Device.InvokeOnMainThreadAsync(async () => await this.DisplayAlert(this.GetControlDescription(), "Scanning an Activity Detail Reference # Is Not Supported Here", "OK"));
-
                     }
                     else if (!string.IsNullOrEmpty(this.BarParse.SSCC18))
                     {
@@ -793,7 +792,6 @@ namespace dMobile.View.Activity
                         }
                     }
                 }
-
             }
             catch (Exception ex)
             {

@@ -12,13 +12,13 @@
 //+------------------------------------------------------------------------+
 namespace dMobile.Bedrock
 {
-	public partial class Translator
-	{
+    public partial class Translator
+    {
         /// <summary>
         /// Number of variables in a text or resource file.
         /// Auto-generated variable.
         /// </summary>
         protected const int keyCount = 1999;
-	}
+    }
 }
 #endif

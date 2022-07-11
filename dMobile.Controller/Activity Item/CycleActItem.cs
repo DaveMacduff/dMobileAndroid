@@ -144,7 +144,7 @@ namespace dMobile.Controller
         /// <returns>.</returns>
         public override bool IsCatchAsk()
         {
-            bool isCatchAsk = ProdInfo.IsCatchAsk;
+            bool isCatchAsk = this.ProdInfo.IsCatchAsk;
             if (isCatchAsk)
             {
                 // modules are for exclusions

@@ -391,7 +391,6 @@ namespace dMobile.Controller
             {
                 this.HdrFKRefno = Convert.ToInt32(count.ActivityFKRefno);
                 this.HdrRefno = Convert.ToInt32(count.ActivityRefno);
-
             }
             return this.HdrRefno;
         }

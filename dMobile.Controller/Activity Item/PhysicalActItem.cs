@@ -235,7 +235,6 @@ namespace dMobile.Controller
                     {
                         throw new Exception("A line item already exists for this location and product.");
                     }
-
                 }
                 else
                 {
