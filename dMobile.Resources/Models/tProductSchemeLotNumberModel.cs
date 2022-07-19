@@ -10,10 +10,12 @@ namespace dMobile.Resources.Models
     [Table("tProductSchemeLotNumber")]
     public class tProductSchemeLotNumberModel
     {
-        [PrimaryKey, NotNull]
+        [PrimaryKey]
+        [NotNull]
         public int ProductSchemeLotNumberRefno { get; set; }
 
-        [NotNull, Indexed(Name = "UQ_ProductSchemeLotNumberOnProductSchemeLotNumberCode", Order = 1, Unique = true)]
+        [NotNull]
+        [Indexed(Name = "UQ_ProductSchemeLotNumberOnProductSchemeLotNumberCode", Order = 1, Unique = true)]
         public string ProductSchemeLotNumberCode { get; set; }
 
         [NotNull]

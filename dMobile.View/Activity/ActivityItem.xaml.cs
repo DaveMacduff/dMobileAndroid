@@ -464,7 +464,11 @@ namespace dMobile.View.Activity
             try
             {
                 await this.ScannerDisable();
-                isReadyToSave = await IsReadyToSavePicking(isReadyToSave);
+                if (this.ActSubType == SysCommon.ActSubTypes.Picking ||
+                    this.ActSubType == SysCommon.ActSubTypes.PickingSingle)
+                {
+                    isReadyToSave = await IsReadyToSavePicking(isReadyToSave);
+                }
             }
             catch (MessageOnlyException ex)
             {
@@ -567,7 +571,8 @@ namespace dMobile.View.Activity
                 // See WO# 12080
                 if (isReadyToClose)
                 {
-                    if (this.ActSubType == SysCommon.ActSubTypes.Picking)
+                    if (this.ActSubType == SysCommon.ActSubTypes.Picking ||
+                        this.ActSubType == SysCommon.ActSubTypes.PickingSingle)
                     {
                         isReadyToClose = await IsReadyToClosePicking(isReadyToClose);
                     }
@@ -876,7 +881,8 @@ namespace dMobile.View.Activity
                 await this.ScannerDisable();
                 if (await this.IsReadyToClose())
                 {
-                    ////if (this.ActSubType == SysCommon.ActSubTypes.Picking)
+                    ////if (this.ActSubType == SysCommon.ActSubTypes.Picking ||
+                    ////    this.ActSubType == SysCommon.ActSubTypes.PickingSingle)
                     ////{
                     ////  // Lekker requirement, cancel will update the reviewed header status.
                     ////  if (this.ActItem.CurrRowIdx >= 0 && this.ActItem.CurrRowIdx < this.ActItem.DataViewItems.Count)
@@ -915,9 +921,9 @@ namespace dMobile.View.Activity
                     // By reloading, restoring the last valid state we should be able to close the control
                     // on the second CancelChanges attempt.
                     // Methods that could be called to restore the control to a closable state.
-                    // ClearProperties();
-                    // DisplayData();
-                    // this.LoadData();
+                    //// ClearProperties();
+                    //// DisplayData();
+                    //// this.LoadData();
                     cancelChanges = false;
                 }
             }
@@ -1138,7 +1144,8 @@ namespace dMobile.View.Activity
                     this.IsFirstAppearance = false;
                     await this.ScannerStart();
                     this.CmdSelectSkidIsEnabled = this.SysEnv.SysSettings.IsSkidTrackingModule;
-                    this.CmdClearSelectedSkidIsEnabled = this.SysEnv.SysSettings.IsSkidTrackingModule;
+                    this.CmdClearSelectedSkidIsEnabled = this.ActItem.ActHdr.SkidInfo.CurrSkid.SkidFKRefno != 0
+                        && this.CmdAddSkidIsEnabled && this.CmdSelectSkidIsEnabled;
 
                     this.ActItem.RegLayerListenerProgOut(this);
                     await this.RefreshBySubType();
@@ -1689,12 +1696,9 @@ namespace dMobile.View.Activity
                     // TODO: Test
                     dynamic selectedItem = this.ActItem.ListItems[currIdx];
 
-                    decimal available = Convert.ToDecimal(
-                        selectedItem.ActivityItemPickingBaseQuantityAvailable);
-                    decimal shipped = Convert.ToDecimal(
-                        selectedItem.ActivityItemPickingQuantityShipped);
-                    decimal ordered = Convert.ToDecimal(
-                        selectedItem.ActivityItemPickingQuantityOrdered);
+                    decimal available = Convert.ToDecimal(selectedItem.ActivityItemPickingBaseQuantityAvailable);
+                    decimal shipped = Convert.ToDecimal(selectedItem.ActivityItemPickingQuantityShipped);
+                    decimal ordered = Convert.ToDecimal(selectedItem.ActivityItemPickingQuantityOrdered);
                     if (this.SysEnv.SysSettings.IsPickShowItemQtyAvail)
                     {
                         // Do not warn if product is out of stock WO# 12054
@@ -1798,35 +1802,32 @@ namespace dMobile.View.Activity
                 return;
             }
 
-            await Task.Run(async () =>
+            try
             {
-                try
+                await this.ActDisappearing();
+                await this.ActItem.SelectActivityItem(this.ListViewMainActivity.SelectedItem);
+                if (this.ActItem.ActHdr.SkidInfo.CurrSkid.SkidFKRefno != 0)
                 {
-                    await this.ActDisappearing();
-                    this.Loading = true;
-                    await this.ScannerDisable();
-                    await this.ActItem.SelectActivityItem(this.ListViewMainActivity.SelectedItem);
+                    SSkidInfo currSkid = this.ActItem.ActHdr.SkidInfo.CurrSkid;
 
-                    if (this.ActItem.ActHdr.SkidInfo.CurrSkid.SkidFKRefno != 0)
+                    if (currSkid.ProdInfo.Refno != this.ActItem.ProdInfo.Refno)
                     {
-                        SSkidInfo currSkid = this.ActItem.ActHdr.SkidInfo.CurrSkid;
-
-                        if (currSkid.ProdInfo.Refno != this.ActItem.ProdInfo.Refno)
-                        {
-                            throw new MessageOnlyException(
-                                "Selected line item product must match the selected skid product.");
-                        }
+                        throw new MessageOnlyException(
+                            "Selected line item product must match the selected skid product.");
                     }
+                }
 
+                await Device.InvokeOnMainThreadAsync(async () =>
+                {
                     FormDialogContainer form = new FormDialogContainer(
                         EDialogTypes.ActivityDetail,
                         this.ActItem,
                         this.ActSubType);
                     this.IsChangesMade = false;
-                    if (await Device.InvokeOnMainThreadAsync(async () =>
-                        await form.DisplayControl.ShowDialog() == DialogResult.OK))
+                    if (await form.DisplayControl.ShowDialog() == DialogResult.OK)
                     {
                         XDocument xmlDoc = await form.GetXML();
+                        int currSelectedIdx = this.MainActivityItems.IndexOf(this.ListViewMainActivity.SelectedItem);
                         this.ActItem.RefreshQuantity(
                             this.ListViewMainActivity.SelectedItem,
                             Math.Round(decimal.Parse(xmlDoc.Root.Element("qty").Value), 3),
@@ -1835,30 +1836,30 @@ namespace dMobile.View.Activity
                         await this.ActItem.UpdateQuantityFromActivityItemList(
                             this.ListViewMainActivity.SelectedItem,
                             this.ActItem.ItemRefno);
+                        this.MainActivityItems[currSelectedIdx] = this.ListViewMainActivity.SelectedItem;
                     }
-                }
-                catch (MessageOnlyException ex)
+                });
+            }
+            catch (MessageOnlyException ex)
+            {
+                await Device.InvokeOnMainThreadAsync(async () =>
+                    await Application.Current.MainPage.DisplayAlert(
+                        this.ActItem.GetControlDescription(),
+                        ex.Message,
+                        Resource.OK));
+            }
+            catch (Exception ex)
+            {
+                await Device.InvokeOnMainThreadAsync(async () =>
                 {
-                    await Device.InvokeOnMainThreadAsync(async () =>
-                        await Application.Current.MainPage.DisplayAlert(
-                            this.ActItem.GetControlDescription(),
-                            ex.Message,
-                            Resource.OK));
-                }
-                catch (Exception ex)
-                {
-                    await Device.InvokeOnMainThreadAsync(async () =>
-                    {
-                        FormErrorReport errRpt = new FormErrorReport(this.ActSubType, ex);
-                        _ = await errRpt.ShowDialog();
-                    });
-                }
-                finally
-                {
-                    await this.ActAppearing();
-                    this.Loading = false;
-                }
-            });
+                    FormErrorReport errRpt = new FormErrorReport(this.ActSubType, ex);
+                    _ = await errRpt.ShowDialog();
+                });
+            }
+            finally
+            {
+                await this.ActAppearing();
+            }
         }
 
         /// <summary>
@@ -3412,9 +3413,12 @@ namespace dMobile.View.Activity
                     this.ActItem.ActHdr.SkidInfo = await SysSkidInfo.GetSkidInfoFromXML(xmlDoc);
                     if (this.ActItem.ActHdr.SkidInfo.CurrSkid.SkidFKRefno == 0)
                     {
-                        // Needed to refresh the selected item location, called SelectItem.
-                        await this.ActItem.SelectActivityItem(this.ActItem.SelectedActivityItem);
-                        this.CmdClearSelectedSkidIsEnabled = false;
+                        if (this.ActItem.SelectedActivityItem != null)
+                        {
+                            // Needed to refresh the selected item location, called SelectItem.
+                            await this.ActItem.SelectActivityItem(this.ActItem.SelectedActivityItem);
+                            this.CmdClearSelectedSkidIsEnabled = false;
+                        }
                     }
                     else
                     {

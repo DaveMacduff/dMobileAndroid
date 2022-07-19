@@ -13,22 +13,29 @@ namespace dMobile.Resources.Models
     [Table("tActivityItemCount")]
     public class tActivityItemCountModel
     {
-        [PrimaryKey, NotNull, ForeignKey(typeof(tActivityItemModel)), Indexed(Name = "UQ_ActivityItemCountOnActivityItemRefnoAndActivityItemSubType", Order = 1, Unique = true)]
+        [PrimaryKey]
+        [NotNull]
+        [ForeignKey(typeof(tActivityItemModel))]
+        [Indexed(Name = "UQ_ActivityItemCountOnActivityItemRefnoAndActivityItemSubType", Order = 1, Unique = true)]
         public int ActivityItemRefno { get; set; }
 
-        [NotNull, Indexed(Name = "UQ_ActivityItemCountOnActivityItemRefnoAndActivityItemSubType", Order = 2, Unique = true)]
+        [NotNull]
+        [Indexed(Name = "UQ_ActivityItemCountOnActivityItemRefnoAndActivityItemSubType", Order = 2, Unique = true)]
         public int ActivityItemSubType { get; set; }
 
-        [NotNull, Indexed(Name = "UQ_ActivityItemCountOnActivityItemFKRefno", Order = 1, Unique = true)]
+        [NotNull]
+        [Indexed(Name = "UQ_ActivityItemCountOnActivityItemFKRefno", Order = 1, Unique = true)]
         public int ActivityItemFKRefno { get; set; }
 
         [NotNull]
         public string ActivityItemStringFKRefno { get; set; }
 
-        [NotNull, ForeignKey(typeof(tProductUnitModel))]
+        [NotNull]
+        [ForeignKey(typeof(tProductUnitModel))]
         public int ProductUnitRefno { get; set; }
 
-        [NotNull, ForeignKey(typeof(tLocationMapModel))]
+        [NotNull]
+        [ForeignKey(typeof(tLocationMapModel))]
         public int LocationMapRefno { get; set; }
 
         [NotNull]

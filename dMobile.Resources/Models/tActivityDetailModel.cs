@@ -11,22 +11,30 @@ namespace dMobile.Resources.Models
     [Table("tActivityDetail")]
     public class tActivityDetailModel
     {
-        [Indexed(Name = "UQ_ActivityDetailOnActivityDetailRefnoAndActivityDetailSubType", Order = 1, Unique = true), PrimaryKey, NotNull]
+        [Indexed(Name = "UQ_ActivityDetailOnActivityDetailRefnoAndActivityDetailSubType", Order = 1, Unique = true)]
+        [PrimaryKey]
+        [NotNull]
         public int ActivityDetailRefno { get; set; }
 
-        [Indexed(Name = "UQ_ActivityDetailOnActivityDetailRefnoAndActivityDetailSubType", Order = 2, Unique = true), NotNull]
+        [Indexed(Name = "UQ_ActivityDetailOnActivityDetailRefnoAndActivityDetailSubType", Order = 2, Unique = true)]
+        [NotNull]
         public int ActivityDetailSubType { get; set; }
 
         [NotNull]
         public int ActivityDetailStatus { get; set; }
 
-        [Indexed(Name = "FK_ActivityDetailOnActivityItemRefno", Order = 1, Unique = false), ForeignKey(typeof(tContactModel)), NotNull]
+        [Indexed(Name = "FK_ActivityDetailOnActivityItemRefno", Order = 1, Unique = false)]
+        [ForeignKey(typeof(tContactModel))]
+        [NotNull]
         public int ActivityItemRefno { get; set; }
 
-        [Indexed(Name = "FK_ActivityDetailOnLocationMapRefno", Order = 1, Unique = false), ForeignKey(typeof(tLocationMapModel)), NotNull]
+        [Indexed(Name = "FK_ActivityDetailOnLocationMapRefno", Order = 1, Unique = false)]
+        [ForeignKey(typeof(tLocationMapModel))]
+        [NotNull]
         public int LocationMapRefno { get; set; }
 
-        [ForeignKey(typeof(tProductUnitModel)), NotNull]
+        [ForeignKey(typeof(tProductUnitModel))]
+        [NotNull]
 
         [Indexed(Name = "FK_ActivityDetailOnProductUnitRefno", Order = 1, Unique = false)]
         public int ProductUnitRefno { get; set; }

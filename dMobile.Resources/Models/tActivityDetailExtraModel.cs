@@ -11,10 +11,14 @@ namespace dMobile.Resources.Models
     [Table("tActivityDetailExtra")]
     public class tActivityDetailExtraModel
     {
-        [PrimaryKey, Indexed(Name = "UQ_ActivityDetailExtraOnActivityDetailRefnoAndActivityDetailSubType", Order = 1, Unique = true), NotNull, ForeignKey(typeof(tActivityDetailModel))]
+        [PrimaryKey]
+        [Indexed(Name = "UQ_ActivityDetailExtraOnActivityDetailRefnoAndActivityDetailSubType", Order = 1, Unique = true)]
+        [NotNull]
+        [ForeignKey(typeof(tActivityDetailModel))]
         public int ActivityDetailRefno { get; set; }
 
-        [Indexed(Name = "UQ_ActivityDetailExtraOnActivityDetailRefnoAndActivityDetailSubType", Order = 2, Unique = true), NotNull]
+        [Indexed(Name = "UQ_ActivityDetailExtraOnActivityDetailRefnoAndActivityDetailSubType", Order = 2, Unique = true)]
+        [NotNull]
         public int ActivityDetailSubType { get; set; }
 
         [NotNull]

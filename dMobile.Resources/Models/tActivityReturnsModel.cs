@@ -11,19 +11,26 @@ namespace dMobile.Resources.Models
     [Table("tActivityReturns")]
     public class tActivityReturnsModel
     {
-        [PrimaryKey, NotNull, ForeignKey(typeof(tActivityModel)), Indexed(Name = "UQ_ActivityReturnsOnActivityRefnoAndActivitySubType", Order = 1, Unique = true)]
+        [PrimaryKey]
+        [NotNull]
+        [ForeignKey(typeof(tActivityModel))]
+        [Indexed(Name = "UQ_ActivityReturnsOnActivityRefnoAndActivitySubType", Order = 1, Unique = true)]
         public int ActivityRefno { get; set; }
 
-        [NotNull, Indexed(Name = "UQ_ActivityReturnsOnActivityRefnoAndActivitySubType", Order = 2, Unique = true)]
+        [NotNull]
+        [Indexed(Name = "UQ_ActivityReturnsOnActivityRefnoAndActivitySubType", Order = 2, Unique = true)]
         public int ActivitySubType { get; set; }
 
-        [NotNull, Indexed(Name = "UQ_ActivityReturnsOnActivityFKRefno", Order = 1, Unique = true)]
+        [NotNull]
+        [Indexed(Name = "UQ_ActivityReturnsOnActivityFKRefno", Order = 1, Unique = true)]
         public int ActivityFKRefno { get; set; }
 
         [NotNull]
         public string ActivityStringFKRefno { get; set; }
 
-        [NotNull, ForeignKey(typeof(tLocationMapWarehouseModel)), Indexed(Name = "FK_ActivityReturnsOnWarehouseLocationMapRefno", Order = 1, Unique = false)]
+        [NotNull]
+        [ForeignKey(typeof(tLocationMapWarehouseModel))]
+        [Indexed(Name = "FK_ActivityReturnsOnWarehouseLocationMapRefno", Order = 1, Unique = false)]
         public int WarehouseLocationMapRefno { get; set; }
 
         [NotNull]

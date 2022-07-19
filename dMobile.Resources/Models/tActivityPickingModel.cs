@@ -11,19 +11,26 @@ namespace dMobile.Resources.Models
     [Table("tActivityPicking")]
     public class tActivityPickingModel
     {
-        [Indexed(Name = "UQ_ActivityPickingOnActivityRefnoAndActivitySubType", Order = 1, Unique = true), PrimaryKey, NotNull, ForeignKey(typeof(tActivityModel))]
+        [Indexed(Name = "UQ_ActivityPickingOnActivityRefnoAndActivitySubType", Order = 1, Unique = true)]
+        [PrimaryKey]
+        [NotNull]
+        [ForeignKey(typeof(tActivityModel))]
         public int ActivityRefno { get; set; }
 
-        [Indexed(Name = "UQ_ActivityPickingOnActivityRefnoAndActivitySubType", Order = 2, Unique = true), NotNull]
+        [Indexed(Name = "UQ_ActivityPickingOnActivityRefnoAndActivitySubType", Order = 2, Unique = true)]
+        [NotNull]
         public int ActivitySubType { get; set; }
 
-        [Indexed(Name = "UQ_ActivityPickingOnActivityFKRefno", Order = 1, Unique = true), NotNull]
+        [Indexed(Name = "UQ_ActivityPickingOnActivityFKRefno", Order = 1, Unique = true)]
+        [NotNull]
         public int ActivityFKRefno { get; set; }
 
         [NotNull]
         public string ActivityStringFKRefno { get; set; }
 
-        [Indexed(Name = "FK_ActivityPickingOnWarehouseLocationMapRefno", Order = 1, Unique = false), ForeignKey(typeof(tLocationMapWarehouseModel)), NotNull]
+        [Indexed(Name = "FK_ActivityPickingOnWarehouseLocationMapRefno", Order = 1, Unique = false)]
+        [ForeignKey(typeof(tLocationMapWarehouseModel))]
+        [NotNull]
         public int WarehouseLocationMapRefno { get; set; }
 
         [NotNull]

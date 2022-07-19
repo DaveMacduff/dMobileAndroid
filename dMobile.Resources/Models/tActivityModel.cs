@@ -19,13 +19,17 @@ namespace dMobile.Resources.Models
     [Table("tActivity")]
     public class tActivityModel
     {
-        [PrimaryKey, AutoIncrement, NotNull, Indexed(Name = "UQ_ActivityOnActivityRefnoAndActivitySubType", Order = 1, Unique = true)]
+        [PrimaryKey]
+        [AutoIncrement]
+        [NotNull]
+        [Indexed(Name = "UQ_ActivityOnActivityRefnoAndActivitySubType", Order = 1, Unique = true)]
         public int ActivityRefno { get; set; }
 
         [NotNull]
         public int ActivityStatus { get; set; }
 
-        [Indexed(Name = "UQ_ActivityOnActivityRefnoAndActivitySubType", Order = 2, Unique = true), NotNull]
+        [Indexed(Name = "UQ_ActivityOnActivityRefnoAndActivitySubType", Order = 2, Unique = true)]
+        [NotNull]
         public int ActivitySubType { get; set; }
     }
 }

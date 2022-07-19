@@ -10,7 +10,8 @@ namespace dMobile.Resources.Models
     [Table("tProduct")]
     public class tProductModel
     {
-        [PrimaryKey, NotNull]
+        [PrimaryKey]
+        [NotNull]
         public int ProductRefno { get; set; }
 
         [NotNull]
@@ -19,13 +20,16 @@ namespace dMobile.Resources.Models
         [NotNull]
         public int FamilyRefno { get; set; }
 
-        [NotNull, Indexed(Name = "UQ_ProductOnProductCode", Order = 1, Unique = true)]
+        [NotNull]
+        [Indexed(Name = "UQ_ProductOnProductCode", Order = 1, Unique = true)]
         public string ProductCode { get; set; }
 
-        [NotNull, Indexed(Name = "UQ_ProductOnProductFKRefno", Order = 1, Unique = true)]
+        [NotNull]
+        [Indexed(Name = "UQ_ProductOnProductFKRefno", Order = 1, Unique = true)]
         public int ProductFKRefno { get; set; }
 
-        [NotNull, Indexed(Name = "ProductOnProductDescription", Order = 1, Unique = false)]
+        [NotNull]
+        [Indexed(Name = "ProductOnProductDescription", Order = 1, Unique = false)]
         public string ProductDescription { get; set; }
 
         [NotNull]

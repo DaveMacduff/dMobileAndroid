@@ -902,7 +902,7 @@ namespace dMobile.Controller
             {
                 foreach (TotalQuantity result in results)
                 {
-                    // Because an agregate sum function is used in a query. There will always be a result record.
+                    // Because an aggregate sum function is used in a query. There will always be a result record.
                     // This causes problems detecting if there is a valid result.
                     // Converting Convert.ToDecimal(dr["Ordered"]) fails because there is not data. However to a string works.
                     msg += string.Format("\r{0} / {1}", Convert.ToString(result.Ordered), Convert.ToString(result.Received));

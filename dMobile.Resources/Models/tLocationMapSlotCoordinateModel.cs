@@ -10,16 +10,20 @@ namespace dMobile.Resources.Models
     [Table("tLocationMapSlotCoordinate")]
     public class tLocationMapSlotCoordinateModel
     {
-        [PrimaryKey, NotNull]
+        [PrimaryKey]
+        [NotNull]
         public int LocationMapSlotCoordinateRefno { get; set; }
 
-        [NotNull, Indexed(Name = "UQ_LocationMapSlotCoordOnLocationMapSlotCoordEnumAndWarehouseLocationMapRefnoAndLocationMapSlotCoordCode", Order = 1, Unique = true)]
+        [NotNull]
+        [Indexed(Name = "UQ_LocationMapSlotCoordOnLocationMapSlotCoordEnumAndWarehouseLocationMapRefnoAndLocationMapSlotCoordCode", Order = 1, Unique = true)]
         public int LocationMapSlotCoordinateEnum { get; set; }
 
-        [NotNull, Indexed(Name = "UQ_LocationMapSlotCoordOnLocationMapSlotCoordEnumAndWarehouseLocationMapRefnoAndLocationMapSlotCoordCode", Order = 2, Unique = true)]
+        [NotNull]
+        [Indexed(Name = "UQ_LocationMapSlotCoordOnLocationMapSlotCoordEnumAndWarehouseLocationMapRefnoAndLocationMapSlotCoordCode", Order = 2, Unique = true)]
         public int WarehouseLocationMapRefno { get; set; }
 
-        [NotNull, Indexed(Name = "UQ_LocationMapSlotCoordOnLocationMapSlotCoordEnumAndWarehouseLocationMapRefnoAndLocationMapSlotCoordCode", Order = 3, Unique = true)]
+        [NotNull]
+        [Indexed(Name = "UQ_LocationMapSlotCoordOnLocationMapSlotCoordEnumAndWarehouseLocationMapRefnoAndLocationMapSlotCoordCode", Order = 3, Unique = true)]
         public string LocationMapSlotCoordinateCode { get; set; }
     }
 }

@@ -1045,7 +1045,6 @@ namespace dMobile.Controller
             ObservableCollection<object> mainActivityExtraInfoItems)
         {
             mainActivityExtraInfoItems.Add(actDetail);
-
             Label labelPickingDetailConfirmedHeader = new Label
             {
                 Text = "C",

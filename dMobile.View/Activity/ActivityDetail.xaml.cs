@@ -806,12 +806,12 @@ namespace dMobile.View.Activity
             finally
             {
                 this.Loading = false;
-                await Task.Run(() =>
-                {
-                    // Explicit GC, Xamarin forms not disposing of objects properly
-                    GC.Collect();
-                    GC.WaitForPendingFinalizers();
-                });
+                ////await Task.Run(() =>
+                ////{
+                ////    // Explicit GC, Xamarin forms not disposing of objects properly
+                ////    GC.Collect();
+                ////    GC.WaitForPendingFinalizers();
+                ////});
             }
         }
 
@@ -830,7 +830,7 @@ namespace dMobile.View.Activity
         /// <returns><see cref="Task"/> Task operation.</returns>
         private async Task ActAppearing()
         {
-            await this.ScannerDisable();
+            await this.ScannerEnable();
             SubscribeKeyUpHandlers();
             this.ListViewDisplayExtraInfo.ItemsSource = this.ExtraInfoItems;
             this.ListViewMainActivity.ItemsSource = this.MainActivityItems;
@@ -2333,7 +2333,6 @@ namespace dMobile.View.Activity
             try
             {
                 this.Loading = true;
-                await this.ScannerDisable();
                 if (await CheckAllowedToAddDetail())
                 {
                     LocationMap locMap = LocationMap.GetInstance();
@@ -2375,7 +2374,6 @@ namespace dMobile.View.Activity
             finally
             {
                 await this.DisplayDataItem();
-                await this.ScannerEnable();
                 this.Loading = false;
             }
 
@@ -2463,6 +2461,11 @@ namespace dMobile.View.Activity
                         isInsertReady,
                         this.ActDetail,
                         true);
+
+                    if (isInsertReady)
+                    {
+                        await this.InsertActivityDetail(this.ActDetail);
+                    }
                 }
                 catch
                 {
@@ -2471,19 +2474,6 @@ namespace dMobile.View.Activity
                 finally
                 {
                     await this.ActAppearing();
-                }
-
-                if (isInsertReady)
-                {
-                    await this.InsertActivityDetail(this.ActDetail);
-                    await this.FindSelectedItemAsync();
-
-                    // No need to invoke DisplayData() selected item will do so, unless the list is empty.
-                    if (this.MainActivityItems == null ||
-                        this.MainActivityItems.Count == 0)
-                    {
-                        await this.DisplayDataItem();
-                    }
                 }
             }
         }

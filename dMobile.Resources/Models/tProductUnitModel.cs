@@ -11,19 +11,28 @@ namespace dMobile.Resources.Models
     [Table("tProductUnit")]
     public class tProductUnitModel
     {
-        [PrimaryKey, NotNull]
+        [PrimaryKey]
+        [NotNull]
         public int ProductUnitRefno { get; set; }
 
-        [NotNull, ForeignKey(typeof(tProductModel)), Indexed(Name = "FK_ProductUnitOnProductRefno", Order = 1, Unique = false)]
+        [NotNull]
+        [ForeignKey(typeof(tProductModel))]
+        [Indexed(Name = "FK_ProductUnitOnProductRefno", Order = 1, Unique = false)]
         public int ProductRefno { get; set; }
 
-        [NotNull, ForeignKey(typeof(tUnitModel)), Indexed(Name = "FK_ProductUnitOnUnitRefno", Order = 1, Unique = false)]
+        [NotNull]
+        [ForeignKey(typeof(tUnitModel))]
+        [Indexed(Name = "FK_ProductUnitOnUnitRefno", Order = 1, Unique = false)]
         public int UnitRefno { get; set; }
 
-        [NotNull, ForeignKey(typeof(tUnitModel)), Indexed(Name = "FK_ProductUnitOnBaseUnitRefno", Order = 1, Unique = false)]
+        [NotNull]
+        [ForeignKey(typeof(tUnitModel))]
+        [Indexed(Name = "FK_ProductUnitOnBaseUnitRefno", Order = 1, Unique = false)]
         public int BaseUnitRefno { get; set; }
 
-        [NotNull, ForeignKey(typeof(tUnitModel)), Indexed(Name = "FK_ProductUnitOnWtUnitRefno", Order = 1, Unique = false)]
+        [NotNull]
+        [ForeignKey(typeof(tUnitModel))]
+        [Indexed(Name = "FK_ProductUnitOnWtUnitRefno", Order = 1, Unique = false)]
         public int WtUnitRefno { get; set; }
 
         [NotNull]

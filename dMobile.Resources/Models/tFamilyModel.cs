@@ -11,10 +11,12 @@ namespace dMobile.Resources.Models
     [Table("tFamily")]
     public class tFamilyModel
     {
-        [PrimaryKey, NotNull]
+        [PrimaryKey]
+        [NotNull]
         public int FamilyRefno { get; set; }
 
-        [NotNull, Indexed(Name = "UQ_FamilyOnFamilyCode", Order = 1, Unique = true)]
+        [NotNull]
+        [Indexed(Name = "UQ_FamilyOnFamilyCode", Order = 1, Unique = true)]
         public string FamilyCode { get; set; }
     }
 }

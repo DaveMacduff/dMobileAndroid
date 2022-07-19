@@ -11,10 +11,14 @@ namespace dMobile.Resources.Models
     [Table("tProductUnitRelation")]
     public class tProductUnitRelationModel
     {
-        [NotNull, ForeignKey(typeof(tProductUnitModel)), Indexed(Name = "FK_ProductUnitRelationOnProductUnit1Refno", Order = 1, Unique = false)]
+        [NotNull]
+        [ForeignKey(typeof(tProductUnitModel))]
+        [Indexed(Name = "FK_ProductUnitRelationOnProductUnit1Refno", Order = 1, Unique = false)]
         public int ProductUnit1Refno { get; set; }
 
-        [NotNull, ForeignKey(typeof(tProductUnitModel)), Indexed(Name = "FK_ProductUnitRelationOnProductUnit2Refno", Order = 1, Unique = false)]
+        [NotNull]
+        [ForeignKey(typeof(tProductUnitModel))]
+        [Indexed(Name = "FK_ProductUnitRelationOnProductUnit2Refno", Order = 1, Unique = false)]
         public int ProductUnit2Refno { get; set; }
 
         [NotNull]

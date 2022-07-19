@@ -11,10 +11,13 @@ namespace dMobile.Resources.Models
     [Table("tActivityDetailMoveInventory")]
     public class tActivityDetailMoveInventoryModel
     {
-        [PrimaryKey, NotNull, ForeignKey(typeof(tActivityDetailModel))]
+        [PrimaryKey]
+        [NotNull]
+        [ForeignKey(typeof(tActivityDetailModel))]
         public int ActivityDetailRefno { get; set; }
 
-        [NotNull, Indexed(Name = "UQ_ActivityDetailMoveInventoryOnActivityDetailFKRefno", Order = 1, Unique = true)]
+        [NotNull]
+        [Indexed(Name = "UQ_ActivityDetailMoveInventoryOnActivityDetailFKRefno", Order = 1, Unique = true)]
         public int ActivityDetailFKRefno { get; set; }
     }
 }

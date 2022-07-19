@@ -11,22 +11,30 @@ namespace dMobile.Resources.Models
     [Table("tActivityReceiving")]
     public class tActivityReceivingModel
     {
-        [PrimaryKey, NotNull, ForeignKey(typeof(tActivityModel)), Indexed(Name = "UQ_ActivityReceivingOnActivityRefnoAndActivitySubType", Order = 1, Unique = true)]
+        [PrimaryKey]
+        [NotNull]
+        [ForeignKey(typeof(tActivityModel))]
+        [Indexed(Name = "UQ_ActivityReceivingOnActivityRefnoAndActivitySubType", Order = 1, Unique = true)]
         public int ActivityRefno { get; set; }
 
-        [NotNull, Indexed(Name = "UQ_ActivityReceivingOnActivityRefnoAndActivitySubType", Order = 2, Unique = true)]
+        [NotNull]
+        [Indexed(Name = "UQ_ActivityReceivingOnActivityRefnoAndActivitySubType", Order = 2, Unique = true)]
         public int ActivitySubType { get; set; }
 
-        [NotNull, Indexed(Name = "UQ_ActivityReceivingOnActivityFKRefno", Order = 1, Unique = true)]
+        [NotNull]
+        [Indexed(Name = "UQ_ActivityReceivingOnActivityFKRefno", Order = 1, Unique = true)]
         public int ActivityFKRefno { get; set; }
 
         [NotNull]
         public string ActivityStringFKRefno { get; set; }
 
-        [NotNull, Indexed(Name = "UQ_ActivityReceivingOnActivityReceivingPONumber", Order = 1, Unique = true)]
+        [NotNull]
+        [Indexed(Name = "UQ_ActivityReceivingOnActivityReceivingPONumber", Order = 1, Unique = true)]
         public string ActivityReceivingPONumber { get; set; }
 
-        [NotNull, ForeignKey(typeof(tLocationMapWarehouseModel)), Indexed(Name = "FK_ActivityReceivingOnWarehouseLocationMapRefno", Order = 1, Unique = false)]
+        [NotNull]
+        [ForeignKey(typeof(tLocationMapWarehouseModel))]
+        [Indexed(Name = "FK_ActivityReceivingOnWarehouseLocationMapRefno", Order = 1, Unique = false)]
         public int WarehouseLocationMapRefno { get; set; }
 
         [NotNull]

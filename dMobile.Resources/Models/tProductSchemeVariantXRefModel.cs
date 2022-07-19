@@ -10,10 +10,14 @@ namespace dMobile.Resources.Models
     [Table("tProductSchemeVariantXRef")]
     public class tProductSchemeVariantXRefModel
     {
-        [NotNull, ForeignKey(typeof(tProductSchemeModel)), Indexed(Name = "FK_ProductSchemeVariantXRefOnProductSchemeRefno", Order = 1, Unique = false)]
+        [NotNull]
+        [ForeignKey(typeof(tProductSchemeModel))]
+        [Indexed(Name = "FK_ProductSchemeVariantXRefOnProductSchemeRefno", Order = 1, Unique = false)]
         public int ProductSchemeRefno { get; set; }
 
-        [NotNull, ForeignKey(typeof(tProductSchemeVariantModel)), Indexed(Name = "FK_ProductSchemeVariantXRefOnProductSchemeVariantRefno", Order = 1, Unique = false)]
+        [NotNull]
+        [ForeignKey(typeof(tProductSchemeVariantModel))]
+        [Indexed(Name = "FK_ProductSchemeVariantXRefOnProductSchemeVariantRefno", Order = 1, Unique = false)]
         public int ProductSchemeVariantRefno { get; set; }
     }
 }

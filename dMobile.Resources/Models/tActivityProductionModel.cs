@@ -11,13 +11,19 @@ namespace dMobile.Resources.Models
     [Table("tActivityProduction")]
     public class tActivityProductionModel
     {
-        [PrimaryKey, NotNull, ForeignKey(typeof(tActivityModel)), Indexed(Name = "UQ_ActivityProductionOnActivityRefnoAndActivitySubType", Order = 1, Unique = true)]
+        [PrimaryKey]
+        [NotNull]
+        [ForeignKey(typeof(tActivityModel))]
+        [Indexed(Name = "UQ_ActivityProductionOnActivityRefnoAndActivitySubType", Order = 1, Unique = true)]
         public int ActivityRefno { get; set; }
 
-        [NotNull, Indexed(Name = "UQ_ActivityProductionOnActivityRefnoAndActivitySubType", Order = 2, Unique = true)]
+        [NotNull]
+        [Indexed(Name = "UQ_ActivityProductionOnActivityRefnoAndActivitySubType", Order = 2, Unique = true)]
         public int ActivitySubType { get; set; }
 
-        [NotNull, ForeignKey(typeof(tLocationMapWarehouseModel)), Indexed(Name = "FK_ActivityProductionOnWarehouseLocationMapRefno", Order = 1, Unique = false)]
+        [NotNull]
+        [ForeignKey(typeof(tLocationMapWarehouseModel))]
+        [Indexed(Name = "FK_ActivityProductionOnWarehouseLocationMapRefno", Order = 1, Unique = false)]
         public int WarehouseLocationMapRefno { get; set; }
 
         [NotNull]

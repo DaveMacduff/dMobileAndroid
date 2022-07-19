@@ -10,16 +10,19 @@ namespace dMobile.Resources.Models
     [Table("tProductSchemeVariant")]
     public class tProductSchemeVariantModel
     {
-        [PrimaryKey, NotNull]
+        [PrimaryKey]
+        [NotNull]
         public int ProductSchemeVariantRefno { get; set; }
 
-        [NotNull, Indexed(Name = "UQ_ProductSchemeVariantOnProductSchemeVariantCode", Order = 1, Unique = true)]
+        [NotNull]
+        [Indexed(Name = "UQ_ProductSchemeVariantOnProductSchemeVariantCode", Order = 1, Unique = true)]
         public string ProductSchemeVariantCode { get; set; }
 
         [NotNull]
         public string ProductSchemeVariantDescription { get; set; }
 
-        [NotNull, Indexed(Name = "UQ_ProductSchemeVariantOnProductSchemeVariantNo", Order = 1, Unique = true)]
+        [NotNull]
+        [Indexed(Name = "UQ_ProductSchemeVariantOnProductSchemeVariantNo", Order = 1, Unique = true)]
         public int ProductSchemeVariantNo { get; set; }
 
         [NotNull]

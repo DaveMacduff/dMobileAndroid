@@ -1057,12 +1057,12 @@ namespace dMobile.View.Activity
             finally
             {
                 this.Loading = false;
-                await Task.Run(() =>
-                {
-                    // Explicit GC, Xamarin forms not disposing of objects properly
-                    GC.Collect();
-                    GC.WaitForPendingFinalizers();
-                });
+                ////await Task.Run(() =>
+                ////{
+                ////    // Explicit GC, Xamarin forms not disposing of objects properly
+                ////    GC.Collect();
+                ////    GC.WaitForPendingFinalizers();
+                ////});
             }
 
             //////////////////////////////////////////////////////////////////////////
@@ -1615,16 +1615,7 @@ namespace dMobile.View.Activity
         {
             Device.BeginInvokeOnMainThread(async () =>
             {
-                // Disable the scanner even though the on disappearing event will turn it off also
-                // upon closing. SaveChanges or CancelChanges may show dialogs.
-                await this.ScannerDisable();
-                if (await this.SaveChanges())
-                {
-                    this.DialogResult = DialogResult.OK;
-                    _ = base.OnBackButtonPressed();
-                    await this.Close();
-                }
-                else if (await this.CancelChanges())
+                if (await this.CancelChanges())
                 {
                     this.DialogResult = DialogResult.None;
                     _ = base.OnBackButtonPressed();

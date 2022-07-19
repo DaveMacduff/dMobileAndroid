@@ -11,13 +11,18 @@ namespace dMobile.Resources.Models
     [Table("tWarehouseLocationMapType")]
     public class tWarehouseLocationMapTypeModel
     {
-        [NotNull, ForeignKey(typeof(tLocationMapModel)), Indexed(Name = "FK_WarehouseLocationMapTypeOnWarehouseLocationMapRefno", Order = 1, Unique = false)]
+        [NotNull]
+        [ForeignKey(typeof(tLocationMapModel))]
+        [Indexed(Name = "FK_WarehouseLocationMapTypeOnWarehouseLocationMapRefno", Order = 1, Unique = false)]
         public int WarehouseLocationMapRefno { get; set; }
 
-        [NotNull, Indexed(Name = "WarehouseLocationMapTypeOnWarehouseLocationMapTypeEnum", Order = 1, Unique = false)]
+        [NotNull]
+        [Indexed(Name = "WarehouseLocationMapTypeOnWarehouseLocationMapTypeEnum", Order = 1, Unique = false)]
         public int WarehouseLocationMapTypeEnum { get; set; }
 
-        [NotNull, ForeignKey(typeof(tLocationMapModel)), Indexed(Name = "FK_WarehouseLocationMapTypeOnLocationMapRefno", Order = 1, Unique = false)]
+        [NotNull]
+        [ForeignKey(typeof(tLocationMapModel))]
+        [Indexed(Name = "FK_WarehouseLocationMapTypeOnLocationMapRefno", Order = 1, Unique = false)]
         public int LocationMapRefno { get; set; }
     }
 }

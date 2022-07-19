@@ -755,11 +755,11 @@ namespace dMobile.Controller
             if (this.IsUpdateView && this.ListDetails != null)
             {
                 bool detailToBeAdded = false;
-                ////if (this.FKRefno > 0)
-                ////{
-                ////    detail = this.ListDetails.OfType<SkidInfoDetail>().FirstOrDefault(adjDetail =>
-                ////        adjDetail.ActivityDetailFKRefno == this.FKRefno);
-                ////}
+                if (this.DetailFKRefno > 0)
+                {
+                    detail = this.ListDetails.OfType<SkidInfoDetail>().FirstOrDefault(adjDetail =>
+                        adjDetail.ActivityDetailFKRefno == this.DetailFKRefno);
+                }
 
                 if (detail == null)
                 {

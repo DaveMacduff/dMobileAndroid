@@ -11,19 +11,26 @@ namespace dMobile.Resources.Models
     [Table("tContactCustomer")]
     public class tContactCustomerModel
     {
-        [PrimaryKey, NotNull, ForeignKey(typeof(tContactModel)), Indexed(Name = "UQ_ContactCustomerOnContactRefnoAndContactSubType", Order = 1, Unique = true)]
+        [PrimaryKey]
+        [NotNull]
+        [ForeignKey(typeof(tContactModel))]
+        [Indexed(Name = "UQ_ContactCustomerOnContactRefnoAndContactSubType", Order = 1, Unique = true)]
         public int ContactRefno { get; set; }
 
-        [NotNull, Indexed(Name = "UQ_ContactCustomerOnContactRefnoAndContactSubType", Order = 2, Unique = true)]
+        [NotNull]
+        [Indexed(Name = "UQ_ContactCustomerOnContactRefnoAndContactSubType", Order = 2, Unique = true)]
         public int ContactSubType { get; set; }
 
-        [NotNull, Indexed(Name = "UQ_ContactCustomerOnContactCustomerFKRefno", Order = 1, Unique = true)]
+        [NotNull]
+        [Indexed(Name = "UQ_ContactCustomerOnContactCustomerFKRefno", Order = 1, Unique = true)]
         public int ContactCustomerFKRefno { get; set; }
 
-        [NotNull, Indexed(Name = "UQ_ContactCustomerOnContactCustomerCode", Order = 1, Unique = true)]
+        [NotNull]
+        [Indexed(Name = "UQ_ContactCustomerOnContactCustomerCode", Order = 1, Unique = true)]
         public string ContactCustomerCode { get; set; }
 
-        [NotNull, Indexed(Name = "UQ_ContactCustomerOnContactCustomerName", Order = 1, Unique = true)]
+        [NotNull]
+        [Indexed(Name = "UQ_ContactCustomerOnContactCustomerName", Order = 1, Unique = true)]
         public string ContactCustomerName { get; set; }
     }
 }

@@ -560,12 +560,12 @@ namespace dMobile.View.Activity
                     await this.Close();
                 }
 
-                await Task.Run(() =>
-                {
-                    // Explicit GC, Xamarin forms not disposing of objects properly
-                    GC.Collect();
-                    GC.WaitForPendingFinalizers();
-                });
+                ////await Task.Run(() =>
+                ////{
+                ////    // Explicit GC, Xamarin forms not disposing of objects properly
+                ////    GC.Collect();
+                ////    GC.WaitForPendingFinalizers();
+                ////});
             }
 
             //////////////////////////////////////////////////////////////////////////

@@ -10,13 +10,16 @@ namespace dMobile.Resources.Models
     [Table("tRoute")]
     public class tRouteModel
     {
-        [PrimaryKey, NotNull]
+        [PrimaryKey]
+        [NotNull]
         public int RouteRefno { get; set; }
 
-        [NotNull, Indexed(Name = "UQ_RouteOnRouteCode", Order = 1, Unique = true)]
+        [NotNull]
+        [Indexed(Name = "UQ_RouteOnRouteCode", Order = 1, Unique = true)]
         public string RouteCode { get; set; }
 
-        [NotNull, Indexed(Name = "RouteOnRouteDescription", Order = 1, Unique = false)]
+        [NotNull]
+        [Indexed(Name = "RouteOnRouteDescription", Order = 1, Unique = false)]
         public string RouteDescription { get; set; }
 
         [NotNull]
