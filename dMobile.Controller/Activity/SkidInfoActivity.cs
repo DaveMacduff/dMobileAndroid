@@ -224,8 +224,7 @@ namespace dMobile.Controller
                 SSkidInfo info = new SSkidInfo();
                 info.SkidCode = Convert.ToString(skid.SkidCode);
                 info.SkidFKRefno = Convert.ToInt32(skid.SkidFKRefno);
-                info.LocMapRefno = Convert.ToInt32(skid.LocationMapRefno);
-                info.LocMap = await LocationMapTasks.GetSLocMapFromLocMapRefno(info.LocMapRefno);
+                info.LocMap = await LocationMapTasks.GetSLocMapFromLocMapRefno(skid.LocationMapRefno);
                 info.ProdInfo = await ProductInfoTasks.GetInfoFromRefno(Convert.ToInt32(skid.ProductRefno));
                 info.Quantity = Convert.ToDecimal(skid.Quantity);
                 info.BaseQuantity = Convert.ToDecimal(skid.BaseQuantity);

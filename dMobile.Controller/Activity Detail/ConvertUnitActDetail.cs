@@ -507,14 +507,14 @@ namespace dMobile.Controller
         /// </summary>
         /// <param name="gridMain"><see cref="Grid"/> Activity grid.</param>
         /// <param name="actDetail"><see cref="ActivityDetail"/> Activity detail.</param>
-        /// <param name="mainActivityExtraInfoItems"><see cref="ObservableCollection(object)"/> Main activity items list.</param>
+        /// <param name="mainActivityItems"><see cref="ObservableCollection(object)"/> Main activity items list.</param>
         /// <returns><see cref="DataTemplate"/> Data template.</returns>
         public override DataTemplate DesignGrid(
             ref Grid gridMain,
             ActivityDetail actDetail,
-            ObservableCollection<object> mainActivityExtraInfoItems)
+            ObservableCollection<object> mainActivityItems)
         {
-            mainActivityExtraInfoItems.Add(actDetail);
+            mainActivityItems.Add(actDetail);
 
             Label labelUnitNumberHeader = new Label { Text = "Unit #", VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start, FontAttributes = FontAttributes.Bold };
             Label labelQtyHeader = new Label { Text = "Quantity", VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start, FontAttributes = FontAttributes.Bold };

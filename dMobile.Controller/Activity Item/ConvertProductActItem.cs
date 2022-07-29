@@ -119,11 +119,11 @@ namespace dMobile.Controller
         }
 
         /// <summary>
-        /// The Insert.
+        /// Insert a new adjustment activity item.
         /// </summary>
-        /// <param name="data">The data<see cref="XDocument"/>.</param>
-        /// <param name="askToInsertAsNewItem">The askToInsertAsNewItem<see cref="bool"/>.</param>
-        /// <returns>The <see cref="Task"/>.</returns>
+        /// <param name="data"><see cref="XDocument"/> Adjustment activity information to insert.</param>
+        /// <param name="askToInsertAsNewItem"><see cref="bool"/> Stop and ask to insert an item.</param>
+        /// <returns><see cref="Task"/> Task operation.</returns>
         public override async Task Insert(XDocument data, bool askToInsertAsNewItem)
         {
             if (this.ListItems != null)
@@ -180,10 +180,10 @@ namespace dMobile.Controller
         }
 
         /// <summary>
-        /// The GetActivityItemRefno.
+        /// Get the activity item reference number from the product unit reference number and current location warehouse.
         /// </summary>
-        /// <param name="prodUnitRefno">The prodUnitRefno<see cref="int"/>.</param>
-        /// <returns>.</returns>
+        /// <param name="prodUnitRefno"><see cref="int"/> Product unit reference number.</param>
+        /// <returns><see cref="int"/> Found activity item refno else 0.</returns>
         public override Task<int> GetActivityItemRefno(int prodUnitRefno)
         {
             throw new NotImplementedException();
@@ -390,10 +390,18 @@ namespace dMobile.Controller
         /// <returns><see cref="int"/> Location map reference number.</returns>
         public override async Task<int> GetDefaultLocMapRefno(int whsLocMapRefno, int prodRefno)
         {
-            int locMapRefno = await LocationMapTasks.GetDefaultLocMapRefnoFromProdRefno(
+            int locMapRefno = await LocationMapTasks.GetDefaultLocMapRefnoFromWhsProdRefno(
                 whsLocMapRefno,
                 prodRefno,
                 SysCommon.ProdLocMapTypes.Picking);
+
+            if (locMapRefno == 0)
+            {
+                locMapRefno = await LocationMapTasks.GetDefaultLocMapRefnoFromWhsProdRefno(
+                    whsLocMapRefno,
+                    prodRefno,
+                    SysCommon.ProdLocMapTypes.Floor);
+            }
 
             return locMapRefno;
         }

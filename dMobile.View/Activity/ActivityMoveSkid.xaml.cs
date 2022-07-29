@@ -147,7 +147,7 @@ namespace dMobile.View.Activity
             {
                 this.IsSvdBarScannerEnabled = this.IsBarCodeHandlerRegistered;
                 await this.ScannerDisable();
-                isReadyToSave = isReadyToSave && await LocationMapTasks.IsCompleteLocMapRefno(this.LocMap.CurrLocMapRefno);
+                isReadyToSave = isReadyToSave && await LocationMapTasks.IsCompleteLocMap(this.LocMap.CurrLocMapRefno);
                 isReadyToSave = isReadyToSave && this.SkidInfo.CurrSkid.SkidFKRefno != 0;
             }
             catch (MessageOnlyException ex)
@@ -422,6 +422,7 @@ namespace dMobile.View.Activity
 
                 if (await form.DisplayControl.ShowDialog() == DialogResult.OK)
                 {
+                    this.LocMap.CurrLocMap = this.LocMap.ChosenLocMap.Clone();
                     if (this.LocMap.ChosenLocMap.WhsLocMapRefno != 0)
                     {
                         this.cmdToLocation.Text = LocationMapTasks.GetChosenReadableLocation();

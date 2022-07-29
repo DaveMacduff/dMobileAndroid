@@ -385,16 +385,34 @@ namespace dMobile.Controller
         /// <returns>The <see cref="Task"/>.</returns>
         public override async Task SelectActivity(object selectedActivity)
         {
-            if (selectedActivity is Transfer transfer)
+            if (selectedActivity is Transfer header)
             {
-                this.SelectedActivity = transfer;
-                this.HdrFKRefno = Convert.ToInt32(transfer.ActivityFKRefno);
-                this.HdrRefno = Convert.ToInt32(transfer.ActivityRefno);
+                this.SelectedActivity = header;
+                this.HdrFKRefno = header.ActivityFKRefno;
+                this.HdrRefno = header.ActivityRefno;
 
-                // Set the selected warehouse to the activity header warehouse.
-                if (LocationMap.GetInstance().CurrLocMap.WhsLocMapRefno != Convert.ToInt32(transfer.LocationMapRefno))
+                if (this.SysEnv.SysSettings.IsDefaultLocToProductDefaultLoc)
                 {
-                    LocationMap.GetInstance().CurrLocMap = await LocationMapTasks.GetSLocMapFromLocMapRefno(Convert.ToInt32(transfer.LocationMapRefno));
+                    if (LocationMap.GetInstance().CurrLocMap.WhsLocMapRefno != header.LocationMapRefno &&
+                            await LocationMapTasks.IsCompleteLocMap(header.LocationMapRefno))
+                    {
+                        LocationMap.GetInstance().CurrLocMap = await LocationMapTasks.GetSLocMapFromLocMapRefno(
+                            header.LocationMapRefno);
+                    }
+
+                    if (LocationMap.GetInstance().ChosenLocMap.WhsLocMapRefno != header.LocationMapRefno &&
+                            await LocationMapTasks.IsCompleteLocMap(header.LocationMapRefno))
+                    {
+                        LocationMap.GetInstance().ChosenLocMap = LocationMap.GetInstance().CurrLocMap.Clone();
+                    }
+
+                    if (this.SkidInfo.CurrSkid != null && this.SkidInfo.CurrSkid.SkidFKRefno > 0 &&
+                        this.SkidInfo.CurrSkid.LocMapRefno != header.LocationMapRefno &&
+                        await LocationMapTasks.IsCompleteLocMap(header.LocationMapRefno))
+                    {
+                        // NOTE: We may have to use a temp var to assign the current skid a new location.
+                        this.SkidInfo.CurrSkid.LocMap = LocationMap.GetInstance().CurrLocMap.Clone();
+                    }
                 }
             }
         }

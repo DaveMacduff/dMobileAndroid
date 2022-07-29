@@ -60,12 +60,11 @@ namespace dMobile.Controller
         /// <returns>The <see cref="Task"/>.</returns>
         public override async Task SelectActivity(object selectedActivity)
         {
-            dynamic inventoryInquiry = selectedActivity as dynamic;
-
-            if (inventoryInquiry != null)
+            if (selectedActivity is InvInquirySummaryActivity inquiry)
             {
-                this.HdrFKRefno = Convert.ToInt32(inventoryInquiry.ActivityRefno);
-                this.HdrRefno = Convert.ToInt32(inventoryInquiry.ActivityRefno);
+                this.SelectedActivity = inquiry;
+                this.HdrFKRefno = inquiry.HdrRefno;
+                this.HdrRefno = inquiry.HdrRefno;
             }
         }
 
@@ -76,13 +75,11 @@ namespace dMobile.Controller
         /// <returns>.</returns>
         public override int GetRefnoFromRowIdx(object selectedItem)
         {
-            dynamic inventoryInquiry = selectedItem as dynamic;
-
-            if (inventoryInquiry != null)
+            if (selectedItem is InvInquirySummaryActivity inquiry)
             {
-                this.SelectedActivity = inventoryInquiry;
-                this.HdrFKRefno = Convert.ToInt32(inventoryInquiry.ActivityRefno);
-                this.HdrRefno = Convert.ToInt32(inventoryInquiry.ActivityRefno);
+                this.SelectedActivity = inquiry;
+                this.HdrFKRefno = Convert.ToInt32(inquiry.HdrRefno);
+                this.HdrRefno = Convert.ToInt32(inquiry.HdrRefno);
             }
 
             return this.HdrRefno;

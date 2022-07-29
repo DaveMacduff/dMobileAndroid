@@ -145,19 +145,21 @@ namespace dMobile.Controller
             PrinterSettings prnSettings = new PrinterSettings().LoadData();
 
             // Don't even bother sending in a print request if no quantity was entered.
-            SLabelQuantity labelQty = new SLabelQuantity();
-            labelQty.FullQuantity = int.Parse(data.Root.Element("full_alt_qty").Value);
-            labelQty.RepackQuantity = int.Parse(data.Root.Element("repack_alt_qty").Value);
-            labelQty.FreshQuantity = int.Parse(data.Root.Element("fresh_alt_qty").Value);
-            labelQty.FrozenQuantity = int.Parse(data.Root.Element("frozen_alt_qty").Value);
-            labelQty.LiveQuantity = int.Parse(data.Root.Element("live_alt_qty").Value);
-            labelQty.DryQuantity = int.Parse(data.Root.Element("dry_alt_qty").Value);
-            labelQty.RepackFreshQuantity = int.Parse(data.Root.Element("repack_fresh_alt_qty").Value);
-            labelQty.RepackFrozenQuantity = int.Parse(data.Root.Element("repack_frozen_alt_qty").Value);
-            labelQty.RepackLiveQuantity = int.Parse(data.Root.Element("repack_live_alt_qty").Value);
-            labelQty.RepackDryQuantity = int.Parse(data.Root.Element("repack_dry_alt_qty").Value);
-            labelQty.PalletQuantity = int.Parse(data.Root.Element("pallet_alt_qty").Value);
-            labelQty.BundleQuantity = int.Parse(data.Root.Element("bundle_alt_qty").Value);
+            SLabelQuantity labelQty = new SLabelQuantity
+            {
+                FullQuantity = int.Parse(data.Root.Element("full_alt_qty").Value),
+                RepackQuantity = int.Parse(data.Root.Element("repack_alt_qty").Value),
+                FreshQuantity = int.Parse(data.Root.Element("fresh_alt_qty").Value),
+                FrozenQuantity = int.Parse(data.Root.Element("frozen_alt_qty").Value),
+                LiveQuantity = int.Parse(data.Root.Element("live_alt_qty").Value),
+                DryQuantity = int.Parse(data.Root.Element("dry_alt_qty").Value),
+                RepackFreshQuantity = int.Parse(data.Root.Element("repack_fresh_alt_qty").Value),
+                RepackFrozenQuantity = int.Parse(data.Root.Element("repack_frozen_alt_qty").Value),
+                RepackLiveQuantity = int.Parse(data.Root.Element("repack_live_alt_qty").Value),
+                RepackDryQuantity = int.Parse(data.Root.Element("repack_dry_alt_qty").Value),
+                PalletQuantity = int.Parse(data.Root.Element("pallet_alt_qty").Value),
+                BundleQuantity = int.Parse(data.Root.Element("bundle_alt_qty").Value),
+            };
 
             // Used abs for handling the freaky event that a negative label quantity was requested.
             if (labelQty.FullQuantity + labelQty.RepackQuantity + labelQty.FreshQuantity + labelQty.FrozenQuantity
@@ -728,25 +730,6 @@ namespace dMobile.Controller
 
             foreach (Picking picking in this.ListHdrs)
             {
-                // Picking picking = new Picking
-                // {
-                //    ActivityRefno = Convert.ToInt32(row["ActivityRefno"] != DBNull.Value ? row["ActivityRefno"] : null),
-                //    ActivityFKRefno = Convert.ToInt32(row["ActivityFKRefno"] != DBNull.Value ? row["ActivityFKRefno"] : null),
-                //    ActivityStringFKRefno = Convert.ToString(row["ActivityStringFKRefno"] != DBNull.Value ? row["ActivityStringFKRefno"] : null),
-                //    LocationMapRefno = Convert.ToInt32(row["LocationMapRefno"] != DBNull.Value ? row["LocationMapRefno"] : null),
-                //    LocationMapWarehouseFKRefno = Convert.ToInt32(row["LocationMapWarehouseFKRefno"] != DBNull.Value ? row["LocationMapWarehouseFKRefno"] : null),
-                //    LocationMapWarehouseName = Convert.ToString(row["LocationMapWarehouseName"] != DBNull.Value ? row["LocationMapWarehouseName"] : null),
-                //    ActivityPickingOrderedDateTime = Convert.ToDateTime(row["ActivityPickingOrderedDateTime"] != DBNull.Value ? row["ActivityPickingOrderedDateTime"] : null),
-                //    ActivityPickingDeliveryDateTime = Convert.ToDateTime(row["ActivityPickingDeliveryDateTime"] != DBNull.Value ? row["ActivityPickingDeliveryDateTime"] : null),
-                //    ActivityPickingCustomerContactName = Convert.ToString(row["ActivityPickingCustomerContactName"] != DBNull.Value ? row["ActivityPickingCustomerContactName"] : null),
-                //    ActivityPickingCustomerShipToInfo = Convert.ToString(row["ActivityPickingCustomerShipToInfo"] != DBNull.Value ? row["ActivityPickingCustomerShipToInfo"] : null),
-                //    RouteCode = Convert.ToString(row["RouteCode"] != DBNull.Value ? row["RouteCode"] : null),
-                //    RouteDescription = Convert.ToString(row["RouteDescription"] != DBNull.Value ? row["RouteDescription"] : null),
-                //    RouteDayOfWeek = Convert.ToString(row["RouteDayOfWeek"] != DBNull.Value ? row["RouteDayOfWeek"] : null),
-                //    RouteStop = Convert.ToInt32(row["RouteStop"] != DBNull.Value ? row["RouteStop"] : null),
-                //    ActivityStatus = Convert.ToInt32(row["ActivityStatus"] != DBNull.Value ? row["ActivityStatus"] : null),
-                //    ActivityPickingIsReviewed = Convert.ToBoolean(row["ActivityPickingIsReviewed"] != DBNull.Value ? row["ActivityPickingIsReviewed"] : null),
-                // };
                 observableCollection.Add(picking);
 
                 double detailWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(picking.ActivityStringFKRefno);
@@ -996,25 +979,6 @@ namespace dMobile.Controller
 
             foreach (Picking picking in this.ListHdrs)
             {
-                // Picking picking = new Picking
-                // {
-                //    ActivityRefno = Convert.ToInt32(row["ActivityRefno"] != DBNull.Value ? row["ActivityRefno"] : null),
-                //    ActivityFKRefno = Convert.ToInt32(row["ActivityFKRefno"] != DBNull.Value ? row["ActivityFKRefno"] : null),
-                //    ActivityStringFKRefno = Convert.ToString(row["ActivityStringFKRefno"] != DBNull.Value ? row["ActivityStringFKRefno"] : null),
-                //    LocationMapRefno = Convert.ToInt32(row["LocationMapRefno"] != DBNull.Value ? row["LocationMapRefno"] : null),
-                //    LocationMapWarehouseFKRefno = Convert.ToInt32(row["LocationMapWarehouseFKRefno"] != DBNull.Value ? row["LocationMapWarehouseFKRefno"] : null),
-                //    LocationMapWarehouseName = Convert.ToString(row["LocationMapWarehouseName"] != DBNull.Value ? row["LocationMapWarehouseName"] : null),
-                //    ActivityPickingOrderedDateTime = Convert.ToDateTime(row["ActivityPickingOrderedDateTime"] != DBNull.Value ? row["ActivityPickingOrderedDateTime"] : null),
-                //    ActivityPickingDeliveryDateTime = Convert.ToDateTime(row["ActivityPickingDeliveryDateTime"] != DBNull.Value ? row["ActivityPickingDeliveryDateTime"] : null),
-                //    ActivityPickingCustomerContactName = Convert.ToString(row["ActivityPickingCustomerContactName"] != DBNull.Value ? row["ActivityPickingCustomerContactName"] : null),
-                //    ActivityPickingCustomerShipToInfo = Convert.ToString(row["ActivityPickingCustomerShipToInfo"] != DBNull.Value ? row["ActivityPickingCustomerShipToInfo"] : null),
-                //    RouteCode = Convert.ToString(row["RouteCode"] != DBNull.Value ? row["RouteCode"] : null),
-                //    RouteDescription = Convert.ToString(row["RouteDescription"] != DBNull.Value ? row["RouteDescription"] : null),
-                //    RouteDayOfWeek = Convert.ToString(row["RouteDayOfWeek"] != DBNull.Value ? row["RouteDayOfWeek"] : null),
-                //    RouteStop = Convert.ToInt32(row["RouteStop"] != DBNull.Value ? row["RouteStop"] : null),
-                //    ActivityStatus = Convert.ToInt32(row["ActivityStatus"] != DBNull.Value ? row["ActivityStatus"] : null),
-                //    ActivityPickingIsReviewed = Convert.ToBoolean(row["ActivityPickingIsReviewed"] != DBNull.Value ? row["ActivityPickingIsReviewed"] : null),
-                // };
                 observableCollection.Add(picking);
             }
 
@@ -1028,16 +992,34 @@ namespace dMobile.Controller
         /// <returns>The <see cref="Task"/>.</returns>
         public override async Task SelectActivity(object selectedActivity)
         {
-            if (selectedActivity is Picking picking)
+            if (selectedActivity is Picking header)
             {
-                this.SelectedActivity = picking;
-                this.HdrFKRefno = Convert.ToInt32(picking.ActivityFKRefno);
-                this.HdrRefno = Convert.ToInt32(picking.ActivityRefno);
+                this.SelectedActivity = header;
+                this.HdrFKRefno = header.ActivityFKRefno;
+                this.HdrRefno = header.ActivityRefno;
 
-                // Set the selected warehouse to the activity header warehouse.
-                if (LocationMap.GetInstance().CurrLocMap.WhsLocMapRefno != Convert.ToInt32(picking.LocationMapRefno))
+                if (this.SysEnv.SysSettings.IsDefaultLocToProductDefaultLoc)
                 {
-                    LocationMap.GetInstance().CurrLocMap = await LocationMapTasks.GetSLocMapFromLocMapRefno(Convert.ToInt32(picking.LocationMapRefno));
+                    if (LocationMap.GetInstance().CurrLocMap.WhsLocMapRefno != header.LocationMapRefno &&
+                            await LocationMapTasks.IsCompleteLocMap(header.LocationMapRefno))
+                    {
+                        LocationMap.GetInstance().CurrLocMap = await LocationMapTasks.GetSLocMapFromLocMapRefno(
+                            header.LocationMapRefno);
+                    }
+
+                    if (LocationMap.GetInstance().ChosenLocMap.WhsLocMapRefno != header.LocationMapRefno &&
+                            await LocationMapTasks.IsCompleteLocMap(header.LocationMapRefno))
+                    {
+                        LocationMap.GetInstance().ChosenLocMap = LocationMap.GetInstance().CurrLocMap.Clone();
+                    }
+
+                    if (this.SkidInfo.CurrSkid != null && this.SkidInfo.CurrSkid.SkidFKRefno > 0 &&
+                        this.SkidInfo.CurrSkid.LocMapRefno != header.LocationMapRefno &&
+                        await LocationMapTasks.IsCompleteLocMap(header.LocationMapRefno))
+                    {
+                        // NOTE: We may have to use a temp var to assign the current skid a new location.
+                        this.SkidInfo.CurrSkid.LocMap = LocationMap.GetInstance().CurrLocMap.Clone();
+                    }
                 }
             }
         }

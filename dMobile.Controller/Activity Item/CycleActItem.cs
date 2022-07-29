@@ -199,23 +199,17 @@ namespace dMobile.Controller
         }
 
         /// <summary>
-        /// The Insert.
+        /// Insert a new adjustment activity item.
         /// </summary>
-        /// <param name="data">.</param>
-        /// <param name="askToInsertAsNewItem">.</param>
-        /// <returns>The <see cref="Task"/>.</returns>
+        /// <param name="data"><see cref="XDocument"/> Adjustment activity information to insert.</param>
+        /// <param name="askToInsertAsNewItem"><see cref="bool"/> Stop and ask to insert an item.</param>
+        /// <returns><see cref="Task"/> Task operation.</returns>
         public override async Task Insert(XDocument data, bool askToInsertAsNewItem)
         {
             int foundActItemRefno = 0;
             bool result = false;
+
             int prodUnitRefno = int.Parse(data.Root.Element("ProductUnitRefno").Value);
-            int locMapRefno = this.LocMap.CurrLocMap.WhsLocMapRefno;
-
-            if (this.SysEnv.SysSettings.IsPhysicalDoNotDefaultProductLocation)
-            {
-                locMapRefno = this.LocMap.CurrLocMapRefno;
-            }
-
             if (prodUnitRefno != 0)
             {
                 foundActItemRefno = await this.GetActivityItemRefno(prodUnitRefno);
@@ -275,7 +269,7 @@ namespace dMobile.Controller
                                 Convert.ToInt32(this.ItemFKRefno),
                                 Convert.ToString(this.ItemFKRefno),
                                 Convert.ToInt32(prodUnitRefno),
-                                Convert.ToInt32(locMapRefno),
+                                Convert.ToInt32(this.LocMap.WhsLocMapRefno),
                                 Convert.ToDecimal(0),
                                 Convert.ToDecimal(0),
                                 Convert.ToDecimal(0),
@@ -296,7 +290,6 @@ namespace dMobile.Controller
                         }
                     });
 
-                    this.LocMap.CurrLocMap = await LocationMapTasks.GetSLocMapFromLocMapRefno(locMapRefno);
                     this.ProdInfo = await ProductInfoTasks.GetInfoFromUnitRefno(prodUnitRefno);
                     this.ProdInfo.Scheme = await ProductInfoTasks.GetSchemeComponentsFromRefno(this.ProdInfo.Refno);
 
@@ -314,9 +307,9 @@ namespace dMobile.Controller
                             UnitCode = data.Root.Element("UnitCode").Value,
                             ProductUnitBC = data.Root.Element("ProductUnitBC").Value,
                             ProductUnitSizeDescription = data.Root.Element("ProductUnitSizeDescription").Value,
-                            LocationMapRefno = locMapRefno,
-                            LocationCode = Convert.ToString(this.LocMap.CurrLocMap.WhsCode),
-                            LocationName = this.LocMap.CurrLocMap.WhsName,
+                            LocationMapRefno = this.LocMap.WhsLocMapRefno,
+                            LocationCode = Convert.ToString(this.LocMap.WhsCode),
+                            LocationName = this.LocMap.WhsName,
                             ActivityItemStatus = Convert.ToInt32(SysCommon.ActStatus.Inserted),
                             ActivityItemCountQuantityOnHand = 0,
                             ActivityItemCountBaseQuantityOnHand = 0,
@@ -896,28 +889,51 @@ namespace dMobile.Controller
         /// <returns><see cref="Task"/> Task operation.</returns>
         public override async Task SelectActivityItem(object selectedActivityItem)
         {
-            int activityItemLocMapRefno = 0;
             if (selectedActivityItem is CountItem item)
             {
                 this.SelectedActivityItem = item;
                 this.ItemRefno = item.ActivityItemRefno;
-                this.ItemFKRefno = Convert.ToInt32(item.ActivityItemFKRefno);
+                this.ItemFKRefno = item.ActivityItemFKRefno;
                 this.ProdInfo = await ProductInfoTasks.GetInfoFromUnitRefno(item.ProductUnitRefno);
-                activityItemLocMapRefno = item.LocationMapRefno;
+                int activityItemLocMapRefno = item.LocationMapRefno;
+
+                // This code needs to be before the call to GetSelectedItemLocation, because the skid location may be
+                // used if the product unit and warehouse match.
+                if (this.SysEnv.SysSettings.DoesSelectingADifferentProductClearSkid &&
+                    this.ActHdr.SkidInfo.CurrSkid.ProdInfo.Refno != this.ProdInfo.Refno)
+                {
+                    this.ActHdr.SkidInfo.CurrSkid = new SSkidInfo();
+                }
+
+                if (this.SysEnv.SysSettings.IsDefaultLocToProductDefaultLoc &&
+                    !this.SysEnv.SysSettings.IsCycleDoNotDefaultProductLocation)
+                {
+                    // Only assign the current location if the map is complete else leave it alone.
+                    SLocMap locMap = await this.GetSelectedItemLocation(activityItemLocMapRefno);
+                    if (locMap != null && await LocationMapTasks.IsCompleteLocMap(locMap))
+                    {
+                        // Update the chosen location with the current when defaulting is turned on.
+                        LocationMap.GetInstance().CurrLocMap = locMap.Clone();
+                        LocationMap.GetInstance().ChosenLocMap = locMap.Clone();
+
+                        // Assign the skid the location, because defaulting is enabled.
+                        if (this.ActHdr.SkidInfo.CurrSkid.SkidFKRefno > 0)
+                        {
+                            this.ActHdr.SkidInfo.CurrSkid.LocMap = locMap.Clone();
+                        }
+                    }
+                }
+
+                // LocationMap.GetInstance().CurrLocMap needs to be set before call to GetSchemeComponentsFromRefno.
+                this.ProdInfo.Scheme = await ProductInfoTasks.GetSchemeComponentsFromRefno(this.ProdInfo.Refno);
             }
-
-            await this.GetSelectedItemLocation(activityItemLocMapRefno);
-
-            // LocationMap.GetInstance().CurrLocMap needs to be set before call to GetSchemeComponentsFromRefno.
-            this.ProdInfo.Scheme = await ProductInfoTasks.GetSchemeComponentsFromRefno(
-                this.ProdInfo.Refno);
         }
 
         /// <summary>
-        /// The GetActivityItemRefno.
+        /// Get the activity item reference number from the product unit reference number and current location warehouse.
         /// </summary>
-        /// <param name="prodUnitRefno">.</param>
-        /// <returns>.</returns>
+        /// <param name="prodUnitRefno"><see cref="int"/> Product unit reference number.</param>
+        /// <returns><see cref="int"/> Found activity item reference number else 0.</returns>
         public override async Task<int> GetActivityItemRefno(int prodUnitRefno)
         {
             int foundActItemRefno = 0;
@@ -936,7 +952,7 @@ namespace dMobile.Controller
             sql.Append("INNER JOIN tLocationMapSection ON tLocationMapSection.LocationMapRefno ");
             sql.Append("= tLocationMapSlot.SectionLocationMapRefno ");
             sql.AppendFormat("WHERE tActivityItem.ActivityRefno = {0} ", this.ActHdr.HdrRefno);
-            sql.AppendFormat("AND tActivityItemCount.LocationMapRefno = {0} ", this.LocMap.CurrLocMap.SlotLocMapRefno);
+            sql.AppendFormat("AND tActivityItemCount.LocationMapRefno = {0} ", this.LocMap.SlotLocMapRefno);
             sql.AppendFormat("AND tActivityItemCount.ProductUnitRefno = {0} ", prodUnitRefno);
             sql.Append("UNION ");
             sql.Append("SELECT tActivityItem.ActivityItemRefno,");
@@ -949,7 +965,7 @@ namespace dMobile.Controller
             sql.Append("INNER JOIN tLocationMapSection ON tLocationMapSection.LocationMapRefno ");
             sql.Append("= tActivityItemCount.LocationMapRefno ");
             sql.AppendFormat("WHERE tActivityItem.ActivityRefno = {0} ", this.ActHdr.HdrRefno);
-            sql.AppendFormat("AND tActivityItemCount.LocationMapRefno = {0} ", this.LocMap.CurrLocMap.SectLocMapRefno);
+            sql.AppendFormat("AND tActivityItemCount.LocationMapRefno = {0} ", this.LocMap.SectLocMapRefno);
             sql.AppendFormat("AND tActivityItemCount.ProductUnitRefno = {0} ", prodUnitRefno);
             sql.Append("UNION ");
             sql.Append("SELECT tActivityItem.ActivityItemRefno,");
@@ -962,7 +978,7 @@ namespace dMobile.Controller
             sql.Append("INNER JOIN tLocationMapWarehouse ON tLocationMapWarehouse.LocationMapRefno ");
             sql.Append("= tActivityItemCount.LocationMapRefno ");
             sql.AppendFormat("WHERE tActivityItem.ActivityRefno = {0} ", this.ActHdr.HdrRefno);
-            sql.AppendFormat("AND tActivityItemCount.LocationMapRefno = {0} ", this.LocMap.CurrLocMap.WhsLocMapRefno);
+            sql.AppendFormat("AND tActivityItemCount.LocationMapRefno = {0} ", this.LocMap.WhsLocMapRefno);
             sql.AppendFormat("AND tActivityItemCount.ProductUnitRefno = {0}", prodUnitRefno);
 
             List<CountItem> results = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<CountItem>(sql.ToString());
@@ -1171,18 +1187,26 @@ namespace dMobile.Controller
                 if (Math.Sign(item.ActivityItemCountQuantity) == 0 ||
                     Math.Sign(item.ActivityItemCountQuantity) == 1)
                 {
-                    locMapRefno = await LocationMapTasks.GetDefaultLocMapRefnoFromProdRefno(
+                    locMapRefno = await LocationMapTasks.GetDefaultLocMapRefnoFromWhsProdRefno(
                         whsLocMapRefno,
                         prodRefno,
                         SysCommon.ProdLocMapTypes.Receiving);
                 }
                 else
                 {
-                    locMapRefno = await LocationMapTasks.GetDefaultLocMapRefnoFromProdRefno(
+                    locMapRefno = await LocationMapTasks.GetDefaultLocMapRefnoFromWhsProdRefno(
                         whsLocMapRefno,
                         prodRefno,
                         SysCommon.ProdLocMapTypes.Picking);
                 }
+            }
+
+            if (locMapRefno == 0)
+            {
+                locMapRefno = await LocationMapTasks.GetDefaultLocMapRefnoFromWhsProdRefno(
+                    whsLocMapRefno,
+                    prodRefno,
+                    SysCommon.ProdLocMapTypes.Floor);
             }
 
             return locMapRefno;

@@ -299,13 +299,13 @@ namespace dMobile.View.Activity
 
             if (this.ActDetail.ListDetails.Count > 0)
             {
-                if (!await LocationMapTasks.IsCompleteLocMapRefno(this.SelFromLocMap))
+                if (!await LocationMapTasks.IsCompleteLocMap(this.SelFromLocMap))
                 {
                     isReadyToSave = false;
 
                     await Device.InvokeOnMainThreadAsync(async () => await this.DisplayAlert("Send Moves", "Invalid Move \'From\' Location", "OK"));
                 }
-                else if (!await LocationMapTasks.IsCompleteLocMapRefno(this.SelToLocMap))
+                else if (!await LocationMapTasks.IsCompleteLocMap(this.SelToLocMap))
                 {
                     isReadyToSave = false;
 
@@ -557,9 +557,8 @@ namespace dMobile.View.Activity
 
                 if (await Device.InvokeOnMainThreadAsync(async () => await form.DisplayControl.ShowDialog() == DialogResult.OK))
                 {
-                    await LocationMapTasks.AssignLocationMapAsync();
-
-                    this.SelFromLocMap = this.LocMap.CurrLocMap;
+                    this.LocMap.CurrLocMap = this.LocMap.ChosenLocMap.Clone();
+                    this.SelFromLocMap = this.LocMap.CurrLocMap.Clone();
                     this.SelFromCurrLocMapRefno = this.LocMap.CurrLocMapRefno;
 
                     if (this.LocMap.CurrLocMap.WhsLocMapRefno != 0)
@@ -599,9 +598,8 @@ namespace dMobile.View.Activity
 
                 if (await form.DisplayControl.ShowDialog() == DialogResult.OK)
                 {
-                    await LocationMapTasks.AssignLocationMapAsync();
-
-                    this.SelToLocMap = this.LocMap.CurrLocMap;
+                    this.LocMap.CurrLocMap = this.LocMap.ChosenLocMap.Clone();
+                    this.SelToLocMap = this.LocMap.CurrLocMap.Clone();
                     this.SelToCurrLocMapRefno = this.LocMap.CurrLocMapRefno;
 
                     if (this.LocMap.CurrLocMap.WhsLocMapRefno != 0)
@@ -635,7 +633,7 @@ namespace dMobile.View.Activity
 
             if (this.IsControlLoaded == false)
             {
-                this.SelFromLocMap = this.LocMap.CurrLocMap;
+                this.SelFromLocMap = this.LocMap.CurrLocMap.Clone();
                 this.SelFromCurrLocMapRefno = this.LocMap.CurrLocMapRefno;
 
                 if (this.LocMap.CurrLocMap.WhsLocMapRefno != 0)
@@ -647,7 +645,7 @@ namespace dMobile.View.Activity
                     _ = await Device.InvokeOnMainThreadAsync(() => this.cmdFromLocation.Text = "Set From Location");
                 }
 
-                this.SelToLocMap = this.LocMap.CurrLocMap;
+                this.SelToLocMap = this.LocMap.CurrLocMap.Clone();
                 this.SelToCurrLocMapRefno = this.LocMap.CurrLocMapRefno;
 
                 if (this.LocMap.CurrLocMap.WhsLocMapRefno != 0)
@@ -812,7 +810,7 @@ namespace dMobile.View.Activity
                     if (this.chkScanToLocation.IsChecked)
                     {
                         this.LocMap.CurrLocMap = await LocationMapTasks.GetSLocMapFromLocMapRefno(await LocationMapTasks.GetLocMapRefnoFromBarCodeGlobalLocIdentifier(this.BarCodeParse.LocationIdentifier));
-                        this.SelToLocMap = this.LocMap.CurrLocMap;
+                        this.SelToLocMap = this.LocMap.CurrLocMap.Clone();
 
                         if (this.LocMap.CurrLocMap.WhsLocMapRefno != 0)
                         {
@@ -826,7 +824,7 @@ namespace dMobile.View.Activity
                     else
                     {
                         this.LocMap.CurrLocMap = await LocationMapTasks.GetSLocMapFromLocMapRefno(await LocationMapTasks.GetLocMapRefnoFromBarCodeGlobalLocIdentifier(this.BarCodeParse.LocationIdentifier));
-                        this.SelFromLocMap = this.LocMap.CurrLocMap;
+                        this.SelFromLocMap = this.LocMap.CurrLocMap.Clone();
 
                         if (this.LocMap.CurrLocMap.WhsLocMapRefno != 0)
                         {
@@ -842,7 +840,7 @@ namespace dMobile.View.Activity
                 {
                     if (!string.IsNullOrEmpty(this.BarCodeParse.ProductIdentifier))
                     {
-                        prodUnitRefno = await SysShared.IdentifyProductScanned(this.ActSubType, this.BarCodeParse, prodUnitRefno);
+                        prodUnitRefno = await SysShared.IdentifyProductScanned(this.ActSubType, this.BarCodeParse);
 
                         xmlDoc = XDocument.Parse(
                               "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>"

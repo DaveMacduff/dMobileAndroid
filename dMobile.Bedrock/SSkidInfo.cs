@@ -110,7 +110,7 @@ namespace dMobile.Bedrock
         public ProductInfo ProdInfo { get; set; } = new ProductInfo();
 
         /// <summary>
-        /// Gets or sets the location map reference.
+        /// Gets the location map reference.
         /// </summary>
         public int LocMapRefno
         {
@@ -134,8 +134,6 @@ namespace dMobile.Bedrock
 
                 return this.locMapRefno;
             }
-
-            set => this.locMapRefno = value;
         }
 
         /// <summary>

@@ -258,7 +258,7 @@ namespace dMobile.View.Utilities
 
             async Task CheckLocationIsComplete()
             {
-                if (!await LocationMapTasks.IsCompleteLocMapRefno(this.ActItem.LocMap.CurrLocMapRefno))
+                if (!await LocationMapTasks.IsCompleteLocMap(this.ActItem.LocMapRefno))
                 {
                     if (this.LocMap.CurrLocMap.WhsLocMapRefno <= 0)
                     {
@@ -498,11 +498,11 @@ namespace dMobile.View.Utilities
                         }
                         else
                         {
-                            int origLocMapDefPickingRefno = await LocationMapTasks.GetDefaultLocMapRefnoFromProdRefno(
+                            int origLocMapDefPickingRefno = await LocationMapTasks.GetDefaultLocMapRefnoFromWhsProdRefno(
                                 this.LocMap.CurrLocMap.WhsLocMapRefno,
                                 this.ActItem.ProdInfo.Refno,
                                 SysCommon.ProdLocMapTypes.Picking);
-                            int origLocMapDefRecvRefno = await LocationMapTasks.GetDefaultLocMapRefnoFromProdRefno(
+                            int origLocMapDefRecvRefno = await LocationMapTasks.GetDefaultLocMapRefnoFromWhsProdRefno(
                                 this.LocMap.CurrLocMap.WhsLocMapRefno,
                                 this.ActItem.ProdInfo.Refno,
                                 SysCommon.ProdLocMapTypes.Receiving);
@@ -525,13 +525,13 @@ namespace dMobile.View.Utilities
 
                             await this.ActItem.Update(dataUpdate);
 
-                            this.CurrLocMapDefPickingRefno = await LocationMapTasks.GetDefaultLocMapRefnoFromProdRefno(
+                            this.CurrLocMapDefPickingRefno = await LocationMapTasks.GetDefaultLocMapRefnoFromWhsProdRefno(
                                 this.LocMap.CurrLocMap.WhsLocMapRefno,
                                 this.ActItem.ProdInfo.Refno,
                                 SysCommon.ProdLocMapTypes.Picking);
                             this.LocMapDefPicking = await LocationMapTasks.GetSLocMapFromLocMapRefno(
                                 this.CurrLocMapDefPickingRefno);
-                            this.CurrLocMapDefRecvRefno = await LocationMapTasks.GetDefaultLocMapRefnoFromProdRefno(
+                            this.CurrLocMapDefRecvRefno = await LocationMapTasks.GetDefaultLocMapRefnoFromWhsProdRefno(
                                 this.LocMap.CurrLocMap.WhsLocMapRefno,
                                 this.ActItem.ProdInfo.Refno,
                                 SysCommon.ProdLocMapTypes.Receiving);
@@ -768,14 +768,14 @@ namespace dMobile.View.Utilities
 
             if (await form.DisplayControl.ShowDialog() == DialogResult.OK)
             {
-                await LocationMapTasks.AssignLocationMapAsync();
+                this.LocMap.CurrLocMap = this.LocMap.ChosenLocMap.Clone();
                 if (this.LocMap.CurrLocMap.WhsLocMapRefno == 0)
                 {
                     throw new Exception("Unexpected result this.LocMap.CurrLocMap.WhsLocMapRefno == 0.");
                 }
                 else
                 {
-                    this.ActItem.LocMap = this.LocMap;
+                    this.ActItem.LocMap = this.LocMap.CurrLocMap;
 
                     if (this.chkDefaultPicking.IsToggled)
                     {
@@ -828,11 +828,11 @@ namespace dMobile.View.Utilities
                 if (prodRefno != 0 && this.LocMap.CurrLocMap.WhsLocMapRefno != 0)
                 {
                     this.ActItem.ProdInfo = await ProductInfoTasks.GetInfoFromRefno(prodRefno);
-                    this.CurrLocMapDefPickingRefno = await LocationMapTasks.GetDefaultLocMapRefnoFromProdRefno(
+                    this.CurrLocMapDefPickingRefno = await LocationMapTasks.GetDefaultLocMapRefnoFromWhsProdRefno(
                         this.LocMap.CurrLocMap.WhsLocMapRefno,
                         this.ActItem.ProdInfo.Refno,
                         SysCommon.ProdLocMapTypes.Picking);
-                    this.CurrLocMapDefRecvRefno = await LocationMapTasks.GetDefaultLocMapRefnoFromProdRefno(
+                    this.CurrLocMapDefRecvRefno = await LocationMapTasks.GetDefaultLocMapRefnoFromWhsProdRefno(
                         this.LocMap.CurrLocMap.WhsLocMapRefno,
                         this.ActItem.ProdInfo.Refno,
                         SysCommon.ProdLocMapTypes.Receiving);
@@ -882,7 +882,7 @@ namespace dMobile.View.Utilities
                         throw new Exception("Unexpected result this.LocMap.CurrLocMap.WhsLocMapRefno == 0.");
                     }
 
-                    this.ActItem.LocMap = this.LocMap;
+                    this.ActItem.LocMap = this.LocMap.CurrLocMap;
 
                     if (this.chkDefaultPicking.IsToggled)
                     {
@@ -906,10 +906,7 @@ namespace dMobile.View.Utilities
                 }
                 else if (!string.IsNullOrEmpty(parse.ProductIdentifier))
                 {
-                    prodUnitRefno = await SysShared.IdentifyProductScanned(
-                        this.ActSubType,
-                        parse,
-                        prodUnitRefno);
+                    prodUnitRefno = await SysShared.IdentifyProductScanned(this.ActSubType, parse);
 
                     if (prodUnitRefno == 0)
                     {
@@ -922,11 +919,11 @@ namespace dMobile.View.Utilities
 
                         if (this.LocMap.CurrLocMap.WhsLocMapRefno != 0)
                         {
-                            this.CurrLocMapDefPickingRefno = await LocationMapTasks.GetDefaultLocMapRefnoFromProdRefno(
+                            this.CurrLocMapDefPickingRefno = await LocationMapTasks.GetDefaultLocMapRefnoFromWhsProdRefno(
                                 this.LocMap.CurrLocMap.WhsLocMapRefno,
                                 this.ActItem.ProdInfo.Refno,
                                 SysCommon.ProdLocMapTypes.Picking);
-                            this.CurrLocMapDefRecvRefno = await LocationMapTasks.GetDefaultLocMapRefnoFromProdRefno(
+                            this.CurrLocMapDefRecvRefno = await LocationMapTasks.GetDefaultLocMapRefnoFromWhsProdRefno(
                                 this.LocMap.CurrLocMap.WhsLocMapRefno,
                                 this.ActItem.ProdInfo.Refno,
                                 SysCommon.ProdLocMapTypes.Receiving);

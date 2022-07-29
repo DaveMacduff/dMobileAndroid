@@ -181,7 +181,7 @@ namespace dMobile.View.Activity
 
         private Activity Activity { get; set; } = null;
 
-        private LocationMap LocMap { get; set; }
+        private LocationMap LocMap { get; set; } = LocationMap.GetInstance();
 
         private SysEnvironment SysEnv { get; set; }
 
@@ -596,7 +596,7 @@ namespace dMobile.View.Activity
 
             if (await form.DisplayControl.ShowDialog() == DialogResult.OK)
             {
-                await LocationMapTasks.AssignLocationMapAsync();
+                this.LocMap.CurrLocMap = this.LocMap.ChosenLocMap.Clone();
 
                 if (this.LocMap.CurrLocMap.WhsLocMapRefno != 0)
                 {
@@ -630,7 +630,7 @@ namespace dMobile.View.Activity
         /// <returns></returns>
         private async Task<bool> IsLocationSet()
         {
-            return await LocationMapTasks.IsCompleteLocMapRefno(this.LocMap.CurrLocMapRefno);
+            return await LocationMapTasks.IsCompleteLocMap(this.LocMap.CurrLocMapRefno);
         }
 
         /// <summary>
@@ -960,7 +960,7 @@ namespace dMobile.View.Activity
 
                 await this.ActItem.Delete();
 
-                this.ActItem.LocMap = this.LocMap;
+                this.ActItem.LocMap = this.LocMap.CurrLocMap;
                 this.ActItem.ProdInfo = this.ToProdInfo;
                 await this.ActItem.Insert(await this.GetXML(), false);
                 this.ActDetail = await this.ActDetail.GetInfo(0, true);

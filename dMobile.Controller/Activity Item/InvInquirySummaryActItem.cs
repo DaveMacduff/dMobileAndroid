@@ -160,12 +160,12 @@ namespace dMobile.Controller
                     gridData.Children.Add(labelBBDate);
                 }
 
-                if (this.LocMap.CurrLocMap.IsSectionTracked)
+                if (this.LocMap.IsSectionTracked)
                 {
                     gridData.Children.Add(labelSection);
                 }
 
-                if (this.LocMap.CurrLocMap.IsSectionTracked && this.LocMap.CurrLocMap.IsSlotTracked)
+                if (this.LocMap.IsSectionTracked && this.LocMap.IsSlotTracked)
                 {
                     gridData.Children.Add(labelSlot);
                 }
@@ -190,12 +190,12 @@ namespace dMobile.Controller
                     Grid.SetColumn(labelBBDate, 5);
                 }
 
-                if (this.LocMap.CurrLocMap.IsSectionTracked)
+                if (this.LocMap.IsSectionTracked)
                 {
                     Grid.SetColumn(labelSection, 6);
                 }
 
-                if (this.LocMap.CurrLocMap.IsSectionTracked && this.LocMap.CurrLocMap.IsSlotTracked)
+                if (this.LocMap.IsSectionTracked && this.LocMap.IsSlotTracked)
                 {
                     Grid.SetColumn(labelSlot, 7);
                 }
@@ -261,15 +261,14 @@ namespace dMobile.Controller
         }
 
         /// <summary>
-        /// The Insert.
+        /// Insert a new adjustment activity item.
         /// </summary>
-        /// <param name="data">.</param>
-        /// <param name="askToInsertAsNewItem">.</param>
-        /// <returns>The <see cref="Task"/>.</returns>
+        /// <param name="data"><see cref="XDocument"/> Adjustment activity information to insert.</param>
+        /// <param name="askToInsertAsNewItem"><see cref="bool"/> Stop and ask to insert an item.</param>
+        /// <returns><see cref="Task"/> Task operation.</returns>
         public override async Task Insert(XDocument data, bool askToInsertAsNewItem)
         {
             int prodUnitRefno = int.Parse(data.Root.Element("ProductUnitRefno").Value);
-
             if (prodUnitRefno != 0)
             {
                 this.ProdInfo = await ProductInfoTasks.GetInfoFromUnitRefno(prodUnitRefno);
@@ -287,24 +286,9 @@ namespace dMobile.Controller
         {
             ObservableCollection<object> observableCollection = new ObservableCollection<object>();
 
-            // Add all items in dataview to observable collection for display
+            // Add all items in data view to observable collection for display
             foreach (ActivityItem activityItem in this.ListItems)
             {
-                // ActivityItem activityItem = new ActivityItem
-                // {
-                //    ProductCode = Convert.ToString(row["ProductCode"] != DBNull.Value ? row["ProductCode"] : null),
-                //    ProductUnitBC = Convert.ToString(row["ProductUnitBC"] != DBNull.Value ? row["ProductUnitBC"] : null),
-                //    UnitCode = Convert.ToString(row["UnitCode"] != DBNull.Value ? row["UnitCode"] : null),
-                //    WeightUnitCode = Convert.ToString(row["WeightUnitCode"] != DBNull.Value ? row["WeightUnitCode"] : null),
-                //    ActivityDetailLogisticUnitProductionDate = Convert.ToString(row["ActivityDetailLogisticUnitProductionDate"] != DBNull.Value ? row["ActivityDetailLogisticUnitProductionDate"] : null),
-                //    ActivityDetailLogisticUnitBestbeforesellbydate = Convert.ToString(row["ActivityDetailLogisticUnitBestbeforesellbydate"] != DBNull.Value ? row["ActivityDetailLogisticUnitBestbeforesellbydate"] : null),
-                //    LocationMapWarehouseFKRefno = Convert.ToString(row["LocationMapWarehouseFKRefno"] != DBNull.Value ? row["LocationMapWarehouseFKRefno"] : null),
-                //    LocationMapSectionFKRefno = Convert.ToString(row["LocationMapSectionFKRefno"] != DBNull.Value ? row["LocationMapSectionFKRefno"] : null),
-                //    LocationMapSlotFKRefno = Convert.ToString(row["LocationMapSlotFKRefno"] != DBNull.Value ? row["LocationMapSlotFKRefno"] : null),
-                //    SkidCode = Convert.ToString(row["SkidCode"] != DBNull.Value ? row["SkidCode"] : null),
-                //    ActivityItemQuantity = Convert.ToDecimal(row["ActivityItemQuantity"] != DBNull.Value ? row["ActivityItemQuantity"] : null),
-                //    ActivityItemWeightQuantity = Convert.ToDecimal(row["ActivityItemWeightQuantity"] != DBNull.Value ? row["ActivityItemWeightQuantity"] : null),
-                // };
                 observableCollection.Add(activityItem);
             }
 
@@ -369,12 +353,12 @@ namespace dMobile.Controller
                 gridHeader.Children.Add(labelBBDateHeader);
             }
 
-            if (this.LocMap.CurrLocMap.IsSectionTracked)
+            if (this.LocMap.IsSectionTracked)
             {
                 gridHeader.Children.Add(labelSectionHeader);
             }
 
-            if (this.LocMap.CurrLocMap.IsSectionTracked && this.LocMap.CurrLocMap.IsSlotTracked)
+            if (this.LocMap.IsSectionTracked && this.LocMap.IsSlotTracked)
             {
                 gridHeader.Children.Add(labelSlotHeader);
             }
@@ -399,12 +383,12 @@ namespace dMobile.Controller
                 Grid.SetColumn(labelBBDateHeader, 5);
             }
 
-            if (this.LocMap.CurrLocMap.IsSectionTracked)
+            if (this.LocMap.IsSectionTracked)
             {
                 Grid.SetColumn(labelSectionHeader, 6);
             }
 
-            if (this.LocMap.CurrLocMap.IsSectionTracked && this.LocMap.CurrLocMap.IsSlotTracked)
+            if (this.LocMap.IsSectionTracked && this.LocMap.IsSlotTracked)
             {
                 Grid.SetColumn(labelSlotHeader, 7);
             }
@@ -483,7 +467,7 @@ namespace dMobile.Controller
                     gridHeader.ColumnDefinitions[5].Width = this.columnWidth5;
                 }
 
-                if (this.LocMap.CurrLocMap.IsSectionTracked)
+                if (this.LocMap.IsSectionTracked)
                 {
                     if (detailWidth6 > this.columnWidth6)
                     {
@@ -497,7 +481,7 @@ namespace dMobile.Controller
                     gridHeader.ColumnDefinitions[6].Width = this.columnWidth6;
                 }
 
-                if (this.LocMap.CurrLocMap.IsSectionTracked && this.LocMap.CurrLocMap.IsSlotTracked)
+                if (this.LocMap.IsSectionTracked && this.LocMap.IsSlotTracked)
                 {
                     if (detailWidth7 > this.columnWidth7)
                     {
@@ -572,10 +556,10 @@ namespace dMobile.Controller
         }
 
         /// <summary>
-        /// The GetActivityItemRefno.
+        /// Get the activity item reference number from the product unit reference number and current location warehouse.
         /// </summary>
-        /// <param name="productUnitRefno">.</param>
-        /// <returns>.</returns>
+        /// <param name="prodUnitRefno"><see cref="int"/> Product unit reference number.</param>
+        /// <returns><see cref="int"/> Found activity item refno else 0.</returns>
         public override Task<int> GetActivityItemRefno(int productUnitRefno)
         {
             throw new NotImplementedException();
@@ -666,7 +650,7 @@ namespace dMobile.Controller
         /// <returns>The <see cref="Task"/>.</returns>
         private async Task FormatGrid()
         {
-            if (this.LocMap.CurrLocMap.IsSectionTracked)
+            if (this.LocMap.IsSectionTracked)
             {
                 // Format Section column
                 // Use a dictionary to only hit the database once per unique section number this call.
@@ -693,7 +677,7 @@ namespace dMobile.Controller
                 names.Clear();
             }
 
-            if (this.LocMap.CurrLocMap.IsSlotTracked)
+            if (this.LocMap.IsSlotTracked)
             {
                 // Format Slot column
                 // Use a dictionary to only hit the database once per unique slot number this call.
@@ -742,8 +726,8 @@ namespace dMobile.Controller
             }
             else
             {
-                sectionRefno = this.LocMap.CurrLocMap.SectFKRefno.ToString();
-                slotRefno = this.LocMap.CurrLocMap.SlotFKRefno.ToString();
+                sectionRefno = this.LocMap.SectFKRefno.ToString();
+                slotRefno = this.LocMap.SlotFKRefno.ToString();
             }
 
             string sectionXml = "<sect_refno>" + sectionRefno + "</sect_refno>";
@@ -759,7 +743,7 @@ namespace dMobile.Controller
                 + "</command>"
                 + await SysCommon.GetRequestDefaults(false)
                 + "<prod_id>" + this.ProdInfo.Code + "</prod_id>"
-                + "<whs_id>" + this.LocMap.CurrLocMap.WhsFKRefno + "</whs_id>"
+                + "<whs_id>" + this.LocMap.WhsFKRefno + "</whs_id>"
                 + sectionXml
                 + slotXml
                 + "</imclient>");
@@ -896,18 +880,26 @@ namespace dMobile.Controller
                 if (Math.Sign(item.ActivityItemQuantity) == 0 ||
                     Math.Sign(item.ActivityItemQuantity) == 1)
                 {
-                    locMapRefno = await LocationMapTasks.GetDefaultLocMapRefnoFromProdRefno(
+                    locMapRefno = await LocationMapTasks.GetDefaultLocMapRefnoFromWhsProdRefno(
                         whsLocMapRefno,
                         prodRefno,
                         SysCommon.ProdLocMapTypes.Receiving);
                 }
                 else
                 {
-                    locMapRefno = await LocationMapTasks.GetDefaultLocMapRefnoFromProdRefno(
+                    locMapRefno = await LocationMapTasks.GetDefaultLocMapRefnoFromWhsProdRefno(
                         whsLocMapRefno,
                         prodRefno,
                         SysCommon.ProdLocMapTypes.Picking);
                 }
+            }
+
+            if (locMapRefno == 0)
+            {
+                locMapRefno = await LocationMapTasks.GetDefaultLocMapRefnoFromWhsProdRefno(
+                    whsLocMapRefno,
+                    prodRefno,
+                    SysCommon.ProdLocMapTypes.Floor);
             }
 
             return locMapRefno;

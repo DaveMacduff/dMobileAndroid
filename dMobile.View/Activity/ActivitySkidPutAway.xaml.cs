@@ -275,11 +275,11 @@ namespace dMobile.View.Activity
 
                         this.ActItem.ItemFKRefno = this.Activity.SkidInfo.CurrSkid.SkidFKRefno;
                         this.ActItem.ItemRefno = this.Activity.SkidInfo.CurrSkid.SkidFKRefno;
-                        this.ActItem.LocMap = this.LocMap;
+                        this.ActItem.LocMap = this.LocMap.CurrLocMap;
                         this.ActItem.ProdInfo = this.Activity.SkidInfo.CurrSkid.ProdInfo;
                         this.ActItem.ProdInfo.Unit2BaseUnitFactor = await ProductInfoTasks.GetUnitRelationFactor(this.ActItem.ProdInfo);
 
-                        this.ActDetailOnSkid.LocMap = this.ActItem.LocMap;
+                        this.ActDetailOnSkid.SelectedLocMap = this.ActItem.LocMap;
                         SProductSchemeData tempSchemeData = this.ActDetailOnSkid.SchemeData;
                         tempSchemeData.LogisticUnitSkidNumber = this.ActDetailOnSkid.ActItem.ActHdr.SkidInfo.CurrSkid.SkidCode;
                         this.ActDetailOnSkid.SchemeData = tempSchemeData;
@@ -417,11 +417,9 @@ namespace dMobile.View.Activity
                 await this.ScannerDisable();
 
                 FormDialogContainer form = new FormDialogContainer(EDialogTypes.SelectLocationMap, this.ActItem.ActHdr.SkidInfo.CurrSkid.LocMap.WhsLocMapRefno, true);
-                _ = await Device.InvokeOnMainThreadAsync(async () => await form.DisplayControl.ShowDialog());
-
-                if (form.DialogResult == DialogResult.OK)
+                if (await form.DisplayControl.ShowDialog() == DialogResult.OK)
                 {
-                    await LocationMapTasks.AssignLocationMapAsync();
+                    this.LocMap.CurrLocMap = this.LocMap.ChosenLocMap.Clone();
                     if (this.LocMap.CurrLocMap.WhsLocMapRefno != 0)
                     {
                         _ = await Device.InvokeOnMainThreadAsync(() => this.cmdLocation.Text = LocationMapTasks.GetCurrentReadableLocation());
@@ -1093,7 +1091,7 @@ namespace dMobile.View.Activity
                     {
                         if (!string.IsNullOrEmpty(this.BarCodeParse.ProductIdentifier))
                         {
-                            if (!await LocationMapTasks.IsCompleteLocMapRefno(this.LocMap.CurrLocMapRefno))
+                            if (!await LocationMapTasks.IsCompleteLocMap(this.LocMap.CurrLocMapRefno))
                             {
                                 throw new MessageOnlyException("Location must be set first.");
                             }
@@ -1104,7 +1102,7 @@ namespace dMobile.View.Activity
                                     throw new MessageOnlyException("A skid must be selected first before scanning any product detail.");
                                 }
 
-                                prodUnitRefno = await SysShared.IdentifyProductScanned(this.ActSubType, this.BarCodeParse, prodUnitRefno);
+                                prodUnitRefno = await SysShared.IdentifyProductScanned(this.ActSubType, this.BarCodeParse);
 
                                 if (this.Activity.SkidInfo.CurrSkid.ProdInfo.UnitRefno != prodUnitRefno)
                                 {
@@ -1162,13 +1160,10 @@ namespace dMobile.View.Activity
 
                                 this.ActItem.ItemFKRefno = this.Activity.SkidInfo.CurrSkid.SkidFKRefno;
                                 this.ActItem.ItemRefno = this.Activity.SkidInfo.CurrSkid.SkidFKRefno;
-                                this.ActItem.LocMap = this.LocMap;
                                 this.ActItem.ProdInfo = this.Activity.SkidInfo.CurrSkid.ProdInfo;
                                 this.ActItem.ProdInfo.Unit2BaseUnitFactor = await ProductInfoTasks.GetUnitRelationFactor(this.ActItem.ProdInfo);
 
                                 this.OrigProdInfoOnSkid = this.ActItem.ProdInfo;
-
-                                this.ActDetailOnSkid.LocMap = this.ActItem.LocMap;
                                 SProductSchemeData tempSchemeData = this.ActDetailOnSkid.SchemeData;
                                 tempSchemeData.LogisticUnitSkidNumber = this.ActDetailOnSkid.ActItem.ActHdr.SkidInfo.CurrSkid.SkidCode;
                                 this.ActDetailOnSkid.SchemeData = tempSchemeData;

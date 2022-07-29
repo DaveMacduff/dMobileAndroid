@@ -254,7 +254,7 @@ namespace dMobile.View.Activity
 
             try
             {
-                if (!await LocationMapTasks.IsCompleteLocMapRefno(this.LocMap.CurrLocMapRefno))
+                if (!await LocationMapTasks.IsCompleteLocMap(this.LocMap.CurrLocMapRefno))
                 {
                     throw new MessageOnlyException("Location must be set.");
                 }
@@ -433,7 +433,7 @@ namespace dMobile.View.Activity
                     }
                     else
                     {
-                        if (!await LocationMapTasks.IsCompleteLocMapRefno(this.LocMap.CurrLocMapRefno))
+                        if (!await LocationMapTasks.IsCompleteLocMap(this.LocMap.CurrLocMapRefno))
                         {
                             // MessageBox.Show("Location must be set.", "Convert Unit(s)", MessageBoxButtons.OK, MessageBoxIcon.Hand, MessageBoxDefaultButton.Button1);
                             await Device.InvokeOnMainThreadAsync(async () => await this.DisplayAlert("Convert Unit(s)", "Location must be set.", "OK"));
@@ -633,7 +633,7 @@ namespace dMobile.View.Activity
                         // Product identifier
                         if (!string.IsNullOrEmpty(parse.ProductIdentifier))
                         {
-                            if (!await LocationMapTasks.IsCompleteLocMapRefno(this.LocMap.CurrLocMapRefno) && !this.SysEnv.SysSettings.IsDefaultLocToProductDefaultLoc)
+                            if (!await LocationMapTasks.IsCompleteLocMap(this.LocMap.CurrLocMapRefno) && !this.SysEnv.SysSettings.IsDefaultLocToProductDefaultLoc)
                             {
                                 throw new MessageOnlyException("Location Must Be Set First");
                             }
@@ -642,7 +642,7 @@ namespace dMobile.View.Activity
 
                             int tempFromProdUnitRefno = this.FromProdUnitRefno;
 
-                            tempFromProdUnitRefno = await SysShared.IdentifyProductScanned(this.ActSubType, parse, tempFromProdUnitRefno);
+                            tempFromProdUnitRefno = await SysShared.IdentifyProductScanned(this.ActSubType, parse);
 
                             this.FromProdUnitRefno = tempFromProdUnitRefno;
                             this.ActItem.ProdInfo = await ProductInfoTasks.GetInfoFromUnitRefno(this.FromProdUnitRefno);
@@ -975,7 +975,7 @@ namespace dMobile.View.Activity
 
             if (await form.DisplayControl.ShowDialog() == DialogResult.OK)
             {
-                await LocationMapTasks.AssignLocationMapAsync();
+                this.LocMap.CurrLocMap = this.LocMap.ChosenLocMap.Clone();
 
                 if (this.LocMap.CurrLocMap.WhsLocMapRefno != 0)
                 {
@@ -1001,7 +1001,7 @@ namespace dMobile.View.Activity
             this.cmdSelectFromUnit.IsEnabled = false;
             await this.ScannerDisable();
 
-            if (!await LocationMapTasks.IsCompleteLocMapRefno(this.LocMap.CurrLocMapRefno))
+            if (!await LocationMapTasks.IsCompleteLocMap(this.LocMap.CurrLocMapRefno))
             {
                 await Device.InvokeOnMainThreadAsync(async () => await this.DisplayAlert(this.GetControlDescription(), "Your location must be set.", "OK"));
             }
@@ -1019,7 +1019,6 @@ namespace dMobile.View.Activity
                     {
                         this.ActItem.ProdInfo = await ProductInfoTasks.GetInfoFromUnitRefno(this.FromProdUnitRefno);
                         this.ActItem.ProdInfo.Scheme = await ProductInfoTasks.GetSchemeComponentsFromRefno(this.ActItem.ProdInfo.Refno);
-                        this.ActItem.LocMap = this.LocMap;
 
                         // Pass 0 as the current selected row on an add, true forces it as an add not an edit
                         this.ActDetail = await this.ActDetail.GetInfo(0, true);
@@ -1109,7 +1108,7 @@ namespace dMobile.View.Activity
                 // SelectNextControl causes a click event to fire if it is the next control
                 await this.ScannerDisable();
 
-                if (!await LocationMapTasks.IsCompleteLocMapRefno(this.LocMap.CurrLocMapRefno))
+                if (!await LocationMapTasks.IsCompleteLocMap(this.LocMap.CurrLocMapRefno))
                 {
                     // MessageBox.Show("Your location must be set.", this.GetControlDescription(), MessageBoxButtons.OK, MessageBoxIcon.Hand, MessageBoxDefaultButton.Button1);
                     await Device.InvokeOnMainThreadAsync(async () => await this.DisplayAlert(this.GetControlDescription(), "Your location must be set.", "OK"));
@@ -1135,7 +1134,6 @@ namespace dMobile.View.Activity
 
                         if (this.ToProdUnitRefno != 0)
                         {
-                            this.ActItem.LocMap = this.LocMap;
                             this.ActItem.ProdInfo = await ProductInfoTasks.GetInfoFromUnitRefno(this.ToProdUnitRefno);
                             this.ActItem.ProdInfo.Scheme = await ProductInfoTasks.GetSchemeComponentsFromRefno(this.ActItem.ProdInfo.Refno);
 

@@ -1425,16 +1425,13 @@ namespace dMobile.View.Activity
                     if (!string.IsNullOrEmpty(parse.ProductIdentifier))
                     {
                         // Check if location is set, if defaulting location is not enabled.
-                        if (!await LocationMapTasks.IsCompleteLocMapRefno(this.LocMap.CurrLocMapRefno) &&
+                        if (!await LocationMapTasks.IsCompleteLocMap(this.LocMap.CurrLocMapRefno) &&
                             !this.SysEnv.SysSettings.IsDefaultLocToProductDefaultLoc)
                         {
                             throw new MessageOnlyException("Location must be set first!");
                         }
 
-                        prodUnitRefno = await SysShared.IdentifyProductScanned(
-                            this.ActSubType,
-                            parse,
-                            prodUnitRefno);
+                        prodUnitRefno = await SysShared.IdentifyProductScanned(this.ActSubType, parse);
 
                         ProductInfo prodInfo = await ProductInfoTasks.GetInfoFromUnitRefno(prodUnitRefno);
 
@@ -1574,7 +1571,7 @@ namespace dMobile.View.Activity
                             }
                         }
 
-                        if (this.ActDetail.ActItem.LocMap.CurrLocMap.WhsLocMapRefno !=
+                        if (this.ActDetail.ActItem.LocMap.WhsLocMapRefno !=
                             skidInfo.CurrSkid.LocMap.WhsLocMapRefno)
                         {
                             throw new MessageOnlyException("Skid warehouse does not match the selected warehouse.");
@@ -2065,7 +2062,7 @@ namespace dMobile.View.Activity
 
                             // Using the cycle count line item warehouse, get the product default
                             // picking location.
-                            int defLocMapRefno = await LocationMapTasks.GetDefaultLocMapRefnoFromProdRefno(
+                            int defLocMapRefno = await LocationMapTasks.GetDefaultLocMapRefnoFromWhsProdRefno(
                                 countItemLocMap.WhsLocMapRefno,
                                 Convert.ToInt32(countDetail.ProductRefno),
                                 SysCommon.ProdLocMapTypes.Picking);
@@ -2336,9 +2333,14 @@ namespace dMobile.View.Activity
                 if (await CheckAllowedToAddDetail())
                 {
                     LocationMap locMap = LocationMap.GetInstance();
-                    if (!await LocationMapTasks.IsCompleteLocMapRefno(locMap.CurrLocMapRefno))
+                    if (!await LocationMapTasks.IsCompleteLocMap(locMap.CurrLocMapRefno))
                     {
                         throw new MessageOnlyException("Location must be set first.");
+                    }
+
+                    if (locMap.CurrLocMap.WhsLocMapRefno != this.ActDetail.ActItem.LocMap.WhsLocMapRefno)
+                    {
+                        throw new MessageOnlyException("Detail warehouse must match the line item warehouse.");
                     }
 
                     await PerformAddDetail();
@@ -2493,6 +2495,13 @@ namespace dMobile.View.Activity
             try
             {
                 await this.ScannerDisable();
+                await Device.InvokeOnMainThreadAsync(async () =>
+                {
+                    string currentReadableLocation = LocationMapTasks.GetCurrentReadableLocation();
+                    _ = await Device.InvokeOnMainThreadAsync(() => this.CmdLocationText =
+                        "Location: " + Environment.NewLine + currentReadableLocation);
+                });
+
                 string result = await this.DisplayActionSheet(
                     "ActivityDetail Options",
                     "Close",
@@ -2537,37 +2546,68 @@ namespace dMobile.View.Activity
             async void CmdLocationClick(object sender, EventArgs e)
             {
                 await this.ActDisappearing();
-                FormDialogContainer form = new FormDialogContainer(
-                    EDialogTypes.SelectLocationMap,
-                    SysCommon.ActSubTypes.SelectLocation);
 
-                if (await form.DisplayControl.ShowDialog() == DialogResult.OK)
+                bool dspOverrideMsg = false;
+                if (this.SysEnv.SysSettings.IsDefaultLocToProductDefaultLoc)
                 {
-                    // Default to login warehouse if not location was selected or previously set.
-                    if (this.LocMap.CurrLocMap.WhsLocMapRefno <= 0)
+                    if ((this.ActSubType == SysCommon.ActSubTypes.PhysicalCounts &&
+                            this.SysEnv.SysSettings.IsPhysicalDoNotDefaultProductLocation)
+                        || (this.ActSubType == SysCommon.ActSubTypes.CycleCounts &&
+                            this.SysEnv.SysSettings.IsCycleDoNotDefaultProductLocation))
                     {
-                        this.LocMap.ChosenLocMap = await LocationMapTasks.GetSLocMapFromLocMapRefno(
-                            this.LocMap.LoginWhsLocMapRefno);
-                        this.LocMap.CurrLocMap = this.LocMap.ChosenLocMap.Clone();
-                        this.CmdLocationText = "Location: " + Environment.NewLine +
-                            LocationMapTasks.GetCurrentReadableLocation();
+                        dspOverrideMsg = false;
                     }
                     else
                     {
-                        this.CmdLocationText = "Location: " + Environment.NewLine +
-                            LocationMapTasks.GetCurrentReadableLocation();
+                        dspOverrideMsg = true;
                     }
                 }
-                else
+
+                if (dspOverrideMsg)
                 {
-                    if (this.LocMap.CurrLocMap.WhsLocMapRefno == 0)
-                    {
-                        this.LocMap.CurrLocMap = await LocationMapTasks.GetSLocMapFromLocMapRefno(
-                            this.LocMap.LoginWhsLocMapRefno);
-                        this.CmdLocationText = "Location: " + Environment.NewLine +
-                            LocationMapTasks.GetCurrentReadableLocation();
-                    }
+                    await Device.InvokeOnMainThreadAsync(async () =>
+                        await Application.Current.MainPage.DisplayAlert(
+                            this.ActDetail.ActItem.GetControlDescription(),
+                            "Default locations are enabled, location changes may be overridden.",
+                            Resource.OK));
                 }
+
+                FormDialogContainer form = new FormDialogContainer(
+                    EDialogTypes.SelectLocationMap,
+                    this.ActDetail.ActItem.LocMap.WhsLocMapRefno,
+                    true);
+                if (await form.DisplayControl.ShowDialog() == DialogResult.OK)
+                {
+                    if (this.LocMap.ChosenLocMap.WhsLocMapRefno != this.ActDetail.ActItem.LocMap.WhsLocMapRefno)
+                    {
+                        throw new MessageOnlyException("Chosen warehouse must match the activity item warehouse.");
+                    }
+
+                    // Special validation for picking and filtering by section.
+                    // Check if the scanned section matched the filtered one.
+                    if (this.ActSubType == SysCommon.ActSubTypes.Picking ||
+                        this.ActSubType == SysCommon.ActSubTypes.PickingSingle)
+                    {
+                        int sectRefno = ((PickingActivity)this.ActDetail.ActItem.ActHdr).PickingLocationMapFilter.SectLocMapRefno;
+                        if (sectRefno != 0 && this.LocMap.ChosenLocMap.SectLocMapRefno != sectRefno)
+                        {
+                            string sectName = ((PickingActivity)this.ActDetail.ActItem.ActHdr).PickingLocationMapFilter.SectName;
+                            string msg = $"Warning selected location section '{this.LocMap.CurrLocMap.SectName}' does" +
+                                            $" not match the filtered picking section '{sectName}'.";
+
+                            await Device.InvokeOnMainThreadAsync(async () =>
+                                    await Application.Current.MainPage.DisplayAlert(
+                                        this.ActDetail.ActItem.GetControlDescription(),
+                                        msg,
+                                        Resource.OK));
+                        }
+                    }
+
+                    this.LocMap.CurrLocMap = this.LocMap.ChosenLocMap.Clone();
+                }
+
+                await Device.InvokeOnMainThreadAsync(() => Task.FromResult(this.CmdLocationText = "Location: " +
+                    Environment.NewLine + LocationMapTasks.GetCurrentReadableLocation()));
 
                 await this.ActAppearing();
             }

@@ -41,7 +41,8 @@ namespace dMobile.GroundWork
                 int whsLocMapRefno = 0;
                 string reqData = string.Empty;
 
-                List<tLocationMapWarehouseModel> resultsLocationMapWarehouse = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<tLocationMapWarehouseModel>("SELECT * FROM tLocationMapWarehouse");
+                List<tLocationMapWarehouseModel> resultsLocationMapWarehouse = await DatabaseConnection.GetInstance().
+                    SQLConn.QueryAsync<tLocationMapWarehouseModel>("SELECT * FROM tLocationMapWarehouse");
 
                 if (resultsLocationMapWarehouse?.Count > 0)
                 {
@@ -52,6 +53,22 @@ namespace dMobile.GroundWork
                         whsLocMapRefno = locationMapWarehouse.LocationMapRefno;
 
                         this.DataAccessStatusOutHandler(this, EventArgs.Empty, string.Format("For whs \'{0}\'.", whsLocMapName), true);
+
+                        this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Default picking locations.", true);
+
+                        reqData = await this.SendRequest((int)SysCommon.ProdLocMapTypes.Floor, whsLocMapFKRefno);
+
+                        if (reqData.Length > 0)
+                        {
+                            if (reqData.Contains("<message>ERROR</message>"))
+                            {
+                                XmlDocument reqErr = new XmlDocument();
+                                reqErr.LoadXml(reqData);
+                                throw new Exception(reqErr.DocumentElement["detail"].InnerText);
+                            }
+
+                            await this.SaveOpt(reqData, whsLocMapRefno);
+                        }
 
                         this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Default picking locations.", true);
 

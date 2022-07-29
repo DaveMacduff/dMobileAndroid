@@ -501,9 +501,9 @@ namespace dMobile.View.Activity
                     selectedItem.ActivityItemWeightQuantity,
                     selectedItem.WeightUnitCode));
 
-                if (this.ActItem.LocMap.CurrLocMap.IsSectionTracked)
+                if (this.ActItem.LocMap.IsSectionTracked)
                 {
-                    if (this.ActItem.LocMap.CurrLocMap.IsSlotTracked)
+                    if (this.ActItem.LocMap.IsSlotTracked)
                     {
                         this.ExtraInfoItems.Add(string.Format("Section {0} Slot {1}", selectedItem.LocationMapSectionFKRefno, selectedItem.LocationMapSlotFKRefno));
                     }
@@ -519,7 +519,7 @@ namespace dMobile.View.Activity
             }
 
             this.ExtraInfoItems.Add(string.Format("Product ID {0}", prodInfo.Code));
-            this.ExtraInfoItems.Add(string.Format("Whs {0} {1}", this.ActItem.LocMap.CurrLocMap.WhsFKRefno, this.ActItem.LocMap.CurrLocMap.WhsName));
+            this.ExtraInfoItems.Add(string.Format("Whs {0} {1}", this.ActItem.LocMap.WhsFKRefno, this.ActItem.LocMap.WhsName));
         }
 
         /// <summary>

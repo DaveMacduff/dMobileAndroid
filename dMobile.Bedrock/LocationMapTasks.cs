@@ -107,42 +107,26 @@ namespace dMobile.Bedrock
         }
 
         /// <summary>
-        /// Assign the current location, by examining default, chosen and current locations.
+        /// Assign location map reference number argument with the current warehouse or login warehouse if unassigned.
         /// </summary>
-        /// <returns><see cref="Task"/> Task operation.</returns>
-        public static async Task AssignLocationMapAsync()
+        /// <remarks>
+        /// Make sure the location map reference number is at least a warehouse.
+        /// This method is used mostly with activity line items or activity headers objects.
+        /// Gets a default value for an argument value to the GetActivityItem method for example.
+        /// </remarks>
+        /// <param name="locationMapRefno"><see cref="int"/> Location map reference number to check.</param>
+        /// <returns><see cref="int"/> Assigned location map reference number.</returns>
+        public static int DefaultLocMapRefnoToWhsIfUnassigned(int locationMapRefno)
         {
-            SLocMap currLoc = LocationMap.GetInstance().CurrLocMap;
-            SLocMap chosenLoc = LocationMap.GetInstance().ChosenLocMap;
+            locationMapRefno = locationMapRefno == 0 ? LocationMap.GetInstance().CurrLocMap.WhsLocMapRefno : locationMapRefno;
+            locationMapRefno = locationMapRefno == 0 ? LocationMap.GetInstance().LoginWhsLocMapRefno : locationMapRefno;
 
-            // Default to login warehouse if not location was selected or previously set.
-            if (currLoc.WhsLocMapRefno <= 0)
+            if (locationMapRefno == 0)
             {
-                int locRefno = LocationMap.GetInstance().LoginWhsLocMapRefno;
-                LocationMap.GetInstance().CurrLocMap = await LocationMapTasks.GetSLocMapFromLocMapRefno(locRefno);
+                throw new ArgumentOutOfRangeException("locationMapRefno == 0");
             }
 
-            // Determine if a default location can be assigned.
-            if (SysEnvironment.GetInstance().SysSettings.IsDefaultLocToProductDefaultLoc)
-            {
-                if (await IsCompleteLocMapRefno(currLoc))
-                {
-                    // Assume that the current location was the default location or even the last chosen one if no
-                    // default was found.
-                }
-                else if (await IsCompleteLocMapRefno(chosenLoc))
-                {
-                    LocationMap.GetInstance().CurrLocMap = LocationMap.GetInstance().ChosenLocMap.Clone();
-                }
-                else
-                {
-                    // We can't default the location here because we don't know the warehouse, product, or even quantity.
-                }
-            }
-            else
-            {
-                LocationMap.GetInstance().CurrLocMap = LocationMap.GetInstance().ChosenLocMap.Clone();
-            }
+            return locationMapRefno;
         }
 
         /// <summary>
@@ -337,20 +321,20 @@ namespace dMobile.Bedrock
         /// </summary>
         /// <param name="locMap"><see cref="SLocMap"/> Location map.</param>
         /// <returns><see cref="bool"/> True if the location map is complete else false.</returns>
-        public static async Task<bool> IsCompleteLocMapRefno(SLocMap locMap)
+        public static async Task<bool> IsCompleteLocMap(SLocMap locMap)
         {
             bool isComplete;
             if (LocationMap.GetInstance().CurrLocMap.IsSlotTracked)
             {
-                isComplete = await IsCompleteLocMapRefno(locMap.SlotLocMapRefno);
+                isComplete = await IsCompleteLocMap(locMap.SlotLocMapRefno);
             }
             else if (LocationMap.GetInstance().CurrLocMap.IsSectionTracked)
             {
-                isComplete = await IsCompleteLocMapRefno(locMap.SectLocMapRefno);
+                isComplete = await IsCompleteLocMap(locMap.SectLocMapRefno);
             }
             else
             {
-                isComplete = await IsCompleteLocMapRefno(locMap.WhsLocMapRefno);
+                isComplete = await IsCompleteLocMap(locMap.WhsLocMapRefno);
             }
 
             return isComplete;
@@ -361,7 +345,7 @@ namespace dMobile.Bedrock
         /// </summary>
         /// <param name="locMapRefno"><see cref="int"/> Location map reference number.</param>
         /// <returns><see cref="bool"/> True if the location map is complete else false.</returns>
-        public static async Task<bool> IsCompleteLocMapRefno(int locMapRefno)
+        public static async Task<bool> IsCompleteLocMap(int locMapRefno)
         {
             bool isComplete = false;
             SysCommon.LocMapSubTypes locMapSubType = SysCommon.LocMapSubTypes.None;
@@ -1058,7 +1042,7 @@ namespace dMobile.Bedrock
         /// is defaulting to the warehouse.</param>
         /// <param name="prodLocMapType"><see cref="SysCommon.ProdLocMapTypes"/> Product location map type.</param>
         /// <returns><see cref="int"/> Location map reference number.</returns>
-        public static async Task<int> GetDefaultLocMapRefnoFromProdRefno(
+        public static async Task<int> GetDefaultLocMapRefnoFromWhsProdRefno(
             int whsLocMapRefno,
             int prodRefno,
             SysCommon.ProdLocMapTypes prodLocMapType)

@@ -236,12 +236,12 @@ namespace dMobile.Controller
         /// </summary>
         /// <param name="gridMain"><see cref="Grid"/> Main activity grid.</param>
         /// <param name="actDetail"><see cref="ActivityDetail"/> Activity detail.</param>
-        /// <param name="mainActivityExtraInfoItems"><see cref="ObservableCollection{T}"/> Activity items list.</param>
+        /// <param name="mainActivityItems"><see cref="ObservableCollection{T}"/> Activity items list.</param>
         /// <returns><see cref="Grid"/> Created grid.</returns>
         public abstract DataTemplate DesignGrid(
             ref Grid gridMain,
             ActivityDetail actDetail,
-            ObservableCollection<object> mainActivityExtraInfoItems);
+            ObservableCollection<object> mainActivityItems);
 
         /// <summary>
         /// Select an activity detail.
@@ -286,8 +286,6 @@ namespace dMobile.Controller
                 {
                     this.ActExtra.DateTime1 = detail.ActivityDetailExtra5Date;
                 }
-
-                await this.ActItem.GetSelectedItemLocation(detail.LocationMapRefno);
             }
             else
             {

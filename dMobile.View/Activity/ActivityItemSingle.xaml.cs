@@ -1016,7 +1016,7 @@ namespace dMobile.View.Activity
                 }
                 else
                 {
-                    if (!await LocationMapTasks.IsCompleteLocMapRefno(this.LocMap.CurrLocMapRefno) &&
+                    if (!await LocationMapTasks.IsCompleteLocMap(this.LocMap.CurrLocMapRefno) &&
                         !this.SysEnv.SysSettings.IsDefaultLocToProductDefaultLoc &&
                         !(this.ActSubType == SysCommon.ActSubTypes.PickingSingle ||
                         this.ActSubType == SysCommon.ActSubTypes.Receiving))
@@ -1041,7 +1041,7 @@ namespace dMobile.View.Activity
                         ////    }
                         ////}
 
-                        prodUnitRefno = await SysShared.IdentifyProductScanned(this.ActSubType, barCodeParse, prodUnitRefno);
+                        prodUnitRefno = await SysShared.IdentifyProductScanned(this.ActSubType, barCodeParse);
                         ProductInfo tempProdInfo = new ProductInfo();
                         tempProdInfo = await ProductInfoTasks.GetInfoFromUnitRefno(prodUnitRefno);
 
@@ -1933,10 +1933,9 @@ namespace dMobile.View.Activity
 
                     // if cycle by slot
                     FormDialogContainer form = new FormDialogContainer(EDialogTypes.SelectLocationMap, SysCommon.ActSubTypes.NotApplicable);
-
                     if (await form.DisplayControl.ShowDialog() == DialogResult.OK)
                     {
-                        await LocationMapTasks.AssignLocationMapAsync();
+                        this.LocMap.CurrLocMap = this.LocMap.ChosenLocMap.Clone();
 
                         if (this.LocMap.CurrLocMap.WhsLocMapRefno != 0)
                         {
@@ -2074,7 +2073,7 @@ namespace dMobile.View.Activity
                     if (this.ActHdr.SkidInfo.CurrSkid.SkidFKRefno == 0)
                     {
                         // activity item object needs to check if a new location and product can be added, if not add a detail
-                        if (!await LocationMapTasks.IsCompleteLocMapRefno(this.LocMap.CurrLocMapRefno))
+                        if (!await LocationMapTasks.IsCompleteLocMap(this.LocMap.CurrLocMapRefno))
                         {
                             throw new MessageOnlyException("The location must be set.");
                         }
@@ -2785,6 +2784,13 @@ namespace dMobile.View.Activity
             {
                 return;
             }
+
+            await Device.InvokeOnMainThreadAsync(async () =>
+            {
+                string currentReadableLocation = LocationMapTasks.GetCurrentReadableLocation();
+                _ = await Device.InvokeOnMainThreadAsync(() => this.cmdLocationText =
+                    "Location: " + Environment.NewLine + currentReadableLocation);
+            });
 
             string result = await this.DisplayActionSheet("ActivityItemSingle Options", "Close", null, this.OptionsMenuItems.ToArray());
 

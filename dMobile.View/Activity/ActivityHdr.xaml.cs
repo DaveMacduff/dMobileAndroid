@@ -1068,6 +1068,7 @@ namespace dMobile.View.Activity
             //////////////////////////////////////////////////////////////////////////
             async Task BarCodeHandlerFKRefno(string actHdrStringFKRefno)
             {
+                // Remember that the headers have been filtered by the login warehouse.
                 object selectedActivity = this.ActHdr.ListHdrs.OfType<object>().FirstOrDefault(
                     activity => Convert.ToString(activity.GetType().GetProperty(
                         this.ActHdr.GetFKRefnoIdx()).GetValue(activity)) ==
@@ -1088,15 +1089,16 @@ namespace dMobile.View.Activity
                         _ = await form.DisplayControl.ShowDialog();
                     });
 
-                    this.ActAppearing();
+                    await this.ActAppearing();
                 }
                 else
                 {
                     this.ActHdr.HdrFKRefno = 0;
                     this.ActHdr.HdrRefno = 0;
 
-                    throw new MessageOnlyException(
-                        string.Format("Unable to find reference # {0}", actHdrStringFKRefno));
+                    throw new MessageOnlyException(string.Format(
+                        "Unable to find reference # {0}. Perhaps change your login warehouse.",
+                        actHdrStringFKRefno));
                 }
             }
         }
@@ -1147,7 +1149,7 @@ namespace dMobile.View.Activity
                 this.ActHdr.RegLayerListenerStatOut(this);
                 this.ActHdr.RegLayerListenerProgOut(this);
                 await this.ActHdr.Refresh(this.ActHdr.XMLDataCriteria);
-                this.ActHdr.ListHdrs = await this.ActHdr.GetActivityList(false);
+                this.ActHdr.ListHdrs = await this.ActHdr.GetActivityList(isSubmitBatch: false);
                 await this.DesignGrid();
             }
             catch (Exception)
@@ -1330,7 +1332,7 @@ namespace dMobile.View.Activity
                 }
                 finally
                 {
-                    this.ActAppearing();
+                    await this.ActAppearing();
                 }
             });
 
@@ -1383,7 +1385,7 @@ namespace dMobile.View.Activity
                     this.IsChangesMade = false;
                     _ = await Device.InvokeOnMainThreadAsync(async () =>
                             await form.DisplayControl.ShowDialog());
-                    this.ActAppearing();
+                    await this.ActAppearing();
                 }
             }
         }
@@ -1626,6 +1628,7 @@ namespace dMobile.View.Activity
                     {
                         this.ExtraInfoItems.Add("CUSTOMER: " + picking.ActivityPickingCustomerContactName);
                         this.ExtraInfoItems.Add("SHIPTO:   " + picking.ActivityPickingCustomerShipToInfo);
+                        this.ExtraInfoItems.Add($"ORDER WHS:   {picking.LocationMapWarehouseFKRefno} - {picking.LocationMapWarehouseName}");
                     }
                 }
 
@@ -1636,6 +1639,7 @@ namespace dMobile.View.Activity
                     {
                         this.ExtraInfoItems.Add("CUSTOMER: " + pickingSingle.ActivityPickingCustomerContactName);
                         this.ExtraInfoItems.Add("SHIPTO:   " + pickingSingle.ActivityPickingCustomerShipToInfo);
+                        this.ExtraInfoItems.Add($"ORDER WHS:   {pickingSingle.LocationMapWarehouseFKRefno} - {pickingSingle.LocationMapWarehouseName}");
                     }
                 }
 

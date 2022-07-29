@@ -52,7 +52,6 @@ namespace dMobile.View.Activity
             this.CallingActSubType = callingActSubType;
 
             this.ActDetail = ActDetailFacade.GetActDetail(actItem, this.ActSubType);
-            this.ActDetail.LocMap = actItem.LocMap;
 
             SProductSchemeData schemeData = this.ActDetail.SchemeData;
             schemeData.LogisticUnitSkidNumber = this.ActDetail.ActItem.ActHdr.SkidInfo.CurrSkid.SkidCode;
@@ -878,12 +877,12 @@ namespace dMobile.View.Activity
 
                 if (!string.IsNullOrEmpty(this.Parse.ProductIdentifier))
                 {
-                    if (!await LocationMapTasks.IsCompleteLocMapRefno(this.ActDetail.LocMap.CurrLocMapRefno))
+                    if (!await LocationMapTasks.IsCompleteLocMap(this.ActDetail.LocMap.CurrLocMapRefno))
                     {
                         throw new MessageOnlyException("Location must be set first.");
                     }
 
-                    prodUnitRefno = await SysShared.IdentifyProductScanned(this.ActSubType, this.Parse, prodUnitRefno);
+                    prodUnitRefno = await SysShared.IdentifyProductScanned(this.ActSubType, this.Parse);
 
                     SSkidInfo currSkid = this.ActDetail.ActItem.ActHdr.SkidInfo.CurrSkid;
 
@@ -926,12 +925,14 @@ namespace dMobile.View.Activity
                             ref this.ListViewMainActivity);
                     });
 
-                    await this.ActDetail.SelectActivityDetail(this.MainActivityItems[currRowIdx]);
+                    await this.FindSelectedItemAsync();
 
-                    if (this.MainActivityItems.Count > currRowIdx)
-                    {
-                        this.ListViewMainActivity.SelectedItem = this.MainActivityItems[currRowIdx];
-                    }
+                    ////await this.ActDetail.SelectActivityDetail(this.MainActivityItems[currRowIdx]);
+
+                    ////if (this.MainActivityItems.Count > currRowIdx)
+                    ////{
+                    ////    this.ListViewMainActivity.SelectedItem = this.MainActivityItems[currRowIdx];
+                    ////}
                 }
                 else
                 {
@@ -1287,6 +1288,7 @@ namespace dMobile.View.Activity
 
                 this.ActDetail.IsUpdateView = true;
                 await this.InsertActivityDetail(this.ActDetail, isInsertReady);
+
                 ////this.DisplaySummaryData();
             }
             catch (GatherProductDataException ex)

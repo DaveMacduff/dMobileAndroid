@@ -1222,7 +1222,7 @@ namespace dMobile.View
                     }
                     else
                     {
-                        locMapRefno = await LocationMapTasks.GetDefaultLocMapRefnoFromProdRefno(
+                        locMapRefno = await LocationMapTasks.GetDefaultLocMapRefnoFromWhsProdRefno(
                             this.DefaultWhsLocMapRefno,
                             0,
                             SysCommon.ProdLocMapTypes.Picking);
@@ -1230,7 +1230,7 @@ namespace dMobile.View
                 }
                 else if (this.LocMap.ChosenLocMap.WhsLocMapRefno <= 0)
                 {
-                    locMapRefno = await LocationMapTasks.GetDefaultLocMapRefnoFromProdRefno(
+                    locMapRefno = await LocationMapTasks.GetDefaultLocMapRefnoFromWhsProdRefno(
                         this.LocMap.LoginWhsLocMapRefno,
                         0,
                         SysCommon.ProdLocMapTypes.Picking);

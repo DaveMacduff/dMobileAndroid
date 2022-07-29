@@ -81,7 +81,7 @@ namespace dMobile.View.Activity
 
                 this.ActItem = ActItemFacade.GetActItem(this.Activity, SysCommon.ActSubTypes.InventoryInquiry);
                 this.ActItem.ProdInfo = new ProductInfo();
-                this.ActItem.LocMap = this.LocMap;
+                this.ActItem.LocMap = this.LocMap.CurrLocMap;
                 this.ActItem.SysEnv = this.SysEnv;
 
                 this.Title = this.GetControlDescription();
@@ -141,7 +141,7 @@ namespace dMobile.View.Activity
 
                 this.ActItem = ActItemFacade.GetActItem(this.Activity, SysCommon.ActSubTypes.InventoryInquiry);
                 this.ActItem.ProdInfo = prodInfo;
-                this.ActItem.LocMap = this.LocMap;
+                this.ActItem.LocMap = this.LocMap.CurrLocMap;
                 this.ActItem.SysEnv = this.SysEnv;
 
                 this.cmdSelectProduct.Text = prodInfo.Code;
@@ -423,7 +423,7 @@ namespace dMobile.View.Activity
 
             if (await form.DisplayControl.ShowDialog() == DialogResult.OK)
             {
-                await LocationMapTasks.AssignLocationMapAsync();
+                this.LocMap.CurrLocMap = this.LocMap.ChosenLocMap.Clone();
 
                 if (this.LocMap.CurrLocMap.WhsLocMapRefno <= 0)
                 {
@@ -441,7 +441,7 @@ namespace dMobile.View.Activity
                 this.cmdLocation.Text = LocationMapTasks.GetCurrentReadableLocation();
             }
 
-            this.ActItem.LocMap = this.LocMap;
+            this.ActItem.LocMap = this.LocMap.CurrLocMap;
 
             await this.ScannerEnable();
         }
@@ -518,7 +518,7 @@ namespace dMobile.View.Activity
                     else if (!string.IsNullOrEmpty(this.BarParse.ProductIdentifier))
                     {
                         int prodUnitRefno = 0;
-                        prodUnitRefno = await SysShared.IdentifyProductScanned(this.ActSubType, this.BarParse, prodUnitRefno);
+                        prodUnitRefno = await SysShared.IdentifyProductScanned(this.ActSubType, this.BarParse);
 
                         if (prodUnitRefno != 0)
                         {
@@ -1023,7 +1023,7 @@ namespace dMobile.View.Activity
         private async Task<List<object>> GetDataViewLocationOnly()
         {
             List<Location> locations = new List<Location>();
-            int locMapRefno = await LocationMapTasks.GetDefaultLocMapRefnoFromProdRefno(this.LocMap.CurrLocMap.WhsLocMapRefno, this.ActItem.ProdInfo.Refno, SysCommon.ProdLocMapTypes.Picking);
+            int locMapRefno = await LocationMapTasks.GetDefaultLocMapRefnoFromWhsProdRefno(this.LocMap.CurrLocMap.WhsLocMapRefno, this.ActItem.ProdInfo.Refno, SysCommon.ProdLocMapTypes.Picking);
             SLocMap locMap = await LocationMapTasks.GetSLocMapFromLocMapRefno(locMapRefno);
 
             Location pickingLocation = new Location()
@@ -1034,7 +1034,7 @@ namespace dMobile.View.Activity
                 LocationMapType = "Picking",
             };
 
-            locMapRefno = await LocationMapTasks.GetDefaultLocMapRefnoFromProdRefno(this.LocMap.CurrLocMap.WhsLocMapRefno, this.ActItem.ProdInfo.Refno, SysCommon.ProdLocMapTypes.Receiving);
+            locMapRefno = await LocationMapTasks.GetDefaultLocMapRefnoFromWhsProdRefno(this.LocMap.CurrLocMap.WhsLocMapRefno, this.ActItem.ProdInfo.Refno, SysCommon.ProdLocMapTypes.Receiving);
             locMap = await LocationMapTasks.GetSLocMapFromLocMapRefno(locMapRefno);
 
             Location receivingLocation = new Location()

@@ -90,14 +90,13 @@ namespace dMobile.Controller
         }
 
         /// <summary>
-        /// The Insert.
+        /// Insert a new bar code activity item.
         /// </summary>
-        /// <param name="data">.</param>
-        /// <param name="askToInsertAsNewItem">.</param>
-        /// <returns>The <see cref="Task"/>.</returns>
+        /// <param name="data"><see cref="XDocument"/> Bar code activity information to insert.</param>
+        /// <param name="askToInsertAsNewItem"><see cref="bool"/> Stop and ask to insert an item.</param>
+        /// <returns><see cref="Task"/> Task operation.</returns>
         public override async Task Insert(XDocument data, bool askToInsertAsNewItem)
         {
-            int prodUnitRefno = int.Parse(data.Root.Element("ProductUnitRefno").Value);
             int prodUnitBarCodeRefno = 0;
 
             // Look up product bc unit
@@ -115,7 +114,9 @@ namespace dMobile.Controller
                 + "INNER JOIN tUnit ON tUnit.UnitRefno = tProductUnit.UnitRefno "
                 + "WHERE tProductUnit.ProductUnitRefno = ?";
 
-            List<ProductUnit> productUnitResults = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<ProductUnit>(queryProductUnit, Convert.ToInt32(prodUnitRefno));
+            int prodUnitRefno = int.Parse(data.Root.Element("ProductUnitRefno").Value);
+            List<ProductUnit> productUnitResults = await DatabaseConnection.GetInstance().SQLConn.
+                QueryAsync<ProductUnit>(queryProductUnit, Convert.ToInt32(prodUnitRefno));
 
             if (productUnitResults != null && productUnitResults.Count > 0)
             {
@@ -133,8 +134,10 @@ namespace dMobile.Controller
             bool isProdUnitBarCodeFound = false;
             string prodIdentifier = data.Root.Element("ProductIdentifier").Value;
 
-            string queryProdUnitBarcode = "SELECT ProductUnitRefno, ProductUnitBarCodeRefno FROM tProductUnitBarCode WHERE ProductUnitBarCodeCode = ? AND ProductUnitBarCodeModifier1 = ?";
-            List<tProductUnitBarCodeModel> prodUnitBarcodeResults = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<tProductUnitBarCodeModel>(queryProdUnitBarcode, prodIdentifier, data.Root.Element("ProductUnitBarCodeModifier1").Value);
+            string queryProdUnitBarcode = "SELECT ProductUnitRefno, ProductUnitBarCodeRefno FROM tProductUnitBarCode" +
+                " WHERE ProductUnitBarCodeCode = ? AND ProductUnitBarCodeModifier1 = ?";
+            List<tProductUnitBarCodeModel> prodUnitBarcodeResults = await DatabaseConnection.GetInstance().SQLConn.
+                QueryAsync<tProductUnitBarCodeModel>(queryProdUnitBarcode, prodIdentifier, data.Root.Element("ProductUnitBarCodeModifier1").Value);
 
             if (prodUnitBarcodeResults != null && prodUnitBarcodeResults.Count > 0)
             {
@@ -148,8 +151,11 @@ namespace dMobile.Controller
                     // bar code is associated to a different product
                     isProdUnitBarCodeFound = true;
 
-                    await Device.InvokeOnMainThreadAsync(async () => await Application.Current.MainPage.DisplayAlert("Bar Code",
-                        string.Format("Scanned bar code is already associated to a different product {0} {1} {2}.", prodCode, prodUnitBC, unitCode), "Yes", "No"));
+                    await Device.InvokeOnMainThreadAsync(async () => await Application.Current.MainPage.DisplayAlert(
+                        "Bar Code",
+                        string.Format("Scanned bar code is already associated to a different product {0} {1} {2}.", prodCode, prodUnitBC, unitCode),
+                        "Yes",
+                        "No"));
                 }
             }
 
@@ -351,10 +357,10 @@ namespace dMobile.Controller
         }
 
         /// <summary>
-        /// The GetActivityItemRefno.
+        /// Get the activity item reference number from the product unit reference number and current location warehouse.
         /// </summary>
-        /// <param name="prodUnitRefno">.</param>
-        /// <returns>.</returns>
+        /// <param name="prodUnitRefno"><see cref="int"/> Product unit reference number.</param>
+        /// <returns><see cref="int"/> Found activity item refno else 0.</returns>
         public override Task<int> GetActivityItemRefno(int prodUnitRefno)
         {
             throw new NotImplementedException();
@@ -367,13 +373,13 @@ namespace dMobile.Controller
         /// <returns>The <see cref="Task"/>.</returns>
         public override async Task SelectActivityItem(object selectedActivityItem)
         {
-            if (selectedActivityItem is BarcodeAssociationItem barcodeAssociationItem)
+            if (selectedActivityItem is BarcodeAssociationItem item)
             {
-                this.SelectedActivityItem = barcodeAssociationItem;
-                this.ItemRefno = Convert.ToInt32(barcodeAssociationItem.ActivityItemRefno);
-                this.ProdInfo = await ProductInfoTasks.GetInfoFromUnitRefno(Convert.ToInt32(barcodeAssociationItem.ProductUnitRefno));
+                this.SelectedActivityItem = item;
+                this.ItemRefno = Convert.ToInt32(item.ActivityItemRefno);
+                this.ProdInfo = await ProductInfoTasks.GetInfoFromUnitRefno(Convert.ToInt32(item.ProductUnitRefno));
                 this.ProdInfo.Scheme = await ProductInfoTasks.GetSchemeComponentsFromRefno(this.ProdInfo.Refno);
-                this.ItemFKRefno = Convert.ToInt32(barcodeAssociationItem.ActivityItemRefno);
+                this.ItemFKRefno = Convert.ToInt32(item.ActivityItemRefno);
             }
         }
 
@@ -573,10 +579,18 @@ namespace dMobile.Controller
         /// <returns><see cref="int"/> Location map reference number.</returns>
         public override async Task<int> GetDefaultLocMapRefno(int whsLocMapRefno, int prodRefno)
         {
-            int locMapRefno = await LocationMapTasks.GetDefaultLocMapRefnoFromProdRefno(
+            int locMapRefno = await LocationMapTasks.GetDefaultLocMapRefnoFromWhsProdRefno(
                 whsLocMapRefno,
                 prodRefno,
                 SysCommon.ProdLocMapTypes.Picking);
+
+            if (locMapRefno == 0)
+            {
+                locMapRefno = await LocationMapTasks.GetDefaultLocMapRefnoFromWhsProdRefno(
+                    whsLocMapRefno,
+                    prodRefno,
+                    SysCommon.ProdLocMapTypes.Floor);
+            }
 
             return locMapRefno;
         }

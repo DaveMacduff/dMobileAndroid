@@ -119,11 +119,11 @@ namespace dMobile.Controller
         }
 
         /// <summary>
-        /// The Insert.
+        /// Insert a new adjustment activity item.
         /// </summary>
-        /// <param name="data">The data<see cref="XDocument"/>.</param>
-        /// <param name="askToInsertAsNewItem">The askToInsertAsNewItem<see cref="bool"/>.</param>
-        /// <returns>The <see cref="Task"/>.</returns>
+        /// <param name="data"><see cref="XDocument"/> Adjustment activity information to insert.</param>
+        /// <param name="askToInsertAsNewItem"><see cref="bool"/> Stop and ask to insert an item.</param>
+        /// <returns><see cref="Task"/> Task operation.</returns>
         public override async Task Insert(XDocument data, bool askToInsertAsNewItem)
         {
             if (this.ListItems != null)
@@ -148,8 +148,14 @@ namespace dMobile.Controller
                         ActivityDetailLogisticUnitBatchLotNumber = schemeData.ProdSchemeData.LogisticUnitBatchLotNumber,
                         ProductSchemeVariantCode = schemeData.ProdSchemeData.VariantCode,
                         ProductSchemeVariantNumber = schemeData.ProdSchemeData.VariantNumber,
-                        ActivityDetailSchemeID = ProductInfoTasks.GetActSchemeIDFromSProdSchemeData(this.ProdInfo.Code, this.ProdInfo.Scheme, schemeData.ProdSchemeData),
-                        ActivityDetailUniqueSchemeID = ProductInfoTasks.GetUniqueSchemeIDFromSProdSchemeData(this.ProdInfo.Code, this.ProdInfo.Scheme, schemeData.ProdSchemeData),
+                        ActivityDetailSchemeID = ProductInfoTasks.GetActSchemeIDFromSProdSchemeData(
+                            this.ProdInfo.Code,
+                            this.ProdInfo.Scheme,
+                            schemeData.ProdSchemeData),
+                        ActivityDetailUniqueSchemeID = ProductInfoTasks.GetUniqueSchemeIDFromSProdSchemeData(
+                            this.ProdInfo.Code,
+                            this.ProdInfo.Scheme,
+                            schemeData.ProdSchemeData),
                         ActivityDetailFKRefno = this.ItemFKRefno,
                         ActivityDetailRefno = this.ItemRefno,
                     });
@@ -213,10 +219,10 @@ namespace dMobile.Controller
         }
 
         /// <summary>
-        /// The GetActivityItemRefno.
+        /// Get the activity item reference number from the product unit reference number and current location warehouse.
         /// </summary>
-        /// <param name="productUnitRefno">.</param>
-        /// <returns>.</returns>
+        /// <param name="prodUnitRefno"><see cref="int"/> Product unit reference number.</param>
+        /// <returns><see cref="int"/> Found activity item refno else 0.</returns>
         public override Task<int> GetActivityItemRefno(int productUnitRefno)
         {
             throw new NotImplementedException();
@@ -427,18 +433,26 @@ namespace dMobile.Controller
                 if (Math.Sign(item.ActivityDetailQuantity) == 0 ||
                     Math.Sign(item.ActivityDetailQuantity) == 1)
                 {
-                    locMapRefno = await LocationMapTasks.GetDefaultLocMapRefnoFromProdRefno(
+                    locMapRefno = await LocationMapTasks.GetDefaultLocMapRefnoFromWhsProdRefno(
                         whsLocMapRefno,
                         prodRefno,
                         SysCommon.ProdLocMapTypes.Receiving);
                 }
                 else
                 {
-                    locMapRefno = await LocationMapTasks.GetDefaultLocMapRefnoFromProdRefno(
+                    locMapRefno = await LocationMapTasks.GetDefaultLocMapRefnoFromWhsProdRefno(
                         whsLocMapRefno,
                         prodRefno,
                         SysCommon.ProdLocMapTypes.Picking);
                 }
+            }
+
+            if (locMapRefno == 0)
+            {
+                locMapRefno = await LocationMapTasks.GetDefaultLocMapRefnoFromWhsProdRefno(
+                    whsLocMapRefno,
+                    prodRefno,
+                    SysCommon.ProdLocMapTypes.Floor);
             }
 
             return locMapRefno;

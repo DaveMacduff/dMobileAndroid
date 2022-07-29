@@ -918,7 +918,7 @@ namespace dMobile.View.Activity
 
             if (await form.DisplayControl.ShowDialog() == DialogResult.OK)
             {
-                await LocationMapTasks.AssignLocationMapAsync();
+                this.LocMap.CurrLocMap = this.LocMap.ChosenLocMap.Clone();
                 if (this.LocMap.CurrLocMap.WhsLocMapRefno <= 0)
                 {
                     this.LocMap.CurrLocMap = await LocationMapTasks.GetSLocMapFromLocMapRefno(this.LocMap.LoginWhsLocMapRefno);

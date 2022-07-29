@@ -83,13 +83,13 @@ namespace dMobile.View
         /// </summary>
         /// <param name="actSubType">The actSubType<see cref="SysCommon.ActSubTypes"/>.</param>
         /// <param name="barCodeParse">.</param>
-        /// <param name="prodUnitRefno">The prodUnitRefno<see cref="int"/>.</param>
         /// <returns>The <see cref="Task{int}"/> Task operation.</returns>
         public static async Task<int> IdentifyProductScanned(
             SysCommon.ActSubTypes actSubType,
-            BarCodeParse barCodeParse,
-            int prodUnitRefno)
+            BarCodeParse barCodeParse)
         {
+            int prodUnitRefno = 0;
+
             try
             {
                 int prodUnitBarCodeRefno = 0;
@@ -351,7 +351,7 @@ namespace dMobile.View
             bool isStopForLabelDetail = false;
 
             if (actDetail.ActSubType == SysCommon.ActSubTypes.Receiving &&
-                actDetail.ActItem.LocMap.CurrLocMap.IsWhsWMS)
+                actDetail.ActItem.LocMap.IsWhsWMS)
             {
                 if (!actDetail.IsLabelSchemeComplete())
                 {

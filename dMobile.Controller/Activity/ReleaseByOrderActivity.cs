@@ -496,11 +496,35 @@ namespace dMobile.Controller
         /// <returns>The <see cref="Task"/>.</returns>
         public override async Task SelectActivity(object selectedActivity)
         {
-            if (selectedActivity is Picking picking)
+            if (selectedActivity is Picking header)
             {
-                this.SelectedActivity = picking;
-                this.HdrFKRefno = Convert.ToInt32(picking.ActivityFKRefno);
-                this.HdrRefno = Convert.ToInt32(picking.ActivityRefno);
+                this.SelectedActivity = header;
+                this.HdrFKRefno = header.ActivityFKRefno;
+                this.HdrRefno = header.ActivityRefno;
+
+                if (this.SysEnv.SysSettings.IsDefaultLocToProductDefaultLoc)
+                {
+                    if (LocationMap.GetInstance().CurrLocMap.WhsLocMapRefno != header.LocationMapRefno &&
+                            await LocationMapTasks.IsCompleteLocMap(header.LocationMapRefno))
+                    {
+                        LocationMap.GetInstance().CurrLocMap = await LocationMapTasks.GetSLocMapFromLocMapRefno(
+                            header.LocationMapRefno);
+                    }
+
+                    if (LocationMap.GetInstance().ChosenLocMap.WhsLocMapRefno != header.LocationMapRefno &&
+                            await LocationMapTasks.IsCompleteLocMap(header.LocationMapRefno))
+                    {
+                        LocationMap.GetInstance().ChosenLocMap = LocationMap.GetInstance().CurrLocMap.Clone();
+                    }
+
+                    if (this.SkidInfo.CurrSkid != null && this.SkidInfo.CurrSkid.SkidFKRefno > 0 &&
+                        this.SkidInfo.CurrSkid.LocMapRefno != header.LocationMapRefno &&
+                        await LocationMapTasks.IsCompleteLocMap(header.LocationMapRefno))
+                    {
+                        // NOTE: We may have to use a temp var to assign the current skid a new location.
+                        this.SkidInfo.CurrSkid.LocMap = LocationMap.GetInstance().CurrLocMap.Clone();
+                    }
+                }
             }
         }
 

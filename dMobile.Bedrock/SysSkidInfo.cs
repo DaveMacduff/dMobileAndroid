@@ -201,7 +201,6 @@ namespace dMobile.Bedrock
                     moveToLocMap.SectFKRefno,
                     moveToLocMap.SlotFKRefno);
                 tempSkidInfo.LocMap = sLocMapAndRefno.SLocMap;
-                tempSkidInfo.LocMapRefno = sLocMapAndRefno.LocMapRefno;
                 skid.CurrSkid = tempSkidInfo;
             }
 
@@ -779,7 +778,6 @@ namespace dMobile.Bedrock
                     int.Parse(result.SelectSingleNode("/VFPData/cskidinfo/locationmapslotfkrefno").InnerText));
 
                 skidInfo.LocMap = sLocMapAndRefno.SLocMap;
-                skidInfo.LocMapRefno = sLocMapAndRefno.LocMapRefno;
 
                 skidInfo.ProdInfo = new ProductInfo();
                 skidInfo.ProdInfo = await ProductInfoTasks.GetInfoFromCodeBCUnit(

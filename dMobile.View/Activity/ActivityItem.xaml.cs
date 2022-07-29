@@ -1425,7 +1425,7 @@ namespace dMobile.View.Activity
                             if (this.ActItem.ProdInfo.FKRefno != skidInfo.ProdInfo.FKRefno ||
                                 this.ActItem.ProdInfo.UnitIsBC != skidInfo.ProdInfo.UnitIsBC ||
                                 this.ActItem.ProdInfo.UnitRefno != skidInfo.ProdInfo.UnitRefno ||
-                                this.ActItem.LocMap.CurrLocMap.WhsFKRefno != skidInfo.LocMap.WhsFKRefno)
+                                this.ActItem.LocMap.WhsFKRefno != skidInfo.LocMap.WhsFKRefno)
                             {
                                 throw new MessageOnlyException("The selected skid warehouse and" +
                                     " product must be the same as the line item warehouse and product" +
@@ -1805,7 +1805,7 @@ namespace dMobile.View.Activity
             try
             {
                 await this.ActDisappearing();
-                await this.ActItem.SelectActivityItem(this.ListViewMainActivity.SelectedItem);
+                ////await this.ActItem.SelectActivityItem(this.ListViewMainActivity.SelectedItem);
                 if (this.ActItem.ActHdr.SkidInfo.CurrSkid.SkidFKRefno != 0)
                 {
                     SSkidInfo currSkid = this.ActItem.ActHdr.SkidInfo.CurrSkid;
@@ -1899,24 +1899,57 @@ namespace dMobile.View.Activity
                 {
                     if (!string.IsNullOrEmpty(parse.ProductIdentifier))
                     {
-                        // Check if location is set, if defaulting location is not enabled.
-                        if (!await LocationMapTasks.IsCompleteLocMapRefno(this.LocMap.CurrLocMapRefno) &&
-                            !this.SysEnv.SysSettings.IsDefaultLocToProductDefaultLoc)
+                        // Identify the product from the parse info.
+                        prodUnitRefno = await SysShared.IdentifyProductScanned(this.ActSubType, parse);
+                        ProductInfo scannedProdInfo = new ProductInfo();
+                        scannedProdInfo = await ProductInfoTasks.GetInfoFromUnitRefno(prodUnitRefno);
+
+                        bool dspOverrideMsg = false;
+                        if (this.SysEnv.SysSettings.IsDefaultLocToProductDefaultLoc)
+                        {
+                            if ((this.ActSubType == SysCommon.ActSubTypes.PhysicalCounts &&
+                                    this.SysEnv.SysSettings.IsPhysicalDoNotDefaultProductLocation)
+                                || (this.ActSubType == SysCommon.ActSubTypes.CycleCounts &&
+                                    this.SysEnv.SysSettings.IsCycleDoNotDefaultProductLocation))
+                            {
+                                dspOverrideMsg = false;
+                            }
+                            else
+                            {
+                                dspOverrideMsg = true;
+                            }
+                        }
+
+                        if (dspOverrideMsg)
+                        {
+                            int whsLocMapRefno = LocationMapTasks.DefaultLocMapRefnoToWhsIfUnassigned(locationMapRefno: 0);
+
+                            // We can't determine the product location map base on the sub type and quantity.
+                            // We don't have the quantity yet, so default to the floor.
+                            var tmpLocMapRefno = await LocationMapTasks.GetDefaultLocMapRefnoFromWhsProdRefno(
+                                whsLocMapRefno,
+                                scannedProdInfo.Refno,
+                                SysCommon.ProdLocMapTypes.Floor);
+                            if (await LocationMapTasks.IsCompleteLocMap(tmpLocMapRefno))
+                            {
+                                this.LocMap.CurrLocMap = await LocationMapTasks.GetSLocMapFromLocMapRefno(tmpLocMapRefno);
+                                this.LocMap.ChosenLocMap = this.LocMap.CurrLocMap.Clone();
+                            }
+                        }
+                        else
+                        {
+                            // This should not be needed, current location should have been set using the location picker.
+                            if (this.LocMap.CurrLocMapRefno != this.LocMap.ChosenLocMapRefno)
+                            {
+                                this.LocMap.CurrLocMap = this.LocMap.ChosenLocMap.Clone();
+                            }
+                        }
+
+                        if (!await LocationMapTasks.IsCompleteLocMap(this.LocMap.CurrLocMapRefno))
                         {
                             throw new MessageOnlyException("Location must be set first!");
                         }
 
-                        // Identify the product from the parse info.
-                        prodUnitRefno = await SysShared.IdentifyProductScanned(
-                            this.ActSubType,
-                            parse,
-                            prodUnitRefno);
-                        ProductInfo scannedProdInfo = new ProductInfo();
-                        scannedProdInfo = await ProductInfoTasks.GetInfoFromUnitRefno(prodUnitRefno);
-
-                        // Find a line item foreign key reference number match from the product unit reference number.
-                        // Note: Other factors are also used in GetRefnoFromProdUnitRefno() such as
-                        // current location elements and the activity header reference number.
                         actItemFoundRefno = await this.ActItem.GetActivityItemRefno(prodUnitRefno);
                         if (actItemFoundRefno > 0)
                         {
@@ -2028,9 +2061,7 @@ namespace dMobile.View.Activity
                             if (this.ActItem.IsAllowAddItem)
                             {
                                 await this.ActItem.Insert(
-                                    ProductInfoTasks.GetXML(
-                                        this.ActItem.ActHdr.SkidInfo.CurrSkid.ProdInfo),
-                                    false);
+                                    ProductInfoTasks.GetXML(this.ActItem.ActHdr.SkidInfo.CurrSkid.ProdInfo), false);
 
                                 // This is a little dangerous we assume that the new row idx will be the last one
                                 selectedItem = this.ActItem.ListItems.LastOrDefault();
@@ -2047,7 +2078,7 @@ namespace dMobile.View.Activity
                     }
 
                     // Check the location again because of product location defaulting.
-                    if (!await LocationMapTasks.IsCompleteLocMapRefno(this.LocMap.CurrLocMapRefno) &&
+                    if (!await LocationMapTasks.IsCompleteLocMap(this.LocMap.CurrLocMapRefno) &&
                         this.SysEnv.SysSettings.IsDefaultLocToProductDefaultLoc)
                     {
                         throw new MessageOnlyException("Location must be set first.");
@@ -2695,11 +2726,11 @@ namespace dMobile.View.Activity
                 {
                     // Goto the first one in the list.
                     this.ListViewMainActivity.SelectedItem = this.MainActivityItems[0];
-                    await this.ActItem.SelectActivityItem(this.ListViewMainActivity.SelectedItem);
+                    ////await this.ActItem.SelectActivityItem(this.ListViewMainActivity.SelectedItem);
                 }
                 else
                 {
-                    await this.ActItem.SelectActivityItem(selectedItem);
+                    ////await this.ActItem.SelectActivityItem(selectedItem);
                     this.ListViewMainActivity.SelectedItem = this.ActItem.SelectedActivityItem;
                 }
 
@@ -2837,7 +2868,7 @@ namespace dMobile.View.Activity
 
                             // Using the cycle count line item warehouse, get the product default
                             // picking location.
-                            int defLocMapRefno = await LocationMapTasks.GetDefaultLocMapRefnoFromProdRefno(
+                            int defLocMapRefno = await LocationMapTasks.GetDefaultLocMapRefnoFromWhsProdRefno(
                                 countItemLocMap.WhsLocMapRefno,
                                 Convert.ToInt32(cycleCountItem.ProductRefno),
                                 SysCommon.ProdLocMapTypes.Picking);
@@ -2892,7 +2923,7 @@ namespace dMobile.View.Activity
                             // Do not check if default location is enabled. Always show the default location.
                             SLocMap tempLocMap = await LocationMapTasks.GetSLocMapFromLocMapRefno(
                                 Convert.ToInt32(physicalCountItem.LocationMapRefno));
-                            int defLocMapRefno = await LocationMapTasks.GetDefaultLocMapRefnoFromProdRefno(
+                            int defLocMapRefno = await LocationMapTasks.GetDefaultLocMapRefnoFromWhsProdRefno(
                                 tempLocMap.WhsLocMapRefno,
                                 Convert.ToInt32(physicalCountItem.ProductRefno),
                                 SysCommon.ProdLocMapTypes.Picking);
@@ -2917,6 +2948,20 @@ namespace dMobile.View.Activity
                             prodDesc = pickingItem.ProductDescription;
                             prodUnitSizeDesc = pickingItem.ProductUnitSizeDescription;
                             prodBrandDesc = pickingItem.ProductBrandDescription;
+                            switch (this.SysEnv.SysSettings.PickItemDescOpt)
+                            {
+                                case 1:
+
+                                    this.ExtraInfoItems.Add("SIZE: " + prodUnitSizeDesc.Trim() + ", " +
+                                        prodBrandDesc.Trim());
+                                    break;
+
+                                default:
+
+                                    this.ExtraInfoItems.Add("DESC: " + prodDesc.Trim() + ", " +
+                                        prodUnitSizeDesc.Trim());
+                                    break;
+                            }
 
                             // Get product default location info
                             int defLocMapRefno = await this.ActItem.GetDefaultLocMapRefno(
@@ -2925,24 +2970,12 @@ namespace dMobile.View.Activity
                             SLocMap sLocMap = await LocationMapTasks.GetSLocMapFromLocMapRefno(
                                 defLocMapRefno);
                             defLoc = LocationMapTasks.GetReadableLocation(sLocMap);
+
+                            this.ExtraInfoItems.Add("DEF LOC: " + defLoc);
+
+                            this.DisplayDataLocation();
                         }
 
-                        switch (this.SysEnv.SysSettings.PickItemDescOpt)
-                        {
-                            case 1:
-
-                                this.ExtraInfoItems.Add("SIZE: " + prodUnitSizeDesc.Trim() + ", " +
-                                    prodBrandDesc.Trim());
-                                break;
-
-                            default:
-
-                                this.ExtraInfoItems.Add("DESC: " + prodDesc.Trim() + ", " +
-                                    prodUnitSizeDesc.Trim());
-                                break;
-                        }
-
-                        this.ExtraInfoItems.Add("DEF LOC: " + defLoc);
                         break;
 
                     case SysCommon.ActSubTypes.PickingSingle:
@@ -3306,6 +3339,13 @@ namespace dMobile.View.Activity
                 return;
             }
 
+            await Device.InvokeOnMainThreadAsync(async () =>
+            {
+                string currentReadableLocation = LocationMapTasks.GetCurrentReadableLocation();
+                _ = await Device.InvokeOnMainThreadAsync(() => this.CmdLocationText =
+                    "Location: " + Environment.NewLine + currentReadableLocation);
+            });
+
             await this.ScannerDisable();
             string result = await this.DisplayActionSheet(
                 "ActivityItem Options",
@@ -3343,31 +3383,57 @@ namespace dMobile.View.Activity
             {
                 try
                 {
+                    bool dspOverrideMsg = false;
+                    if (this.SysEnv.SysSettings.IsDefaultLocToProductDefaultLoc)
+                    {
+                        if ((this.ActSubType == SysCommon.ActSubTypes.PhysicalCounts &&
+                                this.SysEnv.SysSettings.IsPhysicalDoNotDefaultProductLocation)
+                            || (this.ActSubType == SysCommon.ActSubTypes.CycleCounts &&
+                                this.SysEnv.SysSettings.IsCycleDoNotDefaultProductLocation))
+                        {
+                            dspOverrideMsg = false;
+                        }
+                        else
+                        {
+                            dspOverrideMsg = true;
+                        }
+                    }
+
+                    if (dspOverrideMsg)
+                    {
+                        await Device.InvokeOnMainThreadAsync(async () =>
+                            await Application.Current.MainPage.DisplayAlert(
+                                this.ActItem.GetControlDescription(),
+                                "Default locations are enabled, location changes may be overridden.",
+                                Resource.OK));
+                    }
+
                     await this.ActDisappearing();
                     FormDialogContainer form = new FormDialogContainer(
                         EDialogTypes.SelectLocationMap,
                         SysCommon.ActSubTypes.NotApplicable);
-
-                    await form.DisplayControl.ShowDialog();
-                    await LocationMapTasks.AssignLocationMapAsync();
-
-                    // Special validation for picking and filtering by section.
-                    // Check if the scanned section matched the filtered one.
-                    if (this.ActSubType == SysCommon.ActSubTypes.Picking ||
-                        this.ActSubType == SysCommon.ActSubTypes.PickingSingle)
+                    if (await form.DisplayControl.ShowDialog() == DialogResult.OK)
                     {
-                        int sectRefno = ((PickingActivity)this.ActItem.ActHdr).PickingLocationMapFilter.SectLocMapRefno;
-                        if (sectRefno != 0 && this.LocMap.ChosenLocMap.SectLocMapRefno != sectRefno)
-                        {
-                            string sectName = ((PickingActivity)this.ActItem.ActHdr).PickingLocationMapFilter.SectName;
-                            string msg = $"Warning selected location section '{this.LocMap.ChosenLocMap.SectName}' does" +
-                                            $" not match the filtered picking section '{sectName}'.";
+                        this.LocMap.CurrLocMap = this.LocMap.ChosenLocMap.Clone();
 
-                            await Device.InvokeOnMainThreadAsync(async () =>
-                                    await Application.Current.MainPage.DisplayAlert(
-                                        this.ActItem.GetControlDescription(),
-                                        msg,
-                                        Resource.OK));
+                        // Special validation for picking and filtering by section.
+                        // Check if the scanned section matched the filtered one.
+                        if (this.ActSubType == SysCommon.ActSubTypes.Picking ||
+                            this.ActSubType == SysCommon.ActSubTypes.PickingSingle)
+                        {
+                            int sectRefno = ((PickingActivity)this.ActItem.ActHdr).PickingLocationMapFilter.SectLocMapRefno;
+                            if (sectRefno != 0 && this.LocMap.ChosenLocMap.SectLocMapRefno != sectRefno)
+                            {
+                                string sectName = ((PickingActivity)this.ActItem.ActHdr).PickingLocationMapFilter.SectName;
+                                string msg = $"Warning selected location section '{this.LocMap.ChosenLocMap.SectName}' does" +
+                                                $" not match the filtered picking section '{sectName}'.";
+
+                                await Device.InvokeOnMainThreadAsync(async () =>
+                                        await Application.Current.MainPage.DisplayAlert(
+                                            this.ActItem.GetControlDescription(),
+                                            msg,
+                                            Resource.OK));
+                            }
                         }
                     }
                 }
@@ -3408,9 +3474,10 @@ namespace dMobile.View.Activity
                         this.ActSubType);
                     _ = await form.DisplayControl.ShowDialog();
 
+                    // Current location was assigned in the form.
                     XDocument xmlDoc = await form.GetXML();
-                    SysSkidInfo selectSkidInfo = await SysSkidInfo.GetSkidInfoFromXML(xmlDoc);
                     this.ActItem.ActHdr.SkidInfo = await SysSkidInfo.GetSkidInfoFromXML(xmlDoc);
+
                     if (this.ActItem.ActHdr.SkidInfo.CurrSkid.SkidFKRefno == 0)
                     {
                         if (this.ActItem.SelectedActivityItem != null)
@@ -3422,6 +3489,49 @@ namespace dMobile.View.Activity
                     }
                     else
                     {
+                        SSkidInfo currSkid = this.ActItem.ActHdr.SkidInfo.CurrSkid;
+
+                        if (this.ActItem.ProdInfo.Code == currSkid.ProdInfo.Code &&
+                            this.ActItem.ProdInfo.UnitBC == currSkid.ProdInfo.UnitBC &&
+                            this.ActItem.ProdInfo.UnitCode == currSkid.ProdInfo.UnitCode)
+                        {
+                            this.CmdAddSkidIsEnabled = true;
+
+                            this.CmdSelectSkidText = "Skid# " + currSkid.SkidCode;
+                            this.CmdLocationIsEnabled = false;
+                        }
+                        else
+                        {
+                            await Device.InvokeOnMainThreadAsync(async () => await this.DisplayAlert(
+                                "Skid",
+                                "Skid product must match the selected line item product.",
+                                "OK"));
+
+                            this.ActItem.ActHdr.SkidInfo = new SysSkidInfo();
+                            this.CmdSelectSkidText = "Select Skid";
+                            this.CmdAddSkidIsEnabled = false;
+                        }
+
+                        // Special validation for picking and filtering by section.
+                        // Check if the scanned section matched the filtered one.
+                        if (this.ActSubType == SysCommon.ActSubTypes.Picking ||
+                            this.ActSubType == SysCommon.ActSubTypes.PickingSingle)
+                        {
+                            int sectRefno = ((PickingActivity)this.ActItem.ActHdr).PickingLocationMapFilter.SectLocMapRefno;
+                            if (sectRefno != 0 && this.LocMap.ChosenLocMap.SectLocMapRefno != sectRefno)
+                            {
+                                string sectName = ((PickingActivity)this.ActItem.ActHdr).PickingLocationMapFilter.SectName;
+                                string msg = $"Warning selected location section '{this.LocMap.ChosenLocMap.SectName}' does" +
+                                                $" not match the filtered picking section '{sectName}'.";
+
+                                await Device.InvokeOnMainThreadAsync(async () =>
+                                        await Application.Current.MainPage.DisplayAlert(
+                                            this.ActItem.GetControlDescription(),
+                                            msg,
+                                            Resource.OK));
+                            }
+                        }
+
                         this.CmdClearSelectedSkidIsEnabled = true;
                         int actItemFoundRefno = await this.ActItem.GetActivityItemRefno(
                             this.ActItem.ActHdr.SkidInfo.CurrSkid.ProdInfo.UnitRefno);
@@ -3536,7 +3646,7 @@ namespace dMobile.View.Activity
                     {
                         // Activity item object needs to check if a new location and product can
                         // be added, if not add a detail.
-                        if (!await LocationMapTasks.IsCompleteLocMapRefno(this.LocMap.CurrLocMapRefno))
+                        if (!await LocationMapTasks.IsCompleteLocMap(this.LocMap.CurrLocMapRefno))
                         {
                             throw new MessageOnlyException("Location must be set first.");
                         }

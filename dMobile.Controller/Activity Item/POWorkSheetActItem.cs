@@ -180,18 +180,16 @@ namespace dMobile.Controller
         }
 
         /// <summary>
-        /// The Insert.
+        /// Insert a new adjustment activity item.
         /// </summary>
-        /// <param name="data">The data<see cref="XDocument"/>.</param>
-        /// <param name="askToInsertAsNewItem">The askToInsertAsNewItem<see cref="bool"/>.</param>
-        /// <returns>The <see cref="Task"/>.</returns>
+        /// <param name="data"><see cref="XDocument"/> Adjustment activity information to insert.</param>
+        /// <param name="askToInsertAsNewItem"><see cref="bool"/> Stop and ask to insert an item.</param>
+        /// <returns><see cref="Task"/> Task operation.</returns>
         public override async Task Insert(XDocument data, bool askToInsertAsNewItem)
         {
-            int prodUnitRefno = int.Parse(data.Root.Element("ProductUnitRefno").Value);
             int actRefno = 0;
 
-            this.LocMap.CurrLocMap = await LocationMapTasks.GetSLocMapFromLocMapRefno(this.LocMap.LoginWhsLocMapRefno);
-
+            int prodUnitRefno = int.Parse(data.Root.Element("ProductUnitRefno").Value);
             if (prodUnitRefno != 0)
             {
                 if (this.SysEnv.SysSettings.IsDisconnectedMode)
@@ -238,7 +236,7 @@ namespace dMobile.Controller
                                 Convert.ToInt32(this.ItemRefno * -1),
                                 Convert.ToString(this.ItemRefno * -1),
                                 Convert.ToInt32(prodUnitRefno),
-                                Convert.ToInt32(this.LocMap.CurrLocMap.WhsLocMapRefno),
+                                Convert.ToInt32(this.LocMap.WhsLocMapRefno),
                                 decimal.Parse(data.Root.Element("alt_qty").Value),
                                 decimal.Parse(data.Root.Element("base_qty").Value),
                                 decimal.Parse(data.Root.Element("wt_qty").Value),
@@ -333,13 +331,15 @@ namespace dMobile.Controller
                     toBeAdded = true;
                 }
 
+                int locMapRefno = LocationMapTasks.DefaultLocMapRefnoToWhsIfUnassigned(0);
+                SLocMap locMap = await LocationMapTasks.GetSLocMapFromLocMapRefno(locMapRefno);
                 purchaseOrderWorkSheetItem.ActivityItemStatus = Convert.ToInt32(SysCommon.ActStatus.NoChange);
-                purchaseOrderWorkSheetItem.LocationMapRefno = this.LocMap.LoginWhsLocMapRefno;
+                purchaseOrderWorkSheetItem.LocationMapRefno = locMap.WhsLocMapRefno;
                 purchaseOrderWorkSheetItem.ActivityItemPurchaseOrderWorkSheetQuantityOrdered = Math.Round(decimal.Parse(data.Root.Element("alt_qty").Value), 3);
                 purchaseOrderWorkSheetItem.ActivityItemPurchaseOrderWorkSheetBaseQuantityOrdered = Math.Round(decimal.Parse(data.Root.Element("base_qty").Value), 3);
                 purchaseOrderWorkSheetItem.ActivityItemPurchaseOrderWorkSheetWeightQuantityOrdered = Math.Round(decimal.Parse(data.Root.Element("wt_qty").Value), 3);
-                purchaseOrderWorkSheetItem.LocationCode = this.LocMap.LoginWhsLocMapRefno;
-                purchaseOrderWorkSheetItem.LocationName = this.LocMap.CurrLocMap.WhsName;
+                purchaseOrderWorkSheetItem.LocationCode = this.LocMap.WhsLocMapRefno;
+                purchaseOrderWorkSheetItem.LocationName = this.LocMap.WhsName;
 
                 // TODO: Fix sorting
                 // this.DataViewItems.Sort = oldSort;
@@ -451,13 +451,15 @@ namespace dMobile.Controller
                     toBeUpdated = true;
                 }
 
+                int locMapRefno = LocationMapTasks.DefaultLocMapRefnoToWhsIfUnassigned(0);
+                SLocMap locMap = await LocationMapTasks.GetSLocMapFromLocMapRefno(locMapRefno);
                 purchaseOrderWorkSheetItem.ActivityItemStatus = Convert.ToInt32(SysCommon.ActStatus.NoChange);
-                purchaseOrderWorkSheetItem.LocationMapRefno = this.LocMap.LoginWhsLocMapRefno;
+                purchaseOrderWorkSheetItem.LocationMapRefno = locMap.WhsLocMapRefno;
                 purchaseOrderWorkSheetItem.ActivityItemPurchaseOrderWorkSheetQuantityOrdered = decQty;
                 purchaseOrderWorkSheetItem.ActivityItemPurchaseOrderWorkSheetBaseQuantityOrdered = decBaseQty;
                 purchaseOrderWorkSheetItem.ActivityItemPurchaseOrderWorkSheetWeightQuantityOrdered = decWeightQty;
-                purchaseOrderWorkSheetItem.LocationCode = this.LocMap.LoginWhsLocMapRefno;
-                purchaseOrderWorkSheetItem.LocationName = this.LocMap.CurrLocMap.WhsName;
+                purchaseOrderWorkSheetItem.LocationCode = locMap.WhsLocMapRefno;
+                purchaseOrderWorkSheetItem.LocationName = locMap.WhsName;
 
                 // TODO: Fix sorting
                 // this.DataViewItems.Sort = oldSort;
@@ -776,31 +778,55 @@ namespace dMobile.Controller
         /// <returns><see cref="Task"/> Task operation.</returns>
         public override async Task SelectActivityItem(object selectedActivityItem)
         {
-            int activityItemLocMapRefno = 0;
             if (selectedActivityItem is PurchaseOrderWorkSheetItem item)
             {
                 this.SelectedActivityItem = item;
                 this.ItemRefno = item.ActivityItemRefno;
-                this.ItemFKRefno = Convert.ToInt32(item.ActivityItemFKRefno);
+                this.ItemFKRefno = item.ActivityItemFKRefno;
                 this.ProdInfo = await ProductInfoTasks.GetInfoFromUnitRefno(item.ProductUnitRefno);
-                activityItemLocMapRefno = item.LocationMapRefno;
+                int activityItemLocMapRefno = item.LocationMapRefno;
+
+                // This code needs to be before the call to GetSelectedItemLocation, because the skid location may be
+                // used if the product unit and warehouse match.
+                if (this.SysEnv.SysSettings.DoesSelectingADifferentProductClearSkid &&
+                    this.ActHdr.SkidInfo.CurrSkid.ProdInfo.Refno != this.ProdInfo.Refno)
+                {
+                    this.ActHdr.SkidInfo.CurrSkid = new SSkidInfo();
+                }
+
+                if (this.SysEnv.SysSettings.IsDefaultLocToProductDefaultLoc)
+                {
+                    // Only assign the current location if the map is complete else leave it alone.
+                    SLocMap locMap = await this.GetSelectedItemLocation(activityItemLocMapRefno);
+                    if (locMap != null && await LocationMapTasks.IsCompleteLocMap(locMap))
+                    {
+                        // Update the chosen location with the current when defaulting is turned on.
+                        LocationMap.GetInstance().CurrLocMap = locMap.Clone();
+                        LocationMap.GetInstance().ChosenLocMap = locMap.Clone();
+
+                        // Assign the skid the location, because defaulting is enabled.
+                        if (this.ActHdr.SkidInfo.CurrSkid.SkidFKRefno > 0)
+                        {
+                            this.ActHdr.SkidInfo.CurrSkid.LocMap = locMap.Clone();
+                        }
+                    }
+                }
+
+                // LocationMap.GetInstance().CurrLocMap needs to be set before call to GetSchemeComponentsFromRefno.
+                this.ProdInfo.Scheme = await ProductInfoTasks.GetSchemeComponentsFromRefno(this.ProdInfo.Refno);
             }
-
-            await this.GetSelectedItemLocation(activityItemLocMapRefno);
-
-            // LocationMap.GetInstance().CurrLocMap needs to be set before call to GetSchemeComponentsFromRefno.
-            this.ProdInfo.Scheme = await ProductInfoTasks.GetSchemeComponentsFromRefno(
-                this.ProdInfo.Refno);
         }
 
         /// <summary>
-        /// The GetActivityItemRefno.
+        /// Get the activity item reference number from the product unit reference number and current location warehouse.
         /// </summary>
-        /// <param name="prodUnitRefno">The prodUnitRefno<see cref="int"/>.</param>
-        /// <returns>.</returns>
+        /// <param name="prodUnitRefno"><see cref="int"/> Product unit reference number.</param>
+        /// <returns><see cref="int"/> Found activity item reference number else 0.</returns>
         public override async Task<int> GetActivityItemRefno(int prodUnitRefno)
         {
             int foundActItemRefno = 0;
+            int locMapRefno = LocationMapTasks.DefaultLocMapRefnoToWhsIfUnassigned(0);
+            SLocMap locMap = await LocationMapTasks.GetSLocMapFromLocMapRefno(locMapRefno);
 
             StringBuilder sql = new StringBuilder();
             sql.Append("SELECT tActivityItem.ActivityItemRefno,");
@@ -814,14 +840,14 @@ namespace dMobile.Controller
             sql.Append("= tActivityItemPurchaseOrderWorkSheet.WarehouseLocationMapRefno ");
             sql.AppendFormat(
                 "WHERE tActivityItemPurchaseOrderWorkSheet.WarehouseLocationMapRefno = {0} ",
-                this.LocMap.CurrLocMap.WhsLocMapRefno);
+                locMap.WhsLocMapRefno);
             sql.AppendFormat("AND tActivityItemPurchaseOrderWorkSheet.ProductUnitRefno = {0} ", prodUnitRefno);
 
             List<PurchaseOrderWorkSheetItem> results = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<PurchaseOrderWorkSheetItem>(sql.ToString().ToString());
 
             if (results != null && results.Count > 0)
             {
-                this.LocMap.CurrLocMap = await LocationMapTasks.GetSLocMapFromLocMapRefno(Convert.ToInt32(results[0].LocationMapRefno));
+                this.LocMap = await LocationMapTasks.GetSLocMapFromLocMapRefno(Convert.ToInt32(results[0].LocationMapRefno));
                 this.ItemRefno = Convert.ToInt32(results[0].ActivityItemRefno);
                 this.ItemFKRefno = Convert.ToInt32(results[0].ActivityItemFKRefno);
                 this.ProdInfo = await ProductInfoTasks.GetInfoFromUnitRefno(Convert.ToInt32(results[0].ProductUnitRefno));
@@ -858,7 +884,7 @@ namespace dMobile.Controller
                 + "<is_bc>" + prodUnitIsBC.ToString() + "</is_bc>"
                 + "<symbology>" + symbologyPrefix + "</symbology>"
                 + "<gtin>" + barCodeCode + "</gtin>"
-                + "<whs_id>" + this.LocMap.CurrLocMap.WhsFKRefno + "</whs_id>"
+                + "<whs_id>" + this.LocMap.WhsFKRefno + "</whs_id>"
                 + "<refno>" + this.ItemFKRefno + "</refno>"
                 + "<itm_refno>" + this.ItemFKRefno + "</itm_refno>"
                 + "<alt_qty>" + data.Root.Element("alt_qty").Value + "</alt_qty>"
@@ -1018,18 +1044,26 @@ namespace dMobile.Controller
                 if (Math.Sign(item.ActivityItemPurchaseOrderWorkSheetQuantityOrdered) == 0 ||
                     Math.Sign(item.ActivityItemPurchaseOrderWorkSheetQuantityOrdered) == 1)
                 {
-                    locMapRefno = await LocationMapTasks.GetDefaultLocMapRefnoFromProdRefno(
+                    locMapRefno = await LocationMapTasks.GetDefaultLocMapRefnoFromWhsProdRefno(
                         whsLocMapRefno,
                         prodRefno,
                         SysCommon.ProdLocMapTypes.Receiving);
                 }
                 else
                 {
-                    locMapRefno = await LocationMapTasks.GetDefaultLocMapRefnoFromProdRefno(
+                    locMapRefno = await LocationMapTasks.GetDefaultLocMapRefnoFromWhsProdRefno(
                         whsLocMapRefno,
                         prodRefno,
                         SysCommon.ProdLocMapTypes.Picking);
                 }
+            }
+
+            if (locMapRefno == 0)
+            {
+                locMapRefno = await LocationMapTasks.GetDefaultLocMapRefnoFromWhsProdRefno(
+                    whsLocMapRefno,
+                    prodRefno,
+                    SysCommon.ProdLocMapTypes.Floor);
             }
 
             return locMapRefno;

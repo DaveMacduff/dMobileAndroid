@@ -77,7 +77,7 @@ namespace dMobile.View.Activity
                     }
                     else if (keycode == Keycode.Del)
                     {
-                        // Commented out because we currently dont support it
+                        // Commented out because we currently don't support it
                         // but wanted to. Uncomment to add most of this functionality
                         // back in.
                         // DeleteAdjustment();
@@ -97,8 +97,6 @@ namespace dMobile.View.Activity
                         this.MainActivityItems = this.ActDetail.DesignGrid(ref this.GridMainActivity, ref this.ListViewMainActivity);
                         this.ListViewMainActivity.ItemsSource = this.MainActivityItems;
                     });
-
-                    this.LocMap = this.ActDetail.ActItem.LocMap;
 
                     this.ActDetail.ActItem.SelectedActivityItem = null;
 
@@ -463,7 +461,8 @@ namespace dMobile.View.Activity
                 // GLOBAL LOCATION IDENTIFIER SCANNED
                 if (!string.IsNullOrEmpty(parse.LocationIdentifier))
                 {
-                    this.LocMap.CurrLocMap = await LocationMapTasks.GetSLocMapFromLocMapRefno(await LocationMapTasks.GetLocMapRefnoFromBarCodeGlobalLocIdentifier(parse.LocationIdentifier));
+                    this.LocMap.CurrLocMap = await LocationMapTasks.GetSLocMapFromLocMapRefno(
+                        await LocationMapTasks.GetLocMapRefnoFromBarCodeGlobalLocIdentifier(parse.LocationIdentifier));
                 }
                 else
                 {
@@ -472,7 +471,7 @@ namespace dMobile.View.Activity
                     AssertNotShippingContainer(parse);
 
                     int prodUnitRefno = 0;
-                    prodUnitRefno = await SysShared.IdentifyProductScanned(this.ActSubType, parse, prodUnitRefno);
+                    prodUnitRefno = await SysShared.IdentifyProductScanned(this.ActSubType, parse);
                     // Check if product scanned matches the FROM product
                     // Location is set in ConvertProduct screen
 
@@ -481,7 +480,7 @@ namespace dMobile.View.Activity
                     {
                         int tempFromProdUnitRefno = 0;
 
-                        tempFromProdUnitRefno = await SysShared.IdentifyProductScanned(this.ActSubType, parse, tempFromProdUnitRefno);
+                        tempFromProdUnitRefno = await SysShared.IdentifyProductScanned(this.ActSubType, parse);
 
                         ProductInfo scannedProduct = new ProductInfo();
                         scannedProduct = await ProductInfoTasks.GetInfoFromUnitRefno(tempFromProdUnitRefno);
@@ -501,7 +500,14 @@ namespace dMobile.View.Activity
                         this.ActDetail.ActExtra.DateTime1 = new DateTime(1980, 1, 1);
 
                         // Assigns all data to the ActivityDetail
-                        isInsertReady = await SysShared.GatherProductData(parse, this.ActSubType, this.ActDetail.ActItem, tempItemProdSchemeData, isInsertReady, this.ActDetail, false);
+                        isInsertReady = await SysShared.GatherProductData(
+                            parse,
+                            this.ActSubType,
+                            this.ActDetail.ActItem,
+                            tempItemProdSchemeData,
+                            isInsertReady,
+                            this.ActDetail,
+                            false);
 
                         // Confirm that scanned matches from data. If not, then what is wrong
                         if (scannedProduct.Code != this.FromProduct.Code)

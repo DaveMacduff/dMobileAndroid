@@ -20,13 +20,16 @@ namespace dMobile.Controller
     public abstract class ActItem : IDataLayerEventPublisher, IDataAccessEventListener
     {
         /// <summary>
+        /// Activity line item location map reference number.
+        /// </summary>
+        private int locMapRefno = 0;
+
+        /// <summary>
         /// Initializes a new instance of the <see cref="ActItem"/> class.
         /// </summary>
         /// <param name="activity">.</param>
         public ActItem(Activity activity)
         {
-            this.SysEnv = SysEnvironment.GetInstance();
-            this.LocMap = LocationMap.GetInstance();
             this.ActHdr = activity;
             this.ActSubType = this.ActHdr.ActSubType;
         }
@@ -82,7 +85,36 @@ namespace dMobile.Controller
         /// <summary>
         /// Gets or sets the current selected line item location map..
         /// </summary>
-        public LocationMap LocMap { get; set; } = LocationMap.GetInstance();
+        public SLocMap LocMap { get; set; } = new SLocMap();
+
+        /// <summary>
+        /// Gets or sets the current location map reference number.
+        /// </summary>
+        public int LocMapRefno
+        {
+            get
+            {
+                if (this.LocMap.SlotLocMapRefno != 0)
+                {
+                    this.locMapRefno = this.LocMap.SlotLocMapRefno;
+                }
+                else if (this.LocMap.SectLocMapRefno != 0)
+                {
+                    this.locMapRefno = this.LocMap.SectLocMapRefno;
+                }
+                else
+                {
+                    this.locMapRefno = this.LocMap.WhsLocMapRefno;
+                }
+
+                return this.locMapRefno;
+            }
+
+            set
+            {
+                this.locMapRefno = value;
+            }
+        }
 
         /// <summary>
         /// Gets or sets the Product information..
@@ -177,10 +209,14 @@ namespace dMobile.Controller
             ref ListView ListViewMainActivity);
 
         /// <summary>
-        /// Get the activity item reference number from the product unit reference number.
+        /// Get the activity item reference number from the product unit reference number and current location warehouse.
         /// </summary>
         /// <param name="prodUnitRefno"><see cref="int"/> Product unit reference number.</param>
-        /// <returns><see cref="int"/> Found activity item refno else 0.</returns>
+        /// <returns><see cref="int"/> Found activity item reference number else 0.</returns>
+        /// <remarks>
+        /// The location map parameter most of the time will be the warehouse location map reference number, however for
+        /// cycle count line items for it could be any location map sub type; slot, section or warehouse.
+        /// </remarks>
         public abstract Task<int> GetActivityItemRefno(int prodUnitRefno);
 
         /// <summary>
@@ -337,65 +373,80 @@ namespace dMobile.Controller
         /// <summary>
         /// Determine what the selected location map should be when an activity line item or detail is selected.
         /// </summary>
-        /// <param name="activityLocMapRefno"><see cref="int"/> Activity location map reference number.</param>
-        /// <returns><see cref="Task{void}"/> Task operation.</returns>
-        public virtual async Task GetSelectedItemLocation(int activityLocMapRefno)
+        /// <param name="itemLocMapRefno"><see cref="int"/> Activity item location map reference number.</param>
+        /// <returns><see cref="Task{SLocMap}"/> Selected item location or null.</returns>
+        public virtual async Task<SLocMap> GetSelectedItemLocation(int itemLocMapRefno)
         {
             SLocMap defaultLocMap = null;
+            SLocMap itemLocMap = await LocationMapTasks.GetSLocMapFromLocMapRefno(itemLocMapRefno);
 
-            // The line item location may be a warehouse or event a slot.
-            SLocMap itemLocMap = await LocationMapTasks.GetSLocMapFromLocMapRefno(activityLocMapRefno);
-
-            if (this.SysEnv.SysSettings.IsDefaultLocToProductDefaultLoc)
+            if (await LocationMapTasks.IsCompleteLocMap(itemLocMapRefno))
             {
-                // If there is a skid, it's location will always be the warehouse product location.
+                defaultLocMap = await LocationMapTasks.GetSLocMapFromLocMapRefno(itemLocMapRefno);
+            }
+
+            bool isGetDefault = false;
+            if (defaultLocMap == null || this.SysEnv.SysSettings.IsDefaultLocToProductDefaultLoc)
+            {
+                if ((this.ActSubType == SysCommon.ActSubTypes.PhysicalCounts &&
+                        this.SysEnv.SysSettings.IsPhysicalDoNotDefaultProductLocation)
+                    || (this.ActSubType == SysCommon.ActSubTypes.CycleCounts &&
+                        this.SysEnv.SysSettings.IsCycleDoNotDefaultProductLocation))
+                {
+                    isGetDefault = false;
+                }
+                else
+                {
+                    isGetDefault = true;
+                }
+            }
+
+            if (isGetDefault)
+            {
                 int locMapRefno = await this.GetDefaultLocMapRefno(
                     itemLocMap.WhsLocMapRefno,
                     this.ProdInfo.Refno);
-                defaultLocMap = await LocationMapTasks.GetSLocMapFromLocMapRefno(locMapRefno);
-
-                if (this.ActHdr.SkidInfo.CurrSkid.SkidFKRefno > 0)
+                if (await LocationMapTasks.IsCompleteLocMap(locMapRefno))
                 {
-                    this.ActHdr.SkidInfo.CurrSkid.LocMap = defaultLocMap;
+                    defaultLocMap = await LocationMapTasks.GetSLocMapFromLocMapRefno(locMapRefno);
                 }
             }
             else
             {
-                // A skid or selected location must match the line item warehouse. This checked during
-                // scanning or a manual adding of detail not during an item selection.
+                // Verify product location is almost the same as defaulting, except the user can set the location but
+                // it must match the default warehouse product location.
+                // So we might as well default the location to the skid.
                 if (this.SysEnv.SysSettings.IsVerifyProductLocation)
                 {
                     if (this.ActHdr.SkidInfo.CurrSkid.SkidFKRefno > 0 &&
-                        this.ActHdr.SkidInfo.CurrSkid.ProdInfo.Refno == this.ProdInfo.Refno)
+                        this.ActHdr.SkidInfo.CurrSkid.ProdInfo.Refno == this.ProdInfo.Refno &&
+                        this.ActHdr.SkidInfo.CurrSkid.LocMap.WhsLocMapRefno == itemLocMap.WhsLocMapRefno)
                     {
+                        // Skid location is assumed to be complete.
                         defaultLocMap = this.ActHdr.SkidInfo.CurrSkid.LocMap;
                     }
                 }
             }
 
+            // Current location is not considered because it is a result of the default rather than a source location.
+            LocationMap locMap = LocationMap.GetInstance();
             if (defaultLocMap == null || defaultLocMap.WhsLocMapRefno == 0)
             {
-                defaultLocMap = LocationMap.GetInstance().ChosenLocMap;
+                if (await LocationMapTasks.IsCompleteLocMap(locMap.ChosenLocMap))
+                {
+                    defaultLocMap = locMap.ChosenLocMap;
+                }
             }
 
             if (defaultLocMap == null || defaultLocMap.WhsLocMapRefno == 0)
             {
-                defaultLocMap = await LocationMapTasks.GetSLocMapFromLocMapRefno(
-                    LocationMap.GetInstance().LoginWhsLocMapRefno);
+                if (await LocationMapTasks.IsCompleteLocMap(locMap.LoginWhsLocMapRefno))
+                {
+                    defaultLocMap = await LocationMapTasks.GetSLocMapFromLocMapRefno(locMap.LoginWhsLocMapRefno);
+                }
             }
 
-            if (defaultLocMap == null || defaultLocMap.WhsLocMapRefno == 0)
-            {
-                defaultLocMap = new SLocMap();
-            }
-
-            this.LocMap.CurrLocMap = defaultLocMap;
-
-            if (this.SysEnv.SysSettings.DoesSelectingADifferentProductClearSkid &&
-                this.ActHdr.SkidInfo.CurrSkid.ProdInfo.Refno != this.ProdInfo.Refno)
-            {
-                this.ActHdr.SkidInfo.CurrSkid = new SSkidInfo();
-            }
+            return defaultLocMap;
         }
 
         /// <summary>
