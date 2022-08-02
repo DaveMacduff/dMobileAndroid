@@ -135,11 +135,28 @@ namespace dMobile.Controller
         public ResourceDictionary ResourceDictionary { get; set; } = new ResourceDictionary();
 
         /// <summary>
-        /// The ClearProperties.
+        /// Find or insert an activity detail into the list details.
         /// </summary>
-        public override void ClearProperties()
+        /// <param name="mainActivityItems"><see cref="ObservableCollection{object}"/> Main activity items.</param>
+        /// <returns><see cref="ActivityDetail"/> Activity detail.</returns>
+        public override ActivityDetail InsertListDetail(ObservableCollection<object> mainActivityItems)
         {
-            base.ClearProperties();
+            ActivityDetail detail = (ActivityDetail)base.InsertListDetail(mainActivityItems);
+            ////detail.ActivityDetailStatus = (int)SysCommon.ActStatus.Inserted;
+            this.ListDetails.Add(detail);
+            return detail;
+        }
+
+        /// <summary>
+        /// Update detail in the detail list.
+        /// </summary>
+        /// <param name="listDetailIdx"><see cref="int"/> Zero based list detail index.</param>
+        /// <returns><see cref="dMobile.Resources.Types.ActivityDetail"/> Updated detail or null.</returns>
+        public override ActivityDetail UpdateListDetail(int listDetailIdx)
+        {
+            ActivityDetail detail = (ActivityDetail)base.UpdateListDetail(listDetailIdx);
+            ////detail.ActivityDetailStatus = (int)SysCommon.ActStatus.Updated;
+            return detail;
         }
 
         /// <summary>
@@ -175,6 +192,9 @@ namespace dMobile.Controller
                 {
                     this.ListDetails.Add(new MoveDetail()
                     {
+                        ActivityDetailFKRefno = this.DetailFKRefno,
+                        ActivityDetailRefno = this.DetailRefno,
+
                         ProductUnitRefno = this.ActItem.ProdInfo.UnitRefno,
                         ProductRefno = this.ActItem.ProdInfo.Refno,
                         ProductCode = this.ActItem.ProdInfo.Code,
@@ -182,19 +202,19 @@ namespace dMobile.Controller
                         UnitCode = this.ActItem.ProdInfo.UnitCode,
                         ProductDescription = this.ActItem.ProdInfo.Desc,
                         ProductUnitSizeDescription = this.ActItem.ProdInfo.UnitSizeDesc,
+
                         ActivityDetailQuantity = Math.Round(this.Quantity, 3),
                         ActivityDetailBaseQuantity = Math.Round(this.BaseQuantity, 3),
                         ActivityDetailWeightQuantity = Math.Round(this.WeightQuantity, 3),
-                        ActivityDetailSchemeID = this.SchemeID,
-                        ActivityDetailUniqueSchemeID = this.UniqueSchemeID,
+
                         ActivityDetailLogisticUnitBestBeforeSellByDate = this.SchemeData.LogisticUnitBestBeforeSellByDate,
                         ActivityDetailLogisticUnitProductionDate = this.SchemeData.LogisticUnitProductionDate,
                         ActivityDetailSingleTradeItemSerialNumber = this.SchemeData.SingleTradeItemSerialNumber,
                         ActivityDetailLogisticUnitBatchLotNumber = this.SchemeData.LogisticUnitBatchLotNumber,
                         ProductSchemeVariantCode = this.SchemeData.VariantCode,
                         ProductSchemeVariantNo = this.SchemeData.VariantNumber,
-                        ActivityDetailFKRefno = this.DetailFKRefno,
-                        ActivityDetailRefno = this.DetailRefno,
+                        ActivityDetailSchemeID = this.SchemeID,
+                        ActivityDetailUniqueSchemeID = this.UniqueSchemeID,
                     });
                 }
 
@@ -212,24 +232,6 @@ namespace dMobile.Controller
         }
 
         /// <summary>
-        /// The GetInfo.
-        /// </summary>
-        /// <param name="selectedActivityDetail">The selectedActivityDetail<see cref="object"/>.</param>
-        /// <param name="isAdd">.</param>
-        /// <returns>.</returns>
-        public override async Task<ActDetail> GetInfo(object selectedActivityDetail, bool isAdd)
-        {
-            await base.GetInfo(selectedActivityDetail, isAdd);
-
-            if (!isAdd && selectedActivityDetail is MoveDetail moveDetail)
-            {
-                this.DetailFKRefno = Convert.ToInt32(moveDetail.ActivityDetailFKRefno);
-            }
-
-            return this;
-        }
-
-        /// <summary>
         /// The Submit.
         /// </summary>
         /// <param name="selectedActivityDetail">The selectedActivityDetail<see cref="object"/>.</param>
@@ -239,7 +241,7 @@ namespace dMobile.Controller
         {
             if (selectedActivityDetail is MoveDetail moveDetail)
             {
-                await this.GetInfo(selectedActivityDetail, false);
+                await this.AssignThisFromDetailAsync(moveDetail, false);
 
                 XmlDocument xmlDoc = new XmlDocument();
                 string xmlSend = await this.CreateSubmitXML(data);
@@ -267,7 +269,10 @@ namespace dMobile.Controller
                         this.DetailFKRefno = int.Parse(xmlDoc.DocumentElement["ser_refno"].InnerText);
                         moveDetail.ActivityDetailStatus = Convert.ToInt32(SysCommon.ActStatus.NoChange);
 
-                        await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync("UPDATE tActivityDetail SET ActivityDetailStatus = ? WHERE ActivityDetailRefno = ?", Convert.ToInt32(SysCommon.ActStatus.NoChange), this.DetailRefno);
+                        await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(
+                            "UPDATE tActivityDetail SET ActivityDetailStatus = ? WHERE ActivityDetailRefno = ?",
+                            Convert.ToInt32(SysCommon.ActStatus.NoChange),
+                            this.DetailRefno);
                     }
                 }
 
@@ -548,16 +553,6 @@ namespace dMobile.Controller
         /// </summary>
         /// <returns><see cref="string"/> Get activity item control description.</returns>
         public override string GetControlDescription()
-        {
-            throw new NotImplementedException();
-        }
-
-        /// <summary>
-        /// Find or insert an activity detail into the list details.
-        /// </summary>
-        /// <param name="actDetailFKRefnoFldName">The actDetailFKRefnoFldName<see cref="string"/>.</param>
-        /// <returns>The <see cref="ActivityDetail"/>.</returns>
-        public override ActivityDetail InsertListDetail(string actDetailFKRefnoFldName)
         {
             throw new NotImplementedException();
         }

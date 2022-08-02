@@ -994,8 +994,8 @@ namespace dMobile.View.Activity
                     async Task OnAppearingDelKeyDetail()
                     {
                         // Read the selected detail.
-                        this.ActDetail = await this.ActDetail.GetInfo(
-                            this.ListViewMainActivity.SelectedItem,
+                        await this.ActDetail.AssignThisFromDetailAsync(
+                            (Resources.Types.ActivityDetail)this.ListViewMainActivity.SelectedItem,
                             false);
 
                         // Submit the request, and delete it from the data table.
@@ -1504,14 +1504,10 @@ namespace dMobile.View.Activity
                             }
 
                             await this.FindSelectedItemAsync();
-
-                            // Refreshing the data is not the best for detail. Really slow with
-                            // lots of data. We should just update the grid and list if possible.
-                            // If we had more that one hand held scanning detail to this same activity
-                            // there could be duplication. But I don't think it is worth it
-                            // refreshing. There's more chance of a larger amount of data versus
-                            // a duplicate from another device.
-                            ////await this.RefreshBySubType();
+                            ////if (this.MainActivityItems.Count > currRowIdx)
+                            ////{
+                            ////    this.ListViewMainActivity.SelectedItem = this.MainActivityItems[currRowIdx];
+                            ////}
                         }
                     }
                     else if (!string.IsNullOrEmpty(parse.ActFKRefno))
@@ -2003,16 +1999,26 @@ namespace dMobile.View.Activity
             actDetail.DetailFKRefno = 0;
             XDocument xmlDoc = actDetail.GetXML(actDetail);
             await actDetail.Insert(xmlDoc);
-            Resources.Types.ActivityDetail detail = this.ActDetail.InsertListDetail("ActivityDetailFKRefno");
-            this.SelectedActivityDetailFKRefno = this.ActDetail.DetailFKRefno;
 
-            await Device.InvokeOnMainThreadAsync(() =>
+            int detailIdx = this.ActDetail.FindListDetailIndex(activityDetailRefno: actDetail.DetailRefno);
+            if (detailIdx >= 0)
             {
-                this.ListViewMainActivity.ItemTemplate = this.ActDetail.DesignGrid(
-                    ref this.GridMainActivity,
-                    detail,
-                    this.MainActivityItems);
-            });
+                Resources.Types.ActivityDetail updated = this.ActDetail.UpdateListDetail(detailIdx);
+                this.SelectedActivityDetailFKRefno = updated.ActivityDetailFKRefno;
+                this.MainActivityItems[detailIdx] = updated;
+            }
+            else
+            {
+                Resources.Types.ActivityDetail inserted = this.ActDetail.InsertListDetail(this.MainActivityItems);
+                this.SelectedActivityDetailFKRefno = inserted.ActivityDetailFKRefno;
+                await Device.InvokeOnMainThreadAsync(() =>
+                {
+                    this.ListViewMainActivity.ItemTemplate = this.ActDetail.DesignGrid(
+                        ref this.GridMainActivity,
+                        inserted,
+                        this.MainActivityItems);
+                });
+            }
         }
 
         /// <summary>

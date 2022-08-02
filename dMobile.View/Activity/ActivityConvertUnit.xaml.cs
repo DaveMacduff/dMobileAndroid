@@ -1019,9 +1019,8 @@ namespace dMobile.View.Activity
                     {
                         this.ActItem.ProdInfo = await ProductInfoTasks.GetInfoFromUnitRefno(this.FromProdUnitRefno);
                         this.ActItem.ProdInfo.Scheme = await ProductInfoTasks.GetSchemeComponentsFromRefno(this.ActItem.ProdInfo.Refno);
-
-                        // Pass 0 as the current selected row on an add, true forces it as an add not an edit
-                        this.ActDetail = await this.ActDetail.GetInfo(0, true);
+                        Resources.Types.ActivityDetail detail = new dMobile.Resources.Types.ActivityDetail();
+                        await this.ActDetail.AssignThisFromDetailAsync(detail, true);
 
                         try
                         {
@@ -1189,6 +1188,9 @@ namespace dMobile.View.Activity
                                         if (this.ActItem.ProdInfo.UnitCode == "LB" || this.ActItem.ProdInfo.UnitCode == "KG")
                                         {
                                             await this.ActDetail.Insert(xmlDoc);
+                                            Resources.Types.ActivityDetail detail = this.ActDetail.InsertListDetail(
+                                                this.MainActivityItems);
+                                            ////this.SelectedActivityDetailFKRefno = this.ActDetail.DetailFKRefno;
                                         }
                                         else
                                         {
@@ -1219,12 +1221,18 @@ namespace dMobile.View.Activity
                                                 }
 
                                                 await this.ActDetail.Insert(xmlDoc);
+                                                Resources.Types.ActivityDetail detail = this.ActDetail.InsertListDetail(
+                                                    this.MainActivityItems);
+                                                ////this.SelectedActivityDetailFKRefno = this.ActDetail.DetailFKRefno;
                                             }
                                         }
                                     }
                                     else
                                     {
                                         await this.ActDetail.Insert(xmlDoc);
+                                        Resources.Types.ActivityDetail detail = this.ActDetail.InsertListDetail(
+                                            this.MainActivityItems);
+                                        ////this.SelectedActivityDetailFKRefno = this.ActDetail.DetailFKRefno;
                                     }
                                 }
 

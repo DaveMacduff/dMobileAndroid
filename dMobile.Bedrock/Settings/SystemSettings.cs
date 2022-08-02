@@ -3066,7 +3066,7 @@ namespace dMobile.Bedrock
         }
 
         /// <summary>
-        /// Gets or sets a value indicating whether IsTransMod.
+        /// Gets or sets a value indicating whether warehouse transfers is enabled.
         /// </summary>
         public bool IsTransMod
         {

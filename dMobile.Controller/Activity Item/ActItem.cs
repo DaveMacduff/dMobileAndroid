@@ -192,6 +192,12 @@ namespace dMobile.Controller
         public abstract ObservableCollection<object> Search(string searchText);
 
         /// <summary>
+        /// Get the activity item selected activity item.
+        /// </summary>
+        /// <param name="actItemFoundRefno"><see cref="int"/> Activity item reference number to look up.</param>
+        public abstract void SetSelectedActivityItem(int actItemFoundRefno);
+
+        /// <summary>
         /// Get a list of activity items.
         /// </summary>
         /// <param name="isSubmitBatch"><see cref="bool"/> Is batch submission.</param>
@@ -403,9 +409,7 @@ namespace dMobile.Controller
 
             if (isGetDefault)
             {
-                int locMapRefno = await this.GetDefaultLocMapRefno(
-                    itemLocMap.WhsLocMapRefno,
-                    this.ProdInfo.Refno);
+                int locMapRefno = await this.GetDefaultLocMapRefno(itemLocMap.WhsLocMapRefno, this.ProdInfo.Refno);
                 if (await LocationMapTasks.IsCompleteLocMap(locMapRefno))
                 {
                     defaultLocMap = await LocationMapTasks.GetSLocMapFromLocMapRefno(locMapRefno);

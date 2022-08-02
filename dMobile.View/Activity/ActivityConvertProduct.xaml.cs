@@ -963,7 +963,9 @@ namespace dMobile.View.Activity
                 this.ActItem.LocMap = this.LocMap.CurrLocMap;
                 this.ActItem.ProdInfo = this.ToProdInfo;
                 await this.ActItem.Insert(await this.GetXML(), false);
-                this.ActDetail = await this.ActDetail.GetInfo(0, true);
+
+                Resources.Types.ActivityDetail detail = new dMobile.Resources.Types.ActivityDetail();
+                await this.ActDetail.AssignThisFromDetailAsync(detail, clearThisValues: true);
                 this.ActDetail.ActItem = this.ActItem;
 
                 FormDialogContainer form = new FormDialogContainer(EDialogTypes.ActivityConvertProductDetail, this.ActDetail, SysCommon.ActSubTypes.ConvertProduct);

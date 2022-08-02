@@ -128,6 +128,31 @@ namespace dMobile.Controller
         public ResourceDictionary ResourceDictionary { get; set; } = new ResourceDictionary();
 
         /// <summary>
+        /// Find or insert an activity detail into the list details.
+        /// </summary>
+        /// <param name="mainActivityItems"><see cref="ObservableCollection{object}"/> Main activity items.</param>
+        /// <returns><see cref="ActivityDetail"/> Activity detail.</returns>
+        public override ActivityDetail InsertListDetail(ObservableCollection<object> mainActivityItems)
+        {
+            SkidInfoDetail detail = (SkidInfoDetail)base.InsertListDetail(mainActivityItems);
+            ////detail.ActivityDetailStatus = (int)SysCommon.ActStatus.Inserted;
+            this.ListDetails.Add(detail);
+            return detail;
+        }
+
+        /// <summary>
+        /// Update detail in the detail list.
+        /// </summary>
+        /// <param name="listDetailIdx"><see cref="int"/> Zero based list detail index.</param>
+        /// <returns><see cref="dMobile.Resources.Types.ActivityDetail"/> Updated detail or null.</returns>
+        public override ActivityDetail UpdateListDetail(int listDetailIdx)
+        {
+            SkidInfoDetail detail = (SkidInfoDetail)base.UpdateListDetail(listDetailIdx);
+            ////detail.ActivityDetailStatus = (int)SysCommon.ActStatus.Updated;
+            return detail;
+        }
+
+        /// <summary>
         /// Insert a new skid into the detail.
         /// </summary>
         /// <param name="skidInfo"><see cref="SysSkidInfo"/> Skid information to insert.</param>
@@ -158,6 +183,7 @@ namespace dMobile.Controller
 
             string xmlSend = await this.CreateSubmitXML(XDocument.Parse(
                 "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?><params></params>"));
+
             string reqData = SysCommon.SubmitComm(xmlSend);
             if (reqData.Length > 0)
             {
@@ -182,8 +208,6 @@ namespace dMobile.Controller
                     this.DetailFKRefno = int.Parse(xmlDoc.DocumentElement["ser_refno"].InnerText);
                     this.DetailRefno = this.DetailFKRefno;
                 }
-
-                ////this.FillDataView();
             }
         }
 
@@ -239,24 +263,6 @@ namespace dMobile.Controller
             }
 
             return 0;
-        }
-
-        /// <summary>
-        /// Get the current skid single detail.
-        /// </summary>
-        /// <param name="selectedActivityDetail"><see cref="object"/> Selected skid information detail.</param>
-        /// <param name="isAdd"><see cref="bool"/> Are we adding a new detail.</param>
-        /// <returns><see cref="Task{ActDetail}"/> Skid information activity detail.</returns>
-        public override async Task<ActDetail> GetInfo(object selectedActivityDetail, bool isAdd)
-        {
-            await base.GetInfo(selectedActivityDetail, isAdd);
-
-            if (!isAdd && selectedActivityDetail is SkidInfoDetail skidInfoDetail)
-            {
-                this.DetailFKRefno = Convert.ToInt32(skidInfoDetail.ActivityDetailFKRefno);
-            }
-
-            return this;
         }
 
         /// <summary>
@@ -471,10 +477,10 @@ namespace dMobile.Controller
         /// <summary>
         /// The DesignGrid.
         /// </summary>
-        /// <param name="GridMainActivity">The GridMainActivity<see cref="Grid"/>.</param>
-        /// <param name="ListViewMainActivity">The ListViewMainActivity<see cref="ListView"/>.</param>
+        /// <param name="gridMainActivity">The GridMainActivity<see cref="Grid"/>.</param>
+        /// <param name="listViewMainActivity">The ListViewMainActivity<see cref="ListView"/>.</param>
         /// <returns>The <see cref="ObservableCollection{object}"/>.</returns>
-        public override ObservableCollection<object> DesignGrid(ref Grid GridMainActivity, ref ListView ListViewMainActivity)
+        public override ObservableCollection<object> DesignGrid(ref Grid gridMainActivity, ref ListView listViewMainActivity)
         {
             ObservableCollection<object> observableCollection = new ObservableCollection<object>();
 
@@ -547,7 +553,7 @@ namespace dMobile.Controller
 
             Grid.SetRow(gridHeader, 0);
 
-            GridMainActivity.Children.Add(gridHeader);
+            gridMainActivity.Children.Add(gridHeader);
 
             foreach (SkidInfoDetail skidInfoDetail in observableCollection)
             {
@@ -584,7 +590,7 @@ namespace dMobile.Controller
                 }
             }
 
-            ListViewMainActivity.ItemTemplate = (DataTemplate)this.ResourceDictionary["dataTemplate"];
+            listViewMainActivity.ItemTemplate = (DataTemplate)this.ResourceDictionary["dataTemplate"];
 
             return observableCollection;
         }
@@ -741,129 +747,6 @@ namespace dMobile.Controller
         public override string GetControlDescription()
         {
             return string.Format("Skid # {0}", this.ActItem.ActHdr.SkidInfo.CurrSkid.SkidCode);
-        }
-
-        /// <summary>
-        /// Find or insert an activity detail into the list details.
-        /// </summary>
-        /// <param name="actDetailFKRefnoFldName"><see cref="string"/> Activity detail foreign key reference number
-        /// field name.</param>
-        /// <returns><see cref="ActivityDetail"/> Activity detail to insert.</returns>
-        public override ActivityDetail InsertListDetail(string actDetailFKRefnoFldName)
-        {
-            SkidInfoDetail detail = null;
-            if (this.IsUpdateView && this.ListDetails != null)
-            {
-                bool detailToBeAdded = false;
-                if (this.DetailFKRefno > 0)
-                {
-                    ////detail = this.ListDetails.OfType<SkidInfoDetail>().FirstOrDefault(adjDetail =>
-                    ////    adjDetail.ActivityDetailFKRefno == this.DetailFKRefno);
-                }
-
-                if (detail == null)
-                {
-                    detail = new SkidInfoDetail();
-                    detailToBeAdded = true;
-                    detail.ActivityDetailRefno = this.DetailRefno;
-                    detail.ActivityDetailFKRefno = this.DetailFKRefno;
-                    detail.ActDetailFKRefnoFldName = actDetailFKRefnoFldName;
-
-                    InsertListDetailProduct(detail);
-                }
-
-                InsertListDetailQuantity(detail);
-                InsertListDetailScheme(detail);
-                InsertListDetailExtra(detail);
-                InsertListDetailLocation(detail);
-
-                detail.ActivityDetailSchemeID = this.SchemeID;
-                detail.ActivityDetailUniqueSchemeID = this.UniqueSchemeID;
-
-                if (detailToBeAdded)
-                {
-                    this.ListDetails.Add(detail);
-                }
-            }
-
-            return detail;
-
-            //////////////////////////////////////////////////////////////////////////
-            void InsertListDetailProduct(SkidInfoDetail detail)
-            {
-                detail.ProductRefno = this.ActItem.ProdInfo.Refno;
-                detail.ProductUnitRefno = this.ActItem.ProdInfo.UnitRefno;
-                detail.ProductCode = this.ActItem.ProdInfo.Code;
-                detail.ProductUnitBC = this.ActItem.ProdInfo.UnitBC;
-                detail.ProductUnitIsBC = this.ActItem.ProdInfo.UnitIsBC;
-                detail.ProductDescription = this.ActItem.ProdInfo.Desc;
-                detail.ProductUnitSizeDescription = this.ActItem.ProdInfo.UnitSizeDesc;
-
-                detail.UnitCode = this.ActItem.ProdInfo.UnitCode;
-                detail.BaseUnitCode = this.ActItem.ProdInfo.BaseUnitCode;
-                detail.WtUnitCode = this.ActItem.ProdInfo.WeightUnitCode;
-            }
-
-            //////////////////////////////////////////////////////////////////////////
-            void InsertListDetailLocation(SkidInfoDetail detail)
-            {
-                detail.LocationMapRefno = this.LocMap.CurrLocMapRefno;
-
-                int locCode = 0;
-                string locName = string.Empty;
-
-                if (this.LocMap.CurrLocMap.SlotLocMapRefno > 0)
-                {
-                    locCode = this.LocMap.CurrLocMap.SlotCode;
-                    locName = this.LocMap.CurrLocMap.SlotName;
-                }
-                else if (this.LocMap.CurrLocMap.SectLocMapRefno > 0)
-                {
-                    locCode = this.LocMap.CurrLocMap.SectCode;
-                    locName = this.LocMap.CurrLocMap.SectName;
-                }
-                else
-                {
-                    locCode = this.LocMap.CurrLocMap.WhsCode;
-                    locName = this.LocMap.CurrLocMap.WhsName;
-                }
-
-                detail.LocationCode = locCode;
-                detail.LocationName = locName;
-            }
-
-            //////////////////////////////////////////////////////////////////////////
-            void InsertListDetailScheme(SkidInfoDetail detail)
-            {
-                detail.ProductSchemeVariantCode = this.SchemeData.VariantCode;
-                detail.ProductSchemeVariantNo = this.SchemeData.VariantNumber;
-                detail.ActivityDetailSingleTradeItemSerialNumber = this.SchemeData.SingleTradeItemSerialNumber;
-                detail.ActivityDetailLogisticUnitBestBeforeSellByDate = this.SchemeData.LogisticUnitBestBeforeSellByDate;
-                detail.ActivityDetailLogisticUnitBatchLotNumber = this.SchemeData.LogisticUnitBatchLotNumber;
-                detail.ActivityDetailLogisticUnitProductionDate = this.SchemeData.LogisticUnitProductionDate;
-                detail.ActivityDetailLogisticUnitSkidNumber = this.SchemeData.LogisticUnitSkidNumber;
-            }
-
-            //////////////////////////////////////////////////////////////////////////
-            void InsertListDetailExtra(SkidInfoDetail detail)
-            {
-                detail.ActivityDetailExtra1Text = this.ActExtra.Text1;
-                detail.ActivityDetailExtra2Text = this.ActExtra.Text2;
-                detail.ActivityDetailExtra3Text = this.ActExtra.Text3;
-                detail.ActivityDetailExtra4Text = this.ActExtra.Text4;
-                detail.ActivityDetailExtra5Date = this.ActExtra.DateTime1;
-            }
-
-            //////////////////////////////////////////////////////////////////////////
-            void InsertListDetailQuantity(SkidInfoDetail detail)
-            {
-                detail.ActivityDetailQuantity = Convert.ToDecimal(detail.ActivityDetailQuantity) +
-                    Math.Round(this.Quantity, 3);
-                detail.ActivityDetailBaseQuantity = Convert.ToDecimal(detail.ActivityDetailBaseQuantity) +
-                    Math.Round(this.BaseQuantity, 3);
-                detail.ActivityDetailWeightQuantity = Convert.ToDecimal(detail.ActivityDetailWeightQuantity) +
-                    Math.Round(this.WeightQuantity, 3);
-            }
         }
 
         /// <summary>

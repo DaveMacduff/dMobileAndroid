@@ -119,59 +119,34 @@ namespace dMobile.Controller
                 + "<skid_data>" + skidInfo.CurrSkid.SkidCode + "</skid_data>"
                 + "</params>");
 
-            string reqData = SysCommon.SubmitComm(await this.CreateSubmitXML(request));
+            string xmlSend = await this.CreateSubmitXML(request);
+            string reqData = SysCommon.SubmitComm(xmlSend);
 
             if (reqData.Length > 0)
             {
                 XmlDocument xmlDoc = new XmlDocument();
                 xmlDoc.LoadXml(reqData);
 
+                // check if result is an error message
                 if (reqData.Contains("<message>ERROR</message>"))
                 {
-                    if (reqData.Contains("MSGBOX-"))
+                    string errorDetail = xmlDoc.DocumentElement["detail"].InnerText;
+                    if (errorDetail.Contains("MSGBOX-"))
                     {
-                        throw new MessageOnlyException(xmlDoc.DocumentElement["detail"].InnerText);
+                        throw new MessageOnlyException(errorDetail);
                     }
                     else
                     {
-                        throw new Exception(xmlDoc.DocumentElement["detail"].InnerText);
+                        throw new Exception(errorDetail);
                     }
                 }
-                else
-                {
-                    this.IsUpdateView = true;
-                    this.DetailFKRefno = int.Parse(xmlDoc.DocumentElement["ser_refno"].InnerText);
-                    this.NewItemFKRefno = int.Parse(xmlDoc.DocumentElement["itm_refno"].InnerText);
-                    this.Quantity = decimal.Parse(xmlDoc.DocumentElement["alt_qty"].InnerText);
-                    this.BaseQuantity = decimal.Parse(xmlDoc.DocumentElement["base_qty"].InnerText);
-                    this.WeightQuantity = decimal.Parse(xmlDoc.DocumentElement["wt_qty"].InnerText);
 
-                    // Update the Activity Item quantity transferred
-                    if (this.NewItemFKRefno != this.ActItem.ItemFKRefno)
-                    {
-                        await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync("UPDATE tActivityItemTransfer SET ActivityItemStringFKRefno = ?, ActivityItemFKRefno = ? WHERE ActivityItemRefno = ?",
-                            Convert.ToString(this.NewItemFKRefno),
-                            this.NewItemFKRefno,
-                            this.ActItem.ItemRefno);
-
-                        this.ActItem.ItemFKRefno = this.NewItemFKRefno;
-
-                        // TODO: Fix sorting
-                        // string oldSort = this.ActItem.DataViewItems.Sort;
-                        // this.ActItem.DataViewItems.Sort = "ActivityItemRefno";
-                        // int rowIdx = this.ActItem.DataViewItems.Find(new object[] { this.ActItem.Refno });
-                        TransferItem transferItem = this.ActItem.ListItems.OfType<TransferItem>().Where(transferItem => transferItem.ActivityItemRefno == this.ActItem.ItemRefno).FirstOrDefault();
-
-                        if (transferItem != null)
-                        {
-                            transferItem.ActivityItemFKRefno = this.NewItemFKRefno;
-                            transferItem.ActivityItemStringFKRefno = Convert.ToString(this.NewItemFKRefno);
-                        }
-
-                        // TODO: Fix sorting
-                        // this.ActItem.DataViewItems.Sort = oldSort;
-                    }
-                }
+                this.IsUpdateView = true;
+                this.DetailFKRefno = int.Parse(xmlDoc.DocumentElement["ser_refno"].InnerText);
+                this.ActItem.ItemFKRefno = int.Parse(xmlDoc.DocumentElement["itm_refno"].InnerText);
+                this.Quantity = decimal.Parse(xmlDoc.DocumentElement["alt_qty"].InnerText);
+                this.BaseQuantity = decimal.Parse(xmlDoc.DocumentElement["base_qty"].InnerText);
+                this.WeightQuantity = decimal.Parse(xmlDoc.DocumentElement["wt_qty"].InnerText);
             }
         }
 
@@ -220,36 +195,87 @@ namespace dMobile.Controller
             if (this.SysEnv.SysSettings.IsDisconnectedMode)
             {
                 int actDetailRefno = await this.InsertDetailDisconnected();
-                await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync("INSERT INTO tActivityDetailTransfer (ActivityDetailRefno, ActivityDetailFKRefno) VALUES (?, ?)", Convert.ToInt32(actDetailRefno), Convert.ToInt32(this.DetailFKRefno));
+                string query = "INSERT INTO tActivityDetailTransfer (ActivityDetailRefno, ActivityDetailFKRefno," +
+                    " ActivityDetailTransferIsConfirmed, ActivityDetailTransferTransModeEnum) VALUES (?, ?, ?, ?)";
+                int rowsAffected = await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(
+                    query,
+                    Convert.ToInt32(actDetailRefno),
+                    Convert.ToInt32(this.DetailFKRefno),
+                    true,
+                    GetTransferMode());
+                if (rowsAffected <= 0)
+                {
+                    throw new Exception("Unable to insert activity detail in disconnected mode.");
+                }
+
                 this.IsUpdateView = true;
             }
             else
             {
-                if (this.InsertDetail(await this.CreateSubmitXML(XDocument.Parse("<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?><params></params>"))))
+                this.SubmitDetailToCommServer(await this.CreateSubmitXML(XDocument.Parse(
+                    "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?><params></params>")));
+                if (this.DetailRefno >= 0)
                 {
-                    await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync("UPDATE tActivityItemTransfer SET ActivityItemStringFKRefno = ?, ActivityItemFKRefno = ? WHERE ActivityItemRefno = ?",
-                        Convert.ToString(this.NewItemFKRefno),
-                        this.NewItemFKRefno,
-                        this.ActItem.ItemRefno);
+                    throw new Exception("Unexpected submit detail to comm server returned a detail reference number" +
+                        " greater than or equal to zero.");
+                }
 
-                    // TODO: Fix sorting
-                    // string oldSort = this.ActItem.DataViewItems.Sort;
-                    // this.ActItem.DataViewItems.Sort = "ActivityItemRefno";
-                    // int rowIdx = this.ActItem.DataViewItems.Find(new object[] { this.ActItem.Refno });
-                    TransferItem transferItem = this.ActItem.ListItems.OfType<TransferItem>().Where(transferItem => transferItem.ActivityItemRefno == this.ActItem.ItemRefno).FirstOrDefault();
+                string query = "UPDATE tActivityItemTransfer SET ActivityItemStringFKRefno = ?," +
+                    " ActivityItemFKRefno = ? WHERE ActivityItemRefno = ?";
+                int rowsAffected = await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(
+                    query,
+                    Convert.ToString(this.ActItem.ItemFKRefno),
+                    this.ActItem.ItemFKRefno,
+                    this.ActItem.ItemRefno);
+                if (rowsAffected <= 0)
+                {
+                    throw new Exception("Unable to locate and update the activity line item with a new foreign" +
+                        " key upon inserting.");
+                }
 
-                    if (transferItem != null)
-                    {
-                        transferItem.ActivityItemFKRefno = this.NewItemFKRefno;
-                        transferItem.ActivityItemStringFKRefno = Convert.ToString(this.NewItemFKRefno);
-                    }
+                // Find the activity item that may also have been newly created, and update the line item reference
+                // returned from the communication server.
+                // Do not use FirstOrDefault because we do not want to overwrite a wrongly matched item.
+                // Linq returns new references only for base types (int, string, double etc...).
+                // The IEnumerable will be same instance of initial list, you have to call ToList or ToArray
+                // to create a new collection.
+                // Linq is slower than a for loop, but the number of line items would likely be sub 500 normally.
+                TransferItem foundItem = (TransferItem)(from item in this.ActItem.ListItems.OfType<TransferItem>()
+                                                      where item.ActivityItemRefno == this.ActItem.ItemRefno
+                                                      select item);
 
-                    // TODO: Fix sorting
-                    // this.ActItem.DataViewItems.Sort = oldSort;
+                // Also verify that line item reference number matches, just in case. If a FirstOrDefault
+                // was used it could have returned an incorrect default reference.
+                if (foundItem == null)
+                {
+                    throw new Exception("Unable to locate inserted list detail line item.");
+                }
+                else if (foundItem.ActivityItemRefno == this.ActItem.ItemRefno)
+                {
+                    foundItem.ActivityItemFKRefno = this.ActItem.ItemFKRefno;
+                    foundItem.ActivityItemStringFKRefno = Convert.ToString(this.ActItem.ItemFKRefno);
+                }
+                else
+                {
+                    throw new Exception("Unable to locate inserted list detail line item.");
                 }
             }
 
-            this.InsertListDetail("ActivityDetailFKRefno");
+            //////////////////////////////////////////////////////////////////////////
+            int GetTransferMode()
+            {
+                int transferMode = 0;
+                if (this.ActItem.ActHdr.ActSubType == SysCommon.ActSubTypes.TransferFrom)
+                {
+                    transferMode = 0;
+                }
+                else if (this.ActItem.ActHdr.ActSubType == SysCommon.ActSubTypes.TransferTo)
+                {
+                    transferMode = 1;
+                }
+
+                return transferMode;
+            }
         }
 
         /// <summary>
@@ -369,9 +395,9 @@ namespace dMobile.Controller
         /// <param name="selectedActivityDetail">The selectedActivityDetail<see cref="object"/>.</param>
         /// <param name="isAdd">.</param>
         /// <returns>.</returns>
-        public override async Task<ActDetail> GetInfo(object selectedActivityDetail, bool isAdd)
+        public override async Task AssignThisFromDetailAsync(ActivityDetail selectedActivityDetail, bool isAdd)
         {
-            await base.GetInfo(selectedActivityDetail, isAdd);
+            await base.AssignThisFromDetailAsync(selectedActivityDetail, isAdd);
 
             if (!isAdd && selectedActivityDetail is TransferDetail transferDetail)
             {
@@ -379,8 +405,6 @@ namespace dMobile.Controller
                 this.LocMap.CurrLocMap = await LocationMapTasks.GetSLocMapFromLocMapRefno(
                     Convert.ToInt32(transferDetail.LocationMapRefno));
             }
-
-            return this;
         }
 
         /// <summary>
@@ -1242,129 +1266,26 @@ namespace dMobile.Controller
         /// <summary>
         /// Find or insert an activity detail into the list details.
         /// </summary>
-        /// <param name="actDetailFKRefnoFldName">The actDetailFKRefnoFldName<see cref="string"/>.</param>
-        /// <returns>The <see cref="ActivityDetail"/>.</returns>
-        public override ActivityDetail InsertListDetail(string actDetailFKRefnoFldName)
+        /// <param name="mainActivityItems"><see cref="ObservableCollection{object}"/> Main activity items.</param>
+        /// <returns><see cref="ActivityDetail"/> Activity detail.</returns>
+        public override ActivityDetail InsertListDetail(ObservableCollection<object> mainActivityItems)
         {
-            TransferDetail detail = null;
-            if (this.IsUpdateView && this.ListDetails != null)
-            {
-                bool detailToBeAdded = false;
-                if (this.DetailFKRefno > 0)
-                {
-                    detail = this.ListDetails.OfType<TransferDetail>().FirstOrDefault(adjDetail =>
-                        adjDetail.ActivityDetailFKRefno == this.DetailFKRefno);
-                }
-
-                if (detail == null)
-                {
-                    detail = new TransferDetail();
-                    detailToBeAdded = true;
-                    detail.ActivityDetailRefno = this.DetailRefno;
-                    detail.ActivityDetailFKRefno = this.DetailFKRefno;
-                    detail.ActDetailFKRefnoFldName = actDetailFKRefnoFldName;
-
-                    InsertListDetailProduct(detail);
-
-                    detail.ActivityDetailStatus = (int)SysCommon.ActStatus.Inserted;
-                }
-                else
-                {
-                    detail.ActivityDetailStatus = (int)SysCommon.ActStatus.Updated;
-                }
-
-                InsertListDetailQuantity(detail);
-                InsertListDetailScheme(detail);
-                InsertListDetailExtra(detail);
-                InsertListDetailLocation(detail);
-
-                detail.ActivityDetailSchemeID = this.SchemeID;
-                detail.ActivityDetailUniqueSchemeID = this.UniqueSchemeID;
-
-                if (detailToBeAdded)
-                {
-                    this.ListDetails.Add(detail);
-                }
-            }
-
+            TransferDetail detail = (TransferDetail)base.InsertListDetail(mainActivityItems);
+            detail.ActivityDetailStatus = (int)SysCommon.ActStatus.Inserted;
+            this.ListDetails.Add(detail);
             return detail;
+        }
 
-            //////////////////////////////////////////////////////////////////////////
-            void InsertListDetailProduct(TransferDetail detail)
-            {
-                detail.ProductRefno = this.ActItem.ProdInfo.Refno;
-                detail.ProductUnitRefno = this.ActItem.ProdInfo.UnitRefno;
-                detail.ProductCode = this.ActItem.ProdInfo.Code;
-                detail.ProductUnitBC = this.ActItem.ProdInfo.UnitBC;
-                detail.ProductUnitIsBC = this.ActItem.ProdInfo.UnitIsBC;
-                detail.ProductDescription = this.ActItem.ProdInfo.Desc;
-                detail.ProductUnitSizeDescription = this.ActItem.ProdInfo.UnitSizeDesc;
-
-                detail.UnitCode = this.ActItem.ProdInfo.UnitCode;
-                detail.BaseUnitCode = this.ActItem.ProdInfo.BaseUnitCode;
-                detail.WtUnitCode = this.ActItem.ProdInfo.WeightUnitCode;
-            }
-
-            //////////////////////////////////////////////////////////////////////////
-            void InsertListDetailLocation(TransferDetail detail)
-            {
-                detail.LocationMapRefno = this.LocMap.CurrLocMapRefno;
-
-                int locCode = 0;
-                string locName = string.Empty;
-
-                if (this.LocMap.CurrLocMap.SlotLocMapRefno > 0)
-                {
-                    locCode = this.LocMap.CurrLocMap.SlotCode;
-                    locName = this.LocMap.CurrLocMap.SlotName;
-                }
-                else if (this.LocMap.CurrLocMap.SectLocMapRefno > 0)
-                {
-                    locCode = this.LocMap.CurrLocMap.SectCode;
-                    locName = this.LocMap.CurrLocMap.SectName;
-                }
-                else
-                {
-                    locCode = this.LocMap.CurrLocMap.WhsCode;
-                    locName = this.LocMap.CurrLocMap.WhsName;
-                }
-
-                detail.LocationCode = locCode;
-                detail.LocationName = locName;
-            }
-
-            //////////////////////////////////////////////////////////////////////////
-            void InsertListDetailScheme(TransferDetail detail)
-            {
-                detail.ProductSchemeVariantCode = this.SchemeData.VariantCode;
-                detail.ProductSchemeVariantNo = this.SchemeData.VariantNumber;
-                detail.ActivityDetailSingleTradeItemSerialNumber = this.SchemeData.SingleTradeItemSerialNumber;
-                detail.ActivityDetailLogisticUnitBestBeforeSellByDate = this.SchemeData.LogisticUnitBestBeforeSellByDate;
-                detail.ActivityDetailLogisticUnitBatchLotNumber = this.SchemeData.LogisticUnitBatchLotNumber;
-                detail.ActivityDetailLogisticUnitProductionDate = this.SchemeData.LogisticUnitProductionDate;
-                detail.ActivityDetailLogisticUnitSkidNumber = this.SchemeData.LogisticUnitSkidNumber;
-            }
-
-            //////////////////////////////////////////////////////////////////////////
-            void InsertListDetailExtra(TransferDetail detail)
-            {
-                detail.ActivityDetailExtra1Text = this.ActExtra.Text1;
-                detail.ActivityDetailExtra2Text = this.ActExtra.Text2;
-                detail.ActivityDetailExtra3Text = this.ActExtra.Text3;
-                detail.ActivityDetailExtra4Text = this.ActExtra.Text4;
-                detail.ActivityDetailExtra5Date = this.ActExtra.DateTime1;
-            }
-
-            //////////////////////////////////////////////////////////////////////////
-            void InsertListDetailQuantity(TransferDetail detail)
-            {
-                detail.ActivityDetailQuantity = Convert.ToDecimal(detail.ActivityDetailQuantity) +
-                    Math.Round(this.Quantity, 3);
-                detail.ActivityDetailBaseQuantity = Convert.ToDecimal(detail.ActivityDetailBaseQuantity) +
-                    Math.Round(this.BaseQuantity, 3);
-                detail.ActivityDetailWeightQuantity = Convert.ToDecimal(detail.ActivityDetailWeightQuantity) +
-                    Math.Round(this.WeightQuantity, 3);
-            }
+        /// <summary>
+        /// Update detail in the detail list.
+        /// </summary>
+        /// <param name="listDetailIdx"><see cref="int"/> Zero based list detail index.</param>
+        /// <returns><see cref="dMobile.Resources.Types.ActivityDetail"/> Updated detail or null.</returns>
+        public override ActivityDetail UpdateListDetail(int listDetailIdx)
+        {
+            TransferDetail detail = (TransferDetail)base.UpdateListDetail(listDetailIdx);
+            detail.ActivityDetailStatus = (int)SysCommon.ActStatus.Updated;
+            return detail;
         }
 
         /// <summary>

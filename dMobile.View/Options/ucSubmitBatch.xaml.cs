@@ -16,6 +16,7 @@ namespace dMobile.View.Options
     using dMobile.Bedrock;
     using dMobile.Controller;
     using dMobile.Resources.Enums;
+    using dMobile.Resources.Types;
     using dMobile.View.CustomPages;
     using dMobile.View.Forms;
     using SQLite;
@@ -697,7 +698,8 @@ namespace dMobile.View.Options
                                         {
                                             for (int detailIdx = 0; detailIdx <= actDetail.ListDetails.Count - 1; detailIdx++)
                                             {
-                                                _ = await actDetail.GetInfo(actDetail.ListDetails[detailIdx], false);
+                                                ActivityDetail detail = (ActivityDetail)actDetail.ListDetails[detailIdx];
+                                                await actDetail.AssignThisFromDetailAsync(detail, false);
                                                 await actDetail.Submit(actDetail.ListDetails[detailIdx], null);
                                             }
                                         }

@@ -29,6 +29,31 @@ namespace dMobile.Controller
         }
 
         /// <summary>
+        /// Find or insert an activity detail into the list details.
+        /// </summary>
+        /// <param name="mainActivityItems"><see cref="ObservableCollection{object}"/> Main activity items.</param>
+        /// <returns><see cref="ActivityDetail"/> Activity detail.</returns>
+        public override ActivityDetail InsertListDetail(ObservableCollection<object> mainActivityItems)
+        {
+            ActivityDetail detail = (ActivityDetail)base.InsertListDetail(mainActivityItems);
+            ////detail.ActivityDetailStatus = (int)SysCommon.ActStatus.Inserted;
+            this.ListDetails.Add(detail);
+            return detail;
+        }
+
+        /// <summary>
+        /// Update detail in the detail list.
+        /// </summary>
+        /// <param name="listDetailIdx"><see cref="int"/> Zero based list detail index.</param>
+        /// <returns><see cref="dMobile.Resources.Types.ActivityDetail"/> Updated detail or null.</returns>
+        public override ActivityDetail UpdateListDetail(int listDetailIdx)
+        {
+            ActivityDetail detail = (ActivityDetail)base.UpdateListDetail(listDetailIdx);
+            ////detail.ActivityDetailStatus = (int)SysCommon.ActStatus.Updated;
+            return detail;
+        }
+
+        /// <summary>
         /// The InsertSkid.
         /// </summary>
         /// <param name="skidInfo">.</param>
@@ -173,16 +198,6 @@ namespace dMobile.Controller
         /// </summary>
         /// <returns><see cref="string"/> Get activity item control description.</returns>
         public override string GetControlDescription()
-        {
-            throw new NotImplementedException();
-        }
-
-        /// <summary>
-        /// Find or insert an activity detail into the list details.
-        /// </summary>
-        /// <param name="actDetailFKRefnoFldName">The actDetailFKRefnoFldName<see cref="string"/>.</param>
-        /// <returns>The <see cref="ActivityDetail"/>.</returns>
-        public override ActivityDetail InsertListDetail(string actDetailFKRefnoFldName)
         {
             throw new NotImplementedException();
         }

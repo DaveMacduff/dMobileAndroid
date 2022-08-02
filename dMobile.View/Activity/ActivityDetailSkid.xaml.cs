@@ -587,7 +587,8 @@ namespace dMobile.View.Activity
 
                         if (this.ListViewMainActivity.SelectedItem != null)
                         {
-                            this.ActDetail = await this.ActDetail.GetInfo(this.ListViewMainActivity.SelectedItem, false);
+                            var detail = (Resources.Types.SkidInfoDetail)this.ListViewMainActivity.SelectedItem;
+                            await this.ActDetail.AssignThisFromDetailAsync(detail, false);
                             await PromptRemove();
                         }
 
@@ -891,48 +892,28 @@ namespace dMobile.View.Activity
                         throw new Exception("Scanned product does not match selected skid product.");
                     }
 
-                    bool isReadyToInsertDetail = false;
+                    bool isInsertReady = false;
                     SActItemSchemeData itemSchemeData = AssignSchemeData(currSkid);
-                    isReadyToInsertDetail = await SysShared.GatherProductData(
+                    isInsertReady = await SysShared.GatherProductData(
                         this.Parse,
                         this.ActSubType,
                         this.ActDetail.ActItem,
                         itemSchemeData,
-                        isReadyToInsertDetail,
+                        isInsertReady,
                         this.ActDetail,
                         false);
 
                     // If add mode / else remove mode
-                    if (this.ScannerModeAdd)
+                    if (this.ScannerModeAdd && isInsertReady)
                     {
-                        await this.InsertActivityDetail(this.ActDetail, isReadyToInsertDetail);
+                        await this.InsertActivityDetail(this.ActDetail);
                     }
                     else
                     {
                         await this.RemoveActivityDetail();
                     }
 
-                    Resources.Types.ActivityDetail detail = this.ActDetail.InsertListDetail(string.Empty);
-                    await Device.InvokeOnMainThreadAsync(() =>
-                    {
-                        ////this.ListViewMainActivity.ItemTemplate = this.ActDetail.DesignGrid(
-                        ////    ref this.GridMainActivity,
-                        ////    detail,
-                        ////    this.MainActivityItems);
-
-                        this.MainActivityItems = this.ActDetail.DesignGrid(
-                            ref this.GridMainActivity,
-                            ref this.ListViewMainActivity);
-                    });
-
                     await this.FindSelectedItemAsync();
-
-                    ////await this.ActDetail.SelectActivityDetail(this.MainActivityItems[currRowIdx]);
-
-                    ////if (this.MainActivityItems.Count > currRowIdx)
-                    ////{
-                    ////    this.ListViewMainActivity.SelectedItem = this.MainActivityItems[currRowIdx];
-                    ////}
                 }
                 else
                 {
@@ -1017,23 +998,32 @@ namespace dMobile.View.Activity
         /// Insert an activity detail.
         /// </summary>
         /// <param name="actDetail"><see cref="ActDetail"/> Activity detail.</param>
-        /// <param name="isInsertDetailReady"><see cref="bool"/> Is insert detail ready.</param>
-        /// <returns><see cref="Task"/> Task operation.</returns>
-        private async Task InsertActivityDetail(ActDetail actDetail, bool isInsertDetailReady)
+        /// <returns>The <see cref="Task"/>.</returns>
+        private async Task InsertActivityDetail(ActDetail actDetail)
         {
             actDetail.DetailFKRefno = 0;
             XDocument xmlDoc = actDetail.GetXML(actDetail);
             await actDetail.Insert(xmlDoc);
-            Resources.Types.ActivityDetail detail = this.ActDetail.InsertListDetail("ActivityDetailFKRefno");
-            this.SelectedActivityDetailFKRefno = this.ActDetail.DetailFKRefno;
 
-            await Device.InvokeOnMainThreadAsync(() =>
+            int detailIdx = this.ActDetail.FindListDetailIndex(activityDetailRefno: actDetail.DetailRefno);
+            if (detailIdx >= 0)
             {
-                this.ListViewMainActivity.ItemTemplate = this.ActDetail.DesignGrid(
-                    ref this.GridMainActivity,
-                    detail,
-                    this.MainActivityItems);
-            });
+                Resources.Types.ActivityDetail updated = this.ActDetail.UpdateListDetail(detailIdx);
+                this.SelectedActivityDetailFKRefno = updated.ActivityDetailFKRefno;
+                this.MainActivityItems[detailIdx] = updated;
+            }
+            else
+            {
+                Resources.Types.ActivityDetail inserted = this.ActDetail.InsertListDetail(this.MainActivityItems);
+                this.SelectedActivityDetailFKRefno = inserted.ActivityDetailFKRefno;
+                await Device.InvokeOnMainThreadAsync(() =>
+                {
+                    this.ListViewMainActivity.ItemTemplate = this.ActDetail.DesignGrid(
+                        ref this.GridMainActivity,
+                        inserted,
+                        this.MainActivityItems);
+                });
+            }
         }
 
         /// <summary>
@@ -1259,8 +1249,8 @@ namespace dMobile.View.Activity
                 // Check to see if grid is empty. If so, don't attempt to retrieve details.
                 if (this.MainActivityItems.Count != 0)
                 {
-                    // Pass 0 as the current selected row on an add, true forces it as an add not an edit
-                    this.ActDetail = await this.ActDetail.GetInfo(this.MainActivityItems[0], true);
+                    Resources.Types.ActivityDetail detail = new dMobile.Resources.Types.ActivityDetail();
+                    await this.ActDetail.AssignThisFromDetailAsync(detail, true);
                 }
 
                 await this.ActDisappearing();
@@ -1287,9 +1277,10 @@ namespace dMobile.View.Activity
                     true);
 
                 this.ActDetail.IsUpdateView = true;
-                await this.InsertActivityDetail(this.ActDetail, isInsertReady);
-
-                ////this.DisplaySummaryData();
+                if (isInsertReady)
+                {
+                    await this.InsertActivityDetail(this.ActDetail);
+                }
             }
             catch (GatherProductDataException ex)
             {

@@ -372,9 +372,8 @@ namespace dMobile.View.Activity
                         }
                     }
 
-                    // Clear this.ActDetail. If false is passed for parameter isAdd, attempt to read data from
-                    // DataViewDetail is made which has not data. = error.
-                    this.ActDetail = await this.ActDetail.GetInfo(this.ActDetail.ListDetails.Count > 0 ? this.ActDetail.ListDetails.LastOrDefault() : null, true);
+                    Resources.Types.ActivityDetail detail = new dMobile.Resources.Types.ActivityDetail();
+                    await this.ActDetail.AssignThisFromDetailAsync(detail, true);
 
                     SFillQuantity fillQty = SysCommon.FillQuantityStructureFromQuantity((ProductInfo)this.ActItem.ProdInfo, this.ActDetailOnSkid.Quantity);
 

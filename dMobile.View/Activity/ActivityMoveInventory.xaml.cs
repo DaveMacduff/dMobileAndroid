@@ -380,7 +380,8 @@ namespace dMobile.View.Activity
                                         oProductInfo = await ProductInfoTasks.GetInfoFromUnitRefno(Convert.ToInt32(this.ActDetail.ListDetails[idx].GetType().GetProperty("ProductUnitRefno")?.GetValue(this.ActDetail.ListDetails[idx])));
                                         oProductInfo.Scheme = await ProductInfoTasks.GetSchemeComponentsFromRefno(oProductInfo.Refno);
                                         this.ActItem.ProdInfo = oProductInfo;
-                                        this.ActDetail = await this.ActDetail.GetInfo(this.ActDetail.ListDetails[idx], false);
+                                        Resources.Types.ActivityDetail detail = (Resources.Types.ActivityDetail)this.ActDetail.ListDetails[idx];
+                                        await this.ActDetail.AssignThisFromDetailAsync(detail, false);
                                         XDocument xmlParam = XDocument.Parse("<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>" + "<param>" + "<whs_id>" + this.SelFromLocMap.WhsFKRefno.ToString() + "</whs_id>" + "<sect_refno>" + this.SelFromLocMap.SectFKRefno.ToString() + "</sect_refno>" + "<slot_refno>" + this.SelFromLocMap.SlotFKRefno.ToString() + "</slot_refno>" + "<to_sect_refno>" + this.SelToLocMap.SectFKRefno.ToString() + "</to_sect_refno>" + "<to_slot_refno>" + this.SelToLocMap.SlotFKRefno.ToString() + "</to_slot_refno>" + "</param>");
 
                                         await this.ActDetail.Submit(this.ActDetail.ListDetails[idx], xmlParam);
@@ -691,7 +692,7 @@ namespace dMobile.View.Activity
                         infoObject = this.ActDetail.ListDetails[0];
                     }
 
-                    this.ActDetail = await this.ActDetail.GetInfo(infoObject, true);
+                    this.ActDetail = this.ActDetail.GetInfo(infoObject, true);
 
                     SFillQuantity fillQty = SysCommon.FillQuantityStructureFromQuantity((ProductInfo)this.ActItem.ProdInfo, 1);
                     SActItemSchemeData tempItemSchemeData = new SActItemSchemeData
@@ -857,7 +858,7 @@ namespace dMobile.View.Activity
                             infoObject = this.ActDetail.ListDetails[0];
                         }
 
-                        this.ActDetail = await this.ActDetail.GetInfo(infoObject, true);
+                        this.ActDetail = this.ActDetail.GetInfo(infoObject, true);
 
                         SActItemSchemeData tempItemSchemeData = new SActItemSchemeData();
                         bool isInsertReady = false;

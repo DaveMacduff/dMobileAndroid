@@ -89,13 +89,9 @@ namespace dMobile.View.Activity
         }
 
         /// <summary>
-        ///
+        /// Initializes a new instance of the <see cref="ActivityInventoryInquiry"/> class.
         /// </summary>
-        /// <remarks></remarks>
-/// <summary>
-/// Initializes a new instance of the <see cref="ActivityInventoryInquiry"/> class.
-/// </summary>
-/// <param name="prodInfo"></param>
+        /// <param name="prodInfo"></param>
         public ActivityInventoryInquiry(ProductInfo prodInfo)
         {
             this.InitializeComponent();

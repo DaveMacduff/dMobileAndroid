@@ -162,6 +162,31 @@ namespace dMobile.Controller
         }
 
         /// <summary>
+        /// Find or insert an activity detail into the list details.
+        /// </summary>
+        /// <param name="mainActivityItems"><see cref="ObservableCollection{object}"/> Main activity items.</param>
+        /// <returns><see cref="ActivityDetail"/> Activity detail.</returns>
+        public override ActivityDetail InsertListDetail(ObservableCollection<object> mainActivityItems)
+        {
+            ConvertProductDetail detail = (ConvertProductDetail)base.InsertListDetail(mainActivityItems);
+            ////detail.ActivityDetailStatus = (int)SysCommon.ActStatus.Inserted;
+            this.ListDetails.Add(detail);
+            return detail;
+        }
+
+        /// <summary>
+        /// Update detail in the detail list.
+        /// </summary>
+        /// <param name="listDetailIdx"><see cref="int"/> Zero based list detail index.</param>
+        /// <returns><see cref="dMobile.Resources.Types.ActivityDetail"/> Updated detail or null.</returns>
+        public override ActivityDetail UpdateListDetail(int listDetailIdx)
+        {
+            ConvertProductDetail detail = (ConvertProductDetail)base.UpdateListDetail(listDetailIdx);
+            ////detail.ActivityDetailStatus = (int)SysCommon.ActStatus.Updated;
+            return detail;
+        }
+
+        /// <summary>
         /// The InsertSkid.
         /// </summary>
         /// <param name="skidInfo">.</param>
@@ -307,24 +332,6 @@ namespace dMobile.Controller
             this.ListConvertProductDetails = table.Rows.Cast<ConvertProductDetail>().ToList();
             this.ListDetails = this.ListConvertProductDetails.Cast<object>().ToList();
             return this.ListDetails;
-        }
-
-        /// <summary>
-        /// The GetInfo.
-        /// </summary>
-        /// <param name="selectedActivityDetail">The selectedActivityDetail<see cref="object"/>.</param>
-        /// <param name="isAdd">The isAdd<see cref="bool"/>.</param>
-        /// <returns>The <see cref="Task{ActDetail}"/>.</returns>
-        public override async Task<ActDetail> GetInfo(object selectedActivityDetail, bool isAdd)
-        {
-            await base.GetInfo(selectedActivityDetail, isAdd);
-
-            if (!isAdd && selectedActivityDetail is ConvertProductDetail convertProductDetail)
-            {
-                this.DetailFKRefno = Convert.ToInt32(convertProductDetail.ActivityDetailFKRefno);
-            }
-
-            return this;
         }
 
         /// <summary>
@@ -553,18 +560,18 @@ namespace dMobile.Controller
             this.ActItem.ItemFKRefno = Convert.ToInt32(selectedActivityItem.ActivityItemFKRefno);
             this.DetailFKRefno = Convert.ToInt32(selectedActivityItem.ActivityDetailFKRefno);
             XDocument request = XDocument.Parse(
-    "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>"
-      + "<imclient>"
-      + "<command>"
-      + "<action>DELETE ADJUSTMENT DETAIL</action>"
-      + "<whs_id>0</whs_id>"
-      + "<sect_refno>0</sect_refno>"
-      + "</command>"
-      + await SysCommon.GetRequestDefaults(false)
-      + this.GetRequestDetailDefaults()
-      + "<adjustment_type>" + SysCommon.AdjTypes.ConvertProduct + "</adjustment_type>"
-      + "<skid_fk_refno>0</skid_fk_refno>"
-      + "</imclient>");
+                "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>"
+                + "<imclient>"
+                + "<command>"
+                + "<action>DELETE ADJUSTMENT DETAIL</action>"
+                + "<whs_id>0</whs_id>"
+                + "<sect_refno>0</sect_refno>"
+                + "</command>"
+                + await SysCommon.GetRequestDefaults(false)
+                + this.GetRequestDetailDefaults()
+                + "<adjustment_type>" + SysCommon.AdjTypes.ConvertProduct + "</adjustment_type>"
+                + "<skid_fk_refno>0</skid_fk_refno>"
+                + "</imclient>");
 
             request.Save(xml);
             xml.Flush();
@@ -584,20 +591,20 @@ namespace dMobile.Controller
             StringBuilder xmlString = new StringBuilder();
             XmlWriter xml = XmlWriter.Create(xmlString);
             XDocument request = XDocument.Parse(
-    "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>"
-    + "<imclient>"
-    + "<command>"
-    + "<action>SUBMIT PRINT PRODUCT LABEL</action>"
-    + "<whs_id>0</whs_id>"
-    + "<sect_refno>0</sect_refno>"
-    + "</command>"
-    + await SysCommon.GetRequestDefaults(false)
-    + this.GetRequestDetailDefaults()
-    + "<adjustment_type>" + SysCommon.AdjTypes.ConvertProduct + "</adjustment_type>"
-    + "<mobile_printer_name>"
-    + (prnSettings.IsEnabledProductLabelPrinter ? prnSettings.ProductLabelPrinterName : string.Empty)
-    + "</mobile_printer_name>"
-    + "</imclient>");
+                "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>"
+                + "<imclient>"
+                + "<command>"
+                + "<action>SUBMIT PRINT PRODUCT LABEL</action>"
+                + "<whs_id>0</whs_id>"
+                + "<sect_refno>0</sect_refno>"
+                + "</command>"
+                + await SysCommon.GetRequestDefaults(false)
+                + this.GetRequestDetailDefaults()
+                + "<adjustment_type>" + SysCommon.AdjTypes.ConvertProduct + "</adjustment_type>"
+                + "<mobile_printer_name>"
+                + (prnSettings.IsEnabledProductLabelPrinter ? prnSettings.ProductLabelPrinterName : string.Empty)
+                + "</mobile_printer_name>"
+                + "</imclient>");
             request.Save(xml);
             xml.Flush();
             xml.Close();
@@ -700,128 +707,6 @@ namespace dMobile.Controller
         public override string GetControlDescription()
         {
             throw new NotImplementedException();
-        }
-
-        /// <summary>
-        /// Find or insert an activity detail into the list details.
-        /// </summary>
-        /// <param name="actDetailFKRefnoFldName">The actDetailFKRefnoFldName<see cref="string"/>.</param>
-        /// <returns>The <see cref="ActivityDetail"/>.</returns>
-        public override ActivityDetail InsertListDetail(string actDetailFKRefnoFldName)
-        {
-            ConvertProductDetail detail = null;
-            if (this.IsUpdateView && this.ListDetails != null)
-            {
-                bool detailToBeAdded = false;
-                if (this.DetailFKRefno > 0)
-                {
-                    detail = this.ListDetails.OfType<ConvertProductDetail>().FirstOrDefault(adjDetail =>
-                        adjDetail.ActivityDetailFKRefno == this.DetailFKRefno);
-                }
-
-                if (detail == null)
-                {
-                    detail = new ConvertProductDetail();
-                    detailToBeAdded = true;
-                    detail.ActivityDetailRefno = this.DetailRefno;
-                    detail.ActivityDetailFKRefno = this.DetailFKRefno;
-                    detail.ActDetailFKRefnoFldName = actDetailFKRefnoFldName;
-
-                    InsertListDetailProduct(detail);
-                }
-
-                InsertListDetailQuantity(detail);
-                InsertListDetailScheme(detail);
-                InsertListDetailExtra(detail);
-                InsertListDetailLocation(detail);
-
-                detail.ActivityDetailSchemeID = this.SchemeID;
-                detail.ActivityDetailUniqueSchemeID = this.UniqueSchemeID;
-
-                if (detailToBeAdded)
-                {
-                    this.ListDetails.Add(detail);
-                }
-            }
-
-            return detail;
-
-            //////////////////////////////////////////////////////////////////////////
-            void InsertListDetailProduct(ConvertProductDetail detail)
-            {
-                detail.ProductRefno = this.ActItem.ProdInfo.Refno;
-                detail.ProductUnitRefno = this.ActItem.ProdInfo.UnitRefno;
-                detail.ProductCode = this.ActItem.ProdInfo.Code;
-                detail.ProductUnitBC = this.ActItem.ProdInfo.UnitBC;
-                detail.ProductUnitIsBC = this.ActItem.ProdInfo.UnitIsBC;
-                detail.ProductDescription = this.ActItem.ProdInfo.Desc;
-                detail.ProductUnitSizeDescription = this.ActItem.ProdInfo.UnitSizeDesc;
-
-                detail.UnitCode = this.ActItem.ProdInfo.UnitCode;
-                detail.BaseUnitCode = this.ActItem.ProdInfo.BaseUnitCode;
-                detail.WtUnitCode = this.ActItem.ProdInfo.WeightUnitCode;
-            }
-
-            //////////////////////////////////////////////////////////////////////////
-            void InsertListDetailLocation(ConvertProductDetail detail)
-            {
-                detail.LocationMapRefno = this.LocMap.CurrLocMapRefno;
-
-                int locCode = 0;
-                string locName = string.Empty;
-
-                if (this.LocMap.CurrLocMap.SlotLocMapRefno > 0)
-                {
-                    locCode = this.LocMap.CurrLocMap.SlotCode;
-                    locName = this.LocMap.CurrLocMap.SlotName;
-                }
-                else if (this.LocMap.CurrLocMap.SectLocMapRefno > 0)
-                {
-                    locCode = this.LocMap.CurrLocMap.SectCode;
-                    locName = this.LocMap.CurrLocMap.SectName;
-                }
-                else
-                {
-                    locCode = this.LocMap.CurrLocMap.WhsCode;
-                    locName = this.LocMap.CurrLocMap.WhsName;
-                }
-
-                detail.LocationCode = locCode;
-                detail.LocationName = locName;
-            }
-
-            //////////////////////////////////////////////////////////////////////////
-            void InsertListDetailScheme(ConvertProductDetail detail)
-            {
-                detail.ProductSchemeVariantCode = this.SchemeData.VariantCode;
-                detail.ProductSchemeVariantNo = this.SchemeData.VariantNumber;
-                detail.ActivityDetailSingleTradeItemSerialNumber = this.SchemeData.SingleTradeItemSerialNumber;
-                detail.ActivityDetailLogisticUnitBestBeforeSellByDate = this.SchemeData.LogisticUnitBestBeforeSellByDate;
-                detail.ActivityDetailLogisticUnitBatchLotNumber = this.SchemeData.LogisticUnitBatchLotNumber;
-                detail.ActivityDetailLogisticUnitProductionDate = this.SchemeData.LogisticUnitProductionDate;
-                detail.ActivityDetailLogisticUnitSkidNumber = this.SchemeData.LogisticUnitSkidNumber;
-            }
-
-            //////////////////////////////////////////////////////////////////////////
-            void InsertListDetailExtra(ConvertProductDetail detail)
-            {
-                detail.ActivityDetailExtra1Text = this.ActExtra.Text1;
-                detail.ActivityDetailExtra2Text = this.ActExtra.Text2;
-                detail.ActivityDetailExtra3Text = this.ActExtra.Text3;
-                detail.ActivityDetailExtra4Text = this.ActExtra.Text4;
-                detail.ActivityDetailExtra5Date = this.ActExtra.DateTime1;
-            }
-
-            //////////////////////////////////////////////////////////////////////////
-            void InsertListDetailQuantity(ConvertProductDetail detail)
-            {
-                detail.ActivityDetailQuantity = Convert.ToDecimal(detail.ActivityDetailQuantity) +
-                    Math.Round(this.Quantity, 3);
-                detail.ActivityDetailBaseQuantity = Convert.ToDecimal(detail.ActivityDetailBaseQuantity) +
-                    Math.Round(this.BaseQuantity, 3);
-                detail.ActivityDetailWeightQuantity = Convert.ToDecimal(detail.ActivityDetailWeightQuantity) +
-                    Math.Round(this.WeightQuantity, 3);
-            }
         }
 
         /// <summary>

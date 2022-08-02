@@ -153,6 +153,24 @@ namespace dMobile.Controller
         }
 
         /// <summary>
+        /// Set the activity item selected activity item.
+        /// </summary>
+        /// <param name="actItemFoundRefno"><see cref="int"/> Activity item reference number to look up.</param>
+        public override void SetSelectedActivityItem(int actItemFoundRefno)
+        {
+            if (actItemFoundRefno >= 0)
+            {
+                this.SelectedActivityItem = (PickingItem)(from item in this.ListItems.OfType<PickingItem>()
+                                                             where item.ActivityItemRefno == actItemFoundRefno
+                                                             select item);
+            }
+            else
+            {
+                this.SelectedActivityItem = null;
+            }
+        }
+
+        /// <summary>
         /// Gets or sets a value indicating whether allowed to add skid detail.
         /// </summary>
         /// <returns><see cref="bool"/> True if allowed to add skid detail.</returns>
@@ -490,7 +508,11 @@ namespace dMobile.Controller
                     {
                         try
                         {
-                            transaction.Execute("INSERT INTO tActivityItem (ActivityItemSubType, ActivityItemStatus, ActivityRefno) VALUES (?, ?, ?)", Convert.ToInt32(SysCommon.ActSubTypes.Picking), Convert.ToInt32(SysCommon.ActStatus.NoChange), Convert.ToInt32(this.ActHdr.HdrRefno));
+                            transaction.Execute(
+                                "INSERT INTO tActivityItem (ActivityItemSubType, ActivityItemStatus," +
+                                " ActivityRefno) VALUES (?, ?, ?)", Convert.ToInt32(SysCommon.ActSubTypes.Picking),
+                                Convert.ToInt32(SysCommon.ActStatus.NoChange),
+                                Convert.ToInt32(this.ActHdr.HdrRefno));
 
                             this.ItemRefno = Convert.ToInt32(transaction.ExecuteScalar<int>("SELECT last_insert_rowid() FROM tActivityItem"));
 

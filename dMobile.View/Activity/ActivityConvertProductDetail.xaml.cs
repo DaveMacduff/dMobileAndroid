@@ -692,7 +692,7 @@ namespace dMobile.View.Activity
                 SysCommon.CheckCommResponseForErrors(response);
 
                 // Parse response for the updated fk_refnos
-                // Modify and change the ActivityDetail/Item/Header to be up to date with the reponse fk_refnos
+                // Modify and change the ActivityDetail/Item/Header to be up to date with the response fk_refnos
                 XDocument responseData = XDocument.Parse(response);
                 this.ActDetail.ActItem.ActHdr.HdrFKRefno = Convert.ToInt32(responseData.Root.Element("fk_refno").Value);
                 this.ActDetail.ActItem.ItemFKRefno = Convert.ToInt32(responseData.Root.Element("fkit_refno").Value);
@@ -702,8 +702,7 @@ namespace dMobile.View.Activity
                 data.Root.Add(new XElement("itm_refno", this.ActDetail.ActItem.ItemFKRefno));
                 data.Root.Element("ser_refno").SetValue(this.ActDetail.DetailFKRefno);
 
-                await this.ActDetail.Insert(data);
-
+                Resources.Types.ActivityDetail detail = this.ActDetail.InsertListDetail(this.MainActivityItems);
                 this.SelectRow(this.ActDetail.ListDetails.Count - 1);
             }
             catch (MessageOnlyException me)

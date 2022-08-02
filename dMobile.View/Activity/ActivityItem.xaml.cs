@@ -3619,38 +3619,14 @@ namespace dMobile.View.Activity
                 // Needed to check if the enter key was pressed last, because it seems that
                 // SelectNextControl in the key press event causes a click event to fire
                 // if a command button is the next control rather than just giving the button focus.
-                int actItemFoundRefno = 0;
-                int prodUnitRefno = 0;
-                int foundRowIdx = 0;
-                XDocument xmlDoc = null;
-
                 try
                 {
                     await this.ScannerDisable();
 
-                    // Not allowed to count individual boxes on a skid. Skids must be
-                    // scanned as a whole unit or built in skid maintenance.
-
-                    // DEV-827 This change to allow counting partial skids is a bad idea.
-                    ////if (this.ActSubType == SysCommon.ActSubTypes.PhysicalCounts
-                    ////    || this.ActSubType == SysCommon.ActSubTypes.CycleCounts)
-                    ////{
-                    ////    if (this.ActItem.ActHdr.SkidInfo.CurrSkid.SkidFKRefno != 0)
-                    ////    {
-                    ////        this.ActItem.ActHdr.SkidInfo = new SysSkidInfo();
-                    ////        this.cmdSelectSkid.Text = string.Empty;
-                    ////    }
-                    ////}
-
+                    XDocument xmlDoc = null;
+                    ProductInfo prodInfo = null;
                     if (this.ActItem.ActHdr.SkidInfo.CurrSkid.SkidFKRefno == 0)
                     {
-                        // Activity item object needs to check if a new location and product can
-                        // be added, if not add a detail.
-                        if (!await LocationMapTasks.IsCompleteLocMap(this.LocMap.CurrLocMapRefno))
-                        {
-                            throw new MessageOnlyException("Location must be set first.");
-                        }
-
                         FormDialogContainer form = new FormDialogContainer(
                             EDialogTypes.SelectProductUnit,
                             this.ActSubType);
@@ -3658,16 +3634,20 @@ namespace dMobile.View.Activity
                         if (await form.DisplayControl.ShowDialog() == DialogResult.OK)
                         {
                             xmlDoc = await form.GetXML();
-                            prodUnitRefno = Convert.ToInt32(xmlDoc.Root.Element("ProductUnitRefno").Value);
+                            int prodUnitRefno = Convert.ToInt32(xmlDoc.Root.Element("ProductUnitRefno").Value);
+                            if (prodUnitRefno == 0)
+                            {
+                                throw new MessageOnlyException("A product unit must be chosen.");
+                            }
+
+                            prodInfo = await ProductInfoTasks.GetInfoFromUnitRefno(prodUnitRefno);
                         }
                     }
                     else
                     {
-                        prodUnitRefno = this.ActItem.ActHdr.SkidInfo.CurrSkid.ProdInfo.UnitRefno;
-                        this.LocMap.CurrLocMap = this.ActItem.ActHdr.SkidInfo.CurrSkid.LocMap;
-
-                        ProductInfo prodInfo = this.ActItem.ActHdr.SkidInfo.CurrSkid.ProdInfo;
+                        prodInfo = this.ActItem.ActHdr.SkidInfo.CurrSkid.ProdInfo;
                         string unitSizeDesc = SysCommon.AddXMLReservedChars(prodInfo.UnitSizeDesc);
+
                         xmlDoc = XDocument.Parse(
                             "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>"
                             + "<params>"
@@ -3682,106 +3662,27 @@ namespace dMobile.View.Activity
                             + "</params>");
                     }
 
-                    if (prodUnitRefno != 0)
+                    if (!await LocationMapTasks.IsCompleteLocMap(this.LocMap.CurrLocMap))
                     {
-                        // Check if the selected product to add already exists on the document.
-                        actItemFoundRefno = await this.ActItem.GetActivityItemRefno(prodUnitRefno);
+                        throw new MessageOnlyException("Location must be set.");
+                    }
 
-                        if (actItemFoundRefno > 0)
+                    int actItemFoundRefno = await this.ActItem.GetActivityItemRefno(prodInfo.UnitRefno);
+                    if (actItemFoundRefno > 0)
+                    {
+                        this.ActItem.SetSelectedActivityItem(actItemFoundRefno);
+                    }
+                    else
+                    {
+                        if (!this.ActItem.IsAllowAddItem)
                         {
-                            // TODO: Fix sorting
-                            ////string oldSort = this.ActItem.DataViewItems.Sort;
-                            ////this.ActItem.DataViewItems.Sort = "ActivityItemRefno";
-                            object selectedItem = this.ActItem.ListItems.FirstOrDefault(act =>
-                                Convert.ToString(act.GetType().GetProperty("ActivityItemRefno")?.GetValue(act)) ==
-                                Convert.ToString(actItemFoundRefno));
-
-                            this.ActItem.SelectedActivityItem = selectedItem;
-
-                            // TODO: Fix sorting
-                            ////this.ActItem.DataViewItems.Sort = oldSort;
-                        }
-                        else
-                        {
-                            if (this.ActItem.IsAllowAddItem)
-                            {
-                                await this.ActItem.Insert(xmlDoc, false);
-                                this.ListViewMainActivity.ItemsSource = this.MainActivityItems;
-                            }
-                            else
-                            {
-                                throw new MessageOnlyException(
-                                    "Product rule says that it must exist on this document already.");
-                            }
+                            throw new MessageOnlyException(
+                                "Adding new line items for this activity is currently disabled.");
                         }
 
-                        // RULE: CHECK IF THE CURRENT LOCATION AND PRODUCT HOME LOCATION ARE THE SAME
-                        if (this.SysEnv.SysSettings.IsVerifyProductLocation &&
-                            (this.ActSubType == SysCommon.ActSubTypes.Picking ||
-                            this.ActSubType == SysCommon.ActSubTypes.TransferFrom))
-                        {
-                            // LocationMapRefno is assumed to be the picking WarehouseLocationMapRefno
-                            int locMapRefno = await this.ActItem.GetDefaultLocMapRefno(
-                                Convert.ToInt32((this.ActItem.ListItems[foundRowIdx] as dynamic).LocationMapRefno),
-                                Convert.ToInt32((this.ActItem.ListItems[foundRowIdx] as dynamic).ProductRefno));
-
-                            if (this.LocMap.CurrLocMapRefno != locMapRefno)
-                            {
-                                throw new MessageOnlyException(
-                                    "The current location does not match the product home location.");
-                            }
-                        }
-
-                        // Not allowed to count individual boxes on a skid. Skids must be
-                        // scanned as a whole unit or built in skid maintenance.
-
-                        // DEV-827 This change to allow counting partial skids is a bad idea.
-                        ////if (this.ActSubType == SysCommon.ActSubTypes.PhysicalCounts
-                        ////    || this.ActSubType == SysCommon.ActSubTypes.CycleCounts)
-                        ////{
-                        ////    if (this.ActItem.ActHdr.SkidInfo.CurrSkid.SkidFKRefno != 0)
-                        ////    {
-                        ////        this.ActItem.ActHdr.SkidInfo = new SysSkidInfo();
-                        ////    }
-                        ////}
-
-                        ////BarCodeParse parse = BarCodeParseFacade.ParseData(string.Empty);
-                        ////bool isInsertReady = false;
-                        ////ActDetail actDetail = ActDetailFacade.GetActDetail(this.ActItem, this.ActSubType);
-
-                        // Did not use this.ActItem.ActHdr.SkidInfo.CurrSkid.LogisticUnitSkidCode
-                        // because of the length of the code and the fact is isn't human readable friendly.
-                        ////SActItemSchemeData tempItemProdSchemeData = new SActItemSchemeData();
-                        ////SProductSchemeData schemeData = actDetail.SchemeData;
-
-                        ////if (this.ActItem.ActHdr.SkidInfo.CurrSkid.SkidFKRefno != 0)
-                        ////{
-                        ////  schemeData.LogisticUnitSkidNumber = this.ActItem.ActHdr.SkidInfo.CurrSkid.SkidCode;
-                        ////  schemeData.LogisticUnitBatchLotNumber
-                        ////      = this.ActItem.ActHdr.SkidInfo.CurrSkid.SchemeData.LogisticUnitBatchLotNumber;
-                        ////  schemeData.LogisticUnitBestBeforeSellByDate
-                        ////      = this.ActItem.ActHdr.SkidInfo.CurrSkid.SchemeData.LogisticUnitBestBeforeSellByDate;
-                        ////  schemeData.LogisticUnitProductionDate
-                        ////      = this.ActItem.ActHdr.SkidInfo.CurrSkid.SchemeData.LogisticUnitProductionDate;
-                        ////  schemeData.VariantCode = this.ActItem.ActHdr.SkidInfo.CurrSkid.SchemeData.VariantCode;
-                        ////  schemeData.VariantNumber = this.ActItem.ActHdr.SkidInfo.CurrSkid.SchemeData.VariantNumber;
-                        ////  schemeData.VariantDescription = this.ActItem.ActHdr.SkidInfo.CurrSkid.SchemeData.VariantDescription;
-                        ////}
-
-                        ////tempItemProdSchemeData.ProdSchemeData = schemeData;
-                        ////actDetail.SchemeData = schemeData;
-
-                        ////SysShared.GatherProductData(
-                        ////    parse,
-                        ////    this.ActSubType,
-                        ////    this.ActItem,
-                        ////    tempItemProdSchemeData,
-                        ////    this.CallingControl,
-                        ////    ref isInsertReady,
-                        ////    actDetail,
-                        ////    true);
-
-                        ////this.InsertActivityDetail(ref foundRowIdx, actDetail, parse, isInsertReady);
+                        // After insert this.ActItem.ItemFKRefno may be a negative value if a new line item was created.
+                        await this.ActItem.Insert(xmlDoc, false);
+                        this.ListViewMainActivity.ItemsSource = this.MainActivityItems;
                     }
                 }
                 catch (GatherProductDataException ex)

@@ -15,5 +15,32 @@ namespace dMobile.Resources
         /// Define the empty date time.
         /// </summary>
         public static readonly DateTime EmptyDateTime = new DateTime(1900, 1, 1);
+
+        /// <summary>
+        ///
+        /// </summary>
+        /// <remarks></remarks>
+        public enum ActStatus : int
+        {
+            /// <summary>
+            /// Defines the NoChange.
+            /// </summary>
+            NoChange = 0,
+
+            /// <summary>
+            /// Defines the Inserted.
+            /// </summary>
+            Inserted = 1,
+
+            /// <summary>
+            /// Defines the Updated.
+            /// </summary>
+            Updated = 2,
+
+            /// <summary>
+            /// Defines the Deleted.
+            /// </summary>
+            Deleted = 3,
+        }
     }
 }

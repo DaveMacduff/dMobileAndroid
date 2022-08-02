@@ -4,20 +4,59 @@
 
 namespace dMobile.Resources.Types
 {
-    using System;
-
+    /// <summary>
+    /// Defines the <see cref="BarcodeAssociation" />.
+    /// </summary>
     public class BarcodeAssociation
     {
+        /// <summary>
+        /// Defines the activityStatus.
+        /// </summary>
         private int activityStatus;
+
+        /// <summary>
+        /// Defines the productUnitBarCodeModifier1.
+        /// </summary>
         private string productUnitBarCodeModifier1;
 
+        /// <summary>
+        /// Gets or sets the ActivityRefno.
+        /// </summary>
         public int ActivityRefno { get; set; }
+
+        /// <summary>
+        /// Gets or sets the ProductUnitBarCodeRefno.
+        /// </summary>
         public int ProductUnitBarCodeRefno { get; set; }
+
+        /// <summary>
+        /// Gets or sets the ActivityStatus.
+        /// </summary>
         public int ActivityStatus { get => this.activityStatus; set => this.activityStatus = value; }
+
+        /// <summary>
+        /// Gets or sets the ProductCode.
+        /// </summary>
         public string ProductCode { get; set; }
+
+        /// <summary>
+        /// Gets or sets the ProductUnitBC.
+        /// </summary>
         public string ProductUnitBC { get; set; }
+
+        /// <summary>
+        /// Gets or sets the UnitCode.
+        /// </summary>
         public string UnitCode { get; set; }
+
+        /// <summary>
+        /// Gets or sets the ProductUnitBarCodeCode.
+        /// </summary>
         public string ProductUnitBarCodeCode { get; set; }
+
+        /// <summary>
+        /// Gets or sets the ProductUnitBarCodeModifier1.
+        /// </summary>
         public string ProductUnitBarCodeModifier1 { get => this.productUnitBarCodeModifier1; set => this.productUnitBarCodeModifier1 = value; }
     }
 }

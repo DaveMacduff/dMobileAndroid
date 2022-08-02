@@ -22,11 +22,6 @@ namespace dMobile.Resources.Types
         public int ActivityDetailFKRefno { get; set; } = 0;
 
         /// <summary>
-        /// Gets or sets the activity detail foreign key reference number field name. Used for searching.
-        /// </summary>
-        public string ActDetailFKRefnoFldName { get; set; } = string.Empty;
-
-        /// <summary>
         /// Gets or sets the product reference number.
         /// </summary>
         public int ProductRefno { get; set; } = 0;

@@ -87,39 +87,58 @@ namespace dMobile.Controller
         }
 
         /// <summary>
-        /// Gets or sets the grid column 0 width.
+        /// Gets or sets the grid column 0 width..
         /// </summary>
         public double ColumnWidth0 { get; set; } = 0;
 
         /// <summary>
-        /// Gets or sets the grid column 1 width.
+        /// Gets or sets the grid column 1 width..
         /// </summary>
         public double ColumnWidth1 { get; set; } = 0;
 
         /// <summary>
-        /// Gets or sets the grid column 2 width.
+        /// Gets or sets the grid column 2 width..
         /// </summary>
         public double ColumnWidth2 { get; set; } = 0;
 
         /// <summary>
-        /// Gets or sets the grid column 3 width.
+        /// Gets or sets the grid column 3 width..
         /// </summary>
         public double ColumnWidth3 { get; set; } = 0;
 
         /// <summary>
-        /// Gets or sets the grid column 4 width.
+        /// Gets or sets the grid column 4 width..
         /// </summary>
         public double ColumnWidth4 { get; set; } = 0;
 
         /// <summary>
-        /// Gets or sets the resource dictionary.
+        /// Gets or sets the resource dictionary..
         /// </summary>
         public ResourceDictionary ResourceDictionary { get; set; } = new ResourceDictionary();
 
         /// <summary>
-        /// Gets or sets a list of adjustment items.
+        /// Gets or sets the ListAdjustmentItems
+        /// Gets or sets a list of adjustment items..
         /// </summary>
         public List<AdjustmentItem> ListAdjustmentItems { get; set; } = new List<AdjustmentItem>();
+
+        /// <summary>
+        /// Set the activity item selected activity item.
+        /// </summary>
+        /// <param name="actItemFoundRefno"><see cref="int"/> Activity item reference number to look up.</param>
+        public override void SetSelectedActivityItem(int actItemFoundRefno)
+        {
+            if (actItemFoundRefno >= 0)
+            {
+                this.SelectedActivityItem = (AdjustmentItem)(from item in this.ListItems.OfType<AdjustmentItem>()
+                                                             where item.ActivityItemRefno == actItemFoundRefno
+                                                             select item);
+            }
+            else
+            {
+                this.SelectedActivityItem = null;
+            }
+        }
 
         /// <summary>
         /// Check if the product is catch ask.
@@ -190,123 +209,131 @@ namespace dMobile.Controller
         public override async Task Insert(XDocument data, bool askToInsertAsNewItem)
         {
             int foundActItemRefno = 0;
-            bool result = false;
+            bool insertNew = false;
 
             int prodUnitRefno = int.Parse(data.Root.Element("ProductUnitRefno").Value);
-            if (prodUnitRefno != 0)
+            if (prodUnitRefno <= 0)
             {
-                foundActItemRefno = await this.GetActivityItemRefno(prodUnitRefno);
-                if (foundActItemRefno > 0 && askToInsertAsNewItem)
-                {
-                    string msg = "A line item already exists for this location and product." + Environment.NewLine +
-                        "Do you wish to create one?";
+                throw new Exception("prodUnitRefno expected to be greater than zero.");
+            }
 
-                    result = await Device.InvokeOnMainThreadAsync(async () =>
-                        await Application.Current.MainPage.DisplayAlert(
-                            "New Item",
-                            msg,
-                            "Yes",
-                            "No"));
-                }
-                else
-                {
-                    // If the selected product to insert was not found, force the dialog result to insert it.
-                    result = true;
-                }
+            this.ProdInfo = await ProductInfoTasks.GetInfoFromUnitRefno(prodUnitRefno);
+            this.ProdInfo.Scheme = await ProductInfoTasks.GetSchemeComponentsFromRefno(this.ProdInfo.Refno);
 
-                if (result)
+            foundActItemRefno = await this.GetActivityItemRefno(prodUnitRefno);
+            if (foundActItemRefno > 0 && askToInsertAsNewItem)
+            {
+                string msg = "A line item already exists for this location and product." + Environment.NewLine +
+                    "Do you wish to create one?";
+                insertNew = await Device.InvokeOnMainThreadAsync(async () =>
+                    await Application.Current.MainPage.DisplayAlert("New Item", msg, "Yes", "No"));
+            }
+            else
+            {
+                // If the selected product to insert was not found, force the dialog result to insert it.
+                insertNew = true;
+            }
+
+            if (insertNew)
+            {
+                await InsertActivityItemInTables(prodUnitRefno);
+                AddActivityItemToList(prodUnitRefno);
+            }
+
+            //////////////////////////////////////////////////////////////////////////
+            async Task InsertActivityItemInTables(int prodUnitRefno)
+            {
+                await DatabaseConnection.GetInstance().SQLConn.RunInTransactionAsync(transaction =>
                 {
-                    await DatabaseConnection.GetInstance().SQLConn.RunInTransactionAsync(transaction =>
+                    try
                     {
-                        try
+                        _ = transaction.Execute(
+                            "INSERT INTO tActivityItem (ActivityItemSubType, ActivityItemStatus," +
+                                " ActivityRefno) VALUES (?, ?, ?)",
+                            Convert.ToInt32(SysCommon.ActSubTypes.Adjustment),
+                            Convert.ToInt32(SysCommon.ActStatus.NoChange),
+                            Convert.ToInt32(this.ActHdr.HdrRefno));
+
+                        this.ItemRefno = Convert.ToInt32(transaction.ExecuteScalar<int>(
+                            "SELECT last_insert_rowid() FROM tActivityItem"));
+                        this.ItemFKRefno = this.ItemRefno * -1;
+
+                        string query = "INSERT INTO tActivityItemAdjustment (" +
+                            "ActivityItemRefno, " +
+                            "ActivityItemSubType, " +
+                            "ActivityItemFKRefno, " +
+                            "ActivityItemStringFKRefno, " +
+                            "ProductUnitRefno, " +
+                            "WarehouseLocationMapRefno, " +
+                            "ActivityItemAdjustmentQuantity, " +
+                            "ActivityItemAdjustmentBaseQuantity, " +
+                            "ActivityItemAdjustmentWeightQuantity, " +
+                            "ActivityItemAdjustmentDescription" +
+                            ") VALUES (" +
+                            "?, " +
+                            "?, " +
+                            "?, " +
+                            "?, " +
+                            "?, " +
+                            "?, " +
+                            "?, " +
+                            "?, " +
+                            "?, " +
+                            "?" +
+                            ")";
+
+                        object[] parameters = new object[]
                         {
-                            _ = transaction.Execute(
-                                "INSERT INTO tActivityItem (ActivityItemSubType, ActivityItemStatus," +
-                                    " ActivityRefno) VALUES (?, ?, ?)",
-                                Convert.ToInt32(SysCommon.ActSubTypes.Adjustment),
-                                Convert.ToInt32(SysCommon.ActStatus.NoChange),
-                                Convert.ToInt32(this.ActHdr.HdrRefno));
+                            Convert.ToInt32(this.ItemRefno),
+                            Convert.ToInt32(SysCommon.ActSubTypes.Adjustment),
+                            Convert.ToInt32(this.ItemFKRefno),
+                            Convert.ToString(this.ItemFKRefno),
+                            Convert.ToInt32(prodUnitRefno),
+                            Convert.ToInt32(this.LocMap.WhsLocMapRefno),
+                            Convert.ToDecimal(0),
+                            Convert.ToDecimal(0),
+                            Convert.ToDecimal(0),
+                            Convert.ToString(this.ProdInfo.Desc.Trim() + " " + this.ProdInfo.UnitSizeDesc),
+                        };
 
-                            this.ItemRefno = Convert.ToInt32(transaction.ExecuteScalar<int>(
-                                "SELECT last_insert_rowid() FROM tActivityItem"));
-                            this.ItemFKRefno = this.ItemRefno * -1;
-
-                            string query = "INSERT INTO tActivityItemAdjustment (" +
-                                "ActivityItemRefno, " +
-                                "ActivityItemSubType, " +
-                                "ActivityItemFKRefno, " +
-                                "ActivityItemStringFKRefno, " +
-                                "ProductUnitRefno, " +
-                                "WarehouseLocationMapRefno, " +
-                                "ActivityItemAdjustmentQuantity, " +
-                                "ActivityItemAdjustmentBaseQuantity, " +
-                                "ActivityItemAdjustmentWeightQuantity, " +
-                                "ActivityItemAdjustmentDescription" +
-                                ") VALUES (" +
-                                "?, " +
-                                "?, " +
-                                "?, " +
-                                "?, " +
-                                "?, " +
-                                "?, " +
-                                "?, " +
-                                "?, " +
-                                "?, " +
-                                "?" +
-                                ")";
-
-                            object[] parameters = new object[]
-                            {
-                                Convert.ToInt32(this.ItemRefno),
-                                Convert.ToInt32(SysCommon.ActSubTypes.Adjustment),
-                                Convert.ToInt32(this.ItemFKRefno),
-                                Convert.ToString(this.ItemFKRefno),
-                                Convert.ToInt32(prodUnitRefno),
-                                Convert.ToInt32(this.LocMap.WhsLocMapRefno),
-                                Convert.ToDecimal(0),
-                                Convert.ToDecimal(0),
-                                Convert.ToDecimal(0),
-                                Convert.ToString(this.ProdInfo.Desc.Trim() + " " + this.ProdInfo.UnitSizeDesc),
-                            };
-
-                            transaction.Execute(query, parameters);
-                            transaction.Commit();
-                        }
-                        catch (SQLiteException ex)
-                        {
-                            transaction.Rollback();
-
-                            Console.WriteLine(ex);
-                        }
-                    });
-
-                    this.ProdInfo = await ProductInfoTasks.GetInfoFromUnitRefno(prodUnitRefno);
-                    this.ProdInfo.Scheme = await ProductInfoTasks.GetSchemeComponentsFromRefno(this.ProdInfo.Refno);
-
-                    if (this.ListItems != null)
-                    {
-                        this.ListItems.Add(new
-                        {
-                            ActivityItemRefno = this.ItemRefno,
-                            ActivityItemFKRefno = this.ItemFKRefno,
-                            ActivityItemStringFKRefno = this.ItemFKRefno.ToString(),
-                            ProductUnitRefno = prodUnitRefno,
-                            ProductRefno = this.ProdInfo.Refno,
-                            ProductCode = this.ProdInfo.Code,
-                            ProductDescription = this.ProdInfo.Desc,
-                            UnitCode = this.ProdInfo.UnitCode,
-                            ProductUnitBC = this.ProdInfo.UnitBC,
-                            ProductUnitSizeDescription = this.ProdInfo.UnitSizeDesc,
-                            LocationMapRefno = this.LocMap.WhsLocMapRefno,
-                            LocationCode = this.LocMap.WhsCode,
-                            LocationName = this.LocMap.WhsName,
-                            ActivityItemStatus = SysCommon.ActStatus.Inserted,
-                            ActivityItemAdjustmentQuantity = 0,
-                            ActivityItemAdjustmentBaseQuantity = 0,
-                            ActivityItemAdjustmentWeightQuantity = 0,
-                        });
+                        transaction.Execute(query, parameters);
+                        transaction.Commit();
                     }
-                }
+                    catch (SQLiteException ex)
+                    {
+                        transaction.Rollback();
+
+                        Console.WriteLine(ex);
+                    }
+                });
+            }
+
+            //////////////////////////////////////////////////////////////////////////
+            void AddActivityItemToList(int prodUnitRefno)
+            {
+                object adjItem = new
+                {
+                    ActivityItemRefno = this.ItemRefno,
+                    ActivityItemFKRefno = this.ItemFKRefno,
+                    ActivityItemStringFKRefno = this.ItemFKRefno.ToString(),
+                    ProductUnitRefno = prodUnitRefno,
+                    ProductRefno = this.ProdInfo.Refno,
+                    ProductCode = this.ProdInfo.Code,
+                    ProductDescription = this.ProdInfo.Desc,
+                    UnitCode = this.ProdInfo.UnitCode,
+                    ProductUnitBC = this.ProdInfo.UnitBC,
+                    ProductUnitSizeDescription = this.ProdInfo.UnitSizeDesc,
+                    LocationMapRefno = this.LocMap.WhsLocMapRefno,
+                    LocationCode = this.LocMap.WhsCode,
+                    LocationName = this.LocMap.WhsName,
+                    ActivityItemStatus = SysCommon.ActStatus.Inserted,
+                    ActivityItemAdjustmentQuantity = 0,
+                    ActivityItemAdjustmentBaseQuantity = 0,
+                    ActivityItemAdjustmentWeightQuantity = 0,
+                };
+
+                this.ListItems.Add(adjItem);
+                this.SelectedActivityItem = adjItem;
             }
         }
 
@@ -684,7 +711,6 @@ namespace dMobile.Controller
                 this.ItemFKRefno = Convert.ToInt32(results[0].ActivityItemFKRefno);
                 this.ProdInfo = await ProductInfoTasks.GetInfoFromUnitRefno(Convert.ToInt32(results[0].ProductUnitRefno));
                 this.ProdInfo.Scheme = await ProductInfoTasks.GetSchemeComponentsFromRefno(this.ProdInfo.Refno);
-
                 foundActItemRefno = this.ItemRefno;
             }
 

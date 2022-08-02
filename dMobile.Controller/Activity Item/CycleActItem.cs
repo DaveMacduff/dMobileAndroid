@@ -130,6 +130,24 @@ namespace dMobile.Controller
         }
 
         /// <summary>
+        /// Set the activity item selected activity item.
+        /// </summary>
+        /// <param name="actItemFoundRefno"><see cref="int"/> Activity item reference number to look up.</param>
+        public override void SetSelectedActivityItem(int actItemFoundRefno)
+        {
+            if (actItemFoundRefno >= 0)
+            {
+                this.SelectedActivityItem = (CountItem)(from item in this.ListItems.OfType<CountItem>()
+                                                             where item.ActivityItemRefno == actItemFoundRefno
+                                                             select item);
+            }
+            else
+            {
+                this.SelectedActivityItem = null;
+            }
+        }
+
+        /// <summary>
         /// Gets or sets a value indicating whether allowed to add skid detail.
         /// </summary>
         /// <returns><see cref="bool"/> True if allowed to add skid detail.</returns>

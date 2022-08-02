@@ -62,19 +62,9 @@ namespace dMobile.Controller
         public event OnDataLayerProgressOutEventHandler OnDataLayerProgressOut;
 
         /// <summary>
-        /// Gets or sets the new activity detail foreign key reference number.
-        /// </summary>
-        public int NewDetailFKRefno { get; set; } = 0;
-
-        /// <summary>
         /// Gets or sets the full class name.
         /// </summary>
         public string FullClassName { get; set; } = string.Empty;
-
-        /// <summary>
-        /// Gets or sets the new item foreign key reference number.
-        /// </summary>
-        public int NewItemFKRefno { get; set; } = 0;
 
         /// <summary>
         /// Gets or sets a value indicating whether is update the view.
@@ -260,9 +250,6 @@ namespace dMobile.Controller
             {
                 this.DetailRefno = detail.ActivityDetailRefno;
                 this.DetailFKRefno = detail.ActivityDetailFKRefno;
-                this.NewDetailFKRefno = 0;
-                this.NewItemFKRefno = 0;
-
                 this.Quantity = detail.ActivityDetailQuantity;
                 this.BaseQuantity = detail.ActivityDetailBaseQuantity;
                 this.WeightQuantity = detail.ActivityDetailWeightQuantity;
@@ -357,21 +344,27 @@ namespace dMobile.Controller
         /// </summary>
         public virtual void ClearProperties()
         {
+            // Document activity references
             this.DetailRefno = 0;
             this.DetailFKRefno = 0;
-            this.NewItemFKRefno = 0;
-            this.NewDetailFKRefno = 0;
-            this.UniqueSchemeID = string.Empty;
+
+            // Quantity and weights
             this.Quantity = 0;
             this.BaseQuantity = 0;
             this.WeightQuantity = 0;
-            this.SchemeID = string.Empty;
+
+            // Scheme
             this.SchemeData = new SProductSchemeData();
+            this.SchemeID = string.Empty;
+            this.UniqueSchemeID = string.Empty;
+
+            // Extra HACCP etc.
             this.ActExtra.Text1 = string.Empty;
             this.ActExtra.Text2 = string.Empty;
             this.ActExtra.Text3 = string.Empty;
             this.ActExtra.Text4 = string.Empty;
             this.ActExtra.DateTime1 = SysCommon.EmptyDateTime;
+
             ////this.SelectedLocMap = new SLocMap();
             ////this.SelectedActivityDetail = null;
         }
@@ -379,94 +372,111 @@ namespace dMobile.Controller
         /// <summary>
         /// Get the activity detail information.
         /// </summary>
-        /// <param name="selectedActivityDetail"><see cref="object"/> Selected activity detail.</param>
-        /// <param name="isAdd"><see cref="bool"/> Is adding activity detail.</param>
-        /// <returns><see cref="Task{ActDetail}"/> Activity detail.</returns>
-        public virtual async Task<ActDetail> GetInfo(object selectedActivityDetail, bool isAdd)
+        /// <param name="actDetail"><see cref="ActivityDetail"/> Selected activity detail.</param>
+        /// <param name="clearThisValues"><see cref="bool"/> Clear the current instance properties.</param>
+        /// <returns><see cref="Task"/> Task operation.</returns>
+        public virtual async Task AssignThisFromDetailAsync(ActivityDetail actDetail, bool clearThisValues)
         {
-            selectedActivityDetail = selectedActivityDetail ??
-                throw new ArgumentNullException(nameof(selectedActivityDetail));
-            SProductSchemeData tmpSchemeData = this.SchemeData;
+            actDetail = actDetail ?? throw new ArgumentNullException(nameof(actDetail));
 
-            await Device.InvokeOnMainThreadAsync(() =>
+            await Task.Run(async () =>
             {
-                if (isAdd)
+                if (clearThisValues)
                 {
                     this.ClearProperties();
+
+                    // Replace empty scheme dates with date time now, not empty.
+                    SProductSchemeData tmpSchemeData = this.SchemeData;
                     tmpSchemeData.LogisticUnitBestBeforeSellByDate = DateTime.Now;
                     tmpSchemeData.LogisticUnitProductionDate = DateTime.Now;
-                    tmpSchemeData.SingleTradeItemSerialNumber = string.Empty;
-                    tmpSchemeData.LogisticUnitBatchLotNumber = string.Empty;
-                    tmpSchemeData.VariantCode = string.Empty;
-                    tmpSchemeData.VariantNumber = 0;
+                    this.SchemeData = tmpSchemeData;
                 }
                 else
                 {
-                    ActivityDetail detail = (ActivityDetail)selectedActivityDetail;
-
-                    this.Quantity = Convert.ToDecimal(detail.ActivityDetailQuantity);
-                    this.BaseQuantity = Convert.ToDecimal(detail.ActivityDetailBaseQuantity);
-                    this.WeightQuantity = Convert.ToDecimal(detail.ActivityDetailWeightQuantity);
-                    this.DetailRefno = Convert.ToInt32(detail.ActivityDetailRefno);
-                    this.SchemeID = Convert.ToString(detail.ActivityDetailSchemeID);
-                    this.UniqueSchemeID = Convert.ToString(detail.ActivityDetailUniqueSchemeID);
-
-                    // Check for DBNull because extra detail is in a child table, left join from the data query.
-                    if (detail.ActivityDetailExtra1Text != null)
+                    this.Quantity = actDetail.ActivityDetailQuantity;
+                    this.BaseQuantity = actDetail.ActivityDetailBaseQuantity;
+                    this.WeightQuantity = actDetail.ActivityDetailWeightQuantity;
+                    this.DetailRefno = actDetail.ActivityDetailRefno;
+                    this.DetailFKRefno = actDetail.ActivityDetailFKRefno;
+                    if (this.LocMap.CurrLocMapRefno != actDetail.LocationMapRefno)
                     {
-                        this.ActExtra.Text1 = Convert.ToString(detail.ActivityDetailExtra1Text);
+                        this.LocMap.CurrLocMap = await LocationMapTasks.GetSLocMapFromLocMapRefno(actDetail.LocationMapRefno);
                     }
 
-                    if (detail.ActivityDetailExtra2Text != null)
-                    {
-                        this.ActExtra.Text2 = Convert.ToString(detail.ActivityDetailExtra2Text);
-                    }
+                    AssignScheme(actDetail);
+                    AssignExtra(actDetail);
+                }
 
-                    if (detail.ActivityDetailExtra3Text != null)
-                    {
-                        this.ActExtra.Text3 = Convert.ToString(detail.ActivityDetailExtra3Text);
-                    }
+                return Task.CompletedTask;
+            });
 
-                    if (detail.ActivityDetailExtra4Text != null)
-                    {
-                        this.ActExtra.Text4 = Convert.ToString(detail.ActivityDetailExtra4Text);
-                    }
+            return;
 
-                    if (detail.ActivityDetailExtra5Date != null &&
-                        !string.IsNullOrEmpty(Convert.ToString(detail.ActivityDetailExtra5Date)))
-                    {
-                        this.ActExtra.DateTime1 = Convert.ToDateTime(detail.ActivityDetailExtra5Date);
-                    }
+            //////////////////////////////////////////////////////////////////////////
+            void AssignExtra(ActivityDetail detail)
+            {
+                // Check for DBNull because extra detail is in a child table, left join from the data query.
+                if (detail.ActivityDetailExtra1Text != null)
+                {
+                    this.ActExtra.Text1 = Convert.ToString(detail.ActivityDetailExtra1Text);
+                }
 
-                    // Default best before date to today.
-                    DateTime bestBefore = Convert.ToDateTime(detail.ActivityDetailLogisticUnitBestBeforeSellByDate);
-                    tmpSchemeData.LogisticUnitBestBeforeSellByDate = SysCommon.IsEmptyDateTime(bestBefore) &&
-                        this.ActItem.ProdInfo.Scheme.IsBestBeforeDateTrackedDefault
-                        ? DateTime.Now
-                        : bestBefore;
+                if (detail.ActivityDetailExtra2Text != null)
+                {
+                    this.ActExtra.Text2 = Convert.ToString(detail.ActivityDetailExtra2Text);
+                }
 
-                    // Default production date to today.
-                    DateTime production = Convert.ToDateTime(detail.ActivityDetailLogisticUnitProductionDate);
-                    tmpSchemeData.LogisticUnitProductionDate = SysCommon.IsEmptyDateTime(production) &&
-                        this.ActItem.ProdInfo.Scheme.IsProductionDateTrackedDefault
-                        ? DateTime.Now
-                        : production;
+                if (detail.ActivityDetailExtra3Text != null)
+                {
+                    this.ActExtra.Text3 = Convert.ToString(detail.ActivityDetailExtra3Text);
+                }
 
-                    tmpSchemeData.SingleTradeItemSerialNumber = Convert.ToString(detail.ActivityDetailSingleTradeItemSerialNumber);
-                    tmpSchemeData.LogisticUnitBatchLotNumber = Convert.ToString(detail.ActivityDetailLogisticUnitBatchLotNumber);
+                if (detail.ActivityDetailExtra4Text != null)
+                {
+                    this.ActExtra.Text4 = Convert.ToString(detail.ActivityDetailExtra4Text);
+                }
 
-                    // Check for DBNull because variants are in a child table, left join from the data query.
-                    if (detail.ProductSchemeVariantCode != null)
-                    {
-                        tmpSchemeData.VariantCode = Convert.ToString(detail.ProductSchemeVariantCode);
-                        tmpSchemeData.VariantNumber = Convert.ToInt32(detail.ProductSchemeVariantNo);
-                    }
+                if (detail.ActivityDetailExtra5Date != null &&
+                    !string.IsNullOrEmpty(Convert.ToString(detail.ActivityDetailExtra5Date)))
+                {
+                    this.ActExtra.DateTime1 = Convert.ToDateTime(detail.ActivityDetailExtra5Date);
+                }
+            }
+
+            //////////////////////////////////////////////////////////////////////////
+            void AssignScheme(ActivityDetail detail)
+            {
+                SProductSchemeData tmpSchemeData = this.SchemeData;
+
+                // Default best before date to today.
+                DateTime bestBefore = Convert.ToDateTime(detail.ActivityDetailLogisticUnitBestBeforeSellByDate);
+                tmpSchemeData.LogisticUnitBestBeforeSellByDate = SysCommon.IsEmptyDateTime(bestBefore) &&
+                    this.ActItem.ProdInfo.Scheme.IsBestBeforeDateTrackedDefault
+                    ? DateTime.Now
+                    : bestBefore;
+
+                // Default production date to today.
+                DateTime production = Convert.ToDateTime(detail.ActivityDetailLogisticUnitProductionDate);
+                tmpSchemeData.LogisticUnitProductionDate = SysCommon.IsEmptyDateTime(production) &&
+                    this.ActItem.ProdInfo.Scheme.IsProductionDateTrackedDefault
+                    ? DateTime.Now
+                    : production;
+
+                tmpSchemeData.SingleTradeItemSerialNumber = Convert.ToString(detail.ActivityDetailSingleTradeItemSerialNumber);
+                tmpSchemeData.LogisticUnitBatchLotNumber = Convert.ToString(detail.ActivityDetailLogisticUnitBatchLotNumber);
+
+                // Check for DBNull because variants are in a child table, left join from the data query.
+                if (detail.ProductSchemeVariantCode != null)
+                {
+                    tmpSchemeData.VariantCode = Convert.ToString(detail.ProductSchemeVariantCode);
+                    tmpSchemeData.VariantNumber = Convert.ToInt32(detail.ProductSchemeVariantNo);
                 }
 
                 this.SchemeData = tmpSchemeData;
-            });
 
-            return this;
+                this.SchemeID = Convert.ToString(detail.ActivityDetailSchemeID);
+                this.UniqueSchemeID = Convert.ToString(detail.ActivityDetailUniqueSchemeID);
+            }
         }
 
         /// <summary>
@@ -813,62 +823,174 @@ namespace dMobile.Controller
         }
 
         /// <summary>
-        /// Insert data view detail.
+        /// Find the current detail in the list detail.
         /// </summary>
-        /// <param name="actDetailFKRefnoFldName"><see cref="string"/> Foreign key reference number field name.</param>
-        /// <returns><see cref="ActivityDetail"/> Activity detail inserted.</returns>
-        public abstract ActivityDetail InsertListDetail(string actDetailFKRefnoFldName);
+        /// <param name="activityDetailRefno"><see cref="int"/> Activity detail reference number.</param>
+        /// <returns><see cref="int"/> Found list detail index or negative one if not found.</returns>
+        public virtual int FindListDetailIndex(int activityDetailRefno)
+        {
+            int foundIdx = -1;
+
+            // Go to the list item to update the detail quantity.
+            for (int idx = 0; idx < this.ListDetails.Count; idx++)
+            {
+                if (((ActivityDetail)this.ListDetails[idx]).ActivityDetailRefno == activityDetailRefno)
+                {
+                    foundIdx = idx;
+                    break;
+                }
+            }
+
+            return foundIdx;
+        }
+
+        /// <summary>
+        /// Find or insert an activity detail into the list details.
+        /// </summary>
+        /// <param name="mainActivityItems"><see cref="ObservableCollection{object}"/> Main activity items.</param>
+        /// <returns><see cref="ActivityDetail"/> Activity detail to insert.</returns>
+        public virtual ActivityDetail InsertListDetail(ObservableCollection<object> mainActivityItems)
+        {
+            ActivityDetail detail = null;
+            if (this.ListDetails != null)
+            {
+                detail = new ActivityDetail();
+                detail.ActivityDetailRefno = this.DetailRefno;
+                detail.ActivityDetailFKRefno = this.DetailFKRefno;
+
+                InsertListDetailProduct(detail);
+                InsertListDetailQuantity(detail);
+                InsertListDetailScheme(detail);
+                InsertListDetailExtra(detail);
+                InsertListDetailLocation(detail);
+
+                detail.ActivityDetailSchemeID = this.SchemeID;
+                detail.ActivityDetailUniqueSchemeID = this.UniqueSchemeID;
+            }
+
+            return detail;
+
+            //////////////////////////////////////////////////////////////////////////
+            void InsertListDetailProduct(ActivityDetail detail)
+            {
+                detail.ProductRefno = this.ActItem.ProdInfo.Refno;
+                detail.ProductUnitRefno = this.ActItem.ProdInfo.UnitRefno;
+                detail.ProductCode = this.ActItem.ProdInfo.Code;
+                detail.ProductUnitBC = this.ActItem.ProdInfo.UnitBC;
+                detail.ProductUnitIsBC = this.ActItem.ProdInfo.UnitIsBC;
+                detail.ProductDescription = this.ActItem.ProdInfo.Desc;
+                detail.ProductUnitSizeDescription = this.ActItem.ProdInfo.UnitSizeDesc;
+
+                detail.UnitCode = this.ActItem.ProdInfo.UnitCode;
+                detail.BaseUnitCode = this.ActItem.ProdInfo.BaseUnitCode;
+                detail.WtUnitCode = this.ActItem.ProdInfo.WeightUnitCode;
+            }
+
+            //////////////////////////////////////////////////////////////////////////
+            void InsertListDetailLocation(ActivityDetail detail)
+            {
+                detail.LocationMapRefno = this.LocMap.CurrLocMapRefno;
+
+                int locCode = 0;
+                string locName = string.Empty;
+
+                if (this.LocMap.CurrLocMap.SlotLocMapRefno > 0)
+                {
+                    locCode = this.LocMap.CurrLocMap.SlotCode;
+                    locName = this.LocMap.CurrLocMap.SlotName;
+                }
+                else if (this.LocMap.CurrLocMap.SectLocMapRefno > 0)
+                {
+                    locCode = this.LocMap.CurrLocMap.SectCode;
+                    locName = this.LocMap.CurrLocMap.SectName;
+                }
+                else
+                {
+                    locCode = this.LocMap.CurrLocMap.WhsCode;
+                    locName = this.LocMap.CurrLocMap.WhsName;
+                }
+
+                detail.LocationCode = locCode;
+                detail.LocationName = locName;
+            }
+
+            //////////////////////////////////////////////////////////////////////////
+            void InsertListDetailScheme(ActivityDetail detail)
+            {
+                detail.ProductSchemeVariantCode = this.SchemeData.VariantCode;
+                detail.ProductSchemeVariantNo = this.SchemeData.VariantNumber;
+                detail.ActivityDetailSingleTradeItemSerialNumber = this.SchemeData.SingleTradeItemSerialNumber;
+                detail.ActivityDetailLogisticUnitBestBeforeSellByDate = this.SchemeData.LogisticUnitBestBeforeSellByDate;
+                detail.ActivityDetailLogisticUnitBatchLotNumber = this.SchemeData.LogisticUnitBatchLotNumber;
+                detail.ActivityDetailLogisticUnitProductionDate = this.SchemeData.LogisticUnitProductionDate;
+                detail.ActivityDetailLogisticUnitSkidNumber = this.SchemeData.LogisticUnitSkidNumber;
+            }
+
+            //////////////////////////////////////////////////////////////////////////
+            void InsertListDetailExtra(ActivityDetail detail)
+            {
+                detail.ActivityDetailExtra1Text = this.ActExtra.Text1;
+                detail.ActivityDetailExtra2Text = this.ActExtra.Text2;
+                detail.ActivityDetailExtra3Text = this.ActExtra.Text3;
+                detail.ActivityDetailExtra4Text = this.ActExtra.Text4;
+                detail.ActivityDetailExtra5Date = this.ActExtra.DateTime1;
+            }
+
+            //////////////////////////////////////////////////////////////////////////
+            void InsertListDetailQuantity(ActivityDetail detail)
+            {
+                detail.ActivityDetailQuantity = Math.Round(this.Quantity, 3);
+                detail.ActivityDetailBaseQuantity = Math.Round(this.BaseQuantity, 3);
+                detail.ActivityDetailWeightQuantity = Math.Round(this.WeightQuantity, 3);
+            }
+        }
+
+        /// <summary>
+        /// Update detail in the detail list.
+        /// </summary>
+        /// <param name="listDetailIdx"><see cref="int"/> Zero based list detail index.</param>
+        /// <returns><see cref="dMobile.Resources.Types.ActivityDetail"/> Updated detail or null.</returns>
+        public virtual ActivityDetail UpdateListDetail(int listDetailIdx)
+        {
+            ((ActivityDetail)this.ListDetails[listDetailIdx]).ActivityDetailQuantity =
+                ((ActivityDetail)this.ListDetails[listDetailIdx]).ActivityDetailQuantity + Math.Round(this.Quantity, 3);
+            ((ActivityDetail)this.ListDetails[listDetailIdx]).ActivityDetailBaseQuantity =
+                ((ActivityDetail)this.ListDetails[listDetailIdx]).ActivityDetailBaseQuantity + Math.Round(this.BaseQuantity, 3);
+            ((ActivityDetail)this.ListDetails[listDetailIdx]).ActivityDetailWeightQuantity =
+                ((ActivityDetail)this.ListDetails[listDetailIdx]).ActivityDetailWeightQuantity + Math.Round(this.WeightQuantity, 3);
+
+            return (ActivityDetail)this.ListDetails[listDetailIdx];
+        }
 
         /// <summary>
         /// Insert the activity detail.
         /// </summary>
         /// <param name="sendReq"><see cref="string"/> Submission request.</param>
-        /// <returns><see cref="bool"/> True if a new activity detail was added else false.</returns>
-        public bool InsertDetail(string sendReq)
+        public void SubmitDetailToCommServer(string sendReq)
         {
-            bool isNewDetail = false;
             string reqData = SysCommon.SubmitComm(sendReq);
-            if (reqData.Length > 0)
+            XmlDocument xmlData = new XmlDocument();
+            xmlData.LoadXml(reqData);
+
+            if (reqData.Contains("<message>ERROR</message>"))
             {
-                XmlDocument xmlData = new XmlDocument();
-                xmlData.LoadXml(reqData);
+                string errorDetail = xmlData.DocumentElement["detail"].InnerText;
 
-                if (reqData.Contains("<message>ERROR</message>"))
+                if (errorDetail.Contains("MSGBOX-"))
                 {
-                    string errorDetail = xmlData.DocumentElement["detail"].InnerText;
-
-                    if (errorDetail.Contains("MSGBOX-"))
-                    {
-                        throw new MessageOnlyException(errorDetail);
-                    }
-                    else
-                    {
-                        throw new Exception(errorDetail);
-                    }
+                    throw new MessageOnlyException(errorDetail);
                 }
-
-                this.IsUpdateView = true;
-                this.NewItemFKRefno = int.Parse(xmlData.DocumentElement["itm_refno"].InnerText);
-                this.NewDetailFKRefno = int.Parse(xmlData.DocumentElement["ser_refno"].InnerText);
-
-                // Assign a temporary activity detail until a full activity detail refresh occurs.
-                this.DetailRefno = this.NewDetailFKRefno * -1;
-
-                if (this.NewItemFKRefno != this.ActItem.ItemFKRefno || this.NewDetailFKRefno != this.DetailFKRefno)
+                else
                 {
-                    this.ActItem.ItemFKRefno = this.NewItemFKRefno;
-                    this.DetailFKRefno = this.NewDetailFKRefno;
-                    isNewDetail = true;
+                    throw new Exception(errorDetail);
                 }
             }
-            else
-            {
-                // NOTE: do we need to raise an error here? SubmitComm will raise errors.
-                // When will the length be nothing?
-                throw new NotImplementedException();
-            }
 
-            return isNewDetail;
+            this.IsUpdateView = true;
+            this.ActItem.ItemFKRefno = int.Parse(xmlData.DocumentElement["itm_refno"].InnerText);
+
+            // Assign a temporary activity detail until a full activity detail refresh occurs.
+            this.DetailRefno = int.Parse(xmlData.DocumentElement["ser_refno"].InnerText) * -1;
         }
 
         /// <summary>
@@ -883,12 +1005,10 @@ namespace dMobile.Controller
             {
                 if (string.Compare(this.UniqueSchemeID, string.Empty) > 0)
                 {
-                    bool isDupSchemeId = await ProductInfoTasks.IsDuplicateUniqueSchemeID(
-                        this.UniqueSchemeID);
+                    bool isDupSchemeId = await ProductInfoTasks.IsDuplicateUniqueSchemeID(this.UniqueSchemeID);
                     if (isDupSchemeId)
                     {
-                        throw new Exception("Duplicate scheme ID!" + Environment.NewLine +
-                            this.UniqueSchemeID);
+                        throw new Exception("Duplicate scheme ID!" + Environment.NewLine + this.UniqueSchemeID);
                     }
                 }
 

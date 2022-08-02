@@ -104,6 +104,31 @@ namespace dMobile.Controller
         }
 
         /// <summary>
+        /// Find or insert an activity detail into the list details.
+        /// </summary>
+        /// <param name="mainActivityItems"><see cref="ObservableCollection{object}"/> Main activity items.</param>
+        /// <returns><see cref="ActivityDetail"/> Activity detail.</returns>
+        public override ActivityDetail InsertListDetail(ObservableCollection<object> mainActivityItems)
+        {
+            ActivityDetail detail = (ActivityDetail)base.InsertListDetail(mainActivityItems);
+            ////detail.ActivityDetailStatus = (int)SysCommon.ActStatus.Inserted;
+            this.ListDetails.Add(detail);
+            return detail;
+        }
+
+        /// <summary>
+        /// Update detail in the detail list.
+        /// </summary>
+        /// <param name="listDetailIdx"><see cref="int"/> Zero based list detail index.</param>
+        /// <returns><see cref="dMobile.Resources.Types.ActivityDetail"/> Updated detail or null.</returns>
+        public override ActivityDetail UpdateListDetail(int listDetailIdx)
+        {
+            ActivityDetail detail = (ActivityDetail)base.UpdateListDetail(listDetailIdx);
+            ////detail.ActivityDetailStatus = (int)SysCommon.ActStatus.Updated;
+            return detail;
+        }
+
+        /// <summary>
         /// The InsertSkid.
         /// </summary>
         /// <param name="skidInfo">.</param>
@@ -207,17 +232,15 @@ namespace dMobile.Controller
         /// <param name="selectedActivityDetail">The selectedActivityDetail<see cref="object"/>.</param>
         /// <param name="isAdd">.</param>
         /// <returns>.</returns>
-        public override async Task<ActDetail> GetInfo(object selectedActivityDetail, bool isAdd)
+        public override async Task AssignThisFromDetailAsync(ActivityDetail selectedActivityDetail, bool isAdd)
         {
-            await base.GetInfo(selectedActivityDetail, isAdd);
+            await base.AssignThisFromDetailAsync(selectedActivityDetail, isAdd);
 
             if (!isAdd && selectedActivityDetail is SkidPutAwayDetail skidPutAwayDetail)
             {
                 this.DetailFKRefno = Convert.ToInt32(skidPutAwayDetail.ActivityDetailFKRefno);
                 this.LocMap.CurrLocMap = await LocationMapTasks.GetSLocMapFromLocMapRefno(Convert.ToInt32(skidPutAwayDetail.LocationMapRefno));
             }
-
-            return this;
         }
 
         /// <summary>
@@ -228,7 +251,7 @@ namespace dMobile.Controller
         /// <returns>The <see cref="Task"/>.</returns>
         public override async Task Submit(object selectedActivityDetail, XDocument data)
         {
-            await this.GetInfo(selectedActivityDetail, false);
+            await this.AssignThisFromDetailAsync((ActivityDetail)selectedActivityDetail, false);
 
             XmlDocument xmlDoc = new XmlDocument();
             string xmlSend = await this.CreateSubmitXML(data);
@@ -481,16 +504,6 @@ namespace dMobile.Controller
         }
 
         /// <summary>
-        /// Find or insert an activity detail into the list details.
-        /// </summary>
-        /// <param name="actDetailFKRefnoFldName">The actDetailFKRefnoFldName<see cref="string"/>.</param>
-        /// <returns>The <see cref="ActivityDetail"/>.</returns>
-        public override ActivityDetail InsertListDetail(string actDetailFKRefnoFldName)
-        {
-            throw new NotImplementedException();
-        }
-
-        /// <summary>
         /// Design the activity grid.
         /// </summary>
         /// <param name="gridMain"><see cref="Grid"/> Activity grid.</param>
@@ -571,6 +584,7 @@ namespace dMobile.Controller
                 this.ColumnWidth3 = detailWidth3;
                 gridHeader.ColumnDefinitions[3].Width = this.ColumnWidth3;
             }
+
             return (DataTemplate)this.ResourceDictionary["dataTemplate"];
         }
     }
