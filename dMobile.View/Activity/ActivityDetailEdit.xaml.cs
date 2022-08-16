@@ -149,11 +149,6 @@ namespace dMobile.View.Activity
         private bool IsBarCodeHandlerRegistered { get; set; } = false;
 
         /// <summary>
-        /// Gets or sets a value indicating whether the saved bar code scanner enabled status.
-        /// </summary>
-        private bool IsSvdBarScannerEnabled { get; set; } = false;
-
-        /// <summary>
         /// Gets or sets the bar code scanner instance.
         /// </summary>
         private BarCodeScanner Scanner { get; set; } = ScannerEngine.GetInstance().Scanner;
@@ -178,14 +173,15 @@ namespace dMobile.View.Activity
         /// <returns><see cref="Task"/> Task operation.</returns>
         public async Task ScannerDisable()
         {
-            this.IsSvdBarScannerEnabled = this.IsBarCodeHandlerRegistered;
             if (this.Scanner != null)
             {
-                this.Scanner.BarCodeScan -= new BarCodeScanner.BarCodeScanEventHandler(this.BarCodeHandler);
-                await this.Scanner.Stop();
+                if (this.IsBarCodeHandlerRegistered)
+                {
+                    this.Scanner.BarCodeScan -= new BarCodeScanner.BarCodeScanEventHandler(this.BarCodeHandler);
+                    await this.Scanner.Stop();
+                    this.IsBarCodeHandlerRegistered = false;
+                }
             }
-
-            this.IsBarCodeHandlerRegistered = false;
         }
 
         /// <summary>
@@ -194,11 +190,14 @@ namespace dMobile.View.Activity
         /// <returns><see cref="Task"/> Task operation.</returns>
         public async Task ScannerEnable()
         {
-            if (this.IsSvdBarScannerEnabled && !this.IsBarCodeHandlerRegistered && this.Scanner != null)
+            if (this.Scanner != null)
             {
-                await this.Scanner.Start();
-                this.Scanner.BarCodeScan += new BarCodeScanner.BarCodeScanEventHandler(this.BarCodeHandler);
-                this.IsBarCodeHandlerRegistered = true;
+                if (!this.IsBarCodeHandlerRegistered)
+                {
+                    await this.Scanner.Start();
+                    this.Scanner.BarCodeScan += new BarCodeScanner.BarCodeScanEventHandler(this.BarCodeHandler);
+                    this.IsBarCodeHandlerRegistered = true;
+                }
             }
         }
 
@@ -213,7 +212,6 @@ namespace dMobile.View.Activity
                 await this.Scanner.Start();
                 this.Scanner.BarCodeScan += new BarCodeScanner.BarCodeScanEventHandler(this.BarCodeHandler);
                 this.IsBarCodeHandlerRegistered = true;
-                this.IsSvdBarScannerEnabled = true;
             }
         }
 

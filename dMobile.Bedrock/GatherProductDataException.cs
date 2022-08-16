@@ -12,11 +12,6 @@ namespace dMobile.Bedrock
     public class GatherProductDataException : Exception
     {
         /// <summary>
-        /// Gets or sets a value indicating whether SuppressError.
-        /// </summary>
-        public bool SuppressError { get; set; } = false;
-
-        /// <summary>
         /// Initializes a new instance of the <see cref="GatherProductDataException"/> class.
         /// </summary>
         public GatherProductDataException()
@@ -65,5 +60,10 @@ namespace dMobile.Bedrock
         {
             this.SuppressError = suppressError;
         }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether SuppressError.
+        /// </summary>
+        public bool SuppressError { get; set; } = false;
     }
 }

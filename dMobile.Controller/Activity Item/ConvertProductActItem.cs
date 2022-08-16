@@ -137,14 +137,15 @@ namespace dMobile.Controller
         {
             if (this.ListItems != null)
             {
-                ConvertProductItem convertProductItem = new ConvertProductItem()
+                ConvertProductItem item = new ConvertProductItem()
                 {
                     From_prod_fk_refno = Convert.ToInt32(data.Root.Element("from_prod_fk_refno").Value),
                     To_prod_fk_refno = Convert.ToInt32(data.Root.Element("to_prod_fk_refno").Value),
                     Location_map_refno = Convert.ToInt32(data.Root.Element("location_map_refno").Value),
                 };
 
-                this.ListItems.Add(convertProductItem);
+                this.ListItems.Add(item);
+                _ = this.SelectActivityItem(item);
             }
         }
 
@@ -410,6 +411,11 @@ namespace dMobile.Controller
                     whsLocMapRefno,
                     prodRefno,
                     SysCommon.ProdLocMapTypes.Floor);
+            }
+
+            if (!await LocationMapTasks.IsCompleteLocMap(locMapRefno))
+            {
+                locMapRefno = 0;
             }
 
             return locMapRefno;

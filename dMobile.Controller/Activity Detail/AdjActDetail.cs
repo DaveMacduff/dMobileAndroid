@@ -122,9 +122,25 @@ namespace dMobile.Controller
         /// <returns><see cref="ActivityDetail"/> Activity detail.</returns>
         public override ActivityDetail InsertListDetail(ObservableCollection<object> mainActivityItems)
         {
-            AdjustmentDetail detail = (AdjustmentDetail)base.InsertListDetail(mainActivityItems);
-            detail.ActivityDetailStatus = (int)SysCommon.ActStatus.Inserted;
-            this.ListDetails.Add(detail);
+            AdjustmentDetail detail = null;
+            if (this.ListDetails != null)
+            {
+                detail = new AdjustmentDetail();
+                detail.ActivityDetailRefno = this.DetailRefno;
+                detail.ActivityDetailFKRefno = this.DetailFKRefno;
+
+                this.InsertListDetailProduct(detail);
+                this.InsertListDetailQuantity(detail);
+                this.InsertListDetailScheme(detail);
+                this.InsertListDetailExtra(detail);
+                this.InsertListDetailLocation(detail);
+
+                detail.ActivityDetailSchemeID = this.SchemeID;
+                detail.ActivityDetailUniqueSchemeID = this.UniqueSchemeID;
+                detail.ActivityDetailStatus = (int)SysCommon.ActStatus.Inserted;
+                this.ListDetails.Add(detail);
+            }
+
             return detail;
         }
 
@@ -132,12 +148,17 @@ namespace dMobile.Controller
         /// Update detail in the detail list.
         /// </summary>
         /// <param name="listDetailIdx"><see cref="int"/> Zero based list detail index.</param>
-        /// <returns><see cref="dMobile.Resources.Types.ActivityDetail"/> Updated detail or null.</returns>
-        public override ActivityDetail UpdateListDetail(int listDetailIdx)
+        public override void UpdateListDetail(int listDetailIdx)
         {
-            AdjustmentDetail detail = (AdjustmentDetail)base.UpdateListDetail(listDetailIdx);
-            detail.ActivityDetailStatus = (int)SysCommon.ActStatus.Updated;
-            return detail;
+            AdjustmentDetail detail = (AdjustmentDetail)this.ListDetails[listDetailIdx];
+            if (detail.ActivityDetailStatus == (int)SysCommon.ActStatus.NoChange)
+            {
+                detail.ActivityDetailStatus = (int)SysCommon.ActStatus.Updated;
+            }
+
+            detail.ActivityDetailQuantity += Math.Round(this.Quantity, 3);
+            detail.ActivityDetailBaseQuantity += Math.Round(this.BaseQuantity, 3);
+            detail.ActivityDetailWeightQuantity += Math.Round(this.WeightQuantity, 3);
         }
 
         /// <summary>
@@ -230,7 +251,6 @@ namespace dMobile.Controller
 
             if (this.SysEnv.SysSettings.IsDisconnectedMode)
             {
-                // At this point the 
                 int actDetailRefno = await this.InsertDetailDisconnected();
 
                 string query = "INSERT INTO tActivityDetailAdjustment (ActivityDetailRefno, ActivityDetailFKRefno) VALUES (?, ?)";
@@ -270,14 +290,15 @@ namespace dMobile.Controller
 
                 // Find the activity item that may also have been newly created, and update the line item reference
                 // returned from the communication server.
-                // Do not use FirstOrDefault because we do not want to overwrite a wrongly matched item.
-                // Linq returns new references only for base types (int, string, double etc...).
-                // The IEnumerable will be same instance of initial list, you have to call ToList or ToArray
-                // to create a new collection.
-                // Linq is slower than a for loop, but the number of line items would likely be sub 500 normally.
-                AdjustmentItem foundItem = (AdjustmentItem)(from item in this.ActItem.ListItems.OfType<AdjustmentItem>()
-                                                      where item.ActivityItemRefno == this.ActItem.ItemRefno
-                                                      select item);
+                AdjustmentItem foundItem = null;
+                foreach (AdjustmentItem item in this.ActItem.ListItems)
+                {
+                    if (item.ActivityItemRefno == this.ActItem.ItemRefno)
+                    {
+                        foundItem = item;
+                        break;
+                    }
+                }
 
                 // Also verify that line item reference number matches, just in case. If a FirstOrDefault
                 // was used it could have returned an incorrect default reference.

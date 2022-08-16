@@ -88,7 +88,7 @@ namespace dMobile.Controller
             this.IsAskCreateNewItem = !this.SysEnv.SysSettings.IsPickCreateNewItemNoAsk;
 
             // Data grid
-            DataTemplate dataTemplatePicking = new DataTemplate(() =>
+            DataTemplate dataTemplate = new DataTemplate(() =>
             {
                 Grid gridData = new Grid
                 {
@@ -149,7 +149,19 @@ namespace dMobile.Controller
             });
 
             // TODO: Change dictionary key to string variable
-            this.resourceDictionary.Add("dataTemplatePicking", dataTemplatePicking);
+            bool isAddKey = true;
+            foreach (var item in this.resourceDictionary)
+            {
+                if (item.Key == "dataTemplate")
+                {
+                    isAddKey = false;
+                }
+            }
+
+            if (isAddKey)
+            {
+                this.resourceDictionary.Add("dataTemplate", dataTemplate);
+            }
         }
 
         /// <summary>
@@ -160,9 +172,14 @@ namespace dMobile.Controller
         {
             if (actItemFoundRefno >= 0)
             {
-                this.SelectedActivityItem = (PickingItem)(from item in this.ListItems.OfType<PickingItem>()
-                                                             where item.ActivityItemRefno == actItemFoundRefno
-                                                             select item);
+                foreach (PickingItem item in this.ListItems)
+                {
+                    if (item.ActivityItemRefno == this.ItemRefno)
+                    {
+                        this.SelectedActivityItem = item;
+                        break;
+                    }
+                }
             }
             else
             {
@@ -593,7 +610,7 @@ namespace dMobile.Controller
 
                     if (this.ListItems != null)
                     {
-                        this.ListItems.Add(new PickingItem()
+                        PickingItem item = new PickingItem()
                         {
                             ActivityItemRefno = this.ItemRefno,
                             ActivityItemFKRefno = this.ItemFKRefno,
@@ -620,7 +637,9 @@ namespace dMobile.Controller
                             ActivityItemPickingQuantityAvailable = 0,
                             ActivityItemPickingBaseQuantityAvailable = 0,
                             ActivityItemPickingWeightQuantityAvailable = 0,
-                        });
+                        };
+                        this.ListItems.Add(item);
+                        _ = this.SelectActivityItem(item);
                     }
                 }
             }
@@ -1047,7 +1066,7 @@ namespace dMobile.Controller
                 this.ItemRefno = item.ActivityItemRefno;
                 this.ItemFKRefno = item.ActivityItemFKRefno;
                 this.ProdInfo = await ProductInfoTasks.GetInfoFromUnitRefno(item.ProductUnitRefno);
-                int activityItemLocMapRefno = item.LocationMapRefno;
+                this.ProdInfo.Scheme = await ProductInfoTasks.GetSchemeComponentsFromRefno(this.ProdInfo.Refno);
 
                 // This code needs to be before the call to GetSelectedItemLocation, because the skid location may be
                 // used if the product unit and warehouse match.
@@ -1057,10 +1076,11 @@ namespace dMobile.Controller
                     this.ActHdr.SkidInfo.CurrSkid = new SSkidInfo();
                 }
 
+                SLocMap locMap = await this.GetSelectedItemLocation(item.LocationMapRefno);
+
                 if (this.SysEnv.SysSettings.IsDefaultLocToProductDefaultLoc)
                 {
                     // Only assign the current location if the map is complete else leave it alone.
-                    SLocMap locMap = await this.GetSelectedItemLocation(activityItemLocMapRefno);
                     if (locMap != null && await LocationMapTasks.IsCompleteLocMap(locMap))
                     {
                         // Update the chosen location with the current when defaulting is turned on.
@@ -1072,10 +1092,22 @@ namespace dMobile.Controller
                         {
                             this.ActHdr.SkidInfo.CurrSkid.LocMap = locMap.Clone();
                         }
+
+                        // Update the activity item location.
+                        this.LocMap = LocationMap.GetInstance().CurrLocMap.Clone();
+                    }
+                }
+                else
+                {
+                    // Only assign the current location if the map is complete else leave it alone.
+                    if (locMap != null && await LocationMapTasks.IsCompleteLocMap(locMap))
+                    {
+                        // Do not update the current, chosen or skid location when defaulting is off.
+                        this.LocMap = locMap.Clone();
                     }
                 }
 
-                // LocationMap.GetInstance().CurrLocMap needs to be set before call to GetSchemeComponentsFromRefno.
+                // LocationMap.GetInstance().CurrLocMap warehouse needs to be set before call to GetSchemeComponentsFromRefno.
                 this.ProdInfo.Scheme = await ProductInfoTasks.GetSchemeComponentsFromRefno(this.ProdInfo.Refno);
             }
         }
@@ -1461,6 +1493,11 @@ namespace dMobile.Controller
                     whsLocMapRefno,
                     prodRefno,
                     SysCommon.ProdLocMapTypes.Floor);
+            }
+
+            if (!await LocationMapTasks.IsCompleteLocMap(locMapRefno))
+            {
+                locMapRefno = 0;
             }
 
             return locMapRefno;

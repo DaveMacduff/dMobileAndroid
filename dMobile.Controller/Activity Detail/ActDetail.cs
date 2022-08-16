@@ -848,119 +848,103 @@ namespace dMobile.Controller
         /// Find or insert an activity detail into the list details.
         /// </summary>
         /// <param name="mainActivityItems"><see cref="ObservableCollection{object}"/> Main activity items.</param>
-        /// <returns><see cref="ActivityDetail"/> Activity detail to insert.</returns>
-        public virtual ActivityDetail InsertListDetail(ObservableCollection<object> mainActivityItems)
+        /// <returns><see cref="ActivityDetail"/> Activity detail.</returns>
+        public abstract ActivityDetail InsertListDetail(ObservableCollection<object> mainActivityItems);
+
+        /// <summary>
+        /// Assign activity detail product information from the activity item.
+        /// </summary>
+        /// <param name="detail"><see cref="ActivityDetail"/> detail object.</param>
+        public virtual void InsertListDetailProduct(ActivityDetail detail)
         {
-            ActivityDetail detail = null;
-            if (this.ListDetails != null)
+            detail.ProductRefno = this.ActItem.ProdInfo.Refno;
+            detail.ProductUnitRefno = this.ActItem.ProdInfo.UnitRefno;
+            detail.ProductCode = this.ActItem.ProdInfo.Code;
+            detail.ProductUnitBC = this.ActItem.ProdInfo.UnitBC;
+            detail.ProductUnitIsBC = this.ActItem.ProdInfo.UnitIsBC;
+            detail.ProductDescription = this.ActItem.ProdInfo.Desc;
+            detail.ProductUnitSizeDescription = this.ActItem.ProdInfo.UnitSizeDesc;
+
+            detail.UnitCode = this.ActItem.ProdInfo.UnitCode;
+            detail.BaseUnitCode = this.ActItem.ProdInfo.BaseUnitCode;
+            detail.WtUnitCode = this.ActItem.ProdInfo.WeightUnitCode;
+        }
+
+        /// <summary>
+        /// Assign activity detail location information from the current location.
+        /// </summary>
+        /// <param name="detail"><see cref="ActivityDetail"/> detail object.</param>
+        public virtual void InsertListDetailLocation(ActivityDetail detail)
+        {
+            detail.LocationMapRefno = this.LocMap.CurrLocMapRefno;
+
+            int locCode = 0;
+            string locName = string.Empty;
+
+            if (this.LocMap.CurrLocMap.SlotLocMapRefno > 0)
             {
-                detail = new ActivityDetail();
-                detail.ActivityDetailRefno = this.DetailRefno;
-                detail.ActivityDetailFKRefno = this.DetailFKRefno;
-
-                InsertListDetailProduct(detail);
-                InsertListDetailQuantity(detail);
-                InsertListDetailScheme(detail);
-                InsertListDetailExtra(detail);
-                InsertListDetailLocation(detail);
-
-                detail.ActivityDetailSchemeID = this.SchemeID;
-                detail.ActivityDetailUniqueSchemeID = this.UniqueSchemeID;
+                locCode = this.LocMap.CurrLocMap.SlotCode;
+                locName = this.LocMap.CurrLocMap.SlotName;
+            }
+            else if (this.LocMap.CurrLocMap.SectLocMapRefno > 0)
+            {
+                locCode = this.LocMap.CurrLocMap.SectCode;
+                locName = this.LocMap.CurrLocMap.SectName;
+            }
+            else
+            {
+                locCode = this.LocMap.CurrLocMap.WhsCode;
+                locName = this.LocMap.CurrLocMap.WhsName;
             }
 
-            return detail;
+            detail.LocationCode = locCode;
+            detail.LocationName = locName;
+        }
 
-            //////////////////////////////////////////////////////////////////////////
-            void InsertListDetailProduct(ActivityDetail detail)
-            {
-                detail.ProductRefno = this.ActItem.ProdInfo.Refno;
-                detail.ProductUnitRefno = this.ActItem.ProdInfo.UnitRefno;
-                detail.ProductCode = this.ActItem.ProdInfo.Code;
-                detail.ProductUnitBC = this.ActItem.ProdInfo.UnitBC;
-                detail.ProductUnitIsBC = this.ActItem.ProdInfo.UnitIsBC;
-                detail.ProductDescription = this.ActItem.ProdInfo.Desc;
-                detail.ProductUnitSizeDescription = this.ActItem.ProdInfo.UnitSizeDesc;
+        /// <summary>
+        /// Assign activity detail scheme information from the scheme data.
+        /// </summary>
+        /// <param name="detail"><see cref="ActivityDetail"/> detail object.</param>
+        public virtual void InsertListDetailScheme(ActivityDetail detail)
+        {
+            detail.ProductSchemeVariantCode = this.SchemeData.VariantCode;
+            detail.ProductSchemeVariantNo = this.SchemeData.VariantNumber;
+            detail.ActivityDetailSingleTradeItemSerialNumber = this.SchemeData.SingleTradeItemSerialNumber;
+            detail.ActivityDetailLogisticUnitBestBeforeSellByDate = this.SchemeData.LogisticUnitBestBeforeSellByDate;
+            detail.ActivityDetailLogisticUnitBatchLotNumber = this.SchemeData.LogisticUnitBatchLotNumber;
+            detail.ActivityDetailLogisticUnitProductionDate = this.SchemeData.LogisticUnitProductionDate;
+            detail.ActivityDetailLogisticUnitSkidNumber = this.SchemeData.LogisticUnitSkidNumber;
+        }
 
-                detail.UnitCode = this.ActItem.ProdInfo.UnitCode;
-                detail.BaseUnitCode = this.ActItem.ProdInfo.BaseUnitCode;
-                detail.WtUnitCode = this.ActItem.ProdInfo.WeightUnitCode;
-            }
+        /// <summary>
+        /// Assign activity detail extra information from the activity extra data.
+        /// </summary>
+        /// <param name="detail"><see cref="ActivityDetail"/> detail object.</param>
+        public virtual void InsertListDetailExtra(ActivityDetail detail)
+        {
+            detail.ActivityDetailExtra1Text = this.ActExtra.Text1;
+            detail.ActivityDetailExtra2Text = this.ActExtra.Text2;
+            detail.ActivityDetailExtra3Text = this.ActExtra.Text3;
+            detail.ActivityDetailExtra4Text = this.ActExtra.Text4;
+            detail.ActivityDetailExtra5Date = this.ActExtra.DateTime1;
+        }
 
-            //////////////////////////////////////////////////////////////////////////
-            void InsertListDetailLocation(ActivityDetail detail)
-            {
-                detail.LocationMapRefno = this.LocMap.CurrLocMapRefno;
-
-                int locCode = 0;
-                string locName = string.Empty;
-
-                if (this.LocMap.CurrLocMap.SlotLocMapRefno > 0)
-                {
-                    locCode = this.LocMap.CurrLocMap.SlotCode;
-                    locName = this.LocMap.CurrLocMap.SlotName;
-                }
-                else if (this.LocMap.CurrLocMap.SectLocMapRefno > 0)
-                {
-                    locCode = this.LocMap.CurrLocMap.SectCode;
-                    locName = this.LocMap.CurrLocMap.SectName;
-                }
-                else
-                {
-                    locCode = this.LocMap.CurrLocMap.WhsCode;
-                    locName = this.LocMap.CurrLocMap.WhsName;
-                }
-
-                detail.LocationCode = locCode;
-                detail.LocationName = locName;
-            }
-
-            //////////////////////////////////////////////////////////////////////////
-            void InsertListDetailScheme(ActivityDetail detail)
-            {
-                detail.ProductSchemeVariantCode = this.SchemeData.VariantCode;
-                detail.ProductSchemeVariantNo = this.SchemeData.VariantNumber;
-                detail.ActivityDetailSingleTradeItemSerialNumber = this.SchemeData.SingleTradeItemSerialNumber;
-                detail.ActivityDetailLogisticUnitBestBeforeSellByDate = this.SchemeData.LogisticUnitBestBeforeSellByDate;
-                detail.ActivityDetailLogisticUnitBatchLotNumber = this.SchemeData.LogisticUnitBatchLotNumber;
-                detail.ActivityDetailLogisticUnitProductionDate = this.SchemeData.LogisticUnitProductionDate;
-                detail.ActivityDetailLogisticUnitSkidNumber = this.SchemeData.LogisticUnitSkidNumber;
-            }
-
-            //////////////////////////////////////////////////////////////////////////
-            void InsertListDetailExtra(ActivityDetail detail)
-            {
-                detail.ActivityDetailExtra1Text = this.ActExtra.Text1;
-                detail.ActivityDetailExtra2Text = this.ActExtra.Text2;
-                detail.ActivityDetailExtra3Text = this.ActExtra.Text3;
-                detail.ActivityDetailExtra4Text = this.ActExtra.Text4;
-                detail.ActivityDetailExtra5Date = this.ActExtra.DateTime1;
-            }
-
-            //////////////////////////////////////////////////////////////////////////
-            void InsertListDetailQuantity(ActivityDetail detail)
-            {
-                detail.ActivityDetailQuantity = Math.Round(this.Quantity, 3);
-                detail.ActivityDetailBaseQuantity = Math.Round(this.BaseQuantity, 3);
-                detail.ActivityDetailWeightQuantity = Math.Round(this.WeightQuantity, 3);
-            }
+        /// <summary>
+        /// Assign activity detail quantity information from the activity quantity data.
+        /// </summary>
+        /// <param name="detail"><see cref="ActivityDetail"/> detail object.</param>
+        public virtual void InsertListDetailQuantity(ActivityDetail detail)
+        {
+            detail.ActivityDetailQuantity = Math.Round(this.Quantity, 3);
+            detail.ActivityDetailBaseQuantity = Math.Round(this.BaseQuantity, 3);
+            detail.ActivityDetailWeightQuantity = Math.Round(this.WeightQuantity, 3);
         }
 
         /// <summary>
         /// Update detail in the detail list.
         /// </summary>
         /// <param name="listDetailIdx"><see cref="int"/> Zero based list detail index.</param>
-        /// <returns><see cref="dMobile.Resources.Types.ActivityDetail"/> Updated detail or null.</returns>
-        public virtual ActivityDetail UpdateListDetail(int listDetailIdx)
-        {
-            ((ActivityDetail)this.ListDetails[listDetailIdx]).ActivityDetailQuantity =
-                ((ActivityDetail)this.ListDetails[listDetailIdx]).ActivityDetailQuantity + Math.Round(this.Quantity, 3);
-            ((ActivityDetail)this.ListDetails[listDetailIdx]).ActivityDetailBaseQuantity =
-                ((ActivityDetail)this.ListDetails[listDetailIdx]).ActivityDetailBaseQuantity + Math.Round(this.BaseQuantity, 3);
-            ((ActivityDetail)this.ListDetails[listDetailIdx]).ActivityDetailWeightQuantity =
-                ((ActivityDetail)this.ListDetails[listDetailIdx]).ActivityDetailWeightQuantity + Math.Round(this.WeightQuantity, 3);
-
-            return (ActivityDetail)this.ListDetails[listDetailIdx];
-        }
+        public abstract void UpdateListDetail(int listDetailIdx);
 
         /// <summary>
         /// Insert the activity detail.
@@ -990,7 +974,8 @@ namespace dMobile.Controller
             this.ActItem.ItemFKRefno = int.Parse(xmlData.DocumentElement["itm_refno"].InnerText);
 
             // Assign a temporary activity detail until a full activity detail refresh occurs.
-            this.DetailRefno = int.Parse(xmlData.DocumentElement["ser_refno"].InnerText) * -1;
+            this.DetailFKRefno = int.Parse(xmlData.DocumentElement["ser_refno"].InnerText) * -1;
+            this.DetailRefno = this.DetailFKRefno;
         }
 
         /// <summary>
@@ -1078,6 +1063,7 @@ namespace dMobile.Controller
 
                 actDetailRefno = Convert.ToInt32(await conn.ExecuteScalarAsync<int>(
                     "SELECT last_insert_rowid() FROM tActivityDetail"));
+                this.DetailRefno = actDetailRefno;
                 this.DetailFKRefno = actDetailRefno * -1;
 
                 if (this.SchemeData.VariantNumber > 0)

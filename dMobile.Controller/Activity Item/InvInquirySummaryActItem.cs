@@ -207,7 +207,19 @@ namespace dMobile.Controller
                 return new ViewCell { View = gridData };
             });
 
-            this.resourceDictionary.Add("dataTemplate", dataTemplate);
+            bool isAddKey = true;
+            foreach (var item in this.resourceDictionary)
+            {
+                if (item.Key == "dataTemplate")
+                {
+                    isAddKey = false;
+                }
+            }
+
+            if (isAddKey)
+            {
+                this.resourceDictionary.Add("dataTemplate", dataTemplate);
+            }
         }
 
         /// <summary>
@@ -909,6 +921,11 @@ namespace dMobile.Controller
                     whsLocMapRefno,
                     prodRefno,
                     SysCommon.ProdLocMapTypes.Floor);
+            }
+
+            if (!await LocationMapTasks.IsCompleteLocMap(locMapRefno))
+            {
+                locMapRefno = 0;
             }
 
             return locMapRefno;

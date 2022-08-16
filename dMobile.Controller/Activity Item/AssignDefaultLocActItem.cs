@@ -386,6 +386,11 @@ namespace dMobile.Controller
                     SysCommon.ProdLocMapTypes.Floor);
             }
 
+            if (!await LocationMapTasks.IsCompleteLocMap(locMapRefno))
+            {
+                locMapRefno = 0;
+            }
+
             return locMapRefno;
         }
 

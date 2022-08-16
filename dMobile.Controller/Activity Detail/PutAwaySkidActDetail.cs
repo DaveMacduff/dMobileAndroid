@@ -110,9 +110,25 @@ namespace dMobile.Controller
         /// <returns><see cref="ActivityDetail"/> Activity detail.</returns>
         public override ActivityDetail InsertListDetail(ObservableCollection<object> mainActivityItems)
         {
-            ActivityDetail detail = (ActivityDetail)base.InsertListDetail(mainActivityItems);
-            ////detail.ActivityDetailStatus = (int)SysCommon.ActStatus.Inserted;
-            this.ListDetails.Add(detail);
+            ActivityDetail detail = null;
+            if (this.ListDetails != null)
+            {
+                detail = new ActivityDetail();
+                detail.ActivityDetailRefno = this.DetailRefno;
+                detail.ActivityDetailFKRefno = this.DetailFKRefno;
+
+                this.InsertListDetailProduct(detail);
+                this.InsertListDetailQuantity(detail);
+                this.InsertListDetailScheme(detail);
+                this.InsertListDetailExtra(detail);
+                this.InsertListDetailLocation(detail);
+
+                detail.ActivityDetailSchemeID = this.SchemeID;
+                detail.ActivityDetailUniqueSchemeID = this.UniqueSchemeID;
+                ////detail.ActivityDetailStatus = (int)SysCommon.ActStatus.Inserted;
+                this.ListDetails.Add(detail);
+            }
+
             return detail;
         }
 
@@ -120,12 +136,17 @@ namespace dMobile.Controller
         /// Update detail in the detail list.
         /// </summary>
         /// <param name="listDetailIdx"><see cref="int"/> Zero based list detail index.</param>
-        /// <returns><see cref="dMobile.Resources.Types.ActivityDetail"/> Updated detail or null.</returns>
-        public override ActivityDetail UpdateListDetail(int listDetailIdx)
+        public override void UpdateListDetail(int listDetailIdx)
         {
-            ActivityDetail detail = (ActivityDetail)base.UpdateListDetail(listDetailIdx);
-            ////detail.ActivityDetailStatus = (int)SysCommon.ActStatus.Updated;
-            return detail;
+            ActivityDetail detail = (ActivityDetail)this.ListDetails[listDetailIdx];
+            ////if (detail.ActivityDetailStatus == (int)SysCommon.ActStatus.NoChange)
+            ////{
+            ////    detail.ActivityDetailStatus = (int)SysCommon.ActStatus.Updated;
+            ////}
+
+            detail.ActivityDetailQuantity += Math.Round(this.Quantity, 3);
+            detail.ActivityDetailBaseQuantity += Math.Round(this.BaseQuantity, 3);
+            detail.ActivityDetailWeightQuantity += Math.Round(this.WeightQuantity, 3);
         }
 
         /// <summary>

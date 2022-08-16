@@ -554,7 +554,7 @@ namespace dMobile.View.Forms
             IDMobileModal model = modelType switch
             {
                 EDialogTypes.ActivityDetail => new ActivityDetail(actItem, actSubType),
-                EDialogTypes.SelectProductUnitFilterToProduct => new ucSelectProductUnit(
+                EDialogTypes.SelectProductUnitFilterToProduct => new SelectProductUnit(
                     actItem.ProdInfo.Refno,
                     actItem.ProdInfo.UnitRefno,
                     actSubType),
@@ -607,7 +607,7 @@ namespace dMobile.View.Forms
         {
             IDMobileModal model = modelType switch
             {
-                EDialogTypes.SelectProductUnit => new ucSelectProductUnit(actSubType),
+                EDialogTypes.SelectProductUnit => new SelectProductUnit(actSubType),
                 EDialogTypes.RefreshDataStatus => null,
                 EDialogTypes.SelectProductUnitFilterToProduct => null,
                 EDialogTypes.SelectLocationMap => null,

@@ -138,36 +138,37 @@ namespace dMobile.Controller
             if (this.ListItems != null)
             {
                 SActItemSchemeData schemeData = Common.FillSActItemSchemeDataFromXML(data);
-                this.ListItems.Add(
-                    new ConvertUnitItem()
-                    {
-                        ProductUnitRefno = this.ProdInfo.UnitRefno,
-                        ProductRefno = this.ProdInfo.Refno,
-                        ProductCode = this.ProdInfo.Code,
-                        ProductUnitBC = this.ProdInfo.UnitBC,
-                        UnitCode = this.ProdInfo.UnitCode,
-                        ProductDescription = this.ProdInfo.Desc,
-                        ProductUnitSizeDescription = this.ProdInfo.UnitSizeDesc,
-                        ActivityDetailQuantity = schemeData.ActDetailQuantity,
-                        ActivityDetailBaseQuantity = schemeData.ActDetailBaseQuantity,
-                        ActivityDetailWeightQuantity = schemeData.ActDetailWeightQuantity,
-                        ActivityDetailLogisticUnitBestBeforeSellByDate = schemeData.ProdSchemeData.LogisticUnitBestBeforeSellByDate,
-                        ActivityDetailLogisticUnitProductionDate = schemeData.ProdSchemeData.LogisticUnitProductionDate,
-                        ActivityDetailSingleTradeItemSerialNumber = schemeData.ProdSchemeData.SingleTradeItemSerialNumber,
-                        ActivityDetailLogisticUnitBatchLotNumber = schemeData.ProdSchemeData.LogisticUnitBatchLotNumber,
-                        ProductSchemeVariantCode = schemeData.ProdSchemeData.VariantCode,
-                        ProductSchemeVariantNumber = schemeData.ProdSchemeData.VariantNumber,
-                        ActivityDetailSchemeID = ProductInfoTasks.GetActSchemeIDFromSProdSchemeData(
-                            this.ProdInfo.Code,
-                            this.ProdInfo.Scheme,
-                            schemeData.ProdSchemeData),
-                        ActivityDetailUniqueSchemeID = ProductInfoTasks.GetUniqueSchemeIDFromSProdSchemeData(
-                            this.ProdInfo.Code,
-                            this.ProdInfo.Scheme,
-                            schemeData.ProdSchemeData),
-                        ActivityDetailFKRefno = this.ItemFKRefno,
-                        ActivityDetailRefno = this.ItemRefno,
-                    });
+                ConvertUnitItem item = new ConvertUnitItem()
+                {
+                    ProductUnitRefno = this.ProdInfo.UnitRefno,
+                    ProductRefno = this.ProdInfo.Refno,
+                    ProductCode = this.ProdInfo.Code,
+                    ProductUnitBC = this.ProdInfo.UnitBC,
+                    UnitCode = this.ProdInfo.UnitCode,
+                    ProductDescription = this.ProdInfo.Desc,
+                    ProductUnitSizeDescription = this.ProdInfo.UnitSizeDesc,
+                    ActivityDetailQuantity = schemeData.ActDetailQuantity,
+                    ActivityDetailBaseQuantity = schemeData.ActDetailBaseQuantity,
+                    ActivityDetailWeightQuantity = schemeData.ActDetailWeightQuantity,
+                    ActivityDetailLogisticUnitBestBeforeSellByDate = schemeData.ProdSchemeData.LogisticUnitBestBeforeSellByDate,
+                    ActivityDetailLogisticUnitProductionDate = schemeData.ProdSchemeData.LogisticUnitProductionDate,
+                    ActivityDetailSingleTradeItemSerialNumber = schemeData.ProdSchemeData.SingleTradeItemSerialNumber,
+                    ActivityDetailLogisticUnitBatchLotNumber = schemeData.ProdSchemeData.LogisticUnitBatchLotNumber,
+                    ProductSchemeVariantCode = schemeData.ProdSchemeData.VariantCode,
+                    ProductSchemeVariantNumber = schemeData.ProdSchemeData.VariantNumber,
+                    ActivityDetailSchemeID = ProductInfoTasks.GetActSchemeIDFromSProdSchemeData(
+                        this.ProdInfo.Code,
+                        this.ProdInfo.Scheme,
+                        schemeData.ProdSchemeData),
+                    ActivityDetailUniqueSchemeID = ProductInfoTasks.GetUniqueSchemeIDFromSProdSchemeData(
+                        this.ProdInfo.Code,
+                        this.ProdInfo.Scheme,
+                        schemeData.ProdSchemeData),
+                    ActivityDetailFKRefno = this.ItemFKRefno,
+                    ActivityDetailRefno = this.ItemRefno,
+                };
+                this.ListItems.Add(item);
+                _ = this.SelectActivityItem(item);
             }
         }
 
@@ -462,6 +463,11 @@ namespace dMobile.Controller
                     whsLocMapRefno,
                     prodRefno,
                     SysCommon.ProdLocMapTypes.Floor);
+            }
+
+            if (!await LocationMapTasks.IsCompleteLocMap(locMapRefno))
+            {
+                locMapRefno = 0;
             }
 
             return locMapRefno;

@@ -380,19 +380,29 @@ namespace dMobile.Controller
         /// Determine what the selected location map should be when an activity line item or detail is selected.
         /// </summary>
         /// <param name="itemLocMapRefno"><see cref="int"/> Activity item location map reference number.</param>
-        /// <returns><see cref="Task{SLocMap}"/> Selected item location or null.</returns>
+        /// <returns><see cref="Task{SLocMap}"/> Selected item location or null. Only complete locations are returned.</returns>
         public virtual async Task<SLocMap> GetSelectedItemLocation(int itemLocMapRefno)
         {
-            SLocMap defaultLocMap = null;
+            SLocMap selectedLocMap = null;
+
+            if (itemLocMapRefno <= 0)
+            {
+                // Current location should not be considered because the warehouse may not match the line item
+                // location warehouse.
+                // We can't use a activity header warehouse location because an activity header does not always have
+                // a location. Line items already where filtered by a header location possibly upon refreshing data.
+                itemLocMapRefno = LocationMap.GetInstance().LoginWhsLocMapRefno;
+            }
+
             SLocMap itemLocMap = await LocationMapTasks.GetSLocMapFromLocMapRefno(itemLocMapRefno);
 
             if (await LocationMapTasks.IsCompleteLocMap(itemLocMapRefno))
             {
-                defaultLocMap = await LocationMapTasks.GetSLocMapFromLocMapRefno(itemLocMapRefno);
+                selectedLocMap = await LocationMapTasks.GetSLocMapFromLocMapRefno(itemLocMapRefno);
             }
 
             bool isGetDefault = false;
-            if (defaultLocMap == null || this.SysEnv.SysSettings.IsDefaultLocToProductDefaultLoc)
+            if (this.SysEnv.SysSettings.IsDefaultLocToProductDefaultLoc)
             {
                 if ((this.ActSubType == SysCommon.ActSubTypes.PhysicalCounts &&
                         this.SysEnv.SysSettings.IsPhysicalDoNotDefaultProductLocation)
@@ -407,12 +417,16 @@ namespace dMobile.Controller
                 }
             }
 
+            // Even if the line item selected location is complete, default location will override.
             if (isGetDefault)
             {
+                // Note: A selected skid location is not considered as a default, rather the skid location will be
+                // assigned and updated in the calling method.
+                // Default location however will be based on the any activity item warehouse or header warehouse.
                 int locMapRefno = await this.GetDefaultLocMapRefno(itemLocMap.WhsLocMapRefno, this.ProdInfo.Refno);
                 if (await LocationMapTasks.IsCompleteLocMap(locMapRefno))
                 {
-                    defaultLocMap = await LocationMapTasks.GetSLocMapFromLocMapRefno(locMapRefno);
+                    selectedLocMap = await LocationMapTasks.GetSLocMapFromLocMapRefno(locMapRefno);
                 }
             }
             else
@@ -426,31 +440,24 @@ namespace dMobile.Controller
                         this.ActHdr.SkidInfo.CurrSkid.ProdInfo.Refno == this.ProdInfo.Refno &&
                         this.ActHdr.SkidInfo.CurrSkid.LocMap.WhsLocMapRefno == itemLocMap.WhsLocMapRefno)
                     {
-                        // Skid location is assumed to be complete.
-                        defaultLocMap = this.ActHdr.SkidInfo.CurrSkid.LocMap;
+                        if (await LocationMapTasks.IsCompleteLocMap(this.ActHdr.SkidInfo.CurrSkid.LocMap))
+                        {
+                            selectedLocMap = this.ActHdr.SkidInfo.CurrSkid.LocMap;
+                        }
                     }
                 }
             }
 
             // Current location is not considered because it is a result of the default rather than a source location.
-            LocationMap locMap = LocationMap.GetInstance();
-            if (defaultLocMap == null || defaultLocMap.WhsLocMapRefno == 0)
+            if (selectedLocMap == null || selectedLocMap.WhsLocMapRefno == 0)
             {
-                if (await LocationMapTasks.IsCompleteLocMap(locMap.ChosenLocMap))
+                if (await LocationMapTasks.IsCompleteLocMap(LocationMap.GetInstance().ChosenLocMap))
                 {
-                    defaultLocMap = locMap.ChosenLocMap;
+                    selectedLocMap = LocationMap.GetInstance().ChosenLocMap;
                 }
             }
 
-            if (defaultLocMap == null || defaultLocMap.WhsLocMapRefno == 0)
-            {
-                if (await LocationMapTasks.IsCompleteLocMap(locMap.LoginWhsLocMapRefno))
-                {
-                    defaultLocMap = await LocationMapTasks.GetSLocMapFromLocMapRefno(locMap.LoginWhsLocMapRefno);
-                }
-            }
-
-            return defaultLocMap;
+            return selectedLocMap;
         }
 
         /// <summary>

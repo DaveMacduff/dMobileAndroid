@@ -17,22 +17,6 @@ namespace dMobile.Bedrock
         private bool isOverContinue = false;
 
         /// <summary>
-        /// Gets or sets a value indicating whether IsOverContinue.
-        /// </summary>
-        public bool IsOverContinue
-        {
-            get
-            {
-                return this.isOverContinue;
-            }
-
-            set
-            {
-                this.isOverContinue = value;
-            }
-        }
-
-        /// <summary>
         /// Gets or sets a value indicating whether SuppressError.
         /// </summary>
         public bool SuppressError { get; set; } = false;
@@ -112,6 +96,22 @@ namespace dMobile.Bedrock
         {
             this.SuppressError = suppressError;
             this.IsOverContinue = isOverContinue;
+        }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether IsOverContinue.
+        /// </summary>
+        public bool IsOverContinue
+        {
+            get
+            {
+                return this.isOverContinue;
+            }
+
+            set
+            {
+                this.isOverContinue = value;
+            }
         }
     }
 }

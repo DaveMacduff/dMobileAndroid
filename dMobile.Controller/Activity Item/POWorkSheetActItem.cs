@@ -96,7 +96,19 @@ namespace dMobile.Controller
                 return new ViewCell { View = gridData };
             });
 
-            this.resourceDictionary.Add("dataTemplate", dataTemplate);
+            bool isAddKey = true;
+            foreach (var item in this.resourceDictionary)
+            {
+                if (item.Key == "dataTemplate")
+                {
+                    isAddKey = false;
+                }
+            }
+
+            if (isAddKey)
+            {
+                this.resourceDictionary.Add("dataTemplate", dataTemplate);
+            }
         }
 
         /// <summary>
@@ -316,45 +328,46 @@ namespace dMobile.Controller
                 // string oldSort = DataViewItems.Sort;
                 // int rowIdx = 0;
                 // this.DataViewItems.Sort = "ActivityItemFKRefno";
-                PurchaseOrderWorkSheetItem purchaseOrderWorkSheetItem = null;
+                PurchaseOrderWorkSheetItem item = null;
                 bool toBeAdded = false;
 
                 if (this.ItemFKRefno > 0)
                 {
-                    purchaseOrderWorkSheetItem = this.ListItems.OfType<PurchaseOrderWorkSheetItem>().Where(worksheetItem => worksheetItem.ActivityItemFKRefno == this.ItemFKRefno).FirstOrDefault();
+                    item = this.ListItems.OfType<PurchaseOrderWorkSheetItem>().Where(worksheetItem => worksheetItem.ActivityItemFKRefno == this.ItemFKRefno).FirstOrDefault();
                 }
 
-                if (purchaseOrderWorkSheetItem == null)
+                if (item == null)
                 {
-                    purchaseOrderWorkSheetItem = new PurchaseOrderWorkSheetItem();
-                    purchaseOrderWorkSheetItem.ActivityItemRefno = this.ItemRefno;
-                    purchaseOrderWorkSheetItem.ProductUnitRefno = this.ProdInfo.UnitRefno;
-                    purchaseOrderWorkSheetItem.ProductRefno = this.ProdInfo.Refno;
-                    purchaseOrderWorkSheetItem.ProductCode = this.ProdInfo.Code;
-                    purchaseOrderWorkSheetItem.ProductDescription = this.ProdInfo.Desc;
-                    purchaseOrderWorkSheetItem.ProductUnitSizeDescription = this.ProdInfo.UnitSizeDesc;
-                    purchaseOrderWorkSheetItem.UnitCode = this.ProdInfo.UnitCode;
-                    purchaseOrderWorkSheetItem.ActivityItemFKRefno = this.ItemFKRefno;
-                    purchaseOrderWorkSheetItem.ActivityItemStringFKRefno = this.ItemFKRefno.ToString();
+                    item = new PurchaseOrderWorkSheetItem();
+                    item.ActivityItemRefno = this.ItemRefno;
+                    item.ProductUnitRefno = this.ProdInfo.UnitRefno;
+                    item.ProductRefno = this.ProdInfo.Refno;
+                    item.ProductCode = this.ProdInfo.Code;
+                    item.ProductDescription = this.ProdInfo.Desc;
+                    item.ProductUnitSizeDescription = this.ProdInfo.UnitSizeDesc;
+                    item.UnitCode = this.ProdInfo.UnitCode;
+                    item.ActivityItemFKRefno = this.ItemFKRefno;
+                    item.ActivityItemStringFKRefno = this.ItemFKRefno.ToString();
 
                     toBeAdded = true;
                 }
 
                 int locMapRefno = LocationMapTasks.DefaultLocMapRefnoToWhsIfUnassigned(0);
                 SLocMap locMap = await LocationMapTasks.GetSLocMapFromLocMapRefno(locMapRefno);
-                purchaseOrderWorkSheetItem.ActivityItemStatus = Convert.ToInt32(SysCommon.ActStatus.NoChange);
-                purchaseOrderWorkSheetItem.LocationMapRefno = locMap.WhsLocMapRefno;
-                purchaseOrderWorkSheetItem.ActivityItemPurchaseOrderWorkSheetQuantityOrdered = Math.Round(decimal.Parse(data.Root.Element("alt_qty").Value), 3);
-                purchaseOrderWorkSheetItem.ActivityItemPurchaseOrderWorkSheetBaseQuantityOrdered = Math.Round(decimal.Parse(data.Root.Element("base_qty").Value), 3);
-                purchaseOrderWorkSheetItem.ActivityItemPurchaseOrderWorkSheetWeightQuantityOrdered = Math.Round(decimal.Parse(data.Root.Element("wt_qty").Value), 3);
-                purchaseOrderWorkSheetItem.LocationCode = this.LocMap.WhsLocMapRefno;
-                purchaseOrderWorkSheetItem.LocationName = this.LocMap.WhsName;
+                item.ActivityItemStatus = Convert.ToInt32(SysCommon.ActStatus.NoChange);
+                item.LocationMapRefno = locMap.WhsLocMapRefno;
+                item.ActivityItemPurchaseOrderWorkSheetQuantityOrdered = Math.Round(decimal.Parse(data.Root.Element("alt_qty").Value), 3);
+                item.ActivityItemPurchaseOrderWorkSheetBaseQuantityOrdered = Math.Round(decimal.Parse(data.Root.Element("base_qty").Value), 3);
+                item.ActivityItemPurchaseOrderWorkSheetWeightQuantityOrdered = Math.Round(decimal.Parse(data.Root.Element("wt_qty").Value), 3);
+                item.LocationCode = this.LocMap.WhsLocMapRefno;
+                item.LocationName = this.LocMap.WhsName;
 
                 // TODO: Fix sorting
                 // this.DataViewItems.Sort = oldSort;
                 if (toBeAdded)
                 {
-                    this.ListItems.Add(purchaseOrderWorkSheetItem);
+                    this.ListItems.Add(item);
+                    _ = this.SelectActivityItem(item);
                 }
             }
         }
@@ -793,7 +806,7 @@ namespace dMobile.Controller
                 this.ItemRefno = item.ActivityItemRefno;
                 this.ItemFKRefno = item.ActivityItemFKRefno;
                 this.ProdInfo = await ProductInfoTasks.GetInfoFromUnitRefno(item.ProductUnitRefno);
-                int activityItemLocMapRefno = item.LocationMapRefno;
+                this.ProdInfo.Scheme = await ProductInfoTasks.GetSchemeComponentsFromRefno(this.ProdInfo.Refno);
 
                 // This code needs to be before the call to GetSelectedItemLocation, because the skid location may be
                 // used if the product unit and warehouse match.
@@ -803,10 +816,11 @@ namespace dMobile.Controller
                     this.ActHdr.SkidInfo.CurrSkid = new SSkidInfo();
                 }
 
+                SLocMap locMap = await this.GetSelectedItemLocation(item.LocationMapRefno);
+
                 if (this.SysEnv.SysSettings.IsDefaultLocToProductDefaultLoc)
                 {
                     // Only assign the current location if the map is complete else leave it alone.
-                    SLocMap locMap = await this.GetSelectedItemLocation(activityItemLocMapRefno);
                     if (locMap != null && await LocationMapTasks.IsCompleteLocMap(locMap))
                     {
                         // Update the chosen location with the current when defaulting is turned on.
@@ -818,10 +832,22 @@ namespace dMobile.Controller
                         {
                             this.ActHdr.SkidInfo.CurrSkid.LocMap = locMap.Clone();
                         }
+
+                        // Update the activity item location.
+                        this.LocMap = LocationMap.GetInstance().CurrLocMap.Clone();
+                    }
+                }
+                else
+                {
+                    // Only assign the current location if the map is complete else leave it alone.
+                    if (locMap != null && await LocationMapTasks.IsCompleteLocMap(locMap))
+                    {
+                        // Do not update the current, chosen or skid location when defaulting is off.
+                        this.LocMap = locMap.Clone();
                     }
                 }
 
-                // LocationMap.GetInstance().CurrLocMap needs to be set before call to GetSchemeComponentsFromRefno.
+                // LocationMap.GetInstance().CurrLocMap warehouse needs to be set before call to GetSchemeComponentsFromRefno.
                 this.ProdInfo.Scheme = await ProductInfoTasks.GetSchemeComponentsFromRefno(this.ProdInfo.Refno);
             }
         }
@@ -1073,6 +1099,11 @@ namespace dMobile.Controller
                     whsLocMapRefno,
                     prodRefno,
                     SysCommon.ProdLocMapTypes.Floor);
+            }
+
+            if (!await LocationMapTasks.IsCompleteLocMap(locMapRefno))
+            {
+                locMapRefno = 0;
             }
 
             return locMapRefno;

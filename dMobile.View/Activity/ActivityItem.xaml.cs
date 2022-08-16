@@ -214,8 +214,7 @@ namespace dMobile.View.Activity
         /// <summary>
         /// Gets or sets a list of list view activity items.
         /// </summary>
-        private ObservableCollection<object> MainActivityItems { get; set; }
-            = new ObservableCollection<object>();
+        private ObservableCollection<object> MainActivityItems { get; set; } = new ObservableCollection<object>();
 
         /// <summary>
         /// Gets or sets the options menu items list.
@@ -394,11 +393,6 @@ namespace dMobile.View.Activity
         }
 
         /// <summary>
-        /// Gets or sets a value indicating whether the saved bar code scanner enabled status.
-        /// </summary>
-        private bool IsSvdBarScannerEnabled { get; set; } = false;
-
-        /// <summary>
         /// Get the control description.
         /// </summary>
         /// <returns><see cref="string"/> Control description.</returns>
@@ -413,14 +407,15 @@ namespace dMobile.View.Activity
         /// <returns><see cref="Task"/> Task operation.</returns>
         public async Task ScannerDisable()
         {
-            this.IsSvdBarScannerEnabled = this.IsBarCodeHandlerRegistered;
             if (this.Scanner != null)
             {
-                this.Scanner.BarCodeScan -= new BarCodeScanner.BarCodeScanEventHandler(this.BarCodeHandler);
-                await this.Scanner.Stop();
+                if (this.IsBarCodeHandlerRegistered)
+                {
+                    this.Scanner.BarCodeScan -= new BarCodeScanner.BarCodeScanEventHandler(this.BarCodeHandler);
+                    await this.Scanner.Stop();
+                    this.IsBarCodeHandlerRegistered = false;
+                }
             }
-
-            this.IsBarCodeHandlerRegistered = false;
         }
 
         /// <summary>
@@ -429,11 +424,14 @@ namespace dMobile.View.Activity
         /// <returns><see cref="Task"/> Task operation.</returns>
         public async Task ScannerEnable()
         {
-            if (this.IsSvdBarScannerEnabled && !this.IsBarCodeHandlerRegistered && this.Scanner != null)
+            if (this.Scanner != null)
             {
-                await this.Scanner.Start();
-                this.Scanner.BarCodeScan += new BarCodeScanner.BarCodeScanEventHandler(this.BarCodeHandler);
-                this.IsBarCodeHandlerRegistered = true;
+                if (!this.IsBarCodeHandlerRegistered)
+                {
+                    await this.Scanner.Start();
+                    this.Scanner.BarCodeScan += new BarCodeScanner.BarCodeScanEventHandler(this.BarCodeHandler);
+                    this.IsBarCodeHandlerRegistered = true;
+                }
             }
         }
 
@@ -448,7 +446,6 @@ namespace dMobile.View.Activity
                 await this.Scanner.Start();
                 this.Scanner.BarCodeScan += new BarCodeScanner.BarCodeScanEventHandler(this.BarCodeHandler);
                 this.IsBarCodeHandlerRegistered = true;
-                this.IsSvdBarScannerEnabled = true;
             }
         }
 
@@ -1152,7 +1149,14 @@ namespace dMobile.View.Activity
                     this.ActItem.UnregLayerListenerProgOut(this);
                     await this.DesignGrid();
 
-                    await this.ActAppearing();
+                    if (this.MainActivityItems == null || this.MainActivityItems.Count == 0)
+                    {
+                        await this.DisplayDataItem();
+                    }
+                    else
+                    {
+                        await this.ActAppearing();
+                    }
                 }
             }
             catch (MessageOnlyException ex)
@@ -1178,12 +1182,6 @@ namespace dMobile.View.Activity
             finally
             {
                 this.Loading = false;
-                await Task.Run(() =>
-                {
-                    // Explicit GC, Xamarin forms not disposing of objects properly
-                    GC.Collect();
-                    GC.WaitForPendingFinalizers();
-                });
             }
         }
 
@@ -1197,7 +1195,7 @@ namespace dMobile.View.Activity
         }
 
         /// <summary>
-        /// Activity appearing.
+        /// Subscribe key up handlers, other events and find the selected item using this.SelectedActivityItemFKRefno.
         /// </summary>
         private async Task ActAppearing()
         {
@@ -1205,12 +1203,16 @@ namespace dMobile.View.Activity
             this.ListViewMainActivity.ItemTapped += this.ListViewMainActivity_ItemTapped;
             SubscribeKeyUpHandlers();
 
-            this.DisplayDataLocation();
-            this.DisplayDataSkid();
-
             this.ListViewDisplayExtraInfo.ItemsSource = this.ExtraInfoItems;
 
             await this.FindSelectedItemAsync();
+
+            // No need to invoke DisplayData() selected item will do so, unless the list is empty.
+            ////if (this.MainActivityItems == null || this.MainActivityItems.Count == 0)
+            ////{
+            ////    await this.DisplayDataItem();
+            ////}
+
             ////await Device.InvokeOnMainThreadAsync(() =>
             ////{
             ////    this.ListViewMainActivity.ScrollTo(
@@ -1218,12 +1220,6 @@ namespace dMobile.View.Activity
             ////    ScrollToPosition.MakeVisible,
             ////    false);
             ////});
-
-            // No need to invoke DisplayData() selected item will do so, unless the list is empty.
-            if (this.MainActivityItems == null || this.MainActivityItems.Count == 0)
-            {
-                await this.DisplayDataItem();
-            }
 
             //////////////////////////////////////////////////////////////////////////
             void SubscribeKeyUpHandlers()
@@ -1585,9 +1581,8 @@ namespace dMobile.View.Activity
         }
 
         /// <summary>
-        /// 
+        /// Unsubscribe from KeyUpHandler, other event hooks and turn off the scanner.
         /// </summary>
-        /// <returns></returns>
         private async Task ActDisappearing()
         {
             MessagingCenter.Unsubscribe<string>(this, EventTypes.OnKeyUp.ToString());
@@ -1805,7 +1800,9 @@ namespace dMobile.View.Activity
             try
             {
                 await this.ActDisappearing();
+
                 ////await this.ActItem.SelectActivityItem(this.ListViewMainActivity.SelectedItem);
+
                 if (this.ActItem.ActHdr.SkidInfo.CurrSkid.SkidFKRefno != 0)
                 {
                     SSkidInfo currSkid = this.ActItem.ActHdr.SkidInfo.CurrSkid;
@@ -1819,15 +1816,17 @@ namespace dMobile.View.Activity
 
                 await Device.InvokeOnMainThreadAsync(async () =>
                 {
+                    int currSelectedIdx = this.MainActivityItems.IndexOf(this.ListViewMainActivity.SelectedItem);
                     FormDialogContainer form = new FormDialogContainer(
                         EDialogTypes.ActivityDetail,
                         this.ActItem,
                         this.ActSubType);
                     this.IsChangesMade = false;
+
+                    // There currently no way to cancel from the detail screen. Always returns DialogResult.OK.
                     if (await form.DisplayControl.ShowDialog() == DialogResult.OK)
                     {
                         XDocument xmlDoc = await form.GetXML();
-                        int currSelectedIdx = this.MainActivityItems.IndexOf(this.ListViewMainActivity.SelectedItem);
                         this.ActItem.RefreshQuantity(
                             this.ListViewMainActivity.SelectedItem,
                             Math.Round(decimal.Parse(xmlDoc.Root.Element("qty").Value), 3),
@@ -1879,7 +1878,7 @@ namespace dMobile.View.Activity
 
             this.Loading = true;
 
-            await this.ScannerDisable();
+            await this.ActDisappearing();
 
             int prodUnitRefno = 0;
             object selectedItem = null;
@@ -1966,23 +1965,17 @@ namespace dMobile.View.Activity
                                 if (isAddNewItem)
                                 {
                                     await this.ActItem.Insert(ProductInfoTasks.GetXML(scannedProdInfo), false);
+                                    this.ActItem.SetSelectedActivityItem(this.ActItem.ItemRefno);
 
                                     // This is a little dangerous we assume that the new row idx will be the last one
-                                    selectedItem = this.ActItem.ListItems.LastOrDefault();
-                                    ////selectedItem = this.ActItem.ListItems.OfType<object>().FirstOrDefault(
-                                    ////    activityItem => Convert.ToString(activityItem.GetType().
-                                    ////    GetProperty("ActivityItemRefno")?.GetValue(activityItem)) ==
-                                    ////    Convert.ToString(actItemFoundRefno));
-
+                                    // selectedItem = this.ActItem.ListItems.Last();
                                     // Try not to refresh all the items.
                                     ////this.ActItem.RegLayerListenerProgOut(this);
                                     ////await this.RefreshBySubType();
                                     ////this.ActItem.UnregLayerListenerProgOut(this);
-                                    ////await this.DesignGrid();
+                                    await this.DesignGrid();
 
                                     await this.ActAppearing();
-
-                                    actItemFoundRefno = this.ActItem.ItemRefno;
                                 }
                                 else
                                 {
@@ -2157,26 +2150,14 @@ namespace dMobile.View.Activity
                         tempItemProdSchemeData.ProdSchemeData = schemeData;
                         actDetail.SchemeData = schemeData;
 
-                        try
-                        {
-                            await this.ActDisappearing();
-                            isInsertReady = await SysShared.GatherProductData(
-                                parse,
-                                this.ActSubType,
-                                this.ActItem,
-                                tempItemProdSchemeData,
-                                isInsertReady,
-                                actDetail,
-                                false);
-                        }
-                        catch
-                        {
-                            throw;
-                        }
-                        finally
-                        {
-                            await this.ActAppearing();
-                        }
+                        isInsertReady = await SysShared.GatherProductData(
+                            parse,
+                            this.ActSubType,
+                            this.ActItem,
+                            tempItemProdSchemeData,
+                            isInsertReady,
+                            actDetail,
+                            false);
 
                         if (isInsertReady)
                         {
@@ -2241,12 +2222,6 @@ namespace dMobile.View.Activity
                             this.ActItem.ItemRefno);
                     }
 
-                    // Update UI here
-                    await Device.InvokeOnMainThreadAsync(() =>
-                    {
-                        this.ListViewMainActivity.ItemsSource = this.ActItem.GetListItems();
-                    });
-
                     // IF AN ACTIVITY LINE ITEM WAS FOUND
                     if (actItemFoundRefno == 0 || selectedItem == null)
                     {
@@ -2254,12 +2229,8 @@ namespace dMobile.View.Activity
                     }
                     else
                     {
-                        _ = await Device.InvokeOnMainThreadAsync(() =>
-                                this.ListViewMainActivity.SelectedItem = selectedItem);
-                        await Device.InvokeOnMainThreadAsync(async () => await this.DisplayDataItem());
+                        this.ActItem.SelectedActivityItem = selectedItem;
                     }
-
-                    this.DisplayDataSkid();
                 }
             }
             catch (TaskCanceledException)
@@ -2274,9 +2245,6 @@ namespace dMobile.View.Activity
                         this.ActItem.GetControlDescription(),
                         ex.Message,
                         Resource.OK));
-
-                this.DisplayDataSkid();
-                await this.ActAppearing();
             }
             catch (GatherProductDataException ex)
             {
@@ -2307,8 +2275,6 @@ namespace dMobile.View.Activity
                         _ = await errRpt.ShowDialog();
                     });
                 }
-
-                await this.ActAppearing();
             }
             catch (IsReadyToApplyException ex)
             {
@@ -2339,8 +2305,6 @@ namespace dMobile.View.Activity
                             _ = await errRpt.ShowDialog();
                         });
                 }
-
-                await this.ActAppearing();
             }
             catch (Exception ex)
             {
@@ -2368,12 +2332,10 @@ namespace dMobile.View.Activity
                         FormErrorReport errRpt = new FormErrorReport(this.ActSubType, ex);
                         _ = await errRpt.ShowDialog();
                     });
-
-                await this.ActAppearing();
             }
             finally
             {
-                await this.ScannerEnable();
+                await this.ActAppearing();
                 this.Loading = false;
             }
 
@@ -2407,8 +2369,6 @@ namespace dMobile.View.Activity
                                     Resource.OK));
                     }
                 }
-
-                await this.DisplayDataItem();
             }
 
             //////////////////////////////////////////////////////////////////////////
@@ -2713,11 +2673,13 @@ namespace dMobile.View.Activity
             if (this.ActItem.ListItems.Count > 0 && this.MainActivityItems.Count > 0)
             {
                 object selectedItem = null;
+                int selectedItemIdx = -1;
                 foreach (object item in this.ActItem.ListItems)
                 {
                     if (this.SelectedActivityItemFKRefno == this.ActItem.GetFKRefno(item))
                     {
                         selectedItem = item;
+                        selectedItemIdx++;
                         break;
                     }
                 }
@@ -2725,16 +2687,23 @@ namespace dMobile.View.Activity
                 if (selectedItem == null)
                 {
                     // Goto the first one in the list.
-                    this.ListViewMainActivity.SelectedItem = this.MainActivityItems[0];
-                    ////await this.ActItem.SelectActivityItem(this.ListViewMainActivity.SelectedItem);
+                    selectedItemIdx = 0;
+                    await this.ActItem.SelectActivityItem(this.ActItem.ListItems[selectedItemIdx]);
                 }
                 else
                 {
-                    ////await this.ActItem.SelectActivityItem(selectedItem);
-                    this.ListViewMainActivity.SelectedItem = this.ActItem.SelectedActivityItem;
+                    await this.ActItem.SelectActivityItem(selectedItem);
                 }
 
-                this.ListViewMainActivity.ScrollTo(selectedItem, ScrollToPosition.MakeVisible, false);
+                // Update the main list view that will display new totals.
+                this.MainActivityItems[selectedItemIdx] = this.ActItem.SelectedActivityItem;
+                this.ListViewMainActivity.SelectedItem = this.ActItem.SelectedActivityItem;
+
+                // Move to the list item in case it is off screen.
+                Device.BeginInvokeOnMainThread(() =>
+                {
+                    this.ListViewMainActivity.ScrollTo(this.ListViewMainActivity.SelectedItem, ScrollToPosition.MakeVisible, false);
+                });
             }
             else
             {
@@ -2747,12 +2716,26 @@ namespace dMobile.View.Activity
         }
 
         /// <summary>
-        ///
+        /// Activity item display data.
         /// </summary>
-        private void DisplayDataLocation()
+        private async Task DisplayDataItem()
         {
-            _ = Device.InvokeOnMainThreadAsync(() =>
+            await Device.InvokeOnMainThreadAsync(async () =>
             {
+                this.ExtraInfoItems.Clear();
+
+                if (this.ActItem.ActHdr.SkidInfo.CurrSkid.SkidFKRefno > 0)
+                {
+                    this.CmdAddSkidIsEnabled = true;
+                    this.CmdSelectSkidText = "Skid# " + this.ActItem.ActHdr.SkidInfo.CurrSkid.SkidCode;
+                    ////this.ExtraInfoItems.Add("Selected Skid #: " + this.ActItem.ActHdr.SkidInfo.CurrSkid.SkidCode);
+                }
+                else
+                {
+                    this.CmdAddSkidIsEnabled = false;
+                    this.CmdSelectSkidText = "Select Skid";
+                }
+
                 this.ExtraInfoItems.Add("Selected Location: " + LocationMapTasks.GetCurrentReadableLocation());
 
                 if (this.LocMap.CurrLocMap.WhsLocMapRefno > 0)
@@ -2773,37 +2756,7 @@ namespace dMobile.View.Activity
                 {
                     this.CmdLocationIsEnabled = true;
                 }
-            });
-        }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        private void DisplayDataSkid()
-        {
-            _ = Device.InvokeOnMainThreadAsync(() =>
-            {
-                if (this.ActItem.ActHdr.SkidInfo.CurrSkid.SkidFKRefno > 0)
-                {
-                    this.CmdAddSkidIsEnabled = true;
-                    this.CmdSelectSkidText = "Skid# " + this.ActItem.ActHdr.SkidInfo.CurrSkid.SkidCode;
-                    ////this.ExtraInfoItems.Add("Selected Skid #: " + this.ActItem.ActHdr.SkidInfo.CurrSkid.SkidCode);
-                }
-                else
-                {
-                    this.CmdAddSkidIsEnabled = false;
-                    this.CmdSelectSkidText = "Select Skid";
-                }
-            });
-        }
-
-        /// <summary>
-        /// Activity item display data.
-        /// </summary>
-        private async Task DisplayDataItem()
-        {
-            await Device.InvokeOnMainThreadAsync(async () =>
-            {
                 string prodLocCode = string.Empty;
                 string prodLocName = string.Empty;
                 string prodDesc = string.Empty;
@@ -2818,9 +2771,6 @@ namespace dMobile.View.Activity
                     this.LocMap.CurrLocMap = await LocationMapTasks.GetSLocMapFromLocMapRefno(
                         this.LocMap.LoginWhsLocMapRefno);
                 }
-
-                this.ExtraInfoItems.Clear();
-                this.DisplayDataSkid();
 
                 switch (this.ActItem.ActSubType)
                 {
@@ -2972,8 +2922,6 @@ namespace dMobile.View.Activity
                             defLoc = LocationMapTasks.GetReadableLocation(sLocMap);
 
                             this.ExtraInfoItems.Add("DEF LOC: " + defLoc);
-
-                            this.DisplayDataLocation();
                         }
 
                         break;
@@ -3346,13 +3294,11 @@ namespace dMobile.View.Activity
                     "Location: " + Environment.NewLine + currentReadableLocation);
             });
 
-            await this.ScannerDisable();
             string result = await this.DisplayActionSheet(
                 "ActivityItem Options",
                 "Close",
                 null,
                 this.OptionsMenuItems.ToArray());
-            await this.ScannerEnable();
 
             if (result == this.CmdLocationText && this.CmdLocationIsEnabled)
             {
@@ -3581,7 +3527,7 @@ namespace dMobile.View.Activity
             {
                 try
                 {
-                    await this.ScannerDisable();
+                    await this.ActDisappearing();
                     this.ActItem.ActHdr.SkidInfo.CurrSkid = new SSkidInfo();
                     this.CmdSelectSkidIsEnabled = true;
                     this.CmdClearSelectedSkidIsEnabled = false;
@@ -3589,7 +3535,6 @@ namespace dMobile.View.Activity
 
                     // Expected menu to be recreated.
                     this.CmdSelectSkidText = "Select Skid";
-                    this.DisplayDataSkid();
                 }
                 catch (MessageOnlyException ex)
                 {
@@ -3609,7 +3554,7 @@ namespace dMobile.View.Activity
                 }
                 finally
                 {
-                    await this.ScannerEnable();
+                    await this.ActAppearing();
                 }
             }
 
@@ -3621,7 +3566,7 @@ namespace dMobile.View.Activity
                 // if a command button is the next control rather than just giving the button focus.
                 try
                 {
-                    await this.ScannerDisable();
+                    await this.ActDisappearing();
 
                     XDocument xmlDoc = null;
                     ProductInfo prodInfo = null;
@@ -3641,6 +3586,10 @@ namespace dMobile.View.Activity
                             }
 
                             prodInfo = await ProductInfoTasks.GetInfoFromUnitRefno(prodUnitRefno);
+                        }
+                        else
+                        {
+                            throw new CancelOperationException();
                         }
                     }
                     else
@@ -3682,8 +3631,23 @@ namespace dMobile.View.Activity
 
                         // After insert this.ActItem.ItemFKRefno may be a negative value if a new line item was created.
                         await this.ActItem.Insert(xmlDoc, false);
-                        this.ListViewMainActivity.ItemsSource = this.MainActivityItems;
+                        this.ActItem.SetSelectedActivityItem(this.ActItem.ItemRefno);
+                        this.ListViewMainActivity.SelectedItem = this.ActItem.SelectedActivityItem;
+
+                        // This is a little dangerous we assume that the new row idx will be the last one
+                        // selectedItem = this.ActItem.ListItems.Last();
+                        // Try not to refresh all the items.
+                        ////this.ActItem.RegLayerListenerProgOut(this);
+                        ////await this.RefreshBySubType();
+                        ////this.ActItem.UnregLayerListenerProgOut(this);
+                        await this.DesignGrid();
+
+                        await this.ActAppearing();
+
                     }
+                }
+                catch (CancelOperationException)
+                {
                 }
                 catch (GatherProductDataException ex)
                 {
@@ -3697,8 +3661,6 @@ namespace dMobile.View.Activity
                     }
 
                     await this.RefreshBySubType();
-                    await this.FindSelectedItemAsync();
-                    ////await this.DisplayData();
                 }
                 catch (MessageOnlyException ex)
                 {
@@ -3725,10 +3687,9 @@ namespace dMobile.View.Activity
                         this.ActItem.SelectedActivityItem = this.ActItem.ListItems.LastOrDefault();
                     }
 
-                    _ = await Device.InvokeOnMainThreadAsync(() => this.ListViewMainActivity.SelectedItem =
-                          this.MainActivityItems?.LastOrDefault());
-                    await Device.InvokeOnMainThreadAsync(async () => await this.DisplayDataItem());
-                    await this.ScannerEnable();
+                    ////_ = await Device.InvokeOnMainThreadAsync(() => this.ListViewMainActivity.SelectedItem =
+                    ////      this.MainActivityItems?.LastOrDefault());
+                    await this.ActAppearing();
                 }
             }
 

@@ -153,5 +153,8 @@
     <Compile Update="CustomControls\LocationMapInfo.xaml.cs">
       <DependentUpon>LocationMapInfo.xaml</DependentUpon>
     </Compile>
+    <Compile Update="Views\SelectProductUnit.xaml.cs">
+      <DependentUpon>SelectProductUnit.xaml</DependentUpon>
+    </Compile>
   </ItemGroup>
 </Project>

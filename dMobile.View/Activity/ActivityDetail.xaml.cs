@@ -243,11 +243,6 @@ namespace dMobile.View.Activity
         }
 
         /// <summary>
-        /// Gets or sets a value indicating whether the saved bar code scanner enabled status.
-        /// </summary>
-        private bool IsSvdBarScannerEnabled { get; set; } = false;
-
-        /// <summary>
         /// Get the control description.
         /// </summary>
         /// <returns><see cref="string"/> Control description.</returns>
@@ -262,14 +257,15 @@ namespace dMobile.View.Activity
         /// <returns><see cref="Task"/> Task operation.</returns>
         public async Task ScannerDisable()
         {
-            this.IsSvdBarScannerEnabled = this.IsBarCodeHandlerRegistered;
             if (this.Scanner != null)
             {
-                this.Scanner.BarCodeScan -= new BarCodeScanner.BarCodeScanEventHandler(this.BarCodeHandler);
-                await this.Scanner.Stop();
+                if (this.IsBarCodeHandlerRegistered)
+                {
+                    this.Scanner.BarCodeScan -= new BarCodeScanner.BarCodeScanEventHandler(this.BarCodeHandler);
+                    await this.Scanner.Stop();
+                    this.IsBarCodeHandlerRegistered = false;
+                }
             }
-
-            this.IsBarCodeHandlerRegistered = false;
         }
 
         /// <summary>
@@ -278,11 +274,14 @@ namespace dMobile.View.Activity
         /// <returns><see cref="Task"/> Task operation.</returns>
         public async Task ScannerEnable()
         {
-            if (this.IsSvdBarScannerEnabled && !this.IsBarCodeHandlerRegistered && this.Scanner != null)
+            if (this.Scanner != null)
             {
-                await this.Scanner.Start();
-                this.Scanner.BarCodeScan += new BarCodeScanner.BarCodeScanEventHandler(this.BarCodeHandler);
-                this.IsBarCodeHandlerRegistered = true;
+                if (!this.IsBarCodeHandlerRegistered)
+                {
+                    await this.Scanner.Start();
+                    this.Scanner.BarCodeScan += new BarCodeScanner.BarCodeScanEventHandler(this.BarCodeHandler);
+                    this.IsBarCodeHandlerRegistered = true;
+                }
             }
         }
 
@@ -297,7 +296,6 @@ namespace dMobile.View.Activity
                 await this.Scanner.Start();
                 this.Scanner.BarCodeScan += new BarCodeScanner.BarCodeScanEventHandler(this.BarCodeHandler);
                 this.IsBarCodeHandlerRegistered = true;
-                this.IsSvdBarScannerEnabled = true;
             }
         }
 
@@ -781,6 +779,12 @@ namespace dMobile.View.Activity
                     this.cmdAddDetail.IsEnabled = true;
 
                     await this.ActAppearing();
+
+                    // No need to invoke DisplayData() selected item will do so, unless the list is empty.
+                    if (this.MainActivityItems == null || this.MainActivityItems.Count == 0)
+                    {
+                        await this.DisplayDataItem();
+                    }
                 }
             }
             catch (MessageOnlyException ex)
@@ -835,9 +839,6 @@ namespace dMobile.View.Activity
             this.ListViewDisplayExtraInfo.ItemsSource = this.ExtraInfoItems;
             this.ListViewMainActivity.ItemsSource = this.MainActivityItems;
 
-            this.DisplayDataSkid();
-            this.DisplayDataLocation();
-
             await this.FindSelectedItemAsync();
             ////await Device.InvokeOnMainThreadAsync(() =>
             ////{
@@ -846,12 +847,6 @@ namespace dMobile.View.Activity
             ////    ScrollToPosition.MakeVisible,
             ////    false);
             ////});
-
-            // No need to invoke DisplayData() selected item will do so, unless the list is empty.
-            if (this.MainActivityItems == null || this.MainActivityItems.Count == 0)
-            {
-                await this.DisplayDataItem();
-            }
 
             //////////////////////////////////////////////////////////////////////////
             void SubscribeKeyUpHandlers()
@@ -1290,58 +1285,6 @@ namespace dMobile.View.Activity
         {
             MessagingCenter.Unsubscribe<string>(this, EventTypes.OnKeyUp.ToString());
             await this.ScannerDisable();
-        }
-
-        /// <summary>
-        /// Display the current selected skid code.
-        /// </summary>
-        private void DisplayDataSkid()
-        {
-            _ = Device.InvokeOnMainThreadAsync(() =>
-              {
-                  SSkidInfo currSkid = this.ActDetail.ActItem.ActHdr.SkidInfo.CurrSkid;
-                  this.CmdSelectSkidIsEnabled = this.SysEnv.SysSettings.IsSkidTrackingModule;
-
-                  if (currSkid.SkidFKRefno > 0)
-                  {
-                      this.CmdAddSkidIsEnabled = true;
-                      this.CmdSelectSkidText = "Skid# " + currSkid.SkidCode;
-                  }
-                  else
-                  {
-                      this.CmdAddSkidIsEnabled = false;
-                      this.CmdSelectSkidText = "Select Skid";
-                  }
-              });
-        }
-
-        /// <summary>
-        /// Display the current location map.
-        /// </summary>
-        private void DisplayDataLocation()
-        {
-            _ = Device.InvokeOnMainThreadAsync(() =>
-            {
-                SSkidInfo currSkid = this.ActDetail.ActItem.ActHdr.SkidInfo.CurrSkid;
-                if (currSkid.SkidFKRefno > 0)
-                {
-                    this.CmdLocationIsEnabled = false;
-                }
-                else
-                {
-                    this.CmdLocationIsEnabled = true;
-                }
-
-                if (this.LocMap.CurrLocMap.WhsLocMapRefno > 0)
-                {
-                    this.CmdLocationText = "Location: " + Environment.NewLine +
-                        LocationMapTasks.GetCurrentReadableLocation();
-                }
-                else
-                {
-                    this.CmdLocationText = "Set Location";
-                }
-            });
         }
 
         /// <summary>
@@ -2003,9 +1946,10 @@ namespace dMobile.View.Activity
             int detailIdx = this.ActDetail.FindListDetailIndex(activityDetailRefno: actDetail.DetailRefno);
             if (detailIdx >= 0)
             {
-                Resources.Types.ActivityDetail updated = this.ActDetail.UpdateListDetail(detailIdx);
-                this.SelectedActivityDetailFKRefno = updated.ActivityDetailFKRefno;
-                this.MainActivityItems[detailIdx] = updated;
+                this.ActDetail.UpdateListDetail(detailIdx);
+                dMobile.Resources.Types.ActivityDetail detail = (Resources.Types.ActivityDetail)this.ActDetail.ListDetails[detailIdx];
+                this.SelectedActivityDetailFKRefno = detail.ActivityDetailFKRefno;
+                this.MainActivityItems[detailIdx] = detail;
             }
             else
             {
@@ -2018,6 +1962,8 @@ namespace dMobile.View.Activity
                         inserted,
                         this.MainActivityItems);
                 });
+
+                await this.FindSelectedItemAsync();
             }
         }
 
@@ -2030,6 +1976,39 @@ namespace dMobile.View.Activity
             await Device.InvokeOnMainThreadAsync(async () =>
             {
                 this.ExtraInfoItems.Clear();
+
+                SSkidInfo currSkid = this.ActDetail.ActItem.ActHdr.SkidInfo.CurrSkid;
+                this.CmdSelectSkidIsEnabled = this.SysEnv.SysSettings.IsSkidTrackingModule;
+
+                if (currSkid.SkidFKRefno > 0)
+                {
+                    this.CmdAddSkidIsEnabled = true;
+                    this.CmdSelectSkidText = "Skid# " + currSkid.SkidCode;
+                }
+                else
+                {
+                    this.CmdAddSkidIsEnabled = false;
+                    this.CmdSelectSkidText = "Select Skid";
+                }
+
+                if (currSkid.SkidFKRefno > 0)
+                {
+                    this.CmdLocationIsEnabled = false;
+                }
+                else
+                {
+                    this.CmdLocationIsEnabled = true;
+                }
+
+                if (this.LocMap.CurrLocMap.WhsLocMapRefno > 0)
+                {
+                    this.CmdLocationText = "Location: " + Environment.NewLine +
+                        LocationMapTasks.GetCurrentReadableLocation();
+                }
+                else
+                {
+                    this.CmdLocationText = "Set Location";
+                }
 
                 switch (this.ActDetail.ActSubType)
                 {

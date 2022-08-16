@@ -1,4 +1,5 @@
-﻿// <copyright file="ActivityMoveInventory.xaml.cs" company="InterSect Business Systems Inc">
+﻿using dMobile.Resources.Types;
+// <copyright file="ActivityMoveInventory.xaml.cs" company="InterSect Business Systems Inc">
 // Copyright (c) InterSect Business Systems Inc. All rights reserved.
 // </copyright>
 
@@ -692,7 +693,7 @@ namespace dMobile.View.Activity
                         infoObject = this.ActDetail.ListDetails[0];
                     }
 
-                    this.ActDetail = this.ActDetail.GetInfo(infoObject, true);
+                    await this.ActDetail.AssignThisFromDetailAsync((MoveDetail)infoObject, true);
 
                     SFillQuantity fillQty = SysCommon.FillQuantityStructureFromQuantity((ProductInfo)this.ActItem.ProdInfo, 1);
                     SActItemSchemeData tempItemSchemeData = new SActItemSchemeData
@@ -858,7 +859,7 @@ namespace dMobile.View.Activity
                             infoObject = this.ActDetail.ListDetails[0];
                         }
 
-                        this.ActDetail = this.ActDetail.GetInfo(infoObject, true);
+                        await this.ActDetail.AssignThisFromDetailAsync((MoveDetail)infoObject, true);
 
                         SActItemSchemeData tempItemSchemeData = new SActItemSchemeData();
                         bool isInsertReady = false;
