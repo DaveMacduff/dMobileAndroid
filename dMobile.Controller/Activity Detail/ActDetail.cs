@@ -7,7 +7,6 @@ namespace dMobile.Controller
     using System;
     using System.Collections.Generic;
     using System.Collections.ObjectModel;
-    using System.Threading;
     using System.Threading.Tasks;
     using System.Xml;
     using System.Xml.Linq;
@@ -258,6 +257,17 @@ namespace dMobile.Controller
                 // detail.LocationMapRefno could be a warehouse or even a slot.
                 this.SelectedLocMap = await LocationMapTasks.GetSLocMapFromLocMapRefno(detail.LocationMapRefno);
 
+                SProductSchemeData schemeData = new SProductSchemeData();
+                schemeData.LogisticUnitBatchLotNumber = detail.ActivityDetailLogisticUnitBatchLotNumber;
+                schemeData.LogisticUnitBestBeforeSellByDate = detail.ActivityDetailLogisticUnitBestBeforeSellByDate;
+                schemeData.LogisticUnitProductionDate = detail.ActivityDetailLogisticUnitProductionDate;
+                schemeData.LogisticUnitSkidNumber = detail.ActivityDetailLogisticUnitSkidNumber;
+                schemeData.SingleTradeItemSerialNumber = detail.ActivityDetailSingleTradeItemSerialNumber;
+                schemeData.VariantCode = detail.ProductSchemeVariantCode;
+                schemeData.VariantDescription = detail.ProductSchemeVariantDescription;
+                schemeData.VariantNumber = detail.ProductSchemeVariantNo;
+                this.SchemeData = schemeData;
+
                 this.SchemeID = detail.ActivityDetailSchemeID;
                 this.UniqueSchemeID = detail.ActivityDetailUniqueSchemeID;
                 this.ActExtra.Text1 = detail.ActivityDetailExtra1Text;
@@ -315,10 +325,10 @@ namespace dMobile.Controller
         public abstract string GetControlDescription();
 
         /// <summary>
-        /// Total all activity detail quantity from the data view.
+        /// Total all activity detail quantity from the list details.
         /// </summary>
-        /// <returns><see cref="SFillQuantity"/> Total quantities.</returns>
-        public virtual async Task<SFillQuantity> GetDataViewTotalQuantity()
+        /// <returns><see cref="SFillQuantity"/> Summed quantities.</returns>
+        public virtual async Task<SFillQuantity> GetTotalQuantityFromListDetail()
         {
             SFillQuantity fillQty = new SFillQuantity();
             await Device.InvokeOnMainThreadAsync(() =>

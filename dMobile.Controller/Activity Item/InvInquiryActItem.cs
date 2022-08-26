@@ -161,7 +161,7 @@ namespace dMobile.Controller
         /// <param name="quantity">.</param>
         /// <param name="baseQuantity">.</param>
         /// <param name="weightQuantity">.</param>
-        public override void UpdateListItemQuantity(object selectedActivityItem, decimal quantity, decimal baseQuantity, decimal weightQuantity)
+        public override void AddToQuantityInActivityItem(object selectedActivityItem, decimal quantity, decimal baseQuantity, decimal weightQuantity)
         {
             throw new NotImplementedException();
         }
@@ -378,9 +378,9 @@ namespace dMobile.Controller
         /// </summary>
         /// <param name="selectedActivityItem">The selectedActivityItem<see cref="object"/>.</param>
         /// <returns>The <see cref="Task"/>.</returns>
-        public override async Task SelectActivityItem(object selectedActivityItem)
+        public override async Task AssignActivityItem(object activityItem)
         {
-            this.SelectedActivityItem = selectedActivityItem;
+            this.SelectedActivityItem = activityItem;
         }
 
         /// <summary>
@@ -462,18 +462,17 @@ namespace dMobile.Controller
         /// <param name="quantity">.</param>
         /// <param name="baseQuantity">.</param>
         /// <param name="weightQuantity">.</param>
-        public override void RefreshQuantity(object selectedActivityItem, decimal quantity, decimal baseQuantity, decimal weightQuantity)
+        public override void ReplaceQuantityInActivityItem(object selectedActivityItem, decimal quantity, decimal baseQuantity, decimal weightQuantity)
         {
             throw new NotImplementedException();
         }
 
         /// <summary>
-        /// The UpdateQuantityFromActivityItemList.
+        /// Update the activity item table data with the selected activity item object data.
         /// </summary>
-        /// <param name="selectedActivityItem">The selectedActivityItem<see cref="object"/>.</param>
-        /// <param name="actItemRefno">.</param>
-        /// <returns>The <see cref="Task"/>.</returns>
-        public override Task UpdateQuantityFromActivityItemList(object selectedActivityItem, int actItemRefno)
+        /// <param name="activityItem"><see cref="object"/> Activity item.</param>
+        /// <returns>The <see cref="Task"/> Task operation.</returns>
+        public override Task UpdateItemTableQuantity(object activityItem)
         {
             throw new NotImplementedException();
         }

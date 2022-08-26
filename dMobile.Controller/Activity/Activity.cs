@@ -102,6 +102,11 @@ namespace dMobile.Controller
         public object SelectedActivity { get; set; }
 
         /// <summary>
+        /// Gets or sets the activity item list item selected index.
+        /// </summary>
+        public int SelectedListItemIdx { get; set; } = 0;
+
+        /// <summary>
         /// Perform a data refresh.
         /// </summary>
         /// <param name="data">The data<see cref="XDocument"/>.</param>

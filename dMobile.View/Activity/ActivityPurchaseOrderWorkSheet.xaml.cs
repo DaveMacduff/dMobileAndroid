@@ -318,7 +318,7 @@ namespace dMobile.View.Activity
                                 throw new Exception("Unable To Indentify Item");
                             }
 
-                            await this.ActItem.SelectActivityItem(purchaseOrderWorkSheetItem1);
+                            await this.ActItem.AssignActivityItem(purchaseOrderWorkSheetItem1);
 
                             // TODO: Fix sorting
                             // ActItem.DataViewItems.Sort = strOldSort;
@@ -496,7 +496,7 @@ namespace dMobile.View.Activity
 
                     if (this.ActItem.ListItems.Count > 0 && this.MainActivityItems.Count > 0)
                     {
-                        await this.ActItem.SelectActivityItem(this.MainActivityItems[0]);
+                        await this.ActItem.AssignActivityItem(this.MainActivityItems[0]);
                         this.ListViewMainActivity.SelectedItem = this.MainActivityItems[0];
                     }
                 });
@@ -806,7 +806,7 @@ namespace dMobile.View.Activity
         {
             if (e.SelectedItem != null)
             {
-                await this.ActItem.SelectActivityItem(e.SelectedItem);
+                await this.ActItem.AssignActivityItem(e.SelectedItem);
             }
         }
     }

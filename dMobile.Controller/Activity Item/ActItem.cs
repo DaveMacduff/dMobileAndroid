@@ -157,6 +157,12 @@ namespace dMobile.Controller
         public object SelectedActivityItem { get; set; }
 
         /// <summary>
+        /// Gets or sets the activity item list item selected index.
+        /// </summary>
+        public int SelectedListItemIdx { get; set; } = -1;
+
+
+        /// <summary>
         /// Gets or sets a value indicating whether allowed to add skid detail.
         /// </summary>
         /// <returns><see cref="bool"/> True if allowed to add skid detail.</returns>
@@ -167,7 +173,7 @@ namespace dMobile.Controller
         /// </summary>
         /// <param name="data"><see cref="XDocument"/> Data to insert.</param>
         /// <param name="askToInsertAsNewItem"><see cref="bool"/> Ask a question to insert a new item.</param>
-        /// <returns>The <see cref="Task"/>.</returns>
+        /// <returns><see cref="Task"/> Task operation.</returns>
         public abstract Task Insert(XDocument data, bool askToInsertAsNewItem);
 
         /// <summary>
@@ -192,8 +198,13 @@ namespace dMobile.Controller
         public abstract ObservableCollection<object> Search(string searchText);
 
         /// <summary>
-        /// Get the activity item selected activity item.
+        /// Set the activity item selected activity item.
         /// </summary>
+        /// <remarks>
+        /// Iterate through the ListItems looking for a matched activity item reference number.
+        /// If a match is found set the SelectedActivityItem to one found in the ListItems
+        /// else the SelectedActivityItem is set to null.
+        /// </remarks>
         /// <param name="actItemFoundRefno"><see cref="int"/> Activity item reference number to look up.</param>
         public abstract void SetSelectedActivityItem(int actItemFoundRefno);
 
@@ -207,12 +218,10 @@ namespace dMobile.Controller
         /// <summary>
         /// Design the list view grid.
         /// </summary>
-        /// <param name="GridMainActivity"><see cref="Grid"/> Main activity grid.</param>
-        /// <param name="ListViewMainActivity"><see cref="ListView"/> Main activity list view.</param>
+        /// <param name="gridMainActivity"><see cref="Grid"/> Main activity grid.</param>
+        /// <param name="listViewMainActivity"><see cref="ListView"/> Main activity list view.</param>
         /// <returns>The <see cref="ObservableCollection{object}"/>.</returns>
-        public abstract ObservableCollection<object> DesignGrid(
-            ref Grid GridMainActivity,
-            ref ListView ListViewMainActivity);
+        public abstract ObservableCollection<object> DesignGrid(ref Grid gridMainActivity, ref ListView listViewMainActivity);
 
         /// <summary>
         /// Get the activity item reference number from the product unit reference number and current location warehouse.
@@ -252,40 +261,37 @@ namespace dMobile.Controller
         public abstract string GetUnableToParseItemFKRefnoMessage(string actItemStringFKRefno);
 
         /// <summary>
-        /// Update the item data view quantity. Adds to the existing values.
+        /// Add quantity to the existing activity item quantities. Does not reset existing values.
         /// </summary>
-        /// <param name="selectedActivityItem"><see cref="object"/> Selected activity item.</param>
+        /// <param name="selectedActivityItem"><see cref="object"/> Selected activity item to change.</param>
         /// <param name="quantity"><see cref="decimal"/> Alt quantity.</param>
         /// <param name="baseQuantity"><see cref="decimal"/> Base quantity.</param>
         /// <param name="weightQuantity"><see cref="decimal"/> Weight quantity.</param>
-        public abstract void UpdateListItemQuantity(
+        public abstract void AddToQuantityInActivityItem(
             object selectedActivityItem,
             decimal quantity,
             decimal baseQuantity,
             decimal weightQuantity);
 
         /// <summary>
-        /// Replaces the item data view quantity. Does not add to the existing values.
+        /// Replaces the activity item quantities. Does not add to the existing values.
         /// </summary>
-        /// <param name="selectedActivityItem"><see cref="object"/> Selected activity item.</param>
+        /// <param name="selectedActivityItem"><see cref="object"/> Selected activity item to change.</param>
         /// <param name="quantity"><see cref="decimal"/> Alt quantity.</param>
         /// <param name="baseQuantity"><see cref="decimal"/> Base quantity.</param>
         /// <param name="weightQuantity"><see cref="decimal"/> Weight quantity.</param>
-        public abstract void RefreshQuantity(
+        public abstract void ReplaceQuantityInActivityItem(
             object selectedActivityItem,
             decimal quantity,
             decimal baseQuantity,
             decimal weightQuantity);
 
         /// <summary>
-        /// Update the activity line item quantity in the database from the line item data view.
+        /// Update the activity item table data with the selected activity item object data.
         /// </summary>
-        /// <param name="selectedActivityItem"><see cref="object"/> Selected activity item.</param>
-        /// <param name="actItemRefno"><see cref="int"/> Activity item reference number.</param>
-        /// <returns><see cref="Task"/> Taks operation.</returns>
-        public abstract Task UpdateQuantityFromActivityItemList(
-            object selectedActivityItem,
-            int actItemRefno);
+        /// <param name="activityItem"><see cref="object"/> Activity item.</param>
+        /// <returns>The <see cref="Task"/> Task operation.</returns>
+        public abstract Task UpdateItemTableQuantity(object activityItem);
 
         /// <summary>
         /// Get the activity foreign key reference number.
@@ -295,7 +301,7 @@ namespace dMobile.Controller
         public abstract int GetFKRefno(object resourceType);
 
         /// <summary>
-        /// Get the product scheme data from the detail fk reference number.
+        /// Get the product scheme data from the detail foreign key reference number.
         /// </summary>
         /// <param name="actDetailFKRefno"><see cref="int"/> Activity detail foreign key reference number.</param>
         /// <returns><see cref="Task{SActItemSchemeData}"/> Activity item scheme data.</returns>
@@ -343,11 +349,11 @@ namespace dMobile.Controller
         public abstract Task<string> GetTotalQuantity();
 
         /// <summary>
-        /// Select the activity item.
+        /// Assign the activity item values from the activity item parameter arguments.
         /// </summary>
-        /// <param name="selectedActivityItem"><see cref="object"/> Selected activity item.</param>
+        /// <param name="activityItem"><see cref="object"/> Activity item.</param>
         /// <returns><see cref="Task"/> Task operation.</returns>
-        public abstract Task SelectActivityItem(object selectedActivityItem);
+        public abstract Task AssignActivityItem(object activityItem);
 
         /// <summary>
         /// Get the default location map reference number for a warehouse, product.
@@ -477,11 +483,6 @@ namespace dMobile.Controller
                 prodInfo.UnitCode);
 
             return message;
-        }
-
-        public virtual List<object> GetListItems()
-        {
-            return this.ListItems;
         }
 
         /// <summary>

@@ -1129,7 +1129,7 @@ namespace dMobile.View.Activity
 
                             if (foundSelectedActivityItem != null)
                             {
-                                await this.ActItem.SelectActivityItem(foundSelectedActivityItem);
+                                await this.ActItem.AssignActivityItem(foundSelectedActivityItem);
                                 actItemFoundRefno = this.ActItem.ItemRefno;
                                 // this.ActItem.DataViewItems.Sort = "ActivityItemRefno";
                                 // foundSelectedActivityItem = this.ActItem.DataViewItems.Find(actItemFoundRefno);
@@ -1159,7 +1159,7 @@ namespace dMobile.View.Activity
 
                             if (foundSelectedActivityItem != null)
                             {
-                                await this.ActItem.SelectActivityItem(foundSelectedActivityItem);
+                                await this.ActItem.AssignActivityItem(foundSelectedActivityItem);
                                 actItemFoundRefno = this.ActItem.ItemRefno;
                                 // this.ActItem.DataViewItems.Sort = "ActivityItemRefno";
                                 // foundSelectedActivityItem = this.ActItem.DataViewItems.Find(actItemFoundRefno);
@@ -1237,7 +1237,7 @@ namespace dMobile.View.Activity
                     }
                     else
                     {
-                        await this.ActItem.SelectActivityItem(foundSelectedActivityItem);
+                        await this.ActItem.AssignActivityItem(foundSelectedActivityItem);
                     }
 
                     if (this.ActHdr.SkidInfo.CurrSkid.SkidFKRefno != 0)
@@ -1340,9 +1340,9 @@ namespace dMobile.View.Activity
                         await actDetail.InsertSkid(this.ActHdr.SkidInfo);
 
                         // Upon a save of completed data update the data view to to show new item and quantity change
-                        this.ActItem.UpdateListItemQuantity(foundSelectedActivityItem, actDetail.Quantity, actDetail.BaseQuantity, actDetail.WeightQuantity);
+                        this.ActItem.AddToQuantityInActivityItem(foundSelectedActivityItem, actDetail.Quantity, actDetail.BaseQuantity, actDetail.WeightQuantity);
                         currentSelectedActivityItem = foundSelectedActivityItem;
-                        await this.ActItem.UpdateQuantityFromActivityItemList(currentSelectedActivityItem, this.ActItem.ItemRefno);
+                        await this.ActItem.UpdateItemTableQuantity(currentSelectedActivityItem);
                     }
 
                     await this.DisplayData();
@@ -1553,8 +1553,8 @@ namespace dMobile.View.Activity
 
                 // Upon a save of completed data update the data view to to show new item
                 // and quantity change
-                this.ActItem.UpdateListItemQuantity(selectedActivityItem, actDetail.Quantity, actDetail.BaseQuantity, actDetail.WeightQuantity);
-                await this.ActItem.UpdateQuantityFromActivityItemList(selectedActivityItem, this.ActItem.ItemRefno);
+                this.ActItem.AddToQuantityInActivityItem(selectedActivityItem, actDetail.Quantity, actDetail.BaseQuantity, actDetail.WeightQuantity);
+                await this.ActItem.UpdateItemTableQuantity(selectedActivityItem);
             }
 
             this.ActItem.SelectedActivityItem = selectedActivityItem;
@@ -1794,7 +1794,7 @@ namespace dMobile.View.Activity
 
             if (this.ActItem.ListItems.Count > 0)
             {
-                await this.ActItem.SelectActivityItem(this.ActItem.ListItems[0]);
+                await this.ActItem.AssignActivityItem(this.ActItem.ListItems[0]);
 
                 string cmnt = await this.ActItem.GetComment(Convert.ToInt32((this.ActItem.SelectedActivityItem as PickingItem).ActivityItemRefno));
 
@@ -2384,13 +2384,13 @@ namespace dMobile.View.Activity
 
                         // upon a save of completed data update the data view to to show new item
                         // and quantity change
-                        this.ActItem.UpdateListItemQuantity(
+                        this.ActItem.AddToQuantityInActivityItem(
                             foundObject,
                             actDetail.Quantity,
                             actDetail.BaseQuantity,
                             actDetail.WeightQuantity);
 
-                        await this.ActItem.UpdateQuantityFromActivityItemList(foundObject, this.ActItem.ItemRefno);
+                        await this.ActItem.UpdateItemTableQuantity(foundObject);
                         await this.DisplayData();
                     }
                 }
@@ -2433,7 +2433,7 @@ namespace dMobile.View.Activity
                 try
                 {
                     await this.ScannerDisable();
-                    await this.ActItem.SelectActivityItem(this.ActItem.SelectedActivityItem);
+                    await this.ActItem.AssignActivityItem(this.ActItem.SelectedActivityItem);
 
                     if (this.ActItem.ActHdr.SkidInfo.CurrSkid.SkidFKRefno != 0)
                     {
@@ -2453,15 +2453,13 @@ namespace dMobile.View.Activity
                     _ = await form.DisplayControl.ShowDialog();
                     XDocument xmlDoc = await form.GetXML();
 
-                    this.ActItem.RefreshQuantity(
+                    this.ActItem.ReplaceQuantityInActivityItem(
                         this.ActItem.SelectedActivityItem,
                         Math.Round(decimal.Parse(xmlDoc.Root.Element("qty").Value), 3),
                         Math.Round(decimal.Parse(xmlDoc.Root.Element("base_qty").Value), 3),
                         Math.Round(decimal.Parse(xmlDoc.Root.Element("wt_qty").Value), 3));
 
-                    await this.ActItem.UpdateQuantityFromActivityItemList(
-                        this.ActItem.SelectedActivityItem,
-                        this.ActItem.ItemRefno);
+                    await this.ActItem.UpdateItemTableQuantity(this.ActItem.SelectedActivityItem);
 
                     if (this.ActHdr.SkidInfo.CurrSkid.SkidFKRefno != 0)
                     {
@@ -2558,7 +2556,7 @@ namespace dMobile.View.Activity
 
                         if (this.ActItem.SelectedActivityItem != null)
                         {
-                            await this.ActItem.SelectActivityItem(this.ActItem.SelectedActivityItem);
+                            await this.ActItem.AssignActivityItem(this.ActItem.SelectedActivityItem);
                         }
 
                         if (this.SysEnv.SysSettings.IsDefaultLocToProductDefaultLoc)
@@ -2646,7 +2644,7 @@ namespace dMobile.View.Activity
 
                         if (this.ActItem.SelectedActivityItem != null)
                         {
-                            await this.ActItem.SelectActivityItem(this.ActItem.SelectedActivityItem);
+                            await this.ActItem.AssignActivityItem(this.ActItem.SelectedActivityItem);
                         }
 
                         if (this.SysEnv.SysSettings.IsDefaultLocToProductDefaultLoc)

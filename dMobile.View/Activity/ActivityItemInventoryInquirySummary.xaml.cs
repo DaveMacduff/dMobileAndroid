@@ -308,7 +308,7 @@ namespace dMobile.View.Activity
                 {
                     _ = await Device.InvokeOnMainThreadAsync(() => this.ListViewMainActivity.SelectedItem = this.MainActivityItems[0]);
                     // TODO: test
-                    await this.ActItem.SelectActivityItem(this.ActItem.ListItems[0]);
+                    await this.ActItem.AssignActivityItem(this.ActItem.ListItems[0]);
                 }
 
                 await Device.InvokeOnMainThreadAsync(() => this.DisplaySummaryData());

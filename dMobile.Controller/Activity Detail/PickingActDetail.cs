@@ -1418,7 +1418,7 @@ namespace dMobile.Controller
         /// Total all activity detail quantity from the data view.
         /// </summary>
         /// <returns>SFillQuantity structure.</returns>
-        public override async Task<SFillQuantity> GetDataViewTotalQuantity()
+        public override async Task<SFillQuantity> GetTotalQuantityFromListDetail()
         {
             SFillQuantity fillQty = new SFillQuantity();
 

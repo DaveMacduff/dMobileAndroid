@@ -572,7 +572,7 @@ namespace dMobile.View.Options
                             {
                                 for (int itemIdx = 0; itemIdx <= actItem.ListItems.Count - 1; itemIdx++)
                                 {
-                                    await actItem.SelectActivityItem(actItem.ListItems[itemIdx]);
+                                    await actItem.AssignActivityItem(actItem.ListItems[itemIdx]);
                                     actItemRefno = actItem.ItemRefno;
 
                                     if (actDetail == null && this.SubmitBatchSettings.eActivitySubType != SysCommon.ActSubTypes.BarCodeAssociation)

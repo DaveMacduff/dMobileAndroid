@@ -605,7 +605,7 @@ namespace dMobile.View.Activity
         /// <returns><see cref="XDocument"/> Activity detail return information.</returns>
         public async Task<XDocument> GetXML()
         {
-            SFillQuantity fillQty = await this.ActDetail.GetDataViewTotalQuantity();
+            SFillQuantity fillQty = await this.ActDetail.GetTotalQuantityFromListDetail();
 
             XDocument xmldocParams = XDocument.Parse(
                 "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>"
@@ -903,7 +903,7 @@ namespace dMobile.View.Activity
                         // Ask if the deletion is a entire skid or item.
                         bool isDelItem = false;
                         bool isDelSkid = false;
-                        if (this.ActDetail.ActItem.ActHdr.SkidInfo.CurrSkid.SkidFKRefno == 0)
+                        if (string.IsNullOrEmpty(this.ActDetail.SchemeData.LogisticUnitSkidNumber))
                         {
                             if (await this.DisplayAlert(
                                 this.ActDetail.GetControlDescription(),
@@ -997,7 +997,7 @@ namespace dMobile.View.Activity
                         _ = await this.ActDetail.Delete();
 
                         // Update the activity line item quantities.
-                        this.ActDetail.ActItem.UpdateListItemQuantity(
+                        this.ActDetail.ActItem.AddToQuantityInActivityItem(
                             this.ActDetail.ActItem.SelectedActivityItem,
                             this.ActDetail.Quantity * -1,
                             this.ActDetail.BaseQuantity * -1,
@@ -1024,10 +1024,13 @@ namespace dMobile.View.Activity
                         // Submit the request, and delete it from the data table.
                         await this.ActDetail.DeleteSkid(skidInfo);
 
+                        await this.RefreshBySubType();
+                        await this.DesignGrid();
+
                         // Update the activity line item quantities.
                         // Because many detail line can be affected we need to total all the details.
-                        SFillQuantity fillQty = await this.ActDetail.GetDataViewTotalQuantity();
-                        this.ActDetail.ActItem.UpdateListItemQuantity(
+                        SFillQuantity fillQty = await this.ActDetail.GetTotalQuantityFromListDetail();
+                        this.ActDetail.ActItem.AddToQuantityInActivityItem(
                             this.ActDetail.ActItem.SelectedActivityItem,
                             fillQty.Quantity,
                             fillQty.BaseQuantity,
@@ -1560,8 +1563,8 @@ namespace dMobile.View.Activity
                             });
                         }
 
-                        SFillQuantity fillQty = await this.ActDetail.GetDataViewTotalQuantity();
-                        this.ActDetail.ActItem.UpdateListItemQuantity(
+                        SFillQuantity fillQty = await this.ActDetail.GetTotalQuantityFromListDetail();
+                        this.ActDetail.ActItem.AddToQuantityInActivityItem(
                             this.ActDetail.ActItem.SelectedActivityItem,
                             fillQty.Quantity,
                             fillQty.BaseQuantity,
@@ -1897,8 +1900,11 @@ namespace dMobile.View.Activity
                     this.SelectedActivityDetailFKRefno = this.ActDetail.DetailFKRefno;
                 }
 
-                this.ListViewMainActivity.ScrollTo(selectedItem, ScrollToPosition.MakeVisible, false);
-                ////this.ListViewMainActivity.ItemsSource = this.MainActivityItems;
+                Device.BeginInvokeOnMainThread(() =>
+                {
+                    this.ListViewMainActivity.ScrollTo(selectedItem, ScrollToPosition.MakeVisible, false);
+                    ////this.ListViewMainActivity.ItemsSource = this.MainActivityItems;
+                });
             }
             else
             {
@@ -1906,7 +1912,10 @@ namespace dMobile.View.Activity
                 this.ActDetail.SelectedActivityDetail = null;
                 this.ActDetail.DetailFKRefno = 0;
                 this.ActDetail.DetailRefno = 0;
-                this.ListViewMainActivity.SelectedItem = null;
+                Device.BeginInvokeOnMainThread(() =>
+                {
+                    this.ListViewMainActivity.SelectedItem = null;
+                });
             }
         }
 
@@ -2057,8 +2066,8 @@ namespace dMobile.View.Activity
                             string prodUnitSizeDesc = countDetail.ProductUnitSizeDescription.ToString();
                             this.ExtraInfoItems.Add(prodDesc.Trim() + " " + prodUnitSizeDesc.Trim());
 
-                            this.ExtraInfoItems.Add("DEF LOC: " + defProdLoc.Trim());
-                            this.ExtraInfoItems.Add("COUNT LOC: " + countLoc.Trim());
+                            this.ExtraInfoItems.Add("Default Location: " + defProdLoc.Trim());
+                            this.ExtraInfoItems.Add("Count Location: " + countLoc.Trim());
                             this.ExtraInfoItems.Add(countDetail.ActivityDetailSchemeID);
                         }
 
@@ -2680,8 +2689,8 @@ namespace dMobile.View.Activity
                         await this.ActDetail.ActItem.IsReadyToApply(xmlParam);
 
                         await this.ActDetail.InsertSkid(this.ActDetail.ActItem.ActHdr.SkidInfo);
-                        SFillQuantity fillQty = await this.ActDetail.GetDataViewTotalQuantity();
-                        this.ActDetail.ActItem.UpdateListItemQuantity(
+                        SFillQuantity fillQty = await this.ActDetail.GetTotalQuantityFromListDetail();
+                        this.ActDetail.ActItem.AddToQuantityInActivityItem(
                             this.ActDetail.ActItem.SelectedActivityItem,
                             fillQty.Quantity,
                             fillQty.BaseQuantity,

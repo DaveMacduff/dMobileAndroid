@@ -18,8 +18,26 @@ namespace dMobile.View.CustomPages
         /// Defines the loading.
         /// </summary>
         private bool loading;
+
+        /// <summary>
+        /// 
+        /// </summary>
         private string optionsIconSource;
+
+        /// <summary>
+        /// 
+        /// </summary>
         private bool isClosing = false;
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="DMobileContentPage"/> class.
+        /// </summary>
+        public DMobileContentPage()
+        {
+            this.BindingContext = this;
+            this.Loading = false;
+            this.OptionsIconSource = Convert.ToString(Application.Current.Resources["OptionsIcon"]);
+        }
 
         /// <summary>
         /// Gets or sets a value indicating whether the page content is loading.
@@ -44,16 +62,6 @@ namespace dMobile.View.CustomPages
                 this.optionsIconSource = value;
                 this.OnPropertyChanged();
             }
-        }
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="DMobileContentPage"/> class.
-        /// </summary>
-        public DMobileContentPage()
-        {
-            this.BindingContext = this;
-            this.Loading = false;
-            this.OptionsIconSource = Convert.ToString(Application.Current.Resources["OptionsIcon"]);
         }
 
         /// <summary>

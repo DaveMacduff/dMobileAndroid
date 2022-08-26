@@ -147,15 +147,20 @@ namespace dMobile.Controller
         /// <param name="actItemFoundRefno"><see cref="int"/> Activity item reference number to look up.</param>
         public override void SetSelectedActivityItem(int actItemFoundRefno)
         {
+            this.SelectedListItemIdx = -1;
             if (actItemFoundRefno >= 0)
             {
+                int idx = 0;
                 foreach (CountItem item in this.ListItems)
                 {
                     if (item.ActivityItemRefno == this.ItemRefno)
                     {
                         this.SelectedActivityItem = item;
+                        this.SelectedListItemIdx = idx;
                         break;
                     }
+
+                    idx++;
                 }
             }
             else
@@ -354,7 +359,8 @@ namespace dMobile.Controller
                             ActivityItemCountWeightQuantity = 0,
                         };
                         this.ListItems.Add(item);
-                        _ = this.SelectActivityItem(item);
+                        this.SelectedListItemIdx = this.ListItems.Count - 1;
+                        _ = this.AssignActivityItem(item);
                     }
                 }
             }
@@ -924,9 +930,9 @@ namespace dMobile.Controller
         /// </summary>
         /// <param name="selectedActivityItem"><see cref="object"/> Selected activity object.</param>
         /// <returns><see cref="Task"/> Task operation.</returns>
-        public override async Task SelectActivityItem(object selectedActivityItem)
+        public override async Task AssignActivityItem(object activityItem)
         {
-            if (selectedActivityItem is CountItem item)
+            if (activityItem is CountItem item)
             {
                 this.SelectedActivityItem = item;
                 this.ItemRefno = item.ActivityItemRefno;
@@ -1090,7 +1096,7 @@ namespace dMobile.Controller
         /// <param name="quantity">.</param>
         /// <param name="baseQuantity">.</param>
         /// <param name="weightQuantity">.</param>
-        public override void RefreshQuantity(object selectedActivityItem, decimal quantity, decimal baseQuantity, decimal weightQuantity)
+        public override void ReplaceQuantityInActivityItem(object selectedActivityItem, decimal quantity, decimal baseQuantity, decimal weightQuantity)
         {
             if (selectedActivityItem is CountItem countItem)
             {
@@ -1107,7 +1113,7 @@ namespace dMobile.Controller
         /// <param name="quantity">.</param>
         /// <param name="baseQuantity">.</param>
         /// <param name="weightQuantity">.</param>
-        public override void UpdateListItemQuantity(object selectedActivityItem, decimal quantity, decimal baseQuantity, decimal weightQuantity)
+        public override void AddToQuantityInActivityItem(object selectedActivityItem, decimal quantity, decimal baseQuantity, decimal weightQuantity)
         {
             if (selectedActivityItem is CountItem countItem)
             {
@@ -1118,17 +1124,23 @@ namespace dMobile.Controller
         }
 
         /// <summary>
-        /// The UpdateQuantityFromActivityItemList.
+        /// Update the activity item table data with the selected activity item object data.
         /// </summary>
-        /// <param name="selectedActivityItem">The selectedActivityItem<see cref="object"/>.</param>
-        /// <param name="actItemRefno">.</param>
-        /// <returns>The <see cref="Task"/>.</returns>
-        public override async Task UpdateQuantityFromActivityItemList(object selectedActivityItem, int actItemRefno)
+        /// <param name="activityItem"><see cref="object"/> Activity item.</param>
+        /// <returns>The <see cref="Task"/> Task operation.</returns>
+        public override async Task UpdateItemTableQuantity(object activityItem)
         {
-            if (selectedActivityItem is CountItem countItem)
+            if (activityItem is CountItem countItem)
             {
-                string query = "UPDATE tActivityItemCount SET ActivityItemCountQuantity = ?, ActivityItemCountBaseQuantity = ?, ActivityItemCountWeightQuantity = ? WHERE ActivityItemRefno = ?";
-                object[] parameters = new object[] { countItem.ActivityItemCountQuantity, countItem.ActivityItemCountBaseQuantity, countItem.ActivityItemCountWeightQuantity, actItemRefno };
+                string query = "UPDATE tActivityItemCount SET ActivityItemCountQuantity = ?," +
+                    " ActivityItemCountBaseQuantity = ?, ActivityItemCountWeightQuantity = ? WHERE ActivityItemRefno = ?";
+                object[] parameters = new object[]
+                {
+                    countItem.ActivityItemCountQuantity,
+                    countItem.ActivityItemCountBaseQuantity,
+                    countItem.ActivityItemCountWeightQuantity,
+                    countItem.ActivityItemRefno,
+                };
 
                 await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(query, parameters);
             }
@@ -1138,7 +1150,7 @@ namespace dMobile.Controller
         /// Get the activity item foreign key reference number.
         /// </summary>
         /// <param name="resourceType"><see cref="object"/> Resource model type.</param>
-        /// <returns><see cref="int"/> Found activity item foreign key refno, else 0 if not found.</returns>
+        /// <returns><see cref="int"/> Found activity item foreign key reference number, else 0 if not found.</returns>
         public override int GetFKRefno(object resourceType)
         {
             object tmpFKItRefno = ((CountItem)resourceType).ActivityItemFKRefno;

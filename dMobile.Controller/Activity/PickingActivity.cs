@@ -367,14 +367,10 @@ namespace dMobile.Controller
         }
 
         /// <summary>
-        /// /// </summary>
-        /// <param name="clearDeviceOnly"></param>
-        /// <returns></returns>
-        /// <summary>
-        ///.
+        /// Clear the sales order being picked flag.
         /// </summary>
-        /// <param name="clearDeviceOnly">.</param>
-        /// <returns>.</returns>
+        /// <param name="clearDeviceOnly"><see cref="bool"/> </param>
+        /// <returns></returns>
         public async Task<bool> ClearSalesOrderBeingPicked(bool clearDeviceOnly)
         {
             bool isClearedBeingPicked = true;
@@ -415,12 +411,14 @@ namespace dMobile.Controller
                 {
                     XmlDocument xmlDoc = new XmlDocument();
                     xmlDoc.LoadXml(reqData);
-
                     if (reqData.Contains("<message>ERROR</message>"))
                     {
                         string errorDetail = xmlDoc.DocumentElement["detail"].InnerText;
 
-                        await Device.InvokeOnMainThreadAsync(async () => await Application.Current.MainPage.DisplayAlert(this.GetControlDescription(), errorDetail, "OK"));
+                        await Device.InvokeOnMainThreadAsync(async () => await Application.Current.MainPage.DisplayAlert(
+                            this.GetControlDescription(),
+                            errorDetail,
+                            "OK"));
                     }
                     else
                     {

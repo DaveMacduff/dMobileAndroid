@@ -214,8 +214,19 @@ namespace dMobile.Controller
         {
             if (!this.SysEnv.SysSettings.IsDisconnectedMode)
             {
-                string xmlDelete = await this.CreateDeleteXML(XDocument.Parse(
-                    "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?><params></params>"));
+                string xmlDelete = string.Empty;
+                if (string.IsNullOrEmpty(skidInfo.CurrSkid.SkidCode))
+                {
+                    xmlDelete = await this.CreateDeleteXML(XDocument.Parse(
+                        "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?><params></params>"));
+                }
+                else
+                {
+                    xmlDelete = await this.CreateDeleteXML(XDocument.Parse(
+                        $"<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?><params><skid_data>" +
+                        $"{skidInfo.CurrSkid.LogisticUnitSkidCode}</skid_data></params>"));
+                }
+
                 string reqData = SysCommon.SubmitComm(xmlDelete);
 
                 if (reqData.Length > 0)
@@ -236,6 +247,10 @@ namespace dMobile.Controller
                             throw new Exception(errorDetail);
                         }
                     }
+                }
+                else
+                {
+                    throw new MessageOnlyException("No response received from communication server for delete skid request.");
                 }
             }
         }

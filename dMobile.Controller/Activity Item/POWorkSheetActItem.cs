@@ -367,7 +367,8 @@ namespace dMobile.Controller
                 if (toBeAdded)
                 {
                     this.ListItems.Add(item);
-                    _ = this.SelectActivityItem(item);
+                    this.SelectedListItemIdx = this.ListItems.Count - 1;
+                    _ = this.AssignActivityItem(item);
                 }
             }
         }
@@ -798,9 +799,9 @@ namespace dMobile.Controller
         /// </summary>
         /// <param name="selectedActivityItem"><see cref="object"/> Selected activity object.</param>
         /// <returns><see cref="Task"/> Task operation.</returns>
-        public override async Task SelectActivityItem(object selectedActivityItem)
+        public override async Task AssignActivityItem(object activityItem)
         {
-            if (selectedActivityItem is PurchaseOrderWorkSheetItem item)
+            if (activityItem is PurchaseOrderWorkSheetItem item)
             {
                 this.SelectedActivityItem = item;
                 this.ItemRefno = item.ActivityItemRefno;
@@ -944,7 +945,7 @@ namespace dMobile.Controller
         /// <param name="quantity">.</param>
         /// <param name="baseQuantity">.</param>
         /// <param name="weightQuantity">.</param>
-        public override void RefreshQuantity(object selectedActivityItem, decimal quantity, decimal baseQuantity, decimal weightQuantity)
+        public override void ReplaceQuantityInActivityItem(object selectedActivityItem, decimal quantity, decimal baseQuantity, decimal weightQuantity)
         {
             if (selectedActivityItem is PurchaseOrderWorkSheetItem purchaseOrderWorkSheetItem)
             {
@@ -961,7 +962,7 @@ namespace dMobile.Controller
         /// <param name="quantity">.</param>
         /// <param name="baseQuantity">.</param>
         /// <param name="weightQuantity">.</param>
-        public override void UpdateListItemQuantity(object selectedActivityItem, decimal quantity, decimal baseQuantity, decimal weightQuantity)
+        public override void AddToQuantityInActivityItem(object selectedActivityItem, decimal quantity, decimal baseQuantity, decimal weightQuantity)
         {
             if (selectedActivityItem is PurchaseOrderWorkSheetItem purchaseOrderWorkSheetItem)
             {
@@ -972,14 +973,13 @@ namespace dMobile.Controller
         }
 
         /// <summary>
-        /// The UpdateQuantityFromActivityItemList.
+        /// Update the activity item table data with the selected activity item object data.
         /// </summary>
-        /// <param name="selectedActivityItem">The selectedActivityItem<see cref="object"/>.</param>
-        /// <param name="actItemRefno">.</param>
-        /// <returns>The <see cref="Task"/>.</returns>
-        public override async Task UpdateQuantityFromActivityItemList(object selectedActivityItem, int actItemRefno)
+        /// <param name="activityItem"><see cref="object"/> Activity item.</param>
+        /// <returns>The <see cref="Task"/> Task operation.</returns>
+        public override async Task UpdateItemTableQuantity(object activityItem)
         {
-            if (selectedActivityItem is PurchaseOrderWorkSheetItem purchaseOrderWorkSheetItem)
+            if (activityItem is PurchaseOrderWorkSheetItem purchaseOrderWorkSheetItem)
             {
                 string query = "UPDATE tActivityItemPurchaseOrderWorkSheet SET " +
                     "ActivityItemPurchaseOrderWorkSheetQuantityOrdered = ?, " +
@@ -991,7 +991,7 @@ namespace dMobile.Controller
                     purchaseOrderWorkSheetItem.ActivityItemPurchaseOrderWorkSheetQuantityOrdered,
                     purchaseOrderWorkSheetItem.ActivityItemPurchaseOrderWorkSheetBaseQuantityOrdered,
                     purchaseOrderWorkSheetItem.ActivityItemPurchaseOrderWorkSheetWeightQuantityOrdered,
-                    actItemRefno,
+                    purchaseOrderWorkSheetItem.ActivityItemRefno,
                 };
 
                 await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(query, parameters);

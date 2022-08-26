@@ -137,18 +137,28 @@ namespace dMobile.Controller
         /// <summary>
         /// Set the activity item selected activity item.
         /// </summary>
+        /// <remarks>
+        /// Iterate through the ListItems looking for a matched activity item reference number.
+        /// If a match is found set the SelectedActivityItem to one found in the ListItems
+        /// else the SelectedActivityItem is set to null.
+        /// </remarks>
         /// <param name="actItemFoundRefno"><see cref="int"/> Activity item reference number to look up.</param>
         public override void SetSelectedActivityItem(int actItemFoundRefno)
         {
+            this.SelectedListItemIdx = -1;
             if (actItemFoundRefno >= 0)
             {
+                int idx = 0;
                 foreach (AdjustmentItem item in this.ListItems)
                 {
                     if (item.ActivityItemRefno == this.ItemRefno)
                     {
                         this.SelectedActivityItem = item;
+                        this.SelectedListItemIdx = idx;
                         break;
                     }
+
+                    idx++;
                 }
             }
             else
@@ -220,13 +230,14 @@ namespace dMobile.Controller
         /// <summary>
         /// Insert a new adjustment activity item.
         /// </summary>
+        /// <remarks>Checking for existing an activity item that matches is assumed to have been performed
+        /// before invoking this method, unless the askToInsertAsNewItem parameter argument is true.</remarks>
         /// <param name="data"><see cref="XDocument"/> Adjustment activity information to insert.</param>
         /// <param name="askToInsertAsNewItem"><see cref="bool"/> Stop and ask to insert an item.</param>
         /// <returns><see cref="Task"/> Task operation.</returns>
         public override async Task Insert(XDocument data, bool askToInsertAsNewItem)
         {
-            int foundActItemRefno = 0;
-            bool insertNew = false;
+            bool insertNew = true;
 
             int prodUnitRefno = int.Parse(data.Root.Element("ProductUnitRefno").Value);
             if (prodUnitRefno <= 0)
@@ -237,18 +248,16 @@ namespace dMobile.Controller
             this.ProdInfo = await ProductInfoTasks.GetInfoFromUnitRefno(prodUnitRefno);
             this.ProdInfo.Scheme = await ProductInfoTasks.GetSchemeComponentsFromRefno(this.ProdInfo.Refno);
 
-            foundActItemRefno = await this.GetActivityItemRefno(prodUnitRefno);
-            if (foundActItemRefno > 0 && askToInsertAsNewItem)
+            if (askToInsertAsNewItem)
             {
-                string msg = "A line item already exists for this location and product." + Environment.NewLine +
-                    "Do you wish to create one?";
-                insertNew = await Device.InvokeOnMainThreadAsync(async () =>
-                    await Application.Current.MainPage.DisplayAlert("New Item", msg, "Yes", "No"));
-            }
-            else
-            {
-                // If the selected product to insert was not found, force the dialog result to insert it.
-                insertNew = true;
+                int foundActItemRefno = await this.GetActivityItemRefno(prodUnitRefno);
+                if (foundActItemRefno > 0)
+                {
+                    string msg = "A line item already exists for the location and product." + Environment.NewLine +
+                        "Do you wish to create an additional one?";
+                    insertNew = await Device.InvokeOnMainThreadAsync(async () =>
+                        await Application.Current.MainPage.DisplayAlert("New Item", msg, "Yes", "No"));
+                }
             }
 
             if (insertNew)
@@ -350,7 +359,8 @@ namespace dMobile.Controller
                 };
 
                 this.ListItems.Add(adjItem);
-                _ = this.SelectActivityItem(adjItem);
+                this.SelectedListItemIdx = this.ListItems.Count - 1;
+                _ = this.AssignActivityItem(adjItem);
             }
         }
 
@@ -652,13 +662,13 @@ namespace dMobile.Controller
         }
 
         /// <summary>
-        /// Select an activity item.
+        /// Assign the activity item values from the activity item parameter arguments.
         /// </summary>
-        /// <param name="selectedActivityItem"><see cref="object"/> Selected activity object.</param>
+        /// <param name="activityItem"><see cref="object"/> Activity item.</param>
         /// <returns><see cref="Task"/> Task operation.</returns>
-        public override async Task SelectActivityItem(object selectedActivityItem)
+        public override async Task AssignActivityItem(object activityItem)
         {
-            if (selectedActivityItem is AdjustmentItem item)
+            if (activityItem is AdjustmentItem item)
             {
                 this.SelectedActivityItem = item;
                 this.ItemRefno = item.ActivityItemRefno;
@@ -787,13 +797,13 @@ namespace dMobile.Controller
         }
 
         /// <summary>
-        /// The RefreshQuantity.
+        /// Replaces the activity item quantities. Does not add to the existing values.
         /// </summary>
-        /// <param name="selectedActivityItem">The selectedActivityItem<see cref="object"/>.</param>
-        /// <param name="quantity">.</param>
-        /// <param name="baseQuantity">.</param>
-        /// <param name="weightQuantity">.</param>
-        public override void RefreshQuantity(
+        /// <param name="selectedActivityItem"><see cref="object"/> Selected activity item to change.</param>
+        /// <param name="quantity"><see cref="decimal"/> Alt quantity.</param>
+        /// <param name="baseQuantity"><see cref="decimal"/> Base quantity.</param>
+        /// <param name="weightQuantity"><see cref="decimal"/> Weight quantity.</param>
+        public override void ReplaceQuantityInActivityItem(
             object selectedActivityItem,
             decimal quantity,
             decimal baseQuantity,
@@ -808,13 +818,13 @@ namespace dMobile.Controller
         }
 
         /// <summary>
-        /// The UpdateListItemQuantity.
+        /// Add quantity to the existing activity item quantities. Does not reset existing values.
         /// </summary>
-        /// <param name="selectedActivityItem">The selectedActivityItem<see cref="object"/>.</param>
-        /// <param name="quantity">.</param>
-        /// <param name="baseQuantity">.</param>
-        /// <param name="weightQuantity">.</param>
-        public override void UpdateListItemQuantity(
+        /// <param name="selectedActivityItem"><see cref="object"/> Selected activity item to change.</param>
+        /// <param name="quantity"><see cref="decimal"/> Alt quantity.</param>
+        /// <param name="baseQuantity"><see cref="decimal"/> Base quantity.</param>
+        /// <param name="weightQuantity"><see cref="decimal"/> Weight quantity.</param>
+        public override void AddToQuantityInActivityItem(
             object selectedActivityItem,
             decimal quantity,
             decimal baseQuantity,
@@ -829,14 +839,13 @@ namespace dMobile.Controller
         }
 
         /// <summary>
-        /// The UpdateQuantityFromActivityItemList.
+        /// Update the activity item table data with the selected activity item object data.
         /// </summary>
-        /// <param name="selectedActivityItem">The selectedActivityItem<see cref="object"/>.</param>
-        /// <param name="actItemRefno">.</param>
-        /// <returns>The <see cref="Task"/>.</returns>
-        public override async Task UpdateQuantityFromActivityItemList(object selectedActivityItem, int actItemRefno)
+        /// <param name="activityItem"><see cref="object"/> Activity item.</param>
+        /// <returns>The <see cref="Task"/> Task operation.</returns>
+        public override async Task UpdateItemTableQuantity(object activityItem)
         {
-            if (selectedActivityItem is AdjustmentItem adjustmentItem)
+            if (activityItem is AdjustmentItem adjustmentItem)
             {
                 string query = "UPDATE tActivityItemAdjustment SET ActivityItemAdjustmentQuantity = ?," +
                     " ActivityItemAdjustmentBaseQuantity = ?, ActivityItemAdjustmentWeightQuantity = ?" +
@@ -846,7 +855,7 @@ namespace dMobile.Controller
                     adjustmentItem.ActivityItemAdjustmentQuantity,
                     adjustmentItem.ActivityItemAdjustmentBaseQuantity,
                     adjustmentItem.ActivityItemAdjustmentWeightQuantity,
-                    actItemRefno,
+                    adjustmentItem.ActivityItemRefno,
                 };
 
                 await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(query, parameters);

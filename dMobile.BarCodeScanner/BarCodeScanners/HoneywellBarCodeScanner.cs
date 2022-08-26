@@ -83,9 +83,9 @@ namespace dMobile.BarCodeScanner.BarCodeScanners
             }
             else
             {
-                _ = Log.Error(
-                    "HoneywellBarcodeScanner",
-                    "OpenAsync failed, Code:" + result.Code + " Message:" + result.Message);
+                string errMsg = $"HoneywellBarcodeScanner, OpenAsync failed, Code: {result.Code} Message: {result.Message}.";
+                _ = Log.Error("HoneywellBarcodeScanner", errMsg);
+                throw new Exception(errMsg);
             }
         }
 
@@ -107,9 +107,9 @@ namespace dMobile.BarCodeScanner.BarCodeScanners
             }
             else
             {
-                _ = Log.Error(
-                    "HoneywellBarcodeScanner",
-                    "CloseAsync failed, Code:" + result.Code + " Message:" + result.Message);
+                string errMsg = $"HoneywellBarcodeScanner, CloseAsync failed, Code: {result.Code} Message: {result.Message}.";
+                _ = Log.Error("HoneywellBarcodeScanner", errMsg);
+                throw new Exception(errMsg);
             }
         }
 
@@ -147,7 +147,9 @@ namespace dMobile.BarCodeScanner.BarCodeScanners
             }
             catch (Exception ex)
             {
-                _ = Log.Error("HoneywellBarcodeScanner", ex.Message);
+                string errMsg = ex.Message;
+                _ = Log.Error("HoneywellBarcodeScanner", errMsg);
+                throw new Exception(errMsg);
             }
         }
 
@@ -171,11 +173,8 @@ namespace dMobile.BarCodeScanner.BarCodeScanners
 
                             if (result.Code != BarcodeReader.Result.Codes.SUCCESS)
                             {
-                                await Device.InvokeOnMainThreadAsync(async () =>
-                                    await Application.Current.MainPage.DisplayAlert(
-                                        "Error",
-                                        "Could not set symbology settings " + result.Message,
-                                        "OK"));
+                                string errMsg = $"Could not set symbology settings {result.Message}.";
+                                throw new Exception(errMsg);
                             }
                             else
                             {
@@ -184,7 +183,9 @@ namespace dMobile.BarCodeScanner.BarCodeScanners
                         }
                         catch (Exception ex)
                         {
-                            Log.Error("SetSymbologySettings", "Error setting symbology settings " + ex.Message);
+                            string errMsg = $"SetSymbologySettings - Error setting symbology settings {ex.Message}";
+                            Log.Error("SetSymbologySettings", errMsg);
+                            throw new Exception(errMsg);
                         }
                     };
 

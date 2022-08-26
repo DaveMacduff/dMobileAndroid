@@ -377,7 +377,7 @@ namespace dMobile.View.Activity
 
             if (this.ActItem.ListItems.Count > 0)
             {
-                await this.ActItem.SelectActivityItem(this.ActItem.ListItems[0]);
+                await this.ActItem.AssignActivityItem(this.ActItem.ListItems[0]);
             }
 
             await this.ScannerEnable();

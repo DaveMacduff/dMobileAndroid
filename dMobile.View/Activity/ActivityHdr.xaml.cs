@@ -154,11 +154,6 @@ namespace dMobile.View.Activity
         }
 
         /// <summary>
-        /// Gets or sets the selected header list item index.
-        /// </summary>
-        private int SelectedIndex { get; set; } = 0;
-
-        /// <summary>
         /// Gets or sets a number of screen taps tracker for Xamarin bug that prevents
         /// selectedItemChanged from firing.
         /// </summary>
@@ -496,9 +491,9 @@ namespace dMobile.View.Activity
                 this.Loading = true;
                 if (this.FirstOnAppearing)
                 {
+                    this.FirstOnAppearing = false;
                     await this.ScannerStart();
                     this.ExtraInfoItems.Clear();
-                    this.FirstOnAppearing = false;
                     this.ActHdr.XMLDataCriteria = XDocument.Parse(
                                 "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>" +
                                 "<params>" +
@@ -564,12 +559,12 @@ namespace dMobile.View.Activity
                     await this.Close();
                 }
 
-                await Task.Run(() =>
-                {
-                    // Explicit GC, Xamarin forms not disposing of objects properly
-                    GC.Collect();
-                    GC.WaitForPendingFinalizers();
-                });
+                ////await Task.Run(() =>
+                ////{
+                ////    // Explicit GC, Xamarin forms not disposing of objects properly
+                ////    GC.Collect();
+                ////    GC.WaitForPendingFinalizers();
+                ////});
             }
 
             //////////////////////////////////////////////////////////////////////////
@@ -638,6 +633,7 @@ namespace dMobile.View.Activity
             await this.ScannerEnable();
             this.ListViewMainActivity.ItemTapped += this.ListViewMainActivity_ItemTapped;
             SubscribeKeyUpHandlers();
+            await this.FindSelectedItemAsync();
 
             //////////////////////////////////////////////////////////////////////////
             void SubscribeKeyUpHandlers()
@@ -1191,12 +1187,14 @@ namespace dMobile.View.Activity
             {
                 // Iterate through the list of headers looking for a foreign key match.
                 // Faster than LINQ.
+                this.ActHdr.SelectedListItemIdx = -1;
                 object selectedItem = null;
                 foreach (object hdr in this.ActHdr.ListHdrs)
                 {
                     if (this.SelectedActivityFKRefno == this.ActHdr.GetFKRefno(hdr))
                     {
                         selectedItem = hdr;
+                        this.ActHdr.SelectedListItemIdx++;
                         break;
                     }
                 }
@@ -1205,23 +1203,32 @@ namespace dMobile.View.Activity
                 if (selectedItem == null)
                 {
                     // Goto the first one in the list.
-                    this.ListViewMainActivity.SelectedItem = this.MainActivityItems[0];
+                    this.ActHdr.SelectedListItemIdx = 0;
+                    this.ListViewMainActivity.SelectedItem = this.MainActivityItems[this.ActHdr.SelectedListItemIdx];
                     await this.ActHdr.SelectActivity(this.ListViewMainActivity.SelectedItem);
-                    this.SelectedIndex = 0;
                 }
                 else
                 {
                     await this.ActHdr.SelectActivity(selectedItem);
                     this.ListViewMainActivity.SelectedItem = this.ActHdr.SelectedActivity;
                 }
+
+                Device.BeginInvokeOnMainThread(() =>
+                {
+                    this.ListViewMainActivity.ScrollTo(selectedItem, ScrollToPosition.MakeVisible, false);
+                });
             }
             else
             {
                 // Clear the activity nothing can be selected.
+                this.ActHdr.SelectedListItemIdx = -1;
                 this.ActHdr.SelectedActivity = null;
                 this.ActHdr.HdrFKRefno = 0;
                 this.ActHdr.HdrRefno = 0;
-                this.ListViewMainActivity.SelectedItem = null;
+                Device.BeginInvokeOnMainThread(() =>
+                {
+                    this.ListViewMainActivity.SelectedItem = null;
+                });
             }
         }
 
@@ -1394,7 +1401,7 @@ namespace dMobile.View.Activity
         /// <param name="e"><see cref="SelectedItemChangedEventArgs"/> Select item changed event arguments.</param>
         private async void ListViewMainActivity_ItemSelected(object sender, SelectedItemChangedEventArgs e)
         {
-            this.SelectedIndex = e.SelectedItemIndex;
+            this.ActHdr.SelectedListItemIdx = e.SelectedItemIndex;
             await this.ActHdr.SelectActivity(e.SelectedItem);
             this.SelectedActivityFKRefno = this.ActHdr.HdrFKRefno;
             await DisplayData();
@@ -1569,8 +1576,8 @@ namespace dMobile.View.Activity
                 {
                     if (this.ActHdr.SelectedActivity is Adjustment adjustment)
                     {
-                        this.ExtraInfoItems.Add(adjustment.ActivityAdjustmentType.ToString());
-                        this.ExtraInfoItems.Add("WHS:  " + adjustment.LocationMapWarehouseName.ToString());
+                        this.ExtraInfoItems.Add("Adjustment type: " + adjustment.ActivityAdjustmentTypeDescription);
+                        this.ExtraInfoItems.Add("Warehouse:  " + adjustment.LocationMapWarehouseName.ToString());
                     }
                 }
 
@@ -1623,9 +1630,9 @@ namespace dMobile.View.Activity
                 {
                     if (this.ActHdr.SelectedActivity is Picking picking)
                     {
-                        this.ExtraInfoItems.Add("CUSTOMER: " + picking.ActivityPickingCustomerContactName);
-                        this.ExtraInfoItems.Add("SHIPTO:   " + picking.ActivityPickingCustomerShipToInfo);
-                        this.ExtraInfoItems.Add($"ORDER WHS:   {picking.LocationMapWarehouseFKRefno} - {picking.LocationMapWarehouseName}");
+                        this.ExtraInfoItems.Add("Customer: " + picking.ActivityPickingCustomerContactName);
+                        this.ExtraInfoItems.Add("Ship to:   " + picking.ActivityPickingCustomerShipToInfo);
+                        this.ExtraInfoItems.Add($"Order warehouse:   {picking.LocationMapWarehouseFKRefno} - {picking.LocationMapWarehouseName}");
                     }
                 }
 
@@ -1634,9 +1641,9 @@ namespace dMobile.View.Activity
                 {
                     if (this.ActHdr.SelectedActivity is Picking pickingSingle)
                     {
-                        this.ExtraInfoItems.Add("CUSTOMER: " + pickingSingle.ActivityPickingCustomerContactName);
-                        this.ExtraInfoItems.Add("SHIPTO:   " + pickingSingle.ActivityPickingCustomerShipToInfo);
-                        this.ExtraInfoItems.Add($"ORDER WHS:   {pickingSingle.LocationMapWarehouseFKRefno} - {pickingSingle.LocationMapWarehouseName}");
+                        this.ExtraInfoItems.Add("Customer: " + pickingSingle.ActivityPickingCustomerContactName);
+                        this.ExtraInfoItems.Add("Ship to:   " + pickingSingle.ActivityPickingCustomerShipToInfo);
+                        this.ExtraInfoItems.Add($"Order warehouse:   {pickingSingle.LocationMapWarehouseFKRefno} - {pickingSingle.LocationMapWarehouseName}");
                     }
                 }
 
@@ -1646,7 +1653,7 @@ namespace dMobile.View.Activity
                     if (this.ActHdr.SelectedActivity is ProductionTicketByProduct productionTicketByProduct)
                     {
                         this.ExtraInfoItems.Add(productionTicketByProduct.ActivityProductionDescription);
-                        this.ExtraInfoItems.Add("WHS:  " + productionTicketByProduct.LocationMapWarehouseName);
+                        this.ExtraInfoItems.Add("Warehouse:  " + productionTicketByProduct.LocationMapWarehouseName);
                     }
                 }
 
@@ -1656,7 +1663,7 @@ namespace dMobile.View.Activity
                     if (this.ActHdr.SelectedActivity is ProductionTicketFinished productionTicketFinished)
                     {
                         this.ExtraInfoItems.Add(productionTicketFinished.ActivityProductionDescription);
-                        this.ExtraInfoItems.Add("WHS:  " + productionTicketFinished.LocationMapWarehouseName);
+                        this.ExtraInfoItems.Add("Warehouse:  " + productionTicketFinished.LocationMapWarehouseName);
                     }
                 }
 
@@ -1666,7 +1673,7 @@ namespace dMobile.View.Activity
                     if (this.ActHdr.SelectedActivity is ProductionTicketMaterial productionTicketMaterial)
                     {
                         this.ExtraInfoItems.Add(productionTicketMaterial.ActivityProductionDescription);
-                        this.ExtraInfoItems.Add("WHS:  " + productionTicketMaterial.LocationMapWarehouseName);
+                        this.ExtraInfoItems.Add("Warehouse:  " + productionTicketMaterial.LocationMapWarehouseName);
                     }
                 }
 
@@ -1675,8 +1682,8 @@ namespace dMobile.View.Activity
                 {
                     if (this.ActHdr.SelectedActivity is Receive receive)
                     {
-                        this.ExtraInfoItems.Add("VENDOR:  " + receive.ActivityReceivingVendorContactName);
-                        this.ExtraInfoItems.Add("SUPPLIER:  " + receive.ActivityReceivingVendorSupplierContactName);
+                        this.ExtraInfoItems.Add("Vendor:  " + receive.ActivityReceivingVendorContactName);
+                        this.ExtraInfoItems.Add("Supplier:  " + receive.ActivityReceivingVendorSupplierContactName);
                     }
                 }
 
@@ -1685,8 +1692,8 @@ namespace dMobile.View.Activity
                 {
                     if (this.ActHdr.SelectedActivity is Picking pickingReleaseByOrder)
                     {
-                        this.ExtraInfoItems.Add("CUSTOMER: " + pickingReleaseByOrder.ActivityPickingCustomerContactName);
-                        this.ExtraInfoItems.Add("SHIPTO:   " + pickingReleaseByOrder.ActivityPickingCustomerShipToInfo);
+                        this.ExtraInfoItems.Add("Customer: " + pickingReleaseByOrder.ActivityPickingCustomerContactName);
+                        this.ExtraInfoItems.Add("Ship to:   " + pickingReleaseByOrder.ActivityPickingCustomerShipToInfo);
                     }
                 }
 
@@ -1695,8 +1702,8 @@ namespace dMobile.View.Activity
                 {
                     if (this.ActHdr.SelectedActivity is Return returns)
                     {
-                        this.ExtraInfoItems.Add("CUSTOMER: " + returns.ActivityReturnsCustomerContactName);
-                        this.ExtraInfoItems.Add("SHIPTO:   " + returns.ActivityReturnsCustomerShipToInfo);
+                        this.ExtraInfoItems.Add("Customer: " + returns.ActivityReturnsCustomerContactName);
+                        this.ExtraInfoItems.Add("Ship to:   " + returns.ActivityReturnsCustomerShipToInfo);
                     }
                 }
 
@@ -1706,7 +1713,7 @@ namespace dMobile.View.Activity
                     if (this.ActHdr.SelectedActivity is Transfer transfer)
                     {
                         this.ExtraInfoItems.Add(transfer.ActivityTransferDescription);
-                        this.ExtraInfoItems.Add("TO WHS:  " + transfer.LocationMapWarehouseName);
+                        this.ExtraInfoItems.Add("To Warehouse:  " + transfer.LocationMapWarehouseName);
                     }
                 }
             }
@@ -1825,20 +1832,9 @@ namespace dMobile.View.Activity
                         if (await form.DisplayControl.ShowDialog() == DialogResult.OK)
                         {
                             XDocument xmlDoc = await form.GetXML();
-
-                            // TODO: Fix filtering
-                            //// this.ActHdr.DataViewHdrs.RowFilter = this.ActHdr.GetFilter(xmlDoc);
-
-                            if (!string.IsNullOrEmpty(xmlDoc.Root.Element("sortby").Value))
-                            {
-                                // TODO: Fix sorting
-                                ////this.ActHdr.DataViewHdrs.Sort = xmlDoc.Root.Element("sortby").Value;
-                            }
-
                             if (!string.IsNullOrEmpty(this.txtSearchHdr.Text))
                             {
-                                this.MainActivityItems = this.ActHdr.Search(
-                                    this.txtSearchHdr.Text);
+                                this.MainActivityItems = this.ActHdr.Search(this.txtSearchHdr.Text);
                             }
                         }
                     });

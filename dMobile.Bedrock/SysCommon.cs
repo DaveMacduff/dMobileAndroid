@@ -1315,6 +1315,10 @@ namespace dMobile.Bedrock
                     {
                         recvData = SysCommon.RemoveXMLReservedChars(recvData);
                     }
+                    else if (recvData.IsNullOrEmpty())
+                    {
+                        throw new Exception("Unexpected no data received from communication submission.");
+                    }
                 }
                 catch
                 {

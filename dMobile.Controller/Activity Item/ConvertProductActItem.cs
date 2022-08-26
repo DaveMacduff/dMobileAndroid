@@ -93,7 +93,7 @@ namespace dMobile.Controller
         /// <param name="quantity">.</param>
         /// <param name="baseQuantity">.</param>
         /// <param name="weightQuantity">.</param>
-        public override void UpdateListItemQuantity(object selectedActivityItem, decimal quantity, decimal baseQuantity, decimal weightQuantity)
+        public override void AddToQuantityInActivityItem(object selectedActivityItem, decimal quantity, decimal baseQuantity, decimal weightQuantity)
         {
             throw new NotImplementedException();
         }
@@ -145,7 +145,8 @@ namespace dMobile.Controller
                 };
 
                 this.ListItems.Add(item);
-                _ = this.SelectActivityItem(item);
+                this.SelectedListItemIdx = this.ListItems.Count - 1;
+                _ = this.AssignActivityItem(item);
             }
         }
 
@@ -204,7 +205,7 @@ namespace dMobile.Controller
         /// </summary>
         /// <param name="selectedActivityItem">The selectedActivityItem<see cref="object"/>.</param>
         /// <returns>The <see cref="Task"/>.</returns>
-        public override Task SelectActivityItem(object selectedActivityItem)
+        public override Task AssignActivityItem(object activityItem)
         {
             throw new NotImplementedException();
         }
@@ -292,18 +293,17 @@ namespace dMobile.Controller
         /// <param name="quantity">.</param>
         /// <param name="baseQuantity">.</param>
         /// <param name="weightQuantity">.</param>
-        public override void RefreshQuantity(object selectedActivityItem, decimal quantity, decimal baseQuantity, decimal weightQuantity)
+        public override void ReplaceQuantityInActivityItem(object selectedActivityItem, decimal quantity, decimal baseQuantity, decimal weightQuantity)
         {
             throw new NotImplementedException();
         }
 
         /// <summary>
-        /// The UpdateQuantityFromActivityItemList.
+        /// Update the activity item table data with the selected activity item object data.
         /// </summary>
-        /// <param name="selectedActivityItem">The selectedActivityItem<see cref="object"/>.</param>
-        /// <param name="actItemRefno">.</param>
-        /// <returns>The <see cref="Task"/>.</returns>
-        public override Task UpdateQuantityFromActivityItemList(object selectedActivityItem, int actItemRefno)
+        /// <param name="activityItem"><see cref="object"/> Activity item.</param>
+        /// <returns>The <see cref="Task"/> Task operation.</returns>
+        public override Task UpdateItemTableQuantity(object activityItem)
         {
             throw new NotImplementedException();
         }
@@ -312,7 +312,7 @@ namespace dMobile.Controller
         /// Get the activity item foreign key reference number.
         /// </summary>
         /// <param name="resourceType"><see cref="object"/> Resource model type.</param>
-        /// <returns><see cref="int"/> Found activity item foreign key refno, else 0 if not found.</returns>
+        /// <returns><see cref="int"/> Found activity item foreign key reference number, else 0 if not found.</returns>
         public override int GetFKRefno(object resourceType)
         {
             throw new NotImplementedException();
