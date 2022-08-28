@@ -460,7 +460,6 @@ namespace dMobile.View.Activity
             // NOTE: Do not need to set scanner off or on. Caller will handle.
             try
             {
-                await this.ScannerDisable();
                 if (this.ActSubType == SysCommon.ActSubTypes.Picking ||
                     this.ActSubType == SysCommon.ActSubTypes.PickingSingle)
                 {
@@ -483,10 +482,6 @@ namespace dMobile.View.Activity
                     FormErrorReport errRpt = new FormErrorReport(this.ActSubType, ex);
                     _ = await errRpt.ShowDialog();
                 });
-            }
-            finally
-            {
-                await this.ScannerEnable();
             }
 
             return isReadyToSave;
@@ -561,8 +556,6 @@ namespace dMobile.View.Activity
             // NOTE: Do not need to set scanner off or on. Caller will handle.
             try
             {
-                await this.ScannerDisable();
-
                 // Prairie meats like Lekker requirement to check quantity under even though we are
                 // canceling / closing.
                 // See WO# 12080
@@ -591,10 +584,6 @@ namespace dMobile.View.Activity
                     FormErrorReport errRpt = new FormErrorReport(this.ActSubType, ex);
                     _ = await errRpt.ShowDialog();
                 });
-            }
-            finally
-            {
-                await this.ScannerEnable();
             }
 
             return isReadyToClose;
@@ -630,12 +619,10 @@ namespace dMobile.View.Activity
                             break;
 
                         case SysCommon.ActPickingQtyUnderValLevels.ValidateWarnAndStop:
-
                             await Device.InvokeOnMainThreadAsync(async () =>
                                 await this.DisplayAlert("Quantity Validation", ex.Message, "OK"));
                             isReadyToClose = false;
                             this.IsShowDataValidMsg = false;
-
                             break;
 
                         case SysCommon.ActPickingQtyUnderValLevels.NoValidationOrWarning:
@@ -666,7 +653,6 @@ namespace dMobile.View.Activity
             // NOTE: Do not need to set scanner off or on. Caller will handle.
             try
             {
-                await this.ScannerDisable();
                 if (await this.IsReadyToSave())
                 {
                     ////ClearContents();
@@ -715,10 +701,6 @@ namespace dMobile.View.Activity
                     FormErrorReport errRpt = new FormErrorReport(this.ActSubType, ex);
                     _ = await errRpt.ShowDialog();
                 });
-            }
-            finally
-            {
-                await this.ScannerEnable();
             }
 
             return isSaveComplete;
@@ -849,10 +831,8 @@ namespace dMobile.View.Activity
         {
             bool cancelChanges = true;
 
-            // NOTE: Do not need to set scanner off or on. Caller will handle.
             try
             {
-                await this.ScannerDisable();
                 if (!await this.IsReadyToClose())
                 {
                     cancelChanges = false;
@@ -875,10 +855,6 @@ namespace dMobile.View.Activity
                     FormErrorReport errRpt = new FormErrorReport(this.ActSubType, ex);
                     _ = await errRpt.ShowDialog();
                 });
-            }
-            finally
-            {
-                await this.ScannerEnable();
             }
 
             return cancelChanges;
@@ -942,41 +918,11 @@ namespace dMobile.View.Activity
         {
             Device.BeginInvokeOnMainThread(async () =>
             {
-                try
+                if (await this.CancelChanges())
                 {
-                    await this.ScannerDisable();
-                    if (await this.SaveChanges())
-                    {
-                        this.DialogResult = DialogResult.OK;
-                        _ = base.OnBackButtonPressed();
-                        await this.Close();
-                    }
-                    else if (await this.CancelChanges())
-                    {
-                        this.DialogResult = DialogResult.None;
-                        _ = base.OnBackButtonPressed();
-                        await this.Close();
-                    }
-                }
-                catch (MessageOnlyException ex)
-                {
-                    await Device.InvokeOnMainThreadAsync(async () =>
-                        await Application.Current.MainPage.DisplayAlert(
-                            this.ActItem.GetControlDescription(),
-                            ex.Message,
-                            Resource.OK));
-                }
-                catch (Exception ex)
-                {
-                    await Device.InvokeOnMainThreadAsync(async () =>
-                    {
-                        FormErrorReport errRpt = new FormErrorReport(this.ActSubType, ex);
-                        _ = await errRpt.ShowDialog();
-                    });
-                }
-                finally
-                {
-                    await this.ScannerEnable();
+                    await this.ActDisappearing();
+                    _ = base.OnBackButtonPressed();
+                    await this.Close();
                 }
             });
 
@@ -1237,6 +1183,7 @@ namespace dMobile.View.Activity
 
                         // TODO: DEV-5619
                         // Android dMobile F1 & F3 Button Not Working Same As Windows dMobile.
+                        await this.ActDisappearing();
                         await this.Close();
                     }
                 }
@@ -1250,6 +1197,7 @@ namespace dMobile.View.Activity
 
                         // TODO: DEV-5619
                         // Android dMobile F1 & F3 Button Not Working Same As Windows dMobile.
+                        await this.ActDisappearing();
                         await this.Close();
                     }
                 }
@@ -1823,7 +1771,8 @@ namespace dMobile.View.Activity
             scanArgs = scanArgs ?? throw new ArgumentNullException(nameof(scanArgs));
 
             this.Loading = true;
-            _ = this.ActDisappearing();
+
+            await this.ActDisappearing();
 
             int prodUnitRefno = 0;
             object selectedItem = null;
@@ -1936,7 +1885,6 @@ namespace dMobile.View.Activity
                         }
 
                         prodUnitRefno = this.ActItem.ActHdr.SkidInfo.CurrSkid.ProdInfo.UnitRefno;
-
                         actItemFoundRefno = await this.ActItem.GetActivityItemRefno(prodUnitRefno);
                         if (actItemFoundRefno > 0)
                         {
@@ -2206,7 +2154,7 @@ namespace dMobile.View.Activity
             }
             finally
             {
-                _ = this.ActAppearing();
+                await this.ActAppearing();
             }
 
             this.Loading = false;
@@ -3322,6 +3270,7 @@ namespace dMobile.View.Activity
                 try
                 {
                     bool dspOverrideMsg = false;
+                    await this.ActDisappearing();
                     if (this.SysEnv.SysSettings.IsDefaultLocToProductDefaultLoc)
                     {
                         if ((this.ActSubType == SysCommon.ActSubTypes.PhysicalCounts &&
@@ -3346,7 +3295,6 @@ namespace dMobile.View.Activity
                                 Resource.OK));
                     }
 
-                    await this.ActDisappearing();
                     FormDialogContainer form = new FormDialogContainer(
                         EDialogTypes.SelectLocationMap,
                         SysCommon.ActSubTypes.NotApplicable);
@@ -3691,8 +3639,7 @@ namespace dMobile.View.Activity
                 // if a command button is the next control rather than just giving the button focus.
                 try
                 {
-                    await this.ScannerDisable();
-
+                    await this.ActDisappearing();
                     if (await this.DisplayAlert(
                         "Add Skid",
                         "Add the ENTIRE skid to this activity?",
@@ -3803,7 +3750,7 @@ namespace dMobile.View.Activity
                 }
                 finally
                 {
-                    await this.ScannerEnable();
+                    await this.ActAppearing();
                 }
             }
         }

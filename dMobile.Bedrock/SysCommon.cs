@@ -1,3 +1,4 @@
+using System.Diagnostics;
 // <copyright file="SysCommon.cs" company="InterSect Business Systems Inc">
 // Copyright (c) InterSect Business Systems Inc. All rights reserved.
 // </copyright>
@@ -1291,6 +1292,7 @@ namespace dMobile.Bedrock
         /// <returns><see cref="string"/> Communication response.</returns>
         public static string SubmitComm(string sendData)
         {
+            Debug.WriteLine(sendData);
             string recvData = string.Empty;
             SysEnvironment sysEnv = SysEnvironment.GetInstance();
             using (Socket sysSock = sysEnv.SysSock.Connect())
@@ -1300,7 +1302,7 @@ namespace dMobile.Bedrock
                 try
                 {
                     // KLUDGE: Temp fix until we can share a socket
-                    System.Threading.Thread.Sleep(500);
+                    ////System.Threading.Thread.Sleep(500);
 
                     int bytesSent = sysEnv.SysSock.SendRequest(sysSock, sendData);
                     List<byte> compressedData = sysEnv.SysSock.ReceiveResponse(sysSock);

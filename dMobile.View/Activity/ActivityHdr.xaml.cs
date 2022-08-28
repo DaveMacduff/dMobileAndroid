@@ -264,10 +264,6 @@ namespace dMobile.View.Activity
                     || this.ActSubType == SysCommon.ActSubTypes.PickingSingle))
             {
                 isReadyToClose = await this.AskConfirmExit();
-                ////await Device.InvokeOnMainThreadAsync(async () =>
-                ////{
-                ////    isReadyToClose = await this.AskConfirmExit();
-                ////});
             }
 
             return isReadyToClose;
@@ -283,7 +279,6 @@ namespace dMobile.View.Activity
 
             try
             {
-                await this.ScannerDisable();
                 if (await this.IsReadyToSave())
                 {
                     saveComplete = true;
@@ -314,10 +309,6 @@ namespace dMobile.View.Activity
                     _ = await errRpt.ShowDialog();
                 });
             }
-            finally
-            {
-                await this.ScannerEnable();
-            }
 
             return saveComplete;
         }
@@ -334,7 +325,6 @@ namespace dMobile.View.Activity
             try
             {
                 // IsReadyToClose checks if any changes where made.
-                await this.ScannerDisable();
                 if (await this.IsReadyToClose())
                 {
                     // Expect the control to close.
@@ -368,10 +358,6 @@ namespace dMobile.View.Activity
                     _ = await errRpt.ShowDialog();
                 });
             }
-            finally
-            {
-                await this.ScannerEnable();
-            }
 
             return cancelChanges;
         }
@@ -399,9 +385,7 @@ namespace dMobile.View.Activity
         /// publisher delegate.</param>
         /// <param name="dataLayerEventArgs"><see cref="DataGridEnableEventArgs"/> Data layer
         /// publisher event arguments.</param>
-        public void OnLayerStatOut(
-            IDataLayerEventPublisher publisher,
-            DataLayerEventArgs dataLayerEventArgs)
+        public void OnLayerStatOut(IDataLayerEventPublisher publisher, DataLayerEventArgs dataLayerEventArgs)
         {
             // NOTE: Do not set the scanner off or on here. Scan events can occur even though
             // this method could be invoked asynchronously in the future.
@@ -411,18 +395,6 @@ namespace dMobile.View.Activity
             {
                 this.ExtraInfoItems.Add(dataLayerEventArgs.StatusOutMsg);
             }
-
-            ////if (this.ActHdr.ListHdrs.Count > 0)
-            ////{
-            ////    const int LineLength = 30;      // Magic number why 30? Number of column characters?
-            ////    List<string> lines = SysCommon.WordWrap2List(dataLayerEventArgs.StatusOutMsg, LineLength);
-
-            ////    for (int i = 0; i < lines.Count; i++)
-            ////    {
-            ////        ////this.ListViewDisplayExtraInfo.Items.Add(lines[i]);
-            ////        this.ExtraInfoItems.Add(lines[i]);
-            ////    }
-            ////}
         }
 
         /// <summary>
@@ -432,9 +404,7 @@ namespace dMobile.View.Activity
         /// publisher delegate.</param>
         /// <param name="dataLayerEventArgs"><see cref="DataGridEnableEventArgs"/> Data layer
         /// publisher event arguments.</param>
-        public void OnLayerProgOut(
-            IDataLayerEventPublisher publisher,
-            DataLayerEventArgs dataLayerEventArgs)
+        public void OnLayerProgOut(IDataLayerEventPublisher publisher, DataLayerEventArgs dataLayerEventArgs)
         {
             if (dataLayerEventArgs.CurrentValue > 0 && dataLayerEventArgs.MaxValue > 0)
             {
@@ -453,6 +423,7 @@ namespace dMobile.View.Activity
             {
                 if (await this.CancelChanges())
                 {
+                    await this.ActDisappearing();
                     _ = base.OnBackButtonPressed();
                     await this.Close();
                 }
@@ -559,12 +530,12 @@ namespace dMobile.View.Activity
                     await this.Close();
                 }
 
-                ////await Task.Run(() =>
-                ////{
-                ////    // Explicit GC, Xamarin forms not disposing of objects properly
-                ////    GC.Collect();
-                ////    GC.WaitForPendingFinalizers();
-                ////});
+                await Task.Run(() =>
+                {
+                    // Explicit GC, Xamarin forms not disposing of objects properly
+                    GC.Collect();
+                    GC.WaitForPendingFinalizers();
+                });
             }
 
             //////////////////////////////////////////////////////////////////////////
@@ -714,6 +685,7 @@ namespace dMobile.View.Activity
                 {
                     if (await this.SaveChanges())
                     {
+                        await this.ActDisappearing();
                         await this.Close();
                     }
                 }
@@ -721,108 +693,99 @@ namespace dMobile.View.Activity
                 //////////////////////////////////////////////////////////////////////////
                 async Task ReleaseOrder()
                 {
-                    // Release order.
-                    await Task.Run(async () =>
+                    try
                     {
-                        try
+                        await this.ActDisappearing();
+                        IsItemSelected();
+
+                        // Important! Need to ask for label quantity before the change status AND set
+                        // this.ActHdr.Refno
+                        this.ActHdr.HdrRefno = this.ActHdr.GetRefnoFromRowIdx(this.ListViewMainActivity.SelectedItem);
+
+                        SLabelQuantity labelQuantity = new SLabelQuantity();
+
+                        if (this.ActSubType == SysCommon.ActSubTypes.PickingSingle &&
+                            this.SysEnv.SysSettings.CanPrintShippingLabel &&
+                            !this.SysEnv.SysSettings.IsDisconnectedMode)
                         {
-                            this.ActDisappearing();
+                            labelQuantity = await this.ActHdr.GetLabelQuantity(
+                                this.SysEnv.SysSettings.IsPickSinglePrintShipLabelFullQuantity);
+                        }
 
-                            if (this.ListViewMainActivity.SelectedItem == null ||
-                                Convert.ToInt32(this.MainActivityItems.IndexOf(this.ListViewMainActivity.SelectedItem)) < 0)
+                        if (await Device.InvokeOnMainThreadAsync(async () =>
+                            await this.ActHdr.ChangeStatus(this.ListViewMainActivity.SelectedItem)))
+                        {
+                            // Print labels after release
+                            // Lekker Foods wants to be ask to print labels after the order has been released.
+                            // There is no opportunity to reprint after the release.
+                            if (this.ActSubType == SysCommon.ActSubTypes.Picking ||
+                                this.ActSubType == SysCommon.ActSubTypes.PickingSingle)
                             {
-                                throw new MessageOnlyException("Please select a record to release.");
-                            }
-
-                            // Important! Need to ask for label quantity before the change status AND set
-                            // this.ActHdr.Refno
-                            this.ActHdr.HdrRefno = this.ActHdr.GetRefnoFromRowIdx(this.ListViewMainActivity.SelectedItem);
-
-                            SLabelQuantity labelQuantity = new SLabelQuantity();
-
-                            if (this.ActSubType == SysCommon.ActSubTypes.PickingSingle &&
-                                this.SysEnv.SysSettings.CanPrintShippingLabel &&
-                                !this.SysEnv.SysSettings.IsDisconnectedMode)
-                            {
-                                labelQuantity = await this.ActHdr.GetLabelQuantity(
-                                    this.SysEnv.SysSettings.IsPickSinglePrintShipLabelFullQuantity);
-                            }
-
-                            if (await Device.InvokeOnMainThreadAsync(async () =>
-                                await this.ActHdr.ChangeStatus(this.ListViewMainActivity.SelectedItem)))
-                            {
-                                // Print labels after release
-                                // Lekker Foods wants to be ask to print labels after the order has been released.
-                                // There is no opportunity to reprint after the release.
-                                if (this.ActSubType == SysCommon.ActSubTypes.Picking ||
-                                    this.ActSubType == SysCommon.ActSubTypes.PickingSingle)
+                                // Shipping labels
+                                if (this.SysEnv.SysSettings.CanPrintShippingLabel &&
+                                    !this.SysEnv.SysSettings.IsDisconnectedMode)
                                 {
-                                    // Shipping labels
-                                    if (this.SysEnv.SysSettings.CanPrintShippingLabel &&
-                                        !this.SysEnv.SysSettings.IsDisconnectedMode)
-                                    {
-                                        labelQuantity = await PrintLabelsAfterRelease(labelQuantity);
-                                    }
-
-                                    if (this.SysEnv.SysSettings.IsPickRefreshOrdAfterRel)
-                                    {
-                                        await this.RefreshData();
-                                    }
-                                    else
-                                    {
-                                        _ = this.ActHdr.ListHdrs.Remove(this.ListViewMainActivity.SelectedItem);
-                                        await this.DesignGrid();
-                                    }
+                                    labelQuantity = await PrintLabelsAfterRelease(labelQuantity);
                                 }
-                                else if (this.ActSubType == SysCommon.ActSubTypes.Adjustment)
+
+                                if (this.SysEnv.SysSettings.IsPickRefreshOrdAfterRel)
                                 {
-                                    // <WO ID="14748" comment="Printing after deboxing" />
-                                    // If DEBOX, prompt for label
-                                    if (this.ActHdr is AdjActivity adjustment)
+                                    await this.RefreshData();
+                                }
+                                else
+                                {
+                                    _ = this.ActHdr.ListHdrs.Remove(this.ListViewMainActivity.SelectedItem);
+                                    await this.DesignGrid();
+                                }
+                            }
+                            else if (this.ActSubType == SysCommon.ActSubTypes.Adjustment)
+                            {
+                                // <WO ID="14748" comment="Printing after deboxing" />
+                                // If DEBOX, prompt for label
+                                if (this.ActHdr is AdjActivity adjustment)
+                                {
+                                    if (adjustment.AdjSettings != null &&
+                                        adjustment.AdjSettings.AdjustmentType == SysCommon.AdjTypes.Debox)
                                     {
-                                        if (adjustment.AdjSettings != null &&
-                                            adjustment.AdjSettings.AdjustmentType == SysCommon.AdjTypes.Debox)
+                                        await this.ScannerDisable();
+
+                                        // Show pop up screen
+                                        FormDialogContainer form = new FormDialogContainer(
+                                            EDialogTypes.ActivityDeboxLabelCount,
+                                            this.ActSubType);
+
+                                        if (await Device.InvokeOnMainThreadAsync(async () =>
+                                            await form.DisplayControl.ShowDialog() == DialogResult.OK))
                                         {
-                                            await this.ScannerDisable();
-
-                                            // Show pop up screen
-                                            FormDialogContainer form = new FormDialogContainer(
-                                                EDialogTypes.ActivityDeboxLabelCount,
-                                                this.ActSubType);
-
-                                            if (await Device.InvokeOnMainThreadAsync(async () =>
-                                                await form.DisplayControl.ShowDialog() == DialogResult.OK))
-                                            {
-                                                XDocument doc = await form.GetXML();
-                                                await this.ActHdr.PrintLabel(doc);
-                                            }
+                                            XDocument doc = await form.GetXML();
+                                            await this.ActHdr.PrintLabel(doc);
                                         }
                                     }
                                 }
                             }
                         }
-                        catch (MessageOnlyException ex)
+                    }
+                    catch (MessageOnlyException ex)
+                    {
+                        await Device.InvokeOnMainThreadAsync(async () =>
+                            await Application.Current.MainPage.DisplayAlert(
+                                this.ActHdr.GetControlDescription(),
+                                ex.Message,
+                                Resource.OK));
+                    }
+                    catch (Exception ex)
+                    {
+                        await Device.InvokeOnMainThreadAsync(async () =>
                         {
-                            await Device.InvokeOnMainThreadAsync(async () =>
-                                await Application.Current.MainPage.DisplayAlert(
-                                    this.ActHdr.GetControlDescription(),
-                                    ex.Message,
-                                    Resource.OK));
-                        }
-                        catch (Exception ex)
-                        {
-                            await Device.InvokeOnMainThreadAsync(async () =>
-                            {
-                                FormErrorReport errRpt = new FormErrorReport(this.ActSubType, ex);
-                                _ = await errRpt.ShowDialog();
-                            });
-                        }
-                        finally
-                        {
-                            await this.ActAppearing();
-                            await this.FindSelectedItemAsync();
-                        }
-                    });
+                            FormErrorReport errRpt = new FormErrorReport(this.ActSubType, ex);
+                            _ = await errRpt.ShowDialog();
+                        });
+                    }
+                    finally
+                    {
+                        await this.ActAppearing();
+                        await this.FindSelectedItemAsync();
+                    }
 
                     //////////////////////////////////////////////////////////////////////////
                     async Task<SLabelQuantity> PrintLabelsAfterRelease(
@@ -875,7 +838,21 @@ namespace dMobile.View.Activity
 
                         return labelQuantity;
                     }
+
+                    //////////////////////////////////////////////////////////////////////////
+                    void IsItemSelected()
+                    {
+                        bool isItemSelected = this.ListViewMainActivity.SelectedItem != null
+                            && Convert.ToInt32(this.MainActivityItems.IndexOf(
+                                this.ListViewMainActivity.SelectedItem)) >= 0;
+
+                        if (!isItemSelected)
+                        {
+                            throw new MessageOnlyException("Nothing selected to release.");
+                        }
+                    }
                 }
+
                 //////////////////////////////////////////////////////////////////////////
                 async Task ChangePickCriteria()
                 {
@@ -944,7 +921,7 @@ namespace dMobile.View.Activity
         /// <summary>
         /// Activity disappearing.
         /// </summary>
-        private async void ActDisappearing()
+        private async Task ActDisappearing()
         {
             this.ListViewMainActivity.ItemTapped -= this.ListViewMainActivity_ItemTapped;
             await this.ScannerDisable();
@@ -957,28 +934,14 @@ namespace dMobile.View.Activity
         private async Task<bool> AskConfirmExit()
         {
             bool isReadyToClose = !this.IsChangesMade;
-            try
-            {
-                await this.ScannerDisable();
-                await this.DisplayAlert(this.ActHdr.GetControlDescription(), "Confirm exit?", "Yes", "No")
-                    .ContinueWith((result) =>
+            await this.DisplayAlert(this.ActHdr.GetControlDescription(), "Confirm exit?", "Yes", "No")
+                .ContinueWith((result) =>
+                {
+                    if (!result.Result)
                     {
-                        if (!result.Result)
-                        {
-                            isReadyToClose = false;
-                        }
-                    });
-
-                await this.ScannerEnable();
-            }
-            catch (Exception)
-            {
-                throw;
-            }
-            finally
-            {
-                await this.ScannerEnable();
-            }
+                        isReadyToClose = false;
+                    }
+                });
 
             return isReadyToClose;
         }
@@ -1002,7 +965,7 @@ namespace dMobile.View.Activity
 
             try
             {
-                this.ActDisappearing();
+                await this.ActDisappearing();
                 this.BarParse = scanArgs.ParseInfo;
                 if (!string.IsNullOrEmpty(this.BarParse.ActFKRefno))
                 {
@@ -1066,7 +1029,6 @@ namespace dMobile.View.Activity
                     activity => Convert.ToString(activity.GetType().GetProperty(
                         this.ActHdr.GetFKRefnoIdx()).GetValue(activity)) ==
                         actHdrStringFKRefno);
-
                 if (selectedActivity != null)
                 {
                     this.ActHdr.HdrRefno = this.ActHdr.GetRefnoFromRowIdx(selectedActivity);
@@ -1084,7 +1046,6 @@ namespace dMobile.View.Activity
                 {
                     this.ActHdr.HdrFKRefno = 0;
                     this.ActHdr.HdrRefno = 0;
-
                     throw new MessageOnlyException(string.Format(
                         "Unable to find reference # {0}. Perhaps change your login warehouse.",
                         actHdrStringFKRefno));
@@ -1237,7 +1198,7 @@ namespace dMobile.View.Activity
         {
             try
             {
-                this.ActDisappearing();
+                await this.ActDisappearing();
 
                 // Needed to check if the enter key was pressed last, because it seems that
                 // SelectNextControl in the key press event causes a click event to fire if a
@@ -1286,61 +1247,56 @@ namespace dMobile.View.Activity
                 return;
             }
 
-            if (Convert.ToInt32(this.MainActivityItems.IndexOf(
-                this.ListViewMainActivity.SelectedItem)) < 0)
+            if (Convert.ToInt32(this.MainActivityItems.IndexOf(this.ListViewMainActivity.SelectedItem)) < 0)
             {
                 return;
             }
 
-            await Task.Run(async () =>
+            try
             {
-                try
+                await this.ActDisappearing();
+                this.ActHdr.HdrRefno = this.ActHdr.GetRefnoFromRowIdx(this.ListViewMainActivity.SelectedItem);
+                if (this.SysEnv.SysSettings.IsPickSingleProd &&
+                    this.ActSubType == SysCommon.ActSubTypes.PickingSingle)
                 {
-                    this.ActDisappearing();
-                    this.ActHdr.HdrRefno = this.ActHdr.GetRefnoFromRowIdx(this.ListViewMainActivity.SelectedItem);
-                    if (this.SysEnv.SysSettings.IsPickSingleProd &&
-                        this.ActSubType == SysCommon.ActSubTypes.PickingSingle)
-                    {
-                        await ListViewMainActivity_KeyUpEnter_PickingSingle();
-                    }
-                    else
-                    {
-                        FormDialogContainer form = new FormDialogContainer(
-                            EDialogTypes.ActivityItem,
-                            this.ActHdr,
-                            this.ActSubType);
-                        this.IsChangesMade = false;
-                        _ = await Device.InvokeOnMainThreadAsync(async () =>
-                                await form.DisplayControl.ShowDialog());
-                    }
+                    await ListViewMainActivity_KeyUpEnter_PickingSingle();
                 }
-                catch (MessageOnlyException ex)
+                else
                 {
-                    await Device.InvokeOnMainThreadAsync(async () =>
-                        await Application.Current.MainPage.DisplayAlert(
-                            this.ActHdr.GetControlDescription(),
-                            ex.Message,
-                            Resource.OK));
+                    FormDialogContainer form = new FormDialogContainer(
+                        EDialogTypes.ActivityItem,
+                        this.ActHdr,
+                        this.ActSubType);
+                    this.IsChangesMade = false;
+                    _ = await Device.InvokeOnMainThreadAsync(async () =>
+                            await form.DisplayControl.ShowDialog());
                 }
-                catch (Exception ex)
+            }
+            catch (MessageOnlyException ex)
+            {
+                await Device.InvokeOnMainThreadAsync(async () =>
+                    await Application.Current.MainPage.DisplayAlert(
+                        this.ActHdr.GetControlDescription(),
+                        ex.Message,
+                        Resource.OK));
+            }
+            catch (Exception ex)
+            {
+                await Device.InvokeOnMainThreadAsync(async () =>
                 {
-                    await Device.InvokeOnMainThreadAsync(async () =>
-                    {
-                        FormErrorReport errRpt = new FormErrorReport(this.ActSubType, ex);
-                        _ = await errRpt.ShowDialog();
-                    });
-                }
-                finally
-                {
-                    await this.ActAppearing();
-                }
-            });
+                    FormErrorReport errRpt = new FormErrorReport(this.ActSubType, ex);
+                    _ = await errRpt.ShowDialog();
+                });
+            }
+            finally
+            {
+                await this.ActAppearing();
+            }
 
             //////////////////////////////////////////////////////////////////////////
             async Task ListViewMainActivity_KeyUpEnter_PickingSingle()
             {
                 bool isAllowedToPick = true;
-
                 if (await ((PickingActivity)this.ActHdr).IsSalesOrderBeingPicked())
                 {
                     isAllowedToPick = false;
@@ -1377,7 +1333,6 @@ namespace dMobile.View.Activity
 
                 if (isAllowedToPick)
                 {
-                    this.ActDisappearing();
                     FormDialogContainer form = new FormDialogContainer(
                         EDialogTypes.ActivityItemSingle,
                         this.ActHdr,
@@ -1385,7 +1340,6 @@ namespace dMobile.View.Activity
                     this.IsChangesMade = false;
                     _ = await Device.InvokeOnMainThreadAsync(async () =>
                             await form.DisplayControl.ShowDialog());
-                    await this.ActAppearing();
                 }
             }
         }
@@ -1724,7 +1678,7 @@ namespace dMobile.View.Activity
         {
             try
             {
-                await this.ScannerDisable();
+                await this.ActDisappearing();
                 await this.DesignGrid();
             }
             catch (MessageOnlyException ex)
@@ -1745,7 +1699,7 @@ namespace dMobile.View.Activity
             }
             finally
             {
-                await this.ScannerEnable();
+                await this.ActAppearing();
             }
         }
 
@@ -1771,7 +1725,7 @@ namespace dMobile.View.Activity
             {
                 try
                 {
-                    this.ActDisappearing();
+                    await this.ActDisappearing();
                     EDialogTypes dlgType = 0;
                     dlgType = this.ActSubType switch
                     {
@@ -1818,8 +1772,8 @@ namespace dMobile.View.Activity
                         SysCommon.ActSubTypes.ConvertProduct => throw new NotImplementedException(),
                         _ => throw new NotImplementedException("eActivitySubType"),
                     };
-                    FormDialogContainer form = new FormDialogContainer(dlgType, this.ActSubType);
 
+                    FormDialogContainer form = new FormDialogContainer(dlgType, this.ActSubType);
                     await Device.InvokeOnMainThreadAsync(async () =>
                     {
                         if (await form.DisplayControl.ShowDialog() == DialogResult.OK)

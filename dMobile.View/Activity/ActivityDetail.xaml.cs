@@ -261,9 +261,9 @@ namespace dMobile.View.Activity
             {
                 if (this.IsBarCodeHandlerRegistered)
                 {
+                    this.IsBarCodeHandlerRegistered = false;
                     this.Scanner.BarCodeScan -= new BarCodeScanner.BarCodeScanEventHandler(this.BarCodeHandler);
                     await this.Scanner.Stop();
-                    this.IsBarCodeHandlerRegistered = false;
                 }
             }
         }
@@ -278,9 +278,9 @@ namespace dMobile.View.Activity
             {
                 if (!this.IsBarCodeHandlerRegistered)
                 {
+                    this.IsBarCodeHandlerRegistered = true;
                     await this.Scanner.Start();
                     this.Scanner.BarCodeScan += new BarCodeScanner.BarCodeScanEventHandler(this.BarCodeHandler);
-                    this.IsBarCodeHandlerRegistered = true;
                 }
             }
         }
@@ -293,9 +293,9 @@ namespace dMobile.View.Activity
         {
             if (this.Scanner != null)
             {
+                this.IsBarCodeHandlerRegistered = true;
                 await this.Scanner.Start();
                 this.Scanner.BarCodeScan += new BarCodeScanner.BarCodeScanEventHandler(this.BarCodeHandler);
-                this.IsBarCodeHandlerRegistered = true;
             }
         }
 
@@ -310,7 +310,6 @@ namespace dMobile.View.Activity
             // NOTE: Do not need to set scanner off or on. Caller will handle.
             try
             {
-                await this.ScannerDisable();
             }
             catch (MessageOnlyException ex)
             {
@@ -329,10 +328,6 @@ namespace dMobile.View.Activity
                     _ = await errRpt.ShowDialog();
                 });
             }
-            finally
-            {
-                await this.ScannerEnable();
-            }
 
             return isReadyToSave;
         }
@@ -347,7 +342,6 @@ namespace dMobile.View.Activity
 
             try
             {
-                await this.ScannerDisable();
             }
             catch (MessageOnlyException ex)
             {
@@ -366,10 +360,6 @@ namespace dMobile.View.Activity
                     _ = await errRpt.ShowDialog();
                 });
             }
-            finally
-            {
-                await this.ScannerEnable();
-            }
 
             return isReadyToClose;
         }
@@ -385,7 +375,6 @@ namespace dMobile.View.Activity
             // NOTE: Do not need to set scanner off or on. Caller will handle.
             try
             {
-                await this.ScannerDisable();
                 if (await this.IsReadyToSave())
                 {
                 }
@@ -439,10 +428,6 @@ namespace dMobile.View.Activity
                     FormErrorReport errRpt = new FormErrorReport(this.ActSubType, ex);
                     _ = await errRpt.ShowDialog();
                 });
-            }
-            finally
-            {
-                await this.ScannerEnable();
             }
 
             return isSaveComplete;
@@ -551,8 +536,6 @@ namespace dMobile.View.Activity
 
             try
             {
-                await this.ScannerDisable();
-
                 // IsReadyToClose checks if any changes where made.
                 if (await this.IsReadyToClose())
                 {
@@ -591,10 +574,6 @@ namespace dMobile.View.Activity
                     _ = await errRpt.ShowDialog();
                 });
             }
-            finally
-            {
-                await this.ScannerEnable();
-            }
 
             return cancelChanges;
         }
@@ -623,9 +602,7 @@ namespace dMobile.View.Activity
         /// </summary>
         /// <param name="publisher">The publisher<see cref="IDataLayerEventPublisher"/>.</param>
         /// <param name="dataLayerEventArgs">The dataLayerEventArgs<see cref="DataLayerEventArgs"/>.</param>
-        public void OnLayerStatOut(
-            IDataLayerEventPublisher publisher,
-            DataLayerEventArgs dataLayerEventArgs)
+        public void OnLayerStatOut(IDataLayerEventPublisher publisher, DataLayerEventArgs dataLayerEventArgs)
         {
         }
 
@@ -634,9 +611,7 @@ namespace dMobile.View.Activity
         /// </summary>
         /// <param name="publisher">The publisher<see cref="IDataLayerEventPublisher"/>.</param>
         /// <param name="dataLayerEventArgs">The dataLayerEventArgs<see cref="DataLayerEventArgs"/>.</param>
-        public void OnLayerProgOut(
-            IDataLayerEventPublisher publisher,
-            DataLayerEventArgs dataLayerEventArgs)
+        public void OnLayerProgOut(IDataLayerEventPublisher publisher, DataLayerEventArgs dataLayerEventArgs)
         {
             if (dataLayerEventArgs.CurrentValue > 0 && dataLayerEventArgs.MaxValue > 0)
             {
@@ -653,43 +628,11 @@ namespace dMobile.View.Activity
         {
             Device.BeginInvokeOnMainThread(async () =>
             {
-                try
+                if (await this.CancelChanges())
                 {
-                    // Disable the scanner even though the on disappearing event will turn it off also
-                    // upon closing. SaveChanges or CancelChanges may show dialogs.
-                    await this.ScannerDisable();
-                    if (await this.SaveChanges())
-                    {
-                        this.DialogResult = DialogResult.OK;
-                        _ = base.OnBackButtonPressed();
-                        await this.Close();
-                    }
-                    else if (await this.CancelChanges())
-                    {
-                        this.DialogResult = DialogResult.None;
-                        _ = base.OnBackButtonPressed();
-                        await this.Close();
-                    }
-                }
-                catch (MessageOnlyException ex)
-                {
-                    await Device.InvokeOnMainThreadAsync(async () =>
-                        await Application.Current.MainPage.DisplayAlert(
-                            this.ActDetail.GetControlDescription(),
-                            ex.Message,
-                            Resource.OK));
-                }
-                catch (Exception ex)
-                {
-                    await Device.InvokeOnMainThreadAsync(async () =>
-                    {
-                        FormErrorReport errRpt = new FormErrorReport(this.ActSubType, ex);
-                        _ = await errRpt.ShowDialog();
-                    });
-                }
-                finally
-                {
-                    await this.ScannerEnable();
+                    _ = base.OnBackButtonPressed();
+                    await this.ActDisappearing();
+                    await this.Close();
                 }
             });
 
@@ -840,13 +783,6 @@ namespace dMobile.View.Activity
             this.ListViewMainActivity.ItemsSource = this.MainActivityItems;
 
             await this.FindSelectedItemAsync();
-            ////await Device.InvokeOnMainThreadAsync(() =>
-            ////{
-            ////    this.ListViewMainActivity.ScrollTo(
-            ////    this.ListViewMainActivity.SelectedItem,
-            ////    ScrollToPosition.MakeVisible,
-            ////    false);
-            ////});
 
             //////////////////////////////////////////////////////////////////////////
             void SubscribeKeyUpHandlers()
@@ -895,8 +831,6 @@ namespace dMobile.View.Activity
                 {
                     try
                     {
-                        await this.ScannerDisable();
-
                         // Check if there is an item in the data grid selected to delete.
                         IsItemSelected();
 
@@ -967,10 +901,6 @@ namespace dMobile.View.Activity
                             _ = await errRpt.ShowDialog();
                         });
                     }
-                    finally
-                    {
-                        await this.ScannerEnable();
-                    }
 
                     //////////////////////////////////////////////////////////////////////////
                     void IsItemSelected()
@@ -1002,6 +932,9 @@ namespace dMobile.View.Activity
                             this.ActDetail.Quantity * -1,
                             this.ActDetail.BaseQuantity * -1,
                             this.ActDetail.WeightQuantity * -1);
+
+                        // Update the table item quantity.
+                        await this.ActDetail.ActItem.UpdateItemTableQuantity(this.ActDetail.ActItem.SelectedActivityItem);
                     }
 
                     //////////////////////////////////////////////////////////////////////////
@@ -1026,16 +959,6 @@ namespace dMobile.View.Activity
 
                         await this.RefreshBySubType();
                         await this.DesignGrid();
-
-                        // Upon existing the activity detail the item quantity will be totaled.
-                        ////// Update the activity line item quantities.
-                        ////// Because many detail line can be affected we need to total all the details.
-                        ////SFillQuantity fillQty = await this.ActDetail.GetTotalQuantityFromListDetail();
-                        ////this.ActDetail.ActItem.AddToQuantityInActivityItem(
-                        ////    this.ActDetail.ActItem.SelectedActivityItem,
-                        ////    fillQty.Quantity,
-                        ////    fillQty.BaseQuantity,
-                        ////    fillQty.WeightQuantity);
                     }
                 }
 
@@ -1044,7 +967,7 @@ namespace dMobile.View.Activity
                 {
                     try
                     {
-                        await this.ScannerDisable();
+                        await this.ActDisappearing();
                         if (await this.SaveChanges())
                         {
                             this.DialogResult = DialogResult.OK;
@@ -1072,7 +995,7 @@ namespace dMobile.View.Activity
                     }
                     finally
                     {
-                        await this.ScannerEnable();
+                        await this.ActAppearing();
                     }
                 }
 
@@ -1083,7 +1006,7 @@ namespace dMobile.View.Activity
                     // Android dMobile F1 & F3 Button Not Working Same As Windows dMobile
                     try
                     {
-                        await this.ScannerDisable();
+                        await this.ActDisappearing();
                         string msg = await this.ActDetail.ActItem.GetTotalQuantity();
                         if (!string.IsNullOrEmpty(msg))
                         {
@@ -1111,7 +1034,7 @@ namespace dMobile.View.Activity
                     }
                     finally
                     {
-                        await this.ScannerEnable();
+                        await this.ActAppearing();
                         _ = this.ListViewMainActivity.Focus();
                     }
                 }
@@ -1121,7 +1044,7 @@ namespace dMobile.View.Activity
                 {
                     try
                     {
-                        await this.ScannerDisable();
+                        await this.ActDisappearing();
                         StringBuilder xmlString = new StringBuilder();
                         XmlWriter xml = XmlWriter.Create(xmlString);
                         await CheckIfActivityCanBeConfirmed();
@@ -1146,7 +1069,7 @@ namespace dMobile.View.Activity
                     }
                     finally
                     {
-                        await this.ScannerEnable();
+                        await this.ActAppearing();
                         _ = this.ListViewMainActivity.Focus();
                     }
 
@@ -1300,7 +1223,7 @@ namespace dMobile.View.Activity
         {
             try
             {
-                await this.ScannerDisable();
+                await this.ActDisappearing();
                 await this.DesignGrid();
             }
             catch (MessageOnlyException ex)
@@ -1321,7 +1244,7 @@ namespace dMobile.View.Activity
             }
             finally
             {
-                await this.ScannerEnable();
+                await this.ActAppearing();
             }
         }
 
@@ -1354,15 +1277,14 @@ namespace dMobile.View.Activity
             scanArgs = scanArgs ?? throw new ArgumentNullException(nameof(scanArgs));
 
             this.Loading = true;
-
-            await this.ScannerDisable();
-
             int prodUnitRefno = 0;
             int svdActDetailFKRefno = this.ActDetail.DetailFKRefno;
             BarCodeParse parse = scanArgs.ParseInfo;
 
             try
             {
+                await this.ActDisappearing();
+
                 // GLOBAL LOCATION IDENTIFIER SCANNED
                 if (!string.IsNullOrEmpty(parse.LocationIdentifier))
                 {
@@ -1544,6 +1466,8 @@ namespace dMobile.View.Activity
                         + "</imclient>");
 
                         await this.ActDetail.ActItem.IsReadyToApply(xmlParam);
+
+                        // We should never get here.
                         await this.ActDetail.InsertSkid(skidInfo);
 
                         if (skidInfo.CurrSkid.SkidFKRefno == 0)
@@ -1624,15 +1548,14 @@ namespace dMobile.View.Activity
             finally
             {
                 this.Loading = false;
-                await this.ScannerEnable();
+                await this.ActAppearing();
             }
 
             //////////////////////////////////////////////////////////////////////////
             async Task BarCodeHandlerLocationIdentifier()
             {
                 this.LocMap.CurrLocMap = await LocationMapTasks.GetSLocMapFromLocMapRefno(
-                    await LocationMapTasks.GetLocMapRefnoFromBarCodeGlobalLocIdentifier(
-                        parse.LocationIdentifier));
+                    await LocationMapTasks.GetLocMapRefnoFromBarCodeGlobalLocIdentifier(parse.LocationIdentifier));
                 this.LocMap.ChosenLocMap = this.LocMap.CurrLocMap.Clone();
                 if (this.LocMap.CurrLocMap.WhsLocMapRefno != 0)
                 {
@@ -1831,7 +1754,6 @@ namespace dMobile.View.Activity
             {
                 try
                 {
-                    await this.ScannerDisable();
                     await Device.InvokeOnMainThreadAsync(async () =>
                     {
                         this.ActDetail.UnregLayerListenerProgOut(this);
@@ -1854,7 +1776,6 @@ namespace dMobile.View.Activity
                 }
                 finally
                 {
-                    await this.ScannerEnable();
                     this.ActDetail.UnregLayerListenerProgOut(this);
                     ////await Task.Run(() =>
                     ////{
@@ -2495,7 +2416,7 @@ namespace dMobile.View.Activity
 
             try
             {
-                await this.ScannerDisable();
+                await this.ActDisappearing();
                 await Device.InvokeOnMainThreadAsync(async () =>
                 {
                     string currentReadableLocation = LocationMapTasks.GetCurrentReadableLocation();
@@ -2540,7 +2461,7 @@ namespace dMobile.View.Activity
             }
             finally
             {
-                await this.ScannerEnable();
+                await this.ActAppearing();
             }
 
             //////////////////////////////////////////////////////////////////////////

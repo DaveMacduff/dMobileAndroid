@@ -56,25 +56,36 @@ namespace dMobile.BarCodeScanner.BarCodeScanners
         {
             // KLUDGE: There is probably a better way to do this but we need to make sure the scan
             // isn't still reading.
-            int retry = 0;
-            while (this.HoneywellReader.IsReaderOpened)
-            {
-                Thread.Sleep(100);
-                retry++;
+            ////int retry = 0;
+            ////while (this.HoneywellReader.IsReaderOpened)
+            ////{
+            ////    ////Thread.Sleep(100);
+            ////    Thread.Sleep(1000);
+            ////    retry++;
 
-                if (retry > 5)
-                {
-                    break;
-                }
-            }
+            ////    ////if (retry > 5)
+            ////    ////{
+            ////    ////    break;
+            ////    ////}
+
+            ////    if (retry > 10)
+            ////    {
+            ////        break;
+            ////    }
+            ////}
 
             if (this.HoneywellReader.IsReaderOpened)
             {
                 return;
             }
 
-            BarcodeReaderBase.Result result = await this.HoneywellReader.OpenAsync();
+            if (this.HoneywellReader == null)
+            {
+                _ = Log.Error("HoneywellBarcodeScanner", "Unexpected this.HoneywellReader == null");
+                this.HoneywellReader = new BarcodeReader();
+            }
 
+            BarcodeReaderBase.Result result = await this.HoneywellReader.OpenAsync();
             if (result.Code == BarcodeReaderBase.Result.Codes.SUCCESS ||
                 result.Code == BarcodeReaderBase.Result.Codes.READER_ALREADY_OPENED)
             {
@@ -98,6 +109,12 @@ namespace dMobile.BarCodeScanner.BarCodeScanners
             if (!this.HoneywellReader.IsReaderOpened)
             {
                 return;
+            }
+
+            if (this.HoneywellReader == null)
+            {
+                _ = Log.Error("HoneywellBarcodeScanner", "Unexpected this.HoneywellReader == null");
+                this.HoneywellReader = new BarcodeReader();
             }
 
             BarcodeReaderBase.Result result = await this.HoneywellReader.CloseAsync();
