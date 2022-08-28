@@ -214,21 +214,19 @@ namespace dMobile.Controller
         {
             if (!this.SysEnv.SysSettings.IsDisconnectedMode)
             {
-                string xmlDelete = string.Empty;
+                string xmlDelete = "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?><params></params>";
                 if (string.IsNullOrEmpty(skidInfo.CurrSkid.SkidCode))
                 {
-                    xmlDelete = await this.CreateDeleteXML(XDocument.Parse(
-                        "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?><params></params>"));
+                    xmlDelete = "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?><params></params>";
                 }
                 else
                 {
-                    xmlDelete = await this.CreateDeleteXML(XDocument.Parse(
-                        $"<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?><params><skid_data>" +
-                        $"{skidInfo.CurrSkid.LogisticUnitSkidCode}</skid_data></params>"));
+                    xmlDelete = $"<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?><params><skid_data>" +
+                        $"{skidInfo.CurrSkid.LogisticUnitSkidCode}</skid_data></params>";
                 }
 
+                xmlDelete = await this.CreateDeleteXML(XDocument.Parse(xmlDelete));
                 string reqData = SysCommon.SubmitComm(xmlDelete);
-
                 if (reqData.Length > 0)
                 {
                     // Check if result is an error message
@@ -237,7 +235,6 @@ namespace dMobile.Controller
                         XmlDocument docError = new XmlDocument();
                         docError.LoadXml(reqData);
                         string errorDetail = docError.DocumentElement["detail"].InnerText;
-
                         if (errorDetail.Contains("MSGBOX-"))
                         {
                             throw new MessageOnlyException(errorDetail);
@@ -1103,9 +1100,9 @@ namespace dMobile.Controller
         /// </summary>
         /// <param name="selectedActivityDetail"><see cref="object"/> Selected activity detail.</param>
         /// <returns><see cref="Task"/> Task operation.</returns>
-        public override async Task SelectActivityDetail(object selectedActivityDetail)
+        public override async Task AssignActivityDetail(object selectedActivityDetail)
         {
-            await base.SelectActivityDetail(selectedActivityDetail);
+            await base.AssignActivityDetail(selectedActivityDetail);
         }
 
         /// <summary>
@@ -1244,7 +1241,6 @@ namespace dMobile.Controller
                     + "<extra3>" + this.ActExtra.Text3 + "</extra3>"
                     + "<extra4>" + this.ActExtra.Text4 + "</extra4>"
                     + "<extra5>" + this.ActExtra.DateTime1 + "</extra5>"
-
                     + "</imclient>");
             }
 

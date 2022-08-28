@@ -1002,7 +1002,7 @@ namespace dMobile.View.Activity
 
             try
             {
-                await this.ScannerDisable();
+                this.ActDisappearing();
                 this.BarParse = scanArgs.ParseInfo;
                 if (!string.IsNullOrEmpty(this.BarParse.ActFKRefno))
                 {
@@ -1054,7 +1054,7 @@ namespace dMobile.View.Activity
             }
             finally
             {
-                await this.ScannerEnable();
+                await this.ActAppearing();
                 this.Loading = false;
             }
 
@@ -1069,9 +1069,7 @@ namespace dMobile.View.Activity
 
                 if (selectedActivity != null)
                 {
-                    this.ActDisappearing();
                     this.ActHdr.HdrRefno = this.ActHdr.GetRefnoFromRowIdx(selectedActivity);
-
                     await Device.InvokeOnMainThreadAsync(async () =>
                     {
                         FormDialogContainer form = new FormDialogContainer(
@@ -1081,8 +1079,6 @@ namespace dMobile.View.Activity
                         this.IsChangesMade = false;
                         _ = await form.DisplayControl.ShowDialog();
                     });
-
-                    await this.ActAppearing();
                 }
                 else
                 {
@@ -1241,7 +1237,7 @@ namespace dMobile.View.Activity
         {
             try
             {
-                await this.ScannerDisable();
+                this.ActDisappearing();
 
                 // Needed to check if the enter key was pressed last, because it seems that
                 // SelectNextControl in the key press event causes a click event to fire if a
@@ -1270,7 +1266,7 @@ namespace dMobile.View.Activity
             }
             finally
             {
-                await this.ScannerEnable();
+                await this.ActAppearing();
             }
         }
 
@@ -1765,7 +1761,6 @@ namespace dMobile.View.Activity
                 return;
             }
 
-            this.ActDisappearing();
             string result = await this.DisplayActionSheet(
                 "Activity Options",
                 "Close",
@@ -1776,10 +1771,8 @@ namespace dMobile.View.Activity
             {
                 try
                 {
-                    await this.ScannerDisable();
-
+                    this.ActDisappearing();
                     EDialogTypes dlgType = 0;
-
                     dlgType = this.ActSubType switch
                     {
                         SysCommon.ActSubTypes.Picking => EDialogTypes.ActivityHdrPickingFilter,

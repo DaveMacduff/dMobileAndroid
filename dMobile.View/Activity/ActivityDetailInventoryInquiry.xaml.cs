@@ -289,7 +289,7 @@ namespace dMobile.View.Activity
                         if (this.ActDetail.ListDetails.Count > 0 && this.MainActivityItems.Count > 0)
                         {
                             this.ListViewMainActivity.SelectedItem = this.MainActivityItems[0];
-                            await this.ActDetail.SelectActivityDetail(this.ActDetail.ListDetails[0]);
+                            await this.ActDetail.AssignActivityDetail(this.ActDetail.ListDetails[0]);
                         }
                     });
                 }

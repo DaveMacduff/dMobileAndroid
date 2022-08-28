@@ -1027,14 +1027,15 @@ namespace dMobile.View.Activity
                         await this.RefreshBySubType();
                         await this.DesignGrid();
 
-                        // Update the activity line item quantities.
-                        // Because many detail line can be affected we need to total all the details.
-                        SFillQuantity fillQty = await this.ActDetail.GetTotalQuantityFromListDetail();
-                        this.ActDetail.ActItem.AddToQuantityInActivityItem(
-                            this.ActDetail.ActItem.SelectedActivityItem,
-                            fillQty.Quantity,
-                            fillQty.BaseQuantity,
-                            fillQty.WeightQuantity);
+                        // Upon existing the activity detail the item quantity will be totaled.
+                        ////// Update the activity line item quantities.
+                        ////// Because many detail line can be affected we need to total all the details.
+                        ////SFillQuantity fillQty = await this.ActDetail.GetTotalQuantityFromListDetail();
+                        ////this.ActDetail.ActItem.AddToQuantityInActivityItem(
+                        ////    this.ActDetail.ActItem.SelectedActivityItem,
+                        ////    fillQty.Quantity,
+                        ////    fillQty.BaseQuantity,
+                        ////    fillQty.WeightQuantity);
                     }
                 }
 
@@ -1331,7 +1332,8 @@ namespace dMobile.View.Activity
         /// <param name="e">The e<see cref="SelectedItemChangedEventArgs"/>.</param>
         private async void ListViewMainActivity_ItemSelected(object sender, SelectedItemChangedEventArgs e)
         {
-            await this.ActDetail.SelectActivityDetail(e.SelectedItem);
+            await this.ActDetail.AssignActivityDetail(e.SelectedItem);
+            this.ActDetail.SelectedListItemIdx = e.SelectedItemIndex;
             this.SelectedActivityDetailFKRefno = this.ActDetail.DetailFKRefno;
             await this.DisplayDataItem();
         }
@@ -1870,10 +1872,11 @@ namespace dMobile.View.Activity
         /// <returns><see cref="Task"/> Task operation.</returns>
         private async Task FindSelectedItemAsync()
         {
-            if (this.ActDetail.ListDetails.Count > 0 && this.MainActivityItems.Count > 0)
+            if (this.ActDetail.ListDetails.Count > 0)
             {
                 // I am thinking this iteration will be fast even with 100+ records.
                 // We are not triggering any UI refreshing, so it should be.
+                this.ActDetail.SelectedListItemIdx = -1;
                 object selectedItem = null;
                 if (this.SelectedActivityDetailFKRefno != 0)
                 {
@@ -1882,7 +1885,7 @@ namespace dMobile.View.Activity
                         if (this.SelectedActivityDetailFKRefno == this.ActDetail.GetFKRefno(item))
                         {
                             selectedItem = item;
-                            this.ListViewMainActivity.SelectedItem = selectedItem;
+                            this.ActDetail.SelectedListItemIdx++;
                             break;
                         }
                     }
@@ -1891,27 +1894,31 @@ namespace dMobile.View.Activity
                 if (selectedItem == null)
                 {
                     // Goto the first one in the list.
-                    this.ListViewMainActivity.SelectedItem = this.MainActivityItems[0];
-                    await this.ActDetail.SelectActivityDetail(this.ListViewMainActivity.SelectedItem);
+                    this.ActDetail.SelectedListItemIdx = 0;
+                    selectedItem = this.ActDetail.ListDetails[this.ActDetail.SelectedListItemIdx];
+                    await this.ActDetail.AssignActivityDetail(selectedItem);
+                    this.SelectedActivityDetailFKRefno = this.ActDetail.DetailFKRefno;
                 }
                 else
                 {
-                    await this.ActDetail.SelectActivityDetail(selectedItem);
+                    await this.ActDetail.AssignActivityDetail(selectedItem);
                     this.SelectedActivityDetailFKRefno = this.ActDetail.DetailFKRefno;
                 }
 
                 Device.BeginInvokeOnMainThread(() =>
                 {
+                    this.ListViewMainActivity.SelectedItem = selectedItem;
                     this.ListViewMainActivity.ScrollTo(selectedItem, ScrollToPosition.MakeVisible, false);
-                    ////this.ListViewMainActivity.ItemsSource = this.MainActivityItems;
                 });
             }
             else
             {
                 // Clear the activity nothing can be selected.
+                this.ActDetail.SelectedListItemIdx = -1;
                 this.ActDetail.SelectedActivityDetail = null;
                 this.ActDetail.DetailFKRefno = 0;
                 this.ActDetail.DetailRefno = 0;
+                this.SelectedActivityDetailFKRefno = 0;
                 Device.BeginInvokeOnMainThread(() =>
                 {
                     this.ListViewMainActivity.SelectedItem = null;

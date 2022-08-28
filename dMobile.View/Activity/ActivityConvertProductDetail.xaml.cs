@@ -795,7 +795,7 @@ namespace dMobile.View.Activity
             foreach (object obj in this.ActDetail.ListDetails)
             {
                 // Set the detail, item, header, product, scheme, scheme data info
-                await this.ActDetail.SelectActivityDetail(obj);
+                await this.ActDetail.AssignActivityDetail(obj);
 
                 // Print using that data
                 await this.PrintProductLabel();

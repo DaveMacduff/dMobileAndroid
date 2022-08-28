@@ -156,6 +156,11 @@ namespace dMobile.Controller
         public object SelectedActivityDetail { get; set; }
 
         /// <summary>
+        /// Gets or sets the list item current index.
+        /// </summary>
+        public int SelectedListItemIdx { get; set; } = -1;
+
+        /// <summary>
         /// The Insert.
         /// </summary>
         /// <param name="data">The data<see cref="XDocument"/>.</param>
@@ -243,7 +248,7 @@ namespace dMobile.Controller
         /// Current location is set to the selected skid location.
         /// Clears the selected skid if the line item product changed (Flag).
         /// </remarks>
-        public virtual async Task SelectActivityDetail(object selectedActivityDetail)
+        public virtual async Task AssignActivityDetail(object selectedActivityDetail)
         {
             if (selectedActivityDetail is ActivityDetail detail)
             {

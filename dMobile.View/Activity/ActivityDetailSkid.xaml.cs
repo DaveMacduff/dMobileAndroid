@@ -696,11 +696,11 @@ namespace dMobile.View.Activity
                 {
                     // Goto the first one in the list.
                     this.ListViewMainActivity.SelectedItem = this.MainActivityItems[0];
-                    await this.ActDetail.SelectActivityDetail(this.ListViewMainActivity.SelectedItem);
+                    await this.ActDetail.AssignActivityDetail(this.ListViewMainActivity.SelectedItem);
                 }
                 else
                 {
-                    await this.ActDetail.SelectActivityDetail(selectedItem);
+                    await this.ActDetail.AssignActivityDetail(selectedItem);
                     this.SelectedActivityDetailFKRefno = this.ActDetail.DetailFKRefno;
                 }
 
@@ -1103,7 +1103,7 @@ namespace dMobile.View.Activity
                 if (this.ActDetail.ListDetails.Count > 0 && this.MainActivityItems.Count > 0)
                 {
                     this.ListViewMainActivity.SelectedItem = this.MainActivityItems[0];
-                    await this.ActDetail.SelectActivityDetail(this.ListViewMainActivity.SelectedItem);
+                    await this.ActDetail.AssignActivityDetail(this.ListViewMainActivity.SelectedItem);
                 }
 
                 this.DisplaySummaryData();
@@ -1323,7 +1323,7 @@ namespace dMobile.View.Activity
         /// <param name="e"><see cref="SelectedItemChangedEventArgs"/> Selected item changed event arguments.</param>
         private async void ListViewMainActivity_ItemSelected(object sender, SelectedItemChangedEventArgs e)
         {
-            await this.ActDetail.SelectActivityDetail(e.SelectedItem);
+            await this.ActDetail.AssignActivityDetail(e.SelectedItem);
             this.SelectedActivityDetailFKRefno = this.ActDetail.DetailFKRefno;
             this.DisplaySummaryData();
         }

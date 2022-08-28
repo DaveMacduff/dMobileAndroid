@@ -557,9 +557,9 @@ namespace dMobile.Controller
         /// </summary>
         /// <param name="selectedActivityDetail"><see cref="object"/> Selected activity detail.</param>
         /// <returns><see cref="Task"/> Task operation.</returns>
-        public override async Task SelectActivityDetail(object selectedActivityDetail)
+        public override async Task AssignActivityDetail(object selectedActivityDetail)
         {
-            await base.SelectActivityDetail(selectedActivityDetail);
+            await base.AssignActivityDetail(selectedActivityDetail);
         }
 
         /// <summary>
