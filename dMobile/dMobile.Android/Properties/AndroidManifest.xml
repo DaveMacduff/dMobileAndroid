@@ -1,7 +1,12 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android" package="com.dMobile.Android" android:installLocation="preferExternal" android:versionCode="1" android:versionName="2.1.1">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android" package="com.dMobile.Android"
+		  android:installLocation="preferExternal" android:versionCode="1" android:versionName="2.1.1">
 	<uses-sdk android:minSdkVersion="23" android:targetSdkVersion="28" />
 	<uses-permission android:name="android.permission.READ_PHONE_STATE" />
 	<uses-permission android:name="com.honeywell.decode.permission.DECODE" />
+	<uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+	<uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+	<uses-permission android:name="android.permission.INSTALL_PACKAGES" />
+	<uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" />
 	<application android:label="dMobile" android:largeHeap="true"></application>
 </manifest>
