@@ -6,6 +6,7 @@
     <UseWPF>true</UseWPF>
     <ReleaseVersion>1.1.2</ReleaseVersion>
     <Configurations>Debug;Emulator;Release</Configurations>
+    <ApplicationIcon>dMobile.ico</ApplicationIcon>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <UseVSHostingProcess>false</UseVSHostingProcess>
@@ -45,7 +46,7 @@
     </PackageReference>
     <PackageReference Include="System.Data.DataSetExtensions" Version="4.5.0" />
     <PackageReference Include="Honeywell.BarcodeReader" Version="1.35.0.17" />
-    <PackageReference Include="Xamarin.Forms" Version="4.4.0.991640" />
+    <PackageReference Include="Xamarin.Forms" Version="4.8.0.1821" />
   </ItemGroup>
   <ItemGroup>
     <Compile Update="Activity\ActivityHdr.xaml.cs">

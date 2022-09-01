@@ -6,6 +6,7 @@
     <ReleaseVersion>1.1.2</ReleaseVersion>
     <UserSecretsId>2cfd30e3-4fb2-4fb3-be17-1f8ef203b281</UserSecretsId>
     <SignAssembly>false</SignAssembly>
+    <ApplicationIcon>dMobile.ico</ApplicationIcon>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <RegisterForComInterop>false</RegisterForComInterop>
