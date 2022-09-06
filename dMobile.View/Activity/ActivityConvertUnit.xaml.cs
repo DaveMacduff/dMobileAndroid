@@ -1445,6 +1445,11 @@ namespace dMobile.View.Activity
 
         private void dgUnitWeight_ItemSelected(object sender, SelectedItemChangedEventArgs e)
         {
+            _ = Device.InvokeOnMainThreadAsync(async () =>
+                await Application.Current.MainPage.DisplayAlert(
+                    this.GetControlDescription(),
+                    "Item Tapped",
+                    Resource.OK));
         }
     }
 }

@@ -103,6 +103,11 @@ namespace dMobile.View.Activity
         }
 
         /// <summary>
+        /// Gets or sets a value indicating whether activity detail has been changed and therefore considered dirty.
+        /// </summary>
+        private bool IsDetailChanged { get; set; } = false;
+
+        /// <summary>
         /// Gets or sets the bar code scanner instance.
         /// </summary>
         private BarCodeScanner Scanner { get; set; } = ScannerEngine.GetInstance().Scanner;
@@ -630,6 +635,10 @@ namespace dMobile.View.Activity
             {
                 if (await this.CancelChanges())
                 {
+                    // Set the dialog result to OK to force the line item total to recalculate.
+                    // Even though the back button is meant to be a cancel we need to update
+                    // because data still could have changed.
+                    this.DialogResult = DialogResult.OK;
                     _ = base.OnBackButtonPressed();
                     await this.ActDisappearing();
                     await this.Close();
