@@ -28,8 +28,8 @@ namespace dMobile.View
 
         public void SetTheme()
         {
-            ICollection<ResourceDictionary> mergedDictionaries = Current.Resources.MergedDictionaries;
-            Theme theme = SysEnvironment.GetInstance().SysSettings.Theme;
+            var mergedDictionaries = Current.Resources.MergedDictionaries;
+            var theme = SysEnvironment.GetInstance().SysSettings.Theme;
 
             if (mergedDictionaries != null)
             {

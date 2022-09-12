@@ -400,14 +400,14 @@ namespace dMobile.Controller
                 itemLocMapRefno = LocationMap.GetInstance().LoginWhsLocMapRefno;
             }
 
-            SLocMap itemLocMap = await LocationMapTasks.GetSLocMapFromLocMapRefno(itemLocMapRefno);
+            var itemLocMap = await LocationMapTasks.GetSLocMapFromLocMapRefno(itemLocMapRefno);
 
             if (await LocationMapTasks.IsCompleteLocMap(itemLocMapRefno))
             {
                 selectedLocMap = await LocationMapTasks.GetSLocMapFromLocMapRefno(itemLocMapRefno);
             }
 
-            bool isGetDefault = false;
+            var isGetDefault = false;
             if (this.SysEnv.SysSettings.IsDefaultLocToProductDefaultLoc)
             {
                 if ((this.ActSubType == SysCommon.ActSubTypes.PhysicalCounts &&
@@ -429,7 +429,7 @@ namespace dMobile.Controller
                 // Note: A selected skid location is not considered as a default, rather the skid location will be
                 // assigned and updated in the calling method.
                 // Default location however will be based on the any activity item warehouse or header warehouse.
-                int locMapRefno = await this.GetDefaultLocMapRefno(itemLocMap.WhsLocMapRefno, this.ProdInfo.Refno);
+                var locMapRefno = await this.GetDefaultLocMapRefno(itemLocMap.WhsLocMapRefno, this.ProdInfo.Refno);
                 if (await LocationMapTasks.IsCompleteLocMap(locMapRefno))
                 {
                     selectedLocMap = await LocationMapTasks.GetSLocMapFromLocMapRefno(locMapRefno);
@@ -474,7 +474,7 @@ namespace dMobile.Controller
         /// <returns><see cref="string"/> Item not found message.</returns>
         public virtual string GetItemNotFoundMessage(LocationMap locMap, ProductInfo prodInfo)
         {
-            string message = string.Format(
+            var message = string.Format(
                 "Item not found for " + Environment.NewLine + "Location {0} " +
                     Environment.NewLine + "Product {1} BC {2} Unit {3}",
                 LocationMapTasks.GetCurrentReadableLocation(),
@@ -495,10 +495,10 @@ namespace dMobile.Controller
             // Check for duplicate
             if (this.SysEnv.SysSettings.IsDisconnectedMode)
             {
-                string actDetailUniqSchemeID = data.Root.Element("ActivityDetailUniqueSchemeID").Value;
+                var actDetailUniqSchemeID = data.Root.Element("ActivityDetailUniqueSchemeID").Value;
                 if (string.Compare(actDetailUniqSchemeID, string.Empty) > 0)
                 {
-                    bool isDupSchemeID = await ProductInfoTasks.IsDuplicateUniqueSchemeID(
+                    var isDupSchemeID = await ProductInfoTasks.IsDuplicateUniqueSchemeID(
                         actDetailUniqSchemeID);
                     if (isDupSchemeID)
                     {
@@ -521,7 +521,7 @@ namespace dMobile.Controller
         {
             try
             {
-                SQLiteAsyncConnection conn = DatabaseConnection.GetInstance().SQLConn;
+                var conn = DatabaseConnection.GetInstance().SQLConn;
 
                 await conn.ExecuteAsync(
                     "INSERT INTO tActivityItem (ActivityItemSubType, ActivityItemStatus," +

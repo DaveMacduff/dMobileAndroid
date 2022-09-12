@@ -38,12 +38,12 @@ namespace dMobile.GroundWork
             {
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Seeding product scheme variant xref.", true);
 
-                string reqData = await this.SendRequest();
+                var reqData = await this.SendRequest();
                 if (reqData.Length > 0)
                 {
                     if (reqData.Contains("<message>ERROR</message>"))
                     {
-                        XmlDocument reqErr = new XmlDocument();
+                        var reqErr = new XmlDocument();
                         reqErr.LoadXml(reqData);
                         throw new Exception(reqErr.DocumentElement["detail"].InnerText);
                     }
@@ -109,13 +109,13 @@ namespace dMobile.GroundWork
         /// <param name="reqData"></param>
         protected override async Task Save(string reqData)
         {
-            string errMsg = string.Empty;
+            var errMsg = string.Empty;
 
             await DatabaseConnection.GetInstance().SQLConn.RunInTransactionAsync(transaction =>
             {
                 try
                 {
-                    using (DataSet ds = new DataSet())
+                    using (var ds = new DataSet())
                     {
                         this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Reading received data.", false);
 
@@ -125,16 +125,16 @@ namespace dMobile.GroundWork
 
                         if (ds.Tables.Count != 0)
                         {
-                            int progMax = Convert.ToInt32(ds.Tables["tProductSchemeVariantXRef"].Rows.Count);
+                            var progMax = Convert.ToInt32(ds.Tables["tProductSchemeVariantXRef"].Rows.Count);
 
                             this.DataAccessStatusOutHandler(this, EventArgs.Empty, string.Format("Records {0}", progMax), false);
 
-                            int schemeRefno = 0;
-                            int schemeVarRefno = 0;
-                            int progValue = 0;
-                            bool isSchemeVarXRef = false;
-                            string schemeCode = string.Empty;
-                            int schemeVariantNo = 0;
+                            var schemeRefno = 0;
+                            var schemeVarRefno = 0;
+                            var progValue = 0;
+                            var isSchemeVarXRef = false;
+                            var schemeCode = string.Empty;
+                            var schemeVariantNo = 0;
 
                             this.DataAccessProgressOutHandler(this, EventArgs.Empty, 0, 0, progMax);
 
@@ -143,7 +143,7 @@ namespace dMobile.GroundWork
                                 schemeCode = drow["ProductSchemeCode"].ToString();
                                 errMsg = "Code \'" + schemeCode + "\'";
 
-                                List<tProductSchemeModel> resultsProductScheme = transaction.Query<tProductSchemeModel>("SELECT * FROM tProductScheme WHERE ProductSchemeCode = ?", schemeCode);
+                                var resultsProductScheme = transaction.Query<tProductSchemeModel>("SELECT * FROM tProductScheme WHERE ProductSchemeCode = ?", schemeCode);
 
                                 if (resultsProductScheme?.Count > 0)
                                 {
@@ -157,7 +157,7 @@ namespace dMobile.GroundWork
                                 schemeVariantNo = Convert.ToInt32(drow["ProductSchemeVariantNo"]);
                                 errMsg += Environment.NewLine + "Variant no " + schemeVariantNo;
 
-                                List<tProductSchemeVariantModel> resultsProductSchemeVariant = transaction.Query<tProductSchemeVariantModel>("SELECT * FROM tProductSchemeVariant WHERE ProductSchemeVariantNo = ?", schemeVariantNo);
+                                var resultsProductSchemeVariant = transaction.Query<tProductSchemeVariantModel>("SELECT * FROM tProductSchemeVariant WHERE ProductSchemeVariantNo = ?", schemeVariantNo);
 
                                 if (resultsProductSchemeVariant?.Count > 0)
                                 {
@@ -172,7 +172,7 @@ namespace dMobile.GroundWork
 
                                 if (this.SysEnv.RefreshOpt.RefreshDataChangesOnly)
                                 {
-                                    List<tProductSchemeVariantXRefModel> resultsProductSchemeVariantXRef = transaction.Query<tProductSchemeVariantXRefModel>("SELECT * FROM tProductSchemeVariantXRef WHERE ProductSchemeRefno = ? AND ProductSchemeVariantRefno = ?", schemeRefno, schemeVarRefno);
+                                    var resultsProductSchemeVariantXRef = transaction.Query<tProductSchemeVariantXRefModel>("SELECT * FROM tProductSchemeVariantXRef WHERE ProductSchemeRefno = ? AND ProductSchemeVariantRefno = ?", schemeRefno, schemeVarRefno);
 
                                     if (resultsProductSchemeVariantXRef?.Count > 0)
                                     {
@@ -219,10 +219,10 @@ namespace dMobile.GroundWork
         /// <returns></returns>
         protected override async Task<string> CreateRequest()
         {
-            StringBuilder xmlString = new StringBuilder();
-            XmlWriter xml = XmlWriter.Create(xmlString);
+            var xmlString = new StringBuilder();
+            var xml = XmlWriter.Create(xmlString);
 
-            XDocument request = XDocument.Parse(
+            var request = XDocument.Parse(
                 "<?xml version=\"1.0\" encoding=\"utf-8\" standalone=\"yes\"?>"
                 + "<imclient>"
                 + "<command>"

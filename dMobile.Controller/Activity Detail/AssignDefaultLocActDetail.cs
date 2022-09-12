@@ -33,9 +33,9 @@ namespace dMobile.Controller
             this.FullClassName = typeof(AssignDefaultLocActDetail).FullName;
 
             // Data grid
-            DataTemplate dataTemplate = new DataTemplate(() =>
+            var dataTemplate = new DataTemplate(() =>
             {
-                Grid gridData = new Grid
+                var gridData = new Grid
                 {
                     Padding = new Thickness(5),
                     ColumnDefinitions =
@@ -49,12 +49,12 @@ namespace dMobile.Controller
                     },
                 };
 
-                Label label1 = new Label { VerticalOptions = LayoutOptions.Center };
-                Label label2 = new Label { VerticalOptions = LayoutOptions.Center };
-                Label label3 = new Label { VerticalOptions = LayoutOptions.Center };
-                Label label4 = new Label { VerticalOptions = LayoutOptions.Center };
-                Label label5 = new Label { VerticalOptions = LayoutOptions.Center };
-                Label label6 = new Label { VerticalOptions = LayoutOptions.Center };
+                var label1 = new Label { VerticalOptions = LayoutOptions.Center };
+                var label2 = new Label { VerticalOptions = LayoutOptions.Center };
+                var label3 = new Label { VerticalOptions = LayoutOptions.Center };
+                var label4 = new Label { VerticalOptions = LayoutOptions.Center };
+                var label5 = new Label { VerticalOptions = LayoutOptions.Center };
+                var label6 = new Label { VerticalOptions = LayoutOptions.Center };
 
                 label1.SetBinding(Label.TextProperty, new Binding("ProductCode"));
                 label2.SetBinding(Label.TextProperty, new Binding("ProductUnitBC"));
@@ -90,7 +90,19 @@ namespace dMobile.Controller
                 return new ViewCell { View = gridData };
             });
 
-            this.ResourceDictionary.Add("dataTemplate", dataTemplate);
+            var isAddKey = true;
+            foreach (var item in this.ResourceDictionary)
+            {
+                if (item.Key == "dataTemplateDefaultLocActDetail")
+                {
+                    isAddKey = false;
+                }
+            }
+
+            if (isAddKey)
+            {
+                this.ResourceDictionary.Add("dataTemplateDefaultLocActDetail", dataTemplate);
+            }
         }
 
         /// <summary>
@@ -169,7 +181,7 @@ namespace dMobile.Controller
         /// <param name="listDetailIdx"><see cref="int"/> Zero based list detail index.</param>
         public override void UpdateListDetail(int listDetailIdx)
         {
-            ActivityDetail detail = (ActivityDetail)this.ListDetails[listDetailIdx];
+            var detail = (ActivityDetail)this.ListDetails[listDetailIdx];
             ////if (detail.ActivityDetailStatus == (int)SysCommon.ActStatus.NoChange)
             ////{
             ////    detail.ActivityDetailStatus = (int)SysCommon.ActStatus.Updated;
@@ -264,9 +276,9 @@ namespace dMobile.Controller
             {
                 await this.AssignThisFromDetailAsync(moveDetail, false);
 
-                XmlDocument xmlDoc = new XmlDocument();
-                string xmlSend = await this.CreateSubmitXML(data);
-                string reqData = SysCommon.SubmitComm(xmlSend);
+                var xmlDoc = new XmlDocument();
+                var xmlSend = await this.CreateSubmitXML(data);
+                var reqData = SysCommon.SubmitComm(xmlSend);
 
                 if (reqData.Length > 0)
                 {
@@ -275,7 +287,7 @@ namespace dMobile.Controller
                     // check if result is an error message
                     if (reqData.Contains("<message>ERROR</message>"))
                     {
-                        string errorDetail = xmlDoc.DocumentElement["detail"].InnerText;
+                        var errorDetail = xmlDoc.DocumentElement["detail"].InnerText;
                         if (errorDetail.Contains("MSGBOX-"))
                         {
                             throw new MessageOnlyException(errorDetail);
@@ -337,7 +349,7 @@ namespace dMobile.Controller
         /// <returns>Filled main grid data view.</returns>
         public override async Task<List<object>> GetActivityDetailList(bool isSubmitBatch)
         {
-            DataTable table = new DataTable("ActivityMoveDetail");
+            var table = new DataTable("ActivityMoveDetail");
 
             table.Columns.Add("ProductUnitRefno", Type.GetType("System.Int32"));
             table.Columns.Add("ProductRefno", Type.GetType("System.Int32"));
@@ -374,14 +386,14 @@ namespace dMobile.Controller
         /// <returns>The <see cref="ObservableCollection{object}"/>.</returns>
         public override ObservableCollection<object> DesignGrid(ref Grid GridMainActivity, ref ListView ListViewMainActivity)
         {
-            ObservableCollection<object> observableCollection = new ObservableCollection<object>();
+            var observableCollection = new ObservableCollection<object>();
 
-            Label labelHeader1 = new Label { Text = "Code", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
-            Label labelHeader2 = new Label { Text = "BC", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
-            Label labelHeader3 = new Label { Text = string.Empty, VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
-            Label labelHeader4 = new Label { Text = "Qty", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
-            Label labelHeader5 = new Label { Text = "Weight", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
-            Label labelHeader6 = new Label { Text = "Scheme ID", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
+            var labelHeader1 = new Label { Text = "Code", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
+            var labelHeader2 = new Label { Text = "BC", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
+            var labelHeader3 = new Label { Text = string.Empty, VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
+            var labelHeader4 = new Label { Text = "Qty", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
+            var labelHeader5 = new Label { Text = "Weight", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
+            var labelHeader6 = new Label { Text = "Scheme ID", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
 
             this.ColumnWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(labelHeader1.Text);
             this.ColumnWidth1 = DependencyService.Get<IGridService>().CalculateTextWidth(labelHeader2.Text);
@@ -391,7 +403,7 @@ namespace dMobile.Controller
             this.ColumnWidth5 = DependencyService.Get<IGridService>().CalculateTextWidth(labelHeader6.Text);
 
             // Create header data template
-            Grid gridHeader = new Grid
+            var gridHeader = new Grid
             {
                 Padding = new Thickness(5),
                 ColumnDefinitions =
@@ -429,12 +441,12 @@ namespace dMobile.Controller
             {
                 observableCollection.Add(moveDetail);
 
-                double detailWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(moveDetail.ProductCode);
-                double detailWidth1 = DependencyService.Get<IGridService>().CalculateTextWidth(moveDetail.ProductUnitBC);
-                double detailWidth2 = DependencyService.Get<IGridService>().CalculateTextWidth(moveDetail.UnitCode);
-                double detailWidth3 = DependencyService.Get<IGridService>().CalculateTextWidth(string.Format("{0:F3}", moveDetail.ActivityDetailQuantity));
-                double detailWidth4 = DependencyService.Get<IGridService>().CalculateTextWidth(string.Format("{0:F3}", moveDetail.ActivityDetailWeightQuantity));
-                double detailWidth5 = DependencyService.Get<IGridService>().CalculateTextWidth(moveDetail.ActivityDetailSchemeID);
+                var detailWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(moveDetail.ProductCode);
+                var detailWidth1 = DependencyService.Get<IGridService>().CalculateTextWidth(moveDetail.ProductUnitBC);
+                var detailWidth2 = DependencyService.Get<IGridService>().CalculateTextWidth(moveDetail.UnitCode);
+                var detailWidth3 = DependencyService.Get<IGridService>().CalculateTextWidth(string.Format("{0:F3}", moveDetail.ActivityDetailQuantity));
+                var detailWidth4 = DependencyService.Get<IGridService>().CalculateTextWidth(string.Format("{0:F3}", moveDetail.ActivityDetailWeightQuantity));
+                var detailWidth5 = DependencyService.Get<IGridService>().CalculateTextWidth(moveDetail.ActivityDetailSchemeID);
 
                 if (detailWidth0 > this.ColumnWidth0)
                 {
@@ -473,7 +485,7 @@ namespace dMobile.Controller
                 }
             }
 
-            ListViewMainActivity.ItemTemplate = (DataTemplate)this.ResourceDictionary["dataTemplate"];
+            ListViewMainActivity.ItemTemplate = (DataTemplate)this.ResourceDictionary["dataTemplateDefaultLocActDetail"];
 
             return observableCollection;
         }
@@ -515,10 +527,10 @@ namespace dMobile.Controller
         /// <returns>.</returns>
         public override async Task<string> CreateSubmitXML(XDocument data)
         {
-            StringBuilder xmlString = new StringBuilder();
-            XmlWriter xml = XmlWriter.Create(xmlString);
-            string production = string.Empty;
-            string bestBefore = string.Empty;
+            var xmlString = new StringBuilder();
+            var xml = XmlWriter.Create(xmlString);
+            var production = string.Empty;
+            var bestBefore = string.Empty;
 
             if (this.ActItem.ProdInfo.Scheme.IsBestBeforeDateTracked)
             {
@@ -530,7 +542,7 @@ namespace dMobile.Controller
                 production = this.SchemeData.LogisticUnitProductionDate.ToString("MM/dd/yyyy");
             }
 
-            XDocument request = XDocument.Parse(
+            var request = XDocument.Parse(
                 "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>"
                 + "<imclient>"
                 + "<command>"
@@ -592,12 +604,12 @@ namespace dMobile.Controller
         {
             mainActivityItems.Add(actDetail);
 
-            Label labelHeader1 = new Label { Text = "Code", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
-            Label labelHeader2 = new Label { Text = "BC", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
-            Label labelHeader3 = new Label { Text = string.Empty, VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
-            Label labelHeader4 = new Label { Text = "Qty", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
-            Label labelHeader5 = new Label { Text = "Weight", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
-            Label labelHeader6 = new Label { Text = "Scheme ID", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
+            var labelHeader1 = new Label { Text = "Code", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
+            var labelHeader2 = new Label { Text = "BC", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
+            var labelHeader3 = new Label { Text = string.Empty, VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
+            var labelHeader4 = new Label { Text = "Qty", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
+            var labelHeader5 = new Label { Text = "Weight", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
+            var labelHeader6 = new Label { Text = "Scheme ID", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
 
             this.ColumnWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(labelHeader1.Text);
             this.ColumnWidth1 = DependencyService.Get<IGridService>().CalculateTextWidth(labelHeader2.Text);
@@ -607,7 +619,7 @@ namespace dMobile.Controller
             this.ColumnWidth5 = DependencyService.Get<IGridService>().CalculateTextWidth(labelHeader6.Text);
 
             // Create header data template
-            Grid gridHeader = new Grid
+            var gridHeader = new Grid
             {
                 Padding = new Thickness(5),
                 ColumnDefinitions =
@@ -641,12 +653,12 @@ namespace dMobile.Controller
 
             gridMain.Children.Add(gridHeader);
 
-            double detailWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(actDetail.ProductCode);
-            double detailWidth1 = DependencyService.Get<IGridService>().CalculateTextWidth(actDetail.ProductUnitBC);
-            double detailWidth2 = DependencyService.Get<IGridService>().CalculateTextWidth(actDetail.UnitCode);
-            double detailWidth3 = DependencyService.Get<IGridService>().CalculateTextWidth(string.Format("{0:F3}", actDetail.ActivityDetailQuantity));
-            double detailWidth4 = DependencyService.Get<IGridService>().CalculateTextWidth(string.Format("{0:F3}", actDetail.ActivityDetailWeightQuantity));
-            double detailWidth5 = DependencyService.Get<IGridService>().CalculateTextWidth(actDetail.ActivityDetailSchemeID);
+            var detailWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(actDetail.ProductCode);
+            var detailWidth1 = DependencyService.Get<IGridService>().CalculateTextWidth(actDetail.ProductUnitBC);
+            var detailWidth2 = DependencyService.Get<IGridService>().CalculateTextWidth(actDetail.UnitCode);
+            var detailWidth3 = DependencyService.Get<IGridService>().CalculateTextWidth(string.Format("{0:F3}", actDetail.ActivityDetailQuantity));
+            var detailWidth4 = DependencyService.Get<IGridService>().CalculateTextWidth(string.Format("{0:F3}", actDetail.ActivityDetailWeightQuantity));
+            var detailWidth5 = DependencyService.Get<IGridService>().CalculateTextWidth(actDetail.ActivityDetailSchemeID);
 
             if (detailWidth0 > this.ColumnWidth0)
             {
@@ -684,7 +696,7 @@ namespace dMobile.Controller
                 gridHeader.ColumnDefinitions[5].Width = this.ColumnWidth5;
             }
 
-            return (DataTemplate)this.ResourceDictionary["dataTemplate"];
+            return (DataTemplate)this.ResourceDictionary["dataTemplateDefaultLocActDetail"];
         }
     }
 }

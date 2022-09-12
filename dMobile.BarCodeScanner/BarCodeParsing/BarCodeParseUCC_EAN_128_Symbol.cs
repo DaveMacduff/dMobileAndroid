@@ -13,8 +13,8 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
         {
             try
             {
-                string parse = barCodeData;
-                string compare = string.Empty;
+                var parse = barCodeData;
+                var compare = string.Empty;
 
                 // GetType == typeof(...) makes sure the rules are checked once.
                 // This way, a rule doesn't have to override ParseBarCodeData(...) with duplicate code.
@@ -27,7 +27,7 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
                         && barCodeData.Substring(4, 6) == "896775")
                     {
                         this.ClearResetBarCodeProperties(false);
-                        BarCodeParseUCC_EAN_128_Symbol_NossackProduct94600_ChileanBackRibs barCodeParse
+                        var barCodeParse
                             = new BarCodeParseUCC_EAN_128_Symbol_NossackProduct94600_ChileanBackRibs();
                         barCodeParse.ParseBarCodeData(barCodeData);
                         return;
@@ -36,7 +36,7 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
                         barCodeData.Length >= 14)
                     {
                         this.ClearResetBarCodeProperties(false);
-                        BarCodeParseUCC_EAN_128_KiiNaturalsCrisps_Dovre barCodeParse =
+                        var barCodeParse =
                             new BarCodeParseUCC_EAN_128_KiiNaturalsCrisps_Dovre();
                         barCodeParse.ParseBarCodeData(barCodeData);
 
@@ -52,7 +52,7 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
                         // don't parse out skid codes <WO 13873>
                         // only use the rule with their product id of "05080"
                         this.ClearResetBarCodeProperties(false);
-                        BarCodeParseUCC_EAN_128_GreenleaPremierMeats_Nossack barCodeParse =
+                        var barCodeParse =
                             new BarCodeParseUCC_EAN_128_GreenleaPremierMeats_Nossack();
                         barCodeParse.ParseBarCodeData(barCodeData);
                         return;
@@ -157,7 +157,7 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
         /// <returns></returns>
         protected override string IdentifyProductIdentifier(string barCodeData)
         {
-            string tempData = barCodeData;
+            var tempData = barCodeData;
 
             if (!string.IsNullOrEmpty(this.GTIN))
             {
@@ -205,7 +205,7 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
         /// <returns></returns>
         protected override string IdentifyCompanyPrefix(string barCodeData)
         {
-            string tempData = barCodeData;
+            var tempData = barCodeData;
 
             if (!string.IsNullOrEmpty(this.SystemGTINCompanyPrefix))
             {
@@ -225,7 +225,7 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
         /// <returns></returns>
         protected override string IdentifyGTIN(string barCodeData)
         {
-            string tempData = barCodeData;
+            var tempData = barCodeData;
 
             if (tempData.StartsWith("01") && tempData.Length >= 16)
             {
@@ -288,7 +288,7 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
         /// <returns></returns>
         protected override string IdentifyGTINinLogisticUnit(string barCodeData)
         {
-            string tempData = barCodeData;
+            var tempData = barCodeData;
             if (tempData.StartsWith("02") && tempData.Length >= 16)
             {
                 // remove the AI
@@ -311,7 +311,7 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
         /// <returns></returns>
         protected override string IdentifySSCC18(string barCodeData)
         {
-            string tempData = barCodeData;
+            var tempData = barCodeData;
 
             if (tempData.StartsWith("00") && tempData.Length >= 20)
             {
@@ -343,7 +343,7 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
         /// <returns></returns>
         protected override string IdentifyLogisticUnitBatchLotNumber(string barCodeData)
         {
-            string tempData = barCodeData;
+            var tempData = barCodeData;
 
             // check length of 2 only because AI data is variable
             if (tempData.StartsWith("10") && tempData.Length >= 2)
@@ -351,8 +351,8 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
                 // remove the AI
                 tempData = tempData.Remove(0, 2);
                 // variable AI look for group separator
-                int aiIndex = this.FindGroupSeparatorInBarCode(tempData);
-                int dataLength = 0;
+                var aiIndex = this.FindGroupSeparatorInBarCode(tempData);
+                var dataLength = 0;
 
                 try
                 {
@@ -420,7 +420,7 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
         /// <returns></returns>
         protected override string IdentifySingleTradeItemSerialNumber(string barCodeData)
         {
-            string tempData = barCodeData;
+            var tempData = barCodeData;
 
             // check length of 2 only because AI data is variable
             if (tempData.StartsWith("21") && tempData.Length >= 2)
@@ -429,8 +429,8 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
                 tempData = tempData.Remove(0, 2);
 
                 // variable AI look for group separator
-                int aiIndex = this.FindGroupSeparatorInBarCode(tempData);
-                int dataLength = 0;
+                var aiIndex = this.FindGroupSeparatorInBarCode(tempData);
+                var dataLength = 0;
 
                 try
                 {
@@ -460,7 +460,7 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
                         // Parse and assign the production date from the serial number data.
 
                         // year
-                        int year = Convert.ToInt32(tempData.Substring(0, 2));
+                        var year = Convert.ToInt32(tempData.Substring(0, 2));
                         if (year < 80)
                         {
                             year += 2000;
@@ -470,11 +470,11 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
                             year += 1900;
                         }
 
-                        DateTime dt = new DateTime(year, 1, 1);
+                        var dt = new DateTime(year, 1, 1);
 
                         // Julian days from and including Jan 01 of the year.
                         // Assumption is that the string length will always be three digits. 0 filled???
-                        int days = Convert.ToInt32(tempData.Substring(2, 3));
+                        var days = Convert.ToInt32(tempData.Substring(2, 3));
 
                         // Subtract one day, because the the calculated year date begins at day 1.
                         this.LogisticUnitProductionDate = dt.AddDays(days - 1);
@@ -518,7 +518,7 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
         /// <returns></returns>
         protected override string IdentifyLogisticUnitProductionDate(string barCodeData)
         {
-            string tempData = barCodeData;
+            var tempData = barCodeData;
 
             if (tempData.StartsWith("11") && tempData.Length >= 8)
             {
@@ -528,7 +528,7 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
                 try
                 {
                     // assign the PRODUCTION DATE
-                    int year = Convert.ToInt32(tempData.Substring(0, 2));
+                    var year = Convert.ToInt32(tempData.Substring(0, 2));
                     if (year < 80)
                     {
                         year = year + 2000;
@@ -538,7 +538,7 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
                         year = year + 1900;
                     }
 
-                    DateTime dt = new DateTime(
+                    var dt = new DateTime(
                         year,
                         Convert.ToInt32(tempData.Substring(2, 2)),
                         Convert.ToInt32(tempData.Substring(4, 2)));   // 101026
@@ -577,7 +577,7 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
         /// <returns></returns>
         protected override string IdentifyLogisticUnitDueDate(string barCodeData)
         {
-            string tempData = barCodeData;
+            var tempData = barCodeData;
             if (tempData.StartsWith("12") && tempData.Length >= 8)
             {
                 // remove the AI
@@ -586,7 +586,7 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
                 try
                 {
                     // assign the DUE DATE
-                    int year = Convert.ToInt32(tempData.Substring(0, 2));
+                    var year = Convert.ToInt32(tempData.Substring(0, 2));
                     if (year < 80)
                     {
                         year = year + 2000;
@@ -596,7 +596,7 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
                         year = year + 1900;
                     }
 
-                    DateTime dt = new DateTime(
+                    var dt = new DateTime(
                         year,
                         Convert.ToInt32(tempData.Substring(2, 2)),
                         Convert.ToInt32(tempData.Substring(4, 2)));   // 101026
@@ -635,7 +635,7 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
         /// <returns></returns>
         protected override string IdentifyLogisticUnitPackagingDate(string barCodeData)
         {
-            string tempData = barCodeData;
+            var tempData = barCodeData;
             if (tempData.StartsWith("13") && tempData.Length >= 8)
             {
                 // remove the AI
@@ -643,7 +643,7 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
                 try
                 {
                     // assign the PACKAGING DATE
-                    int year = Convert.ToInt32(tempData.Substring(0, 2));
+                    var year = Convert.ToInt32(tempData.Substring(0, 2));
                     if (year < 80)
                     {
                         year = year + 2000;
@@ -653,7 +653,7 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
                         year = year + 1900;
                     }
 
-                    DateTime dt = new DateTime(
+                    var dt = new DateTime(
                         year,
                         Convert.ToInt32(tempData.Substring(2, 2)),
                         Convert.ToInt32(tempData.Substring(4, 2)));   // 101026
@@ -723,7 +723,7 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
         /// <returns></returns>
         protected override string IdentifyLogisticUnitBestBeforeSellByDate(string barCodeData)
         {
-            string tempData = barCodeData;
+            var tempData = barCodeData;
             if (tempData.StartsWith("15") && tempData.Length >= 8)
             {
                 // remove the AI
@@ -732,7 +732,7 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
                 try
                 {
                     // assign the BEST BEFORE SELL BY DATE
-                    int year = Convert.ToInt32(tempData.Substring(0, 2));
+                    var year = Convert.ToInt32(tempData.Substring(0, 2));
                     if (year < 80)
                     {
                         year = year + 2000;
@@ -742,7 +742,7 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
                         year = year + 1900;
                     }
 
-                    DateTime dt = new DateTime(
+                    var dt = new DateTime(
                         year,
                         Convert.ToInt32(tempData.Substring(2, 2)),
                         Convert.ToInt32(tempData.Substring(4, 2)));   // 101026
@@ -782,7 +782,7 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
         /// <returns></returns>
         protected override string IdentifyLogisticUnitExpiryUseByDate(string barCodeData)
         {
-            string tempData = barCodeData;
+            var tempData = barCodeData;
             if (tempData.StartsWith("17") && tempData.Length >= 8)
             {
                 // remove the AI
@@ -791,7 +791,7 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
                 try
                 {
                     // assign the EXPIRY USE BY SELL BY DATE
-                    int year = Convert.ToInt32(tempData.Substring(0, 2));
+                    var year = Convert.ToInt32(tempData.Substring(0, 2));
                     if (year < 80)
                     {
                         year = year + 2000;
@@ -801,7 +801,7 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
                         year = year + 1900;
                     }
 
-                    DateTime dt = new DateTime(
+                    var dt = new DateTime(
                         year,
                         Convert.ToInt32(tempData.Substring(2, 2)),
                         Convert.ToInt32(tempData.Substring(4, 2)));   // 101026
@@ -848,7 +848,7 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
         /// <returns></returns>
         protected override string IdentifyLogisticUnitProductVariant(string barCodeData)
         {
-            string tempData = barCodeData;
+            var tempData = barCodeData;
             if (tempData.StartsWith("20") && tempData.Length >= 4)
             {
                 // remove the AI
@@ -891,7 +891,7 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
         /// <returns></returns>
         protected override string IdentifyLogisticUnitCountOfTradeItems(string barCodeData)
         {
-            string tempData = barCodeData;
+            var tempData = barCodeData;
             if (tempData.StartsWith("37") && tempData.Length >= 10)
             {
                 // remove the AI
@@ -935,7 +935,7 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
         /// <returns></returns>
         protected override string IdentifyLogisticUnitVariableCount(string barCodeData)
         {
-            string codeData = barCodeData;
+            var codeData = barCodeData;
 
             // Check the entire length (this.Data) not the barCodeData.length because it could have been parsed and altered.
             if (this.Settings.IsRuleEnabled_Parse_Code128_China_Seafood
@@ -948,7 +948,7 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
             {
                 if (codeData.StartsWith("30") && codeData.Length >= 3)
                 {
-                    bool parseIt = true;
+                    var parseIt = true;
 
                     if (this.Settings.IsRuleEnabled_Parse_Code_128_AI01_BC_AI30_exclusive)
                     {
@@ -964,8 +964,8 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
                         codeData = codeData.Remove(0, 2);
 
                         // variable AI look for group separator
-                        int aiIndex = this.FindGroupSeparatorInBarCode(codeData);
-                        int dataLength = 0;
+                        var aiIndex = this.FindGroupSeparatorInBarCode(codeData);
+                        var dataLength = 0;
 
                         try
                         {
@@ -1027,7 +1027,7 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
         /// <returns></returns>
         protected override string IdentifyLocationIdentifier(string barCodeData)
         {
-            string tempData = barCodeData;
+            var tempData = barCodeData;
 
             // <revision date="20160928" />
             // Used to parse 414 && length >= 16
@@ -1037,7 +1037,7 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
                 // remove the AI
                 tempData = tempData.Remove(0, 3);
 
-                int locationLength = Math.Min(13, tempData.Length);
+                var locationLength = Math.Min(13, tempData.Length);
 
                 // assign the LOCATION IDENTIFIER
                 // allowing alpha is not UCC/EAN compliant. But we need to support
@@ -1059,15 +1059,15 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
         /// <returns></returns>
         protected override string IdentifyNetWeightMetricKG(string barCodeData)
         {
-            string tempData = barCodeData;
+            var tempData = barCodeData;
 
             if (tempData.StartsWith("310") && tempData.Length >= 10)
             {
                 this.NetWeightMetricKGFoundAI = true;
 
                 // get the number of decimal places
-                int places = 0;
-                bool placesFound = false;
+                var places = 0;
+                var placesFound = false;
                 try
                 {
                     places = Convert.ToInt32(tempData.Substring(3, 1));
@@ -1076,10 +1076,10 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
                     // remove the AI
                     tempData = tempData.Remove(0, 4);
                     // assign the METRIC NET WEIGHT KG
-                    string strWholeNumber = tempData.Substring(0, 6);
+                    var strWholeNumber = tempData.Substring(0, 6);
                     if (places != 0)
                     {
-                        string s = strWholeNumber.Substring(0, strWholeNumber.Length - places) + "."
+                        var s = strWholeNumber.Substring(0, strWholeNumber.Length - places) + "."
                             + strWholeNumber.Substring(strWholeNumber.Length - places);
                         this.NetWeightMetricKG = Convert.ToDecimal(s);
                     }
@@ -1136,16 +1136,16 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
         /// <returns></returns>
         protected override string IdentifyNetWeightNonMetricLB(string barCodeData)
         {
-            string tempData = barCodeData;
+            var tempData = barCodeData;
 
             if (tempData.StartsWith("320") && tempData.Length >= 10)
             {
                 this.NetWeightNonMetricLBFoundAI = true;
-                bool placesFound = false;
+                var placesFound = false;
                 try
                 {
                     // get the number of decimal places
-                    int places = 0;
+                    var places = 0;
                     places = Convert.ToInt32(tempData.Substring(3, 1));
                     placesFound = true;
 
@@ -1153,10 +1153,10 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
                     tempData = tempData.Remove(0, 4);
 
                     // assign the NON METRIC NET WEIGHT LB
-                    string strWholeNumber = tempData.Substring(0, 6);
+                    var strWholeNumber = tempData.Substring(0, 6);
                     if (places != 0)
                     {
-                        string s = strWholeNumber.Substring(0, strWholeNumber.Length - places) + "."
+                        var s = strWholeNumber.Substring(0, strWholeNumber.Length - places) + "."
                             + strWholeNumber.Substring(strWholeNumber.Length - places);
                         this.NetWeightNonMetricLB = Convert.ToDecimal(s);
                     }
@@ -1214,17 +1214,17 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
         /// <returns></returns>
         protected override string IdentifyGrossWeightMetricKG(string barCodeData)
         {
-            string tempData = barCodeData;
+            var tempData = barCodeData;
 
             if (tempData.StartsWith("330") && tempData.Length >= 10)
             {
                 this.GrossWeightMetricKGFoundAI = true;
 
-                bool placesFound = false;
+                var placesFound = false;
                 try
                 {
                     // get the number of decimal places
-                    int places = 0;
+                    var places = 0;
                     places = Convert.ToInt32(tempData.Substring(3, 1));
                     placesFound = true;
 
@@ -1232,10 +1232,10 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
                     tempData = tempData.Remove(0, 4);
 
                     // assign the NON METRIC GROSS WEIGHT LB
-                    string strWholeNumber = tempData.Substring(0, 6);
+                    var strWholeNumber = tempData.Substring(0, 6);
                     if (places != 0)
                     {
-                        string s = strWholeNumber.Substring(0, strWholeNumber.Length - places) + "."
+                        var s = strWholeNumber.Substring(0, strWholeNumber.Length - places) + "."
                             + strWholeNumber.Substring(strWholeNumber.Length - places);
                         this.GrossWeightMetricKG = Convert.ToDecimal(s);
                     }
@@ -1295,16 +1295,16 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
         /// <returns></returns>
         protected override string IdentifyGrossWeightNonMetricLB(string barCodeData)
         {
-            string tempData = barCodeData;
+            var tempData = barCodeData;
             if (tempData.StartsWith("340") && tempData.Length >= 10)
             {
                 this.GrossWeightNonMetricLBFoundAI = true;
 
-                bool placesFound = false;
+                var placesFound = false;
                 try
                 {
                     // get the number of decimal places
-                    int places = 0;
+                    var places = 0;
                     places = Convert.ToInt32(tempData.Substring(3, 1));
                     placesFound = true;
 
@@ -1312,10 +1312,10 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
                     tempData = tempData.Remove(0, 4);
 
                     // assign the NON METRIC GROSS WEIGHT LB
-                    string strWholeNumber = tempData.Substring(0, 6);
+                    var strWholeNumber = tempData.Substring(0, 6);
                     if (places != 0)
                     {
-                        string s = strWholeNumber.Substring(0, strWholeNumber.Length - places) + "."
+                        var s = strWholeNumber.Substring(0, strWholeNumber.Length - places) + "."
                             + strWholeNumber.Substring(strWholeNumber.Length - places);
                         this.GrossWeightNonMetricLB = Convert.ToDecimal(s);
                     }
@@ -1374,14 +1374,14 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
         /// <returns></returns>
         protected override string IdentifyLengthOr1stDimensionMeters(string barCodeData)
         {
-            string tempData = barCodeData;
+            var tempData = barCodeData;
             if (tempData.StartsWith("311") && tempData.Length >= 10)
             {
-                bool placesFound = false;
+                var placesFound = false;
                 try
                 {
                     // get the number of decimal places
-                    int places = 0;
+                    var places = 0;
                     places = Convert.ToInt32(tempData.Substring(3, 1));
                     placesFound = true;
 
@@ -1389,10 +1389,10 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
                     tempData = tempData.Remove(0, 4);
 
                     // assign the LENGTH IN METERS
-                    string strWholeNumber = tempData.Substring(0, 6);
+                    var strWholeNumber = tempData.Substring(0, 6);
                     if (places != 0)
                     {
-                        string s = strWholeNumber.Substring(0, strWholeNumber.Length - places) + "."
+                        var s = strWholeNumber.Substring(0, strWholeNumber.Length - places) + "."
                             + strWholeNumber.Substring(strWholeNumber.Length - places);
                         this.LengthOr1stDimensionMeters = Convert.ToDecimal(s);
                     }
@@ -1452,7 +1452,7 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
         /// <returns></returns>
         protected override string IdentifyActivityFKRefno(string barCodeData)
         {
-            string tempData = barCodeData;
+            var tempData = barCodeData;
 
             // check length of 2 only because AI data is variable
             if (tempData.StartsWith("92") && tempData.Length >= 2)
@@ -1461,8 +1461,8 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
                 tempData = tempData.Remove(0, 2);
 
                 // variable AI look for group separator
-                int aiIndex = this.FindGroupSeparatorInBarCode(tempData);
-                int dataLength = 0;
+                var aiIndex = this.FindGroupSeparatorInBarCode(tempData);
+                var dataLength = 0;
 
                 try
                 {
@@ -1516,7 +1516,7 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
         /// <returns></returns>
         protected override string IdentifyActivityItemFKRefno(string barCodeData)
         {
-            string tempData = barCodeData;
+            var tempData = barCodeData;
 
             // check length of 2 only because AI data is variable
             if (tempData.StartsWith("91") && tempData.Length >= 2)
@@ -1525,8 +1525,8 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
                 tempData = tempData.Remove(0, 2);
 
                 // variable AI look for group separator
-                int aiIndex = this.FindGroupSeparatorInBarCode(tempData);
-                int dataLength = 0;
+                var aiIndex = this.FindGroupSeparatorInBarCode(tempData);
+                var dataLength = 0;
 
                 try
                 {
@@ -1579,7 +1579,7 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
         /// <returns></returns>
         protected override string IdentifyActivityDetailFKRefno(string barCodeData)
         {
-            string tempData = barCodeData;
+            var tempData = barCodeData;
 
             // check length of 2 only because AI data is variable
             if (tempData.StartsWith("93") && tempData.Length >= 2)
@@ -1588,8 +1588,8 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
                 tempData = tempData.Remove(0, 2);
 
                 // variable AI look for group separator
-                int aiIndex = this.FindGroupSeparatorInBarCode(tempData);
-                int dataLength = 0;
+                var aiIndex = this.FindGroupSeparatorInBarCode(tempData);
+                var dataLength = 0;
 
                 try
                 {

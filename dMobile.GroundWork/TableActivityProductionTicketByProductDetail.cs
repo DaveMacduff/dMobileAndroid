@@ -42,8 +42,8 @@ namespace dMobile.GroundWork
                 string reqData;
                 if (actItemRefno == 0)
                 {
-                    string query = "SELECT ActivityItemRefno FROM tActivityItem WHERE ActivityItemSubType = ?";
-                    List<tActivityItemModel> results = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<tActivityItemModel>(query, Convert.ToInt32(SysCommon.ActSubTypes.TicketAddProduct));
+                    var query = "SELECT ActivityItemRefno FROM tActivityItem WHERE ActivityItemSubType = ?";
+                    var results = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<tActivityItemModel>(query, Convert.ToInt32(SysCommon.ActSubTypes.TicketAddProduct));
 
                     if (results != null && results.Count > 0)
                     {
@@ -54,7 +54,7 @@ namespace dMobile.GroundWork
                         {
                             if (reqData.Contains("<message>ERROR</message>"))
                             {
-                                XmlDocument reqErr = new XmlDocument();
+                                var reqErr = new XmlDocument();
                                 reqErr.LoadXml(reqData);
                                 throw new Exception(reqErr.DocumentElement["detail"].InnerText);
                             }
@@ -71,7 +71,7 @@ namespace dMobile.GroundWork
                     {
                         if (reqData.Contains("<message>ERROR</message>"))
                         {
-                            XmlDocument reqErr = new XmlDocument();
+                            var reqErr = new XmlDocument();
                             reqErr.LoadXml(reqData);
                             throw new Exception(reqErr.DocumentElement["detail"].InnerText);
                         }
@@ -106,7 +106,7 @@ namespace dMobile.GroundWork
             int rowsAffected;
             try
             {
-                string query = "SELECT COUNT(ActivityDetailRefno) FROM tActivityDetail WHERE ActivityDetailSubType = ?";
+                var query = "SELECT COUNT(ActivityDetailRefno) FROM tActivityDetail WHERE ActivityDetailSubType = ?";
                 rowsAffected = await DatabaseConnection.GetInstance().SQLConn.ExecuteScalarAsync<int>(query, Convert.ToInt32(SysCommon.ActSubTypes.TicketAddProduct));
 
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, string.Format("{0} ticket add-product details.", rowsAffected), true);
@@ -128,11 +128,11 @@ namespace dMobile.GroundWork
 
             try
             {
-                string query = "DELETE FROM tActivityDetailProductSchemeVariantXRef"
-                    + " WHERE tActivityDetailProductSchemeVariantXRef.ActivityDetailRefno IN"
-                    + " (SELECT tActivityDetail.ActivityDetailRefno"
-                    + " FROM tActivityDetail"
-                    + " WHERE tActivityDetail.ActivityDetailSubType = ?)";
+                var query = "DELETE FROM tActivityDetailProductSchemeVariantXRef"
+                            + " WHERE tActivityDetailProductSchemeVariantXRef.ActivityDetailRefno IN"
+                            + " (SELECT tActivityDetail.ActivityDetailRefno"
+                            + " FROM tActivityDetail"
+                            + " WHERE tActivityDetail.ActivityDetailSubType = ?)";
                 await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(query, Convert.ToInt32(SysCommon.ActSubTypes.TicketAddProduct));
 
                 query = "DELETE FROM tActivityDetailProductionByProduct"
@@ -172,10 +172,10 @@ namespace dMobile.GroundWork
         {
             try
             {
-                int actItemFKRefno = 0;
+                var actItemFKRefno = 0;
 
-                string query = "SELECT * FROM tActivityItemProductionByProduct WHERE ActivityItemRefno = ?";
-                List<tActivityItemProductionByProductModel> results = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<tActivityItemProductionByProductModel>(query, actItemRefno);
+                var query = "SELECT * FROM tActivityItemProductionByProduct WHERE ActivityItemRefno = ?";
+                var results = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<tActivityItemProductionByProductModel>(query, actItemRefno);
 
                 if (results != null && results.Count > 0)
                 {
@@ -201,13 +201,13 @@ namespace dMobile.GroundWork
         /// <param name="actItemProductionRefno"></param>
         protected override async Task Save(string reqData, int actItemProductionRefno)
         {
-            string errMsg = string.Empty;
+            var errMsg = string.Empty;
 
             await DatabaseConnection.GetInstance().SQLConn.RunInTransactionAsync(transaction =>
             {
                 try
                 {
-                    using (DataSet ds = new DataSet())
+                    using (var ds = new DataSet())
                     {
                         this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Reading received data.", false);
 
@@ -217,16 +217,16 @@ namespace dMobile.GroundWork
 
                         if (ds.Tables.Count != 0)
                         {
-                            int progMax = Convert.ToInt32(ds.Tables["tActivityDetailProduction"].Rows.Count);
+                            var progMax = Convert.ToInt32(ds.Tables["tActivityDetailProduction"].Rows.Count);
 
                             this.DataAccessStatusOutHandler(this, EventArgs.Empty, string.Format("Records {0}", progMax), false);
 
-                            int actDetailRefno = 0;
-                            int progValue = 0;
+                            var actDetailRefno = 0;
+                            var progValue = 0;
 
                             this.DataAccessProgressOutHandler(this, EventArgs.Empty, 0, 0, progMax);
 
-                            List<tActivityItemProductionModel> results = transaction.Query<tActivityItemProductionModel>("SELECT * FROM tActivityItemProduction WHERE ActivityItemRefno = ?", actItemProductionRefno);
+                            var results = transaction.Query<tActivityItemProductionModel>("SELECT * FROM tActivityItemProduction WHERE ActivityItemRefno = ?", actItemProductionRefno);
 
                             if (results == null || (results != null && results.Count == 0))
                             {
@@ -237,49 +237,49 @@ namespace dMobile.GroundWork
                             {
                                 errMsg = "Arguments:";
 
-                                string queryInsertDetail = "INSERT INTO tActivityDetail " +
-                                "(" +
-                                "ActivityDetailSubType, " +
-                                "ActivityDetailStatus, " +
-                                "ActivityItemRefno, " +
-                                "LocationMapRefno, " +
-                                "ProductUnitRefno, " +
-                                "ActivityDetailUniqueSchemeID, " +
-                                "ActivityDetailSchemeID, " +
-                                "ActivityDetailQuantity, " +
-                                "ActivityDetailBaseQuantity, " +
-                                "ActivityDetailWeightQuantity, " +
-                                "ActivityDetailSingleTradeItemSerialNumber, " +
-                                "ActivityDetailLogisticUnitBatchLotNumber, " +
-                                "ActivityDetailLogisticUnitBestBeforeSellByDate, " +
-                                "ActivityDetailLogisticUnitExpiryUseByDate, " +
-                                "ActivityDetailLogisticUnitProductionDate, " +
-                                "ActivityDetailLogisticUnitDueDate, " +
-                                "ActivityDetailLogisticUnitPackagingDate, " +
-                                "ActivityDetailLogisticUnitSkidNumber" +
-                                ") " +
-                                "VALUES" +
-                                "(" +
-                                "?, " +
-                                "?, " +
-                                "?, " +
-                                "?, " +
-                                "?, " +
-                                "?, " +
-                                "?, " +
-                                "?, " +
-                                "?, " +
-                                "?, " +
-                                "?, " +
-                                "?, " +
-                                "?, " +
-                                "?, " +
-                                "?, " +
-                                "?, " +
-                                "?, " +
-                                "?" +
-                                ")";
-                                List<object> parametersInsertDetail = new List<object>();
+                                var queryInsertDetail = "INSERT INTO tActivityDetail " +
+                                                        "(" +
+                                                        "ActivityDetailSubType, " +
+                                                        "ActivityDetailStatus, " +
+                                                        "ActivityItemRefno, " +
+                                                        "LocationMapRefno, " +
+                                                        "ProductUnitRefno, " +
+                                                        "ActivityDetailUniqueSchemeID, " +
+                                                        "ActivityDetailSchemeID, " +
+                                                        "ActivityDetailQuantity, " +
+                                                        "ActivityDetailBaseQuantity, " +
+                                                        "ActivityDetailWeightQuantity, " +
+                                                        "ActivityDetailSingleTradeItemSerialNumber, " +
+                                                        "ActivityDetailLogisticUnitBatchLotNumber, " +
+                                                        "ActivityDetailLogisticUnitBestBeforeSellByDate, " +
+                                                        "ActivityDetailLogisticUnitExpiryUseByDate, " +
+                                                        "ActivityDetailLogisticUnitProductionDate, " +
+                                                        "ActivityDetailLogisticUnitDueDate, " +
+                                                        "ActivityDetailLogisticUnitPackagingDate, " +
+                                                        "ActivityDetailLogisticUnitSkidNumber" +
+                                                        ") " +
+                                                        "VALUES" +
+                                                        "(" +
+                                                        "?, " +
+                                                        "?, " +
+                                                        "?, " +
+                                                        "?, " +
+                                                        "?, " +
+                                                        "?, " +
+                                                        "?, " +
+                                                        "?, " +
+                                                        "?, " +
+                                                        "?, " +
+                                                        "?, " +
+                                                        "?, " +
+                                                        "?, " +
+                                                        "?, " +
+                                                        "?, " +
+                                                        "?, " +
+                                                        "?, " +
+                                                        "?" +
+                                                        ")";
+                                var parametersInsertDetail = new List<object>();
                                 parametersInsertDetail.Add(Convert.ToInt32(SysCommon.ActSubTypes.TicketAddProduct));
                                 parametersInsertDetail.Add(0);
                                 parametersInsertDetail.Add(actItemProductionRefno);
@@ -290,7 +290,7 @@ namespace dMobile.GroundWork
                                 transaction.Execute(queryInsertDetail, parametersInsertDetail.ToArray());
 
                                 actDetailRefno = Convert.ToInt32(transaction.ExecuteScalar<int>("SELECT last_insert_rowid() FROM tActivityDetail"));
-                                int actDetailProductionFKRefno = Convert.ToInt32(drow["ActivityDetailProductionFKRefno"]);
+                                var actDetailProductionFKRefno = Convert.ToInt32(drow["ActivityDetailProductionFKRefno"]);
                                 errMsg += Environment.NewLine + "Detail fk refno " + actDetailProductionFKRefno;
 
                                 transaction.Execute("INSERT INTO tActivityDetailProductionByProduct (ActivityDetailRefno, ActivityDetailFKRefno) VALUES (?, ?)", actDetailRefno, actDetailProductionFKRefno);
@@ -332,10 +332,10 @@ namespace dMobile.GroundWork
         /// <returns></returns>
         protected override async Task<string> CreateRequest(int actItemFKRefno)
         {
-            StringBuilder xmlString = new StringBuilder();
-            XmlWriter xml = XmlWriter.Create(xmlString);
+            var xmlString = new StringBuilder();
+            var xml = XmlWriter.Create(xmlString);
 
-            XDocument request = XDocument.Parse(
+            var request = XDocument.Parse(
                 "<?xml version=\"1.0\" encoding=\"utf-8\" standalone=\"yes\"?>"
                 + "<imclient>"
                 + "<command>"

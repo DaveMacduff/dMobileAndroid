@@ -68,9 +68,9 @@ namespace dMobile.Controller
             this.FullClassName = typeof(BarCodeAssocActivity).FullName;
 
             // Data grid
-            DataTemplate dataTemplate = new DataTemplate(() =>
+            var dataTemplate = new DataTemplate(() =>
             {
-                Grid gridData = new Grid
+                var gridData = new Grid
                 {
                     Padding = new Thickness(5),
                     ColumnDefinitions =
@@ -83,11 +83,11 @@ namespace dMobile.Controller
                     },
                 };
 
-                Label label1 = new Label { VerticalOptions = LayoutOptions.Center };
-                Label label2 = new Label { VerticalOptions = LayoutOptions.Center };
-                Label label3 = new Label { VerticalOptions = LayoutOptions.Center };
-                Label label4 = new Label { VerticalOptions = LayoutOptions.Center };
-                Label label5 = new Label { VerticalOptions = LayoutOptions.Center };
+                var label1 = new Label { VerticalOptions = LayoutOptions.Center };
+                var label2 = new Label { VerticalOptions = LayoutOptions.Center };
+                var label3 = new Label { VerticalOptions = LayoutOptions.Center };
+                var label4 = new Label { VerticalOptions = LayoutOptions.Center };
+                var label5 = new Label { VerticalOptions = LayoutOptions.Center };
 
                 label1.SetBinding(Label.TextProperty, new Binding("ProductCode"));
                 label2.SetBinding(Label.TextProperty, new Binding("ProductUnitBC"));
@@ -110,7 +110,19 @@ namespace dMobile.Controller
                 return new ViewCell { View = gridData };
             });
 
-            this.resourceDictionary.Add("dataTemplate", dataTemplate);
+            var isAddKey = true;
+            foreach (var item in this.resourceDictionary)
+            {
+                if (item.Key == "dataTemplateBarCodeAssoc")
+                {
+                    isAddKey = false;
+                }
+            }
+
+            if (isAddKey)
+            {
+                this.resourceDictionary.Add("dataTemplateBarCodeAssoc", dataTemplate);
+            }
         }
 
         /// <summary>
@@ -119,7 +131,7 @@ namespace dMobile.Controller
         /// <returns>The <see cref="Task"/>.</returns>
         public override async Task Purge()
         {
-            TableActivityItemBarCodeAssociationXRef actBarCodeAssocXRef = new TableActivityItemBarCodeAssociationXRef();
+            var actBarCodeAssocXRef = new TableActivityItemBarCodeAssociationXRef();
 
             await actBarCodeAssocXRef.PurgeData();
 
@@ -190,7 +202,7 @@ namespace dMobile.Controller
         /// <returns>.</returns>
         public override async Task<List<object>> GetActivityList(bool isSubmitBatch)
         {
-            StringBuilder sql = new StringBuilder();
+            var sql = new StringBuilder();
 
             if (isSubmitBatch)
             {
@@ -248,7 +260,7 @@ namespace dMobile.Controller
         /// <returns>.</returns>
         public override ObservableCollection<object> Search(string searchText)
         {
-            ObservableCollection<object> observableCollection = new ObservableCollection<object>();
+            var observableCollection = new ObservableCollection<object>();
 
             this.ListHdrs = this.barcodeAssociations.Where(barcode => barcode.ProductUnitBarCodeCode.ToLower().Contains(searchText.ToLower().Trim())).Cast<object>().ToList();
 
@@ -279,13 +291,13 @@ namespace dMobile.Controller
         /// <returns>The <see cref="ObservableCollection{object}"/>.</returns>
         public override ObservableCollection<object> DesignGrid(ref Grid GridMainActivity, ref ListView ListViewMainActivity)
         {
-            ObservableCollection<object> observableCollection = new ObservableCollection<object>();
+            var observableCollection = new ObservableCollection<object>();
 
-            Label labelHeader1 = new Label { Text = "Product", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
-            Label labelHeader2 = new Label { Text = string.Empty, VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
-            Label labelHeader3 = new Label { Text = string.Empty, VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
-            Label labelHeader4 = new Label { Text = "Bar Code", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
-            Label labelHeader5 = new Label { Text = string.Empty, VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
+            var labelHeader1 = new Label { Text = "Product", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
+            var labelHeader2 = new Label { Text = string.Empty, VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
+            var labelHeader3 = new Label { Text = string.Empty, VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
+            var labelHeader4 = new Label { Text = "Bar Code", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
+            var labelHeader5 = new Label { Text = string.Empty, VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
 
             this.columnWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(labelHeader1.Text);
             this.columnWidth1 = DependencyService.Get<IGridService>().CalculateTextWidth(labelHeader2.Text);
@@ -294,7 +306,7 @@ namespace dMobile.Controller
             this.columnWidth4 = DependencyService.Get<IGridService>().CalculateTextWidth(labelHeader5.Text);
 
             // Create header data template
-            Grid gridHeader = new Grid
+            var gridHeader = new Grid
             {
                 Padding = new Thickness(5),
                 ColumnDefinitions =
@@ -340,11 +352,11 @@ namespace dMobile.Controller
                 // };
                 observableCollection.Add(barcodeAssociation);
 
-                double detailWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(barcodeAssociation.ProductCode);
-                double detailWidth1 = DependencyService.Get<IGridService>().CalculateTextWidth(barcodeAssociation.ProductUnitBC);
-                double detailWidth2 = DependencyService.Get<IGridService>().CalculateTextWidth(barcodeAssociation.UnitCode);
-                double detailWidth3 = DependencyService.Get<IGridService>().CalculateTextWidth(barcodeAssociation.ProductUnitBarCodeCode);
-                double detailWidth4 = DependencyService.Get<IGridService>().CalculateTextWidth(barcodeAssociation.ProductUnitBarCodeModifier1);
+                var detailWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(barcodeAssociation.ProductCode);
+                var detailWidth1 = DependencyService.Get<IGridService>().CalculateTextWidth(barcodeAssociation.ProductUnitBC);
+                var detailWidth2 = DependencyService.Get<IGridService>().CalculateTextWidth(barcodeAssociation.UnitCode);
+                var detailWidth3 = DependencyService.Get<IGridService>().CalculateTextWidth(barcodeAssociation.ProductUnitBarCodeCode);
+                var detailWidth4 = DependencyService.Get<IGridService>().CalculateTextWidth(barcodeAssociation.ProductUnitBarCodeModifier1);
 
                 if (detailWidth0 > this.columnWidth0)
                 {
@@ -377,7 +389,7 @@ namespace dMobile.Controller
                 }
             }
 
-            ListViewMainActivity.ItemTemplate = ListViewMainActivity.ItemTemplate = (DataTemplate)this.resourceDictionary["dataTemplate"];
+            ListViewMainActivity.ItemTemplate = (DataTemplate)this.resourceDictionary["dataTemplateBarCodeAssoc"];
 
             return observableCollection;
         }

@@ -39,12 +39,12 @@ namespace dMobile.GroundWork
             {
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Seeding product uom.", true);
 
-                string reqData = string.Empty;
-                List<tFamilyModel> resultsFamily = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<tFamilyModel>("SELECT * FROM tFamily");
+                var reqData = string.Empty;
+                var resultsFamily = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<tFamilyModel>("SELECT * FROM tFamily");
 
                 if (resultsFamily?.Count > 0)
                 {
-                    foreach (tFamilyModel family in resultsFamily)
+                    foreach (var family in resultsFamily)
                     {
                         this.DataAccessStatusOutHandler(this, EventArgs.Empty, string.Format("For family {0}", family.FamilyCode), true);
 
@@ -54,7 +54,7 @@ namespace dMobile.GroundWork
                         {
                             if (reqData.Contains("<message>ERROR</message>"))
                             {
-                                XmlDocument reqErr = new XmlDocument();
+                                var reqErr = new XmlDocument();
                                 reqErr.LoadXml(reqData);
                                 throw new Exception(reqErr.DocumentElement["detail"].InnerText);
                             }
@@ -223,69 +223,69 @@ namespace dMobile.GroundWork
         /// <param name="reqData"></param>
         protected async Task SaveOpt(string reqData)
         {
-            StringBuilder errMsg = new StringBuilder();
-            int recordCount = 0;
-            Dictionary<string, int> unitLookup = new Dictionary<string, int>();
+            var errMsg = new StringBuilder();
+            var recordCount = 0;
+            var unitLookup = new Dictionary<string, int>();
 
             await DatabaseConnection.GetInstance().SQLConn.RunInTransactionAsync(transaction =>
             {
                 try
                 {
-                    int startIndex = reqData.IndexOf("<VFPData");
+                    var startIndex = reqData.IndexOf("<VFPData");
 
                     this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Reading received data.", false);
 
-                    using (StringReader stringReader = new StringReader(reqData.Substring(startIndex)))
-                    using (XmlReader reader = XmlReader.Create(stringReader))
+                    using (var stringReader = new StringReader(reqData.Substring(startIndex)))
+                    using (var reader = XmlReader.Create(stringReader))
                     {
                         this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving product uom.", false);
 
-                        List<tUnitModel> resultsUnit = transaction.Query<tUnitModel>("SELECT * FROM tUnit");
+                        var resultsUnit = transaction.Query<tUnitModel>("SELECT * FROM tUnit");
 
                         if (resultsUnit?.Count > 0)
                         {
-                            foreach (tUnitModel unit in resultsUnit)
+                            foreach (var unit in resultsUnit)
                             {
                                 unitLookup.Add(unit.UnitCode, unit.UnitRefno);
                             }
                         }
 
-                        int prodRefno = 0;
-                        int unitRefno = 0;
-                        int baseUnitRefno = 0;
-                        int wtUnitRefno = 0;
-                        bool isProdUnitFound = false;
-                        string prodCode = string.Empty;
+                        var prodRefno = 0;
+                        var unitRefno = 0;
+                        var baseUnitRefno = 0;
+                        var wtUnitRefno = 0;
+                        var isProdUnitFound = false;
+                        var prodCode = string.Empty;
 
                         // f01
-                        bool isProdUnitBC = false;
+                        var isProdUnitBC = false;
                         // f02
                         decimal prodUnitWeight = 0;
                         // f03
-                        string description = string.Empty;
+                        var description = string.Empty;
                         // f04
-                        int prodFKRefno = 0;
+                        var prodFKRefno = 0;
                         // f05
-                        string unitCode = string.Empty;
+                        var unitCode = string.Empty;
                         // f06
-                        string baseUnitCode = string.Empty;
+                        var baseUnitCode = string.Empty;
                         // f07
-                        string wtUnitCode = string.Empty;
+                        var wtUnitCode = string.Empty;
                         // f08
-                        bool isProdUnitSellUnit = false;
+                        var isProdUnitSellUnit = false;
                         // f09
-                        bool isProdUnitDefault = false;
+                        var isProdUnitDefault = false;
                         // f10
                         decimal boxCount = 0;
                         // f11
-                        decimal weightTolerance = 0.00M;
+                        var weightTolerance = 0.00M;
 
                         this.DataAccessProgressOutHandler(this, EventArgs.Empty, 0, 0, 100);
 
                         while (!reader.EOF)
                         {
-                            bool recordFilled = false;
-                            string elementName = string.Empty;
+                            var recordFilled = false;
+                            var elementName = string.Empty;
 
                             while (!recordFilled && reader.Read())
                             {
@@ -354,7 +354,7 @@ namespace dMobile.GroundWork
                             errMsg.Append(Environment.NewLine).Append("Is default: ").Append(isProdUnitDefault);
                             errMsg.Append(Environment.NewLine).Append("Box count: ").Append(boxCount);
 
-                            List<tProductModel> resultsProduct = transaction.Query<tProductModel>("SELECT * FROM tProduct WHERE ProductFKRefno = ?", prodFKRefno);
+                            var resultsProduct = transaction.Query<tProductModel>("SELECT * FROM tProduct WHERE ProductFKRefno = ?", prodFKRefno);
 
                             if (resultsProduct?.Count > 0)
                             {
@@ -380,7 +380,7 @@ namespace dMobile.GroundWork
 
                             isProdUnitFound = false;
 
-                            List<tProductUnitModel> resultsUnitProductUnit = transaction.Query<tProductUnitModel>("SELECT * FROM tProductUnit WHERE ProductRefno = ? AND UnitRefno = ? AND ProductUnitIsBC = ?", prodRefno, unitRefno, isProdUnitBC);
+                            var resultsUnitProductUnit = transaction.Query<tProductUnitModel>("SELECT * FROM tProductUnit WHERE ProductRefno = ? AND UnitRefno = ? AND ProductUnitIsBC = ?", prodRefno, unitRefno, isProdUnitBC);
 
                             if (resultsUnitProductUnit?.Count > 0)
                             {
@@ -388,7 +388,7 @@ namespace dMobile.GroundWork
 
                                 if (this.SysEnv.RefreshOpt.RefreshDataChangesOnly)
                                 {
-                                    string queryUpdate = @"UPDATE tProductUnit
+                                    var queryUpdate = @"UPDATE tProductUnit
                                             SET BaseUnitRefno =  ?,
                                             WtUnitRefno = ?,
                                             ProductUnitWeight = ?,
@@ -399,7 +399,7 @@ namespace dMobile.GroundWork
                                              WHERE ProductRefno = ?
                                              AND UnitRefno = ?
                                              AND ProductUnitIsBC = ?";
-                                    object[] parametersUpdate = new object[]
+                                    var parametersUpdate = new object[]
                                     {
                                         Convert.ToInt32(baseUnitRefno),
                                         Convert.ToInt32(wtUnitRefno),
@@ -419,33 +419,33 @@ namespace dMobile.GroundWork
 
                             if (!isProdUnitFound)
                             {
-                                string queryInsert = "INSERT INTO tProductUnit " +
-                                    "(ProductRefno, " +
-                                    "UnitRefno, " +
-                                    "BaseUnitRefno, " +
-                                    "WtUnitRefno, " +
-                                    "ProductUnitIsBC, " +
-                                    "ProductUnitBC, " +
-                                    "ProductUnitWeight, " +
-                                    "ProductUnitSizeDescription, " +
-                                    "ProductUnitIsSellUnit, " +
-                                    "ProductUnitIsDefault, " +
-                                    "ProductUnitBoxCount," +
-                                    "ProductUnitWeightTolerance) " +
-                                    "VALUES " +
-                                    "(?, " +
-                                    "?, " +
-                                    "?, " +
-                                    "?, " +
-                                    "?, " +
-                                    "?, " +
-                                    "?, " +
-                                    "?, " +
-                                    "?, " +
-                                    "?, " +
-                                    "?," +
-                                    "?)";
-                                object[] parametersInsert = new object[]
+                                var queryInsert = "INSERT INTO tProductUnit " +
+                                                  "(ProductRefno, " +
+                                                  "UnitRefno, " +
+                                                  "BaseUnitRefno, " +
+                                                  "WtUnitRefno, " +
+                                                  "ProductUnitIsBC, " +
+                                                  "ProductUnitBC, " +
+                                                  "ProductUnitWeight, " +
+                                                  "ProductUnitSizeDescription, " +
+                                                  "ProductUnitIsSellUnit, " +
+                                                  "ProductUnitIsDefault, " +
+                                                  "ProductUnitBoxCount," +
+                                                  "ProductUnitWeightTolerance) " +
+                                                  "VALUES " +
+                                                  "(?, " +
+                                                  "?, " +
+                                                  "?, " +
+                                                  "?, " +
+                                                  "?, " +
+                                                  "?, " +
+                                                  "?, " +
+                                                  "?, " +
+                                                  "?, " +
+                                                  "?, " +
+                                                  "?," +
+                                                  "?)";
+                                var parametersInsert = new object[]
                                 {
                                     Convert.ToInt32(prodRefno),
                                     Convert.ToInt32(unitRefno),
@@ -505,10 +505,10 @@ namespace dMobile.GroundWork
         /// <returns></returns>
         protected async override Task<string> CreateRequest(string familyCode)
         {
-            StringBuilder xmlString = new StringBuilder();
-            XmlWriter xml = XmlWriter.Create(xmlString);
+            var xmlString = new StringBuilder();
+            var xml = XmlWriter.Create(xmlString);
 
-            XDocument request = XDocument.Parse(
+            var request = XDocument.Parse(
                 "<?xml version=\"1.0\" encoding=\"utf-8\" standalone=\"yes\"?>"
                 + "<imclient>"
                 + "<command>"

@@ -54,7 +54,7 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
         /// <returns></returns>
         protected override string IdentifyPackagingType(string barCodeData)
         {
-            string strBarCodeData = barCodeData;
+            var strBarCodeData = barCodeData;
 
             this.PackagingType = Convert.ToInt32(strBarCodeData.Substring(0, 1));
 
@@ -92,7 +92,7 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
         /// <returns></returns>
         protected override string IdentifyCompanyPrefix(string barCodeData)
         {
-            string strBarCodeData = barCodeData;
+            var strBarCodeData = barCodeData;
 
             this.CompanyPrefix = strBarCodeData.Substring(0, 5);
 

@@ -51,8 +51,8 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
         protected override string IdentifyNetWeightMetricKG(string barCodeData)
         {
             this.NetWeightMetricKGFoundAI = true;
-            int fieldLength = 3;
-            int decimalPlaces = 1; //
+            var fieldLength = 3;
+            var decimalPlaces = 1; //
             if (decimalPlaces > 0)
             {
                 this.NetWeightMetricKG = Convert.ToDecimal(
@@ -75,8 +75,8 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
         /// <returns>.</returns>
         protected override string IdentifyLogisticUnitProductionDate(string barCodeData)
         {
-            int julianYear = Convert.ToInt32(barCodeData.Substring(0, 1));
-            int currentYear = DateTime.Now.Year;
+            var julianYear = Convert.ToInt32(barCodeData.Substring(0, 1));
+            var currentYear = DateTime.Now.Year;
             int year;
             if (julianYear > currentYear % 10)
             {
@@ -86,8 +86,8 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
             {
                 year = currentYear - ((currentYear % 10) - julianYear);
             }
-            int julianDay = Convert.ToInt32(barCodeData.Substring(1, 3));
-            DateTime gregorianDate = DateTime.Parse("1 Jan " + year);
+            var julianDay = Convert.ToInt32(barCodeData.Substring(1, 3));
+            var gregorianDate = DateTime.Parse("1 Jan " + year);
 
             // -1 because 1 is the first day, and julian days start counting at 1
             gregorianDate = gregorianDate.AddDays(julianDay - 1);

@@ -57,9 +57,9 @@ namespace dMobile.Controller
             this.FullClassName = typeof(POWorkSheetActivity).FullName;
 
             // Data grid
-            DataTemplate dataTemplate = new DataTemplate(() =>
+            var dataTemplate = new DataTemplate(() =>
             {
-                Grid gridData = new Grid
+                var gridData = new Grid
                 {
                     Padding = new Thickness(5),
                     ColumnDefinitions =
@@ -70,9 +70,9 @@ namespace dMobile.Controller
                     },
                 };
 
-                Label labelActivityPOProductID = new Label { VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start };
-                Label labelActivityPOOrdered = new Label { VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start };
-                Label labelActivityPOWeight = new Label { VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start };
+                var labelActivityPOProductID = new Label { VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start };
+                var labelActivityPOOrdered = new Label { VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start };
+                var labelActivityPOWeight = new Label { VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start };
 
                 labelActivityPOProductID.SetBinding(Label.TextProperty, new Binding("ProductCode"));
                 labelActivityPOOrdered.SetBinding(Label.TextProperty, new Binding("ActivityItemPurchaseOrderWorkSheetQuantityOrdered", BindingMode.Default, null, null, "{0:F3}"));
@@ -89,7 +89,19 @@ namespace dMobile.Controller
                 return new ViewCell { View = gridData };
             });
 
-            this.resourceDictionary.Add("dataTemplate", dataTemplate);
+            var isAddKey = true;
+            foreach (var item in this.resourceDictionary)
+            {
+                if (item.Key == "dataTemplatePOWorkSheet")
+                {
+                    isAddKey = false;
+                }
+            }
+
+            if (isAddKey)
+            {
+                this.resourceDictionary.Add("dataTemplatePOWorkSheet", dataTemplate);
+            }
         }
 
         /// <summary>
@@ -118,7 +130,7 @@ namespace dMobile.Controller
         /// <returns>The <see cref="ObservableCollection{object}"/>.</returns>
         public override ObservableCollection<object> DesignGrid(ref Grid GridMainActivity, ref ListView ListViewMainActivity)
         {
-            ObservableCollection<object> observableCollection = new ObservableCollection<object>();
+            var observableCollection = new ObservableCollection<object>();
 
             foreach (PurchaseOrderWorkSheetItem purchaseOrderWorkSheetItem in this.ListHdrs)
             {
@@ -144,16 +156,16 @@ namespace dMobile.Controller
                 observableCollection.Add(purchaseOrderWorkSheetItem);
             }
 
-            Label labelProductID = new Label { Text = "Product ID", VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start, FontAttributes = FontAttributes.Bold };
-            Label labelOrdered = new Label { Text = "Ordered", VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start, FontAttributes = FontAttributes.Bold };
-            Label labelWeight = new Label { Text = "Weight", VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start, FontAttributes = FontAttributes.Bold };
+            var labelProductID = new Label { Text = "Product ID", VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start, FontAttributes = FontAttributes.Bold };
+            var labelOrdered = new Label { Text = "Ordered", VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start, FontAttributes = FontAttributes.Bold };
+            var labelWeight = new Label { Text = "Weight", VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start, FontAttributes = FontAttributes.Bold };
 
             this.columnWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(labelProductID.Text);
             this.columnWidth1 = DependencyService.Get<IGridService>().CalculateTextWidth(labelOrdered.Text);
             this.columnWidth2 = DependencyService.Get<IGridService>().CalculateTextWidth(labelWeight.Text);
 
             // Header grid
-            Grid gridHeader = new Grid
+            var gridHeader = new Grid
             {
                 Padding = new Thickness(5),
                 ColumnDefinitions =
@@ -180,9 +192,9 @@ namespace dMobile.Controller
 
             foreach (PurchaseOrderWorkSheetItem purchaseOrderWorkSheetItem in observableCollection)
             {
-                double detailWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(purchaseOrderWorkSheetItem.ProductCode);
-                double detailWidth1 = DependencyService.Get<IGridService>().CalculateTextWidth(string.Format("{0:F3}", purchaseOrderWorkSheetItem.ActivityItemPurchaseOrderWorkSheetQuantityOrdered));
-                double detailWidth2 = DependencyService.Get<IGridService>().CalculateTextWidth(string.Format("{0:F3}", purchaseOrderWorkSheetItem.ActivityItemPurchaseOrderWorkSheetWeightQuantityOrdered));
+                var detailWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(purchaseOrderWorkSheetItem.ProductCode);
+                var detailWidth1 = DependencyService.Get<IGridService>().CalculateTextWidth(string.Format("{0:F3}", purchaseOrderWorkSheetItem.ActivityItemPurchaseOrderWorkSheetQuantityOrdered));
+                var detailWidth2 = DependencyService.Get<IGridService>().CalculateTextWidth(string.Format("{0:F3}", purchaseOrderWorkSheetItem.ActivityItemPurchaseOrderWorkSheetWeightQuantityOrdered));
 
                 if (detailWidth0 > this.columnWidth0)
                 {
@@ -203,7 +215,7 @@ namespace dMobile.Controller
                 }
             }
 
-            ListViewMainActivity.ItemTemplate = (DataTemplate)this.resourceDictionary["dataTemplate"];
+            ListViewMainActivity.ItemTemplate = (DataTemplate)this.resourceDictionary["dataTemplatePOWorkSheet"];
 
             return observableCollection;
         }
@@ -215,7 +227,7 @@ namespace dMobile.Controller
         /// <returns>.</returns>
         public override async Task<List<object>> GetActivityList(bool isSubmitBatch)
         {
-            StringBuilder sql = new StringBuilder();
+            var sql = new StringBuilder();
 
             if (isSubmitBatch)
             {
@@ -340,7 +352,7 @@ namespace dMobile.Controller
         /// <returns>.</returns>
         public override int GetRefnoFromRowIdx(object selectedItem)
         {
-            dynamic poWorkSheet = selectedItem as dynamic;
+            var poWorkSheet = selectedItem as dynamic;
 
             if (poWorkSheet != null)
             {
@@ -376,7 +388,7 @@ namespace dMobile.Controller
         /// <returns>The <see cref="Task"/>.</returns>
         public override async Task Purge()
         {
-            TableActivityPurchaseOrderWorkSheetItem tableWorkSheetItem = new TableActivityPurchaseOrderWorkSheetItem();
+            var tableWorkSheetItem = new TableActivityPurchaseOrderWorkSheetItem();
 
             await tableWorkSheetItem.PurgeData();
         }

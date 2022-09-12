@@ -58,10 +58,10 @@ namespace dMobile.Controller
             this.FullClassName = typeof(InventoryInquiryActDetail).FullName;
 
             // Data grid
-            DataTemplate dataTemplate = new DataTemplate(() =>
+            var dataTemplate = new DataTemplate(() =>
             {
                 // Header grid
-                Grid gridData = new Grid()
+                var gridData = new Grid()
                 {
                     Padding = new Thickness(5),
                     ColumnDefinitions =
@@ -73,10 +73,10 @@ namespace dMobile.Controller
                     },
                 };
 
-                Label labelQty = new Label { VerticalOptions = LayoutOptions.Center };
-                Label labelWeight = new Label { VerticalOptions = LayoutOptions.Center };
-                Label labelUnitCode = new Label { VerticalOptions = LayoutOptions.Center };
-                Label labelSchemeID = new Label { VerticalOptions = LayoutOptions.Center };
+                var labelQty = new Label { VerticalOptions = LayoutOptions.Center };
+                var labelWeight = new Label { VerticalOptions = LayoutOptions.Center };
+                var labelUnitCode = new Label { VerticalOptions = LayoutOptions.Center };
+                var labelSchemeID = new Label { VerticalOptions = LayoutOptions.Center };
 
                 labelQty.SetBinding(Label.TextProperty, new Binding("ActivityDetailQuantity", BindingMode.Default, null, null, "{0:F3}"));
                 labelWeight.SetBinding(Label.TextProperty, new Binding("ActivityDetailWeightQuantity", BindingMode.Default, null, null, "{0:F3}"));
@@ -96,7 +96,19 @@ namespace dMobile.Controller
                 return new ViewCell { View = gridData };
             });
 
-            this.resourceDictionary.Add("dataTemplate", dataTemplate);
+            var isAddKey = true;
+            foreach (var item in this.resourceDictionary)
+            {
+                if (item.Key == "dataTemplateInventoryInquiryDetail")
+                {
+                    isAddKey = false;
+                }
+            }
+
+            if (isAddKey)
+            {
+                this.resourceDictionary.Add("dataTemplateInventoryInquiryDetail", dataTemplate);
+            }
         }
 
         /// <summary>
@@ -134,7 +146,7 @@ namespace dMobile.Controller
         /// <param name="listDetailIdx"><see cref="int"/> Zero based list detail index.</param>
         public override void UpdateListDetail(int listDetailIdx)
         {
-            InventoryInquiryDetail detail = (InventoryInquiryDetail)this.ListDetails[listDetailIdx];
+            var detail = (InventoryInquiryDetail)this.ListDetails[listDetailIdx];
             ////if (detail.ActivityDetailStatus == (int)SysCommon.ActStatus.NoChange)
             ////{
             ////    detail.ActivityDetailStatus = (int)SysCommon.ActStatus.Updated;
@@ -218,12 +230,12 @@ namespace dMobile.Controller
         {
             try
             {
-                XDocument xmldocParams = XDocument.Parse(
+                var xmldocParams = XDocument.Parse(
                     "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>"
                     + "<params>"
                     + "</params>");
 
-                string reqData = SysCommon.SubmitComm(await this.CreateSubmitXML(xmldocParams));
+                var reqData = SysCommon.SubmitComm(await this.CreateSubmitXML(xmldocParams));
 
                 this.ListDetails = await this.GetActivityDetailList(false);
 
@@ -231,9 +243,9 @@ namespace dMobile.Controller
                 {
                     if (reqData.Contains("<message>ERROR</message>"))
                     {
-                        XmlDocument xmlDoc = new XmlDocument();
+                        var xmlDoc = new XmlDocument();
                         xmlDoc.LoadXml(reqData);
-                        string errorDetail = xmlDoc.DocumentElement["detail"].InnerText;
+                        var errorDetail = xmlDoc.DocumentElement["detail"].InnerText;
 
                         if (errorDetail.Contains("MSGBOX-"))
                         {
@@ -246,7 +258,7 @@ namespace dMobile.Controller
                     }
                     else
                     {
-                        using (DataSet ds = new DataSet())
+                        using (var ds = new DataSet())
                         {
                             ds.ReadXml(SysCommon.GetXmlReader(ref reqData), XmlReadMode.Auto);
 
@@ -255,7 +267,7 @@ namespace dMobile.Controller
                                 // TODO: Test
                                 foreach (DataRow row in ds.Tables["tActivityDetail"].Rows)
                                 {
-                                    InventoryInquiryDetail inquiryDetail = new InventoryInquiryDetail
+                                    var inquiryDetail = new InventoryInquiryDetail
                                     {
                                         ProductCode = Convert.ToString(row["ProductCode"] != DBNull.Value ? row["ProductCode"] : null),
                                         ProductUnitBC = Convert.ToString(row["ProductUnitBC"] != DBNull.Value ? row["ProductUnitBC"] : null),
@@ -318,17 +330,17 @@ namespace dMobile.Controller
         /// <returns>The <see cref="ObservableCollection{object}"/>.</returns>
         public override ObservableCollection<object> DesignGrid(ref Grid GridMainActivity, ref ListView ListViewMainActivity)
         {
-            ObservableCollection<object> observableCollection = new ObservableCollection<object>();
+            var observableCollection = new ObservableCollection<object>();
 
             foreach (InventoryInquiryDetail inquiryDetail in this.ListDetails)
             {
                 observableCollection.Add(inquiryDetail);
             }
 
-            Label labelQtyHeader = new Label { Text = "Qty", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
-            Label labelWeightHeader = new Label { Text = "Weight", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
-            Label labelUnitCodeHeader = new Label { Text = string.Empty, VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
-            Label labelSchemeIDHeader = new Label { Text = "Scheme ID", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
+            var labelQtyHeader = new Label { Text = "Qty", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
+            var labelWeightHeader = new Label { Text = "Weight", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
+            var labelUnitCodeHeader = new Label { Text = string.Empty, VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
+            var labelSchemeIDHeader = new Label { Text = "Scheme ID", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
 
             this.columnWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(labelQtyHeader.Text);
             this.columnWidth1 = DependencyService.Get<IGridService>().CalculateTextWidth(labelWeightHeader.Text);
@@ -336,7 +348,7 @@ namespace dMobile.Controller
             this.columnWidth3 = DependencyService.Get<IGridService>().CalculateTextWidth(labelSchemeIDHeader.Text);
 
             // Header grid
-            Grid gridHeader = new Grid
+            var gridHeader = new Grid
             {
                 Padding = new Thickness(5),
                 ColumnDefinitions =
@@ -366,10 +378,10 @@ namespace dMobile.Controller
 
             foreach (InventoryInquiryDetail inquiryDetail in observableCollection)
             {
-                double detailWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(string.Format("{0:F3}", inquiryDetail.ActivityDetailQuantity));
-                double detailWidth1 = DependencyService.Get<IGridService>().CalculateTextWidth(string.Format("{0:F3}", inquiryDetail.ActivityDetailWeightQuantity));
-                double detailWidth2 = DependencyService.Get<IGridService>().CalculateTextWidth(inquiryDetail.UnitCode);
-                double detailWidth3 = DependencyService.Get<IGridService>().CalculateTextWidth(inquiryDetail.ActivityDetailSchemeID);
+                var detailWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(string.Format("{0:F3}", inquiryDetail.ActivityDetailQuantity));
+                var detailWidth1 = DependencyService.Get<IGridService>().CalculateTextWidth(string.Format("{0:F3}", inquiryDetail.ActivityDetailWeightQuantity));
+                var detailWidth2 = DependencyService.Get<IGridService>().CalculateTextWidth(inquiryDetail.UnitCode);
+                var detailWidth3 = DependencyService.Get<IGridService>().CalculateTextWidth(inquiryDetail.ActivityDetailSchemeID);
 
                 if (detailWidth0 > this.columnWidth0)
                 {
@@ -396,7 +408,7 @@ namespace dMobile.Controller
                 }
             }
 
-            ListViewMainActivity.ItemTemplate = (DataTemplate)this.resourceDictionary["dataTemplate"];
+            ListViewMainActivity.ItemTemplate = (DataTemplate)this.resourceDictionary["dataTemplateInventoryInquiryDetail"];
 
             return observableCollection;
         }
@@ -438,10 +450,10 @@ namespace dMobile.Controller
         /// <returns>.</returns>
         public override async Task<string> CreateSubmitXML(XDocument data)
         {
-            StringBuilder xmlString = new StringBuilder();
-            XmlWriter xml = XmlWriter.Create(xmlString);
+            var xmlString = new StringBuilder();
+            var xml = XmlWriter.Create(xmlString);
 
-            XDocument request = XDocument.Parse(
+            var request = XDocument.Parse(
                 "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>"
                 + "<imclient>"
                 + "<command>"
@@ -489,10 +501,10 @@ namespace dMobile.Controller
         {
             mainActivityItems.Add(actDetail);
 
-            Label labelQtyHeader = new Label { Text = "Qty", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
-            Label labelWeightHeader = new Label { Text = "Weight", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
-            Label labelUnitCodeHeader = new Label { Text = string.Empty, VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
-            Label labelSchemeIDHeader = new Label { Text = "Scheme ID", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
+            var labelQtyHeader = new Label { Text = "Qty", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
+            var labelWeightHeader = new Label { Text = "Weight", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
+            var labelUnitCodeHeader = new Label { Text = string.Empty, VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
+            var labelSchemeIDHeader = new Label { Text = "Scheme ID", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
 
             this.columnWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(labelQtyHeader.Text);
             this.columnWidth1 = DependencyService.Get<IGridService>().CalculateTextWidth(labelWeightHeader.Text);
@@ -500,7 +512,7 @@ namespace dMobile.Controller
             this.columnWidth3 = DependencyService.Get<IGridService>().CalculateTextWidth(labelSchemeIDHeader.Text);
 
             // Header grid
-            Grid gridHeader = new Grid
+            var gridHeader = new Grid
             {
                 Padding = new Thickness(5),
                 ColumnDefinitions =
@@ -528,10 +540,10 @@ namespace dMobile.Controller
 
             gridMain.Children.Add(gridHeader);
 
-            double detailWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(string.Format("{0:F3}", actDetail.ActivityDetailQuantity));
-            double detailWidth1 = DependencyService.Get<IGridService>().CalculateTextWidth(string.Format("{0:F3}", actDetail.ActivityDetailWeightQuantity));
-            double detailWidth2 = DependencyService.Get<IGridService>().CalculateTextWidth(actDetail.UnitCode);
-            double detailWidth3 = DependencyService.Get<IGridService>().CalculateTextWidth(actDetail.ActivityDetailSchemeID);
+            var detailWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(string.Format("{0:F3}", actDetail.ActivityDetailQuantity));
+            var detailWidth1 = DependencyService.Get<IGridService>().CalculateTextWidth(string.Format("{0:F3}", actDetail.ActivityDetailWeightQuantity));
+            var detailWidth2 = DependencyService.Get<IGridService>().CalculateTextWidth(actDetail.UnitCode);
+            var detailWidth3 = DependencyService.Get<IGridService>().CalculateTextWidth(actDetail.ActivityDetailSchemeID);
 
             if (detailWidth0 > this.columnWidth0)
             {
@@ -557,7 +569,7 @@ namespace dMobile.Controller
                 gridHeader.ColumnDefinitions[3].Width = this.columnWidth3;
             }
 
-            return (DataTemplate)this.resourceDictionary["dataTemplate"];
+            return (DataTemplate)this.resourceDictionary["dataTemplateInventoryInquiryDetail"];
         }
     }
 }

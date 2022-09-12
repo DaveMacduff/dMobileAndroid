@@ -27,7 +27,7 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
             if (this.Settings.IsRuleEnabled_Parse_UCC_13_as_UPC_12_UPC_E)
             {
                 this.ClearResetBarCodeProperties(false);
-                BarCodeParseUCC_12_UPC_E barCodeParse = new BarCodeParseUCC_12_UPC_E();
+                var barCodeParse = new BarCodeParseUCC_12_UPC_E();
 
                 // Remove any leading extra zero padding, max bar code length will be 12.
                 if (barCodeData.Length > 12)
@@ -114,7 +114,7 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
         /// <returns></returns>
         protected override string IdentifyGTIN(string barCodeData)
         {
-            int len = (barCodeData.Length > 14) ? 14 : barCodeData.Length;
+            var len = (barCodeData.Length > 14) ? 14 : barCodeData.Length;
 
             this.GTIN = barCodeData.Substring(0, len).PadLeft(14, '0');
 

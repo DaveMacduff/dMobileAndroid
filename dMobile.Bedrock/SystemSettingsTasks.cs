@@ -87,16 +87,16 @@ namespace dMobile.Bedrock
         /// <param name="settings">The settings<see cref="SystemSettings"/>.</param>
         public static void LoadData(ref SystemSettings settings)
         {
-            XmlSerializer serializer = new XmlSerializer(typeof(SystemSettings));
-            string appDir = Environment.GetFolderPath(Environment.SpecialFolder.Personal);
-            string fullPathToMyFile = Path.Combine(appDir, SystemSettingsTasks.FileName);
+            var serializer = new XmlSerializer(typeof(SystemSettings));
+            var appDir = Environment.GetFolderPath(Environment.SpecialFolder.Personal);
+            var fullPathToMyFile = Path.Combine(appDir, SystemSettingsTasks.FileName);
             if (!File.Exists(fullPathToMyFile))
             {
                 _ = SaveData(ref settings);
             }
 
             // Create a FileStream to read with.
-            FileStream reader = new FileStream(fullPathToMyFile, FileMode.Open);
+            var reader = new FileStream(fullPathToMyFile, FileMode.Open);
 
             // Deserialize the stream to the object, and close the TextReader
             settings = (SystemSettings)serializer.Deserialize(reader);
@@ -109,14 +109,14 @@ namespace dMobile.Bedrock
         /// <returns>.</returns>
         public static string CreateFirstRequest()
         {
-            StringBuilder xmlString = new StringBuilder();
-            XmlWriter xml = XmlWriter.Create(xmlString);
-            string deviceID = SysDeviceID.GetDeviceID();
-            string revision = new DateTime(1900, 1, 1).ToString("yyyy'-'MM'-'dd'T'HH':'mm':'ss");
-            ContactLogin login = new ContactLogin().LoadData();
-            string loginID = login.LoginID.ToString();
+            var xmlString = new StringBuilder();
+            var xml = XmlWriter.Create(xmlString);
+            var deviceID = SysDeviceID.GetDeviceID();
+            var revision = new DateTime(1900, 1, 1).ToString("yyyy'-'MM'-'dd'T'HH':'mm':'ss");
+            var login = new ContactLogin().LoadData();
+            var loginID = login.LoginID.ToString();
 
-            XDocument request = new XDocument(
+            var request = new XDocument(
                 new XDeclaration("1.0", "utf-8", "yes"), string.Empty, new XElement(
                     "imclient",
                     new XElement(
@@ -142,14 +142,14 @@ namespace dMobile.Bedrock
         /// <returns>.</returns>
         public static string CreateSecondRequest()
         {
-            StringBuilder xmlString = new StringBuilder();
-            XmlWriter xml = XmlWriter.Create(xmlString);
-            string deviceID = SysDeviceID.GetDeviceID();
-            string revision = new DateTime(1900, 1, 1).ToString("yyyy'-'MM'-'dd'T'HH':'mm':'ss");
-            ContactLogin login = new ContactLogin().LoadData();
-            string loginID = login.LoginID.ToString();
+            var xmlString = new StringBuilder();
+            var xml = XmlWriter.Create(xmlString);
+            var deviceID = SysDeviceID.GetDeviceID();
+            var revision = new DateTime(1900, 1, 1).ToString("yyyy'-'MM'-'dd'T'HH':'mm':'ss");
+            var login = new ContactLogin().LoadData();
+            var loginID = login.LoginID.ToString();
 
-            XDocument request = new XDocument(
+            var request = new XDocument(
                 new XDeclaration("1.0", "utf-8", "yes"), string.Empty, new XElement(
                     "imclient",
                     new XElement(
@@ -486,16 +486,16 @@ namespace dMobile.Bedrock
         /// <returns>.</returns>
         public static bool SaveData(ref SystemSettings sysSettings)
         {
-            XmlSerializer serializer = new XmlSerializer(typeof(SystemSettings));
+            var serializer = new XmlSerializer(typeof(SystemSettings));
             bool saveComplete;
             try
             {
                 // use reflection to get the current assembly path for the database
-                string appDir = Environment.GetFolderPath(Environment.SpecialFolder.Personal);
-                string fullPathToMyFile = Path.Combine(appDir, SystemSettingsTasks.FileName);
+                var appDir = Environment.GetFolderPath(Environment.SpecialFolder.Personal);
+                var fullPathToMyFile = Path.Combine(appDir, SystemSettingsTasks.FileName);
 
                 // Create a FileStream to write with.
-                using (FileStream writer = new FileStream(fullPathToMyFile, FileMode.Create))
+                using (var writer = new FileStream(fullPathToMyFile, FileMode.Create))
                 {
                     // Serialize the object, and close the TextWriter
                     serializer.Serialize(writer, sysSettings);
@@ -518,11 +518,11 @@ namespace dMobile.Bedrock
         /// <param name="settings">The settings<see cref="SystemSettings"/>.</param>
         public static void RequestSystemSettings(ref SystemSettings settings)
         {
-            SysSettingsEventArgs msgEventArg = new SysSettingsEventArgs();
+            var msgEventArg = new SysSettingsEventArgs();
 
             try
             {
-                string reqData = string.Empty;
+                var reqData = string.Empty;
 
                 if (OnSysSettingsStatusOut != null)
                 {
@@ -538,7 +538,7 @@ namespace dMobile.Bedrock
                     // check if result is an error message
                     if (reqData.Contains("<message>ERROR</message>"))
                     {
-                        XmlDocument docError = new XmlDocument();
+                        var docError = new XmlDocument();
                         docError.LoadXml(reqData);
                         throw new Exception(docError.DocumentElement["detail"].InnerText);
                     }
@@ -554,7 +554,7 @@ namespace dMobile.Bedrock
                     // check if result is an error message
                     if (reqData.Contains("<message>ERROR</message>"))
                     {
-                        XmlDocument docError = new XmlDocument();
+                        var docError = new XmlDocument();
                         docError.LoadXml(reqData);
                         throw new Exception(docError.DocumentElement["detail"].InnerText);
                     }
@@ -606,11 +606,11 @@ namespace dMobile.Bedrock
         /// <param name="settings">The settings<see cref="SystemSettings"/>.</param>
         private static void Save(string reqData, int sysSettingsNumber, ref SystemSettings settings)
         {
-            SysSettingsEventArgs msgEventArg = new SysSettingsEventArgs();
+            var msgEventArg = new SysSettingsEventArgs();
 
             try
             {
-                using DataSet ds = new DataSet();
+                using var ds = new DataSet();
                 if (OnSysSettingsStatusOut != null)
                 {
                     msgEventArg.StatusOutMsg = "Reading received data.";
@@ -627,7 +627,7 @@ namespace dMobile.Bedrock
 
                 if (ds.Tables.Count != 0)
                 {
-                    int progMax = ds.Tables["tSystemSettings"].Rows.Count;
+                    var progMax = ds.Tables["tSystemSettings"].Rows.Count;
 
                     if (OnSysSettingsStatusOut != null)
                     {
@@ -635,7 +635,7 @@ namespace dMobile.Bedrock
                         OnSysSettingsStatusOut(settings, msgEventArg);
                     }
 
-                    int progValue = 0;
+                    var progValue = 0;
 
                     if (OnSysSettingsProgressOut != null)
                     {

@@ -69,7 +69,7 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
         /// <returns></returns>
         protected override string IdentifyCompanyPrefix(string barCodeData)
         {
-            string strBarCodeData = barCodeData;
+            var strBarCodeData = barCodeData;
             this.CompanyPrefix = strBarCodeData.Substring(0, 5);
 
             // remove the Company Prefix from the bar code data
@@ -100,7 +100,7 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
         /// <returns></returns>
         protected override string IdentifyGTIN(string barCodeData)
         {
-            int len = (barCodeData.Length > 14) ? 14 : barCodeData.Length;
+            var len = (barCodeData.Length > 14) ? 14 : barCodeData.Length;
 
             this.GTIN = barCodeData.Substring(0, len).PadLeft(14, '0');
 

@@ -35,7 +35,7 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
         {
             get
             {
-                foreach (BarCodeParseErrorDetail detail in this.errorDetails)
+                foreach (var detail in this.errorDetails)
                 {
                     yield return detail;
                 }
@@ -81,7 +81,7 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
         /// <returns>Exception if one is found, otherwise null.</returns>
         public BarCodeParseException GetParseExceptionAt(int index)
         {
-            BarCodeParseErrorDetail detail = this.GetErrorDetailAt(index);
+            var detail = this.GetErrorDetailAt(index);
 
             if (detail == null)
             {
@@ -98,7 +98,7 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
         /// <returns>Reason if one is found, otherwise InvalidFormat.</returns>
         public BarCodeExceptionReason GetParseExceptionReasonAt(int index)
         {
-            BarCodeParseErrorDetail detail = this.GetErrorDetailAt(index);
+            var detail = this.GetErrorDetailAt(index);
 
             if (detail == null)
             {
@@ -132,7 +132,7 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
         /// <exception cref="BarCodeParseException">Throws an exception referring to the failed parsing of a field.</exception>
         public void ThrowOnlyOneError(int index)
         {
-            BarCodeParseException e = this.GetParseExceptionAt(index);
+            var e = this.GetParseExceptionAt(index);
             if (e != null)
             {
                 this.ClearErrors();

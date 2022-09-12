@@ -167,7 +167,7 @@ namespace dMobile.View.Activity
         /// <returns>.</returns>
         public async Task<bool> IsReadyToSave()
         {
-            bool isReadyToSave = false;
+            var isReadyToSave = false;
 
             try
             {
@@ -189,7 +189,7 @@ namespace dMobile.View.Activity
 
                 await Device.InvokeOnMainThreadAsync(async () =>
                 {
-                    FormErrorReport errRpt = new FormErrorReport(this.ActSubType, ex);
+                    var errRpt = new FormErrorReport(this.ActSubType, ex);
                     _ = await errRpt.ShowDialog();
                 });
             }
@@ -205,7 +205,7 @@ namespace dMobile.View.Activity
                 this.ActDetailEdit.WeightQuantity = Math.Round(decimal.Parse(this.txtWtQty.Text), 3);
 
                 // Check if UOM's are the same quantity should be the same.
-                ProductInfo prodInfo = this.ActDetail.ActItem.ProdInfo;
+                var prodInfo = this.ActDetail.ActItem.ProdInfo;
                 CheckEqualQuantity(prodInfo);
 
                 if (this.ActDetailEdit.BaseQuantity == 0)
@@ -272,8 +272,8 @@ namespace dMobile.View.Activity
                 {
                     // Base and weight quantity sign check.
                     const int TotalSignQtyBaseWeight = 2;
-                    int totalSign = Math.Sign(this.ActDetailEdit.BaseQuantity) +
-                        Math.Sign(this.ActDetailEdit.WeightQuantity);
+                    var totalSign = Math.Sign(this.ActDetailEdit.BaseQuantity) +
+                                    Math.Sign(this.ActDetailEdit.WeightQuantity);
                     if (totalSign != TotalSignQtyBaseWeight && totalSign != -TotalSignQtyBaseWeight)
                     {
                         throw new MessageOnlyException(
@@ -383,9 +383,9 @@ namespace dMobile.View.Activity
                 {
                     // Alt, base and weight quantity sign check.
                     const int TotalSignQtyBaseWeight = 3;
-                    int totalSign = Math.Sign(this.ActDetailEdit.AltQuantity) +
-                        Math.Sign(this.ActDetailEdit.BaseQuantity) +
-                        Math.Sign(this.ActDetailEdit.WeightQuantity);
+                    var totalSign = Math.Sign(this.ActDetailEdit.AltQuantity) +
+                                    Math.Sign(this.ActDetailEdit.BaseQuantity) +
+                                    Math.Sign(this.ActDetailEdit.WeightQuantity);
                     if (totalSign != TotalSignQtyBaseWeight && totalSign != -TotalSignQtyBaseWeight)
                     {
                         throw new MessageOnlyException(
@@ -531,7 +531,7 @@ namespace dMobile.View.Activity
                         }
                         else
                         {
-                            decimal expectedBaseQty = Math.Round(
+                            var expectedBaseQty = Math.Round(
                                 this.ActDetailEdit.AltQuantity / prodInfo.Unit2BaseUnitFactor, 3);
                             if (this.ActDetailEdit.BaseQuantity != expectedBaseQty)
                             {
@@ -561,7 +561,7 @@ namespace dMobile.View.Activity
         /// <returns>.</returns>
         public async Task<bool> IsReadyToClose()
         {
-            bool isReadyToClose = true;
+            var isReadyToClose = true;
 
             try
             {
@@ -598,7 +598,7 @@ namespace dMobile.View.Activity
 
                 await Device.InvokeOnMainThreadAsync(async () =>
                 {
-                    FormErrorReport errRpt = new FormErrorReport(this.ActSubType, ex);
+                    var errRpt = new FormErrorReport(this.ActSubType, ex);
                     _ = await errRpt.ShowDialog();
                 });
             }
@@ -621,7 +621,7 @@ namespace dMobile.View.Activity
         /// <returns>.</returns>
         public async Task<bool> SaveChanges()
         {
-            bool saveComplete = false;
+            var saveComplete = false;
 
             try
             {
@@ -644,7 +644,7 @@ namespace dMobile.View.Activity
 
                 await Device.InvokeOnMainThreadAsync(async () =>
                 {
-                    FormErrorReport errRpt = new FormErrorReport(this.ActSubType, ex);
+                    var errRpt = new FormErrorReport(this.ActSubType, ex);
                     _ = await errRpt.ShowDialog();
                 });
             }
@@ -658,7 +658,7 @@ namespace dMobile.View.Activity
         /// <returns>.</returns>
         public async Task<bool> CancelChanges()
         {
-            bool cancelChanges = true;
+            var cancelChanges = true;
 
             try
             {
@@ -681,7 +681,7 @@ namespace dMobile.View.Activity
 
                 await Device.InvokeOnMainThreadAsync(async () =>
                 {
-                    FormErrorReport errRpt = new FormErrorReport(this.ActSubType, ex);
+                    var errRpt = new FormErrorReport(this.ActSubType, ex);
                     _ = await errRpt.ShowDialog();
                 });
             }
@@ -697,12 +697,12 @@ namespace dMobile.View.Activity
         public async Task<XDocument> GetXML()
 #pragma warning restore CS1998 // Async method lacks 'await' operators and will run synchronously
         {
-            XDocument request = XDocument.Parse("<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>"
-                + "<params>"
-                + "<alt_qty>" + this.ActDetailEdit.AltQuantity + "</alt_qty>"
-                + "<base_qty>" + this.ActDetailEdit.BaseQuantity + "</base_qty>"
-                + "<wt_qty>" + this.ActDetailEdit.WeightQuantity + "</wt_qty>"
-                + "</params>");
+            var request = XDocument.Parse("<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>"
+                                          + "<params>"
+                                          + "<alt_qty>" + this.ActDetailEdit.AltQuantity + "</alt_qty>"
+                                          + "<base_qty>" + this.ActDetailEdit.BaseQuantity + "</base_qty>"
+                                          + "<wt_qty>" + this.ActDetailEdit.WeightQuantity + "</wt_qty>"
+                                          + "</params>");
 
             return request;
         }
@@ -830,7 +830,7 @@ namespace dMobile.View.Activity
                 {
                     await Device.InvokeOnMainThreadAsync(async () =>
                     {
-                        FormErrorReport errRpt = new FormErrorReport(this.ActSubType, ex);
+                        var errRpt = new FormErrorReport(this.ActSubType, ex);
                         _ = await errRpt.ShowDialog();
                     });
                 }
@@ -847,7 +847,7 @@ namespace dMobile.View.Activity
             {
                 await Device.InvokeOnMainThreadAsync(async () =>
                 {
-                    FormErrorReport errRpt = new FormErrorReport(this.ActSubType, ex);
+                    var errRpt = new FormErrorReport(this.ActSubType, ex);
                     _ = await errRpt.ShowDialog();
                 });
             }
@@ -864,16 +864,16 @@ namespace dMobile.View.Activity
         /// <returns>.</returns>
         private async Task<bool> IsValidData()
         {
-            bool isRetVal = false;
+            var isRetVal = false;
 
-            decimal qty = decimal.Parse(this.txtAltQty.Text);
-            decimal lineQty = this.ActDetail.Quantity;
+            var qty = decimal.Parse(this.txtAltQty.Text);
+            var lineQty = this.ActDetail.Quantity;
 
             // We assign how much we want to remove
-            decimal newQty = qty;
-            string baseUnit = this.ActDetail.ActItem.ProdInfo.BaseUnitCode;
-            decimal newWtQty = decimal.Parse(this.txtWtQty.Text);
-            decimal newBaseQty = this.ActDetail.BaseQuantity;
+            var newQty = qty;
+            var baseUnit = this.ActDetail.ActItem.ProdInfo.BaseUnitCode;
+            var newWtQty = decimal.Parse(this.txtWtQty.Text);
+            var newBaseQty = this.ActDetail.BaseQuantity;
 
             if (baseUnit == "LB" || baseUnit == "KG")
             {
@@ -980,7 +980,7 @@ namespace dMobile.View.Activity
         /// </summary>
         private void DisplaySummary()
         {
-            SSkidInfo skid = this.ActDetail.ActItem.ActHdr.SkidInfo.CurrSkid;
+            var skid = this.ActDetail.ActItem.ActHdr.SkidInfo.CurrSkid;
 
             this.ExtraInfoItems.Clear();
             this.ExtraInfoItems.Add("Product: " + this.ActDetail.ActItem.ProdInfo.Code +
@@ -1059,14 +1059,14 @@ namespace dMobile.View.Activity
         /// <param name="e">.</param>
         private void TxtAltQtyTextChanged(object sender, TextChangedEventArgs e)
         {
-            ProductInfo prodInfo = this.ActDetail.ActItem.ProdInfo;
+            var prodInfo = this.ActDetail.ActItem.ProdInfo;
 
             decimal altQtyEntered = 0;
             try
             {
                 if (!string.IsNullOrEmpty(this.txtAltQty.Text))
                 {
-                    _ = decimal.TryParse(this.txtAltQty.Text, out decimal result);
+                    _ = decimal.TryParse(this.txtAltQty.Text, out var result);
                     altQtyEntered = result;
                 }
             }
@@ -1117,14 +1117,14 @@ namespace dMobile.View.Activity
         /// <param name="e">The e<see cref="TextChangedEventArgs"/>.</param>
         private void TxtBaseQtyTextChanged(object sender, TextChangedEventArgs e)
         {
-            ProductInfo prodInfo = this.ActDetail.ActItem.ProdInfo;
+            var prodInfo = this.ActDetail.ActItem.ProdInfo;
 
             decimal baseQtyEntered = 0;
             try
             {
                 if (!string.IsNullOrEmpty(this.txtBaseQty.Text))
                 {
-                    _ = decimal.TryParse(this.txtBaseQty.Text, out decimal result);
+                    _ = decimal.TryParse(this.txtBaseQty.Text, out var result);
                     baseQtyEntered = result;
                 }
             }

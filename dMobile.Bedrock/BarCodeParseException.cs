@@ -19,7 +19,7 @@ namespace dMobile.Bedrock
         /// <param name="innerException"><see cref="Exception"/> Inner exception.</param>
         public BarCodeParseException(string message, string field, Exception innerException)
             : base(
-                string.Format("Could not parse '{0}'. {1}", field, message),
+                $"Could not parse '{field}'. {message}",
                 innerException)
         {
         }

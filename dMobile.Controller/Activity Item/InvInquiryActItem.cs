@@ -74,9 +74,9 @@ namespace dMobile.Controller
             this.IsAskCreateNewItem = false;
 
             // Data grid
-            DataTemplate dataTemplate = new DataTemplate(() =>
+            var dataTemplate = new DataTemplate(() =>
             {
-                Grid gridData = new Grid
+                var gridData = new Grid
                 {
                     Padding = new Thickness(5),
                     ColumnDefinitions =
@@ -90,12 +90,12 @@ namespace dMobile.Controller
                     },
                 };
 
-                Label label1 = new Label { VerticalOptions = LayoutOptions.Center };
-                Label label2 = new Label { VerticalOptions = LayoutOptions.Center };
-                Label label3 = new Label { VerticalOptions = LayoutOptions.Center };
-                Label label4 = new Label { VerticalOptions = LayoutOptions.Center };
-                Label label5 = new Label { VerticalOptions = LayoutOptions.Center };
-                Label label6 = new Label { VerticalOptions = LayoutOptions.Center };
+                var label1 = new Label { VerticalOptions = LayoutOptions.Center };
+                var label2 = new Label { VerticalOptions = LayoutOptions.Center };
+                var label3 = new Label { VerticalOptions = LayoutOptions.Center };
+                var label4 = new Label { VerticalOptions = LayoutOptions.Center };
+                var label5 = new Label { VerticalOptions = LayoutOptions.Center };
+                var label6 = new Label { VerticalOptions = LayoutOptions.Center };
 
                 label1.SetBinding(Label.TextProperty, new Binding("Productcode"));
                 label2.SetBinding(Label.TextProperty, new Binding("Productunitbc"));
@@ -121,10 +121,10 @@ namespace dMobile.Controller
                 return new ViewCell { View = gridData };
             });
 
-            bool isAddKey = true;
+            var isAddKey = true;
             foreach (var item in this.resourceDictionary)
             {
-                if (item.Key == "dataTemplate")
+                if (item.Key == "dataTemplateInvInquiryItem")
                 {
                     isAddKey = false;
                 }
@@ -132,7 +132,7 @@ namespace dMobile.Controller
 
             if (isAddKey)
             {
-                this.resourceDictionary.Add("dataTemplate", dataTemplate);
+                this.resourceDictionary.Add("dataTemplateInvInquiryItem", dataTemplate);
             }
         }
 
@@ -203,7 +203,7 @@ namespace dMobile.Controller
         /// <returns><see cref="Task"/> Task operation.</returns>
         public override async Task Insert(XDocument data, bool askToInsertAsNewItem)
         {
-            int prodUnitRefno = int.Parse(data.Root.Element("ProductUnitRefno").Value);
+            var prodUnitRefno = int.Parse(data.Root.Element("ProductUnitRefno").Value);
             if (prodUnitRefno != 0)
             {
                 this.ProdInfo = await ProductInfoTasks.GetInfoFromUnitRefno(prodUnitRefno);
@@ -219,14 +219,14 @@ namespace dMobile.Controller
         /// <returns>The <see cref="ObservableCollection{object}"/>.</returns>
         public override ObservableCollection<object> DesignGrid(ref Grid GridMainActivity, ref ListView ListViewMainActivity)
         {
-            ObservableCollection<object> observableCollection = new ObservableCollection<object>();
+            var observableCollection = new ObservableCollection<object>();
 
-            Label labelHeader1 = new Label { Text = "Product ID", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
-            Label labelHeader2 = new Label { Text = string.Empty, VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
-            Label labelHeader3 = new Label { Text = "Quantity", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
-            Label labelHeader4 = new Label { Text = string.Empty, VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
-            Label labelHeader5 = new Label { Text = "Weight", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
-            Label labelHeader6 = new Label { Text = string.Empty, VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
+            var labelHeader1 = new Label { Text = "Product ID", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
+            var labelHeader2 = new Label { Text = string.Empty, VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
+            var labelHeader3 = new Label { Text = "Quantity", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
+            var labelHeader4 = new Label { Text = string.Empty, VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
+            var labelHeader5 = new Label { Text = "Weight", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
+            var labelHeader6 = new Label { Text = string.Empty, VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
 
             this.columnWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(labelHeader1.Text);
             this.columnWidth1 = DependencyService.Get<IGridService>().CalculateTextWidth(labelHeader2.Text);
@@ -236,7 +236,7 @@ namespace dMobile.Controller
             this.columnWidth5 = DependencyService.Get<IGridService>().CalculateTextWidth(labelHeader6.Text);
 
             // Create header data template
-            Grid gridHeader = new Grid
+            var gridHeader = new Grid
             {
                 Padding = new Thickness(5),
                 ColumnDefinitions =
@@ -283,12 +283,12 @@ namespace dMobile.Controller
                 // };
                 observableCollection.Add(inventoryInquiryItem);
 
-                double detailWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(inventoryInquiryItem.Productcode);
-                double detailWidth1 = DependencyService.Get<IGridService>().CalculateTextWidth(inventoryInquiryItem.Productunitbc);
-                double detailWidth2 = DependencyService.Get<IGridService>().CalculateTextWidth(string.Format("{0:F3}", inventoryInquiryItem.ActivityItemQuantity));
-                double detailWidth3 = DependencyService.Get<IGridService>().CalculateTextWidth(inventoryInquiryItem.UnitCode);
-                double detailWidth4 = DependencyService.Get<IGridService>().CalculateTextWidth(string.Format("{0:F3}", inventoryInquiryItem.ActivityItemWeightQuantity));
-                double detailWidth5 = DependencyService.Get<IGridService>().CalculateTextWidth(inventoryInquiryItem.WeightUnitCode);
+                var detailWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(inventoryInquiryItem.Productcode);
+                var detailWidth1 = DependencyService.Get<IGridService>().CalculateTextWidth(inventoryInquiryItem.Productunitbc);
+                var detailWidth2 = DependencyService.Get<IGridService>().CalculateTextWidth(string.Format("{0:F3}", inventoryInquiryItem.ActivityItemQuantity));
+                var detailWidth3 = DependencyService.Get<IGridService>().CalculateTextWidth(inventoryInquiryItem.UnitCode);
+                var detailWidth4 = DependencyService.Get<IGridService>().CalculateTextWidth(string.Format("{0:F3}", inventoryInquiryItem.ActivityItemWeightQuantity));
+                var detailWidth5 = DependencyService.Get<IGridService>().CalculateTextWidth(inventoryInquiryItem.WeightUnitCode);
 
                 if (detailWidth0 > this.columnWidth0)
                 {
@@ -327,7 +327,7 @@ namespace dMobile.Controller
                 }
             }
 
-            ListViewMainActivity.ItemTemplate = (DataTemplate)this.resourceDictionary["dataTemplate"];
+            ListViewMainActivity.ItemTemplate = (DataTemplate)this.resourceDictionary["dataTemplateInvInquiryItem"];
 
             return observableCollection;
         }
@@ -339,7 +339,7 @@ namespace dMobile.Controller
         /// <returns>.</returns>
         public override async Task<List<object>> GetActivityItemList(bool isSubmitBatch)
         {
-            DataTable dataTableItems = new DataTable("tActivityItem");
+            var dataTableItems = new DataTable("tActivityItem");
 
             dataTableItems.Columns.Add("productcode", Type.GetType("System.String"));
             dataTableItems.Columns.Add("productunitbc", Type.GetType("System.String"));
@@ -392,20 +392,20 @@ namespace dMobile.Controller
         {
             try
             {
-                string reqData = SysCommon.SubmitComm(await this.CreateSubmitXML(data));
+                var reqData = SysCommon.SubmitComm(await this.CreateSubmitXML(data));
 
                 this.ListItems = await this.GetActivityItemList(false);
                 if (reqData.Length > 0)
                 {
                     if (reqData.Contains("<message>ERROR</message>"))
                     {
-                        XmlDocument xmlDoc = new XmlDocument();
+                        var xmlDoc = new XmlDocument();
                         xmlDoc.LoadXml(reqData);
                         throw new Exception(xmlDoc.DocumentElement["detail"].InnerText);
                     }
                     else
                     {
-                        using (DataSet ds = new DataSet())
+                        using (var ds = new DataSet())
                         {
                             ds.ReadXml(SysCommon.GetXmlReader(ref reqData), XmlReadMode.Auto);
 
@@ -430,10 +430,10 @@ namespace dMobile.Controller
         /// <returns>.</returns>
         public async override Task<string> CreateSubmitXML(XDocument data)
         {
-            StringBuilder xmlString = new StringBuilder();
-            XmlWriter xml = XmlWriter.Create(xmlString);
+            var xmlString = new StringBuilder();
+            var xml = XmlWriter.Create(xmlString);
 
-            XDocument request = XDocument.Parse(
+            var request = XDocument.Parse(
                 "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>"
                 + "<imclient>"
                 + "<command>"
@@ -573,7 +573,7 @@ namespace dMobile.Controller
         /// <returns><see cref="int"/> Location map reference number.</returns>
         public override async Task<int> GetDefaultLocMapRefno(int whsLocMapRefno, int prodRefno)
         {
-            int locMapRefno = 0;
+            var locMapRefno = 0;
             if (this.SelectedActivityItem is InventoryInquiryItem item)
             {
                 if (Math.Sign(item.ActivityItemQuantity) == 0 ||

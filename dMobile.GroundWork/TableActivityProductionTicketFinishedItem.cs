@@ -42,11 +42,11 @@ namespace dMobile.GroundWork
                 string reqData;
                 if (actRefno == 0)
                 {
-                    List<tActivityModel> results = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<tActivityModel>("SELECT ActivityRefno FROM tActivity WHERE ActivitySubType = ?", Convert.ToInt32(SysCommon.ActSubTypes.TicketFinished));
+                    var results = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<tActivityModel>("SELECT ActivityRefno FROM tActivity WHERE ActivitySubType = ?", Convert.ToInt32(SysCommon.ActSubTypes.TicketFinished));
 
                     if (results?.Count > 0)
                     {
-                        foreach (tActivityModel activityModel in results)
+                        foreach (var activityModel in results)
                         {
                             actRefno = Convert.ToInt32(activityModel.ActivityRefno);
                             reqData = await this.SendRequest(actRefno);
@@ -55,7 +55,7 @@ namespace dMobile.GroundWork
                             {
                                 if (reqData.Contains("<message>ERROR</message>"))
                                 {
-                                    XmlDocument reqErr = new XmlDocument();
+                                    var reqErr = new XmlDocument();
                                     reqErr.LoadXml(reqData);
                                     new Exception(reqErr.DocumentElement["detail"].InnerText);
                                 }
@@ -73,7 +73,7 @@ namespace dMobile.GroundWork
                     {
                         if (reqData.Contains("<message>ERROR</message>"))
                         {
-                            XmlDocument reqErr = new XmlDocument();
+                            var reqErr = new XmlDocument();
                             reqErr.LoadXml(reqData);
                             new Exception(reqErr.DocumentElement["detail"].InnerText);
                         }
@@ -108,11 +108,11 @@ namespace dMobile.GroundWork
             {
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging finished ticket items.", true);
 
-                string query = "DELETE FROM tActivityItemBarCodeAssociationXRef"
-                    + " WHERE tActivityItemBarCodeAssociationXRef.ActivityItemRefno IN"
-                    + " (SELECT tActivityItem.ActivityItemRefno"
-                    + " FROM tActivityItem"
-                    + " WHERE tActivityItem.ActivityItemSubType = ?)";
+                var query = "DELETE FROM tActivityItemBarCodeAssociationXRef"
+                            + " WHERE tActivityItemBarCodeAssociationXRef.ActivityItemRefno IN"
+                            + " (SELECT tActivityItem.ActivityItemRefno"
+                            + " FROM tActivityItem"
+                            + " WHERE tActivityItem.ActivityItemSubType = ?)";
                 await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(query, Convert.ToInt32(SysCommon.ActSubTypes.TicketFinished));
 
                 query = "DELETE FROM tActivityItemProductionFinished"
@@ -171,7 +171,7 @@ namespace dMobile.GroundWork
         /// <returns></returns>
         protected override async Task<string> SendRequest(int actRefno)
         {
-            List<tActivityProductionFinishedModel> results = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<tActivityProductionFinishedModel>("SELECT * FROM tActivityProductionFinished WHERE ActivityRefno = ?", Convert.ToInt32(actRefno));
+            var results = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<tActivityProductionFinishedModel>("SELECT * FROM tActivityProductionFinished WHERE ActivityRefno = ?", Convert.ToInt32(actRefno));
 
             int actProductionFKRefno;
             if (results?.Count > 0)
@@ -197,7 +197,7 @@ namespace dMobile.GroundWork
             {
                 try
                 {
-                    using (DataSet ds = new DataSet())
+                    using (var ds = new DataSet())
                     {
                         this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Reading received data.", false);
 
@@ -207,14 +207,14 @@ namespace dMobile.GroundWork
 
                         if (ds.Tables.Count != 0)
                         {
-                            int progMax = Convert.ToInt32(ds.Tables["tActivityItemProduction"].Rows.Count);
+                            var progMax = Convert.ToInt32(ds.Tables["tActivityItemProduction"].Rows.Count);
 
                             this.DataAccessStatusOutHandler(this, EventArgs.Empty, string.Format("Records {0}", progMax), false);
 
-                            int actItemRefno = 0;
-                            int progValue = 0;
-                            int prodUnitRefno = 0;
-                            int locMapRefno = 0;
+                            var actItemRefno = 0;
+                            var progValue = 0;
+                            var prodUnitRefno = 0;
+                            var locMapRefno = 0;
 
                             this.DataAccessProgressOutHandler(this, EventArgs.Empty, 0, 0, progMax);
 
@@ -224,32 +224,32 @@ namespace dMobile.GroundWork
                                 actItemRefno = Convert.ToInt32(transaction.ExecuteScalar<int>("SELECT last_insert_rowid() FROM tActivityItem"));
                                 prodUnitRefno = this.GetProductUnitRefnoFromDataRow(drow, transaction, false);
 
-                                string queryActivityItemProduction = "INSERT INTO tActivityItemProduction (" +
-                                    "ActivityItemRefno, " +
-                                    "ActivityItemSubType, " +
-                                    "ProductUnitRefno, " +
-                                    "LocationMapRefno, " +
-                                    "ActivityItemProductionQuantity, " +
-                                    "ActivityItemProductionBaseQuantity, " +
-                                    "ActivityItemProductionWeightQuantity, " +
-                                    "ActivityItemProductionDescription, " +
-                                    "ActivityItemProductionQuantityExpected, " +
-                                    "ActivityItemProductionBaseQuantityExpected, " +
-                                    "ActivityItemProductionWeightQuantityExpected" +
-                                    ") VALUES (" +
-                                    "?, " +
-                                    "?, " +
-                                    "?, " +
-                                    "?, " +
-                                    "?, " +
-                                    "?, " +
-                                    "?, " +
-                                    "?, " +
-                                    "?, " +
-                                    "?, " +
-                                    "?" +
-                                    ")";
-                                object[] parametersActivityItemProduction = new object[]
+                                var queryActivityItemProduction = "INSERT INTO tActivityItemProduction (" +
+                                                                  "ActivityItemRefno, " +
+                                                                  "ActivityItemSubType, " +
+                                                                  "ProductUnitRefno, " +
+                                                                  "LocationMapRefno, " +
+                                                                  "ActivityItemProductionQuantity, " +
+                                                                  "ActivityItemProductionBaseQuantity, " +
+                                                                  "ActivityItemProductionWeightQuantity, " +
+                                                                  "ActivityItemProductionDescription, " +
+                                                                  "ActivityItemProductionQuantityExpected, " +
+                                                                  "ActivityItemProductionBaseQuantityExpected, " +
+                                                                  "ActivityItemProductionWeightQuantityExpected" +
+                                                                  ") VALUES (" +
+                                                                  "?, " +
+                                                                  "?, " +
+                                                                  "?, " +
+                                                                  "?, " +
+                                                                  "?, " +
+                                                                  "?, " +
+                                                                  "?, " +
+                                                                  "?, " +
+                                                                  "?, " +
+                                                                  "?, " +
+                                                                  "?" +
+                                                                  ")";
+                                var parametersActivityItemProduction = new object[]
                                 {
                                     actItemRefno,
                                     Convert.ToInt32(SysCommon.ActSubTypes.TicketFinished),
@@ -266,7 +266,7 @@ namespace dMobile.GroundWork
 
                                 transaction.Execute(queryActivityItemProduction, parametersActivityItemProduction);
 
-                                int actItemProductionFKRefno = Convert.ToInt32(drow["ActivityItemProductionFKRefno"]);
+                                var actItemProductionFKRefno = Convert.ToInt32(drow["ActivityItemProductionFKRefno"]);
                                 transaction.Execute("INSERT INTO tActivityItemProductionFinished (ActivityItemRefno, ActivityItemFKRefno, ActivityItemStringFKRefno) VALUES (?, ?, ?)", actItemRefno, actItemProductionFKRefno, Convert.ToString(actItemProductionFKRefno));
 
                                 progValue++;
@@ -303,10 +303,10 @@ namespace dMobile.GroundWork
         /// <returns></returns>
         protected override async Task<string> CreateRequest(int actProductionFKRefno)
         {
-            StringBuilder xmlString = new StringBuilder();
-            XmlWriter xml = XmlWriter.Create(xmlString);
+            var xmlString = new StringBuilder();
+            var xml = XmlWriter.Create(xmlString);
 
-            XDocument request = XDocument.Parse(
+            var request = XDocument.Parse(
                 "<?xml version=\"1.0\" encoding=\"utf-8\" standalone=\"yes\"?>"
                 + "<imclient>"
                 + "<command>"

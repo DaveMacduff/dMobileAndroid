@@ -1205,7 +1205,7 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
         /// <param name="resetSymbologyData"><see cref="bool"/> Reset symbology data.</param>
         public void ClearResetBarCodeProperties(bool resetSymbologyData)
         {
-            SystemSettings sysSettings = SysEnvironment.GetInstance().SysSettings;
+            var sysSettings = SysEnvironment.GetInstance().SysSettings;
             //// this.LocMapWhsCodeMask = sysSettings.LocMapWarehouseMask;
             //// this.LocMapSectCodeMask = sysSettings.LocMapSectionMask;
             //// this.LocMapSlotCodeMask = sysSettings.LocMapSlotMask;
@@ -1299,10 +1299,10 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
                 return -1;
             }
 
-            int sepIndex = -1;
-            char[] data = barCodeData.ToCharArray();
+            var sepIndex = -1;
+            var data = barCodeData.ToCharArray();
 
-            for (int i = 0; i < data.Length; i++)
+            for (var i = 0; i < data.Length; i++)
             {
                 if (data[i] == GroupSeparator)
                 {

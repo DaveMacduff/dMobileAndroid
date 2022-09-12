@@ -54,7 +54,7 @@ namespace dMobile.View.Activity
 
         public async Task<bool> SaveChanges()
         {
-            bool saveComplete = false;
+            var saveComplete = false;
 
             if (await this.IsReadyToSave())
             {
@@ -77,7 +77,7 @@ namespace dMobile.View.Activity
 
         public async Task<XDocument> GetXML()
         {
-            XDocument result = XDocument.Parse(
+            var result = XDocument.Parse(
                 "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>"
                     + "<quantity>"
                     + this.Quantity

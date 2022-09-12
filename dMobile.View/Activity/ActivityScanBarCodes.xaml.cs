@@ -83,9 +83,9 @@ namespace dMobile.View.Activity
                 if (this.SysEnv.SysSettings.IsProductUnitBarCodeModifier1)
                 {
                     this.BarCodeModifier1Picker.Items.Add(string.Empty);
-                    string[] modifiers = this.SysEnv.SysSettings.ProductUnitBarCodeModifier1Codes.Split(',');
+                    var modifiers = this.SysEnv.SysSettings.ProductUnitBarCodeModifier1Codes.Split(',');
 
-                    foreach (string item in modifiers)
+                    foreach (var item in modifiers)
                     {
                         this.BarCodeModifier1Picker.Items.Add(item);
                     }
@@ -220,7 +220,7 @@ namespace dMobile.View.Activity
         /// <returns><see cref="bool"/> True if the data is ready to be saved else false.</returns>
         public async Task<bool> IsReadyToSave()
         {
-            bool isReadyToSave = false;
+            var isReadyToSave = false;
 
             try
             {
@@ -241,7 +241,7 @@ namespace dMobile.View.Activity
 
                 await Device.InvokeOnMainThreadAsync(async () =>
                 {
-                    FormErrorReport errRpt = new FormErrorReport(this.ActSubType, /*this,*/ ex);
+                    var errRpt = new FormErrorReport(this.ActSubType, /*this,*/ ex);
                     _ = await errRpt.ShowDialog();
                 });
             }
@@ -255,7 +255,7 @@ namespace dMobile.View.Activity
         /// <returns><see cref="Task{bool}"/> True if the form is ready to close else false.</returns>
         public async Task<bool> IsReadyToClose()
         {
-            bool isReadyToClose = true;
+            var isReadyToClose = true;
 
             try
             {
@@ -281,7 +281,7 @@ namespace dMobile.View.Activity
 
                 await Device.InvokeOnMainThreadAsync(async () =>
                 {
-                    FormErrorReport errRpt = new FormErrorReport(this.ActSubType, /*this,*/ ex);
+                    var errRpt = new FormErrorReport(this.ActSubType, /*this,*/ ex);
                     _ = await errRpt.ShowDialog();
                 });
             }
@@ -304,7 +304,7 @@ namespace dMobile.View.Activity
         /// <returns><see cref="bool"/> True if a save was performed successfully else false.</returns>
         public async Task<bool> SaveChanges()
         {
-            bool saveComplete = false;
+            var saveComplete = false;
 
             try
             {
@@ -336,7 +336,7 @@ namespace dMobile.View.Activity
 
                 await Device.InvokeOnMainThreadAsync(async () =>
                 {
-                    FormErrorReport errRpt = new FormErrorReport(this.ActSubType, /*this,*/ ex);
+                    var errRpt = new FormErrorReport(this.ActSubType, /*this,*/ ex);
                     _ = await errRpt.ShowDialog();
                 });
             }
@@ -350,7 +350,7 @@ namespace dMobile.View.Activity
         /// <returns><see cref="bool"/>. True if the changes where canceled, else false.</returns>
         public async Task<bool> CancelChanges()
         {
-            bool cancelChanges = true;
+            var cancelChanges = true;
 
             try
             {
@@ -387,7 +387,7 @@ namespace dMobile.View.Activity
 
                 await Device.InvokeOnMainThreadAsync(async () =>
                 {
-                    FormErrorReport errRpt = new FormErrorReport(this.ActSubType, /*this,*/ ex);
+                    var errRpt = new FormErrorReport(this.ActSubType, /*this,*/ ex);
                     _ = await errRpt.ShowDialog();
                 });
             }
@@ -403,7 +403,7 @@ namespace dMobile.View.Activity
         public async Task<XDocument> GetXML()
 #pragma warning restore CS1998 // Async method lacks 'await' operators and will run synchronously
         {
-            XDocument xmlDoc = XDocument.Parse(
+            var xmlDoc = XDocument.Parse(
                 "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>"
                 + "<params>"
                 + "</params>");
@@ -425,10 +425,10 @@ namespace dMobile.View.Activity
                 {
                     this.IsFirstAppearance = false;
                     this.lstScannedData.ItemsSource = this.ExtraInfoItems;
-                    TableActivityItemBarCodeAssociationXRef tableActItemBarCodeXRef =
+                    var tableActItemBarCodeXRef =
                         new TableActivityItemBarCodeAssociationXRef();
-                    TableActivityItem tableActItem = new TableActivityItem();
-                    TableActivity tableActivity = new TableActivity();
+                    var tableActItem = new TableActivityItem();
+                    var tableActivity = new TableActivity();
 
                     if (!this.SysEnv.SysSettings.IsDisconnectedMode)
                     {
@@ -456,7 +456,7 @@ namespace dMobile.View.Activity
             {
                 await Device.InvokeOnMainThreadAsync(async () =>
                 {
-                    FormErrorReport errRpt = new FormErrorReport(this.ActSubType, ex);
+                    var errRpt = new FormErrorReport(this.ActSubType, ex);
                     _ = await errRpt.ShowDialog();
                 });
             }
@@ -553,19 +553,19 @@ namespace dMobile.View.Activity
 
             this.Loading = true;
 
-            bool isSerialTracked = false;
-            bool isProductionDateTracked = false;
-            bool isLotTracked = false;
-            bool isBestBeforeDateTracked = false;
-            bool isVariantTracked = false;
-            bool isLotUniqueComponent = false;
-            bool isProductionDateUniqueComponent = false;
-            bool isBestBeforeDateUniqueComponent = false;
-            bool isVariantUniqueComponent = false;
-            int prodSchemeRefno = 0;
-            string prodCode = string.Empty;
-            ProductInfo prodInfo = new ProductInfo();
-            SLocMap currLocMap = LocationMap.GetInstance().CurrLocMap;
+            var isSerialTracked = false;
+            var isProductionDateTracked = false;
+            var isLotTracked = false;
+            var isBestBeforeDateTracked = false;
+            var isVariantTracked = false;
+            var isLotUniqueComponent = false;
+            var isProductionDateUniqueComponent = false;
+            var isBestBeforeDateUniqueComponent = false;
+            var isVariantUniqueComponent = false;
+            var prodSchemeRefno = 0;
+            var prodCode = string.Empty;
+            var prodInfo = new ProductInfo();
+            var currLocMap = LocationMap.GetInstance().CurrLocMap;
 
             try
             {
@@ -585,8 +585,8 @@ namespace dMobile.View.Activity
 
                 if (!string.IsNullOrEmpty(scanArgs.ParseInfo.ProductIdentifier))
                 {
-                    string prodIdentifier = scanArgs.ParseInfo.ProductIdentifier;
-                    List<ProductUnitBarcodeQueryResult> resultsProductUnitBarcode = await FindProductUnit(currLocMap, prodIdentifier);
+                    var prodIdentifier = scanArgs.ParseInfo.ProductIdentifier;
+                    var resultsProductUnitBarcode = await FindProductUnit(currLocMap, prodIdentifier);
 
                     if (resultsProductUnitBarcode?.Count > 0)
                     {
@@ -607,14 +607,14 @@ namespace dMobile.View.Activity
                     {
                         try
                         {
-                            DeliProductInfo unitRefnoFromBarcode = await clsCommon.GetDeliProdInfoFromBarCode(
+                            var unitRefnoFromBarcode = await clsCommon.GetDeliProdInfoFromBarCode(
                                 prodIdentifier,
                                 this.SysEnv.CurrentBarCodeModifier1,
                                 this.Parse.Symbology,
                                 this.Parse.DeliScaleAmount);
                             this.ProductUnitRefno = unitRefnoFromBarcode.ProdInfo.UnitRefno;
-                            decimal deliScaleWeight = unitRefnoFromBarcode.DeliScaleWeight;
-                            string deliScaleWeightUnit = unitRefnoFromBarcode.DeliScaleWeightUnit;
+                            var deliScaleWeight = unitRefnoFromBarcode.DeliScaleWeight;
+                            var deliScaleWeightUnit = unitRefnoFromBarcode.DeliScaleWeightUnit;
 
                             if (this.ProductUnitRefno == 0)
                             {
@@ -629,20 +629,20 @@ namespace dMobile.View.Activity
                             }
                             else
                             {
-                                string queryProductUnit = "SELECT tProductUnit.ProductUnitRefno,"
-                                + "tLocationMapWarehouseProductScheme.ProductSchemeRefno AS WarehouseProductSchemeRefno,"
-                                + "tProduct.ProductCode,"
-                                + "tProductUnit.ProductUnitBC,"
-                                + "tUnit.UnitCode "
-                                + "FROM tProductUnit "
-                                + "INNER JOIN tProduct ON tProduct.ProductRefno = tProductUnit.ProductRefno "
-                                + "INNER JOIN tUnit ON tUnit.UnitRefno = tProductUnit.UnitRefno "
-                                + "INNER JOIN tLocationMapWarehouseProductScheme ON" +
-                                " tLocationMapWarehouseProductScheme.ProductRefno = tProduct.ProductRefno "
-                                + "WHERE tProductUnit.ProductUnitRefno = ? "
-                                + "AND tLocationMapWarehouseProductScheme.WarehouseLocationMapRefno = ?";
+                                var queryProductUnit = "SELECT tProductUnit.ProductUnitRefno,"
+                                                       + "tLocationMapWarehouseProductScheme.ProductSchemeRefno AS WarehouseProductSchemeRefno,"
+                                                       + "tProduct.ProductCode,"
+                                                       + "tProductUnit.ProductUnitBC,"
+                                                       + "tUnit.UnitCode "
+                                                       + "FROM tProductUnit "
+                                                       + "INNER JOIN tProduct ON tProduct.ProductRefno = tProductUnit.ProductRefno "
+                                                       + "INNER JOIN tUnit ON tUnit.UnitRefno = tProductUnit.UnitRefno "
+                                                       + "INNER JOIN tLocationMapWarehouseProductScheme ON" +
+                                                       " tLocationMapWarehouseProductScheme.ProductRefno = tProduct.ProductRefno "
+                                                       + "WHERE tProductUnit.ProductUnitRefno = ? "
+                                                       + "AND tLocationMapWarehouseProductScheme.WarehouseLocationMapRefno = ?";
 
-                                List<ProductUnitBarcodeQueryResult> resultsProductUnit =
+                                var resultsProductUnit =
                                     await DatabaseConnection.GetInstance().SQLConn.QueryAsync<ProductUnitBarcodeQueryResult>(
                                         queryProductUnit,
                                         this.ProductUnitRefno,
@@ -658,9 +658,9 @@ namespace dMobile.View.Activity
                                     // If product was found associated display it.  'ProductID+BC+UOM'
                                     await this.AddScanMsg(sender, scanArgs, "Product Associated To Bar Code");
 
-                                    string prodbcuom = resultsProductUnit[0].ProductCode.ToString() + " " +
-                                        resultsProductUnit[0].ProductUnitBC.ToString() + " " +
-                                        resultsProductUnit[0].UnitCode.ToString();
+                                    var prodbcuom = resultsProductUnit[0].ProductCode.ToString() + " " +
+                                                    resultsProductUnit[0].ProductUnitBC.ToString() + " " +
+                                                    resultsProductUnit[0].UnitCode.ToString();
                                     await this.AddScanMsg(sender, scanArgs, prodbcuom);
 
                                     if (this.Parse.DeliScaleAmount != 0 &&
@@ -705,19 +705,19 @@ namespace dMobile.View.Activity
                     // get product tracking scheme
                     if (prodSchemeRefno != 0)
                     {
-                        string queryProductScheme = "SELECT tProductScheme.ProductSchemeIsSerialTracked,"
-                            + "tProductScheme.ProductSchemeIsProductionDateTracked,"
-                            + "tProductScheme.ProductSchemeIsLotTracked,"
-                            + "tProductScheme.ProductSchemeIsBestBeforeDateTracked,"
-                            + "tProductScheme.ProductSchemeIsVariantTracked,"
-                            + "tProductScheme.ProductSchemeIsLotUniqueComponent,"
-                            + "tProductScheme.ProductSchemeIsProductionDateUniqueComponent,"
-                            + "tProductScheme.ProductSchemeIsBestBeforeDateUniqueComponent,"
-                            + "tProductScheme.ProductSchemeIsVariantUniqueComponent "
-                            + "FROM tProductScheme "
-                            + "WHERE tProductScheme.ProductSchemeRefno = ?";
+                        var queryProductScheme = "SELECT tProductScheme.ProductSchemeIsSerialTracked,"
+                                                 + "tProductScheme.ProductSchemeIsProductionDateTracked,"
+                                                 + "tProductScheme.ProductSchemeIsLotTracked,"
+                                                 + "tProductScheme.ProductSchemeIsBestBeforeDateTracked,"
+                                                 + "tProductScheme.ProductSchemeIsVariantTracked,"
+                                                 + "tProductScheme.ProductSchemeIsLotUniqueComponent,"
+                                                 + "tProductScheme.ProductSchemeIsProductionDateUniqueComponent,"
+                                                 + "tProductScheme.ProductSchemeIsBestBeforeDateUniqueComponent,"
+                                                 + "tProductScheme.ProductSchemeIsVariantUniqueComponent "
+                                                 + "FROM tProductScheme "
+                                                 + "WHERE tProductScheme.ProductSchemeRefno = ?";
 
-                        List<tProductSchemeModel> resultsProductScheme =
+                        var resultsProductScheme =
                             await DatabaseConnection.GetInstance().SQLConn.QueryAsync<tProductSchemeModel>(
                                 queryProductScheme,
                                 prodSchemeRefno);
@@ -873,9 +873,9 @@ namespace dMobile.View.Activity
                 await this.AddScanMsg(sender, scanArgs, "Bar Code Raw");
 
                 const int LineLength = 30;
-                List<string> rawDataLine = SysCommon.WordWrap2List(scanArgs.ParseInfo.Raw, LineLength);
+                var rawDataLine = SysCommon.WordWrap2List(scanArgs.ParseInfo.Raw, LineLength);
 
-                for (int i = 0; i < rawDataLine.Count; i++)
+                for (var i = 0; i < rawDataLine.Count; i++)
                 {
                     await this.AddScanMsg(sender, scanArgs, rawDataLine[i]);
                 }
@@ -896,13 +896,13 @@ namespace dMobile.View.Activity
                             string.Format("{0} Errors", this.Parse.Details.ErrorCount));
                     }
 
-                    int count = this.Parse.Details.ErrorCount;
+                    var count = this.Parse.Details.ErrorCount;
 
-                    foreach (BarCodeParseErrorDetail errorDetail in this.Parse.Details.ErrorDetails)
+                    foreach (var errorDetail in this.Parse.Details.ErrorDetails)
                     {
-                        List<string> lines = SysCommon.WordWrap2List(errorDetail.Exception.Message, LineLength);
+                        var lines = SysCommon.WordWrap2List(errorDetail.Exception.Message, LineLength);
 
-                        for (int i = 0; i < lines.Count; ++i)
+                        for (var i = 0; i < lines.Count; ++i)
                         {
                             await this.AddScanMsg(sender, scanArgs, lines[i]);
                         }
@@ -913,7 +913,7 @@ namespace dMobile.View.Activity
             {
                 await Device.InvokeOnMainThreadAsync(async () =>
                 {
-                    FormErrorReport errRpt = new FormErrorReport(this.ActSubType, /*this,*/ ex);
+                    var errRpt = new FormErrorReport(this.ActSubType, /*this,*/ ex);
                     _ = await errRpt.ShowDialog();
                 });
             }
@@ -932,7 +932,7 @@ namespace dMobile.View.Activity
                 {
                     try
                     {
-                        SysSkidInfo skid = await SysSkidInfo.GetSkidInfoFromBarCodeOrCode(
+                        var skid = await SysSkidInfo.GetSkidInfoFromBarCodeOrCode(
                             scanArgs.ParseInfo.SSCC18);
 
                         if (skid.CurrSkid.SkidFKRefno > 0)
@@ -951,10 +951,10 @@ namespace dMobile.View.Activity
                                 scanArgs,
                                 string.Format("Number: {0}", skid.CurrSkid.SkidCode));
 
-                            string locReadable = LocationMapTasks.GetReadableLocation(
+                            var locReadable = LocationMapTasks.GetReadableLocation(
                                 skid.CurrSkid.LocMap);
 
-                            string skidQty = string.Format(
+                            var skidQty = string.Format(
                                 "Qty: {0} {1} @ {2} {3}",
                                 skid.CurrSkid.Quantity,
                                 skid.CurrSkid.ProdInfo.UnitCode,
@@ -1019,12 +1019,12 @@ namespace dMobile.View.Activity
                     scanArgs,
                     "Location identifier: " + scanArgs.ParseInfo.LocationIdentifier);
 
-                int locMapRefno = await LocationMapTasks.GetLocMapRefnoFromBarCodeGlobalLocIdentifier(
+                var locMapRefno = await LocationMapTasks.GetLocMapRefnoFromBarCodeGlobalLocIdentifier(
                     scanArgs.ParseInfo.LocationIdentifier);
 
                 if (locMapRefno > 0)
                 {
-                    SLocMap locMap = await LocationMapTasks.GetSLocMapFromLocMapRefno(locMapRefno);
+                    var locMap = await LocationMapTasks.GetSLocMapFromLocMapRefno(locMapRefno);
 
                     await this.AddScanMsg(sender, scanArgs, string.Format("Warehouse code: {0}", locMap.WhsCode));
                     await this.AddScanMsg(sender, scanArgs, string.Format("Warehouse refno: {0}", locMap.WhsFKRefno));
@@ -1195,8 +1195,8 @@ namespace dMobile.View.Activity
                     {
                         if (isProductionDateTracked)
                         {
-                            string msg = "(Tracked) Production Date: " +
-                                scanArgs.ParseInfo.LogisticUnitProductionDate.ToShortDateString();
+                            var msg = "(Tracked) Production Date: " +
+                                      scanArgs.ParseInfo.LogisticUnitProductionDate.ToShortDateString();
                             await this.AddScanMsg(
                                 sender,
                                 scanArgs,
@@ -1222,8 +1222,8 @@ namespace dMobile.View.Activity
                     {
                         if (isBestBeforeDateTracked)
                         {
-                            string msg = "(Tracked) Best Before Date: " +
-                                scanArgs.ParseInfo.LogisticUnitBestBeforeSellByDate.ToShortDateString();
+                            var msg = "(Tracked) Best Before Date: " +
+                                      scanArgs.ParseInfo.LogisticUnitBestBeforeSellByDate.ToShortDateString();
                             await this.AddScanMsg(
                                 sender,
                                 scanArgs,
@@ -1231,8 +1231,8 @@ namespace dMobile.View.Activity
                         }
                         else
                         {
-                            string msg = "Best Before Date: " +
-                                scanArgs.ParseInfo.LogisticUnitBestBeforeSellByDate.ToShortDateString();
+                            var msg = "Best Before Date: " +
+                                      scanArgs.ParseInfo.LogisticUnitBestBeforeSellByDate.ToShortDateString();
                             await this.AddScanMsg(
                                 sender,
                                 scanArgs,
@@ -1249,19 +1249,19 @@ namespace dMobile.View.Activity
 
                     if (!SysCommon.IsEmptyDateTime(scanArgs.ParseInfo.LogisticUnitExpiryUseByDate))
                     {
-                        string msg = "Expiry Date: " + scanArgs.ParseInfo.LogisticUnitExpiryUseByDate.ToShortDateString();
+                        var msg = "Expiry Date: " + scanArgs.ParseInfo.LogisticUnitExpiryUseByDate.ToShortDateString();
                         await this.AddScanMsg(sender, scanArgs, msg);
                     }
 
                     if (!SysCommon.IsEmptyDateTime(scanArgs.ParseInfo.LogisticUnitDueDate))
                     {
-                        string msg = "Due Date: " + scanArgs.ParseInfo.LogisticUnitDueDate.ToShortDateString();
+                        var msg = "Due Date: " + scanArgs.ParseInfo.LogisticUnitDueDate.ToShortDateString();
                         await this.AddScanMsg(sender, scanArgs, msg);
                     }
 
                     if (!SysCommon.IsEmptyDateTime(scanArgs.ParseInfo.LogisticUnitPackagingDate))
                     {
-                        string msg = "Packaging Date: " + scanArgs.ParseInfo.LogisticUnitPackagingDate.ToShortDateString();
+                        var msg = "Packaging Date: " + scanArgs.ParseInfo.LogisticUnitPackagingDate.ToShortDateString();
                         await this.AddScanMsg(sender, scanArgs, msg);
                     }
 
@@ -1269,12 +1269,12 @@ namespace dMobile.View.Activity
                     {
                         if (isVariantTracked)
                         {
-                            string msg = "(Tracked) Product Variant: " + scanArgs.ParseInfo.LogisticUnitProductVariant;
+                            var msg = "(Tracked) Product Variant: " + scanArgs.ParseInfo.LogisticUnitProductVariant;
                             await this.AddScanMsg(sender, scanArgs, msg);
                         }
                         else
                         {
-                            string msg = "Product Variant: " + scanArgs.ParseInfo.LogisticUnitProductVariant;
+                            var msg = "Product Variant: " + scanArgs.ParseInfo.LogisticUnitProductVariant;
                             await this.AddScanMsg(sender, scanArgs, msg);
                         }
                     }
@@ -1311,24 +1311,24 @@ namespace dMobile.View.Activity
             //////////////////////////////////////////////////////////////////////////
             async Task<List<ProductUnitBarcodeQueryResult>> FindProductUnit(SLocMap currLocMap, string prodIdentifier)
             {
-                string queryProductUnitBarcode = "select tProductUnit.ProductUnitRefno,"
-                    + "tProductUnitBarCode.ProductUnitBarCodeRefno,"
-                    + "tLocationMapWarehouseProductScheme.ProductSchemeRefno AS WarehouseProductSchemeRefno,"
-                    + "tProduct.ProductSchemeRefno,"
-                    + "tProduct.ProductCode,"
-                    + "tProduct.ProductDescription,"
-                    + "tProductUnit.ProductUnitBC,"
-                    + "tUnit.UnitCode "
-                    + "FROM tProductUnitBarCode "
-                    + "INNER JOIN tProductUnit ON tProductUnit.ProductUnitRefno = tProductUnitBarCode.ProductUnitRefno "
-                    + "INNER JOIN tProduct ON tProduct.ProductRefno = tProductUnit.ProductRefno "
-                    + "INNER JOIN tUnit ON tUnit.UnitRefno = tProductUnit.UnitRefno "
-                    + "INNER JOIN tLocationMapWarehouseProductScheme ON tLocationMapWarehouseProductScheme.ProductRefno = tProduct.ProductRefno "
-                    + "WHERE tProductUnitBarCode.ProductUnitBarCodeCode = ? "
-                    + "AND tLocationMapWarehouseProductScheme.WarehouseLocationMapRefno = ? "
-                    + "AND tProductUnitBarCode.ProductUnitBarCodeModifier1 = ?";
+                var queryProductUnitBarcode = "select tProductUnit.ProductUnitRefno,"
+                                              + "tProductUnitBarCode.ProductUnitBarCodeRefno,"
+                                              + "tLocationMapWarehouseProductScheme.ProductSchemeRefno AS WarehouseProductSchemeRefno,"
+                                              + "tProduct.ProductSchemeRefno,"
+                                              + "tProduct.ProductCode,"
+                                              + "tProduct.ProductDescription,"
+                                              + "tProductUnit.ProductUnitBC,"
+                                              + "tUnit.UnitCode "
+                                              + "FROM tProductUnitBarCode "
+                                              + "INNER JOIN tProductUnit ON tProductUnit.ProductUnitRefno = tProductUnitBarCode.ProductUnitRefno "
+                                              + "INNER JOIN tProduct ON tProduct.ProductRefno = tProductUnit.ProductRefno "
+                                              + "INNER JOIN tUnit ON tUnit.UnitRefno = tProductUnit.UnitRefno "
+                                              + "INNER JOIN tLocationMapWarehouseProductScheme ON tLocationMapWarehouseProductScheme.ProductRefno = tProduct.ProductRefno "
+                                              + "WHERE tProductUnitBarCode.ProductUnitBarCodeCode = ? "
+                                              + "AND tLocationMapWarehouseProductScheme.WarehouseLocationMapRefno = ? "
+                                              + "AND tProductUnitBarCode.ProductUnitBarCodeModifier1 = ?";
 
-                List<ProductUnitBarcodeQueryResult> resultsProductUnitBarcode =
+                var resultsProductUnitBarcode =
                     await DatabaseConnection.GetInstance().SQLConn.QueryAsync<ProductUnitBarcodeQueryResult>(
                         queryProductUnitBarcode,
                         prodIdentifier,
@@ -1346,9 +1346,9 @@ namespace dMobile.View.Activity
                 // If product was found associated display it.  'ProductID+BC+UOM'
                 await this.AddScanMsg(sender, scanArgs, "Product associated to bar code");
 
-                string prodBCUnit = resultsProductUnitBarcode[0].ProductCode.ToString() + " " +
-                    resultsProductUnitBarcode[0].ProductUnitBC.ToString() + " " +
-                    resultsProductUnitBarcode[0].UnitCode.ToString();
+                var prodBCUnit = resultsProductUnitBarcode[0].ProductCode.ToString() + " " +
+                                 resultsProductUnitBarcode[0].ProductUnitBC.ToString() + " " +
+                                 resultsProductUnitBarcode[0].UnitCode.ToString();
 
                 await this.AddScanMsg(sender, scanArgs, prodBCUnit);
 
@@ -1381,7 +1381,7 @@ namespace dMobile.View.Activity
             {
                 Device.BeginInvokeOnMainThread(async () =>
                 {
-                    FormErrorReport errRpt = new FormErrorReport(this.ActSubType, ex);
+                    var errRpt = new FormErrorReport(this.ActSubType, ex);
                     _ = await errRpt.ShowDialog();
                 });
             }
@@ -1400,7 +1400,7 @@ namespace dMobile.View.Activity
 
                 if (this.Parse != null)
                 {
-                    bool isAllowedAssocProdBarCode = await CheckAllowedToAssignProduct();
+                    var isAllowedAssocProdBarCode = await CheckAllowedToAssignProduct();
                     if (isAllowedAssocProdBarCode)
                     {
                         await AssignProduct(sender);
@@ -1424,7 +1424,7 @@ namespace dMobile.View.Activity
             {
                 await Device.InvokeOnMainThreadAsync(async () =>
                 {
-                    FormErrorReport errRpt = new FormErrorReport(this.ActSubType, ex);
+                    var errRpt = new FormErrorReport(this.ActSubType, ex);
                     _ = await errRpt.ShowDialog();
                 });
             }
@@ -1432,7 +1432,7 @@ namespace dMobile.View.Activity
             {
                 Device.BeginInvokeOnMainThread(async () =>
                 {
-                    FormErrorReport errRpt = new FormErrorReport(this.ActSubType, ex);
+                    var errRpt = new FormErrorReport(this.ActSubType, ex);
                     _ = await errRpt.ShowDialog();
                 });
             }
@@ -1452,11 +1452,11 @@ namespace dMobile.View.Activity
             {
                 // Changed functionality to disallow product scanning everywhere.
                 // However, always prompt for password if not allowed to associate.
-                bool isAllowedAssocProdBarCode = this.SysEnv.ContactLog.IsAllowedAssociateProductBarCode;
+                var isAllowedAssocProdBarCode = this.SysEnv.ContactLog.IsAllowedAssociateProductBarCode;
                 if (!isAllowedAssocProdBarCode)
                 {
                     // Prompt for password
-                    FormAssociateBarCodeOverride formBarcodeOverride = new FormAssociateBarCodeOverride();
+                    var formBarcodeOverride = new FormAssociateBarCodeOverride();
 
                     if (await formBarcodeOverride.ShowDialog() == DialogResult.OK)
                     {
@@ -1470,17 +1470,17 @@ namespace dMobile.View.Activity
             //////////////////////////////////////////////////////////////////////////
             async Task AssignProduct(object sender)
             {
-                FormDialogContainer form = new FormDialogContainer(EDialogTypes.SelectProductUnit, this.ActSubType);
+                var form = new FormDialogContainer(EDialogTypes.SelectProductUnit, this.ActSubType);
 
                 if (await form.DisplayControl.ShowDialog() == DialogResult.OK)
                 {
-                    XDocument xmlDoc = await form.GetXML();
+                    var xmlDoc = await form.GetXML();
                     this.ProductUnitRefno = int.Parse(xmlDoc.Root.Element("ProductUnitRefno").Value);
 
                     if (this.ProductUnitRefno != 0)
                     {
                         await AssocBarCodeToProduct();
-                        List<ProductUnit> productUnit = await FindAssocProductInfo();
+                        var productUnit = await FindAssocProductInfo();
                         await DisplayProductAssocData(productUnit);
                     }
                 }
@@ -1488,7 +1488,7 @@ namespace dMobile.View.Activity
                 //////////////////////////////////////////////////////////////////////////
                 async Task DisplayProductAssocData(List<ProductUnit> productUnit)
                 {
-                    string productDataText = string.Empty;
+                    var productDataText = string.Empty;
                     if (productUnit?.Count > 0)
                     {
                         productDataText = Convert.ToString(productUnit[0].ProductCode).TrimEnd() +
@@ -1509,15 +1509,15 @@ namespace dMobile.View.Activity
                 //////////////////////////////////////////////////////////////////////////
                 async Task<List<ProductUnit>> FindAssocProductInfo()
                 {
-                    string queryProductUnit = "SELECT tProduct.ProductCode,"
-                            + "tProductUnit.ProductUnitBC,"
-                            + "tUnit.UnitCode "
-                            + "FROM tProductUnit "
-                            + "INNER JOIN tProduct ON tProduct.ProductRefno = tProductUnit.ProductRefno "
-                            + "INNER JOIN tUnit ON tUnit.UnitRefno = tProductUnit.UnitRefno "
-                            + "WHERE tProductUnit.ProductUnitRefno = ?";
+                    var queryProductUnit = "SELECT tProduct.ProductCode,"
+                                           + "tProductUnit.ProductUnitBC,"
+                                           + "tUnit.UnitCode "
+                                           + "FROM tProductUnit "
+                                           + "INNER JOIN tProduct ON tProduct.ProductRefno = tProductUnit.ProductRefno "
+                                           + "INNER JOIN tUnit ON tUnit.UnitRefno = tProductUnit.UnitRefno "
+                                           + "WHERE tProductUnit.ProductUnitRefno = ?";
 
-                    List<ProductUnit> productUnit = await DatabaseConnection.GetInstance().SQLConn.
+                    var productUnit = await DatabaseConnection.GetInstance().SQLConn.
                         QueryAsync<ProductUnit>(queryProductUnit, this.ProductUnitRefno);
                     return productUnit;
                 }
@@ -1525,11 +1525,11 @@ namespace dMobile.View.Activity
                 //////////////////////////////////////////////////////////////////////////
                 async Task AssocBarCodeToProduct()
                 {
-                    string svdProductIdentifier = this.Parse.ProductIdentifier;
-                    BarCodeSymbologies svdSymbology = this.Parse.Symbology;
-                    string svdSymbologyPrefix = this.Parse.SymbologyPrefix;
+                    var svdProductIdentifier = this.Parse.ProductIdentifier;
+                    var svdSymbology = this.Parse.Symbology;
+                    var svdSymbologyPrefix = this.Parse.SymbologyPrefix;
 
-                    XDocument xmlDoc = XDocument.Parse(
+                    var xmlDoc = XDocument.Parse(
                          "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>"
                          + "<params>"
                          + "<ProductUnitRefno>" + this.ProductUnitRefno + "</ProductUnitRefno>"

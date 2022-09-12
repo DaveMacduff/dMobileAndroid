@@ -36,12 +36,12 @@ namespace dMobile.GroundWork
             {
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Seeding transfers from.", true);
 
-                string reqData = await this.SendRequest();
+                var reqData = await this.SendRequest();
                 if (reqData.Length > 0)
                 {
                     if (reqData.Contains("<message>ERROR</message>"))
                     {
-                        XmlDocument reqErr = new XmlDocument();
+                        var reqErr = new XmlDocument();
                         reqErr.LoadXml(reqData);
                         throw new Exception(reqErr.DocumentElement["detail"].InnerText);
                     }
@@ -109,13 +109,13 @@ namespace dMobile.GroundWork
         /// <remarks></remarks>
         protected override async Task Save(string reqData)
         {
-            string errMsg = string.Empty;
+            var errMsg = string.Empty;
 
             await DatabaseConnection.GetInstance().SQLConn.RunInTransactionAsync(transaction =>
             {
                 try
                 {
-                    using (DataSet ds = new DataSet())
+                    using (var ds = new DataSet())
                     {
                         this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Reading received data.", false);
 
@@ -125,18 +125,18 @@ namespace dMobile.GroundWork
 
                         if (ds.Tables.Count != 0)
                         {
-                            int progMax = Convert.ToInt32(ds.Tables["tActivityTransfer"].Rows.Count);
+                            var progMax = Convert.ToInt32(ds.Tables["tActivityTransfer"].Rows.Count);
 
                             this.DataAccessStatusOutHandler(this, EventArgs.Empty, string.Format("Records {0}", progMax), false);
 
-                            int actRefno = 0;
-                            int progValue = 0;
-                            int whsLocMapRefno = 0;
-                            int locMapWhsFKRefno = 0;
-                            int transFKRefno = 0;
-                            string transDesc = string.Empty;
-                            DateTime transDateTime = new DateTime(1900, 1, 1);
-                            DateTime arrivalDateTime = new DateTime(1900, 1, 1);
+                            var actRefno = 0;
+                            var progValue = 0;
+                            var whsLocMapRefno = 0;
+                            var locMapWhsFKRefno = 0;
+                            var transFKRefno = 0;
+                            var transDesc = string.Empty;
+                            var transDateTime = new DateTime(1900, 1, 1);
+                            var arrivalDateTime = new DateTime(1900, 1, 1);
 
                             this.DataAccessProgressOutHandler(this, EventArgs.Empty, 0, 0, progMax);
 
@@ -156,7 +156,7 @@ namespace dMobile.GroundWork
                                 locMapWhsFKRefno = Convert.ToInt32(drow["TransferToLocationMapWarehouseFKRefno"]);
                                 errMsg += Environment.NewLine + "Whs fk refno " + locMapWhsFKRefno;
 
-                                List<tLocationMapWarehouseModel> resultsWarehouse = transaction.Query<tLocationMapWarehouseModel>("SELECT * FROM tLocationMapWarehouse WHERE LocationMapWarehouseFKRefno = ?", Convert.ToInt32(locMapWhsFKRefno));
+                                var resultsWarehouse = transaction.Query<tLocationMapWarehouseModel>("SELECT * FROM tLocationMapWarehouse WHERE LocationMapWarehouseFKRefno = ?", Convert.ToInt32(locMapWhsFKRefno));
 
                                 if (resultsWarehouse?.Count > 0)
                                 {
@@ -171,26 +171,26 @@ namespace dMobile.GroundWork
 
                                 actRefno = Convert.ToInt32(transaction.ExecuteScalar<int>("SELECT last_insert_rowid() FROM tActivity"));
 
-                                string query = "INSERT INTO tActivityTransfer (" +
-                                    "ActivityRefno, " +
-                                    "ActivitySubType, " +
-                                    "ActivityFKRefno, " +
-                                    "ActivityStringFKRefno, " +
-                                    "TransferToWarehouseLocationMapRefno, " +
-                                    "ActivityTransferDescription, " +
-                                    "ActivityTransferDateTime, " +
-                                    "ActivityTransferArrivalDateTime" +
-                                    ") VALUES (" +
-                                    "?, " +
-                                    "?, " +
-                                    "?, " +
-                                    "?, " +
-                                    "?, " +
-                                    "?, " +
-                                    "?, " +
-                                    "?" +
-                                    ")";
-                                object[] parameters = new object[]
+                                var query = "INSERT INTO tActivityTransfer (" +
+                                            "ActivityRefno, " +
+                                            "ActivitySubType, " +
+                                            "ActivityFKRefno, " +
+                                            "ActivityStringFKRefno, " +
+                                            "TransferToWarehouseLocationMapRefno, " +
+                                            "ActivityTransferDescription, " +
+                                            "ActivityTransferDateTime, " +
+                                            "ActivityTransferArrivalDateTime" +
+                                            ") VALUES (" +
+                                            "?, " +
+                                            "?, " +
+                                            "?, " +
+                                            "?, " +
+                                            "?, " +
+                                            "?, " +
+                                            "?, " +
+                                            "?" +
+                                            ")";
+                                var parameters = new object[]
                                 {
                                     Convert.ToInt32(actRefno),
                                     Convert.ToInt32(SysCommon.ActSubTypes.TransferFrom),
@@ -238,10 +238,10 @@ namespace dMobile.GroundWork
         /// <remarks></remarks>
         protected override async Task<string> CreateRequest()
         {
-            StringBuilder xmlString = new StringBuilder();
-            XmlWriter xml = XmlWriter.Create(xmlString);
+            var xmlString = new StringBuilder();
+            var xml = XmlWriter.Create(xmlString);
 
-            XDocument request = XDocument.Parse(
+            var request = XDocument.Parse(
                 "<?xml version=\"1.0\" encoding=\"utf-8\" standalone=\"yes\"?>"
                 + "<imclient>"
                 + "<command>"

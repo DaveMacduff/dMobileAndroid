@@ -221,7 +221,7 @@ namespace dMobile.View.Activity
         /// <returns><see cref="bool"/> True if it is ready to save, else false.</returns>
         public async Task<bool> IsReadyToSave()
         {
-            bool isReadyToSave = true;
+            var isReadyToSave = true;
 
             try
             {
@@ -242,7 +242,7 @@ namespace dMobile.View.Activity
                     isReadyToSave = false;
                     await Device.InvokeOnMainThreadAsync(async () =>
                     {
-                        FormErrorReport errRpt = new FormErrorReport(this.ActSubType, ex);
+                        var errRpt = new FormErrorReport(this.ActSubType, ex);
                         _ = await errRpt.ShowDialog();
                     });
                 }
@@ -260,7 +260,7 @@ namespace dMobile.View.Activity
                 isReadyToSave = false;
                 await Device.InvokeOnMainThreadAsync(async () =>
                 {
-                    FormErrorReport errRpt = new FormErrorReport(this.ActSubType, ex);
+                    var errRpt = new FormErrorReport(this.ActSubType, ex);
                     _ = await errRpt.ShowDialog();
                 });
             }
@@ -274,7 +274,7 @@ namespace dMobile.View.Activity
                 ValidateScheme();
                 ValidateSchemeExtra();
 
-                ProductInfo prodInfo = this.ActDetail.ActItem.ProdInfo;
+                var prodInfo = this.ActDetail.ActItem.ProdInfo;
                 this.ActDetail.UniqueSchemeID = ProductInfoTasks.GetUniqueSchemeIDFromSProdSchemeData(
                     prodInfo.Code,
                     prodInfo.Scheme,
@@ -287,7 +287,7 @@ namespace dMobile.View.Activity
 
                 // IsReadyToApply will perform any validations, such as duplicate checks and
                 // quantity validations.
-                XDocument xmlParam = XDocument.Parse(
+                var xmlParam = XDocument.Parse(
                     "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>"
                     + "<imclient>"
                     + "<itm_refno>" + this.ActDetail.ActItem.ItemFKRefno + "</itm_refno>"
@@ -309,7 +309,7 @@ namespace dMobile.View.Activity
                     this.ActDetailEdit.WeightQuantity = Math.Round(decimal.Parse(this.txtWtQty.Text), 3);
 
                     // Check if UOM's are the same quantity should be the same.
-                    ProductInfo prodInfo = this.ActDetail.ActItem.ProdInfo;
+                    var prodInfo = this.ActDetail.ActItem.ProdInfo;
                     CheckEqualQuantity(prodInfo);
 
                     if (this.ActDetailEdit.BaseQuantity == 0)
@@ -376,8 +376,8 @@ namespace dMobile.View.Activity
                     {
                         // Base and weight quantity sign check.
                         const int TotalSignQtyBaseWeight = 2;
-                        int totalSign = Math.Sign(this.ActDetailEdit.BaseQuantity) +
-                            Math.Sign(this.ActDetailEdit.WeightQuantity);
+                        var totalSign = Math.Sign(this.ActDetailEdit.BaseQuantity) +
+                                        Math.Sign(this.ActDetailEdit.WeightQuantity);
                         if (totalSign != TotalSignQtyBaseWeight && totalSign != -TotalSignQtyBaseWeight)
                         {
                             throw new MessageOnlyException(
@@ -487,9 +487,9 @@ namespace dMobile.View.Activity
                     {
                         // Alt, base and weight quantity sign check.
                         const int TotalSignQtyBaseWeight = 3;
-                        int totalSign = Math.Sign(this.ActDetailEdit.AltQuantity) +
-                            Math.Sign(this.ActDetailEdit.BaseQuantity) +
-                            Math.Sign(this.ActDetailEdit.WeightQuantity);
+                        var totalSign = Math.Sign(this.ActDetailEdit.AltQuantity) +
+                                        Math.Sign(this.ActDetailEdit.BaseQuantity) +
+                                        Math.Sign(this.ActDetailEdit.WeightQuantity);
                         if (totalSign != TotalSignQtyBaseWeight && totalSign != -TotalSignQtyBaseWeight)
                         {
                             throw new MessageOnlyException(
@@ -635,7 +635,7 @@ namespace dMobile.View.Activity
                             }
                             else
                             {
-                                decimal expectedBaseQty = Math.Round(
+                                var expectedBaseQty = Math.Round(
                                     this.ActDetailEdit.AltQuantity / prodInfo.Unit2BaseUnitFactor, 3);
                                 if (this.ActDetailEdit.BaseQuantity != expectedBaseQty)
                                 {
@@ -671,7 +671,7 @@ namespace dMobile.View.Activity
                     //////////////////////////////////////////////////////////////////////////
                     async Task AssignScheme()
                     {
-                        SProductSchemeData scheme = this.ActDetailEdit.SchemeData;
+                        var scheme = this.ActDetailEdit.SchemeData;
                         scheme.SingleTradeItemSerialNumber = this.cboSerialNo.Text;
                         scheme.LogisticUnitBatchLotNumber = this.cboLotNo.Text;
                         scheme.LogisticUnitProductionDate = this.dtProductionDate.Date;
@@ -714,9 +714,9 @@ namespace dMobile.View.Activity
                         if (this.ActDetail.ActItem.ProdInfo.Scheme.IsBestBeforeDateTracked &&
                             this.SysEnv.SysSettings.DetailDateMinMaxValidYearRange != 0)
                         {
-                            DateTime lower = DateTime.Now.AddYears(
+                            var lower = DateTime.Now.AddYears(
                                 this.SysEnv.SysSettings.DetailDateMinMaxValidYearRange * -1);
-                            DateTime upper = DateTime.Now.AddYears(
+                            var upper = DateTime.Now.AddYears(
                                 this.SysEnv.SysSettings.DetailDateMinMaxValidYearRange);
 
                             if (this.dtBestBeforeDate.Date < lower || this.dtBestBeforeDate.Date > upper)
@@ -741,9 +741,9 @@ namespace dMobile.View.Activity
                         if (this.ActDetail.ActItem.ProdInfo.Scheme.IsProductionDateTracked &&
                             this.SysEnv.SysSettings.DetailDateMinMaxValidYearRange != 0)
                         {
-                            DateTime lower = DateTime.Now.AddYears(
+                            var lower = DateTime.Now.AddYears(
                                 this.SysEnv.SysSettings.DetailDateMinMaxValidYearRange * -1);
-                            DateTime upper = DateTime.Now.AddYears(
+                            var upper = DateTime.Now.AddYears(
                                 this.SysEnv.SysSettings.DetailDateMinMaxValidYearRange);
 
                             if (this.dtProductionDate.Date < lower || this.dtProductionDate.Date > upper)
@@ -769,7 +769,7 @@ namespace dMobile.View.Activity
                     {
                         if (this.ActDetail.ActItem.ProdInfo.Scheme.IsVariantTracked)
                         {
-                            ProductVariant variant = this.cboVariantCode != null ?
+                            var variant = this.cboVariantCode != null ?
                                 this.cboVariantCode.SelectedItem as ProductVariant : null;
                             scheme.VariantNumber = Convert.ToInt32(variant != null ?
                                 variant.ProductSchemeVariantNo : -1);
@@ -783,7 +783,7 @@ namespace dMobile.View.Activity
                 //////////////////////////////////////////////////////////////////////////
                 void ValidateSchemeExtra()
                 {
-                    ProdScheme scheme = this.ActDetail.ActItem.ProdInfo.Scheme;
+                    var scheme = this.ActDetail.ActItem.ProdInfo.Scheme;
 
                     AssignSchemeExtraDefault();
 
@@ -868,7 +868,7 @@ namespace dMobile.View.Activity
         /// else false.</returns>
         public async Task<bool> IsReadyToClose()
         {
-            bool isReadyToClose = !this.IsChangesMade;
+            var isReadyToClose = !this.IsChangesMade;
 
             try
             {
@@ -890,7 +890,7 @@ namespace dMobile.View.Activity
 
                 await Device.InvokeOnMainThreadAsync(async () =>
                 {
-                    FormErrorReport errRpt = new FormErrorReport(this.ActSubType, ex);
+                    var errRpt = new FormErrorReport(this.ActSubType, ex);
                     _ = await errRpt.ShowDialog();
                 });
             }
@@ -904,7 +904,7 @@ namespace dMobile.View.Activity
         /// <returns><see cref="bool"/> True if the save was successful, else false.</returns>
         public async Task<bool> SaveChanges()
         {
-            bool saveComplete = true;
+            var saveComplete = true;
 
             try
             {
@@ -946,7 +946,7 @@ namespace dMobile.View.Activity
 
                 await Device.InvokeOnMainThreadAsync(async () =>
                 {
-                    FormErrorReport errRpt = new FormErrorReport(this.ActSubType, ex);
+                    var errRpt = new FormErrorReport(this.ActSubType, ex);
                     _ = await errRpt.ShowDialog();
                 });
             }
@@ -960,7 +960,7 @@ namespace dMobile.View.Activity
         /// <returns><see cref="bool"/> True if the pending changes where canceled, else false.</returns>
         public async Task<bool> CancelChanges()
         {
-            bool cancelChanges = true;
+            var cancelChanges = true;
 
             try
             {
@@ -995,7 +995,7 @@ namespace dMobile.View.Activity
             {
                 await Device.InvokeOnMainThreadAsync(async () =>
                 {
-                    FormErrorReport errRpt = new FormErrorReport(this.ActSubType, ex);
+                    var errRpt = new FormErrorReport(this.ActSubType, ex);
                     _ = await errRpt.ShowDialog();
                 });
 
@@ -1080,8 +1080,8 @@ namespace dMobile.View.Activity
             //////////////////////////////////////////////////////////////////////////
             async Task InitControlState()
             {
-                ProductInfo prodInfo = this.ActDetail.ActItem.ProdInfo;
-                ProdScheme scheme = prodInfo.Scheme;
+                var prodInfo = this.ActDetail.ActItem.ProdInfo;
+                var scheme = prodInfo.Scheme;
 
                 await Device.InvokeOnMainThreadAsync(() =>
                 {
@@ -1181,8 +1181,8 @@ namespace dMobile.View.Activity
                     this.ListVariants = await this.ActDetailEdit.GetVariantList(
                         prodRefno: this.ActDetail.ActItem.ProdInfo.Refno);
 
-                    ObservableCollection<object> variants = new ObservableCollection<object>();
-                    foreach (ProductVariant productVariant in this.ListVariants)
+                    var variants = new ObservableCollection<object>();
+                    foreach (var productVariant in this.ListVariants)
                     {
                         variants.Add(productVariant);
                     }
@@ -1200,9 +1200,9 @@ namespace dMobile.View.Activity
                 {
                     this.ListLots = await this.ActDetailEdit.GetLotList(
                         prodRefno: this.ActDetail.ActItem.ProdInfo.Refno);
-                    ObservableCollection<object> lotNumberList = new ObservableCollection<object>();
+                    var lotNumberList = new ObservableCollection<object>();
 
-                    foreach (LotNumber lotNumber in this.ListLots)
+                    foreach (var lotNumber in this.ListLots)
                     {
                         lotNumberList.Add(lotNumber);
                     }
@@ -1220,9 +1220,9 @@ namespace dMobile.View.Activity
                 {
                     this.ListSerialNumbers = await this.ActDetailEdit.GetSerialNumberList(
                         prodRefno: this.ActDetail.ActItem.ProdInfo.Refno);
-                    ObservableCollection<SerialNumber> serialNumberList = new ObservableCollection<SerialNumber>();
-                    string selectedSerialNumberItem = this.cboSerialNo.Text;
-                    SerialNumber selectedSerialNumber = new SerialNumber();
+                    var serialNumberList = new ObservableCollection<SerialNumber>();
+                    var selectedSerialNumberItem = this.cboSerialNo.Text;
+                    var selectedSerialNumber = new SerialNumber();
 
                     if (!string.IsNullOrEmpty(selectedSerialNumberItem))
                     {
@@ -1231,7 +1231,7 @@ namespace dMobile.View.Activity
                         serialNumberList.Add(selectedSerialNumber);
                     }
 
-                    foreach (SerialNumber serialNumber in this.ListSerialNumbers)
+                    foreach (var serialNumber in this.ListSerialNumbers)
                     {
                         serialNumberList.Add(serialNumber);
                     }
@@ -1277,8 +1277,8 @@ namespace dMobile.View.Activity
                 // Load the scheme controls with the activity detail scheme values.
                 void LoadSchemeDetail()
                 {
-                    SProductSchemeData schemeData = this.ActDetailEdit.SchemeData;
-                    ProductInfo prodInfo = this.ActDetail.ActItem.ProdInfo;
+                    var schemeData = this.ActDetailEdit.SchemeData;
+                    var prodInfo = this.ActDetail.ActItem.ProdInfo;
 
                     if (prodInfo.Scheme.IsBestBeforeDateTracked)
                     {
@@ -1334,7 +1334,7 @@ namespace dMobile.View.Activity
                 //////////////////////////////////////////////////////////////////////////
                 void LoadQuantityDetailAltQuantity()
                 {
-                    ProductInfo prodInfo = this.ActDetail.ActItem.ProdInfo;
+                    var prodInfo = this.ActDetail.ActItem.ProdInfo;
                     if (this.ActDetail.ActItem.IsCatchAskZero())
                     {
                         this.ActDetailEdit.AltQuantity = 0;
@@ -1387,7 +1387,7 @@ namespace dMobile.View.Activity
                 //////////////////////////////////////////////////////////////////////////
                 void LoadQuantityDetailBaseQuantity()
                 {
-                    ProductInfo prodInfo = this.ActDetail.ActItem.ProdInfo;
+                    var prodInfo = this.ActDetail.ActItem.ProdInfo;
                     if (this.ActDetail.ActItem.IsCatchAskZero())
                     {
                         this.ActDetailEdit.BaseQuantity = 0;
@@ -1448,7 +1448,7 @@ namespace dMobile.View.Activity
                 //////////////////////////////////////////////////////////////////////////
                 void LoadQuantityDetailWeightQuantity()
                 {
-                    ProductInfo prodInfo = this.ActDetail.ActItem.ProdInfo;
+                    var prodInfo = this.ActDetail.ActItem.ProdInfo;
                     if (this.ActDetail.ActItem.IsCatchAskZero())
                     {
                         this.ActDetailEdit.WeightQuantity = 0;
@@ -1500,7 +1500,7 @@ namespace dMobile.View.Activity
                             return;
                         }
 
-                        bool svdIsScanReg = this.IsBarCodeHandlerRegistered;
+                        var svdIsScanReg = this.IsBarCodeHandlerRegistered;
                         await this.ScannerDisable();
 
                         // TODO: Verify key codes.
@@ -1565,7 +1565,7 @@ namespace dMobile.View.Activity
                                 // allow the control to close.
                                 await Device.InvokeOnMainThreadAsync(async () =>
                                 {
-                                    FormErrorReport errRpt = new FormErrorReport(
+                                    var errRpt = new FormErrorReport(
                                         this.ActSubType,
                                         ex);
                                     _ = await errRpt.ShowDialog();
@@ -1581,8 +1581,8 @@ namespace dMobile.View.Activity
             {
                 await Device.InvokeOnMainThreadAsync(() =>
                 {
-                    ProductInfo prodInfo = this.ActDetail.ActItem.ProdInfo;
-                    ProdScheme scheme = prodInfo.Scheme;
+                    var prodInfo = this.ActDetail.ActItem.ProdInfo;
+                    var scheme = prodInfo.Scheme;
                     _ = this.SysEnv.SysSettings.IsDetailEditScreenSetFocus2CatchWeight
                         ? prodInfo.IsCatchWeight ? this.txtWtQty.Focus() : this.txtAltQty.Focus()
                         : scheme.IsSerialTracked && prodInfo.IsCatchWeight ?
@@ -1634,11 +1634,11 @@ namespace dMobile.View.Activity
                 this.ActDetail.ActSubType == SysCommon.ActSubTypes.TransferFrom ||
                 this.ActDetail.ActSubType == SysCommon.ActSubTypes.TransferTo)
             {
-                bool editLabelBeforePrint = !this.ActDetail.IsLabelSchemeComplete(
+                var editLabelBeforePrint = !this.ActDetail.IsLabelSchemeComplete(
                     this.ActDetailEdit.SchemeData) || this.SysEnv.SysSettings.IsProductLabelCatchAsk;
                 if (editLabelBeforePrint)
                 {
-                    ActDetail actDetailLabel = ActDetailFacade.GetActDetail(
+                    var actDetailLabel = ActDetailFacade.GetActDetail(
                         this.ActDetail.ActItem,
                         this.ActSubType);
 
@@ -1655,7 +1655,7 @@ namespace dMobile.View.Activity
                     actDetailLabel.SchemeData = this.ActDetailEdit.SchemeData;
                     actDetailLabel.ActExtra = this.ActDetailEdit.ActExtra;
 
-                    FormDialogContainer form = new FormDialogContainer(
+                    var form = new FormDialogContainer(
                         EDialogTypes.ActivityProductLabel,
                         actDetailLabel,
                         this.ActSubType);
@@ -1665,16 +1665,16 @@ namespace dMobile.View.Activity
                 }
                 else
                 {
-                    string sendReq = await this.ActDetail.CreateSubmitProductLabelXML(
+                    var sendReq = await this.ActDetail.CreateSubmitProductLabelXML(
                         await this.ActDetailEdit.GetXMLFromActivityDetailEdit(this.ActDetailEdit));
-                    string reqData = SysCommon.SubmitComm(sendReq);
+                    var reqData = SysCommon.SubmitComm(sendReq);
                     if (reqData.Length > 0)
                     {
                         if (reqData.Contains("<message>ERROR</message>"))
                         {
-                            XmlDocument docError = new XmlDocument();
+                            var docError = new XmlDocument();
                             docError.LoadXml(reqData);
-                            string errorDetail = docError.DocumentElement["detail"].InnerText;
+                            var errorDetail = docError.DocumentElement["detail"].InnerText;
 
                             if (errorDetail.Contains("MSGBOX-"))
                             {
@@ -1750,7 +1750,7 @@ namespace dMobile.View.Activity
                                 // Even though an error was raised, during label printing allow the control to close.
                                 await Device.InvokeOnMainThreadAsync(async () =>
                                 {
-                                    FormErrorReport errRpt = new FormErrorReport(this.ActSubType, ex);
+                                    var errRpt = new FormErrorReport(this.ActSubType, ex);
                                     _ = await errRpt.ShowDialog();
                                 });
                             }
@@ -1785,14 +1785,14 @@ namespace dMobile.View.Activity
         /// <remarks>Catch weight or catch ask is checked upon save validation.</remarks>
         private void TxtAltQty_TextChanged(object sender, TextChangedEventArgs e)
         {
-            ProductInfo prodInfo = this.ActDetail.ActItem.ProdInfo;
+            var prodInfo = this.ActDetail.ActItem.ProdInfo;
 
             decimal altQtyEntered = 0;
             try
             {
                 if (!string.IsNullOrEmpty(this.txtAltQty.Text))
                 {
-                    _ = decimal.TryParse(this.txtAltQty.Text, out decimal result);
+                    _ = decimal.TryParse(this.txtAltQty.Text, out var result);
                     altQtyEntered = result;
                 }
             }
@@ -1843,14 +1843,14 @@ namespace dMobile.View.Activity
         /// <param name="e"><see cref="TextChangedEventArgs"/> Event arguments.</param>
         private void TxtBaseQty_TextChanged(object sender, TextChangedEventArgs e)
         {
-            ProductInfo prodInfo = this.ActDetail.ActItem.ProdInfo;
+            var prodInfo = this.ActDetail.ActItem.ProdInfo;
 
             decimal baseQtyEntered = 0;
             try
             {
                 if (!string.IsNullOrEmpty(this.txtBaseQty.Text))
                 {
-                    _ = decimal.TryParse(this.txtBaseQty.Text, out decimal result);
+                    _ = decimal.TryParse(this.txtBaseQty.Text, out var result);
                     baseQtyEntered = result;
                 }
             }

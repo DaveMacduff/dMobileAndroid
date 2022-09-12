@@ -95,7 +95,7 @@ namespace dMobile.Controller
         /// <returns>The <see cref="Task"/>.</returns>
         public override async Task Insert(XDocument data, bool askToInsertAsNewItem)
         {
-            int prodUnitRefno = int.Parse(data.Root.Element("ProductUnitRefno").Value);
+            var prodUnitRefno = int.Parse(data.Root.Element("ProductUnitRefno").Value);
             if (prodUnitRefno != 0)
             {
                 this.ProdInfo = await ProductInfoTasks.GetInfoFromUnitRefno(prodUnitRefno);
@@ -205,20 +205,20 @@ namespace dMobile.Controller
         {
             if (bool.Parse(data.Root.Element("picking_is_update").Value))
             {
-                string query = "SELECT * FROM tProductLocationMapType WHERE ProductRefno = ? AND LocationMapRefno = ? AND ProductLocationMapTypeEnum = ?";
-                object[] parameters = new object[]
+                var query = "SELECT * FROM tProductLocationMapType WHERE ProductRefno = ? AND LocationMapRefno = ? AND ProductLocationMapTypeEnum = ?";
+                var parameters = new object[]
                 {
                     Convert.ToInt32(int.Parse(data.Root.Element("prod_refno").Value)),
                     Convert.ToInt32(int.Parse(data.Root.Element("picking_old_location_refno").Value)),
                     Convert.ToInt32(SysCommon.ProdLocMapTypes.Picking),
                 };
 
-                List<tProductLocationMapTypeModel> results = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<tProductLocationMapTypeModel>(query, parameters);
+                var results = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<tProductLocationMapTypeModel>(query, parameters);
 
                 if (results != null && results.Count > 0)
                 {
-                    string queryUpdate = "UPDATE tProductLocationMapType SET LocationMapRefno = ? WHERE ProductRefno = ? AND WarehouseLocationMapRefno = ? AND LocationMapRefno = ? AND ProductLocationMapTypeEnum = ?";
-                    object[] parametersUpdate = new object[]
+                    var queryUpdate = "UPDATE tProductLocationMapType SET LocationMapRefno = ? WHERE ProductRefno = ? AND WarehouseLocationMapRefno = ? AND LocationMapRefno = ? AND ProductLocationMapTypeEnum = ?";
+                    var parametersUpdate = new object[]
                     {
                         Convert.ToInt32(int.Parse(data.Root.Element("picking_new_location_refno").Value)),
                         Convert.ToInt32(int.Parse(data.Root.Element("prod_refno").Value)),
@@ -231,8 +231,8 @@ namespace dMobile.Controller
                 }
                 else
                 {
-                    string queryInsert = "INSERT INTO tProductLocationMapType (ProductRefno, WarehouseLocationMapRefno, LocationMapRefno, ProductLocationMapTypeEnum) VALUES (?, ?, ?, ?)";
-                    object[] parametersInsert = new object[]
+                    var queryInsert = "INSERT INTO tProductLocationMapType (ProductRefno, WarehouseLocationMapRefno, LocationMapRefno, ProductLocationMapTypeEnum) VALUES (?, ?, ?, ?)";
+                    var parametersInsert = new object[]
                     {
                         Convert.ToInt32(int.Parse(data.Root.Element("prod_refno").Value)),
                         Convert.ToInt32(int.Parse(data.Root.Element("picking_warehouse_location_refno").Value)),
@@ -246,20 +246,20 @@ namespace dMobile.Controller
 
             if (bool.Parse(data.Root.Element("receiving_is_update").Value))
             {
-                string query = "SELECT * FROM tProductLocationMapType WHERE ProductRefno = ? AND LocationMapRefno = ? AND ProductLocationMapTypeEnum = ?";
-                object[] parameters = new object[]
+                var query = "SELECT * FROM tProductLocationMapType WHERE ProductRefno = ? AND LocationMapRefno = ? AND ProductLocationMapTypeEnum = ?";
+                var parameters = new object[]
                 {
                     Convert.ToInt32(int.Parse(data.Root.Element("prod_refno").Value)),
                     Convert.ToInt32(int.Parse(data.Root.Element("receiving_old_location_refno").Value)),
                     Convert.ToInt32(SysCommon.ProdLocMapTypes.Receiving),
                 };
 
-                List<tProductLocationMapTypeModel> results = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<tProductLocationMapTypeModel>(query, parameters);
+                var results = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<tProductLocationMapTypeModel>(query, parameters);
 
                 if (results != null && results.Count > 0)
                 {
-                    string queryUpdate = "UPDATE tProductLocationMapType SET LocationMapRefno = ? WHERE ProductRefno = ? AND WarehouseLocationMapRefno = ? AND LocationMapRefno = ? AND ProductLocationMapTypeEnum = ?";
-                    object[] parametersUpdate = new object[]
+                    var queryUpdate = "UPDATE tProductLocationMapType SET LocationMapRefno = ? WHERE ProductRefno = ? AND WarehouseLocationMapRefno = ? AND LocationMapRefno = ? AND ProductLocationMapTypeEnum = ?";
+                    var parametersUpdate = new object[]
                     {
                         Convert.ToInt32(int.Parse(data.Root.Element("receiving_new_location_refno").Value)),
                         Convert.ToInt32(int.Parse(data.Root.Element("prod_refno").Value)),
@@ -272,8 +272,8 @@ namespace dMobile.Controller
                 }
                 else
                 {
-                    string queryInsert = "INSERT INTO tProductLocationMapType (ProductRefno, WarehouseLocationMapRefno, LocationMapRefno, ProductLocationMapTypeEnum) VALUES (?, ?, ?, ?)";
-                    object[] parametersInsert = new object[]
+                    var queryInsert = "INSERT INTO tProductLocationMapType (ProductRefno, WarehouseLocationMapRefno, LocationMapRefno, ProductLocationMapTypeEnum) VALUES (?, ?, ?, ?)";
+                    var parametersInsert = new object[]
                     {
                         Convert.ToInt32(int.Parse(data.Root.Element("prod_refno").Value)),
                         Convert.ToInt32(int.Parse(data.Root.Element("receiving_warehouse_location_refno").Value)),
@@ -372,7 +372,7 @@ namespace dMobile.Controller
         /// <returns><see cref="int"/> Location map reference number.</returns>
         public override async Task<int> GetDefaultLocMapRefno(int whsLocMapRefno, int prodRefno)
         {
-            int locMapRefno = await LocationMapTasks.GetDefaultLocMapRefnoFromWhsProdRefno(
+            var locMapRefno = await LocationMapTasks.GetDefaultLocMapRefnoFromWhsProdRefno(
                 whsLocMapRefno,
                 prodRefno,
                 SysCommon.ProdLocMapTypes.Picking);

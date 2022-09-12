@@ -33,9 +33,9 @@ namespace dMobile.Controller
         {
             this.FullClassName = typeof(PickingActDetail).FullName;
 
-            DataTemplate dataTemplate = new DataTemplate(() =>
+            var dataTemplate = new DataTemplate(() =>
             {
-                Grid gridData = new Grid
+                var gridData = new Grid
                 {
                     Padding = new Thickness(5),
                     ColumnDefinitions =
@@ -48,31 +48,31 @@ namespace dMobile.Controller
                     },
                 };
 
-                Label labelPickingDetailConfirmed = new Label
+                var labelPickingDetailConfirmed = new Label
                 {
                     VerticalOptions = LayoutOptions.Center,
                     HorizontalOptions = LayoutOptions.Start,
                 };
 
-                Label labelPickingQuantity = new Label
+                var labelPickingQuantity = new Label
                 {
                     VerticalOptions = LayoutOptions.Center,
                     HorizontalOptions = LayoutOptions.Start,
                 };
 
-                Label labelPickingWeightQuantity = new Label
+                var labelPickingWeightQuantity = new Label
                 {
                     VerticalOptions = LayoutOptions.Center,
                     HorizontalOptions = LayoutOptions.Start,
                 };
 
-                Label labelPickingUnitCode = new Label
+                var labelPickingUnitCode = new Label
                 {
                     VerticalOptions = LayoutOptions.Center,
                     HorizontalOptions = LayoutOptions.Start,
                 };
 
-                Label labelPickingSchemeID = new Label
+                var labelPickingSchemeID = new Label
                 {
                     VerticalOptions = LayoutOptions.Center,
                     HorizontalOptions = LayoutOptions.Start,
@@ -117,7 +117,19 @@ namespace dMobile.Controller
                 return new ViewCell { View = gridData };
             });
 
-            this.ResourceDictionary.Add("dataTemplate", dataTemplate);
+            var isAddKey = true;
+            foreach (var item in this.ResourceDictionary)
+            {
+                if (item.Key == "dataTemplatePickingDetail")
+                {
+                    isAddKey = false;
+                }
+            }
+
+            if (isAddKey)
+            {
+                this.ResourceDictionary.Add("dataTemplatePickingDetail", dataTemplate);
+            }
         }
 
         /// <summary>
@@ -162,24 +174,24 @@ namespace dMobile.Controller
         /// <returns><see cref="Task"/> Task operation.</returns>
         public override async Task InsertSkid(SysSkidInfo skidInfo)
         {
-            XDocument request = XDocument.Parse(
+            var request = XDocument.Parse(
                 "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>"
                 + "<params>"
                 + "<skid_data>" + skidInfo.CurrSkid.SkidCode + "</skid_data>"
                 + "</params>");
 
-            string xmlSend = await this.CreateSubmitXML(request);
-            string reqData = SysCommon.SubmitComm(xmlSend);
+            var xmlSend = await this.CreateSubmitXML(request);
+            var reqData = SysCommon.SubmitComm(xmlSend);
 
             if (reqData.Length > 0)
             {
-                XmlDocument xmlDoc = new XmlDocument();
+                var xmlDoc = new XmlDocument();
                 xmlDoc.LoadXml(reqData);
 
                 // check if result is an error message
                 if (reqData.Contains("<message>ERROR</message>"))
                 {
-                    string errorDetail = xmlDoc.DocumentElement["detail"].InnerText;
+                    var errorDetail = xmlDoc.DocumentElement["detail"].InnerText;
                     if (errorDetail.Contains("MSGBOX-"))
                     {
                         throw new MessageOnlyException(errorDetail);
@@ -212,16 +224,16 @@ namespace dMobile.Controller
                 xmlDelete = await this.CreateDeleteXML(XDocument.Parse(
                     "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?><params></params>"));
 
-                string reqData = SysCommon.SubmitComm(xmlDelete);
+                var reqData = SysCommon.SubmitComm(xmlDelete);
 
                 if (reqData.Length > 0)
                 {
                     // check if result is an error message
                     if (reqData.Contains("<message>ERROR</message>"))
                     {
-                        XmlDocument docError = new XmlDocument();
+                        var docError = new XmlDocument();
                         docError.LoadXml(reqData);
-                        string errorDetail = docError.DocumentElement["detail"].InnerText;
+                        var errorDetail = docError.DocumentElement["detail"].InnerText;
 
                         if (errorDetail.Contains("MSGBOX-"))
                         {
@@ -248,11 +260,11 @@ namespace dMobile.Controller
             if (this.SysEnv.SysSettings.IsDisconnectedMode)
             {
                 // At this point the 
-                int actDetailRefno = await this.InsertDetailDisconnected();
+                var actDetailRefno = await this.InsertDetailDisconnected();
 
-                string query = "INSERT INTO tActivityDetailPicking (ActivityDetailRefno, ActivityDetailFKRefno," +
-                    " ActivityDetailPickingIsConfirmed) VALUES (?, ?, ?)";
-                int rowsAffected = await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(
+                var query = "INSERT INTO tActivityDetailPicking (ActivityDetailRefno, ActivityDetailFKRefno," +
+                            " ActivityDetailPickingIsConfirmed) VALUES (?, ?, ?)";
+                var rowsAffected = await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(
                     query,
                     Convert.ToInt32(actDetailRefno),
                     Convert.ToInt32(this.DetailFKRefno),
@@ -274,9 +286,9 @@ namespace dMobile.Controller
                         " greater than or equal to zero.");
                 }
 
-                string query = "UPDATE tActivityItemPicking SET ActivityItemStringFKRefno = ?," +
-                    " ActivityItemFKRefno = ? WHERE ActivityItemRefno = ?";
-                int rowsAffected = await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(
+                var query = "UPDATE tActivityItemPicking SET ActivityItemStringFKRefno = ?," +
+                            " ActivityItemFKRefno = ? WHERE ActivityItemRefno = ?";
+                var rowsAffected = await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(
                     query,
                     Convert.ToString(this.ActItem.ItemFKRefno),
                     this.ActItem.ItemFKRefno,
@@ -294,7 +306,7 @@ namespace dMobile.Controller
                 // The IEnumerable will be same instance of initial list, you have to call ToList or ToArray
                 // to create a new collection.
                 // Linq is slower than a for loop, but the number of line items would likely be sub 500 normally.
-                PickingItem foundItem = (PickingItem)(from item in this.ActItem.ListItems.OfType<PickingItem>()
+                var foundItem = (PickingItem)(from item in this.ActItem.ListItems.OfType<PickingItem>()
                                                       where item.ActivityItemRefno == this.ActItem.ItemRefno
                                                       select item);
 
@@ -324,19 +336,19 @@ namespace dMobile.Controller
         {
             if (!this.SysEnv.SysSettings.IsDisconnectedMode)
             {
-                string xmlDelete = await this.CreateDeleteXML(XDocument.Parse(
+                var xmlDelete = await this.CreateDeleteXML(XDocument.Parse(
                     "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?><params></params>"));
 
-                string reqData = SysCommon.SubmitComm(xmlDelete);
+                var reqData = SysCommon.SubmitComm(xmlDelete);
 
                 if (reqData.Length > 0)
                 {
                     // check if result is an error message
                     if (reqData.Contains("<message>ERROR</message>"))
                     {
-                        XmlDocument docError = new XmlDocument();
+                        var docError = new XmlDocument();
                         docError.LoadXml(reqData);
-                        string errorDetail = docError.DocumentElement["detail"].InnerText;
+                        var errorDetail = docError.DocumentElement["detail"].InnerText;
 
                         if (errorDetail.Contains("MSGBOX-"))
                         {
@@ -358,7 +370,7 @@ namespace dMobile.Controller
             // string currSort = this.DataViewDetails.Sort;
             // this.DataViewDetails.Sort = "ActivityDetailFKRefno";
             // int rowIdx = this.DataViewDetails.Find(this.FKRefno);
-            PickingDetail pickingDetail = this.ActItem.ListItems.OfType<PickingDetail>().FirstOrDefault(
+            var pickingDetail = this.ActItem.ListItems.OfType<PickingDetail>().FirstOrDefault(
                 pickingDetail => pickingDetail.ActivityDetailFKRefno == this.DetailFKRefno);
 
             if (this.ListDetails != null && pickingDetail != null)
@@ -371,7 +383,7 @@ namespace dMobile.Controller
             // this.DataViewDetails.Sort = currSort;
 
             // Delete from database
-            string query = "DELETE FROM tActivityDetailProductSchemeVariantXRef WHERE ActivityDetailRefno = ?";
+            var query = "DELETE FROM tActivityDetailProductSchemeVariantXRef WHERE ActivityDetailRefno = ?";
             _ = await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(query, this.DetailRefno);
 
             query = "DELETE FROM tActivityDetailPicking WHERE ActivityDetailRefno = ?";
@@ -394,10 +406,10 @@ namespace dMobile.Controller
         /// <returns>The <see cref="Task"/>.</returns>
         public override async Task Submit(object selectedActivityDetail, XDocument data)
         {
-            XmlDocument xmlDoc = new XmlDocument();
-            string xmlSend = await this.CreateSubmitXML(XDocument.Parse(
+            var xmlDoc = new XmlDocument();
+            var xmlSend = await this.CreateSubmitXML(XDocument.Parse(
                 "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?><params></params>"));
-            string reqData = SysCommon.SubmitComm(xmlSend);
+            var reqData = SysCommon.SubmitComm(xmlSend);
 
             if (reqData.Length > 0)
             {
@@ -406,7 +418,7 @@ namespace dMobile.Controller
                 // check if result is an error message
                 if (reqData.Contains("<message>ERROR</message>"))
                 {
-                    string errorDetail = xmlDoc.DocumentElement["detail"].InnerText;
+                    var errorDetail = xmlDoc.DocumentElement["detail"].InnerText;
 
                     if (errorDetail.Contains("MSGBOX-"))
                     {
@@ -470,7 +482,7 @@ namespace dMobile.Controller
             {
                 this.DataLayerProgressOutHandler(this, new EventArgs(), 2);
 
-                TableActivityPickingDetail tableActPickingDetail = new TableActivityPickingDetail();
+                var tableActPickingDetail = new TableActivityPickingDetail();
                 await tableActPickingDetail.PurgeData();
 
                 this.DataLayerProgressOutHandler(this, new EventArgs(), 5);
@@ -508,7 +520,7 @@ namespace dMobile.Controller
         /// <returns>Data view result of the query.</returns>
         public override async Task<List<object>> GetActivityDetailList(bool isSubmitBatch)
         {
-            StringBuilder sql = new StringBuilder();
+            var sql = new StringBuilder();
 
             if (isSubmitBatch)
             {
@@ -883,14 +895,14 @@ namespace dMobile.Controller
             ref Grid gridMain,
             ref ListView mainActivity)
         {
-            ObservableCollection<object> observableCollection = new ObservableCollection<object>();
+            var observableCollection = new ObservableCollection<object>();
 
             foreach (PickingDetail pickingDetail in this.ListDetails)
             {
                 observableCollection.Add(pickingDetail);
             }
 
-            Label labelPickingDetailConfirmedHeader = new Label
+            var labelPickingDetailConfirmedHeader = new Label
             {
                 Text = "C",
                 VerticalOptions = LayoutOptions.Center,
@@ -898,7 +910,7 @@ namespace dMobile.Controller
                 FontAttributes = FontAttributes.Bold,
             };
 
-            Label labelPickingQuantityHeader = new Label
+            var labelPickingQuantityHeader = new Label
             {
                 Text = "Qty",
                 VerticalOptions = LayoutOptions.Center,
@@ -906,7 +918,7 @@ namespace dMobile.Controller
                 FontAttributes = FontAttributes.Bold,
             };
 
-            Label labelPickingWeightQuantityHeader = new Label
+            var labelPickingWeightQuantityHeader = new Label
             {
                 Text = "Weight",
                 VerticalOptions = LayoutOptions.Center,
@@ -914,7 +926,7 @@ namespace dMobile.Controller
                 FontAttributes = FontAttributes.Bold,
             };
 
-            Label labelPickingUnitCodeHeader = new Label
+            var labelPickingUnitCodeHeader = new Label
             {
                 Text = string.Empty,
                 VerticalOptions = LayoutOptions.Center,
@@ -922,7 +934,7 @@ namespace dMobile.Controller
                 FontAttributes = FontAttributes.Bold,
             };
 
-            Label labelPickingSchemeIDHeader = new Label
+            var labelPickingSchemeIDHeader = new Label
             {
                 Text = "Scheme ID",
                 VerticalOptions = LayoutOptions.Center,
@@ -937,7 +949,7 @@ namespace dMobile.Controller
             this.ColumnWidth4 = DependencyService.Get<IGridService>().CalculateTextWidth(labelPickingSchemeIDHeader.Text);
 
             // Header grid
-            Grid gridHeader = new Grid
+            var gridHeader = new Grid
             {
                 Padding = new Thickness(5),
                 ColumnDefinitions =
@@ -978,14 +990,14 @@ namespace dMobile.Controller
 
             foreach (PickingDetail pickingDetail in observableCollection)
             {
-                double detailWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(
+                var detailWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(
                     pickingDetail.ActivityDetailIsConfirmedString);
-                double detailWidth1 = DependencyService.Get<IGridService>().CalculateTextWidth(
+                var detailWidth1 = DependencyService.Get<IGridService>().CalculateTextWidth(
                     string.Format("{0:F3}", pickingDetail.ActivityDetailQuantity));
-                double detailWidth2 = DependencyService.Get<IGridService>().CalculateTextWidth(
+                var detailWidth2 = DependencyService.Get<IGridService>().CalculateTextWidth(
                     string.Format("{0:F3}", pickingDetail.ActivityDetailWeightQuantity));
-                double detailWidth3 = DependencyService.Get<IGridService>().CalculateTextWidth(pickingDetail.UnitCode);
-                double detailWidth4 = DependencyService.Get<IGridService>().CalculateTextWidth(
+                var detailWidth3 = DependencyService.Get<IGridService>().CalculateTextWidth(pickingDetail.UnitCode);
+                var detailWidth4 = DependencyService.Get<IGridService>().CalculateTextWidth(
                     pickingDetail.ActivityDetailSchemeID);
 
                 if (this.SysEnv.SysSettings.IsPickConfirmDet)
@@ -1027,7 +1039,7 @@ namespace dMobile.Controller
                 }
             }
 
-            mainActivity.ItemTemplate = (DataTemplate)this.ResourceDictionary["dataTemplate"];
+            mainActivity.ItemTemplate = (DataTemplate)this.ResourceDictionary["dataTemplatePickingDetail"];
 
             return observableCollection;
         }
@@ -1045,7 +1057,7 @@ namespace dMobile.Controller
             ObservableCollection<object> mainActivityItems)
         {
             mainActivityItems.Add(actDetail);
-            Label labelPickingDetailConfirmedHeader = new Label
+            var labelPickingDetailConfirmedHeader = new Label
             {
                 Text = "C",
                 VerticalOptions = LayoutOptions.Center,
@@ -1053,7 +1065,7 @@ namespace dMobile.Controller
                 FontAttributes = FontAttributes.Bold,
             };
 
-            Label labelPickingQuantityHeader = new Label
+            var labelPickingQuantityHeader = new Label
             {
                 Text = "Qty",
                 VerticalOptions = LayoutOptions.Center,
@@ -1061,7 +1073,7 @@ namespace dMobile.Controller
                 FontAttributes = FontAttributes.Bold,
             };
 
-            Label labelPickingWeightQuantityHeader = new Label
+            var labelPickingWeightQuantityHeader = new Label
             {
                 Text = "Weight",
                 VerticalOptions = LayoutOptions.Center,
@@ -1069,7 +1081,7 @@ namespace dMobile.Controller
                 FontAttributes = FontAttributes.Bold,
             };
 
-            Label labelPickingUnitCodeHeader = new Label
+            var labelPickingUnitCodeHeader = new Label
             {
                 Text = string.Empty,
                 VerticalOptions = LayoutOptions.Center,
@@ -1077,7 +1089,7 @@ namespace dMobile.Controller
                 FontAttributes = FontAttributes.Bold,
             };
 
-            Label labelPickingSchemeIDHeader = new Label
+            var labelPickingSchemeIDHeader = new Label
             {
                 Text = "Scheme ID",
                 VerticalOptions = LayoutOptions.Center,
@@ -1092,7 +1104,7 @@ namespace dMobile.Controller
             this.ColumnWidth4 = DependencyService.Get<IGridService>().CalculateTextWidth(labelPickingSchemeIDHeader.Text);
 
             // Header grid
-            Grid gridHeader = new Grid
+            var gridHeader = new Grid
             {
                 Padding = new Thickness(5),
                 ColumnDefinitions =
@@ -1131,14 +1143,14 @@ namespace dMobile.Controller
 
             gridMain.Children.Add(gridHeader);
 
-            double detailWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(
+            var detailWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(
                 ((PickingDetail)actDetail).ActivityDetailIsConfirmedString);
-            double detailWidth1 = DependencyService.Get<IGridService>().CalculateTextWidth(
+            var detailWidth1 = DependencyService.Get<IGridService>().CalculateTextWidth(
                 string.Format("{0:F3}", actDetail.ActivityDetailQuantity));
-            double detailWidth2 = DependencyService.Get<IGridService>().CalculateTextWidth(
+            var detailWidth2 = DependencyService.Get<IGridService>().CalculateTextWidth(
                 string.Format("{0:F3}", actDetail.ActivityDetailWeightQuantity));
-            double detailWidth3 = DependencyService.Get<IGridService>().CalculateTextWidth(actDetail.UnitCode);
-            double detailWidth4 = DependencyService.Get<IGridService>().CalculateTextWidth(
+            var detailWidth3 = DependencyService.Get<IGridService>().CalculateTextWidth(actDetail.UnitCode);
+            var detailWidth4 = DependencyService.Get<IGridService>().CalculateTextWidth(
                 actDetail.ActivityDetailSchemeID);
             if (this.SysEnv.SysSettings.IsPickConfirmDet)
             {
@@ -1178,7 +1190,7 @@ namespace dMobile.Controller
                 gridHeader.ColumnDefinitions[4].Width = this.ColumnWidth4;
             }
 
-            return (DataTemplate)this.ResourceDictionary["dataTemplate"];
+            return (DataTemplate)this.ResourceDictionary["dataTemplatePickingDetail"];
         }
 
         /// <summary>
@@ -1188,7 +1200,7 @@ namespace dMobile.Controller
         /// <returns>.</returns>
         public override ObservableCollection<object> Search(string searchText)
         {
-            ObservableCollection<object> observableCollection = new ObservableCollection<object>();
+            var observableCollection = new ObservableCollection<object>();
             this.ListDetails = this.ListPickingDetails.Where(pickDetail => pickDetail.ActivityDetailFKRefno.
                 ToString().ToLower().Contains(searchText.ToLower().Trim())).Cast<object>().ToList();
 
@@ -1217,8 +1229,8 @@ namespace dMobile.Controller
         /// <returns>.</returns>
         public override async Task<string> CreateSubmitXML(XDocument sendData)
         {
-            StringBuilder xmlString = new StringBuilder();
-            XmlWriter xml = XmlWriter.Create(xmlString);
+            var xmlString = new StringBuilder();
+            var xml = XmlWriter.Create(xmlString);
 
             XDocument request;
             if (this.ActItem.ActHdr.XMLDataCriteria == null)
@@ -1282,8 +1294,8 @@ namespace dMobile.Controller
             }
             else
             {
-                int whsRefno = Convert.ToInt32(this.ActItem.ActHdr.XMLDataCriteria.Root.Element("whs_id").Value);
-                int sectRefno = Convert.ToInt32(this.ActItem.ActHdr.XMLDataCriteria.Root.Element("sect_refno").Value);
+                var whsRefno = Convert.ToInt32(this.ActItem.ActHdr.XMLDataCriteria.Root.Element("whs_id").Value);
+                var sectRefno = Convert.ToInt32(this.ActItem.ActHdr.XMLDataCriteria.Root.Element("sect_refno").Value);
 
                 if (sendData.Document.Root.Element("skid_data") == null)
                 {
@@ -1357,8 +1369,8 @@ namespace dMobile.Controller
         /// <returns>.</returns>
         public override async Task<string> CreateDeleteXML(XDocument data)
         {
-            StringBuilder xmlString = new StringBuilder();
-            XmlWriter xml = XmlWriter.Create(xmlString);
+            var xmlString = new StringBuilder();
+            var xml = XmlWriter.Create(xmlString);
 
             XDocument request;
             if (data.Document.Root.Element("skid_data") == null)
@@ -1420,7 +1432,7 @@ namespace dMobile.Controller
         /// <returns>SFillQuantity structure.</returns>
         public override async Task<SFillQuantity> GetTotalQuantityFromListDetail()
         {
-            SFillQuantity fillQty = new SFillQuantity();
+            var fillQty = new SFillQuantity();
 
             if (this.ListDetails != null && this.ListDetails.Count > 0)
             {
@@ -1495,7 +1507,7 @@ namespace dMobile.Controller
         /// <param name="listDetailIdx"><see cref="int"/> Zero based list detail index.</param>
         public override void UpdateListDetail(int listDetailIdx)
         {
-            PickingDetail detail = (PickingDetail)this.ListDetails[listDetailIdx];
+            var detail = (PickingDetail)this.ListDetails[listDetailIdx];
             if (detail.ActivityDetailStatus == (int)SysCommon.ActStatus.NoChange)
             {
                 detail.ActivityDetailStatus = (int)SysCommon.ActStatus.Updated;

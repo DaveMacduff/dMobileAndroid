@@ -38,14 +38,14 @@ namespace dMobile.GroundWork
             {
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Seeding slot coordinates.", true);
 
-                string reqData = string.Empty;
+                var reqData = string.Empty;
                 reqData = await this.SendRequest();
 
                 if (reqData.Length > 0)
                 {
                     if (reqData.Contains("<message>ERROR</message>"))
                     {
-                        XmlDocument reqErr = new XmlDocument();
+                        var reqErr = new XmlDocument();
                         reqErr.LoadXml(reqData);
                         throw new Exception(reqErr.DocumentElement["detail"].InnerText);
                     }
@@ -116,7 +116,7 @@ namespace dMobile.GroundWork
             {
                 try
                 {
-                    using (DataSet ds = new DataSet())
+                    using (var ds = new DataSet())
                     {
                         this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Reading received data.", false);
 
@@ -126,15 +126,15 @@ namespace dMobile.GroundWork
 
                         if (ds.Tables.Count != 0)
                         {
-                            int progMax = Convert.ToInt32(ds.Tables["tLocationMapSlotCoordinate"].Rows.Count);
+                            var progMax = Convert.ToInt32(ds.Tables["tLocationMapSlotCoordinate"].Rows.Count);
 
                             this.DataAccessStatusOutHandler(this, EventArgs.Empty, string.Format("Records {0}", progMax), false);
 
-                            int progValue = 0;
-                            bool isSlotCoordFound = false;
-                            int slotCoordType = Convert.ToInt32(SysCommon.LocMapSlotCoordTypes.Coord1);
-                            string slotCoordCode = string.Empty;
-                            int whsLocMapRefno = 0;
+                            var progValue = 0;
+                            var isSlotCoordFound = false;
+                            var slotCoordType = Convert.ToInt32(SysCommon.LocMapSlotCoordTypes.Coord1);
+                            var slotCoordCode = string.Empty;
+                            var whsLocMapRefno = 0;
 
                             this.DataAccessProgressOutHandler(this, EventArgs.Empty, 0, 0, progMax);
 
@@ -164,7 +164,7 @@ namespace dMobile.GroundWork
 
                                 if (this.SysEnv.RefreshOpt.RefreshDataChangesOnly)
                                 {
-                                    List<tLocationMapSlotCoordinateModel> results = transaction.Query<tLocationMapSlotCoordinateModel>("SELECT * FROM tLocationMapSlotCoordinate WHERE LocationMapSlotCoordinateEnum = ? AND LocationMapSlotCoordinateCode = ? AND WarehouseLocationMapRefno = ?",
+                                    var results = transaction.Query<tLocationMapSlotCoordinateModel>("SELECT * FROM tLocationMapSlotCoordinate WHERE LocationMapSlotCoordinateEnum = ? AND LocationMapSlotCoordinateCode = ? AND WarehouseLocationMapRefno = ?",
                                         slotCoordType,
                                         slotCoordCode,
                                         whsLocMapRefno);
@@ -215,10 +215,10 @@ namespace dMobile.GroundWork
         /// <returns></returns>
         protected override async Task<string> CreateRequest()
         {
-            StringBuilder xmlString = new StringBuilder();
-            XmlWriter xml = XmlWriter.Create(xmlString);
+            var xmlString = new StringBuilder();
+            var xml = XmlWriter.Create(xmlString);
 
-            XDocument request = XDocument.Parse(
+            var request = XDocument.Parse(
                 "<?xml version=\"1.0\" encoding=\"utf-8\" standalone=\"yes\"?>"
                 + "<imclient>"
                 + "<command>"

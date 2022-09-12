@@ -194,8 +194,8 @@ namespace dMobile.Bedrock
         /// <returns>The <see cref="Task"/>.</returns>
         public async Task RequestProductSchemeLabelSettings()
         {
-            string reqData = string.Empty;
-            ProdSchemeLabelSettingsEventArgs msgArgs = new ProdSchemeLabelSettingsEventArgs();
+            var reqData = string.Empty;
+            var msgArgs = new ProdSchemeLabelSettingsEventArgs();
 
             try
             {
@@ -208,7 +208,7 @@ namespace dMobile.Bedrock
                 {
                     if (reqData.Contains("<message>ERROR</message>"))
                     {
-                        XmlDocument docError = new XmlDocument();
+                        var docError = new XmlDocument();
                         docError.LoadXml(reqData);
                         throw new Exception(docError.DocumentElement["detail"].InnerText);
                     }
@@ -238,12 +238,12 @@ namespace dMobile.Bedrock
         {
             lock (this.readLockObject)
             {
-                XmlSerializer serializer = new XmlSerializer(typeof(ProdSchemeLabelSettings));
-                ProdSchemeLabelSettings settings = new ProdSchemeLabelSettings();
+                var serializer = new XmlSerializer(typeof(ProdSchemeLabelSettings));
+                var settings = new ProdSchemeLabelSettings();
 
                 // use reflection to get the current assembly path for the database
-                string appDir = Environment.GetFolderPath(Environment.SpecialFolder.Personal);
-                string fullPathToMyFile = Path.Combine(appDir, this.fileName);
+                var appDir = Environment.GetFolderPath(Environment.SpecialFolder.Personal);
+                var fullPathToMyFile = Path.Combine(appDir, this.fileName);
 
                 if (!File.Exists(fullPathToMyFile))
                 {
@@ -251,7 +251,7 @@ namespace dMobile.Bedrock
                 }
 
                 // Create a FileStream to read with.
-                using (FileStream reader = new FileStream(fullPathToMyFile, FileMode.Open, FileAccess.Read, FileShare.Read))
+                using (var reader = new FileStream(fullPathToMyFile, FileMode.Open, FileAccess.Read, FileShare.Read))
                 {
                     // Deserialize the stream to the object, and close the TextReader
                     settings = (ProdSchemeLabelSettings)serializer.Deserialize(reader);
@@ -270,17 +270,17 @@ namespace dMobile.Bedrock
         {
             lock (this.writeLockObject)
             {
-                XmlSerializer serializer = new XmlSerializer(typeof(ProdSchemeLabelSettings));
-                bool saveComplete = false;
+                var serializer = new XmlSerializer(typeof(ProdSchemeLabelSettings));
+                var saveComplete = false;
 
                 try
                 {
                     // use reflection to get the current assembly path for the database
-                    string appDir = Environment.GetFolderPath(Environment.SpecialFolder.Personal);
-                    string fullPathToMyFile = Path.Combine(appDir, this.fileName);
+                    var appDir = Environment.GetFolderPath(Environment.SpecialFolder.Personal);
+                    var fullPathToMyFile = Path.Combine(appDir, this.fileName);
 
                     // Create a FileStream to write with.
-                    using (FileStream writer = new FileStream(fullPathToMyFile, FileMode.Create, FileAccess.Write, FileShare.None))
+                    using (var writer = new FileStream(fullPathToMyFile, FileMode.Create, FileAccess.Write, FileShare.None))
                     {
                         // Serialize the object, and close the TextWriter
                         serializer.Serialize(writer, settings);
@@ -304,11 +304,11 @@ namespace dMobile.Bedrock
         /// <returns>.</returns>
         public ProdSchemeLabelInfo GetSchemeInfoFromSchemeRefno(int schemeRefno)
         {
-            ProdSchemeLabelInfo schemeLblInfo = new ProdSchemeLabelInfo();
+            var schemeLblInfo = new ProdSchemeLabelInfo();
 
             if (this.AllProdSchemeLabel.Count > 0)
             {
-                for (int idx = 0; idx < this.AllProdSchemeLabel.Count; idx++)
+                for (var idx = 0; idx < this.AllProdSchemeLabel.Count; idx++)
                 {
                     if (((ProdSchemeLabelInfo)this.AllProdSchemeLabel[idx]).SchemeRefno == schemeRefno)
                     {
@@ -376,7 +376,7 @@ namespace dMobile.Bedrock
         /// <param name="sockArgs">.</param>
         public void OnSysSocketStatusOut(ISysSocketEventPublisher sockPublisher, SysSocketEventArgs sockArgs)
         {
-            ProdSchemeLabelSettingsEventArgs args = new ProdSchemeLabelSettingsEventArgs(sockArgs.StatusOutMsg);
+            var args = new ProdSchemeLabelSettingsEventArgs(sockArgs.StatusOutMsg);
             this.OnProdSchemeLabelSettingsStatusOut(this, args);
         }
 
@@ -387,13 +387,13 @@ namespace dMobile.Bedrock
         /// <returns>The <see cref="Task"/>.</returns>
         private async Task Save(string xmlData)
         {
-            ProdSchemeLabelSettingsEventArgs msgArg = new ProdSchemeLabelSettingsEventArgs();
-            string schemeCode = string.Empty;
-            string errMsg = string.Empty;
+            var msgArg = new ProdSchemeLabelSettingsEventArgs();
+            var schemeCode = string.Empty;
+            var errMsg = string.Empty;
 
             try
             {
-                using (DataSet ds = new DataSet())
+                using (var ds = new DataSet())
                 {
                     if (this.OnProdSchemeLabelSettingsStatusOut != null)
                     {
@@ -413,7 +413,7 @@ namespace dMobile.Bedrock
 
                     if (ds.Tables.Count != 0)
                     {
-                        int progMax = ds.Tables["seg"].Rows.Count;
+                        var progMax = ds.Tables["seg"].Rows.Count;
 
                         if (this.OnProdSchemeLabelSettingsStatusOut != null)
                         {
@@ -431,15 +431,15 @@ namespace dMobile.Bedrock
                         }
 
                         this.AllProdSchemeLabel.Clear();
-                        int progValue = 0;
-                        ProdSchemeLabelInfo schemeLblInfo = new ProdSchemeLabelInfo();
+                        var progValue = 0;
+                        var schemeLblInfo = new ProdSchemeLabelInfo();
 
                         foreach (DataRow drow in ds.Tables["seg"].Rows)
                         {
                             schemeCode = Convert.ToString(drow["ProductSchemeCode"]);
                             errMsg = "Scheme code \'" + errMsg + "\'";
 
-                            List<tProductSchemeModel> results = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<tProductSchemeModel>("SELECT * FROM tProductScheme WHERE ProductSchemeCode = ?", schemeCode);
+                            var results = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<tProductSchemeModel>("SELECT * FROM tProductScheme WHERE ProductSchemeCode = ?", schemeCode);
 
                             // if (!drScheme.Seek(DbSeekOptions.FirstEqual, new object[] { schemeCode }))
                             // {
@@ -517,16 +517,16 @@ namespace dMobile.Bedrock
         /// <returns>String of the xml request to get the product scheme label settings.</returns>
         private string Create()
         {
-            StringBuilder xmlString = new StringBuilder();
-            XmlWriter xml = XmlWriter.Create(xmlString);
+            var xmlString = new StringBuilder();
+            var xml = XmlWriter.Create(xmlString);
 
             // Keep the revision date to empty 1/1/1900.
             // I had to do this because on a partial refresh we do not maintain the prior xml data.
             // The structure is empty.
-            string revision = new DateTime(1900, 1, 1).ToString("yyyy'-'MM'-'dd'T'HH':'mm':'ss");
-            SysEnvironment sysEnv = SysEnvironment.GetInstance();
+            var revision = new DateTime(1900, 1, 1).ToString("yyyy'-'MM'-'dd'T'HH':'mm':'ss");
+            var sysEnv = SysEnvironment.GetInstance();
 
-            XDocument request = new XDocument(
+            var request = new XDocument(
                 new XDeclaration("1.0", "utf-8", "yes"),
                 string.Empty,
                 new XElement(

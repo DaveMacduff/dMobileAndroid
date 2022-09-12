@@ -67,9 +67,9 @@ namespace dMobile.View.Activity
             if (this.SysEnv.SysSettings.IsProductUnitBarCodeModifier1)
             {
                 this.BarCodeModifier1Picker.Items.Add(string.Empty);
-                string[] modifiers = this.SysEnv.SysSettings.ProductUnitBarCodeModifier1Codes.Split(',');
+                var modifiers = this.SysEnv.SysSettings.ProductUnitBarCodeModifier1Codes.Split(',');
 
-                foreach (string item in modifiers)
+                foreach (var item in modifiers)
                 {
                     this.BarCodeModifier1Picker.Items.Add(item);
                 }
@@ -296,7 +296,7 @@ namespace dMobile.View.Activity
         /// <returns>.</returns>
         public async Task<bool> IsReadyToSave()
         {
-            bool isReadyToSave = true;
+            var isReadyToSave = true;
 
             if (this.ActDetail.ListDetails.Count > 0)
             {
@@ -357,7 +357,7 @@ namespace dMobile.View.Activity
         /// <returns>.</returns>
         public async Task<bool> SaveChanges()
         {
-            bool bSaveComplete = false;
+            var bSaveComplete = false;
 
             try
             {
@@ -369,7 +369,7 @@ namespace dMobile.View.Activity
                     {
                         if (this.ActDetail.ListDetails != null && this.ActDetail.ListDetails.Count > 0)
                         {
-                            for (int idx = 0; idx < this.ActDetail.ListDetails.Count; idx++)
+                            for (var idx = 0; idx < this.ActDetail.ListDetails.Count; idx++)
                             {
                                 try
                                 {
@@ -377,13 +377,13 @@ namespace dMobile.View.Activity
                                     {
                                         this.ActItem.ItemFKRefno = 0;
                                         this.ActItem.ItemRefno = 0;
-                                        ProductInfo oProductInfo = this.ActItem.ProdInfo;
+                                        var oProductInfo = this.ActItem.ProdInfo;
                                         oProductInfo = await ProductInfoTasks.GetInfoFromUnitRefno(Convert.ToInt32(this.ActDetail.ListDetails[idx].GetType().GetProperty("ProductUnitRefno")?.GetValue(this.ActDetail.ListDetails[idx])));
                                         oProductInfo.Scheme = await ProductInfoTasks.GetSchemeComponentsFromRefno(oProductInfo.Refno);
                                         this.ActItem.ProdInfo = oProductInfo;
-                                        Resources.Types.ActivityDetail detail = (Resources.Types.ActivityDetail)this.ActDetail.ListDetails[idx];
+                                        var detail = (Resources.Types.ActivityDetail)this.ActDetail.ListDetails[idx];
                                         await this.ActDetail.AssignThisFromDetailAsync(detail, false);
-                                        XDocument xmlParam = XDocument.Parse("<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>" + "<param>" + "<whs_id>" + this.SelFromLocMap.WhsFKRefno.ToString() + "</whs_id>" + "<sect_refno>" + this.SelFromLocMap.SectFKRefno.ToString() + "</sect_refno>" + "<slot_refno>" + this.SelFromLocMap.SlotFKRefno.ToString() + "</slot_refno>" + "<to_sect_refno>" + this.SelToLocMap.SectFKRefno.ToString() + "</to_sect_refno>" + "<to_slot_refno>" + this.SelToLocMap.SlotFKRefno.ToString() + "</to_slot_refno>" + "</param>");
+                                        var xmlParam = XDocument.Parse("<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>" + "<param>" + "<whs_id>" + this.SelFromLocMap.WhsFKRefno.ToString() + "</whs_id>" + "<sect_refno>" + this.SelFromLocMap.SectFKRefno.ToString() + "</sect_refno>" + "<slot_refno>" + this.SelFromLocMap.SlotFKRefno.ToString() + "</slot_refno>" + "<to_sect_refno>" + this.SelToLocMap.SectFKRefno.ToString() + "</to_sect_refno>" + "<to_slot_refno>" + this.SelToLocMap.SlotFKRefno.ToString() + "</to_slot_refno>" + "</param>");
 
                                         await this.ActDetail.Submit(this.ActDetail.ListDetails[idx], xmlParam);
                                         idx--;
@@ -395,7 +395,7 @@ namespace dMobile.View.Activity
                                 }
                                 catch (Exception ex)
                                 {
-                                    bool result = await Device.InvokeOnMainThreadAsync(async () => await this.DisplayAlert("Move Submission", Convert.ToString("Submit Move Failed" + Environment.NewLine + ex.Message), "Cancel", "Retry"));
+                                    var result = await Device.InvokeOnMainThreadAsync(async () => await this.DisplayAlert("Move Submission", Convert.ToString("Submit Move Failed" + Environment.NewLine + ex.Message), "Cancel", "Retry"));
 
                                     if (result)
                                     {
@@ -439,7 +439,7 @@ namespace dMobile.View.Activity
 
                 await Device.InvokeOnMainThreadAsync(async () =>
                 {
-                    FormErrorReport errorReport = new FormErrorReport(this.ActSubType, ex);
+                    var errorReport = new FormErrorReport(this.ActSubType, ex);
                     _ = await errorReport.ShowDialog();
                 });
             }
@@ -457,7 +457,7 @@ namespace dMobile.View.Activity
         /// <returns>.</returns>
         public async Task<bool> CancelChanges()
         {
-            bool cancelChanges = true;
+            var cancelChanges = true;
 
             try
             {
@@ -488,7 +488,7 @@ namespace dMobile.View.Activity
 
                 await Device.InvokeOnMainThreadAsync(async () =>
                 {
-                    FormErrorReport errorReport = new FormErrorReport(SysCommon.ActSubTypes.MoveInventory, ex);
+                    var errorReport = new FormErrorReport(SysCommon.ActSubTypes.MoveInventory, ex);
                     _ = await errorReport.ShowDialog();
                 });
             }
@@ -502,7 +502,7 @@ namespace dMobile.View.Activity
         /// <returns>.</returns>
         public async Task<XDocument> GetXML()
         {
-            XDocument xmlDoc = XDocument.Parse("<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>" + "<params>" + "</params>");
+            var xmlDoc = XDocument.Parse("<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>" + "<params>" + "</params>");
             return xmlDoc;
         }
 
@@ -520,10 +520,10 @@ namespace dMobile.View.Activity
 
             if (dataLayerEventArgs.StatusOutMsg.Length > tokenLength)
             {
-                int iTokens = Convert.ToInt32(Math.Ceiling(Convert.ToDouble(dataLayerEventArgs.StatusOutMsg.Length / tokenLength)));
+                var iTokens = Convert.ToInt32(Math.Ceiling(Convert.ToDouble(dataLayerEventArgs.StatusOutMsg.Length / tokenLength)));
                 for (var iTokenIdx = 0; iTokenIdx <= (iTokens * tokenLength) - 1; iTokenIdx++)
                 {
-                    int iTokenLength = Convert.ToInt32(dataLayerEventArgs.StatusOutMsg.Length - iTokenIdx > tokenLength ? tokenLength : dataLayerEventArgs.StatusOutMsg.Length - iTokenIdx);
+                    var iTokenLength = Convert.ToInt32(dataLayerEventArgs.StatusOutMsg.Length - iTokenIdx > tokenLength ? tokenLength : dataLayerEventArgs.StatusOutMsg.Length - iTokenIdx);
                     this.ExtraInfoItems.Add(dataLayerEventArgs.StatusOutMsg.Substring(Convert.ToInt32(iTokenIdx), iTokenLength));
                     iTokenIdx += tokenLength;
                 }
@@ -555,7 +555,7 @@ namespace dMobile.View.Activity
                 this.Loading = true;
                 await this.ScannerDisable();
 
-                FormDialogContainer form = new FormDialogContainer(EDialogTypes.SelectLocationMap, SysCommon.ActSubTypes.NotApplicable);
+                var form = new FormDialogContainer(EDialogTypes.SelectLocationMap, SysCommon.ActSubTypes.NotApplicable);
 
                 if (await Device.InvokeOnMainThreadAsync(async () => await form.DisplayControl.ShowDialog() == DialogResult.OK))
                 {
@@ -596,7 +596,7 @@ namespace dMobile.View.Activity
                 this.Loading = true;
                 await this.ScannerDisable();
 
-                FormDialogContainer form = new FormDialogContainer(EDialogTypes.SelectLocationMap, SysCommon.ActSubTypes.NotApplicable);
+                var form = new FormDialogContainer(EDialogTypes.SelectLocationMap, SysCommon.ActSubTypes.NotApplicable);
 
                 if (await form.DisplayControl.ShowDialog() == DialogResult.OK)
                 {
@@ -671,18 +671,18 @@ namespace dMobile.View.Activity
         /// <param name="e">.</param>
         private async void cmdAdd_Click(object sender, EventArgs e)
         {
-            int prodUnitRefno = 0;
+            var prodUnitRefno = 0;
 
             try
             {
                 this.Loading = true;
                 await this.ScannerDisable();
 
-                FormDialogContainer form = new FormDialogContainer(EDialogTypes.SelectProductUnit, this.ActSubType);
+                var form = new FormDialogContainer(EDialogTypes.SelectProductUnit, this.ActSubType);
 
                 if (await Device.InvokeOnMainThreadAsync(async () => await form.DisplayControl.ShowDialog() == DialogResult.OK))
                 {
-                    XDocument xmlDoc = await form.GetXML();
+                    var xmlDoc = await form.GetXML();
                     prodUnitRefno = Convert.ToInt32(xmlDoc.Root.Element("ProductUnitRefno").Value);
                     object infoObject = null;
 
@@ -695,16 +695,16 @@ namespace dMobile.View.Activity
 
                     await this.ActDetail.AssignThisFromDetailAsync((MoveDetail)infoObject, true);
 
-                    SFillQuantity fillQty = SysCommon.FillQuantityStructureFromQuantity((ProductInfo)this.ActItem.ProdInfo, 1);
-                    SActItemSchemeData tempItemSchemeData = new SActItemSchemeData
+                    var fillQty = SysCommon.FillQuantityStructureFromQuantity((ProductInfo)this.ActItem.ProdInfo, 1);
+                    var tempItemSchemeData = new SActItemSchemeData
                     {
                         ActDetailQuantity = fillQty.Quantity,
                         ActDetailBaseQuantity = fillQty.BaseQuantity,
                         ActDetailWeightQuantity = fillQty.WeightQuantity,
                     };
 
-                    bool isInsertReady = false;
-                    int foundRowIdx = -1;
+                    var isInsertReady = false;
+                    var foundRowIdx = -1;
 
                     if (this.ActDetail.ListDetails.Count > 0)
                     {
@@ -734,7 +734,7 @@ namespace dMobile.View.Activity
                 {
                     await Device.InvokeOnMainThreadAsync(async () =>
                     {
-                        FormErrorReport errorReport = new FormErrorReport(this.ActSubType, ex);
+                        var errorReport = new FormErrorReport(this.ActSubType, ex);
                         _ = await errorReport.ShowDialog();
                     });
                 }
@@ -743,7 +743,7 @@ namespace dMobile.View.Activity
             {
                 await Device.InvokeOnMainThreadAsync(async () =>
                 {
-                    FormErrorReport errorReport = new FormErrorReport(this.ActSubType, ex);
+                    var errorReport = new FormErrorReport(this.ActSubType, ex);
                     _ = await errorReport.ShowDialog();
                 });
             }
@@ -772,7 +772,7 @@ namespace dMobile.View.Activity
         {
             if (isInsertDetailReady)
             {
-                XDocument xmlDoc = this.ActDetail.GetXML(this.ActDetail);
+                var xmlDoc = this.ActDetail.GetXML(this.ActDetail);
                 await this.ActDetail.Insert(xmlDoc);
 
                 if (this.ActDetail.ListDetails.Count > 0 && this.MainActivityItems.Count > this.ActDetail.ListDetails.Count - 1)
@@ -797,9 +797,9 @@ namespace dMobile.View.Activity
 
             this.Loading = true;
             XDocument xmlDoc = null;
-            int prodUnitRefno = 0;
+            var prodUnitRefno = 0;
             // int rowIdx = this.ListViewMainActivity.CurrentRowIndex;
-            int rowIdx = this.MainActivityItems.IndexOf(this.ListViewMainActivity.SelectedItem);
+            var rowIdx = this.MainActivityItems.IndexOf(this.ListViewMainActivity.SelectedItem);
 
             try
             {
@@ -861,10 +861,10 @@ namespace dMobile.View.Activity
 
                         await this.ActDetail.AssignThisFromDetailAsync((MoveDetail)infoObject, true);
 
-                        SActItemSchemeData tempItemSchemeData = new SActItemSchemeData();
-                        bool isInsertReady = false;
+                        var tempItemSchemeData = new SActItemSchemeData();
+                        var isInsertReady = false;
 
-                        int foundRowIdx = -1;
+                        var foundRowIdx = -1;
 
                         if (this.ActDetail.ListDetails.Count > 0)
                         {
@@ -913,7 +913,7 @@ namespace dMobile.View.Activity
             {
                 await Device.InvokeOnMainThreadAsync(async () =>
                 {
-                    FormErrorReport errorReport = new FormErrorReport(this.ActSubType, ex);
+                    var errorReport = new FormErrorReport(this.ActSubType, ex);
                     _ = await errorReport.ShowDialog();
                 });
 
@@ -973,7 +973,7 @@ namespace dMobile.View.Activity
                 return;
             }
 
-            string result = await this.DisplayActionSheet("Move Inventory Options", "Close", null, this.optionsMenuItems.ToArray());
+            var result = await this.DisplayActionSheet("Move Inventory Options", "Close", null, this.optionsMenuItems.ToArray());
 
             if (result == "Save")
             {

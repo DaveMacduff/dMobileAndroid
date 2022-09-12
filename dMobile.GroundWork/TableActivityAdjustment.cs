@@ -39,13 +39,13 @@ namespace dMobile.GroundWork
             {
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Seeding adjustments.", true);
 
-                string reqData = await this.SendComm(await this.CreateRequest());
+                var reqData = await this.SendComm(await this.CreateRequest());
 
                 if (reqData.Length > 0)
                 {
                     if (reqData.Contains("<message>ERROR</message>"))
                     {
-                        XmlDocument reqErr = new XmlDocument();
+                        var reqErr = new XmlDocument();
                         reqErr.LoadXml(reqData);
                         throw new Exception(reqErr.DocumentElement["detail"].InnerText);
                     }
@@ -73,7 +73,7 @@ namespace dMobile.GroundWork
             {
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging adjustments.", true);
 
-                string query = "DELETE FROM tActivityAdjustment WHERE tActivityAdjustment.ActivitySubType = ?";
+                var query = "DELETE FROM tActivityAdjustment WHERE tActivityAdjustment.ActivitySubType = ?";
                 await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(query, Convert.ToInt32(SysCommon.ActSubTypes.Adjustment));
 
                 query = "DELETE FROM tActivity WHERE tActivity.ActivitySubType = ?";
@@ -99,9 +99,9 @@ namespace dMobile.GroundWork
             int rowsAffected;
             try
             {
-                string query = "SELECT COUNT(tActivity.ActivityRefno)"
-                        + " FROM tActivity"
-                        + " WHERE tActivity.ActivitySubType = ?";
+                var query = "SELECT COUNT(tActivity.ActivityRefno)"
+                            + " FROM tActivity"
+                            + " WHERE tActivity.ActivitySubType = ?";
 
                 rowsAffected = await DatabaseConnection.GetInstance().SQLConn.ExecuteScalarAsync<int>(query, (int)SysCommon.ActSubTypes.Adjustment);
 
@@ -122,13 +122,13 @@ namespace dMobile.GroundWork
         /// <remarks></remarks>
         protected override async Task Save(string reqData)
         {
-            string errMsg = string.Empty;
+            var errMsg = string.Empty;
 
             await DatabaseConnection.GetInstance().SQLConn.RunInTransactionAsync(transaction =>
             {
                 try
                 {
-                    using (DataSet ds = new DataSet())
+                    using (var ds = new DataSet())
                     {
                         this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Reading received data.", false);
 
@@ -139,21 +139,21 @@ namespace dMobile.GroundWork
                         // Receiving schema but no data results in no table being created in the dataset.
                         if (ds.Tables.Count != 0)
                         {
-                            int progMax = Convert.ToInt32(ds.Tables["tActivityAdjustment"].Rows.Count);
+                            var progMax = Convert.ToInt32(ds.Tables["tActivityAdjustment"].Rows.Count);
 
                             this.DataAccessStatusOutHandler(this, EventArgs.Empty, string.Format("Records {0}", progMax), false);
 
-                            int actRefno = 0;
-                            int progValue = 0;
-                            int whsLocMapRefno = 0;
-                            string actAdjTypeDesc = string.Empty;
-                            int adjFKRefno = 0;
+                            var actRefno = 0;
+                            var progValue = 0;
+                            var whsLocMapRefno = 0;
+                            var actAdjTypeDesc = string.Empty;
+                            var adjFKRefno = 0;
 
                             this.DataAccessProgressOutHandler(this, EventArgs.Empty, 0, 0, progMax);
 
                             foreach (DataRow drow in ds.Tables["tActivityAdjustment"].Rows)
                             {
-                                List<tLocationMapWarehouseModel> warehouseResults = transaction.Query<tLocationMapWarehouseModel>("SELECT * FROM tLocationMapWarehouse WHERE LocationMapWarehouseFKRefno = ?", Convert.ToInt32(drow["LocationMapWarehouseFKRefno"]));
+                                var warehouseResults = transaction.Query<tLocationMapWarehouseModel>("SELECT * FROM tLocationMapWarehouse WHERE LocationMapWarehouseFKRefno = ?", Convert.ToInt32(drow["LocationMapWarehouseFKRefno"]));
 
                                 if (warehouseResults != null && warehouseResults.Count > 0)
                                 {
@@ -254,32 +254,32 @@ namespace dMobile.GroundWork
                                 actRefno = Convert.ToInt32(transaction.ExecuteScalar<int>("SELECT last_insert_rowid() FROM tActivity"));
 
                                 adjFKRefno = Convert.ToInt32(drow["ActivityFKRefno"]);
-                                DateTime dt = Convert.ToDateTime(drow["ActivityAdjustmentDateTime"]);
+                                var dt = Convert.ToDateTime(drow["ActivityAdjustmentDateTime"]);
 
                                 errMsg += Environment.NewLine + "FK refno " + adjFKRefno;
                                 errMsg += Environment.NewLine + "Adj type \'" + actAdjTypeDesc + "\'";
 
-                                string sql = "INSERT INTO tActivityAdjustment (ActivityRefno, " +
-                                "ActivitySubType, " +
-                                "ActivityFKRefno, " +
-                                "ActivityStringFKRefno, " +
-                                "ActivityAdjustmentType, " +
-                                "WarehouseLocationMapRefno, " +
-                                "ActivityAdjustmentDateTime, " +
-                                "ActivityAdjustmentDescription, " +
-                                "ActivityAdjustmentTypeDescription) " +
-                                "VALUES " +
-                                "(?, " +
-                                "?, " +
-                                "?, " +
-                                "?, " +
-                                "?, " +
-                                "?, " +
-                                "?, " +
-                                "?, " +
-                                "?)";
+                                var sql = "INSERT INTO tActivityAdjustment (ActivityRefno, " +
+                                          "ActivitySubType, " +
+                                          "ActivityFKRefno, " +
+                                          "ActivityStringFKRefno, " +
+                                          "ActivityAdjustmentType, " +
+                                          "WarehouseLocationMapRefno, " +
+                                          "ActivityAdjustmentDateTime, " +
+                                          "ActivityAdjustmentDescription, " +
+                                          "ActivityAdjustmentTypeDescription) " +
+                                          "VALUES " +
+                                          "(?, " +
+                                          "?, " +
+                                          "?, " +
+                                          "?, " +
+                                          "?, " +
+                                          "?, " +
+                                          "?, " +
+                                          "?, " +
+                                          "?)";
 
-                                object[] parameters = new object[]
+                                var parameters = new object[]
                                 {
                                     actRefno,
                                     Convert.ToInt32(SysCommon.ActSubTypes.Adjustment),
@@ -328,10 +328,10 @@ namespace dMobile.GroundWork
         /// <remarks></remarks>
         protected override async Task<string> CreateRequest()
         {
-            StringBuilder xmlString = new StringBuilder();
-            XmlWriter xml = XmlWriter.Create(xmlString);
+            var xmlString = new StringBuilder();
+            var xml = XmlWriter.Create(xmlString);
 
-            XDocument request = XDocument.Parse(
+            var request = XDocument.Parse(
                 "<?xml version=\"1.0\" encoding=\"utf-8\" standalone=\"yes\"?>"
                 + "<imclient>"
                 + "<command>"

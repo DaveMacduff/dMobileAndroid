@@ -1467,11 +1467,11 @@ namespace dMobile.Bedrock
         /// </summary>
         public void RequestBarCodeSettings()
         {
-            BarCodeSettingsEventArgs msgEventArg = new BarCodeSettingsEventArgs();
+            var msgEventArg = new BarCodeSettingsEventArgs();
 
             try
             {
-                string reqData = string.Empty;
+                var reqData = string.Empty;
 
                 if (this.OnBarCodeSettingsStatusOut != null)
                 {
@@ -1485,7 +1485,7 @@ namespace dMobile.Bedrock
                     // check if result is an error message
                     if (reqData.Contains("<message>ERROR</message>"))
                     {
-                        XmlDocument docError = new XmlDocument();
+                        var docError = new XmlDocument();
                         docError.LoadXml(reqData);
                         throw new Exception(docError.DocumentElement["detail"].InnerText);
                     }
@@ -1519,12 +1519,12 @@ namespace dMobile.Bedrock
         {
             lock (this.readLockObject)
             {
-                XmlSerializer serializer = new XmlSerializer(typeof(SysBarCodeSettings));
-                SysBarCodeSettings barCodeSettings = new SysBarCodeSettings();
+                var serializer = new XmlSerializer(typeof(SysBarCodeSettings));
+                var barCodeSettings = new SysBarCodeSettings();
 
                 // use reflection to get the current assembly path for the database
-                string appDir = Environment.GetFolderPath(Environment.SpecialFolder.Personal);
-                string fullPathToMyFile = Path.Combine(appDir, this.FileName);
+                var appDir = Environment.GetFolderPath(Environment.SpecialFolder.Personal);
+                var fullPathToMyFile = Path.Combine(appDir, this.FileName);
 
                 if (!File.Exists(fullPathToMyFile))
                 {
@@ -1532,7 +1532,7 @@ namespace dMobile.Bedrock
                 }
 
                 // Create a FileStream to read with.
-                using (FileStream reader = new FileStream(fullPathToMyFile, FileMode.Open, FileAccess.Read, FileShare.Read))
+                using (var reader = new FileStream(fullPathToMyFile, FileMode.Open, FileAccess.Read, FileShare.Read))
                 {
                     // Deserialize the stream to the object, and close the TextReader
                     barCodeSettings = (SysBarCodeSettings)serializer.Deserialize(reader);
@@ -1551,17 +1551,17 @@ namespace dMobile.Bedrock
         {
             lock (this.writeLockObject)
             {
-                XmlSerializer serializer = new XmlSerializer(typeof(SysBarCodeSettings));
-                bool isSaveComplete = false;
+                var serializer = new XmlSerializer(typeof(SysBarCodeSettings));
+                var isSaveComplete = false;
 
                 try
                 {
                     // use reflection to get the current assembly path for the database
-                    string appDir = Environment.GetFolderPath(Environment.SpecialFolder.Personal);
-                    string fullPathToMyFile = Path.Combine(appDir, this.FileName);
+                    var appDir = Environment.GetFolderPath(Environment.SpecialFolder.Personal);
+                    var fullPathToMyFile = Path.Combine(appDir, this.FileName);
 
                     // Create a FileStream to write with.
-                    using (FileStream writer = new FileStream(
+                    using (var writer = new FileStream(
                         fullPathToMyFile,
                         FileMode.Create,
                         FileAccess.Write,
@@ -1632,11 +1632,11 @@ namespace dMobile.Bedrock
         /// <param name="xmlData"> Xml data received from the communication server.</param>
         private void Save(string xmlData)
         {
-            BarCodeSettingsEventArgs msgEventArg = new BarCodeSettingsEventArgs();
+            var msgEventArg = new BarCodeSettingsEventArgs();
 
             try
             {
-                using (DataSet ds = new DataSet())
+                using (var ds = new DataSet())
                 {
                     if (this.OnBarCodeSettingsStatusOut != null)
                     {
@@ -1654,7 +1654,7 @@ namespace dMobile.Bedrock
 
                     if (ds.Tables.Count != 0)
                     {
-                        int progMax = ds.Tables["tBarCodeSettings"].Rows.Count;
+                        var progMax = ds.Tables["tBarCodeSettings"].Rows.Count;
 
                         if (this.OnBarCodeSettingsStatusOut != null)
                         {
@@ -1662,7 +1662,7 @@ namespace dMobile.Bedrock
                             this.OnBarCodeSettingsStatusOut(this, msgEventArg);
                         }
 
-                        int progValue = 0;
+                        var progValue = 0;
                         if (this.OnBarCodeSettingsProgressOut != null)
                         {
                             msgEventArg.CurrentValue = 0;
@@ -1673,9 +1673,9 @@ namespace dMobile.Bedrock
 
                         foreach (DataRow drow in ds.Tables["tBarCodeSettings"].Rows)
                         {
-                            SysCommon.BarCodeRules rule = (SysCommon.BarCodeRules)Convert.ToInt32(drow["BarCodeSettingsRuleFKRefno"]);
-                            bool enabled = Convert.ToBoolean(drow["BarCodeSettingsRuleEnabled"]);
-                            string description = Convert.ToString(drow["BarCodeSettingsRuleDescription"]);
+                            var rule = (SysCommon.BarCodeRules)Convert.ToInt32(drow["BarCodeSettingsRuleFKRefno"]);
+                            var enabled = Convert.ToBoolean(drow["BarCodeSettingsRuleEnabled"]);
+                            var description = Convert.ToString(drow["BarCodeSettingsRuleDescription"]);
                             switch (rule)
                             {
                                 case SysCommon.BarCodeRules.ParseCode_128AsUCC_EAN_128_SymbolCompliant:
@@ -1876,12 +1876,12 @@ namespace dMobile.Bedrock
         /// <returns><see cref="string"/> String of the xml request to get the bar code settings.</returns>
         private string CreateXMLRequestBarCodeSettings()
         {
-            StringBuilder xmlString = new StringBuilder();
-            XmlWriter xml = XmlWriter.Create(xmlString);
-            string revision = new DateTime(1900, 1, 1).ToString("yyyy'-'MM'-'dd'T'HH':'mm':'ss");
-            SysEnvironment sysEnv = SysEnvironment.GetInstance();
+            var xmlString = new StringBuilder();
+            var xml = XmlWriter.Create(xmlString);
+            var revision = new DateTime(1900, 1, 1).ToString("yyyy'-'MM'-'dd'T'HH':'mm':'ss");
+            var sysEnv = SysEnvironment.GetInstance();
 
-            XDocument request = new XDocument(
+            var request = new XDocument(
                 new XDeclaration("1.0", "utf-8", "yes"),
                 string.Empty,
                 new XElement(

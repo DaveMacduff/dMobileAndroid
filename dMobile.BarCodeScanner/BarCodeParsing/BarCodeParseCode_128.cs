@@ -41,7 +41,7 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
                     && barCodeData.Substring(0, 6) == "256912")
                 {
                     this.ClearResetBarCodeProperties(false);
-                    BarCodeParseCode_128_NorthCoopMeat_Product256912 barCodeParse
+                    var barCodeParse
                           = new BarCodeParseCode_128_NorthCoopMeat_Product256912();
                     barCodeParse.ParseBarCodeData(barCodeData);
                 }
@@ -50,7 +50,7 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
                     && barCodeData.Substring(0, 7) == "9062852")
                 {
                     this.ClearResetBarCodeProperties(false);
-                    BarCodeParseCode_128_FINICA_as_EAN_UCC_128 barCodeParse = new BarCodeParseCode_128_FINICA_as_EAN_UCC_128();
+                    var barCodeParse = new BarCodeParseCode_128_FINICA_as_EAN_UCC_128();
                     barCodeParse.ParseBarCodeData(barCodeData);
                 }
                 // 8767 is the Ovation Fielding pack site identifier WO# 11127
@@ -60,14 +60,14 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
                     && barCodeData.Substring(30, 2) == "87")
                 {
                     this.ClearResetBarCodeProperties(false);
-                    BarCodeParseCode_128_OvationFielding_Lamb barCodeParse = new BarCodeParseCode_128_OvationFielding_Lamb();
+                    var barCodeParse = new BarCodeParseCode_128_OvationFielding_Lamb();
                     barCodeParse.ParseBarCodeData(barCodeData);
                 }
                 else if (this.Settings.IsRuleEnabled_ParseNossackBrokerMultiNationalProductFromChili
                     && this.IsChiliBarcode(barCodeData))
                 {
                     this.ClearResetBarCodeProperties(false);
-                    BarCodeParseCode_128_BrokerMultiNationalFromChili barCodeParse
+                    var barCodeParse
                         = new BarCodeParseCode_128_BrokerMultiNationalFromChili();
                     barCodeParse.ParseBarCodeData(barCodeData);
                 }
@@ -76,7 +76,7 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
                     && barCodeData.Substring(0, 8) == "10066973")
                 {
                     this.ClearResetBarCodeProperties(false);
-                    BarCodeParseUCC_EAN_128_Symbol barCodeParse = new BarCodeParseUCC_EAN_128_Symbol();
+                    var barCodeParse = new BarCodeParseUCC_EAN_128_Symbol();
 
                     // Added missing GTIN AI 01 and left filled the GTIN data with and extra 0 to make the length 14 digits.
                     // Called the GS1 standard parsing routine.
@@ -85,7 +85,7 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
                 else if (this.Settings.IsRuleEnabled_ParseCode_128AsUCC_EAN_128_SymbolCompliant)
                 {
                     this.ClearResetBarCodeProperties(false);
-                    BarCodeParseUCC_EAN_128_Symbol barCodeParse = new BarCodeParseUCC_EAN_128_Symbol();
+                    var barCodeParse = new BarCodeParseUCC_EAN_128_Symbol();
                     barCodeParse.ParseBarCodeData(barCodeData);
                 }
                 else

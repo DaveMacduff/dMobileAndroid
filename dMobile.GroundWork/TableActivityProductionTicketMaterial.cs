@@ -37,12 +37,12 @@ namespace dMobile.GroundWork
             {
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Seeding ticket materials.", true);
 
-                string reqData = await this.SendRequest();
+                var reqData = await this.SendRequest();
                 if (reqData.Length > 0)
                 {
                     if (reqData.Contains("<message>ERROR</message>"))
                     {
-                        XmlDocument reqErr = new XmlDocument();
+                        var reqErr = new XmlDocument();
                         reqErr.LoadXml(reqData);
                         throw new Exception(reqErr.DocumentElement["detail"].InnerText);
                     }
@@ -90,11 +90,11 @@ namespace dMobile.GroundWork
             {
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging ticket materials.", true);
 
-                string query = "DELETE FROM tActivityProductionMaterial"
-                    + " WHERE tActivityProductionMaterial.ActivityRefno IN"
-                    + " (SELECT tActivityProduction.ActivityRefno"
-                    + " FROM tActivityProduction"
-                    + " WHERE tActivityProduction.ActivitySubType = ?)";
+                var query = "DELETE FROM tActivityProductionMaterial"
+                            + " WHERE tActivityProductionMaterial.ActivityRefno IN"
+                            + " (SELECT tActivityProduction.ActivityRefno"
+                            + " FROM tActivityProduction"
+                            + " WHERE tActivityProduction.ActivitySubType = ?)";
                 await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(query, Convert.ToInt32(SysCommon.ActSubTypes.TicketMaterial));
 
                 query = "DELETE FROM tActivityProduction WHERE tActivityProduction.ActivitySubType = ?";
@@ -124,7 +124,7 @@ namespace dMobile.GroundWork
             {
                 try
                 {
-                    using (DataSet ds = new DataSet())
+                    using (var ds = new DataSet())
                     {
                         this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Reading received data.", false);
 
@@ -134,14 +134,14 @@ namespace dMobile.GroundWork
 
                         if (ds.Tables.Count != 0)
                         {
-                            int progMax = Convert.ToInt32(ds.Tables["tActivityProduction"].Rows.Count);
+                            var progMax = Convert.ToInt32(ds.Tables["tActivityProduction"].Rows.Count);
 
                             this.DataAccessStatusOutHandler(this, EventArgs.Empty, string.Format("Records {0}", progMax), false);
 
-                            int actRefno = 0;
-                            int progValue = 0;
-                            int whsLocMapRefno = 0;
-                            int actProductionFKRefno = 0;
+                            var actRefno = 0;
+                            var progValue = 0;
+                            var whsLocMapRefno = 0;
+                            var actProductionFKRefno = 0;
 
                             this.DataAccessProgressOutHandler(this, EventArgs.Empty, 0, 0, progMax);
 
@@ -152,22 +152,22 @@ namespace dMobile.GroundWork
                                 whsLocMapRefno = this.GetWhsLocMapRefnoFromDataRow(drow, transaction);
 
                                 // To remove time - convert twice
-                                DateTime dt = Convert.ToDateTime(drow["ActivityProductionDateTime"]);
+                                var dt = Convert.ToDateTime(drow["ActivityProductionDateTime"]);
 
-                                string queryActivityProduction = "INSERT INTO tActivityProduction (" +
-                                    "ActivityRefno, " +
-                                    "ActivitySubType, " +
-                                    "WarehouseLocationMapRefno, " +
-                                    "ActivityProductionDateTime, " +
-                                    "ActivityProductionDescription" +
-                                    ") VALUES (" +
-                                    "?, " +
-                                    "?, " +
-                                    "?, " +
-                                    "?, " +
-                                    "?" +
-                                    ")";
-                                object[] parametersActivityProduction = new object[]
+                                var queryActivityProduction = "INSERT INTO tActivityProduction (" +
+                                                              "ActivityRefno, " +
+                                                              "ActivitySubType, " +
+                                                              "WarehouseLocationMapRefno, " +
+                                                              "ActivityProductionDateTime, " +
+                                                              "ActivityProductionDescription" +
+                                                              ") VALUES (" +
+                                                              "?, " +
+                                                              "?, " +
+                                                              "?, " +
+                                                              "?, " +
+                                                              "?" +
+                                                              ")";
+                                var parametersActivityProduction = new object[]
                                 {
                                     actRefno,
                                     Convert.ToInt32(SysCommon.ActSubTypes.TicketMaterial),
@@ -179,16 +179,16 @@ namespace dMobile.GroundWork
                                 transaction.Execute(queryActivityProduction, parametersActivityProduction);
 
                                 actProductionFKRefno = Convert.ToInt32(drow["ActivityFKRefno"]);
-                                string queryActivityProductionMaterial = "INSERT INTO tActivityProductionMaterial (" +
-                                    "ActivityRefno, " +
-                                    "ActivityFKRefno, " +
-                                    "ActivityStringFKRefno " +
-                                    ") VALUES (" +
-                                    "?, " +
-                                    "?, " +
-                                    "?" +
-                                    ")";
-                                object[] parametersActivityProductionMaterial = new object[]
+                                var queryActivityProductionMaterial = "INSERT INTO tActivityProductionMaterial (" +
+                                                                      "ActivityRefno, " +
+                                                                      "ActivityFKRefno, " +
+                                                                      "ActivityStringFKRefno " +
+                                                                      ") VALUES (" +
+                                                                      "?, " +
+                                                                      "?, " +
+                                                                      "?" +
+                                                                      ")";
+                                var parametersActivityProductionMaterial = new object[]
                                 {
                                     actRefno,
                                     actProductionFKRefno,
@@ -229,10 +229,10 @@ namespace dMobile.GroundWork
         /// <returns></returns>
         protected override async Task<string> CreateRequest()
         {
-            StringBuilder xmlString = new StringBuilder();
-            XmlWriter xml = XmlWriter.Create(xmlString);
+            var xmlString = new StringBuilder();
+            var xml = XmlWriter.Create(xmlString);
 
-            XDocument request = XDocument.Parse(
+            var request = XDocument.Parse(
                 "<?xml version=\"1.0\" encoding=\"utf-8\" standalone=\"yes\"?>"
                 + "<imclient>"
                 + "<command>"

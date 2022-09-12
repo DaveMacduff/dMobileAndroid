@@ -88,7 +88,7 @@ namespace dMobile.View.Exceptions
                 case SysCommon.ShowErrorMessageType.ErrorReport:
                     Device.BeginInvokeOnMainThread(async () =>
                     {
-                        FormErrorReport errRpt = new FormErrorReport(actSubType, this);
+                        var errRpt = new FormErrorReport(actSubType, this);
                         _ = await errRpt.ShowDialog();
                     });
 
@@ -106,7 +106,7 @@ namespace dMobile.View.Exceptions
         /// <returns><see cref="string"/> Original or altered text.</returns>
         private static string ModifyMessage(string message)
         {
-            string msgToken = "MSGBOX-";
+            var msgToken = "MSGBOX-";
 
             if (message.Contains(msgToken))
             {

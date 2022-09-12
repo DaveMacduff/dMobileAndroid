@@ -30,7 +30,7 @@ namespace dMobile.Droid.CustomRenderers
         {
             base.OnAttachedToWindow();
 
-            Element page = this.Element.Parent;
+            var page = this.Element.Parent;
             MasterDetailPage masterDetailPage = null;
 
             while (page != null)
@@ -57,7 +57,7 @@ namespace dMobile.Droid.CustomRenderers
             }
 
             var drawerLayout = (DrawerLayout)renderer;
-            Support.Toolbar toolbar = this.FindViewById<Support.Toolbar>(Resource.Id.toolbar);
+            var toolbar = this.FindViewById<Support.Toolbar>(Resource.Id.toolbar);
 
             toolbar?.SetNavigationOnClickListener(new MenuClickListener(this.Element, drawerLayout));
         }

@@ -237,7 +237,7 @@ namespace dMobile.View.Activity
         /// <remarks></remarks>
         public async Task<bool> IsReadyToSave()
         {
-            bool isReadyToSave = false;
+            var isReadyToSave = false;
 
             try
             {
@@ -258,7 +258,7 @@ namespace dMobile.View.Activity
 
                 await Device.InvokeOnMainThreadAsync(async () =>
                 {
-                    FormErrorReport errRpt = new FormErrorReport(this.ActSubType, ex);
+                    var errRpt = new FormErrorReport(this.ActSubType, ex);
                     _ = await errRpt.ShowDialog();
                 });
             }
@@ -273,7 +273,7 @@ namespace dMobile.View.Activity
         /// <remarks></remarks>
         public async Task<bool> IsReadyToClose()
         {
-            bool isReadyToClose = true;
+            var isReadyToClose = true;
 
             try
             {
@@ -304,7 +304,7 @@ namespace dMobile.View.Activity
 
                 await Device.InvokeOnMainThreadAsync(async () =>
                 {
-                    FormErrorReport errRpt = new FormErrorReport(this.ActSubType, ex);
+                    var errRpt = new FormErrorReport(this.ActSubType, ex);
                     _ = await errRpt.ShowDialog();
                 });
             }
@@ -329,7 +329,7 @@ namespace dMobile.View.Activity
         /// <remarks></remarks>
         public async Task<bool> SaveChanges()
         {
-            bool saveComplete = false;
+            var saveComplete = false;
 
             try
             {
@@ -359,7 +359,7 @@ namespace dMobile.View.Activity
             {
                 await Device.InvokeOnMainThreadAsync(async () =>
                 {
-                    FormErrorReport errRpt = new FormErrorReport(this.ActSubType, ex);
+                    var errRpt = new FormErrorReport(this.ActSubType, ex);
                     _ = await errRpt.ShowDialog();
                 });
             }
@@ -374,7 +374,7 @@ namespace dMobile.View.Activity
         /// <remarks></remarks>
         public async Task<bool> CancelChanges()
         {
-            bool cancelChanges = true;
+            var cancelChanges = true;
 
             try
             {
@@ -421,7 +421,7 @@ namespace dMobile.View.Activity
 
                 await Device.InvokeOnMainThreadAsync(async () =>
                 {
-                    FormErrorReport errRpt = new FormErrorReport(this.ActSubType, ex);
+                    var errRpt = new FormErrorReport(this.ActSubType, ex);
                     _ = await errRpt.ShowDialog();
                 });
             }
@@ -436,7 +436,7 @@ namespace dMobile.View.Activity
         /// <remarks></remarks>
         public async Task<XDocument> GetXML()
         {
-            int locMapRefno = 0;
+            var locMapRefno = 0;
 
             if (this.LocMapInfo.SectLocMapRefno > 0)
             {
@@ -447,7 +447,7 @@ namespace dMobile.View.Activity
                 locMapRefno = this.LocMapInfo.WhsLocMapRefno;
             }
 
-            XDocument request = XDocument.Parse(
+            var request = XDocument.Parse(
                 "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>"
                 + "<params>"
                 + "<LocationMapRefno>" + locMapRefno + "</LocationMapRefno>"
@@ -606,7 +606,7 @@ namespace dMobile.View.Activity
         /// <remarks></remarks>
         private async Task LoadData()
         {
-            SLocMap tempLocMapInfo = this.LocMap.CurrLocMap;
+            var tempLocMapInfo = this.LocMap.CurrLocMap;
 
             // Default to the login warehouse
             tempLocMapInfo.WhsLocMapRefno = this.LocMap.LoginWhsLocMapRefno;
@@ -641,7 +641,7 @@ namespace dMobile.View.Activity
             // Attempt to find last selected warehouse in warehouse view
             if (this.LocMapInfo.WhsLocMapRefno != 0)
             {
-                Warehouse warehouse = this.FilteredListWarehouse.Where(warehouse => warehouse.LocationMapRefno == this.LocMapInfo.WhsLocMapRefno).FirstOrDefault();
+                var warehouse = this.FilteredListWarehouse.Where(warehouse => warehouse.LocationMapRefno == this.LocMapInfo.WhsLocMapRefno).FirstOrDefault();
 
                 if (warehouse != null)
                 {
@@ -705,7 +705,7 @@ namespace dMobile.View.Activity
             {
                 if (section.LocationMapRefno != this.LocMapInfo.SectLocMapRefno)
                 {
-                    Section sect = this.FilteredListSections.Where(section => section.LocationMapRefno == this.LocMapInfo.SectLocMapRefno).FirstOrDefault();
+                    var sect = this.FilteredListSections.Where(section => section.LocationMapRefno == this.LocMapInfo.SectLocMapRefno).FirstOrDefault();
 
                     if (sect != null)
                     {
@@ -761,7 +761,7 @@ namespace dMobile.View.Activity
                 }
                 else if (!string.IsNullOrEmpty(this.BarParse.LocationIdentifier))
                 {
-                    int locMapRefno = await LocationMapTasks.GetLocMapRefnoFromBarCodeGlobalLocIdentifier(
+                    var locMapRefno = await LocationMapTasks.GetLocMapRefnoFromBarCodeGlobalLocIdentifier(
                         this.BarParse.LocationIdentifier);
                     this.LocMapInfo = await LocationMapTasks.GetSLocMapFromLocMapRefno(locMapRefno);
 
@@ -785,7 +785,7 @@ namespace dMobile.View.Activity
             {
                 await Device.InvokeOnMainThreadAsync(async () =>
                 {
-                    FormErrorReport errRpt = new FormErrorReport(this.ActSubType, ex);
+                    var errRpt = new FormErrorReport(this.ActSubType, ex);
                     _ = await errRpt.ShowDialog();
                 });
             }
@@ -799,14 +799,14 @@ namespace dMobile.View.Activity
         {
             this.PopulateWarehouseList();
 
-            Label labelCodeHeader = new Label { Text = "Code", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
-            Label labelNameHeader = new Label { Text = "Name", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
+            var labelCodeHeader = new Label { Text = "Code", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
+            var labelNameHeader = new Label { Text = "Name", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
 
             // Calculate text size
-            double columnWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(labelCodeHeader.Text);
-            double columnWidth1 = DependencyService.Get<IGridService>().CalculateTextWidth(labelNameHeader.Text);
+            var columnWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(labelCodeHeader.Text);
+            var columnWidth1 = DependencyService.Get<IGridService>().CalculateTextWidth(labelNameHeader.Text);
 
-            Grid gridHeader = new Grid
+            var gridHeader = new Grid
             {
                 Padding = new Thickness(5),
                 ColumnDefinitions =
@@ -830,8 +830,8 @@ namespace dMobile.View.Activity
 
             foreach (Warehouse warehouse in this.WarehouseObservableCollection)
             {
-                double dataColumnWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(Convert.ToString(warehouse.LocationMapWarehouseCode));
-                double dataColumnWidth1 = DependencyService.Get<IGridService>().CalculateTextWidth(warehouse.LocationMapWarehouseName);
+                var dataColumnWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(Convert.ToString(warehouse.LocationMapWarehouseCode));
+                var dataColumnWidth1 = DependencyService.Get<IGridService>().CalculateTextWidth(warehouse.LocationMapWarehouseName);
 
                 if (dataColumnWidth0 > columnWidth0)
                 {
@@ -847,9 +847,9 @@ namespace dMobile.View.Activity
             }
 
             // Data grid
-            DataTemplate dataTemplate = new DataTemplate(() =>
+            var dataTemplate = new DataTemplate(() =>
             {
-                Grid gridData = new Grid
+                var gridData = new Grid
                 {
                     Padding = new Thickness(5),
                     // ColumnSpacing = 15,
@@ -860,8 +860,8 @@ namespace dMobile.View.Activity
                     },
                 };
 
-                Label labelCode = new Label { VerticalOptions = LayoutOptions.Center };
-                Label labelName = new Label { VerticalOptions = LayoutOptions.Center };
+                var labelCode = new Label { VerticalOptions = LayoutOptions.Center };
+                var labelName = new Label { VerticalOptions = LayoutOptions.Center };
 
                 labelCode.SetBinding(Label.TextProperty, new Binding("LocationMapWarehouseCode"));
                 labelName.SetBinding(Label.TextProperty, new Binding("LocationMapWarehouseName"));
@@ -887,14 +887,14 @@ namespace dMobile.View.Activity
         {
             this.PopulateSectionList();
 
-            Label labelCodeHeader = new Label { Text = "Code", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
-            Label labelNameHeader = new Label { Text = "Name", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
+            var labelCodeHeader = new Label { Text = "Code", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
+            var labelNameHeader = new Label { Text = "Name", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
 
             // Calculate text size
-            double columnWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(labelCodeHeader.Text);
-            double columnWidth1 = DependencyService.Get<IGridService>().CalculateTextWidth(labelNameHeader.Text);
+            var columnWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(labelCodeHeader.Text);
+            var columnWidth1 = DependencyService.Get<IGridService>().CalculateTextWidth(labelNameHeader.Text);
 
-            Grid gridHeader = new Grid
+            var gridHeader = new Grid
             {
                 Padding = new Thickness(5),
                 ColumnDefinitions =
@@ -918,8 +918,8 @@ namespace dMobile.View.Activity
 
             foreach (Section section in this.SectionObservableCollection)
             {
-                double dataColumnWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(Convert.ToString(section.LocationMapSectionCode));
-                double dataColumnWidth1 = DependencyService.Get<IGridService>().CalculateTextWidth(section.LocationMapSectionName);
+                var dataColumnWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(Convert.ToString(section.LocationMapSectionCode));
+                var dataColumnWidth1 = DependencyService.Get<IGridService>().CalculateTextWidth(section.LocationMapSectionName);
 
                 if (dataColumnWidth0 > columnWidth0)
                 {
@@ -935,9 +935,9 @@ namespace dMobile.View.Activity
             }
 
             // Data grid
-            DataTemplate dataTemplate = new DataTemplate(() =>
+            var dataTemplate = new DataTemplate(() =>
             {
-                Grid gridData = new Grid
+                var gridData = new Grid
                 {
                     Padding = new Thickness(5),
                     // ColumnSpacing = 15,
@@ -948,8 +948,8 @@ namespace dMobile.View.Activity
                     },
                 };
 
-                Label labelCode = new Label { VerticalOptions = LayoutOptions.Center };
-                Label labelName = new Label { VerticalOptions = LayoutOptions.Center };
+                var labelCode = new Label { VerticalOptions = LayoutOptions.Center };
+                var labelName = new Label { VerticalOptions = LayoutOptions.Center };
 
                 labelCode.SetBinding(Label.TextProperty, new Binding("LocationMapSectionCode"));
                 labelName.SetBinding(Label.TextProperty, new Binding("LocationMapSectionName"));
@@ -992,7 +992,7 @@ namespace dMobile.View.Activity
         {
             this.WarehouseObservableCollection = new ObservableCollection<object>();
 
-            foreach (Warehouse warehouse in this.FilteredListWarehouse)
+            foreach (var warehouse in this.FilteredListWarehouse)
             {
                 // Warehouse warehouse = new Warehouse
                 // {
@@ -1008,7 +1008,7 @@ namespace dMobile.View.Activity
         {
             this.SectionObservableCollection = new ObservableCollection<object>();
 
-            foreach (Section section in this.FilteredListSections)
+            foreach (var section in this.FilteredListSections)
             {
                 // Section section = new Section
                 // {

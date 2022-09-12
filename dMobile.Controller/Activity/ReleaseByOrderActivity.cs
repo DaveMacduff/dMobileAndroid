@@ -68,10 +68,10 @@ namespace dMobile.Controller
             this.FullClassName = typeof(ReleaseByOrderActivity).FullName;
 
             // Data grid
-            DataTemplate dataTemplate = new DataTemplate(() =>
+            var dataTemplate = new DataTemplate(() =>
             {
                 // Header grid
-                Grid gridData = new Grid()
+                var gridData = new Grid()
                 {
                     Padding = new Thickness(5),
                     ColumnDefinitions =
@@ -84,10 +84,10 @@ namespace dMobile.Controller
                     },
                 };
 
-                Label labelQty = new Label { VerticalOptions = LayoutOptions.Center };
-                Label labelWeight = new Label { VerticalOptions = LayoutOptions.Center };
-                Label labelUnitCode = new Label { VerticalOptions = LayoutOptions.Center };
-                Label labelSchemeID = new Label { VerticalOptions = LayoutOptions.Center };
+                var labelQty = new Label { VerticalOptions = LayoutOptions.Center };
+                var labelWeight = new Label { VerticalOptions = LayoutOptions.Center };
+                var labelUnitCode = new Label { VerticalOptions = LayoutOptions.Center };
+                var labelSchemeID = new Label { VerticalOptions = LayoutOptions.Center };
 
                 labelQty.SetBinding(Label.TextProperty, new Binding("ActivityStringFKRefno"));
                 labelWeight.SetBinding(Label.TextProperty, new Binding("ActivityPickingOrderedDateTime", BindingMode.Default, null, null, "{0:MM/dd/yyyy}"));
@@ -108,7 +108,19 @@ namespace dMobile.Controller
                 return new ViewCell { View = gridData };
             });
 
-            this.resourceDictionary.Add("dataTemplate", dataTemplate);
+            var isAddKey = true;
+            foreach (var item in this.resourceDictionary)
+            {
+                if (item.Key == "dataTemplateReleaseByOrder")
+                {
+                    isAddKey = false;
+                }
+            }
+
+            if (isAddKey)
+            {
+                this.resourceDictionary.Add("dataTemplateReleaseByOrder", dataTemplate);
+            }
         }
 
         /// <summary>
@@ -118,7 +130,7 @@ namespace dMobile.Controller
         /// <returns>.</returns>
         public override async Task<bool> ChangeStatus(object selectedItem)
         {
-            bool isResult = false;
+            var isResult = false;
 
             if (this.SysEnv.SysSettings.IsRelByOrder && !this.SysEnv.SysSettings.IsDisconnectedMode)
             {
@@ -127,11 +139,11 @@ namespace dMobile.Controller
                 {
                     // GC.Collect();
                     // GC.WaitForPendingFinalizers();
-                    string sendReq = string.Empty;
-                    StringBuilder xmlString = new StringBuilder();
-                    XmlWriter xml = XmlWriter.Create(xmlString);
+                    var sendReq = string.Empty;
+                    var xmlString = new StringBuilder();
+                    var xml = XmlWriter.Create(xmlString);
 
-                    XDocument request = XDocument.Parse(
+                    var request = XDocument.Parse(
                         "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>"
                         + "<imclient>"
                         + "<command>"
@@ -145,15 +157,15 @@ namespace dMobile.Controller
                     xml.Flush();
                     xml.Close();
 
-                    string reqData = SysCommon.SubmitComm(xmlString.ToString());
+                    var reqData = SysCommon.SubmitComm(xmlString.ToString());
 
                     if (reqData.Length > 0)
                     {
                         if (reqData.Contains("<message>ERROR</message>"))
                         {
-                            XmlDocument docError = new XmlDocument();
+                            var docError = new XmlDocument();
                             docError.LoadXml(reqData);
-                            string errorDetail = docError.DocumentElement["detail"].InnerText;
+                            var errorDetail = docError.DocumentElement["detail"].InnerText;
 
                             throw new Exception(string.Format("Release order # {0} to invoice status failed." + Environment.NewLine + errorDetail, this.HdrFKRefno, null));
                         }
@@ -196,7 +208,7 @@ namespace dMobile.Controller
         /// <returns>The <see cref="ObservableCollection{object}"/>.</returns>
         public override ObservableCollection<object> DesignGrid(ref Grid GridMainActivity, ref ListView ListViewMainActivity)
         {
-            ObservableCollection<object> observableCollection = new ObservableCollection<object>();
+            var observableCollection = new ObservableCollection<object>();
 
             foreach (Picking picking in this.ListHdrs)
             {
@@ -222,11 +234,11 @@ namespace dMobile.Controller
                 observableCollection.Add(picking);
             }
 
-            Label labelOrderNumberHeader = new Label { Text = "Order #", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
-            Label labelOrderDateHeader = new Label { Text = "Order Date", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
-            Label labelDeliveryDateHeader = new Label { Text = "Delivery Date", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
-            Label labelRouteHeader = new Label { Text = "Route", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
-            Label labelStopHeader = new Label { Text = "Stop", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
+            var labelOrderNumberHeader = new Label { Text = "Order #", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
+            var labelOrderDateHeader = new Label { Text = "Order Date", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
+            var labelDeliveryDateHeader = new Label { Text = "Delivery Date", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
+            var labelRouteHeader = new Label { Text = "Route", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
+            var labelStopHeader = new Label { Text = "Stop", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
 
             this.columnWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(labelOrderNumberHeader.Text);
             this.columnWidth1 = DependencyService.Get<IGridService>().CalculateTextWidth(labelOrderDateHeader.Text);
@@ -235,7 +247,7 @@ namespace dMobile.Controller
             this.columnWidth4 = DependencyService.Get<IGridService>().CalculateTextWidth(labelStopHeader.Text);
 
             // Header grid
-            Grid gridHeader = new Grid
+            var gridHeader = new Grid
             {
                 Padding = new Thickness(5),
                 ColumnDefinitions =
@@ -268,11 +280,11 @@ namespace dMobile.Controller
 
             foreach (Picking picking in observableCollection)
             {
-                double detailWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(picking.ActivityStringFKRefno);
-                double detailWidth1 = DependencyService.Get<IGridService>().CalculateTextWidth(picking.ActivityPickingOrderedDateTime.ToString("MM/dd/yyyy"));
-                double detailWidth2 = DependencyService.Get<IGridService>().CalculateTextWidth(picking.ActivityPickingDeliveryDateTime.ToString("MM/dd/yyyy"));
-                double detailWidth3 = DependencyService.Get<IGridService>().CalculateTextWidth(picking.RouteCode);
-                double detailWidth4 = DependencyService.Get<IGridService>().CalculateTextWidth(Convert.ToString(picking.RouteStop));
+                var detailWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(picking.ActivityStringFKRefno);
+                var detailWidth1 = DependencyService.Get<IGridService>().CalculateTextWidth(picking.ActivityPickingOrderedDateTime.ToString("MM/dd/yyyy"));
+                var detailWidth2 = DependencyService.Get<IGridService>().CalculateTextWidth(picking.ActivityPickingDeliveryDateTime.ToString("MM/dd/yyyy"));
+                var detailWidth3 = DependencyService.Get<IGridService>().CalculateTextWidth(picking.RouteCode);
+                var detailWidth4 = DependencyService.Get<IGridService>().CalculateTextWidth(Convert.ToString(picking.RouteStop));
 
                 if (detailWidth0 > this.columnWidth0)
                 {
@@ -305,7 +317,7 @@ namespace dMobile.Controller
                 }
             }
 
-            ListViewMainActivity.ItemTemplate = (DataTemplate)this.resourceDictionary["dataTemplate"];
+            ListViewMainActivity.ItemTemplate = (DataTemplate)this.resourceDictionary["dataTemplateReleaseByOrder"];
 
             return observableCollection;
         }
@@ -317,7 +329,7 @@ namespace dMobile.Controller
         /// <returns>.</returns>
         public override async Task<List<object>> GetActivityList(bool isSubmitBatch)
         {
-            StringBuilder sql = new StringBuilder();
+            var sql = new StringBuilder();
 
             if (isSubmitBatch)
             {
@@ -450,7 +462,7 @@ namespace dMobile.Controller
         /// <returns>.</returns>
         public override ObservableCollection<object> Search(string searchText)
         {
-            ObservableCollection<object> observableCollection = new ObservableCollection<object>();
+            var observableCollection = new ObservableCollection<object>();
 
             // if (string.IsNullOrEmpty(ActFilter))
             // {
@@ -562,7 +574,7 @@ namespace dMobile.Controller
 
                 this.DataLayerProgressOutHandler(this, new EventArgs(), 5);
 
-                TableActivityPicking tableActPicking = new TableActivityPicking();
+                var tableActPicking = new TableActivityPicking();
 
                 tableActPicking.RegisterDataAccessListenerProgressOut((IDataAccessEventListener)this);
                 await tableActPicking.RequestData(data);
@@ -576,10 +588,10 @@ namespace dMobile.Controller
         /// <returns>The <see cref="Task"/>.</returns>
         public override async Task Purge()
         {
-            TableActivityPicking tableActPicking = new TableActivityPicking();
-            TableActivityPickingRoute tableActPickingRoute = new TableActivityPickingRoute();
-            TableActivityPickingItem tableActPickingItem = new TableActivityPickingItem();
-            TableActivityPickingDetail tableActPickingDetail = new TableActivityPickingDetail();
+            var tableActPicking = new TableActivityPicking();
+            var tableActPickingRoute = new TableActivityPickingRoute();
+            var tableActPickingItem = new TableActivityPickingItem();
+            var tableActPickingDetail = new TableActivityPickingDetail();
 
             await tableActPickingDetail.PurgeData();
             await tableActPickingItem.PurgeData();
@@ -591,8 +603,8 @@ namespace dMobile.Controller
         /// </summary>
         public override void GetFilter()
         {
-            string filter = string.Empty;
-            PickingSettings pickingSettings = new PickingSettings().LoadData();
+            var filter = string.Empty;
+            var pickingSettings = new PickingSettings().LoadData();
 
             if (pickingSettings.IsApplyRouteCodeFilter)
             {
@@ -613,7 +625,7 @@ namespace dMobile.Controller
             {
                 if (!SysCommon.IsEmptyDate(pickingSettings.dtOrderedDateFilter))
                 {
-                    DateTime dt = pickingSettings.dtOrderedDateFilter;
+                    var dt = pickingSettings.dtOrderedDateFilter;
 
                     // BETWEEN '2009-07-26 00:00:00.000' AND '2010-07-26 23:59:59.997'
                     if (string.IsNullOrEmpty(filter))
@@ -641,7 +653,7 @@ namespace dMobile.Controller
             {
                 if (!SysCommon.IsEmptyDate(pickingSettings.dtDeliveryDateFilter))
                 {
-                    DateTime dt = pickingSettings.dtDeliveryDateFilter;
+                    var dt = pickingSettings.dtDeliveryDateFilter;
 
                     // BETWEEN '2009-07-26 00:00:00.000' AND '2010-07-26 23:59:59.997'
                     if (string.IsNullOrEmpty(filter))
@@ -672,8 +684,8 @@ namespace dMobile.Controller
         /// <param name="data">The data<see cref="XDocument"/>.</param>
         public override void GetFilter(XDocument data)
         {
-            string filter = string.Empty;
-            PickingSettings pickingSettings = new PickingSettings().LoadData();
+            var filter = string.Empty;
+            var pickingSettings = new PickingSettings().LoadData();
 
             if (pickingSettings.IsApplyRouteCodeFilter)
             {
@@ -694,7 +706,7 @@ namespace dMobile.Controller
             {
                 if (string.Compare(data.Root.Element("ordered_date").Value, string.Empty) > 0)
                 {
-                    DateTime dt = DateTime.Parse(data.Root.Element("ordered_date").Value);
+                    var dt = DateTime.Parse(data.Root.Element("ordered_date").Value);
 
                     // BETWEEN '2009-07-26 00:00:00.000' AND '2010-07-26 23:59:59.997'
                     if (string.IsNullOrEmpty(filter))
@@ -722,7 +734,7 @@ namespace dMobile.Controller
             {
                 if (string.Compare(data.Root.Element("delivery_date").Value, string.Empty) > 0)
                 {
-                    DateTime dt = DateTime.Parse(data.Root.Element("delivery_date").Value);
+                    var dt = DateTime.Parse(data.Root.Element("delivery_date").Value);
 
                     // BETWEEN '2009-07-26 00:00:00.000' AND '2010-07-26 23:59:59.997'
                     if (string.IsNullOrEmpty(filter))

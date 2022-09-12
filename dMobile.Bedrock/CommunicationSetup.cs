@@ -394,11 +394,11 @@ namespace dMobile.Bedrock
         /// <returns>.</returns>
         public static string CreateXMLSubmitDeviceID()
         {
-            StringBuilder xmlString = new StringBuilder();
-            XmlWriter xml = XmlWriter.Create(xmlString);
-            string deviceID = SysDeviceID.GetDeviceID();
+            var xmlString = new StringBuilder();
+            var xml = XmlWriter.Create(xmlString);
+            var deviceID = SysDeviceID.GetDeviceID();
 
-            XDocument request = new XDocument(
+            var request = new XDocument(
                 new XDeclaration("1.0", "utf-8", "yes"),
                 string.Empty,
                 new XElement(
@@ -421,12 +421,12 @@ namespace dMobile.Bedrock
         /// <returns>.</returns>
         public CommunicationSetup LoadData()
         {
-            XmlSerializer serializer = new XmlSerializer(typeof(CommunicationSetup));
-            CommunicationSetup commSetup = new CommunicationSetup();
+            var serializer = new XmlSerializer(typeof(CommunicationSetup));
+            var commSetup = new CommunicationSetup();
 
             // use reflection to get the current assembly path for the database
-            string appDir = Environment.GetFolderPath(Environment.SpecialFolder.Personal);
-            string fullPathToMyFile = Path.Combine(appDir, this.fileName);
+            var appDir = Environment.GetFolderPath(Environment.SpecialFolder.Personal);
+            var fullPathToMyFile = Path.Combine(appDir, this.fileName);
 
             if (!File.Exists(fullPathToMyFile))
             {
@@ -450,16 +450,16 @@ namespace dMobile.Bedrock
         /// <returns>.</returns>
         public bool SaveData(ref CommunicationSetup commSetup)
         {
-            XmlSerializer serializer = new XmlSerializer(typeof(CommunicationSetup));
+            var serializer = new XmlSerializer(typeof(CommunicationSetup));
             bool isSaveComplete;
             try
             {
                 // use reflection to get the current assembly path for the database
-                string appDir = Environment.GetFolderPath(Environment.SpecialFolder.Personal);
-                string fullPathToMyFile = Path.Combine(appDir, this.fileName);
+                var appDir = Environment.GetFolderPath(Environment.SpecialFolder.Personal);
+                var fullPathToMyFile = Path.Combine(appDir, this.fileName);
 
                 // Create a FileStream to write with.
-                FileStream writer = new FileStream(fullPathToMyFile, FileMode.Create);
+                var writer = new FileStream(fullPathToMyFile, FileMode.Create);
 
                 // Serialize the object, and close the TextWriter
                 serializer.Serialize(writer, commSetup);

@@ -88,9 +88,9 @@ namespace dMobile.Controller
             this.IsAskCreateNewItem = !this.SysEnv.SysSettings.IsPickCreateNewItemNoAsk;
 
             // Data grid
-            DataTemplate dataTemplate = new DataTemplate(() =>
+            var dataTemplate = new DataTemplate(() =>
             {
-                Grid gridData = new Grid
+                var gridData = new Grid
                 {
                     Padding = new Thickness(5),
                     ColumnDefinitions =
@@ -105,13 +105,13 @@ namespace dMobile.Controller
                     },
                 };
 
-                Label labelActivityItemPickingIsActivityItemPickingComment = new Label { VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start };
-                Label labelActivityItemPickingProductCode = new Label { VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start };
-                Label labelActivityItemPickingProductUnitBC = new Label { VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start };
-                Label labelActivityItemPickingUnitCode = new Label { VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start };
-                Label labelActivityItemPickingQuantityOrdered = new Label { VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start };
-                Label labelActivityItemPickingQuantityReceived = new Label { VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start };
-                Label labelActivityItemPickingQuantityAvailable = new Label { VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start };
+                var labelActivityItemPickingIsActivityItemPickingComment = new Label { VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start };
+                var labelActivityItemPickingProductCode = new Label { VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start };
+                var labelActivityItemPickingProductUnitBC = new Label { VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start };
+                var labelActivityItemPickingUnitCode = new Label { VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start };
+                var labelActivityItemPickingQuantityOrdered = new Label { VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start };
+                var labelActivityItemPickingQuantityReceived = new Label { VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start };
+                var labelActivityItemPickingQuantityAvailable = new Label { VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start };
 
                 labelActivityItemPickingIsActivityItemPickingComment.SetBinding(Label.TextProperty, new Binding("IsActivityItemPickingComment"));
                 labelActivityItemPickingProductCode.SetBinding(Label.TextProperty, new Binding("ProductCode"));
@@ -149,10 +149,10 @@ namespace dMobile.Controller
             });
 
             // TODO: Change dictionary key to string variable
-            bool isAddKey = true;
+            var isAddKey = true;
             foreach (var item in this.resourceDictionary)
             {
-                if (item.Key == "dataTemplate")
+                if (item.Key == "dataTemplatePickingItem")
                 {
                     isAddKey = false;
                 }
@@ -160,7 +160,7 @@ namespace dMobile.Controller
 
             if (isAddKey)
             {
-                this.resourceDictionary.Add("dataTemplate", dataTemplate);
+                this.resourceDictionary.Add("dataTemplatePickingItem", dataTemplate);
             }
         }
 
@@ -173,7 +173,7 @@ namespace dMobile.Controller
             this.SelectedListItemIdx = -1;
             if (actItemFoundRefno >= 0)
             {
-                int idx = 0;
+                var idx = 0;
                 foreach (PickingItem item in this.ListItems)
                 {
                     if (item.ActivityItemRefno == this.ItemRefno)
@@ -209,7 +209,7 @@ namespace dMobile.Controller
         /// <returns>.</returns>
         public override string GetItemNotFoundMessage(LocationMap locMap, ProductInfo prodInfo)
         {
-            string msg = base.GetItemNotFoundMessage(locMap, prodInfo);
+            var msg = base.GetItemNotFoundMessage(locMap, prodInfo);
 
             if (this.SysEnv.SysSettings.IsPickOverrideMsg1)
             {
@@ -225,7 +225,7 @@ namespace dMobile.Controller
         /// <returns>.</returns>
         public override bool IsCatchAsk()
         {
-            bool isCatchAsk = this.ProdInfo.IsCatchAsk;
+            var isCatchAsk = this.ProdInfo.IsCatchAsk;
 
             if (isCatchAsk)
             {
@@ -242,7 +242,7 @@ namespace dMobile.Controller
         /// <returns>.</returns>
         public override bool IsCatchAskZero()
         {
-            bool result = this.IsCatchAsk();
+            var result = this.IsCatchAsk();
             if (result && this.ProdInfo.IsCatchAskZero)
             {
                 result = !this.SysEnv.SysSettings.IsPickingNoCatchAskZeroEnabled;
@@ -263,8 +263,8 @@ namespace dMobile.Controller
             // Weight tolerance within percentage check.
             if (this.SysEnv.SysSettings.ProdWeightUnitTolerancePercent != 0)
             {
-                decimal weight = decimal.Parse(data.Root.Element("wt_qty").Value);
-                decimal qty = decimal.Parse(data.Root.Element("alt_qty").Value);
+                var weight = decimal.Parse(data.Root.Element("wt_qty").Value);
+                var qty = decimal.Parse(data.Root.Element("alt_qty").Value);
 
                 decimal per;
 
@@ -278,8 +278,8 @@ namespace dMobile.Controller
                     per = this.SysEnv.SysSettings.ProdWeightUnitTolerancePercent / 100;
                 }
 
-                decimal weightUpper = (this.ProdInfo.UnitGrossWeight + (this.ProdInfo.UnitGrossWeight * per)) * qty;
-                decimal weightLower = (this.ProdInfo.UnitGrossWeight - (this.ProdInfo.UnitGrossWeight * per)) * qty;
+                var weightUpper = (this.ProdInfo.UnitGrossWeight + (this.ProdInfo.UnitGrossWeight * per)) * qty;
+                var weightLower = (this.ProdInfo.UnitGrossWeight - (this.ProdInfo.UnitGrossWeight * per)) * qty;
 
                 if (weight < weightLower || weight > weightUpper)
                 {
@@ -326,11 +326,11 @@ namespace dMobile.Controller
         /// <returns>.</returns>
         public async override Task<SActItemSchemeData> GetProdSchemeDataFromDetailFKRefno(int activityDetailFKRefno)
         {
-            StringBuilder xmlString = new StringBuilder();
-            XmlWriter xml = XmlWriter.Create(xmlString);
-            SActItemSchemeData itemSchemeData = new SActItemSchemeData();
+            var xmlString = new StringBuilder();
+            var xml = XmlWriter.Create(xmlString);
+            var itemSchemeData = new SActItemSchemeData();
 
-            XDocument request = XDocument.Parse(
+            var request = XDocument.Parse(
                 "<?xml version=\"1.0\" encoding=\"utf-8\" standalone=\"yes\"?>"
                 + "<imclient>"
                 + "<command>"
@@ -344,11 +344,11 @@ namespace dMobile.Controller
             xml.Flush();
             xml.Close();
 
-            string reqData = SysCommon.SubmitComm(xmlString.ToString());
+            var reqData = SysCommon.SubmitComm(xmlString.ToString());
 
             if (reqData.Length > 0)
             {
-                XmlDocument xmlDoc = new XmlDocument();
+                var xmlDoc = new XmlDocument();
                 xmlDoc.LoadXml(reqData);
 
                 if (reqData.Contains("<message>ERROR</message>"))
@@ -357,7 +357,7 @@ namespace dMobile.Controller
                 }
                 else
                 {
-                    SProductSchemeData tempSchemeData = new SProductSchemeData();
+                    var tempSchemeData = new SProductSchemeData();
                     itemSchemeData.ActItemFKRefno = int.Parse(
                         xmlDoc.SelectSingleNode("/VFPData/seg/ActivityItemFKRefno").InnerText);
                     itemSchemeData.ActDetailQuantity = decimal.Parse(
@@ -445,10 +445,10 @@ namespace dMobile.Controller
         /// <returns>.</returns>
         public override async Task<string> GetComment(object selectedActivityItem)
         {
-            string comment = string.Empty;
+            var comment = string.Empty;
             if (selectedActivityItem is PickingItem pickingItem)
             {
-                List<tActivityItemPickingCommentModel> results = await DatabaseConnection.GetInstance().
+                var results = await DatabaseConnection.GetInstance().
                 SQLConn.QueryAsync<tActivityItemPickingCommentModel>(
                 "SELECT * FROM tActivityItemPickingComment WHERE ActivityItemRefno = ?",
                 Convert.ToInt32(pickingItem.ActivityItemRefno));
@@ -499,10 +499,10 @@ namespace dMobile.Controller
         /// <returns><see cref="Task"/> Task operation.</returns>
         public override async Task Insert(XDocument data, bool askToInsertAsNewItem)
         {
-            int foundActItemRefno = 0;
-            bool result = false;
+            var foundActItemRefno = 0;
+            var result = false;
 
-            int prodUnitRefno = int.Parse(data.Root.Element("ProductUnitRefno").Value);
+            var prodUnitRefno = int.Parse(data.Root.Element("ProductUnitRefno").Value);
             if (prodUnitRefno != 0)
             {
                 foundActItemRefno = await this.GetActivityItemRefno(prodUnitRefno);
@@ -538,46 +538,46 @@ namespace dMobile.Controller
 
                             this.ItemRefno = Convert.ToInt32(transaction.ExecuteScalar<int>("SELECT last_insert_rowid() FROM tActivityItem"));
 
-                            string query = "INSERT INTO tActivityItemPicking (" +
-                                "ActivityItemRefno, " +
-                                "ActivityItemSubType, " +
-                                "ActivityItemFKRefno, " +
-                                "ActivityItemStringFKRefno, " +
-                                "ProductUnitRefno, " +
-                                "WarehouseLocationMapRefno, " +
-                                "ActivityItemPickingQuantityOrdered, " +
-                                "ActivityItemPickingBaseQuantityOrdered, " +
-                                "ActivityItemPickingWeightQuantityOrdered, " +
-                                "ActivityItemPickingQuantityShipped, " +
-                                "ActivityItemPickingBaseQuantityShipped, " +
-                                "ActivityItemPickingWeightQuantityShipped, " +
-                                "ActivityItemPickingCustomerProductUnitCode, " +
-                                "ActivityItemPickingDescription, " +
-                                "ActivityItemPickingQuantityAvailable, " +
-                                "ActivityItemPickingBaseQuantityAvailable, " +
-                                "ActivityItemPickingWeightQuantityAvailable, " +
-                                "ActivityItemPickingIsReviewed" +
-                                ") VALUES (" +
-                                "?, " +
-                                "?, " +
-                                "?, " +
-                                "?, " +
-                                "?, " +
-                                "?, " +
-                                "?, " +
-                                "?, " +
-                                "?, " +
-                                "?, " +
-                                "?, " +
-                                "?, " +
-                                "?, " +
-                                "?, " +
-                                "?, " +
-                                "?, " +
-                                "?, " +
-                                "?" +
-                                ")";
-                            object[] parameters = new object[]
+                            var query = "INSERT INTO tActivityItemPicking (" +
+                                        "ActivityItemRefno, " +
+                                        "ActivityItemSubType, " +
+                                        "ActivityItemFKRefno, " +
+                                        "ActivityItemStringFKRefno, " +
+                                        "ProductUnitRefno, " +
+                                        "WarehouseLocationMapRefno, " +
+                                        "ActivityItemPickingQuantityOrdered, " +
+                                        "ActivityItemPickingBaseQuantityOrdered, " +
+                                        "ActivityItemPickingWeightQuantityOrdered, " +
+                                        "ActivityItemPickingQuantityShipped, " +
+                                        "ActivityItemPickingBaseQuantityShipped, " +
+                                        "ActivityItemPickingWeightQuantityShipped, " +
+                                        "ActivityItemPickingCustomerProductUnitCode, " +
+                                        "ActivityItemPickingDescription, " +
+                                        "ActivityItemPickingQuantityAvailable, " +
+                                        "ActivityItemPickingBaseQuantityAvailable, " +
+                                        "ActivityItemPickingWeightQuantityAvailable, " +
+                                        "ActivityItemPickingIsReviewed" +
+                                        ") VALUES (" +
+                                        "?, " +
+                                        "?, " +
+                                        "?, " +
+                                        "?, " +
+                                        "?, " +
+                                        "?, " +
+                                        "?, " +
+                                        "?, " +
+                                        "?, " +
+                                        "?, " +
+                                        "?, " +
+                                        "?, " +
+                                        "?, " +
+                                        "?, " +
+                                        "?, " +
+                                        "?, " +
+                                        "?, " +
+                                        "?" +
+                                        ")";
+                            var parameters = new object[]
                             {
                                 Convert.ToInt32(this.ItemRefno),
                                 Convert.ToInt32(SysCommon.ActSubTypes.Picking),
@@ -615,7 +615,7 @@ namespace dMobile.Controller
 
                     if (this.ListItems != null)
                     {
-                        PickingItem item = new PickingItem()
+                        var item = new PickingItem()
                         {
                             ActivityItemRefno = this.ItemRefno,
                             ActivityItemFKRefno = this.ItemFKRefno,
@@ -666,8 +666,8 @@ namespace dMobile.Controller
             {
                 this.DataLayerProgressOutHandler(this, new EventArgs(), 2);
 
-                TableActivityPickingItem tableActPickingItem = new TableActivityPickingItem();
-                TableActivityPickingDetail tableActPickingDetail = new TableActivityPickingDetail();
+                var tableActPickingItem = new TableActivityPickingItem();
+                var tableActPickingDetail = new TableActivityPickingDetail();
                 await tableActPickingDetail.PurgeData();
                 await tableActPickingItem.PurgeData();
 
@@ -687,15 +687,15 @@ namespace dMobile.Controller
         /// <returns>The <see cref="ObservableCollection{object}"/>.</returns>
         public override ObservableCollection<object> DesignGrid(ref Grid GridMainActivity, ref ListView ListViewMainActivity)
         {
-            ObservableCollection<object> observableCollection = new ObservableCollection<object>();
+            var observableCollection = new ObservableCollection<object>();
 
-            Label labelIsActivityItemPickingCommentHeader = new Label { Text = "C", VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start, FontAttributes = FontAttributes.Bold };
-            Label labelActivityItemPickingProductCodeHeader = new Label { Text = "Product ID", VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start, FontAttributes = FontAttributes.Bold };
-            Label labelActivityItemPickingProductUnitBCHeader = new Label { Text = string.Empty, VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start, FontAttributes = FontAttributes.Bold };
-            Label labelActivityItemPickingUnitCodeHeader = new Label { Text = string.Empty, VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start, FontAttributes = FontAttributes.Bold };
-            Label labelActivityItemPickingQuantityOrderedHeader = new Label { Text = "Ordered", VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start, FontAttributes = FontAttributes.Bold };
-            Label labelActivityItemPickingQuantityReceivedHeader = new Label { Text = "Shipped", VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start, FontAttributes = FontAttributes.Bold };
-            Label labelActivityItemPickingQuantityAvailableHeader = new Label { Text = "Available", VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start, FontAttributes = FontAttributes.Bold };
+            var labelIsActivityItemPickingCommentHeader = new Label { Text = "C", VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start, FontAttributes = FontAttributes.Bold };
+            var labelActivityItemPickingProductCodeHeader = new Label { Text = "Product ID", VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start, FontAttributes = FontAttributes.Bold };
+            var labelActivityItemPickingProductUnitBCHeader = new Label { Text = string.Empty, VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start, FontAttributes = FontAttributes.Bold };
+            var labelActivityItemPickingUnitCodeHeader = new Label { Text = string.Empty, VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start, FontAttributes = FontAttributes.Bold };
+            var labelActivityItemPickingQuantityOrderedHeader = new Label { Text = "Ordered", VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start, FontAttributes = FontAttributes.Bold };
+            var labelActivityItemPickingQuantityReceivedHeader = new Label { Text = "Shipped", VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start, FontAttributes = FontAttributes.Bold };
+            var labelActivityItemPickingQuantityAvailableHeader = new Label { Text = "Available", VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start, FontAttributes = FontAttributes.Bold };
 
             this.columnWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(labelIsActivityItemPickingCommentHeader.Text);
             this.columnWidth1 = DependencyService.Get<IGridService>().CalculateTextWidth(labelActivityItemPickingProductCodeHeader.Text);
@@ -706,7 +706,7 @@ namespace dMobile.Controller
             this.columnWidth6 = DependencyService.Get<IGridService>().CalculateTextWidth(labelActivityItemPickingQuantityAvailableHeader.Text);
 
             // Header grid
-            Grid gridHeaderPicking = new Grid
+            var gridHeaderPicking = new Grid
             {
                 Padding = new Thickness(5),
                 ColumnDefinitions =
@@ -782,13 +782,13 @@ namespace dMobile.Controller
                 // };
                 observableCollection.Add(pickingItem);
 
-                double detailWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(pickingItem.IsActivityItemPickingComment);
-                double detailWidth1 = DependencyService.Get<IGridService>().CalculateTextWidth(pickingItem.ProductCode);
-                double detailWidth2 = DependencyService.Get<IGridService>().CalculateTextWidth(pickingItem.ProductUnitBC);
-                double detailWidth3 = DependencyService.Get<IGridService>().CalculateTextWidth(pickingItem.UnitCode);
-                double detailWidth4 = DependencyService.Get<IGridService>().CalculateTextWidth(string.Format("{0:F3}", pickingItem.ActivityItemPickingQuantityOrdered));
-                double detailWidth5 = DependencyService.Get<IGridService>().CalculateTextWidth(string.Format("{0:F3}", pickingItem.ActivityItemPickingWeightQuantityShipped));
-                double detailWidth6 = DependencyService.Get<IGridService>().CalculateTextWidth(string.Format("{0:F3}", pickingItem.ActivityItemPickingQuantityAvailable));
+                var detailWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(pickingItem.IsActivityItemPickingComment);
+                var detailWidth1 = DependencyService.Get<IGridService>().CalculateTextWidth(pickingItem.ProductCode);
+                var detailWidth2 = DependencyService.Get<IGridService>().CalculateTextWidth(pickingItem.ProductUnitBC);
+                var detailWidth3 = DependencyService.Get<IGridService>().CalculateTextWidth(pickingItem.UnitCode);
+                var detailWidth4 = DependencyService.Get<IGridService>().CalculateTextWidth(string.Format("{0:F3}", pickingItem.ActivityItemPickingQuantityOrdered));
+                var detailWidth5 = DependencyService.Get<IGridService>().CalculateTextWidth(string.Format("{0:F3}", pickingItem.ActivityItemPickingWeightQuantityShipped));
+                var detailWidth6 = DependencyService.Get<IGridService>().CalculateTextWidth(string.Format("{0:F3}", pickingItem.ActivityItemPickingQuantityAvailable));
 
                 if (detailWidth0 > this.columnWidth0)
                 {
@@ -841,7 +841,7 @@ namespace dMobile.Controller
                 }
             }
 
-            ListViewMainActivity.ItemTemplate = (DataTemplate)this.resourceDictionary["dataTemplatePicking"];
+            ListViewMainActivity.ItemTemplate = (DataTemplate)this.resourceDictionary["dataTemplatePickingItem"];
 
             return observableCollection;
         }
@@ -853,7 +853,7 @@ namespace dMobile.Controller
         /// <returns>.</returns>
         public override async Task<List<object>> GetActivityItemList(bool isSubmitBatch)
         {
-            StringBuilder sql = new StringBuilder();
+            var sql = new StringBuilder();
 
             if (isSubmitBatch)
             {
@@ -1013,7 +1013,7 @@ namespace dMobile.Controller
         /// <returns>.</returns>
         public override ObservableCollection<object> Search(string searchText)
         {
-            ObservableCollection<object> observableCollection = new ObservableCollection<object>();
+            var observableCollection = new ObservableCollection<object>();
 
             // if (string.IsNullOrEmpty(this.ActItemFilter))
             // {
@@ -1082,7 +1082,7 @@ namespace dMobile.Controller
                     this.ActHdr.SkidInfo.CurrSkid = new SSkidInfo();
                 }
 
-                SLocMap locMap = await this.GetSelectedItemLocation(item.LocationMapRefno);
+                var locMap = await this.GetSelectedItemLocation(item.LocationMapRefno);
 
                 if (this.SysEnv.SysSettings.IsDefaultLocToProductDefaultLoc)
                 {
@@ -1125,9 +1125,9 @@ namespace dMobile.Controller
         /// <returns><see cref="int"/> Found activity item reference number else 0.</returns>
         public override async Task<int> GetActivityItemRefno(int prodUnitRefno)
         {
-            int foundActItemRefno = 0;
+            var foundActItemRefno = 0;
 
-            StringBuilder sql = new StringBuilder();
+            var sql = new StringBuilder();
             sql.Append("SELECT tActivityItem.ActivityItemRefno,");
             sql.Append("tActivityItemPicking.ActivityItemFKRefno,");
             sql.Append("tActivityItemPicking.ProductUnitRefno,");
@@ -1141,7 +1141,7 @@ namespace dMobile.Controller
             sql.AppendFormat("AND tActivityItemPicking.WarehouseLocationMapRefno = {0} ", this.LocMap.WhsLocMapRefno);
             sql.AppendFormat("AND tActivityItemPicking.ProductUnitRefno = {0}", prodUnitRefno);
 
-            List<PickingItem> results = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<PickingItem>(sql.ToString());
+            var results = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<PickingItem>(sql.ToString());
 
             if (results != null && results.Count > 0)
             {
@@ -1163,21 +1163,21 @@ namespace dMobile.Controller
         {
             if (!this.SysEnv.SysSettings.IsDisconnectedMode)
             {
-                string sendReq = await this.CreateDeleteXML(XDocument.Parse(
+                var sendReq = await this.CreateDeleteXML(XDocument.Parse(
                 "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>"
                 + "<params>"
                 + "<skid_data>" + this.ActHdr.SkidInfo.CurrSkid.SkidCode + "</skid_data>"
                 + "</params>"));
 
-                string reqData = SysCommon.SubmitComm(sendReq);
+                var reqData = SysCommon.SubmitComm(sendReq);
 
                 if (reqData.Length > 0)
                 {
                     if (reqData.Contains("<message>ERROR</message>"))
                     {
-                        XmlDocument docError = new XmlDocument();
+                        var docError = new XmlDocument();
                         docError.LoadXml(reqData);
-                        string errorDetail = docError.DocumentElement["detail"].InnerText;
+                        var errorDetail = docError.DocumentElement["detail"].InnerText;
 
                         if (errorDetail.Contains("MSGBOX-"))
                         {
@@ -1201,8 +1201,8 @@ namespace dMobile.Controller
         /// <returns>.</returns>
         public async override Task<string> CreateDeleteXML(XDocument data)
         {
-            StringBuilder xmlString = new StringBuilder();
-            XmlWriter xml = XmlWriter.Create(xmlString);
+            var xmlString = new StringBuilder();
+            var xml = XmlWriter.Create(xmlString);
             XDocument request;
             if (data.Document.Root.Element("skid_data") == null)
             {
@@ -1239,15 +1239,15 @@ namespace dMobile.Controller
         /// <returns>.</returns>
         public async override Task<string> CreateSubmitXML(XDocument data)
         {
-            StringBuilder xmlString = new StringBuilder();
-            XmlWriter xml = XmlWriter.Create(xmlString);
-            string prodCode = data.Root.Element("ProductCode").Value.PadRight(10);
-            string barCodeCode = data.Root.Element("ProductUnitBarCodeCode").Value.PadRight(20);
-            bool prodUnitIsBC = bool.Parse(data.Root.Element("ProductUnitIsBC").Value);
-            string unitCode = data.Root.Element("UnitCode").Value;
-            string symbologyPrefix = data.Root.Element("ProductUnitBarCodeSymbologyPrefix").Value;
+            var xmlString = new StringBuilder();
+            var xml = XmlWriter.Create(xmlString);
+            var prodCode = data.Root.Element("ProductCode").Value.PadRight(10);
+            var barCodeCode = data.Root.Element("ProductUnitBarCodeCode").Value.PadRight(20);
+            var prodUnitIsBC = bool.Parse(data.Root.Element("ProductUnitIsBC").Value);
+            var unitCode = data.Root.Element("UnitCode").Value;
+            var symbologyPrefix = data.Root.Element("ProductUnitBarCodeSymbologyPrefix").Value;
 
-            XDocument request = XDocument.Parse(
+            var request = XDocument.Parse(
                 "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>"
                 + "<imclient>"
                 + "<command>"
@@ -1317,10 +1317,10 @@ namespace dMobile.Controller
         {
             if (activityItem is PickingItem pickingItem)
             {
-                string query = "UPDATE tActivityItemPicking SET ActivityItemPickingQuantityShipped = ?," +
-                    " ActivityItemPickingBaseQuantityShipped = ?, ActivityItemPickingWeightQuantityShipped = ?" +
-                    " WHERE tActivityItemPicking.ActivityItemRefno = ?";
-                object[] parameters = new object[]
+                var query = "UPDATE tActivityItemPicking SET ActivityItemPickingQuantityShipped = ?," +
+                            " ActivityItemPickingBaseQuantityShipped = ?, ActivityItemPickingWeightQuantityShipped = ?" +
+                            " WHERE tActivityItemPicking.ActivityItemRefno = ?";
+                var parameters = new object[]
                 {
                     pickingItem.ActivityItemPickingQuantityShipped,
                     pickingItem.ActivityItemPickingBaseQuantityShipped,
@@ -1343,10 +1343,10 @@ namespace dMobile.Controller
         /// <returns>.</returns>
         public async Task<string> CreateRequestTotalQuantityXML(int actFKRefno)
         {
-            StringBuilder xmlString = new StringBuilder();
-            XmlWriter xml = XmlWriter.Create(xmlString);
+            var xmlString = new StringBuilder();
+            var xml = XmlWriter.Create(xmlString);
 
-            XDocument request = XDocument.Parse(
+            var request = XDocument.Parse(
                 "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>"
                 + "<imclient>"
                 + "<command>"
@@ -1369,24 +1369,24 @@ namespace dMobile.Controller
         /// <returns>.</returns>
         public override async Task<string> GetTotalQuantity()
         {
-            string msg = string.Empty;
+            var msg = string.Empty;
 
             try
             {
-                string query = "SELECT SUM(tActivityItemPicking.ActivityItemPickingQuantityOrdered) AS Ordered,"
-                        + "SUM(tActivityItemPicking.ActivityItemPickingWeightQuantityOrdered) AS WeightOrdered,"
-                        + "SUM(tActivityItemPicking.ActivityItemPickingQuantityShipped) AS Shipped,"
-                        + "SUM(tActivityItemPicking.ActivityItemPickingWeightQuantityShipped) AS WeightShipped,"
-                        + "tUnit.UnitCode AS WtUnitCode "
-                        + "FROM tActivityItem "
-                        + "INNER JOIN tActivityItemPicking ON tActivityItemPicking.ActivityItemRefno = "
-                        + "tActivityItem.ActivityItemRefno "
-                        + "INNER JOIN tProductUnit ON tProductUnit.ProductUnitRefno = tActivityItemPicking.ProductUnitRefno "
-                        + "INNER JOIN tUnit ON tUnit.UnitRefno = tProductUnit.WtUnitRefno "
-                        + string.Format("WHERE tActivityItem.ActivityRefno = {0} ", this.ActHdr.HdrRefno)
-                        + "GROUP BY tUnit.UnitCode";
+                var query = "SELECT SUM(tActivityItemPicking.ActivityItemPickingQuantityOrdered) AS Ordered,"
+                            + "SUM(tActivityItemPicking.ActivityItemPickingWeightQuantityOrdered) AS WeightOrdered,"
+                            + "SUM(tActivityItemPicking.ActivityItemPickingQuantityShipped) AS Shipped,"
+                            + "SUM(tActivityItemPicking.ActivityItemPickingWeightQuantityShipped) AS WeightShipped,"
+                            + "tUnit.UnitCode AS WtUnitCode "
+                            + "FROM tActivityItem "
+                            + "INNER JOIN tActivityItemPicking ON tActivityItemPicking.ActivityItemRefno = "
+                            + "tActivityItem.ActivityItemRefno "
+                            + "INNER JOIN tProductUnit ON tProductUnit.ProductUnitRefno = tActivityItemPicking.ProductUnitRefno "
+                            + "INNER JOIN tUnit ON tUnit.UnitRefno = tProductUnit.WtUnitRefno "
+                            + string.Format("WHERE tActivityItem.ActivityRefno = {0} ", this.ActHdr.HdrRefno)
+                            + "GROUP BY tUnit.UnitCode";
 
-                List<PickingItemSummary> results = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<PickingItemSummary>(query);
+                var results = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<PickingItemSummary>(query);
 
                 if (results != null)
                 {
@@ -1421,8 +1421,8 @@ namespace dMobile.Controller
         {
             if (this.SelectedActivityItem is PickingItem pickingItem)
             {
-                decimal shipped = Convert.ToDecimal(pickingItem.ActivityItemPickingQuantityShipped);
-                decimal ordered = Convert.ToDecimal(pickingItem.ActivityItemPickingQuantityOrdered);
+                var shipped = Convert.ToDecimal(pickingItem.ActivityItemPickingQuantityShipped);
+                var ordered = Convert.ToDecimal(pickingItem.ActivityItemPickingQuantityOrdered);
 
                 if (shipped + actItemPickQuantity > ordered)
                 {
@@ -1480,7 +1480,7 @@ namespace dMobile.Controller
         /// <returns><see cref="int"/> Location map reference number.</returns>
         public override async Task<int> GetDefaultLocMapRefno(int whsLocMapRefno, int prodRefno)
         {
-            int locMapRefno = 0;
+            var locMapRefno = 0;
             if (this.SelectedActivityItem is PickingItem item)
             {
                 if (Math.Sign(item.ActivityItemPickingQuantityShipped) == 0 ||

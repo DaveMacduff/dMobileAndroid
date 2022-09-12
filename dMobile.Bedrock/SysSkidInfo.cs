@@ -32,7 +32,7 @@ namespace dMobile.Bedrock
         /// <returns><see cref="XDocument"/> Created skid XDocument.</returns>
         public static XDocument SkidInfoToXML(SysSkidInfo skid)
         {
-            XDocument xmlResult = new XDocument(
+            var xmlResult = new XDocument(
                 new XDeclaration(
                     "1.0", "utf-16", "yes"),
                 string.Empty,
@@ -88,14 +88,14 @@ namespace dMobile.Bedrock
         /// <returns><see cref="SysSkidInfo"/> Create skid information object.</returns>
         public static async Task<SysSkidInfo> GetSkidInfoFromXML(XDocument data)
         {
-            SysSkidInfo skid = new SysSkidInfo();
+            var skid = new SysSkidInfo();
             skid.CurrSkid = await FillSkidInfo(data);
             return skid;
 
             //////////////////////////////////////////////////////////////////////////
             static async Task<SSkidInfo> FillSkidInfo(XDocument data)
             {
-                SSkidInfo skid = new SSkidInfo
+                var skid = new SSkidInfo
                 {
 
                     // Identifier information.
@@ -105,11 +105,11 @@ namespace dMobile.Bedrock
                 };
 
                 // Location.
-                int locMapRefno = int.Parse(data.Root.Element("location_map_refno").Value);
+                var locMapRefno = int.Parse(data.Root.Element("location_map_refno").Value);
                 skid.LocMap = await LocationMapTasks.GetSLocMapFromLocMapRefno(locMapRefno);
 
                 // Product unit.
-                int prodUnitRefno = int.Parse(data.Root.Element("product_unit_refno").Value);
+                var prodUnitRefno = int.Parse(data.Root.Element("product_unit_refno").Value);
                 skid.ProdInfo = await ProductInfoTasks.GetInfoFromUnitRefno(prodUnitRefno);
                 skid.ProdInfo.Scheme = await ProductInfoTasks.GetSchemeComponentsFromRefno(skid.ProdInfo.Refno);
 
@@ -132,7 +132,7 @@ namespace dMobile.Bedrock
                 skid.IsPutAway = bool.Parse(data.Root.Element("putaway").Value);
 
                 // Default inventory detail, used with creating new skids.
-                SProductSchemeData schemeData = skid.SchemeData;
+                var schemeData = skid.SchemeData;
                 schemeData.LogisticUnitBatchLotNumber =
                     data.Root.Element("logistic_unit_batch_lot_number").Value;
                 schemeData.LogisticUnitBestBeforeSellByDate
@@ -155,7 +155,7 @@ namespace dMobile.Bedrock
         /// <returns><see cref="Task{SysSkidInfo}"/> Moved updated skid information.</returns>
         public static async Task<SysSkidInfo> Move(SysSkidInfo skid, SLocMap moveToLocMap)
         {
-            CreateMoveRequest(skid, moveToLocMap, out StringBuilder xmlString);
+            CreateMoveRequest(skid, moveToLocMap, out var xmlString);
             PerformMoveRequest(xmlString);
             await UpdateSkidWithNewLocation(skid, moveToLocMap);
             return skid;
@@ -166,13 +166,13 @@ namespace dMobile.Bedrock
                 SLocMap moveToLocMap,
                 out StringBuilder xmlString)
             {
-                SysEnvironment sysEnv = SysEnvironment.GetInstance();
+                var sysEnv = SysEnvironment.GetInstance();
                 xmlString = new StringBuilder();
-                XmlWriter writer = XmlWriter.Create(xmlString);
-                string revision = sysEnv.RefreshOpt.RefreshedDataLast.ToString("yyyy'-'MM'-'dd'T'HH':'mm':'ss");
-                string current = DateTime.Now.ToString("yyyy'-'MM'-'dd'T'HH':'mm':'ss");
+                var writer = XmlWriter.Create(xmlString);
+                var revision = sysEnv.RefreshOpt.RefreshedDataLast.ToString("yyyy'-'MM'-'dd'T'HH':'mm':'ss");
+                var current = DateTime.Now.ToString("yyyy'-'MM'-'dd'T'HH':'mm':'ss");
 
-                XDocument request = new XDocument(
+                var request = new XDocument(
                     new XDeclaration("1.0", "utf-16", "yes"),
                     string.Empty,
                     new XElement(
@@ -195,8 +195,8 @@ namespace dMobile.Bedrock
             //////////////////////////////////////////////////////////////////////////
             static async Task UpdateSkidWithNewLocation(SysSkidInfo skid, SLocMap moveToLocMap)
             {
-                SSkidInfo tempSkidInfo = skid.CurrSkid;
-                SLocMapAndRefno sLocMapAndRefno = await GetSLocMapFromLocMapFKRefno(
+                var tempSkidInfo = skid.CurrSkid;
+                var sLocMapAndRefno = await GetSLocMapFromLocMapFKRefno(
                     moveToLocMap.WhsFKRefno,
                     moveToLocMap.SectFKRefno,
                     moveToLocMap.SlotFKRefno);
@@ -207,7 +207,7 @@ namespace dMobile.Bedrock
             //////////////////////////////////////////////////////////////////////////
             static void PerformMoveRequest(StringBuilder xmlString)
             {
-                string recvData = SysCommon.SubmitComm(xmlString.ToString());
+                var recvData = SysCommon.SubmitComm(xmlString.ToString());
                 if (recvData.Length <= 0)
                 {
                     throw new MessageOnlyException("Move skid request failed. Check communications.");
@@ -215,7 +215,7 @@ namespace dMobile.Bedrock
 
                 if (recvData.Contains("<message>ERROR</message>"))
                 {
-                    XmlDocument xmlResult = new XmlDocument();
+                    var xmlResult = new XmlDocument();
                     xmlResult.LoadXml(recvData);
                     if (recvData.Contains("MSGBOX-"))
                     {
@@ -235,13 +235,13 @@ namespace dMobile.Bedrock
         /// <param name="skid"><see cref="SysSkidInfo"/> Skid information to send.</param>
         public static void SendUpdate(SysSkidInfo skid)
         {
-            SysEnvironment sysEnv = SysEnvironment.GetInstance();
-            StringBuilder xmlString = new StringBuilder();
-            using XmlWriter writer = XmlWriter.Create(xmlString);
-            string revision = sysEnv.RefreshOpt.RefreshedDataLast.ToString("yyyy'-'MM'-'dd'T'HH':'mm':'ss");
-            string current = DateTime.Now.ToString("yyyy'-'MM'-'dd'T'HH':'mm':'ss");
+            var sysEnv = SysEnvironment.GetInstance();
+            var xmlString = new StringBuilder();
+            using var writer = XmlWriter.Create(xmlString);
+            var revision = sysEnv.RefreshOpt.RefreshedDataLast.ToString("yyyy'-'MM'-'dd'T'HH':'mm':'ss");
+            var current = DateTime.Now.ToString("yyyy'-'MM'-'dd'T'HH':'mm':'ss");
 
-            XDocument request = new XDocument(
+            var request = new XDocument(
                 new XDeclaration("1.0", "utf-16", "yes"),
                 string.Empty,
                 new XElement(
@@ -278,12 +278,12 @@ namespace dMobile.Bedrock
             writer.Flush();
             writer.Close();
 
-            string recvData = SysCommon.SubmitComm(xmlString.ToString());
+            var recvData = SysCommon.SubmitComm(xmlString.ToString());
             if (recvData.Length > 0)
             {
                 if (recvData.Contains("<message>ERROR</message>"))
                 {
-                    XmlDocument xmlResult = new XmlDocument();
+                    var xmlResult = new XmlDocument();
                     xmlResult.LoadXml(recvData);
                     if (recvData.Contains("MSGBOX-"))
                     {
@@ -308,14 +308,14 @@ namespace dMobile.Bedrock
         /// <returns><see cref="SysSkidInfo"/> Skid marked as completed.</returns>
         public static SysSkidInfo Complete(SysSkidInfo skid)
         {
-            SysEnvironment sysEnv = SysEnvironment.GetInstance();
-            StringBuilder xmlString = new StringBuilder();
-            using XmlWriter writer = XmlWriter.Create(xmlString);
-            string revision = sysEnv.RefreshOpt.RefreshedDataLast.ToString("yyyy'-'MM'-'dd'T'HH':'mm':'ss");
-            string current = DateTime.Now.ToString("yyyy'-'MM'-'dd'T'HH':'mm':'ss");
-            LocationMap locMap = LocationMap.GetInstance();
+            var sysEnv = SysEnvironment.GetInstance();
+            var xmlString = new StringBuilder();
+            using var writer = XmlWriter.Create(xmlString);
+            var revision = sysEnv.RefreshOpt.RefreshedDataLast.ToString("yyyy'-'MM'-'dd'T'HH':'mm':'ss");
+            var current = DateTime.Now.ToString("yyyy'-'MM'-'dd'T'HH':'mm':'ss");
+            var locMap = LocationMap.GetInstance();
 
-            XDocument request = new XDocument(
+            var request = new XDocument(
                 new XDeclaration("1.0", "utf-16", "yes"),
                 string.Empty,
                 new XElement(
@@ -332,12 +332,12 @@ namespace dMobile.Bedrock
             writer.Flush();
             writer.Close();
 
-            string recvData = SysCommon.SubmitComm(xmlString.ToString());
+            var recvData = SysCommon.SubmitComm(xmlString.ToString());
             if (recvData.Length > 0)
             {
                 if (recvData.Contains("<message>ERROR</message>"))
                 {
-                    XmlDocument xmlResult = new XmlDocument();
+                    var xmlResult = new XmlDocument();
                     xmlResult.LoadXml(recvData);
 
                     if (recvData.Contains("MSGBOX-"))
@@ -351,7 +351,7 @@ namespace dMobile.Bedrock
                 }
                 else
                 {
-                    SSkidInfo tempSkidInfo = skid.CurrSkid;
+                    var tempSkidInfo = skid.CurrSkid;
                     tempSkidInfo.IsCompleted = true;
                     skid.CurrSkid = tempSkidInfo;
                 }
@@ -370,14 +370,14 @@ namespace dMobile.Bedrock
         /// <param name="skid"><see cref="SysSkidInfo"/> Skid information.</param>
         public static void PrintLabel(SysSkidInfo skid)
         {
-            SysEnvironment sysEnv = SysEnvironment.GetInstance();
-            StringBuilder xmlString = new StringBuilder();
-            using XmlWriter writer = XmlWriter.Create(xmlString);
-            string revision = sysEnv.RefreshOpt.RefreshedDataLast.ToString("yyyy'-'MM'-'dd'T'HH':'mm':'ss");
-            string current = DateTime.Now.ToString("yyyy'-'MM'-'dd'T'HH':'mm':'ss");
-            LocationMap locMap = LocationMap.GetInstance();
+            var sysEnv = SysEnvironment.GetInstance();
+            var xmlString = new StringBuilder();
+            using var writer = XmlWriter.Create(xmlString);
+            var revision = sysEnv.RefreshOpt.RefreshedDataLast.ToString("yyyy'-'MM'-'dd'T'HH':'mm':'ss");
+            var current = DateTime.Now.ToString("yyyy'-'MM'-'dd'T'HH':'mm':'ss");
+            var locMap = LocationMap.GetInstance();
 
-            XDocument request = new XDocument(
+            var request = new XDocument(
                 new XDeclaration("1.0", "utf-16", "yes"),
                 string.Empty,
                 new XElement(
@@ -394,12 +394,12 @@ namespace dMobile.Bedrock
             writer.Flush();
             writer.Close();
 
-            string recvData = SysCommon.SubmitComm(xmlString.ToString());
+            var recvData = SysCommon.SubmitComm(xmlString.ToString());
             if (recvData.Length > 0)
             {
                 if (recvData.Contains("<message>ERROR</message>"))
                 {
-                    XmlDocument result = new XmlDocument();
+                    var result = new XmlDocument();
                     result.LoadXml(recvData);
                     if (recvData.Contains("MSGBOX-"))
                     {
@@ -423,14 +423,14 @@ namespace dMobile.Bedrock
         /// <returns><see cref="DataSet"/> Data set of available skids.</returns>
         public static DataSet GetSkids()
         {
-            SysEnvironment sysEnv = SysEnvironment.GetInstance();
-            StringBuilder xmlString = new StringBuilder();
-            using XmlWriter writer = XmlWriter.Create(xmlString);
-            string revision = sysEnv.RefreshOpt.RefreshedDataLast.ToString("yyyy'-'MM'-'dd'T'HH':'mm':'ss");
-            string current = DateTime.Now.ToString("yyyy'-'MM'-'dd'T'HH':'mm':'ss");
+            var sysEnv = SysEnvironment.GetInstance();
+            var xmlString = new StringBuilder();
+            using var writer = XmlWriter.Create(xmlString);
+            var revision = sysEnv.RefreshOpt.RefreshedDataLast.ToString("yyyy'-'MM'-'dd'T'HH':'mm':'ss");
+            var current = DateTime.Now.ToString("yyyy'-'MM'-'dd'T'HH':'mm':'ss");
             DataSet dataSetSkids = null;
 
-            XDocument request = new XDocument(
+            var request = new XDocument(
                 new XDeclaration("1.0", "utf-16", "yes"),
                 string.Empty,
                 new XElement(
@@ -445,12 +445,12 @@ namespace dMobile.Bedrock
             writer.Flush();
             writer.Close();
 
-            string recvData = SysCommon.SubmitComm(xmlString.ToString());
+            var recvData = SysCommon.SubmitComm(xmlString.ToString());
             if (recvData.Length > 0)
             {
                 if (recvData.Contains("<message>ERROR</message>"))
                 {
-                    XmlDocument result = new XmlDocument();
+                    var result = new XmlDocument();
                     result.LoadXml(recvData);
                     if (recvData.Contains("MSGBOX-"))
                     {
@@ -463,7 +463,7 @@ namespace dMobile.Bedrock
                 }
                 else
                 {
-                    using DataSet ds = new DataSet();
+                    using var ds = new DataSet();
                     ds.ReadXml(SysCommon.GetXmlReader(ref recvData), XmlReadMode.Auto);
                     if (ds.Tables.Count != 0)
                     {
@@ -486,14 +486,14 @@ namespace dMobile.Bedrock
         /// <param name="dataSetSkidDetail"><see cref="DataSet"/> Skid detail.</param>
         public static void GetSkidDetail(SysSkidInfo skid, ref DataSet dataSetSkidDetail)
         {
-            SysEnvironment sysEnv = SysEnvironment.GetInstance();
-            StringBuilder xmlString = new StringBuilder();
-            using XmlWriter writer = XmlWriter.Create(xmlString);
-            string revision = sysEnv.RefreshOpt.RefreshedDataLast.ToString("yyyy'-'MM'-'dd'T'HH':'mm':'ss");
-            string current = DateTime.Now.ToString("yyyy'-'MM'-'dd'T'HH':'mm':'ss");
-            LocationMap locMap = LocationMap.GetInstance();
+            var sysEnv = SysEnvironment.GetInstance();
+            var xmlString = new StringBuilder();
+            using var writer = XmlWriter.Create(xmlString);
+            var revision = sysEnv.RefreshOpt.RefreshedDataLast.ToString("yyyy'-'MM'-'dd'T'HH':'mm':'ss");
+            var current = DateTime.Now.ToString("yyyy'-'MM'-'dd'T'HH':'mm':'ss");
+            var locMap = LocationMap.GetInstance();
 
-            XDocument request = new XDocument(
+            var request = new XDocument(
                 new XDeclaration("1.0", "utf-16", "yes"),
                 string.Empty,
                 new XElement(
@@ -511,12 +511,12 @@ namespace dMobile.Bedrock
             writer.Flush();
             writer.Close();
 
-            string recvData = SysCommon.SubmitComm(xmlString.ToString());
+            var recvData = SysCommon.SubmitComm(xmlString.ToString());
             if (recvData.Length > 0)
             {
                 if (recvData.Contains("<message>ERROR</message>"))
                 {
-                    XmlDocument result = new XmlDocument();
+                    var result = new XmlDocument();
                     result.LoadXml(recvData);
                     if (recvData.Contains("MSGBOX-"))
                     {
@@ -529,7 +529,7 @@ namespace dMobile.Bedrock
                 }
                 else
                 {
-                    using DataSet ds = new DataSet();
+                    using var ds = new DataSet();
                     ds.ReadXml(SysCommon.GetXmlReader(ref recvData), XmlReadMode.Auto);
                     if (ds.Tables.Count != 0)
                     {
@@ -550,18 +550,18 @@ namespace dMobile.Bedrock
         /// <returns><see cref="Task{SysSkidInfo}"/> Created skid information.</returns>
         public static async Task<SysSkidInfo> Create(XDocument skidData)
         {
-            XElement root = skidData.Document.Root;
-            SysEnvironment sysEnv = SysEnvironment.GetInstance();
-            StringBuilder xmlString = new StringBuilder();
-            using XmlWriter writer = XmlWriter.Create(xmlString);
-            string revDateTime = sysEnv.RefreshOpt.RefreshedDataLast.ToString("yyyy'-'MM'-'dd'T'HH':'mm':'ss");
-            string currDateTime = DateTime.Now.ToString("yyyy'-'MM'-'dd'T'HH':'mm':'ss");
-            ProductInfo prodInfo = await ProductInfoTasks.GetInfoFromUnitRefno(
+            var root = skidData.Document.Root;
+            var sysEnv = SysEnvironment.GetInstance();
+            var xmlString = new StringBuilder();
+            using var writer = XmlWriter.Create(xmlString);
+            var revDateTime = sysEnv.RefreshOpt.RefreshedDataLast.ToString("yyyy'-'MM'-'dd'T'HH':'mm':'ss");
+            var currDateTime = DateTime.Now.ToString("yyyy'-'MM'-'dd'T'HH':'mm':'ss");
+            var prodInfo = await ProductInfoTasks.GetInfoFromUnitRefno(
                 int.Parse(root.Element("product_unit_refno").Value));
 
-            SLocMap skidLocMap = await LocationMapTasks.GetSLocMapFromLocMapRefno(
+            var skidLocMap = await LocationMapTasks.GetSLocMapFromLocMapRefno(
                 int.Parse(root.Element("location_map_refno").Value));
-            XDocument request = new XDocument(
+            var request = new XDocument(
                 new XDeclaration("1.0", "utf-16", "yes"),
                 string.Empty,
                 new XElement(
@@ -597,12 +597,12 @@ namespace dMobile.Bedrock
             writer.Flush();
             writer.Close();
 
-            string recvData = SysCommon.SubmitComm(xmlString.ToString());
+            var recvData = SysCommon.SubmitComm(xmlString.ToString());
 
             SysSkidInfo skid;
             if (recvData.Length > 0)
             {
-                XmlDocument result = new XmlDocument();
+                var result = new XmlDocument();
                 result.LoadXml(recvData);
                 if (recvData.Contains("<message>ERROR</message>"))
                 {
@@ -618,7 +618,7 @@ namespace dMobile.Bedrock
                 else
                 {
                     skid = await SysSkidInfo.GetSkidInfoFromXML(skidData);
-                    SSkidInfo tempSkidInfo = skid.CurrSkid;
+                    var tempSkidInfo = skid.CurrSkid;
                     tempSkidInfo.SkidFKRefno = int.Parse(result.DocumentElement["skid_fk_refno"].InnerText);
                     tempSkidInfo.SkidCode = result.DocumentElement["skid_code"].InnerText;
                     tempSkidInfo.LogisticUnitSkidCode = result.DocumentElement["logistic_unit_skid_code"].InnerText;
@@ -639,14 +639,14 @@ namespace dMobile.Bedrock
         /// <param name="skid"><see cref="SysSkidInfo"/> Skid information to break.</param>
         public static void Break(SysSkidInfo skid)
         {
-            SysEnvironment sysEnv = SysEnvironment.GetInstance();
-            StringBuilder xmlString = new StringBuilder();
-            using XmlWriter writer = XmlWriter.Create(xmlString);
-            string revDateTime = sysEnv.RefreshOpt.RefreshedDataLast.ToString("yyyy'-'MM'-'dd'T'HH':'mm':'ss");
-            string currDateTime = DateTime.Now.ToString("yyyy'-'MM'-'dd'T'HH':'mm':'ss");
-            LocationMap locMap = LocationMap.GetInstance();
+            var sysEnv = SysEnvironment.GetInstance();
+            var xmlString = new StringBuilder();
+            using var writer = XmlWriter.Create(xmlString);
+            var revDateTime = sysEnv.RefreshOpt.RefreshedDataLast.ToString("yyyy'-'MM'-'dd'T'HH':'mm':'ss");
+            var currDateTime = DateTime.Now.ToString("yyyy'-'MM'-'dd'T'HH':'mm':'ss");
+            var locMap = LocationMap.GetInstance();
 
-            XDocument request = new XDocument(
+            var request = new XDocument(
                 new XDeclaration("1.0", "utf-16", "yes"),
                 string.Empty,
                 new XElement(
@@ -663,12 +663,12 @@ namespace dMobile.Bedrock
             writer.Flush();
             writer.Close();
 
-            string data = SysCommon.SubmitComm(xmlString.ToString());
+            var data = SysCommon.SubmitComm(xmlString.ToString());
             if (data.Length > 0)
             {
                 if (data.Contains("<message>ERROR</message>"))
                 {
-                    XmlDocument xmlResult = new XmlDocument();
+                    var xmlResult = new XmlDocument();
                     xmlResult.LoadXml(data);
                     if (data.Contains("MSGBOX-"))
                     {
@@ -681,7 +681,7 @@ namespace dMobile.Bedrock
                 }
                 else
                 {
-                    SSkidInfo tempSkidInfo = skid.CurrSkid;
+                    var tempSkidInfo = skid.CurrSkid;
                     tempSkidInfo.IsConsumed = true;
                     skid.CurrSkid = tempSkidInfo;
                 }
@@ -699,13 +699,13 @@ namespace dMobile.Bedrock
         /// <returns><see cref="SysSkidInfo"/> Skid information found.</returns>
         public static async Task<SysSkidInfo> GetSkidInfoFromBarCodeOrCode(string skidData)
         {
-            SysEnvironment sysEnv = SysEnvironment.GetInstance();
-            StringBuilder xmlString = new StringBuilder();
-            XmlWriter xml = XmlWriter.Create(xmlString);
-            string revDateTime = sysEnv.RefreshOpt.RefreshedDataLast.ToString("yyyy'-'MM'-'dd'T'HH':'mm':'ss");
-            string currDateTime = DateTime.Now.ToString("yyyy'-'MM'-'dd'T'HH':'mm':'ss");
+            var sysEnv = SysEnvironment.GetInstance();
+            var xmlString = new StringBuilder();
+            var xml = XmlWriter.Create(xmlString);
+            var revDateTime = sysEnv.RefreshOpt.RefreshedDataLast.ToString("yyyy'-'MM'-'dd'T'HH':'mm':'ss");
+            var currDateTime = DateTime.Now.ToString("yyyy'-'MM'-'dd'T'HH':'mm':'ss");
 
-            XDocument request = new XDocument(
+            var request = new XDocument(
                 new XDeclaration("1.0", "utf-16", "yes"),
                 string.Empty,
                 new XElement(
@@ -722,11 +722,11 @@ namespace dMobile.Bedrock
             xml.Flush();
             xml.Close();
 
-            SysSkidInfo skid = new SysSkidInfo();
-            string recvData = SysCommon.SubmitComm(request.ToString());
+            var skid = new SysSkidInfo();
+            var recvData = SysCommon.SubmitComm(request.ToString());
             if (recvData.Length > 0)
             {
-                XmlDocument result = new XmlDocument();
+                var result = new XmlDocument();
                 result.LoadXml(recvData);
                 if (recvData.Contains("<message>ERROR</message>"))
                 {
@@ -751,7 +751,7 @@ namespace dMobile.Bedrock
 
             static async Task<SSkidInfo> FillSkidInfo(XmlDocument result)
             {
-                SSkidInfo skidInfo = new SSkidInfo
+                var skidInfo = new SSkidInfo
                 {
                     SkidFKRefno = int.Parse(result.SelectSingleNode("/VFPData/cskidinfo/skidfkrefno").InnerText),
                     SkidCode = result.SelectSingleNode("/VFPData/cskidinfo/skidcode").InnerText,
@@ -772,7 +772,7 @@ namespace dMobile.Bedrock
                     IsPutAway = bool.Parse(result.SelectSingleNode("/VFPData/cskidinfo/skidisputaway").InnerText),
                 };
 
-                SLocMapAndRefno sLocMapAndRefno = await LocationMapTasks.GetSLocMapFromLocMapFKRefno(
+                var sLocMapAndRefno = await LocationMapTasks.GetSLocMapFromLocMapFKRefno(
                     int.Parse(result.SelectSingleNode("/VFPData/cskidinfo/locationmapwarehousefkrefno").InnerText),
                     int.Parse(result.SelectSingleNode("/VFPData/cskidinfo/locationmapsectionfkrefno").InnerText),
                     int.Parse(result.SelectSingleNode("/VFPData/cskidinfo/locationmapslotfkrefno").InnerText));
@@ -787,11 +787,11 @@ namespace dMobile.Bedrock
 
                 skidInfo.ProdInfo.Scheme = await ProductInfoTasks.GetSchemeComponentsFromRefno(skidInfo.ProdInfo.Refno);
 
-                SProductSchemeData schemeData = skidInfo.SchemeData;
+                var schemeData = skidInfo.SchemeData;
                 schemeData.LogisticUnitBatchLotNumber
                     = result.SelectSingleNode("/VFPData/cskidinfo/activitydetaillogisticunitbatchlotnumber").InnerText;
 
-                string bb = result.SelectSingleNode(
+                var bb = result.SelectSingleNode(
                     "//VFPData/cskidinfo/activitydetaillogisticunitbestbeforesellbydate").InnerText;
                 if (string.IsNullOrEmpty(bb))
                 {
@@ -802,7 +802,7 @@ namespace dMobile.Bedrock
                     schemeData.LogisticUnitBestBeforeSellByDate = DateTime.Parse(bb);
                 }
 
-                string pd = result.SelectSingleNode("//VFPData/cskidinfo/activitydetaillogisticunitproductiondate").InnerText;
+                var pd = result.SelectSingleNode("//VFPData/cskidinfo/activitydetaillogisticunitproductiondate").InnerText;
                 if (string.IsNullOrEmpty(pd))
                 {
                     schemeData.LogisticUnitProductionDate = new DateTime(1900, 1, 1);
@@ -830,8 +830,8 @@ namespace dMobile.Bedrock
         /// <returns><see cref="SysSkidInfo"/> New copy of the original skid information.</returns>
         public static SysSkidInfo DeepCopy(SysSkidInfo original)
         {
-            XmlSerializer serializer = new XmlSerializer(original.GetType());
-            MemoryStream stream = new MemoryStream();
+            var serializer = new XmlSerializer(original.GetType());
+            var stream = new MemoryStream();
             serializer.Serialize(stream, original);
             stream.Position = 0;
 

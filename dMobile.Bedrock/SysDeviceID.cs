@@ -21,16 +21,16 @@ namespace dMobile.Bedrock
         /// <returns><see cref="string"/> Wide vine serial number.</returns>
         public static string GetWidevineSN()
         {
-            string sRet = string.Empty;
-            UUID wideVineUUID = new UUID(-0x121074568629b532L, -0x5c37d8232ae2de13L);
+            var sRet = string.Empty;
+            var wideVineUUID = new UUID(-0x121074568629b532L, -0x5c37d8232ae2de13L);
             MediaDrm mediaDrm = null;
 
             try
             {
                 mediaDrm = new MediaDrm(wideVineUUID);
-                byte[] widevineId = mediaDrm.GetPropertyByteArray(MediaDrm.PropertyDeviceUniqueId);
+                var widevineId = mediaDrm.GetPropertyByteArray(MediaDrm.PropertyDeviceUniqueId);
 
-                MessageDigest md = MessageDigest.GetInstance("SHA-256");
+                var md = MessageDigest.GetInstance("SHA-256");
                 md.Update(widevineId);
                 sRet = BitConverter.ToString(md.Digest());
                 sRet = sRet.Replace("-", string.Empty);

@@ -55,7 +55,7 @@ namespace dMobile.View.Menus
                     this.DisableControls();
                     this.IsControlLoaded = false;
 
-                    ActivityProductLabel productLabel = new ActivityProductLabel();
+                    var productLabel = new ActivityProductLabel();
                     _ = await productLabel.ShowDialog();
                 }
                 else if (keycode == Keycode.Num1 && this.cmdScanBarCodes.IsEnabled)
@@ -63,7 +63,7 @@ namespace dMobile.View.Menus
                     this.DisableControls();
                     this.IsControlLoaded = false;
 
-                    ActivityScanBarCodes scanBarcodes = new ActivityScanBarCodes();
+                    var scanBarcodes = new ActivityScanBarCodes();
                     await scanBarcodes.Show();
                 }
                 else if (keycode == Keycode.Num2 && this.cmdProductLabels.IsEnabled)
@@ -71,7 +71,7 @@ namespace dMobile.View.Menus
                     this.DisableControls();
                     this.IsControlLoaded = false;
 
-                    ActivityProductLabel productLabel = new ActivityProductLabel();
+                    var productLabel = new ActivityProductLabel();
                     _ = await productLabel.ShowDialog();
                 }
                 else if (keycode == Keycode.Num3 && this.cmdAssignDefaultLocation.IsEnabled)
@@ -79,7 +79,7 @@ namespace dMobile.View.Menus
                     this.DisableControls();
                     this.IsControlLoaded = false;
 
-                    ucAssignDefaultLocation assignDefaultLocation = new ucAssignDefaultLocation();
+                    var assignDefaultLocation = new ucAssignDefaultLocation();
                     await assignDefaultLocation.Show();
                 }
             });
@@ -180,7 +180,7 @@ namespace dMobile.View.Menus
         /// <remarks></remarks>
         public async Task<XDocument> GetXML()
         {
-            XDocument xmldocParams = XDocument.Parse(
+            var xmldocParams = XDocument.Parse(
                 "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>"
                 + "<params>"
                 + "</params>");
@@ -210,7 +210,7 @@ namespace dMobile.View.Menus
             this.DisableControls();
             this.IsControlLoaded = false;
 
-            ActivityScanBarCodes scanBarcodes = new ActivityScanBarCodes();
+            var scanBarcodes = new ActivityScanBarCodes();
             await scanBarcodes.Show();
         }
 
@@ -225,7 +225,7 @@ namespace dMobile.View.Menus
             this.DisableControls();
             this.IsControlLoaded = false;
 
-            ActivityProductLabel productLabel = new ActivityProductLabel();
+            var productLabel = new ActivityProductLabel();
             _ = await productLabel.ShowDialog();
         }
 
@@ -240,7 +240,7 @@ namespace dMobile.View.Menus
             this.DisableControls();
             this.IsControlLoaded = false;
 
-            ucAssignDefaultLocation assignDefaultLocation = new ucAssignDefaultLocation();
+            var assignDefaultLocation = new ucAssignDefaultLocation();
             await assignDefaultLocation.Show();
         }
 

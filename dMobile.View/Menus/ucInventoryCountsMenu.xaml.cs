@@ -55,7 +55,7 @@ namespace dMobile.View.Menus
                     this.DisableControls();
                     this.IsControlLoaded = false;
 
-                    ActivityHdr physicalCountHdr = new ActivityHdr(SysCommon.ActSubTypes.PhysicalCounts);
+                    var physicalCountHdr = new ActivityHdr(SysCommon.ActSubTypes.PhysicalCounts);
                     await physicalCountHdr.Show();
                 }
                 else if (keycode == Keycode.Num1 && this.cmdPhysicalCount.IsEnabled)
@@ -63,7 +63,7 @@ namespace dMobile.View.Menus
                     this.DisableControls();
                     this.IsControlLoaded = false;
 
-                    ActivityHdr physicalCountHdr = new ActivityHdr(SysCommon.ActSubTypes.PhysicalCounts);
+                    var physicalCountHdr = new ActivityHdr(SysCommon.ActSubTypes.PhysicalCounts);
                     await physicalCountHdr.Show();
                 }
                 else if (keycode == Keycode.Num2 && this.cmdCycleCount.IsEnabled)
@@ -71,7 +71,7 @@ namespace dMobile.View.Menus
                     this.DisableControls();
                     this.IsControlLoaded = false;
 
-                    ActivityHdr cycleCountHdr = new ActivityHdr(SysCommon.ActSubTypes.CycleCounts);
+                    var cycleCountHdr = new ActivityHdr(SysCommon.ActSubTypes.CycleCounts);
                     await cycleCountHdr.Show();
                 }
             });
@@ -197,7 +197,7 @@ namespace dMobile.View.Menus
         /// <remarks></remarks>
         public async Task<XDocument> GetXML()
         {
-            XDocument xmldocParams = XDocument.Parse(
+            var xmldocParams = XDocument.Parse(
                 "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>"
                 + "<params>"
                 + "</params>");
@@ -216,7 +216,7 @@ namespace dMobile.View.Menus
             this.DisableControls();
             this.IsControlLoaded = false;
 
-            ActivityHdr physicalCountActivityHdr = new ActivityHdr(SysCommon.ActSubTypes.PhysicalCounts);
+            var physicalCountActivityHdr = new ActivityHdr(SysCommon.ActSubTypes.PhysicalCounts);
             await physicalCountActivityHdr.Show();
         }
 
@@ -231,7 +231,7 @@ namespace dMobile.View.Menus
             this.DisableControls();
             this.IsControlLoaded = false;
 
-            ActivityHdr cycleCountActivityHdr = new ActivityHdr(SysCommon.ActSubTypes.CycleCounts);
+            var cycleCountActivityHdr = new ActivityHdr(SysCommon.ActSubTypes.CycleCounts);
             await cycleCountActivityHdr.Show();
         }
 

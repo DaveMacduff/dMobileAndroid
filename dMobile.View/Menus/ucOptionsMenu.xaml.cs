@@ -70,7 +70,7 @@ namespace dMobile.View.Menus
                     this.DisableControls();
                     this.IsControlLoaded = false;
 
-                    ucSetupDefaults setupDefaults = new ucSetupDefaults();
+                    var setupDefaults = new ucSetupDefaults();
                     await setupDefaults.Show();
                 }
                 else if (keycode == Keycode.Num1 && this.cmdSetupDefaults.IsEnabled)
@@ -78,7 +78,7 @@ namespace dMobile.View.Menus
                     this.DisableControls();
                     this.IsControlLoaded = false;
 
-                    ucSetupDefaults setupDefaults = new ucSetupDefaults();
+                    var setupDefaults = new ucSetupDefaults();
                     await setupDefaults.Show();
                 }
                 else if (keycode == Keycode.Num2 && this.cmdCommunicationSetup.IsEnabled)
@@ -86,7 +86,7 @@ namespace dMobile.View.Menus
                     this.DisableControls();
                     this.IsControlLoaded = false;
 
-                    ucCommunicationSetup commSetup = new ucCommunicationSetup();
+                    var commSetup = new ucCommunicationSetup();
                     await commSetup.Show();
                 }
                 else if (keycode == Keycode.Num3 && this.cmdRefreshData.IsEnabled)
@@ -94,7 +94,7 @@ namespace dMobile.View.Menus
                     this.DisableControls();
                     this.IsControlLoaded = false;
 
-                    ucRefreshDataOptions refreshDataOption = new ucRefreshDataOptions();
+                    var refreshDataOption = new ucRefreshDataOptions();
                     await refreshDataOption.Show();
                 }
                 else if (keycode == Keycode.Num4 && this.cmdSubmitBatch.IsEnabled)
@@ -102,7 +102,7 @@ namespace dMobile.View.Menus
                     this.DisableControls();
                     this.IsControlLoaded = false;
 
-                    ucSubmitBatch submitBatch = new ucSubmitBatch();
+                    var submitBatch = new ucSubmitBatch();
                     await submitBatch.Show();
                 }
                 else if (keycode == Keycode.Num5 && this.cmdUtilities.IsEnabled)
@@ -110,7 +110,7 @@ namespace dMobile.View.Menus
                     this.DisableControls();
                     this.IsControlLoaded = false;
 
-                    ucUtilitiesMenu utilities = new ucUtilitiesMenu();
+                    var utilities = new ucUtilitiesMenu();
                     await utilities.Show();
                 }
                 else if (keycode == Keycode.Num6 && this.cmdAbout.IsEnabled)
@@ -118,7 +118,7 @@ namespace dMobile.View.Menus
                     this.DisableControls();
                     this.IsControlLoaded = false;
 
-                    ucAbout about = new ucAbout();
+                    var about = new ucAbout();
                     await about.Show();
                 }
             });
@@ -225,7 +225,7 @@ namespace dMobile.View.Menus
         /// <remarks></remarks>
         public async Task<XDocument> GetXML()
         {
-            XDocument xmldocParams = XDocument.Parse(
+            var xmldocParams = XDocument.Parse(
                 "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>"
                 + "<params>"
                 + "</params>");
@@ -242,7 +242,7 @@ namespace dMobile.View.Menus
         public async void cmdSetupDefaults_Click(object sender, EventArgs e)
         {
             // this.CallingControl = new ucSetupDefaults();
-            ucSetupDefaults setupDefaults = new ucSetupDefaults();
+            var setupDefaults = new ucSetupDefaults();
             await setupDefaults.Show();
 
             this.DisableControls();
@@ -261,7 +261,7 @@ namespace dMobile.View.Menus
             this.DisableControls();
             this.IsControlLoaded = false;
 
-            ucCommunicationSetup commSetup = new ucCommunicationSetup();
+            var commSetup = new ucCommunicationSetup();
             await commSetup.Show();
         }
 
@@ -277,7 +277,7 @@ namespace dMobile.View.Menus
             this.DisableControls();
             this.IsControlLoaded = false;
 
-            ucRefreshDataOptions refreshDataOption = new ucRefreshDataOptions();
+            var refreshDataOption = new ucRefreshDataOptions();
             await refreshDataOption.Show();
         }
 
@@ -293,7 +293,7 @@ namespace dMobile.View.Menus
             this.DisableControls();
             this.IsControlLoaded = false;
 
-            ucSubmitBatch submitBatch = new ucSubmitBatch();
+            var submitBatch = new ucSubmitBatch();
             await submitBatch.Show();
         }
 
@@ -309,7 +309,7 @@ namespace dMobile.View.Menus
             this.DisableControls();
             this.IsControlLoaded = false;
 
-            ucAbout about = new ucAbout();
+            var about = new ucAbout();
             await about.Show();
         }
 
@@ -325,7 +325,7 @@ namespace dMobile.View.Menus
             this.DisableControls();
             this.IsControlLoaded = false;
 
-            ucUtilitiesMenu utilities = new ucUtilitiesMenu();
+            var utilities = new ucUtilitiesMenu();
             await utilities.Show();
         }
 
@@ -341,7 +341,7 @@ namespace dMobile.View.Menus
             {
                 this.IsControlLoaded = true;
 
-                CommunicationSetup commSetup = new CommunicationSetup();
+                var commSetup = new CommunicationSetup();
 
                 if (File.Exists(commSetup.FileASCIIZ))
                 {

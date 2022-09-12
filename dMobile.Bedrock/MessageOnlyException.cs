@@ -45,7 +45,7 @@ namespace dMobile.Bedrock
         /// <returns>.</returns>
         private static string ModifyMessage(string message)
         {
-            string msgToken = "MSGBOX-";
+            var msgToken = "MSGBOX-";
             string errMsg;
             if (message.Contains(msgToken))
             {

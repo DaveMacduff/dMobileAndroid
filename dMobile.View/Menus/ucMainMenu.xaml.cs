@@ -58,7 +58,7 @@ namespace dMobile.View.Menus
                     this.DisableControls();
                     this.IsControlLoaded = false;
 
-                    ucPurchaseOrdersMenu purchaseOrders = new ucPurchaseOrdersMenu();
+                    var purchaseOrders = new ucPurchaseOrdersMenu();
                     await purchaseOrders.Show();
                 }
                 else if (keycode == Keycode.Num2 && this.cmdSalesOrders.IsEnabled)
@@ -66,7 +66,7 @@ namespace dMobile.View.Menus
                     this.DisableControls();
                     this.IsControlLoaded = false;
 
-                    ucSalesOrdersMenu salesOrders = new ucSalesOrdersMenu();
+                    var salesOrders = new ucSalesOrdersMenu();
                     await salesOrders.Show();
                 }
                 else if (keycode == Keycode.Num3 && this.cmdInventory.IsEnabled)
@@ -74,7 +74,7 @@ namespace dMobile.View.Menus
                     this.DisableControls();
                     this.IsControlLoaded = false;
 
-                    ucInventoryMenu inventoryMenu = new ucInventoryMenu();
+                    var inventoryMenu = new ucInventoryMenu();
                     await inventoryMenu.Show();
                 }
                 else if (keycode == Keycode.Num4 && this.cmdProduction.IsEnabled)
@@ -82,7 +82,7 @@ namespace dMobile.View.Menus
                     this.DisableControls();
                     this.IsControlLoaded = false;
 
-                    ucProductionTicketMenu production = new ucProductionTicketMenu();
+                    var production = new ucProductionTicketMenu();
                     await production.Show();
                 }
                 else if (keycode == Keycode.Num5 && this.cmdOptions.IsEnabled)
@@ -90,7 +90,7 @@ namespace dMobile.View.Menus
                     this.DisableControls();
                     this.IsControlLoaded = false;
 
-                    ucOptionsMenu optionsMenu = new ucOptionsMenu();
+                    var optionsMenu = new ucOptionsMenu();
                     await optionsMenu.Show();
                 }
             });
@@ -205,7 +205,7 @@ namespace dMobile.View.Menus
         /// <remarks></remarks>
         public async Task<XDocument> GetXML()
         {
-            XDocument xmldocParams = XDocument.Parse(
+            var xmldocParams = XDocument.Parse(
                 "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>"
                 + "<params>"
                 + "</params>");
@@ -334,7 +334,7 @@ namespace dMobile.View.Menus
             this.DisableControls();
             this.IsControlLoaded = false;
 
-            ucPurchaseOrdersMenu purchaseOrders = new ucPurchaseOrdersMenu();
+            var purchaseOrders = new ucPurchaseOrdersMenu();
             await purchaseOrders.Show();
         }
 
@@ -349,7 +349,7 @@ namespace dMobile.View.Menus
             this.DisableControls();
             this.IsControlLoaded = false;
 
-            ucSalesOrdersMenu salesOrdersMenu = new ucSalesOrdersMenu();
+            var salesOrdersMenu = new ucSalesOrdersMenu();
             await salesOrdersMenu.Show();
         }
 
@@ -364,7 +364,7 @@ namespace dMobile.View.Menus
             this.DisableControls();
             this.IsControlLoaded = false;
 
-            ucInventoryMenu inventoryMenu = new ucInventoryMenu();
+            var inventoryMenu = new ucInventoryMenu();
             await inventoryMenu.Show();
         }
 
@@ -379,7 +379,7 @@ namespace dMobile.View.Menus
             this.DisableControls();
             this.IsControlLoaded = false;
 
-            ucProductionTicketMenu production = new ucProductionTicketMenu();
+            var production = new ucProductionTicketMenu();
             await production.Show();
         }
 
@@ -394,7 +394,7 @@ namespace dMobile.View.Menus
             this.DisableControls();
             this.IsControlLoaded = false;
 
-            ucOptionsMenu optionsMenu = new ucOptionsMenu();
+            var optionsMenu = new ucOptionsMenu();
             await optionsMenu.Show();
         }
     }

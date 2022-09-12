@@ -72,9 +72,9 @@ namespace dMobile.Controller
             this.IsAskCreateNewItem = !this.SysEnv.SysSettings.IsTicketByProductCreateNewItemNoAsk;
 
             // Create item template
-            DataTemplate dataTemplate = new DataTemplate(() =>
+            var dataTemplate = new DataTemplate(() =>
             {
-                Grid gridData = new Grid
+                var gridData = new Grid
                 {
                     Padding = new Thickness(5),
                     ColumnDefinitions =
@@ -87,11 +87,11 @@ namespace dMobile.Controller
                     },
                 };
 
-                Label labelCode = new Label { VerticalOptions = LayoutOptions.Center };
-                Label labelBC = new Label { VerticalOptions = LayoutOptions.Center };
-                Label labelUnit = new Label { VerticalOptions = LayoutOptions.Center };
-                Label labelQty = new Label { VerticalOptions = LayoutOptions.Center };
-                Label labelExpQty = new Label { VerticalOptions = LayoutOptions.Center };
+                var labelCode = new Label { VerticalOptions = LayoutOptions.Center };
+                var labelBC = new Label { VerticalOptions = LayoutOptions.Center };
+                var labelUnit = new Label { VerticalOptions = LayoutOptions.Center };
+                var labelQty = new Label { VerticalOptions = LayoutOptions.Center };
+                var labelExpQty = new Label { VerticalOptions = LayoutOptions.Center };
 
                 // Set label bindings
                 labelCode.SetBinding(Label.TextProperty, new Binding("ProductCode"));
@@ -117,10 +117,10 @@ namespace dMobile.Controller
                 return new ViewCell { View = gridData };
             });
 
-            bool isAddKey = true;
+            var isAddKey = true;
             foreach (var item in this.resourceDictionary)
             {
-                if (item.Key == "dataTemplate")
+                if (item.Key == "dataTemplateByProdItem")
                 {
                     isAddKey = false;
                 }
@@ -128,7 +128,7 @@ namespace dMobile.Controller
 
             if (isAddKey)
             {
-                this.resourceDictionary.Add("dataTemplate", dataTemplate);
+                this.resourceDictionary.Add("dataTemplateByProdItem", dataTemplate);
             }
         }
 
@@ -141,7 +141,7 @@ namespace dMobile.Controller
             this.SelectedListItemIdx = -1;
             if (actItemFoundRefno >= 0)
             {
-                int idx = 0;
+                var idx = 0;
                 foreach (ProductionTicketByProductItem item in this.ListItems)
                 {
                     if (item.ActivityItemRefno == this.ItemRefno)
@@ -175,7 +175,7 @@ namespace dMobile.Controller
         /// <returns>.</returns>
         public override bool IsCatchAsk()
         {
-            bool isCatchAsk = this.ProdInfo.IsCatchAsk;
+            var isCatchAsk = this.ProdInfo.IsCatchAsk;
             if (isCatchAsk)
             {
                 // modules are for exclusions
@@ -191,7 +191,7 @@ namespace dMobile.Controller
         /// <returns>.</returns>
         public override bool IsCatchAskZero()
         {
-            bool result = this.IsCatchAsk();
+            var result = this.IsCatchAsk();
             if (result && this.ProdInfo.IsCatchAskZero)
             {
                 result = !this.SysEnv.SysSettings.IsTicketByProductNoCatchAskZeroEnabled;
@@ -208,7 +208,7 @@ namespace dMobile.Controller
         /// <returns><see cref="int"/> Location map reference number.</returns>
         public override async Task<int> GetDefaultLocMapRefno(int whsLocMapRefno, int prodRefno)
         {
-            int locMapRefno = 0;
+            var locMapRefno = 0;
             if (this.SelectedActivityItem is ProductionTicketByProductItem item)
             {
                 if (Math.Sign(item.ActivityItemProductionQuantity) == 0 ||
@@ -281,10 +281,10 @@ namespace dMobile.Controller
         /// <returns><see cref="Task"/> Task operation.</returns>
         public override async Task Insert(XDocument data, bool askToInsertAsNewItem)
         {
-            int foundActItemRefno = 0;
-            bool dlgResult = false;
+            var foundActItemRefno = 0;
+            var dlgResult = false;
 
-            int prodUnitRefno = int.Parse(data.Root.Element("ProductUnitRefno").Value);
+            var prodUnitRefno = int.Parse(data.Root.Element("ProductUnitRefno").Value);
             if (prodUnitRefno != 0)
             {
                 foundActItemRefno = await this.GetActivityItemRefno(prodUnitRefno);
@@ -312,32 +312,32 @@ namespace dMobile.Controller
 
                             this.ItemRefno = Convert.ToInt32(transaction.ExecuteScalar<int>("SELECT last_insert_rowid() FROM tActivityItem"));
 
-                            string queryItemProduction = "INSERT INTO tActivityItemProduction (" +
-                                "ActivityItemRefno, " +
-                                "ActivityItemSubType, " +
-                                "ProductUnitRefno, " +
-                                "LocationMapRefno, " +
-                                "ActivityItemProductionQuantity, " +
-                                "ActivityItemProductionBaseQuantity, " +
-                                "ActivityItemProductionWeightQuantity, " +
-                                "ActivityItemProductionDescription, " +
-                                "ActivityItemProductionQuantityExpected, " +
-                                "ActivityItemProductionBaseQuantityExpected, " +
-                                "ActivityItemProductionWeightQuantityExpected" +
-                                ") VALUES (" +
-                                "?, " +
-                                "?, " +
-                                "?, " +
-                                "?, " +
-                                "?, " +
-                                "?, " +
-                                "?, " +
-                                "?, " +
-                                "?, " +
-                                "?, " +
-                                "?" +
-                                ")";
-                            object[] parametersItemProduction = new object[]
+                            var queryItemProduction = "INSERT INTO tActivityItemProduction (" +
+                                                      "ActivityItemRefno, " +
+                                                      "ActivityItemSubType, " +
+                                                      "ProductUnitRefno, " +
+                                                      "LocationMapRefno, " +
+                                                      "ActivityItemProductionQuantity, " +
+                                                      "ActivityItemProductionBaseQuantity, " +
+                                                      "ActivityItemProductionWeightQuantity, " +
+                                                      "ActivityItemProductionDescription, " +
+                                                      "ActivityItemProductionQuantityExpected, " +
+                                                      "ActivityItemProductionBaseQuantityExpected, " +
+                                                      "ActivityItemProductionWeightQuantityExpected" +
+                                                      ") VALUES (" +
+                                                      "?, " +
+                                                      "?, " +
+                                                      "?, " +
+                                                      "?, " +
+                                                      "?, " +
+                                                      "?, " +
+                                                      "?, " +
+                                                      "?, " +
+                                                      "?, " +
+                                                      "?, " +
+                                                      "?" +
+                                                      ")";
+                            var parametersItemProduction = new object[]
                             {
                                 Convert.ToInt32(this.ItemRefno),
                                 Convert.ToInt32(SysCommon.ActSubTypes.TicketAddProduct),
@@ -375,7 +375,7 @@ namespace dMobile.Controller
 
                     if (this.ListItems != null)
                     {
-                        ProductionTicketByProductItem item = new ProductionTicketByProductItem()
+                        var item = new ProductionTicketByProductItem()
                         {
                             ActivityItemRefno = this.ItemRefno,
                             ActivityItemFKRefno = this.ItemFKRefno,
@@ -421,8 +421,8 @@ namespace dMobile.Controller
             {
                 this.DataLayerProgressOutHandler(this, new EventArgs(), 2);
 
-                TableActivityProductionTicketByProductItem tableByProdItem = new TableActivityProductionTicketByProductItem();
-                TableActivityProductionTicketByProductDetail tableByProdDetail = new TableActivityProductionTicketByProductDetail();
+                var tableByProdItem = new TableActivityProductionTicketByProductItem();
+                var tableByProdDetail = new TableActivityProductionTicketByProductDetail();
                 await tableByProdDetail.PurgeData();
                 await tableByProdItem.PurgeData();
 
@@ -442,7 +442,7 @@ namespace dMobile.Controller
         /// <returns>The <see cref="ObservableCollection{object}"/>.</returns>
         public override ObservableCollection<object> DesignGrid(ref Grid GridMainActivity, ref ListView ListViewMainActivity)
         {
-            ObservableCollection<object> observableCollection = new ObservableCollection<object>();
+            var observableCollection = new ObservableCollection<object>();
 
             foreach (ProductionTicketByProductItem productionTicketByProductItem in this.ListItems)
             {
@@ -472,11 +472,11 @@ namespace dMobile.Controller
                 observableCollection.Add(productionTicketByProductItem);
             }
 
-            Label labelCodeHeader = new Label { Text = "Code", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
-            Label labelBCHeader = new Label { Text = "BC", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
-            Label labelUnitHeader = new Label { Text = string.Empty, VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
-            Label labelQtyHeader = new Label { Text = "Qty", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
-            Label labelExpQtyHeader = new Label { Text = "Weight", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
+            var labelCodeHeader = new Label { Text = "Code", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
+            var labelBCHeader = new Label { Text = "BC", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
+            var labelUnitHeader = new Label { Text = string.Empty, VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
+            var labelQtyHeader = new Label { Text = "Qty", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
+            var labelExpQtyHeader = new Label { Text = "Weight", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
 
             this.columnWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(labelCodeHeader.Text);
             this.columnWidth1 = DependencyService.Get<IGridService>().CalculateTextWidth(labelBCHeader.Text);
@@ -484,7 +484,7 @@ namespace dMobile.Controller
             this.columnWidth3 = DependencyService.Get<IGridService>().CalculateTextWidth(labelQtyHeader.Text);
             this.columnWidth4 = DependencyService.Get<IGridService>().CalculateTextWidth(labelExpQtyHeader.Text);
 
-            Grid gridHeader = new Grid
+            var gridHeader = new Grid
             {
                 Padding = new Thickness(5),
                 ColumnDefinitions =
@@ -519,11 +519,11 @@ namespace dMobile.Controller
 
             foreach (ProductionTicketByProductItem productionTicketByProductItem in observableCollection)
             {
-                double detailWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(Convert.ToString(productionTicketByProductItem.ProductCode));
-                double detailWidth1 = DependencyService.Get<IGridService>().CalculateTextWidth(productionTicketByProductItem.ProductUnitBC);
-                double detailWidth2 = DependencyService.Get<IGridService>().CalculateTextWidth(productionTicketByProductItem.BaseUnitCode);
-                double detailWidth3 = DependencyService.Get<IGridService>().CalculateTextWidth(string.Format("{0:F3}", productionTicketByProductItem.ActivityItemProductionQuantity));
-                double detailWidth4 = DependencyService.Get<IGridService>().CalculateTextWidth(string.Format("{0:F3}", productionTicketByProductItem.ActivityItemProductionWeightQuantity));
+                var detailWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(Convert.ToString(productionTicketByProductItem.ProductCode));
+                var detailWidth1 = DependencyService.Get<IGridService>().CalculateTextWidth(productionTicketByProductItem.ProductUnitBC);
+                var detailWidth2 = DependencyService.Get<IGridService>().CalculateTextWidth(productionTicketByProductItem.BaseUnitCode);
+                var detailWidth3 = DependencyService.Get<IGridService>().CalculateTextWidth(string.Format("{0:F3}", productionTicketByProductItem.ActivityItemProductionQuantity));
+                var detailWidth4 = DependencyService.Get<IGridService>().CalculateTextWidth(string.Format("{0:F3}", productionTicketByProductItem.ActivityItemProductionWeightQuantity));
 
                 if (detailWidth0 > this.columnWidth0)
                 {
@@ -556,7 +556,7 @@ namespace dMobile.Controller
                 }
             }
 
-            ListViewMainActivity.ItemTemplate = (DataTemplate)this.resourceDictionary["dataTemplate"];
+            ListViewMainActivity.ItemTemplate = (DataTemplate)this.resourceDictionary["dataTemplateByProdItem"];
 
             return observableCollection;
         }
@@ -568,7 +568,7 @@ namespace dMobile.Controller
         /// <returns>.</returns>
         public override async Task<List<object>> GetActivityItemList(bool isSubmitBatch)
         {
-            StringBuilder sql = new StringBuilder();
+            var sql = new StringBuilder();
 
             if (isSubmitBatch)
             {
@@ -716,7 +716,7 @@ namespace dMobile.Controller
         /// <returns>.</returns>
         public override ObservableCollection<object> Search(string searchText)
         {
-            ObservableCollection<object> observableCollection = new ObservableCollection<object>();
+            var observableCollection = new ObservableCollection<object>();
 
             // if (string.IsNullOrEmpty(this.ActItemFilter))
             // {
@@ -783,7 +783,7 @@ namespace dMobile.Controller
                     this.ActHdr.SkidInfo.CurrSkid = new SSkidInfo();
                 }
 
-                SLocMap locMap = await this.GetSelectedItemLocation(item.LocationMapRefno);
+                var locMap = await this.GetSelectedItemLocation(item.LocationMapRefno);
 
                 if (this.SysEnv.SysSettings.IsDefaultLocToProductDefaultLoc)
                 {
@@ -826,8 +826,8 @@ namespace dMobile.Controller
         /// <returns><see cref="int"/> Found activity item reference number else 0.</returns>
         public override async Task<int> GetActivityItemRefno(int prodUnitRefno)
         {
-            int foundActItemRefno = 0;
-            StringBuilder sql = new StringBuilder();
+            var foundActItemRefno = 0;
+            var sql = new StringBuilder();
             sql.Append("SELECT tActivityItem.ActivityItemRefno,");
             sql.Append("tActivityItemProductionByProduct.ActivityItemFKRefno,");
             sql.Append("tActivityItemProduction.ProductUnitRefno,");
@@ -845,7 +845,7 @@ namespace dMobile.Controller
             sql.AppendFormat("AND tActivityItemProduction.ProductUnitRefno = {0} ", prodUnitRefno);
             sql.AppendFormat("AND tActivityItem.ActivityItemSubType = {0}", (int)SysCommon.ActSubTypes.TicketAddProduct);
 
-            List<ProductionTicketByProductItem> results = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<ProductionTicketByProductItem>(sql.ToString());
+            var results = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<ProductionTicketByProductItem>(sql.ToString());
 
             if (results != null && results.Count > 0)
             {
@@ -866,15 +866,15 @@ namespace dMobile.Controller
         /// <returns>.</returns>
         public async override Task<string> CreateSubmitXML(XDocument data)
         {
-            StringBuilder xmlString = new StringBuilder();
-            XmlWriter xml = XmlWriter.Create(xmlString);
-            string prodCode = data.Root.Element("ProductCode").Value.PadRight(10);
-            string barCodeCode = data.Root.Element("ProductUnitBarCodeCode").Value.PadRight(20);
-            bool prodUnitIsBC = bool.Parse(data.Root.Element("ProductUnitIsBC").Value);
-            string strBaseUnitCode = data.Root.Element("BaseUnitCode").Value;
-            string symbologyPrefix = data.Root.Element("ProductUnitBarCodeSymbologyPrefix").Value;
+            var xmlString = new StringBuilder();
+            var xml = XmlWriter.Create(xmlString);
+            var prodCode = data.Root.Element("ProductCode").Value.PadRight(10);
+            var barCodeCode = data.Root.Element("ProductUnitBarCodeCode").Value.PadRight(20);
+            var prodUnitIsBC = bool.Parse(data.Root.Element("ProductUnitIsBC").Value);
+            var strBaseUnitCode = data.Root.Element("BaseUnitCode").Value;
+            var symbologyPrefix = data.Root.Element("ProductUnitBarCodeSymbologyPrefix").Value;
 
-            XDocument request = XDocument.Parse(
+            var request = XDocument.Parse(
                 "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>"
                 + "<imclient>"
                 + "<command>"
@@ -941,10 +941,10 @@ namespace dMobile.Controller
         {
             if (activityItem is ProductionTicketByProductItem productionTicketByProductItem)
             {
-                string query = "UPDATE tActivityItemProduction SET ActivityItemProductionQuantity = ?," +
-                    " ActivityItemProductionBaseQuantity = ?, ActivityItemProductionWeightQuantity = ?" +
-                    " WHERE ActivityItemRefno = ?";
-                object[] parameters = new object[]
+                var query = "UPDATE tActivityItemProduction SET ActivityItemProductionQuantity = ?," +
+                            " ActivityItemProductionBaseQuantity = ?, ActivityItemProductionWeightQuantity = ?" +
+                            " WHERE ActivityItemRefno = ?";
+                var parameters = new object[]
                 {
                     productionTicketByProductItem.ActivityItemProductionQuantity,
                     productionTicketByProductItem.ActivityItemProductionBaseQuantity,

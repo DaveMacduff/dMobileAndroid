@@ -314,8 +314,8 @@ namespace dMobile.Bedrock
         /// </summary>
         public void RequestPrinterSettings()
         {
-            string reqData = string.Empty;
-            PrnSettingsArgs msgArgs = new PrnSettingsArgs();
+            var reqData = string.Empty;
+            var msgArgs = new PrnSettingsArgs();
 
             try
             {
@@ -327,7 +327,7 @@ namespace dMobile.Bedrock
                 {
                     if (reqData.Contains("<message>ERROR</message>"))
                     {
-                        XmlDocument docError = new XmlDocument();
+                        var docError = new XmlDocument();
                         docError.LoadXml(reqData);
                         throw new Exception(docError.DocumentElement["detail"].InnerText);
                     }
@@ -355,12 +355,12 @@ namespace dMobile.Bedrock
         {
             lock (this.readLockObject)
             {
-                XmlSerializer serializer = new XmlSerializer(typeof(PrinterSettings));
-                PrinterSettings prnSettings = new PrinterSettings();
+                var serializer = new XmlSerializer(typeof(PrinterSettings));
+                var prnSettings = new PrinterSettings();
 
                 // use reflection to get the current assembly path for the database
-                string appDir = Environment.GetFolderPath(Environment.SpecialFolder.Personal);
-                string fullPathToMyFile = Path.Combine(appDir, this.fileName);
+                var appDir = Environment.GetFolderPath(Environment.SpecialFolder.Personal);
+                var fullPathToMyFile = Path.Combine(appDir, this.fileName);
 
                 if (!File.Exists(fullPathToMyFile))
                 {
@@ -368,7 +368,7 @@ namespace dMobile.Bedrock
                 }
 
                 // Create a FileStream to read with.
-                using (FileStream reader = new FileStream(fullPathToMyFile, FileMode.Open, FileAccess.Read, FileShare.Read))
+                using (var reader = new FileStream(fullPathToMyFile, FileMode.Open, FileAccess.Read, FileShare.Read))
                 {
                     // Deserialize the stream to the object, and close the TextReader
                     prnSettings = (PrinterSettings)serializer.Deserialize(reader);
@@ -387,17 +387,17 @@ namespace dMobile.Bedrock
         {
             lock (this.writeLockObject)
             {
-                XmlSerializer serializer = new XmlSerializer(typeof(PrinterSettings));
-                bool saveComplete = false;
+                var serializer = new XmlSerializer(typeof(PrinterSettings));
+                var saveComplete = false;
 
                 try
                 {
                     // use reflection to get the current assembly path for the database
-                    string appDir = Environment.GetFolderPath(Environment.SpecialFolder.Personal);
-                    string fullPathToMyFile = Path.Combine(appDir, this.fileName);
+                    var appDir = Environment.GetFolderPath(Environment.SpecialFolder.Personal);
+                    var fullPathToMyFile = Path.Combine(appDir, this.fileName);
 
                     // Create a FileStream to write with.
-                    using (FileStream writer = new FileStream(fullPathToMyFile, FileMode.Create, FileAccess.Write, FileShare.None))
+                    using (var writer = new FileStream(fullPathToMyFile, FileMode.Create, FileAccess.Write, FileShare.None))
                     {
                         serializer.Serialize(writer, prnSettings);
                     }
@@ -458,7 +458,7 @@ namespace dMobile.Bedrock
         /// <param name="sockArgs">.</param>
         public void OnSysSocketStatusOut(ISysSocketEventPublisher sockPublisher, SysSocketEventArgs sockArgs)
         {
-            PrnSettingsArgs args = new PrnSettingsArgs(sockArgs.StatusOutMsg);
+            var args = new PrnSettingsArgs(sockArgs.StatusOutMsg);
             this.OnPrnSettingsStatusOut(this, args);
         }
 
@@ -468,9 +468,9 @@ namespace dMobile.Bedrock
         /// <param name="xmlData"> Xml data received from the communication server.</param>
         private void Save(string xmlData)
         {
-            PrnSettingsArgs msgArg = new PrnSettingsArgs();
+            var msgArg = new PrnSettingsArgs();
 
-            using (DataSet ds = new DataSet())
+            using (var ds = new DataSet())
             {
                 if (this.OnPrnSettingsStatusOut != null)
                 {
@@ -488,7 +488,7 @@ namespace dMobile.Bedrock
 
                 if (ds.Tables.Count != 0)
                 {
-                    int progMax = ds.Tables["tPrinterSettings"].Rows.Count;
+                    var progMax = ds.Tables["tPrinterSettings"].Rows.Count;
 
                     if (this.OnPrnSettingsStatusOut != null)
                     {
@@ -504,8 +504,8 @@ namespace dMobile.Bedrock
                         this.OnPrnSettingsProgressOut(this, msgArg);
                     }
 
-                    int progValue = 0;
-                    PrinterInfo prnInfo = new PrinterInfo();
+                    var progValue = 0;
+                    var prnInfo = new PrinterInfo();
 
                     foreach (DataRow drow in ds.Tables["tPrinterSettings"].Rows)
                     {
@@ -538,12 +538,12 @@ namespace dMobile.Bedrock
         /// <returns>String of the xml request to get the printer settings.</returns>
         private string Create()
         {
-            StringBuilder xmlString = new StringBuilder();
-            XmlWriter xml = XmlWriter.Create(xmlString);
-            string revision = new DateTime(1900, 1, 1).ToString("yyyy'-'MM'-'dd'T'HH':'mm':'ss");
-            SysEnvironment sysEnv = SysEnvironment.GetInstance();
+            var xmlString = new StringBuilder();
+            var xml = XmlWriter.Create(xmlString);
+            var revision = new DateTime(1900, 1, 1).ToString("yyyy'-'MM'-'dd'T'HH':'mm':'ss");
+            var sysEnv = SysEnvironment.GetInstance();
 
-            XDocument request = new XDocument(
+            var request = new XDocument(
                 new XDeclaration("1.0", "utf-8", "yes"),
                 string.Empty,
                 new XElement(

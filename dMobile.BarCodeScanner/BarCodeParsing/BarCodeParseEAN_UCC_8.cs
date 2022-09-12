@@ -47,7 +47,7 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
         /// <returns></returns>
         protected override string IdentifyGTIN(string barCodeData)
         {
-            int len = (barCodeData.Length > 14) ? 14 : barCodeData.Length;
+            var len = (barCodeData.Length > 14) ? 14 : barCodeData.Length;
 
             this.GTIN = barCodeData.Substring(0, len).PadLeft(14, '0');
 

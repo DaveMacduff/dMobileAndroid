@@ -38,13 +38,13 @@ namespace dMobile.GroundWork
             {
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Seeding products.", true);
 
-                List<tFamilyModel> resultsFamily = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<tFamilyModel>("SELECT * FROM tFamily");
+                var resultsFamily = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<tFamilyModel>("SELECT * FROM tFamily");
 
                 if (resultsFamily?.Count > 0)
                 {
-                    foreach (tFamilyModel family in resultsFamily)
+                    foreach (var family in resultsFamily)
                     {
-                        string reqData = string.Empty;
+                        var reqData = string.Empty;
 
                         this.DataAccessStatusOutHandler(this, EventArgs.Empty, string.Format("For family {0}", family.FamilyCode), true);
 
@@ -54,7 +54,7 @@ namespace dMobile.GroundWork
                         {
                             if (reqData.Contains("<message>ERROR</message>"))
                             {
-                                XmlDocument reqErr = new XmlDocument();
+                                var reqErr = new XmlDocument();
                                 reqErr.LoadXml(reqData);
                                 throw new Exception(reqErr.DocumentElement["detail"].InnerText);
                             }
@@ -113,7 +113,7 @@ namespace dMobile.GroundWork
             int prodRefno;
             try
             {
-                List<tProductModel> results = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<tProductModel>("SELECT * FROM tProduct WHERE ProductFKRefno = ?", Convert.ToInt32(prodFKRefno));
+                var results = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<tProductModel>("SELECT * FROM tProduct WHERE ProductFKRefno = ?", Convert.ToInt32(prodFKRefno));
 
                 if (results?.Count > 0)
                 {
@@ -177,20 +177,20 @@ namespace dMobile.GroundWork
         /// <param name="data"></param>
         protected async Task SaveOpt(string data)
         {
-            int processedCount = 0;
-            string errMsg = string.Empty;
-            bool refreshDataChangesOnly = this.SysEnv.RefreshOpt.RefreshDataChangesOnly;
+            var processedCount = 0;
+            var errMsg = string.Empty;
+            var refreshDataChangesOnly = this.SysEnv.RefreshOpt.RefreshDataChangesOnly;
 
             await DatabaseConnection.GetInstance().SQLConn.RunInTransactionAsync(transaction =>
             {
                 try
                 {
-                    Dictionary<string, int> dictionaryFamily = new Dictionary<string, int>();
+                    var dictionaryFamily = new Dictionary<string, int>();
 
                     this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Reading received data.", false);
 
-                    int startIndex = data.IndexOf("<VFPData");
-                    XmlReaderSettings sett = new XmlReaderSettings();
+                    var startIndex = data.IndexOf("<VFPData");
+                    var sett = new XmlReaderSettings();
                     sett.CheckCharacters = false;
                     sett.CloseInput = false;
                     sett.ConformanceLevel = ConformanceLevel.Auto;
@@ -200,58 +200,58 @@ namespace dMobile.GroundWork
                     sett.ValidationFlags = System.Xml.Schema.XmlSchemaValidationFlags.None;
                     sett.ValidationType = ValidationType.None;
 
-                    using (StringReader stringReader = new StringReader(data.Substring(startIndex)))
-                    using (XmlReader reader = XmlReader.Create(stringReader, sett))
+                    using (var stringReader = new StringReader(data.Substring(startIndex)))
+                    using (var reader = XmlReader.Create(stringReader, sett))
                     {
                         this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving products.", false);
 
-                        List<tFamilyModel> resultsFamily = transaction.Query<tFamilyModel>("SELECT * FROM tFamily");
+                        var resultsFamily = transaction.Query<tFamilyModel>("SELECT * FROM tFamily");
 
                         if (resultsFamily?.Count > 0)
                         {
-                            foreach (tFamilyModel family in resultsFamily)
+                            foreach (var family in resultsFamily)
                             {
                                 dictionaryFamily.Add(family.FamilyCode, family.FamilyRefno);
                             }
                         }
 
-                        bool isProdFound = false;
-                        int progValue = 0;
-                        int familyRefno = 0;
-                        int schemeRefno = 0;
+                        var isProdFound = false;
+                        var progValue = 0;
+                        var familyRefno = 0;
+                        var schemeRefno = 0;
 
                         // f01
-                        string prodCode = string.Empty;
+                        var prodCode = string.Empty;
 
                         // f02
-                        int prodFKRefno = 0;
+                        var prodFKRefno = 0;
 
                         // f03
-                        string description = string.Empty;
+                        var description = string.Empty;
 
                         // f04
-                        bool isCatchCount = false;
+                        var isCatchCount = false;
 
                         // f05
-                        bool isCatchWeight = false;
+                        var isCatchWeight = false;
 
                         // f06
-                        bool isCatchAsk = false;
+                        var isCatchAsk = false;
 
                         // f07
-                        string schemeCode = string.Empty;
+                        var schemeCode = string.Empty;
 
                         // f08
-                        string familyCode = string.Empty;
+                        var familyCode = string.Empty;
 
                         // f09
-                        string brandDescription = string.Empty;
+                        var brandDescription = string.Empty;
 
                         // f10
-                        bool isCatchAskZero = false;
+                        var isCatchAskZero = false;
 
                         // f11
-                        bool isAllowConvertProduct = false;
+                        var isAllowConvertProduct = false;
 
                         // SqlCeUpdatableRecord rec = rs.CreateRecord();
                         this.DataAccessProgressOutHandler(this, EventArgs.Empty, 0, 0, 100);
@@ -260,8 +260,8 @@ namespace dMobile.GroundWork
                         {
                             // fill one record
                             // we do this by looping until an end segment is found
-                            bool recordFilled = false;
-                            string elementName = string.Empty;
+                            var recordFilled = false;
+                            var elementName = string.Empty;
                             while (!recordFilled && reader.Read())
                             {
                                 if (reader.NodeType == XmlNodeType.Element)
@@ -321,7 +321,7 @@ namespace dMobile.GroundWork
                             dictionaryFamily.TryGetValue(familyCode, out familyRefno);
                             isProdFound = false;
 
-                            List<tProductModel> resultsProduct = transaction.Query<tProductModel>("SELECT ProductFKRefno FROM tProduct WHERE ProductFKRefno = ?", prodFKRefno);
+                            var resultsProduct = transaction.Query<tProductModel>("SELECT ProductFKRefno FROM tProduct WHERE ProductFKRefno = ?", prodFKRefno);
 
                             if (resultsProduct?.Count > 0)
                             {
@@ -329,18 +329,18 @@ namespace dMobile.GroundWork
 
                                 if (refreshDataChangesOnly)
                                 {
-                                    string queryUpdate = "UPDATE tProduct" +
-                                    " SET FamilyRefno = ?," +
-                                    " ProductCode = ?," +
-                                    " ProductDescription = ?," +
-                                    " ProductBrandDescription = ?," +
-                                    " ProductIsCatchCount = ?," +
-                                    " ProductIsCatchWeight = ?," +
-                                    " ProductIsCatchAsk = ?," +
-                                    " ProductIsCatchAskZero = ?," +
-                                    " ProductAllowConvertProduct = ?" +
-                                    " WHERE ProductFKRefno = ?";
-                                    object[] parametersUpdate = new object[]
+                                    var queryUpdate = "UPDATE tProduct" +
+                                                      " SET FamilyRefno = ?," +
+                                                      " ProductCode = ?," +
+                                                      " ProductDescription = ?," +
+                                                      " ProductBrandDescription = ?," +
+                                                      " ProductIsCatchCount = ?," +
+                                                      " ProductIsCatchWeight = ?," +
+                                                      " ProductIsCatchAsk = ?," +
+                                                      " ProductIsCatchAskZero = ?," +
+                                                      " ProductAllowConvertProduct = ?" +
+                                                      " WHERE ProductFKRefno = ?";
+                                    var parametersUpdate = new object[]
                                     {
                                         familyRefno,
                                         prodCode,
@@ -360,31 +360,31 @@ namespace dMobile.GroundWork
 
                             if (!isProdFound)
                             {
-                                string queryInsert = "INSERT INTO tProduct " +
-                                "(ProductSchemeRefno, " +
-                                "FamilyRefno, " +
-                                "ProductCode, " +
-                                "ProductFKRefno, " +
-                                "ProductDescription, " +
-                                "ProductIsCatchCount, " +
-                                "ProductIsCatchWeight, " +
-                                "ProductIsCatchAsk, " +
-                                "ProductIsCatchAskZero, " +
-                                "ProductBrandDescription, " +
-                                "ProductAllowConvertProduct) " +
-                                "VALUES " +
-                                "(?, " +
-                                "?, " +
-                                "?, " +
-                                "?, " +
-                                "?, " +
-                                "?, " +
-                                "?, " +
-                                "?, " +
-                                "?, " +
-                                "?, " +
-                                "?)";
-                                object[] parametersInsert = new object[]
+                                var queryInsert = "INSERT INTO tProduct " +
+                                                  "(ProductSchemeRefno, " +
+                                                  "FamilyRefno, " +
+                                                  "ProductCode, " +
+                                                  "ProductFKRefno, " +
+                                                  "ProductDescription, " +
+                                                  "ProductIsCatchCount, " +
+                                                  "ProductIsCatchWeight, " +
+                                                  "ProductIsCatchAsk, " +
+                                                  "ProductIsCatchAskZero, " +
+                                                  "ProductBrandDescription, " +
+                                                  "ProductAllowConvertProduct) " +
+                                                  "VALUES " +
+                                                  "(?, " +
+                                                  "?, " +
+                                                  "?, " +
+                                                  "?, " +
+                                                  "?, " +
+                                                  "?, " +
+                                                  "?, " +
+                                                  "?, " +
+                                                  "?, " +
+                                                  "?, " +
+                                                  "?)";
+                                var parametersInsert = new object[]
                                 {
                                     schemeRefno,
                                     familyRefno,
@@ -438,10 +438,10 @@ namespace dMobile.GroundWork
         /// <returns></returns>
         protected async override Task<string> CreateRequest(string strFamilyCode)
         {
-            StringBuilder xmlString = new StringBuilder();
-            XmlWriter xml = XmlWriter.Create(xmlString);
+            var xmlString = new StringBuilder();
+            var xml = XmlWriter.Create(xmlString);
 
-            XDocument request = XDocument.Parse(
+            var request = XDocument.Parse(
                 "<?xml version=\"1.0\" encoding=\"utf-8\" standalone=\"yes\"?>"
                 + "<imclient>"
                 + "<command>"

@@ -106,7 +106,7 @@ namespace dMobile.View.Activity
                         this.ToProdRefno = convertProductItem.To_prod_fk_refno;
                     }
 
-                    ProductInfo prodInfo = new ProductInfo();
+                    var prodInfo = new ProductInfo();
                     this.ToProduct = await ProductInfoTasks.GetInfoFromRefno(this.ToProdRefno);
                     this.FromProduct = await ProductInfoTasks.GetInfoFromRefno(this.FromProdRefno);
 
@@ -225,7 +225,7 @@ namespace dMobile.View.Activity
         /// <remarks></remarks>
         public async Task<bool> IsReadyToSave()
         {
-            bool isReadyToSave = false;
+            var isReadyToSave = false;
 
             try
             {
@@ -245,7 +245,7 @@ namespace dMobile.View.Activity
                 isReadyToSave = false;
                 await Device.InvokeOnMainThreadAsync(async () =>
                 {
-                    FormErrorReport errRpt = new FormErrorReport(this.ActSubType, ex);
+                    var errRpt = new FormErrorReport(this.ActSubType, ex);
                     _ = await errRpt.ShowDialog();
                 });
             }
@@ -260,7 +260,7 @@ namespace dMobile.View.Activity
         /// <remarks></remarks>
         public async Task<bool> IsReadyToClose()
         {
-            bool isReadyToClose = true;
+            var isReadyToClose = true;
 
             try
             {
@@ -297,7 +297,7 @@ namespace dMobile.View.Activity
 
                 await Device.InvokeOnMainThreadAsync(async () =>
                 {
-                    FormErrorReport errRpt = new FormErrorReport(this.ActSubType, ex);
+                    var errRpt = new FormErrorReport(this.ActSubType, ex);
                     _ = await errRpt.ShowDialog();
                 });
             }
@@ -322,7 +322,7 @@ namespace dMobile.View.Activity
         /// <remarks></remarks>
         public async Task<bool> SaveChanges()
         {
-            bool saveComplete = false;
+            var saveComplete = false;
 
             try
             {
@@ -354,7 +354,7 @@ namespace dMobile.View.Activity
 
                 await Device.InvokeOnMainThreadAsync(async () =>
                 {
-                    FormErrorReport errRpt = new FormErrorReport(this.ActSubType, ex);
+                    var errRpt = new FormErrorReport(this.ActSubType, ex);
                     _ = await errRpt.ShowDialog();
                 });
             }
@@ -369,7 +369,7 @@ namespace dMobile.View.Activity
         /// <remarks></remarks>
         public async Task<bool> CancelChanges()
         {
-            bool cancelChanges = true;
+            var cancelChanges = true;
 
             try
             {
@@ -389,7 +389,7 @@ namespace dMobile.View.Activity
 
                 await Device.InvokeOnMainThreadAsync(async () =>
                 {
-                    FormErrorReport errRpt = new FormErrorReport(this.ActSubType, ex);
+                    var errRpt = new FormErrorReport(this.ActSubType, ex);
                     _ = await errRpt.ShowDialog();
                 });
             }
@@ -404,32 +404,32 @@ namespace dMobile.View.Activity
         /// <remarks></remarks>
         public async Task<XDocument> GetXML()
         {
-            string unqScheme = ProductInfoTasks.GetUniqueSchemeIDFromSProdSchemeData(
+            var unqScheme = ProductInfoTasks.GetUniqueSchemeIDFromSProdSchemeData(
                 this.ActDetail.ActItem.ProdInfo.Code,
                 this.ActDetail.ActItem.ProdInfo.Scheme,
                 this.ActDetail.SchemeData);
 
-            string scheme = ProductInfoTasks.GetActSchemeIDFromSProdSchemeData(
+            var scheme = ProductInfoTasks.GetActSchemeIDFromSProdSchemeData(
                 this.ActDetail.ActItem.ProdInfo.Code,
                 this.ActDetail.ActItem.ProdInfo.Scheme,
                 this.ActDetail.SchemeData);
 
-            SProductSchemeData schemeData = this.ActDetail.SchemeData;
+            var schemeData = this.ActDetail.SchemeData;
 
-            XDocument request = XDocument.Parse("<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>"
-                + "<params>"
-                + "<serial>" + schemeData.SingleTradeItemSerialNumber + "</serial>"
-                + "<pdate>" + schemeData.LogisticUnitProductionDate + "</pdate>"
-                + "<lot_no>" + schemeData.LogisticUnitBatchLotNumber + "</lot_no>"
-                + "<bdate>" + schemeData.LogisticUnitBestBeforeSellByDate + "</bdate>"
-                + "<variant_code>" + schemeData.VariantCode + "</variant_code>"
-                + "<variant_no>" + schemeData.VariantNumber + "</variant_no>"
-                + "<alt_qty>" + this.ActDetail.Quantity + "</alt_qty>"
-                + "<wt_qty>" + this.ActDetail.WeightQuantity + "</wt_qty>"
-                + "<base_qty>" + this.ActDetail.BaseQuantity + "</base_qty>"
-                + "<scheme_id>" + scheme + "</scheme_id>"
-                + "<unq_scheme_id>" + unqScheme + "</unq_scheme_id>"
-                + "</params>");
+            var request = XDocument.Parse("<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>"
+                                          + "<params>"
+                                          + "<serial>" + schemeData.SingleTradeItemSerialNumber + "</serial>"
+                                          + "<pdate>" + schemeData.LogisticUnitProductionDate + "</pdate>"
+                                          + "<lot_no>" + schemeData.LogisticUnitBatchLotNumber + "</lot_no>"
+                                          + "<bdate>" + schemeData.LogisticUnitBestBeforeSellByDate + "</bdate>"
+                                          + "<variant_code>" + schemeData.VariantCode + "</variant_code>"
+                                          + "<variant_no>" + schemeData.VariantNumber + "</variant_no>"
+                                          + "<alt_qty>" + this.ActDetail.Quantity + "</alt_qty>"
+                                          + "<wt_qty>" + this.ActDetail.WeightQuantity + "</wt_qty>"
+                                          + "<base_qty>" + this.ActDetail.BaseQuantity + "</base_qty>"
+                                          + "<scheme_id>" + scheme + "</scheme_id>"
+                                          + "<unq_scheme_id>" + unqScheme + "</unq_scheme_id>"
+                                          + "</params>");
 
             return request;
         }
@@ -448,14 +448,14 @@ namespace dMobile.View.Activity
             }
 
             BarCodeParse parse = null;
-            bool isInsertReady = false;
+            var isInsertReady = false;
 
             try
             {
                 this.Loading = true;
                 await this.ScannerDisable();
 
-                SActItemSchemeData tempItemProdSchemeData = new SActItemSchemeData();
+                var tempItemProdSchemeData = new SActItemSchemeData();
                 parse = scanArgs.ParseInfo;
 
                 // GLOBAL LOCATION IDENTIFIER SCANNED
@@ -470,7 +470,7 @@ namespace dMobile.View.Activity
                     AssertNotLineItemDetail(parse);
                     AssertNotShippingContainer(parse);
 
-                    int prodUnitRefno = 0;
+                    var prodUnitRefno = 0;
                     prodUnitRefno = await SysShared.IdentifyProductScanned(this.ActSubType, parse);
                     // Check if product scanned matches the FROM product
                     // Location is set in ConvertProduct screen
@@ -478,11 +478,11 @@ namespace dMobile.View.Activity
                     // Product identifier
                     if (!string.IsNullOrEmpty(parse.ProductIdentifier))
                     {
-                        int tempFromProdUnitRefno = 0;
+                        var tempFromProdUnitRefno = 0;
 
                         tempFromProdUnitRefno = await SysShared.IdentifyProductScanned(this.ActSubType, parse);
 
-                        ProductInfo scannedProduct = new ProductInfo();
+                        var scannedProduct = new ProductInfo();
                         scannedProduct = await ProductInfoTasks.GetInfoFromUnitRefno(tempFromProdUnitRefno);
 
                         // this.FromProdRefno = tempFromProdRefno;
@@ -515,7 +515,7 @@ namespace dMobile.View.Activity
                             throw new MessageOnlyException("Cannot scan a different \"From\" product than what was set.");
                         }
 
-                        XDocument xmlDoc = this.ActDetail.GetXML(this.ActDetail);
+                        var xmlDoc = this.ActDetail.GetXML(this.ActDetail);
 
                         await this.CreateAdjustment(xmlDoc);
                         // We check if we are allowed to print on scan
@@ -544,7 +544,7 @@ namespace dMobile.View.Activity
             {
                 await Device.InvokeOnMainThreadAsync(async () =>
                 {
-                    FormErrorReport errRpt = new FormErrorReport(this.ActSubType, ex);
+                    var errRpt = new FormErrorReport(this.ActSubType, ex);
                     _ = await errRpt.ShowDialog();
                 });
             }
@@ -637,11 +637,11 @@ namespace dMobile.View.Activity
         /// </summary>
         private async Task AddManually()
         {
-            FormDialogContainer form = new FormDialogContainer(EDialogTypes.ActivityDetailEdit, this.ActDetail, SysCommon.ActSubTypes.ConvertProduct);
+            var form = new FormDialogContainer(EDialogTypes.ActivityDetailEdit, this.ActDetail, SysCommon.ActSubTypes.ConvertProduct);
 
             if (await form.DisplayControl.ShowDialog() == DialogResult.OK)
             {
-                XDocument xmlDoc = await form.GetXML();
+                var xmlDoc = await form.GetXML();
 
                 try
                 {
@@ -687,13 +687,13 @@ namespace dMobile.View.Activity
             try
             {
                 // Create adjustment
-                string request = await this.ActDetail.CreateSubmitXML(data);
-                string response = SysCommon.SubmitComm(request);
+                var request = await this.ActDetail.CreateSubmitXML(data);
+                var response = SysCommon.SubmitComm(request);
                 SysCommon.CheckCommResponseForErrors(response);
 
                 // Parse response for the updated fk_refnos
                 // Modify and change the ActivityDetail/Item/Header to be up to date with the response fk_refnos
-                XDocument responseData = XDocument.Parse(response);
+                var responseData = XDocument.Parse(response);
                 this.ActDetail.ActItem.ActHdr.HdrFKRefno = Convert.ToInt32(responseData.Root.Element("fk_refno").Value);
                 this.ActDetail.ActItem.ItemFKRefno = Convert.ToInt32(responseData.Root.Element("fkit_refno").Value);
                 this.ActDetail.DetailFKRefno = Convert.ToInt32(responseData.Root.Element("ser_refno").Value);
@@ -702,7 +702,7 @@ namespace dMobile.View.Activity
                 data.Root.Add(new XElement("itm_refno", this.ActDetail.ActItem.ItemFKRefno));
                 data.Root.Element("ser_refno").SetValue(this.ActDetail.DetailFKRefno);
 
-                Resources.Types.ActivityDetail detail = this.ActDetail.InsertListDetail(this.MainActivityItems);
+                var detail = this.ActDetail.InsertListDetail(this.MainActivityItems);
                 this.SelectRow(this.ActDetail.ListDetails.Count - 1);
             }
             catch (MessageOnlyException me)
@@ -717,7 +717,7 @@ namespace dMobile.View.Activity
             {
                 await Device.InvokeOnMainThreadAsync(async () =>
                 {
-                    FormErrorReport errRpt = new FormErrorReport(this.ActSubType, ex);
+                    var errRpt = new FormErrorReport(this.ActSubType, ex);
                     _ = await errRpt.ShowDialog();
                 });
             }
@@ -739,14 +739,14 @@ namespace dMobile.View.Activity
             try
             {
                 // Create COM request to remove
-                XDocument data = new XDocument();
+                var data = new XDocument();
                 // TODO send the fk_refno to delete over
-                string sendRequest = await this.ActDetail.CreateDeleteXML(data);
-                string response = SysCommon.SubmitComm(sendRequest);
+                var sendRequest = await this.ActDetail.CreateDeleteXML(data);
+                var response = SysCommon.SubmitComm(sendRequest);
                 SysCommon.CheckCommResponseForErrors(response);
 
                 // Remove from grid
-                int selectedIndex = this.MainActivityItems.IndexOf(this.ListViewMainActivity.SelectedItem);
+                var selectedIndex = this.MainActivityItems.IndexOf(this.ListViewMainActivity.SelectedItem);
 
                 this.ActDetail.ListDetails.RemoveAt(selectedIndex);
                 this.MainActivityItems = this.ActDetail.DesignGrid(ref this.GridMainActivity, ref this.ListViewMainActivity);
@@ -776,7 +776,7 @@ namespace dMobile.View.Activity
             {
                 await Device.InvokeOnMainThreadAsync(async () =>
                 {
-                    FormErrorReport errRpt = new FormErrorReport(this.ActSubType, ex);
+                    var errRpt = new FormErrorReport(this.ActSubType, ex);
                     _ = await errRpt.ShowDialog();
                 });
             }
@@ -792,7 +792,7 @@ namespace dMobile.View.Activity
                 return;
             }
 
-            foreach (object obj in this.ActDetail.ListDetails)
+            foreach (var obj in this.ActDetail.ListDetails)
             {
                 // Set the detail, item, header, product, scheme, scheme data info
                 await this.ActDetail.AssignActivityDetail(obj);
@@ -818,9 +818,9 @@ namespace dMobile.View.Activity
             try
             {
                 // Create COM request to remove
-                XDocument data = new XDocument();
-                string sendRequest = await this.ActDetail.CreateSubmitProductLabelXML(data);
-                string response = SysCommon.SubmitComm(sendRequest);
+                var data = new XDocument();
+                var sendRequest = await this.ActDetail.CreateSubmitProductLabelXML(data);
+                var response = SysCommon.SubmitComm(sendRequest);
                 SysCommon.CheckCommResponseForErrors(response);
             }
             catch (MessageOnlyException me)
@@ -835,7 +835,7 @@ namespace dMobile.View.Activity
             {
                 await Device.InvokeOnMainThreadAsync(async () =>
                 {
-                    FormErrorReport errRpt = new FormErrorReport(this.ActSubType, ex);
+                    var errRpt = new FormErrorReport(this.ActSubType, ex);
                     _ = await errRpt.ShowDialog();
                 });
             }

@@ -69,9 +69,9 @@ namespace dMobile.View.Utilities
                 if (this.SysEnv.SysSettings.IsProductUnitBarCodeModifier1)
                 {
                     this.BarCodeModifier1Picker.Items.Add(string.Empty);
-                    string[] modifiers = this.SysEnv.SysSettings.ProductUnitBarCodeModifier1Codes.Split(',');
+                    var modifiers = this.SysEnv.SysSettings.ProductUnitBarCodeModifier1Codes.Split(',');
 
-                    foreach (string item in modifiers)
+                    foreach (var item in modifiers)
                     {
                         this.BarCodeModifier1Picker.Items.Add(item);
                     }
@@ -211,7 +211,7 @@ namespace dMobile.View.Utilities
         /// <returns>.</returns>
         public async Task<bool> IsReadyToSave()
         {
-            bool isReadyToSave = true;
+            var isReadyToSave = true;
 
             try
             {
@@ -242,7 +242,7 @@ namespace dMobile.View.Utilities
 
                 await Device.InvokeOnMainThreadAsync(async () =>
                 {
-                    FormErrorReport errRpt = new FormErrorReport(this.ActSubType, ex);
+                    var errRpt = new FormErrorReport(this.ActSubType, ex);
                     _ = await errRpt.ShowDialog();
                 });
             }
@@ -287,12 +287,12 @@ namespace dMobile.View.Utilities
                 if (isReadyToSave && this.chkDefaultPicking.IsToggled &&
                     this.CurrLocMapDefPickingRefno == this.NewLocMapDefPickingRefno)
                 {
-                    string msg = "The current and the new default picking locations are the same." +
-                        Environment.NewLine + "Are you sure that you want to update the location anyway?";
+                    var msg = "The current and the new default picking locations are the same." +
+                              Environment.NewLine + "Are you sure that you want to update the location anyway?";
 
                     await Device.InvokeOnMainThreadAsync(async () =>
                     {
-                        bool result = await this.DisplayAlert("Ready To Save", msg, "Yes", "No");
+                        var result = await this.DisplayAlert("Ready To Save", msg, "Yes", "No");
 
                         if (!result)
                         {
@@ -309,12 +309,12 @@ namespace dMobile.View.Utilities
                 if (isReadyToSave && this.chkDefaultReceiving.IsToggled &&
                     this.CurrLocMapDefRecvRefno == this.NewLocMapDefRecvRefno)
                 {
-                    string msg = "The current and the new default receiving locations are the same." +
-                        Environment.NewLine + "Are you sure that you want to update the location anyway?";
+                    var msg = "The current and the new default receiving locations are the same." +
+                              Environment.NewLine + "Are you sure that you want to update the location anyway?";
 
                     await Device.InvokeOnMainThreadAsync(async () =>
                     {
-                        bool result = await this.DisplayAlert("Ready To Save", msg, "Yes", "No");
+                        var result = await this.DisplayAlert("Ready To Save", msg, "Yes", "No");
 
                         if (!result)
                         {
@@ -358,7 +358,7 @@ namespace dMobile.View.Utilities
         /// <returns>.</returns>
         public async Task<bool> CancelChanges()
         {
-            bool cancelChanges = true;
+            var cancelChanges = true;
 
             try
             {
@@ -383,7 +383,7 @@ namespace dMobile.View.Utilities
 
                 await Device.InvokeOnMainThreadAsync(async () =>
                 {
-                    FormErrorReport errRpt = new FormErrorReport(this.ActSubType, ex);
+                    var errRpt = new FormErrorReport(this.ActSubType, ex);
                     _ = await errRpt.ShowDialog();
                 });
             }
@@ -397,7 +397,7 @@ namespace dMobile.View.Utilities
         /// <returns>.</returns>
         public async Task<XDocument> GetXML()
         {
-            XDocument xmldocParams = XDocument.Parse(
+            var xmldocParams = XDocument.Parse(
                 "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>"
                 + "<params>"
                 + "</params>");
@@ -411,7 +411,7 @@ namespace dMobile.View.Utilities
         /// <returns>.</returns>
         public async Task<bool> SaveChanges()
         {
-            bool saveComplete = false;
+            var saveComplete = false;
 
             try
             {
@@ -419,10 +419,10 @@ namespace dMobile.View.Utilities
                 {
                     this.IsChangesMade = false;
 
-                    string sendRequest = string.Empty;
-                    string data = string.Empty;
-                    StringBuilder xmlString = new StringBuilder();
-                    XmlWriter xml = XmlWriter.Create(xmlString);
+                    var sendRequest = string.Empty;
+                    var data = string.Empty;
+                    var xmlString = new StringBuilder();
+                    var xml = XmlWriter.Create(xmlString);
                     XDocument request = null;
 
                     if (this.NewLocMapDefPickingRefno == 0)
@@ -482,10 +482,10 @@ namespace dMobile.View.Utilities
                         // check if result is an error message
                         if (data.Contains("<message>ERROR</message>"))
                         {
-                            XmlDocument docError = new XmlDocument();
+                            var docError = new XmlDocument();
                             docError.LoadXml(data);
 
-                            string errorDetail = docError.DocumentElement["detail"].InnerText;
+                            var errorDetail = docError.DocumentElement["detail"].InnerText;
 
                             if (errorDetail.Contains("MSGBOX-"))
                             {
@@ -498,16 +498,16 @@ namespace dMobile.View.Utilities
                         }
                         else
                         {
-                            int origLocMapDefPickingRefno = await LocationMapTasks.GetDefaultLocMapRefnoFromWhsProdRefno(
+                            var origLocMapDefPickingRefno = await LocationMapTasks.GetDefaultLocMapRefnoFromWhsProdRefno(
                                 this.LocMap.CurrLocMap.WhsLocMapRefno,
                                 this.ActItem.ProdInfo.Refno,
                                 SysCommon.ProdLocMapTypes.Picking);
-                            int origLocMapDefRecvRefno = await LocationMapTasks.GetDefaultLocMapRefnoFromWhsProdRefno(
+                            var origLocMapDefRecvRefno = await LocationMapTasks.GetDefaultLocMapRefnoFromWhsProdRefno(
                                 this.LocMap.CurrLocMap.WhsLocMapRefno,
                                 this.ActItem.ProdInfo.Refno,
                                 SysCommon.ProdLocMapTypes.Receiving);
 
-                            XDocument dataUpdate = XDocument.Parse(
+                            var dataUpdate = XDocument.Parse(
                                 "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>"
                                 + "<param>"
                                 + "<prod_refno>" + this.ActItem.ProdInfo.Refno + "</prod_refno>"
@@ -571,7 +571,7 @@ namespace dMobile.View.Utilities
 
                 await Device.InvokeOnMainThreadAsync(async () =>
                 {
-                    FormErrorReport errRpt = new FormErrorReport(this.ActSubType, ex);
+                    var errRpt = new FormErrorReport(this.ActSubType, ex);
                     _ = await errRpt.ShowDialog();
                 });
             }
@@ -628,9 +628,9 @@ namespace dMobile.View.Utilities
                 this.FirstOnAppearing = true;
                 await Device.InvokeOnMainThreadAsync(async () =>
                 {
-                    string msg = "This activity unexpectedly failed to initialize correctly." +
-                        " Please exit and try again.";
-                    FormErrorReport errorReport = new FormErrorReport(msg, ex);
+                    var msg = "This activity unexpectedly failed to initialize correctly." +
+                              " Please exit and try again.";
+                    var errorReport = new FormErrorReport(msg, ex);
                     _ = await errorReport.ShowDialog();
                 });
             }
@@ -704,7 +704,7 @@ namespace dMobile.View.Utilities
                 {
                     await Device.InvokeOnMainThreadAsync(async () =>
                     {
-                        FormErrorReport errRpt = new FormErrorReport(this.ActSubType, ex);
+                        var errRpt = new FormErrorReport(this.ActSubType, ex);
                         _ = await errRpt.ShowDialog();
                     });
                 }
@@ -762,7 +762,7 @@ namespace dMobile.View.Utilities
         {
             await this.ScannerDisable();
 
-            FormDialogContainer form = new FormDialogContainer(
+            var form = new FormDialogContainer(
                 EDialogTypes.SelectLocationMap,
                 SysCommon.ActSubTypes.NotApplicable);
 
@@ -810,14 +810,14 @@ namespace dMobile.View.Utilities
         {
             await this.ScannerDisable();
 
-            FormDialogContainer form = new FormDialogContainer(
+            var form = new FormDialogContainer(
                 EDialogTypes.SelectProduct,
                 SysCommon.ActSubTypes.NotApplicable);
 
             if (await form.DisplayControl.ShowDialog() == DialogResult.OK)
             {
-                XDocument xmlDoc = await form.GetXML();
-                int prodRefno = Convert.ToInt32(xmlDoc.Root.Element("ProductRefno").Value);
+                var xmlDoc = await form.GetXML();
+                var prodRefno = Convert.ToInt32(xmlDoc.Root.Element("ProductRefno").Value);
 
                 if (prodRefno == 0)
                 {
@@ -859,7 +859,7 @@ namespace dMobile.View.Utilities
                 return;
             }
 
-            int prodUnitRefno = 0;
+            var prodUnitRefno = 0;
             BarCodeParse parse = null;
 
             try
@@ -872,7 +872,7 @@ namespace dMobile.View.Utilities
                 // Global location identifier scanned
                 if (!string.IsNullOrEmpty(parse.LocationIdentifier))
                 {
-                    int locMapRefno = await LocationMapTasks.GetLocMapRefnoFromBarCodeGlobalLocIdentifier(
+                    var locMapRefno = await LocationMapTasks.GetLocMapRefnoFromBarCodeGlobalLocIdentifier(
                         parse.LocationIdentifier);
 
                     this.LocMap.CurrLocMap = await LocationMapTasks.GetSLocMapFromLocMapRefno(locMapRefno);
@@ -961,7 +961,7 @@ namespace dMobile.View.Utilities
             {
                 await Device.InvokeOnMainThreadAsync(async () =>
                 {
-                    FormErrorReport errRpt = new FormErrorReport(this.ActSubType, ex);
+                    var errRpt = new FormErrorReport(this.ActSubType, ex);
                     _ = await errRpt.ShowDialog();
                 });
             }
@@ -998,7 +998,7 @@ namespace dMobile.View.Utilities
                 this.cmdLocation.Text = "Set Location";
             }
 
-            SLocMap locMap = await LocationMapTasks.GetSLocMapFromLocMapRefno(this.CurrLocMapDefPickingRefno);
+            var locMap = await LocationMapTasks.GetSLocMapFromLocMapRefno(this.CurrLocMapDefPickingRefno);
             this.lblCurrentPickingLocation.Text = LocationMapTasks.GetReadableLocation(locMap, true);
 
             if (string.IsNullOrEmpty(this.lblCurrentPickingLocation.Text))
@@ -1044,7 +1044,7 @@ namespace dMobile.View.Utilities
             {
                 await Device.InvokeOnMainThreadAsync(async () =>
                 {
-                    FormErrorReport errRpt = new FormErrorReport(this.ActSubType, ex);
+                    var errRpt = new FormErrorReport(this.ActSubType, ex);
                     _ = await errRpt.ShowDialog();
                 });
             }

@@ -61,7 +61,7 @@ namespace dMobile.Controller
         /// <returns>.</returns>
         public override bool IsCatchAsk()
         {
-            bool isCatchAsk = this.ProdInfo.IsCatchAsk;
+            var isCatchAsk = this.ProdInfo.IsCatchAsk;
             if (isCatchAsk)
             {
                 // modules are for exclusions
@@ -77,7 +77,7 @@ namespace dMobile.Controller
         /// <returns>.</returns>
         public override bool IsCatchAskZero()
         {
-            bool result = this.IsCatchAsk();
+            var result = this.IsCatchAsk();
             if (result && this.ProdInfo.IsCatchAskZero)
             {
                 result = !this.SysEnv.SysSettings.IsConvertUnitModuleNoCatchAskZeroEnabled;
@@ -137,7 +137,7 @@ namespace dMobile.Controller
         {
             if (this.ListItems != null)
             {
-                ConvertProductItem item = new ConvertProductItem()
+                var item = new ConvertProductItem()
                 {
                     From_prod_fk_refno = Convert.ToInt32(data.Root.Element("from_prod_fk_refno").Value),
                     To_prod_fk_refno = Convert.ToInt32(data.Root.Element("to_prod_fk_refno").Value),
@@ -168,7 +168,7 @@ namespace dMobile.Controller
         /// <returns>.</returns>
         public override async Task<List<object>> GetActivityItemList(bool isSubmitBatch)
         {
-            DataTable moveTable = new DataTable("ActivityConvertProductItem");
+            var moveTable = new DataTable("ActivityConvertProductItem");
 
             moveTable.Columns.Add("from_prod_fk_refno", Type.GetType("System.Int32"));
             moveTable.Columns.Add("to_prod_fk_refno", Type.GetType("System.Int32"));
@@ -228,16 +228,16 @@ namespace dMobile.Controller
         /// <returns>The <see cref="Task"/>.</returns>
         public override async Task Submit(XDocument data, object selectedActivityItem)
         {
-            string reqData = SysCommon.SubmitComm(await this.CreateSubmitXML(data));
+            var reqData = SysCommon.SubmitComm(await this.CreateSubmitXML(data));
 
             if (reqData.Length > 0)
             {
                 // check if result is an error message
                 if (reqData.Contains("<message>ERROR</message>"))
                 {
-                    XmlDocument xmlError = new XmlDocument();
+                    var xmlError = new XmlDocument();
                     xmlError.LoadXml(reqData);
-                    string errorDetail = xmlError.DocumentElement["detail"].InnerText;
+                    var errorDetail = xmlError.DocumentElement["detail"].InnerText;
                     if (errorDetail.Contains("MSGBOX-"))
                     {
                         throw new MessageOnlyException(errorDetail);
@@ -257,15 +257,15 @@ namespace dMobile.Controller
         /// <returns>.</returns>
         public async override Task<string> CreateSubmitXML(XDocument data)
         {
-            StringBuilder strXML = new StringBuilder();
-            using XmlWriter writer = XmlWriter.Create(strXML);
-            string prodCode = data.Root.Element("ProductCode").Value.PadRight(10);
-            string barCodeCode = data.Root.Element("ProductUnitBarCodeCode").Value.PadRight(20);
-            bool isBC = bool.Parse(data.Root.Element("ProductUnitIsBC").Value);
-            string unitCode = data.Root.Element("UnitCode").Value;
-            string symbologyPrefix = data.Root.Element("ProductUnitBarCodeSymbologyPrefix").Value;
+            var strXML = new StringBuilder();
+            using var writer = XmlWriter.Create(strXML);
+            var prodCode = data.Root.Element("ProductCode").Value.PadRight(10);
+            var barCodeCode = data.Root.Element("ProductUnitBarCodeCode").Value.PadRight(20);
+            var isBC = bool.Parse(data.Root.Element("ProductUnitIsBC").Value);
+            var unitCode = data.Root.Element("UnitCode").Value;
+            var symbologyPrefix = data.Root.Element("ProductUnitBarCodeSymbologyPrefix").Value;
 
-            XDocument request = XDocument.Parse(
+            var request = XDocument.Parse(
                 "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>" + "<imclient>"
                 + "<command>"
                 + "<action>SUBMIT CONVERT PRODUCT</action>"
@@ -333,7 +333,7 @@ namespace dMobile.Controller
         /// <returns>The <see cref="Task{int}"/>.</returns>
         public override async Task<int> Delete()
         {
-            int fkRefno = 0;
+            var fkRefno = 0;
 
             if (this.ListItems != null)
             {
@@ -400,7 +400,7 @@ namespace dMobile.Controller
         /// <returns><see cref="int"/> Location map reference number.</returns>
         public override async Task<int> GetDefaultLocMapRefno(int whsLocMapRefno, int prodRefno)
         {
-            int locMapRefno = await LocationMapTasks.GetDefaultLocMapRefnoFromWhsProdRefno(
+            var locMapRefno = await LocationMapTasks.GetDefaultLocMapRefnoFromWhsProdRefno(
                 whsLocMapRefno,
                 prodRefno,
                 SysCommon.ProdLocMapTypes.Picking);

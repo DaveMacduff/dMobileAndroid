@@ -38,12 +38,12 @@ namespace dMobile.GroundWork
             {
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Seeding product uom bar codes.", true);
 
-                string reqData = string.Empty;
-                List<tFamilyModel> results = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<tFamilyModel>("SELECT * FROM tFamily");
+                var reqData = string.Empty;
+                var results = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<tFamilyModel>("SELECT * FROM tFamily");
 
                 if (results?.Count > 0)
                 {
-                    foreach (tFamilyModel family in results)
+                    foreach (var family in results)
                     {
                         this.DataAccessStatusOutHandler(this, EventArgs.Empty, string.Format("For family {0}", family.FamilyCode), true);
 
@@ -53,7 +53,7 @@ namespace dMobile.GroundWork
                         {
                             if (reqData.Contains("<message>ERROR</message>"))
                             {
-                                XmlDocument reqErr = new XmlDocument();
+                                var reqErr = new XmlDocument();
                                 reqErr.LoadXml(reqData);
                                 throw new Exception(reqErr.DocumentElement["detail"].InnerText);
                             }
@@ -148,9 +148,9 @@ namespace dMobile.GroundWork
         /// <param name="reqData"></param>
         protected async Task SaveOpt(string reqData)
         {
-            string errMsg = string.Empty;
-            bool refreshDataChangesOnly = this.SysEnv.RefreshOpt.RefreshDataChangesOnly;
-            Dictionary<string, int> unitLookup = new Dictionary<string, int>();
+            var errMsg = string.Empty;
+            var refreshDataChangesOnly = this.SysEnv.RefreshOpt.RefreshDataChangesOnly;
+            var unitLookup = new Dictionary<string, int>();
 
             await DatabaseConnection.GetInstance().SQLConn.RunInTransactionAsync(transaction =>
             {
@@ -158,8 +158,8 @@ namespace dMobile.GroundWork
                 {
                     this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Reading received data.", false);
 
-                    int startIndex = reqData.IndexOf("<VFPData");
-                    XmlReaderSettings sett = new XmlReaderSettings();
+                    var startIndex = reqData.IndexOf("<VFPData");
+                    var sett = new XmlReaderSettings();
                     sett.CheckCharacters = false;
                     sett.CloseInput = false;
                     sett.ConformanceLevel = ConformanceLevel.Auto;
@@ -169,41 +169,41 @@ namespace dMobile.GroundWork
                     sett.ValidationFlags = System.Xml.Schema.XmlSchemaValidationFlags.None;
                     sett.ValidationType = ValidationType.None;
 
-                    using (StringReader stringReader = new StringReader(reqData.Substring(startIndex)))
-                    using (XmlReader reader = XmlReader.Create(stringReader, sett))
+                    using (var stringReader = new StringReader(reqData.Substring(startIndex)))
+                    using (var reader = XmlReader.Create(stringReader, sett))
                     {
                         this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving product uom bar codes.", false);
 
-                        List<tUnitModel> resultsUnit = transaction.Query<tUnitModel>("SELECT * FROM tUnit");
+                        var resultsUnit = transaction.Query<tUnitModel>("SELECT * FROM tUnit");
 
                         if (resultsUnit?.Count > 0)
                         {
-                            foreach (tUnitModel unit in resultsUnit)
+                            foreach (var unit in resultsUnit)
                             {
                                 unitLookup.Add(unit.UnitCode, unit.UnitRefno);
                             }
                         }
 
-                        int prodRefno = 0;
-                        int prodUnitRefno = 0;
-                        int unitRefno = 0;
-                        int recordCount = 0;
-                        bool isProdUnitBarCodeFound = false;
+                        var prodRefno = 0;
+                        var prodUnitRefno = 0;
+                        var unitRefno = 0;
+                        var recordCount = 0;
+                        var isProdUnitBarCodeFound = false;
 
-                        string prodUnitBarCodeRaw = string.Empty;
+                        var prodUnitBarCodeRaw = string.Empty;
 
                         // f01
-                        bool prodUnitBarCodeIsBC = false;
+                        var prodUnitBarCodeIsBC = false;
                         // f02
-                        int prodFKRefno = 0;
+                        var prodFKRefno = 0;
                         // f03
-                        string unitCode = string.Empty;
+                        var unitCode = string.Empty;
                         // f04
-                        string prodUnitBarCodeCode = string.Empty;
+                        var prodUnitBarCodeCode = string.Empty;
                         // f05
-                        int prodUnitBarCodeSymbologyEnum = 0;
+                        var prodUnitBarCodeSymbologyEnum = 0;
                         // f06
-                        string prodUnitBarCodeModifier1 = string.Empty;
+                        var prodUnitBarCodeModifier1 = string.Empty;
 
                         this.DataAccessProgressOutHandler(this, EventArgs.Empty, 0, 0, 100);
 
@@ -211,8 +211,8 @@ namespace dMobile.GroundWork
                         {
                             // fill one record
                             // we do this by looping until an end segment is found
-                            bool recordFilled = false;
-                            string elementName = string.Empty;
+                            var recordFilled = false;
+                            var elementName = string.Empty;
                             prodUnitBarCodeModifier1 = string.Empty; // not always present, so we must fill it
                             while (!recordFilled && reader.Read())
                             {
@@ -258,7 +258,7 @@ namespace dMobile.GroundWork
                             prodUnitBarCodeRaw = string.Empty;
                             errMsg = "FK Refno " + prodFKRefno;
 
-                            List<tProductModel> resultsProduct = transaction.Query<tProductModel>("SELECT * FROM tProduct WHERE ProductFKRefno = ?", prodFKRefno);
+                            var resultsProduct = transaction.Query<tProductModel>("SELECT * FROM tProduct WHERE ProductFKRefno = ?", prodFKRefno);
 
                             if (resultsProduct?.Count > 0)
                             {
@@ -275,7 +275,7 @@ namespace dMobile.GroundWork
 
                             errMsg += Environment.NewLine + "Bar code is bc " + prodUnitBarCodeIsBC;
 
-                            List<tProductUnitModel> resultsProductUnit = transaction.Query<tProductUnitModel>("SELECT * FROM tProductUnit WHERE ProductRefno = ? AND UnitRefno = ? AND ProductUnitIsBC = ?", prodRefno, unitRefno, Convert.ToInt32(prodUnitBarCodeIsBC));
+                            var resultsProductUnit = transaction.Query<tProductUnitModel>("SELECT * FROM tProductUnit WHERE ProductRefno = ? AND UnitRefno = ? AND ProductUnitIsBC = ?", prodRefno, unitRefno, Convert.ToInt32(prodUnitBarCodeIsBC));
 
                             if (resultsProductUnit?.Count > 0)
                             {
@@ -290,18 +290,18 @@ namespace dMobile.GroundWork
 
                             if (this.SysEnv.RefreshOpt.RefreshDataChangesOnly)
                             {
-                                List<tProductUnitBarCodeModel> resultsProductUnitBarcode = transaction.Query<tProductUnitBarCodeModel>("SELECT ProductUnitBarCodeCode, ProductUnitBarCodeModifier1 FROM tProductUnitBarCode WHERE ProductUnitBarCodeCode = ? AND ProductUnitBarCodeModifier1 = ?", prodUnitBarCodeCode, prodUnitBarCodeModifier1);
+                                var resultsProductUnitBarcode = transaction.Query<tProductUnitBarCodeModel>("SELECT ProductUnitBarCodeCode, ProductUnitBarCodeModifier1 FROM tProductUnitBarCode WHERE ProductUnitBarCodeCode = ? AND ProductUnitBarCodeModifier1 = ?", prodUnitBarCodeCode, prodUnitBarCodeModifier1);
 
                                 if (resultsProductUnitBarcode?.Count > 0)
                                 {
                                     isProdUnitBarCodeFound = true;
 
-                                    string queryUpdate = "UPDATE tProductUnitBarCode " +
-                                        "SET ProductUnitRefno = ?, " +
-                                        "ProductUnitBarCodeSymbologyEnum = ?, " +
-                                        "ProductUnitBarCodeStatus = ? " +
-                                        "WHERE ProductUnitBarCodeCode = ? " +
-                                        "AND ProductUnitBarCodeModifier1 = ?";
+                                    var queryUpdate = "UPDATE tProductUnitBarCode " +
+                                                      "SET ProductUnitRefno = ?, " +
+                                                      "ProductUnitBarCodeSymbologyEnum = ?, " +
+                                                      "ProductUnitBarCodeStatus = ? " +
+                                                      "WHERE ProductUnitBarCodeCode = ? " +
+                                                      "AND ProductUnitBarCodeModifier1 = ?";
 
                                     transaction.Execute(queryUpdate, prodUnitRefno, prodUnitBarCodeSymbologyEnum, Convert.ToInt32(SysCommon.ActStatus.NoChange), prodUnitBarCodeCode, prodUnitBarCodeModifier1);
                                 }
@@ -309,20 +309,20 @@ namespace dMobile.GroundWork
 
                             if (!isProdUnitBarCodeFound)
                             {
-                                string queryInsert = "INSERT INTO tProductUnitBarCode " +
-                                    "(ProductUnitRefno, " +
-                                    "ProductUnitBarCodeCode, " +
-                                    "ProductUnitBarCodeRaw, " +
-                                    "ProductUnitBarCodeSymbologyEnum, " +
-                                    "ProductUnitBarCodeModifier1, " +
-                                    "ProductUnitBarCodeStatus) " +
-                                    "VALUES " +
-                                    "(?, " +
-                                    "?, " +
-                                    "?, " +
-                                    "?, " +
-                                    "?, " +
-                                    "?)";
+                                var queryInsert = "INSERT INTO tProductUnitBarCode " +
+                                                  "(ProductUnitRefno, " +
+                                                  "ProductUnitBarCodeCode, " +
+                                                  "ProductUnitBarCodeRaw, " +
+                                                  "ProductUnitBarCodeSymbologyEnum, " +
+                                                  "ProductUnitBarCodeModifier1, " +
+                                                  "ProductUnitBarCodeStatus) " +
+                                                  "VALUES " +
+                                                  "(?, " +
+                                                  "?, " +
+                                                  "?, " +
+                                                  "?, " +
+                                                  "?, " +
+                                                  "?)";
 
                                 transaction.Execute(queryInsert, prodUnitRefno, prodUnitBarCodeCode, prodUnitBarCodeRaw, prodUnitBarCodeSymbologyEnum, prodUnitBarCodeModifier1, Convert.ToInt32(SysCommon.ActStatus.NoChange));
                             }
@@ -363,10 +363,10 @@ namespace dMobile.GroundWork
         /// <returns></returns>
         protected async override Task<string> CreateRequest(string familyCode)
         {
-            StringBuilder xmlString = new StringBuilder();
-            XmlWriter xml = XmlWriter.Create(xmlString);
+            var xmlString = new StringBuilder();
+            var xml = XmlWriter.Create(xmlString);
 
-            XDocument request = XDocument.Parse(
+            var request = XDocument.Parse(
                 "<?xml version=\"1.0\" encoding=\"utf-8\" standalone=\"yes\"?>"
                 + "<imclient>"
                 + "<command>"

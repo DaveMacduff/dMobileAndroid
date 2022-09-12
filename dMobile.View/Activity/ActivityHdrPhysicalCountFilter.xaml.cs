@@ -232,7 +232,7 @@ namespace dMobile.View.Activity
         /// <returns>.</returns>
         public async Task<bool> IsReadyToSave()
         {
-            bool IsReadyToSave = true;
+            var IsReadyToSave = true;
 
             try
             {
@@ -273,7 +273,7 @@ namespace dMobile.View.Activity
         /// <returns>.</returns>
         public async Task<bool> SaveChanges()
         {
-            bool bSaveComplete = false;
+            var bSaveComplete = false;
             try
             {
                 if (await this.IsReadyToSave())
@@ -289,7 +289,7 @@ namespace dMobile.View.Activity
                     this.CountSettings.iSortBy2Index = this.cboSortBy2.SelectedIndex;
                     this.MakeSQLSortBy();
 
-                    PhysicalCountSettings tempCountSettings = this.CountSettings;
+                    var tempCountSettings = this.CountSettings;
                     _ = this.CountSettings.SaveData(ref tempCountSettings);
                     this.CountSettings = tempCountSettings;
 
@@ -319,7 +319,7 @@ namespace dMobile.View.Activity
         /// <returns>.</returns>
         public async Task<bool> CancelChanges()
         {
-            bool bCancelChanges = true;
+            var bCancelChanges = true;
 
             try
             {
@@ -342,7 +342,7 @@ namespace dMobile.View.Activity
             {
                 await Device.InvokeOnMainThreadAsync(async () =>
                 {
-                    FormErrorReport errRpt = new FormErrorReport(SysCommon.ActSubTypes.NotApplicable, ex);
+                    var errRpt = new FormErrorReport(SysCommon.ActSubTypes.NotApplicable, ex);
                     _ = await errRpt.ShowDialog();
                 });
 
@@ -358,7 +358,7 @@ namespace dMobile.View.Activity
         /// <returns>.</returns>
         public async Task<XDocument> GetXML()
         {
-            XDocument request = XDocument.Parse("<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>" + "<params>" + "<count_date>" + this.CountSettings.dtCountDate.ToShortDateString() + "</count_date>" + "<sortby>" + this.strSQLSortBy + "</sortby>" + "</params>");
+            var request = XDocument.Parse("<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>" + "<params>" + "<count_date>" + this.CountSettings.dtCountDate.ToShortDateString() + "</count_date>" + "<sortby>" + this.strSQLSortBy + "</sortby>" + "</params>");
 
             return request;
         }

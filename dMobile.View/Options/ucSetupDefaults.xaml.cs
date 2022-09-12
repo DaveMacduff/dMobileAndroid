@@ -46,7 +46,7 @@ namespace dMobile.View.Options
                 this.ActSubType = SysCommon.ActSubTypes.SetupDefaults;
                 this.themesList = new ObservableCollection<Theme>();
 
-                foreach (Theme theme in (Theme[])Enum.GetValues(typeof(Theme)))
+                foreach (var theme in (Theme[])Enum.GetValues(typeof(Theme)))
                 {
                     this.themesList.Add(theme);
                 }
@@ -170,7 +170,7 @@ namespace dMobile.View.Options
         /// <remarks></remarks>
         public bool IsReadyToSave()
         {
-            bool isReadyToSave = false;
+            var isReadyToSave = false;
 
             try
             {
@@ -191,7 +191,7 @@ namespace dMobile.View.Options
 
                 Device.BeginInvokeOnMainThread(async () =>
                 {
-                    FormErrorReport errRpt = new FormErrorReport(this.ActSubType, /*this, */ex);
+                    var errRpt = new FormErrorReport(this.ActSubType, /*this, */ex);
                     _ = await errRpt.ShowDialog();
                 });
             }
@@ -210,7 +210,7 @@ namespace dMobile.View.Options
 /// <returns>A <see cref="Task{TResult}"/> representing the result of the asynchronous operation.</returns>
         public async Task<bool> IsReadyToClose()
         {
-            bool isReadyToClose = true;
+            var isReadyToClose = true;
 
             try
             {
@@ -247,7 +247,7 @@ namespace dMobile.View.Options
 
                 await Device.InvokeOnMainThreadAsync(async () =>
                 {
-                    FormErrorReport errRpt = new FormErrorReport(this.ActSubType, /*this,*/ ex);
+                    var errRpt = new FormErrorReport(this.ActSubType, /*this,*/ ex);
                     _ = await errRpt.ShowDialog();
                 });
             }
@@ -276,7 +276,7 @@ namespace dMobile.View.Options
 /// <returns>A <see cref="Task{TResult}"/> representing the result of the asynchronous operation.</returns>
         public async Task<bool> SaveChanges()
         {
-            bool saveComplete = false;
+            var saveComplete = false;
 
             try
             {
@@ -288,9 +288,9 @@ namespace dMobile.View.Options
                           {
                               if (result.Result)
                               {
-                                  FormDialogContainer form = new FormDialogContainer(EDialogTypes.RefreshDataStatus, SysCommon.ActSubTypes.PurgeActivityData);
+                                  var form = new FormDialogContainer(EDialogTypes.RefreshDataStatus, SysCommon.ActSubTypes.PurgeActivityData);
                                   _ = await Device.InvokeOnMainThreadAsync(async () => await form.DisplayControl.ShowDialog());
-                                  XDocument xmlDoc = await form.GetXML();
+                                  var xmlDoc = await form.GetXML();
                               }
                               else
                               {
@@ -310,7 +310,7 @@ namespace dMobile.View.Options
                     this.SysEnv.SysSettings.IsVerifyProductLocation = this.chkVerifyLocationWhenProductChanged.IsToggled;
                     this.SysEnv.SysSettings.IsPrintProductLabelsAsBatch = this.chkPrintProductLabelsAsBatch.IsToggled;
 
-                    SystemSettings tempSystemSettings = this.SysEnv.SysSettings;
+                    var tempSystemSettings = this.SysEnv.SysSettings;
                     _ = SystemSettingsTasks.SaveData(ref tempSystemSettings);
                     this.SysEnv.SysSettings = tempSystemSettings;
 
@@ -348,7 +348,7 @@ namespace dMobile.View.Options
                         }
                     }
 
-                    PrinterSettings tempPrnSettings = this.PrnSettings;
+                    var tempPrnSettings = this.PrnSettings;
                     _ = this.PrnSettings.SaveData(ref tempPrnSettings);
                     this.PrnSettings = tempPrnSettings;
 
@@ -375,7 +375,7 @@ namespace dMobile.View.Options
             {
                 Device.BeginInvokeOnMainThread(async () =>
                 {
-                    FormErrorReport errRpt = new FormErrorReport(this.ActSubType, /*this,*/ ex);
+                    var errRpt = new FormErrorReport(this.ActSubType, /*this,*/ ex);
                     _ = await errRpt.ShowDialog();
                 });
             }
@@ -394,7 +394,7 @@ namespace dMobile.View.Options
 /// <returns>A <see cref="Task{TResult}"/> representing the result of the asynchronous operation.</returns>
         public async Task<bool> CancelChanges()
         {
-            bool cancelChanges = true;
+            var cancelChanges = true;
 
             try
             {
@@ -431,7 +431,7 @@ namespace dMobile.View.Options
 
                 Device.BeginInvokeOnMainThread(async () =>
                 {
-                    FormErrorReport errorReport = new FormErrorReport(this.ActSubType, /*this,*/ ex);
+                    var errorReport = new FormErrorReport(this.ActSubType, /*this,*/ ex);
                     _ = await errorReport.ShowDialog();
                 });
             }
@@ -450,7 +450,7 @@ namespace dMobile.View.Options
 /// <returns>A <see cref="Task{TResult}"/> representing the result of the asynchronous operation.</returns>
         public async Task<XDocument> GetXML()
         {
-            XDocument xmldocParams = XDocument.Parse(
+            var xmldocParams = XDocument.Parse(
                 "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>"
                 + "<params>"
                 + "</params>");
@@ -501,7 +501,7 @@ namespace dMobile.View.Options
 
                 Device.BeginInvokeOnMainThread(async () =>
                 {
-                    FormErrorReport errRpt = new FormErrorReport(this.ActSubType, /*this,*/ ex);
+                    var errRpt = new FormErrorReport(this.ActSubType, /*this,*/ ex);
                     _ = await errRpt.ShowDialog();
                 });
             }
@@ -527,12 +527,12 @@ namespace dMobile.View.Options
                     this.cboShippingMobilePrinter.Items.Add(prnDef.Name);
                 }
 
-                bool isPrinterMatchFound = false;
+                var isPrinterMatchFound = false;
                 this.chkEnableShippingMobilePrinter.IsToggled = false;
 
                 if (this.cboShippingMobilePrinter.Items.Count > 0 && !string.IsNullOrEmpty(this.PrnSettings.ShippingLabelPrinterName))
                 {
-                    for (int idx = 0; idx <= this.cboShippingMobilePrinter.Items.Count - 1; idx++)
+                    for (var idx = 0; idx <= this.cboShippingMobilePrinter.Items.Count - 1; idx++)
                     {
                         if (this.cboShippingMobilePrinter.Items[idx].ToString() == this.PrnSettings.ShippingLabelPrinterName)
                         {
@@ -564,7 +564,7 @@ namespace dMobile.View.Options
 
                 if (this.cboShelfMobilePrinter.Items.Count > 0)
                 {
-                    for (int idx = 0; idx <= this.cboShelfMobilePrinter.Items.Count - 1; idx++)
+                    for (var idx = 0; idx <= this.cboShelfMobilePrinter.Items.Count - 1; idx++)
                     {
                         if (this.cboShelfMobilePrinter.Items[idx].ToString() == this.PrnSettings.ShelfLabelPrinterName)
                         {
@@ -596,7 +596,7 @@ namespace dMobile.View.Options
 
                 if (this.cboProductMobilePrinter.Items.Count > 0)
                 {
-                    for (int idx = 0; idx <= this.cboProductMobilePrinter.Items.Count - 1; idx++)
+                    for (var idx = 0; idx <= this.cboProductMobilePrinter.Items.Count - 1; idx++)
                     {
                         if (this.cboProductMobilePrinter.Items[idx].ToString() == this.PrnSettings.ProductLabelPrinterName)
                         {
@@ -632,8 +632,8 @@ namespace dMobile.View.Options
                 if (sender == this.chkDisconnectMode)
                 {
                     // Cannot turn off disconnected mode if there are unsubmitted transactions
-                    bool isUnSubmittedTrx = false;
-                    int rowsAffected = 0;
+                    var isUnSubmittedTrx = false;
+                    var rowsAffected = 0;
 
                     rowsAffected = Convert.ToInt32(await DatabaseConnection.GetInstance().SQLConn.ExecuteScalarAsync<int>("SELECT COUNT(*) FROM tActivity WHERE ActivityStatus <> ?", Convert.ToInt32(SysCommon.ActStatus.NoChange)));
 
@@ -674,7 +674,7 @@ namespace dMobile.View.Options
 
                 Device.BeginInvokeOnMainThread(async () =>
                 {
-                    FormErrorReport errorReport = new FormErrorReport(this.ActSubType, /*this,*/ ex);
+                    var errorReport = new FormErrorReport(this.ActSubType, /*this,*/ ex);
                     _ = await errorReport.ShowDialog();
                 });
             }
@@ -693,7 +693,7 @@ namespace dMobile.View.Options
 
                 Device.BeginInvokeOnMainThread(async () =>
                 {
-                    FormErrorReport errorReport = new FormErrorReport(this.ActSubType, /*this,*/ ex);
+                    var errorReport = new FormErrorReport(this.ActSubType, /*this,*/ ex);
                     _ = await errorReport.ShowDialog();
                 });
             }
@@ -749,10 +749,10 @@ namespace dMobile.View.Options
             {
                 this.IdentifyChangesMade(sender, new EventArgs());
 
-                Picker picker = sender as Picker;
-                Theme theme = (Theme)picker.SelectedItem;
+                var picker = sender as Picker;
+                var theme = (Theme)picker.SelectedItem;
 
-                ICollection<ResourceDictionary> mergedDictionaries = Application.Current.Resources.MergedDictionaries;
+                var mergedDictionaries = Application.Current.Resources.MergedDictionaries;
 
                 if (mergedDictionaries != null)
                 {

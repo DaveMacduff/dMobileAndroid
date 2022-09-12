@@ -34,9 +34,9 @@ namespace dMobile.Controller
             this.FullClassName = typeof(SkidInfoActDetail).FullName;
 
             // Data grid
-            DataTemplate dataTemplate = new DataTemplate(() =>
+            var dataTemplate = new DataTemplate(() =>
             {
-                Grid gridData = new Grid
+                var gridData = new Grid
                 {
                     Padding = new Thickness(5),
                     ColumnDefinitions =
@@ -48,25 +48,25 @@ namespace dMobile.Controller
                     },
                 };
 
-                Label labelQty = new Label
+                var labelQty = new Label
                 {
                     VerticalOptions = LayoutOptions.Center,
                     HorizontalOptions = LayoutOptions.Start,
                 };
 
-                Label labelWeight = new Label
+                var labelWeight = new Label
                 {
                     VerticalOptions = LayoutOptions.Center,
                     HorizontalOptions = LayoutOptions.Start,
                 };
 
-                Label labelUnitCode = new Label
+                var labelUnitCode = new Label
                 {
                     VerticalOptions = LayoutOptions.Center,
                     HorizontalOptions = LayoutOptions.Start,
                 };
 
-                Label labelSchemeID = new Label
+                var labelSchemeID = new Label
                 {
                     VerticalOptions = LayoutOptions.Center,
                     HorizontalOptions = LayoutOptions.Start,
@@ -94,7 +94,19 @@ namespace dMobile.Controller
                 return new ViewCell { View = gridData };
             });
 
-            this.ResourceDictionary.Add("dataTemplate", dataTemplate);
+            var isAddKey = true;
+            foreach (var item in this.ResourceDictionary)
+            {
+                if (item.Key == "dataTemplateSkidInfoDetail")
+                {
+                    isAddKey = false;
+                }
+            }
+
+            if (isAddKey)
+            {
+                this.ResourceDictionary.Add("dataTemplateSkidInfoDetail", dataTemplate);
+            }
         }
 
         /// <summary>
@@ -162,7 +174,7 @@ namespace dMobile.Controller
         /// <param name="listDetailIdx"><see cref="int"/> Zero based list detail index.</param>
         public override void UpdateListDetail(int listDetailIdx)
         {
-            SkidInfoDetail detail = (SkidInfoDetail)this.ListDetails[listDetailIdx];
+            var detail = (SkidInfoDetail)this.ListDetails[listDetailIdx];
             ////if (detail.ActivityDetailStatus == (int)SysCommon.ActStatus.NoChange)
             ////{
             ////    detail.ActivityDetailStatus = (int)SysCommon.ActStatus.Updated;
@@ -202,19 +214,19 @@ namespace dMobile.Controller
         {
             await this.FillActDetailObjFromXML(data);
 
-            string xmlSend = await this.CreateSubmitXML(XDocument.Parse(
+            var xmlSend = await this.CreateSubmitXML(XDocument.Parse(
                 "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?><params></params>"));
 
-            string reqData = SysCommon.SubmitComm(xmlSend);
+            var reqData = SysCommon.SubmitComm(xmlSend);
             if (reqData.Length > 0)
             {
-                XmlDocument xmlDoc = new XmlDocument();
+                var xmlDoc = new XmlDocument();
                 xmlDoc.LoadXml(reqData);
 
                 // check if result is an error message
                 if (reqData.Contains("<message>ERROR</message>"))
                 {
-                    string errorDetail = xmlDoc.DocumentElement["detail"].InnerText;
+                    var errorDetail = xmlDoc.DocumentElement["detail"].InnerText;
                     if (errorDetail.Contains("MSGBOX-"))
                     {
                         throw new MessageOnlyException(errorDetail);
@@ -240,17 +252,17 @@ namespace dMobile.Controller
         {
             if (!this.SysEnv.SysSettings.IsDisconnectedMode)
             {
-                string xmlDelete = await this.CreateDeleteXML(XDocument.Parse(
+                var xmlDelete = await this.CreateDeleteXML(XDocument.Parse(
                     "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?><params></params>"));
-                string reqData = SysCommon.SubmitComm(xmlDelete);
+                var reqData = SysCommon.SubmitComm(xmlDelete);
 
                 if (reqData.Length > 0)
                 {
                     if (reqData.Contains("<message>ERROR</message>"))
                     {
-                        XmlDocument docError = new XmlDocument();
+                        var docError = new XmlDocument();
                         docError.LoadXml(reqData);
-                        string errorDetail = docError.DocumentElement["detail"].InnerText;
+                        var errorDetail = docError.DocumentElement["detail"].InnerText;
                         if (errorDetail.Contains("MSGBOX-"))
                         {
                             throw new MessageOnlyException(errorDetail);
@@ -262,9 +274,9 @@ namespace dMobile.Controller
                     }
                     else
                     {
-                        XmlDocument xmlDoc = new XmlDocument();
+                        var xmlDoc = new XmlDocument();
                         xmlDoc.LoadXml(reqData);
-                        SSkidInfo tempSkidInfo = this.ActItem.ActHdr.SkidInfo.CurrSkid;
+                        var tempSkidInfo = this.ActItem.ActHdr.SkidInfo.CurrSkid;
                         tempSkidInfo.IsConsumed = bool.Parse(xmlDoc.DocumentElement["IsConsumed"].InnerText);
                         this.ActItem.ActHdr.SkidInfo.CurrSkid = tempSkidInfo;
                     }
@@ -275,7 +287,7 @@ namespace dMobile.Controller
                 }
             }
 
-            SkidInfoDetail skidInfoDetail = this.ListDetails.OfType<SkidInfoDetail>().Where(
+            var skidInfoDetail = this.ListDetails.OfType<SkidInfoDetail>().Where(
                 skidInfoDetail => skidInfoDetail.ActivityDetailFKRefno == this.DetailFKRefno).FirstOrDefault();
 
             if (skidInfoDetail != null)
@@ -294,10 +306,10 @@ namespace dMobile.Controller
         /// <returns><see cref="Task"/> Task operation.</returns>
         public override async Task Submit(object selectedActivityDetail, XDocument data)
         {
-            XmlDocument xmlDoc = new XmlDocument();
-            string xmlSend = await this.CreateSubmitXML(XDocument.Parse(
+            var xmlDoc = new XmlDocument();
+            var xmlSend = await this.CreateSubmitXML(XDocument.Parse(
                 "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?><params></params>"));
-            string reqData = SysCommon.SubmitComm(xmlSend);
+            var reqData = SysCommon.SubmitComm(xmlSend);
 
             if (reqData.Length > 0)
             {
@@ -306,7 +318,7 @@ namespace dMobile.Controller
                 // check if result is an error message
                 if (reqData.Contains("<message>ERROR</message>"))
                 {
-                    string errorDetail = xmlDoc.DocumentElement["detail"].InnerText;
+                    var errorDetail = xmlDoc.DocumentElement["detail"].InnerText;
                     if (errorDetail.Contains("MSGBOX-"))
                     {
                         throw new MessageOnlyException(errorDetail);
@@ -340,7 +352,7 @@ namespace dMobile.Controller
                 this.ListDetails.Clear();
             }
 
-            DataSet ds = new DataSet();
+            var ds = new DataSet();
             SysSkidInfo.GetSkidDetail(this.ActItem.ActHdr.SkidInfo, ref ds);
 
             if (ds.Tables.Count != 0)
@@ -361,7 +373,7 @@ namespace dMobile.Controller
                     this.BaseQuantity = Convert.ToDecimal(drow["ActivityDetailBaseQuantity"]);
                     this.WeightQuantity = Convert.ToDecimal(drow["ActivityDetailWeightQuantity"]);
 
-                    SProductSchemeData tempSchemeData = this.SchemeData;
+                    var tempSchemeData = this.SchemeData;
                     tempSchemeData.LogisticUnitBatchLotNumber = Convert.ToString(
                         drow["ActivityDetailLogisticUnitBatchLotNumber"]);
                     tempSchemeData.SingleTradeItemSerialNumber = Convert.ToString(
@@ -369,7 +381,7 @@ namespace dMobile.Controller
                     tempSchemeData.LogisticUnitSkidNumber = this.ActItem.ActHdr.SkidInfo.CurrSkid.SkidFKRefno.ToString();
                     tempSchemeData.VariantNumber = Convert.ToInt32(drow["ProductSchemeVariantNo"]);
 
-                    List<tProductSchemeVariantModel> results = await DatabaseConnection.GetInstance().SQLConn.
+                    var results = await DatabaseConnection.GetInstance().SQLConn.
                         QueryAsync<tProductSchemeVariantModel>(
                         "SELECT * FROM tProductSchemeVariant WHERE ProductSchemeVariantNo = ?",
                         tempSchemeData.VariantNumber);
@@ -380,7 +392,7 @@ namespace dMobile.Controller
                         tempSchemeData.VariantDescription = results[0].ProductSchemeVariantDescription;
                     }
 
-                    string newDate = "01-01-1900";
+                    var newDate = "01-01-1900";
 
                     if (string.IsNullOrEmpty(drow["ActivityDetailLogisticUnitBestBeforeSellByDate"].ToString()))
                     {
@@ -464,7 +476,7 @@ namespace dMobile.Controller
         /// <returns><see cref="List{object}"/> List of skid details.</returns>
         public override async Task<List<object>> GetActivityDetailList(bool isSubmitBatch)
         {
-            DataTable table = new DataTable("ActivitySkidDetail");
+            var table = new DataTable("ActivitySkidDetail");
 
             table.Columns.Add("ProductUnitRefno", Type.GetType("System.Int32"));
             table.Columns.Add("ProductRefno", Type.GetType("System.Int32"));
@@ -490,7 +502,7 @@ namespace dMobile.Controller
             table.Columns.Add("ActivityDetailFKRefno", Type.GetType("System.Int32"));
             table.Columns.Add("ActivityDetailRefno", Type.GetType("System.Int32"));
 
-            List<SkidInfoDetail> details = table.Rows.Cast<SkidInfoDetail>().ToList();
+            var details = table.Rows.Cast<SkidInfoDetail>().ToList();
             this.ListDetails = details.Cast<object>().ToList();
             return this.ListDetails;
         }
@@ -503,14 +515,14 @@ namespace dMobile.Controller
         /// <returns>The <see cref="ObservableCollection{object}"/>.</returns>
         public override ObservableCollection<object> DesignGrid(ref Grid gridMainActivity, ref ListView listViewMainActivity)
         {
-            ObservableCollection<object> observableCollection = new ObservableCollection<object>();
+            var observableCollection = new ObservableCollection<object>();
 
             foreach (SkidInfoDetail skidInfoDetail in this.ListDetails)
             {
                 observableCollection.Add(skidInfoDetail);
             }
 
-            Label labelQtyHeader = new Label
+            var labelQtyHeader = new Label
             {
                 Text = "Qty",
                 VerticalOptions = LayoutOptions.Center,
@@ -518,7 +530,7 @@ namespace dMobile.Controller
                 FontAttributes = FontAttributes.Bold,
             };
 
-            Label labelWeightHeader = new Label
+            var labelWeightHeader = new Label
             {
                 Text = "Weight",
                 VerticalOptions = LayoutOptions.Center,
@@ -526,7 +538,7 @@ namespace dMobile.Controller
                 FontAttributes = FontAttributes.Bold,
             };
 
-            Label labelUnitCodeHeader = new Label
+            var labelUnitCodeHeader = new Label
             {
                 Text = string.Empty,
                 VerticalOptions = LayoutOptions.Center,
@@ -534,7 +546,7 @@ namespace dMobile.Controller
                 FontAttributes = FontAttributes.Bold,
             };
 
-            Label labelSchemeIDHeader = new Label
+            var labelSchemeIDHeader = new Label
             {
                 Text = "Scheme ID",
                 VerticalOptions = LayoutOptions.Center,
@@ -548,7 +560,7 @@ namespace dMobile.Controller
             this.ColumnWidth3 = DependencyService.Get<IGridService>().CalculateTextWidth(labelSchemeIDHeader.Text);
 
             // Header grid
-            Grid gridHeader = new Grid
+            var gridHeader = new Grid
             {
                 Padding = new Thickness(5),
                 ColumnDefinitions =
@@ -578,12 +590,12 @@ namespace dMobile.Controller
 
             foreach (SkidInfoDetail skidInfoDetail in observableCollection)
             {
-                double detailWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(
+                var detailWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(
                     string.Format("{0:F3}", skidInfoDetail.ActivityDetailQuantity));
-                double detailWidth1 = DependencyService.Get<IGridService>().CalculateTextWidth(
+                var detailWidth1 = DependencyService.Get<IGridService>().CalculateTextWidth(
                     string.Format("{0:F3}", skidInfoDetail.ActivityDetailWeightQuantity));
-                double detailWidth2 = DependencyService.Get<IGridService>().CalculateTextWidth(skidInfoDetail.UnitCode);
-                double detailWidth3 = DependencyService.Get<IGridService>().CalculateTextWidth(
+                var detailWidth2 = DependencyService.Get<IGridService>().CalculateTextWidth(skidInfoDetail.UnitCode);
+                var detailWidth3 = DependencyService.Get<IGridService>().CalculateTextWidth(
                     skidInfoDetail.ActivityDetailSchemeID);
 
                 if (detailWidth0 > this.ColumnWidth0)
@@ -611,7 +623,7 @@ namespace dMobile.Controller
                 }
             }
 
-            listViewMainActivity.ItemTemplate = (DataTemplate)this.ResourceDictionary["dataTemplate"];
+            listViewMainActivity.ItemTemplate = (DataTemplate)this.ResourceDictionary["dataTemplateSkidInfoDetail"];
 
             return observableCollection;
         }
@@ -643,12 +655,12 @@ namespace dMobile.Controller
         /// <returns><see cref="string"/> Request string.</returns>
         public override async Task<string> CreateDeleteXML(XDocument data)
         {
-            StringBuilder xmlString = new StringBuilder();
-            XmlWriter xml = XmlWriter.Create(xmlString);
+            var xmlString = new StringBuilder();
+            var xml = XmlWriter.Create(xmlString);
 
             ////await this.FillActDetailObjFromXML(data);
 
-            XDocument request = XDocument.Parse(
+            var request = XDocument.Parse(
                 "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>"
                 + "<imclient>"
                 + "<command>"
@@ -675,14 +687,14 @@ namespace dMobile.Controller
         /// <returns><see cref="string"/> Request string.</returns>
         public override async Task<string> CreateSubmitXML(XDocument data)
         {
-            StringBuilder xmlString = new StringBuilder();
-            XmlWriter xml = XmlWriter.Create(xmlString);
+            var xmlString = new StringBuilder();
+            var xml = XmlWriter.Create(xmlString);
 
             ////await this.FillActDetailObjFromXML(data);
-            string reqDetail = this.GetRequestDetailDefaults();
-            string def = await SysCommon.GetRequestDefaults(false);
+            var reqDetail = this.GetRequestDetailDefaults();
+            var def = await SysCommon.GetRequestDefaults(false);
 
-            XDocument request = XDocument.Parse(
+            var request = XDocument.Parse(
                 "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>"
                 + "<imclient>"
                 + "<command>"
@@ -709,7 +721,7 @@ namespace dMobile.Controller
         {
             if (this.ListDetails != null)
             {
-                SLocMap locMap = LocationMap.GetInstance().CurrLocMap;
+                var locMap = LocationMap.GetInstance().CurrLocMap;
 
                 string locName;
                 int locCode;
@@ -784,7 +796,7 @@ namespace dMobile.Controller
         {
             mainActivityItems.Add(actDetail);
 
-            Label labelQtyHeader = new Label
+            var labelQtyHeader = new Label
             {
                 Text = "Qty",
                 VerticalOptions = LayoutOptions.Center,
@@ -792,7 +804,7 @@ namespace dMobile.Controller
                 FontAttributes = FontAttributes.Bold,
             };
 
-            Label labelWeightHeader = new Label
+            var labelWeightHeader = new Label
             {
                 Text = "Weight",
                 VerticalOptions = LayoutOptions.Center,
@@ -800,7 +812,7 @@ namespace dMobile.Controller
                 FontAttributes = FontAttributes.Bold,
             };
 
-            Label labelUnitCodeHeader = new Label
+            var labelUnitCodeHeader = new Label
             {
                 Text = string.Empty,
                 VerticalOptions = LayoutOptions.Center,
@@ -808,7 +820,7 @@ namespace dMobile.Controller
                 FontAttributes = FontAttributes.Bold,
             };
 
-            Label labelSchemeIDHeader = new Label
+            var labelSchemeIDHeader = new Label
             {
                 Text = "Scheme ID",
                 VerticalOptions = LayoutOptions.Center,
@@ -822,7 +834,7 @@ namespace dMobile.Controller
             this.ColumnWidth3 = DependencyService.Get<IGridService>().CalculateTextWidth(labelSchemeIDHeader.Text);
 
             // Header grid
-            Grid gridHeader = new Grid
+            var gridHeader = new Grid
             {
                 Padding = new Thickness(5),
                 ColumnDefinitions =
@@ -850,12 +862,12 @@ namespace dMobile.Controller
 
             gridMain.Children.Add(gridHeader);
 
-            double detailWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(
+            var detailWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(
                 string.Format("{0:F3}", actDetail.ActivityDetailQuantity));
-            double detailWidth1 = DependencyService.Get<IGridService>().CalculateTextWidth(
+            var detailWidth1 = DependencyService.Get<IGridService>().CalculateTextWidth(
                 string.Format("{0:F3}", actDetail.ActivityDetailWeightQuantity));
-            double detailWidth2 = DependencyService.Get<IGridService>().CalculateTextWidth(actDetail.UnitCode);
-            double detailWidth3 = DependencyService.Get<IGridService>().CalculateTextWidth(
+            var detailWidth2 = DependencyService.Get<IGridService>().CalculateTextWidth(actDetail.UnitCode);
+            var detailWidth3 = DependencyService.Get<IGridService>().CalculateTextWidth(
                 actDetail.ActivityDetailSchemeID);
 
             if (detailWidth0 > this.ColumnWidth0)
@@ -882,7 +894,7 @@ namespace dMobile.Controller
                 gridHeader.ColumnDefinitions[3].Width = this.ColumnWidth3;
             }
 
-            return (DataTemplate)this.ResourceDictionary["dataTemplate"];
+            return (DataTemplate)this.ResourceDictionary["dataTemplateSkidInfoDetail"];
         }
     }
 }

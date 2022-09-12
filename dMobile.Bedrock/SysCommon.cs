@@ -938,7 +938,7 @@ namespace dMobile.Bedrock
         /// <returns>Well formed xml string.</returns>
         public static string AddXMLReservedChars(string data)
         {
-            string xmlString = data.Replace("<", "&lt;");
+            var xmlString = data.Replace("<", "&lt;");
             xmlString = xmlString.Replace(">", "&gt;");
             xmlString = xmlString.Replace("\"", "&quot;");
             xmlString = xmlString.Replace("'", "&apos;");
@@ -954,7 +954,7 @@ namespace dMobile.Bedrock
         /// <returns>Restored string.</returns>
         public static string RemoveXMLReservedChars(string data)
         {
-            string xmlString = data.Replace("&lt;", "<");
+            var xmlString = data.Replace("&lt;", "<");
             xmlString = xmlString.Replace("&gt;", ">");
             xmlString = xmlString.Replace("&quot;", "\"");
             xmlString = xmlString.Replace("&apos;", "'");
@@ -971,7 +971,7 @@ namespace dMobile.Bedrock
         public static bool IsAllowedChangeNegateQuantityFromAdjType(AdjTypes
             adjustmentType)
         {
-            bool isAllowedNegateQuantity = false;
+            var isAllowedNegateQuantity = false;
 
             switch (adjustmentType)
             {
@@ -1061,7 +1061,7 @@ namespace dMobile.Bedrock
         public static bool DefaultNegateQuantityFromAdjType(AdjTypes
             adjustmentType)
         {
-            bool isNegateQuantity = false;
+            var isNegateQuantity = false;
 
             switch (adjustmentType)
             {
@@ -1153,9 +1153,9 @@ namespace dMobile.Bedrock
         /// <returns>.</returns>
         public static async Task<string> GetRequestDefaults(bool useRefreshedDataLast)
         {
-            SysEnvironment sysEnv = SysEnvironment.GetInstance();
-            string current = DateTime.Now.ToString("yyyy\'-\'MM\'-\'dd\'T\'HH\':\'mm\':\'ss");
-            string revision = new DateTime(1900, 1, 1).ToString("yyyy\'-\'MM\'-\'dd\'T\'HH\':\'mm\':\'ss");
+            var sysEnv = SysEnvironment.GetInstance();
+            var current = DateTime.Now.ToString("yyyy\'-\'MM\'-\'dd\'T\'HH\':\'mm\':\'ss");
+            var revision = new DateTime(1900, 1, 1).ToString("yyyy\'-\'MM\'-\'dd\'T\'HH\':\'mm\':\'ss");
             if (useRefreshedDataLast)
             {
                 revision = sysEnv.RefreshOpt.RefreshedDataLast.ToString("yyyy\'-\'MM\'-\'dd\'T\'HH\':\'mm\':\'ss");
@@ -1163,13 +1163,13 @@ namespace dMobile.Bedrock
 
             // Added the login warehouse fk refno, for request filtering.
             // Easier to add it here than review every activity request, for filtering.
-            SLocMap loginLocMap = await LocationMapTasks.GetSLocMapFromLocMapRefno(LocationMap.GetInstance().LoginWhsLocMapRefno);
+            var loginLocMap = await LocationMapTasks.GetSLocMapFromLocMapRefno(LocationMap.GetInstance().LoginWhsLocMapRefno);
 
-            string def = "<device_id>" + sysEnv.DeviceID + "</device_id>"
-                + "<login_id>" + sysEnv.ContactLog.LoginID + "</login_id>"
-                + "<login_whs_id>" + loginLocMap.WhsFKRefno + "</login_whs_id>"
-                + "<revision_datetime>" + revision + "</revision_datetime>"
-                + "<stamp>" + current + "</stamp>";
+            var def = "<device_id>" + sysEnv.DeviceID + "</device_id>"
+                      + "<login_id>" + sysEnv.ContactLog.LoginID + "</login_id>"
+                      + "<login_whs_id>" + loginLocMap.WhsFKRefno + "</login_whs_id>"
+                      + "<revision_datetime>" + revision + "</revision_datetime>"
+                      + "<stamp>" + current + "</stamp>";
 
             return def;
         }
@@ -1180,9 +1180,9 @@ namespace dMobile.Bedrock
         /// <returns>True or false if data that has not been submitted exists.</returns>
         public static async Task<bool> CheckForUnSubmittedData()
         {
-            bool isDataExists = false;
+            var isDataExists = false;
 
-            StringBuilder sql = new StringBuilder();
+            var sql = new StringBuilder();
             sql.Append("SELECT tActivity.ActivityRefno ");
             sql.Append("FROM tActivity ");
             sql.AppendFormat("WHERE tActivity.ActivityStatus <> {0} ", Convert.ToInt32(ActStatus.NoChange));
@@ -1198,7 +1198,7 @@ namespace dMobile.Bedrock
             sql.Append("INNER JOIN tActivityDetail ON tActivityDetail.ActivityItemRefno = tActivityItem.ActivityItemRefno ");
             sql.AppendFormat("WHERE tActivityDetail.ActivityDetailStatus <> {0}", Convert.ToInt32(ActStatus.NoChange));
 
-            List<tActivityModel> results = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<tActivityModel>(Convert.ToString(sql));
+            var results = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<tActivityModel>(Convert.ToString(sql));
 
             if (results?.Count > 0)
             {
@@ -1217,8 +1217,8 @@ namespace dMobile.Bedrock
         /// <returns>Formatted nice readable string '12.000 CS @ 150.546 KG'.</returns>
         public static string NiceQuantityReadableString(ProductInfo prodInfo, decimal quantity, decimal weightQuantity)
         {
-            string unit = Math.Round(quantity, 3).ToString() + " " + prodInfo.UnitCode;
-            string wtUnit = Math.Round(weightQuantity, 3).ToString() + " " + prodInfo.WeightUnitCode;
+            var unit = Math.Round(quantity, 3).ToString() + " " + prodInfo.UnitCode;
+            var wtUnit = Math.Round(weightQuantity, 3).ToString() + " " + prodInfo.WeightUnitCode;
 
             return unit + " @ " + wtUnit;
         }
@@ -1231,7 +1231,7 @@ namespace dMobile.Bedrock
         /// <returns>.</returns>
         public static SFillQuantity FillQuantityStructureFromQuantity(ProductInfo prodInfo, decimal quantity)
         {
-            SFillQuantity fill = new SFillQuantity();
+            var fill = new SFillQuantity();
 
             if (quantity == 0)
             {
@@ -1293,9 +1293,9 @@ namespace dMobile.Bedrock
         public static string SubmitComm(string sendData)
         {
             Debug.WriteLine(sendData);
-            string recvData = string.Empty;
-            SysEnvironment sysEnv = SysEnvironment.GetInstance();
-            using (Socket sysSock = sysEnv.SysSock.Connect())
+            var recvData = string.Empty;
+            var sysEnv = SysEnvironment.GetInstance();
+            using (var sysSock = sysEnv.SysSock.Connect())
             {
                 _ = sysSock ?? throw new Exception("Failed to connect.");
 
@@ -1304,8 +1304,8 @@ namespace dMobile.Bedrock
                     // KLUDGE: Temp fix until we can share a socket
                     ////System.Threading.Thread.Sleep(500);
 
-                    int bytesSent = sysEnv.SysSock.SendRequest(sysSock, sendData);
-                    List<byte> compressedData = sysEnv.SysSock.ReceiveResponse(sysSock);
+                    var bytesSent = sysEnv.SysSock.SendRequest(sysSock, sendData);
+                    var compressedData = sysEnv.SysSock.ReceiveResponse(sysSock);
 
                     recvData = Compress.UnZip(compressedData.ToArray());
 
@@ -1353,9 +1353,9 @@ namespace dMobile.Bedrock
 
             if (response.Contains("<message>ERROR</message>"))
             {
-                XmlDocument xmlDoc = new XmlDocument();
+                var xmlDoc = new XmlDocument();
                 xmlDoc.LoadXml(response);
-                string errorDetail = xmlDoc.DocumentElement["detail"].InnerText;
+                var errorDetail = xmlDoc.DocumentElement["detail"].InnerText;
                 if (errorDetail.Contains("MSGBOX-"))
                 {
                     throw new MessageOnlyException(errorDetail);
@@ -1374,7 +1374,7 @@ namespace dMobile.Bedrock
         /// <returns>.</returns>
         public static bool IsEmptyDateTime(DateTime dt)
         {
-            bool isEmpty = false;
+            var isEmpty = false;
             if (dt.Year <= 1900)
             {
                 isEmpty = true;
@@ -1390,7 +1390,7 @@ namespace dMobile.Bedrock
         /// <returns>.</returns>
         public static bool IsEmptyDate(DateTime dt)
         {
-            bool isEmpty = false;
+            var isEmpty = false;
             if (dt.Year <= 1900)
             {
                 isEmpty = true;
@@ -1446,19 +1446,19 @@ namespace dMobile.Bedrock
         /// <returns>.</returns>
         public static XmlDocument GetXMLDocumentFromObjectArray(Array objList)
         {
-            XmlDocument result = new XmlDocument();
-            XmlElement root = result.CreateElement("List");
+            var result = new XmlDocument();
+            var root = result.CreateElement("List");
 
             result.AppendChild(root);
 
-            foreach (object list in objList)
+            foreach (var list in objList)
             {
-                XmlElement record = result.CreateElement("Record");
+                var record = result.CreateElement("Record");
                 root.AppendChild(record);
                 XmlElement tmpElem = null;
 
                 // Interrogate properties
-                foreach (PropertyInfo prop in list.GetType().GetProperties())
+                foreach (var prop in list.GetType().GetProperties())
                 {
                     if (prop.CanRead)
                     {
@@ -1469,7 +1469,7 @@ namespace dMobile.Bedrock
                 }
 
                 // Interrogate fields
-                foreach (FieldInfo fld in list.GetType().GetFields())
+                foreach (var fld in list.GetType().GetFields())
                 {
                     if (fld.IsPublic)
                     {
@@ -1489,10 +1489,10 @@ namespace dMobile.Bedrock
         /// <returns>.</returns>
         public string GetAssemblyVersion()
         {
-            int major = Assembly.GetExecutingAssembly().GetName().Version.Major;
-            int minor = Assembly.GetExecutingAssembly().GetName().Version.Minor;
-            int build = Assembly.GetExecutingAssembly().GetName().Version.Build;
-            int revision = Assembly.GetExecutingAssembly().GetName().Version.Revision;
+            var major = Assembly.GetExecutingAssembly().GetName().Version.Major;
+            var minor = Assembly.GetExecutingAssembly().GetName().Version.Minor;
+            var build = Assembly.GetExecutingAssembly().GetName().Version.Build;
+            var revision = Assembly.GetExecutingAssembly().GetName().Version.Revision;
 
             return string.Format("{0}.{1}.{2}.{3}", major, minor, build, revision);
         }
@@ -1508,8 +1508,8 @@ namespace dMobile.Bedrock
             Exception ex)
         {
             // Determine Class and Assembly
-            string[] aClass = fullClassName.Split('.');
-            string assembly = aClass[0];
+            var aClass = fullClassName.Split('.');
+            var assembly = aClass[0];
 
             // Dim strClassName As New System.Text.StringBuilder
             // For Each s As String In aClass
@@ -1521,7 +1521,7 @@ namespace dMobile.Bedrock
             // Dim strFullPathToMyFile As String = Path.Combine(strAppDir, "dMobileResource02.wav")
             // Dim oSnd As SysSound = New SysSound(strFullPathToMyFile)
             // oSnd.Play()
-            bool result = false;
+            var result = false;
             // #if MULTILANGUAGE
             //      string errorMsg = Translator.GetInstance().Translate(TranslatorVocabulary.AnUnanticipatedErrorOccuredInDmobile) + Constants.vbCrLf +
             // #else
@@ -1557,7 +1557,7 @@ namespace dMobile.Bedrock
                 return string.Empty;
             }
 
-            StringBuilder newData = new StringBuilder();
+            var newData = new StringBuilder();
             //// char ch = '\0';
             //// for (int index = 0; index <= inData.Length - 1; index++)
             //// {
@@ -1585,7 +1585,7 @@ namespace dMobile.Bedrock
         /// <returns>Array list of strings with the modified text.</returns>
         public static List<string> WordWrap2List(string text, int width)
         {
-            List<string> sb = new List<string>();
+            var sb = new List<string>();
 
             if (width > 0)
             {
@@ -1596,7 +1596,7 @@ namespace dMobile.Bedrock
                 for (pos = 0; pos < text.Length; pos = next)
                 {
                     // Find end of line
-                    int eol = text.IndexOf(Environment.NewLine, pos);
+                    var eol = text.IndexOf(Environment.NewLine, pos);
                     if (eol == -1)
                     {
                         next = eol = text.Length;
@@ -1611,7 +1611,7 @@ namespace dMobile.Bedrock
                     {
                         do
                         {
-                            int len = eol - pos;
+                            var len = eol - pos;
                             if (len > width)
                             {
                                 len = BreakLine(text, pos, width);
@@ -1647,7 +1647,7 @@ namespace dMobile.Bedrock
             ////    throw new Exception("width > text.Length");
             ////}
 
-            StringBuilder sb = new StringBuilder();
+            var sb = new StringBuilder();
 
             if (width > 0)
             {
@@ -1658,7 +1658,7 @@ namespace dMobile.Bedrock
                 for (pos = 0; pos < text.Length; pos = next)
                 {
                     // Find end of line
-                    int eol = text.IndexOf(Environment.NewLine, pos);
+                    var eol = text.IndexOf(Environment.NewLine, pos);
                     if (eol == -1)
                     {
                         next = eol = text.Length;
@@ -1673,7 +1673,7 @@ namespace dMobile.Bedrock
                     {
                         do
                         {
-                            int len = eol - pos;
+                            var len = eol - pos;
                             if (len > width)
                             {
                                 len = BreakLine(text, pos, width);
@@ -1711,7 +1711,7 @@ namespace dMobile.Bedrock
         private static int BreakLine(string text, int pos, int max)
         {
             // Find last whitespace in line
-            int i = max;
+            var i = max;
 
             while (i >= 0 && !char.IsWhiteSpace(text[pos + i]))
             {
@@ -1742,30 +1742,30 @@ namespace dMobile.Bedrock
         public static XmlReader GetXmlReader(ref string xml)
         {
             // Parse the Data into Schema and Data
-            string endSchema = "</xsd:schema>";
-            int eoSchemaEnd = xml.IndexOf(endSchema);
+            var endSchema = "</xsd:schema>";
+            var eoSchemaEnd = xml.IndexOf(endSchema);
             if (eoSchemaEnd >= 0)
             {
-                int length = xml.Length;
-                int actualSchemaEnd = eoSchemaEnd + endSchema.Length;
-                string schema = xml.Substring(0, actualSchemaEnd);
+                var length = xml.Length;
+                var actualSchemaEnd = eoSchemaEnd + endSchema.Length;
+                var schema = xml.Substring(0, actualSchemaEnd);
 
-                int dataLength = xml.Length - actualSchemaEnd;
-                string data = xml.Substring(actualSchemaEnd, dataLength);
+                var dataLength = xml.Length - actualSchemaEnd;
+                var data = xml.Substring(actualSchemaEnd, dataLength);
 
                 // Create the XmlSchemaSet class.
-                XmlSchema xmlschema = new XmlSchema();
+                var xmlschema = new XmlSchema();
                 xmlschema = XmlSchema.Read(new StringReader(schema), null);
 
-                XmlSchemaSet sc = new XmlSchemaSet();
+                var sc = new XmlSchemaSet();
                 sc.Add(xmlschema);
 
-                XmlReaderSettings settings = new XmlReaderSettings();
+                var settings = new XmlReaderSettings();
                 settings.ValidationType = ValidationType.None;
                 settings.Schemas = sc;
 
-                StringReader sr = new StringReader(data);
-                XmlReader xmlText = XmlReader.Create(sr);
+                var sr = new StringReader(data);
+                var xmlText = XmlReader.Create(sr);
 
                 return xmlText;
             }
@@ -1846,7 +1846,7 @@ namespace dMobile.Bedrock
         /// <returns>The <see cref="string"/>.</returns>
         public static string ShowMemory()
         {
-            StringBuilder memoryInfoString = new StringBuilder();
+            var memoryInfoString = new StringBuilder();
 
             memoryInfoString.Append(
                 "Total Bytes Allocated " + Environment.NewLine + GC.GetTotalMemory(true) +
@@ -1916,8 +1916,8 @@ namespace dMobile.Bedrock
         /// <returns>.</returns>
         private int ResetDevice()
         {
-            int bytesReturned = 0;
-            int IOCTL_HAL_REBOOT = this.CTL_CODE(FILE_DEVICE_HAL, 15, METHOD_BUFFERED, FILE_ANY_ACCESS);
+            var bytesReturned = 0;
+            var IOCTL_HAL_REBOOT = this.CTL_CODE(FILE_DEVICE_HAL, 15, METHOD_BUFFERED, FILE_ANY_ACCESS);
 
             return KernelIoControl(IOCTL_HAL_REBOOT, IntPtr.Zero, 0, IntPtr.Zero, 0, ref bytesReturned);
         }
@@ -2039,8 +2039,8 @@ namespace dMobile.Bedrock
         /// <returns>.</returns>
         public static TObjectType CopyObject<TObjectType>(TObjectType oObject)
         {
-            XmlSerializer oSerializer = new XmlSerializer(oObject.GetType());
-            using MemoryStream oStream = new MemoryStream();
+            var oSerializer = new XmlSerializer(oObject.GetType());
+            using var oStream = new MemoryStream();
             oSerializer.Serialize(oStream, oObject);
             oStream.Position = 0;
             return (TObjectType)oSerializer.Deserialize(oStream);
@@ -2054,14 +2054,14 @@ namespace dMobile.Bedrock
         /// <returns>.</returns>
         public static T clone<T>(T original)
         {
-            T tempMyClass = (T)Activator.CreateInstance(original.GetType());
+            var tempMyClass = (T)Activator.CreateInstance(original.GetType());
 
-            FieldInfo[] fis = original.GetType().GetFields(
+            var fis = original.GetType().GetFields(
                 BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
 
-            foreach (FieldInfo fi in fis)
+            foreach (var fi in fis)
             {
-                object fieldValue = fi.GetValue(original);
+                var fieldValue = fi.GetValue(original);
                 if (fi.FieldType.Namespace != original.GetType().Namespace)
                 {
                     fi.SetValue(tempMyClass, fieldValue);

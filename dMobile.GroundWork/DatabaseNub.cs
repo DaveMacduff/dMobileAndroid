@@ -57,7 +57,7 @@ namespace dMobile.GroundWork
         /// <remarks>Password is 'dMobile'.</remarks>
         public async Task CreateNewDatabase()
         {
-            string dbASCIIZ = Path.Combine(this.DBConn.DBPath, this.DBConn.DBName);
+            var dbASCIIZ = Path.Combine(this.DBConn.DBPath, this.DBConn.DBName);
 
             await DatabaseConnection.Close();
             DatabaseConnection.Dispose();

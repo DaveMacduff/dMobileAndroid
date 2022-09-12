@@ -40,56 +40,56 @@ namespace dMobile.Controller
             this.FullClassName = typeof(SkidInfoActivity).FullName;
             this.LocMap = LocationMap.GetInstance();
 
-            Label labelHeader1 = new Label
+            var labelHeader1 = new Label
             {
                 Text = "Code",
                 VerticalOptions = LayoutOptions.Center,
                 FontAttributes = FontAttributes.Bold,
             };
 
-            Label labelHeader2 = new Label
+            var labelHeader2 = new Label
             {
                 Text = string.Empty,
                 VerticalOptions = LayoutOptions.Center,
                 FontAttributes = FontAttributes.Bold,
             };
 
-            Label labelHeader3 = new Label
+            var labelHeader3 = new Label
             {
                 Text = string.Empty,
                 VerticalOptions = LayoutOptions.Center,
                 FontAttributes = FontAttributes.Bold,
             };
 
-            Label labelHeader4 = new Label
+            var labelHeader4 = new Label
             {
                 Text = "Qty",
                 VerticalOptions = LayoutOptions.Center,
                 FontAttributes = FontAttributes.Bold,
             };
 
-            Label labelHeader5 = new Label
+            var labelHeader5 = new Label
             {
                 Text = string.Empty,
                 VerticalOptions = LayoutOptions.Center,
                 FontAttributes = FontAttributes.Bold,
             };
 
-            Label labelHeader6 = new Label
+            var labelHeader6 = new Label
             {
                 Text = "Weight",
                 VerticalOptions = LayoutOptions.Center,
                 FontAttributes = FontAttributes.Bold,
             };
 
-            Label labelHeader7 = new Label
+            var labelHeader7 = new Label
             {
                 Text = string.Empty,
                 VerticalOptions = LayoutOptions.Center,
                 FontAttributes = FontAttributes.Bold,
             };
 
-            Label labelHeader8 = new Label
+            var labelHeader8 = new Label
             {
                 Text = string.Empty,
                 VerticalOptions = LayoutOptions.Center,
@@ -97,18 +97,18 @@ namespace dMobile.Controller
             };
 
             // Data grid
-            DataTemplate dataTemplate = new DataTemplate(() =>
+            var dataTemplate = new DataTemplate(() =>
             {
-                double columnWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(labelHeader1.Text);
-                double columnWidth1 = DependencyService.Get<IGridService>().CalculateTextWidth(labelHeader2.Text);
-                double columnWidth2 = DependencyService.Get<IGridService>().CalculateTextWidth(labelHeader3.Text);
-                double columnWidth3 = DependencyService.Get<IGridService>().CalculateTextWidth(labelHeader4.Text);
-                double columnWidth4 = DependencyService.Get<IGridService>().CalculateTextWidth(labelHeader5.Text);
-                double columnWidth5 = DependencyService.Get<IGridService>().CalculateTextWidth(labelHeader6.Text);
-                double columnWidth6 = DependencyService.Get<IGridService>().CalculateTextWidth(labelHeader7.Text);
-                double columnWidth7 = DependencyService.Get<IGridService>().CalculateTextWidth(labelHeader8.Text);
+                var columnWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(labelHeader1.Text);
+                var columnWidth1 = DependencyService.Get<IGridService>().CalculateTextWidth(labelHeader2.Text);
+                var columnWidth2 = DependencyService.Get<IGridService>().CalculateTextWidth(labelHeader3.Text);
+                var columnWidth3 = DependencyService.Get<IGridService>().CalculateTextWidth(labelHeader4.Text);
+                var columnWidth4 = DependencyService.Get<IGridService>().CalculateTextWidth(labelHeader5.Text);
+                var columnWidth5 = DependencyService.Get<IGridService>().CalculateTextWidth(labelHeader6.Text);
+                var columnWidth6 = DependencyService.Get<IGridService>().CalculateTextWidth(labelHeader7.Text);
+                var columnWidth7 = DependencyService.Get<IGridService>().CalculateTextWidth(labelHeader8.Text);
 
-                Grid gridData = new Grid
+                var gridData = new Grid
                 {
                     Padding = new Thickness(5),
                     ColumnDefinitions =
@@ -124,14 +124,14 @@ namespace dMobile.Controller
                     },
                 };
 
-                Label label1 = new Label { VerticalOptions = LayoutOptions.Center };
-                Label label2 = new Label { VerticalOptions = LayoutOptions.Center };
-                Label label3 = new Label { VerticalOptions = LayoutOptions.Center };
-                Label label4 = new Label { VerticalOptions = LayoutOptions.Center };
-                Label label5 = new Label { VerticalOptions = LayoutOptions.Center };
-                Label label6 = new Label { VerticalOptions = LayoutOptions.Center };
-                Label label7 = new Label { VerticalOptions = LayoutOptions.Center };
-                Label label8 = new Label { VerticalOptions = LayoutOptions.Center };
+                var label1 = new Label { VerticalOptions = LayoutOptions.Center };
+                var label2 = new Label { VerticalOptions = LayoutOptions.Center };
+                var label3 = new Label { VerticalOptions = LayoutOptions.Center };
+                var label4 = new Label { VerticalOptions = LayoutOptions.Center };
+                var label5 = new Label { VerticalOptions = LayoutOptions.Center };
+                var label6 = new Label { VerticalOptions = LayoutOptions.Center };
+                var label7 = new Label { VerticalOptions = LayoutOptions.Center };
+                var label8 = new Label { VerticalOptions = LayoutOptions.Center };
 
                 label1.SetBinding(Label.TextProperty, new Binding("SkidCode"));
                 label2.SetBinding(Label.TextProperty, new Binding("ProductCode"));
@@ -163,7 +163,20 @@ namespace dMobile.Controller
                 return new ViewCell { View = gridData };
             });
 
-            this.resourceDictionary.Add("dataTemplate", dataTemplate);
+
+            var isAddKey = true;
+            foreach (var item in this.resourceDictionary)
+            {
+                if (item.Key == "dataTemplateSkidInfo")
+                {
+                    isAddKey = false;
+                }
+            }
+
+            if (isAddKey)
+            {
+                this.resourceDictionary.Add("dataTemplateSkidInfo", dataTemplate);
+            }
         }
 
         /// <summary>
@@ -221,7 +234,7 @@ namespace dMobile.Controller
                 this.HdrFKRefno = Convert.ToInt32(skid.SkidFKRefno);
                 this.HdrRefno = Convert.ToInt32(skid.SkidFKRefno);
 
-                SSkidInfo info = new SSkidInfo();
+                var info = new SSkidInfo();
                 info.SkidCode = Convert.ToString(skid.SkidCode);
                 info.SkidFKRefno = Convert.ToInt32(skid.SkidFKRefno);
                 info.LocMap = await LocationMapTasks.GetSLocMapFromLocMapRefno(skid.LocationMapRefno);
@@ -270,7 +283,7 @@ namespace dMobile.Controller
         /// <returns>.</returns>
         public override async Task<List<object>> GetActivityList(bool isSubmitBatch)
         {
-            DataTable table = new DataTable("ActivitySkid");
+            var table = new DataTable("ActivitySkid");
 
             _ = table.Columns.Add("SkidFKRefno", Type.GetType("System.Int32"));
             _ = table.Columns.Add("SkidCode", Type.GetType("System.String"));
@@ -325,80 +338,80 @@ namespace dMobile.Controller
         /// <returns>The <see cref="ObservableCollection{object}"/>.</returns>
         public override ObservableCollection<object> DesignGrid(ref Grid GridMainActivity, ref ListView ListViewMainActivity)
         {
-            ObservableCollection<object> observableCollection = new ObservableCollection<object>();
+            var observableCollection = new ObservableCollection<object>();
 
             foreach (Skid skid in this.ListHdrs)
             {
                 observableCollection.Add(skid);
             }
 
-            Label labelHeader1 = new Label
+            var labelHeader1 = new Label
             {
                 Text = "Code",
                 VerticalOptions = LayoutOptions.Center,
                 FontAttributes = FontAttributes.Bold,
             };
 
-            Label labelHeader2 = new Label
+            var labelHeader2 = new Label
             {
                 Text = string.Empty,
                 VerticalOptions = LayoutOptions.Center,
                 FontAttributes = FontAttributes.Bold,
             };
 
-            Label labelHeader3 = new Label
+            var labelHeader3 = new Label
             {
                 Text = string.Empty,
                 VerticalOptions = LayoutOptions.Center,
                 FontAttributes = FontAttributes.Bold,
             };
 
-            Label labelHeader4 = new Label
+            var labelHeader4 = new Label
             {
                 Text = "Qty",
                 VerticalOptions = LayoutOptions.Center,
                 FontAttributes = FontAttributes.Bold,
             };
 
-            Label labelHeader5 = new Label
+            var labelHeader5 = new Label
             {
                 Text = string.Empty,
                 VerticalOptions = LayoutOptions.Center,
                 FontAttributes = FontAttributes.Bold,
             };
 
-            Label labelHeader6 = new Label
+            var labelHeader6 = new Label
             {
                 Text = "Weight",
                 VerticalOptions = LayoutOptions.Center,
                 FontAttributes = FontAttributes.Bold,
             };
 
-            Label labelHeader7 = new Label
+            var labelHeader7 = new Label
             {
                 Text = string.Empty,
                 VerticalOptions = LayoutOptions.Center,
                 FontAttributes = FontAttributes.Bold,
             };
 
-            Label labelHeader8 = new Label
+            var labelHeader8 = new Label
             {
                 Text = string.Empty,
                 VerticalOptions = LayoutOptions.Center,
                 FontAttributes = FontAttributes.Bold,
             };
 
-            double columnWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(labelHeader1.Text);
-            double columnWidth1 = DependencyService.Get<IGridService>().CalculateTextWidth(labelHeader2.Text);
-            double columnWidth2 = DependencyService.Get<IGridService>().CalculateTextWidth(labelHeader3.Text);
-            double columnWidth3 = DependencyService.Get<IGridService>().CalculateTextWidth(labelHeader4.Text);
-            double columnWidth4 = DependencyService.Get<IGridService>().CalculateTextWidth(labelHeader5.Text);
-            double columnWidth5 = DependencyService.Get<IGridService>().CalculateTextWidth(labelHeader6.Text);
-            double columnWidth6 = DependencyService.Get<IGridService>().CalculateTextWidth(labelHeader7.Text);
-            double columnWidth7 = DependencyService.Get<IGridService>().CalculateTextWidth(labelHeader8.Text);
+            var columnWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(labelHeader1.Text);
+            var columnWidth1 = DependencyService.Get<IGridService>().CalculateTextWidth(labelHeader2.Text);
+            var columnWidth2 = DependencyService.Get<IGridService>().CalculateTextWidth(labelHeader3.Text);
+            var columnWidth3 = DependencyService.Get<IGridService>().CalculateTextWidth(labelHeader4.Text);
+            var columnWidth4 = DependencyService.Get<IGridService>().CalculateTextWidth(labelHeader5.Text);
+            var columnWidth5 = DependencyService.Get<IGridService>().CalculateTextWidth(labelHeader6.Text);
+            var columnWidth6 = DependencyService.Get<IGridService>().CalculateTextWidth(labelHeader7.Text);
+            var columnWidth7 = DependencyService.Get<IGridService>().CalculateTextWidth(labelHeader8.Text);
 
             // Create header data template
-            Grid gridHeader = new Grid
+            var gridHeader = new Grid
             {
                 Padding = new Thickness(5),
                 ColumnDefinitions =
@@ -441,16 +454,16 @@ namespace dMobile.Controller
             foreach (Skid skid in observableCollection)
             {
                 // string.Format("{0:F3}", adjustmentDetail.ActivityDetailQuantity)
-                double detailWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(skid.SkidCode);
-                double detailWidth1 = DependencyService.Get<IGridService>().CalculateTextWidth(skid.ProductCode);
-                double detailWidth2 = DependencyService.Get<IGridService>().CalculateTextWidth(skid.ProductUnitBC);
-                double detailWidth3 = DependencyService.Get<IGridService>().CalculateTextWidth(
+                var detailWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(skid.SkidCode);
+                var detailWidth1 = DependencyService.Get<IGridService>().CalculateTextWidth(skid.ProductCode);
+                var detailWidth2 = DependencyService.Get<IGridService>().CalculateTextWidth(skid.ProductUnitBC);
+                var detailWidth3 = DependencyService.Get<IGridService>().CalculateTextWidth(
                     string.Format("{0:F3}", skid.Quantity));
-                double detailWidth4 = DependencyService.Get<IGridService>().CalculateTextWidth(skid.UnitCode);
-                double detailWidth5 = DependencyService.Get<IGridService>().CalculateTextWidth(
+                var detailWidth4 = DependencyService.Get<IGridService>().CalculateTextWidth(skid.UnitCode);
+                var detailWidth5 = DependencyService.Get<IGridService>().CalculateTextWidth(
                     string.Format("{0:F3}", skid.WeightQuantity));
-                double detailWidth6 = DependencyService.Get<IGridService>().CalculateTextWidth(skid.WeightUnitCode);
-                double detailWidth7 = DependencyService.Get<IGridService>().CalculateTextWidth(skid.LocationName);
+                var detailWidth6 = DependencyService.Get<IGridService>().CalculateTextWidth(skid.WeightUnitCode);
+                var detailWidth7 = DependencyService.Get<IGridService>().CalculateTextWidth(skid.LocationName);
 
                 if (detailWidth0 > columnWidth0)
                 {
@@ -501,7 +514,7 @@ namespace dMobile.Controller
                 }
             }
 
-            ListViewMainActivity.ItemTemplate = (DataTemplate)this.resourceDictionary["dataTemplate"];
+            ListViewMainActivity.ItemTemplate = (DataTemplate)this.resourceDictionary["dataTemplateSkidInfo"];
 
             return observableCollection;
         }

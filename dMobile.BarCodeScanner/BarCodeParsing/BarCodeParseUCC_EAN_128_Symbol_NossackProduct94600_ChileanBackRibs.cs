@@ -20,8 +20,8 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
         {
             try
             {
-                string parse = barCodeData;
-                string compare = string.Empty;
+                var parse = barCodeData;
+                var compare = string.Empty;
 
                 do
                 {
@@ -85,7 +85,7 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
         /// <returns>.</returns>
         protected override string IdentifyGTIN(string barCodeData)
         {
-            string tempData = barCodeData;
+            var tempData = barCodeData;
 
             if (tempData.StartsWith("01") && tempData.Length >= 14)
             {
@@ -113,7 +113,7 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
         /// <returns>.</returns>
         protected override string IdentifyProductIdentifier(string barCodeData)
         {
-            string tempData = barCodeData;
+            var tempData = barCodeData;
 
             if (!string.IsNullOrEmpty(this.GTIN))
             {
@@ -141,7 +141,7 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
         /// <returns>.</returns>
         protected override string IdentifyLogisticUnitProductionDate(string barCodeData)
         {
-            string tempData = barCodeData;
+            var tempData = barCodeData;
 
             if (tempData.StartsWith("11") && tempData.Length >= 8)
             {
@@ -152,9 +152,9 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
                 {
                     // assign the PRODUCTION DATE
                     // <issue="13609" comment="DDMMYY"/>
-                    int day = Convert.ToInt32(tempData.Substring(0, 2));
-                    int month = Convert.ToInt32(tempData.Substring(2, 2));
-                    int year = Convert.ToInt32(tempData.Substring(4, 2));
+                    var day = Convert.ToInt32(tempData.Substring(0, 2));
+                    var month = Convert.ToInt32(tempData.Substring(2, 2));
+                    var year = Convert.ToInt32(tempData.Substring(4, 2));
                     if (year < 80)
                     {
                         year = year + 2000;
@@ -164,7 +164,7 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
                         year = year + 1900;
                     }
 
-                    DateTime dt = new DateTime(
+                    var dt = new DateTime(
                         year,
                         month,
                         day);   // 101026

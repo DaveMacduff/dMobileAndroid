@@ -158,7 +158,7 @@ namespace dMobile.View.Options
         /// <remarks></remarks>
         public async Task<bool> IsReadyToSave()
         {
-            bool isReadyToSave = false;
+            var isReadyToSave = false;
 
             try
             {
@@ -179,7 +179,7 @@ namespace dMobile.View.Options
 
                 await Device.InvokeOnMainThreadAsync(async () =>
                 {
-                    FormErrorReport errRpt = new FormErrorReport(SysCommon.ActSubTypes.SubmitBatch, ex);
+                    var errRpt = new FormErrorReport(SysCommon.ActSubTypes.SubmitBatch, ex);
                     _ = await errRpt.ShowDialog();
                 });
             }
@@ -194,7 +194,7 @@ namespace dMobile.View.Options
         /// <remarks></remarks>
         public async Task<bool> IsReadyToClose()
         {
-            bool isReadyToClose = true;
+            var isReadyToClose = true;
 
             try
             {
@@ -231,7 +231,7 @@ namespace dMobile.View.Options
 
                 await Device.InvokeOnMainThreadAsync(async () =>
                 {
-                    FormErrorReport errRpt = new FormErrorReport(SysCommon.ActSubTypes.SubmitBatch, ex);
+                    var errRpt = new FormErrorReport(SysCommon.ActSubTypes.SubmitBatch, ex);
                     _ = await errRpt.ShowDialog();
                 });
             }
@@ -256,7 +256,7 @@ namespace dMobile.View.Options
         /// <remarks></remarks>
         public async Task<bool> SaveChanges()
         {
-            bool saveComplete = false;
+            var saveComplete = false;
 
             try
             {
@@ -285,7 +285,7 @@ namespace dMobile.View.Options
             {
                 await Device.InvokeOnMainThreadAsync(async () =>
                 {
-                    FormErrorReport errRpt = new FormErrorReport(SysCommon.ActSubTypes.SubmitBatch, ex);
+                    var errRpt = new FormErrorReport(SysCommon.ActSubTypes.SubmitBatch, ex);
                     _ = await errRpt.ShowDialog();
                 });
             }
@@ -300,7 +300,7 @@ namespace dMobile.View.Options
         /// <remarks></remarks>
         public async Task<bool> CancelChanges()
         {
-            bool cancelChanges = true;
+            var cancelChanges = true;
 
             try
             {
@@ -337,7 +337,7 @@ namespace dMobile.View.Options
 
                 await Device.InvokeOnMainThreadAsync(async () =>
                 {
-                    FormErrorReport errRpt = new FormErrorReport(SysCommon.ActSubTypes.SubmitBatch, ex);
+                    var errRpt = new FormErrorReport(SysCommon.ActSubTypes.SubmitBatch, ex);
                     _ = await errRpt.ShowDialog();
                 });
             }
@@ -352,7 +352,7 @@ namespace dMobile.View.Options
         /// <remarks></remarks>
         public async Task<XDocument> GetXML()
         {
-            XDocument xmldocParams = XDocument.Parse(
+            var xmldocParams = XDocument.Parse(
                 "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>"
                 + "<params>"
                 + "</params>");
@@ -432,7 +432,7 @@ namespace dMobile.View.Options
                     }
                     catch (SQLiteException ex)
                     {
-                        for (int curExNdx = 0; curExNdx < ex.Data.Count; curExNdx++)
+                        for (var curExNdx = 0; curExNdx < ex.Data.Count; curExNdx++)
                         {
                             await Device.InvokeOnMainThreadAsync(async () => await this.DisplayAlert("Submit Batch", Convert.ToString("Error " + ex.Data[curExNdx].ToString() + '\r'), "OK"));
                         }
@@ -473,11 +473,11 @@ namespace dMobile.View.Options
         /// <remarks></remarks>
         private async void cmdFilter_Click(object sender, EventArgs e)
         {
-            FormDialogContainer form = new FormDialogContainer(EDialogTypes.SubmitBatchFilter, SysCommon.ActSubTypes.NotApplicable);
+            var form = new FormDialogContainer(EDialogTypes.SubmitBatchFilter, SysCommon.ActSubTypes.NotApplicable);
 
             if (await form.DisplayControl.ShowDialog() == DialogResult.OK)
             {
-                XDocument xmlDoc = await form.GetXML();
+                var xmlDoc = await form.GetXML();
                 this.SubmitBatchSettings = this.SubmitBatchSettings.LoadData();
                 this.ExtraInfoItems.Clear();
             }
@@ -491,11 +491,11 @@ namespace dMobile.View.Options
         /// <remarks></remarks>
         private async void cmdSubmit_Click(object sender, EventArgs e)
         {
-            int actRefno = 0;
-            int actItemRefno = 0;
+            var actRefno = 0;
+            var actItemRefno = 0;
             ActItem actItem = null;
             ActDetail actDetail = null;
-            LocationMap locMap = LocationMap.GetInstance();
+            var locMap = LocationMap.GetInstance();
 
             await Task.Run(async () =>
             {
@@ -505,7 +505,7 @@ namespace dMobile.View.Options
 
                     if (this.Activity.ListHdrs.Count > 0)
                     {
-                        for (int actRow = 0; actRow <= this.Activity.ListHdrs.Count - 1; actRow++)
+                        for (var actRow = 0; actRow <= this.Activity.ListHdrs.Count - 1; actRow++)
                         {
                             actRefno = this.Activity.GetRefnoFromRowIdx(this.Activity.ListHdrs[actRow]);
 
@@ -570,7 +570,7 @@ namespace dMobile.View.Options
 
                             if (actItem.ListItems.Count > 0)
                             {
-                                for (int itemIdx = 0; itemIdx <= actItem.ListItems.Count - 1; itemIdx++)
+                                for (var itemIdx = 0; itemIdx <= actItem.ListItems.Count - 1; itemIdx++)
                                 {
                                     await actItem.AssignActivityItem(actItem.ListItems[itemIdx]);
                                     actItemRefno = actItem.ItemRefno;
@@ -630,8 +630,8 @@ namespace dMobile.View.Options
 
                                     if (this.SubmitBatchSettings.eActivitySubType == SysCommon.ActSubTypes.BarCodeAssociation)
                                     {
-                                        BarCodeSymbologies i = (BarCodeSymbologies)Convert.ToInt32((actItem.ListItems[itemIdx] as dynamic).ProductUnitBarCodeSymbologyEnum);
-                                        string symbologyPrefix = clsCommon.GetSymbologyPrefixFromSymbologyEnum(i);
+                                        var i = (BarCodeSymbologies)Convert.ToInt32((actItem.ListItems[itemIdx] as dynamic).ProductUnitBarCodeSymbologyEnum);
+                                        var symbologyPrefix = clsCommon.GetSymbologyPrefixFromSymbologyEnum(i);
 
                                         XDocument xmlParams = XDocument.Parse(
                                                 "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>"
@@ -696,9 +696,9 @@ namespace dMobile.View.Options
 
                                         if (actDetail.ListDetails.Count > 0)
                                         {
-                                            for (int detailIdx = 0; detailIdx <= actDetail.ListDetails.Count - 1; detailIdx++)
+                                            for (var detailIdx = 0; detailIdx <= actDetail.ListDetails.Count - 1; detailIdx++)
                                             {
-                                                ActivityDetail detail = (ActivityDetail)actDetail.ListDetails[detailIdx];
+                                                var detail = (ActivityDetail)actDetail.ListDetails[detailIdx];
                                                 await actDetail.AssignThisFromDetailAsync(detail, false);
                                                 await actDetail.Submit(actDetail.ListDetails[detailIdx], null);
                                             }

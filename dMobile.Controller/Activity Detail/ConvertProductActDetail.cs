@@ -85,10 +85,10 @@ namespace dMobile.Controller
             this.FullClassName = typeof(ConvertProductActDetail).FullName;
 
             // Data grid
-            DataTemplate dataTemplate = new DataTemplate(() =>
+            var dataTemplate = new DataTemplate(() =>
             {
                 // Header grid
-                Grid gridData = new Grid()
+                var gridData = new Grid()
                 {
                     Padding = new Thickness(5),
                     ColumnDefinitions =
@@ -103,13 +103,13 @@ namespace dMobile.Controller
                     },
                 };
 
-                Label labelQty = new Label { VerticalOptions = LayoutOptions.Center };
-                Label labelWeight = new Label { VerticalOptions = LayoutOptions.Center };
-                Label labelSerialNo = new Label { VerticalOptions = LayoutOptions.Center };
-                Label labelProdDate = new Label { VerticalOptions = LayoutOptions.Center };
-                Label labelBBSBDate = new Label { VerticalOptions = LayoutOptions.Center };
-                Label labelLot = new Label { VerticalOptions = LayoutOptions.Center };
-                Label labelVariant = new Label { VerticalOptions = LayoutOptions.Center };
+                var labelQty = new Label { VerticalOptions = LayoutOptions.Center };
+                var labelWeight = new Label { VerticalOptions = LayoutOptions.Center };
+                var labelSerialNo = new Label { VerticalOptions = LayoutOptions.Center };
+                var labelProdDate = new Label { VerticalOptions = LayoutOptions.Center };
+                var labelBBSBDate = new Label { VerticalOptions = LayoutOptions.Center };
+                var labelLot = new Label { VerticalOptions = LayoutOptions.Center };
+                var labelVariant = new Label { VerticalOptions = LayoutOptions.Center };
 
                 labelQty.SetBinding(Label.TextProperty, new Binding("ActivityDetailQuantity", BindingMode.Default, null, null, "{0:F3}"));
                 labelWeight.SetBinding(Label.TextProperty, new Binding("ActivityDetailWeightQuantity", BindingMode.Default, null, null, "{0:F3}"));
@@ -158,7 +158,19 @@ namespace dMobile.Controller
                 return new ViewCell { View = gridData };
             });
 
-            this.ResourceDictionary.Add("dataTemplate", dataTemplate);
+            var isAddKey = true;
+            foreach (var item in this.ResourceDictionary)
+            {
+                if (item.Key == "dataTemplateConvertProductDetail")
+                {
+                    isAddKey = false;
+                }
+            }
+
+            if (isAddKey)
+            {
+                this.ResourceDictionary.Add("dataTemplateConvertProductDetail", dataTemplate);
+            }
         }
 
         /// <summary>
@@ -196,7 +208,7 @@ namespace dMobile.Controller
         /// <param name="listDetailIdx"><see cref="int"/> Zero based list detail index.</param>
         public override void UpdateListDetail(int listDetailIdx)
         {
-            ConvertProductDetail detail = (ConvertProductDetail)this.ListDetails[listDetailIdx];
+            var detail = (ConvertProductDetail)this.ListDetails[listDetailIdx];
             ////if (detail.ActivityDetailStatus == (int)SysCommon.ActStatus.NoChange)
             ////{
             ////    detail.ActivityDetailStatus = (int)SysCommon.ActStatus.Updated;
@@ -245,7 +257,7 @@ namespace dMobile.Controller
                 this.ActItem.ActHdr.HdrFKRefno = Convert.ToInt32(data.Root.Element("hdr_refno").Value);
 
                 // Update Scheme data
-                SProductSchemeData schemeData = new SProductSchemeData();
+                var schemeData = new SProductSchemeData();
                 schemeData.LogisticUnitProductionDate = Convert.ToDateTime(data.Root.Element("pdate").Value);
                 schemeData.LogisticUnitBestBeforeSellByDate = Convert.ToDateTime(data.Root.Element("bdate").Value);
                 schemeData.SingleTradeItemSerialNumber = Convert.ToString(data.Root.Element("serial").Value);
@@ -334,7 +346,7 @@ namespace dMobile.Controller
         /// <returns>.</returns>
         public override async Task<List<object>> GetActivityDetailList(bool isSubmitBatch)
         {
-            DataTable table = new DataTable("ActivityConvertProductItem");
+            var table = new DataTable("ActivityConvertProductItem");
 
             table.Columns.Add("ProductRefno", Type.GetType("System.Int32"));
             table.Columns.Add("ActivityDetailQuantity", Type.GetType("System.Decimal"));
@@ -363,20 +375,20 @@ namespace dMobile.Controller
         /// <returns>The <see cref="ObservableCollection{object}"/>.</returns>
         public override ObservableCollection<object> DesignGrid(ref Grid GridMainActivity, ref ListView ListViewMainActivity)
         {
-            ObservableCollection<object> observableCollection = new ObservableCollection<object>();
+            var observableCollection = new ObservableCollection<object>();
 
             foreach (ConvertProductDetail convertProductDetail in this.ListDetails)
             {
                 observableCollection.Add(convertProductDetail);
             }
 
-            Label labelQtyHeader = new Label { Text = "Quantity", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
-            Label labelWeightHeader = new Label { Text = "Weight", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
-            Label labelSerialNoHeader = new Label { Text = "SerialNo", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
-            Label labelProdDateHeader = new Label { Text = "Prod Date", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
-            Label labelBBSBDateHeader = new Label { Text = "BBSB Date", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
-            Label labelLotHeader = new Label { Text = "Lot", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
-            Label labelVariantHeader = new Label { Text = "Variant", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
+            var labelQtyHeader = new Label { Text = "Quantity", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
+            var labelWeightHeader = new Label { Text = "Weight", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
+            var labelSerialNoHeader = new Label { Text = "SerialNo", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
+            var labelProdDateHeader = new Label { Text = "Prod Date", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
+            var labelBBSBDateHeader = new Label { Text = "BBSB Date", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
+            var labelLotHeader = new Label { Text = "Lot", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
+            var labelVariantHeader = new Label { Text = "Variant", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
 
             this.ColumnWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(labelQtyHeader.Text);
             this.ColumnWidth1 = DependencyService.Get<IGridService>().CalculateTextWidth(labelWeightHeader.Text);
@@ -387,7 +399,7 @@ namespace dMobile.Controller
             this.ColumnWidth6 = DependencyService.Get<IGridService>().CalculateTextWidth(labelVariantHeader.Text);
 
             // Header grid
-            Grid gridHeader = new Grid
+            var gridHeader = new Grid
             {
                 Padding = new Thickness(5),
                 ColumnDefinitions =
@@ -446,13 +458,13 @@ namespace dMobile.Controller
 
             foreach (ConvertProductDetail convertProductDetail in observableCollection)
             {
-                double detailWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(string.Format("{0:F3}", convertProductDetail.ActivityDetailQuantity));
-                double detailWidth1 = DependencyService.Get<IGridService>().CalculateTextWidth(string.Format("{0:F3}", convertProductDetail.ActivityDetailWeightQuantity));
-                double detailWidth2 = DependencyService.Get<IGridService>().CalculateTextWidth(convertProductDetail.ActivityDetailSingleTradeItemSerialNumber);
-                double detailWidth3 = DependencyService.Get<IGridService>().CalculateTextWidth(Convert.ToString(convertProductDetail.ActivityDetailLogisticUnitProductionDate.ToString("MM/dd/yyyy")));
-                double detailWidth4 = DependencyService.Get<IGridService>().CalculateTextWidth(Convert.ToString(convertProductDetail.ActivityDetailLogisticUnitBestBeforeSellByDate.ToString("MM/dd/yyyy")));
-                double detailWidth5 = DependencyService.Get<IGridService>().CalculateTextWidth(convertProductDetail.ActivityDetailLogisticUnitBatchLotNumber);
-                double detailWidth6 = DependencyService.Get<IGridService>().CalculateTextWidth(convertProductDetail.ProductSchemeVariantCode);
+                var detailWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(string.Format("{0:F3}", convertProductDetail.ActivityDetailQuantity));
+                var detailWidth1 = DependencyService.Get<IGridService>().CalculateTextWidth(string.Format("{0:F3}", convertProductDetail.ActivityDetailWeightQuantity));
+                var detailWidth2 = DependencyService.Get<IGridService>().CalculateTextWidth(convertProductDetail.ActivityDetailSingleTradeItemSerialNumber);
+                var detailWidth3 = DependencyService.Get<IGridService>().CalculateTextWidth(Convert.ToString(convertProductDetail.ActivityDetailLogisticUnitProductionDate.ToString("MM/dd/yyyy")));
+                var detailWidth4 = DependencyService.Get<IGridService>().CalculateTextWidth(Convert.ToString(convertProductDetail.ActivityDetailLogisticUnitBestBeforeSellByDate.ToString("MM/dd/yyyy")));
+                var detailWidth5 = DependencyService.Get<IGridService>().CalculateTextWidth(convertProductDetail.ActivityDetailLogisticUnitBatchLotNumber);
+                var detailWidth6 = DependencyService.Get<IGridService>().CalculateTextWidth(convertProductDetail.ProductSchemeVariantCode);
 
                 if (detailWidth0 > this.ColumnWidth0)
                 {
@@ -537,7 +549,7 @@ namespace dMobile.Controller
                 }
             }
 
-            ListViewMainActivity.ItemTemplate = (DataTemplate)this.ResourceDictionary["dataTemplate"];
+            ListViewMainActivity.ItemTemplate = (DataTemplate)this.ResourceDictionary["dataTemplateConvertProductDetail"];
 
             return observableCollection;
         }
@@ -572,15 +584,15 @@ namespace dMobile.Controller
             // Expecting fk_refno as input
             // int fkRefno = Convert.ToInt32(data.Root.Element("fk_refno").Value);
             // or just append an xml line to the request
-            StringBuilder xmlString = new StringBuilder();
-            XmlWriter xml = XmlWriter.Create(xmlString);
+            var xmlString = new StringBuilder();
+            var xml = XmlWriter.Create(xmlString);
 
             // Set the FK refno to be the selected row
             dynamic selectedActivityItem = this.ActItem.SelectedActivityItem;
             this.ActItem.ActHdr.HdrFKRefno = Convert.ToInt32(selectedActivityItem.ActivityHdrFKRefno);
             this.ActItem.ItemFKRefno = Convert.ToInt32(selectedActivityItem.ActivityItemFKRefno);
             this.DetailFKRefno = Convert.ToInt32(selectedActivityItem.ActivityDetailFKRefno);
-            XDocument request = XDocument.Parse(
+            var request = XDocument.Parse(
                 "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>"
                 + "<imclient>"
                 + "<command>"
@@ -608,10 +620,10 @@ namespace dMobile.Controller
         /// <returns>.</returns>
         public override async Task<string> CreateSubmitProductLabelXML(XDocument data)
         {
-            PrinterSettings prnSettings = new PrinterSettings().LoadData();
-            StringBuilder xmlString = new StringBuilder();
-            XmlWriter xml = XmlWriter.Create(xmlString);
-            XDocument request = XDocument.Parse(
+            var prnSettings = new PrinterSettings().LoadData();
+            var xmlString = new StringBuilder();
+            var xml = XmlWriter.Create(xmlString);
+            var request = XDocument.Parse(
                 "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>"
                 + "<imclient>"
                 + "<command>"
@@ -640,29 +652,29 @@ namespace dMobile.Controller
         /// <returns>.</returns>
         public override async Task<string> CreateSubmitXML(XDocument data)
         {
-            StringBuilder xmlString = new StringBuilder();
-            XmlWriter xml = XmlWriter.Create(xmlString);
+            var xmlString = new StringBuilder();
+            var xml = XmlWriter.Create(xmlString);
 
-            int fromProdRefno = Convert.ToInt32((this.ActItem.ListItems[0] as ConvertProductItem).From_prod_fk_refno);
-            int toProdRefno = Convert.ToInt32((this.ActItem.ListItems[0] as ConvertProductItem).To_prod_fk_refno);
+            var fromProdRefno = Convert.ToInt32((this.ActItem.ListItems[0] as ConvertProductItem).From_prod_fk_refno);
+            var toProdRefno = Convert.ToInt32((this.ActItem.ListItems[0] as ConvertProductItem).To_prod_fk_refno);
 
-            ProductInfo fromProd = await ProductInfoTasks.GetInfoFromRefno(fromProdRefno);
-            ProductInfo toProd = await ProductInfoTasks.GetInfoFromRefno(toProdRefno);
-            DateTime prodDate = Convert.ToDateTime(data.Root.Element("pdate").Value);
-            DateTime bestBeforeDate = Convert.ToDateTime(data.Root.Element("bdate").Value);
+            var fromProd = await ProductInfoTasks.GetInfoFromRefno(fromProdRefno);
+            var toProd = await ProductInfoTasks.GetInfoFromRefno(toProdRefno);
+            var prodDate = Convert.ToDateTime(data.Root.Element("pdate").Value);
+            var bestBeforeDate = Convert.ToDateTime(data.Root.Element("bdate").Value);
 
-            string serial = data.Root.Element("serial").Value;
-            string pdate = prodDate.ToString("MM/dd/yyyy");
-            string bdate = bestBeforeDate.ToString("MM/dd/yyyy");
-            string lotno = data.Root.Element("lot_no").Value;
-            string varcode = data.Root.Element("variant_code").Value;
-            string varno = data.Root.Element("variant_no").Value;
+            var serial = data.Root.Element("serial").Value;
+            var pdate = prodDate.ToString("MM/dd/yyyy");
+            var bdate = bestBeforeDate.ToString("MM/dd/yyyy");
+            var lotno = data.Root.Element("lot_no").Value;
+            var varcode = data.Root.Element("variant_code").Value;
+            var varno = data.Root.Element("variant_no").Value;
 
-            string qty = data.Root.Element("alt_qty").Value;
-            string wtQty = data.Root.Element("wt_qty").Value;
-            string baseQty = data.Root.Element("base_qty").Value;
+            var qty = data.Root.Element("alt_qty").Value;
+            var wtQty = data.Root.Element("wt_qty").Value;
+            var baseQty = data.Root.Element("base_qty").Value;
 
-            StringBuilder req = new StringBuilder();
+            var req = new StringBuilder();
             req.Append("<?xml version=\'1.0\' encoding=\'utf-16\' standalone=\'yes\'?>");
             req.Append("<imclient>");
             req.Append("<command><action>SUBMIT CONVERT PRODUCT</action></command>");
@@ -713,7 +725,7 @@ namespace dMobile.Controller
 
             req.Append("</imclient>");
 
-            XDocument request = XDocument.Parse(req.ToString());
+            var request = XDocument.Parse(req.ToString());
             request.Save(xml);
             xml.Flush();
             xml.Close();
@@ -744,13 +756,13 @@ namespace dMobile.Controller
         {
             mainActivityItems.Add(actDetail);
 
-            Label labelQtyHeader = new Label { Text = "Quantity", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
-            Label labelWeightHeader = new Label { Text = "Weight", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
-            Label labelSerialNoHeader = new Label { Text = "SerialNo", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
-            Label labelProdDateHeader = new Label { Text = "Prod Date", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
-            Label labelBBSBDateHeader = new Label { Text = "BBSB Date", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
-            Label labelLotHeader = new Label { Text = "Lot", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
-            Label labelVariantHeader = new Label { Text = "Variant", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
+            var labelQtyHeader = new Label { Text = "Quantity", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
+            var labelWeightHeader = new Label { Text = "Weight", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
+            var labelSerialNoHeader = new Label { Text = "SerialNo", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
+            var labelProdDateHeader = new Label { Text = "Prod Date", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
+            var labelBBSBDateHeader = new Label { Text = "BBSB Date", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
+            var labelLotHeader = new Label { Text = "Lot", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
+            var labelVariantHeader = new Label { Text = "Variant", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
 
             this.ColumnWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(labelQtyHeader.Text);
             this.ColumnWidth1 = DependencyService.Get<IGridService>().CalculateTextWidth(labelWeightHeader.Text);
@@ -761,7 +773,7 @@ namespace dMobile.Controller
             this.ColumnWidth6 = DependencyService.Get<IGridService>().CalculateTextWidth(labelVariantHeader.Text);
 
             // Header grid
-            Grid gridHeader = new Grid
+            var gridHeader = new Grid
             {
                 Padding = new Thickness(5),
                 ColumnDefinitions =
@@ -818,13 +830,13 @@ namespace dMobile.Controller
 
             gridMain.Children.Add(gridHeader);
 
-            double detailWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(string.Format("{0:F3}", actDetail.ActivityDetailQuantity));
-            double detailWidth1 = DependencyService.Get<IGridService>().CalculateTextWidth(string.Format("{0:F3}", actDetail.ActivityDetailWeightQuantity));
-            double detailWidth2 = DependencyService.Get<IGridService>().CalculateTextWidth(actDetail.ActivityDetailSingleTradeItemSerialNumber);
-            double detailWidth3 = DependencyService.Get<IGridService>().CalculateTextWidth(Convert.ToString(actDetail.ActivityDetailLogisticUnitProductionDate.ToString("MM/dd/yyyy")));
-            double detailWidth4 = DependencyService.Get<IGridService>().CalculateTextWidth(Convert.ToString(actDetail.ActivityDetailLogisticUnitBestBeforeSellByDate.ToString("MM/dd/yyyy")));
-            double detailWidth5 = DependencyService.Get<IGridService>().CalculateTextWidth(actDetail.ActivityDetailLogisticUnitBatchLotNumber);
-            double detailWidth6 = DependencyService.Get<IGridService>().CalculateTextWidth(actDetail.ProductSchemeVariantCode);
+            var detailWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(string.Format("{0:F3}", actDetail.ActivityDetailQuantity));
+            var detailWidth1 = DependencyService.Get<IGridService>().CalculateTextWidth(string.Format("{0:F3}", actDetail.ActivityDetailWeightQuantity));
+            var detailWidth2 = DependencyService.Get<IGridService>().CalculateTextWidth(actDetail.ActivityDetailSingleTradeItemSerialNumber);
+            var detailWidth3 = DependencyService.Get<IGridService>().CalculateTextWidth(Convert.ToString(actDetail.ActivityDetailLogisticUnitProductionDate.ToString("MM/dd/yyyy")));
+            var detailWidth4 = DependencyService.Get<IGridService>().CalculateTextWidth(Convert.ToString(actDetail.ActivityDetailLogisticUnitBestBeforeSellByDate.ToString("MM/dd/yyyy")));
+            var detailWidth5 = DependencyService.Get<IGridService>().CalculateTextWidth(actDetail.ActivityDetailLogisticUnitBatchLotNumber);
+            var detailWidth6 = DependencyService.Get<IGridService>().CalculateTextWidth(actDetail.ProductSchemeVariantCode);
 
             if (detailWidth0 > this.ColumnWidth0)
             {
@@ -908,7 +920,7 @@ namespace dMobile.Controller
                 gridHeader.ColumnDefinitions[6].Width = 0;
             }
 
-            return (DataTemplate)this.ResourceDictionary["dataTemplate"];
+            return (DataTemplate)this.ResourceDictionary["dataTemplateConvertProductDetail"];
         }
     }
 }

@@ -176,7 +176,7 @@ namespace dMobile.View.Forms
         /// <param name="e"><see cref="EventArgs"/> Event arguments.</param>
         private async void CmdOK_Click(object sender, EventArgs e)
         {
-            bool isValidData = true;
+            var isValidData = true;
 
             if (this.UserCode != Convert.ToInt32(this.txtLoginID.Text))
             {
@@ -229,7 +229,7 @@ namespace dMobile.View.Forms
             {
                 if (!string.IsNullOrEmpty(this.txtLoginID.Text))
                 {
-                    List<tContactUserModel> resultsContactUser = await DatabaseConnection.GetInstance().SQLConn.
+                    var resultsContactUser = await DatabaseConnection.GetInstance().SQLConn.
                         QueryAsync<tContactUserModel>(
                         "SELECT * FROM tContactUser WHERE ContactUserCode = ?",
                         Convert.ToInt32(this.txtLoginID.Text));
@@ -292,7 +292,7 @@ namespace dMobile.View.Forms
 
                 await Device.InvokeOnMainThreadAsync(async () =>
                 {
-                    FormErrorReport errRpt = new FormErrorReport(ex);
+                    var errRpt = new FormErrorReport(ex);
                     _ = await errRpt.ShowDialog();
                 });
             }
@@ -302,7 +302,7 @@ namespace dMobile.View.Forms
 
                 await Device.InvokeOnMainThreadAsync(async () =>
                 {
-                    FormErrorReport errRpt = new FormErrorReport(ex);
+                    var errRpt = new FormErrorReport(ex);
                     _ = await errRpt.ShowDialog();
                 });
             }

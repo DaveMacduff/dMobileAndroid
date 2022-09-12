@@ -57,9 +57,9 @@ namespace dMobile.Controller
             this.FullClassName = typeof(RecvActivity).FullName;
 
             // Data grid
-            DataTemplate dataTemplate = new DataTemplate(() =>
+            var dataTemplate = new DataTemplate(() =>
             {
-                Grid gridData = new Grid
+                var gridData = new Grid
                 {
                     Padding = new Thickness(5),
                     ColumnDefinitions =
@@ -70,19 +70,19 @@ namespace dMobile.Controller
                     },
                 };
 
-                Label labelActivityReceivingPONumber = new Label
+                var labelActivityReceivingPONumber = new Label
                 {
                     VerticalOptions = LayoutOptions.Center,
                     HorizontalOptions = LayoutOptions.Start,
                 };
 
-                Label labelActivityReceivingIssuedDateTime = new Label
+                var labelActivityReceivingIssuedDateTime = new Label
                 {
                     VerticalOptions = LayoutOptions.Center,
                     HorizontalOptions = LayoutOptions.Start,
                 };
 
-                Label labelActivityReceivingArrivalDateTime = new Label
+                var labelActivityReceivingArrivalDateTime = new Label
                 {
                     VerticalOptions = LayoutOptions.Center,
                     HorizontalOptions = LayoutOptions.Start,
@@ -107,7 +107,19 @@ namespace dMobile.Controller
                 return new ViewCell { View = gridData };
             });
 
-            this.resourceDictionary.Add("dataTemplate", dataTemplate);
+            var isAddKey = true;
+            foreach (var item in this.resourceDictionary)
+            {
+                if (item.Key == "dataTemplateReceiving")
+                {
+                    isAddKey = false;
+                }
+            }
+
+            if (isAddKey)
+            {
+                this.resourceDictionary.Add("dataTemplateReceiving", dataTemplate);
+            }
         }
 
         /// <summary>
@@ -141,7 +153,7 @@ namespace dMobile.Controller
         /// <returns>The <see cref="ObservableCollection{object}"/>.</returns>
         public override ObservableCollection<object> DesignGrid(ref Grid GridMainActivity, ref ListView ListViewMainActivity)
         {
-            Label labelPOReceiving = new Label
+            var labelPOReceiving = new Label
             {
                 Text = "PO #",
                 VerticalOptions = LayoutOptions.Center,
@@ -149,7 +161,7 @@ namespace dMobile.Controller
                 FontAttributes = FontAttributes.Bold,
             };
 
-            Label labelIssuedReceiving = new Label
+            var labelIssuedReceiving = new Label
             {
                 Text = "Issued",
                 VerticalOptions = LayoutOptions.Center,
@@ -157,7 +169,7 @@ namespace dMobile.Controller
                 FontAttributes = FontAttributes.Bold,
             };
 
-            Label labelArrivedReceiving = new Label
+            var labelArrivedReceiving = new Label
             {
                 Text = "Arrived",
                 VerticalOptions = LayoutOptions.Center,
@@ -168,7 +180,7 @@ namespace dMobile.Controller
             this.columnWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(labelPOReceiving.Text);
             this.columnWidth1 = DependencyService.Get<IGridService>().CalculateTextWidth(labelIssuedReceiving.Text);
             this.columnWidth2 = DependencyService.Get<IGridService>().CalculateTextWidth(labelArrivedReceiving.Text);
-            Grid gridHeader = new Grid
+            var gridHeader = new Grid
             {
                 Padding = new Thickness(5),
                 ColumnDefinitions =
@@ -193,7 +205,7 @@ namespace dMobile.Controller
 
             GridMainActivity.Children.Add(gridHeader);
 
-            ObservableCollection<object> observableCollection = new ObservableCollection<object>();
+            var observableCollection = new ObservableCollection<object>();
             foreach (Receive receive in this.ListHdrs)
             {
                 observableCollection.Add(receive);
@@ -201,11 +213,11 @@ namespace dMobile.Controller
 
             foreach (Receive receive in observableCollection)
             {
-                double detailWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(
+                var detailWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(
                     receive.ActivityReceivingPONumber);
-                double detailWidth1 = DependencyService.Get<IGridService>().CalculateTextWidth(
+                var detailWidth1 = DependencyService.Get<IGridService>().CalculateTextWidth(
                     receive.ActivityReceivingIssuedDateTime.ToString("MM/dd/yyyy"));
-                double detailWidth2 = DependencyService.Get<IGridService>().CalculateTextWidth(
+                var detailWidth2 = DependencyService.Get<IGridService>().CalculateTextWidth(
                     receive.ActivityReceivingArrivalDateTime.ToString("MM/dd/yyyy"));
 
                 if (detailWidth0 > this.columnWidth0)
@@ -227,7 +239,7 @@ namespace dMobile.Controller
                 }
             }
 
-            ListViewMainActivity.ItemTemplate = (DataTemplate)this.resourceDictionary["dataTemplate"];
+            ListViewMainActivity.ItemTemplate = (DataTemplate)this.resourceDictionary["dataTemplateReceiving"];
 
             return observableCollection;
         }
@@ -239,10 +251,10 @@ namespace dMobile.Controller
         /// <returns>.</returns>
         public override async Task<List<object>> GetActivityList(bool isSubmitBatch)
         {
-            ReceivingSettings receiveSettings = new ReceivingSettings().LoadData();
-            LocationMap locMap = LocationMap.GetInstance();
+            var receiveSettings = new ReceivingSettings().LoadData();
+            var locMap = LocationMap.GetInstance();
 
-            StringBuilder sql = new StringBuilder();
+            var sql = new StringBuilder();
 
             if (isSubmitBatch)
             {
@@ -354,7 +366,7 @@ namespace dMobile.Controller
             // }
             this.listReceives = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<Receive>(sql.ToString());
 
-            foreach (Sort sort in receiveSettings.GetDataViewSortBy())
+            foreach (var sort in receiveSettings.GetDataViewSortBy())
             {
                 if (sort.SortOrder == Resources.Enums.SortOrder.ASC)
                 {
@@ -379,7 +391,7 @@ namespace dMobile.Controller
         /// <returns></returns>
         public override ObservableCollection<object> Search(string searchText)
         {
-            ObservableCollection<object> observableCollection = new ObservableCollection<object>();
+            var observableCollection = new ObservableCollection<object>();
 
             this.ListHdrs = this.listReceives.Where(receive => receive.ActivityReceivingPONumber.ToLower().Contains(
                 searchText.ToLower().Trim())).Cast<object>().ToList();
@@ -465,7 +477,7 @@ namespace dMobile.Controller
                 await this.Purge();
                 this.DataLayerProgressOutHandler(this, new EventArgs(), 5);
 
-                TableActivityReceiving tableActReceiving = new TableActivityReceiving();
+                var tableActReceiving = new TableActivityReceiving();
 
                 tableActReceiving.RegisterDataAccessListenerProgressOut((RecvActivity)this);
                 await tableActReceiving.RequestData();
@@ -479,9 +491,9 @@ namespace dMobile.Controller
         /// <returns>The <see cref="Task"/>.</returns>
         public override async Task Purge()
         {
-            TableActivityReceiving tableActReceiving = new TableActivityReceiving();
-            TableActivityRecevingItem tableActReceivingItem = new TableActivityRecevingItem();
-            TableActivityReceivingDetail tableActReceivingDetail = new TableActivityReceivingDetail();
+            var tableActReceiving = new TableActivityReceiving();
+            var tableActReceivingItem = new TableActivityRecevingItem();
+            var tableActReceivingDetail = new TableActivityReceivingDetail();
 
             await tableActReceivingDetail.PurgeData();
             await tableActReceivingItem.PurgeData();
@@ -493,15 +505,15 @@ namespace dMobile.Controller
         /// </summary>
         public override void GetFilter()
         {
-            ReceivingSettings recvSettings = new ReceivingSettings().LoadData();
+            var recvSettings = new ReceivingSettings().LoadData();
 
             if (recvSettings.IsApplyIssuedDateFilter)
             {
                 if (!SysCommon.IsEmptyDate(recvSettings.dtIssuedDateFilter))
                 {
-                    DateTime dt = recvSettings.dtIssuedDateFilter;
-                    DateTime minDate = new DateTime(dt.Year, dt.Month, dt.Day, 00, 00, 00);
-                    DateTime maxDate = new DateTime(dt.Year, dt.Month, dt.Day, 23, 59, 59);
+                    var dt = recvSettings.dtIssuedDateFilter;
+                    var minDate = new DateTime(dt.Year, dt.Month, dt.Day, 00, 00, 00);
+                    var maxDate = new DateTime(dt.Year, dt.Month, dt.Day, 23, 59, 59);
 
                     this.listReceives = this.listReceives.Where(receive => receive.ActivityReceivingIssuedDateTime >= minDate && receive.ActivityReceivingIssuedDateTime <= maxDate).ToList();
                 }
@@ -511,9 +523,9 @@ namespace dMobile.Controller
             {
                 if (!SysCommon.IsEmptyDate(recvSettings.dtArrivalDateFilter))
                 {
-                    DateTime dt = recvSettings.dtArrivalDateFilter;
-                    DateTime minDate = new DateTime(dt.Year, dt.Month, dt.Day, 00, 00, 00);
-                    DateTime maxDate = new DateTime(dt.Year, dt.Month, dt.Day, 23, 59, 59);
+                    var dt = recvSettings.dtArrivalDateFilter;
+                    var minDate = new DateTime(dt.Year, dt.Month, dt.Day, 00, 00, 00);
+                    var maxDate = new DateTime(dt.Year, dt.Month, dt.Day, 23, 59, 59);
 
                     this.listReceives = this.listReceives.Where(receive => receive.ActivityReceivingArrivalDateTime >= minDate && receive.ActivityReceivingArrivalDateTime <= maxDate).ToList();
                 }
@@ -526,15 +538,15 @@ namespace dMobile.Controller
         /// <param name="data">The data<see cref="XDocument"/>.</param>
         public override void GetFilter(XDocument data)
         {
-            ReceivingSettings recvSettings = new ReceivingSettings().LoadData();
+            var recvSettings = new ReceivingSettings().LoadData();
 
             if (recvSettings.IsApplyIssuedDateFilter)
             {
                 if (string.Compare(data.Root.Element("issued_date").Value, string.Empty) > 0)
                 {
-                    DateTime dt = DateTime.Parse(data.Root.Element("issued_date").Value);
-                    DateTime minDate = new DateTime(dt.Year, dt.Month, dt.Day, 00, 00, 00);
-                    DateTime maxDate = new DateTime(dt.Year, dt.Month, dt.Day, 23, 59, 59);
+                    var dt = DateTime.Parse(data.Root.Element("issued_date").Value);
+                    var minDate = new DateTime(dt.Year, dt.Month, dt.Day, 00, 00, 00);
+                    var maxDate = new DateTime(dt.Year, dt.Month, dt.Day, 23, 59, 59);
 
                     this.listReceives = this.listReceives.Where(receive => receive.ActivityReceivingIssuedDateTime >= minDate && receive.ActivityReceivingIssuedDateTime <= maxDate).ToList();
                 }
@@ -544,9 +556,9 @@ namespace dMobile.Controller
             {
                 if (string.Compare(data.Root.Element("arrival_date").Value, string.Empty) > 0)
                 {
-                    DateTime dt = DateTime.Parse(data.Root.Element("arrival_date").Value);
-                    DateTime minDate = new DateTime(dt.Year, dt.Month, dt.Day, 00, 00, 00);
-                    DateTime maxDate = new DateTime(dt.Year, dt.Month, dt.Day, 23, 59, 59);
+                    var dt = DateTime.Parse(data.Root.Element("arrival_date").Value);
+                    var minDate = new DateTime(dt.Year, dt.Month, dt.Day, 00, 00, 00);
+                    var maxDate = new DateTime(dt.Year, dt.Month, dt.Day, 23, 59, 59);
 
                     this.listReceives = this.listReceives.Where(receive => receive.ActivityReceivingArrivalDateTime >= minDate && receive.ActivityReceivingArrivalDateTime <= maxDate).ToList();
                 }

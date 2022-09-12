@@ -37,9 +37,9 @@ namespace dMobile.Controller
             this.IsAskCreateNewItem = !this.SysEnv.SysSettings.IsAdjustmentCreateNewItemNoAsk;
 
             // Create item template
-            DataTemplate dataTemplate = new DataTemplate(() =>
+            var dataTemplate = new DataTemplate(() =>
             {
-                Grid gridData = new Grid
+                var gridData = new Grid
                 {
                     Padding = new Thickness(5),
                     ColumnDefinitions =
@@ -52,11 +52,11 @@ namespace dMobile.Controller
                     },
                 };
 
-                Label labelProductID = new Label { VerticalOptions = LayoutOptions.Center };
-                Label labelProductUnitBC = new Label { VerticalOptions = LayoutOptions.Center };
-                Label labelUnitCode = new Label { VerticalOptions = LayoutOptions.Center };
-                Label labelQty = new Label { VerticalOptions = LayoutOptions.Center };
-                Label labelWhs = new Label { VerticalOptions = LayoutOptions.Center };
+                var labelProductID = new Label { VerticalOptions = LayoutOptions.Center };
+                var labelProductUnitBC = new Label { VerticalOptions = LayoutOptions.Center };
+                var labelUnitCode = new Label { VerticalOptions = LayoutOptions.Center };
+                var labelQty = new Label { VerticalOptions = LayoutOptions.Center };
+                var labelWhs = new Label { VerticalOptions = LayoutOptions.Center };
 
                 // Set label bindings
                 labelProductID.SetBinding(Label.TextProperty, new Binding("ProductCode"));
@@ -83,10 +83,10 @@ namespace dMobile.Controller
                 return new ViewCell { View = gridData };
             });
 
-            bool isAddKey = true;
+            var isAddKey = true;
             foreach (var item in this.ResourceDictionary)
             {
-                if (item.Key == "dataTemplate")
+                if (item.Key == "dataTemplateAdjustmentItem")
                 {
                     isAddKey = false;
                 }
@@ -94,7 +94,7 @@ namespace dMobile.Controller
 
             if (isAddKey)
             {
-                this.ResourceDictionary.Add("dataTemplate", dataTemplate);
+                this.ResourceDictionary.Add("dataTemplateAdjustmentItem", dataTemplate);
             }
         }
 
@@ -148,7 +148,7 @@ namespace dMobile.Controller
             this.SelectedListItemIdx = -1;
             if (actItemFoundRefno >= 0)
             {
-                int idx = 0;
+                var idx = 0;
                 foreach (AdjustmentItem item in this.ListItems)
                 {
                     if (item.ActivityItemRefno == this.ItemRefno)
@@ -173,7 +173,7 @@ namespace dMobile.Controller
         /// <returns><see cref="bool"/> True if catch ask, else false.</returns>
         public override bool IsCatchAsk()
         {
-            bool isCatchAsk = this.ProdInfo.IsCatchAsk;
+            var isCatchAsk = this.ProdInfo.IsCatchAsk;
             if (isCatchAsk)
             {
                 // modules are for exclusions
@@ -189,7 +189,7 @@ namespace dMobile.Controller
         /// <returns><see cref="bool"/> True if catch count, else false.</returns>
         public override bool IsCatchAskZero()
         {
-            bool result = this.IsCatchAsk();
+            var result = this.IsCatchAsk();
             if (result && this.ProdInfo.IsCatchAskZero)
             {
                 result = !this.SysEnv.SysSettings.IsAdjustmentNoCatchAskZeroEnabled;
@@ -237,9 +237,9 @@ namespace dMobile.Controller
         /// <returns><see cref="Task"/> Task operation.</returns>
         public override async Task Insert(XDocument data, bool askToInsertAsNewItem)
         {
-            bool insertNew = true;
+            var insertNew = true;
 
-            int prodUnitRefno = int.Parse(data.Root.Element("ProductUnitRefno").Value);
+            var prodUnitRefno = int.Parse(data.Root.Element("ProductUnitRefno").Value);
             if (prodUnitRefno <= 0)
             {
                 throw new Exception("prodUnitRefno expected to be greater than zero.");
@@ -250,11 +250,11 @@ namespace dMobile.Controller
 
             if (askToInsertAsNewItem)
             {
-                int foundActItemRefno = await this.GetActivityItemRefno(prodUnitRefno);
+                var foundActItemRefno = await this.GetActivityItemRefno(prodUnitRefno);
                 if (foundActItemRefno > 0)
                 {
-                    string msg = "A line item already exists for the location and product." + Environment.NewLine +
-                        "Do you wish to create an additional one?";
+                    var msg = "A line item already exists for the location and product." + Environment.NewLine +
+                              "Do you wish to create an additional one?";
                     insertNew = await Device.InvokeOnMainThreadAsync(async () =>
                         await Application.Current.MainPage.DisplayAlert("New Item", msg, "Yes", "No"));
                 }
@@ -284,31 +284,31 @@ namespace dMobile.Controller
                             "SELECT last_insert_rowid() FROM tActivityItem"));
                         this.ItemFKRefno = this.ItemRefno * -1;
 
-                        string query = "INSERT INTO tActivityItemAdjustment (" +
-                            "ActivityItemRefno, " +
-                            "ActivityItemSubType, " +
-                            "ActivityItemFKRefno, " +
-                            "ActivityItemStringFKRefno, " +
-                            "ProductUnitRefno, " +
-                            "WarehouseLocationMapRefno, " +
-                            "ActivityItemAdjustmentQuantity, " +
-                            "ActivityItemAdjustmentBaseQuantity, " +
-                            "ActivityItemAdjustmentWeightQuantity, " +
-                            "ActivityItemAdjustmentDescription" +
-                            ") VALUES (" +
-                            "?, " +
-                            "?, " +
-                            "?, " +
-                            "?, " +
-                            "?, " +
-                            "?, " +
-                            "?, " +
-                            "?, " +
-                            "?, " +
-                            "?" +
-                            ")";
+                        var query = "INSERT INTO tActivityItemAdjustment (" +
+                                    "ActivityItemRefno, " +
+                                    "ActivityItemSubType, " +
+                                    "ActivityItemFKRefno, " +
+                                    "ActivityItemStringFKRefno, " +
+                                    "ProductUnitRefno, " +
+                                    "WarehouseLocationMapRefno, " +
+                                    "ActivityItemAdjustmentQuantity, " +
+                                    "ActivityItemAdjustmentBaseQuantity, " +
+                                    "ActivityItemAdjustmentWeightQuantity, " +
+                                    "ActivityItemAdjustmentDescription" +
+                                    ") VALUES (" +
+                                    "?, " +
+                                    "?, " +
+                                    "?, " +
+                                    "?, " +
+                                    "?, " +
+                                    "?, " +
+                                    "?, " +
+                                    "?, " +
+                                    "?, " +
+                                    "?" +
+                                    ")";
 
-                        object[] parameters = new object[]
+                        var parameters = new object[]
                         {
                             Convert.ToInt32(this.ItemRefno),
                             Convert.ToInt32(SysCommon.ActSubTypes.Adjustment),
@@ -337,7 +337,7 @@ namespace dMobile.Controller
             //////////////////////////////////////////////////////////////////////////
             void AddActivityItemToList(int prodUnitRefno)
             {
-                AdjustmentItem adjItem = new AdjustmentItem
+                var adjItem = new AdjustmentItem
                 {
                     ActivityItemRefno = this.ItemRefno,
                     ActivityItemFKRefno = this.ItemFKRefno,
@@ -379,8 +379,8 @@ namespace dMobile.Controller
             {
                 this.DataLayerProgressOutHandler(this, new EventArgs(), 2);
 
-                TableActivityAdjustmentItem adjItem = new TableActivityAdjustmentItem();
-                TableActivityAdjustmentDetail adjDetail = new TableActivityAdjustmentDetail();
+                var adjItem = new TableActivityAdjustmentItem();
+                var adjDetail = new TableActivityAdjustmentDetail();
                 await adjDetail.PurgeData();
                 await adjItem.PurgeData();
 
@@ -402,42 +402,42 @@ namespace dMobile.Controller
             ref Grid GridMainActivity,
             ref ListView ListViewMainActivity)
         {
-            ObservableCollection<object> observableCollection = new ObservableCollection<object>();
+            var observableCollection = new ObservableCollection<object>();
 
             foreach (AdjustmentItem adjustmentItem in this.ListItems)
             {
                 observableCollection.Add(adjustmentItem);
             }
 
-            Label labelProductIdHeader = new Label
+            var labelProductIdHeader = new Label
             {
                 Text = "Product ID",
                 VerticalOptions = LayoutOptions.Center,
                 FontAttributes = FontAttributes.Bold,
             };
 
-            Label labelBCHeader = new Label
+            var labelBCHeader = new Label
             {
                 Text = "BC",
                 VerticalOptions = LayoutOptions.Center,
                 FontAttributes = FontAttributes.Bold,
             };
 
-            Label labelUnitCodeHeader = new Label
+            var labelUnitCodeHeader = new Label
             {
                 Text = string.Empty,
                 VerticalOptions = LayoutOptions.Center,
                 FontAttributes = FontAttributes.Bold,
             };
 
-            Label labelQtyHeader = new Label
+            var labelQtyHeader = new Label
             {
                 Text = "Qty",
                 VerticalOptions = LayoutOptions.Center,
                 FontAttributes = FontAttributes.Bold,
             };
 
-            Label labelWhsHeader = new Label
+            var labelWhsHeader = new Label
             {
                 Text = "Whs",
                 VerticalOptions = LayoutOptions.Center,
@@ -450,7 +450,7 @@ namespace dMobile.Controller
             this.ColumnWidth3 = DependencyService.Get<IGridService>().CalculateTextWidth(labelQtyHeader.Text);
             this.ColumnWidth4 = DependencyService.Get<IGridService>().CalculateTextWidth(labelWhsHeader.Text);
 
-            Grid gridHeader = new Grid
+            var gridHeader = new Grid
             {
                 Padding = new Thickness(5),
                 ColumnDefinitions =
@@ -485,12 +485,12 @@ namespace dMobile.Controller
 
             foreach (AdjustmentItem adjustmentItem in observableCollection)
             {
-                double detailWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(adjustmentItem.ProductCode);
-                double detailWidth1 = DependencyService.Get<IGridService>().CalculateTextWidth(adjustmentItem.ProductUnitBC);
-                double detailWidth2 = DependencyService.Get<IGridService>().CalculateTextWidth(adjustmentItem.UnitCode);
-                double detailWidth3 = DependencyService.Get<IGridService>().CalculateTextWidth(
+                var detailWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(adjustmentItem.ProductCode);
+                var detailWidth1 = DependencyService.Get<IGridService>().CalculateTextWidth(adjustmentItem.ProductUnitBC);
+                var detailWidth2 = DependencyService.Get<IGridService>().CalculateTextWidth(adjustmentItem.UnitCode);
+                var detailWidth3 = DependencyService.Get<IGridService>().CalculateTextWidth(
                     string.Format("{0:F3}", adjustmentItem.ActivityItemAdjustmentQuantity));
-                double detailWidth4 = DependencyService.Get<IGridService>().CalculateTextWidth(
+                var detailWidth4 = DependencyService.Get<IGridService>().CalculateTextWidth(
                     Convert.ToString(adjustmentItem.LocationCode));
 
                 if (detailWidth0 > this.ColumnWidth0)
@@ -524,7 +524,7 @@ namespace dMobile.Controller
                 }
             }
 
-            ListViewMainActivity.ItemTemplate = (DataTemplate)this.ResourceDictionary["dataTemplate"];
+            ListViewMainActivity.ItemTemplate = (DataTemplate)this.ResourceDictionary["dataTemplateAdjustmentItem"];
 
             return observableCollection;
         }
@@ -536,7 +536,7 @@ namespace dMobile.Controller
         /// <returns>.</returns>
         public override async Task<List<object>> GetActivityItemList(bool isSubmitBatch)
         {
-            StringBuilder sql = new StringBuilder();
+            var sql = new StringBuilder();
 
             if (isSubmitBatch)
             {
@@ -649,7 +649,7 @@ namespace dMobile.Controller
         /// <returns>.</returns>
         public override ObservableCollection<object> Search(string searchText)
         {
-            ObservableCollection<object> observableCollection = new ObservableCollection<object>();
+            var observableCollection = new ObservableCollection<object>();
             this.ListItems = this.ListAdjustmentItems.Where(adjItem => adjItem.ProductCode.
                 ToString().ToLower().Contains(searchText.ToLower().Trim())).Cast<object>().ToList();
 
@@ -684,7 +684,7 @@ namespace dMobile.Controller
                     this.ActHdr.SkidInfo.CurrSkid = new SSkidInfo();
                 }
 
-                SLocMap locMap = await this.GetSelectedItemLocation(item.LocationMapRefno);
+                var locMap = await this.GetSelectedItemLocation(item.LocationMapRefno);
 
                 if (this.SysEnv.SysSettings.IsDefaultLocToProductDefaultLoc)
                 {
@@ -727,8 +727,8 @@ namespace dMobile.Controller
         /// <returns><see cref="int"/> Found activity item reference number else 0.</returns>
         public override async Task<int> GetActivityItemRefno(int prodUnitRefno)
         {
-            int foundActItemRefno = 0;
-            StringBuilder sql = new StringBuilder();
+            var foundActItemRefno = 0;
+            var sql = new StringBuilder();
             sql.Append("SELECT tActivityItem.ActivityItemRefno,");
             sql.Append("tActivityItemAdjustment.ActivityItemFKRefno,");
             sql.Append("tActivityItemAdjustment.ProductUnitRefno AS ProductUnitRefno,");
@@ -742,7 +742,7 @@ namespace dMobile.Controller
             sql.AppendFormat(" AND tActivityItemAdjustment.WarehouseLocationMapRefno = {0}", this.LocMap.WhsLocMapRefno);
             sql.AppendFormat(" AND tActivityItemAdjustment.ProductUnitRefno = {0}", prodUnitRefno);
 
-            List<AdjustmentItem> results = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<AdjustmentItem>(
+            var results = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<AdjustmentItem>(
                 sql.ToString());
 
             if (results != null && results.Count > 0)
@@ -764,15 +764,15 @@ namespace dMobile.Controller
         /// <returns>.</returns>
         public override async Task<string> CreateSubmitXML(XDocument data)
         {
-            StringBuilder xmlString = new StringBuilder();
-            XmlWriter xml = XmlWriter.Create(xmlString);
-            string prodCode = data.Root.Element("ProductCode").Value.PadRight(10);
-            string barCode = data.Root.Element("ProductUnitBarCodeCode").Value.PadRight(20);
-            bool prodUnitIsBC = bool.Parse(data.Root.Element("ProductUnitIsBC").Value);
-            string unitCode = data.Root.Element("UnitCode").Value;
-            string symbologyPrefix = data.Root.Element("ProductUnitBarCodeSymbologyPrefix").Value;
+            var xmlString = new StringBuilder();
+            var xml = XmlWriter.Create(xmlString);
+            var prodCode = data.Root.Element("ProductCode").Value.PadRight(10);
+            var barCode = data.Root.Element("ProductUnitBarCodeCode").Value.PadRight(20);
+            var prodUnitIsBC = bool.Parse(data.Root.Element("ProductUnitIsBC").Value);
+            var unitCode = data.Root.Element("UnitCode").Value;
+            var symbologyPrefix = data.Root.Element("ProductUnitBarCodeSymbologyPrefix").Value;
 
-            XDocument request = XDocument.Parse(
+            var request = XDocument.Parse(
                 "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>"
                 + "<imclient>"
                 + "<command>"
@@ -847,10 +847,10 @@ namespace dMobile.Controller
         {
             if (activityItem is AdjustmentItem adjustmentItem)
             {
-                string query = "UPDATE tActivityItemAdjustment SET ActivityItemAdjustmentQuantity = ?," +
-                    " ActivityItemAdjustmentBaseQuantity = ?, ActivityItemAdjustmentWeightQuantity = ?" +
-                    " WHERE ActivityItemRefno = ?";
-                object[] parameters = new object[]
+                var query = "UPDATE tActivityItemAdjustment SET ActivityItemAdjustmentQuantity = ?," +
+                            " ActivityItemAdjustmentBaseQuantity = ?, ActivityItemAdjustmentWeightQuantity = ?" +
+                            " WHERE ActivityItemRefno = ?";
+                var parameters = new object[]
                 {
                     adjustmentItem.ActivityItemAdjustmentQuantity,
                     adjustmentItem.ActivityItemAdjustmentBaseQuantity,
@@ -959,7 +959,7 @@ namespace dMobile.Controller
         /// <returns><see cref="int"/> Location map reference number.</returns>
         public override async Task<int> GetDefaultLocMapRefno(int whsLocMapRefno, int prodRefno)
         {
-            int locMapRefno = 0;
+            var locMapRefno = 0;
             if (this.SelectedActivityItem is AdjustmentItem item)
             {
                 if (Math.Sign(item.ActivityItemAdjustmentQuantity) == 0 ||

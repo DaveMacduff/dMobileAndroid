@@ -51,7 +51,7 @@ namespace dMobile.Controller
         /// <returns>.</returns>
         public override bool IsCatchAsk()
         {
-            bool result = this.IsCatchAsk();
+            var result = this.IsCatchAsk();
             if (result && this.ProdInfo.IsCatchAskZero)
             {
                 result = !this.SysEnv.SysSettings.IsMoveInventoryCatchAskEnabled;
@@ -66,7 +66,7 @@ namespace dMobile.Controller
         /// <returns>.</returns>
         public override bool IsCatchAskZero()
         {
-            bool isCatchAskZero = this.ProdInfo.IsCatchAskZero;
+            var isCatchAskZero = this.ProdInfo.IsCatchAskZero;
             if (isCatchAskZero)
             {
                 isCatchAskZero = !this.SysEnv.SysSettings.IsMoveInventoryModuleNoCatchAskZeroEnabled;
@@ -124,7 +124,7 @@ namespace dMobile.Controller
         /// <returns><see cref="Task"/> Task operation.</returns>
         public override async Task Insert(XDocument data, bool askToInsertAsNewItem)
         {
-            int prodUnitRefno = int.Parse(data.Root.Element("ProductUnitRefno").Value);
+            var prodUnitRefno = int.Parse(data.Root.Element("ProductUnitRefno").Value);
             if (prodUnitRefno != 0)
             {
                 this.ProdInfo = await ProductInfoTasks.GetInfoFromUnitRefno(prodUnitRefno);

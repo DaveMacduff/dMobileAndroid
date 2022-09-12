@@ -215,8 +215,8 @@ namespace dMobile.View.Forms
         /// <returns><see cref="Task{DialogResult}"/> Dialog response result.</returns>
         public override async Task<DialogResult> ShowDialog()
         {
-            string msg = this.ErrMsg + Environment.NewLine + this.ErrMsgDetail;
-            Exception inner = this.GetInnerExeception(this.ExData);
+            var msg = this.ErrMsg + Environment.NewLine + this.ErrMsgDetail;
+            var inner = this.GetInnerExeception(this.ExData);
 
             while (inner != null)
             {
@@ -250,9 +250,9 @@ namespace dMobile.View.Forms
         /// <param name="e"><see cref="EventArgs"/> Sender object event arguments.</param>
         private void ButtonSupportDetail_Click(object sender, EventArgs e)
         {
-            string msg = this.ErrMsg + Environment.NewLine + Environment.NewLine + this.ErrMsgDetail;
+            var msg = this.ErrMsg + Environment.NewLine + Environment.NewLine + this.ErrMsgDetail;
 
-            Exception inner = this.GetInnerExeception(this.ExData);
+            var inner = this.GetInnerExeception(this.ExData);
             while (inner != null)
             {
                 msg = msg + Environment.NewLine + inner.Message;

@@ -161,12 +161,12 @@ namespace dMobile.Bedrock
         {
             lock (this.readLockObject)
             {
-                XmlSerializer serializer = new XmlSerializer(typeof(SubmitBatchSettings));
-                SubmitBatchSettings oSubmitBatchSettings = new SubmitBatchSettings();
+                var serializer = new XmlSerializer(typeof(SubmitBatchSettings));
+                var oSubmitBatchSettings = new SubmitBatchSettings();
 
                 // use reflection to get the current assembly path for the database
-                string strAppDir = Environment.GetFolderPath(Environment.SpecialFolder.Personal);
-                string strFullPathToMyFile = Path.Combine(strAppDir, this.m_strFileName);
+                var strAppDir = Environment.GetFolderPath(Environment.SpecialFolder.Personal);
+                var strFullPathToMyFile = Path.Combine(strAppDir, this.m_strFileName);
 
                 if (!File.Exists(strFullPathToMyFile))
                 {
@@ -174,7 +174,7 @@ namespace dMobile.Bedrock
                 }
 
                 // Create a FileStream to read with.
-                using (FileStream reader = new FileStream(strFullPathToMyFile, FileMode.Open, FileAccess.Read, FileShare.Read))
+                using (var reader = new FileStream(strFullPathToMyFile, FileMode.Open, FileAccess.Read, FileShare.Read))
                 {
                     // Deserialize the stream to the object, and close the TextReader
                     oSubmitBatchSettings = (SubmitBatchSettings)serializer.Deserialize(reader);
@@ -193,17 +193,17 @@ namespace dMobile.Bedrock
         {
             lock (this.writeLockObject)
             {
-                XmlSerializer serializer = new XmlSerializer(typeof(SubmitBatchSettings));
-                bool bSaveComplete = false;
+                var serializer = new XmlSerializer(typeof(SubmitBatchSettings));
+                var bSaveComplete = false;
 
                 try
                 {
                     // use reflection to get the current assembly path for the database
-                    string strAppDir = Environment.GetFolderPath(Environment.SpecialFolder.Personal);
-                    string strFullPathToMyFile = Path.Combine(strAppDir, this.m_strFileName);
+                    var strAppDir = Environment.GetFolderPath(Environment.SpecialFolder.Personal);
+                    var strFullPathToMyFile = Path.Combine(strAppDir, this.m_strFileName);
 
                     // Create a FileStream to write with.
-                    using (FileStream writer = new FileStream(strFullPathToMyFile, FileMode.Create, FileAccess.Write, FileShare.None))
+                    using (var writer = new FileStream(strFullPathToMyFile, FileMode.Create, FileAccess.Write, FileShare.None))
                     {
                         serializer.Serialize(writer, oSubmitBatchSettings);
                     }

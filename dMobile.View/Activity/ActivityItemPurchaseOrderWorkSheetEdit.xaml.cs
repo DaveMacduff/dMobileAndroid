@@ -191,7 +191,7 @@ namespace dMobile.View.Activity
         /// <remarks></remarks>
         private void LoadData()
         {
-            SFillQuantity sQuantity = SysCommon.FillQuantityStructureFromQuantity((ProductInfo)this.ActDetail.ActItem.ProdInfo, this.ActDetail.Quantity);
+            var sQuantity = SysCommon.FillQuantityStructureFromQuantity((ProductInfo)this.ActDetail.ActItem.ProdInfo, this.ActDetail.Quantity);
 
             this.actDetailEdit.AltQuantity = decimal.Round(sQuantity.Quantity, 3);
             this.actDetailEdit.BaseQuantity = decimal.Round(sQuantity.BaseQuantity, 3);
@@ -207,7 +207,7 @@ namespace dMobile.View.Activity
         /// <remarks></remarks>
         private bool IsValidData()
         {
-            bool IsRetVal = true;
+            var IsRetVal = true;
 
             // if (!Information.IsNumeric(txtAltQty.Text))
             if (!decimal.TryParse(this.txtAltQty.Text, out _))
@@ -219,7 +219,7 @@ namespace dMobile.View.Activity
             else
             {
                 this.actDetailEdit.AltQuantity = decimal.Parse(this.txtAltQty.Text);
-                SFillQuantity sQuantity = SysCommon.FillQuantityStructureFromQuantity((ProductInfo)this.ActDetail.ActItem.ProdInfo, this.actDetailEdit.AltQuantity);
+                var sQuantity = SysCommon.FillQuantityStructureFromQuantity((ProductInfo)this.ActDetail.ActItem.ProdInfo, this.actDetailEdit.AltQuantity);
                 this.actDetailEdit.AltQuantity = decimal.Round(sQuantity.Quantity, 3);
                 this.actDetailEdit.BaseQuantity = decimal.Round(sQuantity.BaseQuantity, 3);
                 this.actDetailEdit.WeightQuantity = decimal.Round(sQuantity.WeightQuantity, 3);
@@ -276,7 +276,7 @@ namespace dMobile.View.Activity
         /// <remarks></remarks>
         public async Task<bool> IsReadyToSave()
         {
-            bool IsReadyToSave = true;
+            var IsReadyToSave = true;
 
             try
             {
@@ -322,7 +322,7 @@ namespace dMobile.View.Activity
         /// <remarks></remarks>
         public async Task<bool> SaveChanges()
         {
-            bool bSaveComplete = false;
+            var bSaveComplete = false;
 
             try
             {
@@ -356,7 +356,7 @@ namespace dMobile.View.Activity
         /// <remarks></remarks>
         public async Task<bool> CancelChanges()
         {
-            bool cancelChanges = true;
+            var cancelChanges = true;
 
             try
             {
@@ -390,7 +390,7 @@ namespace dMobile.View.Activity
 
                 await Device.InvokeOnMainThreadAsync(async () =>
                 {
-                    FormErrorReport errorReport = new FormErrorReport(SysCommon.ActSubTypes.NotApplicable, ex);
+                    var errorReport = new FormErrorReport(SysCommon.ActSubTypes.NotApplicable, ex);
                     _ = await errorReport.ShowDialog();
                 });
             }
@@ -405,7 +405,7 @@ namespace dMobile.View.Activity
         /// <remarks></remarks>
         public async Task<XDocument> GetXML()
         {
-            XDocument request = XDocument.Parse("<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>" + "<params>" + "<alt_qty>" + this.actDetailEdit.AltQuantity + "</alt_qty>" + "<wt_qty>" + this.actDetailEdit.WeightQuantity + "</wt_qty>" + "<base_qty>" + this.actDetailEdit.BaseQuantity + "</base_qty>" + "</params>");
+            var request = XDocument.Parse("<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>" + "<params>" + "<alt_qty>" + this.actDetailEdit.AltQuantity + "</alt_qty>" + "<wt_qty>" + this.actDetailEdit.WeightQuantity + "</wt_qty>" + "<base_qty>" + this.actDetailEdit.BaseQuantity + "</base_qty>" + "</params>");
             return request;
         }
 

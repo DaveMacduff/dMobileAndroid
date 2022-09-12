@@ -39,11 +39,11 @@ namespace dMobile.GroundWork
             {
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Seeding sections.", true);
 
-                string reqData = string.Empty;
+                var reqData = string.Empty;
 
                 if (whsLocMapRefno > 0)
                 {
-                    List<tLocationMapWarehouseModel> results = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<tLocationMapWarehouseModel>("SELECT * FROM tLocationMapWarehouse WHERE LocationMapRefno = ?", whsLocMapRefno);
+                    var results = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<tLocationMapWarehouseModel>("SELECT * FROM tLocationMapWarehouse WHERE LocationMapRefno = ?", whsLocMapRefno);
 
                     if (results?.Count > 0)
                     {
@@ -61,7 +61,7 @@ namespace dMobile.GroundWork
                 {
                     if (reqData.Contains("<message>ERROR</message>"))
                     {
-                        XmlDocument reqErr = new XmlDocument();
+                        var reqErr = new XmlDocument();
                         reqErr.LoadXml(reqData);
                         throw new Exception(reqErr.DocumentElement["detail"].InnerText);
                     }
@@ -157,7 +157,7 @@ namespace dMobile.GroundWork
             {
                 try
                 {
-                    using (DataSet ds = new DataSet())
+                    using (var ds = new DataSet())
                     {
                         this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Reading received data.", false);
 
@@ -167,18 +167,18 @@ namespace dMobile.GroundWork
 
                         if (ds.Tables.Count != 0)
                         {
-                            int progMax = Convert.ToInt32(ds.Tables["tLocationMapSection"].Rows.Count);
+                            var progMax = Convert.ToInt32(ds.Tables["tLocationMapSection"].Rows.Count);
 
                             this.DataAccessStatusOutHandler(this, EventArgs.Empty, string.Format("Records {0}", progMax), false);
 
-                            int locMapRefno = 0;
-                            int whsLocMapRefno = 0;
-                            int progValue = 0;
-                            bool isSectFound = false;
-                            int sectFKRefno = 0;
-                            int sectCode = 0;
-                            string sectName = string.Empty;
-                            string sectBarCode = string.Empty;
+                            var locMapRefno = 0;
+                            var whsLocMapRefno = 0;
+                            var progValue = 0;
+                            var isSectFound = false;
+                            var sectFKRefno = 0;
+                            var sectCode = 0;
+                            var sectName = string.Empty;
+                            var sectBarCode = string.Empty;
 
                             this.DataAccessProgressOutHandler(this, EventArgs.Empty, 0, 0, progMax);
 
@@ -191,7 +191,7 @@ namespace dMobile.GroundWork
                                 whsLocMapRefno = this.GetWhsLocMapRefnoFromDataRow(drowSection, transaction);
                                 isSectFound = false;
 
-                                List<tLocationMapSectionModel> resultsLocationMapSection = transaction.Query<tLocationMapSectionModel>("SELECT LocationMapSectionFKRefno FROM tLocationMapSection WHERE LocationMapSectionFKRefno = ?", Convert.ToString(sectFKRefno));
+                                var resultsLocationMapSection = transaction.Query<tLocationMapSectionModel>("SELECT LocationMapSectionFKRefno FROM tLocationMapSection WHERE LocationMapSectionFKRefno = ?", Convert.ToString(sectFKRefno));
 
                                 if (resultsLocationMapSection?.Count > 0)
                                 {
@@ -199,12 +199,12 @@ namespace dMobile.GroundWork
 
                                     if (this.SysEnv.RefreshOpt.RefreshDataChangesOnly)
                                     {
-                                        string queryUpdate = "UPDATE tLocationMapSection "
-                                        + "SET WarehouseLocationMapRefno = " + whsLocMapRefno + ","
-                                        + "LocationMapSectionCode = " + sectCode + ","
-                                        + "LocationMapSectionName = \'" + sectName + "\',"
-                                        + "LocationMapSectionBarCode = \'" + sectBarCode + "\' "
-                                        + "WHERE LocationMapSectionFKRefno = " + sectFKRefno;
+                                        var queryUpdate = "UPDATE tLocationMapSection "
+                                                          + "SET WarehouseLocationMapRefno = " + whsLocMapRefno + ","
+                                                          + "LocationMapSectionCode = " + sectCode + ","
+                                                          + "LocationMapSectionName = \'" + sectName + "\',"
+                                                          + "LocationMapSectionBarCode = \'" + sectBarCode + "\' "
+                                                          + "WHERE LocationMapSectionFKRefno = " + sectFKRefno;
 
                                         transaction.Execute(queryUpdate);
                                     }
@@ -216,25 +216,25 @@ namespace dMobile.GroundWork
 
                                     locMapRefno = Convert.ToInt32(transaction.ExecuteScalar<int>("SELECT last_insert_rowid() FROM tLocationMap"));
 
-                                    string queryInsert = "INSERT INTO tLocationMapSection " +
-                                    "(LocationMapRefno, " +
-                                    "LocationMapSubType, " +
-                                    "WarehouseLocationMapRefno, " +
-                                    "LocationMapSectionCode, " +
-                                    "LocationMapSectionName, " +
-                                    "LocationMapSectionFKRefno, " +
-                                    "LocationMapSectionBarCode " +
-                                    ") " +
-                                    "VALUES " +
-                                    "(?, " +
-                                    "?, " +
-                                    "?, " +
-                                    "?, " +
-                                    "?, " +
-                                    "?, " +
-                                    "?" +
-                                    ")";
-                                    object[] parametersInsert = new object[]
+                                    var queryInsert = "INSERT INTO tLocationMapSection " +
+                                                      "(LocationMapRefno, " +
+                                                      "LocationMapSubType, " +
+                                                      "WarehouseLocationMapRefno, " +
+                                                      "LocationMapSectionCode, " +
+                                                      "LocationMapSectionName, " +
+                                                      "LocationMapSectionFKRefno, " +
+                                                      "LocationMapSectionBarCode " +
+                                                      ") " +
+                                                      "VALUES " +
+                                                      "(?, " +
+                                                      "?, " +
+                                                      "?, " +
+                                                      "?, " +
+                                                      "?, " +
+                                                      "?, " +
+                                                      "?" +
+                                                      ")";
+                                    var parametersInsert = new object[]
                                     {
                                         locMapRefno,
                                         Convert.ToInt32(SysCommon.LocMapSubTypes.Section),
@@ -279,10 +279,10 @@ namespace dMobile.GroundWork
         /// <returns></returns>
         protected override async Task<string> CreateRequest(int whsLocMapRefno)
         {
-            StringBuilder xmlString = new StringBuilder();
-            XmlWriter xml = XmlWriter.Create(xmlString);
-            TableLocationMapWarehouse locMapWhs = new TableLocationMapWarehouse();
-            int locMapWhsFKRefno = 0;
+            var xmlString = new StringBuilder();
+            var xml = XmlWriter.Create(xmlString);
+            var locMapWhs = new TableLocationMapWarehouse();
+            var locMapWhsFKRefno = 0;
 
             // lookup and verify warehouse
             if (whsLocMapRefno > 0)
@@ -290,7 +290,7 @@ namespace dMobile.GroundWork
                 locMapWhsFKRefno = await locMapWhs.GetLocMapWhsFKRefnoFromLocMapWhsRefno(whsLocMapRefno);
             }
 
-            XDocument request = XDocument.Parse(
+            var request = XDocument.Parse(
                 "<?xml version=\"1.0\" encoding=\"utf-8\" standalone=\"yes\"?>"
                 + "<imclient>"
                 + "<command>"

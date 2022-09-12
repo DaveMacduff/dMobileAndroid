@@ -74,9 +74,9 @@ namespace dMobile.View.Activity
             if (this.SysEnv.SysSettings.IsProductUnitBarCodeModifier1)
             {
                 this.BarCodeModifier1Picker.Items.Add(string.Empty);
-                string[] modifiers = this.SysEnv.SysSettings.ProductUnitBarCodeModifier1Codes.Split(',');
+                var modifiers = this.SysEnv.SysSettings.ProductUnitBarCodeModifier1Codes.Split(',');
 
-                foreach (string item in modifiers)
+                foreach (var item in modifiers)
                 {
                     this.BarCodeModifier1Picker.Items.Add(item);
                 }
@@ -228,9 +228,9 @@ namespace dMobile.View.Activity
 
             await Task.Run(async () =>
             {
-                string message = string.Empty;
+                var message = string.Empty;
                 // int prodUnitRefno = 0;
-                int actItemFoundRefno = 0;
+                var actItemFoundRefno = 0;
                 var currentRowIdx = Convert.ToInt32(this.MainActivityItems.IndexOf(this.ListViewMainActivity.SelectedItem));
 
                 this.BarParse = scanArgs.ParseInfo;
@@ -270,7 +270,7 @@ namespace dMobile.View.Activity
 
                         if (await this.IdentifyProductScanned(this.BarParse, xmlDocProduct))
                         {
-                            ProductInfo oProductInfo = new ProductInfo();
+                            var oProductInfo = new ProductInfo();
                             oProductInfo = await ProductInfoTasks.GetInfoFromUnitRefno(this.prodUnitRefno);
                             actItemFoundRefno = await this.ActItem.GetActivityItemRefno(this.prodUnitRefno);
                             // <issue="13609" author="RD" date="2016/02/22"/>
@@ -290,7 +290,7 @@ namespace dMobile.View.Activity
                                 this.Activity.HdrFKRefno = 0;
                                 this.ActItem.ItemFKRefno = 0;
 
-                                XDocument request = XDocument.Parse("<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>" + "<params>" + "<ProductUnitRefno>" + this.ActItem.ProdInfo.UnitRefno + "</ProductUnitRefno>" + "<ProductCode>" + this.ActItem.ProdInfo.Code + "</ProductCode>" + "<ProductUnitIsBC>" + this.ActItem.ProdInfo.UnitIsBC + "</ProductUnitIsBC>" + "<UnitCode>" + this.ActItem.ProdInfo.UnitCode + "</UnitCode>" + "<ProductUnitBarCodeCode>" + this.BarParse.ProductIdentifier + "</ProductUnitBarCodeCode>" + "<ProductUnitBarCodeSymbologyPrefix>" + this.BarParse.SymbologyPrefix + "</ProductUnitBarCodeSymbologyPrefix>" + "<alt_qty>" + 0 + "</alt_qty>" + "<base_qty>" + 0 + "</base_qty>" + "<wt_qty>" + 0 + "</wt_qty>" + "<whs_id>" + this.LocMap.LoginWhsLocMapRefno + "</whs_id>" + "<refno>" + this.Activity.HdrFKRefno + "</refno>" + "<itm_refno>" + this.ActItem.ItemFKRefno + "</itm_refno>" + "<alt_unit>" + this.ActItem.ProdInfo.UnitCode + "</alt_unit>" + "<base_unit>" + this.ActItem.ProdInfo.BaseUnitCode + "</base_unit>" + "<wt_unit>" + this.ActItem.ProdInfo.WeightUnitCode + "</wt_unit>" + "</params>");
+                                var request = XDocument.Parse("<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>" + "<params>" + "<ProductUnitRefno>" + this.ActItem.ProdInfo.UnitRefno + "</ProductUnitRefno>" + "<ProductCode>" + this.ActItem.ProdInfo.Code + "</ProductCode>" + "<ProductUnitIsBC>" + this.ActItem.ProdInfo.UnitIsBC + "</ProductUnitIsBC>" + "<UnitCode>" + this.ActItem.ProdInfo.UnitCode + "</UnitCode>" + "<ProductUnitBarCodeCode>" + this.BarParse.ProductIdentifier + "</ProductUnitBarCodeCode>" + "<ProductUnitBarCodeSymbologyPrefix>" + this.BarParse.SymbologyPrefix + "</ProductUnitBarCodeSymbologyPrefix>" + "<alt_qty>" + 0 + "</alt_qty>" + "<base_qty>" + 0 + "</base_qty>" + "<wt_qty>" + 0 + "</wt_qty>" + "<whs_id>" + this.LocMap.LoginWhsLocMapRefno + "</whs_id>" + "<refno>" + this.Activity.HdrFKRefno + "</refno>" + "<itm_refno>" + this.ActItem.ItemFKRefno + "</itm_refno>" + "<alt_unit>" + this.ActItem.ProdInfo.UnitCode + "</alt_unit>" + "<base_unit>" + this.ActItem.ProdInfo.BaseUnitCode + "</base_unit>" + "<wt_unit>" + this.ActItem.ProdInfo.WeightUnitCode + "</wt_unit>" + "</params>");
                                 await this.ActItem.Insert(request, false);
                                 actItemFoundRefno = this.ActItem.ItemRefno;
                             }
@@ -311,7 +311,7 @@ namespace dMobile.View.Activity
                             // string strOldSort = ActItem.DataViewItems.Sort;
                             // ActItem.DataViewItems.Sort = "ActivityItemRefno";
                             // foundRowIdx = ActItem.DataViewItems.Find(actItemFoundRefno);
-                            PurchaseOrderWorkSheetItem purchaseOrderWorkSheetItem1 = this.ActItem.ListItems.OfType<PurchaseOrderWorkSheetItem>().Where(item => item.ActivityItemRefno == actItemFoundRefno).FirstOrDefault();
+                            var purchaseOrderWorkSheetItem1 = this.ActItem.ListItems.OfType<PurchaseOrderWorkSheetItem>().Where(item => item.ActivityItemRefno == actItemFoundRefno).FirstOrDefault();
 
                             if (purchaseOrderWorkSheetItem1 == null)
                             {
@@ -324,13 +324,13 @@ namespace dMobile.View.Activity
                             // ActItem.DataViewItems.Sort = strOldSort;
                         }
 
-                        DialogResult dialogResult = DialogResult.None;
+                        var dialogResult = DialogResult.None;
                         XDocument xmlDocEdit = null;
 
                         if (actItemFoundRefno > 0)
                         {
                             // Ask for new quantity
-                            FormDialogContainer form = new FormDialogContainer(EDialogTypes.ActivityPurchaseOrderWorkSheetEdit, this.ActDetail, SysCommon.ActSubTypes.NotApplicable);
+                            var form = new FormDialogContainer(EDialogTypes.ActivityPurchaseOrderWorkSheetEdit, this.ActDetail, SysCommon.ActSubTypes.NotApplicable);
 
                             dialogResult = await Device.InvokeOnMainThreadAsync(async () => await form.DisplayControl.ShowDialog());
 
@@ -341,20 +341,20 @@ namespace dMobile.View.Activity
                                 // TODO: Fix sorting
                                 // string strOldSort = ActItem.DataViewItems.Sort;
                                 // ActItem.DataViewItems.Sort = "ActivityItemRefno";
-                                PurchaseOrderWorkSheetItem purchaseOrderWorkSheetItem2 = this.ActItem.ListItems.OfType<PurchaseOrderWorkSheetItem>().Where(item => item.ActivityItemRefno == actItemFoundRefno).FirstOrDefault();
+                                var purchaseOrderWorkSheetItem2 = this.ActItem.ListItems.OfType<PurchaseOrderWorkSheetItem>().Where(item => item.ActivityItemRefno == actItemFoundRefno).FirstOrDefault();
 
                                 if (purchaseOrderWorkSheetItem2 == null)
                                 {
                                     throw new Exception("Unable To Indentify Item");
                                 }
 
-                                decimal decQty = Math.Round(decimal.Parse(xmlDocEdit.Root.Element("alt_qty").Value) + Convert.ToDecimal(purchaseOrderWorkSheetItem2.ActivityItemPurchaseOrderWorkSheetQuantityOrdered), 3);
-                                decimal decBaseQty = Math.Round(decimal.Parse(xmlDocEdit.Root.Element("base_qty").Value) + Convert.ToDecimal(purchaseOrderWorkSheetItem2.ActivityItemPurchaseOrderWorkSheetBaseQuantityOrdered), 3);
-                                decimal decWeightQty = Math.Round(decimal.Parse(xmlDocEdit.Root.Element("wt_qty").Value) + Convert.ToDecimal(purchaseOrderWorkSheetItem2.ActivityItemPurchaseOrderWorkSheetWeightQuantityOrdered), 3);
+                                var decQty = Math.Round(decimal.Parse(xmlDocEdit.Root.Element("alt_qty").Value) + Convert.ToDecimal(purchaseOrderWorkSheetItem2.ActivityItemPurchaseOrderWorkSheetQuantityOrdered), 3);
+                                var decBaseQty = Math.Round(decimal.Parse(xmlDocEdit.Root.Element("base_qty").Value) + Convert.ToDecimal(purchaseOrderWorkSheetItem2.ActivityItemPurchaseOrderWorkSheetBaseQuantityOrdered), 3);
+                                var decWeightQty = Math.Round(decimal.Parse(xmlDocEdit.Root.Element("wt_qty").Value) + Convert.ToDecimal(purchaseOrderWorkSheetItem2.ActivityItemPurchaseOrderWorkSheetWeightQuantityOrdered), 3);
 
                                 // TODO: Fix sorting
                                 // ActItem.DataViewItems.Sort = strOldSort;
-                                XDocument request = XDocument.Parse("<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>" + "<params>" + "<ProductUnitRefno>" + this.ActItem.ProdInfo.UnitRefno + "</ProductUnitRefno>" + "<ProductCode>" + this.ActItem.ProdInfo.Code + "</ProductCode>" + "<ProductUnitIsBC>" + this.ActItem.ProdInfo.UnitIsBC + "</ProductUnitIsBC>" + "<UnitCode>" + this.ActItem.ProdInfo.UnitCode + "</UnitCode>" + "<ProductUnitBarCodeCode>" + this.BarParse.ProductIdentifier + "</ProductUnitBarCodeCode>" + "<ProductUnitBarCodeSymbologyPrefix>" + this.BarParse.SymbologyPrefix + "</ProductUnitBarCodeSymbologyPrefix>" + "<alt_qty>" + decQty + "</alt_qty>" + "<base_qty>" + decBaseQty + "</base_qty>" + "<wt_qty>" + decWeightQty + "</wt_qty>" + "<whs_id>" + this.LocMap.LoginWhsLocMapRefno + "</whs_id>" + "<refno>" + this.ActItem.ItemFKRefno + "</refno>" + "<itm_refno>" + this.ActItem.ItemFKRefno + "</itm_refno>" + "<alt_unit>" + this.ActItem.ProdInfo.UnitCode + "</alt_unit>" + "<base_unit>" + this.ActItem.ProdInfo.BaseUnitCode + "</base_unit>" + "<wt_unit>" + this.ActItem.ProdInfo.WeightUnitCode + "</wt_unit>" + "</params>");
+                                var request = XDocument.Parse("<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>" + "<params>" + "<ProductUnitRefno>" + this.ActItem.ProdInfo.UnitRefno + "</ProductUnitRefno>" + "<ProductCode>" + this.ActItem.ProdInfo.Code + "</ProductCode>" + "<ProductUnitIsBC>" + this.ActItem.ProdInfo.UnitIsBC + "</ProductUnitIsBC>" + "<UnitCode>" + this.ActItem.ProdInfo.UnitCode + "</UnitCode>" + "<ProductUnitBarCodeCode>" + this.BarParse.ProductIdentifier + "</ProductUnitBarCodeCode>" + "<ProductUnitBarCodeSymbologyPrefix>" + this.BarParse.SymbologyPrefix + "</ProductUnitBarCodeSymbologyPrefix>" + "<alt_qty>" + decQty + "</alt_qty>" + "<base_qty>" + decBaseQty + "</base_qty>" + "<wt_qty>" + decWeightQty + "</wt_qty>" + "<whs_id>" + this.LocMap.LoginWhsLocMapRefno + "</whs_id>" + "<refno>" + this.ActItem.ItemFKRefno + "</refno>" + "<itm_refno>" + this.ActItem.ItemFKRefno + "</itm_refno>" + "<alt_unit>" + this.ActItem.ProdInfo.UnitCode + "</alt_unit>" + "<base_unit>" + this.ActItem.ProdInfo.BaseUnitCode + "</base_unit>" + "<wt_unit>" + this.ActItem.ProdInfo.WeightUnitCode + "</wt_unit>" + "</params>");
                                 await this.ActItem.Update(request);
                             }
                         }
@@ -369,21 +369,21 @@ namespace dMobile.View.Activity
                             this.ActDetail.SchemeID = string.Empty;
                             this.ActDetail.UniqueSchemeID = string.Empty;
 
-                            FormDialogContainer form = new FormDialogContainer(EDialogTypes.ActivityPurchaseOrderWorkSheetEdit, this.ActDetail, SysCommon.ActSubTypes.NotApplicable);
+                            var form = new FormDialogContainer(EDialogTypes.ActivityPurchaseOrderWorkSheetEdit, this.ActDetail, SysCommon.ActSubTypes.NotApplicable);
 
                             dialogResult = await Device.InvokeOnMainThreadAsync(async () => await form.DisplayControl.ShowDialog());
 
                             if (dialogResult == DialogResult.OK)
                             {
                                 xmlDocEdit = await form.GetXML();
-                                XDocument request = XDocument.Parse("<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>" + "<params>" + "<ProductUnitRefno>" + this.ActItem.ProdInfo.UnitRefno + "</ProductUnitRefno>" + "<ProductCode>" + this.ActItem.ProdInfo.Code + "</ProductCode>" + "<ProductUnitIsBC>" + this.ActItem.ProdInfo.UnitIsBC + "</ProductUnitIsBC>" + "<UnitCode>" + this.ActItem.ProdInfo.UnitCode + "</UnitCode>" + "<ProductUnitBarCodeCode>" + this.BarParse.ProductIdentifier + "</ProductUnitBarCodeCode>" + "<ProductUnitBarCodeSymbologyPrefix>" + this.BarParse.SymbologyPrefix + "</ProductUnitBarCodeSymbologyPrefix>" + "<alt_qty>" + xmlDocEdit.Root.Element("alt_qty").Value + "</alt_qty>" + "<base_qty>" + xmlDocEdit.Root.Element("base_qty").Value + "</base_qty>" + "<wt_qty>" + xmlDocEdit.Root.Element("wt_qty").Value + "</wt_qty>" + "<whs_id>" + this.LocMap.LoginWhsLocMapRefno + "</whs_id>" + "<refno>" + this.ActItem.ItemFKRefno + "</refno>" + "<itm_refno>" + this.ActItem.ItemFKRefno + "</itm_refno>" + "<alt_unit>" + this.ActItem.ProdInfo.UnitCode + "</alt_unit>" + "<base_unit>" + this.ActItem.ProdInfo.BaseUnitCode + "</base_unit>" + "<wt_unit>" + this.ActItem.ProdInfo.WeightUnitCode + "</wt_unit>" + "</params>");
+                                var request = XDocument.Parse("<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>" + "<params>" + "<ProductUnitRefno>" + this.ActItem.ProdInfo.UnitRefno + "</ProductUnitRefno>" + "<ProductCode>" + this.ActItem.ProdInfo.Code + "</ProductCode>" + "<ProductUnitIsBC>" + this.ActItem.ProdInfo.UnitIsBC + "</ProductUnitIsBC>" + "<UnitCode>" + this.ActItem.ProdInfo.UnitCode + "</UnitCode>" + "<ProductUnitBarCodeCode>" + this.BarParse.ProductIdentifier + "</ProductUnitBarCodeCode>" + "<ProductUnitBarCodeSymbologyPrefix>" + this.BarParse.SymbologyPrefix + "</ProductUnitBarCodeSymbologyPrefix>" + "<alt_qty>" + xmlDocEdit.Root.Element("alt_qty").Value + "</alt_qty>" + "<base_qty>" + xmlDocEdit.Root.Element("base_qty").Value + "</base_qty>" + "<wt_qty>" + xmlDocEdit.Root.Element("wt_qty").Value + "</wt_qty>" + "<whs_id>" + this.LocMap.LoginWhsLocMapRefno + "</whs_id>" + "<refno>" + this.ActItem.ItemFKRefno + "</refno>" + "<itm_refno>" + this.ActItem.ItemFKRefno + "</itm_refno>" + "<alt_unit>" + this.ActItem.ProdInfo.UnitCode + "</alt_unit>" + "<base_unit>" + this.ActItem.ProdInfo.BaseUnitCode + "</base_unit>" + "<wt_unit>" + this.ActItem.ProdInfo.WeightUnitCode + "</wt_unit>" + "</params>");
                                 await this.ActItem.Insert(request, false);
                             }
                         }
 
                         // TODO: Fix sorting
                         // ActItem.DataViewItems.Sort = "ActivityItemFKRefno";
-                        PurchaseOrderWorkSheetItem purchaseOrderWorkSheetItem = this.ActItem.ListItems.OfType<PurchaseOrderWorkSheetItem>().Where(item => item.ActivityItemFKRefno == this.ActItem.ItemFKRefno).FirstOrDefault();
+                        var purchaseOrderWorkSheetItem = this.ActItem.ListItems.OfType<PurchaseOrderWorkSheetItem>().Where(item => item.ActivityItemFKRefno == this.ActItem.ItemFKRefno).FirstOrDefault();
 
                         if (purchaseOrderWorkSheetItem == null)
                         {
@@ -418,17 +418,17 @@ namespace dMobile.View.Activity
         /// <remarks></remarks>
         private async Task<bool> IdentifyProductScanned(BarCodeParse oBarCodeParse, XDocument xmlDocProduct)
         {
-            bool IsProductIdentified = false;
-            string strMessage = string.Empty;
-            int iProductUnitBarCodeRefno = 0;
-            Activity oActivityBarCode = ActivityFacade.GetActivity(SysCommon.ActSubTypes.BarCodeAssociation);
-            ActItem actItemBarCode = ActItemFacade.GetActItem(oActivityBarCode, SysCommon.ActSubTypes.BarCodeAssociation);
-            ActDetail actDetailBarCode = ActDetailFacade.GetActDetail(actItemBarCode, SysCommon.ActSubTypes.BarCodeAssociation);
+            var IsProductIdentified = false;
+            var strMessage = string.Empty;
+            var iProductUnitBarCodeRefno = 0;
+            var oActivityBarCode = ActivityFacade.GetActivity(SysCommon.ActSubTypes.BarCodeAssociation);
+            var actItemBarCode = ActItemFacade.GetActItem(oActivityBarCode, SysCommon.ActSubTypes.BarCodeAssociation);
+            var actDetailBarCode = ActDetailFacade.GetActDetail(actItemBarCode, SysCommon.ActSubTypes.BarCodeAssociation);
 
             // by reference params initialize
             this.prodUnitRefno = 0;
 
-            List<tProductUnitBarCodeModel> results = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<tProductUnitBarCodeModel>("SELECT * FROM tProductUnitBarCode WHERE ProductUnitBarCodeCode = ? AND ProductUnitBarCodeModifier1 = ?", oBarCodeParse.ProductIdentifier, this.SysEnv.CurrentBarCodeModifier1);
+            var results = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<tProductUnitBarCodeModel>("SELECT * FROM tProductUnitBarCode WHERE ProductUnitBarCodeCode = ? AND ProductUnitBarCodeModifier1 = ?", oBarCodeParse.ProductIdentifier, this.SysEnv.CurrentBarCodeModifier1);
 
             if (results?.Count > 0)
             {
@@ -446,7 +446,7 @@ namespace dMobile.View.Activity
                 if (await Device.InvokeOnMainThreadAsync(async () => await this.DisplayAlert("Activity Item", strMessage, "Yes", "No")))
                 {
                     // CALL AND SELECTED A PRODUCT TO JOIN THE BAR CODE TOO
-                    FormDialogContainer form = new FormDialogContainer(EDialogTypes.SelectProductUnit, SysCommon.ActSubTypes.PurchaseOrderWorkSheet);
+                    var form = new FormDialogContainer(EDialogTypes.SelectProductUnit, SysCommon.ActSubTypes.PurchaseOrderWorkSheet);
 
                     if (await Device.InvokeOnMainThreadAsync(async () => await form.DisplayControl.ShowDialog() == DialogResult.OK))
                     {
@@ -456,7 +456,7 @@ namespace dMobile.View.Activity
                         // IF A PRODUCT WAS SELECTED, CREATE THE XML FOR THE BAR CODE ACTIVITY INSERT
                         if (this.prodUnitRefno != 0)
                         {
-                            XDocument xmlDoc = XDocument.Parse("<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>" + "<params>" + "<ProductUnitRefno>" + this.prodUnitRefno.ToString() + "</ProductUnitRefno>" + "<ProductUnitBarCodeRefno>" + iProductUnitBarCodeRefno.ToString() + "</ProductUnitBarCodeRefno>" + "<ProductIdentifier>" + oBarCodeParse.ProductIdentifier + "</ProductIdentifier>" + "<RawData>" + oBarCodeParse.Raw + "</RawData>" + "<enumBarCodeSymbology>" + Convert.ToInt32(oBarCodeParse.Symbology) + "</enumBarCodeSymbology>" + "<BarCodeSymbologyPrefix>" + oBarCodeParse.SymbologyPrefix + "</BarCodeSymbologyPrefix>" + "<ProductUnitBarCodeModifier1>" + this.SysEnv.CurrentBarCodeModifier1 + "</ProductUnitBarCodeModifier1>" + "</params>");
+                            var xmlDoc = XDocument.Parse("<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>" + "<params>" + "<ProductUnitRefno>" + this.prodUnitRefno.ToString() + "</ProductUnitRefno>" + "<ProductUnitBarCodeRefno>" + iProductUnitBarCodeRefno.ToString() + "</ProductUnitBarCodeRefno>" + "<ProductIdentifier>" + oBarCodeParse.ProductIdentifier + "</ProductIdentifier>" + "<RawData>" + oBarCodeParse.Raw + "</RawData>" + "<enumBarCodeSymbology>" + Convert.ToInt32(oBarCodeParse.Symbology) + "</enumBarCodeSymbology>" + "<BarCodeSymbologyPrefix>" + oBarCodeParse.SymbologyPrefix + "</BarCodeSymbologyPrefix>" + "<ProductUnitBarCodeModifier1>" + this.SysEnv.CurrentBarCodeModifier1 + "</ProductUnitBarCodeModifier1>" + "</params>");
 
                             // INSERT A NEW 'BAR CODE ASSOCIATION' ACTIVITY
                             await actItemBarCode.Insert(xmlDoc, false);
@@ -503,7 +503,7 @@ namespace dMobile.View.Activity
             }
             catch (SQLiteException ex)
             {
-                for (int curExNdx = 0; curExNdx <= ex.Data.Count; curExNdx++)
+                for (var curExNdx = 0; curExNdx <= ex.Data.Count; curExNdx++)
                 {
                     await Device.InvokeOnMainThreadAsync(async () => await this.DisplayAlert("Error ", ex.Data[curExNdx].ToString() + '\r', "OK"));
                 }
@@ -555,7 +555,7 @@ namespace dMobile.View.Activity
         /// <remarks></remarks>
         public async Task<bool> IsReadyToSave()
         {
-            bool IsReadyToSave = true;
+            var IsReadyToSave = true;
 
             return IsReadyToSave;
         }
@@ -607,7 +607,7 @@ namespace dMobile.View.Activity
         /// <remarks></remarks>
         public async Task<bool> CancelChanges()
         {
-            bool cancelChanges = true;
+            var cancelChanges = true;
 
             try
             {
@@ -638,7 +638,7 @@ namespace dMobile.View.Activity
 
                 await Device.InvokeOnMainThreadAsync(async () =>
                 {
-                    FormErrorReport errRpt = new FormErrorReport(SysCommon.ActSubTypes.PurchaseOrderWorkSheet, ex);
+                    var errRpt = new FormErrorReport(SysCommon.ActSubTypes.PurchaseOrderWorkSheet, ex);
                     _ = await errRpt.ShowDialog();
                 });
             }
@@ -653,7 +653,7 @@ namespace dMobile.View.Activity
         /// <remarks></remarks>
         public async Task<XDocument> GetXML()
         {
-            XDocument xmldocParams = XDocument.Parse("<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>" + "<params>" + "</params>");
+            var xmldocParams = XDocument.Parse("<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>" + "<params>" + "</params>");
             return xmldocParams;
         }
 
@@ -710,10 +710,10 @@ namespace dMobile.View.Activity
         {
             XDocument xmlDocProduct = null;
             XDocument xmlDocEdit = null;
-            int iActivityItemFoundRefno = 0;
-            DialogResult dialogResult = DialogResult.None;
-            string strProductUnitBarCodeCode = string.Empty;
-            string strBarCodeSymbologyPrefix = string.Empty;
+            var iActivityItemFoundRefno = 0;
+            var dialogResult = DialogResult.None;
+            var strProductUnitBarCodeCode = string.Empty;
+            var strBarCodeSymbologyPrefix = string.Empty;
 
             await this.ScannerDisable();
 
@@ -727,7 +727,7 @@ namespace dMobile.View.Activity
                 }
                 else
                 {
-                    FormDialogContainer formSelectProd = new FormDialogContainer(EDialogTypes.SelectProductUnit, SysCommon.ActSubTypes.PurchaseOrderWorkSheet);
+                    var formSelectProd = new FormDialogContainer(EDialogTypes.SelectProductUnit, SysCommon.ActSubTypes.PurchaseOrderWorkSheet);
 
                     _ = await Device.InvokeOnMainThreadAsync(async () => dialogResult = await formSelectProd.DisplayControl.ShowDialog());
 
@@ -741,14 +741,14 @@ namespace dMobile.View.Activity
                         if (iActivityItemFoundRefno > 0)
                         {
                             // Ask for new quantity
-                            FormDialogContainer formPurchaseOrderWorkSheetEdit = new FormDialogContainer(EDialogTypes.ActivityPurchaseOrderWorkSheetEdit, this.ActDetail, SysCommon.ActSubTypes.NotApplicable);
+                            var formPurchaseOrderWorkSheetEdit = new FormDialogContainer(EDialogTypes.ActivityPurchaseOrderWorkSheetEdit, this.ActDetail, SysCommon.ActSubTypes.NotApplicable);
 
                             dialogResult = await formPurchaseOrderWorkSheetEdit.DisplayControl.ShowDialog();
 
                             if (dialogResult == DialogResult.OK)
                             {
                                 xmlDocEdit = await formPurchaseOrderWorkSheetEdit.GetXML();
-                                XDocument request = XDocument.Parse("<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>" + "<params>" + "<ProductUnitRefno>" + xmlDocProduct.Root.Element("ProductUnitRefno").Value + "</ProductUnitRefno>" + "<ProductCode>" + xmlDocProduct.Root.Element("ProductCode").Value + "</ProductCode>" + "<ProductUnitIsBC>" + xmlDocProduct.Root.Element("ProductUnitIsBC").Value + "</ProductUnitIsBC>" + "<UnitCode>" + xmlDocProduct.Root.Element("UnitCode").Value + "</UnitCode>" + "<ProductUnitBarCodeCode>" + strProductUnitBarCodeCode + "</ProductUnitBarCodeCode>" + "<ProductUnitBarCodeSymbologyPrefix>" + strBarCodeSymbologyPrefix + "</ProductUnitBarCodeSymbologyPrefix>" + "<alt_qty>" + xmlDocEdit.Root.Element("alt_qty").Value + "</alt_qty>" + "<base_qty>" + xmlDocEdit.Root.Element("base_qty").Value + "</base_qty>" + "<wt_qty>" + xmlDocEdit.Root.Element("wt_qty").Value + "</wt_qty>" + "<whs_id>" + this.LocMap.LoginWhsLocMapRefno + "</whs_id>" + "<refno>" + this.ActItem.ItemFKRefno + "</refno>" + "<itm_refno>" + this.ActItem.ItemFKRefno + "</itm_refno>" + "<alt_unit>" + this.ActItem.ProdInfo.UnitCode + "</alt_unit>" + "<base_unit>" + this.ActItem.ProdInfo.BaseUnitCode + "</base_unit>" + "<wt_unit>" + this.ActItem.ProdInfo.WeightUnitCode + "</wt_unit>" + "</params>");
+                                var request = XDocument.Parse("<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>" + "<params>" + "<ProductUnitRefno>" + xmlDocProduct.Root.Element("ProductUnitRefno").Value + "</ProductUnitRefno>" + "<ProductCode>" + xmlDocProduct.Root.Element("ProductCode").Value + "</ProductCode>" + "<ProductUnitIsBC>" + xmlDocProduct.Root.Element("ProductUnitIsBC").Value + "</ProductUnitIsBC>" + "<UnitCode>" + xmlDocProduct.Root.Element("UnitCode").Value + "</UnitCode>" + "<ProductUnitBarCodeCode>" + strProductUnitBarCodeCode + "</ProductUnitBarCodeCode>" + "<ProductUnitBarCodeSymbologyPrefix>" + strBarCodeSymbologyPrefix + "</ProductUnitBarCodeSymbologyPrefix>" + "<alt_qty>" + xmlDocEdit.Root.Element("alt_qty").Value + "</alt_qty>" + "<base_qty>" + xmlDocEdit.Root.Element("base_qty").Value + "</base_qty>" + "<wt_qty>" + xmlDocEdit.Root.Element("wt_qty").Value + "</wt_qty>" + "<whs_id>" + this.LocMap.LoginWhsLocMapRefno + "</whs_id>" + "<refno>" + this.ActItem.ItemFKRefno + "</refno>" + "<itm_refno>" + this.ActItem.ItemFKRefno + "</itm_refno>" + "<alt_unit>" + this.ActItem.ProdInfo.UnitCode + "</alt_unit>" + "<base_unit>" + this.ActItem.ProdInfo.BaseUnitCode + "</base_unit>" + "<wt_unit>" + this.ActItem.ProdInfo.WeightUnitCode + "</wt_unit>" + "</params>");
                                 await this.ActItem.Update(request);
                             }
                         }
@@ -763,14 +763,14 @@ namespace dMobile.View.Activity
                             this.ActDetail.SchemeID = string.Empty;
                             this.ActDetail.UniqueSchemeID = string.Empty;
 
-                            FormDialogContainer form = new FormDialogContainer(EDialogTypes.ActivityPurchaseOrderWorkSheetEdit, this.ActDetail, SysCommon.ActSubTypes.NotApplicable);
+                            var form = new FormDialogContainer(EDialogTypes.ActivityPurchaseOrderWorkSheetEdit, this.ActDetail, SysCommon.ActSubTypes.NotApplicable);
 
                             dialogResult = await form.DisplayControl.ShowDialog();
 
                             if (dialogResult == DialogResult.OK)
                             {
                                 xmlDocEdit = await form.GetXML();
-                                XDocument request = XDocument.Parse("<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>" + "<params>" + "<ProductUnitRefno>" + this.ActItem.ProdInfo.UnitRefno + "</ProductUnitRefno>" + "<ProductCode>" + this.ActItem.ProdInfo.Code + "</ProductCode>" + "<ProductUnitIsBC>" + this.ActItem.ProdInfo.UnitIsBC + "</ProductUnitIsBC>" + "<UnitCode>" + this.ActItem.ProdInfo.UnitCode + "</UnitCode>" + "<ProductUnitBarCodeCode>" + strProductUnitBarCodeCode + "</ProductUnitBarCodeCode>" + "<ProductUnitBarCodeSymbologyPrefix>" + strBarCodeSymbologyPrefix + "</ProductUnitBarCodeSymbologyPrefix>" + "<alt_qty>" + xmlDocEdit.Root.Element("alt_qty").Value + "</alt_qty>" + "<base_qty>" + xmlDocEdit.Root.Element("base_qty").Value + "</base_qty>" + "<wt_qty>" + xmlDocEdit.Root.Element("wt_qty").Value + "</wt_qty>" + "<whs_id>" + this.LocMap.LoginWhsLocMapRefno + "</whs_id>" + "<refno>" + this.ActItem.ItemFKRefno + "</refno>" + "<itm_refno>" + this.ActItem.ItemFKRefno + "</itm_refno>" + "<alt_unit>" + this.ActItem.ProdInfo.UnitCode + "</alt_unit>" + "<base_unit>" + this.ActItem.ProdInfo.BaseUnitCode + "</base_unit>" + "<wt_unit>" + this.ActItem.ProdInfo.WeightUnitCode + "</wt_unit>" + "</params>");
+                                var request = XDocument.Parse("<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>" + "<params>" + "<ProductUnitRefno>" + this.ActItem.ProdInfo.UnitRefno + "</ProductUnitRefno>" + "<ProductCode>" + this.ActItem.ProdInfo.Code + "</ProductCode>" + "<ProductUnitIsBC>" + this.ActItem.ProdInfo.UnitIsBC + "</ProductUnitIsBC>" + "<UnitCode>" + this.ActItem.ProdInfo.UnitCode + "</UnitCode>" + "<ProductUnitBarCodeCode>" + strProductUnitBarCodeCode + "</ProductUnitBarCodeCode>" + "<ProductUnitBarCodeSymbologyPrefix>" + strBarCodeSymbologyPrefix + "</ProductUnitBarCodeSymbologyPrefix>" + "<alt_qty>" + xmlDocEdit.Root.Element("alt_qty").Value + "</alt_qty>" + "<base_qty>" + xmlDocEdit.Root.Element("base_qty").Value + "</base_qty>" + "<wt_qty>" + xmlDocEdit.Root.Element("wt_qty").Value + "</wt_qty>" + "<whs_id>" + this.LocMap.LoginWhsLocMapRefno + "</whs_id>" + "<refno>" + this.ActItem.ItemFKRefno + "</refno>" + "<itm_refno>" + this.ActItem.ItemFKRefno + "</itm_refno>" + "<alt_unit>" + this.ActItem.ProdInfo.UnitCode + "</alt_unit>" + "<base_unit>" + this.ActItem.ProdInfo.BaseUnitCode + "</base_unit>" + "<wt_unit>" + this.ActItem.ProdInfo.WeightUnitCode + "</wt_unit>" + "</params>");
 
                                 await this.ActItem.Insert(request, false);
 
@@ -779,7 +779,7 @@ namespace dMobile.View.Activity
                                     // TODO: Fix sorting
                                     // string strOldSort = ActItem.DataViewItems.Sort;
                                     // ActItem.DataViewItems.Sort = "ActivityItemFKRefno";
-                                    PurchaseOrderWorkSheetItem purchaseOrderWorkSheetItem = this.ActItem.ListItems.OfType<PurchaseOrderWorkSheetItem>().Where(item => item.ActivityItemFKRefno == this.ActItem.ItemFKRefno).FirstOrDefault();
+                                    var purchaseOrderWorkSheetItem = this.ActItem.ListItems.OfType<PurchaseOrderWorkSheetItem>().Where(item => item.ActivityItemFKRefno == this.ActItem.ItemFKRefno).FirstOrDefault();
 
                                     if (purchaseOrderWorkSheetItem == null)
                                     {

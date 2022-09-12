@@ -90,7 +90,7 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
         /// <returns></returns>
         protected override string IdentifyLogisticUnitPackagingDate(string barCodeData)
         {
-            int year = Convert.ToInt32(barCodeData.Substring(0, 2));
+            var year = Convert.ToInt32(barCodeData.Substring(0, 2));
             if (year < 80)
             {
                 year = year + 2000;
@@ -100,9 +100,9 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
                 year = year + 1900;
             }
 
-            int dayOfTheYear = Convert.ToInt32(barCodeData.Substring(2, 3));
+            var dayOfTheYear = Convert.ToInt32(barCodeData.Substring(2, 3));
 
-            DateTime dt = new DateTime(year, 1, 1);
+            var dt = new DateTime(year, 1, 1);
 
             dt = dt.AddDays(dayOfTheYear - 1);
 
@@ -123,10 +123,10 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
             this.NetWeightMetricKGFoundAI = false;
 
             // get the number of decimal places
-            int iDecPlaces = 2;
+            var iDecPlaces = 2;
 
             // assign the METRIC NET WEIGHT KG
-            string wholeNumber = barCodeData.Substring(0, 4);
+            var wholeNumber = barCodeData.Substring(0, 4);
             if (iDecPlaces != 0)
             {
                 this.NetWeightMetricKG = Convert.ToDecimal(wholeNumber.Substring(0,

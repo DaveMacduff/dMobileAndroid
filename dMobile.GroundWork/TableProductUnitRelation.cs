@@ -39,13 +39,13 @@ namespace dMobile.GroundWork
             {
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Seeding product uom relations.", true);
 
-                List<tFamilyModel> results = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<tFamilyModel>("SELECT * FROM tFamily");
+                var results = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<tFamilyModel>("SELECT * FROM tFamily");
 
                 if (results?.Count > 0)
                 {
-                    foreach (tFamilyModel family in results)
+                    foreach (var family in results)
                     {
-                        string recvData = await this.SendRequest(family.FamilyCode);
+                        var recvData = await this.SendRequest(family.FamilyCode);
 
                         this.DataAccessStatusOutHandler(this, EventArgs.Empty, string.Format("For family {0}", family.FamilyCode), true);
 
@@ -53,7 +53,7 @@ namespace dMobile.GroundWork
                         {
                             if (recvData.Contains("<message>ERROR</message>"))
                             {
-                                XmlDocument reqErr = new XmlDocument();
+                                var reqErr = new XmlDocument();
                                 reqErr.LoadXml(recvData);
                                 throw new Exception(reqErr.DocumentElement["detail"].InnerText);
                             }
@@ -155,8 +155,8 @@ namespace dMobile.GroundWork
         /// <param name="reqData"></param>
         protected async Task SaveOpt(string reqData)
         {
-            string errMsg = string.Empty;
-            int recordCount = 0;
+            var errMsg = string.Empty;
+            var recordCount = 0;
 
             await DatabaseConnection.GetInstance().SQLConn.RunInTransactionAsync(transaction =>
             {
@@ -164,8 +164,8 @@ namespace dMobile.GroundWork
                 {
                     this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Reading received data.", false);
 
-                    int startIndex = reqData.IndexOf("<VFPData");
-                    XmlReaderSettings sett = new XmlReaderSettings();
+                    var startIndex = reqData.IndexOf("<VFPData");
+                    var sett = new XmlReaderSettings();
                     sett.CheckCharacters = false;
                     sett.CloseInput = false;
                     sett.ConformanceLevel = ConformanceLevel.Auto;
@@ -175,30 +175,30 @@ namespace dMobile.GroundWork
                     sett.ValidationFlags = System.Xml.Schema.XmlSchemaValidationFlags.None;
                     sett.ValidationType = ValidationType.None;
 
-                    using (StringReader stringReader = new StringReader(reqData.Substring(startIndex)))
-                    using (XmlReader reader = XmlReader.Create(stringReader, sett))
+                    using (var stringReader = new StringReader(reqData.Substring(startIndex)))
+                    using (var reader = XmlReader.Create(stringReader, sett))
                     {
                         this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving product uom relations.", false);
 
-                        Dictionary<string, int> unitLookup = new Dictionary<string, int>();
-                        int lastFKRefno = 0;
-                        bool refreshOnly = this.SysEnv.RefreshOpt.RefreshDataChangesOnly;
-                        int prodRefno = 0;
-                        int unitCode1Refno = 0;
-                        int unitCode2Refno = 0;
-                        bool isProdUnitRelationFound = false;
-                        int prodUnit1Refno = 0;
-                        int prodUnit2Refno = 0;
+                        var unitLookup = new Dictionary<string, int>();
+                        var lastFKRefno = 0;
+                        var refreshOnly = this.SysEnv.RefreshOpt.RefreshDataChangesOnly;
+                        var prodRefno = 0;
+                        var unitCode1Refno = 0;
+                        var unitCode2Refno = 0;
+                        var isProdUnitRelationFound = false;
+                        var prodUnit1Refno = 0;
+                        var prodUnit2Refno = 0;
                         // f01
-                        bool prodUnitIsBC = false;
+                        var prodUnitIsBC = false;
                         // f02
                         decimal relationFactor = 0;
                         // f03
-                        int prodFKRefno = 0;
+                        var prodFKRefno = 0;
                         // f04
-                        string unitCode1 = string.Empty;
+                        var unitCode1 = string.Empty;
                         // f05
-                        string unitCode2 = string.Empty;
+                        var unitCode2 = string.Empty;
 
                         this.DataAccessProgressOutHandler(this, EventArgs.Empty, 0, 0, 100);
 
@@ -206,8 +206,8 @@ namespace dMobile.GroundWork
                         {
                             // fill one record
                             // we do this by looping until an end segment is found
-                            bool recordFilled = false;
-                            string elementName = string.Empty;
+                            var recordFilled = false;
+                            var elementName = string.Empty;
                             while (!recordFilled && reader.Read())
                             {
                                 if (reader.NodeType == XmlNodeType.Element)
@@ -257,7 +257,7 @@ namespace dMobile.GroundWork
                             else
                             {
                                 lastFKRefno = prodFKRefno;
-                                List<tProductModel> resultsProduct = transaction.Query<tProductModel>("SELECT * FROM tProduct WHERE ProductFKRefno = ?", prodFKRefno);
+                                var resultsProduct = transaction.Query<tProductModel>("SELECT * FROM tProduct WHERE ProductFKRefno = ?", prodFKRefno);
 
                                 if (resultsProduct?.Count > 0)
                                 {
@@ -273,7 +273,7 @@ namespace dMobile.GroundWork
 
                             if (!unitLookup.TryGetValue(unitCode1, out unitCode1Refno))
                             {
-                                List<tUnitModel> resultsUnit = transaction.Query<tUnitModel>("SELECT * FROM tUnit WHERE UnitCode = ?", unitCode1);
+                                var resultsUnit = transaction.Query<tUnitModel>("SELECT * FROM tUnit WHERE UnitCode = ?", unitCode1);
 
                                 if (resultsUnit?.Count > 0)
                                 {
@@ -288,7 +288,7 @@ namespace dMobile.GroundWork
 
                             errMsg += Environment.NewLine + "Is bc " + prodUnitIsBC;
 
-                            List<tProductUnitModel> resultsProductUnit = transaction.Query<tProductUnitModel>("SELECT * FROM tProductUnit WHERE ProductRefno = ? AND UnitRefno = ? AND ProductUnitIsBC = ?", prodRefno, unitCode1Refno, prodUnitIsBC);
+                            var resultsProductUnit = transaction.Query<tProductUnitModel>("SELECT * FROM tProductUnit WHERE ProductRefno = ? AND UnitRefno = ? AND ProductUnitIsBC = ?", prodRefno, unitCode1Refno, prodUnitIsBC);
 
                             if (resultsProductUnit?.Count > 0)
                             {
@@ -303,7 +303,7 @@ namespace dMobile.GroundWork
 
                             if (!unitLookup.TryGetValue(unitCode2, out unitCode2Refno))
                             {
-                                List<tUnitModel> resultsUnit = transaction.Query<tUnitModel>("SELECT * FROM tUnit WHERE UnitCode = ?", unitCode2);
+                                var resultsUnit = transaction.Query<tUnitModel>("SELECT * FROM tUnit WHERE UnitCode = ?", unitCode2);
 
                                 if (resultsUnit?.Count > 0)
                                 {
@@ -316,7 +316,7 @@ namespace dMobile.GroundWork
                                 }
                             }
 
-                            List<tProductUnitModel> resultsProductUnit2 = transaction.Query<tProductUnitModel>("SELECT * FROM tProductUnit WHERE ProductRefno = ? AND UnitRefno = ? AND ProductUnitIsBC = ?", prodRefno, unitCode2Refno, prodUnitIsBC);
+                            var resultsProductUnit2 = transaction.Query<tProductUnitModel>("SELECT * FROM tProductUnit WHERE ProductRefno = ? AND UnitRefno = ? AND ProductUnitIsBC = ?", prodRefno, unitCode2Refno, prodUnitIsBC);
 
                             if (resultsProductUnit?.Count > 0)
                             {
@@ -329,7 +329,7 @@ namespace dMobile.GroundWork
 
                             isProdUnitRelationFound = false;
 
-                            List<tProductUnitRelationModel> resultsProductUnitRelation = transaction.Query<tProductUnitRelationModel>("SELECT * FROM tProductUnitRelation WHERE ProductUnit1Refno = ? AND ProductUnit2Refno = ?", prodUnit1Refno, prodUnit2Refno);
+                            var resultsProductUnitRelation = transaction.Query<tProductUnitRelationModel>("SELECT * FROM tProductUnitRelation WHERE ProductUnit1Refno = ? AND ProductUnit2Refno = ?", prodUnit1Refno, prodUnit2Refno);
 
                             if (resultsProductUnitRelation?.Count > 0)
                             {
@@ -381,10 +381,10 @@ namespace dMobile.GroundWork
         /// <returns></returns>
         protected async override Task<string> CreateRequest(string familyCode)
         {
-            StringBuilder xmlString = new StringBuilder();
-            XmlWriter xml = XmlWriter.Create(xmlString);
+            var xmlString = new StringBuilder();
+            var xml = XmlWriter.Create(xmlString);
 
-            XDocument request = XDocument.Parse(
+            var request = XDocument.Parse(
                 "<?xml version=\"1.0\" encoding=\"utf-8\" standalone=\"yes\"?>"
                 + "<imclient>"
                 + "<command>"

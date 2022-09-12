@@ -111,10 +111,10 @@ namespace dMobile.View.Activity
                         // SelectedIdx is not refreshed.
                         this.Activity.HdrRefno = this.Activity.GetRefnoFromRowIdx(this.ListViewMainActivity.SelectedItem);
 
-                        SLabelQuantity labelQuantity = new SLabelQuantity();
+                        var labelQuantity = new SLabelQuantity();
                         labelQuantity = await this.Activity.GetLabelQuantity(false);
 
-                        FormDialogContainer form = new FormDialogContainer(
+                        var form = new FormDialogContainer(
                             EDialogTypes.ActivityShippingLabelEdit,
                             labelQuantity,
                             this.Activity,
@@ -122,7 +122,7 @@ namespace dMobile.View.Activity
 
                         if (await form.DisplayControl.ShowDialog() == DialogResult.OK)
                         {
-                            XDocument request = await form.GetXML();
+                            var request = await form.GetXML();
 
                             // The itm_refno elements is used to mark the ar_oeitm.slbl_prtd as true.
                             // If itm_refno is zero then no line is updated as printed.
@@ -308,7 +308,7 @@ namespace dMobile.View.Activity
         /// <remarks></remarks>
         public async Task<bool> CancelChanges()
         {
-            bool cancelChanges = true;
+            var cancelChanges = true;
 
             try
             {
@@ -339,7 +339,7 @@ namespace dMobile.View.Activity
 
                 await Device.InvokeOnMainThreadAsync(async () =>
                 {
-                    FormErrorReport errorReport = new FormErrorReport(this.ActSubType, ex);
+                    var errorReport = new FormErrorReport(this.ActSubType, ex);
                     _ = await errorReport.ShowDialog();
                 });
             }
@@ -354,7 +354,7 @@ namespace dMobile.View.Activity
         /// <remarks></remarks>
         public async Task<XDocument> GetXML()
         {
-            XDocument xmldocParams = XDocument.Parse(
+            var xmldocParams = XDocument.Parse(
                 "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>"
                 + "<params>"
                 + "</params>");
@@ -413,11 +413,11 @@ namespace dMobile.View.Activity
         {
             await this.ScannerDisable();
 
-            FormDialogContainer form = new FormDialogContainer(EDialogTypes.ActivityHdrPickingFilter, this.ActSubType);
+            var form = new FormDialogContainer(EDialogTypes.ActivityHdrPickingFilter, this.ActSubType);
 
             if (await form.DisplayControl.ShowDialog() == DialogResult.OK)
             {
-                XDocument xmlDoc = await form.GetXML();
+                var xmlDoc = await form.GetXML();
                 this.Activity.GetFilter(xmlDoc);
 
                 // TODO: Fix filtering
@@ -504,8 +504,8 @@ namespace dMobile.View.Activity
             {
                 this.Loading = true;
 
-                string message = string.Empty;
-                string savedViewSort = string.Empty;
+                var message = string.Empty;
+                var savedViewSort = string.Empty;
 
                 this.Parse = scanArgs.ParseInfo;
 
@@ -514,17 +514,17 @@ namespace dMobile.View.Activity
                 if (!string.IsNullOrEmpty(this.Parse.ActFKRefno))
                 {
                     // this.Parse.ActivityFKRefno e.g. format is 'OE:12345678' start at 4th pos for the fk refno
-                    string actStringFKRefno = this.Parse.ActFKRefno;
+                    var actStringFKRefno = this.Parse.ActFKRefno;
 
                     if (!string.IsNullOrEmpty(actStringFKRefno))
                     {
-                        object selectedActivity = this.Activity.ListHdrs.OfType<object>().Where(activity => Convert.ToString(activity.GetType().GetProperty(this.Activity.GetFKRefnoIdx()).GetValue(activity)) == actStringFKRefno).FirstOrDefault();
+                        var selectedActivity = this.Activity.ListHdrs.OfType<object>().Where(activity => Convert.ToString(activity.GetType().GetProperty(this.Activity.GetFKRefnoIdx()).GetValue(activity)) == actStringFKRefno).FirstOrDefault();
 
                         if (selectedActivity != null)
                         {
                             _ = this.Activity.GetRefnoFromRowIdx(selectedActivity);
 
-                            FormDialogContainer form = new FormDialogContainer(EDialogTypes.ActivityItem, this.Activity, this.ActSubType);
+                            var form = new FormDialogContainer(EDialogTypes.ActivityItem, this.Activity, this.ActSubType);
                             _ = await Device.InvokeOnMainThreadAsync(async () => await form.DisplayControl.ShowDialog());
                         }
                         else
@@ -592,7 +592,7 @@ namespace dMobile.View.Activity
                 }
                 catch (SQLiteException ex)
                 {
-                    for (int curExNdx = 0; curExNdx <= ex.Data.Count; curExNdx++)
+                    for (var curExNdx = 0; curExNdx <= ex.Data.Count; curExNdx++)
                     {
                         await Device.InvokeOnMainThreadAsync(async () => await this.DisplayAlert(this.GetControlDescription(), Convert.ToString("Error " + Convert.ToString(ex.Data[curExNdx])), "OK"));
                     }
@@ -638,7 +638,7 @@ namespace dMobile.View.Activity
                 return;
             }
 
-            string result = await this.DisplayActionSheet("Release Order Options", "Close", null, this.optionsMenuItems.ToArray());
+            var result = await this.DisplayActionSheet("Release Order Options", "Close", null, this.optionsMenuItems.ToArray());
 
             if (result == "Release order")
             {

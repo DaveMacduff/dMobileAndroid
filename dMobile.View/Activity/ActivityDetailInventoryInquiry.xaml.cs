@@ -150,7 +150,7 @@ namespace dMobile.View.Activity
         /// <returns>.</returns>
         public async Task<XDocument> GetXML()
         {
-            XDocument xmldocParams = XDocument.Parse(
+            var xmldocParams = XDocument.Parse(
                 "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>"
                 + "<params>"
                 + "</params>");
@@ -173,7 +173,7 @@ namespace dMobile.View.Activity
         /// <returns>.</returns>
         public async Task<bool> IsReadyToClose()
         {
-            bool isReadyToClose = true;
+            var isReadyToClose = true;
 
             if (isReadyToClose)
             {
@@ -205,7 +205,7 @@ namespace dMobile.View.Activity
             {
                 await Device.InvokeOnMainThreadAsync(async () =>
                 {
-                    FormErrorReport errRpt = new FormErrorReport(ex);
+                    var errRpt = new FormErrorReport(ex);
                     _ = await errRpt.ShowDialog();
                 });
             }
@@ -224,7 +224,7 @@ namespace dMobile.View.Activity
         /// <returns>.</returns>
         public async Task<bool> CancelChanges()
         {
-            bool cancelChanges = true;
+            var cancelChanges = true;
 
             try
             {
@@ -254,7 +254,7 @@ namespace dMobile.View.Activity
 
                 await Device.InvokeOnMainThreadAsync(async () =>
                 {
-                    FormErrorReport errRpt = new FormErrorReport(ex);
+                    var errRpt = new FormErrorReport(ex);
                     _ = await errRpt.ShowDialog();
                 });
             }
@@ -303,7 +303,7 @@ namespace dMobile.View.Activity
                 {
                     await Device.InvokeOnMainThreadAsync(async () =>
                     {
-                        FormErrorReport errRpt = new FormErrorReport(ex);
+                        var errRpt = new FormErrorReport(ex);
                         _ = await errRpt.ShowDialog();
                     });
                 }
@@ -385,7 +385,7 @@ namespace dMobile.View.Activity
             {
                 await Device.InvokeOnMainThreadAsync(async () =>
                 {
-                    FormErrorReport errRpt = new FormErrorReport(ex);
+                    var errRpt = new FormErrorReport(ex);
                     _ = await errRpt.ShowDialog();
                 });
             }

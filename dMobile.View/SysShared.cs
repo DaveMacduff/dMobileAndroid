@@ -42,7 +42,7 @@ namespace dMobile.View
 
             // if (parse.GTIN.Contains("67156"))
             // {
-            decimal weight = actDetail.WeightQuantity;
+            var weight = actDetail.WeightQuantity;
 
             if (actDetail.ActItem.ProdInfo.WeightUnitCode == "LB")
             {
@@ -88,20 +88,20 @@ namespace dMobile.View
             SysCommon.ActSubTypes actSubType,
             BarCodeParse barCodeParse)
         {
-            int prodUnitRefno = 0;
+            var prodUnitRefno = 0;
 
             try
             {
-                int prodUnitBarCodeRefno = 0;
-                Controller.Activity actBarCode = ActivityFacade.GetActivity(
+                var prodUnitBarCodeRefno = 0;
+                var actBarCode = ActivityFacade.GetActivity(
                     SysCommon.ActSubTypes.BarCodeAssociation);
-                ActItem actItemBarCode = ActItemFacade.GetActItem(
+                var actItemBarCode = ActItemFacade.GetActItem(
                     actBarCode,
                     SysCommon.ActSubTypes.BarCodeAssociation);
-                ActDetail actDetailBarCode = ActDetailFacade.GetActDetail(
+                var actDetailBarCode = ActDetailFacade.GetActDetail(
                     actItemBarCode,
                     SysCommon.ActSubTypes.BarCodeAssociation);
-                SysEnvironment sysEnv = SysEnvironment.GetInstance();
+                var sysEnv = SysEnvironment.GetInstance();
 
                 // Initialize by reference parameter variables
                 prodUnitRefno = 0;
@@ -113,7 +113,7 @@ namespace dMobile.View
                     barCodeParse.ProductIdentifier == "90695955110022")
                 {
                     BarCodeRuleParseSumwaFarmFedWholeDuckUseWeightRangeToIDProduct(barCodeParse);
-                    ProductInfo prodInfo = await GetInfoFromCodeBCUnit(
+                    var prodInfo = await GetInfoFromCodeBCUnit(
                         barCodeParse.ProductIdentifier,
                         string.Empty,
                         "CS");
@@ -122,10 +122,10 @@ namespace dMobile.View
                 }
                 else
                 {
-                    string query = "select ProductUnitBarCodeRefno, ProductUnitRefno" +
-                        " from tProductUnitBarCode where ProductUnitBarCodeCode = ?" +
-                        " and ProductUnitBarCodeModifier1 = ?";
-                    List<tProductUnitBarCodeModel> results =
+                    const string query = "select ProductUnitBarCodeRefno, ProductUnitRefno" +
+                                         " from tProductUnitBarCode where ProductUnitBarCodeCode = ?" +
+                                         " and ProductUnitBarCodeModifier1 = ?";
+                    var results =
                         await DatabaseConnection.GetInstance().SQLConn.QueryAsync<tProductUnitBarCodeModel>(
                             query, barCodeParse.ProductIdentifier, sysEnv.CurrentBarCodeModifier1);
 
@@ -148,54 +148,53 @@ namespace dMobile.View
                     {
                         try
                         {
-                            ProductInfo prod = new ProductInfo();
                             decimal deliScaleWeight = 0;
-                            string deliScaleWeightUnit = string.Empty;
-                            DeliProductInfo unitRefnoFromBarCode = await clsCommon.GetDeliProdInfoFromBarCode(
+                            var deliScaleWeightUnit = string.Empty;
+                            var unitRefnoFromBarCode = await clsCommon.GetDeliProdInfoFromBarCode(
                                 barCodeParse.ProductIdentifier,
                                 sysEnv.CurrentBarCodeModifier1,
                                 barCodeParse.Symbology,
                                 barCodeParse.DeliScaleAmount);
 
-                            prod = unitRefnoFromBarCode.ProdInfo;
+                            var prod = unitRefnoFromBarCode.ProdInfo;
                             prodUnitRefno = unitRefnoFromBarCode.ProdInfo.UnitRefno;
                             deliScaleWeight = unitRefnoFromBarCode.DeliScaleWeight;
                             deliScaleWeightUnit = unitRefnoFromBarCode.DeliScaleWeightUnit;
 
-                            if (deliScaleWeightUnit == "LB")
+                            switch (deliScaleWeightUnit)
                             {
-                                barCodeParse.NetWeightNonMetricLB = deliScaleWeight;
-                                barCodeParse.NetWeightMetricKG = Convert.ToDecimal(
-                                    SysCommon.ConvertLB2KG(Convert.ToDouble(
-                                        barCodeParse.NetWeightNonMetricLB)));
-                            }
-                            else if (deliScaleWeightUnit == "KG")
-                            {
-                                barCodeParse.NetWeightMetricKG = deliScaleWeight;
-                                barCodeParse.NetWeightNonMetricLB = Convert.ToDecimal(
-                                    SysCommon.ConvertKG2LB(Convert.ToDouble(
-                                        barCodeParse.NetWeightMetricKG)));
-                            }
-                            else
-                            {
-                                deliScaleWeight = 0;
-                                deliScaleWeightUnit = string.Empty;
+                                case "LB":
+                                    barCodeParse.NetWeightNonMetricLB = deliScaleWeight;
+                                    barCodeParse.NetWeightMetricKG = Convert.ToDecimal(
+                                        SysCommon.ConvertLB2KG(Convert.ToDouble(
+                                            barCodeParse.NetWeightNonMetricLB)));
+                                    break;
+                                case "KG":
+                                    barCodeParse.NetWeightMetricKG = deliScaleWeight;
+                                    barCodeParse.NetWeightNonMetricLB = Convert.ToDecimal(
+                                        SysCommon.ConvertKG2LB(Convert.ToDouble(
+                                            barCodeParse.NetWeightMetricKG)));
+                                    break;
+                                default:
+                                    deliScaleWeight = 0;
+                                    deliScaleWeightUnit = string.Empty;
+                                    break;
                             }
                         }
-                        catch (Exception ex)
+                        catch (Exception)
                         {
                             // await Device.InvokeOnMainThreadAsync(async () => await
                             // Application.Current.MainPage.DisplayAlert("Identify Product", ex.Message, "OK"));
-                            throw ex;
+                            throw;
                         }
                     }
 
                     // If 'yes' to join bar code to a product
                     if (prodUnitRefno == 0)
                     {
-                        string msg = "Scanned product bar code is not associated to a product." +
-                            Environment.NewLine + "Do you wish to associate it now? ";
-                        bool selectedYes = false;
+                        var msg = "Scanned product bar code is not associated to a product." +
+                                  Environment.NewLine + "Do you wish to associate it now? ";
+                        var selectedYes = false;
 
                         if (await Device.InvokeOnMainThreadAsync(async () =>
                             await Application.Current.MainPage.DisplayAlert(
@@ -213,14 +212,14 @@ namespace dMobile.View
 
                         // Changed functionality to disallow product scanning everywhere.
                         // However, always prompt for password if not allowed to associate.
-                        bool isAllowedAssocProdBarCode = sysEnv.ContactLog.IsAllowedAssociateProductBarCode;
+                        var isAllowedAssocProdBarCode = sysEnv.ContactLog.IsAllowedAssociateProductBarCode;
 
                         if (selectedYes)
                         {
                             if (!isAllowedAssocProdBarCode)
                             {
                                 // Prompt for password
-                                FormAssociateBarCodeOverride formAssociateBarCodeOverride =
+                                var formAssociateBarCodeOverride =
                                     new FormAssociateBarCodeOverride();
                                 _ = await formAssociateBarCodeOverride.ShowDialog();
 
@@ -232,24 +231,13 @@ namespace dMobile.View
 
                             if (isAllowedAssocProdBarCode)
                             {
-                                bool continueAssocBarCode = false;
-
-                                FormDialogContainer frmSelectProduct = new FormDialogContainer(
+                                var frmSelectProduct = new FormDialogContainer(
                                     EDialogTypes.SelectProductUnit, actSubType);
 
                                 if (await Device.InvokeOnMainThreadAsync(async () =>
                                     await frmSelectProduct.DisplayControl.ShowDialog() == DialogResult.OK))
                                 {
-                                    continueAssocBarCode = true;
-                                }
-                                else
-                                {
-                                    throw new TaskCanceledException();
-                                }
-
-                                if (continueAssocBarCode)
-                                {
-                                    XDocument xmlDoc = await frmSelectProduct.GetXML();
+                                    var xmlDoc = await frmSelectProduct.GetXML();
                                     prodUnitRefno = int.Parse(xmlDoc.Root.Element("ProductUnitRefno").Value);
 
                                     // If a product was selected, create the xml for the bar code
@@ -276,13 +264,13 @@ namespace dMobile.View
                                 }
                                 else
                                 {
-                                    Exception ex = new Exception("Product not identified.");
+                                    var ex = new Exception("Product not identified.");
                                     throw ex;
                                 }
                             }
                             else
                             {
-                                Exception ex = new Exception("Manual override failed.");
+                                var ex = new Exception("Manual override failed.");
                                 throw ex;
                             }
                         }
@@ -320,14 +308,14 @@ namespace dMobile.View
             ActDetail actDetail,
             bool isForceStopForEdit)
         {
-            SysEnvironment sysEnv = SysEnvironment.GetInstance();
+            var sysEnv = SysEnvironment.GetInstance();
             isInsertDetailReady = false;
 
             if (!string.IsNullOrEmpty(barParse.ActDetailFKRefno) &&
                 !sysEnv.SysSettings.IsDisconnectedMode)
             {
-                LocationMap locMap = LocationMap.GetInstance();
-                SLocMapAndRefno sLocMapAndRefno = await GetSLocMapFromLocMapFKRefno(
+                var locMap = LocationMap.GetInstance();
+                var sLocMapAndRefno = await GetSLocMapFromLocMapFKRefno(
                     itemSchemeData.LocMapWhsFKRefno,
                     itemSchemeData.LocMapSectFKRefno,
                     itemSchemeData.LocMapSlotFKRefno);
@@ -339,7 +327,7 @@ namespace dMobile.View
                 barParse,
                 itemSchemeData,
                 actSubType);
-            ActDetailAndStopForDetail actDetailAndStopForDetail = await GatherProductQuantityData(
+            var actDetailAndStopForDetail = await GatherProductQuantityData(
                 actDetail,
                 barParse,
                 itemSchemeData,
@@ -347,8 +335,8 @@ namespace dMobile.View
             isForceStopForEdit = actDetailAndStopForDetail.IsForceStopForEdit;
             actDetail = actDetailAndStopForDetail.ActDetail;
 
-            bool isStopForDetail = IsStopForDetail(actDetail, isForceStopForEdit);
-            bool isStopForLabelDetail = false;
+            var isStopForDetail = IsStopForDetail(actDetail, isForceStopForEdit);
+            var isStopForLabelDetail = false;
 
             if (actDetail.ActSubType == SysCommon.ActSubTypes.Receiving &&
                 actDetail.ActItem.LocMap.IsWhsWMS)
@@ -361,11 +349,11 @@ namespace dMobile.View
 
             if (isStopForDetail)
             {
-                bool continueIsStopForDetail = false;
+                var continueIsStopForDetail = false;
 
                 // Check for duplicate occurs in form
                 // Check for quantity over occurs in form
-                FormDialogContainer form = new FormDialogContainer(
+                var form = new FormDialogContainer(
                     EDialogTypes.ActivityDetailEdit,
                     actDetail,
                     actSubType);
@@ -393,11 +381,11 @@ namespace dMobile.View
             }
             else if (isStopForLabelDetail)
             {
-                bool continueIsStopForLabelDetail = false;
+                var continueIsStopForLabelDetail = false;
 
                 // No duplicate check needed for label printing
                 // No quantity over check needed for label printing
-                FormDialogContainer form = new FormDialogContainer(
+                var form = new FormDialogContainer(
                     EDialogTypes.ActivityProductLabel,
                     actDetail,
                     actSubType);
@@ -434,7 +422,7 @@ namespace dMobile.View
 
                 // IsReadyToApply will perform any validations, such as duplicate checks and
                 // quantity validations.
-                XDocument xmlParam = XDocument.Parse(
+                var xmlParam = XDocument.Parse(
                     "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>"
                     + "<imclient>"
                     + "<itm_refno>" + actItem.ItemFKRefno + "</itm_refno>"
@@ -452,7 +440,7 @@ namespace dMobile.View
 
             static void UpdateActDetailFromXML(ref ActDetail actDetail, XDocument xmlDoc)
             {
-                SProductSchemeData schemeData = actDetail.SchemeData;
+                var schemeData = actDetail.SchemeData;
                 schemeData.SingleTradeItemSerialNumber = xmlDoc.Root.Element("serial").Value;
                 schemeData.LogisticUnitProductionDate = DateTime.Parse(xmlDoc.Root.Element("pdate").Value);
                 schemeData.LogisticUnitBatchLotNumber = xmlDoc.Root.Element("lot_no").Value;
@@ -552,9 +540,9 @@ namespace dMobile.View
                 SActItemSchemeData tempItemSchemeData,
                 SysCommon.ActSubTypes actSubType)
             {
-                SProductSchemeData schemeData = actDetail.SchemeData;
-                ProductInfo prodInfo = actDetail.ActItem.ProdInfo;
-                SysEnvironment sysEnv = SysEnvironment.GetInstance();
+                var schemeData = actDetail.SchemeData;
+                var prodInfo = actDetail.ActItem.ProdInfo;
+                var sysEnv = SysEnvironment.GetInstance();
 
                 // Decided to implement the bar code here. Could have made it a new BarCodeParseCode_128_NebraskaBeef class.
                 // The bar code was well formed except it being a non GS1 code 128.
@@ -639,7 +627,7 @@ namespace dMobile.View
                     // Only way to find was to iterate through the table and use a 'contains' command.
                     if (sysEnv.SysSettings.IsEnableDefaultDetailValues && prodInfo.Scheme.IsLotTrackedDefault)
                     {
-                        string lotCodeDefault = await GetLotCodeDefaultFromSupplierCompanyPrefix(
+                        var lotCodeDefault = await GetLotCodeDefaultFromSupplierCompanyPrefix(
                             prodInfo.Scheme.SchemeRefno,
                             barParse.GTIN);
 
@@ -706,33 +694,32 @@ namespace dMobile.View
                 return schemeData;
 
                 // Get the lot code default value from the GTIN containing the supplier company prefix.
-                static async Task<string> GetLotCodeDefaultFromSupplierCompanyPrefix(
-                    int schemeRefno,
-                    string gtin)
+                static async Task<string> GetLotCodeDefaultFromSupplierCompanyPrefix(int schemeReferenceNumber, string globalTradeIdentifier)
                 {
-                    string lotCodeDefault = string.Empty;
+                    schemeReferenceNumber = (schemeReferenceNumber <= 0) ? throw new ArgumentOutOfRangeException(nameof(schemeReferenceNumber)) : schemeReferenceNumber;
+                    var lotCodeDefault = string.Empty;
 
-                    if (!string.IsNullOrEmpty(gtin))
+                    if (!string.IsNullOrEmpty(globalTradeIdentifier))
                     {
                         // Order by descending, we want to examine the longest string to compare for a match first.
-                        string query = "SELECT tProductSchemeLotNumber.ProductSchemeLotNumberCode,"
-                            + "tProductSchemeLotNumber.ProductSchemeLotNumberCodeDefault "
-                            + "FROM tProductSchemeLotNumberXRef "
-                            + "INNER JOIN tProductSchemeLotNumber ON tProductSchemeLotNumber.ProductSchemeLotNumberRefno = "
-                            + "tProductSchemeLotNumberXRef.ProductSchemeLotNumberRefno "
-                            + "WHERE tProductSchemeLotNumberXRef.ProductSchemeRefno = ? "
-                            + "ORDER BY ProductSchemeLotNumberCode DESC";
+                        var query = "SELECT tProductSchemeLotNumber.ProductSchemeLotNumberCode,"
+                                    + "tProductSchemeLotNumber.ProductSchemeLotNumberCodeDefault "
+                                    + "FROM tProductSchemeLotNumberXRef "
+                                    + "INNER JOIN tProductSchemeLotNumber ON tProductSchemeLotNumber.ProductSchemeLotNumberRefno = "
+                                    + "tProductSchemeLotNumberXRef.ProductSchemeLotNumberRefno "
+                                    + "WHERE tProductSchemeLotNumberXRef.ProductSchemeRefno = ? "
+                                    + "ORDER BY ProductSchemeLotNumberCode DESC";
 
-                        List<tProductSchemeLotNumberModel> results =
+                        var results =
                             await DatabaseConnection.GetInstance().SQLConn.QueryAsync<tProductSchemeLotNumberModel>(
                                 query,
-                                schemeRefno);
+                                schemeReferenceNumber);
 
                         if (results?.Count > 0)
                         {
-                            foreach (tProductSchemeLotNumberModel xRef in results)
+                            foreach (var xRef in results)
                             {
-                                if (gtin.Contains(Convert.ToString(xRef.ProductSchemeLotNumberCode).TrimEnd()))
+                                if (globalTradeIdentifier.Contains(Convert.ToString(xRef.ProductSchemeLotNumberCode).TrimEnd()))
                                 {
                                     lotCodeDefault = Convert.ToString(xRef.ProductSchemeLotNumberCodeDefault).TrimEnd();
                                     break;
@@ -751,8 +738,9 @@ namespace dMobile.View
                 SActItemSchemeData tempItemSchemeData,
                 bool isForceStopForEdit)
             {
-                SysEnvironment sysEnv = SysEnvironment.GetInstance();
-                ProductInfo prodInfo = actDetail.ActItem.ProdInfo;
+                barParse = barParse ?? throw new ArgumentNullException(nameof(barParse));
+                var sysEnv = SysEnvironment.GetInstance();
+                var prodInfo = actDetail.ActItem.ProdInfo;
 
                 // Assign scanned weight and convert if needed
                 if (!(sysEnv.SysSettings.IsSetCatchWeightZero && prodInfo.IsCatchWeight))
@@ -870,7 +858,7 @@ namespace dMobile.View
                 // Negate the quantity if desired
                 if (actDetail.ActItem.ActHdr.ActSubType == SysCommon.ActSubTypes.Adjustment)
                 {
-                    AdjustmentSettings adjSettings = new AdjustmentSettings().LoadData();
+                    var adjSettings = new AdjustmentSettings().LoadData();
                     if (adjSettings.NegateScanQuantity)
                     {
                         actDetail.Quantity *= -1;
@@ -879,7 +867,7 @@ namespace dMobile.View
                     }
                 }
 
-                ActDetailAndStopForDetail actDetailAndStopForDetail = new ActDetailAndStopForDetail()
+                var actDetailAndStopForDetail = new ActDetailAndStopForDetail()
                 {
                     ActDetail = actDetail,
                     IsForceStopForEdit = isForceStopForEdit,
@@ -894,28 +882,34 @@ namespace dMobile.View
         /// </summary>
         /// <param name="actDetailEditLabel">The actDetailEditLabel<see cref="ActDetailEdit"/>.</param>
         /// <param name="xmlDoc">.</param>
-        public static void UpdateActDetailLabelFromXML(
-            ref ActDetailEdit actDetailEditLabel,
-            XDocument xmlDoc)
+        public static void UpdateActDetailLabelFromXML(ref ActDetailEdit actDetailEditLabel, XDocument xmlDoc)
         {
-            SProductSchemeData schemeData = actDetailEditLabel.SchemeData;
-            schemeData.SingleTradeItemSerialNumber = xmlDoc.Root.Element("serial").Value;
-            schemeData.LogisticUnitProductionDate = DateTime.Parse(xmlDoc.Root.Element("pdate").Value);
-            schemeData.LogisticUnitBatchLotNumber = xmlDoc.Root.Element("lot_no").Value;
-            schemeData.LogisticUnitBestBeforeSellByDate = DateTime.Parse(xmlDoc.Root.Element("bdate").Value);
-            schemeData.VariantCode = xmlDoc.Root.Element("variant_code").Value;
-            schemeData.VariantNumber = int.Parse(xmlDoc.Root.Element("variant_no").Value);
+            var schemeData = actDetailEditLabel.SchemeData;
+            xmlDoc = xmlDoc ?? throw new ArgumentNullException(nameof(xmlDoc));
+            _ = xmlDoc.Root ?? throw new ArgumentNullException(nameof(xmlDoc.Root));
+
+            schemeData.SingleTradeItemSerialNumber = xmlDoc.Root.Element("serial")?.Value;
+            schemeData.LogisticUnitProductionDate = DateTime.Parse(xmlDoc.Root.Element("pdate")?.Value);
+            schemeData.LogisticUnitBatchLotNumber = xmlDoc.Root.Element("lot_no")?.Value;
+            schemeData.LogisticUnitBestBeforeSellByDate = DateTime.Parse(xmlDoc.Root.Element("bdate")?.Value);
+            schemeData.VariantCode = xmlDoc.Root.Element("variant_code")?.Value;
+            var variantNo = xmlDoc.Root.Element("variant_no")?.Value;
+            if (variantNo != null)
+            {
+                schemeData.VariantNumber = int.Parse(variantNo);
+            }
+
             actDetailEditLabel.SchemeData = schemeData;
 
-            actDetailEditLabel.AltQuantity = decimal.Parse(xmlDoc.Root.Element("alt_qty").Value);
-            actDetailEditLabel.BaseQuantity = decimal.Parse(xmlDoc.Root.Element("base_qty").Value);
-            actDetailEditLabel.WeightQuantity = decimal.Parse(xmlDoc.Root.Element("wt_qty").Value);
+            actDetailEditLabel.AltQuantity = decimal.Parse(xmlDoc.Root.Element("alt_qty")?.Value);
+            actDetailEditLabel.BaseQuantity = decimal.Parse(xmlDoc.Root.Element("base_qty")?.Value);
+            actDetailEditLabel.WeightQuantity = decimal.Parse(xmlDoc.Root.Element("wt_qty")?.Value);
 
-            actDetailEditLabel.ActExtra.Text1 = xmlDoc.Root.Element("extra1").Value;
-            actDetailEditLabel.ActExtra.Text2 = xmlDoc.Root.Element("extra2").Value;
-            actDetailEditLabel.ActExtra.Text3 = xmlDoc.Root.Element("extra3").Value;
-            actDetailEditLabel.ActExtra.Text4 = xmlDoc.Root.Element("extra4").Value;
-            actDetailEditLabel.ActExtra.DateTime1 = DateTime.Parse(xmlDoc.Root.Element("extra5").Value);
+            actDetailEditLabel.ActExtra.Text1 = xmlDoc.Root.Element("extra1")?.Value;
+            actDetailEditLabel.ActExtra.Text2 = xmlDoc.Root.Element("extra2")?.Value;
+            actDetailEditLabel.ActExtra.Text3 = xmlDoc.Root.Element("extra3")?.Value;
+            actDetailEditLabel.ActExtra.Text4 = xmlDoc.Root.Element("extra4")?.Value;
+            actDetailEditLabel.ActExtra.DateTime1 = DateTime.Parse(xmlDoc.Root.Element("extra5")?.Value);
         }
 
         /// <summary>
@@ -924,12 +918,12 @@ namespace dMobile.View
         /// <returns>.</returns>
         public static string GetAssemblyVersion()
         {
-            int major = Assembly.GetExecutingAssembly().GetName().Version.Major;
-            int minor = Assembly.GetExecutingAssembly().GetName().Version.Minor;
-            int build = Assembly.GetExecutingAssembly().GetName().Version.Build;
-            int revision = Assembly.GetExecutingAssembly().GetName().Version.Revision;
+            var major = Assembly.GetExecutingAssembly().GetName().Version.Major;
+            var minor = Assembly.GetExecutingAssembly().GetName().Version.Minor;
+            var build = Assembly.GetExecutingAssembly().GetName().Version.Build;
+            var revision = Assembly.GetExecutingAssembly().GetName().Version.Revision;
 
-            return string.Format("{0}.{1}.{2}.{3}", major, minor, build, revision);
+            return $"{major}.{minor}.{build}.{revision}";
         }
 
         /// <summary>
@@ -1033,14 +1027,14 @@ namespace dMobile.View
                 }
 
                 // Check errors against scheme
-                BarCodeParseDetails details = parse.Details;
-                int count = details.ErrorCount;
-                for (int i = 0; i < count; ++i)
+                var details = parse.Details;
+                var count = details.ErrorCount;
+                for (var i = 0; i < count; ++i)
                 {
-                    BarCodeExceptionReason t = details.GetParseExceptionReasonAt(i);
+                    var reason = details.GetParseExceptionReasonAt(i);
 
                     // Default/unhandled will be thrown
-                    switch (t)
+                    switch (reason)
                     {
                         case BarCodeExceptionReason.ActivityDetailFKRefno_InvalidFormat:
                             break;

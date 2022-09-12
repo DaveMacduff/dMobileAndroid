@@ -38,12 +38,12 @@ namespace dMobile.GroundWork
             {
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Seeding work sheet items.", true);
 
-                string reqData = await this.SendRequest(actRefno);
+                var reqData = await this.SendRequest(actRefno);
                 if (reqData.Length > 0)
                 {
                     if (reqData.Contains("<message>ERROR</message>"))
                     {
-                        XmlDocument reqErr = new XmlDocument();
+                        var reqErr = new XmlDocument();
                         reqErr.LoadXml(reqData);
                         throw new Exception(reqErr.DocumentElement["detail"].InnerText);
                     }
@@ -91,8 +91,8 @@ namespace dMobile.GroundWork
             {
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging work sheet items.", true);
 
-                string query = "DELETE FROM tActivityItemBarCodeAssociationXRef WHERE tActivityItemBarCodeAssociationXRef.ActivityItemRefno " +
-                    "IN (SELECT tActivityItem.ActivityItemRefno FROM tActivityItem WHERE tActivityItem.ActivityItemSubType = ?)";
+                var query = "DELETE FROM tActivityItemBarCodeAssociationXRef WHERE tActivityItemBarCodeAssociationXRef.ActivityItemRefno " +
+                            "IN (SELECT tActivityItem.ActivityItemRefno FROM tActivityItem WHERE tActivityItem.ActivityItemSubType = ?)";
                 await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(query, Convert.ToInt32(SysCommon.ActSubTypes.PurchaseOrderWorkSheet));
 
                 query = "DELETE FROM tActivityItemPurchaseOrderWorkSheet WHERE tActivityItemPurchaseOrderWorkSheet.ActivityItemSubType = ?";
@@ -119,7 +119,7 @@ namespace dMobile.GroundWork
         /// <returns></returns>
         protected override async Task<string> SendRequest(int actRefno)
         {
-            int actWorkSheetFKRefno = 0;
+            var actWorkSheetFKRefno = 0;
             return await this.SendComm(await this.CreateRequest(actWorkSheetFKRefno));
         }
 
@@ -134,7 +134,7 @@ namespace dMobile.GroundWork
             {
                 try
                 {
-                    using (DataSet ds = new DataSet())
+                    using (var ds = new DataSet())
                     {
                         this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Reading received data.", false);
 
@@ -144,15 +144,15 @@ namespace dMobile.GroundWork
 
                         if (ds.Tables.Count != 0)
                         {
-                            int progMax = Convert.ToInt32(ds.Tables["tActivityItemPurchaseOrderWorkSheet"].Rows.Count);
+                            var progMax = Convert.ToInt32(ds.Tables["tActivityItemPurchaseOrderWorkSheet"].Rows.Count);
 
                             this.DataAccessStatusOutHandler(this, EventArgs.Empty, string.Format("Records {0}", progMax), false);
 
-                            int actItemRefno = 0;
-                            int progValue = 0;
-                            int whsLocMapRefno = 0;
-                            int actItemWorkSheetFKRefno = 0;
-                            int prodUnitRefno = 0;
+                            var actItemRefno = 0;
+                            var progValue = 0;
+                            var whsLocMapRefno = 0;
+                            var actItemWorkSheetFKRefno = 0;
+                            var prodUnitRefno = 0;
 
                             this.DataAccessProgressOutHandler(this, EventArgs.Empty, 0, 0, progMax);
 
@@ -167,28 +167,28 @@ namespace dMobile.GroundWork
 
                                 actItemWorkSheetFKRefno = Convert.ToInt32(drow["ActivityItemFKRefno"]);
 
-                                string query = "INSERT INTO tActivityItemPurchaseOrderWorkSheet (" +
-                                    "ActivityItemRefno, " +
-                                    "ActivityItemSubType, " +
-                                    "ActivityItemFKRefno, " +
-                                    "ActivityItemStringFKRefno, " +
-                                    "ProductUnitRefno, " +
-                                    "WarehouseLocationMapRefno, " +
-                                    "ActivityItemPurchaseOrderWorkSheetQuantityOrdered, " +
-                                    "ActivityItemPurchaseOrderWorkSheetBaseQuantityOrdered, " +
-                                    "ActivityItemPurchaseOrderWorkSheetWeightQuantityOrdered" +
-                                    ") VALUES (" +
-                                    "?, " +
-                                    "?, " +
-                                    "?, " +
-                                    "?, " +
-                                    "?, " +
-                                    "?, " +
-                                    "?, " +
-                                    "?, " +
-                                    "?" +
-                                    ")";
-                                object[] parameters = new object[]
+                                var query = "INSERT INTO tActivityItemPurchaseOrderWorkSheet (" +
+                                            "ActivityItemRefno, " +
+                                            "ActivityItemSubType, " +
+                                            "ActivityItemFKRefno, " +
+                                            "ActivityItemStringFKRefno, " +
+                                            "ProductUnitRefno, " +
+                                            "WarehouseLocationMapRefno, " +
+                                            "ActivityItemPurchaseOrderWorkSheetQuantityOrdered, " +
+                                            "ActivityItemPurchaseOrderWorkSheetBaseQuantityOrdered, " +
+                                            "ActivityItemPurchaseOrderWorkSheetWeightQuantityOrdered" +
+                                            ") VALUES (" +
+                                            "?, " +
+                                            "?, " +
+                                            "?, " +
+                                            "?, " +
+                                            "?, " +
+                                            "?, " +
+                                            "?, " +
+                                            "?, " +
+                                            "?" +
+                                            ")";
+                                var parameters = new object[]
                                 {
                                     Convert.ToInt32(actItemRefno),
                                     Convert.ToInt32(SysCommon.ActSubTypes.PurchaseOrderWorkSheet),
@@ -236,10 +236,10 @@ namespace dMobile.GroundWork
         /// <returns></returns>
         protected override async Task<string> CreateRequest(int actWorkSheetFKRefno)
         {
-            StringBuilder xmlString = new StringBuilder();
-            XmlWriter xml = XmlWriter.Create(xmlString);
+            var xmlString = new StringBuilder();
+            var xml = XmlWriter.Create(xmlString);
 
-            XDocument request = XDocument.Parse(
+            var request = XDocument.Parse(
                 "<?xml version=\"1.0\" encoding=\"utf-8\" standalone=\"yes\"?>"
                 + "<imclient>"
                 + "<command>"

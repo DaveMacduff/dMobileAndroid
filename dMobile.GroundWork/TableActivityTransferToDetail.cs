@@ -39,11 +39,11 @@ namespace dMobile.GroundWork
                 string reqData;
                 if (actItemRefno == 0)
                 {
-                    List<tActivityItemModel> results = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<tActivityItemModel>("SELECT ActivityItemRefnoFROM tActivityItem WHERE ActivityItemSubType = ?", Convert.ToInt32(SysCommon.ActSubTypes.TransferTo));
+                    var results = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<tActivityItemModel>("SELECT ActivityItemRefnoFROM tActivityItem WHERE ActivityItemSubType = ?", Convert.ToInt32(SysCommon.ActSubTypes.TransferTo));
 
                     if (results?.Count > 0)
                     {
-                        foreach (tActivityItemModel activityItemModel in results)
+                        foreach (var activityItemModel in results)
                         {
                             actItemRefno = Convert.ToInt32(activityItemModel.ActivityItemRefno);
                             reqData = await this.SendRequest(actItemRefno);
@@ -52,7 +52,7 @@ namespace dMobile.GroundWork
                             {
                                 if (reqData.Contains("<message>ERROR</message>"))
                                 {
-                                    XmlDocument reqErr = new XmlDocument();
+                                    var reqErr = new XmlDocument();
                                     reqErr.LoadXml(reqData);
                                     throw new Exception(reqErr.DocumentElement["detail"].InnerText);
                                 }
@@ -70,7 +70,7 @@ namespace dMobile.GroundWork
                     {
                         if (reqData.Contains("<message>ERROR</message>"))
                         {
-                            XmlDocument reqErr = new XmlDocument();
+                            var reqErr = new XmlDocument();
                             reqErr.LoadXml(reqData);
                             throw new Exception(reqErr.DocumentElement["detail"].InnerText);
                         }
@@ -127,11 +127,11 @@ namespace dMobile.GroundWork
             {
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging transfer details.", true);
 
-                string query = "DELETE FROM tActivityDetailProductSchemeVariantXRef "
-                    + "WHERE tActivityDetailProductSchemeVariantXRef.ActivityDetailRefno IN "
-                    + "(SELECT tActivityDetail.ActivityDetailRefno "
-                    + "FROM tActivityDetail "
-                    + "WHERE tActivityDetail.ActivityDetailSubType = ?)";
+                var query = "DELETE FROM tActivityDetailProductSchemeVariantXRef "
+                            + "WHERE tActivityDetailProductSchemeVariantXRef.ActivityDetailRefno IN "
+                            + "(SELECT tActivityDetail.ActivityDetailRefno "
+                            + "FROM tActivityDetail "
+                            + "WHERE tActivityDetail.ActivityDetailSubType = ?)";
                 await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(query, Convert.ToInt32(SysCommon.ActSubTypes.TransferTo));
 
                 query = "DELETE FROM tActivityDetailTransfer "
@@ -169,7 +169,7 @@ namespace dMobile.GroundWork
         /// <remarks></remarks>
         protected override async Task<string> SendRequest(int actItemRefno)
         {
-            List<tActivityItemTransferModel> results = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<tActivityItemTransferModel>("SELECT * FROM tActivityItemTransfer WHERE ActivityItemRefno = ?", Convert.ToInt32(actItemRefno));
+            var results = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<tActivityItemTransferModel>("SELECT * FROM tActivityItemTransfer WHERE ActivityItemRefno = ?", Convert.ToInt32(actItemRefno));
 
             int actItemFKRefno;
             if (results?.Count > 0)
@@ -191,13 +191,13 @@ namespace dMobile.GroundWork
         /// <param name="actItemTransferRefno"></param>
         protected override async Task Save(string saveData, int actItemTransferRefno)
         {
-            string errMsg = string.Empty;
+            var errMsg = string.Empty;
 
             await DatabaseConnection.GetInstance().SQLConn.RunInTransactionAsync(transaction =>
             {
                 try
                 {
-                    using (DataSet ds = new DataSet())
+                    using (var ds = new DataSet())
                     {
                         this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Reading received data.", false);
 
@@ -207,17 +207,17 @@ namespace dMobile.GroundWork
 
                         if (ds.Tables.Count != 0)
                         {
-                            int progMax = Convert.ToInt32(ds.Tables["tActivityDetailTransfer"].Rows.Count);
+                            var progMax = Convert.ToInt32(ds.Tables["tActivityDetailTransfer"].Rows.Count);
 
                             this.DataAccessStatusOutHandler(this, EventArgs.Empty, string.Format("Records {0}", progMax), false);
 
-                            int actDetailRefno = 0;
-                            int progValue = 0;
-                            int actDetailTransferFKRefno = 0;
+                            var actDetailRefno = 0;
+                            var progValue = 0;
+                            var actDetailTransferFKRefno = 0;
 
                             this.DataAccessProgressOutHandler(this, EventArgs.Empty, 0, 0, progMax);
 
-                            List<tActivityItemTransferModel> resultsActivityItemTransfer = transaction.Query<tActivityItemTransferModel>("SELECT * FROM tActivityItemTransfer WHERE ActivityItemRefno = ?", Convert.ToInt32(actItemTransferRefno));
+                            var resultsActivityItemTransfer = transaction.Query<tActivityItemTransferModel>("SELECT * FROM tActivityItemTransfer WHERE ActivityItemRefno = ?", Convert.ToInt32(actItemTransferRefno));
 
                             if (resultsActivityItemTransfer == null || resultsActivityItemTransfer?.Count == 0)
                             {
@@ -228,46 +228,46 @@ namespace dMobile.GroundWork
                             {
                                 errMsg = "Arguments:";
 
-                                string queryInsertDetail = "INSERT INTO tActivityDetail (" +
-                                "ActivityDetailSubType, " +
-                                "ActivityDetailStatus, " +
-                                "ActivityItemRefno, " +
-                                "LocationMapRefno, " +
-                                "ProductUnitRefno, " +
-                                "ActivityDetailUniqueSchemeID, " +
-                                "ActivityDetailSchemeID, " +
-                                "ActivityDetailQuantity, " +
-                                "ActivityDetailBaseQuantity, " +
-                                "ActivityDetailWeightQuantity, " +
-                                "ActivityDetailSingleTradeItemSerialNumber, " +
-                                "ActivityDetailLogisticUnitBatchLotNumber, " +
-                                "ActivityDetailLogisticUnitBestBeforeSellByDate, " +
-                                "ActivityDetailLogisticUnitExpiryUseByDate, " +
-                                "ActivityDetailLogisticUnitProductionDate, " +
-                                "ActivityDetailLogisticUnitDueDate, " +
-                                "ActivityDetailLogisticUnitPackagingDate, " +
-                                "ActivityDetailLogisticUnitSkidNumber" +
-                                ") VALUES (" +
-                                "?, " +
-                                "?, " +
-                                "?, " +
-                                "?, " +
-                                "?, " +
-                                "?, " +
-                                "?, " +
-                                "?, " +
-                                "?, " +
-                                "?, " +
-                                "?, " +
-                                "?, " +
-                                "?, " +
-                                "?, " +
-                                "?, " +
-                                "?, " +
-                                "?, " +
-                                "?" +
-                                ")";
-                                List<object> parametersInsertDetail = new List<object>();
+                                var queryInsertDetail = "INSERT INTO tActivityDetail (" +
+                                                        "ActivityDetailSubType, " +
+                                                        "ActivityDetailStatus, " +
+                                                        "ActivityItemRefno, " +
+                                                        "LocationMapRefno, " +
+                                                        "ProductUnitRefno, " +
+                                                        "ActivityDetailUniqueSchemeID, " +
+                                                        "ActivityDetailSchemeID, " +
+                                                        "ActivityDetailQuantity, " +
+                                                        "ActivityDetailBaseQuantity, " +
+                                                        "ActivityDetailWeightQuantity, " +
+                                                        "ActivityDetailSingleTradeItemSerialNumber, " +
+                                                        "ActivityDetailLogisticUnitBatchLotNumber, " +
+                                                        "ActivityDetailLogisticUnitBestBeforeSellByDate, " +
+                                                        "ActivityDetailLogisticUnitExpiryUseByDate, " +
+                                                        "ActivityDetailLogisticUnitProductionDate, " +
+                                                        "ActivityDetailLogisticUnitDueDate, " +
+                                                        "ActivityDetailLogisticUnitPackagingDate, " +
+                                                        "ActivityDetailLogisticUnitSkidNumber" +
+                                                        ") VALUES (" +
+                                                        "?, " +
+                                                        "?, " +
+                                                        "?, " +
+                                                        "?, " +
+                                                        "?, " +
+                                                        "?, " +
+                                                        "?, " +
+                                                        "?, " +
+                                                        "?, " +
+                                                        "?, " +
+                                                        "?, " +
+                                                        "?, " +
+                                                        "?, " +
+                                                        "?, " +
+                                                        "?, " +
+                                                        "?, " +
+                                                        "?, " +
+                                                        "?" +
+                                                        ")";
+                                var parametersInsertDetail = new List<object>();
                                 parametersInsertDetail.Add(Convert.ToInt32(SysCommon.ActSubTypes.TransferTo));
                                 parametersInsertDetail.Add(Convert.ToInt32(SysCommon.ActStatus.NoChange));
                                 parametersInsertDetail.Add(Convert.ToInt32(actItemTransferRefno));
@@ -281,18 +281,18 @@ namespace dMobile.GroundWork
                                 actDetailTransferFKRefno = Convert.ToInt32(drow["ActivityDetailFKRefno"]);
                                 errMsg += Environment.NewLine + "Detail fk refno " + actDetailTransferFKRefno;
 
-                                string queryInsertDetailTransfer = "INSERT INTO tActivityDetailTransfer (" +
-                                    "ActivityDetailRefno, " +
-                                    "ActivityDetailFKRefno, " +
-                                    "ActivityDetailTransferIsConfirmed, " +
-                                    "ActivityDetailTransferTransModeEnum" +
-                                    ") VALUES (" +
-                                    "?, " +
-                                    "?, " +
-                                    "?, " +
-                                    "?" +
-                                    ")";
-                                object[] parametersInsertDetailTransfer = new object[]
+                                var queryInsertDetailTransfer = "INSERT INTO tActivityDetailTransfer (" +
+                                                                "ActivityDetailRefno, " +
+                                                                "ActivityDetailFKRefno, " +
+                                                                "ActivityDetailTransferIsConfirmed, " +
+                                                                "ActivityDetailTransferTransModeEnum" +
+                                                                ") VALUES (" +
+                                                                "?, " +
+                                                                "?, " +
+                                                                "?, " +
+                                                                "?" +
+                                                                ")";
+                                var parametersInsertDetailTransfer = new object[]
                                 {
                                     Convert.ToInt32(actDetailRefno),
                                     Convert.ToInt32(actDetailTransferFKRefno),
@@ -339,10 +339,10 @@ namespace dMobile.GroundWork
         /// <returns></returns>
         protected override async Task<string> CreateRequest(int actItemTransferFKRefno)
         {
-            StringBuilder xmlString = new StringBuilder();
-            XmlWriter xml = XmlWriter.Create(xmlString);
+            var xmlString = new StringBuilder();
+            var xml = XmlWriter.Create(xmlString);
 
-            XDocument request = XDocument.Parse(
+            var request = XDocument.Parse(
                 "<?xml version=\"1.0\" encoding=\"utf-8\" standalone=\"yes\"?>"
                 + "<imclient>"
                 + "<command>"

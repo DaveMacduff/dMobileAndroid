@@ -30,7 +30,7 @@ namespace dMobile.GroundWork
 
             try
             {
-                string query = "DELETE FROM tActivityMoveInventory WHERE ActivitySubType = ?";
+                var query = "DELETE FROM tActivityMoveInventory WHERE ActivitySubType = ?";
                 await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(query, Convert.ToInt32(SysCommon.ActSubTypes.MoveInventory));
 
                 query = "DELETE FROM tActivity WHERE ActivitySubType = ?";

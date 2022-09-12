@@ -226,7 +226,7 @@ namespace dMobile.View.Activity
         /// <remarks></remarks>
         public async Task<bool> IsReadyToSave()
         {
-            bool isReadyToSave = false;
+            var isReadyToSave = false;
 
             try
             {
@@ -247,7 +247,7 @@ namespace dMobile.View.Activity
 
                 await Device.InvokeOnMainThreadAsync(async () =>
                 {
-                    FormErrorReport errRpt = new FormErrorReport(this.ActSubType, ex);
+                    var errRpt = new FormErrorReport(this.ActSubType, ex);
                     _ = await errRpt.ShowDialog();
                 });
             }
@@ -262,7 +262,7 @@ namespace dMobile.View.Activity
         /// <remarks></remarks>
         public async Task<bool> IsReadyToClose()
         {
-            bool isReadyToClose = true;
+            var isReadyToClose = true;
 
             try
             {
@@ -293,7 +293,7 @@ namespace dMobile.View.Activity
 
                 await Device.InvokeOnMainThreadAsync(async () =>
                 {
-                    FormErrorReport errRpt = new FormErrorReport(this.ActSubType, ex);
+                    var errRpt = new FormErrorReport(this.ActSubType, ex);
                     _ = await errRpt.ShowDialog();
                 });
             }
@@ -318,7 +318,7 @@ namespace dMobile.View.Activity
         /// <remarks></remarks>
         public async Task<bool> SaveChanges()
         {
-            bool saveComplete = false;
+            var saveComplete = false;
 
             try
             {
@@ -361,7 +361,7 @@ namespace dMobile.View.Activity
                     this.PickSettings.iSortBy4Index = this.cboSortBy4.SelectedIndex;
                     this.MakeSQLSortBy();
 
-                    PickingSettings tempPickSettings = this.PickSettings;
+                    var tempPickSettings = this.PickSettings;
                     _ = this.PickSettings.SaveData(ref tempPickSettings);
                     this.PickSettings = tempPickSettings;
 
@@ -388,7 +388,7 @@ namespace dMobile.View.Activity
             {
                 await Device.InvokeOnMainThreadAsync(async () =>
                 {
-                    FormErrorReport errRpt = new FormErrorReport(this.ActSubType, ex);
+                    var errRpt = new FormErrorReport(this.ActSubType, ex);
                     _ = await errRpt.ShowDialog();
                 });
             }
@@ -403,7 +403,7 @@ namespace dMobile.View.Activity
         /// <remarks></remarks>
         public async Task<bool> CancelChanges()
         {
-            bool cancelChanges = true;
+            var cancelChanges = true;
 
             try
             {
@@ -462,7 +462,7 @@ namespace dMobile.View.Activity
 
                 await Device.InvokeOnMainThreadAsync(async () =>
                 {
-                    FormErrorReport errRpt = new FormErrorReport(this.ActSubType, ex);
+                    var errRpt = new FormErrorReport(this.ActSubType, ex);
                     _ = await errRpt.ShowDialog();
                 });
             }
@@ -477,7 +477,7 @@ namespace dMobile.View.Activity
         /// <remarks></remarks>
         public async Task<XDocument> GetXML()
         {
-            XDocument request = XDocument.Parse(
+            var request = XDocument.Parse(
                 "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>"
                 + "<params>"
                 + "<delivery_date>" + this.PickSettings.dtDeliveryDateFilter.ToShortDateString() + "</delivery_date>"
@@ -496,11 +496,11 @@ namespace dMobile.View.Activity
         /// <remarks></remarks>
         private async Task<ObservableCollection<object>> GetPickingRouteObservableCollection()
         {
-            List<tRouteModel> results = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<tRouteModel>("SELECT DISTINCT RouteCode, RouteRefno FROM tRoute ORDER BY RouteCode ASC");
+            var results = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<tRouteModel>("SELECT DISTINCT RouteCode, RouteRefno FROM tRoute ORDER BY RouteCode ASC");
 
             if (results?.Count > 0)
             {
-                foreach (tRouteModel routeModel in results)
+                foreach (var routeModel in results)
                 {
                     object route = new { RouteRefno = routeModel.RouteRefno, RouteCode = routeModel.RouteCode };
                     this.RoutesList.Add(route);
@@ -541,7 +541,7 @@ namespace dMobile.View.Activity
 
                 Device.BeginInvokeOnMainThread(async () =>
                 {
-                    FormErrorReport errRpt = new FormErrorReport(this.ActSubType, ex);
+                    var errRpt = new FormErrorReport(this.ActSubType, ex);
                     _ = await errRpt.ShowDialog();
                 });
             }

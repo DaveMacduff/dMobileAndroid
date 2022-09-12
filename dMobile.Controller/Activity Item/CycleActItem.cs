@@ -76,9 +76,9 @@ namespace dMobile.Controller
             this.IsAskCreateNewItem = !this.SysEnv.SysSettings.IsCycleCreateNewItemNoAsk;
             this.FullClassName = typeof(CycleActItem).FullName;
 
-            DataTemplate dataTemplate = new DataTemplate(() =>
+            var dataTemplate = new DataTemplate(() =>
             {
-                Grid gridData = new Grid
+                var gridData = new Grid
                 {
                     Padding = new Thickness(5),
                     ColumnDefinitions =
@@ -92,12 +92,12 @@ namespace dMobile.Controller
                     },
                 };
 
-                Label labelProductCode = new Label { VerticalOptions = LayoutOptions.Center };
-                Label labelProductUnitBC = new Label { VerticalOptions = LayoutOptions.Center };
-                Label labelUnitCode = new Label { VerticalOptions = LayoutOptions.Center };
-                Label labelActivityItemCountQuantityOnHand = new Label { VerticalOptions = LayoutOptions.Center };
-                Label labelActivityItemCountQuantity = new Label { VerticalOptions = LayoutOptions.Center };
-                Label labelActivityItemCountWeightQuantityOnHand = new Label { VerticalOptions = LayoutOptions.Center };
+                var labelProductCode = new Label { VerticalOptions = LayoutOptions.Center };
+                var labelProductUnitBC = new Label { VerticalOptions = LayoutOptions.Center };
+                var labelUnitCode = new Label { VerticalOptions = LayoutOptions.Center };
+                var labelActivityItemCountQuantityOnHand = new Label { VerticalOptions = LayoutOptions.Center };
+                var labelActivityItemCountQuantity = new Label { VerticalOptions = LayoutOptions.Center };
+                var labelActivityItemCountWeightQuantityOnHand = new Label { VerticalOptions = LayoutOptions.Center };
 
                 // Set label bindings
                 labelProductCode.SetBinding(Label.TextProperty, new Binding("ProductCode"));
@@ -126,10 +126,10 @@ namespace dMobile.Controller
                 return new ViewCell { View = gridData };
             });
 
-            bool isAddKey = true;
+            var isAddKey = true;
             foreach (var item in this.resourceDictionary)
             {
-                if (item.Key == "dataTemplate")
+                if (item.Key == "dataTemplateCycleCountItem")
                 {
                     isAddKey = false;
                 }
@@ -137,7 +137,7 @@ namespace dMobile.Controller
 
             if (isAddKey)
             {
-                this.resourceDictionary.Add("dataTemplate", dataTemplate);
+                this.resourceDictionary.Add("dataTemplateCycleCountItem", dataTemplate);
             }
         }
 
@@ -150,7 +150,7 @@ namespace dMobile.Controller
             this.SelectedListItemIdx = -1;
             if (actItemFoundRefno >= 0)
             {
-                int idx = 0;
+                var idx = 0;
                 foreach (CountItem item in this.ListItems)
                 {
                     if (item.ActivityItemRefno == this.ItemRefno)
@@ -184,7 +184,7 @@ namespace dMobile.Controller
         /// <returns>.</returns>
         public override bool IsCatchAsk()
         {
-            bool isCatchAsk = this.ProdInfo.IsCatchAsk;
+            var isCatchAsk = this.ProdInfo.IsCatchAsk;
             if (isCatchAsk)
             {
                 // modules are for exclusions
@@ -200,7 +200,7 @@ namespace dMobile.Controller
         /// <returns>.</returns>
         public override bool IsCatchAskZero()
         {
-            bool result = this.IsCatchAsk();
+            var result = this.IsCatchAsk();
             if (result && this.ProdInfo.IsCatchAskZero)
             {
                 result = !this.SysEnv.SysSettings.IsCycleCountNoCatchAskZeroEnabled;
@@ -246,10 +246,10 @@ namespace dMobile.Controller
         /// <returns><see cref="Task"/> Task operation.</returns>
         public override async Task Insert(XDocument data, bool askToInsertAsNewItem)
         {
-            int foundActItemRefno = 0;
-            bool result = false;
+            var foundActItemRefno = 0;
+            var result = false;
 
-            int prodUnitRefno = int.Parse(data.Root.Element("ProductUnitRefno").Value);
+            var prodUnitRefno = int.Parse(data.Root.Element("ProductUnitRefno").Value);
             if (prodUnitRefno != 0)
             {
                 foundActItemRefno = await this.GetActivityItemRefno(prodUnitRefno);
@@ -275,34 +275,34 @@ namespace dMobile.Controller
                             this.ItemRefno = Convert.ToInt32(transaction.ExecuteScalar<int>("SELECT last_insert_rowid() FROM tActivityItem"));
                             this.ItemFKRefno = this.ItemRefno * -1;
 
-                            string query = "INSERT INTO tActivityItemCount (" +
-                                    "ActivityItemRefno, " +
-                                    "ActivityItemSubType, " +
-                                    "ActivityItemFKRefno, " +
-                                    "ActivityItemStringFKRefno, " +
-                                    "ProductUnitRefno, " +
-                                    "LocationMapRefno, " +
-                                    "ActivityItemCountQuantityOnHand, " +
-                                    "ActivityItemCountBaseQuantityOnHand, " +
-                                    "ActivityItemCountWeightQuantityOnHand, " +
-                                    "ActivityItemCountQuantity, " +
-                                    "ActivityItemCountBaseQuantity, " +
-                                    "ActivityItemCountWeightQuantity" +
-                                    ") VALUES (" +
-                                    "?, " +
-                                    "?, " +
-                                    "?, " +
-                                    "?, " +
-                                    "?, " +
-                                    "?, " +
-                                    "?, " +
-                                    "?, " +
-                                    "?, " +
-                                    "?, " +
-                                    "?, " +
-                                    "?" +
-                                    ")";
-                            object[] parameters = new object[]
+                            var query = "INSERT INTO tActivityItemCount (" +
+                                        "ActivityItemRefno, " +
+                                        "ActivityItemSubType, " +
+                                        "ActivityItemFKRefno, " +
+                                        "ActivityItemStringFKRefno, " +
+                                        "ProductUnitRefno, " +
+                                        "LocationMapRefno, " +
+                                        "ActivityItemCountQuantityOnHand, " +
+                                        "ActivityItemCountBaseQuantityOnHand, " +
+                                        "ActivityItemCountWeightQuantityOnHand, " +
+                                        "ActivityItemCountQuantity, " +
+                                        "ActivityItemCountBaseQuantity, " +
+                                        "ActivityItemCountWeightQuantity" +
+                                        ") VALUES (" +
+                                        "?, " +
+                                        "?, " +
+                                        "?, " +
+                                        "?, " +
+                                        "?, " +
+                                        "?, " +
+                                        "?, " +
+                                        "?, " +
+                                        "?, " +
+                                        "?, " +
+                                        "?, " +
+                                        "?" +
+                                        ")";
+                            var parameters = new object[]
                             {
                                 Convert.ToInt32(this.ItemRefno),
                                 Convert.ToInt32(SysCommon.ActSubTypes.CycleCounts),
@@ -335,7 +335,7 @@ namespace dMobile.Controller
 
                     if (this.ListItems != null)
                     {
-                        CountItem item = new CountItem()
+                        var item = new CountItem()
                         {
                             ActivityItemRefno = this.ItemRefno,
                             ActivityItemFKRefno = this.ItemFKRefno,
@@ -381,8 +381,8 @@ namespace dMobile.Controller
             {
                 this.DataLayerProgressOutHandler(this, new EventArgs(), 2);
 
-                TableActivityCycleCountItem tableActCountItem = new TableActivityCycleCountItem();
-                TableActivityCycleCountDetail tableActCountDetail = new TableActivityCycleCountDetail();
+                var tableActCountItem = new TableActivityCycleCountItem();
+                var tableActCountDetail = new TableActivityCycleCountDetail();
                 await tableActCountDetail.PurgeData();
                 await tableActCountItem.PurgeData();
 
@@ -402,7 +402,7 @@ namespace dMobile.Controller
         /// <returns>The <see cref="ObservableCollection{object}"/>.</returns>
         public override ObservableCollection<object> DesignGrid(ref Grid GridMainActivity, ref ListView ListViewMainActivity)
         {
-            ObservableCollection<object> observableCollection = new ObservableCollection<object>();
+            var observableCollection = new ObservableCollection<object>();
 
             // Add all items in dataview to observable collection for display
             foreach (CountItem countItem in this.ListItems)
@@ -433,12 +433,12 @@ namespace dMobile.Controller
                 observableCollection.Add(countItem);
             }
 
-            Label labelCountCode = new Label { Text = "Code", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
-            Label labelCountBC = new Label { Text = "BC", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
-            Label labelCountUnit = new Label { Text = "", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
-            Label labelCountOnHand = new Label { Text = "On Hand", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
-            Label labelCountCounted = new Label { Text = "Counted", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
-            Label labelCountWtOn = new Label { Text = "Wt On", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
+            var labelCountCode = new Label { Text = "Code", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
+            var labelCountBC = new Label { Text = "BC", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
+            var labelCountUnit = new Label { Text = "", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
+            var labelCountOnHand = new Label { Text = "On Hand", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
+            var labelCountCounted = new Label { Text = "Counted", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
+            var labelCountWtOn = new Label { Text = "Wt On", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
 
             this.columnWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(labelCountCode.Text);
             this.columnWidth1 = DependencyService.Get<IGridService>().CalculateTextWidth(labelCountBC.Text);
@@ -447,7 +447,7 @@ namespace dMobile.Controller
             this.columnWidth4 = DependencyService.Get<IGridService>().CalculateTextWidth(labelCountCounted.Text);
             this.columnWidth5 = DependencyService.Get<IGridService>().CalculateTextWidth(labelCountWtOn.Text);
 
-            Grid gridHeader = new Grid
+            var gridHeader = new Grid
             {
                 Padding = new Thickness(5),
                 ColumnDefinitions =
@@ -485,12 +485,12 @@ namespace dMobile.Controller
 
             foreach (CountItem countItem in observableCollection)
             {
-                double detailWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(countItem.ProductCode);
-                double detailWidth1 = DependencyService.Get<IGridService>().CalculateTextWidth(countItem.ProductUnitBC);
-                double detailWidth2 = DependencyService.Get<IGridService>().CalculateTextWidth(countItem.UnitCode);
-                double detailWidth3 = DependencyService.Get<IGridService>().CalculateTextWidth(string.Format("{0:F3}", countItem.ActivityItemCountQuantityOnHand));
-                double detailWidth4 = DependencyService.Get<IGridService>().CalculateTextWidth(string.Format("{0:F3}", countItem.ActivityItemCountQuantity));
-                double detailWidth5 = DependencyService.Get<IGridService>().CalculateTextWidth(string.Format("{0:F3}", countItem.ActivityItemCountWeightQuantityOnHand));
+                var detailWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(countItem.ProductCode);
+                var detailWidth1 = DependencyService.Get<IGridService>().CalculateTextWidth(countItem.ProductUnitBC);
+                var detailWidth2 = DependencyService.Get<IGridService>().CalculateTextWidth(countItem.UnitCode);
+                var detailWidth3 = DependencyService.Get<IGridService>().CalculateTextWidth(string.Format("{0:F3}", countItem.ActivityItemCountQuantityOnHand));
+                var detailWidth4 = DependencyService.Get<IGridService>().CalculateTextWidth(string.Format("{0:F3}", countItem.ActivityItemCountQuantity));
+                var detailWidth5 = DependencyService.Get<IGridService>().CalculateTextWidth(string.Format("{0:F3}", countItem.ActivityItemCountWeightQuantityOnHand));
 
                 if (detailWidth0 > this.columnWidth0)
                 {
@@ -531,7 +531,7 @@ namespace dMobile.Controller
 
             try
             {
-                ListViewMainActivity.ItemTemplate = (DataTemplate)this.resourceDictionary["cycleCountTemplate"];
+                ListViewMainActivity.ItemTemplate = (DataTemplate)this.resourceDictionary["dataTemplateCycleCountItem"];
             }
             catch (Exception ex)
             {
@@ -548,7 +548,7 @@ namespace dMobile.Controller
         /// <returns>.</returns>
         public override async Task<List<object>> GetActivityItemList(bool isSubmitBatch)
         {
-            StringBuilder sql = new StringBuilder();
+            var sql = new StringBuilder();
 
             if (isSubmitBatch)
             {
@@ -882,7 +882,7 @@ namespace dMobile.Controller
         /// <returns>.</returns>
         public override ObservableCollection<object> Search(string searchText)
         {
-            ObservableCollection<object> observableCollection = new ObservableCollection<object>();
+            var observableCollection = new ObservableCollection<object>();
 
             // if (string.IsNullOrEmpty(this.ActItemFilter))
             // {
@@ -948,7 +948,7 @@ namespace dMobile.Controller
                     this.ActHdr.SkidInfo.CurrSkid = new SSkidInfo();
                 }
 
-                SLocMap locMap = await this.GetSelectedItemLocation(item.LocationMapRefno);
+                var locMap = await this.GetSelectedItemLocation(item.LocationMapRefno);
 
                 if (this.SysEnv.SysSettings.IsDefaultLocToProductDefaultLoc &&
                     !this.SysEnv.SysSettings.IsCycleDoNotDefaultProductLocation)
@@ -992,9 +992,9 @@ namespace dMobile.Controller
         /// <returns><see cref="int"/> Found activity item reference number else 0.</returns>
         public override async Task<int> GetActivityItemRefno(int prodUnitRefno)
         {
-            int foundActItemRefno = 0;
+            var foundActItemRefno = 0;
 
-            StringBuilder sql = new StringBuilder();
+            var sql = new StringBuilder();
 
             sql.Append("SELECT tActivityItem.ActivityItemRefno,");
             sql.Append("tActivityItemCount.ActivityItemFKRefno,");
@@ -1037,7 +1037,7 @@ namespace dMobile.Controller
             sql.AppendFormat("AND tActivityItemCount.LocationMapRefno = {0} ", this.LocMap.WhsLocMapRefno);
             sql.AppendFormat("AND tActivityItemCount.ProductUnitRefno = {0}", prodUnitRefno);
 
-            List<CountItem> results = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<CountItem>(sql.ToString());
+            var results = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<CountItem>(sql.ToString());
 
             if (results != null && results.Count > 0)
             {
@@ -1058,29 +1058,29 @@ namespace dMobile.Controller
         /// <returns>.</returns>
         public async override Task<string> CreateSubmitXML(XDocument data)
         {
-            StringBuilder xmlString = new StringBuilder();
-            XmlWriter xml = XmlWriter.Create(xmlString);
-            string prodCode = data.Root.Element("ProductCode").Value.PadRight(10);
-            string barCodeCode = data.Root.Element("ProductUnitBarCodeCode").Value.PadRight(20);
-            bool prodUnitIsBC = bool.Parse(data.Root.Element("ProductUnitIsBC").Value);
-            string unitCode = data.Root.Element("UnitCode").Value;
-            string symbologyPrefix = data.Root.Element("ProductUnitBarCodeSymbologyPrefix").Value;
+            var xmlString = new StringBuilder();
+            var xml = XmlWriter.Create(xmlString);
+            var prodCode = data.Root.Element("ProductCode").Value.PadRight(10);
+            var barCodeCode = data.Root.Element("ProductUnitBarCodeCode").Value.PadRight(20);
+            var prodUnitIsBC = bool.Parse(data.Root.Element("ProductUnitIsBC").Value);
+            var unitCode = data.Root.Element("UnitCode").Value;
+            var symbologyPrefix = data.Root.Element("ProductUnitBarCodeSymbologyPrefix").Value;
 
-            XDocument request = XDocument.Parse("<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>"
-                + "<imclient>"
-                + "<command>"
-                + "<action>SUBMIT CYCLE COUNT ITEM</action>"
-                + "</command>"
-                + await SysCommon.GetRequestDefaults(false)
-                + "<prod_id>" + prodCode + "</prod_id>"
-                + "<is_bc>" + prodUnitIsBC + "</is_bc>"
-                + "<symbology>" + symbologyPrefix + "</symbology>"
-                + "<gtin>" + barCodeCode + "</gtin>"
-                + "<whs_id></whs_id>"
-                + "<sect_refno></sect_refno>"
-                + "<slot_refno></slot_refno>"
-                + "<refno></refno>"
-                + "</imclient>");
+            var request = XDocument.Parse("<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>"
+                                          + "<imclient>"
+                                          + "<command>"
+                                          + "<action>SUBMIT CYCLE COUNT ITEM</action>"
+                                          + "</command>"
+                                          + await SysCommon.GetRequestDefaults(false)
+                                          + "<prod_id>" + prodCode + "</prod_id>"
+                                          + "<is_bc>" + prodUnitIsBC + "</is_bc>"
+                                          + "<symbology>" + symbologyPrefix + "</symbology>"
+                                          + "<gtin>" + barCodeCode + "</gtin>"
+                                          + "<whs_id></whs_id>"
+                                          + "<sect_refno></sect_refno>"
+                                          + "<slot_refno></slot_refno>"
+                                          + "<refno></refno>"
+                                          + "</imclient>");
 
             request.Save(xml);
             xml.Flush();
@@ -1132,9 +1132,9 @@ namespace dMobile.Controller
         {
             if (activityItem is CountItem countItem)
             {
-                string query = "UPDATE tActivityItemCount SET ActivityItemCountQuantity = ?," +
-                    " ActivityItemCountBaseQuantity = ?, ActivityItemCountWeightQuantity = ? WHERE ActivityItemRefno = ?";
-                object[] parameters = new object[]
+                var query = "UPDATE tActivityItemCount SET ActivityItemCountQuantity = ?," +
+                            " ActivityItemCountBaseQuantity = ?, ActivityItemCountWeightQuantity = ? WHERE ActivityItemRefno = ?";
+                var parameters = new object[]
                 {
                     countItem.ActivityItemCountQuantity,
                     countItem.ActivityItemCountBaseQuantity,
@@ -1243,7 +1243,7 @@ namespace dMobile.Controller
         /// <returns><see cref="int"/> Location map reference number.</returns>
         public override async Task<int> GetDefaultLocMapRefno(int whsLocMapRefno, int prodRefno)
         {
-            int locMapRefno = 0;
+            var locMapRefno = 0;
             if (this.SelectedActivityItem is CountItem item)
             {
                 if (Math.Sign(item.ActivityItemCountQuantity) == 0 ||

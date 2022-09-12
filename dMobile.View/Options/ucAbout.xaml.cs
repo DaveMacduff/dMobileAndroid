@@ -192,7 +192,7 @@ namespace dMobile.View.Options
         /// <remarks></remarks>
         public async Task<XDocument> GetXML()
         {
-            XDocument xmldocParams = XDocument.Parse(
+            var xmldocParams = XDocument.Parse(
                 "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>"
                 + "<params>"
                 + "</params>");
@@ -221,11 +221,11 @@ namespace dMobile.View.Options
         /// <remarks></remarks>
         private void RefreshNICList()
         {
-            IPAddress IpAddress = Dns.GetHostAddresses(Dns.GetHostName()).FirstOrDefault();
+            var IpAddress = Dns.GetHostAddresses(Dns.GetHostName()).FirstOrDefault();
 
-            foreach (NetworkInterface ni in NetworkInterface.GetAllNetworkInterfaces())
+            foreach (var ni in NetworkInterface.GetAllNetworkInterfaces())
             {
-                foreach (UnicastIPAddressInformation ip in ni.GetIPProperties().UnicastAddresses)
+                foreach (var ip in ni.GetIPProperties().UnicastAddresses)
                 {
                     if (ip.Address.AddressFamily == AddressFamily.InterNetwork)
                     {
@@ -234,7 +234,7 @@ namespace dMobile.View.Options
                             continue;
                         }
 
-                        IPAddr test = new IPAddr() { networkInterface = ni };
+                        var test = new IPAddr() { networkInterface = ni };
                         test.DisplayMember = ni.Name + "    " + ip.Address.ToString();
 
                         this.itemsList.Add(test);
@@ -282,17 +282,17 @@ namespace dMobile.View.Options
         /// <remarks></remarks>
         private async void cmdVersionInfo_Click(object sender, EventArgs e)
         {
-            string viewsAssemblyVersion = SysShared.GetAssemblyVersion();
-            string barCodeScannerAssemblyVersion = new BarCodeScanner.clsCommon().GetAssemblyVersion();
-            string groundWorkAssemblyVersion = new GroundWork.Common().GetAssemblyVersion();
-            string controllerAssemblyVersion = new Controller.Common().GetAssemblyVersion();
-            string bedrockAssemblyVersion = new SysCommon().GetAssemblyVersion();
+            var viewsAssemblyVersion = SysShared.GetAssemblyVersion();
+            var barCodeScannerAssemblyVersion = new BarCodeScanner.clsCommon().GetAssemblyVersion();
+            var groundWorkAssemblyVersion = new GroundWork.Common().GetAssemblyVersion();
+            var controllerAssemblyVersion = new Controller.Common().GetAssemblyVersion();
+            var bedrockAssemblyVersion = new SysCommon().GetAssemblyVersion();
 
-            string message = string.Format("Views {0} " + Environment.NewLine +
-                "Scan Engine {1} " + Environment.NewLine +
-                "Ground Work {2} " + Environment.NewLine +
-                "Controller {3} " + Environment.NewLine +
-                "Bedrock {4} " + Environment.NewLine,
+            var message = string.Format("Views {0} " + Environment.NewLine +
+                                        "Scan Engine {1} " + Environment.NewLine +
+                                        "Ground Work {2} " + Environment.NewLine +
+                                        "Controller {3} " + Environment.NewLine +
+                                        "Bedrock {4} " + Environment.NewLine,
                 viewsAssemblyVersion,
                 barCodeScannerAssemblyVersion,
                 groundWorkAssemblyVersion,

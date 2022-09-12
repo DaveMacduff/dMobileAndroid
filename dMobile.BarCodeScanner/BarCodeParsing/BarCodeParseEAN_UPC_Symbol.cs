@@ -43,7 +43,7 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
         /// <returns></returns>
         protected override string IdentifyNumberSystemCharacter(string barCodeData)
         {
-            string strBarCodeData = barCodeData;
+            var strBarCodeData = barCodeData;
             this.NumberSystemCharacter = Convert.ToInt32(strBarCodeData.Substring(0, 1));
 
             // remove the Number System Character from the bar code data
@@ -80,7 +80,7 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
         /// <returns></returns>
         protected override string IdentifyCompanyPrefix(string barCodeData)
         {
-            string strBarCodeData = barCodeData;
+            var strBarCodeData = barCodeData;
             this.CompanyPrefix = strBarCodeData.Substring(0, 5);
 
             // remove the Company Prefix from the bar code data
@@ -96,7 +96,7 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
         /// <returns></returns>
         protected override string IdentifyItemReference(string barCodeData)
         {
-            string strBarCodeData = barCodeData;
+            var strBarCodeData = barCodeData;
 
             this.ItemReference = strBarCodeData.Substring(0, 5);
 
@@ -113,7 +113,7 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
         /// <returns></returns>
         protected override string IdentifyGTIN(string barCodeData)
         {
-            int iLen = (barCodeData.Length > 14) ? 14 : barCodeData.Length;
+            var iLen = (barCodeData.Length > 14) ? 14 : barCodeData.Length;
 
             this.GTIN = barCodeData.Substring(0, iLen).PadLeft(14, '0');
 

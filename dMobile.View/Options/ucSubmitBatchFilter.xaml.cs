@@ -195,7 +195,7 @@ namespace dMobile.View.Options
         /// <remarks></remarks>
         public async Task<bool> CancelChanges()
         {
-            bool cancelChanges = true;
+            var cancelChanges = true;
 
             try
             {
@@ -223,7 +223,7 @@ namespace dMobile.View.Options
 
                 await Device.InvokeOnMainThreadAsync(async () =>
                 {
-                    FormErrorReport errRpt = new FormErrorReport(SysCommon.ActSubTypes.SubmitBatch, ex);
+                    var errRpt = new FormErrorReport(SysCommon.ActSubTypes.SubmitBatch, ex);
                     _ = await errRpt.ShowDialog();
                 });
             }
@@ -248,7 +248,7 @@ namespace dMobile.View.Options
         /// <remarks></remarks>
         public async Task<XDocument> GetXML()
         {
-            XDocument request = XDocument.Parse(
+            var request = XDocument.Parse(
                 "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>"
                 + "<params>"
                 + "<activity_status>" + (int)this.SubmitBatchSettings.eActivityStatus + "</activity_status>"
@@ -265,7 +265,7 @@ namespace dMobile.View.Options
         /// <remarks></remarks>
         public async Task<bool> IsReadyToClose()
         {
-            bool isReadyToClose = true;
+            var isReadyToClose = true;
 
             try
             {
@@ -302,7 +302,7 @@ namespace dMobile.View.Options
 
                 await Device.InvokeOnMainThreadAsync(async () =>
                 {
-                    FormErrorReport errRpt = new FormErrorReport(SysCommon.ActSubTypes.SubmitBatch, ex);
+                    var errRpt = new FormErrorReport(SysCommon.ActSubTypes.SubmitBatch, ex);
                     _ = await errRpt.ShowDialog();
                 });
             }
@@ -317,7 +317,7 @@ namespace dMobile.View.Options
         /// <remarks></remarks>
         public async Task<bool> IsReadyToSave()
         {
-            bool isReadyToSave = false;
+            var isReadyToSave = false;
 
             try
             {
@@ -338,7 +338,7 @@ namespace dMobile.View.Options
 
                 await Device.InvokeOnMainThreadAsync(async () =>
                 {
-                    FormErrorReport errRpt = new FormErrorReport(SysCommon.ActSubTypes.SubmitBatch, ex);
+                    var errRpt = new FormErrorReport(SysCommon.ActSubTypes.SubmitBatch, ex);
                     _ = await errRpt.ShowDialog();
                 });
             }
@@ -353,7 +353,7 @@ namespace dMobile.View.Options
         /// <remarks></remarks>
         public async Task<bool> SaveChanges()
         {
-            bool saveComplete = false;
+            var saveComplete = false;
 
             try
             {
@@ -367,7 +367,7 @@ namespace dMobile.View.Options
                     this.SubmitBatchSettings.eActivityStatus = (SysCommon.ActStatus)Convert.ToInt32(this.statusFilters[this.cboActivityStatus.Items[this.cboActivityStatus.SelectedIndex]]);
                     this.SubmitBatchSettings.iActivityStatusIdx = this.cboActivityStatus.SelectedIndex;
 
-                    SubmitBatchSettings tempBatchSettings = this.SubmitBatchSettings;
+                    var tempBatchSettings = this.SubmitBatchSettings;
                     _ = this.SubmitBatchSettings.SaveData(ref tempBatchSettings);
                     this.SubmitBatchSettings = tempBatchSettings;
                     saveComplete = true;
@@ -393,7 +393,7 @@ namespace dMobile.View.Options
             {
                 await Device.InvokeOnMainThreadAsync(async () =>
                 {
-                    FormErrorReport errRpt = new FormErrorReport(SysCommon.ActSubTypes.SubmitBatch, ex);
+                    var errRpt = new FormErrorReport(SysCommon.ActSubTypes.SubmitBatch, ex);
                     _ = await errRpt.ShowDialog();
                 });
             }

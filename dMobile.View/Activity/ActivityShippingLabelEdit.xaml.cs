@@ -230,7 +230,7 @@ namespace dMobile.View.Activity
         /// <remarks></remarks>
         public async Task<bool> IsReadyToSave()
         {
-            bool isReadyToSave = true;
+            var isReadyToSave = true;
 
             try
             {
@@ -306,7 +306,7 @@ namespace dMobile.View.Activity
 
                 await Device.InvokeOnMainThreadAsync(async () =>
                 {
-                    FormErrorReport errRpt = new FormErrorReport(this.ActSubType, ex);
+                    var errRpt = new FormErrorReport(this.ActSubType, ex);
                     _ = await errRpt.ShowDialog();
                 });
             }
@@ -321,7 +321,7 @@ namespace dMobile.View.Activity
         /// <remarks></remarks>
         public async Task<bool> IsReadyToClose()
         {
-            bool isReadyToClose = true;
+            var isReadyToClose = true;
 
             try
             {
@@ -352,7 +352,7 @@ namespace dMobile.View.Activity
 
                 await Device.InvokeOnMainThreadAsync(async () =>
                 {
-                    FormErrorReport errRpt = new FormErrorReport(this.ActSubType, ex);
+                    var errRpt = new FormErrorReport(this.ActSubType, ex);
                     _ = await errRpt.ShowDialog();
                 });
             }
@@ -377,7 +377,7 @@ namespace dMobile.View.Activity
         /// <remarks></remarks>
         public async Task<bool> SaveChanges()
         {
-            bool saveComplete = true;
+            var saveComplete = true;
 
             try
             {
@@ -405,7 +405,7 @@ namespace dMobile.View.Activity
 
                 await Device.InvokeOnMainThreadAsync(async () =>
                 {
-                    FormErrorReport errRpt = new FormErrorReport(this.ActSubType, ex);
+                    var errRpt = new FormErrorReport(this.ActSubType, ex);
                     _ = await errRpt.ShowDialog();
                 });
             }
@@ -420,7 +420,7 @@ namespace dMobile.View.Activity
         /// <remarks></remarks>
         public async Task<bool> CancelChanges()
         {
-            bool cancelChanges = true;
+            var cancelChanges = true;
 
             try
             {
@@ -445,7 +445,7 @@ namespace dMobile.View.Activity
 
                 await Device.InvokeOnMainThreadAsync(async () =>
                 {
-                    FormErrorReport errRpt = new FormErrorReport(this.ActSubType, ex);
+                    var errRpt = new FormErrorReport(this.ActSubType, ex);
                     _ = await errRpt.ShowDialog();
                 });
             }
@@ -460,7 +460,7 @@ namespace dMobile.View.Activity
         /// <remarks></remarks>
         public async Task<XDocument> GetXML()
         {
-            XDocument request = XDocument.Parse(
+            var request = XDocument.Parse(
                 "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>"
                 + "<params>"
                 + "<whs_id>" + this.LocMap.CurrLocMap.WhsFKRefno + "</whs_id>"
@@ -535,7 +535,7 @@ namespace dMobile.View.Activity
             }
             else
             {
-                SLabelQuantity lbl = this.LabelQtyEdit;
+                var lbl = this.LabelQtyEdit;
                 lbl.FullQuantity = int.Parse(this.txtFullCaseAltQty.Text);
                 this.LabelQtyEdit = lbl;
             }
@@ -553,7 +553,7 @@ namespace dMobile.View.Activity
             }
             else
             {
-                SLabelQuantity lbl = this.LabelQtyEdit;
+                var lbl = this.LabelQtyEdit;
                 lbl.RepackQuantity = int.Parse(this.txtRepackAltQty.Text);
                 this.LabelQtyEdit = lbl;
             }
@@ -571,7 +571,7 @@ namespace dMobile.View.Activity
             }
             else
             {
-                SLabelQuantity lbl = this.LabelQtyEdit;
+                var lbl = this.LabelQtyEdit;
                 lbl.DryQuantity = int.Parse(this.txtDryAltQty.Text);
                 this.LabelQtyEdit = lbl;
             }
@@ -589,7 +589,7 @@ namespace dMobile.View.Activity
             }
             else
             {
-                SLabelQuantity lbl = this.LabelQtyEdit;
+                var lbl = this.LabelQtyEdit;
                 lbl.FreshQuantity = int.Parse(this.txtFreshAltQty.Text);
                 this.LabelQtyEdit = lbl;
             }
@@ -607,7 +607,7 @@ namespace dMobile.View.Activity
             }
             else
             {
-                SLabelQuantity lbl = this.LabelQtyEdit;
+                var lbl = this.LabelQtyEdit;
                 lbl.FrozenQuantity = int.Parse(this.txtFrozenAltQty.Text);
                 this.LabelQtyEdit = lbl;
             }
@@ -625,7 +625,7 @@ namespace dMobile.View.Activity
             }
             else
             {
-                SLabelQuantity lbl = this.LabelQtyEdit;
+                var lbl = this.LabelQtyEdit;
                 lbl.LiveQuantity = int.Parse(this.txtLiveAltQty.Text);
                 this.LabelQtyEdit = lbl;
             }
@@ -643,7 +643,7 @@ namespace dMobile.View.Activity
             }
             else
             {
-                SLabelQuantity lbl = this.LabelQtyEdit;
+                var lbl = this.LabelQtyEdit;
                 lbl.RepackDryQuantity = int.Parse(this.txtRepackDryAltQty.Text);
                 this.LabelQtyEdit = lbl;
             }
@@ -661,7 +661,7 @@ namespace dMobile.View.Activity
             }
             else
             {
-                SLabelQuantity lbl = this.LabelQtyEdit;
+                var lbl = this.LabelQtyEdit;
                 lbl.RepackFreshQuantity = int.Parse(this.txtRepackFreshAltQty.Text);
                 this.LabelQtyEdit = lbl;
             }
@@ -679,7 +679,7 @@ namespace dMobile.View.Activity
             }
             else
             {
-                SLabelQuantity lbl = this.LabelQtyEdit;
+                var lbl = this.LabelQtyEdit;
                 lbl.RepackFrozenQuantity = int.Parse(this.txtRepackFrozenAltQty.Text);
                 this.LabelQtyEdit = lbl;
             }
@@ -697,7 +697,7 @@ namespace dMobile.View.Activity
             }
             else
             {
-                SLabelQuantity lbl = this.LabelQtyEdit;
+                var lbl = this.LabelQtyEdit;
                 lbl.RepackLiveQuantity = int.Parse(this.txtRepackLiveAltQty.Text);
                 this.LabelQtyEdit = lbl;
             }
@@ -715,7 +715,7 @@ namespace dMobile.View.Activity
             }
             else
             {
-                SLabelQuantity lbl = this.LabelQtyEdit;
+                var lbl = this.LabelQtyEdit;
                 lbl.PalletQuantity = int.Parse(this.txtPalletAltQty.Text);
                 this.LabelQtyEdit = lbl;
             }
@@ -914,7 +914,7 @@ namespace dMobile.View.Activity
         /// <param name="e"></param>
         private async void cmdLocation_Click(object sender, EventArgs e)
         {
-            FormDialogContainer form = new FormDialogContainer(EDialogTypes.SelectLocationMap, SysCommon.ActSubTypes.NotApplicable);
+            var form = new FormDialogContainer(EDialogTypes.SelectLocationMap, SysCommon.ActSubTypes.NotApplicable);
 
             if (await form.DisplayControl.ShowDialog() == DialogResult.OK)
             {

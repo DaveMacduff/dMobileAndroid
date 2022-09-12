@@ -95,9 +95,9 @@ namespace dMobile.Controller
             this.FullClassName = typeof(RecvActDetail).FullName;
 
             // Data grid
-            DataTemplate dataTemplate = new DataTemplate(() =>
+            var dataTemplate = new DataTemplate(() =>
             {
-                Grid gridData = new Grid
+                var gridData = new Grid
                 {
                     Padding = new Thickness(5),
                     ColumnDefinitions =
@@ -109,25 +109,25 @@ namespace dMobile.Controller
                     },
                 };
 
-                Label labelActivityDetailQuantityReceiveDetail = new Label
+                var labelActivityDetailQuantityReceiveDetail = new Label
                 {
                     VerticalOptions = LayoutOptions.Center,
                     HorizontalOptions = LayoutOptions.Start,
                 };
 
-                Label labelActivityDetailWeightQuantityReceiveDetail = new Label
+                var labelActivityDetailWeightQuantityReceiveDetail = new Label
                 {
                     VerticalOptions = LayoutOptions.Center,
                     HorizontalOptions = LayoutOptions.Start,
                 };
 
-                Label labelUnitCodeReceiveDetail = new Label
+                var labelUnitCodeReceiveDetail = new Label
                 {
                     VerticalOptions = LayoutOptions.Center,
                     HorizontalOptions = LayoutOptions.Start,
                 };
 
-                Label labelActivityDetailSchemeIDReceiveDetail = new Label
+                var labelActivityDetailSchemeIDReceiveDetail = new Label
                 {
                     VerticalOptions = LayoutOptions.Center,
                     HorizontalOptions = LayoutOptions.Start,
@@ -157,7 +157,19 @@ namespace dMobile.Controller
                 return new ViewCell { View = gridData };
             });
 
-            this.ResourceDictionary.Add("dataTemplate", dataTemplate);
+            var isAddKey = true;
+            foreach (var item in this.ResourceDictionary)
+            {
+                if (item.Key == "dataTemplateReceivingDetail")
+                {
+                    isAddKey = false;
+                }
+            }
+
+            if (isAddKey)
+            {
+                this.ResourceDictionary.Add("dataTemplateReceivingDetail", dataTemplate);
+            }
         }
 
         /// <summary>
@@ -167,24 +179,24 @@ namespace dMobile.Controller
         /// <returns>The <see cref="Task"/>.</returns>
         public override async Task InsertSkid(SysSkidInfo skidInfo)
         {
-            XDocument request = XDocument.Parse(
+            var request = XDocument.Parse(
                 "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>"
                 + "<params>"
                 + "<skid_data>" + skidInfo.CurrSkid.SkidCode + "</skid_data>"
                 + "</params>");
 
-            string xmlSend = await this.CreateSubmitXML(request);
-            string reqData = SysCommon.SubmitComm(xmlSend);
+            var xmlSend = await this.CreateSubmitXML(request);
+            var reqData = SysCommon.SubmitComm(xmlSend);
 
             if (reqData.Length > 0)
             {
-                XmlDocument xmlDoc = new XmlDocument();
+                var xmlDoc = new XmlDocument();
                 xmlDoc.LoadXml(reqData);
 
                 // check if result is an error message
                 if (reqData.Contains("<message>ERROR</message>"))
                 {
-                    string errorDetail = xmlDoc.DocumentElement["detail"].InnerText;
+                    var errorDetail = xmlDoc.DocumentElement["detail"].InnerText;
                     if (errorDetail.Contains("MSGBOX-"))
                     {
                         throw new MessageOnlyException(errorDetail);
@@ -213,16 +225,16 @@ namespace dMobile.Controller
         {
             if (!this.SysEnv.SysSettings.IsDisconnectedMode)
             {
-                string xmlDelete = await this.CreateDeleteXML(
+                var xmlDelete = await this.CreateDeleteXML(
                     XDocument.Parse("<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?><params></params>"));
-                string reqData = SysCommon.SubmitComm(xmlDelete);
+                var reqData = SysCommon.SubmitComm(xmlDelete);
                 if (reqData.Length > 0)
                 {
                     if (reqData.Contains("<message>ERROR</message>"))
                     {
-                        XmlDocument docError = new XmlDocument();
+                        var docError = new XmlDocument();
                         docError.LoadXml(reqData);
-                        string errorDetail = docError.DocumentElement["detail"].InnerText;
+                        var errorDetail = docError.DocumentElement["detail"].InnerText;
 
                         if (errorDetail.Contains("MSGBOX-"))
                         {
@@ -244,12 +256,12 @@ namespace dMobile.Controller
         /// <returns>.</returns>
         public override async Task<string> CreateSubmitProductLabelXML(XDocument detailData)
         {
-            StringBuilder xmlString = new StringBuilder();
-            XmlWriter xml = XmlWriter.Create(xmlString);
+            var xmlString = new StringBuilder();
+            var xml = XmlWriter.Create(xmlString);
 
             // Init the production and best before date as empty intentional.
             // We want to send a 'blank' date if it is not tracked rather than {01/01/1900} as the empty date.
-            string bestBefore = string.Empty;
+            var bestBefore = string.Empty;
 
             if (this.ActItem.ProdInfo.Scheme.IsBestBeforeDateTracked ||
                 this.ActItem.ProdInfo.Scheme.LabelInfo.IsBestBeforeDateTracked)
@@ -257,7 +269,7 @@ namespace dMobile.Controller
                 bestBefore = DateTime.Parse(detailData.Root.Element("bdate").Value).ToString("MM/dd/yyyy");
             }
 
-            string production = string.Empty;
+            var production = string.Empty;
 
             if (this.ActItem.ProdInfo.Scheme.IsProductionDateTracked ||
                 this.ActItem.ProdInfo.Scheme.LabelInfo.IsProductionDateTracked)
@@ -265,7 +277,7 @@ namespace dMobile.Controller
                 production = DateTime.Parse(detailData.Root.Element("pdate").Value).ToString("MM/dd/yyyy");
             }
 
-            XDocument request = XDocument.Parse(
+            var request = XDocument.Parse(
                 "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>"
                 + "<imclient>"
                 + "<command>"
@@ -314,10 +326,10 @@ namespace dMobile.Controller
 
             if (this.SysEnv.SysSettings.IsDisconnectedMode)
             {
-                int actDetailRefno = await this.InsertDetailDisconnected();
+                var actDetailRefno = await this.InsertDetailDisconnected();
 
-                string query = "INSERT INTO tActivityDetailReceiving (ActivityDetailRefno, ActivityDetailFKRefno) VALUES (?, ?)";
-                int rowsAffected = await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(
+                var query = "INSERT INTO tActivityDetailReceiving (ActivityDetailRefno, ActivityDetailFKRefno) VALUES (?, ?)";
+                var rowsAffected = await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(
                     query,
                     Convert.ToInt32(actDetailRefno),
                     Convert.ToInt32(this.DetailFKRefno));
@@ -338,9 +350,9 @@ namespace dMobile.Controller
                         " greater than or equal to zero.");
                 }
 
-                string query = "UPDATE tActivityItemReceiving SET ActivityItemStringFKRefno = ?," +
-                    " ActivityItemFKRefno = ? WHERE ActivityItemRefno = ?";
-                int rowsAffected = await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(
+                var query = "UPDATE tActivityItemReceiving SET ActivityItemStringFKRefno = ?," +
+                            " ActivityItemFKRefno = ? WHERE ActivityItemRefno = ?";
+                var rowsAffected = await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(
                     query,
                     Convert.ToString(this.ActItem.ItemFKRefno),
                     this.ActItem.ItemFKRefno,
@@ -389,18 +401,18 @@ namespace dMobile.Controller
         {
             if (!this.SysEnv.SysSettings.IsDisconnectedMode)
             {
-                string xmlDelete = await this.CreateDeleteXML(
+                var xmlDelete = await this.CreateDeleteXML(
                     XDocument.Parse("<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?><params></params>"));
-                string reqData = SysCommon.SubmitComm(xmlDelete);
+                var reqData = SysCommon.SubmitComm(xmlDelete);
 
                 if (reqData.Length > 0)
                 {
                     // check if result is an error message
                     if (reqData.Contains("<message>ERROR</message>"))
                     {
-                        XmlDocument docError = new XmlDocument();
+                        var docError = new XmlDocument();
                         docError.LoadXml(reqData);
-                        string errorDetail = docError.DocumentElement["detail"].InnerText;
+                        var errorDetail = docError.DocumentElement["detail"].InnerText;
 
                         if (errorDetail.Contains("MSGBOX-"))
                         {
@@ -423,7 +435,7 @@ namespace dMobile.Controller
             // string oldSort = this.DataViewDetails.Sort;
             // this.DataViewDetails.Sort = "ActivityDetailFKRefno";
             // int rowIdx = this.DataViewDetails.Find(this.FKRefno);
-            ReceiveDetail receiveDetail = this.ListDetails.OfType<ReceiveDetail>().Where(receiveDetail =>
+            var receiveDetail = this.ListDetails.OfType<ReceiveDetail>().Where(receiveDetail =>
             receiveDetail.ActivityDetailFKRefno == this.DetailFKRefno).FirstOrDefault();
 
             if (receiveDetail != null)
@@ -435,7 +447,7 @@ namespace dMobile.Controller
             // this.DataViewDetails.Sort = oldSort;
 
             // Delete from database
-            string query = "DELETE FROM tActivityDetailProductSchemeVariantXRef WHERE ActivityDetailRefno = ?";
+            var query = "DELETE FROM tActivityDetailProductSchemeVariantXRef WHERE ActivityDetailRefno = ?";
             await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(query, this.DetailRefno);
 
             query = "DELETE FROM tActivityDetailReceiving WHERE ActivityDetailRefno = ?";
@@ -458,10 +470,10 @@ namespace dMobile.Controller
         /// <returns>The <see cref="Task"/>.</returns>
         public override async Task Submit(object selectedActivityDetail, XDocument data)
         {
-            XmlDocument xmlDoc = new XmlDocument();
-            string xmlSend = await this.CreateSubmitXML(
+            var xmlDoc = new XmlDocument();
+            var xmlSend = await this.CreateSubmitXML(
                 XDocument.Parse("<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?><params></params>"));
-            string reqData = SysCommon.SubmitComm(xmlSend);
+            var reqData = SysCommon.SubmitComm(xmlSend);
 
             if (reqData.Length > 0)
             {
@@ -470,7 +482,7 @@ namespace dMobile.Controller
                 // Check if result is an error message
                 if (reqData.Contains("<message>ERROR</message>"))
                 {
-                    string errorDetail = xmlDoc.DocumentElement["detail"].InnerText;
+                    var errorDetail = xmlDoc.DocumentElement["detail"].InnerText;
 
                     if (errorDetail.Contains("MSGBOX-"))
                     {
@@ -531,7 +543,7 @@ namespace dMobile.Controller
             {
                 this.DataLayerProgressOutHandler(this, new EventArgs(), 2);
 
-                TableActivityReceivingDetail tableActRecvDetail = new TableActivityReceivingDetail();
+                var tableActRecvDetail = new TableActivityReceivingDetail();
                 await tableActRecvDetail.PurgeData();
 
                 this.DataLayerProgressOutHandler(this, new EventArgs(), 5);
@@ -569,7 +581,7 @@ namespace dMobile.Controller
         /// <returns>Data view result of the query.</returns>
         public override async Task<List<object>> GetActivityDetailList(bool isSubmitBatch)
         {
-            StringBuilder sql = new StringBuilder();
+            var sql = new StringBuilder();
 
             if (isSubmitBatch)
             {
@@ -932,21 +944,21 @@ namespace dMobile.Controller
             ref Grid gridMainActivity,
             ref ListView listViewMainActivity)
         {
-            ObservableCollection<object> observableCollection = new ObservableCollection<object>();
+            var observableCollection = new ObservableCollection<object>();
 
             foreach (ReceiveDetail receiveDetail in this.ListDetails)
             {
                 observableCollection.Add(receiveDetail);
             }
 
-            Label labelActivityDetailQuantityReceiveDetailHeader = new Label
+            var labelActivityDetailQuantityReceiveDetailHeader = new Label
             {
                 Text = "Qty", VerticalOptions = LayoutOptions.Center,
                 HorizontalOptions = LayoutOptions.Start,
                 FontAttributes = FontAttributes.Bold,
             };
 
-            Label labelActivityDetailWeightQuantityReceiveDetailHeader = new Label
+            var labelActivityDetailWeightQuantityReceiveDetailHeader = new Label
             {
                 Text = "Weight",
                 VerticalOptions = LayoutOptions.Center,
@@ -954,7 +966,7 @@ namespace dMobile.Controller
                 FontAttributes = FontAttributes.Bold,
             };
 
-            Label labelUnitCodeReceiveDetailHeader = new Label
+            var labelUnitCodeReceiveDetailHeader = new Label
             {
                 Text = " ",
                 VerticalOptions = LayoutOptions.Center,
@@ -962,7 +974,7 @@ namespace dMobile.Controller
                 FontAttributes = FontAttributes.Bold,
             };
 
-            Label labelActivityDetailSchemeIDReceiveDetailHeader = new Label
+            var labelActivityDetailSchemeIDReceiveDetailHeader = new Label
             {
                 Text = "Scheme ID",
                 VerticalOptions = LayoutOptions.Center,
@@ -980,7 +992,7 @@ namespace dMobile.Controller
                 labelActivityDetailSchemeIDReceiveDetailHeader.Text);
 
             // Header grid
-            Grid gridHeader = new Grid
+            var gridHeader = new Grid
             {
                 Padding = new Thickness(5),
                 ColumnDefinitions =
@@ -1010,12 +1022,12 @@ namespace dMobile.Controller
 
             foreach (ReceiveDetail receiveDetail in observableCollection)
             {
-                double detailWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(
+                var detailWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(
                     string.Format("{0:F3}", receiveDetail.ActivityDetailQuantity));
-                double detailWidth1 = DependencyService.Get<IGridService>().CalculateTextWidth(
+                var detailWidth1 = DependencyService.Get<IGridService>().CalculateTextWidth(
                     string.Format("{0:F3}", receiveDetail.ActivityDetailWeightQuantity));
-                double detailWidth2 = DependencyService.Get<IGridService>().CalculateTextWidth(receiveDetail.UnitCode);
-                double detailWidth3 = DependencyService.Get<IGridService>().CalculateTextWidth(
+                var detailWidth2 = DependencyService.Get<IGridService>().CalculateTextWidth(receiveDetail.UnitCode);
+                var detailWidth3 = DependencyService.Get<IGridService>().CalculateTextWidth(
                     receiveDetail.ActivityDetailSchemeID);
 
                 if (detailWidth0 > this.ColumnWidth0)
@@ -1043,7 +1055,7 @@ namespace dMobile.Controller
                 }
             }
 
-            listViewMainActivity.ItemTemplate = (DataTemplate)this.ResourceDictionary["dataTemplate"];
+            listViewMainActivity.ItemTemplate = (DataTemplate)this.ResourceDictionary["dataTemplateReceivingDetail"];
 
             return observableCollection;
         }
@@ -1055,7 +1067,7 @@ namespace dMobile.Controller
         /// <returns>.</returns>
         public override ObservableCollection<object> Search(string searchText)
         {
-            ObservableCollection<object> observableCollection = new ObservableCollection<object>();
+            var observableCollection = new ObservableCollection<object>();
             this.ListDetails = this.ListReceiveDetails.Where(receiveDetail =>
                 receiveDetail.ActivityDetailFKRefno.ToString().ToLower().Contains(searchText.ToLower().Trim()))
                 .Cast<object>().ToList();
@@ -1085,8 +1097,8 @@ namespace dMobile.Controller
         /// <returns>.</returns>
         public override async Task<string> CreateSubmitXML(XDocument data)
         {
-            StringBuilder xmlString = new StringBuilder();
-            XmlWriter xml = XmlWriter.Create(xmlString);
+            var xmlString = new StringBuilder();
+            var xml = XmlWriter.Create(xmlString);
             XDocument request;
             if (data.Document.Root.Element("skid_data") == null)
             {
@@ -1145,8 +1157,8 @@ namespace dMobile.Controller
         /// <returns>.</returns>
         public override async Task<string> CreateDeleteXML(XDocument data)
         {
-            StringBuilder xmlString = new StringBuilder();
-            XmlWriter xml = XmlWriter.Create(xmlString);
+            var xmlString = new StringBuilder();
+            var xml = XmlWriter.Create(xmlString);
             XDocument request;
             if (data.Document.Root.Element("skid_data") == null)
             {
@@ -1237,7 +1249,7 @@ namespace dMobile.Controller
         /// <param name="listDetailIdx"><see cref="int"/> Zero based list detail index.</param>
         public override void UpdateListDetail(int listDetailIdx)
         {
-            ReceiveDetail detail = (ReceiveDetail)this.ListDetails[listDetailIdx];
+            var detail = (ReceiveDetail)this.ListDetails[listDetailIdx];
             if (detail.ActivityDetailStatus == (int)SysCommon.ActStatus.NoChange)
             {
                 detail.ActivityDetailStatus = (int)SysCommon.ActStatus.Updated;
@@ -1262,7 +1274,7 @@ namespace dMobile.Controller
         {
             mainActivityItems.Add(actDetail);
 
-            Label labelActivityDetailQuantityReceiveDetailHeader = new Label
+            var labelActivityDetailQuantityReceiveDetailHeader = new Label
             {
                 Text = "Qty",
                 VerticalOptions = LayoutOptions.Center,
@@ -1270,7 +1282,7 @@ namespace dMobile.Controller
                 FontAttributes = FontAttributes.Bold,
             };
 
-            Label labelActivityDetailWeightQuantityReceiveDetailHeader = new Label
+            var labelActivityDetailWeightQuantityReceiveDetailHeader = new Label
             {
                 Text = "Weight",
                 VerticalOptions = LayoutOptions.Center,
@@ -1278,7 +1290,7 @@ namespace dMobile.Controller
                 FontAttributes = FontAttributes.Bold,
             };
 
-            Label labelUnitCodeReceiveDetailHeader = new Label
+            var labelUnitCodeReceiveDetailHeader = new Label
             {
                 Text = " ",
                 VerticalOptions = LayoutOptions.Center,
@@ -1286,7 +1298,7 @@ namespace dMobile.Controller
                 FontAttributes = FontAttributes.Bold,
             };
 
-            Label labelActivityDetailSchemeIDReceiveDetailHeader = new Label
+            var labelActivityDetailSchemeIDReceiveDetailHeader = new Label
             {
                 Text = "Scheme ID",
                 VerticalOptions = LayoutOptions.Center,
@@ -1304,7 +1316,7 @@ namespace dMobile.Controller
                 labelActivityDetailSchemeIDReceiveDetailHeader.Text);
 
             // Header grid
-            Grid gridHeader = new Grid
+            var gridHeader = new Grid
             {
                 Padding = new Thickness(5),
                 ColumnDefinitions =
@@ -1332,12 +1344,12 @@ namespace dMobile.Controller
 
             gridMain.Children.Add(gridHeader);
 
-            double detailWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth
+            var detailWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth
                 (string.Format("{0:F3}", actDetail.ActivityDetailQuantity));
-            double detailWidth1 = DependencyService.Get<IGridService>().CalculateTextWidth(
+            var detailWidth1 = DependencyService.Get<IGridService>().CalculateTextWidth(
                 string.Format("{0:F3}", actDetail.ActivityDetailWeightQuantity));
-            double detailWidth2 = DependencyService.Get<IGridService>().CalculateTextWidth(actDetail.UnitCode);
-            double detailWidth3 = DependencyService.Get<IGridService>().CalculateTextWidth(actDetail.ActivityDetailSchemeID);
+            var detailWidth2 = DependencyService.Get<IGridService>().CalculateTextWidth(actDetail.UnitCode);
+            var detailWidth3 = DependencyService.Get<IGridService>().CalculateTextWidth(actDetail.ActivityDetailSchemeID);
 
             if (detailWidth0 > this.ColumnWidth0)
             {
@@ -1363,7 +1375,7 @@ namespace dMobile.Controller
                 gridHeader.ColumnDefinitions[3].Width = this.ColumnWidth3;
             }
 
-            return (DataTemplate)this.ResourceDictionary["dataTemplate"];
+            return (DataTemplate)this.ResourceDictionary["dataTemplateReceivingDetail"];
         }
     }
 }

@@ -30,11 +30,11 @@ namespace dMobile.GroundWork
 
             try
             {
-                string query = "DELETE FROM tActivityDetailProductSchemeVariantXRef "
-                     + "WHERE tActivityDetailProductSchemeVariantXRef.ActivityDetailRefno IN "
-                     + "(SELECT tActivityDetail.ActivityDetailRefno "
-                     + "FROM tActivityDetail "
-                     + "WHERE tActivityDetail.ActivityDetailSubType = ?)";
+                var query = "DELETE FROM tActivityDetailProductSchemeVariantXRef "
+                            + "WHERE tActivityDetailProductSchemeVariantXRef.ActivityDetailRefno IN "
+                            + "(SELECT tActivityDetail.ActivityDetailRefno "
+                            + "FROM tActivityDetail "
+                            + "WHERE tActivityDetail.ActivityDetailSubType = ?)";
                 await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(query, Convert.ToInt32(SysCommon.ActSubTypes.MoveInventory));
 
                 query = "DELETE FROM tActivityDetailMoveInventory "

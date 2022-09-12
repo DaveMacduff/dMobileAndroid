@@ -85,7 +85,7 @@ namespace dMobile.BarCodeScanner.BarCodeScanners
                 this.HoneywellReader = new BarcodeReader();
             }
 
-            BarcodeReaderBase.Result result = await this.HoneywellReader.OpenAsync();
+            var result = await this.HoneywellReader.OpenAsync();
             if (result.Code == BarcodeReaderBase.Result.Codes.SUCCESS ||
                 result.Code == BarcodeReaderBase.Result.Codes.READER_ALREADY_OPENED)
             {
@@ -94,7 +94,7 @@ namespace dMobile.BarCodeScanner.BarCodeScanners
             }
             else
             {
-                string errMsg = $"HoneywellBarcodeScanner, OpenAsync failed, Code: {result.Code} Message: {result.Message}.";
+                var errMsg = $"HoneywellBarcodeScanner, OpenAsync failed, Code: {result.Code} Message: {result.Message}.";
                 _ = Log.Error("HoneywellBarcodeScanner", errMsg);
                 throw new Exception(errMsg);
             }
@@ -117,14 +117,14 @@ namespace dMobile.BarCodeScanner.BarCodeScanners
                 this.HoneywellReader = new BarcodeReader();
             }
 
-            BarcodeReaderBase.Result result = await this.HoneywellReader.CloseAsync();
+            var result = await this.HoneywellReader.CloseAsync();
             if (result.Code == BarcodeReaderBase.Result.Codes.SUCCESS)
             {
                 this.HoneywellReader.BarcodeDataReady -= this.HoneywellReader_BarcodeDataReady;
             }
             else
             {
-                string errMsg = $"HoneywellBarcodeScanner, CloseAsync failed, Code: {result.Code} Message: {result.Message}.";
+                var errMsg = $"HoneywellBarcodeScanner, CloseAsync failed, Code: {result.Code} Message: {result.Message}.";
                 _ = Log.Error("HoneywellBarcodeScanner", errMsg);
                 throw new Exception(errMsg);
             }
@@ -164,7 +164,7 @@ namespace dMobile.BarCodeScanner.BarCodeScanners
             }
             catch (Exception ex)
             {
-                string errMsg = ex.Message;
+                var errMsg = ex.Message;
                 _ = Log.Error("HoneywellBarcodeScanner", errMsg);
                 throw new Exception(errMsg);
             }
@@ -184,13 +184,13 @@ namespace dMobile.BarCodeScanner.BarCodeScanners
                         try
                         {
                             this.HoneywellScannerService.ProfileDataReady -= this.ProfileDataHandler;
-                            Dictionary<string, object> profileSettings = this.HoneywellScannerService.BarcodeReaderSettings;
+                            var profileSettings = this.HoneywellScannerService.BarcodeReaderSettings;
 
-                            BarcodeReaderBase.Result result = await this.HoneywellReader.SetAsync(profileSettings);
+                            var result = await this.HoneywellReader.SetAsync(profileSettings);
 
                             if (result.Code != BarcodeReader.Result.Codes.SUCCESS)
                             {
-                                string errMsg = $"Could not set symbology settings {result.Message}.";
+                                var errMsg = $"Could not set symbology settings {result.Message}.";
                                 throw new Exception(errMsg);
                             }
                             else
@@ -200,7 +200,7 @@ namespace dMobile.BarCodeScanner.BarCodeScanners
                         }
                         catch (Exception ex)
                         {
-                            string errMsg = $"SetSymbologySettings - Error setting symbology settings {ex.Message}";
+                            var errMsg = $"SetSymbologySettings - Error setting symbology settings {ex.Message}";
                             Log.Error("SetSymbologySettings", errMsg);
                             throw new Exception(errMsg);
                         }

@@ -48,9 +48,9 @@ namespace dMobile.Controller
         /// <returns><see cref="Task{List(ProductVariant)}"/> List of logistic unit product variants.</returns>
         public async Task<List<ProductVariant>> GetVariantList(int prodRefno)
         {
-            SLocMap currLocMap = LocationMap.GetInstance().CurrLocMap;
+            var currLocMap = LocationMap.GetInstance().CurrLocMap;
 
-            StringBuilder query = new StringBuilder();
+            var query = new StringBuilder();
             query.Append("SELECT tProductSchemeVariant.ProductSchemeVariantCode AS ProductSchemeVariantCode,");
             query.Append("tProductSchemeVariant.ProductSchemeVariantNo AS ProductSchemeVariantNo,");
             query.Append("tProductSchemeVariant.ProductSchemeVariantCode + \'  \' ");
@@ -78,7 +78,7 @@ namespace dMobile.Controller
             // TODO: Put a number of lot max check, if tProductSchemeLotNumber is > 1000 only load the Detail lots not the
             // tProductSchemeLotNumber the exception would be receiving. The supplier Lot needs to exist in the list for
             // a lookup match.
-            StringBuilder query = new StringBuilder();
+            var query = new StringBuilder();
             query.Append("SELECT DISTINCT tActivityDetail.ActivityDetailLogisticUnitBatchLotNumber AS ActivityDetailLogisticUnitBatchLotNumber ");
             query.Append("FROM tActivityDetail ");
             query.Append("INNER JOIN tProductUnit ON tProductUnit.ProductUnitRefno = tActivityDetail.ProductUnitRefno ");
@@ -100,7 +100,7 @@ namespace dMobile.Controller
         /// <returns>.</returns>
         public async Task<List<SerialNumber>> GetSerialNumberList(int prodRefno)
         {
-            StringBuilder query = new StringBuilder();
+            var query = new StringBuilder();
             query.Append("SELECT DISTINCT tActivityDetail.ActivityDetailSingleTradeItemSerialNumber AS ActivityDetailSingleTradeItemSerialNumber ");
             query.Append("FROM tActivityDetail ");
             query.Append("INNER JOIN tProductUnit ON tProductUnit.ProductUnitRefno = tActivityDetail.ProductUnitRefno ");
@@ -118,9 +118,9 @@ namespace dMobile.Controller
         /// <returns><see cref="XDocument"/> Activity detail edit XML data.</returns>
         public Task<XDocument> GetXMLFromActivityDetailEdit(ActDetailEdit detailEdit)
         {
-            bool isBatchPrintProductLabel = SysEnvironment.GetInstance().SysSettings.IsPrintProductLabelsAsBatch;
+            var isBatchPrintProductLabel = SysEnvironment.GetInstance().SysSettings.IsPrintProductLabelsAsBatch;
 
-            XDocument xmlDoc = XDocument.Parse(
+            var xmlDoc = XDocument.Parse(
                 "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>"
                 + "<params>"
                 + "<ser_refno>0</ser_refno>"

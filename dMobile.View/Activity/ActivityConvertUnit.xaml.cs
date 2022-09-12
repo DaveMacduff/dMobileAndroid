@@ -56,9 +56,9 @@ namespace dMobile.View.Activity
                 if (this.SysEnv.SysSettings.IsProductUnitBarCodeModifier1)
                 {
                     this.BarCodeModifier1Picker.Items.Add(string.Empty);
-                    string[] modifiers = this.SysEnv.SysSettings.ProductUnitBarCodeModifier1Codes.Split(',');
+                    var modifiers = this.SysEnv.SysSettings.ProductUnitBarCodeModifier1Codes.Split(',');
 
-                    foreach (string item in modifiers)
+                    foreach (var item in modifiers)
                     {
                         this.BarCodeModifier1Picker.Items.Add(item);
                     }
@@ -117,7 +117,7 @@ namespace dMobile.View.Activity
                     {
                         if (this.dgUnitWeight.SelectedItem is ConvertUnitDetail convertUnitDetail)
                         {
-                            ucActivityConvertUnitWeightEdit activityConvertUnitWeightEdit = new ucActivityConvertUnitWeightEdit(convertUnitDetail);
+                            var activityConvertUnitWeightEdit = new ucActivityConvertUnitWeightEdit(convertUnitDetail);
 
                             if (await activityConvertUnitWeightEdit.ShowDialog() == DialogResult.OK && activityConvertUnitWeightEdit.WeightHasChanged)
                             {
@@ -250,7 +250,7 @@ namespace dMobile.View.Activity
         /// Must have a try catch block.</remarks>
         public async Task<bool> IsReadyToSave()
         {
-            bool isReadyToSave = true;
+            var isReadyToSave = true;
 
             try
             {
@@ -289,7 +289,7 @@ namespace dMobile.View.Activity
 
                 await Device.InvokeOnMainThreadAsync(async () =>
                 {
-                    FormErrorReport errorReport = new FormErrorReport(this.ActSubType, ex);
+                    var errorReport = new FormErrorReport(this.ActSubType, ex);
                     _ = await errorReport.ShowDialog();
                 });
             }
@@ -304,7 +304,7 @@ namespace dMobile.View.Activity
         /// <remarks></remarks>
         public async Task<bool> IsReadyToClose()
         {
-            bool isReadyToClose = true;
+            var isReadyToClose = true;
 
             try
             {
@@ -333,7 +333,7 @@ namespace dMobile.View.Activity
 
                 await Device.InvokeOnMainThreadAsync(async () =>
                 {
-                    FormErrorReport errorReport = new FormErrorReport(this.ActSubType, ex);
+                    var errorReport = new FormErrorReport(this.ActSubType, ex);
                     _ = await errorReport.ShowDialog();
                 });
             }
@@ -358,7 +358,7 @@ namespace dMobile.View.Activity
         /// <remarks></remarks>
         public async Task<bool> SaveChanges()
         {
-            bool saveComplete = false;
+            var saveComplete = false;
 
             try
             {
@@ -366,16 +366,16 @@ namespace dMobile.View.Activity
                 {
                     if (this.FromProdUnitRefno != 0 && this.ActItem.ListItems.Count != 0 && this.ActDetail.ListDetails.Count != 0)
                     {
-                        string dataReq = SysCommon.SubmitComm(await this.MakeConvertUnitSubmitString());
+                        var dataReq = SysCommon.SubmitComm(await this.MakeConvertUnitSubmitString());
 
                         if (dataReq.Length > 0)
                         {
-                            XmlDocument xmlDoc = new XmlDocument();
+                            var xmlDoc = new XmlDocument();
                             xmlDoc.LoadXml(dataReq);
 
                             if (dataReq.Contains("<message>ERROR</message>"))
                             {
-                                string errorDetail = xmlDoc.DocumentElement["detail"].InnerText;
+                                var errorDetail = xmlDoc.DocumentElement["detail"].InnerText;
 
                                 if (errorDetail.Contains("MSGBOX-"))
                                 {
@@ -392,14 +392,14 @@ namespace dMobile.View.Activity
                                 {
                                     if (await Device.InvokeOnMainThreadAsync(async () => await this.DisplayAlert("Unit Conversion", "Unit conversion complete." + Environment.NewLine + "Do you wish to print product labels?", "Yes", "No")))
                                     {
-                                        for (int idx = 0; idx < this.ActDetail.ListDetails.Count; idx++)
+                                        for (var idx = 0; idx < this.ActDetail.ListDetails.Count; idx++)
                                         {
                                             dataReq = SysCommon.SubmitComm(await this.MakeProductLabelsSubmitString(idx));
 
                                             if (dataReq.Contains("<message>ERROR</message>"))
                                             {
                                                 xmlDoc.LoadXml(dataReq);
-                                                string errorDetail = xmlDoc.DocumentElement["detail"].InnerText;
+                                                var errorDetail = xmlDoc.DocumentElement["detail"].InnerText;
 
                                                 if (errorDetail.Contains("MSGBOX-"))
                                                 {
@@ -466,7 +466,7 @@ namespace dMobile.View.Activity
 
                 await Device.InvokeOnMainThreadAsync(async () =>
                 {
-                    FormErrorReport errorReport = new FormErrorReport(this.ActSubType, ex);
+                    var errorReport = new FormErrorReport(this.ActSubType, ex);
                     _ = await errorReport.ShowDialog();
                 });
             }
@@ -481,7 +481,7 @@ namespace dMobile.View.Activity
         /// <remarks></remarks>
         public async Task<bool> CancelChanges()
         {
-            bool cancelChanges = true;
+            var cancelChanges = true;
 
             try
             {
@@ -521,7 +521,7 @@ namespace dMobile.View.Activity
 
                 await Device.InvokeOnMainThreadAsync(async () =>
                 {
-                    FormErrorReport errorReport = new FormErrorReport(this.ActSubType, ex);
+                    var errorReport = new FormErrorReport(this.ActSubType, ex);
                     _ = await errorReport.ShowDialog();
                 });
             }
@@ -535,7 +535,7 @@ namespace dMobile.View.Activity
         /// <returns></returns>
         public async Task<XDocument> GetXML()
         {
-            XDocument xmlDoc = XDocument.Parse(
+            var xmlDoc = XDocument.Parse(
                 "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>"
                 + "<params>"
                 + "</params>");
@@ -551,7 +551,7 @@ namespace dMobile.View.Activity
         {
             if (this.ActItem.ListItems.Count > 0)
             {
-                ProductInfo fromProdInfo = await ProductInfoTasks.GetInfoFromUnitRefno(this.FromProdUnitRefno);
+                var fromProdInfo = await ProductInfoTasks.GetInfoFromUnitRefno(this.FromProdUnitRefno);
 
                 // TODO: Test selected listItem value is correct
                 await Device.InvokeOnMainThreadAsync(() =>
@@ -587,7 +587,7 @@ namespace dMobile.View.Activity
             {
                 this.Loading = true;
                 BarCodeParse parse = null;
-                SActItemSchemeData tempItemProdSchemeData = new SActItemSchemeData();
+                var tempItemProdSchemeData = new SActItemSchemeData();
 
                 try
                 {
@@ -640,7 +640,7 @@ namespace dMobile.View.Activity
 
                             await this.ClearContents();
 
-                            int tempFromProdUnitRefno = this.FromProdUnitRefno;
+                            var tempFromProdUnitRefno = this.FromProdUnitRefno;
 
                             tempFromProdUnitRefno = await SysShared.IdentifyProductScanned(this.ActSubType, parse);
 
@@ -651,7 +651,7 @@ namespace dMobile.View.Activity
                             // Insert a new activity detail record
                             this.ActDetail.ActItem = this.ActItem;
 
-                            bool isInsertReady = false;
+                            var isInsertReady = false;
 
                             this.ActDetail.Quantity = 0;
                             this.ActDetail.BaseQuantity = 0;
@@ -666,7 +666,7 @@ namespace dMobile.View.Activity
 
                             isInsertReady = await SysShared.GatherProductData(parse, this.ActSubType, this.ActItem, tempItemProdSchemeData, isInsertReady, this.ActDetail, false);
 
-                            XDocument xmlDoc = this.ActDetail.GetXML(this.ActDetail);
+                            var xmlDoc = this.ActDetail.GetXML(this.ActDetail);
 
                             await this.ActItem.Insert(xmlDoc, false);
 
@@ -674,15 +674,15 @@ namespace dMobile.View.Activity
 
                             if (this.FromProdUnitRefno > 0)
                             {
-                                string query = "SELECT tProduct.ProductCode," +
-                                    " tProductUnit.ProductUnitBC," +
-                                    " tUnit.UnitCode" +
-                                    " FROM tProductUnit" +
-                                    " INNER JOIN tProduct ON tProduct.ProductRefno = tProductUnit.ProductRefno" +
-                                    " INNER JOIN tUnit ON tUnit.UnitRefno = tProductUnit.UnitRefno" +
-                                    " WHERE tProductUnit.ProductUnitRefno = ?";
+                                var query = "SELECT tProduct.ProductCode," +
+                                            " tProductUnit.ProductUnitBC," +
+                                            " tUnit.UnitCode" +
+                                            " FROM tProductUnit" +
+                                            " INNER JOIN tProduct ON tProduct.ProductRefno = tProductUnit.ProductRefno" +
+                                            " INNER JOIN tUnit ON tUnit.UnitRefno = tProductUnit.UnitRefno" +
+                                            " WHERE tProductUnit.ProductUnitRefno = ?";
 
-                                List<ProductUnit> results = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<ProductUnit>(query, Convert.ToString(this.FromProdUnitRefno));
+                                var results = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<ProductUnit>(query, Convert.ToString(this.FromProdUnitRefno));
 
                                 if (results?.Count > 0)
                                 {
@@ -708,7 +708,7 @@ namespace dMobile.View.Activity
                 {
                     await Device.InvokeOnMainThreadAsync(async () =>
                     {
-                        FormErrorReport errorReport = new FormErrorReport(this.ActSubType, ex);
+                        var errorReport = new FormErrorReport(this.ActSubType, ex);
                         _ = await errorReport.ShowDialog();
                     });
                 }
@@ -731,14 +731,14 @@ namespace dMobile.View.Activity
                 decimal qty = 0;
                 decimal wtQty = 0;
 
-                for (int item = 0; item <= this.ActDetail.ListDetails.Count - 1; item++)
+                for (var item = 0; item <= this.ActDetail.ListDetails.Count - 1; item++)
                 {
                     // TODO: Test and determine type
                     qty += Convert.ToDecimal((this.ActDetail.ListDetails[item] as dynamic).ActivityDetailQuantity);
                     wtQty += Convert.ToDecimal((this.ActDetail.ListDetails[item] as dynamic).ActivityDetailWeightQuantity);
                 }
 
-                ProductInfo toProdInfo = await ProductInfoTasks.GetInfoFromUnitRefno(this.ToProdUnitRefno);
+                var toProdInfo = await ProductInfoTasks.GetInfoFromUnitRefno(this.ToProdUnitRefno);
                 _ = await Device.InvokeOnMainThreadAsync(() => this.lblConvertedUnitInfo.Text = string.Format("Qty {0} {1} @ {2} {3}", Math.Round(qty, 3), toProdInfo.UnitCode, Math.Round(wtQty, 3), toProdInfo.WeightUnitCode));
             }
             else
@@ -794,7 +794,7 @@ namespace dMobile.View.Activity
 
                 Device.BeginInvokeOnMainThread(async () =>
                 {
-                    FormErrorReport errorReport = new FormErrorReport(this.ActSubType, ex);
+                    var errorReport = new FormErrorReport(this.ActSubType, ex);
                     _ = await errorReport.ShowDialog();
                 });
             }
@@ -829,10 +829,10 @@ namespace dMobile.View.Activity
         /// <returns></returns>
         private async Task<string> MakeProductLabelsSubmitString(int idx)
         {
-            PrinterSettings prnSettings = new PrinterSettings().LoadData();
-            string production = string.Empty;
-            string bestBefore = string.Empty;
-            ProductInfo prodInfo = new ProductInfo();
+            var prnSettings = new PrinterSettings().LoadData();
+            var production = string.Empty;
+            var bestBefore = string.Empty;
+            var prodInfo = new ProductInfo();
 
             prodInfo = await ProductInfoTasks.GetInfoFromUnitRefno(Convert.ToInt32(this.ActDetail.ListDetails[idx].GetType().GetProperty("GetType")?.GetValue(this.ActDetail.ListDetails[idx])));
             prodInfo.Scheme = await ProductInfoTasks.GetSchemeComponentsFromRefno(prodInfo.Refno);
@@ -847,7 +847,7 @@ namespace dMobile.View.Activity
                 production = Convert.ToDateTime(this.ActDetail.ListDetails[idx].GetType().GetProperty("ActivityDetailLogisticUnitProductionDate")?.GetValue(this.ActDetail.ListDetails[idx])).ToString("MM/dd/yyyy");
             }
 
-            StringBuilder req = new StringBuilder();
+            var req = new StringBuilder();
             _ = req.Append("<?xml version=\'1.0\' encoding=\'utf-16\' standalone=\'yes\'?>");
             _ = req.Append("<imclient>");
             _ = req.Append("<command><action>SUBMIT PRINT PRODUCT LABEL</action></command>");
@@ -883,11 +883,11 @@ namespace dMobile.View.Activity
         /// <remarks></remarks>
         private async Task<string> MakeConvertUnitSubmitString()
         {
-            string production = string.Empty;
-            string bestBefore = string.Empty;
-            ProductInfo prodInfo = new ProductInfo();
-            List<object> detail = this.ActDetail.ListDetails;
-            List<object> items = this.ActDetail.ActItem.ListItems;
+            var production = string.Empty;
+            var bestBefore = string.Empty;
+            var prodInfo = new ProductInfo();
+            var detail = this.ActDetail.ListDetails;
+            var items = this.ActDetail.ActItem.ListItems;
 
             prodInfo = await ProductInfoTasks.GetInfoFromUnitRefno(Convert.ToInt32(items[0].GetType().GetProperty("ProductUnitRefno")?.GetValue(items[0])));
             prodInfo.Scheme = await ProductInfoTasks.GetSchemeComponentsFromRefno(prodInfo.Refno);
@@ -902,7 +902,7 @@ namespace dMobile.View.Activity
                 production = Convert.ToDateTime(items[0].GetType().GetProperty("ActivityDetailLogisticUnitProductionDate")?.GetValue(items[0])).ToString("MM/dd/yyyy");
             }
 
-            StringBuilder req = new StringBuilder();
+            var req = new StringBuilder();
             _ = req.Append("<?xml version=\'1.0\' encoding=\'utf-16\' standalone=\'yes\'?>");
             _ = req.Append("<imclient>");
             _ = req.Append("<command><action>SUBMIT CONVERT UNIT</action></command>");
@@ -929,9 +929,9 @@ namespace dMobile.View.Activity
             _ = req.AppendFormat("<base_unit>{0}</base_unit>", prodInfo.BaseUnitCode);
             _ = req.Append("</from>");
 
-            for (int idx = 0; idx <= this.ActDetail.ListDetails.Count - 1; idx++)
+            for (var idx = 0; idx <= this.ActDetail.ListDetails.Count - 1; idx++)
             {
-                ProductInfo toProdInfo = new ProductInfo();
+                var toProdInfo = new ProductInfo();
                 toProdInfo = await ProductInfoTasks.GetInfoFromUnitRefno(Convert.ToInt32(detail[idx].GetType().GetProperty("ProductUnitRefno")?.GetValue(detail[idx])));
 
                 _ = req.Append("<to>");
@@ -971,7 +971,7 @@ namespace dMobile.View.Activity
         private async void cmdLocation_Click(object sender, EventArgs e)
         {
             await this.ScannerDisable();
-            FormDialogContainer form = new FormDialogContainer(EDialogTypes.SelectLocationMap, SysCommon.ActSubTypes.NotApplicable);
+            var form = new FormDialogContainer(EDialogTypes.SelectLocationMap, SysCommon.ActSubTypes.NotApplicable);
 
             if (await form.DisplayControl.ShowDialog() == DialogResult.OK)
             {
@@ -1007,19 +1007,19 @@ namespace dMobile.View.Activity
             }
             else
             {
-                FormDialogContainer frmSelectProduct = new FormDialogContainer(EDialogTypes.SelectProductUnit, SysCommon.ActSubTypes.ConvertUnit);
+                var frmSelectProduct = new FormDialogContainer(EDialogTypes.SelectProductUnit, SysCommon.ActSubTypes.ConvertUnit);
 
                 if (await Device.InvokeOnMainThreadAsync(async () => await frmSelectProduct.DisplayControl.ShowDialog() == DialogResult.OK))
                 {
                     await this.ClearContents();
-                    XDocument xmlDocProduct = await frmSelectProduct.GetXML();
+                    var xmlDocProduct = await frmSelectProduct.GetXML();
                     this.FromProdUnitRefno = int.Parse(xmlDocProduct.Root.Element("ProductUnitRefno").Value);
 
                     if (this.FromProdUnitRefno != 0)
                     {
                         this.ActItem.ProdInfo = await ProductInfoTasks.GetInfoFromUnitRefno(this.FromProdUnitRefno);
                         this.ActItem.ProdInfo.Scheme = await ProductInfoTasks.GetSchemeComponentsFromRefno(this.ActItem.ProdInfo.Refno);
-                        Resources.Types.ActivityDetail detail = new dMobile.Resources.Types.ActivityDetail();
+                        var detail = new dMobile.Resources.Types.ActivityDetail();
                         await this.ActDetail.AssignThisFromDetailAsync(detail, true);
 
                         try
@@ -1035,22 +1035,22 @@ namespace dMobile.View.Activity
                             this.ActDetail.ActExtra.Text4 = string.Empty;
                             this.ActDetail.ActExtra.DateTime1 = new DateTime(1980, 1, 1);
 
-                            FormDialogContainer form = new FormDialogContainer(EDialogTypes.ActivityDetailEdit, this.ActDetail, SysCommon.ActSubTypes.ConvertUnit);
+                            var form = new FormDialogContainer(EDialogTypes.ActivityDetailEdit, this.ActDetail, SysCommon.ActSubTypes.ConvertUnit);
 
                             if (await form.DisplayControl.ShowDialog() == DialogResult.OK)
                             {
-                                XDocument xmlDoc = await form.GetXML();
+                                var xmlDoc = await form.GetXML();
                                 await this.ActItem.Insert(xmlDoc, false);
 
-                                string query = "SELECT tProduct.ProductCode,"
-                                    + "tProductUnit.ProductUnitBC,"
-                                    + "tUnit.UnitCode "
-                                    + "FROM tProductUnit "
-                                    + "INNER JOIN tProduct ON tProduct.ProductRefno = tProductUnit.ProductRefno "
-                                    + "INNER JOIN tUnit ON tUnit.UnitRefno = tProductUnit.UnitRefno "
-                                    + "WHERE tProductUnit.ProductUnitRefno = ?";
+                                var query = "SELECT tProduct.ProductCode,"
+                                            + "tProductUnit.ProductUnitBC,"
+                                            + "tUnit.UnitCode "
+                                            + "FROM tProductUnit "
+                                            + "INNER JOIN tProduct ON tProduct.ProductRefno = tProductUnit.ProductRefno "
+                                            + "INNER JOIN tUnit ON tUnit.UnitRefno = tProductUnit.UnitRefno "
+                                            + "WHERE tProductUnit.ProductUnitRefno = ?";
 
-                                List<ProductUnit> results = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<ProductUnit>(query, this.FromProdUnitRefno);
+                                var results = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<ProductUnit>(query, this.FromProdUnitRefno);
 
                                 if (results?.Count > 0)
                                 {
@@ -1064,7 +1064,7 @@ namespace dMobile.View.Activity
                         {
                             await Device.InvokeOnMainThreadAsync(async () =>
                             {
-                                FormErrorReport errorReport = new FormErrorReport(this.ActSubType, ex);
+                                var errorReport = new FormErrorReport(this.ActSubType, ex);
                                 _ = await errorReport.ShowDialog();
                             });
                         }
@@ -1080,7 +1080,7 @@ namespace dMobile.View.Activity
                         {
                             await Device.InvokeOnMainThreadAsync(async () =>
                             {
-                                FormErrorReport errorReport = new FormErrorReport(this.ActSubType, ex);
+                                var errorReport = new FormErrorReport(this.ActSubType, ex);
                                 _ = await errorReport.ShowDialog();
                             });
                         }
@@ -1122,13 +1122,13 @@ namespace dMobile.View.Activity
                     this.ActItem.ProdInfo = await ProductInfoTasks.GetInfoFromUnitRefno(this.FromProdUnitRefno);
                     this.ActItem.ProdInfo.Scheme = await ProductInfoTasks.GetSchemeComponentsFromRefno(this.ActItem.ProdInfo.Refno);
 
-                    decimal decFromBaseFactor = await ProductInfoTasks.GetUnitRelationFactor((ProductInfo)this.ActItem.ProdInfo);
+                    var decFromBaseFactor = await ProductInfoTasks.GetUnitRelationFactor((ProductInfo)this.ActItem.ProdInfo);
 
-                    FormDialogContainer frmSelectProduct = new FormDialogContainer(EDialogTypes.SelectProductUnitFilterToProduct, this.ActItem, SysCommon.ActSubTypes.ConvertUnit);
+                    var frmSelectProduct = new FormDialogContainer(EDialogTypes.SelectProductUnitFilterToProduct, this.ActItem, SysCommon.ActSubTypes.ConvertUnit);
 
                     if (await Device.InvokeOnMainThreadAsync(async () => await frmSelectProduct.DisplayControl.ShowDialog() == DialogResult.OK))
                     {
-                        XDocument xmlDocProduct = await frmSelectProduct.GetXML();
+                        var xmlDocProduct = await frmSelectProduct.GetXML();
                         this.ToProdUnitRefno = int.Parse(xmlDocProduct.Root.Element("ProductUnitRefno").Value);
 
                         if (this.ToProdUnitRefno != 0)
@@ -1148,7 +1148,7 @@ namespace dMobile.View.Activity
                             this.ActDetail.SchemeID = Convert.ToString((this.ActItem.ListItems[0] as dynamic).ActivityDetailSchemeID);
                             this.ActDetail.UniqueSchemeID = Convert.ToString((this.ActItem.ListItems[0] as dynamic).ActivityDetailUniqueSchemeID);
 
-                            SProductSchemeData prodSchemeData = new SProductSchemeData
+                            var prodSchemeData = new SProductSchemeData
                             {
                                 LogisticUnitBestBeforeSellByDate = Convert.ToDateTime((this.ActItem.ListItems[0] as dynamic).ActivityDetailLogisticUnitBestBeforeSellByDate),
                                 LogisticUnitProductionDate = Convert.ToDateTime((this.ActItem.ListItems[0] as dynamic).ActivityDetailLogisticUnitProductionDate),
@@ -1163,11 +1163,11 @@ namespace dMobile.View.Activity
 
                             try
                             {
-                                FormDialogContainer form = new FormDialogContainer(EDialogTypes.ActivityConvertUnitEdit, this.ActDetail, SysCommon.ActSubTypes.ConvertUnit);
+                                var form = new FormDialogContainer(EDialogTypes.ActivityConvertUnitEdit, this.ActDetail, SysCommon.ActSubTypes.ConvertUnit);
 
                                 if (await form.DisplayControl.ShowDialog() == DialogResult.OK)
                                 {
-                                    XDocument xmlDoc = await form.GetXML();
+                                    var xmlDoc = await form.GetXML();
 
                                     await Device.InvokeOnMainThreadAsync(() =>
                                     {
@@ -1188,18 +1188,18 @@ namespace dMobile.View.Activity
                                         if (this.ActItem.ProdInfo.UnitCode == "LB" || this.ActItem.ProdInfo.UnitCode == "KG")
                                         {
                                             await this.ActDetail.Insert(xmlDoc);
-                                            Resources.Types.ActivityDetail detail = this.ActDetail.InsertListDetail(
+                                            var detail = this.ActDetail.InsertListDetail(
                                                 this.MainActivityItems);
                                             ////this.SelectedActivityDetailFKRefno = this.ActDetail.DetailFKRefno;
                                         }
                                         else
                                         {
-                                            decimal altQty = this.ActDetail.Quantity;
-                                            decimal baseQty = this.ActDetail.BaseQuantity;
-                                            decimal wt = this.ActDetail.WeightQuantity;
-                                            decimal wtQty = altQty == 0 ? wt : wt / altQty;
+                                            var altQty = this.ActDetail.Quantity;
+                                            var baseQty = this.ActDetail.BaseQuantity;
+                                            var wt = this.ActDetail.WeightQuantity;
+                                            var wtQty = altQty == 0 ? wt : wt / altQty;
 
-                                            for (int unitQty = 1; unitQty <= altQty; unitQty++)
+                                            for (var unitQty = 1; unitQty <= altQty; unitQty++)
                                             {
                                                 this.ActDetail.Quantity = 1;
                                                 this.ActDetail.WeightQuantity = wtQty;
@@ -1221,7 +1221,7 @@ namespace dMobile.View.Activity
                                                 }
 
                                                 await this.ActDetail.Insert(xmlDoc);
-                                                Resources.Types.ActivityDetail detail = this.ActDetail.InsertListDetail(
+                                                var detail = this.ActDetail.InsertListDetail(
                                                     this.MainActivityItems);
                                                 ////this.SelectedActivityDetailFKRefno = this.ActDetail.DetailFKRefno;
                                             }
@@ -1230,7 +1230,7 @@ namespace dMobile.View.Activity
                                     else
                                     {
                                         await this.ActDetail.Insert(xmlDoc);
-                                        Resources.Types.ActivityDetail detail = this.ActDetail.InsertListDetail(
+                                        var detail = this.ActDetail.InsertListDetail(
                                             this.MainActivityItems);
                                         ////this.SelectedActivityDetailFKRefno = this.ActDetail.DetailFKRefno;
                                     }
@@ -1246,7 +1246,7 @@ namespace dMobile.View.Activity
                             {
                                 await Device.InvokeOnMainThreadAsync(async () =>
                                 {
-                                    FormErrorReport errorReport = new FormErrorReport(this.ActSubType, ex);
+                                    var errorReport = new FormErrorReport(this.ActSubType, ex);
                                     _ = await errorReport.ShowDialog();
                                 });
                             }
@@ -1262,7 +1262,7 @@ namespace dMobile.View.Activity
                             {
                                 await Device.InvokeOnMainThreadAsync(async () =>
                                 {
-                                    FormErrorReport errorReport = new FormErrorReport(this.ActSubType, ex);
+                                    var errorReport = new FormErrorReport(this.ActSubType, ex);
                                     _ = await errorReport.ShowDialog();
                                 });
                             }
@@ -1282,7 +1282,7 @@ namespace dMobile.View.Activity
             {
                 await Device.InvokeOnMainThreadAsync(async () =>
                 {
-                    FormErrorReport errorReport = new FormErrorReport(this.ActSubType, ex);
+                    var errorReport = new FormErrorReport(this.ActSubType, ex);
                     _ = await errorReport.ShowDialog();
                 });
             }
@@ -1301,22 +1301,22 @@ namespace dMobile.View.Activity
         /// <returns></returns>
         private async Task<SFillQuantity> RequestConvertUnitResult(int fromProdUnitRefno, int toProdUnitRefno, decimal quantity, decimal weightQuantity)
         {
-            SFillQuantity fillQty = new SFillQuantity
+            var fillQty = new SFillQuantity
             {
                 Quantity = quantity,
             };
 
-            string request = await this.CreateConvertUnitResultXML(fromProdUnitRefno, toProdUnitRefno, quantity, weightQuantity);
-            string dataReq = SysCommon.SubmitComm(request);
+            var request = await this.CreateConvertUnitResultXML(fromProdUnitRefno, toProdUnitRefno, quantity, weightQuantity);
+            var dataReq = SysCommon.SubmitComm(request);
 
             if (dataReq.Length > 0)
             {
-                XmlDocument xmlDoc = new XmlDocument();
+                var xmlDoc = new XmlDocument();
                 xmlDoc.LoadXml(dataReq);
 
                 if (dataReq.Contains("<message>ERROR</message>"))
                 {
-                    string errorDetail = xmlDoc.DocumentElement["detail"].InnerText;
+                    var errorDetail = xmlDoc.DocumentElement["detail"].InnerText;
 
                     if (errorDetail.Contains("MSGBOX-"))
                     {
@@ -1354,12 +1354,12 @@ namespace dMobile.View.Activity
         /// <remarks></remarks>
         private async Task<string> CreateConvertUnitResultXML(int fromProdUnitRefno, int toProdUnitRefno, decimal quantity, decimal weightQuantity)
         {
-            StringBuilder xmlString = new StringBuilder();
-            XmlWriter xml = XmlWriter.Create(xmlString);
-            ProductInfo fromProd = await ProductInfoTasks.GetInfoFromUnitRefno(fromProdUnitRefno);
-            ProductInfo toProd = await ProductInfoTasks.GetInfoFromUnitRefno(toProdUnitRefno);
+            var xmlString = new StringBuilder();
+            var xml = XmlWriter.Create(xmlString);
+            var fromProd = await ProductInfoTasks.GetInfoFromUnitRefno(fromProdUnitRefno);
+            var toProd = await ProductInfoTasks.GetInfoFromUnitRefno(toProdUnitRefno);
 
-            XDocument request = XDocument.Parse(
+            var request = XDocument.Parse(
                 "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>"
                 + "<imclient>"
                 + "<command>"

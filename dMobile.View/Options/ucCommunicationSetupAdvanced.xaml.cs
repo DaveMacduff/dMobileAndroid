@@ -173,7 +173,7 @@ namespace dMobile.View.Options
         /// <remarks></remarks>
         public bool IsReadyToSave()
         {
-            bool isReadyToSave = true;
+            var isReadyToSave = true;
 
             try
             {
@@ -199,7 +199,7 @@ namespace dMobile.View.Options
 
                 Device.BeginInvokeOnMainThread(async () =>
                 {
-                    FormErrorReport errorReport = new FormErrorReport(SysCommon.ActSubTypes.CommunicationSetup, /*this,*/ ex);
+                    var errorReport = new FormErrorReport(SysCommon.ActSubTypes.CommunicationSetup, /*this,*/ ex);
                     _ = await errorReport.ShowDialog();
                 });
             }
@@ -218,7 +218,7 @@ namespace dMobile.View.Options
 /// <returns>A <see cref="Task{TResult}"/> representing the result of the asynchronous operation.</returns>
         public async Task<bool> SaveChanges()
         {
-            bool saveComplete = false;
+            var saveComplete = false;
 
             try
             {
@@ -231,7 +231,7 @@ namespace dMobile.View.Options
                     this.SysEnv.CommSetup.SendAttempts = Convert.ToInt32(this.updnSendAttempts.Text);
                     this.SysEnv.CommSetup.SendTimeOutSeconds = Convert.ToInt32(this.updnSendTimeOutSec.Text);
 
-                    CommunicationSetup tempCommSetup = this.SysEnv.CommSetup;
+                    var tempCommSetup = this.SysEnv.CommSetup;
                     saveComplete = this.SysEnv.CommSetup.SaveData(ref tempCommSetup);
 
                     this.IsChangesMade = false;
@@ -256,7 +256,7 @@ namespace dMobile.View.Options
 
                 await Device.InvokeOnMainThreadAsync(async () =>
                 {
-                    FormErrorReport errorReport = new FormErrorReport(SysCommon.ActSubTypes.RefreshData, /*this,*/ ex);
+                    var errorReport = new FormErrorReport(SysCommon.ActSubTypes.RefreshData, /*this,*/ ex);
                     _ = await errorReport.ShowDialog();
                 });
             }
@@ -275,7 +275,7 @@ namespace dMobile.View.Options
 /// <returns>A <see cref="Task{TResult}"/> representing the result of the asynchronous operation.</returns>
         public async Task<bool> IsReadyToClose()
         {
-            bool isReadyToClose = true;
+            var isReadyToClose = true;
 
             try
             {
@@ -316,7 +316,7 @@ namespace dMobile.View.Options
                 // }
                 Device.BeginInvokeOnMainThread(async () =>
                 {
-                    FormErrorReport errorReport = new FormErrorReport(SysCommon.ActSubTypes.RefreshData, /*this,*/ ex);
+                    var errorReport = new FormErrorReport(SysCommon.ActSubTypes.RefreshData, /*this,*/ ex);
                     _ = await errorReport.ShowDialog();
                 });
             }
@@ -335,7 +335,7 @@ namespace dMobile.View.Options
 /// <returns>A <see cref="Task{TResult}"/> representing the result of the asynchronous operation.</returns>
         public async Task<bool> CancelChanges()
         {
-            bool cancelChanges = true;
+            var cancelChanges = true;
 
             try
             {
@@ -376,7 +376,7 @@ namespace dMobile.View.Options
                 // }
                 await Device.InvokeOnMainThreadAsync(async () =>
                 {
-                    FormErrorReport errorReport = new FormErrorReport(SysCommon.ActSubTypes.CommunicationSetup, /*this,*/ ex);
+                    var errorReport = new FormErrorReport(SysCommon.ActSubTypes.CommunicationSetup, /*this,*/ ex);
                     _ = await errorReport.ShowDialog();
                 });
             }
@@ -395,7 +395,7 @@ namespace dMobile.View.Options
 /// <returns>A <see cref="Task{TResult}"/> representing the result of the asynchronous operation.</returns>
         public async Task<XDocument> GetXML()
         {
-            XDocument xmldocParams = XDocument.Parse(
+            var xmldocParams = XDocument.Parse(
                 "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>"
                 + "<params>"
                 + "</params>");
@@ -431,7 +431,7 @@ namespace dMobile.View.Options
                 {
                     e.Cancel = true;
 
-                    string msg = string.Format("Connection attempts must be between {0} and {1}", this.connectionAttemptsMin, this.connectionAttemptsMax);
+                    var msg = string.Format("Connection attempts must be between {0} and {1}", this.connectionAttemptsMin, this.connectionAttemptsMax);
                     throw new MessageOnlyException(msg);
                 }
 
@@ -440,7 +440,7 @@ namespace dMobile.View.Options
                 {
                     e.Cancel = true;
 
-                    string msg = string.Format("Receive attempts must be between {0} and {1}", this.receivedAttemptsMin, this.receivedAttemptsMax);
+                    var msg = string.Format("Receive attempts must be between {0} and {1}", this.receivedAttemptsMin, this.receivedAttemptsMax);
                     throw new MessageOnlyException(msg);
                 }
 
@@ -449,7 +449,7 @@ namespace dMobile.View.Options
                 {
                     e.Cancel = true;
 
-                    string msg = string.Format("Receive buffer size must be between {0} and {1}", this.receiveBufferSizeMin, this.receiveBufferSizeMax);
+                    var msg = string.Format("Receive buffer size must be between {0} and {1}", this.receiveBufferSizeMin, this.receiveBufferSizeMax);
                     throw new MessageOnlyException(msg);
                 }
 
@@ -458,7 +458,7 @@ namespace dMobile.View.Options
                 {
                     e.Cancel = true;
 
-                    string msg = string.Format("Receive buffer size must be between {0} and {1}", this.receiveTimeoutSecondsMin, this.receiveTimeoutSecondsMax);
+                    var msg = string.Format("Receive buffer size must be between {0} and {1}", this.receiveTimeoutSecondsMin, this.receiveTimeoutSecondsMax);
                     throw new MessageOnlyException(msg);
                 }
 
@@ -467,7 +467,7 @@ namespace dMobile.View.Options
                 {
                     e.Cancel = true;
 
-                    string msg = string.Format("Send attempts must be between {0} and {1}", this.sendAttemptsMin, this.sendAttemptsMax);
+                    var msg = string.Format("Send attempts must be between {0} and {1}", this.sendAttemptsMin, this.sendAttemptsMax);
                     throw new MessageOnlyException(msg);
                 }
 
@@ -476,7 +476,7 @@ namespace dMobile.View.Options
                 {
                     e.Cancel = true;
 
-                    string msg = string.Format("Send time out seconds must be between {0} and {1}", this.sendTimeoutSecondsMin, this.sendTimeoutSecondsMax);
+                    var msg = string.Format("Send time out seconds must be between {0} and {1}", this.sendTimeoutSecondsMin, this.sendTimeoutSecondsMax);
                     throw new MessageOnlyException(msg);
                 }
             }
@@ -495,7 +495,7 @@ namespace dMobile.View.Options
 
                 Device.BeginInvokeOnMainThread(async () =>
                 {
-                    FormErrorReport errorReport = new FormErrorReport(SysCommon.ActSubTypes.CommunicationSetup, /*this,*/ ex);
+                    var errorReport = new FormErrorReport(SysCommon.ActSubTypes.CommunicationSetup, /*this,*/ ex);
                     _ = await errorReport.ShowDialog();
                 });
             }
@@ -532,7 +532,7 @@ namespace dMobile.View.Options
 
                 Device.BeginInvokeOnMainThread(async () =>
                 {
-                    FormErrorReport errorReport = new FormErrorReport(SysCommon.ActSubTypes.CommunicationSetup, /*this,*/ ex);
+                    var errorReport = new FormErrorReport(SysCommon.ActSubTypes.CommunicationSetup, /*this,*/ ex);
                     _ = await errorReport.ShowDialog();
                 });
             }

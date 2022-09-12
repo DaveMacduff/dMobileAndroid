@@ -60,19 +60,19 @@ namespace dMobile.View.Menus
                 if (keycode == Keycode.Num1 && this.cmdMoveProduct.IsEnabled)
                 {
                     this.DisableControls();
-                    ActivityMoveInventory ucActivityMoveInventory = new ActivityMoveInventory(SysCommon.ActSubTypes.MoveInventory);
+                    var ucActivityMoveInventory = new ActivityMoveInventory(SysCommon.ActSubTypes.MoveInventory);
                     await ucActivityMoveInventory.Show();
                 }
                 else if (keycode == Keycode.Num2 && this.cmdTransferFrom.IsEnabled)
                 {
                     this.DisableControls();
-                    ActivityHdr transferFrom = new ActivityHdr(SysCommon.ActSubTypes.TransferFrom);
+                    var transferFrom = new ActivityHdr(SysCommon.ActSubTypes.TransferFrom);
                     await transferFrom.Show();
                 }
                 else if (keycode == Keycode.Num3 && this.cmdTransferTo.IsEnabled)
                 {
                     this.DisableControls();
-                    ActivityHdr transferTo = new ActivityHdr(SysCommon.ActSubTypes.TransferTo);
+                    var transferTo = new ActivityHdr(SysCommon.ActSubTypes.TransferTo);
                     await transferTo.Show();
                 }
                 else if (keycode == Keycode.Num4 && this.cmdMoveSkid.IsEnabled)
@@ -201,7 +201,7 @@ namespace dMobile.View.Menus
         /// <remarks></remarks>
         public async Task<XDocument> GetXML()
         {
-            XDocument xmldocParams = XDocument.Parse(
+            var xmldocParams = XDocument.Parse(
                 "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>"
                 + "<params>"
                 + "</params>");
@@ -282,7 +282,7 @@ namespace dMobile.View.Menus
         {
             this.DisableControls();
 
-            ActivityMoveInventory ucActivityMoveInventory = new ActivityMoveInventory(SysCommon.ActSubTypes.MoveInventory);
+            var ucActivityMoveInventory = new ActivityMoveInventory(SysCommon.ActSubTypes.MoveInventory);
             await ucActivityMoveInventory.Show();
         }
 
@@ -297,7 +297,7 @@ namespace dMobile.View.Menus
             this.SetSaveTransSettings();
             this.DisableControls();
 
-            ActivityHdr transferFrom = new ActivityHdr(SysCommon.ActSubTypes.TransferFrom);
+            var transferFrom = new ActivityHdr(SysCommon.ActSubTypes.TransferFrom);
             await transferFrom.Show();
         }
 
@@ -311,7 +311,7 @@ namespace dMobile.View.Menus
             this.SetSaveTransSettings();
             this.DisableControls();
 
-            ActivityHdr transferTo = new ActivityHdr(SysCommon.ActSubTypes.TransferTo);
+            var transferTo = new ActivityHdr(SysCommon.ActSubTypes.TransferTo);
             await transferTo.Show();
         }
 
@@ -333,7 +333,7 @@ namespace dMobile.View.Menus
         {
             this.DisableControls();
 
-            ActivityMoveSkid moveSkid = new ActivityMoveSkid(SysCommon.ActSubTypes.MoveSkid);
+            var moveSkid = new ActivityMoveSkid(SysCommon.ActSubTypes.MoveSkid);
             await moveSkid.Show();
         }
 
@@ -342,7 +342,7 @@ namespace dMobile.View.Menus
         /// </summary>
         private void SetSaveTransSettings()
         {
-            TransferSettings tempTransSettings = this.TransSettings;
+            var tempTransSettings = this.TransSettings;
             _ = this.TransSettings.SaveData(ref tempTransSettings);
             this.TransSettings = tempTransSettings;
         }

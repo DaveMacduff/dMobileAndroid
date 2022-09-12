@@ -36,12 +36,12 @@ namespace dMobile.GroundWork
             {
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Seeding product scheme variants.", true);
 
-                string reqData = await this.SendRequest();
+                var reqData = await this.SendRequest();
                 if (reqData.Length > 0)
                 {
                     if (reqData.Contains("<message>ERROR</message>"))
                     {
-                        XmlDocument reqErr = new XmlDocument();
+                        var reqErr = new XmlDocument();
                         reqErr.LoadXml(reqData);
                         throw new Exception(reqErr.DocumentElement["detail"].InnerText);
                     }
@@ -172,13 +172,13 @@ namespace dMobile.GroundWork
         /// <remarks></remarks>
         protected override async Task Save(string reqData)
         {
-            string errMsg = string.Empty;
+            var errMsg = string.Empty;
 
             await DatabaseConnection.GetInstance().SQLConn.RunInTransactionAsync(transaction =>
             {
                 try
                 {
-                    using (DataSet ds = new DataSet())
+                    using (var ds = new DataSet())
                     {
                         this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Reading received data.", false);
 
@@ -188,16 +188,16 @@ namespace dMobile.GroundWork
 
                         if (ds.Tables.Count != 0)
                         {
-                            int progMax = Convert.ToInt32(ds.Tables["tProductSchemeVariant"].Rows.Count);
+                            var progMax = Convert.ToInt32(ds.Tables["tProductSchemeVariant"].Rows.Count);
 
                             this.DataAccessStatusOutHandler(this, EventArgs.Empty, string.Format("Records {0}", progMax), false);
 
-                            int progValue = 0;
-                            bool isSchemeVarFound = false;
-                            string schemeVarCode = string.Empty;
-                            string schemeVarDesc = string.Empty;
-                            int schemeVarNo = 0;
-                            bool schemeVarIsDefault = false;
+                            var progValue = 0;
+                            var isSchemeVarFound = false;
+                            var schemeVarCode = string.Empty;
+                            var schemeVarDesc = string.Empty;
+                            var schemeVarNo = 0;
+                            var schemeVarIsDefault = false;
 
                             this.DataAccessProgressOutHandler(this, EventArgs.Empty, 0, 0, progMax);
 
@@ -213,7 +213,7 @@ namespace dMobile.GroundWork
                                 errMsg += Environment.NewLine + "Variant is default " + schemeVarIsDefault;
                                 isSchemeVarFound = false;
 
-                                List<tProductSchemeVariantModel> resultsProductSchemeVariant = transaction.Query<tProductSchemeVariantModel>("SELECT ProductSchemeVariantNo FROM tProductSchemeVariant WHERE ProductSchemeVariantNo = ?", schemeVarNo);
+                                var resultsProductSchemeVariant = transaction.Query<tProductSchemeVariantModel>("SELECT ProductSchemeVariantNo FROM tProductSchemeVariant WHERE ProductSchemeVariantNo = ?", schemeVarNo);
 
                                 if (resultsProductSchemeVariant?.Count > 0)
                                 {
@@ -221,11 +221,11 @@ namespace dMobile.GroundWork
 
                                     if (this.SysEnv.RefreshOpt.RefreshDataChangesOnly)
                                     {
-                                        string queryUpdate = "UPDATE tProductSchemeVariant "
-                                            + "SET ProductSchemeVariantCode = \'" + schemeVarCode + "\', "
-                                            + "ProductSchemeVariantDescription = \'" + schemeVarDesc + "\', "
-                                            + "ProductSchemeVariantIsDefault = " + Convert.ToString(schemeVarIsDefault ? 1 : 0)
-                                            + " WHERE ProductSchemeVariantNo = " + schemeVarNo;
+                                        var queryUpdate = "UPDATE tProductSchemeVariant "
+                                                          + "SET ProductSchemeVariantCode = \'" + schemeVarCode + "\', "
+                                                          + "ProductSchemeVariantDescription = \'" + schemeVarDesc + "\', "
+                                                          + "ProductSchemeVariantIsDefault = " + Convert.ToString(schemeVarIsDefault ? 1 : 0)
+                                                          + " WHERE ProductSchemeVariantNo = " + schemeVarNo;
 
                                         transaction.Execute(queryUpdate);
                                     }
@@ -233,7 +233,7 @@ namespace dMobile.GroundWork
 
                                 if (!isSchemeVarFound)
                                 {
-                                    string queryInsert = "INSERT INTO tProductSchemeVariant (ProductSchemeVariantCode, ProductSchemeVariantDescription, ProductSchemeVariantNo, ProductSchemeVariantIsDefault) VALUES (?, ?, ?, ?)";
+                                    var queryInsert = "INSERT INTO tProductSchemeVariant (ProductSchemeVariantCode, ProductSchemeVariantDescription, ProductSchemeVariantNo, ProductSchemeVariantIsDefault) VALUES (?, ?, ?, ?)";
 
                                     transaction.Execute(queryInsert, schemeVarCode, schemeVarDesc, schemeVarNo, schemeVarIsDefault);
                                 }
@@ -270,10 +270,10 @@ namespace dMobile.GroundWork
         /// <remarks></remarks>
         protected override async Task<string> CreateRequest()
         {
-            StringBuilder xmlString = new StringBuilder();
-            XmlWriter xml = XmlWriter.Create(xmlString);
+            var xmlString = new StringBuilder();
+            var xml = XmlWriter.Create(xmlString);
 
-            XDocument request = XDocument.Parse(
+            var request = XDocument.Parse(
                 "<?xml version=\"1.0\" encoding=\"utf-8\" standalone=\"yes\"?>"
                 + "<imclient>"
                 + "<command>"

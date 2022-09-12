@@ -251,7 +251,7 @@ namespace dMobile.View.Activity
         /// <remarks></remarks>
         public async Task<bool> IsReadyToSave()
         {
-            bool IsReadyToSave = true;
+            var IsReadyToSave = true;
 
             try
             {
@@ -295,11 +295,11 @@ namespace dMobile.View.Activity
         /// <remarks></remarks>
         public async Task<XDocument> GetXML()
         {
-            XDocument request = XDocument.Parse("<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>" +
-                      "<params>" +
-                      "<production_date>" + this.TicketSettings.ProductionDateFilter.ToShortDateString() + "</production_date>" +
-                      "<sortby>" + this.strSQLSortBy + "</sortby>" +
-                      "</params>");
+            var request = XDocument.Parse("<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>" +
+                                          "<params>" +
+                                          "<production_date>" + this.TicketSettings.ProductionDateFilter.ToShortDateString() + "</production_date>" +
+                                          "<sortby>" + this.strSQLSortBy + "</sortby>" +
+                                          "</params>");
 
             return request;
         }
@@ -311,7 +311,7 @@ namespace dMobile.View.Activity
         /// <remarks></remarks>
         public async Task<bool> CancelChanges()
         {
-            bool bCancelChanges = true;
+            var bCancelChanges = true;
 
             try
             {
@@ -350,7 +350,7 @@ namespace dMobile.View.Activity
         /// <remarks></remarks>
         public async Task<bool> SaveChanges()
         {
-            bool bSaveComplete = false;
+            var bSaveComplete = false;
 
             try
             {
@@ -368,7 +368,7 @@ namespace dMobile.View.Activity
                     this.TicketSettings.iSortBy3Index = this.cboSortBy3.SelectedIndex;
                     this.MakeSQLSortBy();
 
-                    ProductionTicketSettings tempTicketSettings = this.TicketSettings;
+                    var tempTicketSettings = this.TicketSettings;
                     _ = this.TicketSettings.SaveData(ref tempTicketSettings);
                     this.TicketSettings = tempTicketSettings;
 

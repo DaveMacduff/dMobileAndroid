@@ -143,7 +143,7 @@ namespace dMobile.View.Options
         /// <remarks></remarks>
         public async Task<bool> IsReadyToSave()
         {
-            bool isReadyToSave = true;
+            var isReadyToSave = true;
 
             try
             {
@@ -193,7 +193,7 @@ namespace dMobile.View.Options
 
                 await Device.InvokeOnMainThreadAsync(async () =>
                 {
-                    FormErrorReport errRpt = new FormErrorReport(SysCommon.ActSubTypes.RefreshData, ex);
+                    var errRpt = new FormErrorReport(SysCommon.ActSubTypes.RefreshData, ex);
                     _ = await errRpt.ShowDialog();
                 });
             }
@@ -208,7 +208,7 @@ namespace dMobile.View.Options
         /// <remarks></remarks>
         public async Task<bool> IsReadyToClose()
         {
-            bool isReadyToClose = true;
+            var isReadyToClose = true;
 
             try
             {
@@ -240,7 +240,7 @@ namespace dMobile.View.Options
 
                 await Device.InvokeOnMainThreadAsync(async () =>
                 {
-                    FormErrorReport errRpt = new FormErrorReport(SysCommon.ActSubTypes.RefreshData, ex);
+                    var errRpt = new FormErrorReport(SysCommon.ActSubTypes.RefreshData, ex);
                     _ = await errRpt.ShowDialog();
                 });
             }
@@ -271,7 +271,7 @@ namespace dMobile.View.Options
                         if (this.SysEnv.ContactLog.IsLoggedIn)
                         {
                             this.SysEnv.ContactLog.IsLoggedIn = false;
-                            ContactLogin tempContactLogin = this.SysEnv.ContactLog;
+                            var tempContactLogin = this.SysEnv.ContactLog;
                             _ = this.SysEnv.ContactLog.SaveData(ref tempContactLogin);
 
                             try
@@ -319,7 +319,7 @@ namespace dMobile.View.Options
         /// <remarks></remarks>
         public async Task<bool> SaveChanges()
         {
-            bool saveComplete = false;
+            var saveComplete = false;
 
             try
             {
@@ -336,7 +336,7 @@ namespace dMobile.View.Options
                     this.SysEnv.RefreshOpt.Transfers = Convert.ToBoolean(this.chkTransfers.IsToggled && this.SysEnv.SysSettings.IsDisconnectedMode);
                     this.SysEnv.RefreshOpt.PurchaseOrderWorkSheet = Convert.ToBoolean(this.chkPurchaseOrderWorkSheet.IsToggled && this.SysEnv.SysSettings.IsDisconnectedMode);
 
-                    RefreshDataOptions tempRefreshOpt = this.SysEnv.RefreshOpt;
+                    var tempRefreshOpt = this.SysEnv.RefreshOpt;
                     saveComplete = this.SysEnv.RefreshOpt.SaveData(ref tempRefreshOpt);
 
                     this.IsChangesMade = false;
@@ -361,7 +361,7 @@ namespace dMobile.View.Options
 
                 await Device.InvokeOnMainThreadAsync(async () =>
                 {
-                    FormErrorReport errRpt = new FormErrorReport(SysCommon.ActSubTypes.RefreshData, ex);
+                    var errRpt = new FormErrorReport(SysCommon.ActSubTypes.RefreshData, ex);
                     _ = await errRpt.ShowDialog();
                 });
             }
@@ -376,7 +376,7 @@ namespace dMobile.View.Options
         /// <remarks></remarks>
         public async Task<bool> CancelChanges()
         {
-            bool cancelChanges = true;
+            var cancelChanges = true;
 
             try
             {
@@ -413,7 +413,7 @@ namespace dMobile.View.Options
 
                 await Device.InvokeOnMainThreadAsync(async () =>
                 {
-                    FormErrorReport errorReport = new FormErrorReport(SysCommon.ActSubTypes.RefreshData, ex);
+                    var errorReport = new FormErrorReport(SysCommon.ActSubTypes.RefreshData, ex);
                     _ = await errorReport.ShowDialog();
                 });
             }
@@ -428,7 +428,7 @@ namespace dMobile.View.Options
         /// <remarks></remarks>
         public async Task<XDocument> GetXML()
         {
-            XDocument xmldocParams = XDocument.Parse(
+            var xmldocParams = XDocument.Parse(
                 "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>"
                 + "<params>"
                 + "</params>");
@@ -460,7 +460,7 @@ namespace dMobile.View.Options
         /// <remarks></remarks>
         private async void cmdRefreshData_Click(object sender, EventArgs e)
         {
-            bool isContinueRefresh = false;
+            var isContinueRefresh = false;
 
             if (this.SysEnv.SysSettings.IsDisconnectedMode && await SysCommon.CheckForUnSubmittedData())
             {
@@ -483,11 +483,11 @@ namespace dMobile.View.Options
                 {
                     await Device.InvokeOnMainThreadAsync(async () =>
                     {
-                        FormDialogContainer form = new FormDialogContainer(EDialogTypes.RefreshDataStatus, SysCommon.ActSubTypes.RefreshData);
+                        var form = new FormDialogContainer(EDialogTypes.RefreshDataStatus, SysCommon.ActSubTypes.RefreshData);
 
                         if (await form.DisplayControl.ShowDialog() == DialogResult.OK)
                         {
-                            XDocument xmlDoc = await form.GetXML();
+                            var xmlDoc = await form.GetXML();
                             this.IsRefreshComplete = bool.Parse(xmlDoc.Root.Element("IsRefreshComplete").Value);
                             await this.RefreshCompelete();
                         }
@@ -506,7 +506,7 @@ namespace dMobile.View.Options
         {
             if (await this.SaveChanges())
             {
-                FormDialogContainer form = new FormDialogContainer(EDialogTypes.RefreshDataStatus, SysCommon.ActSubTypes.DataStatus);
+                var form = new FormDialogContainer(EDialogTypes.RefreshDataStatus, SysCommon.ActSubTypes.DataStatus);
                 _ = await Device.InvokeOnMainThreadAsync(async () => await form.DisplayControl.ShowDialog());
             }
         }
@@ -541,11 +541,11 @@ namespace dMobile.View.Options
         /// <remarks></remarks>
         private bool IsAllItemsSelected()
         {
-            bool isAllSelected = this.chkSystemData.IsToggled
-    && Convert.ToBoolean(this.chkAdjustments.IsToggled && this.chkPurchaseOrders.IsToggled
-    && this.chkSalesOrders.IsToggled && this.chkProductionTickets.IsToggled && this.chkReplenishment.IsToggled
-    && this.chkCounts.IsToggled && this.chkTransfers.IsToggled
-    && this.chkPurchaseOrderWorkSheet.IsToggled ? true : false);
+            var isAllSelected = this.chkSystemData.IsToggled
+                                && Convert.ToBoolean(this.chkAdjustments.IsToggled && this.chkPurchaseOrders.IsToggled
+                                    && this.chkSalesOrders.IsToggled && this.chkProductionTickets.IsToggled && this.chkReplenishment.IsToggled
+                                    && this.chkCounts.IsToggled && this.chkTransfers.IsToggled
+                                    && this.chkPurchaseOrderWorkSheet.IsToggled ? true : false);
             return isAllSelected;
         }
 
@@ -636,7 +636,7 @@ namespace dMobile.View.Options
             catch (Exception ex)
             {
                 this.IsChangesMade = true;
-                FormErrorReport errRpt = new FormErrorReport(SysCommon.ActSubTypes.RefreshData, ex);
+                var errRpt = new FormErrorReport(SysCommon.ActSubTypes.RefreshData, ex);
                 _ = await Device.InvokeOnMainThreadAsync(async () => await errRpt.ShowDialog());
             }
         }
@@ -706,7 +706,7 @@ namespace dMobile.View.Options
             {
                 // Do not allow the exit of control.
                 e.Cancel = true;
-                FormErrorReport errRpt = new FormErrorReport(SysCommon.ActSubTypes.RefreshData, ex);
+                var errRpt = new FormErrorReport(SysCommon.ActSubTypes.RefreshData, ex);
                 _ = await Device.InvokeOnMainThreadAsync(async () => await errRpt.ShowDialog());
             }
         }

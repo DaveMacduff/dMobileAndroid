@@ -56,7 +56,7 @@ namespace dMobile.View.Menus
                 {
                     this.DisableControls();
 
-                    ActivityHdr picking = new ActivityHdr(SysCommon.ActSubTypes.Picking);
+                    var picking = new ActivityHdr(SysCommon.ActSubTypes.Picking);
                     await picking.Show();
 
                     this.IsControlLoaded = false;
@@ -65,7 +65,7 @@ namespace dMobile.View.Menus
                 {
                     this.DisableControls();
 
-                    ActivityHdr returns = new ActivityHdr(SysCommon.ActSubTypes.Returns);
+                    var returns = new ActivityHdr(SysCommon.ActSubTypes.Returns);
                     await returns.Show();
 
                     this.IsControlLoaded = false;
@@ -74,7 +74,7 @@ namespace dMobile.View.Menus
                 {
                     this.DisableControls();
 
-                    ActivityHdrReleaseByOrder releaseByOrder = new ActivityHdrReleaseByOrder(SysCommon.ActSubTypes.ReleaseByOrder);
+                    var releaseByOrder = new ActivityHdrReleaseByOrder(SysCommon.ActSubTypes.ReleaseByOrder);
                     await releaseByOrder.Show();
 
                     this.IsControlLoaded = false;
@@ -178,7 +178,7 @@ namespace dMobile.View.Menus
         /// <remarks></remarks>
         public async Task<XDocument> GetXML()
         {
-            XDocument xmldocParams = XDocument.Parse(
+            var xmldocParams = XDocument.Parse(
                 "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>"
                 + "<params>"
                 + "</params>");
@@ -210,12 +210,12 @@ namespace dMobile.View.Menus
 
             if (this.SysEnv.SysSettings.IsPickSingleProd)
             {
-                ActivityHdr pickingSingle = new ActivityHdr(SysCommon.ActSubTypes.PickingSingle);
+                var pickingSingle = new ActivityHdr(SysCommon.ActSubTypes.PickingSingle);
                 await pickingSingle.Show();
             }
             else
             {
-                ActivityHdr picking = new ActivityHdr(SysCommon.ActSubTypes.Picking);
+                var picking = new ActivityHdr(SysCommon.ActSubTypes.Picking);
                 await picking.Show();
             }
 
@@ -232,7 +232,7 @@ namespace dMobile.View.Menus
         {
             this.DisableControls();
 
-            ActivityHdr returns = new ActivityHdr(SysCommon.ActSubTypes.Returns);
+            var returns = new ActivityHdr(SysCommon.ActSubTypes.Returns);
             await returns.Show();
 
             this.IsControlLoaded = false;
@@ -324,12 +324,12 @@ namespace dMobile.View.Menus
 
             if (this.SysEnv.SysSettings.IsPickSingleProd)
             {
-                ActivityHdrReleaseByOrder releaseByOrder = new ActivityHdrReleaseByOrder(SysCommon.ActSubTypes.PickingSingle);
+                var releaseByOrder = new ActivityHdrReleaseByOrder(SysCommon.ActSubTypes.PickingSingle);
                 await releaseByOrder.Show();
             }
             else
             {
-                ActivityHdrReleaseByOrder releaseByOrder = new ActivityHdrReleaseByOrder(SysCommon.ActSubTypes.Picking);
+                var releaseByOrder = new ActivityHdrReleaseByOrder(SysCommon.ActSubTypes.Picking);
                 await releaseByOrder.Show();
             }
 

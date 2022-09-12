@@ -39,11 +39,11 @@ namespace dMobile.GroundWork
             {
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Seeding slots.", true);
 
-                string reqData = string.Empty;
+                var reqData = string.Empty;
 
                 if (whsLocMapRefno > 0)
                 {
-                    List<tLocationMapWarehouseModel> results = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<tLocationMapWarehouseModel>("SELECT * FROM tLocationMapWarehouse WHERE LocationMapRefno = ?", whsLocMapRefno);
+                    var results = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<tLocationMapWarehouseModel>("SELECT * FROM tLocationMapWarehouse WHERE LocationMapRefno = ?", whsLocMapRefno);
 
                     if (results?.Count > 0)
                     {
@@ -61,7 +61,7 @@ namespace dMobile.GroundWork
                 {
                     if (reqData.Contains("<message>ERROR</message>"))
                     {
-                        XmlDocument reqErr = new XmlDocument();
+                        var reqErr = new XmlDocument();
                         reqErr.LoadXml(reqData);
                         throw new Exception(reqErr.DocumentElement["detail"].InnerText);
                     }
@@ -162,61 +162,61 @@ namespace dMobile.GroundWork
         /// <param name="recvData"></param>
         protected async Task SaveOpt(string recvData)
         {
-            string errMsg = string.Empty;
-            int recordCount = 0;
+            var errMsg = string.Empty;
+            var recordCount = 0;
 
             await DatabaseConnection.GetInstance().SQLConn.RunInTransactionAsync(transaction =>
             {
                 try
                 {
-                    int startIndex = recvData.IndexOf("<VFPData");
+                    var startIndex = recvData.IndexOf("<VFPData");
 
-                    using (StringReader stringReader = new StringReader(recvData.Substring(startIndex)))
-                    using (XmlReader reader = XmlReader.Create(stringReader))
+                    using (var stringReader = new StringReader(recvData.Substring(startIndex)))
+                    using (var reader = XmlReader.Create(stringReader))
                     {
                         this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Reading received data.", false);
 
                         this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving slots.", false);
 
-                        int locMapRefno = 0;
-                        bool isLocMapSlotFound = false;
-                        int sectLocMapRefno = 0;
-                        int whsLocMapRefno = 0;
-                        int coord1Refno = 0;
-                        int coord2Refno = 0;
-                        int coord3Refno = 0;
+                        var locMapRefno = 0;
+                        var isLocMapSlotFound = false;
+                        var sectLocMapRefno = 0;
+                        var whsLocMapRefno = 0;
+                        var coord1Refno = 0;
+                        var coord2Refno = 0;
+                        var coord3Refno = 0;
 
                         // f01
-                        string slotName = string.Empty;
+                        var slotName = string.Empty;
 
                         // f02
-                        string slotBarCode = string.Empty;
+                        var slotBarCode = string.Empty;
 
                         // f03
-                        int slotFKRefno = 0;
+                        var slotFKRefno = 0;
 
                         // f04
-                        int sectFKRefno = 0;
+                        var sectFKRefno = 0;
 
                         // f05
-                        string slotCoord1 = string.Empty;
+                        var slotCoord1 = string.Empty;
 
                         // f06
-                        string slotCoord2 = string.Empty;
+                        var slotCoord2 = string.Empty;
 
                         // f07
-                        string slotCoord3 = string.Empty;
+                        var slotCoord3 = string.Empty;
 
-                        Dictionary<string, int> slot1Lookup = new Dictionary<string, int>();
-                        Dictionary<string, int> slot2Lookup = new Dictionary<string, int>();
-                        Dictionary<string, int> slot3Lookup = new Dictionary<string, int>();
+                        var slot1Lookup = new Dictionary<string, int>();
+                        var slot2Lookup = new Dictionary<string, int>();
+                        var slot3Lookup = new Dictionary<string, int>();
 
                         this.DataAccessProgressOutHandler(this, EventArgs.Empty, 0, 0, 100);
 
                         while (!reader.EOF)
                         {
-                            bool recordFilled = false;
-                            string elementName = string.Empty;
+                            var recordFilled = false;
+                            var elementName = string.Empty;
 
                             while (!recordFilled && reader.Read())
                             {
@@ -271,7 +271,7 @@ namespace dMobile.GroundWork
                             errMsg += Environment.NewLine + "Slot bar code \'" + slotBarCode + "\'";
                             errMsg += Environment.NewLine + "Sect fk refno " + sectFKRefno;
 
-                            List<tLocationMapSectionModel> resultsLocationMapSection = transaction.Query<tLocationMapSectionModel>("SELECT * FROM tLocationMapSection WHERE LocationMapSectionFKRefno = ?", sectFKRefno);
+                            var resultsLocationMapSection = transaction.Query<tLocationMapSectionModel>("SELECT * FROM tLocationMapSection WHERE LocationMapSectionFKRefno = ?", sectFKRefno);
 
                             if (resultsLocationMapSection?.Count > 0)
                             {
@@ -287,8 +287,8 @@ namespace dMobile.GroundWork
 
                             if (!slot1Lookup.TryGetValue(whsLocMapRefno.ToString() + slotCoord1, out coord1Refno))
                             {
-                                string query = "SELECT * FROM tLocationMapSlotCoordinate WHERE LocationMapSlotCoordinateEnum = ? AND LocationMapSlotCoordinateCode = ? AND WarehouseLocationMapRefno = ?";
-                                List<tLocationMapSlotCoordinateModel> resultsLocationMapSlotCoordinate1 = transaction.Query<tLocationMapSlotCoordinateModel>(query, Convert.ToInt32(SysCommon.LocMapSlotCoordTypes.Coord1), slotCoord1, whsLocMapRefno);
+                                var query = "SELECT * FROM tLocationMapSlotCoordinate WHERE LocationMapSlotCoordinateEnum = ? AND LocationMapSlotCoordinateCode = ? AND WarehouseLocationMapRefno = ?";
+                                var resultsLocationMapSlotCoordinate1 = transaction.Query<tLocationMapSlotCoordinateModel>(query, Convert.ToInt32(SysCommon.LocMapSlotCoordTypes.Coord1), slotCoord1, whsLocMapRefno);
 
                                 if (resultsLocationMapSlotCoordinate1?.Count > 0)
                                 {
@@ -305,8 +305,8 @@ namespace dMobile.GroundWork
 
                             if (!slot2Lookup.TryGetValue(whsLocMapRefno.ToString() + slotCoord2, out coord2Refno))
                             {
-                                string query = "SELECT * FROM tLocationMapSlotCoordinate WHERE LocationMapSlotCoordinateEnum = ? AND LocationMapSlotCoordinateCode = ? AND WarehouseLocationMapRefno = ?";
-                                List<tLocationMapSlotCoordinateModel> resultsLocationMapSlotCoordinate2 = transaction.Query<tLocationMapSlotCoordinateModel>(query, Convert.ToInt32(SysCommon.LocMapSlotCoordTypes.Coord2), slotCoord2, whsLocMapRefno);
+                                var query = "SELECT * FROM tLocationMapSlotCoordinate WHERE LocationMapSlotCoordinateEnum = ? AND LocationMapSlotCoordinateCode = ? AND WarehouseLocationMapRefno = ?";
+                                var resultsLocationMapSlotCoordinate2 = transaction.Query<tLocationMapSlotCoordinateModel>(query, Convert.ToInt32(SysCommon.LocMapSlotCoordTypes.Coord2), slotCoord2, whsLocMapRefno);
 
                                 if (resultsLocationMapSlotCoordinate2?.Count > 0)
                                 {
@@ -323,8 +323,8 @@ namespace dMobile.GroundWork
 
                             if (!slot3Lookup.TryGetValue(whsLocMapRefno.ToString() + slotCoord3, out coord3Refno))
                             {
-                                string query = "SELECT * FROM tLocationMapSlotCoordinate WHERE LocationMapSlotCoordinateEnum = ? AND LocationMapSlotCoordinateCode = ? AND WarehouseLocationMapRefno = ?";
-                                List<tLocationMapSlotCoordinateModel> resultsLocationMapSlotCoordinate3 = transaction.Query<tLocationMapSlotCoordinateModel>(query, Convert.ToInt32(SysCommon.LocMapSlotCoordTypes.Coord3), slotCoord3, whsLocMapRefno);
+                                var query = "SELECT * FROM tLocationMapSlotCoordinate WHERE LocationMapSlotCoordinateEnum = ? AND LocationMapSlotCoordinateCode = ? AND WarehouseLocationMapRefno = ?";
+                                var resultsLocationMapSlotCoordinate3 = transaction.Query<tLocationMapSlotCoordinateModel>(query, Convert.ToInt32(SysCommon.LocMapSlotCoordTypes.Coord3), slotCoord3, whsLocMapRefno);
 
                                 if (resultsLocationMapSlotCoordinate3?.Count > 0)
                                 {
@@ -341,21 +341,21 @@ namespace dMobile.GroundWork
 
                             if (this.SysEnv.RefreshOpt.RefreshDataChangesOnly)
                             {
-                                List<tLocationMapSlotModel> results = transaction.Query<tLocationMapSlotModel>("SELECT LocationMapSlotFKRefno FROM tLocationMapSlot WHERE LocationMapSlotFKRefno = ?", slotFKRefno);
+                                var results = transaction.Query<tLocationMapSlotModel>("SELECT LocationMapSlotFKRefno FROM tLocationMapSlot WHERE LocationMapSlotFKRefno = ?", slotFKRefno);
 
                                 if (results?.Count > 0)
                                 {
                                     isLocMapSlotFound = true;
 
-                                    string queryUpdate = "UPDATE tLocationMapSlot "
-                                        + "SET SectionLocationMapRefno = " + sectLocMapRefno + ","
-                                        + "LocationMapSlotCode = " + slotFKRefno.ToString()
-                                        + "LocationMapSlotName = \'" + slotName + "\',"
-                                        + "SlotCoord1LocationMapRefno = " + coord1Refno + ","
-                                        + "SlotCoord2LocationMapRefno = " + coord2Refno + ","
-                                        + "SlotCoord3LocationMapRefno = " + coord3Refno + ","
-                                        + "LocationMapSlotBarCode = \'" + slotBarCode + "\' "
-                                        + "WHERE LocationMapSlotFKRefno = " + slotFKRefno;
+                                    var queryUpdate = "UPDATE tLocationMapSlot "
+                                                      + "SET SectionLocationMapRefno = " + sectLocMapRefno + ","
+                                                      + "LocationMapSlotCode = " + slotFKRefno.ToString()
+                                                      + "LocationMapSlotName = \'" + slotName + "\',"
+                                                      + "SlotCoord1LocationMapRefno = " + coord1Refno + ","
+                                                      + "SlotCoord2LocationMapRefno = " + coord2Refno + ","
+                                                      + "SlotCoord3LocationMapRefno = " + coord3Refno + ","
+                                                      + "LocationMapSlotBarCode = \'" + slotBarCode + "\' "
+                                                      + "WHERE LocationMapSlotFKRefno = " + slotFKRefno;
 
                                     transaction.Execute(queryUpdate);
                                 }
@@ -367,33 +367,33 @@ namespace dMobile.GroundWork
 
                                 locMapRefno = Convert.ToInt32(transaction.ExecuteScalar<int>("SELECT last_insert_rowid() FROM tLocationMap"));
 
-                                string queryInsert = "INSERT INTO tLocationMapSlot " +
-                                "(" +
-                                "LocationMapRefno, " +
-                                "LocationMapSubType, " +
-                                "SectionLocationMapRefno, " +
-                                "LocationMapSlotCode, " +
-                                "LocationMapSlotName, " +
-                                "SlotCoord1LocationMapRefno, " +
-                                "SlotCoord2LocationMapRefno, " +
-                                "SlotCoord3LocationMapRefno, " +
-                                "LocationMapSlotFKRefno, " +
-                                "LocationMapSlotBarCode, " +
-                                "WarehouseLocationMapRefno" +
-                                ") VALUES (" +
-                                "?, " +
-                                "?, " +
-                                "?, " +
-                                "?, " +
-                                "?, " +
-                                "?, " +
-                                "?, " +
-                                "?, " +
-                                "?, " +
-                                "?, " +
-                                "?" +
-                                ")";
-                                object[] parametersInsert = new object[]
+                                var queryInsert = "INSERT INTO tLocationMapSlot " +
+                                                  "(" +
+                                                  "LocationMapRefno, " +
+                                                  "LocationMapSubType, " +
+                                                  "SectionLocationMapRefno, " +
+                                                  "LocationMapSlotCode, " +
+                                                  "LocationMapSlotName, " +
+                                                  "SlotCoord1LocationMapRefno, " +
+                                                  "SlotCoord2LocationMapRefno, " +
+                                                  "SlotCoord3LocationMapRefno, " +
+                                                  "LocationMapSlotFKRefno, " +
+                                                  "LocationMapSlotBarCode, " +
+                                                  "WarehouseLocationMapRefno" +
+                                                  ") VALUES (" +
+                                                  "?, " +
+                                                  "?, " +
+                                                  "?, " +
+                                                  "?, " +
+                                                  "?, " +
+                                                  "?, " +
+                                                  "?, " +
+                                                  "?, " +
+                                                  "?, " +
+                                                  "?, " +
+                                                  "?" +
+                                                  ")";
+                                var parametersInsert = new object[]
                                 {
                                     locMapRefno,
                                     Convert.ToInt32(SysCommon.LocMapSubTypes.Slot),
@@ -446,10 +446,10 @@ namespace dMobile.GroundWork
         /// <returns></returns>
         protected override async Task<string> CreateRequest(int whsLocMapRefno)
         {
-            StringBuilder xmlString = new StringBuilder();
-            XmlWriter xml = XmlWriter.Create(xmlString);
-            TableLocationMapWarehouse locMapWhs = new TableLocationMapWarehouse();
-            int locMapWhsFKRefno = 0;
+            var xmlString = new StringBuilder();
+            var xml = XmlWriter.Create(xmlString);
+            var locMapWhs = new TableLocationMapWarehouse();
+            var locMapWhsFKRefno = 0;
 
             // lookup and verify warehouse
             if (whsLocMapRefno != 0)
@@ -457,14 +457,14 @@ namespace dMobile.GroundWork
                 locMapWhsFKRefno = await locMapWhs.GetLocMapWhsFKRefnoFromLocMapWhsRefno(whsLocMapRefno);
             }
 
-            XDocument request = XDocument.Parse("<?xml version=\"1.0\" encoding=\"utf-8\" standalone=\"yes\"?>"
-                + "<imclient>"
-                + "<command>"
-                + "<action>REQUEST SLOTS</action>"
-                + await SysCommon.GetRequestDefaults(true)
-                + "<LocationMapWarehouseFKRefno>" + locMapWhsFKRefno.ToString() + "</LocationMapWarehouseFKRefno>"
-                + "</command>"
-                + "</imclient>");
+            var request = XDocument.Parse("<?xml version=\"1.0\" encoding=\"utf-8\" standalone=\"yes\"?>"
+                                          + "<imclient>"
+                                          + "<command>"
+                                          + "<action>REQUEST SLOTS</action>"
+                                          + await SysCommon.GetRequestDefaults(true)
+                                          + "<LocationMapWarehouseFKRefno>" + locMapWhsFKRefno.ToString() + "</LocationMapWarehouseFKRefno>"
+                                          + "</command>"
+                                          + "</imclient>");
 
             request.Save(xml);
             xml.Flush();

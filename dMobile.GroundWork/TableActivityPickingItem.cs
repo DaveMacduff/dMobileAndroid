@@ -43,11 +43,11 @@ namespace dMobile.GroundWork
                 string reqData;
                 if (actRefno == 0)
                 {
-                    List<tActivityModel> results = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<tActivityModel>("SELECT ActivityRefno FROM tActivity WHERE ActivitySubType = ?", Convert.ToInt32(SysCommon.ActSubTypes.Picking));
+                    var results = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<tActivityModel>("SELECT ActivityRefno FROM tActivity WHERE ActivitySubType = ?", Convert.ToInt32(SysCommon.ActSubTypes.Picking));
 
                     if (results?.Count > 0)
                     {
-                        foreach (tActivityModel actvityModel in results)
+                        foreach (var actvityModel in results)
                         {
                             actRefno = Convert.ToInt32(actvityModel.ActivityRefno);
                             reqData = await this.SendRequest(actRefno, xmlCriteria);
@@ -56,7 +56,7 @@ namespace dMobile.GroundWork
                             {
                                 if (reqData.Contains("<message>ERROR</message>"))
                                 {
-                                    XmlDocument reqErr = new XmlDocument();
+                                    var reqErr = new XmlDocument();
                                     reqErr.LoadXml(reqData);
                                     throw new Exception(reqErr.DocumentElement["detail"].InnerText);
                                 }
@@ -74,7 +74,7 @@ namespace dMobile.GroundWork
                     {
                         if (reqData.Contains("<message>ERROR</message>"))
                         {
-                            XmlDocument reqErr = new XmlDocument();
+                            var reqErr = new XmlDocument();
                             reqErr.LoadXml(reqData);
                             throw new Exception(reqErr.DocumentElement["detail"].InnerText);
                         }
@@ -109,9 +109,9 @@ namespace dMobile.GroundWork
             {
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging sales order items.", true);
 
-                string query = "DELETE FROM tActivityItemBarCodeAssociationXRef "
-                    + "WHERE tActivityItemBarCodeAssociationXRef.ActivityItemRefno IN "
-                    + "(SELECT tActivityItem.ActivityItemRefno FROM tActivityItem WHERE tActivityItem.ActivityItemSubType = ?)";
+                var query = "DELETE FROM tActivityItemBarCodeAssociationXRef "
+                            + "WHERE tActivityItemBarCodeAssociationXRef.ActivityItemRefno IN "
+                            + "(SELECT tActivityItem.ActivityItemRefno FROM tActivityItem WHERE tActivityItem.ActivityItemSubType = ?)";
                 await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(query, Convert.ToInt32(SysCommon.ActSubTypes.Picking));
 
                 query = "DELETE FROM tActivityItemPicking WHERE tActivityItemPicking.ActivityItemSubType = ?";
@@ -160,7 +160,7 @@ namespace dMobile.GroundWork
         /// <returns></returns>
         protected override async Task<string> SendRequest(int actRefno, XDocument xmlCriteria)
         {
-            List<tActivityPickingModel> results = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<tActivityPickingModel>("SELECT * FROM tActivityPicking WHERE ActivityRefno = ?", actRefno);
+            var results = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<tActivityPickingModel>("SELECT * FROM tActivityPicking WHERE ActivityRefno = ?", actRefno);
 
             int actPickFKRefno;
             if (results?.Count > 0)
@@ -186,7 +186,7 @@ namespace dMobile.GroundWork
             {
                 try
                 {
-                    using (DataSet ds = new DataSet())
+                    using (var ds = new DataSet())
                     {
                         this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Reading received data.", false);
 
@@ -196,16 +196,16 @@ namespace dMobile.GroundWork
 
                         if (ds.Tables.Count != 0)
                         {
-                            int progMax = Convert.ToInt32(ds.Tables["tActivityItemPicking"].Rows.Count);
+                            var progMax = Convert.ToInt32(ds.Tables["tActivityItemPicking"].Rows.Count);
 
                             this.DataAccessStatusOutHandler(this, EventArgs.Empty, string.Format("Records {0}", progMax), false);
 
-                            int actItemRefno = 0;
-                            int prodUnitRefno = 0;
-                            int progValue = 0;
-                            int locMapRefno = 0;
-                            string actItemPickComment = string.Empty;
-                            int actItemPickFKRefno = 0;
+                            var actItemRefno = 0;
+                            var prodUnitRefno = 0;
+                            var progValue = 0;
+                            var locMapRefno = 0;
+                            var actItemPickComment = string.Empty;
+                            var actItemPickFKRefno = 0;
 
                             this.DataAccessProgressOutHandler(this, EventArgs.Empty, 0, 0, progMax);
 
@@ -218,46 +218,46 @@ namespace dMobile.GroundWork
                                 prodUnitRefno = this.GetProductUnitRefnoFromDataRow(drow, transaction, false);
                                 locMapRefno = this.GetWhsLocMapRefnoFromDataRow(drow, transaction);
 
-                                string queryInsertItemPicking = "INSERT INTO tActivityItemPicking (" +
-                                    "ActivityItemRefno, " +
-                                    "ActivityItemSubType, " +
-                                    "ActivityItemFKRefno, " +
-                                    "ActivityItemStringFKRefno, " +
-                                    "ProductUnitRefno, " +
-                                    "WarehouseLocationMapRefno, " +
-                                    "ActivityItemPickingQuantityOrdered, " +
-                                    "ActivityItemPickingBaseQuantityOrdered, " +
-                                    "ActivityItemPickingWeightQuantityOrdered, " +
-                                    "ActivityItemPickingQuantityShipped, " +
-                                    "ActivityItemPickingBaseQuantityShipped, " +
-                                    "ActivityItemPickingWeightQuantityShipped, " +
-                                    "ActivityItemPickingCustomerProductUnitCode, " +
-                                    "ActivityItemPickingDescription, " +
-                                    "ActivityItemPickingQuantityAvailable, " +
-                                    "ActivityItemPickingBaseQuantityAvailable, " +
-                                    "ActivityItemPickingWeightQuantityAvailable," +
-                                    "ActivityItemPickingIsReviewed" +
-                                    ") VALUES (" +
-                                    "?, " +
-                                    "?, " +
-                                    "?, " +
-                                    "?, " +
-                                    "?, " +
-                                    "?, " +
-                                    "?, " +
-                                    "?, " +
-                                    "?, " +
-                                    "?, " +
-                                    "?, " +
-                                    "?, " +
-                                    "?, " +
-                                    "?, " +
-                                    "?, " +
-                                    "?, " +
-                                    "?," +
-                                    "?" +
-                                    ")";
-                                object[] parametersInsertItemPicking = new object[]
+                                var queryInsertItemPicking = "INSERT INTO tActivityItemPicking (" +
+                                                             "ActivityItemRefno, " +
+                                                             "ActivityItemSubType, " +
+                                                             "ActivityItemFKRefno, " +
+                                                             "ActivityItemStringFKRefno, " +
+                                                             "ProductUnitRefno, " +
+                                                             "WarehouseLocationMapRefno, " +
+                                                             "ActivityItemPickingQuantityOrdered, " +
+                                                             "ActivityItemPickingBaseQuantityOrdered, " +
+                                                             "ActivityItemPickingWeightQuantityOrdered, " +
+                                                             "ActivityItemPickingQuantityShipped, " +
+                                                             "ActivityItemPickingBaseQuantityShipped, " +
+                                                             "ActivityItemPickingWeightQuantityShipped, " +
+                                                             "ActivityItemPickingCustomerProductUnitCode, " +
+                                                             "ActivityItemPickingDescription, " +
+                                                             "ActivityItemPickingQuantityAvailable, " +
+                                                             "ActivityItemPickingBaseQuantityAvailable, " +
+                                                             "ActivityItemPickingWeightQuantityAvailable," +
+                                                             "ActivityItemPickingIsReviewed" +
+                                                             ") VALUES (" +
+                                                             "?, " +
+                                                             "?, " +
+                                                             "?, " +
+                                                             "?, " +
+                                                             "?, " +
+                                                             "?, " +
+                                                             "?, " +
+                                                             "?, " +
+                                                             "?, " +
+                                                             "?, " +
+                                                             "?, " +
+                                                             "?, " +
+                                                             "?, " +
+                                                             "?, " +
+                                                             "?, " +
+                                                             "?, " +
+                                                             "?," +
+                                                             "?" +
+                                                             ")";
+                                var parametersInsertItemPicking = new object[]
                                 {
                                     actItemRefno,
                                     Convert.ToInt32(SysCommon.ActSubTypes.Picking),
@@ -323,8 +323,8 @@ namespace dMobile.GroundWork
         /// <returns></returns>
         protected async override Task<string> CreateRequest(int actPickFKRefno, XDocument criteria)
         {
-            StringBuilder xmlString = new StringBuilder();
-            XmlWriter xml = XmlWriter.Create(xmlString);
+            var xmlString = new StringBuilder();
+            var xml = XmlWriter.Create(xmlString);
             XDocument request;
             if (criteria == null)
             {

@@ -41,12 +41,12 @@ namespace dMobile.GroundWork
 
                 await this.SeedContactUsersWithSystemUsers();
 
-                string reqData = await this.SendRequest();
+                var reqData = await this.SendRequest();
                 if (reqData.Length > 0)
                 {
                     if (reqData.Contains("<message>ERROR</message>"))
                     {
-                        XmlDocument reqErr = new XmlDocument();
+                        var reqErr = new XmlDocument();
                         reqErr.LoadXml(reqData);
                         throw new Exception(reqErr.DocumentElement["detail"].InnerText);
                     }
@@ -136,45 +136,45 @@ namespace dMobile.GroundWork
         /// <returns>The <see cref="Task"/>.</returns>
         public async Task SeedContactUsersWithSystemUsers()
         {
-            string errMsg = string.Empty;
+            var errMsg = string.Empty;
 
             await DatabaseConnection.GetInstance().SQLConn.RunInTransactionAsync(transaction =>
             {
                 try
                 {
-                    List<tContactUserModel> resultsContactUser = transaction.Query<tContactUserModel>("SELECT ContactUserCode FROM tContactUser WHERE ContactUserCode = ? OR ContactUserCode = ?", SysCommon.SystemLoginID, SysCommon.SetupLoginID);
+                    var resultsContactUser = transaction.Query<tContactUserModel>("SELECT ContactUserCode FROM tContactUser WHERE ContactUserCode = ? OR ContactUserCode = ?", SysCommon.SystemLoginID, SysCommon.SetupLoginID);
 
                     if (resultsContactUser == null || resultsContactUser?.Count == 0)
                     {
                         transaction.Execute("INSERT INTO tContact (ContactSubType) VALUES (?)", Convert.ToInt32(SysCommon.ContactSubTypes.User));
 
-                        int contactRefno = Convert.ToInt32(transaction.ExecuteScalar<int>("SELECT last_insert_rowid() FROM tContact"));
-                        int contactCode = SysCommon.SystemLoginID;
-                        string contactName = "InterSect";
+                        var contactRefno = Convert.ToInt32(transaction.ExecuteScalar<int>("SELECT last_insert_rowid() FROM tContact"));
+                        var contactCode = SysCommon.SystemLoginID;
+                        var contactName = "InterSect";
                         errMsg = "Code " + contactCode;
                         errMsg += Environment.NewLine + "Name \'" + contactName + "\'";
 
-                        string queryInsertContactUser = "INSERT INTO tContactUser " +
-                            "(ContactRefno, " +
-                            "ContactSubType, " +
-                            "ContactUserCode, " +
-                            "ContactUserName, " +
-                            "ContactUserPassword, " +
-                            "ContactUserIsAllowedAssociateProductBarCode, " +
-                            "ContactUserIsAllowedPickingModuleOverridePicker, " +
-                            "ContactUserIsAllowedPickingModuleOverrideAddManualDetail, " +
-                            "ContactUserLocalizationLanguage) " +
-                            "VALUES " +
-                            "(?, " +
-                            "?, " +
-                            "?, " +
-                            "?, " +
-                            "?, " +
-                            "?, " +
-                            "?, " +
-                            "?, " +
-                            "?)";
-                        object[] parametersContactUserSystemLogin = new object[]
+                        var queryInsertContactUser = "INSERT INTO tContactUser " +
+                                                     "(ContactRefno, " +
+                                                     "ContactSubType, " +
+                                                     "ContactUserCode, " +
+                                                     "ContactUserName, " +
+                                                     "ContactUserPassword, " +
+                                                     "ContactUserIsAllowedAssociateProductBarCode, " +
+                                                     "ContactUserIsAllowedPickingModuleOverridePicker, " +
+                                                     "ContactUserIsAllowedPickingModuleOverrideAddManualDetail, " +
+                                                     "ContactUserLocalizationLanguage) " +
+                                                     "VALUES " +
+                                                     "(?, " +
+                                                     "?, " +
+                                                     "?, " +
+                                                     "?, " +
+                                                     "?, " +
+                                                     "?, " +
+                                                     "?, " +
+                                                     "?, " +
+                                                     "?)";
+                        var parametersContactUserSystemLogin = new object[]
                         {
                             contactRefno,
                             Convert.ToInt32(SysCommon.ContactSubTypes.User),
@@ -199,7 +199,7 @@ namespace dMobile.GroundWork
                         contactName = "Setup User";
                         errMsg += Environment.NewLine + "Name \'" + contactName + "\'";
 
-                        object[] parametersContactUserSetupLogin = new object[]
+                        var parametersContactUserSetupLogin = new object[]
                         {
                             contactRefno,
                             Convert.ToInt32(SysCommon.ContactSubTypes.User),
@@ -231,13 +231,13 @@ namespace dMobile.GroundWork
         /// <param name="reqData"></param>
         protected override async Task Save(string reqData)
         {
-            string errMsg = string.Empty;
+            var errMsg = string.Empty;
 
             await DatabaseConnection.GetInstance().SQLConn.RunInTransactionAsync(transaction =>
             {
                 try
                 {
-                    using (DataSet ds = new DataSet())
+                    using (var ds = new DataSet())
                     {
                         this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Reading received data.", false);
 
@@ -246,39 +246,39 @@ namespace dMobile.GroundWork
                         this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving users.", false);
 
                         // Check to see what users already exist
-                        List<tContactUserModel> resultsContactUser = transaction.Query<tContactUserModel>("SELECT ContactUserCode FROM tContactUser");
+                        var resultsContactUser = transaction.Query<tContactUserModel>("SELECT ContactUserCode FROM tContactUser");
 
                         if (ds.Tables.Count != 0)
                         {
-                            int progMax = Convert.ToInt32(ds.Tables["tContactUser"].Rows.Count);
+                            var progMax = Convert.ToInt32(ds.Tables["tContactUser"].Rows.Count);
 
                             this.DataAccessStatusOutHandler(this, EventArgs.Empty, string.Format("Records {0}", progMax), false);
 
-                            string queryInsertContactUser = "INSERT INTO tContactUser " +
-                            "(ContactRefno, " +
-                            "ContactSubType, " +
-                            "ContactUserCode, " +
-                            "ContactUserName, " +
-                            "ContactUserPassword, " +
-                            "ContactUserIsAllowedAssociateProductBarCode, " +
-                            "ContactUserIsAllowedPickingModuleOverridePicker, " +
-                            "ContactUserIsAllowedPickingModuleOverrideAddManualDetail, " +
-                            "ContactUserLocalizationLanguage) " +
-                            "VALUES " +
-                            "(?, " +
-                            "?, " +
-                            "?, " +
-                            "?, " +
-                            "?, " +
-                            "?, " +
-                            "?, " +
-                            "?, " +
-                            "?)";
+                            var queryInsertContactUser = "INSERT INTO tContactUser " +
+                                                         "(ContactRefno, " +
+                                                         "ContactSubType, " +
+                                                         "ContactUserCode, " +
+                                                         "ContactUserName, " +
+                                                         "ContactUserPassword, " +
+                                                         "ContactUserIsAllowedAssociateProductBarCode, " +
+                                                         "ContactUserIsAllowedPickingModuleOverridePicker, " +
+                                                         "ContactUserIsAllowedPickingModuleOverrideAddManualDetail, " +
+                                                         "ContactUserLocalizationLanguage) " +
+                                                         "VALUES " +
+                                                         "(?, " +
+                                                         "?, " +
+                                                         "?, " +
+                                                         "?, " +
+                                                         "?, " +
+                                                         "?, " +
+                                                         "?, " +
+                                                         "?, " +
+                                                         "?)";
 
-                            int progValue = 0;
-                            int contactRefno = 0;
-                            int contactCode = 0;
-                            string contactName = string.Empty;
+                            var progValue = 0;
+                            var contactRefno = 0;
+                            var contactCode = 0;
+                            var contactName = string.Empty;
 
                             this.DataAccessProgressOutHandler(this, EventArgs.Empty, 0, 0, progMax);
 
@@ -299,7 +299,7 @@ namespace dMobile.GroundWork
                                 contactName = drow["ContactUserName"].ToString();
                                 errMsg += Environment.NewLine + "Name \'" + contactName + "\'";
 
-                                object[] parametersInsertContactUser = new object[]
+                                var parametersInsertContactUser = new object[]
                                 {
                                     contactRefno,
                                     Convert.ToInt32(SysCommon.ContactSubTypes.User),
@@ -346,10 +346,10 @@ namespace dMobile.GroundWork
         /// <returns></returns>
         protected override async Task<string> CreateRequest()
         {
-            StringBuilder xmlString = new StringBuilder();
-            XmlWriter xml = XmlWriter.Create(xmlString);
+            var xmlString = new StringBuilder();
+            var xml = XmlWriter.Create(xmlString);
 
-            XDocument request = XDocument.Parse(
+            var request = XDocument.Parse(
                 "<?xml version=\"1.0\" encoding=\"utf-8\" standalone=\"yes\"?>"
                 + "<imclient>"
                 + "<command>"

@@ -163,7 +163,7 @@ namespace dMobile.View.Activity
         /// <returns>.</returns>
         public async Task<XDocument> GetXML()
         {
-            XDocument xmldocParams = XDocument.Parse(
+            var xmldocParams = XDocument.Parse(
                 "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>"
                 + "<params>"
                 + "</params>");
@@ -186,7 +186,7 @@ namespace dMobile.View.Activity
         /// <returns>.</returns>
         public async Task<bool> IsReadyToClose()
         {
-            bool isReadyToClose = true;
+            var isReadyToClose = true;
 
             if (isReadyToClose)
             {
@@ -218,7 +218,7 @@ namespace dMobile.View.Activity
             {
                 await Device.InvokeOnMainThreadAsync(async () =>
                 {
-                    FormErrorReport errRpt = new FormErrorReport(this.ActSubType, ex);
+                    var errRpt = new FormErrorReport(this.ActSubType, ex);
                     _ = await errRpt.ShowDialog();
                 });
             }
@@ -237,7 +237,7 @@ namespace dMobile.View.Activity
         /// <returns>.</returns>
         public async Task<bool> CancelChanges()
         {
-            bool cancelChanges = true;
+            var cancelChanges = true;
 
             try
             {
@@ -265,7 +265,7 @@ namespace dMobile.View.Activity
 
                 await Device.InvokeOnMainThreadAsync(async () =>
                 {
-                    FormErrorReport errRpt = new FormErrorReport(this.ActSubType, ex);
+                    var errRpt = new FormErrorReport(this.ActSubType, ex);
                     _ = await errRpt.ShowDialog();
                 });
             }
@@ -290,7 +290,7 @@ namespace dMobile.View.Activity
                 await Device.InvokeOnMainThreadAsync(() => this.ExtraInfoItems.Clear());
 
                 this.ActItem.RegLayerListenerProgOut(this);
-                XDocument xmldocParams = XDocument.Parse(
+                var xmldocParams = XDocument.Parse(
                     "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>"
                     + "<params>"
                     + "</params>");
@@ -317,7 +317,7 @@ namespace dMobile.View.Activity
             {
                 await Device.InvokeOnMainThreadAsync(async () =>
                 {
-                    FormErrorReport errRpt = new FormErrorReport(this.ActSubType, ex);
+                    var errRpt = new FormErrorReport(this.ActSubType, ex);
                     _ = await errRpt.ShowDialog();
                 });
             }
@@ -373,13 +373,13 @@ namespace dMobile.View.Activity
 
                     if (keycode == Keycode.Enter)
                     {
-                        ProductInfo svdProdInfo = this.ActItem.ProdInfo;
+                        var svdProdInfo = this.ActItem.ProdInfo;
 
                         try
                         {
                             this.IsEnabled = false;
                             await this.ScannerDisable();
-                            int currentIndex = this.MainActivityItems.IndexOf(this.ListViewMainActivity.SelectedItem);
+                            var currentIndex = this.MainActivityItems.IndexOf(this.ListViewMainActivity.SelectedItem);
                             if (currentIndex < 0)
                             {
                                 return;
@@ -390,12 +390,12 @@ namespace dMobile.View.Activity
                                 Convert.ToString((this.ActItem.ListItems[currentIndex] as Resources.Types.ActivityItem).ProductCode),
                                 Convert.ToString((this.ActItem.ListItems[currentIndex] as Resources.Types.ActivityItem).ProductUnitBC),
                                 Convert.ToString((this.ActItem.ListItems[currentIndex] as Resources.Types.ActivityItem).UnitCode));
-                            ActDetail actDetail = ActDetailFacade.GetActDetail(
+                            var actDetail = ActDetailFacade.GetActDetail(
                                 this.ActItem,
                                 SysCommon.ActSubTypes.InventoryInquiry);
                             await Device.InvokeOnMainThreadAsync(async () =>
                             {
-                                FormDialogContainer form = new FormDialogContainer(
+                                var form = new FormDialogContainer(
                                     EDialogTypes.ActivityInventoryInquiryDetail,
                                     actDetail,
                                     this.ActSubType);
@@ -406,7 +406,7 @@ namespace dMobile.View.Activity
                         {
                             await Device.InvokeOnMainThreadAsync(async () =>
                             {
-                                FormErrorReport errRpt = new FormErrorReport(this.ActSubType, ex);
+                                var errRpt = new FormErrorReport(this.ActSubType, ex);
                                 _ = await errRpt.ShowDialog();
                             });
                         }
@@ -487,8 +487,8 @@ namespace dMobile.View.Activity
         /// </summary>
         private void DisplaySummaryData()
         {
-            Resources.Types.ActivityItem selectedItem = this.ActItem.SelectedActivityItem as Resources.Types.ActivityItem;
-            ProductInfo prodInfo = this.ActItem.ProdInfo;
+            var selectedItem = this.ActItem.SelectedActivityItem as Resources.Types.ActivityItem;
+            var prodInfo = this.ActItem.ProdInfo;
 
             this.ExtraInfoItems.Clear();
 
@@ -590,7 +590,7 @@ namespace dMobile.View.Activity
             {
                 await Device.InvokeOnMainThreadAsync(async () =>
                 {
-                    FormErrorReport errRpt = new FormErrorReport(this.ActSubType, ex);
+                    var errRpt = new FormErrorReport(this.ActSubType, ex);
                     _ = await errRpt.ShowDialog();
                 });
             }

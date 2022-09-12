@@ -42,9 +42,9 @@ namespace dMobile.GroundWork
                 string reqData;
                 if (actRefno == 0)
                 {
-                    string query = "SELECT * FROM tActivity WHERE ActivitySubType = ?";
+                    var query = "SELECT * FROM tActivity WHERE ActivitySubType = ?";
 
-                    List<tActivityModel> results = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<tActivityModel>(query, Convert.ToInt32(SysCommon.ActSubTypes.Adjustment));
+                    var results = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<tActivityModel>(query, Convert.ToInt32(SysCommon.ActSubTypes.Adjustment));
 
                     if (results != null && results.Count > 0)
                     {
@@ -55,7 +55,7 @@ namespace dMobile.GroundWork
                         {
                             if (reqData.Contains("<message>ERROR</message>"))
                             {
-                                XmlDocument reqErr = new XmlDocument();
+                                var reqErr = new XmlDocument();
                                 reqErr.LoadXml(reqData);
                                 throw new Exception(reqErr.DocumentElement["detail"].InnerText);
                             }
@@ -72,7 +72,7 @@ namespace dMobile.GroundWork
                     {
                         if (reqData.Contains("<message>ERROR</message>"))
                         {
-                            XmlDocument reqErr = new XmlDocument();
+                            var reqErr = new XmlDocument();
                             reqErr.LoadXml(reqData);
                             throw new Exception(reqErr.DocumentElement["detail"].InnerText);
                         }
@@ -107,7 +107,7 @@ namespace dMobile.GroundWork
             int rowsAffected;
             try
             {
-                string query = "SELECT COUNT(tActivityItem.ActivityItemRefno) FROM tActivityItem WHERE tActivityItem.ActivityItemSubType = ?";
+                var query = "SELECT COUNT(tActivityItem.ActivityItemRefno) FROM tActivityItem WHERE tActivityItem.ActivityItemSubType = ?";
                 rowsAffected = await DatabaseConnection.GetInstance().SQLConn.ExecuteScalarAsync<int>(query, (int)SysCommon.ActSubTypes.Adjustment);
 
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, string.Format("{0} adjustment items.", rowsAffected), true);
@@ -129,11 +129,11 @@ namespace dMobile.GroundWork
 
             try
             {
-                string query = "DELETE FROM tActivityItemBarCodeAssociationXRef "
-                    + "WHERE tActivityItemBarCodeAssociationXRef.ActivityItemRefno IN "
-                    + "(SELECT tActivityItem.ActivityItemRefno "
-                    + "FROM tActivityItem "
-                    + "WHERE tActivityItem.ActivityItemSubType = ?)";
+                var query = "DELETE FROM tActivityItemBarCodeAssociationXRef "
+                            + "WHERE tActivityItemBarCodeAssociationXRef.ActivityItemRefno IN "
+                            + "(SELECT tActivityItem.ActivityItemRefno "
+                            + "FROM tActivityItem "
+                            + "WHERE tActivityItem.ActivityItemSubType = ?)";
                 await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(query, Convert.ToInt32(SysCommon.ActSubTypes.Adjustment));
 
                 query = "DELETE FROM tActivityItemAdjustment WHERE ActivityItemSubType = ?";
@@ -160,7 +160,7 @@ namespace dMobile.GroundWork
         /// <returns></returns>
         protected override async Task<string> SendRequest(int actRefno)
         {
-            List<tActivityAdjustmentModel> results = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<tActivityAdjustmentModel>("SELECT * FROM tActivityAdjustment WHERE ActivityRefno = ?", actRefno);
+            var results = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<tActivityAdjustmentModel>("SELECT * FROM tActivityAdjustment WHERE ActivityRefno = ?", actRefno);
 
             int actAdjFKRefno;
             if (results?.Count > 0)
@@ -186,7 +186,7 @@ namespace dMobile.GroundWork
             {
                 try
                 {
-                    using (DataSet ds = new DataSet())
+                    using (var ds = new DataSet())
                     {
                         this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Reading received data.", false);
 
@@ -196,15 +196,15 @@ namespace dMobile.GroundWork
 
                         if (ds.Tables.Count != 0)
                         {
-                            int progMax = Convert.ToInt32(ds.Tables["tActivityItemAdjustment"].Rows.Count);
+                            var progMax = Convert.ToInt32(ds.Tables["tActivityItemAdjustment"].Rows.Count);
 
                             this.DataAccessStatusOutHandler(this, EventArgs.Empty, string.Format("Records {0}", progMax), false);
 
-                            int actItemRefno = 0;
-                            int progValue = 0;
-                            int actItemAdjFKRefno = 0;
-                            int prodUnitRefno = 0;
-                            int locMapRefno = 0;
+                            var actItemRefno = 0;
+                            var progValue = 0;
+                            var actItemAdjFKRefno = 0;
+                            var prodUnitRefno = 0;
+                            var locMapRefno = 0;
 
                             this.DataAccessProgressOutHandler(this, EventArgs.Empty, 0, 0, progMax);
 
@@ -217,29 +217,29 @@ namespace dMobile.GroundWork
                                 locMapRefno = this.GetWhsLocMapRefnoFromDataRow(drow, transaction);
                                 actItemAdjFKRefno = Convert.ToInt32(drow["ActivityItemFKRefno"]);
 
-                                string query = "INSERT INTO tActivityItemAdjustment " +
-                                    "(ActivityItemRefno, " +
-                                    "ActivityItemSubType, " +
-                                    "ActivityItemFKRefno, " +
-                                    "ActivityItemStringFKRefno, " +
-                                    "ProductUnitRefno, " +
-                                    "WarehouseLocationMapRefno, " +
-                                    "ActivityItemAdjustmentQuantity, " +
-                                    "ActivityItemAdjustmentBaseQuantity, " +
-                                    "ActivityItemAdjustmentWeightQuantity, " +
-                                    "ActivityItemAdjustmentDescription) " +
-                                    "VALUES " +
-                                    "(?, " +
-                                    "?, " +
-                                    "?, " +
-                                    "?, " +
-                                    "?, " +
-                                    "?, " +
-                                    "?, " +
-                                    "?, " +
-                                    "?, " +
-                                    "?)";
-                                object[] parameters = new object[]
+                                var query = "INSERT INTO tActivityItemAdjustment " +
+                                            "(ActivityItemRefno, " +
+                                            "ActivityItemSubType, " +
+                                            "ActivityItemFKRefno, " +
+                                            "ActivityItemStringFKRefno, " +
+                                            "ProductUnitRefno, " +
+                                            "WarehouseLocationMapRefno, " +
+                                            "ActivityItemAdjustmentQuantity, " +
+                                            "ActivityItemAdjustmentBaseQuantity, " +
+                                            "ActivityItemAdjustmentWeightQuantity, " +
+                                            "ActivityItemAdjustmentDescription) " +
+                                            "VALUES " +
+                                            "(?, " +
+                                            "?, " +
+                                            "?, " +
+                                            "?, " +
+                                            "?, " +
+                                            "?, " +
+                                            "?, " +
+                                            "?, " +
+                                            "?, " +
+                                            "?)";
+                                var parameters = new object[]
                                 {
                                     actItemRefno,
                                     Convert.ToInt32(SysCommon.ActSubTypes.Adjustment),
@@ -290,10 +290,10 @@ namespace dMobile.GroundWork
         /// <returns></returns>
         protected override async Task<string> CreateRequest(int actAdjFKRefno)
         {
-            StringBuilder xmlString = new StringBuilder();
-            XmlWriter xml = XmlWriter.Create(xmlString);
+            var xmlString = new StringBuilder();
+            var xml = XmlWriter.Create(xmlString);
 
-            XDocument request = XDocument.Parse(
+            var request = XDocument.Parse(
                 "<?xml version=\"1.0\" encoding=\"utf-8\" standalone=\"yes\"?>"
                 + "<imclient>"
                 + "<command>"

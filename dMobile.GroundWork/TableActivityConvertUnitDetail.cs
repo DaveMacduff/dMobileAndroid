@@ -30,11 +30,11 @@ namespace dMobile.GroundWork
             {
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging convert unit details.", true);
 
-                string query = "DELETE FROM tActivityDetailProductSchemeVariantXRef "
-                        + "WHERE tActivityDetailProductSchemeVariantXRef.ActivityDetailRefno IN "
-                        + "(SELECT tActivityDetail.ActivityDetailRefno "
-                        + "FROM tActivityDetail "
-                        + "WHERE tActivityDetail.ActivityDetailSubType = ?)";
+                var query = "DELETE FROM tActivityDetailProductSchemeVariantXRef "
+                            + "WHERE tActivityDetailProductSchemeVariantXRef.ActivityDetailRefno IN "
+                            + "(SELECT tActivityDetail.ActivityDetailRefno "
+                            + "FROM tActivityDetail "
+                            + "WHERE tActivityDetail.ActivityDetailSubType = ?)";
                 await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(query, Convert.ToInt32(SysCommon.ActSubTypes.ConvertUnit));
 
                 query = "DELETE FROM tActivityDetailProductSchemeVariantXRef "

@@ -38,8 +38,8 @@ namespace dMobile.GroundWork
             {
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Seeding location map types.", true);
 
-                string reqData = string.Empty;
-                int whsLocMapRefno = 0;
+                var reqData = string.Empty;
+                var whsLocMapRefno = 0;
 
                 reqData = await this.SendRequest(whsLocMapRefno);
 
@@ -47,7 +47,7 @@ namespace dMobile.GroundWork
                 {
                     if (reqData.Contains("<message>ERROR</message>"))
                     {
-                        XmlDocument reqErr = new XmlDocument();
+                        var reqErr = new XmlDocument();
                         reqErr.LoadXml(reqData);
                         throw new Exception(reqErr.DocumentElement["detail"].InnerText);
                     }
@@ -124,13 +124,13 @@ namespace dMobile.GroundWork
         /// <param name="reqData"></param>
         protected override async Task Save(string reqData)
         {
-            string errMsg = string.Empty;
+            var errMsg = string.Empty;
 
             await DatabaseConnection.GetInstance().SQLConn.RunInTransactionAsync(transaction =>
             {
                 try
                 {
-                    using (DataSet ds = new DataSet())
+                    using (var ds = new DataSet())
                     {
                         this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Reading received data.", false);
 
@@ -140,16 +140,16 @@ namespace dMobile.GroundWork
 
                         if (ds.Tables.Count != 0)
                         {
-                            int progMax = Convert.ToInt32(ds.Tables["seg"].Rows.Count);
+                            var progMax = Convert.ToInt32(ds.Tables["seg"].Rows.Count);
 
                             this.DataAccessStatusOutHandler(this, EventArgs.Empty, string.Format("Records {0}", progMax), false);
 
-                            int locMapRefno = 0;
-                            int locMapSubType = 0;
-                            int locMapFKRefno = 0;
-                            int progValue = 0;
-                            bool isLocMapTypeFound = false;
-                            int locMapTypeEnum = 0;
+                            var locMapRefno = 0;
+                            var locMapSubType = 0;
+                            var locMapFKRefno = 0;
+                            var progValue = 0;
+                            var isLocMapTypeFound = false;
+                            var locMapTypeEnum = 0;
 
                             this.DataAccessProgressOutHandler(this, EventArgs.Empty, 0, 0, progMax);
 
@@ -203,7 +203,7 @@ namespace dMobile.GroundWork
                                 {
                                     case (int)SysCommon.LocMapSubTypes.Warehouse:
                                         errMsg += Environment.NewLine + "Map sub type \'Warehouse\'";
-                                        List<tLocationMapWarehouseModel> resultsLocationMapWarehouse = transaction.Query<tLocationMapWarehouseModel>("SELECT * FROM tLocationMapWarehouse WHERE LocationMapWarehouseFKRefno = ?", locMapFKRefno);
+                                        var resultsLocationMapWarehouse = transaction.Query<tLocationMapWarehouseModel>("SELECT * FROM tLocationMapWarehouse WHERE LocationMapWarehouseFKRefno = ?", locMapFKRefno);
 
                                         if (resultsLocationMapWarehouse?.Count > 0)
                                         {
@@ -218,7 +218,7 @@ namespace dMobile.GroundWork
 
                                     case (int)SysCommon.LocMapSubTypes.Section:
                                         errMsg += Environment.NewLine + "Map sub type \'Section\'";
-                                        List<tLocationMapSectionModel> resultsLocationMapSection = transaction.Query<tLocationMapSectionModel>("SELECT * FROM tLocationMapSection WHERE LocationMapSectionFKRefno = ?", locMapFKRefno);
+                                        var resultsLocationMapSection = transaction.Query<tLocationMapSectionModel>("SELECT * FROM tLocationMapSection WHERE LocationMapSectionFKRefno = ?", locMapFKRefno);
 
                                         if (resultsLocationMapSection?.Count > 0)
                                         {
@@ -233,7 +233,7 @@ namespace dMobile.GroundWork
 
                                     case (int)SysCommon.LocMapSubTypes.Slot:
                                         errMsg += Environment.NewLine + "Map sub type \'Slot\'";
-                                        List<tLocationMapSlotModel> resultsLocationMapSlot = transaction.Query<tLocationMapSlotModel>("SELECT * FROM tLocationMapSlot WHERE LocationMapSlotFKRefno = ?", locMapFKRefno);
+                                        var resultsLocationMapSlot = transaction.Query<tLocationMapSlotModel>("SELECT * FROM tLocationMapSlot WHERE LocationMapSlotFKRefno = ?", locMapFKRefno);
 
                                         if (resultsLocationMapSlot?.Count > 0)
                                         {
@@ -255,7 +255,7 @@ namespace dMobile.GroundWork
 
                                 if (this.SysEnv.RefreshOpt.RefreshDataChangesOnly)
                                 {
-                                    List<tLocationMapTypeModel> resultsLocationMapType = transaction.Query<tLocationMapTypeModel>("SELECT * FROM tLocationMapType WHERE LocationMapRefno = ? AND LocationMapTypeEnum = ?", locMapRefno, locMapTypeEnum);
+                                    var resultsLocationMapType = transaction.Query<tLocationMapTypeModel>("SELECT * FROM tLocationMapType WHERE LocationMapRefno = ? AND LocationMapTypeEnum = ?", locMapRefno, locMapTypeEnum);
 
                                     if (resultsLocationMapType?.Count > 0)
                                     {
@@ -302,10 +302,10 @@ namespace dMobile.GroundWork
         /// <returns></returns>
         protected override async Task<string> CreateRequest(int whsLocMapRefno)
         {
-            StringBuilder xmlString = new StringBuilder();
-            XmlWriter xml = XmlWriter.Create(xmlString);
-            int locMapWhsFKRefno = 0;
-            TableLocationMapWarehouse locMapWhs = new TableLocationMapWarehouse();
+            var xmlString = new StringBuilder();
+            var xml = XmlWriter.Create(xmlString);
+            var locMapWhsFKRefno = 0;
+            var locMapWhs = new TableLocationMapWarehouse();
 
             // lookup and verify warehouse
             if (whsLocMapRefno > 0)
@@ -313,7 +313,7 @@ namespace dMobile.GroundWork
                 locMapWhsFKRefno = await locMapWhs.GetLocMapWhsFKRefnoFromLocMapWhsRefno(whsLocMapRefno);
             }
 
-            XDocument request = XDocument.Parse(
+            var request = XDocument.Parse(
                 "<?xml version=\"1.0\" encoding=\"utf-8\" standalone=\"yes\"?>"
                 + "<imclient>"
                 + "<command>"

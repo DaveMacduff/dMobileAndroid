@@ -42,11 +42,11 @@ namespace dMobile.GroundWork
                 string reqData;
                 if (actRefno == 0)
                 {
-                    List<tActivityModel> results = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<tActivityModel>("SELECT * FROM tActivity WHERE ActivitySubType = ?", Convert.ToInt32(SysCommon.ActSubTypes.Receiving));
+                    var results = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<tActivityModel>("SELECT * FROM tActivity WHERE ActivitySubType = ?", Convert.ToInt32(SysCommon.ActSubTypes.Receiving));
 
                     if (results?.Count > 0)
                     {
-                        foreach (tActivityModel activityModel in results)
+                        foreach (var activityModel in results)
                         {
                             actRefno = Convert.ToInt32(activityModel.ActivityRefno);
                             reqData = await this.SendRequest(actRefno);
@@ -55,7 +55,7 @@ namespace dMobile.GroundWork
                             {
                                 if (reqData.Contains("<message>ERROR</message>"))
                                 {
-                                    XmlDocument reqErr = new XmlDocument();
+                                    var reqErr = new XmlDocument();
                                     reqErr.LoadXml(reqData);
                                     throw new Exception(reqErr.DocumentElement["detail"].InnerText);
                                 }
@@ -73,7 +73,7 @@ namespace dMobile.GroundWork
                     {
                         if (reqData.Contains("<message>ERROR</message>"))
                         {
-                            XmlDocument reqErr = new XmlDocument();
+                            var reqErr = new XmlDocument();
                             reqErr.LoadXml(reqData);
                             throw new Exception(reqErr.DocumentElement["detail"].InnerText);
                         }
@@ -129,11 +129,11 @@ namespace dMobile.GroundWork
             {
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging receiving items.", true);
 
-                string query = "DELETE FROM tActivityItemBarCodeAssociationXRef "
-                    + "WHERE tActivityItemBarCodeAssociationXRef.ActivityItemRefno IN "
-                    + "(SELECT tActivityItem.ActivityItemRefno "
-                    + "FROM tActivityItem "
-                    + "WHERE tActivityItem.ActivityItemSubType = ?)";
+                var query = "DELETE FROM tActivityItemBarCodeAssociationXRef "
+                            + "WHERE tActivityItemBarCodeAssociationXRef.ActivityItemRefno IN "
+                            + "(SELECT tActivityItem.ActivityItemRefno "
+                            + "FROM tActivityItem "
+                            + "WHERE tActivityItem.ActivityItemSubType = ?)";
                 await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(query, Convert.ToInt32(SysCommon.ActSubTypes.Receiving));
 
                 query = "DELETE FROM tActivityItemReceiving WHERE tActivityItemReceiving.ActivityItemSubType = ?";
@@ -160,7 +160,7 @@ namespace dMobile.GroundWork
         /// <returns></returns>
         protected override async Task<string> SendRequest(int actRefno)
         {
-            List<tActivityReceivingModel> results = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<tActivityReceivingModel>("SELECT * FROM tActivityReceiving WHERE ActivityRefno = ?", actRefno);
+            var results = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<tActivityReceivingModel>("SELECT * FROM tActivityReceiving WHERE ActivityRefno = ?", actRefno);
 
             int recvFKRefno;
             if (results?.Count > 0)
@@ -186,7 +186,7 @@ namespace dMobile.GroundWork
             {
                 try
                 {
-                    using (DataSet ds = new DataSet())
+                    using (var ds = new DataSet())
                     {
                         this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Reading received data.", false);
 
@@ -196,16 +196,16 @@ namespace dMobile.GroundWork
 
                         if (ds.Tables.Count != 0)
                         {
-                            int progMax = Convert.ToInt32(ds.Tables["tActivityItemPurchaseOrder"].Rows.Count);
+                            var progMax = Convert.ToInt32(ds.Tables["tActivityItemPurchaseOrder"].Rows.Count);
 
                             this.DataAccessStatusOutHandler(this, EventArgs.Empty, string.Format("Records {0}", progMax), false);
 
-                            int actItemRefno = 0;
-                            int progValue = 0;
-                            int prodUnitRefno = 0;
-                            int locMapRefno = 0;
-                            string recvItemComment = string.Empty;
-                            int recvItemFKRefno = 0;
+                            var actItemRefno = 0;
+                            var progValue = 0;
+                            var prodUnitRefno = 0;
+                            var locMapRefno = 0;
+                            var recvItemComment = string.Empty;
+                            var recvItemFKRefno = 0;
 
                             this.DataAccessProgressOutHandler(this, EventArgs.Empty, 0, 0, progMax);
 
@@ -218,44 +218,44 @@ namespace dMobile.GroundWork
                                 locMapRefno = this.GetWhsLocMapRefnoFromDataRow(drow, transaction);
                                 recvItemFKRefno = Convert.ToInt32(drow["ActivityItemFKRefno"]);
 
-                                string queryInsertActivityItemReceiving = "INSERT INTO tActivityItemReceiving (" +
-                                    "ActivityItemRefno, " +
-                                    "ActivityItemSubType, " +
-                                    "ActivityItemFKRefno, " +
-                                    "ActivityItemStringFKRefno, " +
-                                    "ProductUnitRefno, " +
-                                    "WarehouseLocationMapRefno, " +
-                                    "ActivityItemReceivingQuantityOrdered, " +
-                                    "ActivityItemReceivingBaseQuantityOrdered, " +
-                                    "ActivityItemReceivingWeightQuantityOrdered, " +
-                                    "ActivityItemReceivingQuantityReceived, " +
-                                    "ActivityItemReceivingBaseQuantityReceived, " +
-                                    "ActivityItemReceivingWeightQuantityReceived, " +
-                                    "ActivityItemReceivingVendorProductUnitCode, " +
-                                    "ActivityItemReceivingDescription, " +
-                                    "ActivityItemReceivingQuantityReceivedToDate, " +
-                                    "ActivityItemReceivingBaseQuantityReceivedToDate, " +
-                                    "ActivityItemReceivingWeightQuantityReceivedToDate" +
-                                    ") VALUES (" +
-                                    "?, " +
-                                    "?, " +
-                                    "?, " +
-                                    "?, " +
-                                    "?, " +
-                                    "?, " +
-                                    "?, " +
-                                    "?, " +
-                                    "?, " +
-                                    "?, " +
-                                    "?, " +
-                                    "?, " +
-                                    "?, " +
-                                    "?, " +
-                                    "?, " +
-                                    "?, " +
-                                    "?" +
-                                    ")";
-                                object[] parametersActivityItemReceiving = new object[]
+                                var queryInsertActivityItemReceiving = "INSERT INTO tActivityItemReceiving (" +
+                                                                       "ActivityItemRefno, " +
+                                                                       "ActivityItemSubType, " +
+                                                                       "ActivityItemFKRefno, " +
+                                                                       "ActivityItemStringFKRefno, " +
+                                                                       "ProductUnitRefno, " +
+                                                                       "WarehouseLocationMapRefno, " +
+                                                                       "ActivityItemReceivingQuantityOrdered, " +
+                                                                       "ActivityItemReceivingBaseQuantityOrdered, " +
+                                                                       "ActivityItemReceivingWeightQuantityOrdered, " +
+                                                                       "ActivityItemReceivingQuantityReceived, " +
+                                                                       "ActivityItemReceivingBaseQuantityReceived, " +
+                                                                       "ActivityItemReceivingWeightQuantityReceived, " +
+                                                                       "ActivityItemReceivingVendorProductUnitCode, " +
+                                                                       "ActivityItemReceivingDescription, " +
+                                                                       "ActivityItemReceivingQuantityReceivedToDate, " +
+                                                                       "ActivityItemReceivingBaseQuantityReceivedToDate, " +
+                                                                       "ActivityItemReceivingWeightQuantityReceivedToDate" +
+                                                                       ") VALUES (" +
+                                                                       "?, " +
+                                                                       "?, " +
+                                                                       "?, " +
+                                                                       "?, " +
+                                                                       "?, " +
+                                                                       "?, " +
+                                                                       "?, " +
+                                                                       "?, " +
+                                                                       "?, " +
+                                                                       "?, " +
+                                                                       "?, " +
+                                                                       "?, " +
+                                                                       "?, " +
+                                                                       "?, " +
+                                                                       "?, " +
+                                                                       "?, " +
+                                                                       "?" +
+                                                                       ")";
+                                var parametersActivityItemReceiving = new object[]
                                 {
                                     Convert.ToInt32(actItemRefno),
                                     Convert.ToInt32(SysCommon.ActSubTypes.Receiving),
@@ -318,13 +318,13 @@ namespace dMobile.GroundWork
         /// <returns></returns>
         protected override async Task<string> CreateRequest(int recvFKRefno)
         {
-            StringBuilder xmlString = new StringBuilder();
-            XmlWriter xml = XmlWriter.Create(xmlString);
-            string deviceID = SysDeviceID.GetDeviceID();
-            string revision = new DateTime(1900, 1, 1).ToString("yyyy\'-\'MM\'-\'dd\'T\'HH\':\'mm\':\'ss");
-            string loginID = this.SysEnv.ContactLog.LoginID.ToString();
+            var xmlString = new StringBuilder();
+            var xml = XmlWriter.Create(xmlString);
+            var deviceID = SysDeviceID.GetDeviceID();
+            var revision = new DateTime(1900, 1, 1).ToString("yyyy\'-\'MM\'-\'dd\'T\'HH\':\'mm\':\'ss");
+            var loginID = this.SysEnv.ContactLog.LoginID.ToString();
 
-            XDocument request = XDocument.Parse(
+            var request = XDocument.Parse(
                 "<?xml version=\"1.0\" encoding=\"utf-8\" standalone=\"yes\"?>"
                 + "<imclient>"
                 + "<command>"

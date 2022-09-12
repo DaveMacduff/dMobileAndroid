@@ -112,7 +112,7 @@ namespace dMobile.View
         /// <remarks></remarks>
         public async Task<bool> IsReadyToSave()
         {
-            bool isReadyToSave = true;
+            var isReadyToSave = true;
             return isReadyToSave;
         }
 
@@ -163,7 +163,7 @@ namespace dMobile.View
         /// <remarks></remarks>
         public async Task<XDocument> GetXML()
         {
-            XDocument doc = XDocument.Parse(
+            var doc = XDocument.Parse(
                 "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>"
                 + "<params>"
                 + "</params>");
@@ -222,7 +222,7 @@ namespace dMobile.View
         /// <remarks></remarks>
         private bool SyncDateTime(object sender, EventArgs e)
         {
-            bool isDateTimeChanged = false;
+            var isDateTimeChanged = false;
 
             // if (!this.SysEnv.SysSettings.IsDisconnectedMode
             //    && (this.SysEnv.CommSetup.iHostIPAddressComponent1
@@ -333,11 +333,11 @@ namespace dMobile.View
         /// <remarks></remarks>
         private string CreateXMLSyncDateTime()
         {
-            StringBuilder xmlString = new StringBuilder();
-            XmlWriter xml = XmlWriter.Create(xmlString);
-            string deviceID = SysDeviceID.GetDeviceID();
+            var xmlString = new StringBuilder();
+            var xml = XmlWriter.Create(xmlString);
+            var deviceID = SysDeviceID.GetDeviceID();
 
-            XDocument request = XDocument.Parse(
+            var request = XDocument.Parse(
                 "<?xml version=\"1.0\" encoding=\"utf-8\" standalone=\"yes\"?>"
                 + "<imclient>"
                 + "<command>"
@@ -361,7 +361,7 @@ namespace dMobile.View
         /// <remarks></remarks>
         private async Task InitializeDatabase(object sender, EventArgs e)
         {
-            DatabaseNub db = new DatabaseNub();
+            var db = new DatabaseNub();
 
             this.SysEnv.RefreshOpt.IsDataCreatedInStartUp = false;
 
@@ -384,7 +384,7 @@ namespace dMobile.View
 
                 this.StartUpStatusOut(sender, e, "Seeding system users.");
 
-                TableContactUsers users = new TableContactUsers();
+                var users = new TableContactUsers();
                 await users.SeedContactUsersWithSystemUsers();
 
                 this.IsErrorRaised = db.ErrorRaised;
@@ -404,7 +404,7 @@ namespace dMobile.View
                 }
             }
 
-            RefreshDataOptions tempRefreshDataOptions = this.SysEnv.RefreshOpt;
+            var tempRefreshDataOptions = this.SysEnv.RefreshOpt;
             _ = this.SysEnv.RefreshOpt.SaveData(ref tempRefreshDataOptions);
             db.UnregNubListenerStatOut(this);
         }
@@ -419,7 +419,7 @@ namespace dMobile.View
         {
             this.StartUpStatusOut(sender, e, "Identifying bar code scanner.");
 
-            BarCodeScanner scanner = ScannerEngine.GetInstance().Scanner;
+            var scanner = ScannerEngine.GetInstance().Scanner;
 
             if (scanner == null)
             {
@@ -513,7 +513,7 @@ namespace dMobile.View
                 {
                     await Device.InvokeOnMainThreadAsync(async () =>
                     {
-                        FormErrorReport errReport = new FormErrorReport(SysCommon.ActSubTypes.SplashStartup, ex, this.GetControlDescription(), "timerStatus_Tick");
+                        var errReport = new FormErrorReport(SysCommon.ActSubTypes.SplashStartup, ex, this.GetControlDescription(), "timerStatus_Tick");
                         _ = await errReport.ShowDialog();
                         Android.OS.Process.KillProcess(Android.OS.Process.MyPid());
                     });
@@ -534,13 +534,13 @@ namespace dMobile.View
         /// <remarks></remarks>
         private bool CommunicationTest(object sender, EventArgs e)
         {
-            bool testSuccessful = false;
+            var testSuccessful = false;
 
             if (!this.SysEnv.SysSettings.IsDisconnectedMode && (this.SysEnv.CommSetup.HostIPAddressComponent1 + this.SysEnv.CommSetup.HostIPAddressComponent2 + this.SysEnv.CommSetup.HostIPAddressComponent3) != 0)
             {
                 this.StartUpStatusOut(sender, e, "Attempting communication test.");
 
-                SysSocket sysSock = new SysSocket();
+                var sysSock = new SysSocket();
 
                 sysSock.BasePort = this.SysEnv.CommSetup.BaseSocketPort;
                 sysSock.DefSocketPort = this.SysEnv.CommSetup.DefaultSocketPort;
@@ -589,26 +589,26 @@ namespace dMobile.View
                     {
                         this.StartUpStatusOut(sender, e, "Sending device ID.");
 
-                        string sendReq = CommunicationSetup.CreateXMLSubmitDeviceID();
-                        int bytesSent = sysSock.SendRequest(socket, sendReq);
+                        var sendReq = CommunicationSetup.CreateXMLSubmitDeviceID();
+                        var bytesSent = sysSock.SendRequest(socket, sendReq);
 
                         this.StartUpStatusOut(sender, e, string.Format("Bytes sent: {0}", bytesSent));
                         this.StartUpStatusOut(sender, e, "Waiting for response.");
 
-                        List<byte> bytRecvData = sysSock.ReceiveResponse(socket);
+                        var bytRecvData = sysSock.ReceiveResponse(socket);
 
                         socket.Disconnect(true);
                         socket.Close();
 
                         this.StartUpStatusOut(sender, e, "Socket closed.");
 
-                        string recvData = Compress.UnZip(bytRecvData.ToArray());
+                        var recvData = Compress.UnZip(bytRecvData.ToArray());
                         if (recvData.Contains("<message>ERROR</message>"))
                         {
-                            XmlDocument docError = new XmlDocument();
+                            var docError = new XmlDocument();
                             docError.LoadXml(recvData);
 
-                            string errorDetail = docError.DocumentElement["detail"].InnerText;
+                            var errorDetail = docError.DocumentElement["detail"].InnerText;
 
                             this.StartUpStatusOut(sender, e, "Submit device id error.");
                             this.StartUpStatusOut(sender, e, errorDetail);

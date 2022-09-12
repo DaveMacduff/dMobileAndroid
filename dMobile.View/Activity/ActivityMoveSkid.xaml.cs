@@ -140,7 +140,7 @@ namespace dMobile.View.Activity
         /// <returns><see cref="bool"/> True if it is ready to save, else false.</returns>
         public async Task<bool> IsReadyToSave()
         {
-            bool isReadyToSave = true;
+            var isReadyToSave = true;
 
             // NOTE: Do not need to set scanner off or on. Caller will handle.
             try
@@ -163,7 +163,7 @@ namespace dMobile.View.Activity
                 isReadyToSave = false;
                 await Device.InvokeOnMainThreadAsync(async () =>
                 {
-                    FormErrorReport errRpt = new FormErrorReport(this.ActSubType, ex);
+                    var errRpt = new FormErrorReport(this.ActSubType, ex);
                     _ = await errRpt.ShowDialog();
                 });
             }
@@ -184,7 +184,7 @@ namespace dMobile.View.Activity
         /// <returns><see cref="bool"/> True if the activity item is ready to close, else false.</returns>
         public async Task<bool> IsReadyToClose()
         {
-            bool isReadyToClose = true;
+            var isReadyToClose = true;
 
             try
             {
@@ -204,7 +204,7 @@ namespace dMobile.View.Activity
                 isReadyToClose = false;
                 await Device.InvokeOnMainThreadAsync(async () =>
                 {
-                    FormErrorReport errRpt = new FormErrorReport(this.ActSubType, ex);
+                    var errRpt = new FormErrorReport(this.ActSubType, ex);
                     _ = await errRpt.ShowDialog();
                 });
             }
@@ -234,7 +234,7 @@ namespace dMobile.View.Activity
         /// <returns><see cref="bool"/> True if the pending changes where canceled, else false.</returns>
         public async Task<bool> CancelChanges()
         {
-            bool cancelChanges = true;
+            var cancelChanges = true;
 
             try
             {
@@ -276,7 +276,7 @@ namespace dMobile.View.Activity
                 cancelChanges = false;
                 await Device.InvokeOnMainThreadAsync(async () =>
                 {
-                    FormErrorReport errRpt = new FormErrorReport(this.ActSubType, ex);
+                    var errRpt = new FormErrorReport(this.ActSubType, ex);
                     _ = await errRpt.ShowDialog();
                 });
             }
@@ -354,7 +354,7 @@ namespace dMobile.View.Activity
         /// <returns><see cref="bool"/> True if the save was successful, else false.</returns>
         public async Task<bool> SaveChanges()
         {
-            bool saveComplete = false;
+            var saveComplete = false;
 
             try
             {
@@ -389,7 +389,7 @@ namespace dMobile.View.Activity
                 saveComplete = false;
                 await Device.InvokeOnMainThreadAsync(async () =>
                 {
-                    FormErrorReport errRpt = new FormErrorReport(this.ActSubType, ex);
+                    var errRpt = new FormErrorReport(this.ActSubType, ex);
                     _ = await errRpt.ShowDialog();
                 });
             }
@@ -416,7 +416,7 @@ namespace dMobile.View.Activity
                 this.IsSvdBarScannerEnabled = this.IsBarCodeHandlerRegistered;
                 await this.ScannerDisable();
 
-                FormDialogContainer form = new FormDialogContainer(
+                var form = new FormDialogContainer(
                     EDialogTypes.SelectLocationMap,
                     SysCommon.ActSubTypes.NotApplicable);
 
@@ -445,9 +445,9 @@ namespace dMobile.View.Activity
             {
                 await Device.InvokeOnMainThreadAsync(async () =>
                 {
-                    string msg = "This activity unexpectedly failed to initialize correctly." +
-                        " Please exit and try again.";
-                    FormErrorReport errorReport = new FormErrorReport(msg, ex);
+                    var msg = "This activity unexpectedly failed to initialize correctly." +
+                              " Please exit and try again.";
+                    var errorReport = new FormErrorReport(msg, ex);
                     _ = await errorReport.ShowDialog();
                 });
             }
@@ -491,9 +491,9 @@ namespace dMobile.View.Activity
             {
                 await Device.InvokeOnMainThreadAsync(async () =>
                 {
-                    string msg = "This activity unexpectedly failed to initialize correctly." +
-                        " Please exit and try again.";
-                    FormErrorReport errorReport = new FormErrorReport(msg, ex);
+                    var msg = "This activity unexpectedly failed to initialize correctly." +
+                              " Please exit and try again.";
+                    var errorReport = new FormErrorReport(msg, ex);
                     _ = await errorReport.ShowDialog();
                 });
             }
@@ -557,7 +557,7 @@ namespace dMobile.View.Activity
                     {
                         await Device.InvokeOnMainThreadAsync(async () =>
                         {
-                            FormErrorReport errRpt = new FormErrorReport(this.ActSubType, ex);
+                            var errRpt = new FormErrorReport(this.ActSubType, ex);
                             _ = await errRpt.ShowDialog();
                         });
                     }
@@ -621,7 +621,7 @@ namespace dMobile.View.Activity
                 {
                     await Device.InvokeOnMainThreadAsync(async () =>
                     {
-                        FormErrorReport errRpt = new FormErrorReport(this.ActSubType, ex);
+                        var errRpt = new FormErrorReport(this.ActSubType, ex);
                         _ = await errRpt.ShowDialog();
                     });
                 }
@@ -653,14 +653,14 @@ namespace dMobile.View.Activity
 
             this.Loading = true;
             await this.ScannerDisable();
-            BarCodeParse parse = scanArgs.ParseInfo;
+            var parse = scanArgs.ParseInfo;
 
             try
             {
                 // GLOBAL LOCATION IDENTIFIER SCANNED
                 if (!string.IsNullOrEmpty(parse.LocationIdentifier))
                     {
-                        int locMapRefno = await LocationMapTasks.GetLocMapRefnoFromBarCodeGlobalLocIdentifier(
+                        var locMapRefno = await LocationMapTasks.GetLocMapRefnoFromBarCodeGlobalLocIdentifier(
                             parse.LocationIdentifier);
 
                         if (locMapRefno > 0)
@@ -738,7 +738,7 @@ namespace dMobile.View.Activity
             {
                 await Device.InvokeOnMainThreadAsync(async () =>
                 {
-                    FormErrorReport errRpt = new FormErrorReport(this.ActSubType, ex);
+                    var errRpt = new FormErrorReport(this.ActSubType, ex);
                     _ = await errRpt.ShowDialog();
                 });
             }
@@ -760,7 +760,7 @@ namespace dMobile.View.Activity
             {
                 this.txtSkidCode.Text = this.SkidInfo.CurrSkid.SkidCode.ToString();
 
-                string location = LocationMapTasks.GetReadableLocation(this.SkidInfo.CurrSkid.LocMap, true);
+                var location = LocationMapTasks.GetReadableLocation(this.SkidInfo.CurrSkid.LocMap, true);
                 this.ExtraInfoItems.Add(string.Format("Current: {0}", location));
 
                 this.lblProductBCUnit.Text = string.Format(
@@ -770,7 +770,7 @@ namespace dMobile.View.Activity
                     this.SkidInfo.CurrSkid.ProdInfo.UnitCode);
                 this.ExtraInfoItems.Add(string.Format("Bar Code: {0}", this.SkidInfo.CurrSkid.LogisticUnitSkidCode));
 
-                string qty = string.Format(
+                var qty = string.Format(
                     "Qty: {0} {1}",
                     Math.Round(this.SkidInfo.CurrSkid.Quantity, 3),
                     this.SkidInfo.CurrSkid.ProdInfo.UnitCode);

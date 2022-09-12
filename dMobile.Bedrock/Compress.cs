@@ -21,11 +21,11 @@ namespace dMobile.Bedrock
         /// <returns><see cref="byte[]"/> A byte array of the encrypted 'uncompressedString'.</returns>
         public static byte[] Zip(string uncompressedString)
         {
-            byte[] arrBytData = Encoding.UTF8.GetBytes(uncompressedString);
-            MemoryStream ms = new MemoryStream();
+            var arrBytData = Encoding.UTF8.GetBytes(uncompressedString);
+            var ms = new MemoryStream();
 
             // Create a Stream to Compress into
-            using (GZipStream comp = new GZipStream(ms, CompressionMode.Compress))
+            using (var comp = new GZipStream(ms, CompressionMode.Compress))
             {
                 // Compress the ByteArray into the MS
                 comp.Write(arrBytData, 0, arrBytData.Length);
@@ -43,18 +43,18 @@ namespace dMobile.Bedrock
         public static string UnZip(byte[] arrBytData)
         {
             const int ReadBufferByteSize = 32768;
-            StringBuilder sb = new StringBuilder();
+            var sb = new StringBuilder();
 
-            using (MemoryStream ms = new MemoryStream(arrBytData))
+            using (var ms = new MemoryStream(arrBytData))
             {
                 ms.Position = 0;
 
                 // Create the Decompress Stream from a Memory Stream of the Compressed Data
-                using GZipStream decomp = new GZipStream(ms, CompressionMode.Decompress);
+                using var decomp = new GZipStream(ms, CompressionMode.Decompress);
 
                 // Copy the compressed file into the decompression stream.
-                byte[] tempbuffer = new byte[ReadBufferByteSize + 1];
-                int numRead = 0;
+                var tempbuffer = new byte[ReadBufferByteSize + 1];
+                var numRead = 0;
                 numRead = decomp.Read(tempbuffer, 0, tempbuffer.Length);
                 while (numRead != 0)
                 {
@@ -75,19 +75,19 @@ namespace dMobile.Bedrock
         {
             const int ReadBufferByteSize = 32768;
 
-            byte[] bytBuffer = new byte[1];
-            int bytesRead = 0;
-            string tempFileName = Path.GetTempFileName();
+            var bytBuffer = new byte[1];
+            var bytesRead = 0;
+            var tempFileName = Path.GetTempFileName();
 
             try
             {
-                using MemoryStream ms = new MemoryStream(arrBytData);
+                using var ms = new MemoryStream(arrBytData);
                 ms.Position = 0;
 
                 // Create the Decompress Stream from a Memory Stream of the Compressed Data
-                using GZipStream decomp = new GZipStream(ms, CompressionMode.Decompress);
+                using var decomp = new GZipStream(ms, CompressionMode.Decompress);
                 File.Delete(tempFileName);
-                using FileStream fileSt = new FileStream(
+                using var fileSt = new FileStream(
                     tempFileName,
                     FileMode.OpenOrCreate,
                     FileAccess.ReadWrite);

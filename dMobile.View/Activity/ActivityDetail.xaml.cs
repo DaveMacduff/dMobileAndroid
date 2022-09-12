@@ -310,7 +310,7 @@ namespace dMobile.View.Activity
         /// <returns><see cref="bool"/> True if it is ready to save, else false.</returns>
         public async Task<bool> IsReadyToSave()
         {
-            bool isReadyToSave = true;
+            var isReadyToSave = true;
 
             // NOTE: Do not need to set scanner off or on. Caller will handle.
             try
@@ -329,7 +329,7 @@ namespace dMobile.View.Activity
                 isReadyToSave = false;
                 await Device.InvokeOnMainThreadAsync(async () =>
                 {
-                    FormErrorReport errRpt = new FormErrorReport(this.ActSubType, ex);
+                    var errRpt = new FormErrorReport(this.ActSubType, ex);
                     _ = await errRpt.ShowDialog();
                 });
             }
@@ -343,7 +343,7 @@ namespace dMobile.View.Activity
         /// <returns><see cref="bool"/> True if the activity item is ready to close, else false.</returns>
         public async Task<bool> IsReadyToClose()
         {
-            bool isReadyToClose = true;
+            var isReadyToClose = true;
 
             try
             {
@@ -361,7 +361,7 @@ namespace dMobile.View.Activity
                 isReadyToClose = false;
                 await Device.InvokeOnMainThreadAsync(async () =>
                 {
-                    FormErrorReport errRpt = new FormErrorReport(this.ActSubType, ex);
+                    var errRpt = new FormErrorReport(this.ActSubType, ex);
                     _ = await errRpt.ShowDialog();
                 });
             }
@@ -375,7 +375,7 @@ namespace dMobile.View.Activity
         /// <returns><see cref="bool"/> True if the save was successful, else false.</returns>
         public async Task<bool> SaveChanges()
         {
-            bool isSaveComplete = true;
+            var isSaveComplete = true;
 
             // NOTE: Do not need to set scanner off or on. Caller will handle.
             try
@@ -430,7 +430,7 @@ namespace dMobile.View.Activity
                 isSaveComplete = false;
                 await Device.InvokeOnMainThreadAsync(async () =>
                 {
-                    FormErrorReport errRpt = new FormErrorReport(this.ActSubType, ex);
+                    var errRpt = new FormErrorReport(this.ActSubType, ex);
                     _ = await errRpt.ShowDialog();
                 });
             }
@@ -441,17 +441,17 @@ namespace dMobile.View.Activity
             async Task PrintBatchedProductLabels()
             {
                 // For each detail marked for printing
-                string sendReq = string.Empty;
-                string errDetail = string.Empty;
-                string data = string.Empty;
-                List<object> detail = this.ActDetail.ListDetails;
+                var sendReq = string.Empty;
+                var errDetail = string.Empty;
+                var data = string.Empty;
+                var detail = this.ActDetail.ListDetails;
 
-                for (int rowIdx = 0; rowIdx <= detail.Count - 1; rowIdx++)
+                for (var rowIdx = 0; rowIdx <= detail.Count - 1; rowIdx++)
                 {
                     if (Convert.ToBoolean(detail[rowIdx].GetType().GetProperty(
                         "IsBatchProductLabel")?.GetValue(detail[rowIdx])))
                     {
-                        XDocument request = XDocument.Parse(
+                        var request = XDocument.Parse(
                             "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>"
                             + "<params>"
                             + "<serial>" + detail[rowIdx].GetType().GetProperty(
@@ -487,9 +487,9 @@ namespace dMobile.View.Activity
                         {
                             if (data.Contains("<message>ERROR</message>"))
                             {
-                                XmlDocument docError = new XmlDocument();
+                                var docError = new XmlDocument();
                                 docError.LoadXml(data);
-                                string errorDetail = docError.DocumentElement["detail"].InnerText;
+                                var errorDetail = docError.DocumentElement["detail"].InnerText;
 
                                 if (errorDetail.Contains("MSGBOX-"))
                                 {
@@ -537,7 +537,7 @@ namespace dMobile.View.Activity
         /// <returns><see cref="bool"/> True if the pending changes where canceled, else false.</returns>
         public async Task<bool> CancelChanges()
         {
-            bool cancelChanges = true;
+            var cancelChanges = true;
 
             try
             {
@@ -575,7 +575,7 @@ namespace dMobile.View.Activity
                 cancelChanges = false;
                 await Device.InvokeOnMainThreadAsync(async () =>
                 {
-                    FormErrorReport errRpt = new FormErrorReport(this.ActSubType, ex);
+                    var errRpt = new FormErrorReport(this.ActSubType, ex);
                     _ = await errRpt.ShowDialog();
                 });
             }
@@ -589,9 +589,9 @@ namespace dMobile.View.Activity
         /// <returns><see cref="XDocument"/> Activity detail return information.</returns>
         public async Task<XDocument> GetXML()
         {
-            SFillQuantity fillQty = await this.ActDetail.GetTotalQuantityFromListDetail();
+            var fillQty = await this.ActDetail.GetTotalQuantityFromListDetail();
 
-            XDocument xmldocParams = XDocument.Parse(
+            var xmldocParams = XDocument.Parse(
                 "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>"
                 + "<params>"
                 + "<qty>" + fillQty.Quantity + "</qty>"
@@ -753,9 +753,9 @@ namespace dMobile.View.Activity
                 this.FirstOnAppearing = true;
                 await Device.InvokeOnMainThreadAsync(async () =>
                 {
-                    string msg = "This activity unexpectedly failed to initialize correctly." +
-                        " Please exit and try again.";
-                    FormErrorReport errorReport = new FormErrorReport(msg, ex);
+                    var msg = "This activity unexpectedly failed to initialize correctly." +
+                              " Please exit and try again.";
+                    var errorReport = new FormErrorReport(msg, ex);
                     _ = await errorReport.ShowDialog();
                 });
             }
@@ -844,8 +844,8 @@ namespace dMobile.View.Activity
                         IsItemSelected();
 
                         // Ask if the deletion is a entire skid or item.
-                        bool isDelItem = false;
-                        bool isDelSkid = false;
+                        var isDelItem = false;
+                        var isDelSkid = false;
                         if (string.IsNullOrEmpty(this.ActDetail.SchemeData.LogisticUnitSkidNumber))
                         {
                             if (await this.DisplayAlert(
@@ -859,8 +859,8 @@ namespace dMobile.View.Activity
                         }
                         else
                         {
-                            string msg = $"Do you wish to delete all detail belonging to this skid" +
-                                $" {this.ActDetail.SchemeData.LogisticUnitSkidNumber}?";
+                            var msg = $"Do you wish to delete all detail belonging to this skid" +
+                                      $" {this.ActDetail.SchemeData.LogisticUnitSkidNumber}?";
                             if (await this.DisplayAlert(
                                 this.ActDetail.GetControlDescription(),
                                 msg,
@@ -906,7 +906,7 @@ namespace dMobile.View.Activity
                     {
                         await Device.InvokeOnMainThreadAsync(async () =>
                         {
-                            FormErrorReport errRpt = new FormErrorReport(this.ActSubType, ex);
+                            var errRpt = new FormErrorReport(this.ActSubType, ex);
                             _ = await errRpt.ShowDialog();
                         });
                     }
@@ -914,9 +914,9 @@ namespace dMobile.View.Activity
                     //////////////////////////////////////////////////////////////////////////
                     void IsItemSelected()
                     {
-                        bool isItemSelected = this.ListViewMainActivity.SelectedItem != null
-                            && Convert.ToInt32(this.MainActivityItems.IndexOf(
-                                this.ListViewMainActivity.SelectedItem)) >= 0;
+                        var isItemSelected = this.ListViewMainActivity.SelectedItem != null
+                                             && Convert.ToInt32(this.MainActivityItems.IndexOf(
+                                                 this.ListViewMainActivity.SelectedItem)) >= 0;
 
                         if (!isItemSelected)
                         {
@@ -950,12 +950,12 @@ namespace dMobile.View.Activity
                     async Task OnAppearingDelKeySkid()
                     {
                         // Determine the selected detail skid code.
-                        int currIdx = this.MainActivityItems.IndexOf(
+                        var currIdx = this.MainActivityItems.IndexOf(
                             this.ListViewMainActivity.SelectedItem);
-                        string skidCode = Convert.ToString(this.ActDetail.ListDetails[currIdx].GetType().GetProperty(
+                        var skidCode = Convert.ToString(this.ActDetail.ListDetails[currIdx].GetType().GetProperty(
                                 "ActivityDetailLogisticUnitSkidNumber")?.GetValue(
                                     this.ActDetail.ListDetails[currIdx]));
-                        SysSkidInfo skidInfo = await SysSkidInfo.GetSkidInfoFromBarCodeOrCode(skidCode);
+                        var skidInfo = await SysSkidInfo.GetSkidInfoFromBarCodeOrCode(skidCode);
 
                         if (skidInfo.CurrSkid.SkidFKRefno == 0)
                         {
@@ -998,7 +998,7 @@ namespace dMobile.View.Activity
                     {
                         await Device.InvokeOnMainThreadAsync(async () =>
                         {
-                            FormErrorReport errRpt = new FormErrorReport(this.ActSubType, ex);
+                            var errRpt = new FormErrorReport(this.ActSubType, ex);
                             _ = await errRpt.ShowDialog();
                         });
                     }
@@ -1016,7 +1016,7 @@ namespace dMobile.View.Activity
                     try
                     {
                         await this.ActDisappearing();
-                        string msg = await this.ActDetail.ActItem.GetTotalQuantity();
+                        var msg = await this.ActDetail.ActItem.GetTotalQuantity();
                         if (!string.IsNullOrEmpty(msg))
                         {
                             await Device.InvokeOnMainThreadAsync(async () => await this.DisplayAlert(
@@ -1037,7 +1037,7 @@ namespace dMobile.View.Activity
                     {
                         await Device.InvokeOnMainThreadAsync(async () =>
                         {
-                            FormErrorReport errRpt = new FormErrorReport(this.ActSubType, ex);
+                            var errRpt = new FormErrorReport(this.ActSubType, ex);
                             _ = await errRpt.ShowDialog();
                         });
                     }
@@ -1054,8 +1054,8 @@ namespace dMobile.View.Activity
                     try
                     {
                         await this.ActDisappearing();
-                        StringBuilder xmlString = new StringBuilder();
-                        XmlWriter xml = XmlWriter.Create(xmlString);
+                        var xmlString = new StringBuilder();
+                        var xml = XmlWriter.Create(xmlString);
                         await CheckIfActivityCanBeConfirmed();
                         SubmitDetailConfirmation(xmlString);
                         MarkDetailAsConfirmed();
@@ -1072,7 +1072,7 @@ namespace dMobile.View.Activity
                     {
                         await Device.InvokeOnMainThreadAsync(async () =>
                         {
-                            FormErrorReport errorReport = new FormErrorReport(this.ActSubType, ex);
+                            var errorReport = new FormErrorReport(this.ActSubType, ex);
                             _ = await errorReport.ShowDialog();
                         });
                     }
@@ -1104,14 +1104,14 @@ namespace dMobile.View.Activity
                     //////////////////////////////////////////////////////////////////////////
                     static void SubmitDetailConfirmation(StringBuilder xmlString)
                     {
-                        string reqData = SysCommon.SubmitComm(xmlString.ToString());
+                        var reqData = SysCommon.SubmitComm(xmlString.ToString());
                         if (reqData.Length > 0)
                         {
                             if (reqData.Contains("<message>ERROR</message>"))
                             {
-                                XmlDocument docError = new XmlDocument();
+                                var docError = new XmlDocument();
                                 docError.LoadXml(reqData);
-                                string errorDetail = docError.DocumentElement["detail"].InnerText;
+                                var errorDetail = docError.DocumentElement["detail"].InnerText;
                                 if (errorDetail.Contains("MSGBOX-"))
                                 {
                                     throw new MessageOnlyException(errorDetail);
@@ -1247,7 +1247,7 @@ namespace dMobile.View.Activity
             {
                 await Device.InvokeOnMainThreadAsync(async () =>
                 {
-                    FormErrorReport errRpt = new FormErrorReport(this.ActSubType, ex);
+                    var errRpt = new FormErrorReport(this.ActSubType, ex);
                     _ = await errRpt.ShowDialog();
                 });
             }
@@ -1286,9 +1286,9 @@ namespace dMobile.View.Activity
             scanArgs = scanArgs ?? throw new ArgumentNullException(nameof(scanArgs));
 
             this.Loading = true;
-            int prodUnitRefno = 0;
-            int svdActDetailFKRefno = this.ActDetail.DetailFKRefno;
-            BarCodeParse parse = scanArgs.ParseInfo;
+            var prodUnitRefno = 0;
+            var svdActDetailFKRefno = this.ActDetail.DetailFKRefno;
+            var parse = scanArgs.ParseInfo;
 
             try
             {
@@ -1312,7 +1312,7 @@ namespace dMobile.View.Activity
 
                         prodUnitRefno = await SysShared.IdentifyProductScanned(this.ActSubType, parse);
 
-                        ProductInfo prodInfo = await ProductInfoTasks.GetInfoFromUnitRefno(prodUnitRefno);
+                        var prodInfo = await ProductInfoTasks.GetInfoFromUnitRefno(prodUnitRefno);
 
                         // Check if the scanned product matches the select activity line item product.
                         if (prodUnitRefno != this.ActDetail.ActItem.ProdInfo.UnitRefno)
@@ -1322,7 +1322,7 @@ namespace dMobile.View.Activity
                         }
 
                         // If there is a selected skid check if the scanned product matches.
-                        SSkidInfo currSkid = this.ActDetail.ActItem.ActHdr.SkidInfo.CurrSkid;
+                        var currSkid = this.ActDetail.ActItem.ActHdr.SkidInfo.CurrSkid;
                         if (currSkid.SkidFKRefno != 0)
                         {
                             if (currSkid.ProdInfo.UnitRefno != prodUnitRefno)
@@ -1333,7 +1333,7 @@ namespace dMobile.View.Activity
 
                         // Get the activity item reference number from the identified location reference number
                         // and product reference number.
-                        int tempActItemRefno = await this.ActDetail.ActItem.GetActivityItemRefno(
+                        var tempActItemRefno = await this.ActDetail.ActItem.GetActivityItemRefno(
                             prodUnitRefno);
                         if (tempActItemRefno == 0)
                         {
@@ -1347,12 +1347,12 @@ namespace dMobile.View.Activity
                         }
                         else
                         {
-                            bool isInsertReady = false;
+                            var isInsertReady = false;
 
                             // A skid may contain 'default' scheme data, fill the activity detail
                             // with the default skid schema.
-                            SActItemSchemeData tempItemProdSchemeData = new SActItemSchemeData();
-                            SProductSchemeData schemeData = this.ActDetail.SchemeData;
+                            var tempItemProdSchemeData = new SActItemSchemeData();
+                            var schemeData = this.ActDetail.SchemeData;
                             if (currSkid.SkidFKRefno != 0)
                             {
                                 schemeData.LogisticUnitSkidNumber = currSkid.SkidCode;
@@ -1423,7 +1423,7 @@ namespace dMobile.View.Activity
                                 " supported in disconnected mode.");
                         }
 
-                        SysSkidInfo skidInfo = await SysSkidInfo.GetSkidInfoFromBarCodeOrCode(
+                        var skidInfo = await SysSkidInfo.GetSkidInfoFromBarCodeOrCode(
                             scanArgs.ParseInfo.SSCC18);
                         this.ActDetail.ActItem.ActHdr.SkidInfo = skidInfo;
 
@@ -1465,7 +1465,7 @@ namespace dMobile.View.Activity
                             this.ActDetail.SchemeData);
 
                         // IsReadyToApply will perform any validations, such as duplicate checks and quantity validations.
-                        XDocument xmlParam = XDocument.Parse(
+                        var xmlParam = XDocument.Parse(
                         "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>"
                         + "<imclient>"
                         + "<itm_refno>" + this.ActDetail.ActItem.ItemFKRefno + "</itm_refno>"
@@ -1498,7 +1498,7 @@ namespace dMobile.View.Activity
                             });
                         }
 
-                        SFillQuantity fillQty = await this.ActDetail.GetTotalQuantityFromListDetail();
+                        var fillQty = await this.ActDetail.GetTotalQuantityFromListDetail();
                         this.ActDetail.ActItem.AddToQuantityInActivityItem(
                             this.ActDetail.ActItem.SelectedActivityItem,
                             fillQty.Quantity,
@@ -1531,7 +1531,7 @@ namespace dMobile.View.Activity
                 {
                     await Device.InvokeOnMainThreadAsync(async () =>
                     {
-                        FormErrorReport errRpt = new FormErrorReport(this.ActSubType, ex);
+                        var errRpt = new FormErrorReport(this.ActSubType, ex);
                         _ = await errRpt.ShowDialog();
                     });
                 }
@@ -1550,7 +1550,7 @@ namespace dMobile.View.Activity
                 await this.FindSelectedItemAsync();
                 await Device.InvokeOnMainThreadAsync(async () =>
                 {
-                    FormErrorReport errRpt = new FormErrorReport(this.ActSubType, ex);
+                    var errRpt = new FormErrorReport(this.ActSubType, ex);
                     _ = await errRpt.ShowDialog();
                 });
             }
@@ -1568,7 +1568,7 @@ namespace dMobile.View.Activity
                 this.LocMap.ChosenLocMap = this.LocMap.CurrLocMap.Clone();
                 if (this.LocMap.CurrLocMap.WhsLocMapRefno != 0)
                 {
-                    string currentReadableLocation = LocationMapTasks.GetCurrentReadableLocation();
+                    var currentReadableLocation = LocationMapTasks.GetCurrentReadableLocation();
 
                     _ = await Device.InvokeOnMainThreadAsync(() => this.CmdLocationText =
                         "Location: " + Environment.NewLine + currentReadableLocation);
@@ -1775,7 +1775,7 @@ namespace dMobile.View.Activity
                 {
                     await Device.InvokeOnMainThreadAsync(async () =>
                     {
-                        FormErrorReport errRpt = new FormErrorReport(
+                        var errRpt = new FormErrorReport(
                             this.ActSubType,
                             ex,
                             this.ActDetail.GetControlDescription(),
@@ -1810,7 +1810,7 @@ namespace dMobile.View.Activity
                 object selectedItem = null;
                 if (this.SelectedActivityDetailFKRefno != 0)
                 {
-                    foreach (object item in this.ActDetail.ListDetails)
+                    foreach (var item in this.ActDetail.ListDetails)
                     {
                         if (this.SelectedActivityDetailFKRefno == this.ActDetail.GetFKRefno(item))
                         {
@@ -1886,20 +1886,20 @@ namespace dMobile.View.Activity
         private async Task InsertActivityDetail(ActDetail actDetail)
         {
             actDetail.DetailFKRefno = 0;
-            XDocument xmlDoc = actDetail.GetXML(actDetail);
+            var xmlDoc = actDetail.GetXML(actDetail);
             await actDetail.Insert(xmlDoc);
 
-            int detailIdx = this.ActDetail.FindListDetailIndex(activityDetailRefno: actDetail.DetailRefno);
+            var detailIdx = this.ActDetail.FindListDetailIndex(activityDetailRefno: actDetail.DetailRefno);
             if (detailIdx >= 0)
             {
                 this.ActDetail.UpdateListDetail(detailIdx);
-                dMobile.Resources.Types.ActivityDetail detail = (Resources.Types.ActivityDetail)this.ActDetail.ListDetails[detailIdx];
+                var detail = (Resources.Types.ActivityDetail)this.ActDetail.ListDetails[detailIdx];
                 this.SelectedActivityDetailFKRefno = detail.ActivityDetailFKRefno;
                 this.MainActivityItems[detailIdx] = detail;
             }
             else
             {
-                Resources.Types.ActivityDetail inserted = this.ActDetail.InsertListDetail(this.MainActivityItems);
+                var inserted = this.ActDetail.InsertListDetail(this.MainActivityItems);
                 this.SelectedActivityDetailFKRefno = inserted.ActivityDetailFKRefno;
                 await Device.InvokeOnMainThreadAsync(() =>
                 {
@@ -1923,7 +1923,7 @@ namespace dMobile.View.Activity
             {
                 this.ExtraInfoItems.Clear();
 
-                SSkidInfo currSkid = this.ActDetail.ActItem.ActHdr.SkidInfo.CurrSkid;
+                var currSkid = this.ActDetail.ActItem.ActHdr.SkidInfo.CurrSkid;
                 this.CmdSelectSkidIsEnabled = this.SysEnv.SysSettings.IsSkidTrackingModule;
 
                 if (currSkid.SkidFKRefno > 0)
@@ -1961,9 +1961,9 @@ namespace dMobile.View.Activity
                     case SysCommon.ActSubTypes.Adjustment:
                         if (this.ListViewMainActivity.SelectedItem is AdjustmentDetail adjustmentDetail)
                         {
-                            string loc = adjustmentDetail.Location;
-                            string locCode = Convert.ToString(adjustmentDetail.LocationCode);
-                            string locName = adjustmentDetail.LocationName;
+                            var loc = adjustmentDetail.Location;
+                            var locCode = Convert.ToString(adjustmentDetail.LocationCode);
+                            var locName = adjustmentDetail.LocationName;
 
                             this.ExtraInfoItems.Add("LOCATION: " + loc + ": " + locCode + " " + locName);
                             this.ExtraInfoItems.Add(adjustmentDetail.ActivityDetailSchemeID);
@@ -1987,20 +1987,20 @@ namespace dMobile.View.Activity
                         if (this.ListViewMainActivity.SelectedItem is CountDetail countDetail)
                         {
                             // Get the cycle count line item location.
-                            SLocMap countItemLocMap = await LocationMapTasks.GetSLocMapFromLocMapRefno(
+                            var countItemLocMap = await LocationMapTasks.GetSLocMapFromLocMapRefno(
                                 Convert.ToInt32(countDetail.LocationMapRefno));
-                            string countLoc = LocationMapTasks.GetReadableLocation(countItemLocMap);
+                            var countLoc = LocationMapTasks.GetReadableLocation(countItemLocMap);
 
                             // Using the cycle count line item warehouse, get the product default
                             // picking location.
-                            int defLocMapRefno = await LocationMapTasks.GetDefaultLocMapRefnoFromWhsProdRefno(
+                            var defLocMapRefno = await LocationMapTasks.GetDefaultLocMapRefnoFromWhsProdRefno(
                                 countItemLocMap.WhsLocMapRefno,
                                 Convert.ToInt32(countDetail.ProductRefno),
                                 SysCommon.ProdLocMapTypes.Picking);
-                            string defProdLoc = LocationMapTasks.GetReadableLocation(
+                            var defProdLoc = LocationMapTasks.GetReadableLocation(
                             await LocationMapTasks.GetSLocMapFromLocMapRefno(defLocMapRefno));
-                            string prodDesc = countDetail.ProductDescription.ToString();
-                            string prodUnitSizeDesc = countDetail.ProductUnitSizeDescription.ToString();
+                            var prodDesc = countDetail.ProductDescription.ToString();
+                            var prodUnitSizeDesc = countDetail.ProductUnitSizeDescription.ToString();
                             this.ExtraInfoItems.Add(prodDesc.Trim() + " " + prodUnitSizeDesc.Trim());
 
                             this.ExtraInfoItems.Add("Default Location: " + defProdLoc.Trim());
@@ -2042,9 +2042,9 @@ namespace dMobile.View.Activity
                     case SysCommon.ActSubTypes.PhysicalCounts:
                         if (this.ListViewMainActivity.SelectedItem is CountDetail physicalCountDetail)
                         {
-                            string loc = physicalCountDetail.Location;
-                            string locCode = Convert.ToString(physicalCountDetail.LocationCode);
-                            string locName = physicalCountDetail.LocationName;
+                            var loc = physicalCountDetail.Location;
+                            var locCode = Convert.ToString(physicalCountDetail.LocationCode);
+                            var locName = physicalCountDetail.LocationName;
 
                             this.ExtraInfoItems.Add("LOCATION: " + loc + ": " + locCode + " " + locName);
                             this.ExtraInfoItems.Add(physicalCountDetail.ActivityDetailSchemeID);
@@ -2057,10 +2057,10 @@ namespace dMobile.View.Activity
                         {
                             this.ExtraInfoItems.Add(LocationMapTasks.GetCurrentReadableLocation(isSeparateSlotCoords: true));
 
-                            decimal qty = (this.ActDetail.ActItem.SelectedActivityItem as PickingItem).
+                            var qty = (this.ActDetail.ActItem.SelectedActivityItem as PickingItem).
                                 ActivityItemPickingQuantityShipped;
 
-                            decimal wtQty = (this.ActDetail.ActItem.SelectedActivityItem as PickingItem).
+                            var wtQty = (this.ActDetail.ActItem.SelectedActivityItem as PickingItem).
                                 ActivityItemPickingWeightQuantityShipped;
 
                             this.ExtraInfoItems.Add("Total: " + SysCommon.NiceQuantityReadableString(
@@ -2076,9 +2076,9 @@ namespace dMobile.View.Activity
                         {
                             this.ExtraInfoItems.Add(pickingSingleDetail.ActivityDetailSchemeID);
 
-                            decimal qty = (this.ActDetail.ActItem.SelectedActivityItem as PickingItem).
+                            var qty = (this.ActDetail.ActItem.SelectedActivityItem as PickingItem).
                                 ActivityItemPickingQuantityShipped;
-                            decimal wtQty = (this.ActDetail.ActItem.SelectedActivityItem as PickingItem).
+                            var wtQty = (this.ActDetail.ActItem.SelectedActivityItem as PickingItem).
                                 ActivityItemPickingWeightQuantityShipped;
 
                             this.ExtraInfoItems.Add("Total: " + SysCommon.NiceQuantityReadableString(
@@ -2092,9 +2092,9 @@ namespace dMobile.View.Activity
                     case SysCommon.ActSubTypes.TicketAddProduct:
                         if (this.ListViewMainActivity.SelectedItem is ProductionTicketByProductDetail productionTicketByProductDetail)
                         {
-                            string loc = productionTicketByProductDetail.Location;
-                            string locCode = Convert.ToString(productionTicketByProductDetail.LocationCode);
-                            string locName = productionTicketByProductDetail.LocationName;
+                            var loc = productionTicketByProductDetail.Location;
+                            var locCode = Convert.ToString(productionTicketByProductDetail.LocationCode);
+                            var locName = productionTicketByProductDetail.LocationName;
 
                             this.ExtraInfoItems.Add("LOCATION: " + loc + ": " + locCode + " " + locName);
                             this.ExtraInfoItems.Add(productionTicketByProductDetail.ActivityDetailSchemeID);
@@ -2105,9 +2105,9 @@ namespace dMobile.View.Activity
                     case SysCommon.ActSubTypes.TicketFinished:
                         if (this.ListViewMainActivity.SelectedItem is ProductionTicketFinishedDetail productionTicketFinishedDetaill)
                         {
-                            string loc = productionTicketFinishedDetaill.Location;
-                            string locCode = Convert.ToString(productionTicketFinishedDetaill.LocationCode);
-                            string locName = productionTicketFinishedDetaill.LocationName;
+                            var loc = productionTicketFinishedDetaill.Location;
+                            var locCode = Convert.ToString(productionTicketFinishedDetaill.LocationCode);
+                            var locName = productionTicketFinishedDetaill.LocationName;
 
                             this.ExtraInfoItems.Add("LOCATION: " + loc + ": " + locCode + " " + locName);
                             this.ExtraInfoItems.Add(productionTicketFinishedDetaill.ActivityDetailSchemeID);
@@ -2118,9 +2118,9 @@ namespace dMobile.View.Activity
                     case SysCommon.ActSubTypes.TicketMaterial:
                         if (this.ListViewMainActivity.SelectedItem is ProductionTicketMaterialDetail productionTicketMaterialDetail)
                         {
-                            string loc = productionTicketMaterialDetail.Location;
-                            string locCode = Convert.ToString(productionTicketMaterialDetail.LocationCode);
-                            string locName = productionTicketMaterialDetail.LocationName;
+                            var loc = productionTicketMaterialDetail.Location;
+                            var locCode = Convert.ToString(productionTicketMaterialDetail.LocationCode);
+                            var locName = productionTicketMaterialDetail.LocationName;
 
                             this.ExtraInfoItems.Add("LOCATION: " + loc + ": " + locCode + " " + locName);
                             this.ExtraInfoItems.Add(productionTicketMaterialDetail.ActivityDetailSchemeID);
@@ -2140,9 +2140,9 @@ namespace dMobile.View.Activity
                     case SysCommon.ActSubTypes.Receiving:
                         if (this.ListViewMainActivity.SelectedItem is ReceiveDetail receiveDetail)
                         {
-                            string loc = receiveDetail.Location;
-                            string locCode = Convert.ToString(receiveDetail.LocationCode);
-                            string locName = receiveDetail.LocationName;
+                            var loc = receiveDetail.Location;
+                            var locCode = Convert.ToString(receiveDetail.LocationCode);
+                            var locName = receiveDetail.LocationName;
 
                             this.ExtraInfoItems.Add("LOCATION: " + loc + ": " + locCode + " " + locName);
                             this.ExtraInfoItems.Add(receiveDetail.ActivityDetailSchemeID);
@@ -2162,9 +2162,9 @@ namespace dMobile.View.Activity
                     case SysCommon.ActSubTypes.Returns:
                         if (this.ListViewMainActivity.SelectedItem is ReturnDetail returnDetail)
                         {
-                            string loc = returnDetail.Location;
-                            string locCode = Convert.ToString(returnDetail.LocationCode);
-                            string locName = returnDetail.LocationName;
+                            var loc = returnDetail.Location;
+                            var locCode = Convert.ToString(returnDetail.LocationCode);
+                            var locName = returnDetail.LocationName;
 
                             this.ExtraInfoItems.Add("LOCATION: " + loc + ": " + locCode + " " + locName);
                             this.ExtraInfoItems.Add(returnDetail.ActivityDetailSchemeID);
@@ -2192,9 +2192,9 @@ namespace dMobile.View.Activity
                     case SysCommon.ActSubTypes.TransferFrom:
                         if (this.ListViewMainActivity.SelectedItem is TransferDetail transferFromDetail)
                         {
-                            string loc = transferFromDetail.Location;
-                            string locCode = Convert.ToString(transferFromDetail.LocationCode);
-                            string locName = transferFromDetail.LocationName;
+                            var loc = transferFromDetail.Location;
+                            var locCode = Convert.ToString(transferFromDetail.LocationCode);
+                            var locName = transferFromDetail.LocationName;
 
                             this.ExtraInfoItems.Add("LOCATION: " + loc + ": " + locCode + " " + locName);
                             this.ExtraInfoItems.Add(transferFromDetail.ActivityDetailSchemeID);
@@ -2205,9 +2205,9 @@ namespace dMobile.View.Activity
                     case SysCommon.ActSubTypes.TransferTo:
                         if (this.ListViewMainActivity.SelectedItem is TransferDetail transferToDetail)
                         {
-                            string loc = transferToDetail.Location;
-                            string locCode = Convert.ToString(transferToDetail.LocationCode);
-                            string locName = transferToDetail.LocationName;
+                            var loc = transferToDetail.Location;
+                            var locCode = Convert.ToString(transferToDetail.LocationCode);
+                            var locName = transferToDetail.LocationName;
 
                             this.ExtraInfoItems.Add("LOCATION: " + loc + ": " + locCode + " " + locName);
                             this.ExtraInfoItems.Add(transferToDetail.ActivityDetailSchemeID);
@@ -2263,7 +2263,7 @@ namespace dMobile.View.Activity
                 this.Loading = true;
                 if (await CheckAllowedToAddDetail())
                 {
-                    LocationMap locMap = LocationMap.GetInstance();
+                    var locMap = LocationMap.GetInstance();
                     if (!await LocationMapTasks.IsCompleteLocMap(locMap.CurrLocMapRefno))
                     {
                         throw new MessageOnlyException("Location must be set first.");
@@ -2287,7 +2287,7 @@ namespace dMobile.View.Activity
                 {
                     await Device.InvokeOnMainThreadAsync(async () =>
                     {
-                        FormErrorReport errRpt = new FormErrorReport(this.ActSubType, gatherEx);
+                        var errRpt = new FormErrorReport(this.ActSubType, gatherEx);
                         _ = await errRpt.ShowDialog();
                     });
                 }
@@ -2326,9 +2326,9 @@ namespace dMobile.View.Activity
 
                 // Did not use this.ActItem.ActHdr.SkidInfo.CurrSkid.LogisticUnitSkidCode because of
                 // the length of the code and the fact is isn't human readable friendly.
-                SActItemSchemeData tempItemProdSchemeData = new SActItemSchemeData();
-                SProductSchemeData schemeData = this.ActDetail.SchemeData;
-                SSkidInfo skidInfo = this.ActDetail.ActItem.ActHdr.SkidInfo.CurrSkid;
+                var tempItemProdSchemeData = new SActItemSchemeData();
+                var schemeData = this.ActDetail.SchemeData;
+                var skidInfo = this.ActDetail.ActItem.ActHdr.SkidInfo.CurrSkid;
                 if (skidInfo.SkidFKRefno != 0)
                 {
                     schemeData.LogisticUnitSkidNumber = skidInfo.SkidCode;
@@ -2348,12 +2348,12 @@ namespace dMobile.View.Activity
             //////////////////////////////////////////////////////////////////////////
             async Task<bool> CheckAllowedToAddDetail()
             {
-                bool isAllowedAddManualDetail = true;
+                var isAllowedAddManualDetail = true;
                 if (this.SysEnv.SysSettings.IsPickAddManualDetailPasswordRequired &&
                     (this.ActSubType == SysCommon.ActSubTypes.PickingSingle ||
                     this.ActSubType == SysCommon.ActSubTypes.Picking))
                 {
-                    FormAddManualDetailOverride form = new FormAddManualDetailOverride();
+                    var form = new FormAddManualDetailOverride();
 
                     isAllowedAddManualDetail = await Device.InvokeOnMainThreadAsync(async () =>
                         await form.ShowDialog() == DialogResult.OK);
@@ -2365,7 +2365,7 @@ namespace dMobile.View.Activity
             //////////////////////////////////////////////////////////////////////////
             async Task PerformAddDetail()
             {
-                bool isInsertReady = false;
+                var isInsertReady = false;
 
                 // Not allowed to count individual boxes on a skid. Skids must be
                 // scanned as a whole unit or built in skid maintenance.
@@ -2380,12 +2380,12 @@ namespace dMobile.View.Activity
                 ////    }
                 ////}
 
-                BarCodeParse parse = BarCodeParseFacade.ParseData(string.Empty);
+                var parse = BarCodeParseFacade.ParseData(string.Empty);
 
                 try
                 {
                     await this.ActDisappearing();
-                    SActItemSchemeData tempItemProdSchemeData = InitDetailBeforeGather();
+                    var tempItemProdSchemeData = InitDetailBeforeGather();
                     isInsertReady = await SysShared.GatherProductData(
                         parse,
                         this.ActSubType,
@@ -2428,12 +2428,12 @@ namespace dMobile.View.Activity
                 await this.ActDisappearing();
                 await Device.InvokeOnMainThreadAsync(async () =>
                 {
-                    string currentReadableLocation = LocationMapTasks.GetCurrentReadableLocation();
+                    var currentReadableLocation = LocationMapTasks.GetCurrentReadableLocation();
                     _ = await Device.InvokeOnMainThreadAsync(() => this.CmdLocationText =
                         "Location: " + Environment.NewLine + currentReadableLocation);
                 });
 
-                string result = await this.DisplayActionSheet(
+                var result = await this.DisplayActionSheet(
                     "ActivityDetail Options",
                     "Close",
                     null,
@@ -2464,7 +2464,7 @@ namespace dMobile.View.Activity
             {
                 await Device.InvokeOnMainThreadAsync(async () =>
                 {
-                    FormErrorReport errRpt = new FormErrorReport(this.ActSubType, ex);
+                    var errRpt = new FormErrorReport(this.ActSubType, ex);
                     _ = await errRpt.ShowDialog();
                 });
             }
@@ -2478,7 +2478,7 @@ namespace dMobile.View.Activity
             {
                 await this.ActDisappearing();
 
-                bool dspOverrideMsg = false;
+                var dspOverrideMsg = false;
                 if (this.SysEnv.SysSettings.IsDefaultLocToProductDefaultLoc)
                 {
                     if ((this.ActSubType == SysCommon.ActSubTypes.PhysicalCounts &&
@@ -2503,7 +2503,7 @@ namespace dMobile.View.Activity
                             Resource.OK));
                 }
 
-                FormDialogContainer form = new FormDialogContainer(
+                var form = new FormDialogContainer(
                     EDialogTypes.SelectLocationMap,
                     this.ActDetail.ActItem.LocMap.WhsLocMapRefno,
                     true);
@@ -2519,12 +2519,12 @@ namespace dMobile.View.Activity
                     if (this.ActSubType == SysCommon.ActSubTypes.Picking ||
                         this.ActSubType == SysCommon.ActSubTypes.PickingSingle)
                     {
-                        int sectRefno = ((PickingActivity)this.ActDetail.ActItem.ActHdr).PickingLocationMapFilter.SectLocMapRefno;
+                        var sectRefno = ((PickingActivity)this.ActDetail.ActItem.ActHdr).PickingLocationMapFilter.SectLocMapRefno;
                         if (sectRefno != 0 && this.LocMap.ChosenLocMap.SectLocMapRefno != sectRefno)
                         {
-                            string sectName = ((PickingActivity)this.ActDetail.ActItem.ActHdr).PickingLocationMapFilter.SectName;
-                            string msg = $"Warning selected location section '{this.LocMap.CurrLocMap.SectName}' does" +
-                                            $" not match the filtered picking section '{sectName}'.";
+                            var sectName = ((PickingActivity)this.ActDetail.ActItem.ActHdr).PickingLocationMapFilter.SectName;
+                            var msg = $"Warning selected location section '{this.LocMap.CurrLocMap.SectName}' does" +
+                                      $" not match the filtered picking section '{sectName}'.";
 
                             await Device.InvokeOnMainThreadAsync(async () =>
                                     await Application.Current.MainPage.DisplayAlert(
@@ -2547,19 +2547,19 @@ namespace dMobile.View.Activity
             async void CmdSelectSkidClick(object sender, EventArgs e)
             {
                 await this.ActDisappearing();
-                FormDialogContainer form = new FormDialogContainer(
+                var form = new FormDialogContainer(
                     EDialogTypes.SkidInfo,
                     this.ActDetail.ActItem,
                     this.ActSubType);
 
                 if (await form.DisplayControl.ShowDialog() == DialogResult.OK)
                 {
-                    XDocument xmlDoc = await form.GetXML();
+                    var xmlDoc = await form.GetXML();
                     this.ActDetail.ActItem.ActHdr.SkidInfo = await SysSkidInfo.GetSkidInfoFromXML(xmlDoc);
 
                     if (this.ActDetail.ActItem.ActHdr.SkidInfo.CurrSkid.SkidFKRefno != 0)
                     {
-                        SSkidInfo currSkid = this.ActDetail.ActItem.ActHdr.SkidInfo.CurrSkid;
+                        var currSkid = this.ActDetail.ActItem.ActHdr.SkidInfo.CurrSkid;
 
                         if (this.ActDetail.ActItem.ProdInfo.Code == currSkid.ProdInfo.Code &&
                             this.ActDetail.ActItem.ProdInfo.UnitBC == currSkid.ProdInfo.UnitBC &&
@@ -2614,7 +2614,7 @@ namespace dMobile.View.Activity
 
                         // IsReadyToApply will perform any validations, such as duplicate checks and quantity
                         // validations.
-                        XDocument xmlParam = XDocument.Parse(
+                        var xmlParam = XDocument.Parse(
                             "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>"
                             + "<imclient>"
                             + "<itm_refno>" + this.ActDetail.ActItem.ItemFKRefno + "</itm_refno>"
@@ -2626,7 +2626,7 @@ namespace dMobile.View.Activity
                         await this.ActDetail.ActItem.IsReadyToApply(xmlParam);
 
                         await this.ActDetail.InsertSkid(this.ActDetail.ActItem.ActHdr.SkidInfo);
-                        SFillQuantity fillQty = await this.ActDetail.GetTotalQuantityFromListDetail();
+                        var fillQty = await this.ActDetail.GetTotalQuantityFromListDetail();
                         this.ActDetail.ActItem.AddToQuantityInActivityItem(
                             this.ActDetail.ActItem.SelectedActivityItem,
                             fillQty.Quantity,
@@ -2638,7 +2638,7 @@ namespace dMobile.View.Activity
                 //////////////////////////////////////////////////////////////////////////
                 async Task<bool> CheckAllowedToAddSkid()
                 {
-                    bool isAllowedAddManualDetail = true;
+                    var isAllowedAddManualDetail = true;
                     if (this.SysEnv.SysSettings.IsPickAddManualDetailPasswordRequired &&
                         (this.ActSubType == SysCommon.ActSubTypes.PickingSingle ||
                         this.ActSubType == SysCommon.ActSubTypes.Picking))
@@ -2646,7 +2646,7 @@ namespace dMobile.View.Activity
                         if (!this.SysEnv.ContactLog.IsAllowedPickingModuleOverrideAddManualDetail)
                         {
                             await this.ActDisappearing();
-                            FormAddManualDetailOverride form = new FormAddManualDetailOverride();
+                            var form = new FormAddManualDetailOverride();
                             isAllowedAddManualDetail = await Device.InvokeOnMainThreadAsync(async () =>
                                 await form.ShowDialog() == DialogResult.OK);
                             await this.ActAppearing();

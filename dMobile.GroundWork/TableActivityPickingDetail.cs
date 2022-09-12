@@ -39,11 +39,11 @@ namespace dMobile.GroundWork
                 string reqData;
                 if (actItemRefno == 0)
                 {
-                    List<tActivityItemModel> results = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<tActivityItemModel>("SELECT * FROM tActivityItem WHERE ActivityItemSubType = ?", Convert.ToInt32(SysCommon.ActSubTypes.Picking));
+                    var results = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<tActivityItemModel>("SELECT * FROM tActivityItem WHERE ActivityItemSubType = ?", Convert.ToInt32(SysCommon.ActSubTypes.Picking));
 
                     if (results?.Count > 0)
                     {
-                        foreach (tActivityItemModel activityItemModel in results)
+                        foreach (var activityItemModel in results)
                         {
                             actItemRefno = Convert.ToInt32(activityItemModel.ActivityItemRefno);
                             reqData = await this.SendRequest(actItemRefno);
@@ -52,7 +52,7 @@ namespace dMobile.GroundWork
                             {
                                 if (reqData.Contains("<message>ERROR</message>"))
                                 {
-                                    XmlDocument reqErr = new XmlDocument();
+                                    var reqErr = new XmlDocument();
                                     reqErr.LoadXml(reqData);
                                     throw new Exception(reqErr.DocumentElement["detail"].InnerText);
                                 }
@@ -70,7 +70,7 @@ namespace dMobile.GroundWork
                     {
                         if (reqData.Contains("<message>ERROR</message>"))
                         {
-                            XmlDocument reqErr = new XmlDocument();
+                            var reqErr = new XmlDocument();
                             reqErr.LoadXml(reqData);
                             throw new Exception(reqErr.DocumentElement["detail"].InnerText);
                         }
@@ -106,11 +106,11 @@ namespace dMobile.GroundWork
             {
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging sales order details.", true);
 
-                string query = "DELETE FROM tActivityDetailProductSchemeVariantXRef "
-                    + "WHERE tActivityDetailProductSchemeVariantXRef.ActivityDetailRefno IN "
-                    + "(SELECT tActivityDetail.ActivityDetailRefno "
-                    + "FROM tActivityDetail "
-                    + "WHERE tActivityDetail.ActivityDetailSubType = ?)";
+                var query = "DELETE FROM tActivityDetailProductSchemeVariantXRef "
+                            + "WHERE tActivityDetailProductSchemeVariantXRef.ActivityDetailRefno IN "
+                            + "(SELECT tActivityDetail.ActivityDetailRefno "
+                            + "FROM tActivityDetail "
+                            + "WHERE tActivityDetail.ActivityDetailSubType = ?)";
                 await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(query, Convert.ToInt32(SysCommon.ActSubTypes.Picking));
 
                 query = "DELETE FROM tActivityDetailPicking "
@@ -169,7 +169,7 @@ namespace dMobile.GroundWork
         /// <returns></returns>
         protected override async Task<string> SendRequest(int actItemPickRefno)
         {
-            List<tActivityItemPickingModel> results = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<tActivityItemPickingModel>("SELECT * FROM tActivityItemPicking WHERE ActivityItemRefno = ?", actItemPickRefno);
+            var results = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<tActivityItemPickingModel>("SELECT * FROM tActivityItemPicking WHERE ActivityItemRefno = ?", actItemPickRefno);
 
             int actItemPickFKRefno;
             if (results?.Count > 0)
@@ -191,13 +191,13 @@ namespace dMobile.GroundWork
         /// <param name="actItemPickRefno"></param>
         protected override async Task Save(string reqData, int actItemPickRefno)
         {
-            string errMsg = string.Empty;
+            var errMsg = string.Empty;
 
             await DatabaseConnection.GetInstance().SQLConn.RunInTransactionAsync(transaction =>
             {
                 try
                 {
-                    using (DataSet ds = new DataSet())
+                    using (var ds = new DataSet())
                     {
                         this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Reading received data.", false);
 
@@ -207,18 +207,18 @@ namespace dMobile.GroundWork
 
                         if (ds.Tables.Count != 0)
                         {
-                            int progMax = Convert.ToInt32(ds.Tables["tActivityDetailPicking"].Rows.Count);
+                            var progMax = Convert.ToInt32(ds.Tables["tActivityDetailPicking"].Rows.Count);
 
                             this.DataAccessStatusOutHandler(this, EventArgs.Empty, string.Format("Records {0}", progMax), false);
 
-                            int actDetailRefno = 0;
-                            int progValue = 0;
-                            int actDetailPickFKRefno = 0;
-                            int productUnitRefno = 0;
+                            var actDetailRefno = 0;
+                            var progValue = 0;
+                            var actDetailPickFKRefno = 0;
+                            var productUnitRefno = 0;
 
                             this.DataAccessProgressOutHandler(this, EventArgs.Empty, 0, 0, progMax);
 
-                            List<tActivityItemPickingModel> resultPickingItems = transaction.Query<tActivityItemPickingModel>("SELECT * FROM tActivityItemPicking WHERE ActivityItemRefno = ?", actItemPickRefno);
+                            var resultPickingItems = transaction.Query<tActivityItemPickingModel>("SELECT * FROM tActivityItemPicking WHERE ActivityItemRefno = ?", actItemPickRefno);
 
                             if (resultPickingItems == null || (resultPickingItems != null && resultPickingItems.Count == 0))
                             {
@@ -229,52 +229,52 @@ namespace dMobile.GroundWork
 
                             foreach (DataRow drow in ds.Tables["tActivityDetailPicking"].Rows)
                             {
-                                bool useFNo = false;
+                                var useFNo = false;
                                 errMsg = "Arguments:";
 
-                                string queryInsertDetail = "INSERT INTO tActivityDetail " +
-                                "(" +
-                                "ActivityDetailSubType, " +
-                                "ActivityDetailStatus, " +
-                                "ActivityItemRefno, " +
-                                "LocationMapRefno, " +
-                                "ProductUnitRefno, " +
-                                "ActivityDetailUniqueSchemeID, " +
-                                "ActivityDetailSchemeID, " +
-                                "ActivityDetailQuantity, " +
-                                "ActivityDetailBaseQuantity, " +
-                                "ActivityDetailWeightQuantity, " +
-                                "ActivityDetailSingleTradeItemSerialNumber, " +
-                                "ActivityDetailLogisticUnitBatchLotNumber, " +
-                                "ActivityDetailLogisticUnitBestBeforeSellByDate, " +
-                                "ActivityDetailLogisticUnitExpiryUseByDate, " +
-                                "ActivityDetailLogisticUnitProductionDate, " +
-                                "ActivityDetailLogisticUnitDueDate, " +
-                                "ActivityDetailLogisticUnitPackagingDate, " +
-                                "ActivityDetailLogisticUnitSkidNumber" +
-                                ") " +
-                                "VALUES" +
-                                "(" +
-                                "?, " +
-                                "?, " +
-                                "?, " +
-                                "?, " +
-                                "?, " +
-                                "?, " +
-                                "?, " +
-                                "?, " +
-                                "?, " +
-                                "?, " +
-                                "?, " +
-                                "?, " +
-                                "?, " +
-                                "?, " +
-                                "?, " +
-                                "?, " +
-                                "?, " +
-                                "?" +
-                                ")";
-                                List<object> parametersInsertDetail = new List<object>();
+                                var queryInsertDetail = "INSERT INTO tActivityDetail " +
+                                                        "(" +
+                                                        "ActivityDetailSubType, " +
+                                                        "ActivityDetailStatus, " +
+                                                        "ActivityItemRefno, " +
+                                                        "LocationMapRefno, " +
+                                                        "ProductUnitRefno, " +
+                                                        "ActivityDetailUniqueSchemeID, " +
+                                                        "ActivityDetailSchemeID, " +
+                                                        "ActivityDetailQuantity, " +
+                                                        "ActivityDetailBaseQuantity, " +
+                                                        "ActivityDetailWeightQuantity, " +
+                                                        "ActivityDetailSingleTradeItemSerialNumber, " +
+                                                        "ActivityDetailLogisticUnitBatchLotNumber, " +
+                                                        "ActivityDetailLogisticUnitBestBeforeSellByDate, " +
+                                                        "ActivityDetailLogisticUnitExpiryUseByDate, " +
+                                                        "ActivityDetailLogisticUnitProductionDate, " +
+                                                        "ActivityDetailLogisticUnitDueDate, " +
+                                                        "ActivityDetailLogisticUnitPackagingDate, " +
+                                                        "ActivityDetailLogisticUnitSkidNumber" +
+                                                        ") " +
+                                                        "VALUES" +
+                                                        "(" +
+                                                        "?, " +
+                                                        "?, " +
+                                                        "?, " +
+                                                        "?, " +
+                                                        "?, " +
+                                                        "?, " +
+                                                        "?, " +
+                                                        "?, " +
+                                                        "?, " +
+                                                        "?, " +
+                                                        "?, " +
+                                                        "?, " +
+                                                        "?, " +
+                                                        "?, " +
+                                                        "?, " +
+                                                        "?, " +
+                                                        "?, " +
+                                                        "?" +
+                                                        ")";
+                                var parametersInsertDetail = new List<object>();
                                 parametersInsertDetail.Add(Convert.ToInt32(SysCommon.ActSubTypes.Picking));
                                 parametersInsertDetail.Add(0);
                                 parametersInsertDetail.Add(actItemPickRefno);
@@ -288,15 +288,15 @@ namespace dMobile.GroundWork
                                 actDetailPickFKRefno = Convert.ToInt32(drow["ActivityDetailFKRefno"]);
                                 errMsg += Environment.NewLine + "Detail fk refno " + actDetailPickFKRefno;
 
-                                string queryInsertPickingDetail = "INSERT INTO tActivityDetailPicking (" +
-                                    "ActivityDetailRefno, " +
-                                    "ActivityDetailFKRefno, " +
-                                    "ActivityDetailPickingIsConfirmed" +
-                                    ") VALUES (" +
-                                    "?, " +
-                                    "?, " +
-                                    "?" +
-                                    ")";
+                                var queryInsertPickingDetail = "INSERT INTO tActivityDetailPicking (" +
+                                                               "ActivityDetailRefno, " +
+                                                               "ActivityDetailFKRefno, " +
+                                                               "ActivityDetailPickingIsConfirmed" +
+                                                               ") VALUES (" +
+                                                               "?, " +
+                                                               "?, " +
+                                                               "?" +
+                                                               ")";
 
                                 transaction.Execute(queryInsertPickingDetail, actDetailRefno, actDetailPickFKRefno, Convert.ToBoolean(drow["ActivityDetailPickingIsConfirmed"]));
 
@@ -337,10 +337,10 @@ namespace dMobile.GroundWork
         /// <returns></returns>
         protected override async Task<string> CreateRequest(int actItemPickFKRefno)
         {
-            StringBuilder xmlString = new StringBuilder();
-            XmlWriter xml = XmlWriter.Create(xmlString);
+            var xmlString = new StringBuilder();
+            var xml = XmlWriter.Create(xmlString);
 
-            XDocument request = XDocument.Parse(
+            var request = XDocument.Parse(
                 "<?xml version=\"1.0\" encoding=\"utf-8\" standalone=\"yes\"?>"
                 + "<imclient>"
                 + "<command>"

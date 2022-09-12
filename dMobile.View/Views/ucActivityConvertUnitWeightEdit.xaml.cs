@@ -87,7 +87,7 @@ namespace dMobile.View.Views
         {
             this.DialogResult = DialogResult.OK;
 
-            _ = decimal.TryParse(this.entryWeight.Text, out decimal result);
+            _ = decimal.TryParse(this.entryWeight.Text, out var result);
 
             if (this.convertUnitDetail != null && result != this.convertUnitDetail.ActivityDetailWeightQuantity)
             {

@@ -272,7 +272,7 @@ namespace dMobile.Bedrock
         /// <returns>Sort by data view expression.</returns>
         public List<Sort> GetDataViewSortBy()
         {
-            List<Sort> sortBy = new List<Sort>();
+            var sortBy = new List<Sort>();
 
             sortBy.Add(this.SortBy1Value);
 
@@ -297,12 +297,12 @@ namespace dMobile.Bedrock
         {
             lock (this.readLockObject)
             {
-                XmlSerializer serializer = new XmlSerializer(typeof(AdjustmentSettings));
-                AdjustmentSettings adjustmentSettings = new AdjustmentSettings();
+                var serializer = new XmlSerializer(typeof(AdjustmentSettings));
+                var adjustmentSettings = new AdjustmentSettings();
 
                 // use reflection to get the current assembly path for the database
-                string appDir = Environment.GetFolderPath(Environment.SpecialFolder.Personal);
-                string fullPathToMyFile = Path.Combine(appDir, this.FileName);
+                var appDir = Environment.GetFolderPath(Environment.SpecialFolder.Personal);
+                var fullPathToMyFile = Path.Combine(appDir, this.FileName);
 
                 if (!File.Exists(fullPathToMyFile))
                 {
@@ -310,7 +310,7 @@ namespace dMobile.Bedrock
                 }
 
                 // Create a FileStream to read with.
-                using (FileStream reader = new FileStream(
+                using (var reader = new FileStream(
                     fullPathToMyFile,
                     FileMode.Open,
                     FileAccess.Read,
@@ -333,17 +333,17 @@ namespace dMobile.Bedrock
         {
             lock (this.writeLockObject)
             {
-                XmlSerializer serializer = new XmlSerializer(typeof(AdjustmentSettings));
-                bool saveComplete = false;
+                var serializer = new XmlSerializer(typeof(AdjustmentSettings));
+                var saveComplete = false;
 
                 try
                 {
                     // use reflection to get the current assembly path for the database
-                    string appDir = Environment.GetFolderPath(Environment.SpecialFolder.Personal);
-                    string fullPathToMyFile = Path.Combine(appDir, this.FileName);
+                    var appDir = Environment.GetFolderPath(Environment.SpecialFolder.Personal);
+                    var fullPathToMyFile = Path.Combine(appDir, this.FileName);
 
                     // Create a FileStream to write with.
-                    using (FileStream writer = new FileStream(
+                    using (var writer = new FileStream(
                         fullPathToMyFile,
                         FileMode.Create,
                         FileAccess.Write,

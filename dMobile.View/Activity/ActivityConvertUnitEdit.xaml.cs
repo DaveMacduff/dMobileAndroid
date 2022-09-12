@@ -165,7 +165,7 @@ namespace dMobile.View.Activity
         /// <remarks></remarks>
         public async Task<bool> IsReadyToSave()
         {
-            bool isReadyToSave = false;
+            var isReadyToSave = false;
 
             try
             {
@@ -188,7 +188,7 @@ namespace dMobile.View.Activity
 
                 await Device.InvokeOnMainThreadAsync(async () =>
                 {
-                    FormErrorReport errorReport = new FormErrorReport(this.ActSubType, ex);
+                    var errorReport = new FormErrorReport(this.ActSubType, ex);
                     _ = await errorReport.ShowDialog();
                 });
             }
@@ -203,7 +203,7 @@ namespace dMobile.View.Activity
         /// <remarks></remarks>
         public async Task<bool> IsReadyToClose()
         {
-            bool isReadyToClose = false;
+            var isReadyToClose = false;
 
             try
             {
@@ -240,7 +240,7 @@ namespace dMobile.View.Activity
 
                 await Device.InvokeOnMainThreadAsync(async () =>
                 {
-                    FormErrorReport errorReport = new FormErrorReport(this.ActSubType, ex);
+                    var errorReport = new FormErrorReport(this.ActSubType, ex);
                     _ = await errorReport.ShowDialog();
                 });
             }
@@ -265,7 +265,7 @@ namespace dMobile.View.Activity
         /// <remarks></remarks>
         public async Task<bool> SaveChanges()
         {
-            bool saveComplete = false;
+            var saveComplete = false;
 
             try
             {
@@ -285,7 +285,7 @@ namespace dMobile.View.Activity
 
                 await Device.InvokeOnMainThreadAsync(async () =>
                 {
-                    FormErrorReport errorReport = new FormErrorReport(this.ActSubType, ex);
+                    var errorReport = new FormErrorReport(this.ActSubType, ex);
                     _ = await errorReport.ShowDialog();
                 });
             }
@@ -300,7 +300,7 @@ namespace dMobile.View.Activity
         /// <remarks></remarks>
         public async Task<bool> CancelChanges()
         {
-            bool cancelChanges = true;
+            var cancelChanges = true;
 
             try
             {
@@ -323,7 +323,7 @@ namespace dMobile.View.Activity
 
                 await Device.InvokeOnMainThreadAsync(async () =>
                 {
-                    FormErrorReport errorReport = new FormErrorReport(this.ActSubType, ex);
+                    var errorReport = new FormErrorReport(this.ActSubType, ex);
                     _ = await errorReport.ShowDialog();
                 });
             }
@@ -338,31 +338,31 @@ namespace dMobile.View.Activity
         /// <remarks></remarks>
         public async Task<XDocument> GetXML()
         {
-            string unqScheme = ProductInfoTasks.GetUniqueSchemeIDFromSProdSchemeData(
+            var unqScheme = ProductInfoTasks.GetUniqueSchemeIDFromSProdSchemeData(
                 this.ActDetail.ActItem.ProdInfo.Code,
                 this.ActDetail.ActItem.ProdInfo.Scheme,
                 this.ActDetail.SchemeData);
 
-            string scheme = ProductInfoTasks.GetActSchemeIDFromSProdSchemeData(
+            var scheme = ProductInfoTasks.GetActSchemeIDFromSProdSchemeData(
                 this.ActDetail.ActItem.ProdInfo.Code,
                 this.ActDetail.ActItem.ProdInfo.Scheme,
-                this.ActDetail.SchemeData); SProductSchemeData schemeData = this.ActDetailEdit.SchemeData;
+                this.ActDetail.SchemeData); var schemeData = this.ActDetailEdit.SchemeData;
 
-            XDocument request = XDocument.Parse("<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>"
-                + "<params>"
-                + "<serial>" + schemeData.SingleTradeItemSerialNumber + "</serial>"
-                + "<pdate>" + schemeData.LogisticUnitProductionDate + "</pdate>"
-                + "<lot_no>" + schemeData.LogisticUnitBatchLotNumber + "</lot_no>"
-                + "<bdate>" + schemeData.LogisticUnitBestBeforeSellByDate + "</bdate>"
-                + "<variant_code>" + schemeData.VariantCode + "</variant_code>"
-                + "<variant_no>" + schemeData.VariantNumber + "</variant_no>"
-                + "<alt_qty>" + this.ActDetailEdit.AltQuantity + "</alt_qty>"
-                + "<wt_qty>" + this.ActDetailEdit.WeightQuantity + "</wt_qty>"
-                + "<base_qty>" + this.ActDetailEdit.BaseQuantity + "</base_qty>"
-                + "<scheme_id>" + scheme + "</scheme_id>"
-                + "<unq_scheme_id>" + unqScheme + "</unq_scheme_id>"
-                + "<split>" + this.chkSplitToSingles.IsToggled + "</split>"
-                + "</params>");
+            var request = XDocument.Parse("<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>"
+                                          + "<params>"
+                                          + "<serial>" + schemeData.SingleTradeItemSerialNumber + "</serial>"
+                                          + "<pdate>" + schemeData.LogisticUnitProductionDate + "</pdate>"
+                                          + "<lot_no>" + schemeData.LogisticUnitBatchLotNumber + "</lot_no>"
+                                          + "<bdate>" + schemeData.LogisticUnitBestBeforeSellByDate + "</bdate>"
+                                          + "<variant_code>" + schemeData.VariantCode + "</variant_code>"
+                                          + "<variant_no>" + schemeData.VariantNumber + "</variant_no>"
+                                          + "<alt_qty>" + this.ActDetailEdit.AltQuantity + "</alt_qty>"
+                                          + "<wt_qty>" + this.ActDetailEdit.WeightQuantity + "</wt_qty>"
+                                          + "<base_qty>" + this.ActDetailEdit.BaseQuantity + "</base_qty>"
+                                          + "<scheme_id>" + scheme + "</scheme_id>"
+                                          + "<unq_scheme_id>" + unqScheme + "</unq_scheme_id>"
+                                          + "<split>" + this.chkSplitToSingles.IsToggled + "</split>"
+                                          + "</params>");
 
             return request;
         }
@@ -374,7 +374,7 @@ namespace dMobile.View.Activity
         /// <remarks></remarks>
         private bool IsValidData()
         {
-            bool isRetVal = true;
+            var isRetVal = true;
 
             this.ActDetailEdit.AltQuantity = decimal.Parse(this.txtAltQty.Text);
             this.ActDetailEdit.WeightQuantity = decimal.Parse(this.txtWtQty.Text);

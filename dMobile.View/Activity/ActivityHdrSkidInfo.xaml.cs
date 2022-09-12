@@ -279,7 +279,7 @@ namespace dMobile.View.Activity
         /// <returns><see cref="bool"/> True if ready to save else false.</returns>
         public async Task<bool> IsReadyToSave()
         {
-            bool isReadyToSave = true;
+            var isReadyToSave = true;
 
             if (!this.IsChangesMade)
             {
@@ -312,7 +312,7 @@ namespace dMobile.View.Activity
         /// <returns><see cref="bool"/> True if the form can be closed.</returns>
         public Task<bool> IsReadyToClose()
         {
-            bool isReadyToClose = true;
+            var isReadyToClose = true;
 
             if (this.IsChangesMade)
             {
@@ -346,7 +346,7 @@ namespace dMobile.View.Activity
         /// <returns><see cref="bool"/> True if the form changes where cancelled, else false.</returns>
         public async Task<bool> CancelChanges()
         {
-            bool cancelChanges = true;
+            var cancelChanges = true;
 
             try
             {
@@ -383,7 +383,7 @@ namespace dMobile.View.Activity
 
                 await Device.InvokeOnMainThreadAsync(async () =>
                 {
-                    FormErrorReport errorReport = new FormErrorReport(SysCommon.ActSubTypes.SkidInfo, ex);
+                    var errorReport = new FormErrorReport(SysCommon.ActSubTypes.SkidInfo, ex);
                     _ = await errorReport.ShowDialog();
                 });
             }
@@ -403,12 +403,12 @@ namespace dMobile.View.Activity
         public async Task<XDocument> GetXML()
 #pragma warning restore CS1998 // Async method lacks 'await' operators and will run synchronously
         {
-            SSkidInfo skidInfo = this.SkidInfo.CurrSkid;
+            var skidInfo = this.SkidInfo.CurrSkid;
 
             XDocument xmlDoc;
             if (skidInfo.SkidFKRefno == 0)
             {
-                DateTime dt = new DateTime(1900, 1, 1);
+                var dt = new DateTime(1900, 1, 1);
                 xmlDoc = XDocument.Parse(
                     "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>"
                     + "<params>"
@@ -488,7 +488,7 @@ namespace dMobile.View.Activity
         /// <returns><see cref="bool"/> True if the save was successful, else false.</returns>
         public async Task<bool> SaveChanges()
         {
-            bool saveComplete = false;
+            var saveComplete = false;
 
             try
             {
@@ -515,7 +515,7 @@ namespace dMobile.View.Activity
                 saveComplete = false;
                 await Device.InvokeOnMainThreadAsync(async () =>
                 {
-                    FormErrorReport errRpt = new FormErrorReport(SysCommon.ActSubTypes.SkidInfo, ex);
+                    var errRpt = new FormErrorReport(SysCommon.ActSubTypes.SkidInfo, ex);
                     _ = await errRpt.ShowDialog();
                 });
             }
@@ -625,7 +625,7 @@ namespace dMobile.View.Activity
                             {
                                 await Device.InvokeOnMainThreadAsync(async () =>
                                 {
-                                    FormErrorReport errorReport = new FormErrorReport(
+                                    var errorReport = new FormErrorReport(
                                         SysCommon.ActSubTypes.SkidInfo,
                                         ex);
                                     _ = await errorReport.ShowDialog();
@@ -656,7 +656,7 @@ namespace dMobile.View.Activity
                 {
                     this.IsNewSkid = true;
                     this.LocMap = LocationMap.GetInstance().CurrLocMap.Clone();
-                    SSkidInfo tempSkidInfo = new SSkidInfo();
+                    var tempSkidInfo = new SSkidInfo();
                     tempSkidInfo.ProdInfo = new ProductInfo();
                     tempSkidInfo.LocMap = this.LocMap.Clone();
                     this.SkidInfo.CurrSkid = tempSkidInfo;
@@ -669,7 +669,7 @@ namespace dMobile.View.Activity
                     {
                         this.IsNewSkid = true;
                         this.LocMap = LocationMap.GetInstance().CurrLocMap.Clone();
-                        SSkidInfo tempSkidInfo = new SSkidInfo();
+                        var tempSkidInfo = new SSkidInfo();
                         tempSkidInfo.LocMap = this.LocMap.Clone();
 
                         if (this.ActItem.SelectedActivityItem != null && this.ActItem.ListItems != null)
@@ -713,7 +713,7 @@ namespace dMobile.View.Activity
                         catch (Exception ex)
                         {
                             this.SkidInfo = this.ActItem.ActHdr.SkidInfo;
-                            FormErrorReport errRpt = new FormErrorReport(SysCommon.ActSubTypes.SkidInfo, ex);
+                            var errRpt = new FormErrorReport(SysCommon.ActSubTypes.SkidInfo, ex);
                             _ = await Device.InvokeOnMainThreadAsync(async () => await errRpt.ShowDialog());
                         }
 
@@ -743,7 +743,7 @@ namespace dMobile.View.Activity
         /// <returns><see cref="bool"/> True.</returns>
         protected override bool OnBackButtonPressed()
         {
-            bool isClose = true;
+            var isClose = true;
 
             Device.BeginInvokeOnMainThread(async () =>
             {
@@ -799,7 +799,7 @@ namespace dMobile.View.Activity
                 catch (Exception ex)
                 {
                     isClose = false;
-                    FormErrorReport errRpt = new FormErrorReport(SysCommon.ActSubTypes.SkidInfo, ex);
+                    var errRpt = new FormErrorReport(SysCommon.ActSubTypes.SkidInfo, ex);
                     _ = Device.InvokeOnMainThreadAsync(async () => await errRpt.ShowDialog());
                 }
                 finally
@@ -821,9 +821,9 @@ namespace dMobile.View.Activity
             if (this.SysEnv.SysSettings.IsProductUnitBarCodeModifier1)
             {
                 this.BarCodeModifier1Picker.Items.Add(string.Empty);
-                string[] modifiers = this.SysEnv.SysSettings.ProductUnitBarCodeModifier1Codes.Split(',');
+                var modifiers = this.SysEnv.SysSettings.ProductUnitBarCodeModifier1Codes.Split(',');
 
-                foreach (string item in modifiers)
+                foreach (var item in modifiers)
                 {
                     this.BarCodeModifier1Picker.Items.Add(item);
                 }
@@ -870,7 +870,7 @@ namespace dMobile.View.Activity
                     {
                         if (this.IsNewSkid)
                         {
-                            int locMapRefno = await LocationMapTasks.GetLocMapRefnoFromBarCodeGlobalLocIdentifier(
+                            var locMapRefno = await LocationMapTasks.GetLocMapRefnoFromBarCodeGlobalLocIdentifier(
                                 codeParse.LocationIdentifier);
 
                             this.IsChangesMade = true;
@@ -948,7 +948,7 @@ namespace dMobile.View.Activity
                             if (this.ProdUnitRefno != 0)
                             {
                                 this.IsChangesMade = true;
-                                SSkidInfo tempSkidInfo = this.SkidInfo.CurrSkid;
+                                var tempSkidInfo = this.SkidInfo.CurrSkid;
                                 tempSkidInfo.ProdInfo = await ProductInfoTasks.GetInfoFromUnitRefno(this.ProdUnitRefno);
                                 tempSkidInfo.ProdInfo.Scheme = await ProductInfoTasks.GetSchemeComponentsFromRefno(
                                     tempSkidInfo.ProdInfo.Refno);
@@ -981,7 +981,7 @@ namespace dMobile.View.Activity
                 }
                 catch (Exception ex)
                 {
-                    FormErrorReport errRpt = new FormErrorReport(SysCommon.ActSubTypes.SkidInfo, ex);
+                    var errRpt = new FormErrorReport(SysCommon.ActSubTypes.SkidInfo, ex);
                     _ = await Device.InvokeOnMainThreadAsync(async () => await errRpt.ShowDialog());
                 }
                 finally
@@ -1027,7 +1027,7 @@ namespace dMobile.View.Activity
             }
             catch (Exception ex)
             {
-                FormErrorReport errRpt = new FormErrorReport(SysCommon.ActSubTypes.SkidInfo, ex);
+                var errRpt = new FormErrorReport(SysCommon.ActSubTypes.SkidInfo, ex);
                 _ = await errRpt.ShowDialog();
             }
             finally
@@ -1044,7 +1044,7 @@ namespace dMobile.View.Activity
         {
             if (this.IsChangesMade)
             {
-                SSkidInfo tempSkidInfo = this.SkidInfo.CurrSkid;
+                var tempSkidInfo = this.SkidInfo.CurrSkid;
 
                 // Important to not assign a current exiting SkidNo to a new skid.
                 if (!this.IsNewSkid)
@@ -1216,7 +1216,7 @@ namespace dMobile.View.Activity
                     throw new MessageOnlyException("A location can only be assigned to a new skid.");
                 }
 
-                FormDialogContainer form = new FormDialogContainer(
+                var form = new FormDialogContainer(
                     EDialogTypes.SelectLocationMap,
                     SysCommon.ActSubTypes.NotApplicable);
 
@@ -1224,7 +1224,7 @@ namespace dMobile.View.Activity
                     await form.DisplayControl.ShowDialog() == DialogResult.OK))
                 {
                     this.LocMap = LocationMap.GetInstance().ChosenLocMap.Clone();
-                    SSkidInfo tempSkidInfo = this.SkidInfo.CurrSkid;
+                    var tempSkidInfo = this.SkidInfo.CurrSkid;
                     tempSkidInfo.LocMap = this.LocMap.Clone();
                     this.SkidInfo.CurrSkid = tempSkidInfo;
                     this.IsChangesMade = true;
@@ -1243,7 +1243,7 @@ namespace dMobile.View.Activity
             }
             catch (Exception ex)
             {
-                FormErrorReport errRpt = new FormErrorReport(SysCommon.ActSubTypes.SkidInfo, ex);
+                var errRpt = new FormErrorReport(SysCommon.ActSubTypes.SkidInfo, ex);
                 _ = await errRpt.ShowDialog();
             }
             finally
@@ -1280,12 +1280,12 @@ namespace dMobile.View.Activity
                 LocationMap.GetInstance().CurrLocMap = this.LocMap;
 
                 // Create the activity skid detail, activity item.
-                Activity activity = ActivityFacade.GetActivity(SysCommon.ActSubTypes.SkidInfo);
+                var activity = ActivityFacade.GetActivity(SysCommon.ActSubTypes.SkidInfo);
                 activity.HdrFKRefno = this.SkidInfo.CurrSkid.SkidFKRefno;
                 activity.HdrRefno = this.SkidInfo.CurrSkid.SkidFKRefno;
                 activity.SkidInfo = this.SkidInfo;
 
-                ActItem actItem = ActItemFacade.GetActItem(activity, SysCommon.ActSubTypes.SkidInfo);
+                var actItem = ActItemFacade.GetActItem(activity, SysCommon.ActSubTypes.SkidInfo);
                 actItem.ItemFKRefno = this.SkidInfo.CurrSkid.SkidFKRefno;
                 actItem.ItemRefno = this.SkidInfo.CurrSkid.SkidFKRefno;
 
@@ -1295,7 +1295,7 @@ namespace dMobile.View.Activity
                 actItem.ProdInfo.Unit2BaseUnitFactor = await ProductInfoTasks.GetUnitRelationFactor(
                     actItem.ProdInfo);
 
-                FormDialogContainer form = new FormDialogContainer(
+                var form = new FormDialogContainer(
                     EDialogTypes.ActivityDetailSkid,
                     actItem,
                     SysCommon.ActSubTypes.SkidInfo,
@@ -1304,7 +1304,7 @@ namespace dMobile.View.Activity
                 if (await Device.InvokeOnMainThreadAsync(
                     async () => await form.DisplayControl.ShowDialog() == DialogResult.OK))
                 {
-                    XDocument xmlDoc = await form.GetXML();
+                    var xmlDoc = await form.GetXML();
                     this.Loading = true;
                     this.IsChangesMade = false;
 
@@ -1327,7 +1327,7 @@ namespace dMobile.View.Activity
             }
             catch (Exception ex)
             {
-                FormErrorReport errRpt = new FormErrorReport(SysCommon.ActSubTypes.SkidInfo, ex);
+                var errRpt = new FormErrorReport(SysCommon.ActSubTypes.SkidInfo, ex);
                 _ = await errRpt.ShowDialog();
             }
             finally
@@ -1364,7 +1364,7 @@ namespace dMobile.View.Activity
             }
             catch (Exception ex)
             {
-                FormErrorReport errRpt = new FormErrorReport(SysCommon.ActSubTypes.SkidInfo, ex);
+                var errRpt = new FormErrorReport(SysCommon.ActSubTypes.SkidInfo, ex);
                 _ = await errRpt.ShowDialog();
             }
             finally
@@ -1390,15 +1390,15 @@ namespace dMobile.View.Activity
                     throw new MessageOnlyException("A product can only be assigned to a skid.");
                 }
 
-                FormDialogContainer form = new FormDialogContainer(
+                var form = new FormDialogContainer(
                     EDialogTypes.SelectProductUnit,
                     SysCommon.ActSubTypes.SkidInfo);
 
                 if (await form.DisplayControl.ShowDialog() == DialogResult.OK)
                 {
-                    XDocument xmlDoc = await form.GetXML();
+                    var xmlDoc = await form.GetXML();
                     this.ProdUnitRefno = int.Parse(xmlDoc.Root.Element("ProductUnitRefno").Value);
-                    SSkidInfo tempSkidInfo = this.SkidInfo.CurrSkid;
+                    var tempSkidInfo = this.SkidInfo.CurrSkid;
                     tempSkidInfo.ProdInfo = await ProductInfoTasks.GetInfoFromUnitRefno(this.ProdUnitRefno);
                     tempSkidInfo.ProdInfo.Scheme = await ProductInfoTasks.GetSchemeComponentsFromRefno(
                         tempSkidInfo.ProdInfo.Refno);
@@ -1427,7 +1427,7 @@ namespace dMobile.View.Activity
             }
             catch (Exception ex)
             {
-                FormErrorReport errRpt = new FormErrorReport(SysCommon.ActSubTypes.SkidInfo, ex);
+                var errRpt = new FormErrorReport(SysCommon.ActSubTypes.SkidInfo, ex);
                 _ = await errRpt.ShowDialog();
             }
             finally
@@ -1509,7 +1509,7 @@ namespace dMobile.View.Activity
 
                 Device.BeginInvokeOnMainThread(async () =>
                 {
-                    FormErrorReport errRpt = new FormErrorReport(SysCommon.ActSubTypes.SkidInfo, ex);
+                    var errRpt = new FormErrorReport(SysCommon.ActSubTypes.SkidInfo, ex);
                     _ = await errRpt.ShowDialog();
                 });
             }
@@ -1545,7 +1545,7 @@ namespace dMobile.View.Activity
 
                         if (sender == this.txtCube)
                         {
-                            bool isDecimal = decimal.TryParse(this.txtCube.Text, out decimal result);
+                            var isDecimal = decimal.TryParse(this.txtCube.Text, out var result);
 
                             if (isDecimal && result < 0)
                             {
@@ -1663,7 +1663,7 @@ namespace dMobile.View.Activity
             }
             catch (Exception ex)
             {
-                FormErrorReport errRpt = new FormErrorReport(SysCommon.ActSubTypes.SkidInfo, ex);
+                var errRpt = new FormErrorReport(SysCommon.ActSubTypes.SkidInfo, ex);
                 _ = errRpt.ShowDialog();
             }
             finally
@@ -1715,7 +1715,7 @@ namespace dMobile.View.Activity
                 this.IsSkidCodeChanged = false;
                 this.DisableControls();
 
-                SSkidInfo tempSkidInfo = new SSkidInfo();
+                var tempSkidInfo = new SSkidInfo();
                 tempSkidInfo.LocMap = this.LocMap.Clone();
                 tempSkidInfo.ProdInfo = await ProductInfoTasks.GetInfoFromUnitRefno(this.ProdUnitRefno);
                 tempSkidInfo.ProdInfo.Scheme = await ProductInfoTasks.GetSchemeComponentsFromRefno(
@@ -1749,7 +1749,7 @@ namespace dMobile.View.Activity
             }
             catch (Exception ex)
             {
-                FormErrorReport errRpt = new FormErrorReport(SysCommon.ActSubTypes.SkidInfo, ex);
+                var errRpt = new FormErrorReport(SysCommon.ActSubTypes.SkidInfo, ex);
                 _ = errRpt.ShowDialog();
             }
             finally

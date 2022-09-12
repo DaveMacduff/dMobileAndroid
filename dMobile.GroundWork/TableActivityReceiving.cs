@@ -37,13 +37,13 @@ namespace dMobile.GroundWork
             {
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Seeding receiving.", true);
 
-                string reqData = await this.SendRequest();
+                var reqData = await this.SendRequest();
 
                 if (reqData.Length > 0)
                 {
                     if (reqData.Contains("<message>ERROR</message>"))
                     {
-                        XmlDocument reqErr = new XmlDocument();
+                        var reqErr = new XmlDocument();
                         reqErr.LoadXml(reqData);
                         throw new Exception(reqErr.DocumentElement["detail"].InnerText);
                     }
@@ -91,7 +91,7 @@ namespace dMobile.GroundWork
             {
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging receiving.", true);
 
-                string query = "DELETE FROM tActivityReceiving";
+                var query = "DELETE FROM tActivityReceiving";
                 await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(query, Convert.ToInt32(SysCommon.ActSubTypes.Receiving));
 
                 query = "DELETE FROM tActivity WHERE ActivitySubType = ?";
@@ -118,7 +118,7 @@ namespace dMobile.GroundWork
             {
                 try
                 {
-                    using (DataSet ds = new DataSet())
+                    using (var ds = new DataSet())
                     {
                         this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Reading received data.", false);
 
@@ -128,15 +128,15 @@ namespace dMobile.GroundWork
 
                         if (ds.Tables.Count != 0)
                         {
-                            int progMax = Convert.ToInt32(ds.Tables["tActivityPurchaseOrder"].Rows.Count);
+                            var progMax = Convert.ToInt32(ds.Tables["tActivityPurchaseOrder"].Rows.Count);
 
                             this.DataAccessStatusOutHandler(this, EventArgs.Empty, string.Format("Records {0}", progMax), false);
 
-                            int actRefno = 0;
-                            int progValue = 0;
-                            int whsLocMapRefno = 0;
-                            int recvFKRefno = 0;
-                            string recvPONumber = string.Empty;
+                            var actRefno = 0;
+                            var progValue = 0;
+                            var whsLocMapRefno = 0;
+                            var recvFKRefno = 0;
+                            var recvPONumber = string.Empty;
 
                             this.DataAccessProgressOutHandler(this, EventArgs.Empty, 0, 0, progMax);
 
@@ -148,32 +148,32 @@ namespace dMobile.GroundWork
                                 recvPONumber = drow["ActivityPurchaseOrderPONumber"].ToString();
                                 whsLocMapRefno = this.GetWhsLocMapRefnoFromDataRow(drow, transaction);
 
-                                string query = "INSERT INTO tActivityReceiving (" +
-                                    "ActivityRefno, " +
-                                    "ActivitySubType, " +
-                                    "ActivityFKRefno, " +
-                                    "ActivityStringFKRefno, " +
-                                    "ActivityReceivingPONumber, " +
-                                    "WarehouseLocationMapRefno, " +
-                                    "ActivityReceivingIssuedDateTime, " +
-                                    "ActivityReceivingArrivalDateTime, " +
-                                    "ActivityReceivingVendorContactName, " +
-                                    "ActivityReceivingVendorSupplierContactName, " +
-                                    "ActivityReceivingVendorSupplierGTINCompanyPrefix" +
-                                    ") VALUES (" +
-                                    "?, " +
-                                    "?, " +
-                                    "?, " +
-                                    "?, " +
-                                    "?, " +
-                                    "?, " +
-                                    "?, " +
-                                    "?, " +
-                                    "?, " +
-                                    "?, " +
-                                    "?" +
-                                    ")";
-                                object[] parameters = new object[]
+                                var query = "INSERT INTO tActivityReceiving (" +
+                                            "ActivityRefno, " +
+                                            "ActivitySubType, " +
+                                            "ActivityFKRefno, " +
+                                            "ActivityStringFKRefno, " +
+                                            "ActivityReceivingPONumber, " +
+                                            "WarehouseLocationMapRefno, " +
+                                            "ActivityReceivingIssuedDateTime, " +
+                                            "ActivityReceivingArrivalDateTime, " +
+                                            "ActivityReceivingVendorContactName, " +
+                                            "ActivityReceivingVendorSupplierContactName, " +
+                                            "ActivityReceivingVendorSupplierGTINCompanyPrefix" +
+                                            ") VALUES (" +
+                                            "?, " +
+                                            "?, " +
+                                            "?, " +
+                                            "?, " +
+                                            "?, " +
+                                            "?, " +
+                                            "?, " +
+                                            "?, " +
+                                            "?, " +
+                                            "?, " +
+                                            "?" +
+                                            ")";
+                                var parameters = new object[]
                                 {
                                     actRefno,
                                     Convert.ToInt32(SysCommon.ActSubTypes.Receiving),
@@ -222,10 +222,10 @@ namespace dMobile.GroundWork
         /// <returns></returns>
         protected override async Task<string> CreateRequest()
         {
-            StringBuilder xmlString = new StringBuilder();
-            XmlWriter xml = XmlWriter.Create(xmlString);
+            var xmlString = new StringBuilder();
+            var xml = XmlWriter.Create(xmlString);
 
-            XDocument request = XDocument.Parse(
+            var request = XDocument.Parse(
                   "<?xml version=\"1.0\" encoding=\"utf-8\" standalone=\"yes\"?>"
                   + "<imclient>"
                   + "<command>"

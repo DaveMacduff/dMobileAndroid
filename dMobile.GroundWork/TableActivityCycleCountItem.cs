@@ -45,11 +45,11 @@ namespace dMobile.GroundWork
                 string reqData;
                 if (actRefno == 0)
                 {
-                    List<tActivityModel> results = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<tActivityModel>("SELECT ActivityRefno FROM tActivity WHERE ActivitySubType = ?", Convert.ToInt32(SysCommon.ActSubTypes.CycleCounts));
+                    var results = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<tActivityModel>("SELECT ActivityRefno FROM tActivity WHERE ActivitySubType = ?", Convert.ToInt32(SysCommon.ActSubTypes.CycleCounts));
 
                     if (results != null && results.Count > 0)
                     {
-                        foreach (tActivityModel activity in results)
+                        foreach (var activity in results)
                         {
                             actRefno = Convert.ToInt32(activity.ActivityRefno);
                             reqData = await this.SendRequest(actRefno);
@@ -58,7 +58,7 @@ namespace dMobile.GroundWork
                             {
                                 if (reqData.Contains("<message>ERROR</message>"))
                                 {
-                                    XmlDocument reqErr = new XmlDocument();
+                                    var reqErr = new XmlDocument();
                                     reqErr.LoadXml(reqData);
                                     throw new Exception(reqErr.DocumentElement["detail"].InnerText);
                                 }
@@ -76,7 +76,7 @@ namespace dMobile.GroundWork
                     {
                         if (reqData.Contains("<message>ERROR</message>"))
                         {
-                            XmlDocument reqErr = new XmlDocument();
+                            var reqErr = new XmlDocument();
                             reqErr.LoadXml(reqData);
                             throw new Exception(reqErr.DocumentElement["detail"].InnerText);
                         }
@@ -111,7 +111,7 @@ namespace dMobile.GroundWork
             int rowsAffected;
             try
             {
-                string query = "SELECT COUNT(tActivityItem.ActivityItemRefno) FROM tActivityItem WHERE tActivityItem.ActivityItemSubType = ?";
+                var query = "SELECT COUNT(tActivityItem.ActivityItemRefno) FROM tActivityItem WHERE tActivityItem.ActivityItemSubType = ?";
                 rowsAffected = await DatabaseConnection.GetInstance().SQLConn.ExecuteScalarAsync<int>(query, Convert.ToInt32(SysCommon.ActSubTypes.CycleCounts));
 
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, string.Format("{0} cycle count item(s)", rowsAffected), true);
@@ -133,9 +133,9 @@ namespace dMobile.GroundWork
 
             try
             {
-                string query = "DELETE FROM tActivityItemBarCodeAssociationXRef "
-                        + "WHERE tActivityItemBarCodeAssociationXRef.ActivityItemRefno IN "
-                        + "(SELECT tActivityItem.ActivityItemRefno FROM tActivityItem WHERE tActivityItem.ActivityItemSubType = ?)";
+                var query = "DELETE FROM tActivityItemBarCodeAssociationXRef "
+                            + "WHERE tActivityItemBarCodeAssociationXRef.ActivityItemRefno IN "
+                            + "(SELECT tActivityItem.ActivityItemRefno FROM tActivityItem WHERE tActivityItem.ActivityItemSubType = ?)";
                 await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(query, Convert.ToInt32(SysCommon.ActSubTypes.CycleCounts));
 
                 query = "DELETE FROM tActivityItemCount WHERE tActivityItemCount.ActivityItemSubType = ?";
@@ -162,7 +162,7 @@ namespace dMobile.GroundWork
         /// <returns></returns>
         protected override async Task<string> SendRequest(int actRefno)
         {
-            List<tActivityCountModel> results = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<tActivityCountModel>("SELECT * FROM tActivityCount WHERE ActivityRefno = ?", actRefno);
+            var results = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<tActivityCountModel>("SELECT * FROM tActivityCount WHERE ActivityRefno = ?", actRefno);
 
             int actCountFKRefno;
             if (results != null && results.Count > 0)
@@ -188,7 +188,7 @@ namespace dMobile.GroundWork
             {
                 try
                 {
-                    using (DataSet ds = new DataSet())
+                    using (var ds = new DataSet())
                     {
                         this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Reading received data.", false);
 
@@ -199,18 +199,18 @@ namespace dMobile.GroundWork
                         // Receiving schema but no data results in no table being created in the dataset.
                         if (ds.Tables.Count != 0)
                         {
-                            int progMax = Convert.ToInt32(ds.Tables["tActivityItemCount"].Rows.Count);
+                            var progMax = Convert.ToInt32(ds.Tables["tActivityItemCount"].Rows.Count);
 
                             this.DataAccessStatusOutHandler(this, EventArgs.Empty, string.Format("Records {0}", progMax), false);
 
-                            int actItemRefno = 0;
-                            int progValue = 0;
-                            int prodUnitRefno = 0;
-                            int locMapRefno = 0;
-                            int locMapWhsFKRefno = 0;
-                            int locMapSectFKRefno = 0;
-                            int locMapSlotFKRefno = 0;
-                            int countItemFKRefno = 0;
+                            var actItemRefno = 0;
+                            var progValue = 0;
+                            var prodUnitRefno = 0;
+                            var locMapRefno = 0;
+                            var locMapWhsFKRefno = 0;
+                            var locMapSectFKRefno = 0;
+                            var locMapSlotFKRefno = 0;
+                            var countItemFKRefno = 0;
 
                             this.DataAccessProgressOutHandler(this, EventArgs.Empty, 0, 0, progMax);
 
@@ -227,7 +227,7 @@ namespace dMobile.GroundWork
                                 if (locMapRefno == 0)
                                 {
                                     locMapSlotFKRefno = Convert.ToInt32(drow["f08"]);
-                                    List<tLocationMapSlotModel> resultSlots = transaction.Query<tLocationMapSlotModel>("SELECT * FROM tLocationMapSlot WHERE LocationMapSlotFKRefno = ?", locMapSlotFKRefno);
+                                    var resultSlots = transaction.Query<tLocationMapSlotModel>("SELECT * FROM tLocationMapSlot WHERE LocationMapSlotFKRefno = ?", locMapSlotFKRefno);
 
                                     if (resultSlots != null && resultSlots.Count > 0)
                                     {
@@ -238,7 +238,7 @@ namespace dMobile.GroundWork
                                 if (locMapRefno == 0)
                                 {
                                     locMapSectFKRefno = Convert.ToInt32(drow["f07"]);
-                                    List<tLocationMapSectionModel> resultSections = transaction.Query<tLocationMapSectionModel>("SELECT * FROM tLocationMapSection WHERE LocationMapSectionFKRefno = ?", locMapSectFKRefno);
+                                    var resultSections = transaction.Query<tLocationMapSectionModel>("SELECT * FROM tLocationMapSection WHERE LocationMapSectionFKRefno = ?", locMapSectFKRefno);
 
                                     if (resultSections != null && resultSections.Count > 0)
                                     {
@@ -249,7 +249,7 @@ namespace dMobile.GroundWork
                                 if (locMapRefno == 0)
                                 {
                                     locMapWhsFKRefno = Convert.ToInt32(drow["f06"]);
-                                    List<tLocationMapWarehouseModel> resultWarehouses = transaction.Query<tLocationMapWarehouseModel>("SELECT * FROM tLocationMapWarehouse WHERE LocationMapWarehouseFKRefno = ?", locMapWhsFKRefno);
+                                    var resultWarehouses = transaction.Query<tLocationMapWarehouseModel>("SELECT * FROM tLocationMapWarehouse WHERE LocationMapWarehouseFKRefno = ?", locMapWhsFKRefno);
 
                                     if (resultWarehouses != null && resultWarehouses.Count > 0)
                                     {
@@ -269,35 +269,35 @@ namespace dMobile.GroundWork
                                 }
 
                                 countItemFKRefno = Convert.ToInt32(drow["f02"]);
-                                string query = "INSERT INTO tActivityItemCount (" +
-                                "ActivityItemRefno, " +
-                                "ActivityItemSubType, " +
-                                "ActivityItemFKRefno, " +
-                                "ActivityItemStringFKRefno, " +
-                                "ProductUnitRefno, " +
-                                "LocationMapRefno, " +
-                                "ActivityItemCountQuantityOnHand, " +
-                                "ActivityItemCountBaseQuantityOnHand, " +
-                                "ActivityItemCountWeightQuantityOnHand, " +
-                                "ActivityItemCountQuantity, " +
-                                "ActivityItemCountBaseQuantity, " +
-                                "ActivityItemCountWeightQuantity" +
-                                ") VALUES (" +
-                                "?, " +
-                                "?, " +
-                                "?, " +
-                                "?, " +
-                                "?, " +
-                                "?, " +
-                                "?, " +
-                                "?, " +
-                                "?, " +
-                                "?, " +
-                                "?, " +
-                                "?" +
-                                ")";
+                                var query = "INSERT INTO tActivityItemCount (" +
+                                            "ActivityItemRefno, " +
+                                            "ActivityItemSubType, " +
+                                            "ActivityItemFKRefno, " +
+                                            "ActivityItemStringFKRefno, " +
+                                            "ProductUnitRefno, " +
+                                            "LocationMapRefno, " +
+                                            "ActivityItemCountQuantityOnHand, " +
+                                            "ActivityItemCountBaseQuantityOnHand, " +
+                                            "ActivityItemCountWeightQuantityOnHand, " +
+                                            "ActivityItemCountQuantity, " +
+                                            "ActivityItemCountBaseQuantity, " +
+                                            "ActivityItemCountWeightQuantity" +
+                                            ") VALUES (" +
+                                            "?, " +
+                                            "?, " +
+                                            "?, " +
+                                            "?, " +
+                                            "?, " +
+                                            "?, " +
+                                            "?, " +
+                                            "?, " +
+                                            "?, " +
+                                            "?, " +
+                                            "?, " +
+                                            "?" +
+                                            ")";
 
-                                object[] parameters = new object[]
+                                var parameters = new object[]
                                 {
                                     actItemRefno,
                                     Convert.ToInt32(SysCommon.ActSubTypes.CycleCounts),
@@ -349,10 +349,10 @@ namespace dMobile.GroundWork
         /// <returns></returns>
         protected override async Task<string> CreateRequest(int actCountFKRefno)
         {
-            StringBuilder xmlString = new StringBuilder();
-            XmlWriter xml = XmlWriter.Create(xmlString);
+            var xmlString = new StringBuilder();
+            var xml = XmlWriter.Create(xmlString);
 
-            XDocument request = XDocument.Parse(
+            var request = XDocument.Parse(
                 "<?xml version=\"1.0\" encoding=\"utf-8\" standalone=\"yes\"?>"
                 + "<imclient>"
                 + "<command>"

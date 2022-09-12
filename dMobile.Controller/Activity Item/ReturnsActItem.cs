@@ -72,9 +72,9 @@ namespace dMobile.Controller
             this.IsAskCreateNewItem = !this.SysEnv.SysSettings.IsRetCreateNewItemNoAsk;
 
             // Data grid
-            DataTemplate dataTemplate = new DataTemplate(() =>
+            var dataTemplate = new DataTemplate(() =>
             {
-                Grid gridData = new Grid
+                var gridData = new Grid
                 {
                     Padding = new Thickness(5),
                     ColumnDefinitions =
@@ -87,11 +87,11 @@ namespace dMobile.Controller
                     },
                 };
 
-                Label labelIsActivityItemReturnsComment = new Label { VerticalOptions = LayoutOptions.Center };
-                Label labelProductCode = new Label { VerticalOptions = LayoutOptions.Center };
-                Label labelProductUnitBC = new Label { VerticalOptions = LayoutOptions.Center };
-                Label labelUnitCode = new Label { VerticalOptions = LayoutOptions.Center };
-                Label labelActivityItemReturnsQuantityReturned = new Label { VerticalOptions = LayoutOptions.Center };
+                var labelIsActivityItemReturnsComment = new Label { VerticalOptions = LayoutOptions.Center };
+                var labelProductCode = new Label { VerticalOptions = LayoutOptions.Center };
+                var labelProductUnitBC = new Label { VerticalOptions = LayoutOptions.Center };
+                var labelUnitCode = new Label { VerticalOptions = LayoutOptions.Center };
+                var labelActivityItemReturnsQuantityReturned = new Label { VerticalOptions = LayoutOptions.Center };
 
                 labelIsActivityItemReturnsComment.SetBinding(Label.TextProperty, new Binding("IsActivityItemReturnsComment"));
                 labelProductCode.SetBinding(Label.TextProperty, new Binding("ProductCode"));
@@ -114,10 +114,10 @@ namespace dMobile.Controller
                 return new ViewCell { View = gridData };
             });
 
-            bool isAddKey = true;
+            var isAddKey = true;
             foreach (var item in this.resourceDictionary)
             {
-                if (item.Key == "dataTemplate")
+                if (item.Key == "dataTemplateReturnsItem")
                 {
                     isAddKey = false;
                 }
@@ -125,7 +125,7 @@ namespace dMobile.Controller
 
             if (isAddKey)
             {
-                this.resourceDictionary.Add("dataTemplate", dataTemplate);
+                this.resourceDictionary.Add("dataTemplateReturnsItem", dataTemplate);
             }
         }
 
@@ -138,7 +138,7 @@ namespace dMobile.Controller
             this.SelectedListItemIdx = -1;
             if (actItemFoundRefno >= 0)
             {
-                int idx = 0;
+                var idx = 0;
                 foreach (ReturnItem item in this.ListItems)
                 {
                     if (item.ActivityItemRefno == this.ItemRefno)
@@ -172,7 +172,7 @@ namespace dMobile.Controller
         /// <returns>.</returns>
         public override bool IsCatchAsk()
         {
-            bool isCatchAsk = this.ProdInfo.IsCatchAsk;
+            var isCatchAsk = this.ProdInfo.IsCatchAsk;
             if (isCatchAsk)
             {
                 // modules are for exclusions
@@ -188,7 +188,7 @@ namespace dMobile.Controller
         /// <returns>.</returns>
         public override bool IsCatchAskZero()
         {
-            bool result = this.IsCatchAsk();
+            var result = this.IsCatchAsk();
             if (result && this.ProdInfo.IsCatchAskZero)
             {
                 result = !this.SysEnv.SysSettings.IsReturnsNoCatchAskZeroEnabled;
@@ -204,10 +204,10 @@ namespace dMobile.Controller
         /// <returns>.</returns>
         public override async Task<string> GetComment(object selectedActivityItem)
         {
-            string comment = string.Empty;
+            var comment = string.Empty;
             if (selectedActivityItem is ReturnItem returnItem)
             {
-                List<tActivityItemReturnsCommentModel> results = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<tActivityItemReturnsCommentModel>("SELECT * FROM tActivityItemReturnsComment WHERE ActivityItemRefno = ?", returnItem.ActivityItemRefno);
+                var results = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<tActivityItemReturnsCommentModel>("SELECT * FROM tActivityItemReturnsComment WHERE ActivityItemRefno = ?", returnItem.ActivityItemRefno);
 
                 if (results != null && results.Count > 0)
                 {
@@ -226,7 +226,7 @@ namespace dMobile.Controller
         /// <returns><see cref="int"/> Location map reference number.</returns>
         public override async Task<int> GetDefaultLocMapRefno(int whsLocMapRefno, int prodRefno)
         {
-            int locMapRefno = 0;
+            var locMapRefno = 0;
             if (this.SelectedActivityItem is ReturnItem item)
             {
                 if (Math.Sign(item.ActivityItemReturnsQuantityReturned) == 0 ||
@@ -317,8 +317,8 @@ namespace dMobile.Controller
             {
                 this.DataLayerProgressOutHandler(this, new EventArgs(), 2);
 
-                TableActivityReturnsItem tableActReturnsItem = new TableActivityReturnsItem();
-                TableActivityReturnsDetail tableActReturnsDetail = new TableActivityReturnsDetail();
+                var tableActReturnsItem = new TableActivityReturnsItem();
+                var tableActReturnsDetail = new TableActivityReturnsDetail();
                 await tableActReturnsDetail.PurgeData();
                 await tableActReturnsItem.PurgeData();
 
@@ -338,20 +338,20 @@ namespace dMobile.Controller
         /// <returns>The <see cref="ObservableCollection{object}"/>.</returns>
         public override ObservableCollection<object> DesignGrid(ref Grid GridMainActivity, ref ListView ListViewMainActivity)
         {
-            ObservableCollection<object> observableCollection = new ObservableCollection<object>();
+            var observableCollection = new ObservableCollection<object>();
 
-            Label labelIsActivityItemReturnsCommentHeader = new Label { Text = "C", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
-            Label labelProductCodeHeader = new Label { Text = "Product ID", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
-            Label labelProductUnitBCHeader = new Label { Text = string.Empty, VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
-            Label labelUnitCodeHeader = new Label { Text = string.Empty, VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
-            Label labelActivityItemReturnsQuantityReturnedHeader = new Label { Text = "Returned", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
+            var labelIsActivityItemReturnsCommentHeader = new Label { Text = "C", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
+            var labelProductCodeHeader = new Label { Text = "Product ID", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
+            var labelProductUnitBCHeader = new Label { Text = string.Empty, VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
+            var labelUnitCodeHeader = new Label { Text = string.Empty, VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
+            var labelActivityItemReturnsQuantityReturnedHeader = new Label { Text = "Returned", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
 
             this.columnWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(labelIsActivityItemReturnsCommentHeader.Text);
             this.columnWidth1 = DependencyService.Get<IGridService>().CalculateTextWidth(labelProductCodeHeader.Text);
             this.columnWidth2 = DependencyService.Get<IGridService>().CalculateTextWidth(labelProductUnitBCHeader.Text);
             this.columnWidth3 = DependencyService.Get<IGridService>().CalculateTextWidth(labelUnitCodeHeader.Text);
             this.columnWidth4 = DependencyService.Get<IGridService>().CalculateTextWidth(labelActivityItemReturnsQuantityReturnedHeader.Text);
-            Grid gridHeaderReturns = new Grid
+            var gridHeaderReturns = new Grid
             {
                 Padding = new Thickness(5),
                 ColumnDefinitions =
@@ -409,11 +409,11 @@ namespace dMobile.Controller
                 // };
                 observableCollection.Add(returnItem);
 
-                double detailWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(returnItem.IsActivityItemReturnsComment);
-                double detailWidth1 = DependencyService.Get<IGridService>().CalculateTextWidth(returnItem.ProductCode);
-                double detailWidth2 = DependencyService.Get<IGridService>().CalculateTextWidth(returnItem.ProductUnitBC);
-                double detailWidth3 = DependencyService.Get<IGridService>().CalculateTextWidth(returnItem.UnitCode);
-                double detailWidth4 = DependencyService.Get<IGridService>().CalculateTextWidth(string.Format("{0:F3}", returnItem.ActivityItemReturnsQuantityReturned));
+                var detailWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(returnItem.IsActivityItemReturnsComment);
+                var detailWidth1 = DependencyService.Get<IGridService>().CalculateTextWidth(returnItem.ProductCode);
+                var detailWidth2 = DependencyService.Get<IGridService>().CalculateTextWidth(returnItem.ProductUnitBC);
+                var detailWidth3 = DependencyService.Get<IGridService>().CalculateTextWidth(returnItem.UnitCode);
+                var detailWidth4 = DependencyService.Get<IGridService>().CalculateTextWidth(string.Format("{0:F3}", returnItem.ActivityItemReturnsQuantityReturned));
                 if (detailWidth0 > this.columnWidth0)
                 {
                     this.columnWidth0 = detailWidth0;
@@ -445,7 +445,7 @@ namespace dMobile.Controller
                 }
             }
 
-            ListViewMainActivity.ItemTemplate = (DataTemplate)this.resourceDictionary["dataTemplate"];
+            ListViewMainActivity.ItemTemplate = (DataTemplate)this.resourceDictionary["dataTemplateReturnsItem"];
 
             return observableCollection;
         }
@@ -457,7 +457,7 @@ namespace dMobile.Controller
         /// <returns>.</returns>
         public override async Task<List<object>> GetActivityItemList(bool isSubmitBatch)
         {
-            List<object> parameters = new List<object>();
+            var parameters = new List<object>();
 
             string query;
             if (isSubmitBatch)
@@ -599,7 +599,7 @@ namespace dMobile.Controller
         /// <returns>.</returns>
         public override ObservableCollection<object> Search(string searchText)
         {
-            ObservableCollection<object> observableCollection = new ObservableCollection<object>();
+            var observableCollection = new ObservableCollection<object>();
 
             // if (string.IsNullOrEmpty(this.ActItemFilter))
             // {
@@ -664,7 +664,7 @@ namespace dMobile.Controller
                     this.ActHdr.SkidInfo.CurrSkid = new SSkidInfo();
                 }
 
-                SLocMap locMap = await this.GetSelectedItemLocation(item.LocationMapRefno);
+                var locMap = await this.GetSelectedItemLocation(item.LocationMapRefno);
 
                 if (this.SysEnv.SysSettings.IsDefaultLocToProductDefaultLoc)
                 {
@@ -707,22 +707,22 @@ namespace dMobile.Controller
         /// <returns><see cref="int"/> Found activity item reference number else 0.</returns>
         public override async Task<int> GetActivityItemRefno(int prodUnitRefno)
         {
-            int foundActItemRefno = 0;
-            int whsLocMapRefno = this.LocMap.WhsLocMapRefno;
-            string query = "SELECT tActivityItem.ActivityItemRefno, " +
-            "tActivityItemReturns.ActivityItemFKRefno, " +
-            "tActivityItemReturns.ProductUnitRefno, " +
-            "tLocationMapWarehouse.LocationMapRefno " +
-            "FROM tActivityItemReturns " +
-            "INNER JOIN tActivityItem ON tActivityItem.ActivityItemRefno = " +
-            "tActivityItemReturns.ActivityItemRefno " +
-            "INNER JOIN tLocationMapWarehouse ON tLocationMapWarehouse.LocationMapRefno = " +
-            "tActivityItemReturns.WarehouseLocationMapRefno " +
-            "WHERE tActivityItem.ActivityRefno = ? " +
-            "AND tActivityItemReturns.WarehouseLocationMapRefno = ? " +
-            "AND tActivityItemReturns.ProductUnitRefno = ?";
+            var foundActItemRefno = 0;
+            var whsLocMapRefno = this.LocMap.WhsLocMapRefno;
+            var query = "SELECT tActivityItem.ActivityItemRefno, " +
+                        "tActivityItemReturns.ActivityItemFKRefno, " +
+                        "tActivityItemReturns.ProductUnitRefno, " +
+                        "tLocationMapWarehouse.LocationMapRefno " +
+                        "FROM tActivityItemReturns " +
+                        "INNER JOIN tActivityItem ON tActivityItem.ActivityItemRefno = " +
+                        "tActivityItemReturns.ActivityItemRefno " +
+                        "INNER JOIN tLocationMapWarehouse ON tLocationMapWarehouse.LocationMapRefno = " +
+                        "tActivityItemReturns.WarehouseLocationMapRefno " +
+                        "WHERE tActivityItem.ActivityRefno = ? " +
+                        "AND tActivityItemReturns.WarehouseLocationMapRefno = ? " +
+                        "AND tActivityItemReturns.ProductUnitRefno = ?";
 
-            List<ReturnItem> results = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<ReturnItem>(query, this.ActHdr.HdrRefno, whsLocMapRefno, prodUnitRefno);
+            var results = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<ReturnItem>(query, this.ActHdr.HdrRefno, whsLocMapRefno, prodUnitRefno);
 
             if (results != null && results.Count > 0)
             {
@@ -744,19 +744,19 @@ namespace dMobile.Controller
         /// <returns>.</returns>
         public override Task<string> CreateSubmitXML(XDocument data)
         {
-            StringBuilder xmlString = new StringBuilder();
-            XmlWriter xml = XmlWriter.Create(xmlString);
-            string deviceID = this.SysEnv.DeviceID;
-            string revision = this.SysEnv.RefreshOpt.RefreshedDataLast.ToString("yyyy\'-\'MM\'-\'dd\'T\'HH\':\'mm\':\'ss");
-            string loginID = this.SysEnv.ContactLog.LoginID.ToString();
-            string prodCode = data.Root.Element("ProductCode").Value.PadRight(10);
-            string prodUnitBarCodeCode = data.Root.Element("ProductUnitBarCodeCode").Value.PadRight(20);
-            bool prodUnitIsBC = bool.Parse(data.Root.Element("ProductUnitIsBC").Value);
-            string unitCode = data.Root.Element("UnitCode").Value;
-            string barCodeSymbologyPrefix = data.Root.Element("ProductUnitBarCodeSymbologyPrefix").Value;
-            string current = DateTime.Now.ToString("yyyy\'-\'MM\'-\'dd\'T\'HH\':\'mm\':\'ss");
+            var xmlString = new StringBuilder();
+            var xml = XmlWriter.Create(xmlString);
+            var deviceID = this.SysEnv.DeviceID;
+            var revision = this.SysEnv.RefreshOpt.RefreshedDataLast.ToString("yyyy\'-\'MM\'-\'dd\'T\'HH\':\'mm\':\'ss");
+            var loginID = this.SysEnv.ContactLog.LoginID.ToString();
+            var prodCode = data.Root.Element("ProductCode").Value.PadRight(10);
+            var prodUnitBarCodeCode = data.Root.Element("ProductUnitBarCodeCode").Value.PadRight(20);
+            var prodUnitIsBC = bool.Parse(data.Root.Element("ProductUnitIsBC").Value);
+            var unitCode = data.Root.Element("UnitCode").Value;
+            var barCodeSymbologyPrefix = data.Root.Element("ProductUnitBarCodeSymbologyPrefix").Value;
+            var current = DateTime.Now.ToString("yyyy\'-\'MM\'-\'dd\'T\'HH\':\'mm\':\'ss");
 
-            XDocument request = XDocument.Parse(
+            var request = XDocument.Parse(
                 "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>"
                 + "<imclient>"
                 + "<command>"
@@ -826,12 +826,12 @@ namespace dMobile.Controller
         {
             if (activityItem is ReturnItem returnItem)
             {
-                string query = "UPDATE tActivityItemReturns " +
-                    "SET ActivityItemReturnsQuantityReturned = ?, " +
-                    "ActivityItemReturnsBaseQuantityReturned = ?, " +
-                    "ActivityItemReturnsWeightQuantityReturned = ? " +
-                    "WHERE ActivityItemRefno = ?";
-                object[] parameters = new object[]
+                var query = "UPDATE tActivityItemReturns " +
+                            "SET ActivityItemReturnsQuantityReturned = ?, " +
+                            "ActivityItemReturnsBaseQuantityReturned = ?, " +
+                            "ActivityItemReturnsWeightQuantityReturned = ? " +
+                            "WHERE ActivityItemRefno = ?";
+                var parameters = new object[]
                 {
                     returnItem.ActivityItemReturnsQuantityReturned,
                     returnItem.ActivityItemReturnsBaseQuantityReturned,

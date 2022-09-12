@@ -31,7 +31,7 @@ namespace dMobile.Droid.Services
             try
             {
                 this.OnProfileInfoRecieved += this.HoneywellScannerService_OnProfileInfoRecieved;
-                Callback callback = new Callback();
+                var callback = new Callback();
                 callback.OnCreatedComplete += ScannerProfileRetrieved;
                 AidcManager.Create(Android.App.Application.Context, callback);
 

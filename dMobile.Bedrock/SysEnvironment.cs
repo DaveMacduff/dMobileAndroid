@@ -302,7 +302,7 @@ namespace dMobile.Bedrock
                 // Windows Mobile 2003 SE = Version 4.21
 
                 // If the OS is Windows Mobile Professional 6.0
-                Platform platform = SysPlatformDetector.GetPlatform();
+                var platform = SysPlatformDetector.GetPlatform();
                 if (platform == Platform.PocketPC & Environment.OSVersion.Version.Major == 5 &
                     Environment.OSVersion.Version.Minor == 2)
                 {
@@ -347,7 +347,7 @@ namespace dMobile.Bedrock
             sysEnv.CurrentBarCodeModifier1 = string.Empty;
             sysEnv.DeviceID = SysDeviceID.GetDeviceID();
 
-            SystemSettings sysSettings = sysEnv.SysSettings;
+            var sysSettings = sysEnv.SysSettings;
             SystemSettingsTasks.LoadData(ref sysSettings);
             sysEnv.SysSettings = sysSettings;
 

@@ -36,12 +36,12 @@ namespace dMobile.GroundWork
             {
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Seeding product schemes.", true);
 
-                string reqData = await this.SendRequest();
+                var reqData = await this.SendRequest();
                 if (reqData.Length > 0)
                 {
                     if (reqData.Contains("<message>ERROR</message>"))
                     {
-                        XmlDocument reqErr = new XmlDocument();
+                        var reqErr = new XmlDocument();
                         reqErr.LoadXml(reqData);
                         throw new Exception(reqErr.DocumentElement["detail"].InnerText);
                     }
@@ -173,13 +173,13 @@ namespace dMobile.GroundWork
         //    /// <remarks></remarks>
         protected override async Task Save(string reqData)
         {
-            string errMsg = string.Empty;
+            var errMsg = string.Empty;
 
             await DatabaseConnection.GetInstance().SQLConn.RunInTransactionAsync(transaction =>
             {
                 try
                 {
-                    using (DataSet ds = new DataSet())
+                    using (var ds = new DataSet())
                     {
                         this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Reading received data.", false);
                         ds.ReadXml(SysCommon.GetXmlReader(ref reqData), XmlReadMode.Auto);
@@ -188,13 +188,13 @@ namespace dMobile.GroundWork
 
                         if (ds.Tables.Count != 0)
                         {
-                            int progMax = Convert.ToInt32(ds.Tables["tProductScheme"].Rows.Count);
+                            var progMax = Convert.ToInt32(ds.Tables["tProductScheme"].Rows.Count);
 
                             this.DataAccessStatusOutHandler(this, EventArgs.Empty, string.Format("Records {0}", ds.Tables["tProductScheme"].Rows.Count), false);
 
-                            int progValue = 0;
-                            string schemeCode = string.Empty;
-                            bool isSchemeFound = false;
+                            var progValue = 0;
+                            var schemeCode = string.Empty;
+                            var isSchemeFound = false;
 
                             this.DataAccessProgressOutHandler(this, EventArgs.Empty, 0, 0, progMax);
 
@@ -203,7 +203,7 @@ namespace dMobile.GroundWork
                                 schemeCode = drow["ProductSchemeCode"].ToString();
                                 errMsg = "Scheme code \'" + schemeCode + "\'";
                                 isSchemeFound = false;
-                                List<tProductSchemeModel> resultsProductScheme = transaction.Query<tProductSchemeModel>("SELECT ProductSchemeCode FROM tProductScheme WHERE ProductSchemeCode = ?", schemeCode);
+                                var resultsProductScheme = transaction.Query<tProductSchemeModel>("SELECT ProductSchemeCode FROM tProductScheme WHERE ProductSchemeCode = ?", schemeCode);
 
                                 if (resultsProductScheme?.Count > 0)
                                 {
@@ -211,7 +211,7 @@ namespace dMobile.GroundWork
 
                                     if (this.SysEnv.RefreshOpt.RefreshDataChangesOnly)
                                     {
-                                        StringBuilder s = new StringBuilder();
+                                        var s = new StringBuilder();
                                         s.Append("UPDATE tProductScheme ");
                                         s.AppendFormat(
                                             "SET ProductSchemeIsSerialTracked = {0},",
@@ -302,65 +302,65 @@ namespace dMobile.GroundWork
 
                                 if (!isSchemeFound)
                                 {
-                                    string queryInsert = "INSERT INTO tProductScheme " +
-                                        "(ProductSchemeCode, " +
-                                        "ProductSchemeIsSerialTracked, " +
-                                        "ProductSchemeIsProductionDateTracked, " +
-                                        "ProductSchemeIsLotTracked, " +
-                                        "ProductSchemeIsBestBeforeDateTracked, " +
-                                        "ProductSchemeIsVariantTracked, " +
-                                        "ProductSchemeIsLotUniqueComponent, " +
-                                        "ProductSchemeIsProductionDateUniqueComponent, " +
-                                        "ProductSchemeIsBestBeforeDateUniqueComponent, " +
-                                        "ProductSchemeIsVariantUniqueComponent, " +
-                                        "ProductSchemeExtra1Type, " +
-                                        "ProductSchemeExtra2Type, " +
-                                        "ProductSchemeExtra3Type, " +
-                                        "ProductSchemeExtra4Type, " +
-                                        "ProductSchemeExtra5Type, " +
-                                        "ProductSchemeExtra1Caption, " +
-                                        "ProductSchemeExtra2Caption, " +
-                                        "ProductSchemeExtra3Caption, " +
-                                        "ProductSchemeExtra4Caption, " +
-                                        "ProductSchemeExtra5Caption, " +
-                                        "ProductSchemeExtra1IsRequired, " +
-                                        "ProductSchemeExtra2IsRequired, " +
-                                        "ProductSchemeExtra3IsRequired, " +
-                                        "ProductSchemeExtra4IsRequired, " +
-                                        "ProductSchemeExtra5IsRequired," +
-                                        "ProductSchemeIsLotTrackedDefault, " +
-                                        "ProductSchemeIsProductionDateTrackedDefault, " +
-                                        "ProductSchemeIsBestBeforeDateTrackedDefault) " +
-                                        "VALUES " +
-                                        "(?, " +
-                                        "?, " +
-                                        "?, " +
-                                        "?, " +
-                                        "?, " +
-                                        "?, " +
-                                        "?, " +
-                                        "?, " +
-                                        "?, " +
-                                        "?, " +
-                                        "?, " +
-                                        "?, " +
-                                        "?, " +
-                                        "?, " +
-                                        "?, " +
-                                        "?, " +
-                                        "?, " +
-                                        "?, " +
-                                        "?, " +
-                                        "?, " +
-                                        "?, " +
-                                        "?, " +
-                                        "?, " +
-                                        "?, " +
-                                        "?, " +
-                                        "?, " +
-                                        "?, " +
-                                        "?)";
-                                    object[] parametersInsert = new object[]
+                                    var queryInsert = "INSERT INTO tProductScheme " +
+                                                      "(ProductSchemeCode, " +
+                                                      "ProductSchemeIsSerialTracked, " +
+                                                      "ProductSchemeIsProductionDateTracked, " +
+                                                      "ProductSchemeIsLotTracked, " +
+                                                      "ProductSchemeIsBestBeforeDateTracked, " +
+                                                      "ProductSchemeIsVariantTracked, " +
+                                                      "ProductSchemeIsLotUniqueComponent, " +
+                                                      "ProductSchemeIsProductionDateUniqueComponent, " +
+                                                      "ProductSchemeIsBestBeforeDateUniqueComponent, " +
+                                                      "ProductSchemeIsVariantUniqueComponent, " +
+                                                      "ProductSchemeExtra1Type, " +
+                                                      "ProductSchemeExtra2Type, " +
+                                                      "ProductSchemeExtra3Type, " +
+                                                      "ProductSchemeExtra4Type, " +
+                                                      "ProductSchemeExtra5Type, " +
+                                                      "ProductSchemeExtra1Caption, " +
+                                                      "ProductSchemeExtra2Caption, " +
+                                                      "ProductSchemeExtra3Caption, " +
+                                                      "ProductSchemeExtra4Caption, " +
+                                                      "ProductSchemeExtra5Caption, " +
+                                                      "ProductSchemeExtra1IsRequired, " +
+                                                      "ProductSchemeExtra2IsRequired, " +
+                                                      "ProductSchemeExtra3IsRequired, " +
+                                                      "ProductSchemeExtra4IsRequired, " +
+                                                      "ProductSchemeExtra5IsRequired," +
+                                                      "ProductSchemeIsLotTrackedDefault, " +
+                                                      "ProductSchemeIsProductionDateTrackedDefault, " +
+                                                      "ProductSchemeIsBestBeforeDateTrackedDefault) " +
+                                                      "VALUES " +
+                                                      "(?, " +
+                                                      "?, " +
+                                                      "?, " +
+                                                      "?, " +
+                                                      "?, " +
+                                                      "?, " +
+                                                      "?, " +
+                                                      "?, " +
+                                                      "?, " +
+                                                      "?, " +
+                                                      "?, " +
+                                                      "?, " +
+                                                      "?, " +
+                                                      "?, " +
+                                                      "?, " +
+                                                      "?, " +
+                                                      "?, " +
+                                                      "?, " +
+                                                      "?, " +
+                                                      "?, " +
+                                                      "?, " +
+                                                      "?, " +
+                                                      "?, " +
+                                                      "?, " +
+                                                      "?, " +
+                                                      "?, " +
+                                                      "?, " +
+                                                      "?)";
+                                    var parametersInsert = new object[]
                                     {
                                         schemeCode,
                                         Convert.ToBoolean(drow["ProductSchemeIsSerialTracked"]),
@@ -429,10 +429,10 @@ namespace dMobile.GroundWork
         /// <remarks></remarks>
         protected override async Task<string> CreateRequest()
         {
-            StringBuilder xmlString = new StringBuilder();
-            XmlWriter xml = XmlWriter.Create(xmlString);
+            var xmlString = new StringBuilder();
+            var xml = XmlWriter.Create(xmlString);
 
-            XDocument request = XDocument.Parse(
+            var request = XDocument.Parse(
                 "<?xml version=\"1.0\" encoding=\"utf-8\" standalone=\"yes\"?>"
                 + "<imclient>"
                 + "<command>"

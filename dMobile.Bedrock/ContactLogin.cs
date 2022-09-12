@@ -112,12 +112,12 @@ namespace dMobile.Bedrock
         /// <returns><see cref="ContactLogin"/> .</returns>
         public ContactLogin LoadData()
         {
-            XmlSerializer serializer = new XmlSerializer(typeof(ContactLogin));
-            ContactLogin contactLogin = new ContactLogin();
+            var serializer = new XmlSerializer(typeof(ContactLogin));
+            var contactLogin = new ContactLogin();
 
             // use reflection to get the current .≥assembly path for the database
-            string appDir = Environment.GetFolderPath(Environment.SpecialFolder.Personal);
-            string fullPathToMyFile = Path.Combine(appDir, this.FileName);
+            var appDir = Environment.GetFolderPath(Environment.SpecialFolder.Personal);
+            var fullPathToMyFile = Path.Combine(appDir, this.FileName);
 
             if (!File.Exists(fullPathToMyFile))
             {
@@ -125,7 +125,7 @@ namespace dMobile.Bedrock
             }
 
             // Create a FileStream to read with.
-            using (FileStream reader = new FileStream(fullPathToMyFile, FileMode.Open))
+            using (var reader = new FileStream(fullPathToMyFile, FileMode.Open))
             {
                 // Deserialize the stream to the object, and close the TextReader
                 contactLogin = (ContactLogin)serializer.Deserialize(reader);
@@ -142,16 +142,16 @@ namespace dMobile.Bedrock
         /// <returns><see cref="bool"/> True if save successful, else false.</returns>
         public bool SaveData(ref ContactLogin contactLogin)
         {
-            XmlSerializer serializer = new XmlSerializer(typeof(ContactLogin));
+            var serializer = new XmlSerializer(typeof(ContactLogin));
             bool saveComplete;
             try
             {
                 // use reflection to get the current assembly path for the database
-                string appDir = Environment.GetFolderPath(Environment.SpecialFolder.Personal);
-                string fullPathToMyFile = Path.Combine(appDir, this.FileName);
+                var appDir = Environment.GetFolderPath(Environment.SpecialFolder.Personal);
+                var fullPathToMyFile = Path.Combine(appDir, this.FileName);
 
                 // Create a FileStream to write with.
-                using (FileStream writer = new FileStream(fullPathToMyFile, FileMode.Create))
+                using (var writer = new FileStream(fullPathToMyFile, FileMode.Create))
                 {
                     // Serialize the object, and close the TextWriter
                     serializer.Serialize(writer, contactLogin);
@@ -173,7 +173,7 @@ namespace dMobile.Bedrock
         /// </summary>
         public void SubmitContactLogIn()
         {
-            string reqData = this.SubmitContactLogInCommunication();
+            var reqData = this.SubmitContactLogInCommunication();
             this.SubmitContactLogInData(reqData);
         }
 
@@ -182,7 +182,7 @@ namespace dMobile.Bedrock
         /// </summary>
         public void SubmitContactLogOut()
         {
-            string reqData = this.SubmitContactLogOutCommunication();
+            var reqData = this.SubmitContactLogOutCommunication();
             this.SubmitContactLogOutData(reqData);
         }
 
@@ -214,7 +214,7 @@ namespace dMobile.Bedrock
             ISysSocketEventPublisher publisher,
             SysSocketEventArgs eventArgs)
         {
-            ContactLoginEventArgs args = new ContactLoginEventArgs(eventArgs.StatusOutMsg);
+            var args = new ContactLoginEventArgs(eventArgs.StatusOutMsg);
             this.OnContactLoginStatusOut(this, args);
         }
 
@@ -226,12 +226,12 @@ namespace dMobile.Bedrock
         {
             string sendSubmit = null;
             Socket socket = null;
-            int bytesSent = 0;
+            var bytesSent = 0;
             List<byte> bytRecvData = null;
-            string reqData = string.Empty;
-            ContactLoginEventArgs msgEventArg = new ContactLoginEventArgs();
+            var reqData = string.Empty;
+            var msgEventArg = new ContactLoginEventArgs();
 
-            SysSocket sysSocket = new SysSocket();
+            var sysSocket = new SysSocket();
             sysSocket.RegSockListenerStatusOut(this);
 
             try
@@ -339,12 +339,12 @@ namespace dMobile.Bedrock
         private string SubmitContactLogOutCommunication()
         {
             string sendSubmit = null;
-            Socket socket = default(Socket);
-            int bytesSent = default(int);
+            var socket = default(Socket);
+            var bytesSent = default(int);
             List<byte> bytRecvData = null;
-            string reqData = string.Empty;
-            ContactLoginEventArgs msgEventArg = new ContactLoginEventArgs();
-            SysSocket sysSocket = new SysSocket();
+            var reqData = string.Empty;
+            var msgEventArg = new ContactLoginEventArgs();
+            var sysSocket = new SysSocket();
 
             sysSocket.RegSockListenerStatusOut(this);
 
@@ -452,9 +452,9 @@ namespace dMobile.Bedrock
         /// <param name="reqData"><see cref="string"/> Submission request data.</param>
         private void SubmitContactLogInData(string reqData)
         {
-            ContactLoginEventArgs msgEventArg = new ContactLoginEventArgs();
+            var msgEventArg = new ContactLoginEventArgs();
 
-            SysSocket sysSocket = new SysSocket();
+            var sysSocket = new SysSocket();
             sysSocket.RegSockListenerStatusOut(this);
 
             try
@@ -470,7 +470,7 @@ namespace dMobile.Bedrock
                     // check if result is an error message
                     if (reqData.Contains("<message>ERROR</message>"))
                     {
-                        XmlDocument docError = new XmlDocument();
+                        var docError = new XmlDocument();
                         docError.LoadXml(reqData);
 
                         Device.BeginInvokeOnMainThread(() => Application.Current.MainPage.DisplayAlert(
@@ -527,9 +527,9 @@ namespace dMobile.Bedrock
         /// <param name="reqData"><see cref="string"/> Submission request data.</param>
         private void SubmitContactLogOutData(string reqData)
         {
-            ContactLoginEventArgs msgEventArg = new ContactLoginEventArgs();
+            var msgEventArg = new ContactLoginEventArgs();
 
-            SysSocket sockPublisher = new SysSocket();
+            var sockPublisher = new SysSocket();
             sockPublisher.RegSockListenerStatusOut(this);
 
             try
@@ -545,9 +545,9 @@ namespace dMobile.Bedrock
                     // check if result is an error message
                     if (reqData.Contains("<message>ERROR</message>"))
                     {
-                        XmlDocument docError = new XmlDocument();
+                        var docError = new XmlDocument();
                         docError.LoadXml(reqData);
-                        string errorDetail = docError.DocumentElement["detail"].InnerText;
+                        var errorDetail = docError.DocumentElement["detail"].InnerText;
 
                         Device.BeginInvokeOnMainThread(() => Application.Current.MainPage.DisplayAlert(
                             "Logout Error",
@@ -603,15 +603,15 @@ namespace dMobile.Bedrock
         /// <returns><see cref="string"/> Created XML for submission.</returns>
         private string CreateXMLSubmitContactLogIn()
         {
-            StringBuilder xmlString = new StringBuilder();
-            XmlWriter xml = XmlWriter.Create(xmlString);
-            string deviceID = SysDeviceID.GetDeviceID();
-            RefreshDataOptions refreshOpt = new RefreshDataOptions().LoadData();
-            string revision = DateTime.Now.ToString("yyyy'-'MM'-'dd'T'HH':'mm':'ss");
-            ContactLogin login = new ContactLogin().LoadData();
-            string loginID = login.LoginID.ToString();
+            var xmlString = new StringBuilder();
+            var xml = XmlWriter.Create(xmlString);
+            var deviceID = SysDeviceID.GetDeviceID();
+            var refreshOpt = new RefreshDataOptions().LoadData();
+            var revision = DateTime.Now.ToString("yyyy'-'MM'-'dd'T'HH':'mm':'ss");
+            var login = new ContactLogin().LoadData();
+            var loginID = login.LoginID.ToString();
 
-            XDocument submit = new XDocument(
+            var submit = new XDocument(
                 new XDeclaration("1.0", "utf-8", "yes"),
                 string.Empty,
                 new XElement(
@@ -636,15 +636,15 @@ namespace dMobile.Bedrock
         /// <returns><see cref="string"/> Created XML for submission.</returns>
         private string CreateXMLSubmitContactLogOut()
         {
-            StringBuilder xmlString = new StringBuilder();
-            XmlWriter xml = XmlWriter.Create(xmlString);
-            string deviceID = SysDeviceID.GetDeviceID();
-            RefreshDataOptions refreshOpt = new RefreshDataOptions().LoadData();
-            string revision = DateTime.Now.ToString("yyyy'-'MM'-'dd'T'HH':'mm':'ss");
-            ContactLogin login = new ContactLogin().LoadData();
-            string loginID = login.LoginID.ToString();
+            var xmlString = new StringBuilder();
+            var xml = XmlWriter.Create(xmlString);
+            var deviceID = SysDeviceID.GetDeviceID();
+            var refreshOpt = new RefreshDataOptions().LoadData();
+            var revision = DateTime.Now.ToString("yyyy'-'MM'-'dd'T'HH':'mm':'ss");
+            var login = new ContactLogin().LoadData();
+            var loginID = login.LoginID.ToString();
 
-            XDocument submit = new XDocument(
+            var submit = new XDocument(
                 new XDeclaration("1.0", "utf-8", "yes"),
                 string.Empty,
                 new XElement(

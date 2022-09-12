@@ -32,9 +32,9 @@ namespace dMobile.Controller
         {
             this.FullClassName = typeof(AdjActivity).FullName;
             this.AdjSettings = new AdjustmentSettings().LoadData();
-            DataTemplate dataTemplate = new DataTemplate(() =>
+            var dataTemplate = new DataTemplate(() =>
             {
-                Grid gridData = new Grid
+                var gridData = new Grid
                 {
                     Padding = new Thickness(5),
                     ColumnDefinitions =
@@ -45,9 +45,9 @@ namespace dMobile.Controller
                     },
                 };
 
-                Label labelActivityStringFKRefno = new Label { VerticalOptions = LayoutOptions.Center };
-                Label labelActivityAdjustmentDateTime = new Label { VerticalOptions = LayoutOptions.Center };
-                Label labelActivityAdjustmentDescription = new Label { VerticalOptions = LayoutOptions.Center };
+                var labelActivityStringFKRefno = new Label { VerticalOptions = LayoutOptions.Center };
+                var labelActivityAdjustmentDateTime = new Label { VerticalOptions = LayoutOptions.Center };
+                var labelActivityAdjustmentDescription = new Label { VerticalOptions = LayoutOptions.Center };
 
                 labelActivityStringFKRefno.SetBinding(
                     Label.TextProperty,
@@ -70,7 +70,7 @@ namespace dMobile.Controller
                 return new ViewCell { View = gridData };
             });
 
-            this.ResDict.Add("dataTemplate", dataTemplate);
+            this.ResDict.Add("dataTemplateAdjustment", dataTemplate);
         }
 
         /// <summary>
@@ -109,9 +109,9 @@ namespace dMobile.Controller
         /// <returns>The <see cref="Task"/> Task operation.</returns>
         public override async Task Purge()
         {
-            TableActivityAdjustment adj = new TableActivityAdjustment();
-            TableActivityAdjustmentItem adjItem = new TableActivityAdjustmentItem();
-            TableActivityAdjustmentDetail adjDetail = new TableActivityAdjustmentDetail();
+            var adj = new TableActivityAdjustment();
+            var adjItem = new TableActivityAdjustmentItem();
+            var adjDetail = new TableActivityAdjustmentDetail();
 
             // NOTE: This should be in a transaction.
             await adjDetail.PurgeData();
@@ -147,23 +147,23 @@ namespace dMobile.Controller
             ref Grid mainActivityHeader,
             ref ListView mainActivity)
         {
-            ObservableCollection<object> headersList = new ObservableCollection<object>();
+            var headersList = new ObservableCollection<object>();
 
-            Label labelAdjustmentNumber = new Label
+            var labelAdjustmentNumber = new Label
             {
                 Text = "Adj #",
                 VerticalOptions = LayoutOptions.Center,
                 FontAttributes = FontAttributes.Bold,
             };
 
-            Label labelAdjustmentDate = new Label
+            var labelAdjustmentDate = new Label
             {
                 Text = "Date",
                 VerticalOptions = LayoutOptions.Center,
                 FontAttributes = FontAttributes.Bold,
             };
 
-            Label labelAdjustmentDescription = new Label
+            var labelAdjustmentDescription = new Label
             {
                 Text = "Description",
                 VerticalOptions = LayoutOptions.Center,
@@ -175,7 +175,7 @@ namespace dMobile.Controller
             this.ColumnWidth1 = DependencyService.Get<IGridService>().CalculateTextWidth(labelAdjustmentDate.Text);
             this.ColumnWidth2 = DependencyService.Get<IGridService>().CalculateTextWidth(labelAdjustmentDescription.Text);
 
-            Grid gridHeader = new Grid
+            var gridHeader = new Grid
             {
                 Padding = new Thickness(5),
                 ColumnDefinitions =
@@ -204,11 +204,11 @@ namespace dMobile.Controller
             {
                 headersList.Add(adjustment);
 
-                double dataColumnWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(
+                var dataColumnWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(
                     adjustment.ActivityStringFKRefno);
-                double dataColumnWidth1 = DependencyService.Get<IGridService>().CalculateTextWidth(
+                var dataColumnWidth1 = DependencyService.Get<IGridService>().CalculateTextWidth(
                     Convert.ToString(adjustment.ActivityAdjustmentDateTime.ToString("MM/dd/yyyy")));
-                double dataColumnWidth2 = DependencyService.Get<IGridService>().CalculateTextWidth(
+                var dataColumnWidth2 = DependencyService.Get<IGridService>().CalculateTextWidth(
                     adjustment.ActivityAdjustmentDescription);
                 if (dataColumnWidth0 > this.ColumnWidth0)
                 {
@@ -229,7 +229,7 @@ namespace dMobile.Controller
                 }
             }
 
-            mainActivity.ItemTemplate = (DataTemplate)this.ResDict["dataTemplate"];
+            mainActivity.ItemTemplate = (DataTemplate)this.ResDict["dataTemplateAdjustment"];
 
             return headersList;
         }
@@ -241,8 +241,8 @@ namespace dMobile.Controller
         /// <returns><see cref="List{object}"/> List of headers.</returns>
         public override async Task<List<object>> GetActivityList(bool isSubmitBatch)
         {
-            AdjustmentSettings adjSettings = new AdjustmentSettings().LoadData();
-            StringBuilder sql = new StringBuilder();
+            var adjSettings = new AdjustmentSettings().LoadData();
+            var sql = new StringBuilder();
 
             if (isSubmitBatch)
             {
@@ -325,7 +325,7 @@ namespace dMobile.Controller
 
             this.ListAdjustments = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<Adjustment>(sql.ToString());
 
-            foreach (Sort sort in adjSettings.GetDataViewSortBy())
+            foreach (var sort in adjSettings.GetDataViewSortBy())
             {
                 if (sort.SortOrder == Resources.Enums.SortOrder.ASC)
                 {
@@ -353,7 +353,7 @@ namespace dMobile.Controller
         public override ObservableCollection<object> Search(string searchText)
         {
             // TODO: Test search
-            ObservableCollection<object> activityHeaders = new ObservableCollection<object>();
+            var activityHeaders = new ObservableCollection<object>();
 
             this.ListHdrs = this.ListAdjustments.Where(adjustment =>
                 adjustment.ActivityStringFKRefno.ToLower().Contains(
@@ -411,7 +411,7 @@ namespace dMobile.Controller
                 {
                     this.AdjSettings.NegateScanQuantity = SysCommon.DefaultNegateQuantityFromAdjType(
                         this.AdjSettings.AdjustmentType);
-                    AdjustmentSettings tempAdjSettings = this.AdjSettings;
+                    var tempAdjSettings = this.AdjSettings;
                     _ = this.AdjSettings.SaveData(ref tempAdjSettings);
                     this.AdjSettings = tempAdjSettings;
                 }
@@ -452,7 +452,7 @@ namespace dMobile.Controller
 
                 this.DataLayerProgressOutHandler(this, new EventArgs(), 5);
 
-                TableActivityAdjustment adj = new TableActivityAdjustment();
+                var adj = new TableActivityAdjustment();
                 adj.RegisterDataAccessListenerProgressOut((IDataAccessEventListener)this);
                 await adj.RequestData();
                 adj.UnregisterDataAccessListenerProgressOut((IDataAccessEventListener)this);
@@ -464,8 +464,8 @@ namespace dMobile.Controller
         /// </summary>
         public override void GetFilter()
         {
-            string filter = string.Empty;
-            AdjustmentSettings adjSettings = new AdjustmentSettings().LoadData();
+            var filter = string.Empty;
+            var adjSettings = new AdjustmentSettings().LoadData();
 
             if (adjSettings.IsApplyAdjustmentType)
             {
@@ -477,9 +477,9 @@ namespace dMobile.Controller
             {
                 if (!SysCommon.IsEmptyDate(adjSettings.AdjustmentDate))
                 {
-                    DateTime dt = adjSettings.AdjustmentDate;
-                    DateTime minDate = new DateTime(dt.Year, dt.Month, dt.Day, 00, 00, 00);
-                    DateTime maxDate = new DateTime(dt.Year, dt.Month, dt.Day, 23, 59, 59);
+                    var dt = adjSettings.AdjustmentDate;
+                    var minDate = new DateTime(dt.Year, dt.Month, dt.Day, 00, 00, 00);
+                    var maxDate = new DateTime(dt.Year, dt.Month, dt.Day, 23, 59, 59);
                     this.ListAdjustments = this.ListAdjustments.Where(adj => adj.ActivityAdjustmentDateTime >= minDate &&
                         adj.ActivityAdjustmentDateTime <= maxDate).ToList();
                 }
@@ -492,8 +492,8 @@ namespace dMobile.Controller
         /// <param name="xmlDoc"><see cref="XDocument"/> Adjustment header extra filter criteria.</param>
         public override void GetFilter(XDocument xmlDoc)
         {
-            string filter = string.Empty;
-            AdjustmentSettings adjSettings = new AdjustmentSettings().LoadData();
+            var filter = string.Empty;
+            var adjSettings = new AdjustmentSettings().LoadData();
 
             if (adjSettings.IsApplyAdjustmentType)
             {
@@ -508,9 +508,9 @@ namespace dMobile.Controller
             {
                 if (string.Compare(xmlDoc.Root.Element("adjustment_date").Value, string.Empty) > 0)
                 {
-                    DateTime dt = DateTime.Parse(xmlDoc.Root.Element("adjustment_date").Value);
-                    DateTime minDate = new DateTime(dt.Year, dt.Month, dt.Day, 00, 00, 00);
-                    DateTime maxDate = new DateTime(dt.Year, dt.Month, dt.Day, 23, 59, 59);
+                    var dt = DateTime.Parse(xmlDoc.Root.Element("adjustment_date").Value);
+                    var minDate = new DateTime(dt.Year, dt.Month, dt.Day, 00, 00, 00);
+                    var maxDate = new DateTime(dt.Year, dt.Month, dt.Day, 23, 59, 59);
                     this.ListAdjustments = this.ListAdjustments.Where(adj => adj.ActivityAdjustmentDateTime >= minDate &&
                         adj.ActivityAdjustmentDateTime <= maxDate).ToList();
                 }
@@ -526,20 +526,20 @@ namespace dMobile.Controller
         {
             if (this.AdjSettings.AdjustmentType == SysCommon.AdjTypes.Debox && !this.SysEnv.SysSettings.IsDisconnectedMode)
             {
-                SLocMapAndRefno sLocMapAndRefno = await LocationMapTasks.GetSLocMapFromLocMapFKRefno(
+                var sLocMapAndRefno = await LocationMapTasks.GetSLocMapFromLocMapFKRefno(
                     int.Parse(this.XMLDataCriteria.Root.Element("whs_id").Value),
                     int.Parse(this.XMLDataCriteria.Root.Element("sect_refno").Value),
                     slotLocMapFKRefno: 0);
-                SLocMap locMap = sLocMapAndRefno.SLocMap;
-                PrinterSettings prnSettings = new PrinterSettings().LoadData();
+                var locMap = sLocMapAndRefno.SLocMap;
+                var prnSettings = new PrinterSettings().LoadData();
 
                 // Don't even bother sending in a print request if no quantity was entered.
-                int labelQuantity = int.Parse(data.Root.Value);
+                var labelQuantity = int.Parse(data.Root.Value);
 
                 // Used abs for handling the freaky event that a negative label quantity was requested.
                 if (labelQuantity > 0)
                 {
-                    string request =
+                    var request =
                     "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>" + "<imclient>"
                     + "<command>"
                     + "<action>SUBMIT PRINT DEBOX PRODUCT LABEL</action>"
@@ -554,14 +554,14 @@ namespace dMobile.Controller
                     + "</mobile_printer_name>"
                     + "</imclient>";
 
-                    string reqData = SysCommon.SubmitComm(request);
+                    var reqData = SysCommon.SubmitComm(request);
 
                     if (reqData.Length > 0)
                     {
                         // check if result is an error message
                         if (reqData.Contains("<message>ERROR</message>"))
                         {
-                            XmlDocument docError = new XmlDocument();
+                            var docError = new XmlDocument();
                             docError.LoadXml(reqData);
                             throw new MessageOnlyException(string.Format(
                                 "Order# {0} print shipping label(s) failed." + Environment.NewLine + "{1}",
@@ -584,11 +584,11 @@ namespace dMobile.Controller
         /// <returns><see cref="Task{bool}"/> True if successful else false.</returns>
         public override async Task<bool> ChangeStatus(object selectedActivity)
         {
-            bool result = false;
+            var result = false;
             if (this.AdjSettings.AdjustmentType == SysCommon.AdjTypes.Debox && !this.SysEnv.SysSettings.IsDisconnectedMode)
             {
                 // do xml request to debox
-                string xml =
+                var xml =
                     "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>"
                       + "<imclient>"
                       + "<command>"
@@ -598,15 +598,15 @@ namespace dMobile.Controller
                       + "<refno>" + this.HdrFKRefno + "</refno>"
                       + "</imclient>";
 
-                string reqData = SysCommon.SubmitComm(xml);
+                var reqData = SysCommon.SubmitComm(xml);
 
                 if (reqData.Length > 0)
                 {
                     if (reqData.Contains("<message>ERROR</message>"))
                     {
-                        XmlDocument docError = new XmlDocument();
+                        var docError = new XmlDocument();
                         docError.LoadXml(reqData);
-                        string errorDetail = docError.DocumentElement["detail"].InnerText;
+                        var errorDetail = docError.DocumentElement["detail"].InnerText;
 
                         throw new Exception(string.Format("Debox failed. {0}", Environment.NewLine + errorDetail));
                     }

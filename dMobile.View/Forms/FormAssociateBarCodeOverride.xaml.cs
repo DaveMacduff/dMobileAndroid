@@ -136,7 +136,7 @@ namespace dMobile.View.Forms
         /// <param name="e"><see cref="EventArgs"/> Event arguments.</param>
         private async void CmdOK_Click(object sender, EventArgs e)
         {
-            bool isValidData = true;
+            var isValidData = true;
 
             try
             {
@@ -203,7 +203,7 @@ namespace dMobile.View.Forms
             {
                 if (!string.IsNullOrEmpty(this.txtLoginID.Text))
                 {
-                    List<tContactUserModel> results = await DatabaseConnection.GetInstance().SQLConn.
+                    var results = await DatabaseConnection.GetInstance().SQLConn.
                         QueryAsync<tContactUserModel>(
                         "SELECT * FROM tContactUser WHERE ContactUserCode = ?",
                         Convert.ToInt32(this.txtLoginID.Text));

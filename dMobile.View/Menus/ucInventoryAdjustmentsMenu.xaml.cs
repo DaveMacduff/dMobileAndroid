@@ -154,7 +154,7 @@ namespace dMobile.View.Menus
         /// <remarks></remarks>
         public async Task<bool> IsReadyToSave()
         {
-            bool IsReadyToSave = true;
+            var IsReadyToSave = true;
 
             return IsReadyToSave;
         }
@@ -206,7 +206,7 @@ namespace dMobile.View.Menus
         /// <remarks></remarks>
         public async Task<XDocument> GetXML()
         {
-            XDocument xmldocParams = XDocument.Parse(
+            var xmldocParams = XDocument.Parse(
                 "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>"
                 + "<params>"
                 + "</params>");
@@ -388,7 +388,7 @@ namespace dMobile.View.Menus
             this.DisableControls();
             this.IsControlLoaded = false;
 
-            ActivityConvertProduct convertProduct = new ActivityConvertProduct();
+            var convertProduct = new ActivityConvertProduct();
             await convertProduct.Show();
         }
 
@@ -433,12 +433,12 @@ namespace dMobile.View.Menus
             this.DisableControls();
             this.AdjSettings.IsApplyAdjustmentType = true;
             this.AdjSettings.NegateScanQuantity = SysCommon.DefaultNegateQuantityFromAdjType(this.AdjSettings.AdjustmentType);
-            AdjustmentSettings tempAdjSettings = this.AdjSettings;
+            var tempAdjSettings = this.AdjSettings;
             _ = this.AdjSettings.SaveData(ref tempAdjSettings);
             this.AdjSettings = tempAdjSettings;
             this.IsControlLoaded = false;
 
-            ActivityHdr ucActivityHdr = new ActivityHdr(SysCommon.ActSubTypes.Adjustment);
+            var ucActivityHdr = new ActivityHdr(SysCommon.ActSubTypes.Adjustment);
             await ucActivityHdr.Show();
         }
     }

@@ -68,7 +68,7 @@ namespace dMobile.View.Activity
                 {
                     if (keycode == Keycode.Enter)
                     {
-                        ProductInfo svdProdInfo = this.ActItem.ProdInfo;
+                        var svdProdInfo = this.ActItem.ProdInfo;
 
                         try
                         {
@@ -76,7 +76,7 @@ namespace dMobile.View.Activity
                             this.IsEnabled = false;
 
                             await this.ScannerDisable();
-                            int index = 0;
+                            var index = 0;
 
                             if (this.ListViewMainActivity.SelectedItem != null && this.MainActivityItems.IndexOf(this.ListViewMainActivity.SelectedItem) >= 0)
                             {
@@ -87,9 +87,9 @@ namespace dMobile.View.Activity
                                     Convert.ToString((this.ActItem.ListItems[index] as dynamic).productunitbc),
                                     Convert.ToString((this.ActItem.ListItems[index] as dynamic).unitcode));
 
-                                ActDetail actDetail = ActDetailFacade.GetActDetail(this.ActItem, SysCommon.ActSubTypes.InventoryInquiry);
+                                var actDetail = ActDetailFacade.GetActDetail(this.ActItem, SysCommon.ActSubTypes.InventoryInquiry);
 
-                                FormDialogContainer form = new FormDialogContainer(EDialogTypes.ActivityInventoryInquiryDetail, actDetail, this.ActSubType);
+                                var form = new FormDialogContainer(EDialogTypes.ActivityInventoryInquiryDetail, actDetail, this.ActSubType);
                                 _ = await form.DisplayControl.ShowDialog();
                             }
                         }
@@ -97,7 +97,7 @@ namespace dMobile.View.Activity
                         {
                             await Device.InvokeOnMainThreadAsync(async () =>
                             {
-                                FormErrorReport errRpt = new FormErrorReport(this.ActSubType, ex);
+                                var errRpt = new FormErrorReport(this.ActSubType, ex);
                                 _ = await errRpt.ShowDialog();
                             });
                         }
@@ -221,7 +221,7 @@ namespace dMobile.View.Activity
         /// <remarks></remarks>
         public async Task<XDocument> GetXML()
         {
-            XDocument xmldocParams = XDocument.Parse(
+            var xmldocParams = XDocument.Parse(
                 "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>"
                 + "<params>"
                 + "</params>");
@@ -246,7 +246,7 @@ namespace dMobile.View.Activity
         /// <remarks></remarks>
         public async Task<bool> IsReadyToClose()
         {
-            bool isReadyToClose = true;
+            var isReadyToClose = true;
 
             if (isReadyToClose)
             {
@@ -279,7 +279,7 @@ namespace dMobile.View.Activity
             {
                 await Device.InvokeOnMainThreadAsync(async () =>
                 {
-                    FormErrorReport errRpt = new FormErrorReport(this.ActSubType, ex);
+                    var errRpt = new FormErrorReport(this.ActSubType, ex);
                     _ = await errRpt.ShowDialog();
                 });
             }
@@ -300,7 +300,7 @@ namespace dMobile.View.Activity
         /// <remarks></remarks>
         public async Task<bool> CancelChanges()
         {
-            bool cancelChanges = true;
+            var cancelChanges = true;
 
             try
             {
@@ -331,7 +331,7 @@ namespace dMobile.View.Activity
 
                 await Device.InvokeOnMainThreadAsync(async () =>
                 {
-                    FormErrorReport errRpt = new FormErrorReport(this.ActSubType, ex);
+                    var errRpt = new FormErrorReport(this.ActSubType, ex);
                     _ = await errRpt.ShowDialog();
                 });
             }
@@ -354,7 +354,7 @@ namespace dMobile.View.Activity
 
             try
             {
-                XDocument xmldocParams = XDocument.Parse(
+                var xmldocParams = XDocument.Parse(
                     "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>"
                     + "<params>"
                     + "</params>");
@@ -370,7 +370,7 @@ namespace dMobile.View.Activity
             {
                 await Device.InvokeOnMainThreadAsync(async () =>
                 {
-                    FormErrorReport errRpt = new FormErrorReport(this.ActSubType, ex);
+                    var errRpt = new FormErrorReport(this.ActSubType, ex);
                     _ = await errRpt.ShowDialog();
                 });
             }
@@ -451,7 +451,7 @@ namespace dMobile.View.Activity
             {
                 await Device.InvokeOnMainThreadAsync(async () =>
                 {
-                    FormErrorReport errRpt = new FormErrorReport(this.ActSubType, ex);
+                    var errRpt = new FormErrorReport(this.ActSubType, ex);
                     _ = await errRpt.ShowDialog();
                 });
             }

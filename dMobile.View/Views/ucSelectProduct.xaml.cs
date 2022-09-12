@@ -241,7 +241,7 @@ namespace dMobile.View
         /// <returns>.</returns>
         public async Task<bool> IsReadyToSave()
         {
-            bool isReadyToSave = false;
+            var isReadyToSave = false;
 
             try
             {
@@ -262,7 +262,7 @@ namespace dMobile.View
 
                 await Device.InvokeOnMainThreadAsync(async () =>
                 {
-                    FormErrorReport errRpt = new FormErrorReport(this.ActSubType, ex);
+                    var errRpt = new FormErrorReport(this.ActSubType, ex);
                     _ = await errRpt.ShowDialog();
                 });
             }
@@ -276,7 +276,7 @@ namespace dMobile.View
         /// <returns>.</returns>
         public async Task<bool> IsReadyToClose()
         {
-            bool isReadyToClose = true;
+            var isReadyToClose = true;
 
             try
             {
@@ -307,7 +307,7 @@ namespace dMobile.View
 
                 await Device.InvokeOnMainThreadAsync(async () =>
                 {
-                    FormErrorReport errRpt = new FormErrorReport(this.ActSubType, ex);
+                    var errRpt = new FormErrorReport(this.ActSubType, ex);
                     _ = await errRpt.ShowDialog();
                 });
             }
@@ -330,7 +330,7 @@ namespace dMobile.View
         /// <returns>.</returns>
         public async Task<bool> SaveChanges()
         {
-            bool saveComplete = false;
+            var saveComplete = false;
 
             try
             {
@@ -359,7 +359,7 @@ namespace dMobile.View
             {
                 await Device.InvokeOnMainThreadAsync(async () =>
                 {
-                    FormErrorReport errRpt = new FormErrorReport(this.ActSubType, ex);
+                    var errRpt = new FormErrorReport(this.ActSubType, ex);
                     _ = await errRpt.ShowDialog();
                 });
             }
@@ -373,7 +373,7 @@ namespace dMobile.View
         /// <returns>.</returns>
         public async Task<bool> CancelChanges()
         {
-            bool cancelChanges = true;
+            var cancelChanges = true;
 
             try
             {
@@ -415,7 +415,7 @@ namespace dMobile.View
 
                 await Device.InvokeOnMainThreadAsync(async () =>
                 {
-                    FormErrorReport errRpt = new FormErrorReport(this.ActSubType, ex);
+                    var errRpt = new FormErrorReport(this.ActSubType, ex);
                     _ = await errRpt.ShowDialog();
                 });
             }
@@ -429,7 +429,7 @@ namespace dMobile.View
         /// <returns>.</returns>
         public async Task<XDocument> GetXML()
         {
-            XDocument request = XDocument.Parse(
+            var request = XDocument.Parse(
                 "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>" +
                 "<params>" +
                 "<ProductRefno>" + this.ProdRefno + "</ProductRefno>" +
@@ -577,7 +577,7 @@ namespace dMobile.View
         {
             this.ProductObservableCollection.Clear();
 
-            foreach (Product product in this.ListProducts)
+            foreach (var product in this.ListProducts)
             {
                 this.ProductObservableCollection.Add(product);
             }
@@ -604,7 +604,7 @@ namespace dMobile.View
         /// <param name="e">The e<see cref="SelectedItemChangedEventArgs"/>.</param>
         private async void DgProducts_ItemSelected(object sender, SelectedItemChangedEventArgs e)
         {
-            Product prod = e.SelectedItem as Product;
+            var prod = e.SelectedItem as Product;
             await this.SelectProduct(prod);
         }
 

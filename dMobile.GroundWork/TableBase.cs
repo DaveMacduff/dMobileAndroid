@@ -454,7 +454,7 @@ namespace dMobile.GroundWork
 
             if (schemeVariantNo > 0)
             {
-                List<tProductSchemeVariantModel> results = conn.Query<tProductSchemeVariantModel>(
+                var results = conn.Query<tProductSchemeVariantModel>(
                     "SELECT * FROM tProductSchemeVariant WHERE ProductSchemeVariantNo = ?",
                     Convert.ToInt32(schemeVariantNo));
 
@@ -489,26 +489,26 @@ namespace dMobile.GroundWork
             int actDetailRefno,
             bool useFNumberElements)
         {
-            string emptyDate = "01-01-1900";
-            List<object> parameters = new List<object>();
+            var emptyDate = "01-01-1900";
+            var parameters = new List<object>();
 
-            string query = "INSERT INTO tActivityDetailExtra (" +
-                "ActivityDetailRefno, " +
-                "ActivityDetailSubType, " +
-                "ActivityDetailExtra1Text, " +
-                "ActivityDetailExtra2Text, " +
-                "ActivityDetailExtra3Text, " +
-                "ActivityDetailExtra4Text, " +
-                "ActivityDetailExtra5Date" +
-                ") VALUES (" +
-                "?, " +
-                "?, " +
-                "?, " +
-                "?, " +
-                "?, " +
-                "?, " +
-                "?" +
-                ")";
+            var query = "INSERT INTO tActivityDetailExtra (" +
+                        "ActivityDetailRefno, " +
+                        "ActivityDetailSubType, " +
+                        "ActivityDetailExtra1Text, " +
+                        "ActivityDetailExtra2Text, " +
+                        "ActivityDetailExtra3Text, " +
+                        "ActivityDetailExtra4Text, " +
+                        "ActivityDetailExtra5Date" +
+                        ") VALUES (" +
+                        "?, " +
+                        "?, " +
+                        "?, " +
+                        "?, " +
+                        "?, " +
+                        "?, " +
+                        "?" +
+                        ")";
 
             parameters.Add(actDetailRefno);
             parameters.Add(Convert.ToInt32(SysCommon.ActSubTypes.CycleCounts));
@@ -562,7 +562,7 @@ namespace dMobile.GroundWork
             SQLiteConnection conn,
             bool useFNumberElements)
         {
-            int locMapRefno = 0;
+            var locMapRefno = 0;
             int locMapWhsFKRefno;
             int locMapSectFKRefno;
             int locMapSlotFKRefno;
@@ -581,7 +581,7 @@ namespace dMobile.GroundWork
 
             if (locMapRefno == 0)
             {
-                List<tLocationMapSlotModel> results = conn.Query<tLocationMapSlotModel>(
+                var results = conn.Query<tLocationMapSlotModel>(
                     "SELECT * FROM tLocationMapSlot WHERE LocationMapSlotFKRefno = ?",
                     locMapSlotFKRefno);
 
@@ -593,7 +593,7 @@ namespace dMobile.GroundWork
 
             if (locMapRefno == 0)
             {
-                List<tLocationMapSectionModel> results = conn.Query<tLocationMapSectionModel>(
+                var results = conn.Query<tLocationMapSectionModel>(
                     "SELECT * FROM tLocationMapSection WHERE LocationMapSectionFKRefno = ?",
                     locMapSectFKRefno);
 
@@ -605,7 +605,7 @@ namespace dMobile.GroundWork
 
             if (locMapRefno == 0)
             {
-                List<tLocationMapWarehouseModel> results = conn.Query<tLocationMapWarehouseModel>(
+                var results = conn.Query<tLocationMapWarehouseModel>(
                     "SELECT * FROM tLocationMapWarehouse WHERE LocationMapWarehouseFKRefno = ?",
                     locMapWhsFKRefno);
 
@@ -644,8 +644,8 @@ namespace dMobile.GroundWork
             SQLiteConnection conn,
             bool useFNumberElements)
         {
-            string emptyDate = "01-01-1900";
-            List<object> detailParameters = new List<object>();
+            var emptyDate = "01-01-1900";
+            var detailParameters = new List<object>();
 
             if (useFNumberElements)
             {
@@ -785,9 +785,9 @@ namespace dMobile.GroundWork
             DataRow drow,
             SQLiteConnection conn)
         {
-            int locMapWhsFKRefno = Convert.ToInt32(drow["LocationMapWarehouseFKRefno"]);
+            var locMapWhsFKRefno = Convert.ToInt32(drow["LocationMapWarehouseFKRefno"]);
 
-            List<tLocationMapWarehouseModel> results = conn.Query<tLocationMapWarehouseModel>(
+            var results = conn.Query<tLocationMapWarehouseModel>(
                 "SELECT * FROM tLocationMapWarehouse WHERE LocationMapWarehouseFKRefno = ?",
                 Convert.ToInt32(locMapWhsFKRefno));
 
@@ -840,7 +840,7 @@ namespace dMobile.GroundWork
                 prodUnitIsBC = Convert.ToBoolean(drow["ProductUnitIsBC"]);
             }
 
-            List<tProductModel> productResults = conn.Query<tProductModel>(
+            var productResults = conn.Query<tProductModel>(
                 "SELECT * FROM tProduct WHERE ProductFKRefno = ?", Convert.ToInt32(prodFKRefno));
 
             int prodRefno;
@@ -855,7 +855,7 @@ namespace dMobile.GroundWork
                     " from the product fk refno in tProduct.");
             }
 
-            List<tUnitModel> unitResults = conn.Query<tUnitModel>(
+            var unitResults = conn.Query<tUnitModel>(
                 "SELECT * FROM tUnit WHERE UnitCode = ?", unitCode);
             int unitRefno;
             if (unitResults != null && unitResults.Count > 0)
@@ -867,7 +867,7 @@ namespace dMobile.GroundWork
                 throw new Exception("drUnit.Read() failed.");
             }
 
-            List<tProductUnitModel> productUnitResults = conn.Query<tProductUnitModel>(
+            var productUnitResults = conn.Query<tProductUnitModel>(
                 "SELECT * FROM tProductUnit WHERE ProductRefno = ? AND UnitRefno = ? AND" +
                     " ProductUnitIsBC = ?", Convert.ToInt32(prodRefno),
                 Convert.ToInt32(unitRefno),

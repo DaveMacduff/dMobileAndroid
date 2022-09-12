@@ -63,9 +63,9 @@ namespace dMobile.Controller
             this.CycleCountSettings = new CycleCountSettings().LoadData();
 
             // Data grid
-            DataTemplate dataTemplate = new DataTemplate(() =>
+            var dataTemplate = new DataTemplate(() =>
             {
-                Grid gridData = new Grid
+                var gridData = new Grid
                 {
                     Padding = new Thickness(5),
                     ColumnDefinitions =
@@ -76,9 +76,9 @@ namespace dMobile.Controller
                     },
                 };
 
-                Label labelActivityRefno = new Label { VerticalOptions = LayoutOptions.Center };
-                Label labelActivityCountDateTime = new Label { VerticalOptions = LayoutOptions.Center };
-                Label labelActivityCountTypeDescription = new Label { VerticalOptions = LayoutOptions.Center };
+                var labelActivityRefno = new Label { VerticalOptions = LayoutOptions.Center };
+                var labelActivityCountDateTime = new Label { VerticalOptions = LayoutOptions.Center };
+                var labelActivityCountTypeDescription = new Label { VerticalOptions = LayoutOptions.Center };
 
                 labelActivityRefno.SetBinding(Label.TextProperty, new Binding("ActivityStringFKRefno"));
                 labelActivityCountDateTime.SetBinding(Label.TextProperty, new Binding("ActivityCountDateTime", BindingMode.Default, null, null, "{0:MM/dd/yyyy}"));
@@ -95,7 +95,19 @@ namespace dMobile.Controller
                 return new ViewCell { View = gridData };
             });
 
-            this.resourceDictionary.Add("dataTemplate", dataTemplate);
+            var isAddKey = true;
+            foreach (var item in this.resourceDictionary)
+            {
+                if (item.Key == "dataTemplateCycleCount")
+                {
+                    isAddKey = false;
+                }
+            }
+
+            if (isAddKey)
+            {
+                this.resourceDictionary.Add("dataTemplateCycleCount", dataTemplate);
+            }
         }
 
         /// <summary>
@@ -124,17 +136,17 @@ namespace dMobile.Controller
         /// <returns>The <see cref="ObservableCollection{object}"/>.</returns>
         public override ObservableCollection<object> DesignGrid(ref Grid GridMainActivity, ref ListView ListViewMainActivity)
         {
-            ObservableCollection<object> observableCollection = new ObservableCollection<object>();
+            var observableCollection = new ObservableCollection<object>();
 
-            Label labelCountNumber = new Label { Text = "Count #", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
-            Label labelCountDate = new Label { Text = "Date", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
-            Label labelCountType = new Label { Text = "Count Type", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
+            var labelCountNumber = new Label { Text = "Count #", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
+            var labelCountDate = new Label { Text = "Date", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
+            var labelCountType = new Label { Text = "Count Type", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
 
             // Calculate text size
             this.columnWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(labelCountNumber.Text);
             this.columnWidth1 = DependencyService.Get<IGridService>().CalculateTextWidth(labelCountDate.Text);
             this.columnWidth2 = DependencyService.Get<IGridService>().CalculateTextWidth(labelCountType.Text);
-            Grid gridHeader = new Grid
+            var gridHeader = new Grid
             {
                 Padding = new Thickness(5),
                 ColumnDefinitions =
@@ -161,8 +173,8 @@ namespace dMobile.Controller
 
             foreach (Count count in this.ListHdrs)
             {
-                string description = string.Empty;
-                string[] descriptionSubstring = Convert.ToString(count.ActivityCountTypeDescription).Split();
+                var description = string.Empty;
+                var descriptionSubstring = Convert.ToString(count.ActivityCountTypeDescription).Split();
 
                 if (descriptionSubstring != null && descriptionSubstring.Length > 1)
                 {
@@ -177,9 +189,9 @@ namespace dMobile.Controller
                 // };
                 observableCollection.Add(count);
 
-                double dataColumnWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(count.ActivityStringFKRefno);
-                double dataColumnWidth1 = DependencyService.Get<IGridService>().CalculateTextWidth(Convert.ToString(count.ActivityCountDateTime.ToString("MM/dd/yyyy")));
-                double dataColumnWidth2 = DependencyService.Get<IGridService>().CalculateTextWidth(count.ActivityCountTypeDescription);
+                var dataColumnWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(count.ActivityStringFKRefno);
+                var dataColumnWidth1 = DependencyService.Get<IGridService>().CalculateTextWidth(Convert.ToString(count.ActivityCountDateTime.ToString("MM/dd/yyyy")));
+                var dataColumnWidth2 = DependencyService.Get<IGridService>().CalculateTextWidth(count.ActivityCountTypeDescription);
                 if (dataColumnWidth0 > this.columnWidth0)
                 {
                     this.columnWidth0 = dataColumnWidth0;
@@ -199,7 +211,7 @@ namespace dMobile.Controller
                 }
             }
 
-            ListViewMainActivity.ItemTemplate = (DataTemplate)this.resourceDictionary["dataTemplate"];
+            ListViewMainActivity.ItemTemplate = (DataTemplate)this.resourceDictionary["dataTemplateCycleCount"];
 
             return observableCollection;
         }
@@ -211,7 +223,7 @@ namespace dMobile.Controller
         /// <returns>.</returns>
         public override async Task<List<object>> GetActivityList(bool isSubmitBatch)
         {
-            StringBuilder sql = new StringBuilder();
+            var sql = new StringBuilder();
 
             if (isSubmitBatch)
             {
@@ -307,7 +319,7 @@ namespace dMobile.Controller
             // }
             this.listCounts = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<Count>(sql.ToString());
 
-            foreach (Sort sort in this.CycleCountSettings.GetDataViewSortBy())
+            foreach (var sort in this.CycleCountSettings.GetDataViewSortBy())
             {
                 if (sort.SortOrder == Resources.Enums.SortOrder.ASC)
                 {
@@ -333,7 +345,7 @@ namespace dMobile.Controller
         public override ObservableCollection<object> Search(string searchText)
         {
             // TODO: verify filtering
-            ObservableCollection<object> observableCollection = new ObservableCollection<object>();
+            var observableCollection = new ObservableCollection<object>();
 
             this.ListHdrs = this.listCounts.Where(count => count.ActivityStringFKRefno.ToLower().Contains(searchText.ToLower().Trim())).Cast<object>().ToList();
 
@@ -431,7 +443,7 @@ namespace dMobile.Controller
 
                 this.DataLayerProgressOutHandler(this, new EventArgs(), 5);
 
-                TableActivityCycleCount cycleCount = new TableActivityCycleCount();
+                var cycleCount = new TableActivityCycleCount();
                 cycleCount.RegisterDataAccessListenerProgressOut((IDataAccessEventListener)this);
                 await cycleCount.RequestData();
                 cycleCount.UnregisterDataAccessListenerProgressOut((IDataAccessEventListener)this);
@@ -444,9 +456,9 @@ namespace dMobile.Controller
         /// <returns>The <see cref="Task"/>.</returns>
         public override async Task Purge()
         {
-            TableActivityCycleCount cycleCount = new TableActivityCycleCount();
-            TableActivityCycleCountItem cycleCountItem = new TableActivityCycleCountItem();
-            TableActivityCycleCountDetail cycleCountDetail = new TableActivityCycleCountDetail();
+            var cycleCount = new TableActivityCycleCount();
+            var cycleCountItem = new TableActivityCycleCountItem();
+            var cycleCountDetail = new TableActivityCycleCountDetail();
 
             await cycleCountDetail.PurgeData();
             await cycleCountItem.PurgeData();
@@ -458,16 +470,16 @@ namespace dMobile.Controller
         /// </summary>
         public override void GetFilter()
         {
-            string filter = string.Empty;
-            CycleCountSettings cycleSettings = new CycleCountSettings().LoadData();
+            var filter = string.Empty;
+            var cycleSettings = new CycleCountSettings().LoadData();
 
             if (this.CycleCountSettings.IsApplyCountDate)
             {
                 if (!SysCommon.IsEmptyDate(cycleSettings.dtCountDate))
                 {
-                    DateTime dt = cycleSettings.dtCountDate;
-                    DateTime minDate = new DateTime(dt.Year, dt.Month, dt.Day, 00, 00, 00);
-                    DateTime maxDate = new DateTime(dt.Year, dt.Month, dt.Day, 23, 59, 59);
+                    var dt = cycleSettings.dtCountDate;
+                    var minDate = new DateTime(dt.Year, dt.Month, dt.Day, 00, 00, 00);
+                    var maxDate = new DateTime(dt.Year, dt.Month, dt.Day, 23, 59, 59);
 
                     // BETWEEN '2009-07-26 00:00:00.000' AND '2010-07-26 23:59:59.997'
                     // if (string.IsNullOrEmpty(filter))
@@ -489,16 +501,16 @@ namespace dMobile.Controller
         /// <param name="filterData">.</param>
         public override void GetFilter(XDocument filterData)
         {
-            string filter = string.Empty;
-            CycleCountSettings cycleSettings = new CycleCountSettings().LoadData();
+            var filter = string.Empty;
+            var cycleSettings = new CycleCountSettings().LoadData();
 
             if (cycleSettings.IsApplyCountDate)
             {
                 if (string.Compare(filterData.Root.Element("count_date").Value, string.Empty) > 0)
                 {
-                    DateTime dt = DateTime.Parse(filterData.Root.Element("count_date").Value);
-                    DateTime minDate = new DateTime(dt.Year, dt.Month, dt.Day, 00, 00, 00);
-                    DateTime maxDate = new DateTime(dt.Year, dt.Month, dt.Day, 23, 59, 59);
+                    var dt = DateTime.Parse(filterData.Root.Element("count_date").Value);
+                    var minDate = new DateTime(dt.Year, dt.Month, dt.Day, 00, 00, 00);
+                    var maxDate = new DateTime(dt.Year, dt.Month, dt.Day, 23, 59, 59);
 
                     // BETWEEN '2009-07-26 00:00:00.000' AND '2010-07-26 23:59:59.997'
                     // if (string.IsNullOrEmpty(filter))

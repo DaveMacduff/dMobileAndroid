@@ -52,7 +52,7 @@ namespace dMobile.View.Menus
                     this.DisableControls();
                     this.UnloadControl();
 
-                    ActivityHdr ticketFinished = new ActivityHdr(SysCommon.ActSubTypes.TicketFinished);
+                    var ticketFinished = new ActivityHdr(SysCommon.ActSubTypes.TicketFinished);
                     await ticketFinished.Show();
                 }
                 else if (keycode == Keycode.Num2 && this.cmdIngredientMaterial.IsEnabled)
@@ -60,7 +60,7 @@ namespace dMobile.View.Menus
                     this.DisableControls();
                     this.UnloadControl();
 
-                    ActivityHdr ticketMaterial = new ActivityHdr(SysCommon.ActSubTypes.TicketMaterial);
+                    var ticketMaterial = new ActivityHdr(SysCommon.ActSubTypes.TicketMaterial);
                     await ticketMaterial.Show();
                 }
                 else if (keycode == Keycode.Num3 && this.cmdByProduct.IsEnabled)
@@ -68,7 +68,7 @@ namespace dMobile.View.Menus
                     this.DisableControls();
                     this.UnloadControl();
 
-                    ActivityHdr ticketAddProduct = new ActivityHdr(SysCommon.ActSubTypes.TicketAddProduct);
+                    var ticketAddProduct = new ActivityHdr(SysCommon.ActSubTypes.TicketAddProduct);
                     await ticketAddProduct.Show();
                 }
                 else if (keycode == Keycode.Num4 && this.cmdDebox.IsEnabled)
@@ -76,7 +76,7 @@ namespace dMobile.View.Menus
                     this.DisableControls();
                     this.UnloadControl();
 
-                    ActivityHdr adjustment = new ActivityHdr(SysCommon.ActSubTypes.Adjustment);
+                    var adjustment = new ActivityHdr(SysCommon.ActSubTypes.Adjustment);
                     await adjustment.Show();
                 }
             });
@@ -177,7 +177,7 @@ namespace dMobile.View.Menus
         /// <remarks></remarks>
         public async Task<XDocument> GetXML()
         {
-            XDocument xmldocParams = XDocument.Parse(
+            var xmldocParams = XDocument.Parse(
                 "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>"
                 + "<params>"
                 + "</params>");
@@ -255,7 +255,7 @@ namespace dMobile.View.Menus
             this.DisableControls();
             this.UnloadControl();
 
-            ActivityHdr ticketFinished = new ActivityHdr(SysCommon.ActSubTypes.TicketFinished);
+            var ticketFinished = new ActivityHdr(SysCommon.ActSubTypes.TicketFinished);
             await ticketFinished.Show();
         }
 
@@ -270,7 +270,7 @@ namespace dMobile.View.Menus
             this.DisableControls();
             this.UnloadControl();
 
-            ActivityHdr ticketMaterial = new ActivityHdr(SysCommon.ActSubTypes.TicketMaterial);
+            var ticketMaterial = new ActivityHdr(SysCommon.ActSubTypes.TicketMaterial);
             await ticketMaterial.Show();
         }
 
@@ -285,7 +285,7 @@ namespace dMobile.View.Menus
             this.DisableControls();
             this.UnloadControl();
 
-            ActivityHdr ticketAddProduct = new ActivityHdr(SysCommon.ActSubTypes.TicketAddProduct);
+            var ticketAddProduct = new ActivityHdr(SysCommon.ActSubTypes.TicketAddProduct);
             await ticketAddProduct.Show();
         }
 
@@ -314,7 +314,7 @@ namespace dMobile.View.Menus
         /// </summary>
         private void SetDeboxAdjustmentSettings()
         {
-            AdjustmentSettings adjustmentSettings = new AdjustmentSettings();
+            var adjustmentSettings = new AdjustmentSettings();
             adjustmentSettings.AdjustmentType = SysCommon.AdjTypes.Debox;
             adjustmentSettings.IsApplyAdjustmentType = true;
             adjustmentSettings.NegateScanQuantity = SysCommon.DefaultNegateQuantityFromAdjType(SysCommon.AdjTypes.Debox);
@@ -331,7 +331,7 @@ namespace dMobile.View.Menus
             this.DisableControls();
             this.UnloadControl();
 
-            ActivityHdr adjustment = new ActivityHdr(SysCommon.ActSubTypes.Adjustment);
+            var adjustment = new ActivityHdr(SysCommon.ActSubTypes.Adjustment);
             await adjustment.Show();
         }
     }

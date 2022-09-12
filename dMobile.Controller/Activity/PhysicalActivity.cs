@@ -57,9 +57,9 @@ namespace dMobile.Controller
             this.FullClassName = typeof(PhysicalActivity).FullName;
 
             // Data grid
-            DataTemplate dataTemplate = new DataTemplate(() =>
+            var dataTemplate = new DataTemplate(() =>
             {
-                Grid gridData = new Grid
+                var gridData = new Grid
                 {
                     Padding = new Thickness(5),
                     ColumnDefinitions =
@@ -70,9 +70,9 @@ namespace dMobile.Controller
                     },
                 };
 
-                Label labelActivityRefno = new Label { VerticalOptions = LayoutOptions.Center };
-                Label labelActivityCountDateTime = new Label { VerticalOptions = LayoutOptions.Center };
-                Label labelActivityCountTypeDescription = new Label { VerticalOptions = LayoutOptions.Center };
+                var labelActivityRefno = new Label { VerticalOptions = LayoutOptions.Center };
+                var labelActivityCountDateTime = new Label { VerticalOptions = LayoutOptions.Center };
+                var labelActivityCountTypeDescription = new Label { VerticalOptions = LayoutOptions.Center };
 
                 labelActivityRefno.SetBinding(Label.TextProperty, new Binding("ActivityStringFKRefno"));
                 labelActivityCountDateTime.SetBinding(Label.TextProperty, new Binding("ActivityCountDateTime", BindingMode.Default, null, null, "{0:MM/dd/yyyy}"));
@@ -89,7 +89,19 @@ namespace dMobile.Controller
                 return new ViewCell { View = gridData };
             });
 
-            this.resourceDictionary.Add("dataTemplate", dataTemplate);
+            var isAddKey = true;
+            foreach (var item in this.resourceDictionary)
+            {
+                if (item.Key == "dataTemplatePhysicalCount")
+                {
+                    isAddKey = false;
+                }
+            }
+
+            if (isAddKey)
+            {
+                this.resourceDictionary.Add("dataTemplatePhysicalCount", dataTemplate);
+            }
         }
 
         /// <summary>
@@ -118,16 +130,16 @@ namespace dMobile.Controller
         /// <returns>The <see cref="ObservableCollection{object}"/>.</returns>
         public override ObservableCollection<object> DesignGrid(ref Grid GridMainActivity, ref ListView ListViewMainActivity)
         {
-            ObservableCollection<object> observableCollection = new ObservableCollection<object>();
+            var observableCollection = new ObservableCollection<object>();
 
-            Label labelPhysicalCountNumber = new Label { Text = "Count #", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
-            Label labelPhysicalCountDate = new Label { Text = "Date", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
-            Label labelPhysicalCountType = new Label { Text = "Count Type", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
+            var labelPhysicalCountNumber = new Label { Text = "Count #", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
+            var labelPhysicalCountDate = new Label { Text = "Date", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
+            var labelPhysicalCountType = new Label { Text = "Count Type", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
 
             this.columnWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(labelPhysicalCountNumber.Text);
             this.columnWidth1 = DependencyService.Get<IGridService>().CalculateTextWidth(labelPhysicalCountDate.Text);
             this.columnWidth2 = DependencyService.Get<IGridService>().CalculateTextWidth(labelPhysicalCountType.Text);
-            Grid gridHeaderPhysicalCount = new Grid
+            var gridHeaderPhysicalCount = new Grid
             {
                 Padding = new Thickness(5),
                 ColumnDefinitions =
@@ -154,8 +166,8 @@ namespace dMobile.Controller
 
             foreach (Count count in this.ListHdrs)
             {
-                string description = string.Empty;
-                string[] descriptionSubstring = Convert.ToString(count.ActivityCountTypeDescription).Split();
+                var description = string.Empty;
+                var descriptionSubstring = Convert.ToString(count.ActivityCountTypeDescription).Split();
 
                 if (descriptionSubstring != null && descriptionSubstring.Length > 1)
                 {
@@ -170,9 +182,9 @@ namespace dMobile.Controller
                 // };
                 observableCollection.Add(count);
 
-                double dataColumnWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(count.ActivityStringFKRefno);
-                double dataColumnWidth1 = DependencyService.Get<IGridService>().CalculateTextWidth(Convert.ToString(count.ActivityCountDateTime.ToString("MM/dd/yyyy")));
-                double dataColumnWidth2 = DependencyService.Get<IGridService>().CalculateTextWidth(count.ActivityCountTypeDescription);
+                var dataColumnWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(count.ActivityStringFKRefno);
+                var dataColumnWidth1 = DependencyService.Get<IGridService>().CalculateTextWidth(Convert.ToString(count.ActivityCountDateTime.ToString("MM/dd/yyyy")));
+                var dataColumnWidth2 = DependencyService.Get<IGridService>().CalculateTextWidth(count.ActivityCountTypeDescription);
                 if (dataColumnWidth0 > this.columnWidth0)
                 {
                     this.columnWidth0 = dataColumnWidth0;
@@ -192,7 +204,7 @@ namespace dMobile.Controller
                 }
             }
 
-            ListViewMainActivity.ItemTemplate = (DataTemplate)this.resourceDictionary["dataTemplate"];
+            ListViewMainActivity.ItemTemplate = (DataTemplate)this.resourceDictionary["dataTemplatePhysicalCount"];
 
             return observableCollection;
         }
@@ -204,8 +216,8 @@ namespace dMobile.Controller
         /// <returns>.</returns>
         public override async Task<List<object>> GetActivityList(bool isSubmitBatch)
         {
-            PhysicalCountSettings countSettings = new PhysicalCountSettings().LoadData();
-            StringBuilder sql = new StringBuilder();
+            var countSettings = new PhysicalCountSettings().LoadData();
+            var sql = new StringBuilder();
 
             if (isSubmitBatch)
             {
@@ -300,7 +312,7 @@ namespace dMobile.Controller
             // }
             this.listCounts = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<Count>(sql.ToString());
 
-            foreach (Sort sort in countSettings.GetDataViewSortBy())
+            foreach (var sort in countSettings.GetDataViewSortBy())
             {
                 if (sort.SortOrder == Resources.Enums.SortOrder.ASC)
                 {
@@ -325,7 +337,7 @@ namespace dMobile.Controller
         /// <returns>.</returns>
         public override ObservableCollection<object> Search(string searchText)
         {
-            ObservableCollection<object> observableCollection = new ObservableCollection<object>();
+            var observableCollection = new ObservableCollection<object>();
 
             this.ListHdrs = this.listCounts.Where(count => count.ActivityStringFKRefno.ToLower().Contains(searchText.ToLower().Trim())).Cast<object>().ToList();
 
@@ -416,7 +428,7 @@ namespace dMobile.Controller
                 await this.Purge();
 
                 this.DataLayerProgressOutHandler(this, new EventArgs(), 5);
-                TableActivityPhysicalCount tableActPhysicalCount = new TableActivityPhysicalCount();
+                var tableActPhysicalCount = new TableActivityPhysicalCount();
 
                 tableActPhysicalCount.RegisterDataAccessListenerProgressOut((IDataAccessEventListener)this);
                 await tableActPhysicalCount.RequestData();
@@ -430,9 +442,9 @@ namespace dMobile.Controller
         /// <returns>The <see cref="Task"/>.</returns>
         public override async Task Purge()
         {
-            TableActivityPhysicalCount tableActPhysicalCount = new TableActivityPhysicalCount();
-            TableActivityPhysicalCountItem tableActPhysicalCountItem = new TableActivityPhysicalCountItem();
-            TableActivityPhysicalCountDetail tableActPhysicalCountDetail = new TableActivityPhysicalCountDetail();
+            var tableActPhysicalCount = new TableActivityPhysicalCount();
+            var tableActPhysicalCountItem = new TableActivityPhysicalCountItem();
+            var tableActPhysicalCountDetail = new TableActivityPhysicalCountDetail();
 
             await tableActPhysicalCountDetail.PurgeData();
             await tableActPhysicalCountItem.PurgeData();
@@ -444,16 +456,16 @@ namespace dMobile.Controller
         /// </summary>
         public override void GetFilter()
         {
-            string filter = string.Empty;
-            PhysicalCountSettings countSettings = new PhysicalCountSettings().LoadData();
+            var filter = string.Empty;
+            var countSettings = new PhysicalCountSettings().LoadData();
 
             if (countSettings.IsApplyCountDate)
             {
                 if (!SysCommon.IsEmptyDate(countSettings.dtCountDate))
                 {
-                    DateTime dt = countSettings.dtCountDate;
-                    DateTime minDate = new DateTime(dt.Year, dt.Month, dt.Day, 00, 00, 00);
-                    DateTime maxDate = new DateTime(dt.Year, dt.Month, dt.Day, 23, 59, 59);
+                    var dt = countSettings.dtCountDate;
+                    var minDate = new DateTime(dt.Year, dt.Month, dt.Day, 00, 00, 00);
+                    var maxDate = new DateTime(dt.Year, dt.Month, dt.Day, 23, 59, 59);
 
                     this.listCounts = this.listCounts.Where(count => count.ActivityCountDateTime >= minDate && count.ActivityCountDateTime <= maxDate).ToList();
                 }
@@ -466,16 +478,16 @@ namespace dMobile.Controller
         /// <param name="data">The data<see cref="XDocument"/>.</param>
         public override void GetFilter(XDocument data)
         {
-            string filter = string.Empty;
-            PhysicalCountSettings countSettings = new PhysicalCountSettings().LoadData();
+            var filter = string.Empty;
+            var countSettings = new PhysicalCountSettings().LoadData();
 
             if (countSettings.IsApplyCountDate)
             {
                 if (string.Compare(data.Root.Element("count_date").Value, string.Empty) > 0)
                 {
-                    DateTime dt = DateTime.Parse(data.Root.Element("count_date").Value);
-                    DateTime minDate = new DateTime(dt.Year, dt.Month, dt.Day, 00, 00, 00);
-                    DateTime maxDate = new DateTime(dt.Year, dt.Month, dt.Day, 23, 59, 59);
+                    var dt = DateTime.Parse(data.Root.Element("count_date").Value);
+                    var minDate = new DateTime(dt.Year, dt.Month, dt.Day, 00, 00, 00);
+                    var maxDate = new DateTime(dt.Year, dt.Month, dt.Day, 23, 59, 59);
 
                     this.listCounts = this.listCounts.Where(count => count.ActivityCountDateTime >= minDate && count.ActivityCountDateTime <= maxDate).ToList();
                 }

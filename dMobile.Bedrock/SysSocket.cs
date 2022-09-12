@@ -133,11 +133,11 @@ namespace dMobile.Bedrock
         public Socket Connect()
         {
             Socket socket = null;
-            int port = this.DefSocketPort;
+            var port = this.DefSocketPort;
             Exception exConn = null;
-            SysSocketEventArgs sockEventArgs = new SysSocketEventArgs();
+            var sockEventArgs = new SysSocketEventArgs();
 
-            for (int attempt = 1; attempt <= this.ConnTotalRetries; attempt++)
+            for (var attempt = 1; attempt <= this.ConnTotalRetries; attempt++)
             {
                 try
                 {
@@ -147,8 +147,8 @@ namespace dMobile.Bedrock
                         this.OnSysSocketStatusOut(this, sockEventArgs);
                     }
 
-                    IPEndPoint endPoint = new IPEndPoint(IPAddress.Parse(this.ServerIP), port);
-                    Socket tempSocket = new Socket(endPoint.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
+                    var endPoint = new IPEndPoint(IPAddress.Parse(this.ServerIP), port);
+                    var tempSocket = new Socket(endPoint.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
                     tempSocket.Blocking = true;
 
                     if (this.OnSysSocketStatusOut != null)
@@ -278,10 +278,10 @@ namespace dMobile.Bedrock
         {
             Socket socket = null;
             SocketException exConn = null;
-            SysSocketEventArgs sockEventArgs = new SysSocketEventArgs();
+            var sockEventArgs = new SysSocketEventArgs();
 
             // Get host related information.
-            IPHostEntry ipHostEntry = Dns.GetHostEntry(this.ServerIP);
+            var ipHostEntry = Dns.GetHostEntry(this.ServerIP);
 
             if (this.OnSysSocketStatusOut != null)
             {
@@ -293,13 +293,13 @@ namespace dMobile.Bedrock
             // an exception that occurs when the host host IP Address is not compatible with the
             // address family (typical in the IPv6 case).
             IPAddress ipAddress = null;
-            int port = this.DefSocketPort;
+            var port = this.DefSocketPort;
 
-            for (int attempt = 1; attempt <= this.ConnTotalRetries; attempt++)
+            for (var attempt = 1; attempt <= this.ConnTotalRetries; attempt++)
             {
                 try
                 {
-                    foreach (IPAddress ipAddressLoopVariable in ipHostEntry.AddressList)
+                    foreach (var ipAddressLoopVariable in ipHostEntry.AddressList)
                     {
                         ipAddress = ipAddressLoopVariable;
                         if (this.OnSysSocketStatusOut != null)
@@ -308,8 +308,8 @@ namespace dMobile.Bedrock
                             this.OnSysSocketStatusOut(this, sockEventArgs);
                         }
 
-                        IPEndPoint endPoint = new IPEndPoint(ipAddress, port);
-                        Socket tempSocket = new Socket(endPoint.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
+                        var endPoint = new IPEndPoint(ipAddress, port);
+                        var tempSocket = new Socket(endPoint.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
                         tempSocket.Blocking = true;
 
                         if (this.OnSysSocketStatusOut != null)
@@ -441,16 +441,16 @@ namespace dMobile.Bedrock
         /// <returns>Total number of bytes successfully sent.</returns>
         public int SendRequest(Socket socket, string request)
         {
-            int attempt = 1;
-            Encoding unicode = Encoding.UTF8;
-            byte[] totalBytes2Send = unicode.GetBytes(request + this.SendEOM);
+            var attempt = 1;
+            var unicode = Encoding.UTF8;
+            var totalBytes2Send = unicode.GetBytes(request + this.SendEOM);
 
             // Add the EOF id
-            int bytesRemaining2BeSent = totalBytes2Send.Length;
-            int byteStartIndex = 0;
-            int totalBytesSent = 0;
-            int bytesSent = 0;
-            SysSocketEventArgs sysSocketEventArgs = new SysSocketEventArgs();
+            var bytesRemaining2BeSent = totalBytes2Send.Length;
+            var byteStartIndex = 0;
+            var totalBytesSent = 0;
+            var bytesSent = 0;
+            var sysSocketEventArgs = new SysSocketEventArgs();
 
             if (this.OnSysSocketStatusOut != null)
             {
@@ -479,7 +479,7 @@ namespace dMobile.Bedrock
                     {
                         if (socket.Poll((this.SysEnv.SysSock.SendTimeOutMilliseconds * 1000) + 1, SelectMode.SelectWrite))
                         {
-                            byte[] byteBuffer2Send = new byte[bytesRemaining2BeSent + 1];
+                            var byteBuffer2Send = new byte[bytesRemaining2BeSent + 1];
 
                             if (this.OnSysSocketStatusOut != null)
                             {
@@ -579,13 +579,13 @@ namespace dMobile.Bedrock
         /// <returns>A list of bytes from the socket.</returns>
         public List<byte> ReceiveResponse(Socket socket)
         {
-            int bytesReceived = default(int);
-            int attempt = 1;
-            byte[] bytes = new byte[this.RecvBuffSize + 1];
+            var bytesReceived = default(int);
+            var attempt = 1;
+            var bytes = new byte[this.RecvBuffSize + 1];
 
             // Read the bytes.
-            List<byte> page = new List<byte>();
-            SysSocketEventArgs sysSocketEventArgs = new SysSocketEventArgs();
+            var page = new List<byte>();
+            var sysSocketEventArgs = new SysSocketEventArgs();
 
             do
             {
@@ -662,12 +662,12 @@ namespace dMobile.Bedrock
                 }
 
                 // Resize to what we received
-                byte[] bytesActuallyReceived = new byte[bytesReceived];
+                var bytesActuallyReceived = new byte[bytesReceived];
                 Array.Copy(bytes, 0, bytesActuallyReceived, 0, bytesReceived);
                 page.AddRange(bytesActuallyReceived);
 
                 // Check for EOM
-                string batch = Encoding.UTF8.GetString(bytesActuallyReceived, 0, bytesReceived);
+                var batch = Encoding.UTF8.GetString(bytesActuallyReceived, 0, bytesReceived);
 
                 // If we have an EOM specified, check it
                 if (!string.IsNullOrEmpty(this.ReceiveEOM))
@@ -687,16 +687,16 @@ namespace dMobile.Bedrock
             while (bytesReceived > 0);
 
             // Remove the EOM
-            byte[] eomBytData = System.Text.Encoding.UTF8.GetBytes(this.ReceiveEOM);
+            var eomBytData = System.Text.Encoding.UTF8.GetBytes(this.ReceiveEOM);
 
             // Note: The line below doesn't work
             // Dim eomIndex As int = Array.IndexOf(bytes.ToArray(), eomBytData.ToArray(), 0, bytes.Count)
-            int eomIndex = page.LastIndexOf(eomBytData[eomBytData.Length - 1]);
+            var eomIndex = page.LastIndexOf(eomBytData[eomBytData.Length - 1]);
 
             if (eomIndex >= 0)
             {
                 // Determine start of EOM so we can trim it off
-                int eomStart = eomIndex - eomBytData.Length;
+                var eomStart = eomIndex - eomBytData.Length;
 
                 // Remove the EOM
                 page.RemoveRange(eomStart + 1, eomBytData.Length);

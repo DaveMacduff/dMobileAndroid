@@ -106,25 +106,25 @@ namespace dMobile.Controller
         /// <returns><see cref="Task"/> Task operation.</returns>
         public override async Task Insert(XDocument data, bool askToInsertAsNewItem)
         {
-            int prodUnitBarCodeRefno = 0;
+            var prodUnitBarCodeRefno = 0;
 
             // Look up product bc unit
-            string unitCode = string.Empty;
-            string prodCode = string.Empty;
-            bool prodUnitIsBC = false;
-            string prodUnitBC = string.Empty;
+            var unitCode = string.Empty;
+            var prodCode = string.Empty;
+            var prodUnitIsBC = false;
+            var prodUnitBC = string.Empty;
 
-            string queryProductUnit = "SELECT tProduct.ProductCode,"
-                + "tProductUnit.ProductUnitIsBC,"
-                + "tProductUnit.ProductUnitBC,"
-                + "tUnit.UnitCode "
-                + "FROM tProductUnit "
-                + "INNER JOIN tProduct ON tProduct.ProductRefno = tProductUnit.ProductRefno "
-                + "INNER JOIN tUnit ON tUnit.UnitRefno = tProductUnit.UnitRefno "
-                + "WHERE tProductUnit.ProductUnitRefno = ?";
+            var queryProductUnit = "SELECT tProduct.ProductCode,"
+                                   + "tProductUnit.ProductUnitIsBC,"
+                                   + "tProductUnit.ProductUnitBC,"
+                                   + "tUnit.UnitCode "
+                                   + "FROM tProductUnit "
+                                   + "INNER JOIN tProduct ON tProduct.ProductRefno = tProductUnit.ProductRefno "
+                                   + "INNER JOIN tUnit ON tUnit.UnitRefno = tProductUnit.UnitRefno "
+                                   + "WHERE tProductUnit.ProductUnitRefno = ?";
 
-            int prodUnitRefno = int.Parse(data.Root.Element("ProductUnitRefno").Value);
-            List<ProductUnit> productUnitResults = await DatabaseConnection.GetInstance().SQLConn.
+            var prodUnitRefno = int.Parse(data.Root.Element("ProductUnitRefno").Value);
+            var productUnitResults = await DatabaseConnection.GetInstance().SQLConn.
                 QueryAsync<ProductUnit>(queryProductUnit, Convert.ToInt32(prodUnitRefno));
 
             if (productUnitResults != null && productUnitResults.Count > 0)
@@ -140,12 +140,12 @@ namespace dMobile.Controller
             }
 
             // Check if the bar code is already associated to this product or another product
-            bool isProdUnitBarCodeFound = false;
-            string prodIdentifier = data.Root.Element("ProductIdentifier").Value;
+            var isProdUnitBarCodeFound = false;
+            var prodIdentifier = data.Root.Element("ProductIdentifier").Value;
 
-            string queryProdUnitBarcode = "SELECT ProductUnitRefno, ProductUnitBarCodeRefno FROM tProductUnitBarCode" +
-                " WHERE ProductUnitBarCodeCode = ? AND ProductUnitBarCodeModifier1 = ?";
-            List<tProductUnitBarCodeModel> prodUnitBarcodeResults = await DatabaseConnection.GetInstance().SQLConn.
+            var queryProdUnitBarcode = "SELECT ProductUnitRefno, ProductUnitBarCodeRefno FROM tProductUnitBarCode" +
+                                       " WHERE ProductUnitBarCodeCode = ? AND ProductUnitBarCodeModifier1 = ?";
+            var prodUnitBarcodeResults = await DatabaseConnection.GetInstance().SQLConn.
                 QueryAsync<tProductUnitBarCodeModel>(queryProdUnitBarcode, prodIdentifier, data.Root.Element("ProductUnitBarCodeModifier1").Value);
 
             if (prodUnitBarcodeResults != null && prodUnitBarcodeResults.Count > 0)
@@ -178,21 +178,21 @@ namespace dMobile.Controller
                     try
                     {
                         // Add the new Bar Code to Product Unit Bar Codes
-                        string queryInsertProdUnitBarcode = "INSERT INTO tProductUnitBarCode ("
-                            + "ProductUnitRefno,"
-                            + "ProductUnitBarCodeCode,"
-                            + "ProductUnitBarCodeRaw,"
-                            + "ProductUnitBarCodeSymbologyEnum,"
-                            + "ProductUnitBarCodeModifier1,"
-                            + "ProductUnitBarCodeStatus" +
-                            " ) VALUES ( " +
-                            "?, " +
-                            "?, " +
-                            "?, " +
-                            "?, " +
-                            "?, " +
-                            "?)";
-                        object[] parametersInsertProdUnitBarcode = new object[]
+                        var queryInsertProdUnitBarcode = "INSERT INTO tProductUnitBarCode ("
+                                                         + "ProductUnitRefno,"
+                                                         + "ProductUnitBarCodeCode,"
+                                                         + "ProductUnitBarCodeRaw,"
+                                                         + "ProductUnitBarCodeSymbologyEnum,"
+                                                         + "ProductUnitBarCodeModifier1,"
+                                                         + "ProductUnitBarCodeStatus" +
+                                                         " ) VALUES ( " +
+                                                         "?, " +
+                                                         "?, " +
+                                                         "?, " +
+                                                         "?, " +
+                                                         "?, " +
+                                                         "?)";
+                        var parametersInsertProdUnitBarcode = new object[]
                         {
                             Convert.ToInt32(prodUnitRefno),
                             Convert.ToString(data.Root.Element("ProductIdentifier").Value),
@@ -228,17 +228,17 @@ namespace dMobile.Controller
 
                         if (!this.SysEnv.SysSettings.IsDisconnectedMode)
                         {
-                            string temp = this.CreateSubmitXML(data).Result;
+                            var temp = this.CreateSubmitXML(data).Result;
                             // string temp = Task.Run(async () => await this.CreateSubmitXML(data)).ToString();
-                            string reqData = SysCommon.SubmitComm(temp);
+                            var reqData = SysCommon.SubmitComm(temp);
                             if (reqData.Length > 0)
                             {
                                 // Check if result is an error message
                                 if (reqData.Contains("<message>ERROR</message>"))
                                 {
-                                    XmlDocument docError = new XmlDocument();
+                                    var docError = new XmlDocument();
                                     docError.LoadXml(reqData);
-                                    string errorDetail = docError.DocumentElement["detail"].InnerText;
+                                    var errorDetail = docError.DocumentElement["detail"].InnerText;
 
                                     if (errorDetail.Contains("MSGBOX-"))
                                     {
@@ -284,7 +284,7 @@ namespace dMobile.Controller
         /// <returns>.</returns>
         public override async Task<List<object>> GetActivityItemList(bool isSubmitBatch)
         {
-            StringBuilder sql = new StringBuilder();
+            var sql = new StringBuilder();
 
             if (isSubmitBatch)
             {
@@ -410,9 +410,9 @@ namespace dMobile.Controller
         /// <returns>The <see cref="Task"/>.</returns>
         public override async Task Submit(XDocument data, object selectedActivityItem)
         {
-            XmlDocument xmlDoc = new XmlDocument();
-            string send = await this.CreateSubmitXML(data);
-            string receivedData = SysCommon.SubmitComm(send);
+            var xmlDoc = new XmlDocument();
+            var send = await this.CreateSubmitXML(data);
+            var receivedData = SysCommon.SubmitComm(send);
             if (receivedData.Length > 0)
             {
                 xmlDoc.LoadXml(receivedData);
@@ -420,7 +420,7 @@ namespace dMobile.Controller
                 // check if result is an error message
                 if (receivedData.Contains("<message>ERROR</message>"))
                 {
-                    string errorDetail = xmlDoc.DocumentElement["detail"].InnerText;
+                    var errorDetail = xmlDoc.DocumentElement["detail"].InnerText;
                     if (errorDetail.Contains("MSGBOX-"))
                     {
                         throw new MessageOnlyException(errorDetail);
@@ -449,16 +449,16 @@ namespace dMobile.Controller
         /// <returns>.</returns>
         public async override Task<string> CreateSubmitXML(XDocument data)
         {
-            StringBuilder strXML = new StringBuilder();
-            using XmlWriter writer = XmlWriter.Create(strXML);
-            string prodCode = data.Root.Element("ProductCode").Value.PadRight(10);
-            string prodUnitBarCodeCode = data.Root.Element("ProductUnitBarCodeCode").Value.PadRight(20);
-            bool prodUnitIsBC = bool.Parse(data.Root.Element("ProductUnitIsBC").Value);
-            string unitCode = data.Root.Element("UnitCode").Value;
-            string barCodeSymbologyPrefix = data.Root.Element("ProductUnitBarCodeSymbologyPrefix").Value;
-            string barCodeModifier1 = data.Root.Element("ProductUnitBarCodeModifier1").Value;
+            var strXML = new StringBuilder();
+            using var writer = XmlWriter.Create(strXML);
+            var prodCode = data.Root.Element("ProductCode").Value.PadRight(10);
+            var prodUnitBarCodeCode = data.Root.Element("ProductUnitBarCodeCode").Value.PadRight(20);
+            var prodUnitIsBC = bool.Parse(data.Root.Element("ProductUnitIsBC").Value);
+            var unitCode = data.Root.Element("UnitCode").Value;
+            var barCodeSymbologyPrefix = data.Root.Element("ProductUnitBarCodeSymbologyPrefix").Value;
+            var barCodeModifier1 = data.Root.Element("ProductUnitBarCodeModifier1").Value;
 
-            XDocument request = XDocument.Parse(
+            var request = XDocument.Parse(
                 "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>"
                 + "<imclient>"
                 + "<command>"
@@ -587,7 +587,7 @@ namespace dMobile.Controller
         /// <returns><see cref="int"/> Location map reference number.</returns>
         public override async Task<int> GetDefaultLocMapRefno(int whsLocMapRefno, int prodRefno)
         {
-            int locMapRefno = await LocationMapTasks.GetDefaultLocMapRefnoFromWhsProdRefno(
+            var locMapRefno = await LocationMapTasks.GetDefaultLocMapRefnoFromWhsProdRefno(
                 whsLocMapRefno,
                 prodRefno,
                 SysCommon.ProdLocMapTypes.Picking);

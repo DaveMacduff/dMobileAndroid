@@ -19,8 +19,8 @@ namespace dMobile.Droid.Services
     {
         public double CalculateTextWidth(string text)
         {
-            Android.Graphics.Rect bounds = new Android.Graphics.Rect();
-            TextView textView = new TextView(Forms.Context);
+            var bounds = new Android.Graphics.Rect();
+            var textView = new TextView(Forms.Context);
             textView.Paint.GetTextBounds(text, 0, text.Length, bounds);
             // Adding 10 to accommodate cases where last letter being cut off
             var length = bounds.Width() + 10;

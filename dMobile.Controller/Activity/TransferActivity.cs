@@ -63,9 +63,9 @@ namespace dMobile.Controller
             this.TransSettings = new TransferSettings().LoadData();
 
             // Data grid
-            DataTemplate dataTemplate = new DataTemplate(() =>
+            var dataTemplate = new DataTemplate(() =>
             {
-                Grid gridData = new Grid
+                var gridData = new Grid
                 {
                     Padding = new Thickness(5),
                     ColumnDefinitions =
@@ -77,10 +77,10 @@ namespace dMobile.Controller
                     },
                 };
 
-                Label labelTransferNumber = new Label { VerticalOptions = LayoutOptions.Center };
-                Label labelWhs = new Label { VerticalOptions = LayoutOptions.Center };
-                Label labelDate = new Label { VerticalOptions = LayoutOptions.Center };
-                Label labelArrived = new Label { VerticalOptions = LayoutOptions.Center };
+                var labelTransferNumber = new Label { VerticalOptions = LayoutOptions.Center };
+                var labelWhs = new Label { VerticalOptions = LayoutOptions.Center };
+                var labelDate = new Label { VerticalOptions = LayoutOptions.Center };
+                var labelArrived = new Label { VerticalOptions = LayoutOptions.Center };
 
                 labelTransferNumber.SetBinding(Label.TextProperty, new Binding("ActivityStringFKRefno"));
                 labelWhs.SetBinding(Label.TextProperty, new Binding("LocationMapWarehouseFKRefno"));
@@ -100,7 +100,19 @@ namespace dMobile.Controller
                 return new ViewCell { View = gridData };
             });
 
-            this.resourceDictionary.Add("dataTemplate", dataTemplate);
+            var isAddKey = true;
+            foreach (var item in this.resourceDictionary)
+            {
+                if (item.Key == "dataTemplateTransfer")
+                {
+                    isAddKey = false;
+                }
+            }
+
+            if (isAddKey)
+            {
+                this.resourceDictionary.Add("dataTemplateTransfer", dataTemplate);
+            }
         }
 
         /// <summary>
@@ -134,7 +146,7 @@ namespace dMobile.Controller
         /// <returns>The <see cref="ObservableCollection{object}"/>.</returns>
         public override ObservableCollection<object> DesignGrid(ref Grid GridMainActivity, ref ListView ListViewMainActivity)
         {
-            ObservableCollection<object> observableCollection = new ObservableCollection<object>();
+            var observableCollection = new ObservableCollection<object>();
 
             foreach (Transfer transfer in this.ListHdrs)
             {
@@ -154,10 +166,10 @@ namespace dMobile.Controller
                 observableCollection.Add(transfer);
             }
 
-            Label labelTransferNumberHeader = new Label { Text = "Transfer #", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
-            Label labelWhsHeader = new Label { Text = "Whs", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
-            Label labelDateHeader = new Label { Text = "Date", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
-            Label labelArrivedHeader = new Label { Text = "Arrived", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
+            var labelTransferNumberHeader = new Label { Text = "Transfer #", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
+            var labelWhsHeader = new Label { Text = "Whs", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
+            var labelDateHeader = new Label { Text = "Date", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
+            var labelArrivedHeader = new Label { Text = "Arrived", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
 
             this.columnWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(labelTransferNumberHeader.Text);
             this.columnWidth1 = DependencyService.Get<IGridService>().CalculateTextWidth(labelWhsHeader.Text);
@@ -165,7 +177,7 @@ namespace dMobile.Controller
             this.columnWidth3 = DependencyService.Get<IGridService>().CalculateTextWidth(labelArrivedHeader.Text);
 
             // Create header data template
-            Grid gridHeader = new Grid
+            var gridHeader = new Grid
             {
                 Padding = new Thickness(5),
                 ColumnDefinitions =
@@ -195,10 +207,10 @@ namespace dMobile.Controller
 
             foreach (Transfer transfer in observableCollection)
             {
-                double detailWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(transfer.ActivityStringFKRefno);
-                double detailWidth1 = DependencyService.Get<IGridService>().CalculateTextWidth(Convert.ToString(transfer.LocationMapWarehouseFKRefno));
-                double detailWidth2 = DependencyService.Get<IGridService>().CalculateTextWidth(transfer.ActivityTransferDateTime.ToString("MM/dd/yyyy"));
-                double detailWidth3 = DependencyService.Get<IGridService>().CalculateTextWidth(transfer.ActivityTransferArrivalDateTime.ToString("MM/dd/yyyy"));
+                var detailWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(transfer.ActivityStringFKRefno);
+                var detailWidth1 = DependencyService.Get<IGridService>().CalculateTextWidth(Convert.ToString(transfer.LocationMapWarehouseFKRefno));
+                var detailWidth2 = DependencyService.Get<IGridService>().CalculateTextWidth(transfer.ActivityTransferDateTime.ToString("MM/dd/yyyy"));
+                var detailWidth3 = DependencyService.Get<IGridService>().CalculateTextWidth(transfer.ActivityTransferArrivalDateTime.ToString("MM/dd/yyyy"));
 
                 if (detailWidth0 > this.columnWidth0)
                 {
@@ -225,7 +237,7 @@ namespace dMobile.Controller
                 }
             }
 
-            ListViewMainActivity.ItemTemplate = (DataTemplate)this.resourceDictionary["dataTemplate"];
+            ListViewMainActivity.ItemTemplate = (DataTemplate)this.resourceDictionary["dataTemplateTransfer"];
 
             return observableCollection;
         }
@@ -237,7 +249,7 @@ namespace dMobile.Controller
         /// <returns>.</returns>
         public override async Task<List<object>> GetActivityList(bool isSubmitBatch)
         {
-            StringBuilder sql = new StringBuilder();
+            var sql = new StringBuilder();
 
             if (isSubmitBatch)
             {
@@ -328,7 +340,7 @@ namespace dMobile.Controller
             // }
             this.listTransfers = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<Transfer>(sql.ToString());
 
-            foreach (Sort sort in new TransferSettings().LoadData().GetDataViewSortBy())
+            foreach (var sort in new TransferSettings().LoadData().GetDataViewSortBy())
             {
                 if (sort.SortOrder == Resources.Enums.SortOrder.ASC)
                 {
@@ -353,7 +365,7 @@ namespace dMobile.Controller
         /// <returns>.</returns>
         public override ObservableCollection<object> Search(string searchText)
         {
-            ObservableCollection<object> observableCollection = new ObservableCollection<object>();
+            var observableCollection = new ObservableCollection<object>();
 
             this.ListHdrs = this.listTransfers.Where(transfer => transfer.ActivityStringFKRefno.ToLower().Contains(searchText.ToLower().Trim())).Cast<object>().ToList();
 
@@ -453,14 +465,14 @@ namespace dMobile.Controller
 
                 if (this.ActSubType == SysCommon.ActSubTypes.TransferFrom)
                 {
-                    TableActivityTransferFrom tableActTransfer = new TableActivityTransferFrom();
+                    var tableActTransfer = new TableActivityTransferFrom();
                     tableActTransfer.RegisterDataAccessListenerProgressOut((TransferActivity)this);
                     await tableActTransfer.RequestData();
                     tableActTransfer.UnregisterDataAccessListenerProgressOut((TransferActivity)this);
                 }
                 else
                 {
-                    TableActivityTransferTo tableActTransfer = new TableActivityTransferTo();
+                    var tableActTransfer = new TableActivityTransferTo();
                     tableActTransfer.RegisterDataAccessListenerProgressOut((TransferActivity)this);
                     await tableActTransfer.RequestData();
                     tableActTransfer.UnregisterDataAccessListenerProgressOut((TransferActivity)this);
@@ -476,18 +488,18 @@ namespace dMobile.Controller
         {
             if (this.ActSubType == SysCommon.ActSubTypes.TransferFrom)
             {
-                TableActivityTransferFrom tableActTransfer = new TableActivityTransferFrom();
-                TableActivityTransferFromItem tableActTransferItem = new TableActivityTransferFromItem();
-                TableActivityTransferFromDetail tableActTransferDetail = new TableActivityTransferFromDetail();
+                var tableActTransfer = new TableActivityTransferFrom();
+                var tableActTransferItem = new TableActivityTransferFromItem();
+                var tableActTransferDetail = new TableActivityTransferFromDetail();
                 await tableActTransferDetail.PurgeData();
                 await tableActTransferItem.PurgeData();
                 await tableActTransfer.PurgeData();
             }
             else
             {
-                TableActivityTransferTo tableActTransfer = new TableActivityTransferTo();
-                TableActivityTransferToItem tableActTransferItem = new TableActivityTransferToItem();
-                TableActivityTransferToDetail tableActTransferDetail = new TableActivityTransferToDetail();
+                var tableActTransfer = new TableActivityTransferTo();
+                var tableActTransferItem = new TableActivityTransferToItem();
+                var tableActTransferDetail = new TableActivityTransferToDetail();
                 await tableActTransferDetail.PurgeData();
                 await tableActTransferItem.PurgeData();
                 await tableActTransfer.PurgeData();
@@ -499,15 +511,15 @@ namespace dMobile.Controller
         /// </summary>
         public override void GetFilter()
         {
-            TransferSettings transferSettings = new TransferSettings().LoadData();
+            var transferSettings = new TransferSettings().LoadData();
 
             if (transferSettings.IsApplyTransferDateFilter)
             {
                 if (!SysCommon.IsEmptyDate(transferSettings.TransferDateFilter))
                 {
-                    DateTime dt = transferSettings.TransferDateFilter;
-                    DateTime minDate = new DateTime(dt.Year, dt.Month, dt.Day, 00, 00, 00);
-                    DateTime maxDate = new DateTime(dt.Year, dt.Month, dt.Day, 23, 59, 59);
+                    var dt = transferSettings.TransferDateFilter;
+                    var minDate = new DateTime(dt.Year, dt.Month, dt.Day, 00, 00, 00);
+                    var maxDate = new DateTime(dt.Year, dt.Month, dt.Day, 23, 59, 59);
 
                     this.listTransfers = this.listTransfers.Where(transfer => transfer.ActivityTransferDateTime >= minDate && transfer.ActivityTransferDateTime <= maxDate).ToList();
                 }
@@ -520,15 +532,15 @@ namespace dMobile.Controller
         /// <param name="data">.</param>
         public override void GetFilter(XDocument data)
         {
-            TransferSettings transferSettings = new TransferSettings().LoadData();
+            var transferSettings = new TransferSettings().LoadData();
 
             if (transferSettings.IsApplyTransferDateFilter)
             {
                 if (string.Compare(data.Root.Element("transfer_date").Value, string.Empty) > 0)
                 {
-                    DateTime dt = DateTime.Parse(data.Root.Element("transfer_date").Value);
-                    DateTime minDate = new DateTime(dt.Year, dt.Month, dt.Day, 00, 00, 00);
-                    DateTime maxDate = new DateTime(dt.Year, dt.Month, dt.Day, 23, 59, 59);
+                    var dt = DateTime.Parse(data.Root.Element("transfer_date").Value);
+                    var minDate = new DateTime(dt.Year, dt.Month, dt.Day, 00, 00, 00);
+                    var maxDate = new DateTime(dt.Year, dt.Month, dt.Day, 23, 59, 59);
 
                     this.listTransfers = this.listTransfers.Where(transfer => transfer.ActivityTransferDateTime >= minDate && transfer.ActivityTransferDateTime <= maxDate).ToList();
                 }

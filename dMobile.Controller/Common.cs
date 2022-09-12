@@ -21,7 +21,7 @@ namespace dMobile.Controller
         /// <returns><see cref="SProductSchemeData"/> Product scheme data.</returns>
         public static SProductSchemeData FillSProductSchemeDataFromXML(XDocument data)
         {
-            SProductSchemeData schemeData = new SProductSchemeData
+            var schemeData = new SProductSchemeData
             {
                 LogisticUnitBestBeforeSellByDate = DateTime.Parse(data.Root.Element("bdate").Value),
                 LogisticUnitDueDate = DateTime.Now,
@@ -45,7 +45,7 @@ namespace dMobile.Controller
         /// <returns><see cref="SActItemSchemeData"/> Activity item, product scheme data.</returns>
         public static SActItemSchemeData FillSActItemSchemeDataFromXML(XDocument data)
         {
-            SActItemSchemeData actItemSchemeData = new SActItemSchemeData
+            var actItemSchemeData = new SActItemSchemeData
             {
                 ProdSchemeData = FillSProductSchemeDataFromXML(data),
                 ActDetailBaseQuantity = decimal.Parse(data.Root.Element("base_qty").Value),
@@ -53,7 +53,7 @@ namespace dMobile.Controller
                 ActDetailWeightQuantity = decimal.Parse(data.Root.Element("wt_qty").Value),
             };
 
-            ActDetailExtra actDetailExtra = new ActDetailExtra
+            var actDetailExtra = new ActDetailExtra
             {
                 Text1 = data.Root.Element("extra1").Value,
                 Text2 = data.Root.Element("extra2").Value,
@@ -73,10 +73,10 @@ namespace dMobile.Controller
         /// <returns><see cref="string"/> Assembly version.</returns>
         public string GetAssemblyVersion()
         {
-            int major = Assembly.GetExecutingAssembly().GetName().Version.Major;
-            int minor = Assembly.GetExecutingAssembly().GetName().Version.Minor;
-            int build = Assembly.GetExecutingAssembly().GetName().Version.Build;
-            int revision = Assembly.GetExecutingAssembly().GetName().Version.Revision;
+            var major = Assembly.GetExecutingAssembly().GetName().Version.Major;
+            var minor = Assembly.GetExecutingAssembly().GetName().Version.Minor;
+            var build = Assembly.GetExecutingAssembly().GetName().Version.Build;
+            var revision = Assembly.GetExecutingAssembly().GetName().Version.Revision;
 
             return string.Format("{0}.{1}.{2}.{3}", major, minor, build, revision);
         }

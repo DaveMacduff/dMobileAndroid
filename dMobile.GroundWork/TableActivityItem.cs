@@ -30,7 +30,7 @@ namespace dMobile.GroundWork
             {
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging activity items.", true);
 
-                string query = "DELETE FROM tActivityItem WHERE tActivityItem.ActivityItemSubType = ?";
+                var query = "DELETE FROM tActivityItem WHERE tActivityItem.ActivityItemSubType = ?";
                 await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(query, Convert.ToInt32(actSubType));
 
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging activity items complete.", true);

@@ -40,13 +40,13 @@ namespace dMobile.GroundWork
             {
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Seeding cycle counts.", true);
 
-                string reqData = await this.SendRequest();
+                var reqData = await this.SendRequest();
 
                 if (reqData.Length > 0)
                 {
                     if (reqData.Contains("<message>ERROR</message>"))
                     {
-                        XmlDocument reqErr = new XmlDocument();
+                        var reqErr = new XmlDocument();
                         reqErr.LoadXml(reqData);
                         throw new Exception(reqErr.DocumentElement["detail"].InnerText);
                     }
@@ -73,7 +73,7 @@ namespace dMobile.GroundWork
             int rowsAffected;
             try
             {
-                string query = "SELECT COUNT(tActivity.ActivityRefno) FROM tActivity WHERE tActivity.ActivitySubType = ?";
+                var query = "SELECT COUNT(tActivity.ActivityRefno) FROM tActivity WHERE tActivity.ActivitySubType = ?";
                 rowsAffected = await DatabaseConnection.GetInstance().SQLConn.ExecuteScalarAsync<int>(query, Convert.ToInt32(SysCommon.ActSubTypes.CycleCounts));
 
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, string.Format("{0} cycle count(s)", rowsAffected), true);
@@ -95,7 +95,7 @@ namespace dMobile.GroundWork
             {
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging cycle counts.", true);
 
-                string query = "DELETE FROM tActivityCount WHERE tActivityCount.ActivitySubType = ?";
+                var query = "DELETE FROM tActivityCount WHERE tActivityCount.ActivitySubType = ?";
                 await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(query, Convert.ToInt32(SysCommon.ActSubTypes.CycleCounts));
 
                 query = "DELETE FROM tActivity WHERE tActivity.ActivitySubType = ?";
@@ -124,7 +124,7 @@ namespace dMobile.GroundWork
                 {
                     this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Reading received data.", false);
 
-                    using (DataSet ds = new DataSet())
+                    using (var ds = new DataSet())
                     {
                         ds.ReadXml(SysCommon.GetXmlReader(ref reqData), XmlReadMode.Auto);
 
@@ -133,15 +133,15 @@ namespace dMobile.GroundWork
                         // Receiving schema but no data results in no table being created in the dataset.
                         if (ds.Tables.Count != 0)
                         {
-                            int progMax = Convert.ToInt32(ds.Tables["tActivityCount"].Rows.Count);
+                            var progMax = Convert.ToInt32(ds.Tables["tActivityCount"].Rows.Count);
 
                             this.DataAccessStatusOutHandler(this, EventArgs.Empty, string.Format("Records {0}", progMax), false);
 
-                            int actRefno = 0;
-                            int progValue = 0;
-                            int whsLocMapRefno = 0;
-                            string actCountTypeDesc = string.Empty;
-                            int countFKRefno = 0;
+                            var actRefno = 0;
+                            var progValue = 0;
+                            var whsLocMapRefno = 0;
+                            var actCountTypeDesc = string.Empty;
+                            var countFKRefno = 0;
 
                             this.DataAccessProgressOutHandler(this, EventArgs.Empty, 0, 0, progMax);
 
@@ -153,7 +153,7 @@ namespace dMobile.GroundWork
                                 countFKRefno = Convert.ToInt32(drow["ActivityFKRefno"]);
                                 whsLocMapRefno = this.GetWhsLocMapRefnoFromDataRow(drow, transaction);
                                 // To remove time - convert twice
-                                DateTime dt = Convert.ToDateTime(drow["ActivityCountDateTime"]);
+                                var dt = Convert.ToDateTime(drow["ActivityCountDateTime"]);
 
                                 switch (Convert.ToInt32(drow["ActivityCountType"]))
                                 {
@@ -184,7 +184,7 @@ namespace dMobile.GroundWork
                                 }
 
                                 // <wo="14563" comment="receiving strings up to 75 in length when database wants max 60. This is the viewable description when selecting line item." />
-                                string incomingDescription = this.ReduceWhitespace(drow["ActivityCountDescription"].ToString());
+                                var incomingDescription = this.ReduceWhitespace(drow["ActivityCountDescription"].ToString());
 
                                 if (incomingDescription.Length > 60)
                                 {
@@ -196,29 +196,29 @@ namespace dMobile.GroundWork
                                     incomingDescription = incomingDescription.Substring(0, 60); // truncate the end if we need to.
                                 }
 
-                                string sql = "INSERT INTO tActivityCount (" +
-                                    "ActivityRefno, " +
-                                    "ActivitySubType, " +
-                                    "ActivityFKRefno, " +
-                                    "ActivityStringFKRefno, " +
-                                    "WarehouseLocationMapRefno, " +
-                                    "ActivityCountType, " +
-                                    "ActivityCountDateTime, " +
-                                    "ActivityCountTypeDescription, " +
-                                    "ActivityCountDescription" +
-                                    ") VALUES (" +
-                                    "?, " +
-                                    "?, " +
-                                    "?, " +
-                                    "?, " +
-                                    "?, " +
-                                    "?, " +
-                                    "?, " +
-                                    "?, " +
-                                    "?" +
-                                    ")";
+                                var sql = "INSERT INTO tActivityCount (" +
+                                          "ActivityRefno, " +
+                                          "ActivitySubType, " +
+                                          "ActivityFKRefno, " +
+                                          "ActivityStringFKRefno, " +
+                                          "WarehouseLocationMapRefno, " +
+                                          "ActivityCountType, " +
+                                          "ActivityCountDateTime, " +
+                                          "ActivityCountTypeDescription, " +
+                                          "ActivityCountDescription" +
+                                          ") VALUES (" +
+                                          "?, " +
+                                          "?, " +
+                                          "?, " +
+                                          "?, " +
+                                          "?, " +
+                                          "?, " +
+                                          "?, " +
+                                          "?, " +
+                                          "?" +
+                                          ")";
 
-                                object[] parameters = new object[]
+                                var parameters = new object[]
                                 {
                                     actRefno,
                                     Convert.ToInt32(SysCommon.ActSubTypes.CycleCounts),
@@ -272,10 +272,10 @@ namespace dMobile.GroundWork
                 return string.Empty;
             }
 
-            StringBuilder sb = new StringBuilder();
-            bool prevIsWhitespace = false;
-            char[] charArray = input.ToCharArray();
-            for (int i = 0; i < input.Length; ++i)
+            var sb = new StringBuilder();
+            var prevIsWhitespace = false;
+            var charArray = input.ToCharArray();
+            for (var i = 0; i < input.Length; ++i)
             {
                 if (char.IsWhiteSpace(charArray[i]))
                 {
@@ -302,10 +302,10 @@ namespace dMobile.GroundWork
         /// <returns></returns>
         protected override async Task<string> CreateRequest()
         {
-            StringBuilder xmlString = new StringBuilder();
-            XmlWriter xml = XmlWriter.Create(xmlString);
+            var xmlString = new StringBuilder();
+            var xml = XmlWriter.Create(xmlString);
 
-            XDocument request = XDocument.Parse(
+            var request = XDocument.Parse(
                 "<?xml version=\"1.0\" encoding=\"utf-8\" standalone=\"yes\"?>"
                 + "<imclient>"
                 + "<command>"

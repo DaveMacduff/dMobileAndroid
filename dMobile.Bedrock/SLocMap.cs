@@ -245,7 +245,7 @@ namespace dMobile.Bedrock
         /// <returns><see cref="SLocMap"/> New copy of SLocMap.</returns>
         public SLocMap Clone()
         {
-            SLocMap copy = new SLocMap
+            var copy = new SLocMap
             {
                 IsWhsWMS = this.IsWhsWMS,
                 IsSectionTracked = this.IsSectionTracked,

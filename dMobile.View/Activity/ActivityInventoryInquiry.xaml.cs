@@ -55,9 +55,9 @@ namespace dMobile.View.Activity
                 if (this.SysEnv.SysSettings.IsProductUnitBarCodeModifier1)
                 {
                     this.BarCodeModifier1Picker.Items.Add(string.Empty);
-                    string[] modifiers = this.SysEnv.SysSettings.ProductUnitBarCodeModifier1Codes.Split(',');
+                    var modifiers = this.SysEnv.SysSettings.ProductUnitBarCodeModifier1Codes.Split(',');
 
-                    foreach (string item in modifiers)
+                    foreach (var item in modifiers)
                     {
                         this.BarCodeModifier1Picker.Items.Add(item);
                     }
@@ -111,9 +111,9 @@ namespace dMobile.View.Activity
                 if (this.SysEnv.SysSettings.IsProductUnitBarCodeModifier1)
                 {
                     this.BarCodeModifier1Picker.Items.Add(string.Empty);
-                    string[] modifiers = this.SysEnv.SysSettings.ProductUnitBarCodeModifier1Codes.Split(',');
+                    var modifiers = this.SysEnv.SysSettings.ProductUnitBarCodeModifier1Codes.Split(',');
 
-                    foreach (string item in modifiers)
+                    foreach (var item in modifiers)
                     {
                         this.BarCodeModifier1Picker.Items.Add(item);
                     }
@@ -277,7 +277,7 @@ namespace dMobile.View.Activity
         /// <remarks></remarks>
         public async Task<XDocument> GetXML()
         {
-            XDocument xmldocParams = XDocument.Parse(
+            var xmldocParams = XDocument.Parse(
                 "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>"
                 + "<params>"
                 + "</params>");
@@ -292,7 +292,7 @@ namespace dMobile.View.Activity
         /// <remarks></remarks>
         public async Task<bool> IsReadyToSave()
         {
-            bool isReadyToSave = true;
+            var isReadyToSave = true;
 
             if (this.SysEnv.SysSettings.IsDisconnectedMode)
             {
@@ -311,7 +311,7 @@ namespace dMobile.View.Activity
         /// <remarks></remarks>
         public async Task<bool> IsReadyToClose()
         {
-            bool isReadyToClose = true;
+            var isReadyToClose = true;
 
             if (isReadyToClose)
             {
@@ -340,14 +340,14 @@ namespace dMobile.View.Activity
             {
                 await this.ScannerDisable();
 
-                FormDialogContainer form = new FormDialogContainer(EDialogTypes.ActivityInventoryInquirySummary, this.ActItem, this.ActSubType);
+                var form = new FormDialogContainer(EDialogTypes.ActivityInventoryInquirySummary, this.ActItem, this.ActSubType);
                 _ = await form.DisplayControl.ShowDialog();
             }
             catch (Exception ex)
             {
                 await Device.InvokeOnMainThreadAsync(async () =>
                 {
-                    FormErrorReport errRpt = new FormErrorReport(this.ActSubType, ex);
+                    var errRpt = new FormErrorReport(this.ActSubType, ex);
                     _ = await errRpt.ShowDialog();
                 });
             }
@@ -366,7 +366,7 @@ namespace dMobile.View.Activity
         /// <remarks></remarks>
         public async Task<bool> CancelChanges()
         {
-            bool cancelChanges = true;
+            var cancelChanges = true;
 
             try
             {
@@ -397,7 +397,7 @@ namespace dMobile.View.Activity
 
                 await Device.InvokeOnMainThreadAsync(async () =>
                 {
-                    FormErrorReport errRpt = new FormErrorReport(this.ActSubType, ex);
+                    var errRpt = new FormErrorReport(this.ActSubType, ex);
                     _ = await errRpt.ShowDialog();
                 });
             }
@@ -415,7 +415,7 @@ namespace dMobile.View.Activity
         {
             await this.ScannerDisable();
 
-            FormDialogContainer form = new FormDialogContainer(EDialogTypes.SelectLocationMap, SysCommon.ActSubTypes.NotApplicable);
+            var form = new FormDialogContainer(EDialogTypes.SelectLocationMap, SysCommon.ActSubTypes.NotApplicable);
 
             if (await form.DisplayControl.ShowDialog() == DialogResult.OK)
             {
@@ -452,12 +452,12 @@ namespace dMobile.View.Activity
         {
             await this.ScannerDisable();
 
-            ProductInfo prodInfo = new ProductInfo();
-            FormDialogContainer form = new FormDialogContainer(EDialogTypes.SelectProduct, SysCommon.ActSubTypes.NotApplicable);
+            var prodInfo = new ProductInfo();
+            var form = new FormDialogContainer(EDialogTypes.SelectProduct, SysCommon.ActSubTypes.NotApplicable);
 
             if (await form.DisplayControl.ShowDialog() == DialogResult.OK)
             {
-                XDocument xmlArgs = await form.GetXML();
+                var xmlArgs = await form.GetXML();
                 prodInfo = await ProductInfoTasks.GetInfoFromRefno(Convert.ToInt32(xmlArgs.Root.Element("ProductRefno").Value));
                 this.cmdSelectProduct.Text = prodInfo.Code;
             }
@@ -513,12 +513,12 @@ namespace dMobile.View.Activity
                     }
                     else if (!string.IsNullOrEmpty(this.BarParse.ProductIdentifier))
                     {
-                        int prodUnitRefno = 0;
+                        var prodUnitRefno = 0;
                         prodUnitRefno = await SysShared.IdentifyProductScanned(this.ActSubType, this.BarParse);
 
                         if (prodUnitRefno != 0)
                         {
-                            ProductInfo tempProdInfo = new ProductInfo();
+                            var tempProdInfo = new ProductInfo();
                             tempProdInfo = await ProductInfoTasks.GetInfoFromUnitRefno(prodUnitRefno);
                             this.ActItem.ProdInfo = tempProdInfo;
                             // <issue="13609" author="RD" date="2016/02/22"/>
@@ -560,7 +560,7 @@ namespace dMobile.View.Activity
                 {
                     await Device.InvokeOnMainThreadAsync(async () =>
                     {
-                        FormErrorReport errRpt = new FormErrorReport(this.ActSubType, ex);
+                        var errRpt = new FormErrorReport(this.ActSubType, ex);
                         _ = await errRpt.ShowDialog();
                     });
                 }
@@ -603,18 +603,18 @@ namespace dMobile.View.Activity
                 this.DataGridMainExtraInfoItems.Add(location);
             }
 
-            Label labelProductCodeHeader = new Label { Text = "Product ID", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
-            Label labelLocationMapTypeHeader = new Label { Text = "Default", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
-            Label labelProductDescriptionHeader = new Label { Text = "Description", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
-            Label labelProductBrandDescriptionHeader = new Label { Text = "Brand", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
+            var labelProductCodeHeader = new Label { Text = "Product ID", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
+            var labelLocationMapTypeHeader = new Label { Text = "Default", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
+            var labelProductDescriptionHeader = new Label { Text = "Description", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
+            var labelProductBrandDescriptionHeader = new Label { Text = "Brand", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
 
-            double columnWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(labelProductCodeHeader.Text);
-            double columnWidth1 = DependencyService.Get<IGridService>().CalculateTextWidth(labelLocationMapTypeHeader.Text);
-            double columnWidth2 = DependencyService.Get<IGridService>().CalculateTextWidth(labelProductDescriptionHeader.Text);
-            double columnWidth3 = DependencyService.Get<IGridService>().CalculateTextWidth(labelProductBrandDescriptionHeader.Text);
+            var columnWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(labelProductCodeHeader.Text);
+            var columnWidth1 = DependencyService.Get<IGridService>().CalculateTextWidth(labelLocationMapTypeHeader.Text);
+            var columnWidth2 = DependencyService.Get<IGridService>().CalculateTextWidth(labelProductDescriptionHeader.Text);
+            var columnWidth3 = DependencyService.Get<IGridService>().CalculateTextWidth(labelProductBrandDescriptionHeader.Text);
 
             // Header grid
-            Grid gridHeader = new Grid
+            var gridHeader = new Grid
             {
                 Padding = new Thickness(5),
                 ColumnDefinitions =
@@ -644,10 +644,10 @@ namespace dMobile.View.Activity
 
             foreach (ProductLocationMapType location in this.DataGridMainExtraInfoItems)
             {
-                double detailWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(location.ProductCode);
-                double detailWidth1 = DependencyService.Get<IGridService>().CalculateTextWidth(location.LocationMapType);
-                double detailWidth2 = DependencyService.Get<IGridService>().CalculateTextWidth(location.ProductDescription);
-                double detailWidth3 = DependencyService.Get<IGridService>().CalculateTextWidth(location.ProductBrandDescription);
+                var detailWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(location.ProductCode);
+                var detailWidth1 = DependencyService.Get<IGridService>().CalculateTextWidth(location.LocationMapType);
+                var detailWidth2 = DependencyService.Get<IGridService>().CalculateTextWidth(location.ProductDescription);
+                var detailWidth3 = DependencyService.Get<IGridService>().CalculateTextWidth(location.ProductBrandDescription);
 
                 if (detailWidth0 > columnWidth0)
                 {
@@ -675,10 +675,10 @@ namespace dMobile.View.Activity
             }
 
             // Data grid
-            DataTemplate dataTemplate = new DataTemplate(() =>
+            var dataTemplate = new DataTemplate(() =>
             {
                 // Header grid
-                Grid gridData = new Grid()
+                var gridData = new Grid()
                 {
                     Padding = new Thickness(5),
                     ColumnDefinitions =
@@ -690,10 +690,10 @@ namespace dMobile.View.Activity
                     },
                 };
 
-                Label labelProductCode = new Label { VerticalOptions = LayoutOptions.Center };
-                Label labelLocationMapType = new Label { VerticalOptions = LayoutOptions.Center };
-                Label labelProductDescription = new Label { VerticalOptions = LayoutOptions.Center };
-                Label labelProductBrandDescription = new Label { VerticalOptions = LayoutOptions.Center };
+                var labelProductCode = new Label { VerticalOptions = LayoutOptions.Center };
+                var labelLocationMapType = new Label { VerticalOptions = LayoutOptions.Center };
+                var labelProductDescription = new Label { VerticalOptions = LayoutOptions.Center };
+                var labelProductBrandDescription = new Label { VerticalOptions = LayoutOptions.Center };
 
                 labelProductCode.SetBinding(Label.TextProperty, new Binding("ProductCode"));
                 labelLocationMapType.SetBinding(Label.TextProperty, new Binding("LocationMapType"));
@@ -736,18 +736,18 @@ namespace dMobile.View.Activity
                 this.DataGridMainExtraInfoItems.Add(location);
             }
 
-            Label labelLocationMapWarehouseCodeHeader = new Label { Text = "Whs", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
-            Label labelLocationMapSectionNameHeader = new Label { Text = "Section", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
-            Label labelLocationMapSlotNameHeader = new Label { Text = "Slot", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
-            Label labelLocationMapTypeHeader = new Label { Text = "Default", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
+            var labelLocationMapWarehouseCodeHeader = new Label { Text = "Whs", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
+            var labelLocationMapSectionNameHeader = new Label { Text = "Section", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
+            var labelLocationMapSlotNameHeader = new Label { Text = "Slot", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
+            var labelLocationMapTypeHeader = new Label { Text = "Default", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
 
-            double columnWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(labelLocationMapWarehouseCodeHeader.Text);
-            double columnWidth1 = DependencyService.Get<IGridService>().CalculateTextWidth(labelLocationMapSectionNameHeader.Text);
-            double columnWidth2 = DependencyService.Get<IGridService>().CalculateTextWidth(labelLocationMapSlotNameHeader.Text);
-            double columnWidth3 = DependencyService.Get<IGridService>().CalculateTextWidth(labelLocationMapTypeHeader.Text);
+            var columnWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(labelLocationMapWarehouseCodeHeader.Text);
+            var columnWidth1 = DependencyService.Get<IGridService>().CalculateTextWidth(labelLocationMapSectionNameHeader.Text);
+            var columnWidth2 = DependencyService.Get<IGridService>().CalculateTextWidth(labelLocationMapSlotNameHeader.Text);
+            var columnWidth3 = DependencyService.Get<IGridService>().CalculateTextWidth(labelLocationMapTypeHeader.Text);
 
             // Header grid
-            Grid gridHeader = new Grid
+            var gridHeader = new Grid
             {
                 Padding = new Thickness(5),
                 ColumnDefinitions =
@@ -808,10 +808,10 @@ namespace dMobile.View.Activity
             }
 
             // Data grid
-            DataTemplate dataTemplate = new DataTemplate(() =>
+            var dataTemplate = new DataTemplate(() =>
             {
                 // Header grid
-                Grid gridData = new Grid()
+                var gridData = new Grid()
                 {
                     Padding = new Thickness(5),
                     ColumnDefinitions =
@@ -823,10 +823,10 @@ namespace dMobile.View.Activity
                     },
                 };
 
-                Label labelLocationMapWarehouseCode = new Label { VerticalOptions = LayoutOptions.Center };
-                Label labelLocationMapSectionName = new Label { VerticalOptions = LayoutOptions.Center };
-                Label labelLocationMapSlotName = new Label { VerticalOptions = LayoutOptions.Center };
-                Label labelLocationMapType = new Label { VerticalOptions = LayoutOptions.Center };
+                var labelLocationMapWarehouseCode = new Label { VerticalOptions = LayoutOptions.Center };
+                var labelLocationMapSectionName = new Label { VerticalOptions = LayoutOptions.Center };
+                var labelLocationMapSlotName = new Label { VerticalOptions = LayoutOptions.Center };
+                var labelLocationMapType = new Label { VerticalOptions = LayoutOptions.Center };
 
                 labelLocationMapWarehouseCode.SetBinding(Label.TextProperty, new Binding("LocationMapWarehouseCode"));
                 labelLocationMapSectionName.SetBinding(Label.TextProperty, new Binding("LocationMapSectionName"));
@@ -855,7 +855,7 @@ namespace dMobile.View.Activity
         /// <returns></returns>
         private string GetDataViewProductOnlyPickingQuery()
         {
-            string sql = string.Empty;
+            var sql = string.Empty;
 
             if (this.LocMap.CurrLocMap.IsSlotTracked && this.LocMap.CurrLocMap.SlotLocMapRefno > 0)
             {
@@ -871,9 +871,9 @@ namespace dMobile.View.Activity
             else if (this.LocMap.CurrLocMap.IsSlotTracked && this.LocMap.CurrLocMap.SlotLocMapRefno <= 0)
             {
                 // find all the slots for the selected section
-                string sub = "(SELECT tLocationMapSlot.LocationMapRefno "
-                    + "FROM tLocationMapSlot "
-                    + "WHERE (tLocationMapSlot.SectionLocationMapRefno = " + this.LocMap.CurrLocMapRefno + "))";
+                var sub = "(SELECT tLocationMapSlot.LocationMapRefno "
+                          + "FROM tLocationMapSlot "
+                          + "WHERE (tLocationMapSlot.SectionLocationMapRefno = " + this.LocMap.CurrLocMapRefno + "))";
 
                 // find all the products for the selected section slot locations
                 sql = "SELECT tProduct.ProductCode,"
@@ -906,7 +906,7 @@ namespace dMobile.View.Activity
         /// <returns></returns>
         private string GetDataViewProductOnlyReceivingQuery()
         {
-            string sql = string.Empty;
+            var sql = string.Empty;
 
             if (this.LocMap.CurrLocMap.IsSlotTracked && this.LocMap.CurrLocMap.SlotLocMapRefno > 0)
             {
@@ -922,9 +922,9 @@ namespace dMobile.View.Activity
             else if (this.LocMap.CurrLocMap.IsSlotTracked && this.LocMap.CurrLocMap.SlotLocMapRefno <= 0)
             {
                 // find all the slots for the selected section
-                string sub = "(SELECT tLocationMapSlot.LocationMapRefno "
-                    + "FROM tLocationMapSlot "
-                    + "WHERE (tLocationMapSlot.SectionLocationMapRefno = " + this.LocMap.CurrLocMapRefno + "))";
+                var sub = "(SELECT tLocationMapSlot.LocationMapRefno "
+                          + "FROM tLocationMapSlot "
+                          + "WHERE (tLocationMapSlot.SectionLocationMapRefno = " + this.LocMap.CurrLocMapRefno + "))";
 
                 // find all the products for the selected section slot locations
                 sql = "SELECT tProduct.ProductCode,"
@@ -957,12 +957,12 @@ namespace dMobile.View.Activity
         /// <returns></returns>
         private async Task<List<object>> GetDataViewProductOnly()
         {
-            List<ProductLocationMapType> listLocationMapTypes = new List<ProductLocationMapType>();
-            string queryPickingOnly = this.GetDataViewProductOnlyPickingQuery();
+            var listLocationMapTypes = new List<ProductLocationMapType>();
+            var queryPickingOnly = this.GetDataViewProductOnlyPickingQuery();
 
             if (!string.IsNullOrEmpty(queryPickingOnly))
             {
-                List<ProductLocationMapType> resultsPickingProductLocationMapType = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<ProductLocationMapType>(queryPickingOnly);
+                var resultsPickingProductLocationMapType = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<ProductLocationMapType>(queryPickingOnly);
 
                 if (resultsPickingProductLocationMapType?.Count > 0)
                 {
@@ -980,11 +980,11 @@ namespace dMobile.View.Activity
                 }
             }
 
-            string queryReceivingOnly = this.GetDataViewProductOnlyReceivingQuery();
+            var queryReceivingOnly = this.GetDataViewProductOnlyReceivingQuery();
 
             if (!string.IsNullOrEmpty(queryReceivingOnly))
             {
-                List<ProductLocationMapType> resultsReceivingProductLocationMapType = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<ProductLocationMapType>(queryReceivingOnly);
+                var resultsReceivingProductLocationMapType = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<ProductLocationMapType>(queryReceivingOnly);
 
                 if (resultsReceivingProductLocationMapType?.Count > 0)
                 {
@@ -1018,11 +1018,11 @@ namespace dMobile.View.Activity
         /// <returns></returns>
         private async Task<List<object>> GetDataViewLocationOnly()
         {
-            List<Location> locations = new List<Location>();
-            int locMapRefno = await LocationMapTasks.GetDefaultLocMapRefnoFromWhsProdRefno(this.LocMap.CurrLocMap.WhsLocMapRefno, this.ActItem.ProdInfo.Refno, SysCommon.ProdLocMapTypes.Picking);
-            SLocMap locMap = await LocationMapTasks.GetSLocMapFromLocMapRefno(locMapRefno);
+            var locations = new List<Location>();
+            var locMapRefno = await LocationMapTasks.GetDefaultLocMapRefnoFromWhsProdRefno(this.LocMap.CurrLocMap.WhsLocMapRefno, this.ActItem.ProdInfo.Refno, SysCommon.ProdLocMapTypes.Picking);
+            var locMap = await LocationMapTasks.GetSLocMapFromLocMapRefno(locMapRefno);
 
-            Location pickingLocation = new Location()
+            var pickingLocation = new Location()
             {
                 LocationMapWarehouseCode = locMap.WhsCode,
                 LocationMapSectionName = locMap.SectName,
@@ -1033,7 +1033,7 @@ namespace dMobile.View.Activity
             locMapRefno = await LocationMapTasks.GetDefaultLocMapRefnoFromWhsProdRefno(this.LocMap.CurrLocMap.WhsLocMapRefno, this.ActItem.ProdInfo.Refno, SysCommon.ProdLocMapTypes.Receiving);
             locMap = await LocationMapTasks.GetSLocMapFromLocMapRefno(locMapRefno);
 
-            Location receivingLocation = new Location()
+            var receivingLocation = new Location()
             {
                 LocationMapWarehouseCode = locMap.WhsCode,
                 LocationMapSectionName = locMap.SectName,
@@ -1112,7 +1112,7 @@ namespace dMobile.View.Activity
                 {
                     await Device.InvokeOnMainThreadAsync(async () =>
                     {
-                        FormErrorReport errRpt = new FormErrorReport(this.ActSubType, ex);
+                        var errRpt = new FormErrorReport(this.ActSubType, ex);
                         _ = await errRpt.ShowDialog();
                     });
                 }

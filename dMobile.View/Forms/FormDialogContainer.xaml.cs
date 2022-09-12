@@ -28,7 +28,7 @@ namespace dMobile.View.Forms
         public FormDialogContainer(EDialogTypes modelType, SysCommon.ActSubTypes actSubType)
         {
             this.InitializeComponent();
-            IDMobileModal model = modelType switch
+            var model = modelType switch
             {
                 EDialogTypes.RefreshDataStatus => new ucRefreshDataStatus(actSubType),
                 EDialogTypes.ActivityInventoryInquiry => new ActivityInventoryInquiry(),
@@ -87,7 +87,7 @@ namespace dMobile.View.Forms
         {
             this.InitializeComponent();
 
-            string msg = $"Model object for {SysCommon.SourceEnum2String(modelType)}.";
+            var msg = $"Model object for {SysCommon.SourceEnum2String(modelType)}.";
             IDMobileModal model = modelType switch
             {
                 EDialogTypes.ActivityShippingLabelEdit => new ActivityShippingLabelEdit(
@@ -147,7 +147,7 @@ namespace dMobile.View.Forms
             SysCommon.ActSubTypes actSubType)
         {
             this.InitializeComponent();
-            IDMobileModal model = modelType switch
+            var model = modelType switch
             {
                 EDialogTypes.RefreshDataStatus => new ucRefreshDataStatus(actSubType),
                 EDialogTypes.ActivityInventoryInquiry => new ActivityInventoryInquiry(),
@@ -204,7 +204,7 @@ namespace dMobile.View.Forms
             SysCommon.ActSubTypes callingActSubType = SysCommon.ActSubTypes.SkidInfo)
         {
             this.InitializeComponent();
-            IDMobileModal model = modelType switch
+            var model = modelType switch
             {
                 EDialogTypes.RefreshDataStatus => new ucRefreshDataStatus(actSubType),
                 EDialogTypes.ActivityInventoryInquiry => new ActivityInventoryInquiry(actItem.ProdInfo),
@@ -256,7 +256,7 @@ namespace dMobile.View.Forms
         public FormDialogContainer(EDialogTypes modelType, ActDetail actDetail, SysCommon.ActSubTypes actSubType)
         {
             this.InitializeComponent();
-            IDMobileModal model = modelType switch
+            var model = modelType switch
             {
                 EDialogTypes.RefreshDataStatus => new ucRefreshDataStatus(actSubType),
                 EDialogTypes.ActivityInventoryInquiry => new ActivityInventoryInquiry(actDetail.ActItem.ProdInfo),
@@ -309,7 +309,7 @@ namespace dMobile.View.Forms
         {
             this.InitializeComponent();
 
-            string msg = $"Model object for {SysCommon.SourceEnum2String(modelType)}.";
+            var msg = $"Model object for {SysCommon.SourceEnum2String(modelType)}.";
             IDMobileModal model = modelType switch
             {
                 EDialogTypes.SelectLocationMap => new ucSetLocationMap(defaultWhsLocMapRefno, lockWhsSelection),

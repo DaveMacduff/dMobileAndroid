@@ -64,7 +64,7 @@ namespace dMobile.View.Menus
                     this.DisableControls();
                     this.IsControlLoaded = false;
 
-                    ucInventoryMovementMenu inventoryMovementMenu = new ucInventoryMovementMenu();
+                    var inventoryMovementMenu = new ucInventoryMovementMenu();
                     await inventoryMovementMenu.Show();
                 }
                 else if (keycode == Keycode.Num1 && this.cmdMovement.IsEnabled)
@@ -72,7 +72,7 @@ namespace dMobile.View.Menus
                     this.DisableControls();
                     this.IsControlLoaded = false;
 
-                    ucInventoryMovementMenu inventoryMovementMenu = new ucInventoryMovementMenu();
+                    var inventoryMovementMenu = new ucInventoryMovementMenu();
                     await inventoryMovementMenu.Show();
                 }
                 else if (keycode == Keycode.Num2 && this.cmdConvertUnits.IsEnabled)
@@ -80,7 +80,7 @@ namespace dMobile.View.Menus
                     this.DisableControls();
                     this.IsControlLoaded = false;
 
-                    ActivityConvertUnit convertUnit = new ActivityConvertUnit();
+                    var convertUnit = new ActivityConvertUnit();
                     await convertUnit.Show();
                 }
                 else if (keycode == Keycode.Num3 && this.cmdInventoryCounts.IsEnabled)
@@ -88,7 +88,7 @@ namespace dMobile.View.Menus
                     this.DisableControls();
                     this.IsControlLoaded = false;
 
-                    ucInventoryCountsMenu countsMenu = new ucInventoryCountsMenu();
+                    var countsMenu = new ucInventoryCountsMenu();
                     await countsMenu.Show();
                 }
                 else if (keycode == Keycode.Num4 && this.cmdSkidMaintenance.IsEnabled)
@@ -96,7 +96,7 @@ namespace dMobile.View.Menus
                     this.DisableControls();
                     this.IsControlLoaded = false;
 
-                    ActivityHdrSkidInfo skidInfo = new ActivityHdrSkidInfo();
+                    var skidInfo = new ActivityHdrSkidInfo();
                     _ = await skidInfo.ShowDialog();
                 }
                 else if (keycode == Keycode.Num5 && this.cmdInquiry.IsEnabled)
@@ -104,7 +104,7 @@ namespace dMobile.View.Menus
                     this.DisableControls();
                     this.IsControlLoaded = false;
 
-                    ActivityInventoryInquiry inquiry = new ActivityInventoryInquiry();
+                    var inquiry = new ActivityInventoryInquiry();
                     _ = await inquiry.ShowDialog();
                 }
                 else if (keycode == Keycode.Num6 && this.cmdAdjustments.IsEnabled)
@@ -112,7 +112,7 @@ namespace dMobile.View.Menus
                     this.DisableControls();
                     this.IsControlLoaded = false;
 
-                    ucInventoryAdjustmentsMenu adjustmentsMenu = new ucInventoryAdjustmentsMenu();
+                    var adjustmentsMenu = new ucInventoryAdjustmentsMenu();
                     await adjustmentsMenu.Show();
                 }
             });
@@ -227,7 +227,7 @@ namespace dMobile.View.Menus
         /// <remarks></remarks>
         public async Task<XDocument> GetXML()
         {
-            XDocument xmldocParams = XDocument.Parse(
+            var xmldocParams = XDocument.Parse(
                 "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>"
                 + "<params>"
                 + "</params>");
@@ -343,7 +343,7 @@ namespace dMobile.View.Menus
             this.DisableControls();
             this.IsControlLoaded = false;
 
-            ucInventoryMovementMenu inventoryMovementMenu = new ucInventoryMovementMenu();
+            var inventoryMovementMenu = new ucInventoryMovementMenu();
             await inventoryMovementMenu.Show();
         }
 
@@ -358,7 +358,7 @@ namespace dMobile.View.Menus
             this.DisableControls();
             this.IsControlLoaded = false;
 
-            ActivityConvertUnit convertUnit = new ActivityConvertUnit();
+            var convertUnit = new ActivityConvertUnit();
             await convertUnit.Show();
         }
 
@@ -373,7 +373,7 @@ namespace dMobile.View.Menus
             this.DisableControls();
             this.IsControlLoaded = false;
 
-            ucInventoryCountsMenu countsMenu = new ucInventoryCountsMenu();
+            var countsMenu = new ucInventoryCountsMenu();
             await countsMenu.Show();
         }
 
@@ -388,7 +388,7 @@ namespace dMobile.View.Menus
             this.DisableControls();
             this.IsControlLoaded = false;
 
-            ActivityHdrSkidInfo skidInfo = new ActivityHdrSkidInfo();
+            var skidInfo = new ActivityHdrSkidInfo();
             _ = await skidInfo.ShowDialog();
         }
 
@@ -403,7 +403,7 @@ namespace dMobile.View.Menus
             this.DisableControls();
             this.IsControlLoaded = false;
 
-            ActivityInventoryInquiry inquiry = new ActivityInventoryInquiry();
+            var inquiry = new ActivityInventoryInquiry();
             _ = await inquiry.ShowDialog();
         }
 
@@ -418,7 +418,7 @@ namespace dMobile.View.Menus
             this.DisableControls();
             this.IsControlLoaded = false;
 
-            ucInventoryAdjustmentsMenu adjustmentsMenu = new ucInventoryAdjustmentsMenu();
+            var adjustmentsMenu = new ucInventoryAdjustmentsMenu();
             await adjustmentsMenu.Show();
         }
 

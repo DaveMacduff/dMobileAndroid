@@ -172,11 +172,11 @@ namespace dMobile.View.Options
         /// <remarks></remarks>
         public async Task<bool> IsReadyToSave()
         {
-            bool isReadyToSave = true;
+            var isReadyToSave = true;
 
             try
             {
-                int maxPort = Convert.ToInt32(int.Parse(this.updnBasePort.Text) + int.Parse(this.updnMaxPorts.Text) - 1);
+                var maxPort = Convert.ToInt32(int.Parse(this.updnBasePort.Text) + int.Parse(this.updnMaxPorts.Text) - 1);
 
                 isReadyToSave = isReadyToSave && int.Parse(this.updnBasePort.Text) >= this.MinPort && int.Parse(this.updnBasePort.Text) <= this.MaxPort;
                 isReadyToSave = isReadyToSave && int.Parse(this.updnMaxPorts.Text) >= this.MinPort && int.Parse(this.updnMaxPorts.Text) <= this.MaxNumberOfPorts;
@@ -201,7 +201,7 @@ namespace dMobile.View.Options
 
                 await Device.InvokeOnMainThreadAsync(async () =>
                 {
-                    FormErrorReport errorReport = new FormErrorReport(SysCommon.ActSubTypes.CommunicationSetup, /*this,*/ ex);
+                    var errorReport = new FormErrorReport(SysCommon.ActSubTypes.CommunicationSetup, /*this,*/ ex);
                     _ = await errorReport.ShowDialog();
                 });
             }
@@ -216,7 +216,7 @@ namespace dMobile.View.Options
         /// <remarks></remarks>
         public async Task<bool> SaveChanges()
         {
-            bool isSaveComplete = false;
+            var isSaveComplete = false;
 
             try
             {
@@ -230,7 +230,7 @@ namespace dMobile.View.Options
                     this.SysEnv.CommSetup.DefaultSocketPort = int.Parse(this.updnDefaultPort.Text);
                     this.SysEnv.CommSetup.MaxSocketPorts = int.Parse(this.updnMaxPorts.Text);
 
-                    CommunicationSetup tempCommSetup = this.SysEnv.CommSetup;
+                    var tempCommSetup = this.SysEnv.CommSetup;
                     isSaveComplete = this.SysEnv.CommSetup.SaveData(ref tempCommSetup);
 
                     this.IsChangesMade = false;
@@ -253,7 +253,7 @@ namespace dMobile.View.Options
             {
                 await Device.InvokeOnMainThreadAsync(async () =>
                 {
-                    FormErrorReport errorReport = new FormErrorReport(SysCommon.ActSubTypes.CommunicationSetup, /*this,*/ ex);
+                    var errorReport = new FormErrorReport(SysCommon.ActSubTypes.CommunicationSetup, /*this,*/ ex);
                     _ = await errorReport.ShowDialog();
                 });
             }
@@ -268,7 +268,7 @@ namespace dMobile.View.Options
         /// <remarks></remarks>
         public async Task<bool> IsReadyToClose()
         {
-            bool isReadyToClose = true;
+            var isReadyToClose = true;
 
             try
             {
@@ -309,7 +309,7 @@ namespace dMobile.View.Options
                 // }
                 await Device.InvokeOnMainThreadAsync(async () =>
                 {
-                    FormErrorReport errorReport = new FormErrorReport(SysCommon.ActSubTypes.CommunicationSetup, /*this,*/ ex);
+                    var errorReport = new FormErrorReport(SysCommon.ActSubTypes.CommunicationSetup, /*this,*/ ex);
                     _ = await errorReport.ShowDialog();
                 });
             }
@@ -324,7 +324,7 @@ namespace dMobile.View.Options
         /// <remarks></remarks>
         public async Task<bool> CancelChanges()
         {
-            bool cancelChanges = true;
+            var cancelChanges = true;
 
             try
             {
@@ -365,7 +365,7 @@ namespace dMobile.View.Options
                 // }
                 await Device.InvokeOnMainThreadAsync(async () =>
                 {
-                    FormErrorReport errorReport = new FormErrorReport(SysCommon.ActSubTypes.CommunicationSetup, /*this,*/ ex);
+                    var errorReport = new FormErrorReport(SysCommon.ActSubTypes.CommunicationSetup, /*this,*/ ex);
                     _ = await errorReport.ShowDialog();
                 });
             }
@@ -380,7 +380,7 @@ namespace dMobile.View.Options
         /// <remarks></remarks>
         public async Task<XDocument> GetXML()
         {
-            XDocument xmldocParams = XDocument.Parse(
+            var xmldocParams = XDocument.Parse(
                       "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>"
                       + "<params>"
                       + "</params>");
@@ -487,7 +487,7 @@ namespace dMobile.View.Options
                 // Default Socket Port
                 // if (sender == this.updnDefaultPort)
                 // {
-                int maxPort = (int)(int.Parse(this.updnBasePort.Text) + int.Parse(this.updnMaxPorts.Text) - 1);
+                var maxPort = (int)(int.Parse(this.updnBasePort.Text) + int.Parse(this.updnMaxPorts.Text) - 1);
 
                 if ((int.Parse(this.updnDefaultPort.Text) < int.Parse(this.updnBasePort.Text) || int.Parse(this.updnDefaultPort.Text) > this.MaxPort) == true)
                 {
@@ -516,7 +516,7 @@ namespace dMobile.View.Options
                 // }
                 Device.BeginInvokeOnMainThread(async () =>
                 {
-                    FormErrorReport errorReport = new FormErrorReport(SysCommon.ActSubTypes.CommunicationSetup, /*this,*/ ex);
+                    var errorReport = new FormErrorReport(SysCommon.ActSubTypes.CommunicationSetup, /*this,*/ ex);
                     _ = await errorReport.ShowDialog();
                 });
             }
@@ -553,7 +553,7 @@ namespace dMobile.View.Options
                 // }
                 Device.BeginInvokeOnMainThread(async () =>
                 {
-                    FormErrorReport errorReport = new FormErrorReport(SysCommon.ActSubTypes.CommunicationSetup, /*this,*/ ex);
+                    var errorReport = new FormErrorReport(SysCommon.ActSubTypes.CommunicationSetup, /*this,*/ ex);
                     _ = await errorReport.ShowDialog();
                 });
             }
@@ -569,7 +569,7 @@ namespace dMobile.View.Options
         {
             // Needed to check if the enter key was pressed last, because it seems that
             // SelectNextControl causes a click event to fire if it is the next control
-            ucCommunicationSetupAdvanced setupAdvanced = new ucCommunicationSetupAdvanced();
+            var setupAdvanced = new ucCommunicationSetupAdvanced();
             await setupAdvanced.Show();
         }
 
@@ -586,7 +586,7 @@ namespace dMobile.View.Options
             if (await this.SaveChanges())
             {
                 await this.Connect();
-                ucCommunicationSetupStatus status = new ucCommunicationSetupStatus();
+                var status = new ucCommunicationSetupStatus();
                 status.ExtraInfoItems = this.ExtraInfoItems;
                 _ = await status.ShowDialog();
             }
@@ -634,7 +634,7 @@ namespace dMobile.View.Options
                 Socket socket;
                 int bytesSent;
                 List<byte> bytRecvData;
-                string reqData = string.Empty;
+                var reqData = string.Empty;
 
                 this.ExtraInfoItems.Clear();
                 // this.lstCommMsg.ItemsSource = null;
@@ -713,9 +713,9 @@ namespace dMobile.View.Options
 
                         if (reqData.Contains("<message>ERROR</message>"))
                         {
-                            XmlDocument docError = new XmlDocument();
+                            var docError = new XmlDocument();
                             docError.LoadXml(reqData);
-                            string errorDetail = docError.DocumentElement["detail"].InnerText;
+                            var errorDetail = docError.DocumentElement["detail"].InnerText;
 
                             this.AddCommMsg(this, EventArgs.Empty, "Submit device id error.");
                             this.AddCommMsg(this, EventArgs.Empty, errorDetail);

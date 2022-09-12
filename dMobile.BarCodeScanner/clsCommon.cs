@@ -169,19 +169,19 @@ namespace dMobile.BarCodeScanner
                BarCodeSymbologies barCodeSymbology,
                decimal deliScaleAmount)
         {
-            SysEnvironment sysEnv = SysEnvironment.GetInstance();
-            DeliProductInfo unitRefnoFromBarCode = new DeliProductInfo();
+            var sysEnv = SysEnvironment.GetInstance();
+            var unitRefnoFromBarCode = new DeliProductInfo();
 
             if (!sysEnv.SysSettings.IsDisconnectedMode)
             {
-                StringBuilder xmlString = new StringBuilder();
-                XmlWriter xml = XmlWriter.Create(xmlString);
-                string revisionDateTime = sysEnv.RefreshOpt.RefreshedDataLast.ToString(
+                var xmlString = new StringBuilder();
+                var xml = XmlWriter.Create(xmlString);
+                var revisionDateTime = sysEnv.RefreshOpt.RefreshedDataLast.ToString(
                     "yyyy'-'MM'-'dd'T'HH':'mm':'ss");
-                string currentDateTime = DateTime.Now.ToString("yyyy'-'MM'-'dd'T'HH':'mm':'ss");
-                XmlDocument result = new XmlDocument();
+                var currentDateTime = DateTime.Now.ToString("yyyy'-'MM'-'dd'T'HH':'mm':'ss");
+                var result = new XmlDocument();
 
-                XDocument request = new XDocument(
+                var request = new XDocument(
                     new XDeclaration("1.0", "utf-16", "yes"),
                     string.Empty,
                     new XElement(
@@ -200,7 +200,7 @@ namespace dMobile.BarCodeScanner
                 xml.Flush();
                 xml.Close();
 
-                string data = SysCommon.SubmitComm(xmlString.ToString());
+                var data = SysCommon.SubmitComm(xmlString.ToString());
                 if (data.Length > 0)
                 {
                     result.LoadXml(data);
@@ -237,7 +237,7 @@ namespace dMobile.BarCodeScanner
                             unitRefnoFromBarCode.ProdInfo.UnitCode = result.SelectSingleNode(
                                 "/VFPData/ProductUnitCode").FirstChild.Value;
 
-                            List<tProductModel> productList = await DatabaseConnection.GetInstance().
+                            var productList = await DatabaseConnection.GetInstance().
                                 SQLConn.QueryAsync<tProductModel>(
                                 "SELECT * FROM tProduct WHERE ProductFKRefno = ?",
                                 Convert.ToInt32(unitRefnoFromBarCode.ProdInfo.FKRefno));
@@ -246,16 +246,16 @@ namespace dMobile.BarCodeScanner
                             {
                                 unitRefnoFromBarCode.ProdInfo.Refno = productList[0].ProductRefno;
 
-                                List<tUnitModel> unitList = await DatabaseConnection.GetInstance().
+                                var unitList = await DatabaseConnection.GetInstance().
                                     SQLConn.QueryAsync<tUnitModel>(
                                     "SELECT * FROM tUnit WHERE UnitCode = ?",
                                     Convert.ToString(unitRefnoFromBarCode.ProdInfo.UnitCode));
 
                                 if (unitList != null && unitList.Count > 0)
                                 {
-                                    int unitRefno = unitList[0].UnitRefno;
+                                    var unitRefno = unitList[0].UnitRefno;
 
-                                    List<tProductUnitModel> productUnitList = await DatabaseConnection.
+                                    var productUnitList = await DatabaseConnection.
                                         GetInstance().SQLConn.QueryAsync<tProductUnitModel>(
                                         "SELECT * FROM tProductUnit WHERE ProductRefno = ?" +
                                             " AND UnitRefno = ? AND ProductUnitIsBC = ?",
@@ -289,10 +289,10 @@ namespace dMobile.BarCodeScanner
         /// <returns><see cref="string"/> Assembly information.</returns>
         public string GetAssemblyVersion()
         {
-            int major = Assembly.GetExecutingAssembly().GetName().Version.Major;
-            int minor = Assembly.GetExecutingAssembly().GetName().Version.Minor;
-            int build = Assembly.GetExecutingAssembly().GetName().Version.Build;
-            int revision = Assembly.GetExecutingAssembly().GetName().Version.Revision;
+            var major = Assembly.GetExecutingAssembly().GetName().Version.Major;
+            var minor = Assembly.GetExecutingAssembly().GetName().Version.Minor;
+            var build = Assembly.GetExecutingAssembly().GetName().Version.Build;
+            var revision = Assembly.GetExecutingAssembly().GetName().Version.Revision;
             return string.Format("{0}.{1}.{2}.{3}", major, minor, build, revision);
         }
     }

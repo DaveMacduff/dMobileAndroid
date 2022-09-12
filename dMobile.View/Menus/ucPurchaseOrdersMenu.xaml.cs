@@ -55,28 +55,28 @@ namespace dMobile.View.Menus
                 {
                     this.DisableControls();
                     this.IsControlLoaded = false;
-                    ActivityHdr worksheet = new ActivityHdr(SysCommon.ActSubTypes.PurchaseOrderWorkSheet);
+                    var worksheet = new ActivityHdr(SysCommon.ActSubTypes.PurchaseOrderWorkSheet);
                     await worksheet.Show();
                 }
                 else if (keycode == Keycode.Num1 && this.cmdReceiving.IsEnabled)
                 {
                     this.DisableControls();
                     this.IsControlLoaded = false;
-                    ActivityHdr receiving = new ActivityHdr(SysCommon.ActSubTypes.Receiving);
+                    var receiving = new ActivityHdr(SysCommon.ActSubTypes.Receiving);
                     await receiving.Show();
                 }
                 else if (keycode == Keycode.Num2 && this.cmdPutAway.IsEnabled)
                 {
                     this.DisableControls();
                     this.IsControlLoaded = false;
-                    ActivitySkidPutAway putAway = new ActivitySkidPutAway();
+                    var putAway = new ActivitySkidPutAway();
                     await putAway.Show();
                 }
                 else if (keycode == Keycode.Num3 && this.cmdWorkSheet.IsEnabled)
                 {
                     this.DisableControls();
                     this.IsControlLoaded = false;
-                    ActivityHdr worksheet = new ActivityHdr(SysCommon.ActSubTypes.PurchaseOrderWorkSheet);
+                    var worksheet = new ActivityHdr(SysCommon.ActSubTypes.PurchaseOrderWorkSheet);
                     await worksheet.Show();
                 }
             });
@@ -191,7 +191,7 @@ namespace dMobile.View.Menus
         /// <remarks></remarks>
         public async Task<XDocument> GetXML()
         {
-            XDocument xmldocParams = XDocument.Parse(
+            var xmldocParams = XDocument.Parse(
                 "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>"
                 + "<params>"
                 + "</params>");
@@ -277,7 +277,7 @@ namespace dMobile.View.Menus
         {
             this.DisableControls();
             this.IsControlLoaded = false;
-            ActivityHdr receiving = new ActivityHdr(SysCommon.ActSubTypes.Receiving);
+            var receiving = new ActivityHdr(SysCommon.ActSubTypes.Receiving);
             await receiving.Show();
         }
 
@@ -291,7 +291,7 @@ namespace dMobile.View.Menus
         {
             this.DisableControls();
             this.IsControlLoaded = false;
-            ActivitySkidPutAway putAway = new ActivitySkidPutAway();
+            var putAway = new ActivitySkidPutAway();
             await putAway.Show();
         }
 
@@ -305,7 +305,7 @@ namespace dMobile.View.Menus
         {
             this.DisableControls();
             this.IsControlLoaded = false;
-            ActivityPurchaseOrderWorkSheet worksheet = new ActivityPurchaseOrderWorkSheet(SysCommon.ActSubTypes.PurchaseOrderWorkSheet);
+            var worksheet = new ActivityPurchaseOrderWorkSheet(SysCommon.ActSubTypes.PurchaseOrderWorkSheet);
             await worksheet.Show();
         }
     }

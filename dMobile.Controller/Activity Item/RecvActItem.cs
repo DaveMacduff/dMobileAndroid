@@ -77,9 +77,9 @@ namespace dMobile.Controller
             this.IsAskCreateNewItem = !this.SysEnv.SysSettings.IsReceivingCreateNewItemNoAsk;
 
             // Data grid
-            DataTemplate dataTemplate = new DataTemplate(() =>
+            var dataTemplate = new DataTemplate(() =>
             {
-                Grid gridData = new Grid
+                var gridData = new Grid
                 {
                     Padding = new Thickness(5),
                     ColumnDefinitions =
@@ -93,12 +93,12 @@ namespace dMobile.Controller
                     },
                 };
 
-                Label labelIsActivityItemReceivingCommentItem = new Label { VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start };
-                Label labelProductCodeItem = new Label { VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start };
-                Label labelProductUnitBCItem = new Label { VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start };
-                Label labelUnitCodeItem = new Label { VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start };
-                Label labelActivityItemReceivingQuantityOrderedItem = new Label { VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start };
-                Label labelActivityItemReceivingQuantityReceivedItem = new Label { VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start };
+                var labelIsActivityItemReceivingCommentItem = new Label { VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start };
+                var labelProductCodeItem = new Label { VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start };
+                var labelProductUnitBCItem = new Label { VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start };
+                var labelUnitCodeItem = new Label { VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start };
+                var labelActivityItemReceivingQuantityOrderedItem = new Label { VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start };
+                var labelActivityItemReceivingQuantityReceivedItem = new Label { VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start };
 
                 labelIsActivityItemReceivingCommentItem.SetBinding(Label.TextProperty, new Binding("IsActivityItemReceivingComment"));
                 labelProductCodeItem.SetBinding(Label.TextProperty, new Binding("ProductCode"));
@@ -124,10 +124,10 @@ namespace dMobile.Controller
                 return new ViewCell { View = gridData };
             });
 
-            bool isAddKey = true;
+            var isAddKey = true;
             foreach (var item in this.resourceDictionary)
             {
-                if (item.Key == "dataTemplate")
+                if (item.Key == "dataTemplateReceivingItem")
                 {
                     isAddKey = false;
                 }
@@ -135,7 +135,7 @@ namespace dMobile.Controller
 
             if (isAddKey)
             {
-                this.resourceDictionary.Add("dataTemplate", dataTemplate);
+                this.resourceDictionary.Add("dataTemplateReceivingItem", dataTemplate);
             }
         }
 
@@ -148,7 +148,7 @@ namespace dMobile.Controller
             this.SelectedListItemIdx = -1;
             if (actItemFoundRefno >= 0)
             {
-                int idx = 0;
+                var idx = 0;
                 foreach (ReceiveItem item in this.ListItems)
                 {
                     if (item.ActivityItemRefno == this.ItemRefno)
@@ -182,7 +182,7 @@ namespace dMobile.Controller
         /// <returns>.</returns>
         public override bool IsCatchAsk()
         {
-            bool isCatchAsk = this.ProdInfo.IsCatchAsk;
+            var isCatchAsk = this.ProdInfo.IsCatchAsk;
 
             if (isCatchAsk)
             {
@@ -199,7 +199,7 @@ namespace dMobile.Controller
         /// <returns>.</returns>
         public override bool IsCatchAskZero()
         {
-            bool result = this.IsCatchAsk();
+            var result = this.IsCatchAsk();
             if (result && this.ProdInfo.IsCatchAskZero)
             {
                 result = !this.SysEnv.SysSettings.IsReceivingNoCatchAskZeroEnabled;
@@ -216,21 +216,21 @@ namespace dMobile.Controller
         {
             if (!this.SysEnv.SysSettings.IsDisconnectedMode)
             {
-                string sendReq = await this.CreateDeleteXML(XDocument.Parse(
+                var sendReq = await this.CreateDeleteXML(XDocument.Parse(
                     "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>"
                     + "<params>"
                     + "<skid_data>" + this.ActHdr.SkidInfo.CurrSkid.SkidCode + "</skid_data>"
                     + "</params>"));
 
-                string reqData = SysCommon.SubmitComm(sendReq);
+                var reqData = SysCommon.SubmitComm(sendReq);
 
                 if (reqData.Length > 0)
                 {
                     if (reqData.Contains("<message>ERROR</message>"))
                     {
-                        XmlDocument docError = new XmlDocument();
+                        var docError = new XmlDocument();
                         docError.LoadXml(reqData);
-                        string errorDetail = docError.DocumentElement["detail"].InnerText;
+                        var errorDetail = docError.DocumentElement["detail"].InnerText;
 
                         if (errorDetail.Contains("MSGBOX-"))
                         {
@@ -254,8 +254,8 @@ namespace dMobile.Controller
         /// <returns>.</returns>
         public async override Task<string> CreateDeleteXML(XDocument data)
         {
-            StringBuilder xmlString = new StringBuilder();
-            XmlWriter xml = XmlWriter.Create(xmlString);
+            var xmlString = new StringBuilder();
+            var xml = XmlWriter.Create(xmlString);
             XDocument request;
             if (data.Document.Root.Element("skid_data") == null)
             {
@@ -292,11 +292,11 @@ namespace dMobile.Controller
         /// <returns>.</returns>
         public override async Task<string> GetComment(object selectedActivityItem)
         {
-            string cmmt = string.Empty;
+            var cmmt = string.Empty;
 
             if (selectedActivityItem is ReceiveItem receiveItem)
             {
-                List<tActivityItemReceivingCommentModel> results = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<tActivityItemReceivingCommentModel>("SELECT * FROM tActivityItemReceivingComment WHERE ActivityItemRefno = ?", receiveItem.ActivityItemRefno);
+                var results = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<tActivityItemReceivingCommentModel>("SELECT * FROM tActivityItemReceivingComment WHERE ActivityItemRefno = ?", receiveItem.ActivityItemRefno);
 
                 if (results != null && results.Count > 0)
                 {
@@ -315,7 +315,7 @@ namespace dMobile.Controller
         /// <returns><see cref="int"/> Location map reference number.</returns>
         public override async Task<int> GetDefaultLocMapRefno(int whsLocMapRefno, int prodRefno)
         {
-            int locMapRefno = 0;
+            var locMapRefno = 0;
 
             if (this.SelectedActivityItem is ReceiveItem item)
             {
@@ -407,8 +407,8 @@ namespace dMobile.Controller
             {
                 this.DataLayerProgressOutHandler(this, new EventArgs(), 2);
 
-                TableActivityRecevingItem tableActRecvItem = new TableActivityRecevingItem();
-                TableActivityReceivingDetail tableActRecvDetail = new TableActivityReceivingDetail();
+                var tableActRecvItem = new TableActivityRecevingItem();
+                var tableActRecvDetail = new TableActivityReceivingDetail();
                 await tableActRecvDetail.PurgeData();
                 await tableActRecvItem.PurgeData();
 
@@ -428,7 +428,7 @@ namespace dMobile.Controller
         /// <returns>The <see cref="ObservableCollection{object}"/>.</returns>
         public override ObservableCollection<object> DesignGrid(ref Grid GridMainActivity, ref ListView ListViewMainActivity)
         {
-            ObservableCollection<object> observableCollection = new ObservableCollection<object>();
+            var observableCollection = new ObservableCollection<object>();
 
             foreach (ReceiveItem receiveItem in this.ListItems)
             {
@@ -462,12 +462,12 @@ namespace dMobile.Controller
                 observableCollection.Add(receiveItem);
             }
 
-            Label labelIsActivityItemReceivingCommentReceiving = new Label { Text = "C", VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start, FontAttributes = FontAttributes.Bold };
-            Label labelProductCodeReceiving = new Label { Text = "Product ID", VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start, FontAttributes = FontAttributes.Bold };
-            Label labelProductUnitBCReceiving = new Label { Text = string.Empty, VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start, FontAttributes = FontAttributes.Bold };
-            Label labelUnitCodeReceiving = new Label { Text = string.Empty, VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start, FontAttributes = FontAttributes.Bold };
-            Label labelActivityItemReceivingQuantityOrderedReceiving = new Label { Text = "Ordered", VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start, FontAttributes = FontAttributes.Bold };
-            Label labelActivityItemReceivingQuantityReceivedReceiving = new Label { Text = "Received", VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start, FontAttributes = FontAttributes.Bold };
+            var labelIsActivityItemReceivingCommentReceiving = new Label { Text = "C", VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start, FontAttributes = FontAttributes.Bold };
+            var labelProductCodeReceiving = new Label { Text = "Product ID", VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start, FontAttributes = FontAttributes.Bold };
+            var labelProductUnitBCReceiving = new Label { Text = string.Empty, VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start, FontAttributes = FontAttributes.Bold };
+            var labelUnitCodeReceiving = new Label { Text = string.Empty, VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start, FontAttributes = FontAttributes.Bold };
+            var labelActivityItemReceivingQuantityOrderedReceiving = new Label { Text = "Ordered", VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start, FontAttributes = FontAttributes.Bold };
+            var labelActivityItemReceivingQuantityReceivedReceiving = new Label { Text = "Received", VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start, FontAttributes = FontAttributes.Bold };
 
             this.columnWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(labelIsActivityItemReceivingCommentReceiving.Text);
             this.columnWidth1 = DependencyService.Get<IGridService>().CalculateTextWidth(labelProductCodeReceiving.Text);
@@ -477,7 +477,7 @@ namespace dMobile.Controller
             this.columnWidth5 = DependencyService.Get<IGridService>().CalculateTextWidth(labelActivityItemReceivingQuantityReceivedReceiving.Text);
 
             // Header grid
-            Grid gridHeaderReceiving = new Grid
+            var gridHeaderReceiving = new Grid
             {
                 Padding = new Thickness(5),
                 ColumnDefinitions =
@@ -513,12 +513,12 @@ namespace dMobile.Controller
 
             foreach (ReceiveItem receiveItem in observableCollection)
             {
-                double detailWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(receiveItem.IsActivityItemReceivingComment);
-                double detailWidth1 = DependencyService.Get<IGridService>().CalculateTextWidth(receiveItem.ProductCode);
-                double detailWidth2 = DependencyService.Get<IGridService>().CalculateTextWidth(receiveItem.ProductUnitBC);
-                double detailWidth3 = DependencyService.Get<IGridService>().CalculateTextWidth(receiveItem.UnitCode);
-                double detailWidth4 = DependencyService.Get<IGridService>().CalculateTextWidth(string.Format("{0:F3}", receiveItem.ActivityItemReceivingQuantityOrdered));
-                double detailWidth5 = DependencyService.Get<IGridService>().CalculateTextWidth(string.Format("{0:F3}", receiveItem.ActivityItemReceivingQuantityReceived));
+                var detailWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(receiveItem.IsActivityItemReceivingComment);
+                var detailWidth1 = DependencyService.Get<IGridService>().CalculateTextWidth(receiveItem.ProductCode);
+                var detailWidth2 = DependencyService.Get<IGridService>().CalculateTextWidth(receiveItem.ProductUnitBC);
+                var detailWidth3 = DependencyService.Get<IGridService>().CalculateTextWidth(receiveItem.UnitCode);
+                var detailWidth4 = DependencyService.Get<IGridService>().CalculateTextWidth(string.Format("{0:F3}", receiveItem.ActivityItemReceivingQuantityOrdered));
+                var detailWidth5 = DependencyService.Get<IGridService>().CalculateTextWidth(string.Format("{0:F3}", receiveItem.ActivityItemReceivingQuantityReceived));
 
                 if (detailWidth0 > this.columnWidth0)
                 {
@@ -557,7 +557,7 @@ namespace dMobile.Controller
                 }
             }
 
-            ListViewMainActivity.ItemTemplate = (DataTemplate)this.resourceDictionary["dataTemplate"];
+            ListViewMainActivity.ItemTemplate = (DataTemplate)this.resourceDictionary["dataTemplateReceivingItem"];
 
             return observableCollection;
         }
@@ -569,7 +569,7 @@ namespace dMobile.Controller
         /// <returns>.</returns>
         public override async Task<List<object>> GetActivityItemList(bool isSubmitBatch)
         {
-            StringBuilder sql = new StringBuilder();
+            var sql = new StringBuilder();
 
             if (isSubmitBatch)
             {
@@ -747,7 +747,7 @@ namespace dMobile.Controller
         /// <returns>.</returns>
         public override ObservableCollection<object> Search(string searchText)
         {
-            ObservableCollection<object> observableCollection = new ObservableCollection<object>();
+            var observableCollection = new ObservableCollection<object>();
 
             this.ListItems = this.listReceiveItems.Where(receiveItem => receiveItem.ProductCode.ToLower().Contains(searchText.ToLower().Trim())).Cast<object>().ToList();
 
@@ -809,7 +809,7 @@ namespace dMobile.Controller
                     this.ActHdr.SkidInfo.CurrSkid = new SSkidInfo();
                 }
 
-                SLocMap locMap = await this.GetSelectedItemLocation(item.LocationMapRefno);
+                var locMap = await this.GetSelectedItemLocation(item.LocationMapRefno);
 
                 if (this.SysEnv.SysSettings.IsDefaultLocToProductDefaultLoc)
                 {
@@ -852,8 +852,8 @@ namespace dMobile.Controller
         /// <returns><see cref="int"/> Found activity item reference number else 0.</returns>
         public override async Task<int> GetActivityItemRefno(int prodUnitRefno)
         {
-            int foundActItemRefno = 0;
-            StringBuilder sql = new StringBuilder();
+            var foundActItemRefno = 0;
+            var sql = new StringBuilder();
             sql.Append("SELECT tActivityItem.ActivityItemRefno,");
             sql.Append("tActivityItemReceiving.ActivityItemFKRefno,");
             sql.Append("tActivityItemReceiving.ProductUnitRefno,");
@@ -867,7 +867,7 @@ namespace dMobile.Controller
             sql.AppendFormat("AND tActivityItemReceiving.WarehouseLocationMapRefno = {0} ", this.LocMap.WhsLocMapRefno);
             sql.AppendFormat("AND tActivityItemReceiving.ProductUnitRefno = {0}", prodUnitRefno);
 
-            List<ReceiveItem> results = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<ReceiveItem>(sql.ToString());
+            var results = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<ReceiveItem>(sql.ToString());
 
             if (results != null && results.Count > 0)
             {
@@ -888,15 +888,15 @@ namespace dMobile.Controller
         /// <returns>.</returns>
         public async override Task<string> CreateSubmitXML(XDocument data)
         {
-            StringBuilder xmlString = new StringBuilder();
-            XmlWriter xml = XmlWriter.Create(xmlString);
-            string prodCode = data.Root.Element("ProductCode").Value.PadRight(10);
-            string prodUnitBarCodeCode = data.Root.Element("ProductUnitBarCodeCode").Value.PadRight(20);
-            bool prodUnitIsBC = bool.Parse(data.Root.Element("ProductUnitIsBC").Value);
-            string unitCode = data.Root.Element("UnitCode").Value;
-            string symbologyPrefix = data.Root.Element("ProductUnitBarCodeSymbologyPrefix").Value;
+            var xmlString = new StringBuilder();
+            var xml = XmlWriter.Create(xmlString);
+            var prodCode = data.Root.Element("ProductCode").Value.PadRight(10);
+            var prodUnitBarCodeCode = data.Root.Element("ProductUnitBarCodeCode").Value.PadRight(20);
+            var prodUnitIsBC = bool.Parse(data.Root.Element("ProductUnitIsBC").Value);
+            var unitCode = data.Root.Element("UnitCode").Value;
+            var symbologyPrefix = data.Root.Element("ProductUnitBarCodeSymbologyPrefix").Value;
 
-            XDocument request = XDocument.Parse(
+            var request = XDocument.Parse(
                 "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>"
                 + "<imclient>"
                 + "<command>"
@@ -962,10 +962,10 @@ namespace dMobile.Controller
         {
             if (activityItem is ReceiveItem receiveItem)
             {
-                string query = "UPDATE tActivityItemReceiving SET ActivityItemReceivingQuantityReceived = ?," +
-                    " ActivityItemReceivingBaseQuantityReceived = ?, ActivityItemReceivingWeightQuantityReceived =" +
-                    " ? WHERE ActivityItemRefno = ?";
-                object[] parameters = new object[]
+                var query = "UPDATE tActivityItemReceiving SET ActivityItemReceivingQuantityReceived = ?," +
+                            " ActivityItemReceivingBaseQuantityReceived = ?, ActivityItemReceivingWeightQuantityReceived =" +
+                            " ? WHERE ActivityItemRefno = ?";
+                var parameters = new object[]
                 {
                     receiveItem.ActivityItemReceivingQuantityReceived,
                     receiveItem.ActivityItemReceivingBaseQuantityReceived,
@@ -983,20 +983,20 @@ namespace dMobile.Controller
         /// <returns>.</returns>
         public override async Task<string> GetTotalQuantity()
         {
-            string msg = "Total received:";
-            string query = "SELECT SUM(tActivityItemReceiving.ActivityItemReceivingQuantityOrdered) AS "
-                + "Ordered,"
-                + "SUM(tActivityItemReceiving.ActivityItemReceivingQuantityReceived) AS Received "
-                + "FROM tActivityItem "
-                + "INNER JOIN tActivityItemReceiving ON tActivityItemReceiving.ActivityItemRefno = "
-                + "tActivityItem.ActivityItemRefno "
-                + string.Format("WHERE tActivityItem.ActivityRefno = {0}", this.ActHdr.HdrRefno);
+            var msg = "Total received:";
+            var query = "SELECT SUM(tActivityItemReceiving.ActivityItemReceivingQuantityOrdered) AS "
+                        + "Ordered,"
+                        + "SUM(tActivityItemReceiving.ActivityItemReceivingQuantityReceived) AS Received "
+                        + "FROM tActivityItem "
+                        + "INNER JOIN tActivityItemReceiving ON tActivityItemReceiving.ActivityItemRefno = "
+                        + "tActivityItem.ActivityItemRefno "
+                        + string.Format("WHERE tActivityItem.ActivityRefno = {0}", this.ActHdr.HdrRefno);
 
-            List<TotalQuantity> results = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<TotalQuantity>(query);
+            var results = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<TotalQuantity>(query);
 
             if (results != null && results.Count > 0)
             {
-                foreach (TotalQuantity result in results)
+                foreach (var result in results)
                 {
                     // Because an aggregate sum function is used in a query. There will always be a result record.
                     // This causes problems detecting if there is a valid result.
@@ -1058,8 +1058,8 @@ namespace dMobile.Controller
         {
             if (this.SelectedActivityItem is ReceiveItem receiveItem)
             {
-                decimal received = Convert.ToDecimal(receiveItem.ActivityItemReceivingQuantityReceived);
-                decimal ordered = Convert.ToDecimal(receiveItem.ActivityItemReceivingQuantityOrdered);
+                var received = Convert.ToDecimal(receiveItem.ActivityItemReceivingQuantityReceived);
+                var ordered = Convert.ToDecimal(receiveItem.ActivityItemReceivingQuantityOrdered);
 
                 if (received + actItemRecvQuantity > ordered)
                 {

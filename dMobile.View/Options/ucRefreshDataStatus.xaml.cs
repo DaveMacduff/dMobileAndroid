@@ -338,7 +338,7 @@ namespace dMobile.View.Options
         /// <remarks></remarks>
         public async Task<bool> IsReadyToSave()
         {
-            bool isReadyToSave = true;
+            var isReadyToSave = true;
 
             try
             {
@@ -410,7 +410,7 @@ namespace dMobile.View.Options
         /// <remarks></remarks>
         public async Task<XDocument> GetXML()
         {
-            XDocument xmldocParams = XDocument.Parse(
+            var xmldocParams = XDocument.Parse(
                 "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>"
                 + "<params>"
                 + "<IsRefreshComplete>" + this.IsRefreshComplete + "</IsRefreshComplete>"
@@ -601,7 +601,7 @@ namespace dMobile.View.Options
         /// <remarks></remarks>
         private async Task RefreshDataStatus_GotFocus(object sender, EventArgs e)
         {
-            DateTime refreshLast = new DateTime(1900, 1, 1);
+            var refreshLast = new DateTime(1900, 1, 1);
 
             this.Loading = true;
 
@@ -617,7 +617,7 @@ namespace dMobile.View.Options
                     {
                         this.StatusOut(Resource.DataStatusFailed);
 
-                        FormErrorReport errRpt = new FormErrorReport(this.ActSubType, ex, this.FullClassName, "tmrRefreshData_Tick");
+                        var errRpt = new FormErrorReport(this.ActSubType, ex, this.FullClassName, "tmrRefreshData_Tick");
                         _ = await Device.InvokeOnMainThreadAsync(async () => await errRpt.ShowDialog());
                     }
                 }
@@ -633,7 +633,7 @@ namespace dMobile.View.Options
                         if (!await Common.IsDataBaseDataExist())
                         {
                             this.SysEnv.RefreshOpt.RefreshedDataLast = new DateTime(1900, 1, 1);
-                            RefreshDataOptions tempRefreshOpt1 = this.SysEnv.RefreshOpt;
+                            var tempRefreshOpt1 = this.SysEnv.RefreshOpt;
                             _ = this.SysEnv.RefreshOpt.SaveData(ref tempRefreshOpt1);
                         }
 
@@ -645,7 +645,7 @@ namespace dMobile.View.Options
                             await this.CreateDatabase();
                             this.SysEnv.RefreshOpt.IsDataCreatedInStartUp = false;
                             this.SysEnv.RefreshOpt.RefreshedDataLast = new DateTime(1900, 1, 1);
-                            RefreshDataOptions tempRefreshOpt2 = this.SysEnv.RefreshOpt;
+                            var tempRefreshOpt2 = this.SysEnv.RefreshOpt;
                             _ = this.SysEnv.RefreshOpt.SaveData(ref tempRefreshOpt2);
 
                             // Assign the last refresh date to DateSerial(1900, 1, 1) because after the database is recreated
@@ -668,7 +668,7 @@ namespace dMobile.View.Options
                         else
                         {
                             this.StatusOut(Resource.RefreshDataCompleted);
-                            TimeSpan span = DateTime.Now - this.RefreshTotal;
+                            var span = DateTime.Now - this.RefreshTotal;
                             this.StatusOut(string.Format(Resource.RefreshMinutes0, span.TotalMinutes));
                         }
 
@@ -683,7 +683,7 @@ namespace dMobile.View.Options
 
                         this.StatusOut(Resource.RefreshDataFailed);
 
-                        FormErrorReport errRpt = new FormErrorReport(this.ActSubType, /*this,*/ ex, this.FullClassName, "tmrRefreshData_Tick");
+                        var errRpt = new FormErrorReport(this.ActSubType, /*this,*/ ex, this.FullClassName, "tmrRefreshData_Tick");
                         _ = await Device.InvokeOnMainThreadAsync(async () => await errRpt.ShowDialog());
                     }
                     catch (Exception ex)
@@ -693,13 +693,13 @@ namespace dMobile.View.Options
 
                         this.StatusOut(Resource.RefreshDataFailed);
 
-                        FormErrorReport errRpt = new FormErrorReport(this.ActSubType, /*this,*/ ex, this.FullClassName, "tmrRefreshData_Tick");
+                        var errRpt = new FormErrorReport(this.ActSubType, /*this,*/ ex, this.FullClassName, "tmrRefreshData_Tick");
                         _ = await Device.InvokeOnMainThreadAsync(async () => await errRpt.ShowDialog());
                     }
                     finally
                     {
                         this.SysEnv.RefreshOpt.IsRefreshedLastDataChangesOnly = this.SysEnv.RefreshOpt.RefreshDataChangesOnly;
-                        RefreshDataOptions tempRefreshOpt3 = this.SysEnv.RefreshOpt;
+                        var tempRefreshOpt3 = this.SysEnv.RefreshOpt;
                         _ = this.SysEnv.RefreshOpt.SaveData(ref tempRefreshOpt3);
                     }
                 }
@@ -715,11 +715,11 @@ namespace dMobile.View.Options
         /// <remarks></remarks>
         private async Task CreateDatabase()
         {
-            DatabaseNub db = new DatabaseNub();
+            var db = new DatabaseNub();
 
             try
             {
-                bool isCreateDatabase = true;
+                var isCreateDatabase = true;
 
                 db.RegNubListenerStatOut(this);
 
@@ -748,7 +748,7 @@ namespace dMobile.View.Options
 
                     this.StatusOut(Resource.SeedingSystemUsers);
 
-                    TableContactUsers users = new TableContactUsers();
+                    var users = new TableContactUsers();
                     await users.SeedContactUsersWithSystemUsers();
 
                     this.StatusOut(Resource.DatabaseCreationCompleted);
@@ -789,11 +789,11 @@ namespace dMobile.View.Options
         {
             this.SysEnv.SysSettings.RegisterSysSettingsListenerStatusOut((ISysSettingsEventListener)this);
             this.SysEnv.SysSettings.RegisterSysSettingsListenerProgressOut((ISysSettingsEventListener)this);
-            SystemSettings settings = this.SysEnv.SysSettings;
+            var settings = this.SysEnv.SysSettings;
             SystemSettingsTasks.RequestSystemSettings(ref settings);
             this.SysEnv.SysSettings = settings;
 
-            SystemSettings tempSystemSettings = this.SysEnv.SysSettings;
+            var tempSystemSettings = this.SysEnv.SysSettings;
             _ = SystemSettingsTasks.SaveData(ref tempSystemSettings);
 
             this.SysEnv.SysSettings.UnregisterSysSettingsListenerStatusOut((ISysSettingsEventListener)this);
@@ -803,7 +803,7 @@ namespace dMobile.View.Options
             this.SysEnv.BarCodeSettings.RegisterBarCodeSettingsListenerStatusOut((IBarCodeSettingsEventListener)this);
             this.SysEnv.BarCodeSettings.RegisterBarCodeSettingsListenerProgressOut((IBarCodeSettingsEventListener)this);
             this.SysEnv.BarCodeSettings.RequestBarCodeSettings();
-            SysBarCodeSettings tempBarCodeSettings = this.SysEnv.BarCodeSettings;
+            var tempBarCodeSettings = this.SysEnv.BarCodeSettings;
             _ = this.SysEnv.BarCodeSettings.SaveData(ref tempBarCodeSettings);
             this.SysEnv.BarCodeSettings.UnregisterBarCodeSettingsListenerStatusOut((IBarCodeSettingsEventListener)this);
             this.SysEnv.BarCodeSettings.UnregisterBarCodeSettingsListenerProgressOut((IBarCodeSettingsEventListener)this);
@@ -812,7 +812,7 @@ namespace dMobile.View.Options
             this.PrinterSettings.RegPrnSettingsListenerStatusOut((IPrnSettingsListener)this);
             this.PrinterSettings.RegPrnSettingsListenerProgressOut((IPrnSettingsListener)this);
             this.PrinterSettings.RequestPrinterSettings();
-            PrinterSettings tempPrinterSettings = this.PrinterSettings;
+            var tempPrinterSettings = this.PrinterSettings;
             _ = this.PrinterSettings.SaveData(ref tempPrinterSettings);
             this.PrinterSettings = tempPrinterSettings;
             this.PrinterSettings.UnregPrnSettingsListenerStatusOut((IPrnSettingsListener)this);
@@ -1020,7 +1020,7 @@ namespace dMobile.View.Options
             this.SchemeLabelSettings.RegProdSchemeLabelSettingsListenerStatusOut((IProdSchemeLabelSettingsListener)this);
             this.SchemeLabelSettings.RegProdSchemeLabelSettingsListenerProgressOut((IProdSchemeLabelSettingsListener)this);
             await this.SchemeLabelSettings.RequestProductSchemeLabelSettings();
-            ProdSchemeLabelSettings tempSchemeLblSettings = this.SchemeLabelSettings;
+            var tempSchemeLblSettings = this.SchemeLabelSettings;
             _ = this.SchemeLabelSettings.SaveData(ref tempSchemeLblSettings);
             this.SchemeLabelSettings = tempSchemeLblSettings;
             this.SchemeLabelSettings.UnregProdSchemeLabelSettingsListenerStatusOut((IProdSchemeLabelSettingsListener)this);

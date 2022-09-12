@@ -27,13 +27,13 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
         /// <returns></returns>
         protected override string IdentifyProductIdentifier(string barCodeData)
         {
-            bool isDeliScaleBarCode = false;
+            var isDeliScaleBarCode = false;
 
             if (this.Settings.IsRuleEnabled_Parse_UCC_12_UPC_E_as_Deli_PLU)
             {
                 // KLUDGE: PLU (price look up) codes always start with the number 2 according to
                 // Fedor March 12 / 2013 - Warning this will bite us later
-                string s = Convert.ToString(Convert.ToInt64(barCodeData));
+                var s = Convert.ToString(Convert.ToInt64(barCodeData));
                 // 2 = deli
                 // 9 = organic
                 // 3 or 4 = produce conventionally grown
@@ -111,7 +111,7 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
         /// <returns></returns>
         protected override string IdentifyGTIN(string barCodeData)
         {
-            int iLen = (barCodeData.Length > 14) ? 14 : barCodeData.Length;
+            var iLen = (barCodeData.Length > 14) ? 14 : barCodeData.Length;
 
             this.GTIN = barCodeData.Substring(0, iLen).PadLeft(14, '0');
 

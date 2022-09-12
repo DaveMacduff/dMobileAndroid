@@ -35,12 +35,12 @@ namespace dMobile.GroundWork
             {
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Seeding sales returns.", true);
 
-                string reqData = await this.SendRequest();
+                var reqData = await this.SendRequest();
                 if (reqData.Length > 0)
                 {
                     if (reqData.Contains("<message>ERROR</message>"))
                     {
-                        XmlDocument reqErr = new XmlDocument();
+                        var reqErr = new XmlDocument();
                         reqErr.LoadXml(reqData);
                         throw new Exception(reqErr.DocumentElement["detail"].InnerText);
                     }
@@ -114,7 +114,7 @@ namespace dMobile.GroundWork
             {
                 try
                 {
-                    using (DataSet ds = new DataSet())
+                    using (var ds = new DataSet())
                     {
                         this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Reading received data.", false);
 
@@ -124,14 +124,14 @@ namespace dMobile.GroundWork
 
                         if (ds.Tables.Count != 0)
                         {
-                            int progMax = Convert.ToInt32(ds.Tables["tActivityReturns"].Rows.Count);
+                            var progMax = Convert.ToInt32(ds.Tables["tActivityReturns"].Rows.Count);
 
                             this.DataAccessStatusOutHandler(this, EventArgs.Empty, string.Format("Records {0}", progMax), false);
 
-                            int actRefno = 0;
-                            int progValue = 0;
-                            int whsLocMapRefno = 0;
-                            int returnsFKRefno = 0;
+                            var actRefno = 0;
+                            var progValue = 0;
+                            var whsLocMapRefno = 0;
+                            var returnsFKRefno = 0;
 
                             this.DataAccessProgressOutHandler(this, EventArgs.Empty, 0, 0, progMax);
 
@@ -143,28 +143,28 @@ namespace dMobile.GroundWork
                                 returnsFKRefno = Convert.ToInt32(drow["ActivityFKRefno"]);
                                 whsLocMapRefno = this.GetWhsLocMapRefnoFromDataRow(drow, transaction);
 
-                                string query = "INSERT INTO tActivityReturns (" +
-                                    "ActivityRefno, " +
-                                    "ActivitySubType, " +
-                                    "ActivityFKRefno, " +
-                                    "ActivityStringFKRefno, " +
-                                    "WarehouseLocationMapRefno, " +
-                                    "ActivityReturnsOrderedDateTime, " +
-                                    "ActivityReturnsDeliveryDateTime, " +
-                                    "ActivityReturnsCustomerContactName, " +
-                                    "ActivityReturnsCustomerShipToInfo" +
-                                    ") VALUES (" +
-                                    "?, " +
-                                    "?, " +
-                                    "?, " +
-                                    "?, " +
-                                    "?, " +
-                                    "?, " +
-                                    "?, " +
-                                    "?, " +
-                                    "?" +
-                                    ")";
-                                object[] parameters = new object[]
+                                var query = "INSERT INTO tActivityReturns (" +
+                                            "ActivityRefno, " +
+                                            "ActivitySubType, " +
+                                            "ActivityFKRefno, " +
+                                            "ActivityStringFKRefno, " +
+                                            "WarehouseLocationMapRefno, " +
+                                            "ActivityReturnsOrderedDateTime, " +
+                                            "ActivityReturnsDeliveryDateTime, " +
+                                            "ActivityReturnsCustomerContactName, " +
+                                            "ActivityReturnsCustomerShipToInfo" +
+                                            ") VALUES (" +
+                                            "?, " +
+                                            "?, " +
+                                            "?, " +
+                                            "?, " +
+                                            "?, " +
+                                            "?, " +
+                                            "?, " +
+                                            "?, " +
+                                            "?" +
+                                            ")";
+                                var parameters = new object[]
                                 {
                                     Convert.ToInt32(actRefno),
                                     Convert.ToInt32(SysCommon.ActSubTypes.Returns),
@@ -213,10 +213,10 @@ namespace dMobile.GroundWork
         /// <remarks></remarks>
         protected override async Task<string> CreateRequest()
         {
-            StringBuilder xmlString = new StringBuilder();
-            XmlWriter xml = XmlWriter.Create(xmlString);
+            var xmlString = new StringBuilder();
+            var xml = XmlWriter.Create(xmlString);
 
-            XDocument request = XDocument.Parse(
+            var request = XDocument.Parse(
                 "<?xml version=\"1.0\" encoding=\"utf-8\" standalone=\"yes\"?>"
                 + "<imclient>"
                 + "<command>"

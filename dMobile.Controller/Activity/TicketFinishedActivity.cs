@@ -57,9 +57,9 @@ namespace dMobile.Controller
             this.FullClassName = typeof(TicketFinishedActivity).FullName;
 
             // Data grid
-            DataTemplate dataTemplate = new DataTemplate(() =>
+            var dataTemplate = new DataTemplate(() =>
             {
-                Grid gridData = new Grid
+                var gridData = new Grid
                 {
                     Padding = new Thickness(5),
                     ColumnDefinitions =
@@ -70,9 +70,9 @@ namespace dMobile.Controller
                     },
                 };
 
-                Label labelActivityRefno = new Label { VerticalOptions = LayoutOptions.Center };
-                Label labelActivityDateTime = new Label { VerticalOptions = LayoutOptions.Center };
-                Label labelActivityDescription = new Label { VerticalOptions = LayoutOptions.Center };
+                var labelActivityRefno = new Label { VerticalOptions = LayoutOptions.Center };
+                var labelActivityDateTime = new Label { VerticalOptions = LayoutOptions.Center };
+                var labelActivityDescription = new Label { VerticalOptions = LayoutOptions.Center };
 
                 labelActivityRefno.SetBinding(Label.TextProperty, new Binding("ActivityStringFKRefno"));
                 labelActivityDateTime.SetBinding(Label.TextProperty, new Binding("ActivityProductionDateTime", BindingMode.Default, null, null, "{0:MM/dd/yyyy}"));
@@ -89,7 +89,19 @@ namespace dMobile.Controller
                 return new ViewCell { View = gridData };
             });
 
-            this.resourceDictionary.Add("dataTemplate", dataTemplate);
+            var isAddKey = true;
+            foreach (var item in this.resourceDictionary)
+            {
+                if (item.Key == "dataTemplateFinished")
+                {
+                    isAddKey = false;
+                }
+            }
+
+            if (isAddKey)
+            {
+                this.resourceDictionary.Add("dataTemplateFinished", dataTemplate);
+            }
         }
 
         /// <summary>
@@ -118,7 +130,7 @@ namespace dMobile.Controller
         /// <returns>The <see cref="ObservableCollection{object}"/>.</returns>
         public override ObservableCollection<object> DesignGrid(ref Grid GridMainActivity, ref ListView ListViewMainActivity)
         {
-            ObservableCollection<object> observableCollection = new ObservableCollection<object>();
+            var observableCollection = new ObservableCollection<object>();
 
             foreach (ProductionTicketFinished productionTicketFinished in this.ListHdrs)
             {
@@ -137,16 +149,16 @@ namespace dMobile.Controller
                 observableCollection.Add(productionTicketFinished);
             }
 
-            Label labelTicketNumber = new Label { Text = "Ticket #", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
-            Label labelTicketDate = new Label { Text = "Date", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
-            Label labelTicketDescription = new Label { Text = "Description", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
+            var labelTicketNumber = new Label { Text = "Ticket #", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
+            var labelTicketDate = new Label { Text = "Date", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
+            var labelTicketDescription = new Label { Text = "Description", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
 
             // Calculate text size
             this.columnWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(labelTicketNumber.Text);
             this.columnWidth1 = DependencyService.Get<IGridService>().CalculateTextWidth(labelTicketDate.Text);
             this.columnWidth2 = DependencyService.Get<IGridService>().CalculateTextWidth(labelTicketDescription.Text);
 
-            Grid gridHeader = new Grid
+            var gridHeader = new Grid
             {
                 Padding = new Thickness(5),
                 ColumnDefinitions =
@@ -173,9 +185,9 @@ namespace dMobile.Controller
 
             foreach (ProductionTicketFinished productionTicket in observableCollection)
             {
-                double dataColumnWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(productionTicket.ActivityStringFKRefno);
-                double dataColumnWidth1 = DependencyService.Get<IGridService>().CalculateTextWidth(Convert.ToString(productionTicket.ActivityProductionDateTime.ToString("MM/dd/yyyy")));
-                double dataColumnWidth2 = DependencyService.Get<IGridService>().CalculateTextWidth(productionTicket.ActivityProductionDescription);
+                var dataColumnWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(productionTicket.ActivityStringFKRefno);
+                var dataColumnWidth1 = DependencyService.Get<IGridService>().CalculateTextWidth(Convert.ToString(productionTicket.ActivityProductionDateTime.ToString("MM/dd/yyyy")));
+                var dataColumnWidth2 = DependencyService.Get<IGridService>().CalculateTextWidth(productionTicket.ActivityProductionDescription);
 
                 if (dataColumnWidth0 > this.columnWidth0)
                 {
@@ -196,7 +208,7 @@ namespace dMobile.Controller
                 }
             }
 
-            ListViewMainActivity.ItemTemplate = (DataTemplate)this.resourceDictionary["dataTemplate"];
+            ListViewMainActivity.ItemTemplate = (DataTemplate)this.resourceDictionary["dataTemplateFinished"];
 
             return observableCollection;
         }
@@ -208,8 +220,8 @@ namespace dMobile.Controller
         /// <returns>.</returns>
         public override async Task<List<object>> GetActivityList(bool isSubmitBatch)
         {
-            ProductionTicketSettings ticketSettings = new ProductionTicketSettings().LoadData();
-            StringBuilder sql = new StringBuilder();
+            var ticketSettings = new ProductionTicketSettings().LoadData();
+            var sql = new StringBuilder();
 
             if (isSubmitBatch)
             {
@@ -305,7 +317,7 @@ namespace dMobile.Controller
             // }
             this.listProductionTicketFinished = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<ProductionTicketFinished>(sql.ToString());
 
-            foreach (Sort sort in ticketSettings.GetDataViewSortBy())
+            foreach (var sort in ticketSettings.GetDataViewSortBy())
             {
                 if (sort.SortOrder == Resources.Enums.SortOrder.ASC)
                 {
@@ -330,7 +342,7 @@ namespace dMobile.Controller
         /// <returns>.</returns>
         public override ObservableCollection<object> Search(string searchText)
         {
-            ObservableCollection<object> observableCollection = new ObservableCollection<object>();
+            var observableCollection = new ObservableCollection<object>();
 
             this.ListHdrs = this.listProductionTicketFinished.Where(prodTicket => prodTicket.ActivityStringFKRefno.ToLower().Contains(searchText.ToLower().Trim())).Cast<object>().ToList();
 
@@ -426,7 +438,7 @@ namespace dMobile.Controller
 
                 this.DataLayerProgressOutHandler(this, new EventArgs(), 5);
 
-                TableActivityProductionTicketFinished tableFinished = new TableActivityProductionTicketFinished();
+                var tableFinished = new TableActivityProductionTicketFinished();
 
                 tableFinished.RegisterDataAccessListenerProgressOut((TicketFinishedActivity)this);
                 await tableFinished.RequestData();
@@ -440,9 +452,9 @@ namespace dMobile.Controller
         /// <returns>The <see cref="Task"/>.</returns>
         public override async Task Purge()
         {
-            TableActivityProductionTicketFinished tableFinished = new TableActivityProductionTicketFinished();
-            TableActivityProductionTicketFinishedItem tableFinishedItem = new TableActivityProductionTicketFinishedItem();
-            TableActivityProductionTicketFinishedDetail tableFinishedDetail = new TableActivityProductionTicketFinishedDetail();
+            var tableFinished = new TableActivityProductionTicketFinished();
+            var tableFinishedItem = new TableActivityProductionTicketFinishedItem();
+            var tableFinishedDetail = new TableActivityProductionTicketFinishedDetail();
 
             await tableFinishedDetail.PurgeData();
             await tableFinishedItem.PurgeData();
@@ -454,15 +466,15 @@ namespace dMobile.Controller
         /// </summary>
         public override void GetFilter()
         {
-            ProductionTicketSettings ticketSettings = new ProductionTicketSettings().LoadData();
+            var ticketSettings = new ProductionTicketSettings().LoadData();
 
             if (ticketSettings.IsApplyProductionDateFilter)
             {
                 if (!SysCommon.IsEmptyDateTime(ticketSettings.ProductionDateFilter))
                 {
-                    DateTime dt = ticketSettings.ProductionDateFilter;
-                    DateTime minDate = new DateTime(dt.Year, dt.Month, dt.Day, 00, 00, 00);
-                    DateTime maxDate = new DateTime(dt.Year, dt.Month, dt.Day, 23, 59, 59);
+                    var dt = ticketSettings.ProductionDateFilter;
+                    var minDate = new DateTime(dt.Year, dt.Month, dt.Day, 00, 00, 00);
+                    var maxDate = new DateTime(dt.Year, dt.Month, dt.Day, 23, 59, 59);
 
                     this.listProductionTicketFinished = this.listProductionTicketFinished.Where(prodTicket => prodTicket.ActivityProductionDateTime >= minDate && prodTicket.ActivityProductionDateTime <= maxDate).ToList();
                 }
@@ -475,15 +487,15 @@ namespace dMobile.Controller
         /// <param name="data">The data<see cref="XDocument"/>.</param>
         public override void GetFilter(XDocument data)
         {
-            ProductionTicketSettings ticketSettings = new ProductionTicketSettings().LoadData();
+            var ticketSettings = new ProductionTicketSettings().LoadData();
 
             if (ticketSettings.IsApplyProductionDateFilter)
             {
                 if (string.Compare(data.Root.Element("production_date").Value, string.Empty) > 0)
                 {
-                    DateTime dt = DateTime.Parse(data.Root.Element("production_date").Value);
-                    DateTime minDate = new DateTime(dt.Year, dt.Month, dt.Day, 00, 00, 00);
-                    DateTime maxDate = new DateTime(dt.Year, dt.Month, dt.Day, 23, 59, 59);
+                    var dt = DateTime.Parse(data.Root.Element("production_date").Value);
+                    var minDate = new DateTime(dt.Year, dt.Month, dt.Day, 00, 00, 00);
+                    var maxDate = new DateTime(dt.Year, dt.Month, dt.Day, 23, 59, 59);
 
                     this.listProductionTicketFinished = this.listProductionTicketFinished.Where(prodTicket => prodTicket.ActivityProductionDateTime >= minDate && prodTicket.ActivityProductionDateTime <= maxDate).ToList();
                 }

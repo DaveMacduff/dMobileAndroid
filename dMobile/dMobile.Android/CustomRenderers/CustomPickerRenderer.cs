@@ -54,7 +54,7 @@ namespace dMobile.Droid.CustomRenderers
         public LayerDrawable AddPickerStyles(string imagePath)
         {
             Drawable[] layers = { this.Control.Background, this.GetDrawable(imagePath) };
-            LayerDrawable layerDrawable = new LayerDrawable(layers);
+            var layerDrawable = new LayerDrawable(layers);
             layerDrawable.SetLayerInset(0, 0, 0, 0, 0);
 
             return layerDrawable;
@@ -62,7 +62,7 @@ namespace dMobile.Droid.CustomRenderers
 
         private BitmapDrawable GetDrawable(string imagePath)
         {
-            int resID = this.Resources.GetIdentifier(imagePath, "drawable", this.Context.PackageName);
+            var resID = this.Resources.GetIdentifier(imagePath, "drawable", this.Context.PackageName);
             var drawable = ContextCompat.GetDrawable(this.Context, resID);
             var bitmap = ((BitmapDrawable)drawable).Bitmap;
 

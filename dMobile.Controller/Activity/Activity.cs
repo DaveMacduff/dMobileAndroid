@@ -191,7 +191,7 @@ namespace dMobile.Controller
         /// <returns>.</returns>
         public virtual XDocument CreateSubmitXML()
         {
-            XDocument xmldocSubmission = XDocument.Parse(
+            var xmldocSubmission = XDocument.Parse(
                 "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>"
                 + "<imclient>"
                 + "<command>"
@@ -245,13 +245,13 @@ namespace dMobile.Controller
         {
             try
             {
-                string sql = "insert into tActivity (ActivityStatus, ActivitySubType) values (?, ?)";
+                var sql = "insert into tActivity (ActivityStatus, ActivitySubType) values (?, ?)";
                 _ = await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(
                     sql,
                     Convert.ToInt32(SysCommon.ActStatus.Inserted),
                     Convert.ToInt32(actSubType));
 
-                string queryID = "select last_insert_rowid() from tActivity";
+                var queryID = "select last_insert_rowid() from tActivity";
                 this.HdrRefno = Convert.ToInt32(
                     await DatabaseConnection.GetInstance().SQLConn.ExecuteScalarAsync<int>(queryID));
             }

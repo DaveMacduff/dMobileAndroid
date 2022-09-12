@@ -299,7 +299,7 @@ namespace dMobile.View.Activity
         /// <remarks></remarks>
         public async Task<bool> IsReadyToSave()
         {
-            bool isReadyToSave = true;
+            var isReadyToSave = true;
 
             try
             {
@@ -343,7 +343,7 @@ namespace dMobile.View.Activity
         /// <remarks></remarks>
         public async Task<XDocument> GetXML()
         {
-            XDocument request = XDocument.Parse(
+            var request = XDocument.Parse(
                 "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>" +
                 "<params>" +
                 "<adjustment_date>" + this.AdjSettings.AdjustmentDate.ToShortDateString() + "</adjustment_date>" +
@@ -361,7 +361,7 @@ namespace dMobile.View.Activity
         /// <remarks></remarks>
         public async Task<bool> CancelChanges()
         {
-            bool cancelChanges = true;
+            var cancelChanges = true;
 
             try
             {
@@ -392,7 +392,7 @@ namespace dMobile.View.Activity
             {
                 await Device.InvokeOnMainThreadAsync(async () =>
                 {
-                    FormErrorReport errRpt = new FormErrorReport(SysCommon.ActSubTypes.NotApplicable, ex);
+                    var errRpt = new FormErrorReport(SysCommon.ActSubTypes.NotApplicable, ex);
                     _ = await errRpt.ShowDialog();
                 });
 
@@ -409,7 +409,7 @@ namespace dMobile.View.Activity
         /// <remarks></remarks>
         public async Task<bool> SaveChanges()
         {
-            bool saveComplete = false;
+            var saveComplete = false;
 
             try
             {
@@ -434,7 +434,7 @@ namespace dMobile.View.Activity
                     this.AdjSettings.SortBy3Index = this.cboSortBy3.SelectedIndex;
                     this.MakeSQLSortBy();
 
-                    AdjustmentSettings tempAdjSettings = this.AdjSettings;
+                    var tempAdjSettings = this.AdjSettings;
                     _ = this.AdjSettings.SaveData(ref tempAdjSettings);
                     this.AdjSettings = tempAdjSettings;
 

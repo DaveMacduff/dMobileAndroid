@@ -72,7 +72,7 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
         protected override string IdentifyLogisticUnitBestBeforeSellByDate(string barCodeData)
         {
             // Assign the BEST BEFORE SELL BY DATE
-            int year = Convert.ToInt32(barCodeData.Substring(0, 2));
+            var year = Convert.ToInt32(barCodeData.Substring(0, 2));
             if (year < 80)
             {
                 year = year + 2000;
@@ -82,7 +82,7 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
                 year = year + 1900;
             }
 
-            DateTime dt = new DateTime(year, Convert.ToInt32(barCodeData.Substring(2, 2)),
+            var dt = new DateTime(year, Convert.ToInt32(barCodeData.Substring(2, 2)),
                 Convert.ToInt32(barCodeData.Substring(4, 2)));   // 101026
             this.LogisticUnitBestBeforeSellByDate = dt;
 
@@ -102,10 +102,10 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
             this.NetWeightMetricKGFoundAI = true;
 
             // Get the number of decimal places
-            int places = 2;
+            var places = 2;
 
             // assign the METRIC NET WEIGHT KG
-            string wholeNumber = barCodeData.Substring(0, 6);
+            var wholeNumber = barCodeData.Substring(0, 6);
             if (places != 0)
             {
                 this.NetWeightMetricKG = Convert.ToDecimal(wholeNumber.Substring(0,

@@ -322,12 +322,12 @@ namespace dMobile.Bedrock
         /// <returns>.</returns>
         public RefreshDataOptions LoadData()
         {
-            XmlSerializer serializer = new XmlSerializer(typeof(RefreshDataOptions));
-            RefreshDataOptions refreshDataOptions = new RefreshDataOptions();
+            var serializer = new XmlSerializer(typeof(RefreshDataOptions));
+            var refreshDataOptions = new RefreshDataOptions();
 
             // use reflection to get the current assembly path for the database
-            string appDir = Environment.GetFolderPath(Environment.SpecialFolder.Personal);
-            string fullPathToMyFile = Path.Combine(appDir, this.fileName);
+            var appDir = Environment.GetFolderPath(Environment.SpecialFolder.Personal);
+            var fullPathToMyFile = Path.Combine(appDir, this.fileName);
 
             if (!File.Exists(fullPathToMyFile))
             {
@@ -335,7 +335,7 @@ namespace dMobile.Bedrock
             }
 
             // Create a FileStream to read with.
-            using (FileStream reader = new FileStream(fullPathToMyFile, FileMode.Open))
+            using (var reader = new FileStream(fullPathToMyFile, FileMode.Open))
             {
                 // Deserialize the stream to the object, and close the TextReader
                 refreshDataOptions = (RefreshDataOptions)serializer.Deserialize(reader);
@@ -352,16 +352,16 @@ namespace dMobile.Bedrock
         /// <returns>.</returns>
         public bool SaveData(ref RefreshDataOptions options)
         {
-            XmlSerializer serializer = new XmlSerializer(typeof(RefreshDataOptions));
+            var serializer = new XmlSerializer(typeof(RefreshDataOptions));
             bool isSaveComplete;
             try
             {
                 // use reflection to get the current assembly path for the database
-                string appDir = Environment.GetFolderPath(Environment.SpecialFolder.Personal);
-                string fullPathToMyFile = Path.Combine(appDir, this.fileName);
+                var appDir = Environment.GetFolderPath(Environment.SpecialFolder.Personal);
+                var fullPathToMyFile = Path.Combine(appDir, this.fileName);
 
                 // Create a FileStream to write with.
-                using (FileStream writer = new FileStream(fullPathToMyFile, FileMode.Create))
+                using (var writer = new FileStream(fullPathToMyFile, FileMode.Create))
                 {
                     // Serialize the object, and close the TextWriter
                     serializer.Serialize(writer, options);

@@ -68,9 +68,9 @@ namespace dMobile.Controller
             this.FullClassName = typeof(PickingActivity).FullName;
 
             // Data grid
-            DataTemplate dataTemplatePicking = new DataTemplate(() =>
+            var dataTemplatePicking = new DataTemplate(() =>
             {
-                Grid gridData = new Grid
+                var gridData = new Grid
                 {
                     Padding = new Thickness(5),
                     ColumnDefinitions =
@@ -83,11 +83,11 @@ namespace dMobile.Controller
                     },
                 };
 
-                Label labelActivityStringFKRefno = new Label { VerticalOptions = LayoutOptions.Center };
-                Label labelActivityPickingDeliveryDateTime = new Label { VerticalOptions = LayoutOptions.Center };
-                Label labelActivityPickingRouteCode = new Label { VerticalOptions = LayoutOptions.Center };
-                Label labelActivityPickingRouteStop = new Label { VerticalOptions = LayoutOptions.Center };
-                Label labelActivityPickingCustomerShipToInfo = new Label { VerticalOptions = LayoutOptions.Center };
+                var labelActivityStringFKRefno = new Label { VerticalOptions = LayoutOptions.Center };
+                var labelActivityPickingDeliveryDateTime = new Label { VerticalOptions = LayoutOptions.Center };
+                var labelActivityPickingRouteCode = new Label { VerticalOptions = LayoutOptions.Center };
+                var labelActivityPickingRouteStop = new Label { VerticalOptions = LayoutOptions.Center };
+                var labelActivityPickingCustomerShipToInfo = new Label { VerticalOptions = LayoutOptions.Center };
 
                 labelActivityStringFKRefno.SetBinding(Label.TextProperty, new Binding("ActivityStringFKRefno"));
                 labelActivityPickingDeliveryDateTime.SetBinding(Label.TextProperty, new Binding("ActivityPickingDeliveryDateTime", BindingMode.Default, null, null, "{0:MM/dd/yyyy}"));
@@ -135,17 +135,17 @@ namespace dMobile.Controller
         /// <returns>The <see cref="Task"/>.</returns>
         public override async Task PrintLabel(XDocument data)
         {
-            SLocMapAndRefno sLocMapAndRefno = await LocationMapTasks.GetSLocMapFromLocMapFKRefno(
+            var sLocMapAndRefno = await LocationMapTasks.GetSLocMapFromLocMapFKRefno(
                 int.Parse(this.XMLDataCriteria.Root.Element("whs_id").Value),
                 int.Parse(this.XMLDataCriteria.Root.Element("sect_refno").Value),
                 0);
-            SLocMap locMap = sLocMapAndRefno.SLocMap;
-            StringBuilder xmlString = new StringBuilder();
-            XmlWriter xml = XmlWriter.Create(xmlString);
-            PrinterSettings prnSettings = new PrinterSettings().LoadData();
+            var locMap = sLocMapAndRefno.SLocMap;
+            var xmlString = new StringBuilder();
+            var xml = XmlWriter.Create(xmlString);
+            var prnSettings = new PrinterSettings().LoadData();
 
             // Don't even bother sending in a print request if no quantity was entered.
-            SLabelQuantity labelQty = new SLabelQuantity
+            var labelQty = new SLabelQuantity
             {
                 FullQuantity = int.Parse(data.Root.Element("full_alt_qty").Value),
                 RepackQuantity = int.Parse(data.Root.Element("repack_alt_qty").Value),
@@ -167,7 +167,7 @@ namespace dMobile.Controller
                 + labelQty.RepackLiveQuantity + labelQty.RepackDryQuantity + labelQty.PalletQuantity
                 + labelQty.BundleQuantity > 0)
             {
-                XDocument request = XDocument.Parse(
+                var request = XDocument.Parse(
         "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>" + "<imclient>"
         + "<command>"
         + "<action>SUBMIT PRINT SHIPPING LABEL</action>"
@@ -199,14 +199,14 @@ namespace dMobile.Controller
                 xml.Flush();
                 xml.Close();
 
-                string reqData = SysCommon.SubmitComm(xmlString.ToString());
+                var reqData = SysCommon.SubmitComm(xmlString.ToString());
 
                 if (reqData.Length > 0)
                 {
                     // check if result is an error message
                     if (reqData.Contains("<message>ERROR</message>"))
                     {
-                        XmlDocument docError = new XmlDocument();
+                        var docError = new XmlDocument();
                         docError.LoadXml(reqData);
 
                         throw new MessageOnlyException(string.Format("Order# {0} print shipping label(s) failed." + Environment.NewLine + "{1}", this.HdrFKRefno, docError.DocumentElement["detail"].InnerText));
@@ -226,20 +226,20 @@ namespace dMobile.Controller
         /// <returns>Structure containing of number of labels to print.</returns>
         public override async Task<SLabelQuantity> GetLabelQuantity(bool isRepackQuantityOnly)
         {
-            SLabelQuantity labelQty = new SLabelQuantity();
+            var labelQty = new SLabelQuantity();
 
             try
             {
-                string sendReq = string.Empty;
-                string reqData = string.Empty;
-                StringBuilder xmlString = new StringBuilder();
-                XmlWriter xml = XmlWriter.Create(xmlString);
+                var sendReq = string.Empty;
+                var reqData = string.Empty;
+                var xmlString = new StringBuilder();
+                var xml = XmlWriter.Create(xmlString);
                 XDocument request = null;
-                SLocMapAndRefno sLocMapAndRefno = await LocationMapTasks.GetSLocMapFromLocMapFKRefno(
+                var sLocMapAndRefno = await LocationMapTasks.GetSLocMapFromLocMapFKRefno(
                     int.Parse(this.XMLDataCriteria.Root.Element("whs_id").Value),
                     int.Parse(this.XMLDataCriteria.Root.Element("sect_refno").Value),
                     slotLocMapFKRefno: 0);
-                SLocMap locMap = sLocMapAndRefno.SLocMap;
+                var locMap = sLocMapAndRefno.SLocMap;
 
                 request = XDocument.Parse(
                     "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>"
@@ -261,7 +261,7 @@ namespace dMobile.Controller
 
                 if (reqData.Length > 0)
                 {
-                    XmlDocument xmlResult = new XmlDocument();
+                    var xmlResult = new XmlDocument();
                     xmlResult.LoadXml(reqData);
 
                     // Check if result is an error message
@@ -320,14 +320,14 @@ namespace dMobile.Controller
         /// <returns>A <see cref="Task{TResult}"/> representing the result of the asynchronous operation.</returns>
         public async Task<bool> IsSalesOrderBeingPicked()
         {
-            SLocMapAndRefno sLocMapAndRefno = await LocationMapTasks.GetSLocMapFromLocMapFKRefno(
+            var sLocMapAndRefno = await LocationMapTasks.GetSLocMapFromLocMapFKRefno(
                 int.Parse(this.XMLDataCriteria.Root.Element("whs_id").Value),
                 int.Parse(this.XMLDataCriteria.Root.Element("sect_refno").Value),
                 slotLocMapFKRefno: 0);
-            SLocMap locMap = sLocMapAndRefno.SLocMap;
-            string reqData = string.Empty;
-            StringBuilder xmlString = new StringBuilder();
-            XmlWriter xml = XmlWriter.Create(xmlString);
+            var locMap = sLocMapAndRefno.SLocMap;
+            var reqData = string.Empty;
+            var xmlString = new StringBuilder();
+            var xml = XmlWriter.Create(xmlString);
             XDocument request = null;
 
             request = XDocument.Parse(
@@ -348,16 +348,16 @@ namespace dMobile.Controller
 
             reqData = SysCommon.SubmitComm(xmlString.ToString());
 
-            bool isBeingPicked = false;
+            var isBeingPicked = false;
             if (reqData.Length > 0)
             {
-                XmlDocument xmlDoc = new XmlDocument();
+                var xmlDoc = new XmlDocument();
                 xmlDoc.LoadXml(reqData);
 
                 if (reqData.Contains("<message>ERROR</message>"))
                 {
                     isBeingPicked = true;
-                    string errorDetail = xmlDoc.DocumentElement["detail"].InnerText;
+                    var errorDetail = xmlDoc.DocumentElement["detail"].InnerText;
 
                     await Device.InvokeOnMainThreadAsync(async () => await Application.Current.MainPage.DisplayAlert(this.GetControlDescription(), errorDetail, "OK"));
                 }
@@ -373,18 +373,18 @@ namespace dMobile.Controller
         /// <returns></returns>
         public async Task<bool> ClearSalesOrderBeingPicked(bool clearDeviceOnly)
         {
-            bool isClearedBeingPicked = true;
+            var isClearedBeingPicked = true;
 
             if (!this.SysEnv.SysSettings.IsDisconnectedMode)
             {
-                SLocMapAndRefno sLocMapAndRefno = await LocationMapTasks.GetSLocMapFromLocMapFKRefno(
+                var sLocMapAndRefno = await LocationMapTasks.GetSLocMapFromLocMapFKRefno(
                     int.Parse(this.XMLDataCriteria.Root.Element("whs_id").Value),
                     int.Parse(this.XMLDataCriteria.Root.Element("sect_refno").Value),
                     slotLocMapFKRefno: 0);
-                SLocMap locMap = sLocMapAndRefno.SLocMap;
-                string reqData = string.Empty;
-                StringBuilder xmlString = new StringBuilder();
-                XmlWriter xml = XmlWriter.Create(xmlString);
+                var locMap = sLocMapAndRefno.SLocMap;
+                var reqData = string.Empty;
+                var xmlString = new StringBuilder();
+                var xml = XmlWriter.Create(xmlString);
                 XDocument request = null;
 
                 isClearedBeingPicked = false;
@@ -409,11 +409,11 @@ namespace dMobile.Controller
 
                 if (reqData.Length > 0)
                 {
-                    XmlDocument xmlDoc = new XmlDocument();
+                    var xmlDoc = new XmlDocument();
                     xmlDoc.LoadXml(reqData);
                     if (reqData.Contains("<message>ERROR</message>"))
                     {
-                        string errorDetail = xmlDoc.DocumentElement["detail"].InnerText;
+                        var errorDetail = xmlDoc.DocumentElement["detail"].InnerText;
 
                         await Device.InvokeOnMainThreadAsync(async () => await Application.Current.MainPage.DisplayAlert(
                             this.GetControlDescription(),
@@ -439,15 +439,15 @@ namespace dMobile.Controller
         /// <returns>A <see cref="Task{TResult}"/> representing the result of the asynchronous operation.</returns>
         public async Task<bool> ReleaseByOrder()
         {
-            bool isReleased = false;
+            var isReleased = false;
 
             if (await Device.InvokeOnMainThreadAsync(async () => await Application.Current.MainPage.DisplayAlert(this.GetControlDescription(), string.Format("Release order# {0} ?", this.HdrFKRefno), "Yes", "No")))
             {
-                string reqResult = string.Empty;
-                StringBuilder xmlString = new StringBuilder();
-                XmlWriter xml = XmlWriter.Create(xmlString);
+                var reqResult = string.Empty;
+                var xmlString = new StringBuilder();
+                var xml = XmlWriter.Create(xmlString);
 
-                XDocument request = XDocument.Parse(
+                var request = XDocument.Parse(
                     "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>"
                     + "<imclient>"
                     + "<command>"
@@ -467,9 +467,9 @@ namespace dMobile.Controller
                 {
                     if (reqResult.Contains("<message>ERROR</message>"))
                     {
-                        XmlDocument docError = new XmlDocument();
+                        var docError = new XmlDocument();
                         docError.LoadXml(reqResult);
-                        string errorDetail = docError.DocumentElement["detail"].InnerText;
+                        var errorDetail = docError.DocumentElement["detail"].InnerText;
 
                         throw new Exception(string.Format("Release order# {0} failed." + Environment.NewLine + errorDetail, this.HdrFKRefno, null));
                     }
@@ -498,16 +498,16 @@ namespace dMobile.Controller
             {
 
                 // cmndItemPicking.IndexName = string.Empty;
-                string query = "SELECT COUNT(tActivityItem.ActivityItemRefno) "
-                    + "FROM tActivityItem "
-                    + "INNER JOIN tActivityItemPicking ON tActivityItemPicking.ActivityItemRefno "
-                    + "= tActivityItem.ActivityItemRefno "
-                    + "WHERE tActivityItem.ActivityRefno = " + this.HdrRefno + " "
-                    + "AND 0 < tActivityItemPicking.ActivityItemPickingBaseQuantityAvailable "
-                    + "AND tActivityItemPicking.ActivityItemPickingQuantityShipped "
-                    + "< tActivityItemPicking.ActivityItemPickingQuantityOrdered";
+                var query = "SELECT COUNT(tActivityItem.ActivityItemRefno) "
+                            + "FROM tActivityItem "
+                            + "INNER JOIN tActivityItemPicking ON tActivityItemPicking.ActivityItemRefno "
+                            + "= tActivityItem.ActivityItemRefno "
+                            + "WHERE tActivityItem.ActivityRefno = " + this.HdrRefno + " "
+                            + "AND 0 < tActivityItemPicking.ActivityItemPickingBaseQuantityAvailable "
+                            + "AND tActivityItemPicking.ActivityItemPickingQuantityShipped "
+                            + "< tActivityItemPicking.ActivityItemPickingQuantityOrdered";
 
-                int rowsAffected = Convert.ToInt32(await DatabaseConnection.GetInstance().SQLConn.ExecuteScalarAsync<object>(query));
+                var rowsAffected = Convert.ToInt32(await DatabaseConnection.GetInstance().SQLConn.ExecuteScalarAsync<object>(query));
 
                 // Do not warn if product is out of stock WO# 12054
                 if (rowsAffected > 0)
@@ -517,11 +517,11 @@ namespace dMobile.Controller
             }
             else
             {
-                StringBuilder xmlString = new StringBuilder();
-                XmlWriter xml = XmlWriter.Create(xmlString);
-                LocationMap locMap = LocationMap.GetInstance();
+                var xmlString = new StringBuilder();
+                var xml = XmlWriter.Create(xmlString);
+                var locMap = LocationMap.GetInstance();
 
-                XDocument request = XDocument.Parse(
+                var request = XDocument.Parse(
                     "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>"
                     + "<imclient>"
                     + "<command>"
@@ -537,15 +537,15 @@ namespace dMobile.Controller
                 xml.Flush();
                 xml.Close();
 
-                string reqResult = SysCommon.SubmitComm(xmlString.ToString());
+                var reqResult = SysCommon.SubmitComm(xmlString.ToString());
 
                 if (reqResult.Length > 0)
                 {
                     if (reqResult.Contains("<message>ERROR</message>"))
                     {
-                        XmlDocument docError = new XmlDocument();
+                        var docError = new XmlDocument();
                         docError.LoadXml(reqResult);
-                        string errorDetail = docError.DocumentElement["detail"].InnerText;
+                        var errorDetail = docError.DocumentElement["detail"].InnerText;
 
                         throw new Exception(string.Format("Order# {0} quantity under check failed." + Environment.NewLine + "{1}", this.HdrFKRefno, errorDetail));
                     }
@@ -566,7 +566,7 @@ namespace dMobile.Controller
         /// <returns>.</returns>
         public override async Task<bool> ChangeStatus(object selectedItem)
         {
-            bool isResult = true;
+            var isResult = true;
 
             if (isResult)
             {
@@ -670,13 +670,13 @@ namespace dMobile.Controller
         /// <returns>The <see cref="ObservableCollection{object}"/>.</returns>
         public override ObservableCollection<object> DesignGrid(ref Grid GridMainActivity, ref ListView ListViewMainActivity)
         {
-            ObservableCollection<object> observableCollection = new ObservableCollection<object>();
+            var observableCollection = new ObservableCollection<object>();
 
-            Label labelPickingOrderNumber = new Label { Text = "Order #", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
-            Label labelPickingDelDate = new Label { Text = "Del Date", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
-            Label labelPickingRoute = new Label { Text = "Route", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
-            Label labelPickingStop = new Label { Text = "Stop", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
-            Label labelPickingShipTo = new Label { Text = "Ship To", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
+            var labelPickingOrderNumber = new Label { Text = "Order #", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
+            var labelPickingDelDate = new Label { Text = "Del Date", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
+            var labelPickingRoute = new Label { Text = "Route", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
+            var labelPickingStop = new Label { Text = "Stop", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
+            var labelPickingShipTo = new Label { Text = "Ship To", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
 
             this.columnWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(labelPickingOrderNumber.Text);
             this.columnWidth1 = DependencyService.Get<IGridService>().CalculateTextWidth(labelPickingDelDate.Text);
@@ -685,7 +685,7 @@ namespace dMobile.Controller
             this.columnWidth4 = DependencyService.Get<IGridService>().CalculateTextWidth(labelPickingShipTo.Text);
 
             // Create header data template
-            Grid gridHeader = new Grid
+            var gridHeader = new Grid
             {
                 Padding = new Thickness(5),
                 ColumnDefinitions =
@@ -730,11 +730,11 @@ namespace dMobile.Controller
             {
                 observableCollection.Add(picking);
 
-                double detailWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(picking.ActivityStringFKRefno);
-                double detailWidth1 = DependencyService.Get<IGridService>().CalculateTextWidth(picking.ActivityPickingDeliveryDateTime.ToString("MM/dd/yyyy"));
-                double detailWidth2 = DependencyService.Get<IGridService>().CalculateTextWidth(picking.RouteCode ?? string.Empty);
-                double detailWidth3 = DependencyService.Get<IGridService>().CalculateTextWidth(Convert.ToString(picking.RouteStop) ?? string.Empty);
-                double detailWidth4 = DependencyService.Get<IGridService>().CalculateTextWidth(picking.ActivityPickingCustomerShipToInfo);
+                var detailWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(picking.ActivityStringFKRefno);
+                var detailWidth1 = DependencyService.Get<IGridService>().CalculateTextWidth(picking.ActivityPickingDeliveryDateTime.ToString("MM/dd/yyyy"));
+                var detailWidth2 = DependencyService.Get<IGridService>().CalculateTextWidth(picking.RouteCode ?? string.Empty);
+                var detailWidth3 = DependencyService.Get<IGridService>().CalculateTextWidth(Convert.ToString(picking.RouteStop) ?? string.Empty);
+                var detailWidth4 = DependencyService.Get<IGridService>().CalculateTextWidth(picking.ActivityPickingCustomerShipToInfo);
 
                 if (detailWidth0 > this.columnWidth0)
                 {
@@ -821,8 +821,8 @@ namespace dMobile.Controller
         /// <returns>.</returns>
         public override async Task<List<object>> GetActivityList(bool isSubmitBatch)
         {
-            PickingSettings pickingSettings = new PickingSettings().LoadData();
-            StringBuilder sql = new StringBuilder();
+            var pickingSettings = new PickingSettings().LoadData();
+            var sql = new StringBuilder();
 
             if (isSubmitBatch)
             {
@@ -946,7 +946,7 @@ namespace dMobile.Controller
             // }
             this.listPicking = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<Picking>(sql.ToString());
 
-            foreach (Sort sort in pickingSettings.GetDataViewSortBy())
+            foreach (var sort in pickingSettings.GetDataViewSortBy())
             {
                 if (sort.SortOrder == Resources.Enums.SortOrder.ASC)
                 {
@@ -971,7 +971,7 @@ namespace dMobile.Controller
         /// <returns>.</returns>
         public override ObservableCollection<object> Search(string searchText)
         {
-            ObservableCollection<object> observableCollection = new ObservableCollection<object>();
+            var observableCollection = new ObservableCollection<object>();
 
             this.ListHdrs = this.listPicking.Where(picking => picking.ActivityStringFKRefno.ToLower().Contains(searchText.ToLower().Trim())).Cast<object>().ToList();
 
@@ -1056,7 +1056,7 @@ namespace dMobile.Controller
 
                 this.DataLayerProgressOutHandler(this, new EventArgs(), 5);
 
-                TableActivityPicking actPicking = new TableActivityPicking();
+                var actPicking = new TableActivityPicking();
                 try
                 {
                     actPicking.RegisterDataAccessListenerProgressOut((IDataAccessEventListener)this);
@@ -1079,10 +1079,10 @@ namespace dMobile.Controller
         /// <returns>The <see cref="Task"/>.</returns>
         public override async Task Purge()
         {
-            TableActivityPicking actPicking = new TableActivityPicking();
-            TableActivityPickingRoute actPickingRoute = new TableActivityPickingRoute();
-            TableActivityPickingItem actPickingItem = new TableActivityPickingItem();
-            TableActivityPickingDetail actPickingDetail = new TableActivityPickingDetail();
+            var actPicking = new TableActivityPicking();
+            var actPickingRoute = new TableActivityPickingRoute();
+            var actPickingItem = new TableActivityPickingItem();
+            var actPickingDetail = new TableActivityPickingDetail();
 
             await actPickingDetail.PurgeData();
             await actPickingItem.PurgeData();
@@ -1095,8 +1095,8 @@ namespace dMobile.Controller
         /// </summary>
         public override void GetFilter()
         {
-            string filter = string.Empty;
-            PickingSettings pickingSettings = new PickingSettings().LoadData();
+            var filter = string.Empty;
+            var pickingSettings = new PickingSettings().LoadData();
 
             if (pickingSettings.IsApplyRouteCodeFilter)
             {
@@ -1110,9 +1110,9 @@ namespace dMobile.Controller
             {
                 if (!SysCommon.IsEmptyDate(pickingSettings.dtOrderedDateFilter))
                 {
-                    DateTime dt = pickingSettings.dtOrderedDateFilter;
-                    DateTime minDate = new DateTime(dt.Year, dt.Month, dt.Day, 00, 00, 00);
-                    DateTime maxDate = new DateTime(dt.Year, dt.Month, dt.Day, 23, 59, 59);
+                    var dt = pickingSettings.dtOrderedDateFilter;
+                    var minDate = new DateTime(dt.Year, dt.Month, dt.Day, 00, 00, 00);
+                    var maxDate = new DateTime(dt.Year, dt.Month, dt.Day, 23, 59, 59);
 
                     this.listPicking = this.listPicking.Where(pick => pick.ActivityPickingOrderedDateTime >= minDate && pick.ActivityPickingOrderedDateTime <= maxDate).ToList();
                 }
@@ -1122,9 +1122,9 @@ namespace dMobile.Controller
             {
                 if (!SysCommon.IsEmptyDate(pickingSettings.dtDeliveryDateFilter))
                 {
-                    DateTime dt = pickingSettings.dtDeliveryDateFilter;
-                    DateTime minDate = new DateTime(dt.Year, dt.Month, dt.Day, 00, 00, 00);
-                    DateTime maxDate = new DateTime(dt.Year, dt.Month, dt.Day, 23, 59, 59);
+                    var dt = pickingSettings.dtDeliveryDateFilter;
+                    var minDate = new DateTime(dt.Year, dt.Month, dt.Day, 00, 00, 00);
+                    var maxDate = new DateTime(dt.Year, dt.Month, dt.Day, 23, 59, 59);
 
                     this.listPicking = this.listPicking.Where(pick => pick.ActivityPickingDeliveryDateTime >= minDate && pick.ActivityPickingDeliveryDateTime <= maxDate).ToList();
                 }
@@ -1137,8 +1137,8 @@ namespace dMobile.Controller
         /// <param name="data">The data<see cref="XDocument"/>.</param>
         public override void GetFilter(XDocument data)
         {
-            string filter = string.Empty;
-            PickingSettings pickingSettings = new PickingSettings().LoadData();
+            var filter = string.Empty;
+            var pickingSettings = new PickingSettings().LoadData();
 
             if (pickingSettings.IsApplyRouteCodeFilter)
             {
@@ -1152,9 +1152,9 @@ namespace dMobile.Controller
             {
                 if (string.Compare(data.Root.Element("ordered_date").Value, string.Empty) > 0)
                 {
-                    DateTime dt = DateTime.Parse(data.Root.Element("ordered_date").Value);
-                    DateTime minDate = new DateTime(dt.Year, dt.Month, dt.Day, 00, 00, 00);
-                    DateTime maxDate = new DateTime(dt.Year, dt.Month, dt.Day, 23, 59, 59);
+                    var dt = DateTime.Parse(data.Root.Element("ordered_date").Value);
+                    var minDate = new DateTime(dt.Year, dt.Month, dt.Day, 00, 00, 00);
+                    var maxDate = new DateTime(dt.Year, dt.Month, dt.Day, 23, 59, 59);
 
                     this.listPicking = this.listPicking.Where(pick => pick.ActivityPickingOrderedDateTime >= minDate && pick.ActivityPickingOrderedDateTime <= maxDate).ToList();
                 }
@@ -1164,9 +1164,9 @@ namespace dMobile.Controller
             {
                 if (string.Compare(data.Root.Element("delivery_date").Value, string.Empty) > 0)
                 {
-                    DateTime dt = DateTime.Parse(data.Root.Element("delivery_date").Value);
-                    DateTime minDate = new DateTime(dt.Year, dt.Month, dt.Day, 00, 00, 00);
-                    DateTime maxDate = new DateTime(dt.Year, dt.Month, dt.Day, 23, 59, 59);
+                    var dt = DateTime.Parse(data.Root.Element("delivery_date").Value);
+                    var minDate = new DateTime(dt.Year, dt.Month, dt.Day, 00, 00, 00);
+                    var maxDate = new DateTime(dt.Year, dt.Month, dt.Day, 23, 59, 59);
 
                     this.listPicking = this.listPicking.Where(pick => pick.ActivityPickingDeliveryDateTime >= minDate && pick.ActivityPickingDeliveryDateTime <= maxDate).ToList();
                 }
@@ -1179,16 +1179,16 @@ namespace dMobile.Controller
         /// <returns>The <see cref="Task{bool}"/>.</returns>
         private async Task<bool> ReleaseBySection()
         {
-            bool isReleased = false;
+            var isReleased = false;
 
-            int locMapRefno = 0;
-            SLocMapAndRefno sLocMapAndRefno = await LocationMapTasks.GetSLocMapFromLocMapFKRefno(
+            var locMapRefno = 0;
+            var sLocMapAndRefno = await LocationMapTasks.GetSLocMapFromLocMapFKRefno(
                 int.Parse(this.XMLDataCriteria.Root.Element("whs_id").Value),
                 int.Parse(this.XMLDataCriteria.Root.Element("sect_refno").Value),
                 slotLocMapFKRefno: 0);
-            SLocMap locMap = sLocMapAndRefno.SLocMap;
+            var locMap = sLocMapAndRefno.SLocMap;
 
-            string msg = string.Format("Release order# {0} for warehouse {1}, section {2}?", this.HdrFKRefno, locMap.WhsName, locMap.SectName);
+            var msg = string.Format("Release order# {0} for warehouse {1}, section {2}?", this.HdrFKRefno, locMap.WhsName, locMap.SectName);
 
             // if (MessageBox.Show(
             //    msg,
@@ -1198,9 +1198,9 @@ namespace dMobile.Controller
             //    MessageBoxDefaultButton.Button2) == DialogResult.Yes)
             if (await Device.InvokeOnMainThreadAsync(async () => await Application.Current.MainPage.DisplayAlert(this.GetControlDescription(), msg, "Yes", "No")))
             {
-                string reqData = string.Empty;
-                StringBuilder xmlString = new StringBuilder();
-                XmlWriter xml = XmlWriter.Create(xmlString);
+                var reqData = string.Empty;
+                var xmlString = new StringBuilder();
+                var xml = XmlWriter.Create(xmlString);
                 XDocument request = null;
 
                 request = XDocument.Parse(
@@ -1225,9 +1225,9 @@ namespace dMobile.Controller
                 {
                     if (reqData.Contains("<message>ERROR</message>"))
                     {
-                        XmlDocument docError = new XmlDocument();
+                        var docError = new XmlDocument();
                         docError.LoadXml(reqData);
-                        string errorDetail = docError.DocumentElement["detail"].InnerText;
+                        var errorDetail = docError.DocumentElement["detail"].InnerText;
 
                         throw new Exception(string.Format("Release order# {0} by order item section {1} failed." + Environment.NewLine + errorDetail, this.HdrFKRefno.ToString(), locMap.SectName));
                     }

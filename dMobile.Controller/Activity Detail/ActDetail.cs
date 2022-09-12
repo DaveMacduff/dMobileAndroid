@@ -262,7 +262,7 @@ namespace dMobile.Controller
                 // detail.LocationMapRefno could be a warehouse or even a slot.
                 this.SelectedLocMap = await LocationMapTasks.GetSLocMapFromLocMapRefno(detail.LocationMapRefno);
 
-                SProductSchemeData schemeData = new SProductSchemeData();
+                var schemeData = new SProductSchemeData();
                 schemeData.LogisticUnitBatchLotNumber = detail.ActivityDetailLogisticUnitBatchLotNumber;
                 schemeData.LogisticUnitBestBeforeSellByDate = detail.ActivityDetailLogisticUnitBestBeforeSellByDate;
                 schemeData.LogisticUnitProductionDate = detail.ActivityDetailLogisticUnitProductionDate;
@@ -335,7 +335,7 @@ namespace dMobile.Controller
         /// <returns><see cref="SFillQuantity"/> Summed quantities.</returns>
         public virtual async Task<SFillQuantity> GetTotalQuantityFromListDetail()
         {
-            SFillQuantity fillQty = new SFillQuantity();
+            var fillQty = new SFillQuantity();
             await Device.InvokeOnMainThreadAsync(() =>
             {
                 if (this.ListDetails != null && this.ListDetails.Count > 0)
@@ -401,7 +401,7 @@ namespace dMobile.Controller
                     this.ClearProperties();
 
                     // Replace empty scheme dates with date time now, not empty.
-                    SProductSchemeData tmpSchemeData = this.SchemeData;
+                    var tmpSchemeData = this.SchemeData;
                     tmpSchemeData.LogisticUnitBestBeforeSellByDate = DateTime.Now;
                     tmpSchemeData.LogisticUnitProductionDate = DateTime.Now;
                     this.SchemeData = tmpSchemeData;
@@ -461,17 +461,17 @@ namespace dMobile.Controller
             //////////////////////////////////////////////////////////////////////////
             void AssignScheme(ActivityDetail detail)
             {
-                SProductSchemeData tmpSchemeData = this.SchemeData;
+                var tmpSchemeData = this.SchemeData;
 
                 // Default best before date to today.
-                DateTime bestBefore = Convert.ToDateTime(detail.ActivityDetailLogisticUnitBestBeforeSellByDate);
+                var bestBefore = Convert.ToDateTime(detail.ActivityDetailLogisticUnitBestBeforeSellByDate);
                 tmpSchemeData.LogisticUnitBestBeforeSellByDate = SysCommon.IsEmptyDateTime(bestBefore) &&
                     this.ActItem.ProdInfo.Scheme.IsBestBeforeDateTrackedDefault
                     ? DateTime.Now
                     : bestBefore;
 
                 // Default production date to today.
-                DateTime production = Convert.ToDateTime(detail.ActivityDetailLogisticUnitProductionDate);
+                var production = Convert.ToDateTime(detail.ActivityDetailLogisticUnitProductionDate);
                 tmpSchemeData.LogisticUnitProductionDate = SysCommon.IsEmptyDateTime(production) &&
                     this.ActItem.ProdInfo.Scheme.IsProductionDateTrackedDefault
                     ? DateTime.Now
@@ -506,7 +506,7 @@ namespace dMobile.Controller
             {
                 if (string.Compare(this.UniqueSchemeID, string.Empty) > 0)
                 {
-                    bool isDupSchemeId = await ProductInfoTasks.IsDuplicateUniqueSchemeID(this.UniqueSchemeID);
+                    var isDupSchemeId = await ProductInfoTasks.IsDuplicateUniqueSchemeID(this.UniqueSchemeID);
 
                     if (isDupSchemeId)
                     {
@@ -534,7 +534,7 @@ namespace dMobile.Controller
         {
             // Init the production and best before date as empty intentional.
             // We want to send a 'blank' date if it is not tracked rather than {01/01/1900} as the empty date.
-            string bestBeforeDate = string.Empty;
+            var bestBeforeDate = string.Empty;
 
             if (this.ActItem.ProdInfo.Scheme.IsBestBeforeDateTracked &&
                 !SysCommon.IsEmptyDateTime(this.SchemeData.LogisticUnitBestBeforeSellByDate))
@@ -542,7 +542,7 @@ namespace dMobile.Controller
                 bestBeforeDate = this.SchemeData.LogisticUnitBestBeforeSellByDate.ToString("MM/dd/yyyy");
             }
 
-            string productionDate = string.Empty;
+            var productionDate = string.Empty;
 
             if (this.ActItem.ProdInfo.Scheme.IsProductionDateTracked &&
                 !SysCommon.IsEmptyDateTime(this.SchemeData.LogisticUnitProductionDate))
@@ -550,31 +550,31 @@ namespace dMobile.Controller
                 productionDate = this.SchemeData.LogisticUnitProductionDate.ToString("MM/dd/yyyy");
             }
 
-            string def = "<prod_id>" + this.ActItem.ProdInfo.Code + "</prod_id>"
-                + "<is_bc>" + this.ActItem.ProdInfo.UnitIsBC + "</is_bc>"
-                + "<whs_id>" + this.LocMap.CurrLocMap.WhsFKRefno + "</whs_id>"
-                + "<sect_refno>" + this.LocMap.CurrLocMap.SectFKRefno + "</sect_refno>"
-                + "<slot_refno>" + this.LocMap.CurrLocMap.SlotFKRefno + "</slot_refno>"
-                + "<refno>" + this.ActItem.ActHdr.HdrFKRefno + "</refno>"
-                + "<itm_refno>" + this.ActItem.ItemFKRefno + "</itm_refno>"
-                + "<ser_refno>" + this.DetailFKRefno + "</ser_refno>"
-                + "<alt_qty>" + this.Quantity + "</alt_qty>"
-                + "<alt_unit>" + this.ActItem.ProdInfo.UnitCode + "</alt_unit>"
-                + "<base_qty>" + this.BaseQuantity + "</base_qty>"
-                + "<base_unit>" + this.ActItem.ProdInfo.BaseUnitCode + "</base_unit>"
-                + "<wt_qty>" + this.WeightQuantity + "</wt_qty>"
-                + "<wt_unit>" + this.ActItem.ProdInfo.WeightUnitCode + "</wt_unit>"
-                + "<serial>" + this.SchemeData.SingleTradeItemSerialNumber + "</serial>"
-                + "<lot_no>" + this.SchemeData.LogisticUnitBatchLotNumber + "</lot_no>"
-                + "<pdate>" + productionDate + "</pdate>"
-                + "<bdate>" + bestBeforeDate + "</bdate>"
-                + "<variant_no>" + this.SchemeData.VariantNumber + "</variant_no>"
-                + "<extra1>" + this.ActExtra.Text1 + "</extra1>"
-                + "<extra2>" + this.ActExtra.Text2 + "</extra2>"
-                + "<extra3>" + this.ActExtra.Text3 + "</extra3>"
-                + "<extra4>" + this.ActExtra.Text4 + "</extra4>"
-                + "<extra5>" + this.ActExtra.DateTime1 + "</extra5>"
-                + "<is_disconnected>" + this.SysEnv.SysSettings.IsDisconnectedMode + "</is_disconnected>";
+            var def = "<prod_id>" + this.ActItem.ProdInfo.Code + "</prod_id>"
+                      + "<is_bc>" + this.ActItem.ProdInfo.UnitIsBC + "</is_bc>"
+                      + "<whs_id>" + this.LocMap.CurrLocMap.WhsFKRefno + "</whs_id>"
+                      + "<sect_refno>" + this.LocMap.CurrLocMap.SectFKRefno + "</sect_refno>"
+                      + "<slot_refno>" + this.LocMap.CurrLocMap.SlotFKRefno + "</slot_refno>"
+                      + "<refno>" + this.ActItem.ActHdr.HdrFKRefno + "</refno>"
+                      + "<itm_refno>" + this.ActItem.ItemFKRefno + "</itm_refno>"
+                      + "<ser_refno>" + this.DetailFKRefno + "</ser_refno>"
+                      + "<alt_qty>" + this.Quantity + "</alt_qty>"
+                      + "<alt_unit>" + this.ActItem.ProdInfo.UnitCode + "</alt_unit>"
+                      + "<base_qty>" + this.BaseQuantity + "</base_qty>"
+                      + "<base_unit>" + this.ActItem.ProdInfo.BaseUnitCode + "</base_unit>"
+                      + "<wt_qty>" + this.WeightQuantity + "</wt_qty>"
+                      + "<wt_unit>" + this.ActItem.ProdInfo.WeightUnitCode + "</wt_unit>"
+                      + "<serial>" + this.SchemeData.SingleTradeItemSerialNumber + "</serial>"
+                      + "<lot_no>" + this.SchemeData.LogisticUnitBatchLotNumber + "</lot_no>"
+                      + "<pdate>" + productionDate + "</pdate>"
+                      + "<bdate>" + bestBeforeDate + "</bdate>"
+                      + "<variant_no>" + this.SchemeData.VariantNumber + "</variant_no>"
+                      + "<extra1>" + this.ActExtra.Text1 + "</extra1>"
+                      + "<extra2>" + this.ActExtra.Text2 + "</extra2>"
+                      + "<extra3>" + this.ActExtra.Text3 + "</extra3>"
+                      + "<extra4>" + this.ActExtra.Text4 + "</extra4>"
+                      + "<extra5>" + this.ActExtra.DateTime1 + "</extra5>"
+                      + "<is_disconnected>" + this.SysEnv.SysSettings.IsDisconnectedMode + "</is_disconnected>";
 
             return def;
         }
@@ -618,7 +618,7 @@ namespace dMobile.Controller
         /// <returns>.</returns>
         public bool IsSchemeComplete(ActItem actItem)
         {
-            bool isComplete = true;
+            var isComplete = true;
 
             if (actItem.ProdInfo.Scheme.IsBestBeforeDateTracked &&
                 SysCommon.IsEmptyDateTime(this.SchemeData.LogisticUnitBestBeforeSellByDate))
@@ -668,7 +668,7 @@ namespace dMobile.Controller
         /// <returns><see cref="bool"/> True if the label scheme is complete else false.</returns>
         public bool IsLabelSchemeComplete(SProductSchemeData schemeData)
         {
-            bool isComplete = true;
+            var isComplete = true;
 
             if (this.ActItem.ProdInfo.Scheme.LabelInfo.IsBestBeforeDateTracked &&
                 SysCommon.IsEmptyDateTime(schemeData.LogisticUnitBestBeforeSellByDate))
@@ -713,8 +713,8 @@ namespace dMobile.Controller
         {
             if (prodSchemeData.VariantNumber > 0)
             {
-                SQLiteAsyncConnection conn = DatabaseConnection.GetInstance().SQLConn;
-                List<tProductSchemeVariantModel> results = await conn.QueryAsync<tProductSchemeVariantModel>(
+                var conn = DatabaseConnection.GetInstance().SQLConn;
+                var results = await conn.QueryAsync<tProductSchemeVariantModel>(
                     "SELECT * FROM tProductSchemeVariant WHERE ProductSchemeVariantNo = ?",
                     Convert.ToInt32(prodSchemeData.VariantNumber));
 
@@ -765,7 +765,7 @@ namespace dMobile.Controller
                 this.WeightQuantity = decimal.Parse(data.Root.Element("wt_qty").Value);
             }
 
-            SProductSchemeData tmpSchemeData = this.SchemeData;
+            var tmpSchemeData = this.SchemeData;
 
             if (!string.IsNullOrEmpty(data.Root.Element("bdate").Value))
             {
@@ -844,10 +844,10 @@ namespace dMobile.Controller
         /// <returns><see cref="int"/> Found list detail index or negative one if not found.</returns>
         public virtual int FindListDetailIndex(int activityDetailRefno)
         {
-            int foundIdx = -1;
+            var foundIdx = -1;
 
             // Go to the list item to update the detail quantity.
-            for (int idx = 0; idx < this.ListDetails.Count; idx++)
+            for (var idx = 0; idx < this.ListDetails.Count; idx++)
             {
                 if (((ActivityDetail)this.ListDetails[idx]).ActivityDetailRefno == activityDetailRefno)
                 {
@@ -893,8 +893,8 @@ namespace dMobile.Controller
         {
             detail.LocationMapRefno = this.LocMap.CurrLocMapRefno;
 
-            int locCode = 0;
-            string locName = string.Empty;
+            var locCode = 0;
+            var locName = string.Empty;
 
             if (this.LocMap.CurrLocMap.SlotLocMapRefno > 0)
             {
@@ -967,13 +967,13 @@ namespace dMobile.Controller
         /// <param name="sendReq"><see cref="string"/> Submission request.</param>
         public void SubmitDetailToCommServer(string sendReq)
         {
-            string reqData = SysCommon.SubmitComm(sendReq);
-            XmlDocument xmlData = new XmlDocument();
+            var reqData = SysCommon.SubmitComm(sendReq);
+            var xmlData = new XmlDocument();
             xmlData.LoadXml(reqData);
 
             if (reqData.Contains("<message>ERROR</message>"))
             {
-                string errorDetail = xmlData.DocumentElement["detail"].InnerText;
+                var errorDetail = xmlData.DocumentElement["detail"].InnerText;
 
                 if (errorDetail.Contains("MSGBOX-"))
                 {
@@ -999,60 +999,60 @@ namespace dMobile.Controller
         /// <returns><see cref="int"/> Inserted activity detail reference number.</returns>
         public async Task<int> InsertDetailDisconnected()
         {
-            SQLiteAsyncConnection conn = DatabaseConnection.GetInstance().SQLConn;
+            var conn = DatabaseConnection.GetInstance().SQLConn;
             int actDetailRefno;
             try
             {
                 if (string.Compare(this.UniqueSchemeID, string.Empty) > 0)
                 {
-                    bool isDupSchemeId = await ProductInfoTasks.IsDuplicateUniqueSchemeID(this.UniqueSchemeID);
+                    var isDupSchemeId = await ProductInfoTasks.IsDuplicateUniqueSchemeID(this.UniqueSchemeID);
                     if (isDupSchemeId)
                     {
                         throw new Exception("Duplicate scheme ID!" + Environment.NewLine + this.UniqueSchemeID);
                     }
                 }
 
-                string query = "INSERT INTO tActivityDetail (" +
-                    "ActivityDetailSubType, " +
-                    "ActivityDetailStatus, " +
-                    "ActivityItemRefno, " +
-                    "LocationMapRefno, " +
-                    "ProductUnitRefno, " +
-                    "ActivityDetailUniqueSchemeID, " +
-                    "ActivityDetailSchemeID, " +
-                    "ActivityDetailQuantity, " +
-                    "ActivityDetailBaseQuantity, " +
-                    "ActivityDetailWeightQuantity, " +
-                    "ActivityDetailSingleTradeItemSerialNumber, " +
-                    "ActivityDetailLogisticUnitBatchLotNumber, " +
-                    "ActivityDetailLogisticUnitBestBeforeSellByDate, " +
-                    "ActivityDetailLogisticUnitExpiryUseByDate, " +
-                    "ActivityDetailLogisticUnitProductionDate, " +
-                    "ActivityDetailLogisticUnitDueDate, " +
-                    "ActivityDetailLogisticUnitPackagingDate, " +
-                    "ActivityDetailLogisticUnitSkidNumber" +
-                    ") VALUES (" +
-                    "?, " +
-                    "?, " +
-                    "?, " +
-                    "?, " +
-                    "?, " +
-                    "?, " +
-                    "?, " +
-                    "?, " +
-                    "?, " +
-                    "?, " +
-                    "?, " +
-                    "?, " +
-                    "?, " +
-                    "?, " +
-                    "?, " +
-                    "?, " +
-                    "?, " +
-                    "?" +
-                    ")";
+                var query = "INSERT INTO tActivityDetail (" +
+                            "ActivityDetailSubType, " +
+                            "ActivityDetailStatus, " +
+                            "ActivityItemRefno, " +
+                            "LocationMapRefno, " +
+                            "ProductUnitRefno, " +
+                            "ActivityDetailUniqueSchemeID, " +
+                            "ActivityDetailSchemeID, " +
+                            "ActivityDetailQuantity, " +
+                            "ActivityDetailBaseQuantity, " +
+                            "ActivityDetailWeightQuantity, " +
+                            "ActivityDetailSingleTradeItemSerialNumber, " +
+                            "ActivityDetailLogisticUnitBatchLotNumber, " +
+                            "ActivityDetailLogisticUnitBestBeforeSellByDate, " +
+                            "ActivityDetailLogisticUnitExpiryUseByDate, " +
+                            "ActivityDetailLogisticUnitProductionDate, " +
+                            "ActivityDetailLogisticUnitDueDate, " +
+                            "ActivityDetailLogisticUnitPackagingDate, " +
+                            "ActivityDetailLogisticUnitSkidNumber" +
+                            ") VALUES (" +
+                            "?, " +
+                            "?, " +
+                            "?, " +
+                            "?, " +
+                            "?, " +
+                            "?, " +
+                            "?, " +
+                            "?, " +
+                            "?, " +
+                            "?, " +
+                            "?, " +
+                            "?, " +
+                            "?, " +
+                            "?, " +
+                            "?, " +
+                            "?, " +
+                            "?, " +
+                            "?" +
+                            ")";
 
-                object[] parameters = new object[]
+                var parameters = new object[]
                 {
                     Convert.ToInt32(this.ActSubType),
                     Convert.ToInt32(SysCommon.ActStatus.Inserted),
@@ -1083,8 +1083,8 @@ namespace dMobile.Controller
 
                 if (this.SchemeData.VariantNumber > 0)
                 {
-                    int schemeVarRefno = 0;
-                    List<tProductSchemeVariantModel> results = await conn.QueryAsync<tProductSchemeVariantModel>(
+                    var schemeVarRefno = 0;
+                    var results = await conn.QueryAsync<tProductSchemeVariantModel>(
                         "SELECT * FROM tProductSchemeVariant WHERE ProductSchemeVariantNo = ?",
                         Convert.ToInt32(this.SchemeData.VariantNumber));
 
@@ -1109,25 +1109,25 @@ namespace dMobile.Controller
                     string.IsNullOrEmpty(this.ActExtra.Text4) ||
                     SysCommon.IsEmptyDate(this.ActExtra.DateTime1))
                 {
-                    string queryExtra = "INSERT INTO tActivityDetailExtra (" +
-                        "ActivityDetailRefno, " +
-                        "ActivityDetailSubType, " +
-                        "ActivityDetailExtra1Text, " +
-                        "ActivityDetailExtra2Text, " +
-                        "ActivityDetailExtra3Text, " +
-                        "ActivityDetailExtra4Text, " +
-                        "ActivityDetailExtra5Date" +
-                        ") VALUES (" +
-                        "?, " +
-                        "?, " +
-                        "?, " +
-                        "?, " +
-                        "?, " +
-                        "?, " +
-                        "?" +
-                        ")";
+                    var queryExtra = "INSERT INTO tActivityDetailExtra (" +
+                                     "ActivityDetailRefno, " +
+                                     "ActivityDetailSubType, " +
+                                     "ActivityDetailExtra1Text, " +
+                                     "ActivityDetailExtra2Text, " +
+                                     "ActivityDetailExtra3Text, " +
+                                     "ActivityDetailExtra4Text, " +
+                                     "ActivityDetailExtra5Date" +
+                                     ") VALUES (" +
+                                     "?, " +
+                                     "?, " +
+                                     "?, " +
+                                     "?, " +
+                                     "?, " +
+                                     "?, " +
+                                     "?" +
+                                     ")";
 
-                    object[] parametersExtra = new object[]
+                    var parametersExtra = new object[]
                     {
                         Convert.ToInt32(actDetailRefno),
                         Convert.ToInt32(this.ActSubType),

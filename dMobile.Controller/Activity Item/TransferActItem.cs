@@ -77,9 +77,9 @@ namespace dMobile.Controller
             this.ActSubType = activity.ActSubType;
 
             // Data grid
-            DataTemplate dataTemplate = new DataTemplate(() =>
+            var dataTemplate = new DataTemplate(() =>
             {
-                Grid gridData = new Grid
+                var gridData = new Grid
                 {
                     Padding = new Thickness(5),
                     ColumnDefinitions =
@@ -93,12 +93,12 @@ namespace dMobile.Controller
                     },
                 };
 
-                Label labelProductID = new Label { VerticalOptions = LayoutOptions.Center };
-                Label labelBC = new Label { VerticalOptions = LayoutOptions.Center };
-                Label labelUnitCode = new Label { VerticalOptions = LayoutOptions.Center };
-                Label labelRequired = new Label { VerticalOptions = LayoutOptions.Center };
-                Label labelQty = new Label { VerticalOptions = LayoutOptions.Center };
-                Label labelWhs = new Label { VerticalOptions = LayoutOptions.Center };
+                var labelProductID = new Label { VerticalOptions = LayoutOptions.Center };
+                var labelBC = new Label { VerticalOptions = LayoutOptions.Center };
+                var labelUnitCode = new Label { VerticalOptions = LayoutOptions.Center };
+                var labelRequired = new Label { VerticalOptions = LayoutOptions.Center };
+                var labelQty = new Label { VerticalOptions = LayoutOptions.Center };
+                var labelWhs = new Label { VerticalOptions = LayoutOptions.Center };
 
                 labelProductID.SetBinding(Label.TextProperty, new Binding("ProductCode"));
                 labelBC.SetBinding(Label.TextProperty, new Binding("ProductUnitBC"));
@@ -124,10 +124,10 @@ namespace dMobile.Controller
                 return new ViewCell { View = gridData };
             });
 
-            bool isAddKey = true;
+            var isAddKey = true;
             foreach (var item in this.resourceDictionary)
             {
-                if (item.Key == "dataTemplate")
+                if (item.Key == "dataTemplateTransferItem")
                 {
                     isAddKey = false;
                 }
@@ -135,7 +135,7 @@ namespace dMobile.Controller
 
             if (isAddKey)
             {
-                this.resourceDictionary.Add("dataTemplate", dataTemplate);
+                this.resourceDictionary.Add("dataTemplateTransferItem", dataTemplate);
             }
         }
 
@@ -148,7 +148,7 @@ namespace dMobile.Controller
             this.SelectedListItemIdx = -1;
             if (actItemFoundRefno >= 0)
             {
-                int idx = 0;
+                var idx = 0;
                 foreach (TransferItem item in this.ListItems)
                 {
                     if (item.ActivityItemRefno == this.ItemRefno)
@@ -182,7 +182,7 @@ namespace dMobile.Controller
         /// <returns>.</returns>
         public override bool IsCatchAsk()
         {
-            bool isCatchAsk = this.ProdInfo.IsCatchAsk;
+            var isCatchAsk = this.ProdInfo.IsCatchAsk;
 
             if (isCatchAsk)
             {
@@ -199,7 +199,7 @@ namespace dMobile.Controller
         /// <returns>.</returns>
         public override bool IsCatchAskZero()
         {
-            bool result = this.IsCatchAsk();
+            var result = this.IsCatchAsk();
             if (result && this.ProdInfo.IsCatchAskZero)
             {
                 result = !this.SysEnv.SysSettings.IsTransferNoCatchAskZeroEnabled;
@@ -281,12 +281,12 @@ namespace dMobile.Controller
         /// <returns><see cref="Task"/> Task operation.</returns>
         public override async Task Insert(XDocument data, bool askToInsertAsNewItem)
         {
-            int prodUnitRefno = int.Parse(data.Root.Element("ProductUnitRefno").Value);
+            var prodUnitRefno = int.Parse(data.Root.Element("ProductUnitRefno").Value);
 
             await DatabaseConnection.GetInstance().SQLConn.RunInTransactionAsync(transaction =>
             {
-                string queryActivityItem = "INSERT INTO tActivityItem (ActivityItemSubType, ActivityItemStatus, ActivityRefno) VALUES (?, ?, ?)";
-                List<object> parametersActivityItem = new List<object>();
+                var queryActivityItem = "INSERT INTO tActivityItem (ActivityItemSubType, ActivityItemStatus, ActivityRefno) VALUES (?, ?, ?)";
+                var parametersActivityItem = new List<object>();
 
                 if (this.ActSubType == SysCommon.ActSubTypes.TransferFrom)
                 {
@@ -305,30 +305,30 @@ namespace dMobile.Controller
                 this.ItemRefno = Convert.ToInt32(transaction.ExecuteScalar<int>("SELECT last_insert_rowid() FROM tActivityItem"));
                 this.ItemFKRefno = this.ItemRefno * -1;
 
-                string queryTransferItem = "INSERT INTO tActivityItemTransfer (" +
-                    "ActivityItemRefno, " +
-                    "ActivityItemSubType, " +
-                    "ActivityItemFKRefno, " +
-                    "ActivityItemStringFKRefno, " +
-                    "ProductUnitRefno, " +
-                    "TransferFromWarehouseLocationMapRefno, " +
-                    "ActivityItemTransferRequiredQuantity, " +
-                    "ActivityItemTransferQuantity, " +
-                    "ActivityItemTransferBaseQuantity, " +
-                    "ActivityItemTransferWeightQuantity" +
-                    ") VALUES (" +
-                    "?, " +
-                    "?, " +
-                    "?, " +
-                    "?, " +
-                    "?, " +
-                    "?, " +
-                    "?, " +
-                    "?, " +
-                    "?, " +
-                    "?" +
-                    ")";
-                List<object> parametersTransferItem = new List<object>();
+                var queryTransferItem = "INSERT INTO tActivityItemTransfer (" +
+                                        "ActivityItemRefno, " +
+                                        "ActivityItemSubType, " +
+                                        "ActivityItemFKRefno, " +
+                                        "ActivityItemStringFKRefno, " +
+                                        "ProductUnitRefno, " +
+                                        "TransferFromWarehouseLocationMapRefno, " +
+                                        "ActivityItemTransferRequiredQuantity, " +
+                                        "ActivityItemTransferQuantity, " +
+                                        "ActivityItemTransferBaseQuantity, " +
+                                        "ActivityItemTransferWeightQuantity" +
+                                        ") VALUES (" +
+                                        "?, " +
+                                        "?, " +
+                                        "?, " +
+                                        "?, " +
+                                        "?, " +
+                                        "?, " +
+                                        "?, " +
+                                        "?, " +
+                                        "?, " +
+                                        "?" +
+                                        ")";
+                var parametersTransferItem = new List<object>();
                 parametersTransferItem.Add(Convert.ToInt32(this.ItemRefno));
 
                 if (this.ActSubType == SysCommon.ActSubTypes.TransferFrom)
@@ -358,7 +358,7 @@ namespace dMobile.Controller
 
             if (this.ListItems != null)
             {
-                TransferItem item = new TransferItem()
+                var item = new TransferItem()
                 {
                     ActivityItemRefno = this.ItemRefno,
                     ActivityItemFKRefno = this.ItemFKRefno,
@@ -402,8 +402,8 @@ namespace dMobile.Controller
 
                 if (this.ActSubType == SysCommon.ActSubTypes.TransferFrom)
                 {
-                    TableActivityTransferFromItem tableActTransferItem = new TableActivityTransferFromItem();
-                    TableActivityTransferFromDetail tableActTransferDetail = new TableActivityTransferFromDetail();
+                    var tableActTransferItem = new TableActivityTransferFromItem();
+                    var tableActTransferDetail = new TableActivityTransferFromDetail();
                     await tableActTransferDetail.PurgeData();
                     await tableActTransferItem.PurgeData();
 
@@ -415,8 +415,8 @@ namespace dMobile.Controller
                 }
                 else
                 {
-                    TableActivityTransferToItem tableActTransferItem = new TableActivityTransferToItem();
-                    TableActivityTransferToDetail tableActTransferDetail = new TableActivityTransferToDetail();
+                    var tableActTransferItem = new TableActivityTransferToItem();
+                    var tableActTransferDetail = new TableActivityTransferToDetail();
                     await tableActTransferDetail.PurgeData();
                     await tableActTransferItem.PurgeData();
 
@@ -437,14 +437,14 @@ namespace dMobile.Controller
         /// <returns>The <see cref="ObservableCollection{object}"/>.</returns>
         public override ObservableCollection<object> DesignGrid(ref Grid GridMainActivity, ref ListView ListViewMainActivity)
         {
-            ObservableCollection<object> observableCollection = new ObservableCollection<object>();
+            var observableCollection = new ObservableCollection<object>();
 
-            Label labelProductIDHeader = new Label { Text = "Product ID", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
-            Label labelBCHeader = new Label { Text = "BC", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
-            Label labelUnitCodeHeader = new Label { Text = string.Empty, VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
-            Label labelRequiredHeader = new Label { Text = "Required", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
-            Label labelQtyHeader = new Label { Text = "Qty", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
-            Label labelWhsHeader = new Label { Text = "Whs", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
+            var labelProductIDHeader = new Label { Text = "Product ID", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
+            var labelBCHeader = new Label { Text = "BC", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
+            var labelUnitCodeHeader = new Label { Text = string.Empty, VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
+            var labelRequiredHeader = new Label { Text = "Required", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
+            var labelQtyHeader = new Label { Text = "Qty", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
+            var labelWhsHeader = new Label { Text = "Whs", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
 
             this.columnWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(labelProductIDHeader.Text);
             this.columnWidth1 = DependencyService.Get<IGridService>().CalculateTextWidth(labelBCHeader.Text);
@@ -454,7 +454,7 @@ namespace dMobile.Controller
             this.columnWidth5 = DependencyService.Get<IGridService>().CalculateTextWidth(labelWhsHeader.Text);
 
             // Create header data template
-            Grid gridHeader = new Grid
+            var gridHeader = new Grid
             {
                 Padding = new Thickness(5),
                 ColumnDefinitions =
@@ -513,12 +513,12 @@ namespace dMobile.Controller
                 // };
                 observableCollection.Add(transferItem);
 
-                double detailWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(transferItem.ProductCode);
-                double detailWidth1 = DependencyService.Get<IGridService>().CalculateTextWidth(transferItem.ProductUnitBC);
-                double detailWidth2 = DependencyService.Get<IGridService>().CalculateTextWidth(transferItem.UnitCode);
-                double detailWidth3 = DependencyService.Get<IGridService>().CalculateTextWidth(string.Format("{0:F3}", transferItem.ActivityItemTransferRequiredQuantity));
-                double detailWidth4 = DependencyService.Get<IGridService>().CalculateTextWidth(string.Format("{0:F3}", transferItem.ActivityItemTransferQuantity));
-                double detailWidth5 = DependencyService.Get<IGridService>().CalculateTextWidth(Convert.ToString(transferItem.LocationCode));
+                var detailWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(transferItem.ProductCode);
+                var detailWidth1 = DependencyService.Get<IGridService>().CalculateTextWidth(transferItem.ProductUnitBC);
+                var detailWidth2 = DependencyService.Get<IGridService>().CalculateTextWidth(transferItem.UnitCode);
+                var detailWidth3 = DependencyService.Get<IGridService>().CalculateTextWidth(string.Format("{0:F3}", transferItem.ActivityItemTransferRequiredQuantity));
+                var detailWidth4 = DependencyService.Get<IGridService>().CalculateTextWidth(string.Format("{0:F3}", transferItem.ActivityItemTransferQuantity));
+                var detailWidth5 = DependencyService.Get<IGridService>().CalculateTextWidth(Convert.ToString(transferItem.LocationCode));
 
                 if (detailWidth0 > this.columnWidth0)
                 {
@@ -557,7 +557,7 @@ namespace dMobile.Controller
                 }
             }
 
-            ListViewMainActivity.ItemTemplate = (DataTemplate)this.resourceDictionary["dataTemplate"];
+            ListViewMainActivity.ItemTemplate = (DataTemplate)this.resourceDictionary["dataTemplateTransferItem"];
 
             return observableCollection;
         }
@@ -569,7 +569,7 @@ namespace dMobile.Controller
         /// <returns>.</returns>
         public override async Task<List<object>> GetActivityItemList(bool isSubmitBatch)
         {
-            StringBuilder sql = new StringBuilder();
+            var sql = new StringBuilder();
 
             if (isSubmitBatch)
             {
@@ -694,7 +694,7 @@ namespace dMobile.Controller
         /// <returns>.</returns>
         public override ObservableCollection<object> Search(string searchText)
         {
-            ObservableCollection<object> observableCollection = new ObservableCollection<object>();
+            var observableCollection = new ObservableCollection<object>();
 
             // if (string.IsNullOrEmpty(this.ActItemFilter))
             // {
@@ -757,7 +757,7 @@ namespace dMobile.Controller
                     this.ActHdr.SkidInfo.CurrSkid = new SSkidInfo();
                 }
 
-                SLocMap locMap = await this.GetSelectedItemLocation(item.LocationMapRefno);
+                var locMap = await this.GetSelectedItemLocation(item.LocationMapRefno);
 
                 if (this.SysEnv.SysSettings.IsDefaultLocToProductDefaultLoc)
                 {
@@ -800,21 +800,21 @@ namespace dMobile.Controller
         /// <returns><see cref="int"/> Found activity item reference number else 0.</returns>
         public override async Task<int> GetActivityItemRefno(int prodUnitRefno)
         {
-            int foundItemRefno = 0;
+            var foundItemRefno = 0;
 
-            string query = "SELECT tActivityItem.ActivityItemRefno,"
-                + "tActivityItemTransfer.ActivityItemFKRefno,"
-                + "tActivityItemTransfer.ProductUnitRefno,"
-                + "tLocationMapWarehouse.LocationMapRefno "
-                + "FROM tActivityItemTransfer "
-                + "INNER JOIN tActivityItem ON tActivityItem.ActivityItemRefno = tActivityItemTransfer.ActivityItemRefno "
-                + "INNER JOIN tLocationMapWarehouse ON tLocationMapWarehouse.LocationMapRefno "
-                + "= tActivityItemTransfer.TransferFromWarehouseLocationMapRefno "
-                + "WHERE tActivityItem.ActivityRefno = ? "
-                + "AND tActivityItemTransfer.TransferFromWarehouseLocationMapRefno = ? "
-                + "AND tActivityItemTransfer.ProductUnitRefno = ?";
+            var query = "SELECT tActivityItem.ActivityItemRefno,"
+                        + "tActivityItemTransfer.ActivityItemFKRefno,"
+                        + "tActivityItemTransfer.ProductUnitRefno,"
+                        + "tLocationMapWarehouse.LocationMapRefno "
+                        + "FROM tActivityItemTransfer "
+                        + "INNER JOIN tActivityItem ON tActivityItem.ActivityItemRefno = tActivityItemTransfer.ActivityItemRefno "
+                        + "INNER JOIN tLocationMapWarehouse ON tLocationMapWarehouse.LocationMapRefno "
+                        + "= tActivityItemTransfer.TransferFromWarehouseLocationMapRefno "
+                        + "WHERE tActivityItem.ActivityRefno = ? "
+                        + "AND tActivityItemTransfer.TransferFromWarehouseLocationMapRefno = ? "
+                        + "AND tActivityItemTransfer.ProductUnitRefno = ?";
 
-            List<TransferItem> results = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<TransferItem>(
+            var results = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<TransferItem>(
                 query, this.ActHdr.HdrRefno, this.LocMap.WhsLocMapRefno, prodUnitRefno);
 
             if (results?.Count > 0)
@@ -837,10 +837,10 @@ namespace dMobile.Controller
         /// <returns>.</returns>
         public async override Task<string> CreateSubmitXML(XDocument data)
         {
-            StringBuilder xmlString = new StringBuilder();
-            XmlWriter xml = XmlWriter.Create(xmlString);
+            var xmlString = new StringBuilder();
+            var xml = XmlWriter.Create(xmlString);
 
-            XDocument request = XDocument.Parse(
+            var request = XDocument.Parse(
                 "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>"
                 + "<imclient>"
                 + "<command>"
@@ -908,10 +908,10 @@ namespace dMobile.Controller
         {
             if (activityItem is TransferItem transferItem)
             {
-                string query = "UPDATE tActivityItemTransfer SET ActivityItemTransferQuantity = ?," +
-                    " ActivityItemTransferBaseQuantity = ?, ActivityItemTransferWeightQuantity = ?" +
-                    " WHERE ActivityItemRefno = ?";
-                object[] parameters = new object[]
+                var query = "UPDATE tActivityItemTransfer SET ActivityItemTransferQuantity = ?," +
+                            " ActivityItemTransferBaseQuantity = ?, ActivityItemTransferWeightQuantity = ?" +
+                            " WHERE ActivityItemRefno = ?";
+                var parameters = new object[]
                 {
                     transferItem.ActivityItemTransferQuantity,
                     transferItem.ActivityItemTransferBaseQuantity,
@@ -932,8 +932,8 @@ namespace dMobile.Controller
         {
             if (this.SelectedActivityItem is TransferItem transferItem)
             {
-                decimal transferred = Convert.ToDecimal(transferItem.ActivityItemTransferQuantity);
-                decimal required = Convert.ToDecimal(transferItem.ActivityItemTransferRequiredQuantity);
+                var transferred = Convert.ToDecimal(transferItem.ActivityItemTransferQuantity);
+                var required = Convert.ToDecimal(transferItem.ActivityItemTransferRequiredQuantity);
 
                 if (transferred + actItemTransQuantity > required)
                 {
@@ -1039,7 +1039,7 @@ namespace dMobile.Controller
         /// <returns><see cref="int"/> Location map reference number.</returns>
         public override async Task<int> GetDefaultLocMapRefno(int whsLocMapRefno, int prodRefno)
         {
-            int locMapRefno = 0;
+            var locMapRefno = 0;
             if (this.SelectedActivityItem is TransferItem item)
             {
                 if (Math.Sign(item.ActivityItemTransferQuantity) == 0 ||

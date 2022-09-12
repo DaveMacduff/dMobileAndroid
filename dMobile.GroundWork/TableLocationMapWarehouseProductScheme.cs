@@ -36,21 +36,21 @@ namespace dMobile.GroundWork
             {
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Seeding warehouse product schemes.", true);
 
-                List<tFamilyModel> resultsFamily = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<tFamilyModel>("SELECT * FROM tFamily");
+                var resultsFamily = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<tFamilyModel>("SELECT * FROM tFamily");
 
                 if (resultsFamily?.Count > 0)
                 {
-                    foreach (tFamilyModel family in resultsFamily)
+                    foreach (var family in resultsFamily)
                     {
                         this.DataAccessStatusOutHandler(this, EventArgs.Empty, string.Format("For family {0}", family.FamilyCode), true);
 
-                        string reqData = await this.SendRequest(family.FamilyCode);
+                        var reqData = await this.SendRequest(family.FamilyCode);
 
                         if (reqData.Length > 0)
                         {
                             if (reqData.Contains("<message>ERROR</message>"))
                             {
-                                XmlDocument reqErr = new XmlDocument();
+                                var reqErr = new XmlDocument();
                                 reqErr.LoadXml(reqData);
                                 throw new Exception(reqErr.DocumentElement["detail"].InnerText);
                             }
@@ -125,13 +125,13 @@ namespace dMobile.GroundWork
         /// <remarks></remarks>
         protected override async Task Save(string reqData)
         {
-            string errMsg = string.Empty;
+            var errMsg = string.Empty;
 
             await DatabaseConnection.GetInstance().SQLConn.RunInTransactionAsync(transaction =>
             {
                 try
                 {
-                    using (DataSet ds = new DataSet())
+                    using (var ds = new DataSet())
                     {
                         this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Reading received data.", false);
 
@@ -141,18 +141,18 @@ namespace dMobile.GroundWork
 
                         if (ds.Tables.Count != 0)
                         {
-                            int progMax = Convert.ToInt32(ds.Tables["tLocationMapWarehouseProductScheme"].Rows.Count);
+                            var progMax = Convert.ToInt32(ds.Tables["tLocationMapWarehouseProductScheme"].Rows.Count);
 
                             this.DataAccessStatusOutHandler(this, EventArgs.Empty, string.Format("Records {0}", ds.Tables["tLocationMapWarehouseProductScheme"].Rows.Count), false);
 
-                            int progValue = 0;
-                            int productFKRefno = 0;
-                            int locMapWhsFKRefno = 0;
-                            int schemeRefno = 0;
-                            int locMapWhsRefno = 0;
-                            int productRefno = 0;
-                            string schemeCode = string.Empty;
-                            bool isWhsProdSchemeFound = false;
+                            var progValue = 0;
+                            var productFKRefno = 0;
+                            var locMapWhsFKRefno = 0;
+                            var schemeRefno = 0;
+                            var locMapWhsRefno = 0;
+                            var productRefno = 0;
+                            var schemeCode = string.Empty;
+                            var isWhsProdSchemeFound = false;
 
                             this.DataAccessProgressOutHandler(this, EventArgs.Empty, 0, 0, progMax);
 
@@ -168,7 +168,7 @@ namespace dMobile.GroundWork
                                 errMsg = "Product FK Refno \'" + productFKRefno.ToString() + "\'";
 
                                 // Find the scheme
-                                List<tProductSchemeModel> resultsProductScheme = transaction.Query<tProductSchemeModel>("SELECT * FROM tProductScheme WHERE ProductSchemeCode = ?", schemeCode);
+                                var resultsProductScheme = transaction.Query<tProductSchemeModel>("SELECT * FROM tProductScheme WHERE ProductSchemeCode = ?", schemeCode);
 
                                 if (resultsProductScheme?.Count > 0)
                                 {
@@ -180,7 +180,7 @@ namespace dMobile.GroundWork
                                 }
 
                                 // Find the product
-                                List<tProductModel> resultsProduct = transaction.Query<tProductModel>("SELECT * FROM tProduct WHERE ProductFKRefno = ?", Convert.ToInt32(productFKRefno));
+                                var resultsProduct = transaction.Query<tProductModel>("SELECT * FROM tProduct WHERE ProductFKRefno = ?", Convert.ToInt32(productFKRefno));
 
                                 if (resultsProduct?.Count > 0)
                                 {
@@ -192,7 +192,7 @@ namespace dMobile.GroundWork
                                 }
 
                                 // Find the warehouse
-                                List<tLocationMapWarehouseModel> resultsLocationMapWarehouse = transaction.Query<tLocationMapWarehouseModel>("SELECT * FROM tLocationMapWarehouse WHERE LocationMapWarehouseFKRefno = ?", Convert.ToInt32(locMapWhsFKRefno));
+                                var resultsLocationMapWarehouse = transaction.Query<tLocationMapWarehouseModel>("SELECT * FROM tLocationMapWarehouse WHERE LocationMapWarehouseFKRefno = ?", Convert.ToInt32(locMapWhsFKRefno));
 
                                 if (resultsLocationMapWarehouse?.Count > 0)
                                 {
@@ -207,8 +207,8 @@ namespace dMobile.GroundWork
 
                                 if (this.SysEnv.RefreshOpt.RefreshDataChangesOnly)
                                 {
-                                    string query = "SELECT * FROM tLocationMapWarehouseProductScheme WHERE WarehouseLocationMapRefno = ? AND ProductRefno = ? AND ProductSchemeRefno = ?";
-                                    List<tLocationMapWarehouseProductSchemeModel> resultsLocationMapWarehouseProductScheme = transaction.Query<tLocationMapWarehouseProductSchemeModel>(query, Convert.ToInt32(locMapWhsRefno), Convert.ToInt32(productRefno), Convert.ToInt32(schemeRefno));
+                                    var query = "SELECT * FROM tLocationMapWarehouseProductScheme WHERE WarehouseLocationMapRefno = ? AND ProductRefno = ? AND ProductSchemeRefno = ?";
+                                    var resultsLocationMapWarehouseProductScheme = transaction.Query<tLocationMapWarehouseProductSchemeModel>(query, Convert.ToInt32(locMapWhsRefno), Convert.ToInt32(productRefno), Convert.ToInt32(schemeRefno));
 
                                     if (resultsLocationMapWarehouseProductScheme?.Count > 0)
                                     {
@@ -255,10 +255,10 @@ namespace dMobile.GroundWork
         /// <remarks></remarks>
         protected async override Task<string> CreateRequest(string strFamilyCode)
         {
-            StringBuilder xmlString = new StringBuilder();
-            XmlWriter xml = XmlWriter.Create(xmlString);
+            var xmlString = new StringBuilder();
+            var xml = XmlWriter.Create(xmlString);
 
-            XDocument request = XDocument.Parse(
+            var request = XDocument.Parse(
                 "<?xml version=\"1.0\" encoding=\"utf-8\" standalone=\"yes\"?>"
                 + "<imclient>"
                 + "<command>"

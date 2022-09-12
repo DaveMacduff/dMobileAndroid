@@ -101,7 +101,7 @@ namespace dMobile.Bedrock
         /// <returns>.</returns>
         public static Platform GetPlatform()
         {
-            Platform plat = Platform.Unknown;
+            var plat = Platform.Unknown;
             switch (System.Environment.OSVersion.Platform)
             {
                 case PlatformID.Win32NT:
@@ -134,12 +134,12 @@ namespace dMobile.Bedrock
         /// <returns>.</returns>
         public static Platform CheckWinCEPlatform()
         {
-            Platform plat = Platform.WindowsCE;
-            StringBuilder strbuild = new StringBuilder(200);
+            var plat = Platform.WindowsCE;
+            var strbuild = new StringBuilder(200);
 
             SystemParametersInfo(SPI_GETPLATFORMTYPE, 200, strbuild, 0);
 
-            string str = strbuild.ToString();
+            var str = strbuild.ToString();
             switch (str)
             {
                 case "PocketPC":

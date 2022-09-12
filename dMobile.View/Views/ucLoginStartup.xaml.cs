@@ -113,9 +113,9 @@ namespace dMobile.View
         /// <returns><see cref="bool"/> True if the data is ready to be saved else false.</returns>
         public async Task<bool> IsReadyToSave()
         {
-            bool isReadyToSave = true;
-            string password = string.Empty;
-            int userCode = 0;
+            var isReadyToSave = true;
+            var password = string.Empty;
+            var userCode = 0;
 
             try
             {
@@ -129,7 +129,7 @@ namespace dMobile.View
                 }
 
                 // Check if user exists.
-                List<tContactUserModel> results = await DatabaseConnection.GetInstance().SQLConn.
+                var results = await DatabaseConnection.GetInstance().SQLConn.
                     QueryAsync<tContactUserModel>(
                     "SELECT * FROM tContactUser WHERE ContactUserCode = ?",
                     Convert.ToInt32(this.txtLoginID.Text));
@@ -167,13 +167,13 @@ namespace dMobile.View
             }
             catch (SQLiteException ex)
             {
-                FormErrorReport errReport = new FormErrorReport(SysCommon.ActSubTypes.LoginStartup, ex);
+                var errReport = new FormErrorReport(SysCommon.ActSubTypes.LoginStartup, ex);
                 _ = await Device.InvokeOnMainThreadAsync(async () => await errReport.ShowDialog());
                 isReadyToSave = false;
             }
             catch (Exception ex)
             {
-                FormErrorReport errReport = new FormErrorReport(SysCommon.ActSubTypes.LoginStartup, ex);
+                var errReport = new FormErrorReport(SysCommon.ActSubTypes.LoginStartup, ex);
                 _ = await Device.InvokeOnMainThreadAsync(async () => await errReport.ShowDialog());
                 isReadyToSave = false;
             }
@@ -198,7 +198,7 @@ namespace dMobile.View
                     if (this.SysEnv.ContactLog.IsLoggedIn)
                     {
                         this.SysEnv.ContactLog.IsLoggedIn = false;
-                        ContactLogin tempContactLogin = this.SysEnv.ContactLog;
+                        var tempContactLogin = this.SysEnv.ContactLog;
                         _ = this.SysEnv.ContactLog.SaveData(ref tempContactLogin);
 
                         try
@@ -213,7 +213,7 @@ namespace dMobile.View
                         }
                         catch (Exception ex)
                         {
-                            FormErrorReport errReport = new FormErrorReport(SysCommon.ActSubTypes.LoginStartup, ex);
+                            var errReport = new FormErrorReport(SysCommon.ActSubTypes.LoginStartup, ex);
                             _ = await Device.InvokeOnMainThreadAsync(async () => await errReport.ShowDialog());
                         }
                     }
@@ -229,8 +229,8 @@ namespace dMobile.View
         /// <returns><see cref="bool"/> True if a save was performed successfully else false.</returns>
         public async Task<bool> SaveChanges()
         {
-            bool saveComplete = false;
-            LocationMap locMap = LocationMap.GetInstance();
+            var saveComplete = false;
+            var locMap = LocationMap.GetInstance();
 
             try
             {
@@ -271,14 +271,14 @@ namespace dMobile.View
                         }
                         catch (Exception ex)
                         {
-                            FormErrorReport errReport = new FormErrorReport(SysCommon.ActSubTypes.LoginStartup, ex);
+                            var errReport = new FormErrorReport(SysCommon.ActSubTypes.LoginStartup, ex);
                             _ = await Device.InvokeOnMainThreadAsync(async () => await errReport.ShowDialog());
                         }
                     }
 
                     this.SysEnv.IsEnableAllModuleBypassLicense = this.IsEnableAllModuleBypassLicense;
 
-                    ContactLogin tempContactLogin = this.SysEnv.ContactLog;
+                    var tempContactLogin = this.SysEnv.ContactLog;
                     saveComplete = this.SysEnv.ContactLog.SaveData(ref tempContactLogin);
                     locMap.LoginWhsLocMapRefno = this.SysEnv.ContactLog.WarehouseLocationMapRefno;
                     locMap.CurrLocMap = await LocationMapTasks.GetSLocMapFromLocMapRefno(locMap.LoginWhsLocMapRefno);
@@ -300,7 +300,7 @@ namespace dMobile.View
             }
             catch (Exception ex)
             {
-                FormErrorReport errReport = new FormErrorReport(SysCommon.ActSubTypes.LoginStartup, ex);
+                var errReport = new FormErrorReport(SysCommon.ActSubTypes.LoginStartup, ex);
                 await Device.InvokeOnMainThreadAsync(async () => await errReport.ShowDialog().ContinueWith(result =>
                 {
                 }));
@@ -317,7 +317,7 @@ namespace dMobile.View
         /// <returns><see cref="bool"/>. True if the changes where canceled, else false.</returns>
         public async Task<bool> CancelChanges()
         {
-            bool cancelChanges = true;
+            var cancelChanges = true;
 
             try
             {
@@ -330,7 +330,7 @@ namespace dMobile.View
             }
             catch (Exception ex)
             {
-                FormErrorReport errReport = new FormErrorReport(SysCommon.ActSubTypes.LoginStartup, ex);
+                var errReport = new FormErrorReport(SysCommon.ActSubTypes.LoginStartup, ex);
                 await errReport.ShowDialog().ContinueWith(result =>
                 {
                 });
@@ -345,7 +345,7 @@ namespace dMobile.View
         /// <returns><see cref="Task"/> Task operation containing an XDocument.</returns>
         public async Task<XDocument> GetXML()
         {
-            XDocument xmldocParams = XDocument.Parse(
+            var xmldocParams = XDocument.Parse(
                 "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>"
                 + "<params>"
                 + "</params>");
@@ -379,9 +379,9 @@ namespace dMobile.View
                 {
                     await Device.InvokeOnMainThreadAsync(async () =>
                     {
-                        string msg = "This activity unexpectedly failed to initialize correctly." +
-                            " Please exit and try again.";
-                        FormErrorReport errorReport = new FormErrorReport(msg, ex);
+                        var msg = "This activity unexpectedly failed to initialize correctly." +
+                                  " Please exit and try again.";
+                        var errorReport = new FormErrorReport(msg, ex);
                         _ = await errorReport.ShowDialog();
                     });
                 }
@@ -419,9 +419,9 @@ namespace dMobile.View
                     {
                         await Device.InvokeOnMainThreadAsync(async () =>
                         {
-                            string msg = "This activity unexpectedly failed to initialize correctly." +
-                                " Please exit and try again.";
-                            FormErrorReport errorReport = new FormErrorReport(msg, ex);
+                            var msg = "This activity unexpectedly failed to initialize correctly." +
+                                      " Please exit and try again.";
+                            var errorReport = new FormErrorReport(msg, ex);
                             _ = await errorReport.ShowDialog();
                         });
                     }
@@ -451,21 +451,21 @@ namespace dMobile.View
             this.txtLoginID.Text = this.SysEnv.ContactLog.LoginID.ToString();
             this.txtLoginPassword.Text = this.SysEnv.ContactLog.LoginPassword;
 
-            List<Warehouse> resultsWarehouse = await DatabaseConnection.GetInstance().SQLConn.
+            var resultsWarehouse = await DatabaseConnection.GetInstance().SQLConn.
                 QueryAsync<Warehouse>(
                 "SELECT LocationMapRefno, LocationMapWarehouseCode, LocationMapWarehouseName FROM tLocationMapWarehouse");
 
             if (resultsWarehouse?.Count > 0)
             {
-                foreach (Warehouse warehouse in resultsWarehouse)
+                foreach (var warehouse in resultsWarehouse)
                 {
                     warehouse.DisplayName = warehouse.LocationMapWarehouseCode + " " + warehouse.LocationMapWarehouseName;
                 }
 
                 this.lstWarehouse.ItemsSource = resultsWarehouse;
                 this.lstWarehouse.ItemDisplayBinding = new Binding("DisplayName");
-                Warehouse selectedWarehouse = resultsWarehouse.Where(warehouse => warehouse.LocationMapRefno ==
-                    this.SysEnv.ContactLog.WarehouseLocationMapRefno).FirstOrDefault();
+                var selectedWarehouse = resultsWarehouse.Where(warehouse => warehouse.LocationMapRefno ==
+                                                                            this.SysEnv.ContactLog.WarehouseLocationMapRefno).FirstOrDefault();
 
                 if (selectedWarehouse != null)
                 {
@@ -522,12 +522,12 @@ namespace dMobile.View
         /// <returns>The <see cref="Task"/>.</returns>
         private async Task ValidateEntry(object sender, CancelEventArgs e)
         {
-            int userCode = 0;
-            string password = string.Empty;
+            var userCode = 0;
+            var password = string.Empty;
 
             try
             {
-                List<tContactUserModel> results = await DatabaseConnection.GetInstance().SQLConn.
+                var results = await DatabaseConnection.GetInstance().SQLConn.
                     QueryAsync<tContactUserModel>(
                     "SELECT * FROM tContactUser WHERE ContactUserCode = ?",
                     Convert.ToInt32(this.txtLoginID.Text));
@@ -579,12 +579,12 @@ namespace dMobile.View
                     this.SysEnv.ContactLog.WarehouseLocationMapRefno = 0;
                 }
 
-                LocationMap locMap = LocationMap.GetInstance();
+                var locMap = LocationMap.GetInstance();
                 locMap.LoginWhsLocMapRefno = this.SysEnv.ContactLog.WarehouseLocationMapRefno;
 
                 if (e.Cancel == false)
                 {
-                    ContactLogin tempContactLogin = this.SysEnv.ContactLog;
+                    var tempContactLogin = this.SysEnv.ContactLog;
                     _ = this.SysEnv.ContactLog.SaveData(ref tempContactLogin);
                 }
             }
@@ -600,7 +600,7 @@ namespace dMobile.View
             catch (SQLiteException ex)
             {
                 e.Cancel = true;
-                FormErrorReport errReport = new FormErrorReport(ex);
+                var errReport = new FormErrorReport(ex);
                 await errReport.ShowDialog().ContinueWith(result =>
                 {
                 });
@@ -608,7 +608,7 @@ namespace dMobile.View
             catch (Exception ex)
             {
                 e.Cancel = false;
-                FormErrorReport errReport = new FormErrorReport(ex);
+                var errReport = new FormErrorReport(ex);
                 _ = await errReport.ShowDialog();
             }
         }
@@ -696,7 +696,7 @@ namespace dMobile.View
         /// <param name="e">The e<see cref="EventArgs"/>.</param>
         private void LstWarehouse_SelectedIndexChanged(object sender, EventArgs e)
         {
-            Warehouse selectedWarehouse = (Warehouse)this.lstWarehouse.SelectedItem;
+            var selectedWarehouse = (Warehouse)this.lstWarehouse.SelectedItem;
             this.lstWarehouse.SelectedValue = selectedWarehouse.LocationMapRefno;
         }
     }

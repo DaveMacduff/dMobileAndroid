@@ -73,7 +73,7 @@ namespace dMobile.View.Activity
         /// <summary>
         /// Gets or sets the selected activity foreign key reference number.
         /// </summary>
-        private int SelectedActivityFKRefno { get; set; } = 0;
+        private int SelectedActivityFkRefno { get; set; } = 0;
 
         /// <summary>
         /// Gets or sets a value indicating whether any data changes have be made.
@@ -225,7 +225,7 @@ namespace dMobile.View.Activity
         /// <returns><see cref="bool"/> True if the data is ready to be saved else false.</returns>
         public async Task<bool> IsReadyToSave()
         {
-            bool isReadyToSave = !this.IsChangesMade;
+            var isReadyToSave = !this.IsChangesMade;
             isReadyToSave = await IsReadyToSavePicking(isReadyToSave);
             return isReadyToSave;
 
@@ -254,7 +254,7 @@ namespace dMobile.View.Activity
         /// <returns><see cref="Task{bool}"/> True if the form is ready to close else false.</returns>
         public async Task<bool> IsReadyToClose()
         {
-            bool isReadyToClose = !this.IsChangesMade;
+            var isReadyToClose = !this.IsChangesMade;
 
             // If activity is picking and confirm to exit form is enabled.
             // This code should be moved into an picking header class inherited from ucActivityHdr.
@@ -275,7 +275,7 @@ namespace dMobile.View.Activity
         /// <returns><see cref="bool"/> True if a save was performed successfully else false.</returns>
         public async Task<bool> SaveChanges()
         {
-            bool saveComplete = false;
+            var saveComplete = false;
 
             try
             {
@@ -305,7 +305,7 @@ namespace dMobile.View.Activity
                 saveComplete = false;
                 await Device.InvokeOnMainThreadAsync(async () =>
                 {
-                    FormErrorReport errRpt = new FormErrorReport(this.ActSubType, ex);
+                    var errRpt = new FormErrorReport(this.ActSubType, ex);
                     _ = await errRpt.ShowDialog();
                 });
             }
@@ -319,7 +319,7 @@ namespace dMobile.View.Activity
         /// <returns><see cref="bool"/>. True if the changes where canceled, else false.</returns>
         public async Task<bool> CancelChanges()
         {
-            bool cancelChanges = true;
+            var cancelChanges = true;
 
             // NOTE: Do not need to set scanner off or on. Caller will handle.
             try
@@ -354,7 +354,7 @@ namespace dMobile.View.Activity
                 cancelChanges = false;
                 await Device.InvokeOnMainThreadAsync(async () =>
                 {
-                    FormErrorReport errRpt = new FormErrorReport(this.ActSubType, ex);
+                    var errRpt = new FormErrorReport(this.ActSubType, ex);
                     _ = await errRpt.ShowDialog();
                 });
             }
@@ -370,7 +370,7 @@ namespace dMobile.View.Activity
         public async Task<XDocument> GetXML()
 #pragma warning restore CS1998 // Async method lacks 'await' operators and will run synchronously
         {
-            XDocument xmldocParams = XDocument.Parse(
+            var xmldocParams = XDocument.Parse(
                 "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>"
                 + "<params>"
                 + "</params>");
@@ -408,7 +408,7 @@ namespace dMobile.View.Activity
         {
             if (dataLayerEventArgs.CurrentValue > 0 && dataLayerEventArgs.MaxValue > 0)
             {
-                double percent = 100 * dataLayerEventArgs.CurrentValue / dataLayerEventArgs.MaxValue;
+                ////double percent = 100 * dataLayerEventArgs.CurrentValue / dataLayerEventArgs.MaxValue;
                 ////this.progBarMain.Progress = percent / 100;
             }
         }
@@ -455,7 +455,7 @@ namespace dMobile.View.Activity
         /// </summary>
         protected override async void OnAppearing()
         {
-            bool performRefreshData = true;
+            var performRefreshData = true;
             base.OnAppearing();
             try
             {
@@ -474,7 +474,7 @@ namespace dMobile.View.Activity
 
                     // This code should be moved into an picking header class inherited from ucActivityHdr.
                     if ((this.ActSubType == SysCommon.ActSubTypes.Picking
-                        || this.ActSubType == SysCommon.ActSubTypes.PickingSingle)
+                         || this.ActSubType == SysCommon.ActSubTypes.PickingSingle)
                         && this.SysEnv.SysSettings.IsPrePickCrit
                         && this.FirstOnAppearing)
                     {
@@ -513,9 +513,9 @@ namespace dMobile.View.Activity
                 this.FirstOnAppearing = true;
                 await Device.InvokeOnMainThreadAsync(async () =>
                 {
-                    string msg = "This activity unexpectedly failed to initialize correctly." +
-                        " Please exit and try again.";
-                    FormErrorReport errorReport = new FormErrorReport(msg, ex);
+                    const string msg = "This activity unexpectedly failed to initialize correctly." +
+                                       " Please exit and try again.";
+                    var errorReport = new FormErrorReport(msg, ex);
                     _ = await errorReport.ShowDialog();
                 });
             }
@@ -541,26 +541,26 @@ namespace dMobile.View.Activity
             //////////////////////////////////////////////////////////////////////////
             async Task<bool> HandlePrePickCriteria()
             {
-                bool performRefreshData = true;
+                var performRefreshData = true;
 
                 // This code should be moved into an picking header class inherited from ucActivityHdr.
-                int sectFKRefno = 0;
+                var sectFKRefno = 0;
 
                 // Scanning in the picking selection criteria form is possible, which means the
                 // the last parse bar code data would be overwritten.
                 // However because the bar code parse object at this point does not contain any
                 // valuable data we do not need to preserve it before calling the picking
                 // selection form.
-                FormDialogContainer formPickSelect = new FormDialogContainer(
+                var formPickSelect = new FormDialogContainer(
                     EDialogTypes.ActivityPickingSelectCriteria,
                     this.ActSubType);
 
                 if (await Device.InvokeOnMainThreadAsync(async () =>
                     await formPickSelect.DisplayControl.ShowDialog() == DialogResult.OK))
                 {
-                    XDocument xmlResult = await formPickSelect.GetXML();
-                    LocationMap locMap = LocationMap.GetInstance();
-                    SLocMap tmpLocMap = await LocationMapTasks.GetSLocMapFromLocMapRefno(
+                    var xmlResult = await formPickSelect.GetXML();
+                    var locMap = LocationMap.GetInstance();
+                    var tmpLocMap = await LocationMapTasks.GetSLocMapFromLocMapRefno(
                         int.Parse(xmlResult.Root.Element("LocationMapRefno").Value));
                     locMap.CurrLocMap = tmpLocMap;
                     ((PickingActivity)this.ActHdr).PickingLocationMapFilter = tmpLocMap;
@@ -618,70 +618,80 @@ namespace dMobile.View.Activity
 
                     _ = Enum.TryParse(keyPressed, out Keycode keycode);
 
-                    if (keycode == Keycode.Enter)
+                    switch (keycode)
                     {
-                        await this.ListViewMainActivity_KeyUpEnter();
-                    }
-                    else if (keycode == Keycode.F1)
-                    {
-                        await OnAppearingF1();
-                    }
-                    else if (keycode == Keycode.F4 && !this.SysEnv.SysSettings.IsDisconnectedMode)
-                    {
-                        await ReleaseOrder();
-                    }
-                    else if (keycode == Keycode.F5)
-                    {
-                        await ChangePickCriteria();
-                    }
-                    else if (keycode == Keycode.DpadDown)
-                    {
-                        OnAppearingDpadDownKey();
-                    }
-                    else if (keycode == Keycode.DpadUp)
-                    {
-                        OnAppearingDpadUpKey();
+                        case Keycode.Enter:
+                            await this.ListViewMainActivity_KeyUpEnter();
+                            break;
+
+                        case Keycode.F1:
+                            await AppearingF1();
+                            break;
+
+                        case Keycode.F4 when !this.SysEnv.SysSettings.IsDisconnectedMode:
+                            await ReleaseOrder();
+                            break;
+
+                        case Keycode.F5:
+                            await ChangePickCriteria();
+                            break;
+
+                        case Keycode.DpadDown:
+                            AppearingDpadDownKey();
+                            break;
+
+                        case Keycode.DpadUp:
+                            AppearingDpadUpKey();
+                            break;
                     }
                 });
 
                 //////////////////////////////////////////////////////////////////////////
-                void OnAppearingDpadDownKey()
+                void AppearingDpadDownKey()
                 {
-                    object selItem = this.ListViewMainActivity.SelectedItem;
-                    if (selItem != null)
+                    var selItem = this.ListViewMainActivity.SelectedItem;
+                    if (selItem == null)
                     {
-                        int selItemIdx = this.MainActivityItems.IndexOf(selItem);
-                        if (selItemIdx < this.MainActivityItems.Count - 1)
-                        {
-                            this.ListViewMainActivity.SelectedItem = this.MainActivityItems[selItemIdx + 1];
-                            this.ListViewMainActivity.ScrollTo(
-                                item: this.ListViewMainActivity.SelectedItem,
-                                position: ScrollToPosition.MakeVisible,
-                                animated: true);
-                        }
+                        return;
                     }
+
+                    var selItemIdx = this.MainActivityItems.IndexOf(selItem);
+                    if (selItemIdx >= this.MainActivityItems.Count - 1)
+                    {
+                        return;
+                    }
+
+                    this.ListViewMainActivity.SelectedItem = this.MainActivityItems[selItemIdx + 1];
+                    this.ListViewMainActivity.ScrollTo(
+                        item: this.ListViewMainActivity.SelectedItem,
+                        position: ScrollToPosition.MakeVisible,
+                        animated: true);
                 }
 
                 //////////////////////////////////////////////////////////////////////////
-                void OnAppearingDpadUpKey()
+                void AppearingDpadUpKey()
                 {
-                    object selItem = this.ListViewMainActivity.SelectedItem;
-                    if (selItem != null)
+                    var selItem = this.ListViewMainActivity.SelectedItem;
+                    if (selItem == null)
                     {
-                        int selItemIdx = this.MainActivityItems.IndexOf(selItem);
-                        if (selItemIdx > 0)
-                        {
-                            this.ListViewMainActivity.SelectedItem = this.MainActivityItems[selItemIdx - 1];
-                            this.ListViewMainActivity.ScrollTo(
-                                item: this.ListViewMainActivity.SelectedItem,
-                                position: ScrollToPosition.MakeVisible,
-                                animated: true);
-                        }
+                        return;
                     }
+
+                    var selItemIdx = this.MainActivityItems.IndexOf(selItem);
+                    if (selItemIdx <= 0)
+                    {
+                        return;
+                    }
+
+                    this.ListViewMainActivity.SelectedItem = this.MainActivityItems[selItemIdx - 1];
+                    this.ListViewMainActivity.ScrollTo(
+                        item: this.ListViewMainActivity.SelectedItem,
+                        position: ScrollToPosition.MakeVisible,
+                        animated: true);
                 }
 
                 //////////////////////////////////////////////////////////////////////////
-                async Task OnAppearingF1()
+                async Task AppearingF1()
                 {
                     if (await this.SaveChanges())
                     {
@@ -702,7 +712,7 @@ namespace dMobile.View.Activity
                         // this.ActHdr.Refno
                         this.ActHdr.HdrRefno = this.ActHdr.GetRefnoFromRowIdx(this.ListViewMainActivity.SelectedItem);
 
-                        SLabelQuantity labelQuantity = new SLabelQuantity();
+                        var labelQuantity = new SLabelQuantity();
 
                         if (this.ActSubType == SysCommon.ActSubTypes.PickingSingle &&
                             this.SysEnv.SysSettings.CanPrintShippingLabel &&
@@ -750,14 +760,14 @@ namespace dMobile.View.Activity
                                         await this.ScannerDisable();
 
                                         // Show pop up screen
-                                        FormDialogContainer form = new FormDialogContainer(
+                                        var form = new FormDialogContainer(
                                             EDialogTypes.ActivityDeboxLabelCount,
                                             this.ActSubType);
 
                                         if (await Device.InvokeOnMainThreadAsync(async () =>
                                             await form.DisplayControl.ShowDialog() == DialogResult.OK))
                                         {
-                                            XDocument doc = await form.GetXML();
+                                            var doc = await form.GetXML();
                                             await this.ActHdr.PrintLabel(doc);
                                         }
                                     }
@@ -777,7 +787,7 @@ namespace dMobile.View.Activity
                     {
                         await Device.InvokeOnMainThreadAsync(async () =>
                         {
-                            FormErrorReport errRpt = new FormErrorReport(this.ActSubType, ex);
+                            var errRpt = new FormErrorReport(this.ActSubType, ex);
                             _ = await errRpt.ShowDialog();
                         });
                     }
@@ -796,7 +806,7 @@ namespace dMobile.View.Activity
                         {
                             if (this.SysEnv.SysSettings.IsPickSinglePrintShipLabelFullQuantity)
                             {
-                                FormDialogContainer form = new FormDialogContainer(
+                                var form = new FormDialogContainer(
                                     EDialogTypes.ActivityShippingLabelEdit,
                                     labelQuantity,
                                     this.ActHdr,
@@ -805,7 +815,7 @@ namespace dMobile.View.Activity
                                 if (await Device.InvokeOnMainThreadAsync(async () =>
                                     await form.DisplayControl.ShowDialog() == DialogResult.OK))
                                 {
-                                    XDocument request = await form.GetXML();
+                                    var request = await form.GetXML();
 
                                     // The itm_refno elements is used to mark the ar_oeitm.slbl_prtd as true.
                                     // If itm_refno is zero then no line is updated as printed.
@@ -816,7 +826,7 @@ namespace dMobile.View.Activity
                             }
                             else
                             {
-                                FormDialogContainer form = new FormDialogContainer(
+                                var form = new FormDialogContainer(
                                     EDialogTypes.ActivityShippingLabelEdit,
                                     labelQuantity,
                                     this.ActHdr,
@@ -825,7 +835,7 @@ namespace dMobile.View.Activity
                                 if (await Device.InvokeOnMainThreadAsync(async () =>
                                     await form.DisplayControl.ShowDialog() == DialogResult.OK))
                                 {
-                                    XDocument request = await form.GetXML();
+                                    var request = await form.GetXML();
 
                                     // The itm_refno elements is used to mark the ar_oeitm.slbl_prtd as true.
                                     // If itm_refno is zero then no line is updated as printed.
@@ -842,9 +852,9 @@ namespace dMobile.View.Activity
                     //////////////////////////////////////////////////////////////////////////
                     void IsItemSelected()
                     {
-                        bool isItemSelected = this.ListViewMainActivity.SelectedItem != null
-                            && Convert.ToInt32(this.MainActivityItems.IndexOf(
-                                this.ListViewMainActivity.SelectedItem)) >= 0;
+                        var isItemSelected = this.ListViewMainActivity.SelectedItem != null
+                                             && Convert.ToInt32(this.MainActivityItems.IndexOf(
+                                                 this.ListViewMainActivity.SelectedItem)) >= 0;
 
                         if (!isItemSelected)
                         {
@@ -869,16 +879,16 @@ namespace dMobile.View.Activity
                             {
                                 // NOTE: oBarCodeParse is not initialized yet so there is not reason to
                                 // preserve its values
-                                FormDialogContainer form = new FormDialogContainer(
+                                var form = new FormDialogContainer(
                                     EDialogTypes.ActivityPickingSelectCriteria,
                                     this.ActSubType);
 
                                 if (await Device.InvokeOnMainThreadAsync(async () =>
                                     await form.DisplayControl.ShowDialog() == DialogResult.OK))
                                 {
-                                    LocationMap locMap = LocationMap.GetInstance();
-                                    XDocument result = await form.GetXML();
-                                    SLocMap sLocMap = await LocationMapTasks.GetSLocMapFromLocMapRefno(
+                                    var locMap = LocationMap.GetInstance();
+                                    var result = await form.GetXML();
+                                    var sLocMap = await LocationMapTasks.GetSLocMapFromLocMapRefno(
                                         int.Parse(result.Root.Element("LocationMapRefno").Value));
                                     locMap.CurrLocMap = sLocMap;
 
@@ -905,7 +915,7 @@ namespace dMobile.View.Activity
                         {
                             await Device.InvokeOnMainThreadAsync(async () =>
                             {
-                                FormErrorReport errRpt = new FormErrorReport(this.ActSubType, ex);
+                                var errRpt = new FormErrorReport(this.ActSubType, ex);
                                 _ = await errRpt.ShowDialog();
                             });
                         }
@@ -933,7 +943,7 @@ namespace dMobile.View.Activity
         /// <returns><see cref="Task"/> Task operation.</returns>
         private async Task<bool> AskConfirmExit()
         {
-            bool isReadyToClose = !this.IsChangesMade;
+            var isReadyToClose = !this.IsChangesMade;
             await this.DisplayAlert(this.ActHdr.GetControlDescription(), "Confirm exit?", "Yes", "No")
                 .ContinueWith((result) =>
                 {
@@ -961,7 +971,7 @@ namespace dMobile.View.Activity
 
             this.Loading = true;
 
-            string message = string.Empty;
+            var message = string.Empty;
 
             try
             {
@@ -1011,7 +1021,7 @@ namespace dMobile.View.Activity
             {
                 await Device.InvokeOnMainThreadAsync(async () =>
                 {
-                    FormErrorReport errRpt = new FormErrorReport(this.ActSubType, ex);
+                    var errRpt = new FormErrorReport(this.ActSubType, ex);
                     _ = await errRpt.ShowDialog();
                 });
             }
@@ -1025,7 +1035,7 @@ namespace dMobile.View.Activity
             async Task BarCodeHandlerFKRefno(string actHdrStringFKRefno)
             {
                 // Remember that the headers have been filtered by the login warehouse.
-                object selectedActivity = this.ActHdr.ListHdrs.OfType<object>().FirstOrDefault(
+                var selectedActivity = this.ActHdr.ListHdrs.OfType<object>().FirstOrDefault(
                     activity => Convert.ToString(activity.GetType().GetProperty(
                         this.ActHdr.GetFKRefnoIdx()).GetValue(activity)) ==
                         actHdrStringFKRefno);
@@ -1034,7 +1044,7 @@ namespace dMobile.View.Activity
                     this.ActHdr.HdrRefno = this.ActHdr.GetRefnoFromRowIdx(selectedActivity);
                     await Device.InvokeOnMainThreadAsync(async () =>
                     {
-                        FormDialogContainer form = new FormDialogContainer(
+                        var form = new FormDialogContainer(
                             EDialogTypes.ActivityItem,
                             this.ActHdr,
                             this.ActSubType);
@@ -1146,9 +1156,9 @@ namespace dMobile.View.Activity
                 // Faster than LINQ.
                 this.ActHdr.SelectedListItemIdx = -1;
                 object selectedItem = null;
-                foreach (object hdr in this.ActHdr.ListHdrs)
+                foreach (var hdr in this.ActHdr.ListHdrs)
                 {
-                    if (this.SelectedActivityFKRefno == this.ActHdr.GetFKRefno(hdr))
+                    if (this.SelectedActivityFkRefno == this.ActHdr.GetFKRefno(hdr))
                     {
                         selectedItem = hdr;
                         this.ActHdr.SelectedListItemIdx++;
@@ -1221,7 +1231,7 @@ namespace dMobile.View.Activity
             {
                 await Device.InvokeOnMainThreadAsync(async () =>
                 {
-                    FormErrorReport errRpt = new FormErrorReport(this.ActSubType, ex);
+                    var errRpt = new FormErrorReport(this.ActSubType, ex);
                     _ = await errRpt.ShowDialog();
                 });
             }
@@ -1263,7 +1273,7 @@ namespace dMobile.View.Activity
                 }
                 else
                 {
-                    FormDialogContainer form = new FormDialogContainer(
+                    var form = new FormDialogContainer(
                         EDialogTypes.ActivityItem,
                         this.ActHdr,
                         this.ActSubType);
@@ -1284,7 +1294,7 @@ namespace dMobile.View.Activity
             {
                 await Device.InvokeOnMainThreadAsync(async () =>
                 {
-                    FormErrorReport errRpt = new FormErrorReport(this.ActSubType, ex);
+                    var errRpt = new FormErrorReport(this.ActSubType, ex);
                     _ = await errRpt.ShowDialog();
                 });
             }
@@ -1296,7 +1306,7 @@ namespace dMobile.View.Activity
             //////////////////////////////////////////////////////////////////////////
             async Task ListViewMainActivity_KeyUpEnter_PickingSingle()
             {
-                bool isAllowedToPick = true;
+                var isAllowedToPick = true;
                 if (await ((PickingActivity)this.ActHdr).IsSalesOrderBeingPicked())
                 {
                     isAllowedToPick = false;
@@ -1333,7 +1343,7 @@ namespace dMobile.View.Activity
 
                 if (isAllowedToPick)
                 {
-                    FormDialogContainer form = new FormDialogContainer(
+                    var form = new FormDialogContainer(
                         EDialogTypes.ActivityItemSingle,
                         this.ActHdr,
                         this.ActSubType);
@@ -1353,7 +1363,7 @@ namespace dMobile.View.Activity
         {
             this.ActHdr.SelectedListItemIdx = e.SelectedItemIndex;
             await this.ActHdr.SelectActivity(e.SelectedItem);
-            this.SelectedActivityFKRefno = this.ActHdr.HdrFKRefno;
+            this.SelectedActivityFkRefno = this.ActHdr.HdrFKRefno;
             await DisplayData();
 
             async Task DisplayData()
@@ -1547,11 +1557,11 @@ namespace dMobile.View.Activity
                     if (this.ActHdr.SelectedActivity is Count count)
                     {
                         const int LineLength = 30;
-                        List<string> lines = SysCommon.WordWrap2List(
+                        var lines = SysCommon.WordWrap2List(
                             count.ActivityCountDescription.TrimEnd(),
                             LineLength);
 
-                        for (int i = 0; i < lines.Count; i++)
+                        for (var i = 0; i < lines.Count; i++)
                         {
                             this.ExtraInfoItems.Add(lines[i]);
                         }
@@ -1564,11 +1574,11 @@ namespace dMobile.View.Activity
                     if (this.ActHdr.SelectedActivity is Count count)
                     {
                         const int LineLength = 30;
-                        List<string> lines = SysCommon.WordWrap2List(
+                        var lines = SysCommon.WordWrap2List(
                             count.ActivityCountDescription.TrimEnd(),
                             LineLength);
 
-                        for (int i = 0; i < lines.Count; i++)
+                        for (var i = 0; i < lines.Count; i++)
                         {
                             this.ExtraInfoItems.Add(lines[i]);
                         }
@@ -1693,7 +1703,7 @@ namespace dMobile.View.Activity
             {
                 await Device.InvokeOnMainThreadAsync(async () =>
                 {
-                    FormErrorReport errRpt = new FormErrorReport(this.ActSubType, ex);
+                    var errRpt = new FormErrorReport(this.ActSubType, ex);
                     _ = await errRpt.ShowDialog();
                 });
             }
@@ -1715,7 +1725,7 @@ namespace dMobile.View.Activity
                 return;
             }
 
-            string result = await this.DisplayActionSheet(
+            var result = await this.DisplayActionSheet(
                 "Activity Options",
                 "Close",
                 null,
@@ -1773,12 +1783,12 @@ namespace dMobile.View.Activity
                         _ => throw new NotImplementedException("eActivitySubType"),
                     };
 
-                    FormDialogContainer form = new FormDialogContainer(dlgType, this.ActSubType);
+                    var form = new FormDialogContainer(dlgType, this.ActSubType);
                     await Device.InvokeOnMainThreadAsync(async () =>
                     {
                         if (await form.DisplayControl.ShowDialog() == DialogResult.OK)
                         {
-                            XDocument xmlDoc = await form.GetXML();
+                            var xmlDoc = await form.GetXML();
                             if (!string.IsNullOrEmpty(this.txtSearchHdr.Text))
                             {
                                 this.MainActivityItems = this.ActHdr.Search(this.txtSearchHdr.Text);
@@ -1801,7 +1811,7 @@ namespace dMobile.View.Activity
                 {
                     await Device.InvokeOnMainThreadAsync(async () =>
                     {
-                        FormErrorReport errRpt = new FormErrorReport(this.ActSubType, ex);
+                        var errRpt = new FormErrorReport(this.ActSubType, ex);
                         _ = await errRpt.ShowDialog();
                     });
                 }

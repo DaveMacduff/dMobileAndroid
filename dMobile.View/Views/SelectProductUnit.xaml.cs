@@ -194,7 +194,7 @@ namespace dMobile.View
         /// <returns><see cref="bool"/> True if it is ready to save, else false.</returns>
         public async Task<bool> IsReadyToSave()
         {
-            bool isReadyToSave = false;
+            var isReadyToSave = false;
 
             try
             {
@@ -206,7 +206,7 @@ namespace dMobile.View
 
                 await Device.InvokeOnMainThreadAsync(async () =>
                 {
-                    FormErrorReport errRpt = new FormErrorReport(this.ActSubType, ex);
+                    var errRpt = new FormErrorReport(this.ActSubType, ex);
                     _ = await errRpt.ShowDialog();
                 });
             }
@@ -220,7 +220,7 @@ namespace dMobile.View
         /// <returns><see cref="bool"/> True if the activity item is ready to close, else false.</returns>
         public async Task<bool> IsReadyToClose()
         {
-            bool isReadyToClose = !this.IsChangesMade;
+            var isReadyToClose = !this.IsChangesMade;
 
             try
             {
@@ -235,7 +235,7 @@ namespace dMobile.View
             {
                 await Device.InvokeOnMainThreadAsync(async () =>
                 {
-                    FormErrorReport errRpt = new FormErrorReport(this.ActSubType, /*this,*/ ex);
+                    var errRpt = new FormErrorReport(this.ActSubType, /*this,*/ ex);
                     _ = await errRpt.ShowDialog();
                 });
             }
@@ -258,7 +258,7 @@ namespace dMobile.View
         /// <returns><see cref="bool"/> True if the save was successful, else false.</returns>
         public async Task<bool> SaveChanges()
         {
-            bool saveComplete = false;
+            var saveComplete = false;
 
             try
             {
@@ -280,7 +280,7 @@ namespace dMobile.View
 
                 await Device.InvokeOnMainThreadAsync(async () =>
                 {
-                    FormErrorReport errRpt = new FormErrorReport(this.ActSubType, /*this,*/ ex);
+                    var errRpt = new FormErrorReport(this.ActSubType, /*this,*/ ex);
                     _ = await errRpt.ShowDialog();
                 });
             }
@@ -294,7 +294,7 @@ namespace dMobile.View
         /// <returns><see cref="bool"/> True if the pending changes where canceled, else false.</returns>
         public async Task<bool> CancelChanges()
         {
-            bool cancelChanges = true;
+            var cancelChanges = true;
 
             try
             {
@@ -326,7 +326,7 @@ namespace dMobile.View
 
                 await Device.InvokeOnMainThreadAsync(async () =>
                 {
-                    FormErrorReport errRpt = new FormErrorReport(this.ActSubType, /*this,*/ ex);
+                    var errRpt = new FormErrorReport(this.ActSubType, /*this,*/ ex);
                     _ = await errRpt.ShowDialog();
                 });
             }
@@ -342,7 +342,7 @@ namespace dMobile.View
         public async Task<XDocument> GetXML()
 #pragma warning restore CS1998 // Async method lacks 'await' operators and will run synchronously
         {
-            XDocument request = XDocument.Parse(
+            var request = XDocument.Parse(
                 "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>"
                 + "<params>"
                 + "<ProductUnitRefno>" + this.ProdUnitRefno + "</ProductUnitRefno>"
@@ -442,9 +442,9 @@ namespace dMobile.View
                 this.IsFirstAppearance = true;
                 await Device.InvokeOnMainThreadAsync(async () =>
                 {
-                    string msg = "This activity unexpectedly failed to initialize correctly." +
-                        " Please exit and try again.";
-                    FormErrorReport errorReport = new FormErrorReport(msg, ex);
+                    var msg = "This activity unexpectedly failed to initialize correctly." +
+                              " Please exit and try again.";
+                    var errorReport = new FormErrorReport(msg, ex);
                     _ = await errorReport.ShowDialog();
                 });
             }
@@ -789,7 +789,7 @@ namespace dMobile.View
                     await Device.InvokeOnMainThreadAsync(() =>
                     {
                         this.cboSearch.SelectedIndex = 0;
-                        int maxLen = parse.ProductIdentifier.Length > 10 ? 10 : parse.ProductIdentifier.Length;
+                        var maxLen = parse.ProductIdentifier.Length > 10 ? 10 : parse.ProductIdentifier.Length;
                         this.txtSearchProduct.Text = parse.ProductIdentifier.Substring(0, maxLen);
                         this.txtSearchProduct.CursorPosition = 0;
                         this.txtSearchProduct.SelectionLength = this.txtSearchProduct.Text.Length;
@@ -801,7 +801,7 @@ namespace dMobile.View
             {
                 await Device.InvokeOnMainThreadAsync(async () =>
                 {
-                    FormErrorReport errRpt = new FormErrorReport(this.ActSubType, /*this,*/ ex);
+                    var errRpt = new FormErrorReport(this.ActSubType, /*this,*/ ex);
                     _ = await errRpt.ShowDialog();
                 });
             }
@@ -931,7 +931,7 @@ namespace dMobile.View
         {
             this.ProductUnits = new ObservableCollection<ProductUnit>();
 
-            foreach (ProductUnit prodUnit in this.FilteredListProdUnits)
+            foreach (var prodUnit in this.FilteredListProdUnits)
             {
                 this.ProductUnits.Add(prodUnit);
             }
@@ -959,8 +959,8 @@ namespace dMobile.View
                 {
                     this.IsChangesMade = true;
 
-                    Entry entry = sender as Entry;
-                    int startLength = entry.Text.Length;
+                    var entry = sender as Entry;
+                    var startLength = entry.Text.Length;
 
                     await Task.Delay(300);
 
@@ -974,7 +974,7 @@ namespace dMobile.View
                 {
                     await Device.InvokeOnMainThreadAsync(async () =>
                     {
-                        FormErrorReport errRpt = new FormErrorReport(this.ActSubType, ex);
+                        var errRpt = new FormErrorReport(this.ActSubType, ex);
                         _ = await errRpt.ShowDialog();
                     });
                 }
@@ -989,7 +989,7 @@ namespace dMobile.View
 
         private async void DgProducts_ItemSelected(object sender, SelectedItemChangedEventArgs e)
         {
-            ProductUnit prodUnit = e.SelectedItem as ProductUnit;
+            var prodUnit = e.SelectedItem as ProductUnit;
             await this.SelectProdUnit(prodUnit);
         }
 

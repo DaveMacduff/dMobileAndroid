@@ -140,7 +140,7 @@ namespace dMobile.Bedrock
         {
             get
             {
-                bool isWeightUnit = false;
+                var isWeightUnit = false;
                 if (this.BaseUnitCode == "LB" || this.BaseUnitCode == "KG")
                 {
                     isWeightUnit = true;

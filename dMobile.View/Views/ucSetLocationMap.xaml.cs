@@ -290,7 +290,7 @@ namespace dMobile.View
         /// <returns><see cref="bool"/> True if the data is ready to be saved else false.</returns>
         public async Task<bool> IsReadyToSave()
         {
-            bool isReadyToSave = false;
+            var isReadyToSave = false;
 
             try
             {
@@ -311,7 +311,7 @@ namespace dMobile.View
                 isReadyToSave = false;
                 await Device.InvokeOnMainThreadAsync(async () =>
                 {
-                    FormErrorReport errRpt = new FormErrorReport(this.ActSubType, ex);
+                    var errRpt = new FormErrorReport(this.ActSubType, ex);
                     _ = await errRpt.ShowDialog();
                 });
             }
@@ -332,7 +332,7 @@ namespace dMobile.View
         /// <returns><see cref="Task{bool}"/> True if the form is ready to close else false.</returns>
         public async Task<bool> IsReadyToClose()
         {
-            bool isReadyToClose = !this.IsChangesMade;
+            var isReadyToClose = !this.IsChangesMade;
 
             try
             {
@@ -361,7 +361,7 @@ namespace dMobile.View
                 isReadyToClose = false;
                 await Device.InvokeOnMainThreadAsync(async () =>
                 {
-                    FormErrorReport errRpt = new FormErrorReport(this.ActSubType, ex);
+                    var errRpt = new FormErrorReport(this.ActSubType, ex);
                     _ = await errRpt.ShowDialog();
                 });
             }
@@ -391,7 +391,7 @@ namespace dMobile.View
         /// <returns><see cref="bool"/> True if a save was performed successfully else false.</returns>
         public async Task<bool> SaveChanges()
         {
-            bool saveComplete = false;
+            var saveComplete = false;
 
             try
             {
@@ -424,7 +424,7 @@ namespace dMobile.View
             {
                 await Device.InvokeOnMainThreadAsync(async () =>
                 {
-                    FormErrorReport errorReport = new FormErrorReport(this.ActSubType, ex);
+                    var errorReport = new FormErrorReport(this.ActSubType, ex);
                     _ = await errorReport.ShowDialog();
                 });
 
@@ -447,7 +447,7 @@ namespace dMobile.View
         /// <returns><see cref="bool"/>. True if the changes where canceled, else false.</returns>
         public async Task<bool> CancelChanges()
         {
-            bool cancelChanges = true;
+            var cancelChanges = true;
 
             try
             {
@@ -477,7 +477,7 @@ namespace dMobile.View
             {
                 await Device.InvokeOnMainThreadAsync(async () =>
                 {
-                    FormErrorReport errorReport = new FormErrorReport(this.ActSubType, ex);
+                    var errorReport = new FormErrorReport(this.ActSubType, ex);
                     _ = await errorReport.ShowDialog();
                 });
 
@@ -500,7 +500,7 @@ namespace dMobile.View
         /// <returns><see cref="Task"/> Task operation containing an XDocument.</returns>
         public async Task<XDocument> GetXML()
         {
-            XDocument request = XDocument.Parse(
+            var request = XDocument.Parse(
                 "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>"
                 + "<params>"
                 + "<LocationMapRefno>" + LocationMapTasks.GetLocMapRefnoFromSLocMap(this.LocMap.ChosenLocMap) + "</LocationMapRefno>"
@@ -554,9 +554,9 @@ namespace dMobile.View
             {
                 await Device.InvokeOnMainThreadAsync(async () =>
                 {
-                    string msg = "This activity unexpectedly failed to initialize correctly." +
-                        " Please exit and try again.";
-                    FormErrorReport errorReport = new FormErrorReport(msg, ex);
+                    var msg = "This activity unexpectedly failed to initialize correctly." +
+                              " Please exit and try again.";
+                    var errorReport = new FormErrorReport(msg, ex);
                     _ = await errorReport.ShowDialog();
                 });
             }
@@ -570,7 +570,7 @@ namespace dMobile.View
             {
                 MessagingCenter.Subscribe<string>(this, EventTypes.OnKeyUp.ToString(), async (keyPressed) =>
                 {
-                    bool svdIsScanReg = this.IsBarCodeHandlerRegistered;
+                    var svdIsScanReg = this.IsBarCodeHandlerRegistered;
                     await this.ScannerDisable();
 
                     _ = Enum.TryParse(keyPressed, out Keycode keycode);
@@ -690,7 +690,7 @@ namespace dMobile.View
 
                         if (this.FilteredListSlotCoord1.Count > 0)
                         {
-                            int slotLocMapRefno = 0;
+                            var slotLocMapRefno = 0;
 
                             if (this.dgCoord1.SelectedItem is Slot slotCoord1 &&
                                 this.dgCoord2.SelectedItem is Slot slotCoord2 &&
@@ -759,9 +759,9 @@ namespace dMobile.View
                 {
                     await Device.InvokeOnMainThreadAsync(async () =>
                     {
-                        string msg = "This activity unexpectedly failed to initialize correctly." +
-                            " Please exit and try again.";
-                        FormErrorReport errorReport = new FormErrorReport(msg, ex);
+                        var msg = "This activity unexpectedly failed to initialize correctly." +
+                                  " Please exit and try again.";
+                        var errorReport = new FormErrorReport(msg, ex);
                         _ = await errorReport.ShowDialog();
                     });
                 }
@@ -880,7 +880,7 @@ namespace dMobile.View
             {
                 await Device.InvokeOnMainThreadAsync(async () =>
                 {
-                    FormErrorReport errRpt = new FormErrorReport(this.ActSubType, ex);
+                    var errRpt = new FormErrorReport(this.ActSubType, ex);
                     _ = await errRpt.ShowDialog();
                 });
             }
@@ -947,7 +947,7 @@ namespace dMobile.View
             {
                 await Device.InvokeOnMainThreadAsync(async () =>
                 {
-                    FormErrorReport errRpt = new FormErrorReport(this.ActSubType, ex);
+                    var errRpt = new FormErrorReport(this.ActSubType, ex);
                     _ = await errRpt.ShowDialog();
                 });
             }
@@ -970,7 +970,7 @@ namespace dMobile.View
         {
             this.SlotCoord1ObservableCollection = new ObservableCollection<Slot>();
 
-            foreach (Slot slot in this.FilteredListSlotCoord1)
+            foreach (var slot in this.FilteredListSlotCoord1)
             {
                 this.SlotCoord1ObservableCollection.Add(slot);
             }
@@ -1029,7 +1029,7 @@ namespace dMobile.View
             {
                 await Device.InvokeOnMainThreadAsync(async () =>
                 {
-                    FormErrorReport errRpt = new FormErrorReport(this.ActSubType, ex);
+                    var errRpt = new FormErrorReport(this.ActSubType, ex);
                     _ = await errRpt.ShowDialog();
                 });
             }
@@ -1052,7 +1052,7 @@ namespace dMobile.View
         {
             this.SlotCoord2ObservableCollection = new ObservableCollection<Slot>();
 
-            foreach (Slot slot in this.FilteredListSlotCoord2)
+            foreach (var slot in this.FilteredListSlotCoord2)
             {
                 this.SlotCoord2ObservableCollection.Add(slot);
             }
@@ -1111,7 +1111,7 @@ namespace dMobile.View
             {
                 await Device.InvokeOnMainThreadAsync(async () =>
                 {
-                    FormErrorReport errRpt = new FormErrorReport(this.ActSubType, ex);
+                    var errRpt = new FormErrorReport(this.ActSubType, ex);
                     _ = await errRpt.ShowDialog();
                 });
             }
@@ -1134,7 +1134,7 @@ namespace dMobile.View
         {
             this.SlotCoord3ObservableCollection = new ObservableCollection<Slot>();
 
-            foreach (Slot slot in this.FilteredListSlotCoord3)
+            foreach (var slot in this.FilteredListSlotCoord3)
             {
                 this.SlotCoord3ObservableCollection.Add(slot);
             }
@@ -1156,7 +1156,7 @@ namespace dMobile.View
             {
                 this.WarehouseObservableCollection = new ObservableCollection<Warehouse>();
 
-                foreach (Warehouse warehouse in this.FilteredListWarehouse)
+                foreach (var warehouse in this.FilteredListWarehouse)
                 {
                     this.WarehouseObservableCollection.Add(warehouse);
                 }
@@ -1262,7 +1262,7 @@ namespace dMobile.View
             {
                 await Device.InvokeOnMainThreadAsync(async () =>
                 {
-                    FormErrorReport errRpt = new FormErrorReport(this.ActSubType, ex);
+                    var errRpt = new FormErrorReport(this.ActSubType, ex);
                     _ = await errRpt.ShowDialog();
                 });
             }
@@ -1284,7 +1284,7 @@ namespace dMobile.View
             // Attempt to find last selected warehouse in warehouse view
             if (this.LocMapInfo.WhsLocMapRefno != 0)
             {
-                Warehouse selectedWarehouse = this.WarehouseObservableCollection.FirstOrDefault(
+                var selectedWarehouse = this.WarehouseObservableCollection.FirstOrDefault(
                     warehouse => warehouse.LocationMapRefno == this.LocMapInfo.WhsLocMapRefno);
 
                 if (selectedWarehouse != null)
@@ -1417,7 +1417,7 @@ namespace dMobile.View
                 // attempt to find last selected section in section view
                 if (this.LocMapInfo.SectLocMapRefno != 0)
                 {
-                    Section section = this.SectionObservableCollection.FirstOrDefault(
+                    var section = this.SectionObservableCollection.FirstOrDefault(
                         section => section.LocationMapRefno == this.LocMapInfo.SectLocMapRefno);
 
                     if (section != null)
@@ -1467,7 +1467,7 @@ namespace dMobile.View
                 // Attempt to find last selected slot coordinate in slot coordinate 1 view
                 if (this.LocMapInfo.SlotCoord1LocMapRefno != 0)
                 {
-                    Slot slotCoord1 = this.SlotCoord1ObservableCollection.FirstOrDefault(
+                    var slotCoord1 = this.SlotCoord1ObservableCollection.FirstOrDefault(
                         slot => slot.LocationMapSlotCoordinateRefno == this.LocMapInfo.SlotCoord1LocMapRefno);
 
                     if (slotCoord1 != null)
@@ -1492,7 +1492,7 @@ namespace dMobile.View
                 // attempt to find last selected slot coordinate in slot coordinate 2 view
                 if (this.LocMapInfo.SlotCoord2LocMapRefno != 0)
                 {
-                    Slot slotCoord2 = this.SlotCoord2ObservableCollection.FirstOrDefault(
+                    var slotCoord2 = this.SlotCoord2ObservableCollection.FirstOrDefault(
                         slot => slot.LocationMapSlotCoordinateRefno == this.LocMapInfo.SlotCoord1LocMapRefno);
 
                     if (slotCoord2 != null)
@@ -1517,7 +1517,7 @@ namespace dMobile.View
                 // Attempt to find last selected slot coordinate in slot coordinate 3 view
                 if (this.LocMapInfo.SlotCoord3LocMapRefno > 0)
                 {
-                    Slot slotCoord3 = this.SlotCoord3ObservableCollection.FirstOrDefault(
+                    var slotCoord3 = this.SlotCoord3ObservableCollection.FirstOrDefault(
                         slot => slot.LocationMapSlotCoordinateRefno == this.LocMapInfo.SlotCoord1LocMapRefno);
 
                     if (slotCoord3 != null)
@@ -1596,7 +1596,7 @@ namespace dMobile.View
                 }
                 else if (!string.IsNullOrEmpty(this.Parse.LocationIdentifier))
                 {
-                    int locMapRefno = await LocationMapTasks.GetLocMapRefnoFromBarCodeGlobalLocIdentifier(
+                    var locMapRefno = await LocationMapTasks.GetLocMapRefnoFromBarCodeGlobalLocIdentifier(
                         this.Parse.LocationIdentifier);
                     this.LocMapInfo = await LocationMapTasks.GetSLocMapFromLocMapRefno(locMapRefno);
                     await this.SelectWarehouse();
@@ -1623,7 +1623,7 @@ namespace dMobile.View
             {
                 await Device.InvokeOnMainThreadAsync(async () =>
                 {
-                    FormErrorReport errRpt = new FormErrorReport(this.ActSubType, ex);
+                    var errRpt = new FormErrorReport(this.ActSubType, ex);
                     _ = await errRpt.ShowDialog();
                 });
             }
@@ -1677,7 +1677,7 @@ namespace dMobile.View
             {
                 await Device.InvokeOnMainThreadAsync(async () =>
                 {
-                    FormErrorReport errRpt = new FormErrorReport(this.ActSubType, ex);
+                    var errRpt = new FormErrorReport(this.ActSubType, ex);
                     _ = await errRpt.ShowDialog();
                 });
             }
@@ -1728,7 +1728,7 @@ namespace dMobile.View
             {
                 await Device.InvokeOnMainThreadAsync(async () =>
                 {
-                    FormErrorReport errRpt = new FormErrorReport(this.ActSubType, ex);
+                    var errRpt = new FormErrorReport(this.ActSubType, ex);
                     _ = await errRpt.ShowDialog();
                 });
             }
@@ -1755,7 +1755,7 @@ namespace dMobile.View
                 if (this.IsControlLoaded)
                 {
                     this.IsChangesMade = true;
-                    int slotLocMapRefno = 0;
+                    var slotLocMapRefno = 0;
 
                     if (e.SelectedItem is Slot slot1 && this.dgCoord2.SelectedItem is Slot slot2 &&
                         this.dgCoord3.SelectedItem is Slot slot3)
@@ -1787,7 +1787,7 @@ namespace dMobile.View
             {
                 await Device.InvokeOnMainThreadAsync(async () =>
                 {
-                    FormErrorReport errRpt = new FormErrorReport(this.ActSubType, ex);
+                    var errRpt = new FormErrorReport(this.ActSubType, ex);
                     _ = await errRpt.ShowDialog();
                 });
             }
@@ -1814,7 +1814,7 @@ namespace dMobile.View
                 if (this.IsControlLoaded)
                 {
                     this.IsChangesMade = true;
-                    int slotLocMapRefno = 0;
+                    var slotLocMapRefno = 0;
 
                     if (this.dgCoord1.SelectedItem is Slot slot1 && e.SelectedItem is Slot slot2 &&
                         this.dgCoord3.SelectedItem is Slot slot3)
@@ -1846,7 +1846,7 @@ namespace dMobile.View
             {
                 await Device.InvokeOnMainThreadAsync(async () =>
                 {
-                    FormErrorReport errRpt = new FormErrorReport(this.ActSubType, ex);
+                    var errRpt = new FormErrorReport(this.ActSubType, ex);
                     _ = await errRpt.ShowDialog();
                 });
             }
@@ -1873,7 +1873,7 @@ namespace dMobile.View
                 if (this.IsControlLoaded)
                 {
                     this.IsChangesMade = true;
-                    int slotLocMapRefno = 0;
+                    var slotLocMapRefno = 0;
 
                     if (this.dgCoord1.SelectedItem is Slot slot1 && this.dgCoord2.SelectedItem is Slot slot2 &&
                         e.SelectedItem is Slot slot3)
@@ -1905,7 +1905,7 @@ namespace dMobile.View
             {
                 await Device.InvokeOnMainThreadAsync(async () =>
                 {
-                    FormErrorReport errRpt = new FormErrorReport(this.ActSubType, ex);
+                    var errRpt = new FormErrorReport(this.ActSubType, ex);
                     _ = await errRpt.ShowDialog();
                 });
             }
@@ -1926,7 +1926,7 @@ namespace dMobile.View
         {
             this.SectionObservableCollection = new ObservableCollection<Section>();
 
-            foreach (Section section in this.FilteredListSections)
+            foreach (var section in this.FilteredListSections)
             {
                 this.SectionObservableCollection.Add(section);
             }

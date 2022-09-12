@@ -283,7 +283,7 @@ namespace dMobile.View.Activity
         /// <remarks></remarks>
         public async Task<bool> IsReadyToSave()
         {
-            bool IsReadyToSave = true;
+            var IsReadyToSave = true;
 
             try
             {
@@ -323,7 +323,7 @@ namespace dMobile.View.Activity
         /// <remarks></remarks>
         public async Task<bool> SaveChanges()
         {
-            bool bSaveComplete = false;
+            var bSaveComplete = false;
             try
             {
                 if (await this.IsReadyToSave())
@@ -347,7 +347,7 @@ namespace dMobile.View.Activity
                     this.RecvSettings.iSortBy3Index = this.cboSortBy3.SelectedIndex;
                     this.MakeSQLSortBy();
 
-                    ReceivingSettings tempRecvSettings = this.RecvSettings;
+                    var tempRecvSettings = this.RecvSettings;
                     _ = this.RecvSettings.SaveData(ref tempRecvSettings);
                     this.RecvSettings = tempRecvSettings;
 
@@ -374,7 +374,7 @@ namespace dMobile.View.Activity
         /// <remarks></remarks>
         public async Task<bool> CancelChanges()
         {
-            bool bCancelChanges = true;
+            var bCancelChanges = true;
 
             try
             {
@@ -412,12 +412,12 @@ namespace dMobile.View.Activity
         /// <remarks></remarks>
         public async Task<XDocument> GetXML()
         {
-            XDocument request = XDocument.Parse("<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>" +
-                      "<params>" +
-                      "<arrival_date>" + this.RecvSettings.dtArrivalDateFilter.ToShortDateString() + "</arrival_date>" +
-                      "<issued_date>" + this.RecvSettings.dtIssuedDateFilter.ToShortDateString() + "</issued_date>" +
-                      "<sortby>" + this.strSQLSortBy + "</sortby>" +
-                      "</params>");
+            var request = XDocument.Parse("<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>" +
+                                          "<params>" +
+                                          "<arrival_date>" + this.RecvSettings.dtArrivalDateFilter.ToShortDateString() + "</arrival_date>" +
+                                          "<issued_date>" + this.RecvSettings.dtIssuedDateFilter.ToShortDateString() + "</issued_date>" +
+                                          "<sortby>" + this.strSQLSortBy + "</sortby>" +
+                                          "</params>");
 
             return request;
         }

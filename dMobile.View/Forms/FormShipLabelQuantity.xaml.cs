@@ -99,7 +99,7 @@ namespace dMobile.View.Forms
         {
             e.Cancel = false;
 
-            int lblQty = Convert.ToInt32(this.txtQuantity.Text);
+            var lblQty = Convert.ToInt32(this.txtQuantity.Text);
 
             if (lblQty < 0 || lblQty > 999)
             {

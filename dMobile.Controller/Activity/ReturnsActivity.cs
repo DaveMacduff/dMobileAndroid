@@ -32,9 +32,9 @@ namespace dMobile.Controller
             this.FullClassName = typeof(ReturnsActivity).FullName;
 
             // Data grid
-            DataTemplate dataTemplate = new DataTemplate(() =>
+            var dataTemplate = new DataTemplate(() =>
             {
-                Grid gridData = new Grid
+                var gridData = new Grid
                 {
                     Padding = new Thickness(5),
                     ColumnDefinitions =
@@ -45,9 +45,9 @@ namespace dMobile.Controller
                     },
                 };
 
-                Label stringFKRefno = new Label { VerticalOptions = LayoutOptions.Center };
-                Label orderedDateTime = new Label { VerticalOptions = LayoutOptions.Center };
-                Label deliveryDateTime = new Label { VerticalOptions = LayoutOptions.Center };
+                var stringFKRefno = new Label { VerticalOptions = LayoutOptions.Center };
+                var orderedDateTime = new Label { VerticalOptions = LayoutOptions.Center };
+                var deliveryDateTime = new Label { VerticalOptions = LayoutOptions.Center };
 
                 stringFKRefno.SetBinding(Label.TextProperty, new Binding("ActivityStringFKRefno"));
                 orderedDateTime.SetBinding(Label.TextProperty, new Binding(
@@ -71,7 +71,19 @@ namespace dMobile.Controller
                 return new ViewCell { View = gridData };
             });
 
-            this.ResourceDictionary.Add("dataTemplate", dataTemplate);
+            var isAddKey = true;
+            foreach (var item in this.ResourceDictionary)
+            {
+                if (item.Key == "dataTemplateReturns")
+                {
+                    isAddKey = false;
+                }
+            }
+
+            if (isAddKey)
+            {
+                this.ResourceDictionary.Add("dataTemplateReturns", dataTemplate);
+            }
         }
 
         /// <summary>
@@ -118,28 +130,28 @@ namespace dMobile.Controller
             ref Grid GridMainActivity,
             ref ListView ListViewMainActivity)
         {
-            ObservableCollection<object> orderReturns = new ObservableCollection<object>();
+            var orderReturns = new ObservableCollection<object>();
 
             foreach (Return orderReturn in this.ListHdrs)
             {
                 orderReturns.Add(orderReturn);
             }
 
-            Label returnNumber = new Label
+            var returnNumber = new Label
             {
                 Text = "Return #",
                 VerticalOptions = LayoutOptions.Center,
                 FontAttributes = FontAttributes.Bold,
             };
 
-            Label returnEntered = new Label
+            var returnEntered = new Label
             {
                 Text = "Entered",
                 VerticalOptions = LayoutOptions.Center,
                 FontAttributes = FontAttributes.Bold,
             };
 
-            Label returnReturned = new Label
+            var returnReturned = new Label
             {
                 Text = "Returned",
                 VerticalOptions = LayoutOptions.Center,
@@ -150,7 +162,7 @@ namespace dMobile.Controller
             this.ColumnWidth1 = DependencyService.Get<IGridService>().CalculateTextWidth(returnEntered.Text);
             this.ColumnWidth2 = DependencyService.Get<IGridService>().CalculateTextWidth(returnReturned.Text);
 
-            Grid gridHeader = new Grid
+            var gridHeader = new Grid
             {
                 Padding = new Thickness(5),
                 ColumnDefinitions =
@@ -177,11 +189,11 @@ namespace dMobile.Controller
 
             foreach (Return orderReturn in orderReturns)
             {
-                double detailWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(
+                var detailWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(
                     orderReturn.ActivityStringFKRefno);
-                double detailWidth1 = DependencyService.Get<IGridService>().CalculateTextWidth(
+                var detailWidth1 = DependencyService.Get<IGridService>().CalculateTextWidth(
                     orderReturn.ActivityReturnsOrderedDateTime.ToString("MM/dd/yyyy"));
-                double detailWidth2 = DependencyService.Get<IGridService>().CalculateTextWidth(
+                var detailWidth2 = DependencyService.Get<IGridService>().CalculateTextWidth(
                     orderReturn.ActivityReturnsDeliveryDateTime.ToString("MM/dd/yyyy"));
 
                 if (detailWidth0 > this.ColumnWidth0)
@@ -215,7 +227,7 @@ namespace dMobile.Controller
         /// <returns>.</returns>
         public override async Task<List<object>> GetActivityList(bool isSubmitBatch)
         {
-            StringBuilder sql = new StringBuilder();
+            var sql = new StringBuilder();
 
             if (isSubmitBatch)
             {
@@ -294,7 +306,7 @@ namespace dMobile.Controller
 
             this.ListReturns = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<Return>(sql.ToString());
 
-            foreach (Sort sort in new ReturnsSettings().LoadData().GetDataViewSortBy())
+            foreach (var sort in new ReturnsSettings().LoadData().GetDataViewSortBy())
             {
                 if (sort.SortOrder == Resources.Enums.SortOrder.ASC)
                 {
@@ -321,7 +333,7 @@ namespace dMobile.Controller
         /// <returns>.</returns>
         public override ObservableCollection<object> Search(string searchText)
         {
-            ObservableCollection<object> observableCollection = new ObservableCollection<object>();
+            var observableCollection = new ObservableCollection<object>();
 
             this.ListHdrs = this.ListReturns.Where(returns => returns.ActivityStringFKRefno.ToLower().
                 Contains(searchText.ToLower().Trim())).Cast<object>().ToList();
@@ -406,7 +418,7 @@ namespace dMobile.Controller
                 await this.Purge();
                 this.DataLayerProgressOutHandler(this, new EventArgs(), 5);
 
-                TableActivityReturns tableActReturns = new TableActivityReturns();
+                var tableActReturns = new TableActivityReturns();
 
                 tableActReturns.RegisterDataAccessListenerProgressOut((ReturnsActivity)this);
                 await tableActReturns.RequestData();
@@ -420,9 +432,9 @@ namespace dMobile.Controller
         /// <returns>The <see cref="Task"/>.</returns>
         public override async Task Purge()
         {
-            TableActivityReturns tableActReturns = new TableActivityReturns();
-            TableActivityReturnsItem tableActReturnsItem = new TableActivityReturnsItem();
-            TableActivityReturnsDetail tableActReturnsDetail = new TableActivityReturnsDetail();
+            var tableActReturns = new TableActivityReturns();
+            var tableActReturnsItem = new TableActivityReturnsItem();
+            var tableActReturnsDetail = new TableActivityReturnsDetail();
 
             await tableActReturnsDetail.PurgeData();
             await tableActReturnsItem.PurgeData();
@@ -442,7 +454,7 @@ namespace dMobile.Controller
         /// <param name="data">The data<see cref="XDocument"/>.</param>
         public override void GetFilter(XDocument data)
         {
-            ReturnsSettings returnSettings = new ReturnsSettings().LoadData();
+            var returnSettings = new ReturnsSettings().LoadData();
 
             if (returnSettings.IsApplyReturnedDateFilter)
             {

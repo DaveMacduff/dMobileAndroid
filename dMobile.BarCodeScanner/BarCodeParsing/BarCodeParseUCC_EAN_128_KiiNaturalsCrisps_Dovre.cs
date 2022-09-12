@@ -15,7 +15,7 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
 
         protected override string IdentifyGTIN(string barCodeData)
         {
-            string data = barCodeData;
+            var data = barCodeData;
             // they have their GTIN's ID'd 02 instead of 01
             if (data.StartsWith("02") && data.Length >= 16)
             {
@@ -33,7 +33,7 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
 
         protected override string IdentifyLogisticUnitBestBeforeSellByDate(string barCodeData)
         {
-            string tempData = barCodeData;
+            var tempData = barCodeData;
             if (tempData.StartsWith("15") && tempData.Length >= 8)
             {
                 // For Vendor # 0678629
@@ -41,15 +41,15 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
                 if (this.GTIN != null && this.GTIN.Substring(1).StartsWith(KiiNaturalsCrispsVendorNumber))
                 {
                     // Reverse
-                    string years = tempData.Substring(2, 2);
-                    string months = tempData.Substring(4, 2);
-                    string days = tempData.Substring(6, 2);
+                    var years = tempData.Substring(2, 2);
+                    var months = tempData.Substring(4, 2);
+                    var days = tempData.Substring(6, 2);
 
                     // switch days and years
-                    string identifier = tempData.Substring(0, 2);
-                    string daysAlt = years;
-                    string monthsAlt = months;
-                    string yearsAlt = days;
+                    var identifier = tempData.Substring(0, 2);
+                    var daysAlt = years;
+                    var monthsAlt = months;
+                    var yearsAlt = days;
                     tempData =
                         identifier +
                         yearsAlt +

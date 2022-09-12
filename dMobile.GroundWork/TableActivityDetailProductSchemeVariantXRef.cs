@@ -30,7 +30,7 @@ namespace dMobile.GroundWork
             {
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging product scheme variant xref details.", true);
 
-                string query = "DELETE FROM tActivityDetailProductSchemeVariantXRef";
+                var query = "DELETE FROM tActivityDetailProductSchemeVariantXRef";
                 await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(query);
 
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging product scheme variant xref details complete.", true);
