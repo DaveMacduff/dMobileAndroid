@@ -3,11 +3,12 @@
     xmlns:modal="clr-namespace:dMobile.View.CustomPages.Modal"
     xmlns="http://xamarin.com/schemas/2014/forms"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-    xmlns:Helpers="clr-namespace:dMobile.View.Helpers"
+    xmlns:helpers="clr-namespace:dMobile.View.Helpers"
     xmlns:customcontrols="clr-namespace:dMobile.View.CustomControls"
-    x:Class="dMobile.View.ucSetLocationMap">
+    xmlns:types="clr-namespace:dMobile.Resources.Types;assembly=dMobile.Resources"
+    x:Class="dMobile.View.SetLocationMap">
 
-    <ContentPage x:Name="warehouseTab">
+    <ContentPage x:Name="WarehouseTab">
         <!--Warehouse tab-->
         <Grid Padding="10">
             <Grid.RowDefinitions>
@@ -16,10 +17,10 @@
                 <RowDefinition Height="Auto" />
             </Grid.RowDefinitions>
 
-            <Label x:Name="tabWarehouse" Text="Warehouse" Grid.Row="0" FontAttributes="Bold"/>
+            <Label x:Name="TabWarehouse" Text="Warehouse" Grid.Row="0" FontAttributes="Bold"/>
 
             <Frame Grid.Row="1" OutlineColor="{DynamicResource BorderColor}">
-                <ListView x:Name="dgWhs" ItemSelected="Whs_ItemSelected" HasUnevenRows="True">
+                <ListView x:Name="WarehousesView" ItemSelected="Whs_ItemSelected" HasUnevenRows="True">
                     <ListView.ItemTemplate>
                         <DataTemplate>
                             <ViewCell>
@@ -29,8 +30,16 @@
                                         <ColumnDefinition Width="*"/>
                                     </Grid.ColumnDefinitions>
 
-                                    <Label Grid.Row="0" Grid.Column="0" Text="{Binding LocationMapWarehouseCode}" VerticalOptions="Center"/>
-                                    <Label Grid.Row="0" Grid.Column="1" Text="{Binding LocationMapWarehouseName}" VerticalOptions="Center"/>
+                                    <Label Grid.Row="0"
+                                           Grid.Column="0"
+                                           Text="{Binding LocationMapWarehouseCode}"
+                                           VerticalOptions="Center"
+                                           x:DataType="types:Warehouse" />
+                                    <Label Grid.Row="0"
+                                           Grid.Column="1"
+                                           Text="{Binding LocationMapWarehouseName}"
+                                           VerticalOptions="Center"
+                                           x:DataType="types:Warehouse" />
                                 </Grid>
                             </ViewCell>
                         </DataTemplate>
@@ -42,7 +51,7 @@
         </Grid>
     </ContentPage>
 
-    <ContentPage x:Name="sectionTab">
+    <ContentPage x:Name="SectionTab">
         <!--Section tab-->
         <Grid Padding="10">
             <Grid.RowDefinitions>
@@ -52,7 +61,7 @@
                 <RowDefinition Height="Auto" />
             </Grid.RowDefinitions>
 
-            <Label x:Name="tabSection" Text="Section" Grid.Row="0" FontAttributes="Bold"/>
+            <Label x:Name="TabSection" Text="Section" Grid.Row="0" FontAttributes="Bold"/>
 
             <Grid Grid.Row="1">
                 <Grid.RowDefinitions>
@@ -64,13 +73,26 @@
                     <ColumnDefinition Width="45*" />
                 </Grid.ColumnDefinitions>
 
-                <Label x:Name="lblSearch" Text="Search" Grid.Row="0" Grid.Column="0" VerticalOptions="Center"/>
-                <customcontrols:CustomPicker x:Name="cboSectionSearch" Grid.Row="0" Grid.Column="1" FontSize="Body" Image="arrow_drop_down" IsEnabled="{Binding Loading, Converter={Helpers:BoolConverter}}"/>
-                <Entry x:Name="txtSearchSection" Grid.Row="0" Grid.Column="2" TextChanged="TxtSearchSection_TextChanged" IsEnabled="{Binding Loading, Converter={Helpers:BoolConverter}}"/>
+                <Label x:Name="LblSearch"
+                       Text="Search"
+                       Grid.Row="0"
+                       Grid.Column="0"
+                       VerticalOptions="Center"/>
+                <customcontrols:CustomPicker x:Name="CboSectionSearch"
+                                             Grid.Row="0"
+                                             Grid.Column="1"
+                                             FontSize="Body"
+                                             Image="arrow_drop_down"
+                                             IsEnabled="{Binding Loading, Converter={helpers:BoolConverter}}"/>
+                <Entry x:Name="TxtSearchSection"
+                       Grid.Row="0"
+                       Grid.Column="2"
+                       TextChanged="TxtSearchSection_TextChanged"
+                       IsEnabled="{Binding Loading, Converter={helpers:BoolConverter}}"/>
             </Grid>
 
             <Frame VerticalOptions="Start" Grid.Row="2" OutlineColor="{DynamicResource BorderColor}">
-                <ListView x:Name="dgSections" ItemSelected="Sections_ItemSelected" HasUnevenRows="True" >
+                <ListView x:Name="SectionsView" ItemSelected="Sections_ItemSelected" HasUnevenRows="True" >
                     <ListView.ItemTemplate>
                         <DataTemplate>
                             <ViewCell>
@@ -80,8 +102,10 @@
                                         <ColumnDefinition Width="*"/>
                                     </Grid.ColumnDefinitions>
 
-                                    <Label Grid.Column="0" Text="{Binding LocationMapSectionCode}" VerticalOptions="Center"/>
-                                    <Label Grid.Column="1" Text="{Binding LocationMapSectionName}" VerticalOptions="Center"/>
+                                    <Label Grid.Column="0" Text="{Binding LocationMapSectionCode}" VerticalOptions="Center"
+                                           x:DataType="types:Section" />
+                                    <Label Grid.Column="1" Text="{Binding LocationMapSectionName}" VerticalOptions="Center"
+                                           x:DataType="types:Section" />
                                 </Grid>
                             </ViewCell>
                         </DataTemplate>
@@ -89,11 +113,11 @@
                 </ListView>
             </Frame>
 
-            <customcontrols:LocationMapInfo x:Name="sectionLocationMapInfo" Grid.Row="3"/>
+            <customcontrols:LocationMapInfo x:Name="SectionLocationMapInfo" Grid.Row="3"/>
         </Grid>
     </ContentPage>
 
-    <ContentPage x:Name="slotTab">
+    <ContentPage x:Name="SlotTab">
         <!--Section Slot-->
         <Grid Padding="10">
             <Grid.RowDefinitions>
@@ -102,7 +126,7 @@
                 <RowDefinition Height="Auto" />
             </Grid.RowDefinitions>
 
-            <Label x:Name="tabSlot" Text="Slot" Grid.Row="0" FontAttributes="Bold"/>
+            <Label x:Name="TabSlot" Text="Slot" Grid.Row="0" FontAttributes="Bold"/>
 
             <Grid Grid.Row="1">
                 <Grid.RowDefinitions>
@@ -117,15 +141,22 @@
                 </Grid.ColumnDefinitions>
 
                 <!--Coord1-->
-                <Label x:Name="lblSlotCoordinate1" Grid.Row="0" Grid.Column="0" Text="Coord 1"/>
-                <Entry x:Name="txtSlotCoordinate1" TextChanged="TxtSlotCoordinate1_TextChanged" Grid.Row="1" Grid.Column="0"/>
+                <Label x:Name="LblSlotCoordinate1"
+                       Grid.Row="0"
+                       Grid.Column="0"
+                       Text="Coord 1"/>
+                <Entry x:Name="TxtSlotCoordinate1"
+                       TextChanged="TxtSlotCoordinate1_TextChanged"
+                       Grid.Row="1"
+                       Grid.Column="0"/>
                 <Frame VerticalOptions="Start" Grid.Row="2" Grid.Column="0" OutlineColor="{DynamicResource BorderColor}">
                     <ListView x:Name="dgCoord1" ItemSelected="Coord1_ItemSelected" Grid.Row="3" Grid.Column="0" HasUnevenRows="True">
                         <ListView.ItemTemplate>
                             <DataTemplate>
                                 <ViewCell>
                                     <StackLayout Padding="5,1,5,1">
-                                        <Label Text="{Binding LocationMapSlotCoordinateCode}" VerticalOptions="Center"/>
+                                        <Label Text="{Binding LocationMapSlotCoordinateCode}" VerticalOptions="Center"
+                                               x:DataType="types:Slot" />
                                     </StackLayout>
                                 </ViewCell>
                             </DataTemplate>
@@ -134,15 +165,26 @@
                 </Frame>
 
                 <!--Coord2-->
-                <Label x:Name="lblSlotCoordinate2" Grid.Row="0" Grid.Column="1" Text="Coord 2"/>
-                <Entry x:Name="txtSlotCoordinate2" TextChanged="TxtSlotCoordinate2_TextChanged" Grid.Row="1" Grid.Column="1"/>
-                <Frame VerticalOptions="Start" Grid.Row="2" Grid.Column="1" OutlineColor="{DynamicResource BorderColor}">
+                <Label x:Name="LblSlotCoordinate2"
+                       Grid.Row="0"
+                       Grid.Column="1"
+                       Text="Coord 2"/>
+                <Entry x:Name="TxtSlotCoordinate2"
+                       TextChanged="TxtSlotCoordinate2_TextChanged"
+                       Grid.Row="1"
+                       Grid.Column="1" />
+                <Frame VerticalOptions="Start"
+                       Grid.Row="2"
+                       Grid.Column="1"
+                       OutlineColor="{DynamicResource BorderColor}">
                     <ListView x:Name="dgCoord2" ItemSelected="Coord2_ItemSelected" Grid.Row="3" Grid.Column="1" HasUnevenRows="True">
                         <ListView.ItemTemplate>
                             <DataTemplate>
                                 <ViewCell>
                                     <StackLayout Padding="5,1,5,1">
-                                        <Label Text="{Binding LocationMapSlotCoordinateCode}" VerticalOptions="Center"/>
+                                        <Label Text="{Binding LocationMapSlotCoordinateCode}"
+                                               VerticalOptions="Center"
+                                               x:DataType="types:Slot" />
                                     </StackLayout>
                                 </ViewCell>
                             </DataTemplate>
@@ -151,15 +193,22 @@
                 </Frame>
 
                 <!--Coord2-->
-                <Label x:Name="lblSlotCoordinate3" Grid.Row="0" Grid.Column="2" Text="Coord 3"/>
-                <Entry x:Name="txtSlotCoordinate3" TextChanged="TxtSlotCoordinate3_TextChanged" Grid.Row="1" Grid.Column="2"/>
+                <Label x:Name="LblSlotCoordinate3"
+                       Grid.Row="0"
+                       Grid.Column="2"
+                       Text="Coord 3"/>
+                <Entry x:Name="TxtSlotCoordinate3"
+                       TextChanged="TxtSlotCoordinate3_TextChanged"
+                       Grid.Row="1"
+                       Grid.Column="2"/>
                 <Frame VerticalOptions="Start" Grid.Row="2" Grid.Column="2" OutlineColor="{DynamicResource BorderColor}">
                     <ListView x:Name="dgCoord3" ItemSelected="Coord3_ItemSelected" Grid.Row="3" Grid.Column="2" HasUnevenRows="True">
                         <ListView.ItemTemplate>
                             <DataTemplate>
                                 <ViewCell>
                                     <StackLayout Padding="5,1,5,1">
-                                        <Label Text="{Binding LocationMapSlotCoordinateCode}" VerticalOptions="Center"/>
+                                        <Label Text="{Binding LocationMapSlotCoordinateCode}" VerticalOptions="Center"
+                                               x:DataType="types:Slot" />
                                     </StackLayout>
                                 </ViewCell>
                             </DataTemplate>
@@ -168,7 +217,7 @@
                 </Frame>
             </Grid>
 
-            <customcontrols:LocationMapInfo x:Name="slotLocationMapInfo" Grid.Row="2"/>
+            <customcontrols:LocationMapInfo x:Name="SlotLocationMapInfo" Grid.Row="2"/>
         </Grid>
     </ContentPage>
 

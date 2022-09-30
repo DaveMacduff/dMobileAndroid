@@ -2,6 +2,10 @@
 // Copyright (c) InterSect Business Systems Inc. All rights reserved.
 // </copyright>
 
+using dMobile.Controller.Activity;
+using dMobile.Controller.Activity_Detail;
+using dMobile.Controller.Activity_Item;
+
 namespace dMobile.View.Activity
 {
     using System;
@@ -179,7 +183,7 @@ namespace dMobile.View.Activity
 
         private ActItem ActItem { get; set; } = null;
 
-        private Activity Activity { get; set; } = null;
+        private Controller.Activity.Activity Activity { get; set; } = null;
 
         private LocationMap LocMap { get; set; } = LocationMap.GetInstance();
 
@@ -469,7 +473,9 @@ namespace dMobile.View.Activity
         ///
         /// </summary>
         /// <returns></returns>
+#pragma warning disable CS1998 // Async method lacks 'await' operators and will run synchronously
         public async Task<XDocument> GetXML()
+#pragma warning restore CS1998 // Async method lacks 'await' operators and will run synchronously
         {
             var xmlDoc = XDocument.Parse(
                 "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>"
@@ -702,7 +708,7 @@ namespace dMobile.View.Activity
 
                 if (filterAllowChangeProduct)
                 {
-                    (frmSelectProduct.DisplayControl as ucSelectProduct).FilterOnAllowConvertProduct = true;
+                    (frmSelectProduct.DisplayControl as SelectProduct).FilterOnAllowConvertProduct = true;
                 }
 
                 if (await frmSelectProduct.DisplayControl.ShowDialog() == DialogResult.OK)

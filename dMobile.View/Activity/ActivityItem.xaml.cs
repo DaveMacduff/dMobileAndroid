@@ -2,6 +2,10 @@
 // Copyright (c) InterSect Business Systems Inc. All rights reserved.
 // </copyright>
 
+using dMobile.Controller.Activity;
+using dMobile.Controller.Activity_Detail;
+using dMobile.Controller.Activity_Item;
+
 namespace dMobile.View.Activity
 {
     using System;
@@ -98,7 +102,7 @@ namespace dMobile.View.Activity
         /// </summary>
         /// <param name="activity"><see cref="Activity"/> Activity header instance.</param>
         /// <param name="actSubTypes"><see cref="SysCommon.ActSubType"/> Activity sub type.</param>
-        public ActivityItem(Activity activity, SysCommon.ActSubTypes actSubTypes)
+        public ActivityItem(Controller.Activity.Activity activity, SysCommon.ActSubTypes actSubTypes)
         {
             this.InitializeComponent();
 
@@ -109,24 +113,21 @@ namespace dMobile.View.Activity
             this.CmdAddProductText = "Add Prod";
             this.CmdAddSkidText = "Add Skid";
 
-            if (!DesignMode.IsDesignModeEnabled)
-            {
-                this.LocMap = LocationMap.GetInstance();
-                this.SysEnv = SysEnvironment.GetInstance();
-                this.ActSubType = actSubTypes;
-                this.ActItem = ActItemFacade.GetActItem(activity, this.ActSubType);
-                this.ActItem.ActHdr = activity;
+            this.LocMap = LocationMap.GetInstance();
+            this.SysEnv = SysEnvironment.GetInstance();
+            this.ActSubType = actSubTypes;
+            this.ActItem = ActItemFacade.GetActItem(activity, this.ActSubType);
+            this.ActItem.ActHdr = activity;
 
-                this.CmdAddProductIsEnabled = this.ActItem.IsAllowAddItem;
+            this.CmdAddProductIsEnabled = this.ActItem.IsAllowAddItem;
 
-                // If the skid was not set on the header activity define an empty one.
-                activity.SkidInfo ??= new SysSkidInfo();
+            // If the skid was not set on the header activity define an empty one.
+            activity.SkidInfo ??= new SysSkidInfo();
 
-                ParseAndSeedBarCodeModifier();
+            ParseAndSeedBarCodeModifier();
 
-                // Page title.
-                this.Title = this.ActItem.GetControlDescription();
-            }
+            // Page title.
+            this.Title = this.ActItem.GetControlDescription();
 
             //////////////////////////////////////////////////////////////////////////
             void ParseAndSeedBarCodeModifier()

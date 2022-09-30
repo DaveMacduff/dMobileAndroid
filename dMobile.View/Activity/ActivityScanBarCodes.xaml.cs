@@ -2,6 +2,9 @@
 // Copyright (c) InterSect Business Systems Inc. All rights reserved.
 // </copyright>
 
+using dMobile.Controller.Activity;
+using dMobile.Controller.Activity_Item;
+
 namespace dMobile.View.Activity
 {
     using System;
@@ -119,7 +122,7 @@ namespace dMobile.View.Activity
         /// <summary>
         /// Gets or sets the activity bar code instance.
         /// </summary>
-        private Activity ActBarCode { get; set; } = null;
+        private Controller.Activity.Activity ActBarCode { get; set; } = null;
 
         /// <summary>
         /// Gets or sets the bar code scanner instance.

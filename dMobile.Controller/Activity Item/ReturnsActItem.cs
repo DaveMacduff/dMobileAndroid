@@ -2,24 +2,24 @@
 // Copyright (c) InterSect Business Systems Inc. All rights reserved.
 // </copyright>
 
-namespace dMobile.Controller
-{
-    using System;
-    using System.Collections.Generic;
-    using System.Collections.ObjectModel;
-    using System.Data;
-    using System.Linq;
-    using System.Text;
-    using System.Threading.Tasks;
-    using System.Xml;
-    using System.Xml.Linq;
-    using dMobile.Bedrock;
-    using dMobile.GroundWork;
-    using dMobile.Resources.Models;
-    using dMobile.Resources.Services;
-    using dMobile.Resources.Types;
-    using Xamarin.Forms;
+using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.Xml;
+using System.Xml.Linq;
+using dMobile.Bedrock;
+using dMobile.GroundWork;
+using dMobile.Resources.Models;
+using dMobile.Resources.Services;
+using dMobile.Resources.Types;
+using SQLite;
+using Xamarin.Forms;
 
+namespace dMobile.Controller.Activity_Item
+{
     /// <summary>
     /// Defines the <see cref="ReturnsActItem" />.
     /// </summary>
@@ -64,7 +64,7 @@ namespace dMobile.Controller
         /// Initializes a new instance of the <see cref="ReturnsActItem"/> class.
         /// </summary>
         /// <param name="activity">.</param>
-        public ReturnsActItem(Activity activity)
+        public ReturnsActItem(Activity.Activity activity)
           : base(activity)
         {
             this.FullClassName = typeof(ReturnsActItem).FullName;
@@ -97,7 +97,9 @@ namespace dMobile.Controller
                 labelProductCode.SetBinding(Label.TextProperty, new Binding("ProductCode"));
                 labelProductUnitBC.SetBinding(Label.TextProperty, new Binding("ProductUnitBC"));
                 labelUnitCode.SetBinding(Label.TextProperty, new Binding("UnitCode"));
-                labelActivityItemReturnsQuantityReturned.SetBinding(Label.TextProperty, new Binding("ActivityItemReturnsQuantityReturned", BindingMode.Default, null, null, "{0:F3}"));
+                labelActivityItemReturnsQuantityReturned.SetBinding(
+                    Label.TextProperty,
+                    new Binding("ActivityItemReturnsQuantityReturned", BindingMode.Default, null, null, "{0:F3}"));
 
                 gridData.Children.Add(labelIsActivityItemReturnsComment);
                 gridData.Children.Add(labelProductCode);
@@ -207,7 +209,9 @@ namespace dMobile.Controller
             var comment = string.Empty;
             if (selectedActivityItem is ReturnItem returnItem)
             {
-                var results = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<tActivityItemReturnsCommentModel>("SELECT * FROM tActivityItemReturnsComment WHERE ActivityItemRefno = ?", returnItem.ActivityItemRefno);
+                var results = await DatabaseConnection.GetInstance().SQLConn.
+                    QueryAsync<tActivityItemReturnsCommentModel>("SELECT * FROM tActivityItemReturnsComment WHERE ActivityItemRefno = ?",
+                        returnItem.ActivityItemRefno);
 
                 if (results != null && results.Count > 0)
                 {
@@ -384,29 +388,6 @@ namespace dMobile.Controller
 
             foreach (ReturnItem returnItem in this.ListItems)
             {
-                // ReturnItem returnItem = new ReturnItem
-                // {
-                //    ActivityItemRefno = Convert.ToInt32(row["ActivityItemRefno"] != DBNull.Value ? row["ActivityItemRefno"] : null),
-                //    ActivityItemFKRefno = Convert.ToInt32(row["ActivityItemFKRefno"] != DBNull.Value ? row["ActivityItemFKRefno"] : null),
-                //    ActivityItemStringFKRefno = Convert.ToString(row["ActivityItemStringFKRefno"] != DBNull.Value ? row["ActivityItemStringFKRefno"] : null),
-                //    ProductUnitRefno = Convert.ToInt32(row["ProductUnitRefno"] != DBNull.Value ? row["ProductUnitRefno"] : null),
-                //    ProductRefno = Convert.ToInt32(row["ProductRefno"] != DBNull.Value ? row["ProductRefno"] : null),
-                //    ProductCode = Convert.ToString(row["ProductCode"] != DBNull.Value ? row["ProductCode"] : null),
-                //    ProductDescription = Convert.ToString(row["ProductDescription"] != DBNull.Value ? row["ProductDescription"] : null),
-                //    ProductBrandDescription = Convert.ToString(row["ProductBrandDescription"] != DBNull.Value ? row["ProductBrandDescription"] : null),
-                //    UnitCode = Convert.ToString(row["UnitCode"] != DBNull.Value ? row["UnitCode"] : null),
-                //    ProductUnitBC = Convert.ToString(row["ProductUnitBC"] != DBNull.Value ? row["ProductUnitBC"] : null),
-                //    ProductUnitSizeDescription = Convert.ToString(row["ProductUnitSizeDescription"] != DBNull.Value ? row["ProductUnitSizeDescription"] : null),
-                //    ActivityItemReturnsQuantityReturned = Convert.ToDecimal(row["ActivityItemReturnsQuantityReturned"] != DBNull.Value ? row["ActivityItemReturnsQuantityReturned"] : null),
-                //    ActivityItemReturnsBaseQuantityReturned = Convert.ToDecimal(row["ActivityItemReturnsBaseQuantityReturned"] != DBNull.Value ? row["ActivityItemReturnsBaseQuantityReturned"] : null),
-                //    ActivityItemReturnsWeightQuantityReturned = Convert.ToDecimal(row["ActivityItemReturnsWeightQuantityReturned"] != DBNull.Value ? row["ActivityItemReturnsWeightQuantityReturned"] : null),
-                //    ActivityItemReturnsCustomerProductUnitCode = Convert.ToString(row["ActivityItemReturnsCustomerProductUnitCode"] != DBNull.Value ? row["ActivityItemReturnsCustomerProductUnitCode"] : null),
-                //    LocationMapRefno = Convert.ToInt32(row["LocationMapRefno"] != DBNull.Value ? row["LocationMapRefno"] : null),
-                //    LocationCode = Convert.ToInt32(row["LocationCode"] != DBNull.Value ? row["LocationCode"] : null),
-                //    LocationName = Convert.ToString(row["LocationName"] != DBNull.Value ? row["LocationName"] : null),
-                //    IsActivityItemReturnsComment = Convert.ToString(row["IsActivityItemReturnsComment"] != DBNull.Value ? row["IsActivityItemReturnsComment"] : null),
-                //    ActivityItemStatus = Convert.ToInt32(row["ActivityItemStatus"] != DBNull.Value ? row["ActivityItemStatus"] : null)
-                // };
                 observableCollection.Add(returnItem);
 
                 var detailWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(returnItem.IsActivityItemReturnsComment);
@@ -612,29 +593,6 @@ namespace dMobile.Controller
             // }
             foreach (ReturnItem returnItem in this.ListItems)
             {
-                // ReturnItem returnItem = new ReturnItem
-                // {
-                //    ActivityItemRefno = Convert.ToInt32(row["ActivityItemRefno"] != DBNull.Value ? row["ActivityItemRefno"] : null),
-                //    ActivityItemFKRefno = Convert.ToInt32(row["ActivityItemFKRefno"] != DBNull.Value ? row["ActivityItemFKRefno"] : null),
-                //    ActivityItemStringFKRefno = Convert.ToString(row["ActivityItemStringFKRefno"] != DBNull.Value ? row["ActivityItemStringFKRefno"] : null),
-                //    ProductUnitRefno = Convert.ToInt32(row["ProductUnitRefno"] != DBNull.Value ? row["ProductUnitRefno"] : null),
-                //    ProductRefno = Convert.ToInt32(row["ProductRefno"] != DBNull.Value ? row["ProductRefno"] : null),
-                //    ProductCode = Convert.ToString(row["ProductCode"] != DBNull.Value ? row["ProductCode"] : null),
-                //    ProductDescription = Convert.ToString(row["ProductDescription"] != DBNull.Value ? row["ProductDescription"] : null),
-                //    ProductBrandDescription = Convert.ToString(row["ProductBrandDescription"] != DBNull.Value ? row["ProductBrandDescription"] : null),
-                //    UnitCode = Convert.ToString(row["UnitCode"] != DBNull.Value ? row["UnitCode"] : null),
-                //    ProductUnitBC = Convert.ToString(row["ProductUnitBC"] != DBNull.Value ? row["ProductUnitBC"] : null),
-                //    ProductUnitSizeDescription = Convert.ToString(row["ProductUnitSizeDescription"] != DBNull.Value ? row["ProductUnitSizeDescription"] : null),
-                //    ActivityItemReturnsQuantityReturned = Convert.ToDecimal(row["ActivityItemReturnsQuantityReturned"] != DBNull.Value ? row["ActivityItemReturnsQuantityReturned"] : null),
-                //    ActivityItemReturnsBaseQuantityReturned = Convert.ToDecimal(row["ActivityItemReturnsBaseQuantityReturned"] != DBNull.Value ? row["ActivityItemReturnsBaseQuantityReturned"] : null),
-                //    ActivityItemReturnsWeightQuantityReturned = Convert.ToDecimal(row["ActivityItemReturnsWeightQuantityReturned"] != DBNull.Value ? row["ActivityItemReturnsWeightQuantityReturned"] : null),
-                //    ActivityItemReturnsCustomerProductUnitCode = Convert.ToString(row["ActivityItemReturnsCustomerProductUnitCode"] != DBNull.Value ? row["ActivityItemReturnsCustomerProductUnitCode"] : null),
-                //    LocationMapRefno = Convert.ToInt32(row["LocationMapRefno"] != DBNull.Value ? row["LocationMapRefno"] : null),
-                //    LocationCode = Convert.ToInt32(row["LocationCode"] != DBNull.Value ? row["LocationCode"] : null),
-                //    LocationName = Convert.ToString(row["LocationName"] != DBNull.Value ? row["LocationName"] : null),
-                //    IsActivityItemReturnsComment = Convert.ToString(row["IsActivityItemReturnsComment"] != DBNull.Value ? row["IsActivityItemReturnsComment"] : null),
-                //    ActivityItemStatus = Convert.ToInt32(row["ActivityItemStatus"] != DBNull.Value ? row["ActivityItemStatus"] : null)
-                // };
                 observableCollection.Add(returnItem);
             }
 
@@ -850,7 +808,7 @@ namespace dMobile.Controller
         /// <returns><see cref="int"/> Found activity item foreign key reference number, else 0 if not found.</returns>
         public override int GetFKRefno(object resourceType)
         {
-            object tmpFKItRefno = ((ReceiveItem)resourceType).ActivityItemFKRefno;
+            object tmpFKItRefno = ((ReturnItem)resourceType).ActivityItemFKRefno;
             return tmpFKItRefno == null ? 0 : Convert.ToInt32(tmpFKItRefno);
         }
 
@@ -916,10 +874,51 @@ namespace dMobile.Controller
         /// <summary>
         /// The GetTotalQuantity.
         /// </summary>
-        /// <returns>The <see cref="Task{string}"/>.</returns>
-        public override Task<string> GetTotalQuantity()
+        /// <returns>.</returns>
+        public override async Task<string> GetTotalQuantity()
         {
-            throw new NotImplementedException();
+            var msg = string.Empty;
+
+            try
+            {
+                var query = "SELECT SUM(tActivityItemPicking.ActivityItemPickingQuantityOrdered) AS Ordered,"
+                            + "SUM(tActivityItemPicking.ActivityItemPickingWeightQuantityOrdered) AS WeightOrdered,"
+                            + "SUM(tActivityItemPicking.ActivityItemPickingQuantityShipped) AS Shipped,"
+                            + "SUM(tActivityItemPicking.ActivityItemPickingWeightQuantityShipped) AS WeightShipped,"
+                            + "tUnit.UnitCode AS WtUnitCode "
+                            + "FROM tActivityItem "
+                            + "INNER JOIN tActivityItemPicking ON tActivityItemPicking.ActivityItemRefno = "
+                            + "tActivityItem.ActivityItemRefno "
+                            + "INNER JOIN tProductUnit ON tProductUnit.ProductUnitRefno = tActivityItemPicking.ProductUnitRefno "
+                            + "INNER JOIN tUnit ON tUnit.UnitRefno = tProductUnit.WtUnitRefno "
+                            + string.Format("WHERE tActivityItem.ActivityRefno = {0} ", this.ActHdr.HdrRefno)
+                            + "GROUP BY tUnit.UnitCode";
+
+                var results = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<PickingItemSummary>(query);
+
+                if (results != null)
+                {
+                    foreach (dynamic pickingItem in results)
+                    {
+                        // Because an agregate sum function is used in a query. There will always be a result record.
+                        // This causes problems detecting if there is nothing to sum, resulting in null.
+                        // Converting Convert.ToDecimal(dr["Ordered"]) fails because there is not data. However to a string works.
+                        msg += string.Format("Total ordered:\r{0} @ {1}{2}\nTotal shipped:\r{3} @ {4}{5}",
+                            Convert.ToInt32(Convert.ToDecimal(pickingItem.Ordered)),
+                            Convert.ToDecimal(pickingItem.WeightOrdered),
+                            Convert.ToString(pickingItem.WtUnitCode),
+                            Convert.ToInt32(Convert.ToDecimal(pickingItem.Shipped)),
+                            Convert.ToDecimal(pickingItem.WeightShipped),
+                            Convert.ToString(pickingItem.WtUnitCode));
+                    }
+                }
+            }
+            catch (SQLiteException ex)
+            {
+                throw new Exception("Database exception occurred.", ex);
+            }
+
+            return msg;
         }
 
         /// <summary>

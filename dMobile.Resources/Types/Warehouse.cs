@@ -6,15 +6,12 @@ namespace dMobile.Resources.Types
 {
     public class Warehouse
     {
-        private int locationMapSubType;
-        private int locationMapWarehouseFKRefno;
-
         public string DisplayName { get; set; }
         public int LocationMapRefno { get; set; }
-        public int LocationMapSubType { get => this.locationMapSubType; set => this.locationMapSubType = value; }
+        public int LocationMapSubType { get; set; }
         public string LocationMapWarehouseName { get; set; }
         public int LocationMapWarehouseCode { get; set; }
-        public int LocationMapWarehouseFKRefno { get => this.locationMapWarehouseFKRefno; set => this.locationMapWarehouseFKRefno = value; }
+        public int LocationMapWarehouseFKRefno { get; set; }
         public string LocationMapWarehouseBarCode { get; set; }
     }
 }

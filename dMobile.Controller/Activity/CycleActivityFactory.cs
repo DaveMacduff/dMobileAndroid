@@ -2,7 +2,7 @@
 // Copyright (c) InterSect Business Systems Inc. All rights reserved.
 // </copyright>
 
-namespace dMobile.Controller
+namespace dMobile.Controller.Activity
 {
     /// <summary>
     /// Defines the <see cref="CycleActivityFactory" />.

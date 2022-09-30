@@ -2,7 +2,9 @@
 // Copyright (c) InterSect Business Systems Inc. All rights reserved.
 // </copyright>
 
-namespace dMobile.Controller
+using dMobile.Controller.Activity;
+
+namespace dMobile.Controller.Activity_Item
 {
     /// <summary>
     /// Defines the <see cref="PickingActItemFactory" />.
@@ -14,7 +16,7 @@ namespace dMobile.Controller
         /// </summary>
         /// <param name="activity">The activity<see cref="Activity"/>.</param>
         /// <returns>The <see cref="ActItem"/>.</returns>
-        public override ActItem GetActItem(Activity activity)
+        public override ActItem GetActItem(Activity.Activity activity)
         {
             return new PickingActItem(activity);
         }

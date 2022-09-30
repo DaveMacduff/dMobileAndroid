@@ -5,11 +5,12 @@
 /// <summary>
 /// This is the activity facade class that return an activity object.
 /// </summary>
-namespace dMobile.Controller
-{
-    using System;
-    using dMobile.Bedrock;
 
+using System;
+using dMobile.Bedrock;
+
+namespace dMobile.Controller.Activity
+{
     /// <summary>
     /// Activity facade to create activity objects based on an activity sub type.
     /// </summary>

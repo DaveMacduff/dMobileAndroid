@@ -2,7 +2,9 @@
 // Copyright (c) InterSect Business Systems Inc. All rights reserved.
 // </copyright>
 
-namespace dMobile.Controller
+using dMobile.Controller.Activity;
+
+namespace dMobile.Controller.Activity_Item
 {
     /// <summary>
     /// Activity item factory.
@@ -14,6 +16,6 @@ namespace dMobile.Controller
         /// </summary>
         /// <param name="activity">y<see cref="Activity"/> Activity header.</param>
         /// <returns>The <see cref="ActItem"/> Activity item object.</returns>
-        public abstract ActItem GetActItem(Activity activity);
+        public abstract ActItem GetActItem(Activity.Activity activity);
     }
 }

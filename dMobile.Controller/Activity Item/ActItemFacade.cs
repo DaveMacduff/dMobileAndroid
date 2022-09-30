@@ -2,11 +2,12 @@
 // Copyright (c) InterSect Business Systems Inc. All rights reserved.
 // </copyright>
 
-namespace dMobile.Controller
-{
-    using System;
-    using dMobile.Bedrock;
+using System;
+using dMobile.Bedrock;
+using dMobile.Controller.Activity;
 
+namespace dMobile.Controller.Activity_Item
+{
     /// <summary>
     /// This is the activity facade class that return an activity object.
     /// </summary>
@@ -18,7 +19,7 @@ namespace dMobile.Controller
         /// <param name="activity"><see cref="Activity"/> Activity header.</param>
         /// <param name="actSubType"><see cref="SysCommon.ActSubTypes"/> Activity sub type.</param>
         /// <returns><see cref="ActItem"/> Activity item object.</returns>
-        public static ActItem GetActItem(Activity activity, SysCommon.ActSubTypes actSubType)
+        public static ActItem GetActItem(Activity.Activity activity, SysCommon.ActSubTypes actSubType)
         {
             ActItemFactory actItemFactory = null;
 

@@ -2,6 +2,10 @@
 // Copyright (c) InterSect Business Systems Inc. All rights reserved.
 // </copyright>
 
+using dMobile.Controller.Activity;
+using dMobile.Controller.Activity_Detail;
+using dMobile.Controller.Activity_Item;
+
 namespace dMobile.View.Activity
 {
     using System;
@@ -45,52 +49,38 @@ namespace dMobile.View.Activity
             this.cmdSave.Text = "Save";
             this.cmdCancel.Text = "Cancel";
 
-            if (!DesignMode.IsDesignModeEnabled)
+            this.Scanner = ScannerEngine.GetInstance().Scanner;
+            this.SysEnv = SysEnvironment.GetInstance();
+            this.LocMap = LocationMap.GetInstance();
+            ParseAndSeedBarCodeModifier();
+            this.Title = this.GetControlDescription();
+
+            //////////////////////////////////////////////////////////////////////////
+            void ParseAndSeedBarCodeModifier()
             {
-                this.Scanner = ScannerEngine.GetInstance().Scanner;
-                this.SysEnv = SysEnvironment.GetInstance();
-                this.LocMap = LocationMap.GetInstance();
-
+                this.BarCodeModifier1Picker.IsVisible = false;
+                this.BarCodeModifier1Picker.IsEnabled = false;
                 this.BarCodeModifier1Picker.Items.Clear();
-
-                if (this.SysEnv.SysSettings.IsProductUnitBarCodeModifier1)
+                if (!this.SysEnv.SysSettings.IsProductUnitBarCodeModifier1)
                 {
-                    this.BarCodeModifier1Picker.Items.Add(string.Empty);
-                    var modifiers = this.SysEnv.SysSettings.ProductUnitBarCodeModifier1Codes.Split(',');
-
-                    foreach (var item in modifiers)
-                    {
-                        this.BarCodeModifier1Picker.Items.Add(item);
-                    }
+                    return;
                 }
-                else
+
+                this.BarCodeModifier1Picker.Items.Add(string.Empty);
+                var modifiers = this.SysEnv.SysSettings.ProductUnitBarCodeModifier1Codes.Split(',');
+                foreach (var item in modifiers)
                 {
-                    this.BarCodeModifier1Picker.IsVisible = false;
-                    this.BarCodeModifier1Picker.IsEnabled = false;
+                    this.BarCodeModifier1Picker.Items.Add(item);
+                }
+
+                if (this.BarCodeModifier1Picker.Items.Count > 0)
+                {
+                    this.BarCodeModifier1Picker.IsVisible = true;
+                    this.BarCodeModifier1Picker.IsEnabled = true;
                 }
 
                 this.BarCodeModifier1Picker.SelectedItem = this.SysEnv.CurrentBarCodeModifier1;
-                this.Title = this.GetControlDescription();
             }
-        }
-
-        private async Task DesignObservableCollection()
-        {
-            if (this.ActDetail.ListDetails == null)
-            {
-                _ = await this.ActDetail.GetActivityDetailList(false);
-            }
-
-            await Device.InvokeOnMainThreadAsync(() =>
-            {
-                this.MainActivityItems = this.ActDetail.DesignGrid(ref this.GridMainActivity, ref this.dgUnitWeight);
-                this.dgUnitWeight.ItemsSource = this.MainActivityItems;
-
-                if (this.MainActivityItems.Count > 0)
-                {
-                    this.dgUnitWeight.SelectedItem = this.MainActivityItems[0];
-                }
-            });
         }
 
         /// <summary>
@@ -99,68 +89,97 @@ namespace dMobile.View.Activity
         protected override async void OnAppearing()
         {
             base.OnAppearing();
-
-            MessagingCenter.Subscribe<string>(this, EventTypes.OnKeyUp.ToString(), async (keyPressed) =>
-            {
-                if (!this.Loading)
-                {
-                    _ = Enum.TryParse(keyPressed, out Keycode keycode);
-
-                    if (keycode == Keycode.Enter || keycode == Keycode.F1)
-                    {
-                        if (await this.SaveChanges())
-                        {
-                            await this.Close();
-                        }
-                    }
-                    else if (keycode == Keycode.F2)
-                    {
-                        if (this.dgUnitWeight.SelectedItem is ConvertUnitDetail convertUnitDetail)
-                        {
-                            var activityConvertUnitWeightEdit = new ucActivityConvertUnitWeightEdit(convertUnitDetail);
-
-                            if (await activityConvertUnitWeightEdit.ShowDialog() == DialogResult.OK && activityConvertUnitWeightEdit.WeightHasChanged)
-                            {
-                                convertUnitDetail.ActivityDetailWeightQuantity = activityConvertUnitWeightEdit.EditedWeight;
-                                await this.DisplayData();
-                                await this.DesignObservableCollection();
-                            }
-                        }
-                    }
-                }
-            });
+            SubscribeKeyUpHandlers();
 
             try
             {
                 this.Loading = true;
-
                 if (this.FirstAppearance)
                 {
                     this.FirstAppearance = false;
 
-                    this.Activity = ActivityFacade.GetActivity(SysCommon.ActSubTypes.ConvertUnit);
-                    this.Activity.SkidInfo = new SysSkidInfo();
-                    this.Activity.ActSubType = SysCommon.ActSubTypes.ConvertUnit;
-
-                    this.ActItem = ActItemFacade.GetActItem(this.Activity, SysCommon.ActSubTypes.ConvertUnit);
-                    this.ActItem.ActSubType = this.Activity.ActSubType;
-                    _ = await this.ActItem.GetActivityItemList(false);
-
-                    this.ActDetail = ActDetailFacade.GetActDetail(this.ActItem, SysCommon.ActSubTypes.ConvertUnit);
-                    this.ActDetail.ActSubType = this.ActItem.ActSubType;
+                    InitActivity();
+                    await InitActivityItem();
+                    InitActivityDetail();
+                    if (this.ActDetail.ListDetails == null)
+                    {
+                        _ = await this.ActDetail.GetActivityDetailList(false);
+                    }
 
                     await this.DesignObservableCollection();
                 }
 
-                await this.ucActivityConvertUnit_GotFocus(this, new EventArgs());
+                await this.ucActivityConvertUnit_GotFocus(this, EventArgs.Empty);
             }
             catch (Exception ex)
             {
-                await Device.InvokeOnMainThreadAsync(async () => await this.DisplayAlert("Error", "this.ucActivityConvertUnit_GotFocus threw an error " + ex, "OK"));
+                await Device.InvokeOnMainThreadAsync(async () => await this.DisplayAlert(
+                    "Error",
+                    "this.ucActivityConvertUnit_GotFocus threw an error " + ex,
+                    "OK"));
             }
             finally
             {
                 this.Loading = false;
+            }
+
+            void InitActivityDetail()
+            {
+                this.ActDetail = ActDetailFacade.GetActDetail(this.ActItem, SysCommon.ActSubTypes.ConvertUnit);
+                this.ActDetail.ActSubType = this.ActItem.ActSubType;
+            }
+
+            async Task InitActivityItem()
+            {
+                this.ActItem = ActItemFacade.GetActItem(this.Activity, SysCommon.ActSubTypes.ConvertUnit);
+                this.ActItem.ActSubType = this.Activity.ActSubType;
+                _ = await this.ActItem.GetActivityItemList(false);
+            }
+
+            void InitActivity()
+            {
+                this.Activity = ActivityFacade.GetActivity(SysCommon.ActSubTypes.ConvertUnit);
+                this.Activity.SkidInfo = new SysSkidInfo();
+                this.Activity.ActSubType = SysCommon.ActSubTypes.ConvertUnit;
+            }
+
+            void SubscribeKeyUpHandlers()
+            {
+                MessagingCenter.Subscribe<string>(this, EventTypes.OnKeyUp.ToString(), async (keyPressed) =>
+                {
+                    if (!this.Loading)
+                    {
+                        _ = Enum.TryParse(keyPressed, out Keycode keycode);
+
+                        if (keycode == Keycode.Enter || keycode == Keycode.F1)
+                        {
+                            if (await this.SaveChanges())
+                            {
+                                await this.Close();
+                            }
+                        }
+                        else if (keycode == Keycode.F2)
+                        {
+                            if (this.dgUnitWeight.SelectedItem is ConvertUnitDetail convertUnitDetail)
+                            {
+                                var activityConvertUnitWeightEdit = new ucActivityConvertUnitWeightEdit(convertUnitDetail);
+
+                                if (await activityConvertUnitWeightEdit.ShowDialog() == DialogResult.OK &&
+                                    activityConvertUnitWeightEdit.WeightHasChanged)
+                                {
+                                    convertUnitDetail.ActivityDetailWeightQuantity = activityConvertUnitWeightEdit.EditedWeight;
+                                    await this.DisplayData();
+                                    if (this.ActDetail.ListDetails == null)
+                                    {
+                                        _ = await this.ActDetail.GetActivityDetailList(false);
+                                    }
+
+                                    await this.DesignObservableCollection();
+                                }
+                            }
+                        }
+                    }
+                });
             }
         }
 
@@ -193,7 +212,7 @@ namespace dMobile.View.Activity
 
         private ActItem ActItem { get; set; } = null;
 
-        private Activity Activity { get; set; } = null;
+        private Controller.Activity.Activity Activity { get; set; } = null;
 
         private LocationMap LocMap { get; set; }
 
@@ -214,7 +233,7 @@ namespace dMobile.View.Activity
         private bool FirstAppearance { get; set; } = true;
 
         /// <summary>
-        /// Unregister the bar code scan event handler and disable the scanner.
+        /// Un-register the bar code scan event handler and disable the scanner.
         /// </summary>
         /// <returns><see cref="Task"/> Task operation.</returns>
         public async Task ScannerDisable()
@@ -310,7 +329,7 @@ namespace dMobile.View.Activity
             {
                 // NOTE: This code is needed to clean up the scanner driver.
                 // Symbol had threading issues without this call when dMobile was terminating.
-                // All user controls that initalize a bar code need this code.
+                // All user controls that initialize a bar code need this code.
                 // The parent form (not a user control) will call scanner.terminate and dispose
                 // of the scanner instance upon exiting dMobile.
                 if (this.Scanner != null)
@@ -390,7 +409,12 @@ namespace dMobile.View.Activity
                             {
                                 if (this.SysEnv.SysSettings.CanPrintProductLabelConvertUnits)
                                 {
-                                    if (await Device.InvokeOnMainThreadAsync(async () => await this.DisplayAlert("Unit Conversion", "Unit conversion complete." + Environment.NewLine + "Do you wish to print product labels?", "Yes", "No")))
+                                    if (await Device.InvokeOnMainThreadAsync(async () =>
+                                            await this.DisplayAlert(
+                                                "Unit Conversion",
+                                                "Unit conversion complete." + Environment.NewLine + "Do you wish to print product labels?",
+                                                "Yes",
+                                                "No")))
                                     {
                                         for (var idx = 0; idx < this.ActDetail.ListDetails.Count; idx++)
                                         {
@@ -415,7 +439,8 @@ namespace dMobile.View.Activity
                                 }
                                 else
                                 {
-                                    await Device.InvokeOnMainThreadAsync(async () => await this.DisplayAlert("Unit Conversion", "Unit conversion complete.", "OK"));
+                                    await Device.InvokeOnMainThreadAsync(async () =>
+                                        await this.DisplayAlert("Unit Conversion", "Unit conversion complete.", "OK"));
                                 }
                             }
 
@@ -424,9 +449,11 @@ namespace dMobile.View.Activity
 
                         saveComplete = true;
                         this.IsChangesMade = false;
-
-                        // if (MessageBox.Show("Do you wish to convert any more unit(s)?", "Convert Unit(s)", MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button2) == DialogResult.Yes)
-                        if (await Device.InvokeOnMainThreadAsync(async () => await this.DisplayAlert("Convert Unit(s)", "Do you wish to convert any more unit(s)?", "Yes", "No")))
+                        if (await Device.InvokeOnMainThreadAsync(async () =>
+                                await this.DisplayAlert(
+                                    "Convert Unit(s)",
+                                    "Do you wish to convert any more unit(s)?",
+                                    "Yes", "No")))
                         {
                             saveComplete = false;
                         }
@@ -435,18 +462,24 @@ namespace dMobile.View.Activity
                     {
                         if (!await LocationMapTasks.IsCompleteLocMap(this.LocMap.CurrLocMapRefno))
                         {
-                            // MessageBox.Show("Location must be set.", "Convert Unit(s)", MessageBoxButtons.OK, MessageBoxIcon.Hand, MessageBoxDefaultButton.Button1);
-                            await Device.InvokeOnMainThreadAsync(async () => await this.DisplayAlert("Convert Unit(s)", "Location must be set.", "OK"));
+                            await Device.InvokeOnMainThreadAsync(async () => await this.DisplayAlert(
+                                "Convert Unit(s)",
+                                "Location must be set.",
+                                "OK"));
                         }
                         else if (this.ActItem.ListItems.Count == 0)
                         {
-                            // MessageBox.Show("Convert from unit must be set.", "Convert Unit(s)", MessageBoxButtons.OK, MessageBoxIcon.Hand,MessageBoxDefaultButton.Button1);
-                            await Device.InvokeOnMainThreadAsync(async () => await this.DisplayAlert("Convert Unit(s)", "Convert from unit must be set.", "OK"));
+                            await Device.InvokeOnMainThreadAsync(async () => await this.DisplayAlert(
+                                "Convert Unit(s)",
+                                "Convert from unit must be set.",
+                                "OK"));
                         }
                         else if (this.ActDetail.ListDetails.Count == 0)
                         {
-                            // MessageBox.Show("Convert to unit(s) must be set.", "Convert Unit(s)", MessageBoxButtons.OK, MessageBoxIcon.Hand, MessageBoxDefaultButton.Button1);
-                            await Device.InvokeOnMainThreadAsync(async () => await this.DisplayAlert("Convert Unit(s)", "Convert to unit(s) must be set.", "OK"));
+                            await Device.InvokeOnMainThreadAsync(async () => await this.DisplayAlert(
+                                "Convert Unit(s)",
+                                "Convert to unit(s) must be set.",
+                                "OK"));
                         }
                     }
                 }
@@ -568,6 +601,24 @@ namespace dMobile.View.Activity
             }
 
             await this.DisplayDataConvertedUnitInfo();
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
+        private async Task DesignObservableCollection()
+        {
+            await Device.InvokeOnMainThreadAsync(() =>
+            {
+                this.MainActivityItems = this.ActDetail.DesignGrid(ref this.GridMainActivity, ref this.dgUnitWeight);
+                this.dgUnitWeight.ItemsSource = this.MainActivityItems;
+
+                if (this.MainActivityItems.Count > 0)
+                {
+                    this.dgUnitWeight.SelectedItem = this.MainActivityItems[0];
+                }
+            });
         }
 
         /// <summary>
@@ -819,6 +870,11 @@ namespace dMobile.View.Activity
                 this.lblConvertedUnitInfo.Text = "Qty 0 UOM @ KG/LB";
             });
 
+            if (this.ActDetail.ListDetails == null)
+            {
+                _ = await this.ActDetail.GetActivityDetailList(false);
+            }
+
             await this.DesignObservableCollection();
         }
 
@@ -998,277 +1054,86 @@ namespace dMobile.View.Activity
         /// <remarks></remarks>
         private async void cmdSelectFromUnit_Click(object sender, EventArgs e)
         {
-            this.cmdSelectFromUnit.IsEnabled = false;
-            await this.ScannerDisable();
-
-            if (!await LocationMapTasks.IsCompleteLocMap(this.LocMap.CurrLocMapRefno))
-            {
-                await Device.InvokeOnMainThreadAsync(async () => await this.DisplayAlert(this.GetControlDescription(), "Your location must be set.", "OK"));
-            }
-            else
-            {
-                var frmSelectProduct = new FormDialogContainer(EDialogTypes.SelectProductUnit, SysCommon.ActSubTypes.ConvertUnit);
-
-                if (await Device.InvokeOnMainThreadAsync(async () => await frmSelectProduct.DisplayControl.ShowDialog() == DialogResult.OK))
-                {
-                    await this.ClearContents();
-                    var xmlDocProduct = await frmSelectProduct.GetXML();
-                    this.FromProdUnitRefno = int.Parse(xmlDocProduct.Root.Element("ProductUnitRefno").Value);
-
-                    if (this.FromProdUnitRefno != 0)
-                    {
-                        this.ActItem.ProdInfo = await ProductInfoTasks.GetInfoFromUnitRefno(this.FromProdUnitRefno);
-                        this.ActItem.ProdInfo.Scheme = await ProductInfoTasks.GetSchemeComponentsFromRefno(this.ActItem.ProdInfo.Refno);
-                        var detail = new dMobile.Resources.Types.ActivityDetail();
-                        await this.ActDetail.AssignThisFromDetailAsync(detail, true);
-
-                        try
-                        {
-                            this.ActDetail.Quantity = 0;
-                            this.ActDetail.BaseQuantity = 0;
-                            this.ActDetail.WeightQuantity = 0;
-                            this.ActDetail.SchemeID = string.Empty;
-                            this.ActDetail.UniqueSchemeID = string.Empty;
-                            this.ActDetail.ActExtra.Text1 = string.Empty;
-                            this.ActDetail.ActExtra.Text2 = string.Empty;
-                            this.ActDetail.ActExtra.Text3 = string.Empty;
-                            this.ActDetail.ActExtra.Text4 = string.Empty;
-                            this.ActDetail.ActExtra.DateTime1 = new DateTime(1980, 1, 1);
-
-                            var form = new FormDialogContainer(EDialogTypes.ActivityDetailEdit, this.ActDetail, SysCommon.ActSubTypes.ConvertUnit);
-
-                            if (await form.DisplayControl.ShowDialog() == DialogResult.OK)
-                            {
-                                var xmlDoc = await form.GetXML();
-                                await this.ActItem.Insert(xmlDoc, false);
-
-                                var query = "SELECT tProduct.ProductCode,"
-                                            + "tProductUnit.ProductUnitBC,"
-                                            + "tUnit.UnitCode "
-                                            + "FROM tProductUnit "
-                                            + "INNER JOIN tProduct ON tProduct.ProductRefno = tProductUnit.ProductRefno "
-                                            + "INNER JOIN tUnit ON tUnit.UnitRefno = tProductUnit.UnitRefno "
-                                            + "WHERE tProductUnit.ProductUnitRefno = ?";
-
-                                var results = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<ProductUnit>(query, this.FromProdUnitRefno);
-
-                                if (results?.Count > 0)
-                                {
-                                    _ = await Device.InvokeOnMainThreadAsync(() => this.cmdSelectFromUnit.Text = Convert.ToString(results[0].ProductCode).TrimEnd() + (" " + Convert.ToString(results[0].ProductUnitBC)).TrimEnd() + " " + Convert.ToString(results[0].UnitCode));
-
-                                    await this.DisplayData();
-                                }
-                            }
-                        }
-                        catch (SQLiteException ex)
-                        {
-                            await Device.InvokeOnMainThreadAsync(async () =>
-                            {
-                                var errorReport = new FormErrorReport(this.ActSubType, ex);
-                                _ = await errorReport.ShowDialog();
-                            });
-                        }
-                        catch (MessageOnlyException ex)
-                        {
-                            await Device.InvokeOnMainThreadAsync(async () =>
-                                await Application.Current.MainPage.DisplayAlert(
-                                    this.GetControlDescription(),
-                                    ex.Message,
-                                    Resource.OK));
-                        }
-                        catch (Exception ex)
-                        {
-                            await Device.InvokeOnMainThreadAsync(async () =>
-                            {
-                                var errorReport = new FormErrorReport(this.ActSubType, ex);
-                                _ = await errorReport.ShowDialog();
-                            });
-                        }
-                    }
-                }
-            }
-
-            await this.ScannerEnable();
-
-            this.cmdSelectFromUnit.IsEnabled = true;
-        }
-
-        /// <summary>
-        ///
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        /// <remarks></remarks>
-        private async void cmdSelectToUnit_Click(object sender, EventArgs e)
-        {
             try
             {
-                // Needed to check if the enter key was pressed last, because it seems that
-                // SelectNextControl causes a click event to fire if it is the next control
+                this.cmdSelectFromUnit.IsEnabled = false;
                 await this.ScannerDisable();
-
                 if (!await LocationMapTasks.IsCompleteLocMap(this.LocMap.CurrLocMapRefno))
                 {
-                    // MessageBox.Show("Your location must be set.", this.GetControlDescription(), MessageBoxButtons.OK, MessageBoxIcon.Hand, MessageBoxDefaultButton.Button1);
-                    await Device.InvokeOnMainThreadAsync(async () => await this.DisplayAlert(this.GetControlDescription(), "Your location must be set.", "OK"));
+                    throw new MessageOnlyException("Your location must be set.");
                 }
-                else if (this.FromProdUnitRefno == 0 || this.ActItem.ListItems.Count <= 0)
+
+                var frmSelectProduct =
+                    new FormDialogContainer(EDialogTypes.SelectProductUnit, SysCommon.ActSubTypes.ConvertUnit);
+                if (await Device.InvokeOnMainThreadAsync(async () =>
+                        await frmSelectProduct.DisplayControl.ShowDialog() != DialogResult.OK))
                 {
-                    // MessageBox.Show("Please set the from product unit first.", this.GetControlDescription(), MessageBoxButtons.OK, MessageBoxIcon.Hand, MessageBoxDefaultButton.Button1);
-                    await Device.InvokeOnMainThreadAsync(async () => await this.DisplayAlert(this.GetControlDescription(), "Please set the from product unit first.", "OK"));
+                    throw new CancelOperationException();
                 }
-                else
+
+                await this.ClearContents();
+                var xmlDocProduct = await frmSelectProduct.GetXML();
+                this.FromProdUnitRefno = int.Parse(xmlDocProduct.Root.Element("ProductUnitRefno").Value);
+                if (this.FromProdUnitRefno == 0)
                 {
-                    this.ActItem.ProdInfo = await ProductInfoTasks.GetInfoFromUnitRefno(this.FromProdUnitRefno);
-                    this.ActItem.ProdInfo.Scheme = await ProductInfoTasks.GetSchemeComponentsFromRefno(this.ActItem.ProdInfo.Refno);
-
-                    var decFromBaseFactor = await ProductInfoTasks.GetUnitRelationFactor((ProductInfo)this.ActItem.ProdInfo);
-
-                    var frmSelectProduct = new FormDialogContainer(EDialogTypes.SelectProductUnitFilterToProduct, this.ActItem, SysCommon.ActSubTypes.ConvertUnit);
-
-                    if (await Device.InvokeOnMainThreadAsync(async () => await frmSelectProduct.DisplayControl.ShowDialog() == DialogResult.OK))
-                    {
-                        var xmlDocProduct = await frmSelectProduct.GetXML();
-                        this.ToProdUnitRefno = int.Parse(xmlDocProduct.Root.Element("ProductUnitRefno").Value);
-
-                        if (this.ToProdUnitRefno != 0)
-                        {
-                            this.ActItem.ProdInfo = await ProductInfoTasks.GetInfoFromUnitRefno(this.ToProdUnitRefno);
-                            this.ActItem.ProdInfo.Scheme = await ProductInfoTasks.GetSchemeComponentsFromRefno(this.ActItem.ProdInfo.Refno);
-
-                            SFillQuantity fillQty = await this.RequestConvertUnitResult(
-                                this.FromProdUnitRefno,
-                                this.ToProdUnitRefno,
-                                Convert.ToDecimal((this.ActItem.ListItems[0] as dynamic).ActivityDetailQuantity),
-                                Convert.ToDecimal((this.ActItem.ListItems[0] as dynamic).ActivityDetailWeightQuantity));
-
-                            this.ActDetail.Quantity = fillQty.Quantity;
-                            this.ActDetail.BaseQuantity = fillQty.BaseQuantity;
-                            this.ActDetail.WeightQuantity = fillQty.WeightQuantity;
-                            this.ActDetail.SchemeID = Convert.ToString((this.ActItem.ListItems[0] as dynamic).ActivityDetailSchemeID);
-                            this.ActDetail.UniqueSchemeID = Convert.ToString((this.ActItem.ListItems[0] as dynamic).ActivityDetailUniqueSchemeID);
-
-                            var prodSchemeData = new SProductSchemeData
-                            {
-                                LogisticUnitBestBeforeSellByDate = Convert.ToDateTime((this.ActItem.ListItems[0] as dynamic).ActivityDetailLogisticUnitBestBeforeSellByDate),
-                                LogisticUnitProductionDate = Convert.ToDateTime((this.ActItem.ListItems[0] as dynamic).ActivityDetailLogisticUnitProductionDate),
-                                VariantNumber = Convert.ToInt32((this.ActItem.ListItems[0] as dynamic).ProductSchemeVariantNumber),
-                                LogisticUnitBatchLotNumber = Convert.ToString((this.ActItem.ListItems[0] as dynamic).ActivityDetailLogisticUnitBatchLotNumber),
-                                LogisticUnitSkidNumber = string.Empty,
-                                SingleTradeItemSerialNumber = Convert.ToString((this.ActItem.ListItems[0] as dynamic).ActivityDetailSingleTradeItemSerialNumber),
-                                VariantCode = Convert.ToString((this.ActItem.ListItems[0] as dynamic).ProductSchemeVariantCode),
-                            };
-
-                            this.ActDetail.SchemeData = prodSchemeData;
-
-                            try
-                            {
-                                var form = new FormDialogContainer(EDialogTypes.ActivityConvertUnitEdit, this.ActDetail, SysCommon.ActSubTypes.ConvertUnit);
-
-                                if (await form.DisplayControl.ShowDialog() == DialogResult.OK)
-                                {
-                                    var xmlDoc = await form.GetXML();
-
-                                    await Device.InvokeOnMainThreadAsync(() =>
-                                    {
-                                        this.cmdSelectToUnit.Text = string.Format("{0} {1}\'S ({2} per {3})",
-                                        this.ActItem.ProdInfo.UnitBC,
-                                        this.ActItem.ProdInfo.UnitCode,
-                                        Math.Round(this.ActDetail.Quantity, 3),
-                                        Convert.ToString((this.ActItem.ListItems[0] as dynamic).UnitCode));
-                                    });
-
-                                    await this.ActDetail.Delete();
-                                    this.ActDetail.Quantity = decimal.Parse(xmlDoc.Root.Element("alt_qty").Value);
-                                    this.ActDetail.BaseQuantity = decimal.Parse(xmlDoc.Root.Element("base_qty").Value);
-                                    this.ActDetail.WeightQuantity = decimal.Parse(xmlDoc.Root.Element("wt_qty").Value);
-
-                                    if (bool.Parse(xmlDoc.Root.Element("split").Value))
-                                    {
-                                        if (this.ActItem.ProdInfo.UnitCode == "LB" || this.ActItem.ProdInfo.UnitCode == "KG")
-                                        {
-                                            await this.ActDetail.Insert(xmlDoc);
-                                            var detail = this.ActDetail.InsertListDetail(
-                                                this.MainActivityItems);
-                                            ////this.SelectedActivityDetailFKRefno = this.ActDetail.DetailFKRefno;
-                                        }
-                                        else
-                                        {
-                                            var altQty = this.ActDetail.Quantity;
-                                            var baseQty = this.ActDetail.BaseQuantity;
-                                            var wt = this.ActDetail.WeightQuantity;
-                                            var wtQty = altQty == 0 ? wt : wt / altQty;
-
-                                            for (var unitQty = 1; unitQty <= altQty; unitQty++)
-                                            {
-                                                this.ActDetail.Quantity = 1;
-                                                this.ActDetail.WeightQuantity = wtQty;
-
-                                                if (this.ActDetail.ActItem.ProdInfo.BaseUnitCode == "LB" || this.ActDetail.ActItem.ProdInfo.BaseUnitCode == "KG")
-                                                {
-                                                    this.ActDetail.BaseQuantity = this.ActDetail.WeightQuantity;
-                                                }
-                                                else
-                                                {
-                                                    if (this.ActDetail.Quantity != 0 && this.ActDetail.ActItem.ProdInfo.Unit2BaseUnitFactor != 0)
-                                                    {
-                                                        this.ActDetail.BaseQuantity = this.ActDetail.Quantity * this.ActDetail.ActItem.ProdInfo.Unit2BaseUnitFactor;
-                                                    }
-                                                    else
-                                                    {
-                                                        this.ActDetail.BaseQuantity = this.ActDetail.Quantity;
-                                                    }
-                                                }
-
-                                                await this.ActDetail.Insert(xmlDoc);
-                                                var detail = this.ActDetail.InsertListDetail(
-                                                    this.MainActivityItems);
-                                                ////this.SelectedActivityDetailFKRefno = this.ActDetail.DetailFKRefno;
-                                            }
-                                        }
-                                    }
-                                    else
-                                    {
-                                        await this.ActDetail.Insert(xmlDoc);
-                                        var detail = this.ActDetail.InsertListDetail(
-                                            this.MainActivityItems);
-                                        ////this.SelectedActivityDetailFKRefno = this.ActDetail.DetailFKRefno;
-                                    }
-                                }
-
-                                await Device.InvokeOnMainThreadAsync(async () =>
-                                {
-                                    await this.DisplayData();
-                                    await this.DesignObservableCollection();
-                                });
-                            }
-                            catch (SQLiteException ex)
-                            {
-                                await Device.InvokeOnMainThreadAsync(async () =>
-                                {
-                                    var errorReport = new FormErrorReport(this.ActSubType, ex);
-                                    _ = await errorReport.ShowDialog();
-                                });
-                            }
-                            catch (MessageOnlyException ex)
-                            {
-                                await Device.InvokeOnMainThreadAsync(async () =>
-                                    await Application.Current.MainPage.DisplayAlert(
-                                        this.GetControlDescription(),
-                                        ex.Message,
-                                        Resource.OK));
-                            }
-                            catch (Exception ex)
-                            {
-                                await Device.InvokeOnMainThreadAsync(async () =>
-                                {
-                                    var errorReport = new FormErrorReport(this.ActSubType, ex);
-                                    _ = await errorReport.ShowDialog();
-                                });
-                            }
-                        }
-                    }
+                    throw new CancelOperationException();
                 }
+
+                this.ActItem.ProdInfo = await ProductInfoTasks.GetInfoFromUnitRefno(this.FromProdUnitRefno);
+                this.ActItem.ProdInfo.Scheme =
+                    await ProductInfoTasks.GetSchemeComponentsFromRefno(this.ActItem.ProdInfo.Refno);
+                var detail = new dMobile.Resources.Types.ActivityDetail();
+                await this.ActDetail.AssignThisFromDetailAsync(detail, true);
+
+                this.ActDetail.Quantity = 0;
+                this.ActDetail.BaseQuantity = 0;
+                this.ActDetail.WeightQuantity = 0;
+                this.ActDetail.SchemeID = string.Empty;
+                this.ActDetail.UniqueSchemeID = string.Empty;
+                this.ActDetail.ActExtra.Text1 = string.Empty;
+                this.ActDetail.ActExtra.Text2 = string.Empty;
+                this.ActDetail.ActExtra.Text3 = string.Empty;
+                this.ActDetail.ActExtra.Text4 = string.Empty;
+                this.ActDetail.ActExtra.DateTime1 = new DateTime(1980, 1, 1);
+
+                var form = new FormDialogContainer(EDialogTypes.ActivityDetailEdit, this.ActDetail, SysCommon.ActSubTypes.ConvertUnit);
+                if (await form.DisplayControl.ShowDialog() != DialogResult.OK)
+                {
+                    throw new CancelOperationException();
+                }
+
+                var xmlDoc = await form.GetXML();
+                await this.ActItem.Insert(xmlDoc, false);
+                var query = "SELECT tProduct.ProductCode,"
+                            + "tProductUnit.ProductUnitBC,"
+                            + "tUnit.UnitCode "
+                            + "FROM tProductUnit "
+                            + "INNER JOIN tProduct ON tProduct.ProductRefno = tProductUnit.ProductRefno "
+                            + "INNER JOIN tUnit ON tUnit.UnitRefno = tProductUnit.UnitRefno "
+                            + "WHERE tProductUnit.ProductUnitRefno = ?";
+
+                var results = await DatabaseConnection.GetInstance().SQLConn
+                    .QueryAsync<ProductUnit>(query, this.FromProdUnitRefno);
+                if (results?.Count > 0)
+                {
+                    _ = await Device.InvokeOnMainThreadAsync(() =>
+                        this.cmdSelectFromUnit.Text = Convert.ToString(results[0].ProductCode).TrimEnd() +
+                                                      (" " + Convert.ToString(results[0].ProductUnitBC))
+                                                      .TrimEnd() + " " + Convert.ToString(results[0].UnitCode));
+
+                    await this.DisplayData();
+                }
+            }
+            catch (CancelOperationException)
+            {
+            }
+            catch (SQLiteException ex)
+            {
+                await Device.InvokeOnMainThreadAsync(async () =>
+                {
+                    var errorReport = new FormErrorReport(this.ActSubType, ex);
+                    _ = await errorReport.ShowDialog();
+                });
             }
             catch (MessageOnlyException ex)
             {
@@ -1289,6 +1154,233 @@ namespace dMobile.View.Activity
             finally
             {
                 await this.ScannerEnable();
+                this.cmdSelectFromUnit.IsEnabled = true;
+            }
+        }
+
+        /// <summary>
+        ///
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        /// <remarks></remarks>
+        private async void cmdSelectToUnit_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                if (!await LocationMapTasks.IsCompleteLocMap(this.LocMap.CurrLocMapRefno))
+                {
+                    throw new MessageOnlyException("Your location must be set.");
+                }
+
+                if (this.FromProdUnitRefno == 0 || this.ActItem.ListItems.Count <= 0)
+                {
+                    throw new MessageOnlyException("Please set the from product unit first.");
+                }
+
+                await this.ScannerDisable();
+                await SetFromProdInfo();
+                await SelectToProductUnit();
+                await SetDetailQuantity();
+                SetDetailScheme();
+
+                var form = new FormDialogContainer(
+                    EDialogTypes.ActivityConvertUnitEdit,
+                    this.ActDetail,
+                    SysCommon.ActSubTypes.ConvertUnit);
+                if (await form.DisplayControl.ShowDialog() != DialogResult.OK)
+                {
+                    throw new CancelOperationException();
+                }
+
+                await Device.InvokeOnMainThreadAsync(() =>
+                {
+                    this.cmdSelectToUnit.Text = string.Format("{0} {1}\'S ({2} per {3})",
+                        this.ActItem.ProdInfo.UnitBC,
+                        this.ActItem.ProdInfo.UnitCode,
+                        Math.Round(this.ActDetail.Quantity, 3),
+                        Convert.ToString((this.ActItem.ListItems[0] as dynamic).UnitCode));
+                });
+
+                var xmlDoc = await form.GetXML();
+
+                // Clear the detail list.
+                await this.ActDetail.Delete();
+                this.ActDetail.Quantity = decimal.Parse(xmlDoc.Root.Element("alt_qty").Value);
+                this.ActDetail.BaseQuantity = decimal.Parse(xmlDoc.Root.Element("base_qty").Value);
+                this.ActDetail.WeightQuantity = decimal.Parse(xmlDoc.Root.Element("wt_qty").Value);
+                if (bool.Parse(xmlDoc.Root.Element("split").Value))
+                {
+                    if (this.ActItem.ProdInfo.UnitCode == "LB" ||
+                        this.ActItem.ProdInfo.UnitCode == "KG")
+                    {
+                        ////await this.ActDetail.Insert(xmlDoc);
+                        var detail = this.ActDetail.InsertListDetail(
+                            this.MainActivityItems);
+                        ////this.SelectedActivityDetailFKRefno = this.ActDetail.DetailFKRefno;
+                    }
+                    else
+                    {
+                        var altQty = this.ActDetail.Quantity;
+                        var baseQty = this.ActDetail.BaseQuantity;
+                        var wt = this.ActDetail.WeightQuantity;
+                        var wtQty = altQty == 0 ? wt : wt / altQty;
+
+                        for (var unitQty = 1; unitQty <= altQty; unitQty++)
+                        {
+                            this.ActDetail.Quantity = 1;
+                            this.ActDetail.WeightQuantity = wtQty;
+
+                            if (this.ActDetail.ActItem.ProdInfo.BaseUnitCode == "LB" ||
+                                this.ActDetail.ActItem.ProdInfo.BaseUnitCode == "KG")
+                            {
+                                this.ActDetail.BaseQuantity = this.ActDetail.WeightQuantity;
+                            }
+                            else
+                            {
+                                if (this.ActDetail.Quantity != 0 &&
+                                    this.ActDetail.ActItem.ProdInfo.Unit2BaseUnitFactor != 0)
+                                {
+                                    this.ActDetail.BaseQuantity = this.ActDetail.Quantity *
+                                        this.ActDetail.ActItem.ProdInfo.Unit2BaseUnitFactor;
+                                }
+                                else
+                                {
+                                    this.ActDetail.BaseQuantity = this.ActDetail.Quantity;
+                                }
+                            }
+
+                            ////await this.ActDetail.Insert(xmlDoc);
+                            var detail = this.ActDetail.InsertListDetail(this.MainActivityItems);
+                            ////this.SelectedActivityDetailFKRefno = this.ActDetail.DetailFKRefno;
+                        }
+                    }
+                }
+                else
+                {
+                    ////await this.ActDetail.Insert(xmlDoc);
+                    var detail = this.ActDetail.InsertListDetail(
+                        this.MainActivityItems);
+                    ////this.SelectedActivityDetailFKRefno = this.ActDetail.DetailFKRefno;
+                }
+
+                await Device.InvokeOnMainThreadAsync(async () =>
+                {
+                    await this.DisplayData();
+                    if (this.ActDetail.ListDetails == null)
+                    {
+                        _ = await this.ActDetail.GetActivityDetailList(false);
+                    }
+
+                    await this.DesignObservableCollection();
+                });
+            }
+            catch (CancelOperationException)
+            {
+            }
+            catch (SQLiteException sqlEx)
+            {
+                await Device.InvokeOnMainThreadAsync(async () =>
+                {
+                    var errorReport = new FormErrorReport(this.ActSubType, sqlEx);
+                    _ = await errorReport.ShowDialog();
+                });
+            }
+            catch (MessageOnlyException msgEx)
+            {
+                await Device.InvokeOnMainThreadAsync(async () =>
+                    await Application.Current.MainPage.DisplayAlert(
+                        this.GetControlDescription(),
+                        msgEx.Message,
+                        Resource.OK));
+            }
+            catch (Exception ex)
+            {
+                await Device.InvokeOnMainThreadAsync(async () =>
+                {
+                    var errorReport = new FormErrorReport(this.ActSubType, ex);
+                    _ = await errorReport.ShowDialog();
+                });
+            }
+            finally
+            {
+                await this.ScannerEnable();
+            }
+
+            //////////////////////////////////////////////////////////////////////////
+            async Task SetFromProdInfo()
+            {
+                this.ActItem.ProdInfo = await ProductInfoTasks.GetInfoFromUnitRefno(this.FromProdUnitRefno);
+                this.ActItem.ProdInfo.Scheme =
+                    await ProductInfoTasks.GetSchemeComponentsFromRefno(this.ActItem.ProdInfo.Refno);
+            }
+
+            //////////////////////////////////////////////////////////////////////////
+            void SetDetailScheme()
+            {
+                this.ActDetail.SchemeID =
+                    Convert.ToString((this.ActItem.ListItems[0] as dynamic).ActivityDetailSchemeID);
+                this.ActDetail.UniqueSchemeID =
+                    Convert.ToString((this.ActItem.ListItems[0] as dynamic).ActivityDetailUniqueSchemeID);
+
+                var prodSchemeData = new SProductSchemeData
+                {
+                    LogisticUnitBestBeforeSellByDate = Convert.ToDateTime((this.ActItem.ListItems[0] as dynamic)
+                        .ActivityDetailLogisticUnitBestBeforeSellByDate),
+                    LogisticUnitProductionDate = Convert.ToDateTime((this.ActItem.ListItems[0] as dynamic)
+                        .ActivityDetailLogisticUnitProductionDate),
+                    VariantNumber =
+                        Convert.ToInt32((this.ActItem.ListItems[0] as dynamic).ProductSchemeVariantNumber),
+                    LogisticUnitBatchLotNumber = Convert.ToString((this.ActItem.ListItems[0] as dynamic)
+                        .ActivityDetailLogisticUnitBatchLotNumber),
+                    LogisticUnitSkidNumber = string.Empty,
+                    SingleTradeItemSerialNumber = Convert.ToString((this.ActItem.ListItems[0] as dynamic)
+                        .ActivityDetailSingleTradeItemSerialNumber),
+                    VariantCode =
+                        Convert.ToString((this.ActItem.ListItems[0] as dynamic).ProductSchemeVariantCode),
+                };
+
+                this.ActDetail.SchemeData = prodSchemeData;
+            }
+
+            //////////////////////////////////////////////////////////////////////////
+            async Task SetDetailQuantity()
+            {
+                SFillQuantity fillQty = await this.RequestConvertUnitResult(
+                    this.FromProdUnitRefno,
+                    this.ToProdUnitRefno,
+                    Convert.ToDecimal((this.ActItem.ListItems[0] as dynamic).ActivityDetailQuantity),
+                    Convert.ToDecimal((this.ActItem.ListItems[0] as dynamic).ActivityDetailWeightQuantity));
+
+                this.ActDetail.Quantity = fillQty.Quantity;
+                this.ActDetail.BaseQuantity = fillQty.BaseQuantity;
+                this.ActDetail.WeightQuantity = fillQty.WeightQuantity;
+            }
+
+            //////////////////////////////////////////////////////////////////////////
+            async Task SelectToProductUnit()
+            {
+                var frmSelectProduct = new FormDialogContainer(
+                    EDialogTypes.SelectProductUnitFilterToProduct,
+                    this.ActItem,
+                    SysCommon.ActSubTypes.ConvertUnit);
+                if (await Device.InvokeOnMainThreadAsync(async () =>
+                        await frmSelectProduct.DisplayControl.ShowDialog() != DialogResult.OK))
+                {
+                    throw new CancelOperationException();
+                }
+
+                var xmlDocProduct = await frmSelectProduct.GetXML();
+                this.ToProdUnitRefno = int.Parse(xmlDocProduct.Root.Element("ProductUnitRefno").Value);
+
+                if (this.ToProdUnitRefno == 0)
+                {
+                    throw new MessageOnlyException("A to product unit needs to be selected.");
+                }
+
+                this.ActItem.ProdInfo = await ProductInfoTasks.GetInfoFromUnitRefno(this.ToProdUnitRefno);
+                this.ActItem.ProdInfo.Scheme =
+                    await ProductInfoTasks.GetSchemeComponentsFromRefno(this.ActItem.ProdInfo.Refno);
             }
         }
 

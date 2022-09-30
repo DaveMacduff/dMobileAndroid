@@ -2,16 +2,16 @@
 // Copyright (c) InterSect Business Systems Inc. All rights reserved.
 // </copyright>
 
-namespace dMobile.Controller
-{
-    using System;
-    using System.Collections.Generic;
-    using System.Collections.ObjectModel;
-    using System.Threading.Tasks;
-    using System.Xml.Linq;
-    using dMobile.Bedrock;
-    using Xamarin.Forms;
+using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Threading.Tasks;
+using System.Xml.Linq;
+using dMobile.Bedrock;
+using Xamarin.Forms;
 
+namespace dMobile.Controller.Activity_Item
+{
     /// <summary>
     /// Defines the <see cref="PutAwaySkidActItem" />.
     /// </summary>
@@ -21,7 +21,7 @@ namespace dMobile.Controller
         /// Initializes a new instance of the <see cref="PutAwaySkidActItem"/> class.
         /// </summary>
         /// <param name="activity">.</param>
-        public PutAwaySkidActItem(Activity activity)
+        public PutAwaySkidActItem(Activity.Activity activity)
             : base(activity)
         {
             this.FullClassName = typeof(PutAwaySkidActItem).FullName;

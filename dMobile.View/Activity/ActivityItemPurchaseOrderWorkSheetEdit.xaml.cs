@@ -2,6 +2,8 @@
 // Copyright (c) InterSect Business Systems Inc. All rights reserved.
 // </copyright>
 
+using dMobile.Controller.Activity_Detail;
+
 namespace dMobile.View.Activity
 {
     using System;

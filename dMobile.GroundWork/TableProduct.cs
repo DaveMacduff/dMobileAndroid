@@ -405,7 +405,7 @@ namespace dMobile.GroundWork
                             ++processedCount;
                             if (processedCount % 100 == 0)
                             {
-                                this.DataAccessProgressOutHandler(this, EventArgs.Empty, processedCount / 10 % 100, 0, 100);
+                                this.DataAccessProgressOutHandler(this, EventArgs.Empty, (processedCount / 10) % 100, 0, 100);
                             }
 
                             progValue++;

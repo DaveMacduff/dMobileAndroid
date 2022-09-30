@@ -2,23 +2,23 @@
 // Copyright (c) InterSect Business Systems Inc. All rights reserved.
 // </copyright>
 
-namespace dMobile.Controller
-{
-    using System;
-    using System.Collections.Generic;
-    using System.Collections.ObjectModel;
-    using System.Data;
-    using System.Linq;
-    using System.Text;
-    using System.Threading.Tasks;
-    using System.Xml;
-    using System.Xml.Linq;
-    using dMobile.Bedrock;
-    using dMobile.GroundWork;
-    using dMobile.Resources.Services;
-    using dMobile.Resources.Types;
-    using Xamarin.Forms;
+using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.Xml;
+using System.Xml.Linq;
+using dMobile.Bedrock;
+using dMobile.Controller.Activity_Item;
+using dMobile.GroundWork;
+using dMobile.Resources.Services;
+using dMobile.Resources.Types;
+using Xamarin.Forms;
 
+namespace dMobile.Controller.Activity_Detail
+{
     /// <summary>
     /// Defines the <see cref="TicketByProdActDetail" />.
     /// </summary>
@@ -807,10 +807,10 @@ namespace dMobile.Controller
         /// <summary>
         /// The DesignGrid.
         /// </summary>
-        /// <param name="GridMainActivity">The GridMainActivity<see cref="Grid"/>.</param>
-        /// <param name="ListViewMainActivity">The ListViewMainActivity<see cref="ListView"/>.</param>
+        /// <param name="gridMain">The gridMain<see cref="Grid"/>.</param>
+        /// <param name="listViewMain">The listViewMain<see cref="ListView"/>.</param>
         /// <returns>The <see cref="ObservableCollection{object}"/>.</returns>
-        public override ObservableCollection<object> DesignGrid(ref Grid GridMainActivity, ref ListView ListViewMainActivity)
+        public override ObservableCollection<object> DesignGrid(ref Grid gridMain, ref ListView listViewMain)
         {
             var observableCollection = new ObservableCollection<object>();
 
@@ -856,7 +856,7 @@ namespace dMobile.Controller
 
             Grid.SetRow(gridHeader, 0);
 
-            GridMainActivity.Children.Add(gridHeader);
+            gridMain.Children.Add(gridHeader);
 
             foreach (ProductionTicketByProductDetail productionTicketByProductDetail in observableCollection)
             {
@@ -890,7 +890,7 @@ namespace dMobile.Controller
                 }
             }
 
-            ListViewMainActivity.ItemTemplate = (DataTemplate)this.ResourceDictionary["dataTemplateByProdDetail"];
+            listViewMain.ItemTemplate = (DataTemplate)this.ResourceDictionary["dataTemplateByProdDetail"];
 
             return observableCollection;
         }

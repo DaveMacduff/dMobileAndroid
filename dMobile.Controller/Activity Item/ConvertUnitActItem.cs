@@ -2,21 +2,21 @@
 // Copyright (c) InterSect Business Systems Inc. All rights reserved.
 // </copyright>
 
-namespace dMobile.Controller
-{
-    using System;
-    using System.Collections.Generic;
-    using System.Collections.ObjectModel;
-    using System.Data;
-    using System.Linq;
-    using System.Text;
-    using System.Threading.Tasks;
-    using System.Xml;
-    using System.Xml.Linq;
-    using dMobile.Bedrock;
-    using dMobile.Resources.Types;
-    using Xamarin.Forms;
+using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Data;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.Xml;
+using System.Xml.Linq;
+using dMobile.Bedrock;
+using dMobile.Resources.Types;
+using Xamarin.Forms;
 
+namespace dMobile.Controller.Activity_Item
+{
     /// <summary>
     /// Defines the <see cref="ConvertUnitActItem" />.
     /// </summary>
@@ -31,7 +31,7 @@ namespace dMobile.Controller
         /// Initializes a new instance of the <see cref="ConvertUnitActItem"/> class.
         /// </summary>
         /// <param name="activity">.</param>
-        public ConvertUnitActItem(Activity activity)
+        public ConvertUnitActItem(Activity.Activity activity)
             : base(activity)
         {
             this.FullClassName = typeof(ConvertUnitActItem).FullName;
@@ -244,9 +244,58 @@ namespace dMobile.Controller
         /// </summary>
         /// <param name="selectedActivityItem">The selectedActivityItem<see cref="object"/>.</param>
         /// <returns>The <see cref="Task"/>.</returns>
-        public override Task AssignActivityItem(object activityItem)
+        public override async Task AssignActivityItem(object activityItem)
         {
-            throw new NotImplementedException();
+            if (activityItem is AdjustmentItem item)
+            {
+                this.SelectedActivityItem = item;
+                this.ItemRefno = item.ActivityItemRefno;
+                this.ItemFKRefno = item.ActivityItemFKRefno;
+                this.ProdInfo = await ProductInfoTasks.GetInfoFromUnitRefno(item.ProductUnitRefno);
+                this.ProdInfo.Scheme = await ProductInfoTasks.GetSchemeComponentsFromRefno(this.ProdInfo.Refno);
+
+                // This code needs to be before the call to GetSelectedItemLocation, because the skid location may be
+                // used if the product unit and warehouse match.
+                if (this.SysEnv.SysSettings.DoesSelectingADifferentProductClearSkid &&
+                    this.ActHdr.SkidInfo.CurrSkid.ProdInfo.Refno != this.ProdInfo.Refno)
+                {
+                    this.ActHdr.SkidInfo.CurrSkid = new SSkidInfo();
+                }
+
+                var locMap = await this.GetSelectedItemLocation(item.LocationMapRefno);
+
+                if (this.SysEnv.SysSettings.IsDefaultLocToProductDefaultLoc)
+                {
+                    // Only assign the current location if the map is complete else leave it alone.
+                    if (locMap != null && await LocationMapTasks.IsCompleteLocMap(locMap))
+                    {
+                        // Update the chosen location with the current when defaulting is turned on.
+                        LocationMap.GetInstance().CurrLocMap = locMap.Clone();
+                        LocationMap.GetInstance().ChosenLocMap = locMap.Clone();
+
+                        // Assign the skid the location, because defaulting is enabled.
+                        if (this.ActHdr.SkidInfo.CurrSkid.SkidFKRefno > 0)
+                        {
+                            this.ActHdr.SkidInfo.CurrSkid.LocMap = locMap.Clone();
+                        }
+
+                        // Update the activity item location.
+                        this.LocMap = LocationMap.GetInstance().CurrLocMap.Clone();
+                    }
+                }
+                else
+                {
+                    // Only assign the current location if the map is complete else leave it alone.
+                    if (locMap != null && await LocationMapTasks.IsCompleteLocMap(locMap))
+                    {
+                        // Do not update the current, chosen or skid location when defaulting is off.
+                        this.LocMap = locMap.Clone();
+                    }
+                }
+
+                // LocationMap.GetInstance().CurrLocMap warehouse needs to be set before call to GetSchemeComponentsFromRefno.
+                this.ProdInfo.Scheme = await ProductInfoTasks.GetSchemeComponentsFromRefno(this.ProdInfo.Refno);
+            }
         }
 
         /// <summary>
@@ -326,13 +375,18 @@ namespace dMobile.Controller
         }
 
         /// <summary>
-        /// The RefreshQuantity.
+        /// Replace activity line item quantity.
         /// </summary>
-        /// <param name="selectedActivityItem">The selectedActivityItem<see cref="object"/>.</param>
-        /// <param name="quantity">.</param>
-        /// <param name="baseQuantity">.</param>
-        /// <param name="weightQuantity">.</param>
-        public override void ReplaceQuantityInActivityItem(object selectedActivityItem, decimal quantity, decimal baseQuantity, decimal weightQuantity)
+        /// <param name="selectedActivityItem"><see cref="object"/> Selected activity item.</param>
+        /// <param name="quantity"><see cref="decimal"/> Quantity.</param>
+        /// <param name="baseQuantity"><see cref="decimal"/> Base quantity.</param>
+        /// <param name="weightQuantity"><see cref="decimal"/> Weight quantity.</param>
+        /// <exception cref="NotImplementedException"> Method is not implemented.</exception>
+        public override void ReplaceQuantityInActivityItem(
+            object selectedActivityItem,
+            decimal quantity,
+            decimal baseQuantity,
+            decimal weightQuantity)
         {
             throw new NotImplementedException();
         }

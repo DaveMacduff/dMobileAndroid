@@ -2,7 +2,7 @@
 // Copyright (c) InterSect Business Systems Inc. All rights reserved.
 // </copyright>
 
-namespace dMobile.Controller
+namespace dMobile.Controller.Activity_Item
 {
     public class InvInquirySummaryActItemFactory : ActItemFactory
     {
@@ -11,7 +11,7 @@ namespace dMobile.Controller
         /// </summary>
         /// <param name="activity">Activity to use.</param>
         /// <returns>New InvInquirySummaryActItem.</returns>
-        public override ActItem GetActItem(Activity activity)
+        public override ActItem GetActItem(Activity.Activity activity)
         {
             return new InvInquirySummaryActItem(activity);
         }

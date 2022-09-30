@@ -2,6 +2,10 @@
 // Copyright (c) InterSect Business Systems Inc. All rights reserved.
 // </copyright>
 
+using dMobile.Controller.Activity;
+using dMobile.Controller.Activity_Detail;
+using dMobile.Controller.Activity_Item;
+
 namespace dMobile.View
 {
     using System;
@@ -567,15 +571,10 @@ namespace dMobile.View
                 {
                     if (SysCommon.IsEmptyDateTime(barParse.LogisticUnitBestBeforeSellByDate))
                     {
-                        if (SysCommon.IsEmptyDate(tempItemSchemeData.ProdSchemeData.LogisticUnitBestBeforeSellByDate))
-                        {
-                            schemeData.LogisticUnitBestBeforeSellByDate = new DateTime(1900, 1, 1);
-                        }
-                        else
-                        {
-                            schemeData.LogisticUnitBestBeforeSellByDate =
-                                tempItemSchemeData.ProdSchemeData.LogisticUnitBestBeforeSellByDate;
-                        }
+                        schemeData.LogisticUnitBestBeforeSellByDate =
+                            SysCommon.IsEmptyDate(tempItemSchemeData.ProdSchemeData.LogisticUnitBestBeforeSellByDate)
+                                ? new DateTime(1900, 1, 1)
+                                : tempItemSchemeData.ProdSchemeData.LogisticUnitBestBeforeSellByDate;
                     }
                     else
                     {
@@ -591,14 +590,10 @@ namespace dMobile.View
                 {
                     if (SysCommon.IsEmptyDateTime(barParse.LogisticUnitProductionDate))
                     {
-                        if (SysCommon.IsEmptyDate(tempItemSchemeData.ProdSchemeData.LogisticUnitProductionDate))
-                        {
-                            schemeData.LogisticUnitProductionDate = new DateTime(1900, 1, 1);
-                        }
-                        else
-                        {
-                            schemeData.LogisticUnitProductionDate = tempItemSchemeData.ProdSchemeData.LogisticUnitProductionDate;
-                        }
+                        schemeData.LogisticUnitProductionDate =
+                            SysCommon.IsEmptyDate(tempItemSchemeData.ProdSchemeData.LogisticUnitProductionDate)
+                                ? new DateTime(1900, 1, 1)
+                                : tempItemSchemeData.ProdSchemeData.LogisticUnitProductionDate;
                     }
                     else
                     {

@@ -2,6 +2,8 @@
 // Copyright (c) InterSect Business Systems Inc. All rights reserved.
 // </copyright>
 
+using dMobile.Controller.Activity;
+
 namespace dMobile.View.Activity
 {
     using System;
@@ -203,7 +205,7 @@ namespace dMobile.View.Activity
 
         private bool IsBarCodeHandlerRegistered { get; set; } = false;
 
-        private Activity Activity { get; set; } = null;
+        private Controller.Activity.Activity Activity { get; set; } = null;
 
         private SysCommon.ActSubTypes ActSubType { get; set; } = SysCommon.ActSubTypes.ReleaseByOrder;
 

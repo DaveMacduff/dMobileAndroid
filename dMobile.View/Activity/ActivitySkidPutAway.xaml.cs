@@ -2,6 +2,10 @@
 // Copyright (c) InterSect Business Systems Inc. All rights reserved.
 // </copyright>
 
+using dMobile.Controller.Activity;
+using dMobile.Controller.Activity_Detail;
+using dMobile.Controller.Activity_Item;
+
 namespace dMobile.View.Activity
 {
     using System;
@@ -182,7 +186,7 @@ namespace dMobile.View.Activity
 
         private ActDetail ActDetail { get; set; } = null;
 
-        private Activity Activity { get; set; } = null;
+        private Controller.Activity.Activity Activity { get; set; } = null;
 
         private ActItem ActItem { get; set; } = null;
 

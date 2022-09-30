@@ -2,11 +2,12 @@
 // Copyright (c) InterSect Business Systems Inc. All rights reserved.
 // </copyright>
 
-namespace dMobile.Controller
-{
-    using System;
-    using dMobile.Bedrock;
+using System;
+using dMobile.Bedrock;
+using dMobile.Controller.Activity_Item;
 
+namespace dMobile.Controller.Activity_Detail
+{
     /// <summary>
     /// This is the activity facade class that return an activity object.
     /// </summary>
@@ -81,7 +82,7 @@ namespace dMobile.Controller
                     break;
 
                 case SysCommon.ActSubTypes.MoveInventory:
-                    actDetailFactory = new clsMoveInventoryActDetailFactory();
+                    actDetailFactory = new MoveInventoryActDetailFactory();
                     break;
 
                 case SysCommon.ActSubTypes.ConvertUnit:

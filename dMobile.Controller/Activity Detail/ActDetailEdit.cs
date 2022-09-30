@@ -2,15 +2,15 @@
 // Copyright (c) InterSect Business Systems Inc. All rights reserved.
 // </copyright>
 
-namespace dMobile.Controller
-{
-    using System.Collections.Generic;
-    using System.Text;
-    using System.Threading.Tasks;
-    using System.Xml.Linq;
-    using dMobile.Bedrock;
-    using dMobile.Resources.Types;
+using System.Collections.Generic;
+using System.Text;
+using System.Threading.Tasks;
+using System.Xml.Linq;
+using dMobile.Bedrock;
+using dMobile.Resources.Types;
 
+namespace dMobile.Controller.Activity_Detail
+{
     /// <summary>
     /// Defines the <see cref="ActDetailEdit" /> activity detail editing.
     /// </summary>

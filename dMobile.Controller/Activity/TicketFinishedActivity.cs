@@ -2,22 +2,21 @@
 // Copyright (c) InterSect Business Systems Inc. All rights reserved.
 // </copyright>
 
-namespace dMobile.Controller
-{
-    using System;
-    using System.Collections.Generic;
-    using System.Collections.ObjectModel;
-    using System.Data;
-    using System.Linq;
-    using System.Text;
-    using System.Threading.Tasks;
-    using System.Xml.Linq;
-    using dMobile.Bedrock;
-    using dMobile.GroundWork;
-    using dMobile.Resources.Services;
-    using dMobile.Resources.Types;
-    using Xamarin.Forms;
+using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.Xml.Linq;
+using dMobile.Bedrock;
+using dMobile.GroundWork;
+using dMobile.Resources.Services;
+using dMobile.Resources.Types;
+using Xamarin.Forms;
 
+namespace dMobile.Controller.Activity
+{
     /// <summary>
     /// Defines the <see cref="TicketFinishedActivity" />.
     /// </summary>

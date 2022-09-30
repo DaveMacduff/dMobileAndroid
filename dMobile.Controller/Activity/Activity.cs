@@ -2,23 +2,42 @@
 // Copyright (c) InterSect Business Systems Inc. All rights reserved.
 // </copyright>
 
-namespace dMobile.Controller
-{
-    using System;
-    using System.Collections.Generic;
-    using System.Collections.ObjectModel;
-    using System.Threading.Tasks;
-    using System.Xml.Linq;
-    using dMobile.Bedrock;
-    using dMobile.GroundWork;
-    using SQLite;
-    using Xamarin.Forms;
+using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Threading.Tasks;
+using System.Xml.Linq;
+using dMobile.Bedrock;
+using dMobile.GroundWork;
+using SQLite;
+using Xamarin.Forms;
 
+namespace dMobile.Controller.Activity
+{
     /// <summary>
     /// Defines the <see cref="Activity" /> Activity header base class.
     /// </summary>
     public abstract class Activity : IDataLayerEventPublisher, IDataAccessEventListener
     {
+        /// <summary>
+        /// Initializes a new instance of the <see cref="Activity"/> class.
+        /// </summary>
+        protected Activity()
+        {
+
+            this.HdrFKRefno = 0;
+            this.HdrRefno = 0;
+            this.SelectedListItemIdx = -1;
+            this.ListHdrs = new List<object>();
+            this.ActSubType = SysCommon.ActSubTypes.NotApplicable;
+            this.SkidInfo = new SysSkidInfo();
+            this.SysEnv = SysEnvironment.GetInstance();
+            this.FullClassName = typeof(Activity).FullName;
+            this.DataEventArgs = new DataLayerEventArgs();
+            this.SelectedActivity = null;
+            this.XMLDataCriteria = null;
+        }
+
         /// <summary>
         /// The on data layer status out event handler.
         /// </summary>
@@ -50,7 +69,7 @@ namespace dMobile.Controller
         /// <summary>
         /// Gets or sets the full class name. Used for error reporting.
         /// </summary>
-        public string FullClassName { get; set; } = typeof(Activity).FullName;
+        public string FullClassName { get; set; }
 
         /// <summary>
         /// Gets or sets the skid information.
@@ -59,7 +78,7 @@ namespace dMobile.Controller
         /// Skid info is on the header activity because working with skid maintenance does have a
         /// header.
         /// </remarks>
-        public SysSkidInfo SkidInfo { get; set; } = new SysSkidInfo();
+        public SysSkidInfo SkidInfo { get; set; }
 
         /// <summary>
         /// Gets or sets the XML data criteria. Used for data exchange between activities.
@@ -74,12 +93,12 @@ namespace dMobile.Controller
         /// <summary>
         /// Gets or sets the list of activity headers.
         /// </summary>
-        public List<object> ListHdrs { get; set; } = new List<object>();
+        public List<object> ListHdrs { get; set; }
 
         /// <summary>
         /// Gets or sets the ActSubType.
         /// </summary>
-        public SysCommon.ActSubTypes ActSubType { get; set; } = SysCommon.ActSubTypes.NotApplicable;
+        public SysCommon.ActSubTypes ActSubType { get; set; }
 
         /// <summary>
         /// Gets or sets the Refno.
@@ -89,12 +108,12 @@ namespace dMobile.Controller
         /// <summary>
         /// Gets or sets the SysEnv.
         /// </summary>
-        public SysEnvironment SysEnv { get; set; } = SysEnvironment.GetInstance();
+        public SysEnvironment SysEnv { get; set; }
 
         /// <summary>
         /// Gets or sets the DataEventArgs.
         /// </summary>
-        public DataLayerEventArgs DataEventArgs { get; set; } = new DataLayerEventArgs();
+        public DataLayerEventArgs DataEventArgs { get; set; }
 
         /// <summary>
         /// Gets or sets the SelectedActivity.

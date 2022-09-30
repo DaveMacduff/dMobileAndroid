@@ -770,9 +770,9 @@ namespace dMobile.GroundWork
         /// </summary>
         /// <param name="sendData"><see cref="string"/> Communication request.</param>
         /// <returns><see cref="string"/> Communication result.</returns>
-        protected virtual async Task<string> SendComm(string sendData)
+        protected virtual Task<string> SendComm(string sendData)
         {
-            return SysCommon.SubmitComm(sendData);
+            return Task.FromResult(SysCommon.SubmitComm(sendData));
         }
 
         /// <summary>

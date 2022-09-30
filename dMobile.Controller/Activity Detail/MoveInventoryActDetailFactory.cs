@@ -2,12 +2,14 @@
 // Copyright (c) InterSect Business Systems Inc. All rights reserved.
 // </copyright>
 
-namespace dMobile.Controller
+using dMobile.Controller.Activity_Item;
+
+namespace dMobile.Controller.Activity_Detail
 {
     /// <summary>
-    /// <see cref="clsMoveInventoryActDetailFactory" /> Move inventory activity detail.
+    /// <see cref="MoveInventoryActDetailFactory" /> Move inventory activity detail.
     /// </summary>
-    public class clsMoveInventoryActDetailFactory : ActDetailFactory
+    public class MoveInventoryActDetailFactory : ActDetailFactory
     {
         /// <summary>
         /// The GetActDetail.

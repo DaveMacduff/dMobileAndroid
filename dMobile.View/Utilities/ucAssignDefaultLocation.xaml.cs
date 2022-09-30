@@ -2,6 +2,9 @@
 // Copyright (c) InterSect Business Systems Inc. All rights reserved.
 // </copyright>
 
+using dMobile.Controller.Activity;
+using dMobile.Controller.Activity_Item;
+
 namespace dMobile.View.Utilities
 {
     using System;
@@ -134,7 +137,7 @@ namespace dMobile.View.Utilities
         /// <summary>
         /// Gets or sets the activity.
         /// </summary>
-        private Activity Activity { get; set; } = null;
+        private Controller.Activity.Activity Activity { get; set; } = null;
 
         /// <summary>
         /// Gets or sets the activity sub type.

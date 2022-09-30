@@ -2,16 +2,16 @@
 // Copyright (c) InterSect Business Systems Inc. All rights reserved.
 // </copyright>
 
-namespace dMobile.Controller
-{
-    using System;
-    using System.Collections.Generic;
-    using System.Collections.ObjectModel;
-    using System.Threading.Tasks;
-    using System.Xml.Linq;
-    using dMobile.Bedrock;
-    using Xamarin.Forms;
+using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Threading.Tasks;
+using System.Xml.Linq;
+using dMobile.Bedrock;
+using Xamarin.Forms;
 
+namespace dMobile.Controller.Activity_Item
+{
     /// <summary>
     /// Defines the <see cref="MoveInvActItem" />.
     /// </summary>
@@ -21,7 +21,7 @@ namespace dMobile.Controller
         /// Initializes a new instance of the <see cref="MoveInvActItem"/> class.
         /// </summary>
         /// <param name="activity">.</param>
-        public MoveInvActItem(Activity activity)
+        public MoveInvActItem(Activity.Activity activity)
             : base(activity)
         {
             this.FullClassName = typeof(MoveInvActItem).FullName;
@@ -51,13 +51,14 @@ namespace dMobile.Controller
         /// <returns>.</returns>
         public override bool IsCatchAsk()
         {
-            var result = this.IsCatchAsk();
-            if (result && this.ProdInfo.IsCatchAskZero)
+            var isCatchAsk = this.ProdInfo.IsCatchAsk;
+            if (isCatchAsk)
             {
-                result = !this.SysEnv.SysSettings.IsMoveInventoryCatchAskEnabled;
+                // modules are for exclusions
+                isCatchAsk = this.SysEnv.SysSettings.IsMoveInventoryCatchAskEnabled;
             }
 
-            return result;
+            return isCatchAsk;
         }
 
         /// <summary>

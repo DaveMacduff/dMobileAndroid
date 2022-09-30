@@ -1,18 +1,17 @@
-﻿using dMobile.Resources.Types;
+﻿using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Threading.Tasks;
+using System.Xml.Linq;
+using dMobile.Bedrock;
+using Xamarin.Forms;
+
 // <copyright file="clsSkidInfoActivityItem.cs" company="InterSect Business Systems Inc">
 // Copyright (c) InterSect Business Systems Inc. All rights reserved.
 // </copyright>
 
-namespace dMobile.Controller
+namespace dMobile.Controller.Activity_Item
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Collections.ObjectModel;
-    using System.Threading.Tasks;
-    using System.Xml.Linq;
-    using dMobile.Bedrock;
-    using Xamarin.Forms;
-
     /// <summary>
     /// Defines the <see cref="SkidInfoActItem" />.
     /// </summary>
@@ -22,7 +21,7 @@ namespace dMobile.Controller
         /// Initializes a new instance of the <see cref="SkidInfoActItem"/> class.
         /// </summary>
         /// <param name="activity">.</param>
-        public SkidInfoActItem(Activity activity)
+        public SkidInfoActItem(Activity.Activity activity)
           : base(activity)
         {
             this.FullClassName = typeof(SkidInfoActItem).FullName;

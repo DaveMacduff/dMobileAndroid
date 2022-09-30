@@ -26,7 +26,7 @@ namespace dMobile.View.Activity
     {
         private SLabelQuantity labelQtyEdit = new SLabelQuantity();
         private bool isFirstAppearance = true;
-        Activity Activity;
+        Controller.Activity.Activity Activity;
         ShippingLabelQuantitySelectionMode SelectMode;
 
         /// <summary>
@@ -39,7 +39,7 @@ namespace dMobile.View.Activity
         public ActivityShippingLabelEdit(
             SysCommon.ActSubTypes actSubTypes,
             SLabelQuantity labelQtyEdit,
-            Activity activity,
+            Controller.Activity.Activity activity,
             ShippingLabelQuantitySelectionMode selectMode)
         {
             this.InitializeComponent();

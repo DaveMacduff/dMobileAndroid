@@ -2,18 +2,18 @@
 // Copyright (c) InterSect Business Systems Inc. All rights reserved.
 // </copyright>
 
-namespace dMobile.Controller
-{
-    using System;
-    using System.Collections.Generic;
-    using System.Collections.ObjectModel;
-    using System.Threading.Tasks;
-    using System.Xml.Linq;
-    using dMobile.Bedrock;
-    using dMobile.GroundWork;
-    using SQLite;
-    using Xamarin.Forms;
+using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Threading.Tasks;
+using System.Xml.Linq;
+using dMobile.Bedrock;
+using dMobile.GroundWork;
+using SQLite;
+using Xamarin.Forms;
 
+namespace dMobile.Controller.Activity_Item
+{
     /// <summary>
     /// Activity item base class.
     /// </summary>
@@ -28,7 +28,7 @@ namespace dMobile.Controller
         /// Initializes a new instance of the <see cref="ActItem"/> class.
         /// </summary>
         /// <param name="activity">.</param>
-        public ActItem(Activity activity)
+        public ActItem(Activity.Activity activity)
         {
             this.ActHdr = activity;
             this.ActSubType = this.ActHdr.ActSubType;
@@ -39,18 +39,14 @@ namespace dMobile.Controller
         /// </summary>
         /// <param name="publisher">The publisher<see cref="IDataLayerEventPublisher"/>.</param>
         /// <param name="args">The dataLayerEventArgs<see cref="DataLayerEventArgs"/>.</param>
-        public delegate void OnDataLayerStatusOutEventHandler(
-            IDataLayerEventPublisher publisher,
-            DataLayerEventArgs args);
+        public delegate void OnDataLayerStatusOutEventHandler(IDataLayerEventPublisher publisher, DataLayerEventArgs args);
 
         /// <summary>
         /// The data layer progress out event handler.
         /// </summary>
         /// <param name="publisher">The publisher<see cref="IDataLayerEventPublisher"/>.</param>
         /// <param name="args">The dataLayerEventArgs<see cref="DataLayerEventArgs"/>.</param>
-        public delegate void OnDataLayerProgressOutEventHandler(
-            IDataLayerEventPublisher publisher,
-            DataLayerEventArgs args);
+        public delegate void OnDataLayerProgressOutEventHandler(IDataLayerEventPublisher publisher, DataLayerEventArgs args);
 
         /// <summary>
         /// Data layer status out event handler.
@@ -149,7 +145,7 @@ namespace dMobile.Controller
         /// <summary>
         /// Gets or sets the activity header..
         /// </summary>
-        public Activity ActHdr { get; set; }
+        public Activity.Activity ActHdr { get; set; }
 
         /// <summary>
         /// Gets or sets the selected activity item..
@@ -267,11 +263,7 @@ namespace dMobile.Controller
         /// <param name="quantity"><see cref="decimal"/> Alt quantity.</param>
         /// <param name="baseQuantity"><see cref="decimal"/> Base quantity.</param>
         /// <param name="weightQuantity"><see cref="decimal"/> Weight quantity.</param>
-        public abstract void AddToQuantityInActivityItem(
-            object selectedActivityItem,
-            decimal quantity,
-            decimal baseQuantity,
-            decimal weightQuantity);
+        public abstract void AddToQuantityInActivityItem(object selectedActivityItem, decimal quantity, decimal baseQuantity, decimal weightQuantity);
 
         /// <summary>
         /// Replaces the activity item quantities. Does not add to the existing values.
@@ -280,11 +272,7 @@ namespace dMobile.Controller
         /// <param name="quantity"><see cref="decimal"/> Alt quantity.</param>
         /// <param name="baseQuantity"><see cref="decimal"/> Base quantity.</param>
         /// <param name="weightQuantity"><see cref="decimal"/> Weight quantity.</param>
-        public abstract void ReplaceQuantityInActivityItem(
-            object selectedActivityItem,
-            decimal quantity,
-            decimal baseQuantity,
-            decimal weightQuantity);
+        public abstract void ReplaceQuantityInActivityItem(object selectedActivityItem, decimal quantity, decimal baseQuantity, decimal weightQuantity);
 
         /// <summary>
         /// Update the activity item table data with the selected activity item object data.
@@ -410,10 +398,8 @@ namespace dMobile.Controller
             var isGetDefault = false;
             if (this.SysEnv.SysSettings.IsDefaultLocToProductDefaultLoc)
             {
-                if ((this.ActSubType == SysCommon.ActSubTypes.PhysicalCounts &&
-                        this.SysEnv.SysSettings.IsPhysicalDoNotDefaultProductLocation)
-                    || (this.ActSubType == SysCommon.ActSubTypes.CycleCounts &&
-                        this.SysEnv.SysSettings.IsCycleDoNotDefaultProductLocation))
+                if ((this.ActSubType == SysCommon.ActSubTypes.PhysicalCounts && this.SysEnv.SysSettings.IsPhysicalDoNotDefaultProductLocation)
+                    || (this.ActSubType == SysCommon.ActSubTypes.CycleCounts && this.SysEnv.SysSettings.IsCycleDoNotDefaultProductLocation))
                 {
                     isGetDefault = false;
                 }
@@ -442,11 +428,11 @@ namespace dMobile.Controller
                 // So we might as well default the location to the skid.
                 if (this.SysEnv.SysSettings.IsVerifyProductLocation)
                 {
-                    if (this.ActHdr.SkidInfo.CurrSkid.SkidFKRefno > 0 &&
-                        this.ActHdr.SkidInfo.CurrSkid.ProdInfo.Refno == this.ProdInfo.Refno &&
-                        this.ActHdr.SkidInfo.CurrSkid.LocMap.WhsLocMapRefno == itemLocMap.WhsLocMapRefno)
+                    var skidInfo = this.ActHdr.SkidInfo.CurrSkid;
+                    if (skidInfo.SkidFKRefno > 0 && skidInfo.ProdInfo.Refno == this.ProdInfo.Refno &&
+                        skidInfo.LocMap.WhsLocMapRefno == itemLocMap.WhsLocMapRefno)
                     {
-                        if (await LocationMapTasks.IsCompleteLocMap(this.ActHdr.SkidInfo.CurrSkid.LocMap))
+                        if (await LocationMapTasks.IsCompleteLocMap(skidInfo.LocMap))
                         {
                             selectedLocMap = this.ActHdr.SkidInfo.CurrSkid.LocMap;
                         }

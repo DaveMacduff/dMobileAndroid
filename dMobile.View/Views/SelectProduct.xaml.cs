@@ -1,4 +1,4 @@
-﻿// <copyright file="ucSelectProduct.xaml.cs" company="InterSect Business Systems Inc">
+﻿// <copyright file="SelectProduct.xaml.cs" company="InterSect Business Systems Inc">
 // Copyright (c) InterSect Business Systems Inc. All rights reserved.
 // </copyright>
 
@@ -22,10 +22,10 @@ namespace dMobile.View
     using Resource = dMobile.Resources.Properties.Resources;
 
     /// <summary>
-    /// Defines the <see cref="ucSelectProduct" />.
+    /// Defines the <see cref="dMobile.View.SelectProduct" />.
     /// </summary>
     [XamlCompilation(XamlCompilationOptions.Compile)]
-    public partial class ucSelectProduct : DMobileModal, IAppArea
+    public partial class SelectProduct : DMobileModal, IAppArea
     {
         /// <summary>
         /// Defines the filterOnAllowConvertProduct.
@@ -33,9 +33,9 @@ namespace dMobile.View
         private bool filterOnAllowConvertProduct = false;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="ucSelectProduct"/> class.
+        /// Initializes a new instance of the <see cref="dMobile.View.SelectProduct"/> class.
         /// </summary>
-        public ucSelectProduct()
+        public SelectProduct()
         {
             this.InitializeComponent();
 
@@ -511,7 +511,7 @@ namespace dMobile.View
             if (this.ProductFilteredObservableCollection.Count > 0)
             {
                 this.dgProducts.SelectedItem = this.ProductFilteredObservableCollection[0];
-                await this.SelectProduct(this.ProductFilteredObservableCollection[0]);
+                await this.AssignProduct(this.ProductFilteredObservableCollection[0]);
             }
         }
 
@@ -520,7 +520,7 @@ namespace dMobile.View
         /// </summary>
         /// <param name="prod">The prod<see cref="Product"/>.</param>
         /// <returns>The <see cref="Task"/>.</returns>
-        private async Task SelectProduct(Product prod)
+        private async Task AssignProduct(Product prod)
         {
             if (prod == null)
             {
@@ -605,7 +605,7 @@ namespace dMobile.View
         private async void DgProducts_ItemSelected(object sender, SelectedItemChangedEventArgs e)
         {
             var prod = e.SelectedItem as Product;
-            await this.SelectProduct(prod);
+            await this.AssignProduct(prod);
         }
 
         /// <summary>

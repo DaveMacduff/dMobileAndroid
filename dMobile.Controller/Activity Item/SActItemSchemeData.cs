@@ -2,10 +2,11 @@
 // Copyright (c) InterSect Business Systems Inc. All rights reserved.
 // </copyright>
 
-namespace dMobile.Controller
-{
-    using dMobile.Bedrock;
+using dMobile.Bedrock;
+using dMobile.Controller.Activity_Detail;
 
+namespace dMobile.Controller.Activity_Item
+{
     /// <summary>
     ///  Structure for activity items scheme data.
     /// </summary>

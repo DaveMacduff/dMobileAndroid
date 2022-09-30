@@ -2,21 +2,21 @@
 // Copyright (c) InterSect Business Systems Inc. All rights reserved.
 // </copyright>
 
-namespace dMobile.Controller
-{
-    using System;
-    using System.Collections.Generic;
-    using System.Collections.ObjectModel;
-    using System.Data;
-    using System.Linq;
-    using System.Text;
-    using System.Threading.Tasks;
-    using System.Xml;
-    using System.Xml.Linq;
-    using dMobile.Bedrock;
-    using dMobile.Resources.Types;
-    using Xamarin.Forms;
+using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Data;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.Xml;
+using System.Xml.Linq;
+using dMobile.Bedrock;
+using dMobile.Resources.Types;
+using Xamarin.Forms;
 
+namespace dMobile.Controller.Activity_Item
+{
     /// <summary>
     /// Defines the <see cref="ConvertProductActItem" />.
     /// </summary>
@@ -31,7 +31,7 @@ namespace dMobile.Controller
         /// Initializes a new instance of the <see cref="ConvertProductActItem"/> class.
         /// </summary>
         /// <param name="activity">.</param>
-        public ConvertProductActItem(Activity activity)
+        public ConvertProductActItem(Activity.Activity activity)
             : base(activity)
         {
             this.FullClassName = typeof(ConvertProductActItem).FullName;

@@ -2,7 +2,9 @@
 // Copyright (c) InterSect Business Systems Inc. All rights reserved.
 // </copyright>
 
-namespace dMobile.Controller
+using dMobile.Controller.Activity_Item;
+
+namespace dMobile.Controller.Activity_Detail
 {
     /// <summary>
     /// <see cref="SkidInfoActDetailFactory" /> Skid information activity detail factory.

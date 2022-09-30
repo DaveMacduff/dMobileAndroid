@@ -2,6 +2,10 @@
 // Copyright (c) InterSect Business Systems Inc. All rights reserved.
 // </copyright>
 
+using dMobile.Controller.Activity;
+using dMobile.Controller.Activity_Detail;
+using dMobile.Controller.Activity_Item;
+
 namespace dMobile.View.Activity
 {
     using System;
@@ -94,7 +98,7 @@ namespace dMobile.View.Activity
         /// </summary>
         /// <param name="activity">.</param>
         /// <param name="actSubTypes">.</param>
-        public ActivityItemSingle(Activity activity, SysCommon.ActSubTypes actSubTypes)
+        public ActivityItemSingle(Controller.Activity.Activity activity, SysCommon.ActSubTypes actSubTypes)
         {
             this.InitializeComponent();
 
@@ -325,7 +329,7 @@ namespace dMobile.View.Activity
         /// <summary>
         /// Gets or sets the ActHdr.
         /// </summary>
-        private Activity ActHdr { get; set; }
+        private Controller.Activity.Activity ActHdr { get; set; }
 
         /// <summary>
         /// Gets or sets the LocMap.

@@ -2,6 +2,9 @@
 // Copyright (c) InterSect Business Systems Inc. All rights reserved.
 // </copyright>
 
+using dMobile.Controller.Activity;
+using dMobile.Controller.Activity_Item;
+
 namespace dMobile.View.Activity
 {
     using System;
@@ -62,7 +65,7 @@ namespace dMobile.View.Activity
         /// </summary>
         /// <param name="callingActSubType"><see cref="SysCommon.ActSubTypes"/> Calling activity sub type.</param>
         /// <param name="activity"><see cref="Activity"/> Activity header.</param>
-        public ActivityHdrSkidInfo(SysCommon.ActSubTypes callingActSubType, Activity activity)
+        public ActivityHdrSkidInfo(SysCommon.ActSubTypes callingActSubType, Controller.Activity.Activity activity)
         {
             this.InitializeComponent();
 

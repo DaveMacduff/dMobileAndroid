@@ -2,6 +2,8 @@
 // Copyright (c) InterSect Business Systems Inc. All rights reserved.
 // </copyright>
 
+using dMobile.Controller.Activity;
+
 namespace dMobile.View.Activity
 {
     using System;
@@ -53,20 +55,16 @@ namespace dMobile.View.Activity
             this.FilterText = "Filter";
             this.FilterIsEnabled = true;
             this.FirstOnAppearing = true;
+            this.SysEnv = SysEnvironment.GetInstance();
+            this.Scanner = ScannerEngine.GetInstance().Scanner;
+            this.ActSubType = activitySubType;
+            this.ActHdr = ActivityFacade.GetActivity(this.ActSubType);
+            this.Title = this.ActHdr.GetControlDescription();
 
-            if (!DesignMode.IsDesignModeEnabled)
+            // If the activity header object does not have a skid already initialize the instance.
+            if (this.ActHdr.SkidInfo == null)
             {
-                this.SysEnv = SysEnvironment.GetInstance();
-                this.Scanner = ScannerEngine.GetInstance().Scanner;
-                this.ActSubType = activitySubType;
-                this.ActHdr = ActivityFacade.GetActivity(this.ActSubType);
-                this.Title = this.ActHdr.GetControlDescription();
-
-                // If the activity header object does not have a skid already initialize the instance.
-                if (this.ActHdr.SkidInfo == null)
-                {
-                    this.ActHdr.SkidInfo = new SysSkidInfo();
-                }
+                this.ActHdr.SkidInfo = new SysSkidInfo();
             }
         }
 
@@ -103,7 +101,7 @@ namespace dMobile.View.Activity
         /// <summary>
         /// Gets or sets the activity header instance.
         /// </summary>
-        private Activity ActHdr { get; set; }
+        private Controller.Activity.Activity ActHdr { get; set; }
 
         /// <summary>
         /// Gets or sets the activity header sub type.

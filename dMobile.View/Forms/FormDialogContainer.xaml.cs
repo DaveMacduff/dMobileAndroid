@@ -2,6 +2,10 @@
 // Copyright (c) InterSect Business Systems Inc. All rights reserved.
 // </copyright>
 
+using dMobile.Controller.Activity;
+using dMobile.Controller.Activity_Detail;
+using dMobile.Controller.Activity_Item;
+
 namespace dMobile.View.Forms
 {
     using System;
@@ -82,7 +86,7 @@ namespace dMobile.View.Forms
         public FormDialogContainer(
             EDialogTypes modelType,
             SLabelQuantity labelQtyEdit,
-            Activity activity,
+            Controller.Activity.Activity activity,
             ShippingLabelQuantitySelectionMode selectMode)
         {
             this.InitializeComponent();
@@ -143,7 +147,7 @@ namespace dMobile.View.Forms
         /// <param name="actSubType"><see cref="SysCommon.ActSubTypes"/> Activity sub type.</param>
         public FormDialogContainer(
             EDialogTypes modelType,
-            Activity activity,
+            Controller.Activity.Activity activity,
             SysCommon.ActSubTypes actSubType)
         {
             this.InitializeComponent();
@@ -312,7 +316,7 @@ namespace dMobile.View.Forms
             var msg = $"Model object for {SysCommon.SourceEnum2String(modelType)}.";
             IDMobileModal model = modelType switch
             {
-                EDialogTypes.SelectLocationMap => new ucSetLocationMap(defaultWhsLocMapRefno, lockWhsSelection),
+                EDialogTypes.SelectLocationMap => new SetLocationMap(defaultWhsLocMapRefno, lockWhsSelection),
                 EDialogTypes.RefreshDataStatus => throw new NotSupportedException(msg),
                 EDialogTypes.SelectProductUnit => throw new NotSupportedException(msg),
                 EDialogTypes.SelectProductUnitFilterToProduct => throw new NotSupportedException(msg),
@@ -377,7 +381,7 @@ namespace dMobile.View.Forms
             EDialogTypes modelType,
             SysCommon.ActSubTypes actSubType,
             SLabelQuantity labelQtyEdit,
-            Activity activity,
+            Controller.Activity.Activity activity,
             ShippingLabelQuantitySelectionMode selectMode)
         {
             IDMobileModal model = modelType switch
@@ -432,7 +436,7 @@ namespace dMobile.View.Forms
         /// <returns><see cref="IDMobileModal"/> Model.</returns>
         private IDMobileModal GetModel(
             EDialogTypes modelType,
-            Activity activity,
+            Controller.Activity.Activity activity,
             SysCommon.ActSubTypes actSubType)
         {
             IDMobileModal model = modelType switch
@@ -657,8 +661,8 @@ namespace dMobile.View.Forms
         {
             IDMobileModal model = modelType switch
             {
-                EDialogTypes.SelectProduct => new ucSelectProduct(),
-                EDialogTypes.SelectLocationMap => new ucSetLocationMap(),
+                EDialogTypes.SelectProduct => new SelectProduct(),
+                EDialogTypes.SelectLocationMap => new SetLocationMap(),
                 EDialogTypes.ActivityHdrPickingFilter => new ucActivityHdrPickingFilter(),
                 EDialogTypes.ActivityHdrReceivingFilter => new ActivityHdrReceivingFilter(),
                 EDialogTypes.ActivityHdrPhysicalCountFilter => new ActivityHdrPhysicalCountFilter(),

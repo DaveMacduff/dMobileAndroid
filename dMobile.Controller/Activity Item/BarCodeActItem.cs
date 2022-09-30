@@ -2,23 +2,22 @@
 // Copyright (c) InterSect Business Systems Inc. All rights reserved.
 // </copyright>
 
-namespace dMobile.Controller
-{
-    using System;
-    using System.Collections.Generic;
-    using System.Collections.ObjectModel;
-    using System.Data;
-    using System.Linq;
-    using System.Text;
-    using System.Threading.Tasks;
-    using System.Xml;
-    using System.Xml.Linq;
-    using dMobile.Bedrock;
-    using dMobile.Resources.Models;
-    using dMobile.Resources.Types;
-    using SQLite;
-    using Xamarin.Forms;
+using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.Xml;
+using System.Xml.Linq;
+using dMobile.Bedrock;
+using dMobile.Resources.Models;
+using dMobile.Resources.Types;
+using SQLite;
+using Xamarin.Forms;
 
+namespace dMobile.Controller.Activity_Item
+{
     /// <summary>
     /// Defines the <see cref="BarCodeActItem" />.
     /// </summary>
@@ -33,7 +32,7 @@ namespace dMobile.Controller
         /// Initializes a new instance of the <see cref="BarCodeActItem"/> class.
         /// </summary>
         /// <param name="activity">.</param>
-        public BarCodeActItem(Activity activity)
+        public BarCodeActItem(Activity.Activity activity)
           : base(activity)
         {
             this.FullClassName = typeof(BarCodeActItem).FullName;

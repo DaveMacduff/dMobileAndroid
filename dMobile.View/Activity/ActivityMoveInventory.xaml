@@ -3,23 +3,32 @@
     xmlns:custompages="clr-namespace:dMobile.View.CustomPages"
     xmlns="http://xamarin.com/schemas/2014/forms"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-    xmlns:Helpers="clr-namespace:dMobile.View.Helpers"
+    xmlns:helpers="clr-namespace:dMobile.View.Helpers" xmlns:modal="clr-namespace:dMobile.View.CustomPages.Modal"
     x:Class="dMobile.View.Activity.ActivityMoveInventory">
     <ContentPage.ToolbarItems>
-        <ToolbarItem x:Name="optionsMenu" IconImageSource="{Binding OptionsIconSource}" Clicked="OptionsMenu_Clicked" />
+        <ToolbarItem x:Name="OptionsMenu"
+                     IconImageSource="{Binding OptionsIconSource}"
+                     Clicked="OptionsMenu_Clicked" />
     </ContentPage.ToolbarItems>
     <ContentPage.Content>
         <AbsoluteLayout VerticalOptions="Center">
-            <Grid x:Name="gridContainer" Padding="10" AbsoluteLayout.LayoutFlags="All" AbsoluteLayout.LayoutBounds="0,0,1,1">
+            <Grid x:Name="GridContainer"
+                  Padding="10"
+                  AbsoluteLayout.LayoutFlags="All"
+                  AbsoluteLayout.LayoutBounds="0,0,1,1">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto"/>
                     <RowDefinition Height="Auto"/>
                     <RowDefinition Height="3*"/>
                     <RowDefinition Height="*"/>
                     <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
                 </Grid.RowDefinitions>
 
-                <Button x:Name="cmdFromLocation" Clicked="cmdFromLocation_Click" Grid.Row="0" IsEnabled="{Binding Loading, Converter={Helpers:BoolConverter}}"/>
+                <Button x:Name="CmdFromLocation"
+                        Clicked="CmdFromLocation_Click"
+                        Grid.Row="0"
+                        IsEnabled="{Binding Loading, Converter={helpers:BoolConverter}}"/>
 
                 <Grid Grid.Row="1">
                     <Grid.ColumnDefinitions>
@@ -29,10 +38,18 @@
                         <ColumnDefinition Width="*"/>
                     </Grid.ColumnDefinitions>
 
-                    <CheckBox x:Name="chkScanToLocation" Grid.Column="0" VerticalOptions="Center" IsEnabled="{Binding Loading, Converter={Helpers:BoolConverter}}"/>
-                    <Label x:Name="lblScanToLocation" Grid.Column="1" VerticalOptions="Center"/>
-                    <Picker x:Name="BarCodeModifier1Picker" Grid.Column="2" IsEnabled="{Binding Loading, Converter={Helpers:BoolConverter}}"/>
-                    <Button x:Name="cmdAdd" Grid.Column="3" Clicked="cmdAdd_Click" IsEnabled="{Binding Loading, Converter={Helpers:BoolConverter}}"/>
+                    <CheckBox x:Name="ChkScanToLocation"
+                              Grid.Column="0"
+                              VerticalOptions="Center"
+                              IsEnabled="{Binding Loading, Converter={helpers:BoolConverter}}"/>
+                    <Label x:Name="LblScanToLocation" Grid.Column="1" VerticalOptions="Center"/>
+                    <Picker x:Name="BarCodeModifier1Picker"
+                            Grid.Column="2"
+                            IsEnabled="{Binding Loading, Converter={helpers:BoolConverter}}"/>
+                    <Button x:Name="CmdAdd"
+                            Grid.Column="3"
+                            Clicked="CmdAdd_Click"
+                            IsEnabled="{Binding Loading, Converter={helpers:BoolConverter}}"/>
                 </Grid>
 
                 <Frame Grid.Row="2" OutlineColor="{DynamicResource BorderColor}">
@@ -42,13 +59,21 @@
                                 <RowDefinition Height="Auto"/>
                             </Grid.RowDefinitions>
 
-                            <ListView x:Name="ListViewMainActivity" HasUnevenRows="True" IsEnabled="{Binding Loading, Converter={Helpers:BoolConverter}}" Grid.Row="1"/>
+                            <ListView x:Name="ListViewMainActivity"
+                                      ItemSelected="ListViewMainActivity_ItemSelected"
+                                      HasUnevenRows="True"
+                                      IsEnabled="{Binding Loading, Converter={helpers:BoolConverter}}"
+                                      Grid.Row="0"/>
                         </Grid>
                     </ScrollView>
                 </Frame>
 
                 <Frame Grid.Row="3" OutlineColor="{DynamicResource BorderColor}">
-                    <ListView x:Name="ListViewDisplayExtraInfo" SelectionMode="None" HasUnevenRows="True" IsEnabled="{Binding Loading, Converter={Helpers:BoolConverter}}" SeparatorVisibility="None">
+                    <ListView x:Name="ListViewDisplayExtraInfo"
+                              SelectionMode="None"
+                              HasUnevenRows="True"
+                              IsEnabled="{Binding Loading, Converter={helpers:BoolConverter}}"
+                              SeparatorVisibility="None">
                         <ListView.ItemTemplate>
                             <DataTemplate>
                                 <ViewCell>
@@ -61,7 +86,14 @@
                     </ListView>
                 </Frame>
 
-                <Button x:Name="cmdToLocation" Grid.Row="4" Clicked="cmdToLocation_Click" IsEnabled="{Binding Loading, Converter={Helpers:BoolConverter}}"/>
+                <Button x:Name="CmdToLocation"
+                        Grid.Row="4"
+                        Clicked="CmdToLocation_Click"
+                        IsEnabled="{Binding Loading, Converter={helpers:BoolConverter}}"/>
+                <Button x:Name="CmdPerformMove"
+                        Grid.Row="5"
+                        Clicked="CmdPerformMove_Clicked"
+                        IsEnabled="{Binding Loading, Converter={helpers:BoolConverter}}"/>
             </Grid>
 
             <ActivityIndicator IsVisible="{Binding Loading}" 

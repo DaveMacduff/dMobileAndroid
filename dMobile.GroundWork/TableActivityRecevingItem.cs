@@ -316,7 +316,7 @@ namespace dMobile.GroundWork
         /// </summary>
         /// <param name="recvFKRefno"></param>
         /// <returns></returns>
-        protected override async Task<string> CreateRequest(int recvFKRefno)
+        protected override Task<string> CreateRequest(int recvFKRefno)
         {
             var xmlString = new StringBuilder();
             var xml = XmlWriter.Create(xmlString);
@@ -340,7 +340,7 @@ namespace dMobile.GroundWork
             xml.Flush();
             xml.Close();
 
-            return xmlString.ToString();
+            return Task.FromResult(xmlString.ToString());
         }
     }
 }

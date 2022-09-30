@@ -2,25 +2,24 @@
 // Copyright (c) InterSect Business Systems Inc. All rights reserved.
 // </copyright>
 
-namespace dMobile.Controller
-{
-    using System;
-    using System.Collections.Generic;
-    using System.Collections.ObjectModel;
-    using System.Data;
-    using System.Linq;
-    using System.Text;
-    using System.Threading.Tasks;
-    using System.Xml;
-    using System.Xml.Linq;
-    using dMobile.Bedrock;
-    using dMobile.GroundWork;
-    using dMobile.Resources.Models;
-    using dMobile.Resources.Services;
-    using dMobile.Resources.Types;
-    using SQLite;
-    using Xamarin.Forms;
+using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.Xml;
+using System.Xml.Linq;
+using dMobile.Bedrock;
+using dMobile.GroundWork;
+using dMobile.Resources.Models;
+using dMobile.Resources.Services;
+using dMobile.Resources.Types;
+using SQLite;
+using Xamarin.Forms;
 
+namespace dMobile.Controller.Activity_Item
+{
     /// <summary>
     /// Defines the <see cref="PickingActItem" />.
     /// </summary>
@@ -80,7 +79,7 @@ namespace dMobile.Controller
         /// Initializes a new instance of the <see cref="PickingActItem"/> class.
         /// </summary>
         /// <param name="activity">.</param>
-        public PickingActItem(Activity activity)
+        public PickingActItem(Activity.Activity activity)
           : base(activity)
         {
             this.FullClassName = typeof(PickingActItem).FullName;

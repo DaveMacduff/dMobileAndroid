@@ -2,6 +2,10 @@
 // Copyright (c) InterSect Business Systems Inc. All rights reserved.
 // </copyright>
 
+using dMobile.Controller.Activity;
+using dMobile.Controller.Activity_Detail;
+using dMobile.Controller.Activity_Item;
+
 namespace dMobile.View.Activity
 {
     using System;
@@ -200,7 +204,7 @@ namespace dMobile.View.Activity
 
         private bool IsBarCodeRegistered { get; set; } = false;
 
-        private Activity Activity { get; set; }
+        private Controller.Activity.Activity Activity { get; set; }
 
         private ActItem ActItem { get; set; }
 

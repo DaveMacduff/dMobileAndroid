@@ -2,21 +2,22 @@
 // Copyright (c) InterSect Business Systems Inc. All rights reserved.
 // </copyright>
 
-namespace dMobile.Controller
-{
-    using System;
-    using System.Collections.Generic;
-    using System.Collections.ObjectModel;
-    using System.Threading.Tasks;
-    using System.Xml;
-    using System.Xml.Linq;
-    using dMobile.Bedrock;
-    using dMobile.GroundWork;
-    using dMobile.Resources.Models;
-    using dMobile.Resources.Types;
-    using SQLite;
-    using Xamarin.Forms;
+using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Threading.Tasks;
+using System.Xml;
+using System.Xml.Linq;
+using dMobile.Bedrock;
+using dMobile.Controller.Activity_Item;
+using dMobile.GroundWork;
+using dMobile.Resources.Models;
+using dMobile.Resources.Types;
+using SQLite;
+using Xamarin.Forms;
 
+namespace dMobile.Controller.Activity_Detail
+{
     /// <summary>
     /// <see cref="ActDetail" /> Activity detail base class.
     /// </summary>
@@ -218,12 +219,12 @@ namespace dMobile.Controller
         /// <summary>
         /// Design the activity detail grid.
         /// </summary>
-        /// <param name="gridMainActivity"><see cref="Grid"/> Main activity grid.</param>
-        /// <param name="listViewMainActivity"><see cref="ListView"/> List view of activity details.</param>
+        /// <param name="gridMain"><see cref="Grid"/> Main activity grid.</param>
+        /// <param name="listViewMain"><see cref="ListView"/> List view of activity details.</param>
         /// <returns><see cref="ObservableCollection{object}"/> Constructed observable collection.</returns>
         public abstract ObservableCollection<object> DesignGrid(
-            ref Grid gridMainActivity,
-            ref ListView listViewMainActivity);
+            ref Grid gridMain,
+            ref ListView listViewMain);
 
         /// <summary>
         /// Design activity grid template.
@@ -262,15 +263,17 @@ namespace dMobile.Controller
                 // detail.LocationMapRefno could be a warehouse or even a slot.
                 this.SelectedLocMap = await LocationMapTasks.GetSLocMapFromLocMapRefno(detail.LocationMapRefno);
 
-                var schemeData = new SProductSchemeData();
-                schemeData.LogisticUnitBatchLotNumber = detail.ActivityDetailLogisticUnitBatchLotNumber;
-                schemeData.LogisticUnitBestBeforeSellByDate = detail.ActivityDetailLogisticUnitBestBeforeSellByDate;
-                schemeData.LogisticUnitProductionDate = detail.ActivityDetailLogisticUnitProductionDate;
-                schemeData.LogisticUnitSkidNumber = detail.ActivityDetailLogisticUnitSkidNumber;
-                schemeData.SingleTradeItemSerialNumber = detail.ActivityDetailSingleTradeItemSerialNumber;
-                schemeData.VariantCode = detail.ProductSchemeVariantCode;
-                schemeData.VariantDescription = detail.ProductSchemeVariantDescription;
-                schemeData.VariantNumber = detail.ProductSchemeVariantNo;
+                var schemeData = new SProductSchemeData
+                {
+                    LogisticUnitBatchLotNumber = detail.ActivityDetailLogisticUnitBatchLotNumber,
+                    LogisticUnitBestBeforeSellByDate = detail.ActivityDetailLogisticUnitBestBeforeSellByDate,
+                    LogisticUnitProductionDate = detail.ActivityDetailLogisticUnitProductionDate,
+                    LogisticUnitSkidNumber = detail.ActivityDetailLogisticUnitSkidNumber,
+                    SingleTradeItemSerialNumber = detail.ActivityDetailSingleTradeItemSerialNumber,
+                    VariantCode = detail.ProductSchemeVariantCode,
+                    VariantDescription = detail.ProductSchemeVariantDescription,
+                    VariantNumber = detail.ProductSchemeVariantNo,
+                };
                 this.SchemeData = schemeData;
 
                 this.SchemeID = detail.ActivityDetailSchemeID;
@@ -279,15 +282,9 @@ namespace dMobile.Controller
                 this.ActExtra.Text2 = detail.ActivityDetailExtra2Text;
                 this.ActExtra.Text3 = detail.ActivityDetailExtra3Text;
                 this.ActExtra.Text4 = detail.ActivityDetailExtra4Text;
-                if (detail.ActivityDetailExtra5Date == null ||
-                    detail.ActivityDetailExtra5Date <= SysCommon.EmptyDateTime)
-                {
-                    this.ActExtra.DateTime1 = SysCommon.EmptyDateTime;
-                }
-                else
-                {
-                    this.ActExtra.DateTime1 = detail.ActivityDetailExtra5Date;
-                }
+                this.ActExtra.DateTime1 = detail.ActivityDetailExtra5Date <= SysCommon.EmptyDateTime
+                    ? SysCommon.EmptyDateTime
+                    : detail.ActivityDetailExtra5Date;
             }
             else
             {
@@ -867,10 +864,16 @@ namespace dMobile.Controller
         public abstract ActivityDetail InsertListDetail(ObservableCollection<object> mainActivityItems);
 
         /// <summary>
+        /// Update detail in the detail list.
+        /// </summary>
+        /// <param name="listDetailIdx"><see cref="int"/> Zero based list detail index.</param>
+        public abstract void UpdateListDetail(int listDetailIdx);
+
+        /// <summary>
         /// Assign activity detail product information from the activity item.
         /// </summary>
         /// <param name="detail"><see cref="ActivityDetail"/> detail object.</param>
-        public virtual void InsertListDetailProduct(ActivityDetail detail)
+        protected virtual void InsertListDetailProduct(ActivityDetail detail)
         {
             detail.ProductRefno = this.ActItem.ProdInfo.Refno;
             detail.ProductUnitRefno = this.ActItem.ProdInfo.UnitRefno;
@@ -889,7 +892,7 @@ namespace dMobile.Controller
         /// Assign activity detail location information from the current location.
         /// </summary>
         /// <param name="detail"><see cref="ActivityDetail"/> detail object.</param>
-        public virtual void InsertListDetailLocation(ActivityDetail detail)
+        protected virtual void InsertListDetailLocation(ActivityDetail detail)
         {
             detail.LocationMapRefno = this.LocMap.CurrLocMapRefno;
 
@@ -920,7 +923,7 @@ namespace dMobile.Controller
         /// Assign activity detail scheme information from the scheme data.
         /// </summary>
         /// <param name="detail"><see cref="ActivityDetail"/> detail object.</param>
-        public virtual void InsertListDetailScheme(ActivityDetail detail)
+        protected virtual void InsertListDetailScheme(ActivityDetail detail)
         {
             detail.ProductSchemeVariantCode = this.SchemeData.VariantCode;
             detail.ProductSchemeVariantNo = this.SchemeData.VariantNumber;
@@ -935,7 +938,7 @@ namespace dMobile.Controller
         /// Assign activity detail extra information from the activity extra data.
         /// </summary>
         /// <param name="detail"><see cref="ActivityDetail"/> detail object.</param>
-        public virtual void InsertListDetailExtra(ActivityDetail detail)
+        protected virtual void InsertListDetailExtra(ActivityDetail detail)
         {
             detail.ActivityDetailExtra1Text = this.ActExtra.Text1;
             detail.ActivityDetailExtra2Text = this.ActExtra.Text2;
@@ -948,7 +951,7 @@ namespace dMobile.Controller
         /// Assign activity detail quantity information from the activity quantity data.
         /// </summary>
         /// <param name="detail"><see cref="ActivityDetail"/> detail object.</param>
-        public virtual void InsertListDetailQuantity(ActivityDetail detail)
+        protected virtual void InsertListDetailQuantity(ActivityDetail detail)
         {
             detail.ActivityDetailQuantity = Math.Round(this.Quantity, 3);
             detail.ActivityDetailBaseQuantity = Math.Round(this.BaseQuantity, 3);
@@ -956,16 +959,10 @@ namespace dMobile.Controller
         }
 
         /// <summary>
-        /// Update detail in the detail list.
-        /// </summary>
-        /// <param name="listDetailIdx"><see cref="int"/> Zero based list detail index.</param>
-        public abstract void UpdateListDetail(int listDetailIdx);
-
-        /// <summary>
         /// Insert the activity detail.
         /// </summary>
         /// <param name="sendReq"><see cref="string"/> Submission request.</param>
-        public void SubmitDetailToCommServer(string sendReq)
+        protected void SubmitDetailToCommServer(string sendReq)
         {
             var reqData = SysCommon.SubmitComm(sendReq);
             var xmlData = new XmlDocument();
@@ -997,13 +994,13 @@ namespace dMobile.Controller
         /// Insert activity detail in disconnected mode.
         /// </summary>
         /// <returns><see cref="int"/> Inserted activity detail reference number.</returns>
-        public async Task<int> InsertDetailDisconnected()
+        protected async Task<int> InsertDetailDisconnected()
         {
             var conn = DatabaseConnection.GetInstance().SQLConn;
             int actDetailRefno;
             try
             {
-                if (string.Compare(this.UniqueSchemeID, string.Empty) > 0)
+                if (string.CompareOrdinal(this.UniqueSchemeID, string.Empty) > 0)
                 {
                     var isDupSchemeId = await ProductInfoTasks.IsDuplicateUniqueSchemeID(this.UniqueSchemeID);
                     if (isDupSchemeId)
@@ -1158,7 +1155,7 @@ namespace dMobile.Controller
         /// <param name="e"><see cref="EventArgs"/> Sender event arguments.</param>
         /// <param name="outMessage"><see cref="string"/> Status out message.</param>
         /// <param name="overrideDisconnectedMode"><see cref="bool"/> Do not raise event if in disconnected mode.</param>
-        public void DataLayerStatusOutHandler(
+        protected void DataLayerStatusOutHandler(
             object sender,
             EventArgs e,
             string outMessage,
@@ -1183,7 +1180,7 @@ namespace dMobile.Controller
         /// <param name="currentValue"><see cref="int"/> Current progress value.</param>
         /// <param name="minValue"><see cref="int"/> Minimum progress value.</param>
         /// <param name="maxValue"><see cref="int"/> Maximum progress value.</param>
-        public void DataLayerProgressOutHandler(object sender, EventArgs e, int currentValue, int minValue, int maxValue)
+        protected void DataLayerProgressOutHandler(object sender, EventArgs e, int currentValue, int minValue, int maxValue)
         {
             if (this.OnDataLayerProgressOut != null)
             {
@@ -1201,7 +1198,7 @@ namespace dMobile.Controller
         /// <param name="sender"><see cref="object"/> Sender object.</param>
         /// <param name="e"><see cref="EventArgs"/> Sender event arguments.</param>
         /// <param name="currentValue"><see cref="int"/> Current progress value.</param>
-        public void DataLayerProgressOutHandler(object sender, EventArgs e, int currentValue)
+        protected void DataLayerProgressOutHandler(object sender, EventArgs e, int currentValue)
         {
             if (this.OnDataLayerProgressOut != null)
             {

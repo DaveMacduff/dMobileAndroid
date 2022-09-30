@@ -2,17 +2,17 @@
 // Copyright (c) InterSect Business Systems Inc. All rights reserved.
 // </copyright>
 
-namespace dMobile.Controller
-{
-    using System;
-    using System.Collections.Generic;
-    using System.Collections.ObjectModel;
-    using System.Threading.Tasks;
-    using System.Xml.Linq;
-    using dMobile.Bedrock;
-    using dMobile.Resources.Models;
-    using Xamarin.Forms;
+using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Threading.Tasks;
+using System.Xml.Linq;
+using dMobile.Bedrock;
+using dMobile.Resources.Models;
+using Xamarin.Forms;
 
+namespace dMobile.Controller.Activity_Item
+{
     /// <summary>
     /// Defines the <see cref="AssignDefaultLocActItem" />.
     /// </summary>
@@ -22,7 +22,7 @@ namespace dMobile.Controller
         /// Initializes a new instance of the <see cref="AssignDefaultLocActItem"/> class.
         /// </summary>
         /// <param name="activity">.</param>
-        public AssignDefaultLocActItem(Activity activity)
+        public AssignDefaultLocActItem(Activity.Activity activity)
             : base(activity)
         {
             this.FullClassName = typeof(AssignDefaultLocActItem).FullName;

@@ -2,23 +2,23 @@
 // Copyright (c) InterSect Business Systems Inc. All rights reserved.
 // </copyright>
 
-namespace dMobile.Controller
-{
-    using System;
-    using System.Collections.Generic;
-    using System.Collections.ObjectModel;
-    using System.Data;
-    using System.Linq;
-    using System.Text;
-    using System.Threading.Tasks;
-    using System.Xml;
-    using System.Xml.Linq;
-    using dMobile.Bedrock;
-    using dMobile.GroundWork;
-    using dMobile.Resources.Services;
-    using dMobile.Resources.Types;
-    using Xamarin.Forms;
+using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.Xml;
+using System.Xml.Linq;
+using dMobile.Bedrock;
+using dMobile.Controller.Activity_Item;
+using dMobile.GroundWork;
+using dMobile.Resources.Services;
+using dMobile.Resources.Types;
+using Xamarin.Forms;
 
+namespace dMobile.Controller.Activity_Detail
+{
     /// <summary>
     /// Create the picking activity detail class.
     /// </summary>
@@ -889,11 +889,11 @@ namespace dMobile.Controller
         /// Design the activity grid.
         /// </summary>
         /// <param name="gridMain"><see cref="Grid"/> Activity grid.</param>
-        /// <param name="mainActivity"><see cref="ListView"/> Main activity.</param>
+        /// <param name="listViewMain"><see cref="ListView"/> Main activity.</param>
         /// <returns><see cref="ObservableCollection(object)"/> Observable collection.</returns>
         public override ObservableCollection<object> DesignGrid(
             ref Grid gridMain,
-            ref ListView mainActivity)
+            ref ListView listViewMain)
         {
             var observableCollection = new ObservableCollection<object>();
 
@@ -1039,7 +1039,7 @@ namespace dMobile.Controller
                 }
             }
 
-            mainActivity.ItemTemplate = (DataTemplate)this.ResourceDictionary["dataTemplatePickingDetail"];
+            listViewMain.ItemTemplate = (DataTemplate)this.ResourceDictionary["dataTemplatePickingDetail"];
 
             return observableCollection;
         }

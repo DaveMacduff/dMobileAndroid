@@ -2,7 +2,9 @@
 // Copyright (c) InterSect Business Systems Inc. All rights reserved.
 // </copyright>
 
-namespace dMobile.Controller
+using dMobile.Controller.Activity_Item;
+
+namespace dMobile.Controller.Activity_Detail
 {
     /// <summary>
     /// Defines the <see cref="AssignDefaultLocActDetailFactory" /> Assign default location activity detail factory.
