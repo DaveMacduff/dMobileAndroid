@@ -14,7 +14,7 @@ namespace dMobile.Resources.Models
         [Indexed(Name = "UQ_ActivityPickingOnActivityRefnoAndActivitySubType", Order = 1, Unique = true)]
         [PrimaryKey]
         [NotNull]
-        [ForeignKey(typeof(tActivityModel))]
+        [ForeignKey(typeof(ActivityModel))]
         public int ActivityRefno { get; set; }
 
         [Indexed(Name = "UQ_ActivityPickingOnActivityRefnoAndActivitySubType", Order = 2, Unique = true)]

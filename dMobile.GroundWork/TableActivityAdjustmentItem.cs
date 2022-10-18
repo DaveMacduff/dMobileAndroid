@@ -1,4 +1,4 @@
-﻿// <copyright file="TableActivityItemAdjustment.cs" company="InterSect Business Systems Inc">
+﻿// <copyright file="TableActivityAdjustmentItem.cs" company="InterSect Business Systems Inc">
 // Copyright (c) InterSect Business Systems Inc. All rights reserved.
 // </copyright>
 
@@ -44,7 +44,7 @@ namespace dMobile.GroundWork
                 {
                     var query = "SELECT * FROM tActivity WHERE ActivitySubType = ?";
 
-                    var results = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<tActivityModel>(query, Convert.ToInt32(SysCommon.ActSubTypes.Adjustment));
+                    var results = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<ActivityModel>(query, Convert.ToInt32(SysCommon.ActSubTypes.Adjustment));
 
                     if (results != null && results.Count > 0)
                     {
@@ -160,7 +160,7 @@ namespace dMobile.GroundWork
         /// <returns></returns>
         protected override async Task<string> SendRequest(int actRefno)
         {
-            var results = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<tActivityAdjustmentModel>("SELECT * FROM tActivityAdjustment WHERE ActivityRefno = ?", actRefno);
+            var results = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<ActivityAdjustmentModel>("SELECT * FROM tActivityAdjustment WHERE ActivityRefno = ?", actRefno);
 
             int actAdjFKRefno;
             if (results?.Count > 0)

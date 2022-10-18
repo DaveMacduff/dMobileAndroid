@@ -1,4 +1,4 @@
-// <copyright file="clsPutAwaySkidActivityItemFactory.cs" company="InterSect Business Systems Inc">
+// <copyright file="PutAwaySkidActItemFactory.cs" company="InterSect Business Systems Inc">
 // Copyright (c) InterSect Business Systems Inc. All rights reserved.
 // </copyright>
 

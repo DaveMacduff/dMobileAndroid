@@ -2,13 +2,12 @@
 // Copyright (c) InterSect Business Systems Inc. All rights reserved.
 // </copyright>
 
-namespace dMobile.View
-{
-    using System.Collections.Generic;
-    using dMobile.Bedrock;
-    using dMobile.View.Themes;
-    using Xamarin.Forms;
+using dMobile.Bedrock;
+using dMobile.View.Pages.Themes;
+using Xamarin.Forms;
 
+namespace dMobile.View.Pages
+{
     public partial class App : Application
     {
         /// <summary>

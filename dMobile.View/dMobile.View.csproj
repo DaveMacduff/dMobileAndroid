@@ -49,6 +49,9 @@
     <PackageReference Include="Xamarin.Forms" Version="4.8.0.1821" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Update="Activity\ActivityConvertUnitEditCatch.xaml.cs">
+      <DependentUpon>ActivityConvertUnitEditCatch.xaml</DependentUpon>
+    </Compile>
     <Compile Update="Activity\ActivityHdr.xaml.cs">
       <DependentUpon>ActivityHdr.xaml</DependentUpon>
     </Compile>
@@ -154,6 +157,66 @@
     <Compile Update="CustomControls\LocationMapInfo.xaml.cs">
       <DependentUpon>LocationMapInfo.xaml</DependentUpon>
     </Compile>
+    <Compile Update="Menus\SalesOrdersMenu.xaml.cs">
+      <DependentUpon>SalesOrdersMenu.xaml</DependentUpon>
+    </Compile>
+    <Compile Update="Menus\PurchaseOrdersMenu.xaml.cs">
+      <DependentUpon>PurchaseOrdersMenu.xaml</DependentUpon>
+    </Compile>
+    <Compile Update="Menus\OptionsMenu.xaml.cs">
+      <DependentUpon>OptionsMenu.xaml</DependentUpon>
+    </Compile>
+    <Compile Update="Menus\ProductionTicketMenu.xaml.cs">
+      <DependentUpon>ProductionTicketMenu.xaml</DependentUpon>
+    </Compile>
+    <Compile Update="Menus\MainMenu.xaml.cs">
+      <DependentUpon>MainMenu.xaml</DependentUpon>
+    </Compile>
+    <Compile Update="Menus\InventoryMovementMenu.xaml.cs">
+      <DependentUpon>InventoryMovementMenu.xaml</DependentUpon>
+    </Compile>
+    <Compile Update="Menus\InventoryCountsMenu.xaml.cs">
+      <DependentUpon>InventoryCountsMenu.xaml</DependentUpon>
+    </Compile>
+    <Compile Update="Menus\InventoryMenu.xaml.cs">
+      <DependentUpon>InventoryMenu.xaml</DependentUpon>
+    </Compile>
+    <Compile Update="Menus\InventoryAdjustmentsMenu.xaml.cs">
+      <DependentUpon>InventoryAdjustmentsMenu.xaml</DependentUpon>
+    </Compile>
+    <Compile Update="Menus\UtilitiesMenu.xaml.cs">
+      <DependentUpon>UtilitiesMenu.xaml</DependentUpon>
+    </Compile>
+    <Compile Update="Options\SubmitBatchFilter.xaml.cs">
+      <DependentUpon>SubmitBatchFilter.xaml</DependentUpon>
+    </Compile>
+    <Compile Update="Options\SubmitBatch.xaml.cs">
+      <DependentUpon>SubmitBatch.xaml</DependentUpon>
+    </Compile>
+    <Compile Update="Options\SetupDefaults.xaml.cs">
+      <DependentUpon>SetupDefaults.xaml</DependentUpon>
+    </Compile>
+    <Compile Update="Options\RefreshDataStatus.xaml.cs">
+      <DependentUpon>RefreshDataStatus.xaml</DependentUpon>
+    </Compile>
+    <Compile Update="Options\RefreshDataOptions.xaml.cs">
+      <DependentUpon>RefreshDataOptions.xaml</DependentUpon>
+    </Compile>
+    <Compile Update="Options\CommunicationSetupAdvanced.xaml.cs">
+      <DependentUpon>CommunicationSetupAdvanced.xaml</DependentUpon>
+    </Compile>
+    <Compile Update="Options\CommunicationSetupStatus.xaml.cs">
+      <DependentUpon>CommunicationSetupStatus.xaml</DependentUpon>
+    </Compile>
+    <Compile Update="Options\CommunicationSetup.xaml.cs">
+      <DependentUpon>CommunicationSetup.xaml</DependentUpon>
+    </Compile>
+    <Compile Update="Options\About.xaml.cs">
+      <DependentUpon>About.xaml</DependentUpon>
+    </Compile>
+    <Compile Update="Utilities\AssignDefaultLocation.xaml.cs">
+      <DependentUpon>AssignDefaultLocation.xaml</DependentUpon>
+    </Compile>
     <Compile Update="Views\SelectProductUnit.xaml.cs">
       <DependentUpon>SelectProductUnit.xaml</DependentUpon>
     </Compile>
@@ -162,6 +225,15 @@
     </Compile>
     <Compile Update="Views\SelectProduct.xaml.cs">
       <DependentUpon>SelectProduct.xaml</DependentUpon>
+    </Compile>
+    <Compile Update="Views\ActivityConvertUnitWeightEdit.xaml.cs">
+      <DependentUpon>ActivityConvertUnitWeightEdit.xaml</DependentUpon>
+    </Compile>
+    <Compile Update="Views\LoginStartup.xaml.cs">
+      <DependentUpon>LoginStartup.xaml</DependentUpon>
+    </Compile>
+    <Compile Update="Views\SelectSkid.xaml.cs">
+      <DependentUpon>SelectSkid.xaml</DependentUpon>
     </Compile>
   </ItemGroup>
 </Project>

@@ -2,10 +2,6 @@
 // Copyright (c) InterSect Business Systems Inc. All rights reserved.
 // </copyright>
 
-using dMobile.Controller.Activity;
-using dMobile.Controller.Activity_Detail;
-using dMobile.Controller.Activity_Item;
-
 namespace dMobile.View.Activity
 {
     using System;
@@ -23,6 +19,9 @@ namespace dMobile.View.Activity
     using dMobile.BarCodeScanner.BarCodeScanners;
     using dMobile.Bedrock;
     using dMobile.Controller;
+    using dMobile.Controller.Activity;
+    using dMobile.Controller.Activity_Detail;
+    using dMobile.Controller.Activity_Item;
     using dMobile.Resources.Enums;
     using dMobile.Resources.Types;
     using dMobile.View.CustomPages.Modal;
@@ -1774,7 +1773,7 @@ namespace dMobile.View.Activity
             var prodUnitRefno = 0;
             object selectedItem = null;
             var actItemFoundRefno = 0;
-            var tempItemProdSchemeData = new SActItemSchemeData();
+            var tempItemProdSchemeData = new ActItemSchemeData();
 
             try
             {
@@ -2314,7 +2313,7 @@ namespace dMobile.View.Activity
             }
 
             //////////////////////////////////////////////////////////////////////////
-            SProductSchemeData DefaultSchemeDataFromCurrentSkidSchemeDetail(ActDetail actDetail)
+            ProductSchemeData DefaultSchemeDataFromCurrentSkidSchemeDetail(ActDetail actDetail)
             {
                 // Did not use this.ActItem.ActHdr.SkidInfo.CurrSkid.LogisticUnitSkidCode
                 // because of the length of the code and the fact is isn't human readable friendly.

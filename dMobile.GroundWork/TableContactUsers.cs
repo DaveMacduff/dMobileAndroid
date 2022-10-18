@@ -1,4 +1,4 @@
-﻿// <copyright file="TableContactUser.cs" company="InterSect Business Systems Inc">
+﻿// <copyright file="TableContactUsers.cs" company="InterSect Business Systems Inc">
 // Copyright (c) InterSect Business Systems Inc. All rights reserved.
 // </copyright>
 

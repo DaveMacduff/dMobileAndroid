@@ -2,19 +2,12 @@
 // Copyright (c) InterSect Business Systems Inc. All rights reserved.
 // </copyright>
 
-using System.Linq;
-using System.Text;
-using Android.Graphics;
-using Android.Util;
-using dMobile.Controller.Activity;
-using dMobile.Controller.Activity_Detail;
-using dMobile.Controller.Activity_Item;
-
 namespace dMobile.View.Activity
 {
     using System;
     using System.Collections.Generic;
     using System.Collections.ObjectModel;
+    using System.Linq;
     using System.Threading.Tasks;
     using System.Xml.Linq;
     using Android.Views;
@@ -22,6 +15,9 @@ namespace dMobile.View.Activity
     using dMobile.BarCodeScanner.BarCodeScanners;
     using dMobile.Bedrock;
     using dMobile.Controller;
+    using dMobile.Controller.Activity;
+    using dMobile.Controller.Activity_Detail;
+    using dMobile.Controller.Activity_Item;
     using dMobile.Resources.Enums;
     using dMobile.Resources.Types;
     using dMobile.View.CustomPages;
@@ -36,11 +32,6 @@ namespace dMobile.View.Activity
     [XamlCompilation(XamlCompilationOptions.Compile)]
     public partial class ActivityMoveInventory : DMobileContentPage, IAppArea, IDataLayerEventListener
     {
-        /// <summary>
-        /// Defines the option menu items list.
-        /// </summary>
-        private readonly List<string> optionsMenuItems = new List<string>();
-
         /// <summary>
         /// Initializes a new instance of the <see cref="ActivityMoveInventory"/> class.
         /// </summary>
@@ -81,11 +72,16 @@ namespace dMobile.View.Activity
             this.ActDetail.ActItem = this.ActItem;
             this.ActDetail.ActExtra = new ActDetailExtra();
 
-            this.optionsMenuItems.Clear();
-            this.optionsMenuItems.Add("Save");
-            this.optionsMenuItems.Add("Cancel");
-
+            CreateOptionsMenu();
             ParseAndSeedBarCodeModifier();
+
+            //////////////////////////////////////////////////////////////////////////
+            void CreateOptionsMenu()
+            {
+                this.OptionsMenuItems.Clear();
+                this.OptionsMenuItems.Add("Save");
+                this.OptionsMenuItems.Add("Cancel");
+            }
 
             //////////////////////////////////////////////////////////////////////////
             void ParseAndSeedBarCodeModifier()
@@ -116,6 +112,11 @@ namespace dMobile.View.Activity
         }
 
         /// <summary>
+        /// Gets the option menu items list.
+        /// </summary>
+        private List<string> OptionsMenuItems { get; } = new List<string>();
+
+        /// <summary>
         /// Gets or sets a value indicating whether to performing loading data upon got focus.
         /// </summary>
         private bool IsFirstAppearance { get; set; } = true;
@@ -123,6 +124,7 @@ namespace dMobile.View.Activity
         /// <summary>
         /// Gets or sets the selected activity detail foreign key reference number.
         /// </summary>
+        // ReSharper disable once InconsistentNaming
         private int SelectedActivityDetailFKRefno { get; set; } = 0;
 
         /// <summary>
@@ -211,12 +213,12 @@ namespace dMobile.View.Activity
         private BarCodeParse BarCodeParse { get; set; } = null;
 
         /// <summary>
-        /// Gets or sets the ExtraInfoItems.
+        /// Gets or sets the model bound to view, activity items extra information. Changes made will update the UI.
         /// </summary>
         private ObservableCollection<string> ExtraInfoItems { get; set; }
 
         /// <summary>
-        /// Gets or sets the MainActivityItems.
+        /// Gets or sets the model bound to view, activity items list view. Changes made will update the UI.
         /// </summary>
         private ObservableCollection<object> MainActivityItems { get; set; }
 
@@ -255,20 +257,6 @@ namespace dMobile.View.Activity
         }
 
         /// <summary>
-        /// Registers the bar code scan event handler and enables the scanner.
-        /// </summary>
-        /// <returns><see cref="Task"/> Task operation.</returns>
-        public async Task ScannerStart()
-        {
-            if (this.Scanner != null)
-            {
-                await this.Scanner.Start();
-                this.Scanner.BarCodeScan += new BarCodeScanner.BarCodeScanEventHandler(this.BarCodeHandler);
-                this.IsBarCodeHandlerRegistered = true;
-            }
-        }
-
-        /// <summary>
         /// The IsReadyToSave.
         /// </summary>
         /// <returns>.</returns>
@@ -302,7 +290,16 @@ namespace dMobile.View.Activity
 
                     await Device.InvokeOnMainThreadAsync(async () => await this.DisplayAlert(
                         "Send Moves",
-                        "The \'From\' And \'To\' Warehouse(s) Must Be The Same",
+                        "The \'From\' And \'To\' Warehouse(s) must be the same.",
+                        "OK"));
+                }
+                else if (this.SelFromCurrLocMapRefno == this.SelToCurrLocMapRefno)
+                {
+                    isReadyToSave = false;
+
+                    await Device.InvokeOnMainThreadAsync(async () => await this.DisplayAlert(
+                        "Send Moves",
+                        "The \'From\' And \'To\' Location must not be the same.",
                         "OK"));
                 }
             }
@@ -431,7 +428,7 @@ namespace dMobile.View.Activity
                                 "</to_slot_refno>" + "</param>");
 
                             await this.ActDetail.Submit(this.ActDetail.ListDetails[idx], xmlParam);
-                            ((MoveDetail)this.ActDetail.ListDetails[idx]).ActivityDetailStatus = (int)SysCommon.ActStatus.NoChange;
+                            ////((MoveDetail)this.ActDetail.ListDetails[idx]).ActivityDetailStatus = (int)SysCommon.ActStatus.NoChange;
                         }
                     }
                     catch (Exception ex)
@@ -442,7 +439,6 @@ namespace dMobile.View.Activity
                                 Convert.ToString("Submit Move Failed" + Environment.NewLine + ex.Message),
                                 "Cancel",
                                 "Continue"));
-
                         if (result)
                         {
                             isSaveComplete = false;
@@ -554,7 +550,7 @@ namespace dMobile.View.Activity
                     this.IsFirstAppearance = false;
                     this.ListViewDisplayExtraInfo.ItemsSource = this.ExtraInfoItems;
 
-                    await this.ScannerStart();
+                    await ScannerStart();
 
                     if (this.MainActivityItems == null || this.MainActivityItems.Count == 0)
                     {
@@ -605,6 +601,18 @@ namespace dMobile.View.Activity
             {
                 this.Loading = false;
             }
+
+            //////////////////////////////////////////////////////////////////////////
+            async Task ScannerStart()
+            {
+                if (this.Scanner != null)
+                {
+                    await this.Scanner.Start();
+                    this.Scanner.BarCodeScan += new BarCodeScanner.BarCodeScanEventHandler(this.BarCodeHandler);
+                    this.IsBarCodeHandlerRegistered = true;
+                }
+            }
+
         }
 
         /// <summary>
@@ -632,6 +640,7 @@ namespace dMobile.View.Activity
                 _ = base.OnBackButtonPressed();
                 if (await this.CancelChanges())
                 {
+                    await this.ActDisappearing();
                     await this.Close();
                 }
             }
@@ -769,6 +778,17 @@ namespace dMobile.View.Activity
                     }
                 }
             }
+        }
+
+        /// <summary>
+        /// Unsubscribe key up handlers, turn off scanner.
+        /// </summary>
+        /// <returns><see cref="Task"/> Task operation.</returns>
+        private async Task ActDisappearing()
+        {
+            await this.ScannerDisable();
+            MessagingCenter.Unsubscribe<string>(this, EventTypes.OnKeyUp.ToString());
+            base.OnDisappearing();
         }
 
         /// <summary>
@@ -923,7 +943,7 @@ namespace dMobile.View.Activity
         {
             try
             {
-                await this.ScannerDisable();
+                await this.ActDisappearing();
 
                 //--- Perform validations to see if add can be performed.
                 if (!await LocationMapTasks.IsCompleteLocMap(this.LocMap.CurrLocMap))
@@ -949,7 +969,8 @@ namespace dMobile.View.Activity
                 // Scheme data has already been validated.
                 // Moves could be used to fix quantities if we allowed less than or equal to zero values.
                 // This moves module will not be used for this purpose. Rather counts should be used to reconcile quantity.
-                if (this.ActDetail.Quantity <= 0 || this.ActDetail.BaseQuantity <= 0 || this.ActDetail.WeightQuantity <= 0)
+                if (this.ActDetail.Quantity <= 0 || this.ActDetail.BaseQuantity <= 0 ||
+                    this.ActDetail.WeightQuantity <= 0)
                 {
                     throw new MessageOnlyException("Move quantity must be greater than zero.");
                 }
@@ -957,6 +978,9 @@ namespace dMobile.View.Activity
                 //--- Perform the activity detail insert.
                 var foundRowIdx = this.ActDetail.ListDetails.Count > 0 ? this.ActDetail.ListDetails.Count - 1 : -1;
                 await this.InsertActivityDetail(foundRowIdx, this.ActDetail, this.BarCodeParse, isInsertReady);
+            }
+            catch (CancelOperationException)
+            {
             }
             catch (GatherProductDataException ex)
             {
@@ -987,13 +1011,7 @@ namespace dMobile.View.Activity
             }
             finally
             {
-                ////await Device.InvokeOnMainThreadAsync(() =>
-                ////{
-                ////    this.MainActivityItems = this.ActDetail.DesignGrid(ref this.GridMainActivity, ref this.ListViewMainActivity);
-                ////    this.ListViewMainActivity.ItemsSource = this.MainActivityItems;
-                ////});
-
-                await this.ScannerEnable();
+                await this.ActAppearing();
             }
 
             //////////////////////////////////////////////////////////////////////////
@@ -1011,12 +1029,12 @@ namespace dMobile.View.Activity
                 this.ActDetail.ActExtra.Text4 = string.Empty;
                 this.ActDetail.ActExtra.DateTime1 = new DateTime(1980, 1, 1);
                 var fillQty = SysCommon.FillQuantityStructureFromQuantity(this.ActItem.ProdInfo, 1);
-                var tempItemSchemeData = new SActItemSchemeData
+                var tempItemSchemeData = new ActItemSchemeData
                 {
                     ActDetailQuantity = fillQty.Quantity,
                     ActDetailBaseQuantity = fillQty.BaseQuantity,
                     ActDetailWeightQuantity = fillQty.WeightQuantity,
-                    ProdSchemeData = new SProductSchemeData(),
+                    ProdSchemeData = new ProductSchemeData(),
                 };
                 this.BarCodeParse = BarCodeParseFacade.ParseData(string.Empty);
                 var canInsert = await SysShared.GatherProductData(
@@ -1061,8 +1079,8 @@ namespace dMobile.View.Activity
             if (isInsertDetailReady)
             {
                 actDetail.DetailFKRefno = 0;
-                var xmlDoc = this.ActDetail.GetXML(this.ActDetail);
-                await this.ActDetail.Insert(xmlDoc);
+                ////var xmlDoc = this.ActDetail.GetXML(this.ActDetail);
+                ////await this.ActDetail.Insert(xmlDoc);
                 var detailIdx = this.ActDetail.FindListDetailIndex(activityDetailRefno: actDetail.DetailRefno);
                 if (detailIdx >= 0)
                 {
@@ -1106,7 +1124,7 @@ namespace dMobile.View.Activity
             try
             {
                 this.BarCodeParse = scanArgs.ParseInfo;
-                await this.ScannerDisable();
+                await this.ActDisappearing();
                 if (!string.IsNullOrEmpty(this.BarCodeParse.LocationIdentifier))
                 {
                     await GlobalLocationNumberHandler();
@@ -1175,8 +1193,7 @@ namespace dMobile.View.Activity
                     this.ListViewMainActivity.ItemsSource = this.MainActivityItems;
                 });
 
-                await this.ScannerEnable();
-                this.Loading = false;
+                await this.ActAppearing();
             }
 
             //////////////////////////////////////////////////////////////////////////
@@ -1190,22 +1207,22 @@ namespace dMobile.View.Activity
                 }
 
                 // Create a new activity item for the product unit scanned.
-                XDocument xmlDoc = XDocument.Parse(
+                var xmlDoc = XDocument.Parse(
                     "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>"
                     + "<params>"
                     + "<ProductUnitRefno>" + prodUnitReferenceNumber + "</ProductUnitRefno>"
                     + "</params>");
                 await this.ActItem.Insert(xmlDoc, false);
 
-                object infoObject = null;
+                var actDetail = new MoveDetail();
                 if (this.ActDetail.ListDetails.Count > 0)
                 {
-                    infoObject = this.ActDetail.ListDetails[0];
+                    actDetail = (MoveDetail)this.ActDetail.ListDetails.First();
                 }
 
-                await this.ActDetail.AssignThisFromDetailAsync((MoveDetail)infoObject, true);
+                await this.ActDetail.AssignThisFromDetailAsync(actDetail, true);
 
-                var tempItemSchemeData = new SActItemSchemeData();
+                var tempItemSchemeData = new ActItemSchemeData();
                 var isInsertReady = false;
                 var foundRowIdx = -1;
                 if (this.ActDetail.ListDetails.Count > 0)
@@ -1243,7 +1260,7 @@ namespace dMobile.View.Activity
                         await LocationMapTasks.GetLocMapRefnoFromBarCodeGlobalLocIdentifier(
                             this.BarCodeParse.LocationIdentifier));
                     this.SelFromLocMap = this.LocMap.CurrLocMap.Clone();
-
+                    this.SelFromCurrLocMapRefno = this.LocMap.CurrLocMapRefno;
                     if (this.LocMap.CurrLocMap.WhsLocMapRefno != 0)
                     {
                         _ = await Device.InvokeOnMainThreadAsync(() => this.CmdFromLocation.Text = "From: "
@@ -1262,7 +1279,7 @@ namespace dMobile.View.Activity
                         await LocationMapTasks.GetLocMapRefnoFromBarCodeGlobalLocIdentifier(
                             this.BarCodeParse.LocationIdentifier));
                     this.SelToLocMap = this.LocMap.CurrLocMap.Clone();
-
+                    this.SelToCurrLocMapRefno = this.LocMap.CurrLocMapRefno;
                     if (this.LocMap.CurrLocMap.WhsLocMapRefno != 0)
                     {
                         _ = await Device.InvokeOnMainThreadAsync(() => this.CmdToLocation.Text = "To: "
@@ -1319,7 +1336,7 @@ namespace dMobile.View.Activity
                 "Move Inventory Options",
                 "Close",
                 null,
-                this.optionsMenuItems.ToArray());
+                this.OptionsMenuItems.ToArray());
 
             if (result == "Save")
             {
@@ -1332,6 +1349,7 @@ namespace dMobile.View.Activity
             {
                 if (await this.CancelChanges())
                 {
+                    await this.ActDisappearing();
                     await this.Close();
                 }
             }
@@ -1342,20 +1360,17 @@ namespace dMobile.View.Activity
         /// </summary>
         /// <param name="sender"><see cref="object"/> Sender object.</param>
         /// <param name="e"><see cref="EventArgs"/> Event arguments.</param>
-        private void CmdPerformMove_Clicked(object sender, EventArgs e)
+        private async void CmdPerformMove_Clicked(object sender, EventArgs e)
         {
             if (this.Loading)
             {
                 return;
             }
 
-            _ = Task.Run(async () =>
-              {
-                  if (await this.SaveChanges())
-                  {
-                      await this.Close();
-                  }
-              });
+            if (await this.SaveChanges())
+            {
+                await this.Close();
+            }
         }
     }
 }

@@ -1,4 +1,4 @@
-// <copyright file="clsTransferActivityItemFactory.cs" company="InterSect Business Systems Inc">
+// <copyright file="TransferActItemFactory.cs" company="InterSect Business Systems Inc">
 // Copyright (c) InterSect Business Systems Inc. All rights reserved.
 // </copyright>
 

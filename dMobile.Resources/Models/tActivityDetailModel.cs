@@ -24,7 +24,7 @@ namespace dMobile.Resources.Models
         public int ActivityDetailStatus { get; set; }
 
         [Indexed(Name = "FK_ActivityDetailOnActivityItemRefno", Order = 1, Unique = false)]
-        [ForeignKey(typeof(tContactModel))]
+        [ForeignKey(typeof(ContactModel))]
         [NotNull]
         public int ActivityItemRefno { get; set; }
 

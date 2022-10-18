@@ -147,10 +147,10 @@ namespace dMobile.Controller.Activity
         /// <summary>
         /// The DesignGrid.
         /// </summary>
-        /// <param name="GridMainActivity">The GridMainActivity<see cref="Grid"/>.</param>
-        /// <param name="ListViewMainActivity">The ListViewMainActivity<see cref="ListView"/>.</param>
+        /// <param name="gridMainActivity">The gridMainActivity<see cref="Grid"/>.</param>
+        /// <param name="listViewMainActivity">The listViewMainActivity<see cref="ListView"/>.</param>
         /// <returns>The <see cref="ObservableCollection{object}"/>.</returns>
-        public override ObservableCollection<object> DesignGrid(ref Grid GridMainActivity, ref ListView ListViewMainActivity)
+        public override ObservableCollection<object> DesignGrid(ref Grid gridMainActivity, ref ListView listViewMainActivity)
         {
             var labelPOReceiving = new Label
             {
@@ -202,7 +202,7 @@ namespace dMobile.Controller.Activity
 
             Grid.SetRow(gridHeader, 0);
 
-            GridMainActivity.Children.Add(gridHeader);
+            gridMainActivity.Children.Add(gridHeader);
 
             var observableCollection = new ObservableCollection<object>();
             foreach (Receive receive in this.ListHdrs)
@@ -238,7 +238,7 @@ namespace dMobile.Controller.Activity
                 }
             }
 
-            ListViewMainActivity.ItemTemplate = (DataTemplate)this.resourceDictionary["dataTemplateReceiving"];
+            listViewMainActivity.ItemTemplate = (DataTemplate)this.resourceDictionary["dataTemplateReceiving"];
 
             return observableCollection;
         }

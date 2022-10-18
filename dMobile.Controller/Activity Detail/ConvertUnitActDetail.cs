@@ -111,16 +111,6 @@ namespace dMobile.Controller.Activity_Detail
         private double ColumnWidth2 { get; set; } = 0;
 
         /// <summary>
-        /// Gets or sets the grid column 3 width...
-        /// </summary>
-        private double ColumnWidth3 { get; set; } = 0;
-
-        /// <summary>
-        /// Gets or sets the grid column 4 width...
-        /// </summary>
-        private double ColumnWidth4 { get; set; } = 0;
-
-        /// <summary>
         /// Gets or sets the resource dictionary...
         /// </summary>
         private ResourceDictionary ResourceDictionary { get; set; } = new ResourceDictionary();
@@ -258,7 +248,7 @@ namespace dMobile.Controller.Activity_Detail
         /// <returns>.</returns>
         public override int GetFKRefno(object selectedActivityDetail)
         {
-            return (selectedActivityDetail as dynamic).ActivityDetailFKRefno;
+            return ((ConvertUnitDetail)selectedActivityDetail).ActivityDetailFKRefno;
         }
 
         /// <summary>
@@ -325,11 +315,11 @@ namespace dMobile.Controller.Activity_Detail
                     Type.GetType("System.Int32") ?? throw new InvalidOperationException());
 
                 this.ConvertUnitDetails = table.Rows.Cast<ConvertUnitDetail>().ToList();
-                this.ListDetails = this.ConvertUnitDetails.Cast<object>().ToList();
+                this.ListDetails = table.Rows.Cast<object>().ToList();
                 return Task.CompletedTask;
             });
 
-            return this.ListDetails;
+            return this.ListDetails.Cast<object>().ToList();
         }
 
         /// <summary>
@@ -338,12 +328,9 @@ namespace dMobile.Controller.Activity_Detail
         /// <param name="gridMain">The gridMain<see cref="Grid"/>.</param>
         /// <param name="listViewMain">The listViewMain<see cref="ListView"/>.</param>
         /// <returns>The <see cref="ObservableCollection{object}"/>.</returns>
-        public override ObservableCollection<object> DesignGrid(
-            ref Grid gridMain,
-            ref ListView listViewMain)
+        public override ObservableCollection<object> DesignGrid(ref Grid gridMain, ref ListView listViewMain)
         {
             var observableCollection = new ObservableCollection<object>();
-
             foreach (ConvertUnitDetail convertUnitDetail in this.ListDetails)
             {
                 observableCollection.Add(convertUnitDetail);

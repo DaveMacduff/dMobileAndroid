@@ -1,4 +1,4 @@
-﻿// <copyright file="clsConvertProductActivityItemFactory.cs" company="InterSect Business Systems Inc">
+﻿// <copyright file="ConvertProductActItemFactory.cs" company="InterSect Business Systems Inc">
 // Copyright (c) InterSect Business Systems Inc. All rights reserved.
 // </copyright>
 

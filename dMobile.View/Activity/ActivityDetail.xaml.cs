@@ -1355,7 +1355,7 @@ namespace dMobile.View.Activity
 
                             // A skid may contain 'default' scheme data, fill the activity detail
                             // with the default skid schema.
-                            var tempItemProdSchemeData = new SActItemSchemeData();
+                            var tempItemProdSchemeData = new ActItemSchemeData();
                             var schemeData = this.ActDetail.SchemeData;
                             if (currSkid.SkidFKRefno != 0)
                             {
@@ -2315,7 +2315,7 @@ namespace dMobile.View.Activity
             }
 
             //////////////////////////////////////////////////////////////////////////
-            SActItemSchemeData InitDetailBeforeGather()
+            ActItemSchemeData InitDetailBeforeGather()
             {
                 this.ActDetail.Quantity = 0;
                 this.ActDetail.BaseQuantity = 0;
@@ -2330,7 +2330,7 @@ namespace dMobile.View.Activity
 
                 // Did not use this.ActItem.ActHdr.SkidInfo.CurrSkid.LogisticUnitSkidCode because of
                 // the length of the code and the fact is isn't human readable friendly.
-                var tempItemProdSchemeData = new SActItemSchemeData();
+                var tempItemProdSchemeData = new ActItemSchemeData();
                 var schemeData = this.ActDetail.SchemeData;
                 var skidInfo = this.ActDetail.ActItem.ActHdr.SkidInfo.CurrSkid;
                 if (skidInfo.SkidFKRefno != 0)

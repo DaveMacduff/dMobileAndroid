@@ -87,10 +87,10 @@ namespace dMobile.Controller.Activity
         /// <summary>
         /// The DesignGrid.
         /// </summary>
-        /// <param name="GridMainActivity">The GridMainActivity<see cref="Grid"/>.</param>
-        /// <param name="ListViewMainActivity">The ListViewMainActivity<see cref="ListView"/>.</param>
-        /// <returns>The <see cref="ObservableCollection{object}"/>.</returns>
-        public override ObservableCollection<object> DesignGrid(ref Grid GridMainActivity, ref ListView ListViewMainActivity)
+        /// <param name="gridMainActivity">The gridMainActivity<see cref="Grid"/>.</param>
+        /// <param name="listViewMainActivity">The listViewMainActivity<see cref="ListView"/>.</param>
+        /// <returns>The <see cref="ObservableCollection{T}"/>.</returns>
+        public override ObservableCollection<object> DesignGrid(ref Grid gridMainActivity, ref ListView listViewMainActivity)
         {
             throw new NotImplementedException();
         }

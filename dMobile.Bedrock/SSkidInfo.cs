@@ -17,7 +17,7 @@ namespace dMobile.Bedrock
         /// <summary>
         /// Gets or sets the product scheme data.
         /// </summary>
-        public SProductSchemeData SchemeData { get; set; } = new SProductSchemeData();
+        public ProductSchemeData SchemeData { get; set; } = new ProductSchemeData();
 
         /// <summary>
         /// Gets or sets a value indicating whether the skid is put away.

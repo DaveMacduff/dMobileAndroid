@@ -2,14 +2,9 @@
 // Copyright (c) InterSect Business Systems Inc. All rights reserved.
 // </copyright>
 
-using dMobile.Controller.Activity;
-using dMobile.Controller.Activity_Detail;
-using dMobile.Controller.Activity_Item;
-
 namespace dMobile.View.Activity
 {
     using System;
-    using System.Collections.Generic;
     using System.Collections.ObjectModel;
     using System.ComponentModel;
     using System.Text;
@@ -20,7 +15,9 @@ namespace dMobile.View.Activity
     using dMobile.BarCodeScanner.BarCodeParsing;
     using dMobile.BarCodeScanner.BarCodeScanners;
     using dMobile.Bedrock;
-    using dMobile.Controller;
+    using dMobile.Controller.Activity;
+    using dMobile.Controller.Activity_Detail;
+    using dMobile.Controller.Activity_Item;
     using dMobile.Resources.Enums;
     using dMobile.Resources.Types;
     using dMobile.View.CustomPages;
@@ -31,6 +28,9 @@ namespace dMobile.View.Activity
     using Xamarin.Forms.Xaml;
     using Resource = dMobile.Resources.Properties.Resources;
 
+    /// <summary>
+    /// Product unit conversion.
+    /// </summary>
     [XamlCompilation(XamlCompilationOptions.Compile)]
     public partial class ActivityConvertUnit : DMobileContentPage, IAppArea
     {
@@ -84,6 +84,49 @@ namespace dMobile.View.Activity
         }
 
         /// <summary>
+        /// Gets or sets a number of screen taps tracker for Xamarin bug that prevents
+        /// selectedItemChanged from firing.
+        /// </summary>
+        private int NumTaps { get; set; } = 0;
+
+        /// <summary>
+        /// Gets or sets the previous sender used in tracking the number of screen taps for
+        /// Xamarin bug that prevents selectedItemChanged from firing.
+        /// </summary>
+        private object PreviousSender { get; set; }
+
+        private BarCodeScanner Scanner { get; set; }
+
+        private SysCommon.ActSubTypes ActSubType { get; set; } = SysCommon.ActSubTypes.ConvertUnit;
+
+        private ConvertUnitActDetail ActDetail { get; set; } = null;
+
+        private ActItem ActItem { get; set; } = null;
+
+        private Controller.Activity.Activity Activity { get; set; } = null;
+
+        private LocationMap LocMap { get; set; }
+
+        private SysEnvironment SysEnv { get; set; }
+
+        private bool IsBarCodeHandlerRegistered { get; set; } = false;
+
+        private bool IsControlLoaded { get; set; } = false;
+
+        private bool IsChangesMade { get; set; } = false;
+
+        private int FromProdUnitRefno { get; set; } = 0;
+
+        private int ToProdUnitRefno { get; set; } = 0;
+
+        private ObservableCollection<object> MainActivityItems { get; set; } = new ObservableCollection<object>();
+
+        /// <summary>
+        /// Gets or sets the selected activity detail foreign key reference number.
+        /// </summary>
+        private int SelectedActivityDetailFKRefno { get; set; } = 0;
+
+        /// <summary>
         /// The OnAppearing.
         /// </summary>
         protected override async void OnAppearing()
@@ -109,6 +152,7 @@ namespace dMobile.View.Activity
                     await this.DesignObservableCollection();
                 }
 
+                this.dgUnitWeight.ItemTapped += this.UnitWeight_ItemTapped;
                 await this.ucActivityConvertUnit_GotFocus(this, EventArgs.Empty);
             }
             catch (Exception ex)
@@ -125,7 +169,9 @@ namespace dMobile.View.Activity
 
             void InitActivityDetail()
             {
-                this.ActDetail = ActDetailFacade.GetActDetail(this.ActItem, SysCommon.ActSubTypes.ConvertUnit);
+                this.ActDetail = (ConvertUnitActDetail)ActDetailFacade.GetActDetail(
+                    this.ActItem,
+                    SysCommon.ActSubTypes.ConvertUnit);
                 this.ActDetail.ActSubType = this.ActItem.ActSubType;
             }
 
@@ -162,7 +208,7 @@ namespace dMobile.View.Activity
                         {
                             if (this.dgUnitWeight.SelectedItem is ConvertUnitDetail convertUnitDetail)
                             {
-                                var activityConvertUnitWeightEdit = new ucActivityConvertUnitWeightEdit(convertUnitDetail);
+                                var activityConvertUnitWeightEdit = new ActivityConvertUnitWeightEdit(convertUnitDetail);
 
                                 if (await activityConvertUnitWeightEdit.ShowDialog() == DialogResult.OK &&
                                     activityConvertUnitWeightEdit.WeightHasChanged)
@@ -200,35 +246,10 @@ namespace dMobile.View.Activity
         /// </summary>
         protected override void OnDisappearing()
         {
+            this.dgUnitWeight.ItemTapped -= this.UnitWeight_ItemTapped;
             MessagingCenter.Unsubscribe<string>(this, EventTypes.OnKeyUp.ToString());
             base.OnDisappearing();
         }
-
-        private BarCodeScanner Scanner { get; set; }
-
-        private SysCommon.ActSubTypes ActSubType { get; set; } = SysCommon.ActSubTypes.ConvertUnit;
-
-        private ActDetail ActDetail { get; set; } = null;
-
-        private ActItem ActItem { get; set; } = null;
-
-        private Controller.Activity.Activity Activity { get; set; } = null;
-
-        private LocationMap LocMap { get; set; }
-
-        private SysEnvironment SysEnv { get; set; }
-
-        private bool IsBarCodeHandlerRegistered { get; set; } = false;
-
-        private bool IsControlLoaded { get; set; } = false;
-
-        private bool IsChangesMade { get; set; } = false;
-
-        private int FromProdUnitRefno { get; set; } = 0;
-
-        private int ToProdUnitRefno { get; set; } = 0;
-
-        private ObservableCollection<object> MainActivityItems { get; set; } = new ObservableCollection<object>();
 
         private bool FirstAppearance { get; set; } = true;
 
@@ -638,7 +659,7 @@ namespace dMobile.View.Activity
             {
                 this.Loading = true;
                 BarCodeParse parse = null;
-                var tempItemProdSchemeData = new SActItemSchemeData();
+                var tempItemProdSchemeData = new ActItemSchemeData();
 
                 try
                 {
@@ -1323,7 +1344,7 @@ namespace dMobile.View.Activity
                 this.ActDetail.UniqueSchemeID =
                     Convert.ToString((this.ActItem.ListItems[0] as dynamic).ActivityDetailUniqueSchemeID);
 
-                var prodSchemeData = new SProductSchemeData
+                var prodSchemeData = new ProductSchemeData
                 {
                     LogisticUnitBestBeforeSellByDate = Convert.ToDateTime((this.ActItem.ListItems[0] as dynamic)
                         .ActivityDetailLogisticUnitBestBeforeSellByDate),
@@ -1535,13 +1556,74 @@ namespace dMobile.View.Activity
             await this.Close();
         }
 
-        private void dgUnitWeight_ItemSelected(object sender, SelectedItemChangedEventArgs e)
+        private async void dgUnitWeight_ItemSelected(object sender, SelectedItemChangedEventArgs e)
         {
-            _ = Device.InvokeOnMainThreadAsync(async () =>
-                await Application.Current.MainPage.DisplayAlert(
-                    this.GetControlDescription(),
-                    "Item Tapped",
-                    Resource.OK));
+            await this.ActDetail.AssignActivityDetail(e.SelectedItem);
+            this.ActDetail.SelectedListItemIdx = e.SelectedItemIndex;
+            this.SelectedActivityDetailFKRefno = this.ActDetail.DetailFKRefno;
+        }
+
+        /// <summary>
+        /// Double click on list view item event handler.
+        /// </summary>
+        /// <param name="sender"><see cref="object"/> Sender object.</param>
+        /// <param name="e"><see cref="ItemTappedEventArgs"/> Item tapped event arguments.</param>
+        private async void UnitWeight_ItemTapped(object sender, ItemTappedEventArgs e)
+        {
+            if (this.Loading)
+            {
+                return;
+            }
+
+            this.NumTaps++;
+
+            if (this.PreviousSender == e.Item)
+            {
+                if (this.NumTaps == 2)
+                {
+                    this.NumTaps = 0;
+                    if (this.ActItem.ProdInfo.IsCatchWeight || this.ActItem.ProdInfo.IsCatchCount)
+                    {
+                        var form = new FormDialogContainer(
+                            EDialogTypes.ActivityConvertUnitEditCatch,
+                            this.ActDetail,
+                            SysCommon.ActSubTypes.ConvertUnit);
+                        if (await form.DisplayControl.ShowDialog() == DialogResult.OK)
+                        {
+                            var detail = (ConvertUnitDetail)this.ActDetail.ListDetails[this.ActDetail.SelectedListItemIdx];
+                            var xmlArgs = await form.GetXML();
+                            if (xmlArgs.Root != null)
+                            {
+                                this.ActDetail.Quantity = Convert.ToDecimal(xmlArgs.Root.Element("alt_qty")?.Value);
+                                this.ActDetail.BaseQuantity = Convert.ToDecimal(xmlArgs.Root.Element("base_qty")?.Value);
+                                this.ActDetail.WeightQuantity = Convert.ToDecimal(xmlArgs.Root.Element("wt_qty")?.Value);
+                                detail.ActivityDetailQuantity = this.ActDetail.Quantity;
+                                detail.ActivityDetailBaseQuantity = this.ActDetail.BaseQuantity;
+                                detail.ActivityDetailWeightQuantity = this.ActDetail.WeightQuantity;
+                                this.ActDetail.ListDetails[this.ActDetail.SelectedListItemIdx] = detail;
+                            }
+
+                            this.MainActivityItems[this.ActDetail.SelectedListItemIdx] = detail;
+                        }
+                    }
+                    else
+                    {
+                        await Device.InvokeOnMainThreadAsync(async () =>
+                            await Application.Current.MainPage.DisplayAlert(
+                                this.GetControlDescription(),
+                                "Only catch weight or catch count quantities can be edited.",
+                                Resource.OK));
+                    }
+                }
+            }
+            else
+            {
+                this.PreviousSender = e.Item;
+                this.NumTaps = 1;
+            }
+
+            await Task.Delay(500);
+            this.NumTaps = 0;
         }
     }
 }

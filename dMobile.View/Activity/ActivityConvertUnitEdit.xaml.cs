@@ -2,8 +2,6 @@
 // Copyright (c) InterSect Business Systems Inc. All rights reserved.
 // </copyright>
 
-using dMobile.Controller.Activity_Detail;
-
 namespace dMobile.View.Activity
 {
     using System;
@@ -18,6 +16,7 @@ namespace dMobile.View.Activity
     using Android.Views;
     using dMobile.Bedrock;
     using dMobile.Controller;
+    using dMobile.Controller.Activity_Detail;
     using dMobile.Resources.Enums;
     using dMobile.View.CustomPages.Modal;
     using dMobile.View.Forms;
@@ -31,29 +30,24 @@ namespace dMobile.View.Activity
         private ObservableCollection<string> itemsList = new ObservableCollection<string>();
 
         /// <summary>
-        ///
+        /// Initializes a new instance of the <see cref="ActivityConvertUnitEdit"/> class.
         /// </summary>
-        /// <param name="actDetail"></param>
-        /// <param name="actSubTypes"></param>
-/// <summary>
-/// Initializes a new instance of the <see cref="ActivityConvertUnitEdit"/> class.
-/// </summary>
-/// <param name="actDetail"></param>
-/// <param name="actSubTypes"></param>
+        /// <param name="actDetail"><see cref="ActDetail"/> Activity detail.</param>
+        /// <param name="actSubTypes"><see cref="SysCommon.ActSubTypes"/> Activity sub type.</param>
         public ActivityConvertUnitEdit(ActDetail actDetail, SysCommon.ActSubTypes actSubTypes)
         {
             this.InitializeComponent();
 
             this.Title = this.GetControlDescription();
-            this.lblWtUnit.Text = "KG";
-            this.lblUnit.Text = "KG";
-            this.lblWeight.Text = "Weight";
-            this.lblQty.Text = "Quantity";
-            this.lblSplitToSingles.Text = "Split To Singles";
-            this.lblEquals.Text = "Equals";
-            this.lblFromUnitDesc.Text = "From Unit";
-            this.cmdSave.Text = "Save";
-            this.cmdCancel.Text = "Cancel";
+            this.LblWtUnit.Text = "KG";
+            this.LblUnit.Text = "KG";
+            this.LblWeight.Text = "Weight";
+            this.LblQty.Text = "Quantity";
+            this.LblSplitToSingles.Text = "Split To Singles";
+            this.LblEquals.Text = "Equals";
+            this.LblFromUnitDesc.Text = "From Unit";
+            this.CmdSave.Text = "Save";
+            this.CmdCancel.Text = "Cancel";
 
             this.SysEnv = SysEnvironment.GetInstance();
             this.ActSubType = actSubTypes;
@@ -69,13 +63,34 @@ namespace dMobile.View.Activity
             this.ActDetailEdit.WeightQuantity = this.ActDetail.WeightQuantity;
         }
 
+        private SysEnvironment SysEnv { get; set; }
+
+        private SysCommon.ActSubTypes ActSubType { get; set; } = SysCommon.ActSubTypes.ConvertUnit;
+
+        private DataView DataViewSerialNumbers { get; set; } = null;
+
+        private DataView DataViewLots { get; set; } = null;
+
+        private DataView DataViewVariants { get; set; } = null;
+
+        private DataTable DataTableActDetail { get; set; }
+
+        private ActDetailEdit ActDetailEdit { get; set; }
+
+        private bool IsControlLoaded { get; set; } = false;
+
+        private bool IsChangesMade { get; set; } = false;
+
+        private ActDetail ActDetail { get; set; } = null;
+
+        public ObservableCollection<string> ExtraInfoItems { get => this.itemsList; set => this.itemsList = value; }
+
         /// <summary>
         /// The OnAppearing.
         /// </summary>
         protected override async void OnAppearing()
         {
             base.OnAppearing();
-
             MessagingCenter.Subscribe<string>(this, EventTypes.OnKeyUp.ToString(), async (keyPressed) =>
             {
                 _ = Enum.TryParse(keyPressed, out Keycode keycode);
@@ -87,7 +102,10 @@ namespace dMobile.View.Activity
             }
             catch (Exception ex)
             {
-                await Device.InvokeOnMainThreadAsync(async () => await this.DisplayAlert("Error", "this.ucActivityDetailEdit_GotFocus threw an error " + ex, "OK"));
+                await Device.InvokeOnMainThreadAsync(async () => await this.DisplayAlert(
+                    "Error",
+                    "this.ucActivityDetailEdit_GotFocus threw an error " + ex,
+                    "OK"));
             }
         }
 
@@ -122,28 +140,6 @@ namespace dMobile.View.Activity
             return true;
         }
 
-        private SysEnvironment SysEnv { get; set; }
-
-        private SysCommon.ActSubTypes ActSubType { get; set; } = SysCommon.ActSubTypes.ConvertUnit;
-
-        private DataView DataViewSerialNumbers { get; set; } = null;
-
-        private DataView DataViewLots { get; set; } = null;
-
-        private DataView DataViewVariants { get; set; } = null;
-
-        private DataTable DataTableActDetail { get; set; }
-
-        private ActDetailEdit ActDetailEdit { get; set; }
-
-        private bool IsControlLoaded { get; set; } = false;
-
-        private bool IsChangesMade { get; set; } = false;
-
-        private ActDetail ActDetail { get; set; } = null;
-
-        public ObservableCollection<string> ExtraInfoItems { get => this.itemsList; set => this.itemsList = value; }
-
         /// <summary>
         /// Unregister the bar code scan event handler and disable the scanner.
         /// </summary>
@@ -172,7 +168,7 @@ namespace dMobile.View.Activity
             try
             {
                 isReadyToSave = true;
-                isReadyToSave = isReadyToSave && !(decimal.Parse(this.txtAltQty.Text) == 0 && decimal.Parse(this.txtWtQty.Text) == 0);
+                isReadyToSave = isReadyToSave && !(decimal.Parse(this.TxtAltQty.Text) == 0 && decimal.Parse(this.TxtWtQty.Text) == 0);
                 isReadyToSave = isReadyToSave && this.IsValidData();
             }
             catch (MessageOnlyException ex)
@@ -348,7 +344,9 @@ namespace dMobile.View.Activity
             var scheme = ProductInfoTasks.GetActSchemeIDFromSProdSchemeData(
                 this.ActDetail.ActItem.ProdInfo.Code,
                 this.ActDetail.ActItem.ProdInfo.Scheme,
-                this.ActDetail.SchemeData); var schemeData = this.ActDetailEdit.SchemeData;
+                this.ActDetail.SchemeData);
+
+            var schemeData = this.ActDetailEdit.SchemeData;
 
             var request = XDocument.Parse("<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>"
                                           + "<params>"
@@ -363,7 +361,7 @@ namespace dMobile.View.Activity
                                           + "<base_qty>" + this.ActDetailEdit.BaseQuantity + "</base_qty>"
                                           + "<scheme_id>" + scheme + "</scheme_id>"
                                           + "<unq_scheme_id>" + unqScheme + "</unq_scheme_id>"
-                                          + "<split>" + this.chkSplitToSingles.IsToggled + "</split>"
+                                          + "<split>" + this.ChkSplitToSingles.IsToggled + "</split>"
                                           + "</params>");
 
             return request;
@@ -378,8 +376,8 @@ namespace dMobile.View.Activity
         {
             var isRetVal = true;
 
-            this.ActDetailEdit.AltQuantity = decimal.Parse(this.txtAltQty.Text);
-            this.ActDetailEdit.WeightQuantity = decimal.Parse(this.txtWtQty.Text);
+            this.ActDetailEdit.AltQuantity = decimal.Parse(this.TxtAltQty.Text);
+            this.ActDetailEdit.WeightQuantity = decimal.Parse(this.TxtWtQty.Text);
 
             if (this.ActDetail.ActItem.ProdInfo.BaseUnitCode == "LB" || this.ActDetail.ActItem.ProdInfo.BaseUnitCode == "KG")
             {
@@ -406,7 +404,7 @@ namespace dMobile.View.Activity
         /// <remarks></remarks>
         private void ShowProductInfo()
         {
-            this.lblFromUnitDesc.Text = string.Format(
+            this.LblFromUnitDesc.Text = string.Format(
                 "{0} {1} @ {2} {3}",
                 (this.ActDetail.ActItem.ListItems[0] as dynamic).ActivityDetailQuantity,
                 (this.ActDetail.ActItem.ListItems[0] as dynamic).UnitCode,
@@ -521,8 +519,8 @@ namespace dMobile.View.Activity
             this.ActDetailEdit.BaseQuantity = decimal.Round(this.ActDetailEdit.BaseQuantity, 3);
             this.ActDetailEdit.WeightQuantity = decimal.Round(this.ActDetailEdit.WeightQuantity, 3);
 
-            this.txtAltQty.Text = this.ActDetailEdit.AltQuantity.ToString();
-            this.txtWtQty.Text = this.ActDetailEdit.WeightQuantity.ToString();
+            this.TxtAltQty.Text = this.ActDetailEdit.AltQuantity.ToString();
+            this.TxtWtQty.Text = this.ActDetailEdit.WeightQuantity.ToString();
         }
 
         /// <summary>
@@ -536,18 +534,18 @@ namespace dMobile.View.Activity
             if (!this.IsControlLoaded)
             {
                 this.IsControlLoaded = true;
-                this.lblUnit.Text = this.ActDetail.ActItem.ProdInfo.UnitCode;
-                this.lblWtUnit.Text = this.ActDetail.ActItem.ProdInfo.WeightUnitCode;
+                this.LblUnit.Text = this.ActDetail.ActItem.ProdInfo.UnitCode;
+                this.LblWtUnit.Text = this.ActDetail.ActItem.ProdInfo.WeightUnitCode;
 
                 if (!this.ActDetail.ActItem.ProdInfo.IsCatchWeight || this.ActDetail.ActItem.ProdInfo.UnitCode == "LB" || this.ActDetail.ActItem.ProdInfo.UnitCode == "KG")
                 {
-                    this.txtWtQty.IsEnabled = false;
+                    this.TxtWtQty.IsEnabled = false;
                 }
 
                 this.LoadData();
                 this.ShowProductInfo();
 
-                _ = this.txtAltQty.Focus();
+                _ = this.TxtAltQty.Focus();
             }
         }
 
@@ -564,9 +562,9 @@ namespace dMobile.View.Activity
 
             try
             {
-                if (!string.IsNullOrEmpty(this.txtAltQty.Text))
+                if (!string.IsNullOrEmpty(this.TxtAltQty.Text))
                 {
-                    qtyEntered = Convert.ToDecimal(this.txtAltQty.Text);
+                    qtyEntered = Convert.ToDecimal(this.TxtAltQty.Text);
                 }
             }
             catch
@@ -582,11 +580,11 @@ namespace dMobile.View.Activity
             }
             else
             {
-                // Otherwise the weigth = quantity * weightPerOneQty
+                // Otherwise the weight = quantity * weightPerOneQty
                 wtQty = qtyEntered * this.ActDetail.ActItem.ProdInfo.UnitGrossWeight;
             }
 
-            this.txtWtQty.Text = Math.Round(wtQty, 3).ToString();
+            this.TxtWtQty.Text = Math.Round(wtQty, 3).ToString();
         }
 
         private async void cmdSave_Clicked(object sender, EventArgs e)

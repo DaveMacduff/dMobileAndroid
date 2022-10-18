@@ -298,7 +298,7 @@ namespace dMobile.View
         /// <param name="barParse"><see cref="BarCodeParse"/> Bar code parse scan information.</param>
         /// <param name="actSubType"><see cref="SysCommon.ActSubTypes"/> Activity sub type.</param>
         /// <param name="actItem"><see cref="ActItem"/> Activity item instance.</param>
-        /// <param name="itemSchemeData"><see cref="SActItemSchemeData"/> Scheme data.</param>
+        /// <param name="itemSchemeData"><see cref="ActItemSchemeData"/> Scheme data.</param>
         /// <param name="isInsertDetailReady"><see cref="bool"/> Insert detail ready.</param>
         /// <param name="actDetail"><see cref="ActDetail"/> Activity detail.</param>
         /// <param name="isForceStopForEdit"><see cref="bool"/> Force to stop for detail edit.</param>
@@ -307,7 +307,7 @@ namespace dMobile.View
             BarCodeParse barParse,
             SysCommon.ActSubTypes actSubType,
             ActItem actItem,
-            SActItemSchemeData itemSchemeData,
+            ActItemSchemeData itemSchemeData,
             bool isInsertDetailReady,
             ActDetail actDetail,
             bool isForceStopForEdit)
@@ -538,10 +538,10 @@ namespace dMobile.View
                     && !string.IsNullOrEmpty(barParse.LogisticUnitBatchLotNumber);
             }
 
-            static async Task<SProductSchemeData> GatherProductSchemeData(
+            static async Task<ProductSchemeData> GatherProductSchemeData(
                 ActDetail actDetail,
                 BarCodeParse barParse,
-                SActItemSchemeData tempItemSchemeData,
+                ActItemSchemeData tempItemSchemeData,
                 SysCommon.ActSubTypes actSubType)
             {
                 var schemeData = actDetail.SchemeData;
@@ -730,7 +730,7 @@ namespace dMobile.View
             static async Task<ActDetailAndStopForDetail> GatherProductQuantityData(
                 ActDetail actDetail,
                 BarCodeParse barParse,
-                SActItemSchemeData tempItemSchemeData,
+                ActItemSchemeData tempItemSchemeData,
                 bool isForceStopForEdit)
             {
                 barParse = barParse ?? throw new ArgumentNullException(nameof(barParse));

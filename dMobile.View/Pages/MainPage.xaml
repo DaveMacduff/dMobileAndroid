@@ -3,16 +3,17 @@
                   xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
                   xmlns:local="clr-namespace:dMobile.View"
                   xmlns:Menus="clr-namespace:dMobile.View.Menus"
-                  x:Class="dMobile.View.MainPage">
+                  xmlns:pages="clr-namespace:dMobile.View.Pages;assembly=dMobile.View"
+                  x:Class="dMobile.View.Pages.MainPage">
     
     <MasterDetailPage.Master>
-        <local:MasterPage x:Name="masterPage" />
+        <pages:MasterPage x:Name="masterPage" />
     </MasterDetailPage.Master>
 
     <MasterDetailPage.Detail>
         <NavigationPage>
             <x:Arguments>
-                <Menus:ucMainMenu />
+                <Menus:MainMenu />
             </x:Arguments>
         </NavigationPage>
     </MasterDetailPage.Detail>

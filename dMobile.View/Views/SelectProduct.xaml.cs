@@ -2,27 +2,27 @@
 // Copyright (c) InterSect Business Systems Inc. All rights reserved.
 // </copyright>
 
-namespace dMobile.View
+using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Linq;
+using System.Threading.Tasks;
+using System.Xml.Linq;
+using Android.Views;
+using dMobile.Bedrock;
+using dMobile.Resources.Enums;
+using dMobile.Resources.Types;
+using dMobile.View.CustomPages.Modal;
+using dMobile.View.Forms;
+using Xamarin.Forms;
+using Xamarin.Forms.Xaml;
+
+namespace dMobile.View.Views
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Collections.ObjectModel;
-    using System.Data;
-    using System.Linq;
-    using System.Threading.Tasks;
-    using System.Xml.Linq;
-    using Android.Views;
-    using dMobile.Bedrock;
-    using dMobile.Resources.Enums;
-    using dMobile.Resources.Types;
-    using dMobile.View.CustomPages.Modal;
-    using dMobile.View.Forms;
-    using Xamarin.Forms;
-    using Xamarin.Forms.Xaml;
-    using Resource = dMobile.Resources.Properties.Resources;
+    using Resource = Resources.Properties.Resources;
 
     /// <summary>
-    /// Defines the <see cref="dMobile.View.SelectProduct" />.
+    /// Defines the <see cref="SelectProduct" />.
     /// </summary>
     [XamlCompilation(XamlCompilationOptions.Compile)]
     public partial class SelectProduct : DMobileModal, IAppArea
@@ -33,7 +33,7 @@ namespace dMobile.View
         private bool filterOnAllowConvertProduct = false;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="dMobile.View.SelectProduct"/> class.
+        /// Initializes a new instance of the <see cref="SelectProduct"/> class.
         /// </summary>
         public SelectProduct()
         {

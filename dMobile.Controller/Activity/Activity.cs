@@ -149,10 +149,10 @@ namespace dMobile.Controller.Activity
         /// <summary>
         /// Design the activity grid.
         /// </summary>
-        /// <param name="GridMainActivity"><see cref="Grid"/> Main activity grid.</param>
-        /// <param name="ListViewMainActivity"><see cref="ListView"/>.</param>
+        /// <param name="gridMainActivity"><see cref="Grid"/> Main activity grid.</param>
+        /// <param name="listViewMainActivity"><see cref="ListView"/>.</param>
         /// <returns>The <see cref="ObservableCollection{object}"/> Main activity list view.</returns>
-        public abstract ObservableCollection<object> DesignGrid(ref Grid GridMainActivity, ref ListView ListViewMainActivity);
+        public abstract ObservableCollection<object> DesignGrid(ref Grid gridMainActivity, ref ListView listViewMainActivity);
 
         /// <summary>
         /// Select an activity.

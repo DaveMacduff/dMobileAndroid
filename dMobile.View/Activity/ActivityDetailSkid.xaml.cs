@@ -953,7 +953,7 @@ namespace dMobile.View.Activity
             }
 
             //////////////////////////////////////////////////////////////////////////
-            SActItemSchemeData AssignSchemeData(SSkidInfo currSkid)
+            ActItemSchemeData AssignSchemeData(SSkidInfo currSkid)
             {
                 var schemeData = this.ActDetail.SchemeData;
                 schemeData.LogisticUnitSkidNumber = currSkid.SkidCode;
@@ -965,7 +965,7 @@ namespace dMobile.View.Activity
                 schemeData.VariantDescription = currSkid.SchemeData.VariantDescription;
                 this.ActDetail.SchemeData = schemeData;
 
-                var itemSchemeData = new SActItemSchemeData
+                var itemSchemeData = new ActItemSchemeData
                 {
                     ProdSchemeData = schemeData,
                 };
@@ -1294,7 +1294,7 @@ namespace dMobile.View.Activity
             }
 
             //////////////////////////////////////////////////////////////////////////
-            SActItemSchemeData FillSchemeData()
+            ActItemSchemeData FillSchemeData()
             {
                 var currSkid = this.ActDetail.ActItem.ActHdr.SkidInfo.CurrSkid;
 
@@ -1309,7 +1309,7 @@ namespace dMobile.View.Activity
                 schemeData.VariantNumber = currSkid.SchemeData.VariantNumber;
                 schemeData.VariantDescription = currSkid.SchemeData.VariantDescription;
 
-                var tempItemProdSchemeData = new SActItemSchemeData
+                var tempItemProdSchemeData = new ActItemSchemeData
                 {
                     ProdSchemeData = schemeData,
                 };

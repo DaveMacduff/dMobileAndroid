@@ -1,4 +1,4 @@
-// <copyright file="AdjustmentActivity.cs" company="InterSect Business Systems Inc">
+// <copyright file="AdjActivity.cs" company="InterSect Business Systems Inc">
 // Copyright (c) InterSect Business Systems Inc. All rights reserved.
 // </copyright>
 
@@ -139,12 +139,12 @@ namespace dMobile.Controller.Activity
         /// <summary>
         /// Design the activity header grid.
         /// </summary>
-        /// <param name="mainActivityHeader"><see cref="Grid"/> Main activity header grid.</param>
-        /// <param name="mainActivity"><see cref="ListView"/> Main activity list.</param>
+        /// <param name="gridMainActivity"><see cref="Grid"/> Main activity header grid.</param>
+        /// <param name="listViewMainActivity"><see cref="ListView"/> Main activity list.</param>
         /// <returns><see cref="ObservableCollection{object}"/> List of activity headers.</returns>
         public override ObservableCollection<object> DesignGrid(
-            ref Grid mainActivityHeader,
-            ref ListView mainActivity)
+            ref Grid gridMainActivity,
+            ref ListView listViewMainActivity)
         {
             var headersList = new ObservableCollection<object>();
 
@@ -197,7 +197,7 @@ namespace dMobile.Controller.Activity
 
             Grid.SetRow(gridHeader, 0);
 
-            mainActivityHeader.Children.Add(gridHeader);
+            gridMainActivity.Children.Add(gridHeader);
 
             foreach (Adjustment adjustment in this.ListHdrs)
             {
@@ -228,7 +228,7 @@ namespace dMobile.Controller.Activity
                 }
             }
 
-            mainActivity.ItemTemplate = (DataTemplate)this.ResDict["dataTemplateAdjustment"];
+            listViewMainActivity.ItemTemplate = (DataTemplate)this.ResDict["dataTemplateAdjustment"];
 
             return headersList;
         }

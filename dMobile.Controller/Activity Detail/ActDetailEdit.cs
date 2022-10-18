@@ -39,7 +39,7 @@ namespace dMobile.Controller.Activity_Detail
         /// <summary>
         /// Gets or sets the product scheme data.
         /// </summary>
-        public SProductSchemeData SchemeData { get; set; } = new SProductSchemeData();
+        public ProductSchemeData SchemeData { get; set; } = new ProductSchemeData();
 
         /// <summary>
         /// Get a list of scheme logistic unit product variants.

@@ -99,7 +99,7 @@ namespace dMobile.Controller.Activity_Detail
         /// <summary>
         /// Gets or sets the product scheme data.
         /// </summary>
-        public SProductSchemeData SchemeData { get; set; } = new SProductSchemeData();
+        public ProductSchemeData SchemeData { get; set; } = new ProductSchemeData();
 
         /// <summary>
         /// Gets or sets the unique scheme id.
@@ -263,7 +263,7 @@ namespace dMobile.Controller.Activity_Detail
                 // detail.LocationMapRefno could be a warehouse or even a slot.
                 this.SelectedLocMap = await LocationMapTasks.GetSLocMapFromLocMapRefno(detail.LocationMapRefno);
 
-                var schemeData = new SProductSchemeData
+                var schemeData = new ProductSchemeData
                 {
                     LogisticUnitBatchLotNumber = detail.ActivityDetailLogisticUnitBatchLotNumber,
                     LogisticUnitBestBeforeSellByDate = detail.ActivityDetailLogisticUnitBestBeforeSellByDate,
@@ -332,7 +332,12 @@ namespace dMobile.Controller.Activity_Detail
         /// <returns><see cref="SFillQuantity"/> Summed quantities.</returns>
         public virtual async Task<SFillQuantity> GetTotalQuantityFromListDetail()
         {
-            var fillQty = new SFillQuantity();
+            var fillQty = new SFillQuantity
+            {
+                Quantity = 0,
+                BaseQuantity = 0,
+                WeightQuantity = 0,
+            };
             await Device.InvokeOnMainThreadAsync(() =>
             {
                 if (this.ListDetails != null && this.ListDetails.Count > 0)
@@ -354,7 +359,7 @@ namespace dMobile.Controller.Activity_Detail
         /// <summary>
         /// Clear the activity properties.
         /// </summary>
-        public virtual void ClearProperties()
+        protected virtual void ClearProperties()
         {
             // Document activity references
             this.DetailRefno = 0;
@@ -366,7 +371,7 @@ namespace dMobile.Controller.Activity_Detail
             this.WeightQuantity = 0;
 
             // Scheme
-            this.SchemeData = new SProductSchemeData();
+            this.SchemeData = new ProductSchemeData();
             this.SchemeID = string.Empty;
             this.UniqueSchemeID = string.Empty;
 
@@ -390,7 +395,6 @@ namespace dMobile.Controller.Activity_Detail
         public virtual async Task AssignThisFromDetailAsync(ActivityDetail actDetail, bool clearThisValues)
         {
             actDetail = actDetail ?? throw new ArgumentNullException(nameof(actDetail));
-
             await Task.Run(async () =>
             {
                 if (clearThisValues)
@@ -661,9 +665,9 @@ namespace dMobile.Controller.Activity_Detail
         /// <summary>
         /// Check if the product label scheme is complete.
         /// </summary>
-        /// <param name="schemeData"><see cref="SActItemSchemeData"/> Product scheme data.</param>
+        /// <param name="schemeData"><see cref="ActItemSchemeData"/> Product scheme data.</param>
         /// <returns><see cref="bool"/> True if the label scheme is complete else false.</returns>
-        public bool IsLabelSchemeComplete(SProductSchemeData schemeData)
+        public bool IsLabelSchemeComplete(ProductSchemeData schemeData)
         {
             var isComplete = true;
 
@@ -703,10 +707,10 @@ namespace dMobile.Controller.Activity_Detail
         /// <summary>
         /// Get the scheme data variant information from the scheme data variant number.
         /// </summary>
-        /// <param name="prodSchemeData"><see cref="SActItemSchemeData"/> Product scheme data.</param>
+        /// <param name="prodSchemeData"><see cref="ActItemSchemeData"/> Product scheme data.</param>
         /// <returns><see cref="Task{SProductSchemeData}"/> ProductSchemeData.</returns>
-        public async Task<SProductSchemeData> FillSchemeDataVarInfoFromSchemeDataVarNo(
-            SProductSchemeData prodSchemeData)
+        public async Task<ProductSchemeData> FillSchemeDataVarInfoFromSchemeDataVarNo(
+            ProductSchemeData prodSchemeData)
         {
             if (prodSchemeData.VariantNumber > 0)
             {

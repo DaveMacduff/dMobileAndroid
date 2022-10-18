@@ -6,18 +6,18 @@ namespace dMobile.Resources.Types
 {
     using System;
 
-    //sql.Append("SELECT tActivityItem.ActivityItemRefno,"); int
-    //sql.Append("tProduct.ProductCode AS ProductCode,"); string
-    //sql.Append("tProductUnit.ProductUnitRefno AS ProductUnitRefno,"); int
-    //sql.Append("tProductUnit.ProductUnitBC AS ProductUnitBC,"); string
-    //sql.Append("tProductUnit.ProductUnitIsBC AS ProductUnitIsBC,"); bool
-    //sql.Append("tUnit.UnitCode AS UnitCode,"); string 
-    //sql.Append("tProductUnitBarCode.ProductUnitBarCodeRefno AS ProductUnitBarCodeRefno,"); int 
-    //sql.Append("tProductUnitBarCode.ProductUnitBarCodeCode AS ProductUnitBarCodeCode,"); string
-    //sql.Append("tProductUnitBarCode.ProductUnitBarCodeModifier1 AS ProductUnitBarCodeModifier1,"); string
-    //sql.Append("tProductUnitBarCode.ProductUnitBarCodeSymbologyEnum AS ProductUnitBarCodeSymbologyEnum,"); int
-    //sql.Append("tActivityItem.ActivityItemStatus AS ActivityStatus "); int
-    //sql.Append("FROM tActivityItem ");
+    // sql.Append("SELECT tActivityItem.ActivityItemRefno,"); int
+    // sql.Append("tProduct.ProductCode AS ProductCode,"); string
+    // sql.Append("tProductUnit.ProductUnitRefno AS ProductUnitRefno,"); int
+    // sql.Append("tProductUnit.ProductUnitBC AS ProductUnitBC,"); string
+    // sql.Append("tProductUnit.ProductUnitIsBC AS ProductUnitIsBC,"); bool
+    // sql.Append("tUnit.UnitCode AS UnitCode,"); string 
+    // sql.Append("tProductUnitBarCode.ProductUnitBarCodeRefno AS ProductUnitBarCodeRefno,"); int 
+    // sql.Append("tProductUnitBarCode.ProductUnitBarCodeCode AS ProductUnitBarCodeCode,"); string
+    // sql.Append("tProductUnitBarCode.ProductUnitBarCodeModifier1 AS ProductUnitBarCodeModifier1,"); string
+    // sql.Append("tProductUnitBarCode.ProductUnitBarCodeSymbologyEnum AS ProductUnitBarCodeSymbologyEnum,"); int
+    // sql.Append("tActivityItem.ActivityItemStatus AS ActivityStatus "); int
+    // sql.Append("FROM tActivityItem ");
     public class BarcodeAssociationItem
     {
         private string productUnitBarCodeModifier1;

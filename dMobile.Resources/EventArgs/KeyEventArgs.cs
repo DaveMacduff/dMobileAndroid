@@ -2,15 +2,9 @@
 // Copyright (c) InterSect Business Systems Inc. All rights reserved.
 // </copyright>
 
-namespace dMobile.Resources.EventArg
+namespace dMobile.Resources.EventArgs
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Linq;
-    using System.Text;
-    using System.Threading.Tasks;
-
-    public class KeyEventArgs : EventArgs
+    public class KeyEventArgs : System.EventArgs
     {
         public string Key { get; set; }
     }

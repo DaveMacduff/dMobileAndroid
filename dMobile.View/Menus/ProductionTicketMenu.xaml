@@ -1,0 +1,21 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<custompages:DMobileContentPage xmlns:custompages="clr-namespace:dMobile.View.CustomPages"
+                                xmlns="http://xamarin.com/schemas/2014/forms"
+                                xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+                                x:Class="dMobile.View.Menus.ProductionTicketMenu">
+    <ContentPage.Content>
+        <AbsoluteLayout>
+            <StackLayout AbsoluteLayout.LayoutFlags="All" AbsoluteLayout.LayoutBounds="0,0,1,1">
+                <Button x:Name="cmdFinishedGoods" Clicked="cmdFinishedGoods_Click"/>
+                <Button x:Name="cmdIngredientMaterial" Clicked="cmdIngredientMaterial_Click"/>
+                <Button x:Name="cmdByProduct" Clicked="cmdByProduct_Click"/>
+                <Button x:Name="cmdDebox" Clicked="cmdDebox_Click"/>
+            </StackLayout>
+
+            <ActivityIndicator IsVisible="{Binding Loading}" 
+                               IsRunning="{Binding Loading}" 
+                               AbsoluteLayout.LayoutFlags="All" 
+                               AbsoluteLayout.LayoutBounds="0.5,0.5,0.3,0.3"/>
+        </AbsoluteLayout>
+    </ContentPage.Content>
+</custompages:DMobileContentPage>

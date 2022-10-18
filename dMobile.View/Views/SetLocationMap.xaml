@@ -6,7 +6,7 @@
     xmlns:helpers="clr-namespace:dMobile.View.Helpers"
     xmlns:customcontrols="clr-namespace:dMobile.View.CustomControls"
     xmlns:types="clr-namespace:dMobile.Resources.Types;assembly=dMobile.Resources"
-    x:Class="dMobile.View.SetLocationMap">
+    x:Class="dMobile.View.Views.SetLocationMap">
 
     <ContentPage x:Name="WarehouseTab">
         <!--Warehouse tab-->

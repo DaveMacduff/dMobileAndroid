@@ -1,0 +1,17 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<custompages:DMobileContentPage  
+    xmlns:custompages="clr-namespace:dMobile.View.CustomPages"
+    xmlns="http://xamarin.com/schemas/2014/forms"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    x:Class="dMobile.View.Menus.InventoryAdjustmentsMenu">
+    <ContentPage.Content>
+        <StackLayout>
+            <Button x:Name="cmdInventory" Clicked="cmdInventory_Click" Text="1) Inventory" />
+            <Button x:Name="cmdProduction" Clicked="cmdProduction_Click" Text="2) Production" />
+            <Button x:Name="cmdRework" Clicked="cmdRework_Click" Text="3) Rework" />
+            <Button x:Name="cmdRequisition" Clicked="cmdRequisition_Click" Text="4) Material Requisition" />
+            <Button x:Name="cmdDisposal" Clicked="cmdDisposal_Click" Text="5) Disposal" />
+            <Button x:Name="cmdConvertProduct" Clicked="cmdConvertProduct_Click" Text="6) Convert Label" />
+        </StackLayout>
+    </ContentPage.Content>
+</custompages:DMobileContentPage>

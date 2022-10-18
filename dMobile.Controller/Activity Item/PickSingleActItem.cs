@@ -1,4 +1,4 @@
-﻿// <copyright file="clsPickingSingleActivityItem.cs" company="InterSect Business Systems Inc">
+﻿// <copyright file="PickSingleActItem.cs" company="InterSect Business Systems Inc">
 // Copyright (c) InterSect Business Systems Inc. All rights reserved.
 // </copyright>
 
@@ -402,11 +402,11 @@ namespace dMobile.Controller.Activity_Item
         /// </summary>
         /// <param name="actDetailFKRefno">.</param>
         /// <returns>.</returns>
-        public async override Task<SActItemSchemeData> GetProdSchemeDataFromDetailFKRefno(int actDetailFKRefno)
+        public async override Task<ActItemSchemeData> GetProdSchemeDataFromDetailFKRefno(int actDetailFKRefno)
         {
             var xmlString = new StringBuilder();
             var xml = XmlWriter.Create(xmlString);
-            var itemSchemeData = new SActItemSchemeData();
+            var itemSchemeData = new ActItemSchemeData();
 
             var request = XDocument.Parse(
                 "<?xml version=\"1.0\" encoding=\"utf-8\" standalone=\"yes\"?>"
@@ -442,7 +442,7 @@ namespace dMobile.Controller.Activity_Item
                 }
                 else
                 {
-                    var tempSchemeData = new SProductSchemeData();
+                    var tempSchemeData = new ProductSchemeData();
                     itemSchemeData.ActItemFKRefno = int.Parse(xmlDoc.SelectSingleNode("/VFPData/seg/ActivityItemFKRefno").InnerText);
                     itemSchemeData.ActDetailQuantity = decimal.Parse(xmlDoc.SelectSingleNode("/VFPData/seg/activitydetailquantity").InnerText);
                     itemSchemeData.UnitCode = xmlDoc.SelectSingleNode("/VFPData/seg/unitcode").InnerText;

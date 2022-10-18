@@ -1,0 +1,22 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<custompages:DMobileContentPage 
+    xmlns:custompages="clr-namespace:dMobile.View.CustomPages"
+    xmlns="http://xamarin.com/schemas/2014/forms"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    x:Class="dMobile.View.Menus.InventoryMovementMenu">
+    <ContentPage.Content>
+        <AbsoluteLayout>
+            <StackLayout AbsoluteLayout.LayoutFlags="All" AbsoluteLayout.LayoutBounds="0,0,1,1">
+                <Button x:Name="cmdMoveProduct" Clicked="cmdMoves_Click" Text="1) Move Product" />
+                <Button x:Name="cmdTransferFrom" Clicked="cmdTransferFrom_Click" Text="2) Transfer From" />
+                <Button x:Name="cmdTransferTo" Clicked="cmdTransferTo_Click" Text="3) Transfer To" />
+                <Button x:Name="cmdMoveSkid" Clicked="cmdMoveSkid_Click" Text="4) Move Skid" />
+            </StackLayout>
+
+            <ActivityIndicator IsVisible="{Binding Loading}" 
+                               IsRunning="{Binding Loading}" 
+                               AbsoluteLayout.LayoutFlags="All" 
+                               AbsoluteLayout.LayoutBounds="0.5,0.5,0.3,0.3"/>
+        </AbsoluteLayout>
+    </ContentPage.Content>
+</custompages:DMobileContentPage>

@@ -1,4 +1,4 @@
-// <copyright file="clsActivityItemFacade.cs" company="InterSect Business Systems Inc">
+// <copyright file="ActItemFacade.cs" company="InterSect Business Systems Inc">
 // Copyright (c) InterSect Business Systems Inc. All rights reserved.
 // </copyright>
 

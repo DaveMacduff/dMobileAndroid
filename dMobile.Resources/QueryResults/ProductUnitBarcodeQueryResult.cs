@@ -4,7 +4,7 @@
 
 namespace dMobile.Resources.QueryResults
 {
-    //string queryProductUnitBarcode = "SELECT tProductUnit.ProductUnitRefno,"
+    // string queryProductUnitBarcode = "SELECT tProductUnit.ProductUnitRefno,"
     // + "tProductUnitBarCode.ProductUnitBarCodeRefno,"
     // + "tLocationMapWarehouseProductScheme.ProductSchemeRefno,"
     // + "tProduct.ProductSchemeRefno,"
@@ -36,7 +36,7 @@ namespace dMobile.Resources.QueryResults
     }
 }
 
-//"SELECT tProductUnit.ProductUnitRefno,"
+// "SELECT tProductUnit.ProductUnitRefno,"
 //                                    + "tLocationMapWarehouseProductScheme.ProductSchemeRefno,"
 //                                    + "tProduct.ProductCode,"
 //                                    + "tProductUnit.ProductUnitBC,"

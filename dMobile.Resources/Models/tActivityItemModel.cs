@@ -25,7 +25,7 @@ namespace dMobile.Resources.Models
 
         [Indexed(Name = "FK_ActivityItemOnActivityRefno", Order = 1, Unique = false)]
         [NotNull]
-        [ForeignKey(typeof(tActivityModel))]
+        [ForeignKey(typeof(ActivityModel))]
         public int ActivityRefno { get; set; }
     }
 }

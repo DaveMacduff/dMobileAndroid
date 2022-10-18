@@ -183,5 +183,10 @@ namespace dMobile.Bedrock
         /// Activity debox label count.
         /// </summary>
         ActivityDeboxLabelCount,
+
+        /// <summary>
+        /// 
+        /// </summary>
+        ActivityConvertUnitEditCatch,
     }
 }

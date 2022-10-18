@@ -220,7 +220,7 @@ namespace dMobile.GroundWork
                 this.OnNubStatOut(this, this.MsgEventArgs);
             }
 
-            await DatabaseConnection.GetInstance().SQLConn.CreateTableAsync<tActivityModel>();
+            await DatabaseConnection.GetInstance().SQLConn.CreateTableAsync<ActivityModel>();
         }
 
         /// <summary>
@@ -295,7 +295,7 @@ namespace dMobile.GroundWork
                 this.OnNubStatOut(this, this.MsgEventArgs);
             }
 
-            await DatabaseConnection.GetInstance().SQLConn.CreateTableAsync<tActivityCountModel>();
+            await DatabaseConnection.GetInstance().SQLConn.CreateTableAsync<ActivityCountModel>();
         }
 
         /// <summary>
@@ -535,7 +535,7 @@ namespace dMobile.GroundWork
                 this.OnNubStatOut(this, this.MsgEventArgs);
             }
 
-            await DatabaseConnection.GetInstance().SQLConn.CreateTableAsync<tActivityDetailCountModel>();
+            await DatabaseConnection.GetInstance().SQLConn.CreateTableAsync<ActivityDetailCountModel>();
         }
 
         /// <summary>
@@ -908,7 +908,7 @@ namespace dMobile.GroundWork
                 this.OnNubStatOut(this, this.MsgEventArgs);
             }
 
-            await DatabaseConnection.GetInstance().SQLConn.CreateTableAsync<tContactModel>();
+            await DatabaseConnection.GetInstance().SQLConn.CreateTableAsync<ContactModel>();
         }
 
         /// <summary>
@@ -938,7 +938,7 @@ namespace dMobile.GroundWork
                 this.OnNubStatOut(this, this.MsgEventArgs);
             }
 
-            await DatabaseConnection.GetInstance().SQLConn.CreateTableAsync<tContactCustomerModel>();
+            await DatabaseConnection.GetInstance().SQLConn.CreateTableAsync<ContactCustomerModel>();
         }
 
         /// <summary>
@@ -1043,7 +1043,7 @@ namespace dMobile.GroundWork
                 this.OnNubStatOut(this, this.MsgEventArgs);
             }
 
-            await DatabaseConnection.GetInstance().SQLConn.CreateTableAsync<tActivityDetailConvertUnitModel>();
+            await DatabaseConnection.GetInstance().SQLConn.CreateTableAsync<ActivityDetailConvertUnitModel>();
         }
 
         /// <summary>
@@ -1088,7 +1088,7 @@ namespace dMobile.GroundWork
                 this.OnNubStatOut(this, this.MsgEventArgs);
             }
 
-            await DatabaseConnection.GetInstance().SQLConn.CreateTableAsync<tActivityAdjustmentModel>();
+            await DatabaseConnection.GetInstance().SQLConn.CreateTableAsync<ActivityAdjustmentModel>();
         }
 
         /// <summary>
@@ -1118,7 +1118,7 @@ namespace dMobile.GroundWork
                 this.OnNubStatOut(this, this.MsgEventArgs);
             }
 
-            await DatabaseConnection.GetInstance().SQLConn.CreateTableAsync<tActivityDetailAdjustmentModel>();
+            await DatabaseConnection.GetInstance().SQLConn.CreateTableAsync<ActivityDetailAdjustmentModel>();
         }
 
         /// <summary>

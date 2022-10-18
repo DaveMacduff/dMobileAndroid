@@ -1198,7 +1198,7 @@ namespace dMobile.Bedrock
             sql.Append("INNER JOIN tActivityDetail ON tActivityDetail.ActivityItemRefno = tActivityItem.ActivityItemRefno ");
             sql.AppendFormat("WHERE tActivityDetail.ActivityDetailStatus <> {0}", Convert.ToInt32(ActStatus.NoChange));
 
-            var results = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<tActivityModel>(Convert.ToString(sql));
+            var results = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<ActivityModel>(Convert.ToString(sql));
 
             if (results?.Count > 0)
             {

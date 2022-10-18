@@ -39,7 +39,7 @@ namespace dMobile.GroundWork
                 string reqData;
                 if (actRefno == 0)
                 {
-                    var results = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<tActivityModel>("SELECT ActivityRefno FROM tActivity WHERE ActivitySubType = ?", Convert.ToInt32(SysCommon.ActSubTypes.TransferTo));
+                    var results = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<ActivityModel>("SELECT ActivityRefno FROM tActivity WHERE ActivitySubType = ?", Convert.ToInt32(SysCommon.ActSubTypes.TransferTo));
 
                     if (results?.Count > 0)
                     {

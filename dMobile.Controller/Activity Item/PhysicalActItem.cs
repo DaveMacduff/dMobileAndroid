@@ -1,4 +1,4 @@
-﻿// <copyright file="clsPhysicalCountActivityItem.cs" company="InterSect Business Systems Inc">
+﻿// <copyright file="PhysicalActItem.cs" company="InterSect Business Systems Inc">
 // Copyright (c) InterSect Business Systems Inc. All rights reserved.
 // </copyright>
 
@@ -1191,7 +1191,7 @@ namespace dMobile.Controller.Activity_Item
         /// </summary>
         /// <param name="actDetailFKRefno">The actDetailFKRefno<see cref="int"/>.</param>
         /// <returns>The <see cref="Task{SActItemSchemeData}"/>.</returns>
-        public override Task<SActItemSchemeData> GetProdSchemeDataFromDetailFKRefno(int actDetailFKRefno)
+        public override Task<ActItemSchemeData> GetProdSchemeDataFromDetailFKRefno(int actDetailFKRefno)
         {
             throw new NotImplementedException();
         }

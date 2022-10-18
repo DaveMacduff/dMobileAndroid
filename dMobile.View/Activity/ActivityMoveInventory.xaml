@@ -8,6 +8,7 @@
     <ContentPage.ToolbarItems>
         <ToolbarItem x:Name="OptionsMenu"
                      IconImageSource="{Binding OptionsIconSource}"
+                     x:DataType="custompages:DMobileContentPage"
                      Clicked="OptionsMenu_Clicked" />
     </ContentPage.ToolbarItems>
     <ContentPage.Content>
@@ -25,11 +26,14 @@
                     <RowDefinition Height="Auto"/>
                 </Grid.RowDefinitions>
 
+                <!--Grid row 0 -->
                 <Button x:Name="CmdFromLocation"
                         Clicked="CmdFromLocation_Click"
                         Grid.Row="0"
-                        IsEnabled="{Binding Loading, Converter={helpers:BoolConverter}}"/>
+                        IsEnabled="{Binding Loading, Converter={helpers:BoolConverter}}"
+                        x:DataType="custompages:DMobileContentPage"/>
 
+                <!--Grid row 1 -->
                 <Grid Grid.Row="1">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="Auto"/>
@@ -41,18 +45,25 @@
                     <CheckBox x:Name="ChkScanToLocation"
                               Grid.Column="0"
                               VerticalOptions="Center"
-                              IsEnabled="{Binding Loading, Converter={helpers:BoolConverter}}"/>
-                    <Label x:Name="LblScanToLocation" Grid.Column="1" VerticalOptions="Center"/>
+                              IsEnabled="{Binding Loading, Converter={helpers:BoolConverter}}"
+                              x:DataType="custompages:DMobileContentPage" />
+
+                    <Label x:Name="LblScanToLocation" Grid.Column="1" VerticalOptions="Center" />
+
                     <Picker x:Name="BarCodeModifier1Picker"
                             Grid.Column="2"
-                            IsEnabled="{Binding Loading, Converter={helpers:BoolConverter}}"/>
+                            IsEnabled="{Binding Loading, Converter={helpers:BoolConverter}}"
+                            x:DataType="custompages:DMobileContentPage" />
+
                     <Button x:Name="CmdAdd"
                             Grid.Column="3"
                             Clicked="CmdAdd_Click"
-                            IsEnabled="{Binding Loading, Converter={helpers:BoolConverter}}"/>
+                            IsEnabled="{Binding Loading, Converter={helpers:BoolConverter}}"
+                            x:DataType="custompages:DMobileContentPage" />
                 </Grid>
 
-                <Frame Grid.Row="2" OutlineColor="{DynamicResource BorderColor}">
+                <!--Grid row 2 -->
+                <Frame Grid.Row="2" BorderColor="{DynamicResource BorderColor}">
                     <ScrollView Orientation="Horizontal">
                         <Grid x:Name="GridMainActivity">
                             <Grid.RowDefinitions>
@@ -63,17 +74,21 @@
                                       ItemSelected="ListViewMainActivity_ItemSelected"
                                       HasUnevenRows="True"
                                       IsEnabled="{Binding Loading, Converter={helpers:BoolConverter}}"
-                                      Grid.Row="0"/>
+                                      x:DataType="custompages:DMobileContentPage"
+                                      Grid.Row="1" />
                         </Grid>
                     </ScrollView>
                 </Frame>
 
-                <Frame Grid.Row="3" OutlineColor="{DynamicResource BorderColor}">
+                <!--Grid row 3 -->
+                <Frame Grid.Row="3" BorderColor="{DynamicResource BorderColor}">
                     <ListView x:Name="ListViewDisplayExtraInfo"
                               SelectionMode="None"
                               HasUnevenRows="True"
                               IsEnabled="{Binding Loading, Converter={helpers:BoolConverter}}"
+                              x:DataType="custompages:DMobileContentPage"
                               SeparatorVisibility="None">
+
                         <ListView.ItemTemplate>
                             <DataTemplate>
                                 <ViewCell>
@@ -86,18 +101,24 @@
                     </ListView>
                 </Frame>
 
+                <!--Grid row 4 -->
                 <Button x:Name="CmdToLocation"
                         Grid.Row="4"
                         Clicked="CmdToLocation_Click"
-                        IsEnabled="{Binding Loading, Converter={helpers:BoolConverter}}"/>
+                        IsEnabled="{Binding Loading, Converter={helpers:BoolConverter}}"
+                        x:DataType="custompages:DMobileContentPage"/>
+
+                <!--Grid row 5 -->
                 <Button x:Name="CmdPerformMove"
                         Grid.Row="5"
                         Clicked="CmdPerformMove_Clicked"
-                        IsEnabled="{Binding Loading, Converter={helpers:BoolConverter}}"/>
+                        IsEnabled="{Binding Loading, Converter={helpers:BoolConverter}}"
+                        x:DataType="custompages:DMobileContentPage"/>
             </Grid>
 
             <ActivityIndicator IsVisible="{Binding Loading}" 
                                IsRunning="{Binding Loading}"
+                               x:DataType="custompages:DMobileContentPage"
                                AbsoluteLayout.LayoutFlags="All" 
                                AbsoluteLayout.LayoutBounds="0.5,0.5,0.3,0.3"/>
         </AbsoluteLayout>

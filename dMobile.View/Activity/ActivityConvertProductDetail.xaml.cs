@@ -458,7 +458,7 @@ namespace dMobile.View.Activity
                 this.Loading = true;
                 await this.ScannerDisable();
 
-                var tempItemProdSchemeData = new SActItemSchemeData();
+                var tempItemProdSchemeData = new ActItemSchemeData();
                 parse = scanArgs.ParseInfo;
 
                 // GLOBAL LOCATION IDENTIFIER SCANNED

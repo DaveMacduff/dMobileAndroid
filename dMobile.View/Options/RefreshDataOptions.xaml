@@ -1,0 +1,64 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<custompages:DMobileContentPage
+            xmlns:custompages="clr-namespace:dMobile.View.CustomPages"
+            xmlns="http://xamarin.com/schemas/2014/forms"
+            xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+            xmlns:Custom="clr-namespace:dMobile.View.CustomControls"
+            xmlns:Helpers="clr-namespace:dMobile.View.Helpers"
+            x:Class="dMobile.View.Options.RefreshDataOptions">
+    <ContentPage.Content>
+        <AbsoluteLayout>
+            <Grid AbsoluteLayout.LayoutFlags="All" AbsoluteLayout.LayoutBounds="0,0,1,1" Padding="10" >
+                
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="*" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+
+                <Grid VerticalOptions="Start" Grid.Row="0">
+                    <Label x:Name="lblRefreshDataChangesOnly" Text="Refresh Data Changes Only" VerticalTextAlignment="Center" />
+                    <Custom:CustomSwitch x:Name="chkRefreshDataChangesOnly" Toggled="IdentifyChangesMade" />
+                    <Label x:Name="lblSelectAll" Text="Select/Deselect All" VerticalTextAlignment="Center" Grid.Row="1" />
+                    <Custom:CustomSwitch x:Name="chkSelectAll"  Grid.Row="1" Clicked="chkSelectAll_Click" Toggled="IdentifyChangesMade"/>
+                </Grid>
+
+                <Frame VerticalOptions="Start" Grid.Row="1" OutlineColor="{DynamicResource BorderColor}">
+                    <ScrollView>
+                        <Grid Padding="5">
+                            <Label x:Name="lblSystemData" Text="System Data" VerticalTextAlignment="Center" />
+                            <Custom:CustomSwitch x:Name="chkSystemData" Clicked="ClickHandler" Toggled="IdentifyChangesMade"/>
+                            <Label x:Name="lblAdjustments" Text="Adjustments" VerticalTextAlignment="Center" Grid.Row="1"/>
+                            <Custom:CustomSwitch x:Name="chkAdjustments" Grid.Row="1" Clicked="ClickHandler" Toggled="IdentifyChangesMade"/>
+                            <Label x:Name="lblPurchaseOrders" Text="Purchase Orders" VerticalTextAlignment="Center" Grid.Row="2"/>
+                            <Custom:CustomSwitch x:Name="chkPurchaseOrders" Grid.Row="2" Clicked="ClickHandler" Toggled="IdentifyChangesMade"/>
+                            <Label x:Name="lblSalesOrders" Text="Sales Orders" VerticalTextAlignment="Center" Grid.Row="3"/>
+                            <Custom:CustomSwitch x:Name="chkSalesOrders" Grid.Row="3" Clicked="ClickHandler" Toggled="IdentifyChangesMade"/>
+                            <Label x:Name="lblProductionTickets" Text="Production Tickets" VerticalTextAlignment="Center" Grid.Row="4"/>
+                            <Custom:CustomSwitch x:Name="chkProductionTickets"  Grid.Row="4" Clicked="ClickHandler" Toggled="IdentifyChangesMade"/>
+                            <Label x:Name="lblReplenishment" Text="Replenishment" VerticalTextAlignment="Center" Grid.Row="5"/>
+                            <Custom:CustomSwitch x:Name="chkReplenishment" Grid.Row="5" Clicked="ClickHandler" Toggled="IdentifyChangesMade"/>
+                            <Label x:Name="lblCounts" Text="Counts" VerticalTextAlignment="Center" Grid.Row="6"/>
+                            <Custom:CustomSwitch x:Name="chkCounts" Grid.Row="6" Clicked="ClickHandler" Toggled="IdentifyChangesMade"/>
+                            <Label x:Name="lblTransfers" Text="Transfers" VerticalTextAlignment="Center" Grid.Row="7"/>
+                            <Custom:CustomSwitch x:Name="chkTransfers" Grid.Row="7" Clicked="ClickHandler" Toggled="IdentifyChangesMade"/>
+                            <Label x:Name="lblPurchaseOrderWorkSheet" Text="Purchase Order Work Sheet" VerticalTextAlignment="Center" Grid.Row="8"/>
+                            <Custom:CustomSwitch x:Name="chkPurchaseOrderWorkSheet" Grid.Row="8" Clicked="ClickHandler" Toggled="IdentifyChangesMade"/>
+                        </Grid>
+                    </ScrollView>
+                </Frame>
+
+                <Grid VerticalOptions="End" Grid.Row="2">
+                    <Button x:Name="cmdRefreshData" Text="Refresh Data" Clicked="cmdRefreshData_Click" IsEnabled="{Binding Loading, Converter={Helpers:BoolConverter}}"/>
+                    <Button x:Name="cmdDataStatus" Text="Data Status" Grid.Row="0" Grid.Column="1" Clicked="cmdDataStatus_Click" IsEnabled="{Binding Loading, Converter={Helpers:BoolConverter}}"/>
+                </Grid>
+
+            </Grid>
+
+            <ActivityIndicator IsVisible="{Binding Loading}" 
+                               IsRunning="{Binding Loading}" 
+                               AbsoluteLayout.LayoutFlags="All" 
+                               AbsoluteLayout.LayoutBounds="0.5,0.5,0.3,0.3"/>
+        </AbsoluteLayout>
+    </ContentPage.Content>
+</custompages:DMobileContentPage>

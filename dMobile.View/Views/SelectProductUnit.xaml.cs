@@ -2,27 +2,26 @@
 // Copyright (c) InterSect Business Systems Inc. All rights reserved.
 // </copyright>
 
-namespace dMobile.View
+using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Linq;
+using System.Threading.Tasks;
+using System.Xml.Linq;
+using Android.Views;
+using dMobile.BarCodeScanner.BarCodeParsing;
+using dMobile.BarCodeScanner.BarCodeScanners;
+using dMobile.Bedrock;
+using dMobile.Resources.Enums;
+using dMobile.Resources.Types;
+using dMobile.View.CustomPages.Modal;
+using dMobile.View.Forms;
+using Xamarin.Forms;
+using Xamarin.Forms.Xaml;
+
+namespace dMobile.View.Views
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Collections.ObjectModel;
-    using System.Data;
-    using System.Linq;
-    using System.Threading.Tasks;
-    using System.Xml.Linq;
-    using Android.Views;
-    using dMobile.BarCodeScanner.BarCodeParsing;
-    using dMobile.BarCodeScanner.BarCodeScanners;
-    using dMobile.Bedrock;
-    using dMobile.Controller;
-    using dMobile.Resources.Enums;
-    using dMobile.Resources.Types;
-    using dMobile.View.CustomPages.Modal;
-    using dMobile.View.Forms;
-    using Xamarin.Forms;
-    using Xamarin.Forms.Xaml;
-    using Resource = dMobile.Resources.Properties.Resources;
+    using Resource = Resources.Properties.Resources;
 
     /// <summary>
     /// Perform selecting a product unit.
@@ -91,7 +90,7 @@ namespace dMobile.View
         /// <summary>
         /// Gets or sets the bar code scanner engine.
         /// </summary>
-        private BarCodeScanner Scanner { get; set; }
+        private BarCodeScanner.BarCodeScanners.BarCodeScanner Scanner { get; set; }
 
         /// <summary>
         /// Gets or sets the system environment instance.
@@ -371,7 +370,7 @@ namespace dMobile.View
             {
                 if (this.IsBarCodeHandlerRegistered)
                 {
-                    this.Scanner.BarCodeScan -= new BarCodeScanner.BarCodeScanEventHandler(this.BarCodeHandler);
+                    this.Scanner.BarCodeScan -= new BarCodeScanner.BarCodeScanners.BarCodeScanner.BarCodeScanEventHandler(this.BarCodeHandler);
                     await this.Scanner.Stop();
                     this.IsBarCodeHandlerRegistered = false;
                 }
@@ -389,7 +388,7 @@ namespace dMobile.View
                 if (!this.IsBarCodeHandlerRegistered)
                 {
                     await this.Scanner.Start();
-                    this.Scanner.BarCodeScan += new BarCodeScanner.BarCodeScanEventHandler(this.BarCodeHandler);
+                    this.Scanner.BarCodeScan += new BarCodeScanner.BarCodeScanners.BarCodeScanner.BarCodeScanEventHandler(this.BarCodeHandler);
                     this.IsBarCodeHandlerRegistered = true;
                 }
             }
@@ -404,7 +403,7 @@ namespace dMobile.View
             if (this.Scanner != null)
             {
                 await this.Scanner.Start();
-                this.Scanner.BarCodeScan += new BarCodeScanner.BarCodeScanEventHandler(this.BarCodeHandler);
+                this.Scanner.BarCodeScan += new BarCodeScanner.BarCodeScanners.BarCodeScanner.BarCodeScanEventHandler(this.BarCodeHandler);
                 this.IsBarCodeHandlerRegistered = true;
             }
         }

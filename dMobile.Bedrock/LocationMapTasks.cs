@@ -324,11 +324,11 @@ namespace dMobile.Bedrock
         public static async Task<bool> IsCompleteLocMap(SLocMap locMap)
         {
             bool isComplete;
-            if (LocationMap.GetInstance().CurrLocMap.IsSlotTracked)
+            if (locMap.IsSlotTracked)
             {
                 isComplete = await IsCompleteLocMap(locMap.SlotLocMapRefno);
             }
-            else if (LocationMap.GetInstance().CurrLocMap.IsSectionTracked)
+            else if (locMap.IsSectionTracked)
             {
                 isComplete = await IsCompleteLocMap(locMap.SectLocMapRefno);
             }
@@ -348,36 +348,24 @@ namespace dMobile.Bedrock
         public static async Task<bool> IsCompleteLocMap(int locMapRefno)
         {
             var isComplete = false;
-            var locMapSubType = SysCommon.LocMapSubTypes.None;
-            var locMap = LocationMap.GetInstance();
-
             var results = await DatabaseConnection.GetInstance().SQLConn
                 .QueryAsync<tLocationMapModel>(
                 "SELECT * FROM tLocationMap WHERE LocationMapRefno = ?",
                 Convert.ToInt32(locMapRefno));
-
             if (results != null && results.Count > 0)
             {
+                var locMapSubType = SysCommon.LocMapSubTypes.None;
+                var locMap = await LocationMapTasks.GetSLocMapFromLocMapRefno(locMapRefno);
                 locMapSubType = (SysCommon.LocMapSubTypes)results[0].LocationMapSubType;
-            }
-
-            if (locMap.CurrLocMap.IsSlotTracked)
-            {
-                if (locMapSubType == SysCommon.LocMapSubTypes.Slot)
+                if (locMap.IsSlotTracked && locMapSubType == SysCommon.LocMapSubTypes.Slot)
                 {
                     isComplete = true;
                 }
-            }
-            else if (locMap.CurrLocMap.IsSectionTracked)
-            {
-                if (locMapSubType == SysCommon.LocMapSubTypes.Section)
+                else if (locMap.IsSectionTracked && locMapSubType == SysCommon.LocMapSubTypes.Section)
                 {
                     isComplete = true;
                 }
-            }
-            else
-            {
-                if (locMapSubType == SysCommon.LocMapSubTypes.Warehouse)
+                else if (locMapSubType == SysCommon.LocMapSubTypes.Warehouse)
                 {
                     isComplete = true;
                 }
@@ -406,7 +394,6 @@ namespace dMobile.Bedrock
                     QueryAsync<tLocationMapModel>(
                     "SELECT LocationMapRefno FROM tLocationMapSlot WHERE LocationMapSlotFKRefno = ?",
                     Convert.ToInt32(slotLocMapFKRefno));
-
                 if (results != null && results.Count > 0)
                 {
                     tempLocMapRefno = Convert.ToInt32(results[0].LocationMapRefno);
@@ -419,7 +406,6 @@ namespace dMobile.Bedrock
                     SQLConn.QueryAsync<tLocationMapSectionModel>(
                     "SELECT LocationMapRefno FROM tLocationMapSection WHERE LocationMapSectionFKRefno = ?",
                     Convert.ToInt32(sectionLocMapFKRefno));
-
                 if (results != null && results.Count > 0)
                 {
                     tempLocMapRefno = Convert.ToInt32(results[0].LocationMapRefno);
@@ -432,7 +418,6 @@ namespace dMobile.Bedrock
                     SQLConn.QueryAsync<tLocationMapWarehouseModel>(
                     "SELECT LocationMapRefno FROM tLocationMapWarehouse WHERE LocationMapWarehouseFKRefno = ?",
                     Convert.ToInt32(warehouseLocMapFKRefno));
-
                 if (results != null && results.Count > 0)
                 {
                     tempLocMapRefno = Convert.ToInt32(results[0].LocationMapRefno);
@@ -440,7 +425,6 @@ namespace dMobile.Bedrock
             }
 
             var retLocMap = await GetSLocMapFromLocMapRefno(tempLocMapRefno);
-
             return new SLocMapAndRefno { SLocMap = retLocMap, LocMapRefno = tempLocMapRefno };
         }
 

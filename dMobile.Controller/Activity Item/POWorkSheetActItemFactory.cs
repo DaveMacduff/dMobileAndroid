@@ -1,4 +1,4 @@
-// <copyright file="clsPurchaseOrderWorkSheetActivityItemFactory.cs" company="InterSect Business Systems Inc">
+// <copyright file="POWorkSheetActItemFactory.cs" company="InterSect Business Systems Inc">
 // Copyright (c) InterSect Business Systems Inc. All rights reserved.
 // </copyright>
 

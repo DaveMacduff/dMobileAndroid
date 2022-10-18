@@ -1,4 +1,4 @@
-// <copyright file="clsMoveInventoryActivityItemFactory.cs" company="InterSect Business Systems Inc">
+// <copyright file="MoveInvActItemFactory.cs" company="InterSect Business Systems Inc">
 // Copyright (c) InterSect Business Systems Inc. All rights reserved.
 // </copyright>
 

@@ -5,6 +5,7 @@
 using dMobile.Controller.Activity;
 using dMobile.Controller.Activity_Detail;
 using dMobile.Controller.Activity_Item;
+using dMobile.View.Views;
 
 namespace dMobile.View.Forms
 {
@@ -34,7 +35,7 @@ namespace dMobile.View.Forms
             this.InitializeComponent();
             var model = modelType switch
             {
-                EDialogTypes.RefreshDataStatus => new ucRefreshDataStatus(actSubType),
+                EDialogTypes.RefreshDataStatus => new RefreshDataStatus(actSubType),
                 EDialogTypes.ActivityInventoryInquiry => new ActivityInventoryInquiry(),
                 EDialogTypes.ActivityDeboxLabelCount => new ActivityDeboxLabelCount(),
                 EDialogTypes.SelectProductUnit => this.GetModel(modelType, actSubType),
@@ -153,7 +154,7 @@ namespace dMobile.View.Forms
             this.InitializeComponent();
             var model = modelType switch
             {
-                EDialogTypes.RefreshDataStatus => new ucRefreshDataStatus(actSubType),
+                EDialogTypes.RefreshDataStatus => new RefreshDataStatus(actSubType),
                 EDialogTypes.ActivityInventoryInquiry => new ActivityInventoryInquiry(),
                 EDialogTypes.SelectProductUnit => this.GetModel(modelType, activity, actSubType),
                 EDialogTypes.SelectProductUnitFilterToProduct => this.GetModel(modelType, activity, actSubType),
@@ -210,7 +211,7 @@ namespace dMobile.View.Forms
             this.InitializeComponent();
             var model = modelType switch
             {
-                EDialogTypes.RefreshDataStatus => new ucRefreshDataStatus(actSubType),
+                EDialogTypes.RefreshDataStatus => new RefreshDataStatus(actSubType),
                 EDialogTypes.ActivityInventoryInquiry => new ActivityInventoryInquiry(actItem.ProdInfo),
                 EDialogTypes.ActivityInventoryInquirySummary => new ActivityItemInventoryInquirySummary(actItem),
                 EDialogTypes.SelectProductUnit => this.GetModel(modelType, actItem, actSubType, callingActSubType),
@@ -262,7 +263,7 @@ namespace dMobile.View.Forms
             this.InitializeComponent();
             var model = modelType switch
             {
-                EDialogTypes.RefreshDataStatus => new ucRefreshDataStatus(actSubType),
+                EDialogTypes.RefreshDataStatus => new RefreshDataStatus(actSubType),
                 EDialogTypes.ActivityInventoryInquiry => new ActivityInventoryInquiry(actDetail.ActItem.ProdInfo),
                 EDialogTypes.SelectProductUnit => this.GetModel(modelType, actDetail, actSubType),
                 EDialogTypes.SelectProductUnitFilterToProduct => this.GetModel(modelType, actDetail, actSubType),
@@ -285,6 +286,7 @@ namespace dMobile.View.Forms
                 EDialogTypes.ActivityPickingSelectCriteria => this.GetModel(modelType, actDetail, actSubType),
                 EDialogTypes.ActivityShippingLabelEdit => this.GetModel(modelType, actDetail, actSubType),
                 EDialogTypes.ActivityConvertUnitEdit => this.GetModel(modelType, actDetail, actSubType),
+                EDialogTypes.ActivityConvertUnitEditCatch => this.GetModel(modelType, actDetail, actSubType),
                 EDialogTypes.SkidInfo => this.GetModel(modelType, actDetail, actSubType),
                 EDialogTypes.SkidInfoEdit => this.GetModel(modelType, actDetail, actSubType),
                 EDialogTypes.ActivityDetailSkid => this.GetModel(modelType, actDetail, actSubType),
@@ -504,6 +506,9 @@ namespace dMobile.View.Forms
                 EDialogTypes.ActivityConvertUnitEdit => new ActivityConvertUnitEdit(
                     actDetail,
                     SysCommon.ActSubTypes.ConvertUnit), // Override the subtype to ConvertUnit
+                EDialogTypes.ActivityConvertUnitEditCatch => new ActivityConvertUnitEditCatch(
+                    actDetail,
+                    SysCommon.ActSubTypes.ConvertUnit), // Override the subtype to ConvertUnit
                 EDialogTypes.ActivityInventoryInquiryDetail => new ActivityDetailInventoryInquiry(actDetail, actSubType),
                 EDialogTypes.ActivityConvertProductDetail => new ActivityConvertProductDetail(actDetail, actSubType),
                 EDialogTypes.ActivityRemoveFromSkid => new ActivityRemoveFromSkid(actDetail, actSubType),
@@ -669,7 +674,7 @@ namespace dMobile.View.Forms
                 EDialogTypes.ActivityHdrCycleCountFilter => new ucActivityHdrCycleCountFilter(),
                 EDialogTypes.ActivityHdrReturnsFilter => new ActivityHdrReturnsFilter(),
                 EDialogTypes.ActivityHdrTransferFilter => new ActivityHdrTransferFilter(),
-                EDialogTypes.SubmitBatchFilter => new ucSubmitBatchFilter(),
+                EDialogTypes.SubmitBatchFilter => new SubmitBatchFilter(),
                 EDialogTypes.ActivityAdjustmentFilter => new ucActivityHdrAdjustmentFilter(),
                 EDialogTypes.ActivityProductionTicketFinishedFilter => new ActivityHdrProductionTicketFilter(),
                 EDialogTypes.ActivityProductionTicketMaterialFilter => new ActivityHdrProductionTicketFilter(),

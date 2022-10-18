@@ -1,0 +1,66 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<custompages:DMobileContentPage
+    xmlns:custompages="clr-namespace:dMobile.View.CustomPages"
+    xmlns="http://xamarin.com/schemas/2014/forms"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    x:Class="dMobile.View.Options.About">
+    <ContentPage.Content>
+        <AbsoluteLayout>
+            <Grid AbsoluteLayout.LayoutFlags="All" AbsoluteLayout.LayoutBounds="0,0,1,1" Padding="10" >
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="*" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+
+                <Label x:Name="lblDeviceNameIP" Grid.Row="0" FontAttributes="Bold"/>
+                <Label x:Name="lblDeviceIDData" Text="000000000000-00000000000000000000" Grid.Row="1" HorizontalOptions="FillAndExpand"/>
+
+                <Frame OutlineColor="{DynamicResource BorderColor}" Grid.Row="2" Grid.ColumnSpan="2">
+                    <ListView x:Name="lstDeviceNameIP" ItemSelected="LstDeviceNameIP_ItemSelected" HasUnevenRows="True">
+                        <ListView.ItemTemplate>
+                            <DataTemplate>
+                                <ViewCell>
+                                    <Label Text="{Binding DisplayMember}" VerticalTextAlignment="Center" Padding="5,1,5,1"/>
+                                </ViewCell>
+                            </DataTemplate>
+                        </ListView.ItemTemplate>
+                    </ListView>
+                </Frame>
+
+                <Grid AbsoluteLayout.LayoutFlags="All" AbsoluteLayout.LayoutBounds="0,0,1,1" Grid.Row="3" Grid.ColumnSpan="2">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
+
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+
+                    <Label x:Name="lblMACAddress" Text="MAC Address:" Grid.Row="0" Grid.Column="0" FontAttributes="Bold"/>
+                    <Label x:Name="lblMACAddressData" Text="&lt;Unknown&gt;" Grid.Row="0" Grid.Column="1"/>
+
+                    <Label x:Name="lblStatus" Text="Status:" Grid.Row="1" Grid.Column="0" FontAttributes="Bold"/>
+                    <Label x:Name="lblStatusData" Text="&lt;Unknown&gt;" Grid.Row="1" Grid.Column="1"/>
+
+                    <Label x:Name="lblSpeed" Text="Speed:" Grid.Row="2" Grid.Column="0" FontAttributes="Bold"/>
+                    <Label x:Name="lblSpeedData" Text="&lt;Unknown&gt;" Grid.Row="2" Grid.Column="1"/>
+                </Grid>
+
+                <Button x:Name="cmdShowMemory" Text="Show Memory" Grid.Row="5" Grid.Column="0" Clicked="cmdShowMemory_Click"/>
+                <Button x:Name="cmdVersionInfo" Text="Version Info" Grid.Row="5" Grid.Column="1" Clicked="cmdVersionInfo_Click"/>
+            </Grid>
+
+            <ActivityIndicator IsVisible="{Binding Loading}" 
+                               IsRunning="{Binding Loading}" 
+                               AbsoluteLayout.LayoutFlags="All" 
+                               AbsoluteLayout.LayoutBounds="0.5,0.5,0.3,0.3"/>
+        </AbsoluteLayout>
+    </ContentPage.Content>
+</custompages:DMobileContentPage>

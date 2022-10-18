@@ -748,7 +748,7 @@ namespace dMobile.View.Activity
                     }
 
                     //////////////////////////////////////////////////////////////////////////
-                    async Task<SProductSchemeData> AssignSchemeVariant(SProductSchemeData scheme)
+                    async Task<ProductSchemeData> AssignSchemeVariant(ProductSchemeData scheme)
                     {
                         if (this.ActDetail.ActItem.ProdInfo.Scheme.IsVariantTracked)
                         {
@@ -1306,7 +1306,7 @@ namespace dMobile.View.Activity
 
                     //////////////////////////////////////////////////////////////////////////
                     // Get the default serial number and assign it to the activity edit detail scheme data.
-                    void GetNextDefaultSerialNumber(SProductSchemeData schemeData)
+                    void GetNextDefaultSerialNumber(ProductSchemeData schemeData)
                     {
                         if (string.IsNullOrEmpty(schemeData.SingleTradeItemSerialNumber))
                         {

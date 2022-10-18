@@ -1,4 +1,4 @@
-// <copyright file="clsAssignDefaultLocationActivityItemFactory.cs" company="InterSect Business Systems Inc">
+// <copyright file="AssignDefaultLocActItemFactory.cs" company="InterSect Business Systems Inc">
 // Copyright (c) InterSect Business Systems Inc. All rights reserved.
 // </copyright>
 

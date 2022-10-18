@@ -2,11 +2,9 @@
 // Copyright (c) InterSect Business Systems Inc. All rights reserved.
 // </copyright>
 
-namespace dMobile.Resources.EventArg
+namespace dMobile.Resources.EventArgs
 {
-    using System;
-
-    public class AppEventArgs : EventArgs
+    public class AppEventArgs : System.EventArgs
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="AppEventArgs"/> class.

@@ -2,12 +2,12 @@
 // Copyright (c) InterSect Business Systems Inc. All rights reserved.
 // </copyright>
 
-namespace dMobile.View
-{
-    using System;
-    using Xamarin.Forms;
-    using Xamarin.Forms.Xaml;
+using dMobile.View.Views;
+using Xamarin.Forms;
+using Xamarin.Forms.Xaml;
 
+namespace dMobile.View.Pages
+{
     /// <summary>
     /// Defines the <see cref="MainPage" />.
     /// </summary>
@@ -34,7 +34,7 @@ namespace dMobile.View
             {
                 this.masterPage.listView.SelectedItem = null;
                 this.IsPresented = false;
-                Application.Current.MainPage = new NavigationPage(new ucLoginStartup());
+                Application.Current.MainPage = new NavigationPage(new LoginStartup());
             }
         }
     }

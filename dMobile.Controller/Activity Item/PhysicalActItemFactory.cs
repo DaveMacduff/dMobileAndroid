@@ -1,4 +1,4 @@
-// <copyright file="clsPhysicalCountActivityItemFactory.cs" company="InterSect Business Systems Inc">
+// <copyright file="PhysicalActItemFactory.cs" company="InterSect Business Systems Inc">
 // Copyright (c) InterSect Business Systems Inc. All rights reserved.
 // </copyright>
 

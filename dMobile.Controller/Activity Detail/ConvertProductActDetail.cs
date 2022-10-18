@@ -258,7 +258,7 @@ namespace dMobile.Controller.Activity_Detail
                 this.ActItem.ActHdr.HdrFKRefno = Convert.ToInt32(data.Root.Element("hdr_refno").Value);
 
                 // Update Scheme data
-                var schemeData = new SProductSchemeData();
+                var schemeData = new ProductSchemeData();
                 schemeData.LogisticUnitProductionDate = Convert.ToDateTime(data.Root.Element("pdate").Value);
                 schemeData.LogisticUnitBestBeforeSellByDate = Convert.ToDateTime(data.Root.Element("bdate").Value);
                 schemeData.SingleTradeItemSerialNumber = Convert.ToString(data.Root.Element("serial").Value);

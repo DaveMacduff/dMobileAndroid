@@ -1280,7 +1280,7 @@ namespace dMobile.View.Activity
 
         private async Task GatherProductData(BarCodeParse barParse)
         {
-            var tempItemProdSchemeData = new SActItemSchemeData();
+            var tempItemProdSchemeData = new ActItemSchemeData();
             var isInsertReady = false;
 
             isInsertReady = await SysShared.GatherProductData(barParse, this.ActSubType, this.ActItem, tempItemProdSchemeData, isInsertReady, this.ActDetail, false);

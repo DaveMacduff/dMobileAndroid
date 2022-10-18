@@ -1,4 +1,4 @@
-﻿// <copyright file="TableActivityReceivingItem.cs" company="InterSect Business Systems Inc">
+﻿// <copyright file="TableActivityRecevingItem.cs" company="InterSect Business Systems Inc">
 // Copyright (c) InterSect Business Systems Inc. All rights reserved.
 // </copyright>
 
@@ -42,7 +42,7 @@ namespace dMobile.GroundWork
                 string reqData;
                 if (actRefno == 0)
                 {
-                    var results = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<tActivityModel>("SELECT * FROM tActivity WHERE ActivitySubType = ?", Convert.ToInt32(SysCommon.ActSubTypes.Receiving));
+                    var results = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<ActivityModel>("SELECT * FROM tActivity WHERE ActivitySubType = ?", Convert.ToInt32(SysCommon.ActSubTypes.Receiving));
 
                     if (results?.Count > 0)
                     {

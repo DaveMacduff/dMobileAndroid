@@ -1,4 +1,4 @@
-﻿// <copyright file="clsActivityItem.cs" company="InterSect Business Systems Inc">
+﻿// <copyright file="ActItem.cs" company="InterSect Business Systems Inc">
 // Copyright (c) InterSect Business Systems Inc. All rights reserved.
 // </copyright>
 
@@ -293,7 +293,7 @@ namespace dMobile.Controller.Activity_Item
         /// </summary>
         /// <param name="actDetailFKRefno"><see cref="int"/> Activity detail foreign key reference number.</param>
         /// <returns><see cref="Task{SActItemSchemeData}"/> Activity item scheme data.</returns>
-        public abstract Task<SActItemSchemeData> GetProdSchemeDataFromDetailFKRefno(int actDetailFKRefno);
+        public abstract Task<ActItemSchemeData> GetProdSchemeDataFromDetailFKRefno(int actDetailFKRefno);
 
         /// <summary>
         /// Get activity item comment.

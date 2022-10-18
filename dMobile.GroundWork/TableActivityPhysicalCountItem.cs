@@ -46,7 +46,7 @@ namespace dMobile.GroundWork
                 if (actRefno == 0)
                 {
                     var query = "SELECT ActivityRefno FROM tActivity WHERE ActivitySubType = ?";
-                    var results = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<tActivityModel>(query, Convert.ToInt32(SysCommon.ActSubTypes.PhysicalCounts));
+                    var results = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<ActivityModel>(query, Convert.ToInt32(SysCommon.ActSubTypes.PhysicalCounts));
 
                     if (results != null && results.Count > 0)
                     {
@@ -165,7 +165,7 @@ namespace dMobile.GroundWork
             var actCountFKRefno = 0;
 
             var query = "SELECT * FROM tActivityCount WHERE ActivityRefno = ?";
-            var results = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<tActivityCountModel>(query, actRefno);
+            var results = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<ActivityCountModel>(query, actRefno);
 
             if (results?.Count > 0)
             {

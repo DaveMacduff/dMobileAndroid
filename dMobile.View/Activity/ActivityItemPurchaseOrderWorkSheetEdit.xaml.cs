@@ -211,7 +211,7 @@ namespace dMobile.View.Activity
         {
             var IsRetVal = true;
 
-            // if (!Information.IsNumeric(txtAltQty.Text))
+            // if (!Information.IsNumeric(TxtBaseQty.Text))
             if (!decimal.TryParse(this.txtAltQty.Text, out _))
             {
                 Device.BeginInvokeOnMainThread(() => this.DisplayAlert("Error", "Invalid Quantity!", "OK"));

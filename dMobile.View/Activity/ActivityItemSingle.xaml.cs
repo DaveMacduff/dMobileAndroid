@@ -995,7 +995,7 @@ namespace dMobile.View.Activity
             var foundSelectedActivityItem = this.ActItem.SelectedActivityItem;
             var actItemFoundRefno = 0;
             BarCodeParse barCodeParse = null;
-            var tempItemSchemeData = new SActItemSchemeData();
+            var tempItemSchemeData = new ActItemSchemeData();
 
             try
             {

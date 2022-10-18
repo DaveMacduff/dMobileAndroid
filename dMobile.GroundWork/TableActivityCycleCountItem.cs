@@ -45,7 +45,7 @@ namespace dMobile.GroundWork
                 string reqData;
                 if (actRefno == 0)
                 {
-                    var results = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<tActivityModel>("SELECT ActivityRefno FROM tActivity WHERE ActivitySubType = ?", Convert.ToInt32(SysCommon.ActSubTypes.CycleCounts));
+                    var results = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<ActivityModel>("SELECT ActivityRefno FROM tActivity WHERE ActivitySubType = ?", Convert.ToInt32(SysCommon.ActSubTypes.CycleCounts));
 
                     if (results != null && results.Count > 0)
                     {
@@ -162,7 +162,7 @@ namespace dMobile.GroundWork
         /// <returns></returns>
         protected override async Task<string> SendRequest(int actRefno)
         {
-            var results = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<tActivityCountModel>("SELECT * FROM tActivityCount WHERE ActivityRefno = ?", actRefno);
+            var results = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<ActivityCountModel>("SELECT * FROM tActivityCount WHERE ActivityRefno = ?", actRefno);
 
             int actCountFKRefno;
             if (results != null && results.Count > 0)

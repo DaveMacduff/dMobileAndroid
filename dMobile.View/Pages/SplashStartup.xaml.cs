@@ -2,30 +2,26 @@
 // Copyright (c) InterSect Business Systems Inc. All rights reserved.
 // </copyright>
 
-namespace dMobile.View
-{
-    using System;
-    using System.Collections.Generic;
-    using System.Collections.ObjectModel;
-    using System.Data;
-    using System.IO;
-    using System.Text;
-    using System.Threading;
-    using System.Threading.Tasks;
-    using System.Xml;
-    using System.Xml.Linq;
-    using Android.Content;
-    using Android.Views;
-    using dMobile.BarCodeScanner.BarCodeScanners;
-    using dMobile.Bedrock;
-    using dMobile.GroundWork;
-    using dMobile.Resources.Enums;
-    using dMobile.View.CustomPages;
-    using dMobile.View.Forms;
-    using dMobile.View.Themes;
-    using Xamarin.Forms;
-    using Xamarin.Forms.Xaml;
+using System;
+using System.Collections.ObjectModel;
+using System.IO;
+using System.Text;
+using System.Threading.Tasks;
+using System.Xml;
+using System.Xml.Linq;
+using Android.Views;
+using dMobile.BarCodeScanner.BarCodeScanners;
+using dMobile.Bedrock;
+using dMobile.GroundWork;
+using dMobile.Resources.Enums;
+using dMobile.View.CustomPages;
+using dMobile.View.Forms;
+using dMobile.View.Views;
+using Xamarin.Forms;
+using Xamarin.Forms.Xaml;
 
+namespace dMobile.View.Pages
+{
     [XamlCompilation(XamlCompilationOptions.Compile)]
     public partial class SplashStartup : DMobileContentPage, IAppArea, IDataNubListener
     {
@@ -638,7 +634,7 @@ namespace dMobile.View
 
         private void BtnClose_Clicked(object sender, EventArgs e)
         {
-            Device.BeginInvokeOnMainThread(() => Application.Current.MainPage = new NavigationPage(new ucLoginStartup()));
+            Device.BeginInvokeOnMainThread(() => Application.Current.MainPage = new NavigationPage(new LoginStartup()));
         }
     }
 }

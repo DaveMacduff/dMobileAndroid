@@ -2,6 +2,8 @@
 // Copyright (c) InterSect Business Systems Inc. All rights reserved.
 // </copyright>
 
+using dMobile.View.Pages;
+
 namespace dMobile.Droid
 {
     using System;

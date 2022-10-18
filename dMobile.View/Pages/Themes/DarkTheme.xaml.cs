@@ -2,11 +2,11 @@
 // Copyright (c) InterSect Business Systems Inc. All rights reserved.
 // </copyright>
 
-namespace dMobile.View.Themes
-{
-    using Xamarin.Forms;
-    using Xamarin.Forms.Xaml;
+using Xamarin.Forms;
+using Xamarin.Forms.Xaml;
 
+namespace dMobile.View.Pages.Themes
+{
     [XamlCompilation(XamlCompilationOptions.Compile)]
     public partial class DarkTheme : ResourceDictionary
     {

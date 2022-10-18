@@ -5,6 +5,7 @@
 using dMobile.Controller.Activity;
 using dMobile.Controller.Activity_Detail;
 using dMobile.Controller.Activity_Item;
+using dMobile.View.Views;
 
 namespace dMobile.View.Activity
 {

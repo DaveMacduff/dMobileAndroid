@@ -278,7 +278,7 @@ namespace dMobile.View.Activity
         ///// <remarks></remarks>
         // public UserControl GetCallingControl()
         // {
-        //    UserControl control = new ucSalesOrdersMenu();
+        //    UserControl control = new SalesOrdersMenu();
 
         // return control;
         // }

@@ -124,10 +124,10 @@ namespace dMobile.Controller.Activity
         /// <summary>
         /// The DesignGrid.
         /// </summary>
-        /// <param name="GridMainActivity">The GridMainActivity<see cref="Grid"/>.</param>
-        /// <param name="ListViewMainActivity">The ListViewMainActivity<see cref="ListView"/>.</param>
+        /// <param name="gridMainActivity">The gridMainActivity<see cref="Grid"/>.</param>
+        /// <param name="listViewMainActivity">The listViewMainActivity<see cref="ListView"/>.</param>
         /// <returns>The <see cref="ObservableCollection{object}"/>.</returns>
-        public override ObservableCollection<object> DesignGrid(ref Grid GridMainActivity, ref ListView ListViewMainActivity)
+        public override ObservableCollection<object> DesignGrid(ref Grid gridMainActivity, ref ListView listViewMainActivity)
         {
             var observableCollection = new ObservableCollection<object>();
 
@@ -161,7 +161,7 @@ namespace dMobile.Controller.Activity
 
             Grid.SetRow(gridHeaderPhysicalCount, 0);
 
-            GridMainActivity.Children.Add(gridHeaderPhysicalCount);
+            gridMainActivity.Children.Add(gridHeaderPhysicalCount);
 
             foreach (Count count in this.ListHdrs)
             {
@@ -203,7 +203,7 @@ namespace dMobile.Controller.Activity
                 }
             }
 
-            ListViewMainActivity.ItemTemplate = (DataTemplate)this.resourceDictionary["dataTemplatePhysicalCount"];
+            listViewMainActivity.ItemTemplate = (DataTemplate)this.resourceDictionary["dataTemplatePhysicalCount"];
 
             return observableCollection;
         }
@@ -496,11 +496,11 @@ namespace dMobile.Controller.Activity
         /// <summary>
         /// Get the activity foreign key reference number.
         /// </summary>
-        /// <param name="resourceType"><see cref="object"/> Resource model (tActivityCountModel).</param>
+        /// <param name="resourceType"><see cref="object"/> Resource model (ActivityCountModel).</param>
         /// <returns><see cref="int"/> Found activity foreign key refno, else 0 if not found.</returns>
         public override int GetFKRefno(object resourceType)
         {
-            // Not sure why the cast to tActivityCountModel fails.
+            // Not sure why the cast to ActivityCountModel fails.
             object tmpFKRefno = ((Count)resourceType).ActivityFKRefno;
             return tmpFKRefno != null ? Convert.ToInt32(tmpFKRefno) : 0;
         }

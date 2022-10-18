@@ -1,4 +1,4 @@
-// <copyright file="clsPickingActivityItemFactory.cs" company="InterSect Business Systems Inc">
+// <copyright file="PickingActItemFactory.cs" company="InterSect Business Systems Inc">
 // Copyright (c) InterSect Business Systems Inc. All rights reserved.
 // </copyright>
 

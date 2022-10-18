@@ -1,4 +1,4 @@
-﻿// <copyright file="clsMoveInventoryActivityItem.cs" company="InterSect Business Systems Inc">
+﻿// <copyright file="MoveInvActItem.cs" company="InterSect Business Systems Inc">
 // Copyright (c) InterSect Business Systems Inc. All rights reserved.
 // </copyright>
 
@@ -13,7 +13,7 @@ using Xamarin.Forms;
 namespace dMobile.Controller.Activity_Item
 {
     /// <summary>
-    /// Defines the <see cref="MoveInvActItem" />.
+    /// Defines the <see cref="MoveInvActItem" /> Inventory movement activity item.
     /// </summary>
     public class MoveInvActItem : ActItem
     {
@@ -39,16 +39,16 @@ namespace dMobile.Controller.Activity_Item
         /// <summary>
         /// Gets or sets a value indicating whether allowed to add skid detail.
         /// </summary>
-        /// <returns><see cref="bool"/> True if allowed to add skid detail.</returns>
+        /// <returns><see cref="bool"/> Always false, not allowed to add skid detail for moving.</returns>
         public override bool IsAllowAddSkidDetail()
         {
             return false;
         }
 
         /// <summary>
-        /// The IsCatchAsk.
+        /// Check if catch ask is enabled for move inventory.
         /// </summary>
-        /// <returns>.</returns>
+        /// <returns><see cref="bool"/> True if catch ask is enabled.</returns>
         public override bool IsCatchAsk()
         {
             var isCatchAsk = this.ProdInfo.IsCatchAsk;
@@ -62,9 +62,9 @@ namespace dMobile.Controller.Activity_Item
         }
 
         /// <summary>
-        /// The IsCatchAskZero.
+        /// Check if catch ask zero is enabled for move inventory.
         /// </summary>
-        /// <returns>.</returns>
+        /// <returns><see cref="bool"/> True if catch ask zero is enabled.</returns>
         public override bool IsCatchAskZero()
         {
             var isCatchAskZero = this.ProdInfo.IsCatchAskZero;
@@ -77,19 +77,23 @@ namespace dMobile.Controller.Activity_Item
         }
 
         /// <summary>
-        /// The UpdateListItemQuantity.
+        /// Add to the activity item quantity.
         /// </summary>
-        /// <param name="selectedActivityItem">The selectedActivityItem<see cref="object"/>.</param>
-        /// <param name="quantity">.</param>
-        /// <param name="baseQuantity">.</param>
-        /// <param name="weightQuantity">.</param>
-        public override void AddToQuantityInActivityItem(object selectedActivityItem, decimal quantity, decimal baseQuantity, decimal weightQuantity)
+        /// <param name="selectedActivityItem"><see cref="object"/> Activity item to update.</param>
+        /// <param name="quantity"><see cref="decimal"/> Alternate quantity.</param>
+        /// <param name="baseQuantity"><see cref="decimal"/> Base quantity.</param>
+        /// <param name="weightQuantity"><see cref="decimal"/> Weight quantity.</param>
+        public override void AddToQuantityInActivityItem(
+            object selectedActivityItem,
+            decimal quantity,
+            decimal baseQuantity,
+            decimal weightQuantity)
         {
             throw new NotImplementedException();
         }
 
         /// <summary>
-        /// The GetUnableToParseItemFKRefnoMessage.
+        /// Get the unable to parse the activity item foreign key reference number message.
         /// </summary>
         /// <param name="actItemStringFKRefno">.</param>
         /// <returns>.</returns>
@@ -136,10 +140,10 @@ namespace dMobile.Controller.Activity_Item
         /// <summary>
         /// The DesignGrid.
         /// </summary>
-        /// <param name="GridMainActivity">The GridMainActivity<see cref="Grid"/>.</param>
-        /// <param name="ListViewMainActivity">The ListViewMainActivity<see cref="ListView"/>.</param>
+        /// <param name="gridMainActivity">The GridMainActivity<see cref="Grid"/>.</param>
+        /// <param name="listViewMainActivity">The ListViewMainActivity<see cref="ListView"/>.</param>
         /// <returns>The <see cref="ObservableCollection{object}"/>.</returns>
-        public override ObservableCollection<object> DesignGrid(ref Grid GridMainActivity, ref ListView ListViewMainActivity)
+        public override ObservableCollection<object> DesignGrid(ref Grid gridMainActivity, ref ListView listViewMainActivity)
         {
             throw new NotImplementedException();
         }
@@ -211,7 +215,11 @@ namespace dMobile.Controller.Activity_Item
         /// <param name="quantity">.</param>
         /// <param name="baseQuantity">.</param>
         /// <param name="weightQuantity">.</param>
-        public override void ReplaceQuantityInActivityItem(object selectedActivityItem, decimal quantity, decimal baseQuantity, decimal weightQuantity)
+        public override void ReplaceQuantityInActivityItem(
+            object selectedActivityItem,
+            decimal quantity,
+            decimal baseQuantity,
+            decimal weightQuantity)
         {
             throw new NotImplementedException();
         }
@@ -259,7 +267,7 @@ namespace dMobile.Controller.Activity_Item
         /// </summary>
         /// <param name="actDetailFKRefno">The actDetailFKRefno<see cref="int"/>.</param>
         /// <returns>The <see cref="Task{SActItemSchemeData}"/>.</returns>
-        public override Task<SActItemSchemeData> GetProdSchemeDataFromDetailFKRefno(int actDetailFKRefno)
+        public override Task<ActItemSchemeData> GetProdSchemeDataFromDetailFKRefno(int actDetailFKRefno)
         {
             throw new NotImplementedException();
         }

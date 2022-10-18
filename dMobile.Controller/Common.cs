@@ -1,4 +1,4 @@
-// <copyright file="clsCommon.cs" company="InterSect Business Systems Inc">
+// <copyright file="Common.cs" company="InterSect Business Systems Inc">
 // Copyright (c) InterSect Business Systems Inc. All rights reserved.
 // </copyright>
 
@@ -21,10 +21,10 @@ namespace dMobile.Controller
         /// Fill product scheme data from XDocument data.
         /// </summary>
         /// <param name="data"><see cref="XDocument"/> Scheme data.</param>
-        /// <returns><see cref="SProductSchemeData"/> Product scheme data.</returns>
-        public static SProductSchemeData FillSProductSchemeDataFromXML(XDocument data)
+        /// <returns><see cref="ProductSchemeData"/> Product scheme data.</returns>
+        public static ProductSchemeData FillSProductSchemeDataFromXML(XDocument data)
         {
-            var schemeData = new SProductSchemeData
+            var schemeData = new ProductSchemeData
             {
                 LogisticUnitBestBeforeSellByDate = DateTime.Parse(data.Root.Element("bdate").Value),
                 LogisticUnitDueDate = DateTime.Now,
@@ -45,10 +45,10 @@ namespace dMobile.Controller
         /// Fill activity item scheme data from XDocument data.
         /// </summary>
         /// <param name="data"><see cref="XDocument"/> Scheme data.</param>
-        /// <returns><see cref="SActItemSchemeData"/> Activity item, product scheme data.</returns>
-        public static SActItemSchemeData FillSActItemSchemeDataFromXML(XDocument data)
+        /// <returns><see cref="ActItemSchemeData"/> Activity item, product scheme data.</returns>
+        public static ActItemSchemeData FillSActItemSchemeDataFromXML(XDocument data)
         {
-            var actItemSchemeData = new SActItemSchemeData
+            var actItemSchemeData = new ActItemSchemeData
             {
                 ProdSchemeData = FillSProductSchemeDataFromXML(data),
                 ActDetailBaseQuantity = decimal.Parse(data.Root.Element("base_qty").Value),

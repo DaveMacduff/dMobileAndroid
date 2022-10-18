@@ -13,7 +13,7 @@ namespace dMobile.Resources.Models
     {
         [PrimaryKey]
         [NotNull]
-        [ForeignKey(typeof(tContactModel))]
+        [ForeignKey(typeof(ContactModel))]
         [Indexed(Name = "UQ_ContactCustomerShipToOnContactRefnoAndContactSubType", Order = 1, Unique = true)]
         public int ContactRefno { get; set; }
 
@@ -22,7 +22,7 @@ namespace dMobile.Resources.Models
         public int ContactSubType { get; set; }
 
         [NotNull]
-        [ForeignKey(typeof(tContactCustomerModel))]
+        [ForeignKey(typeof(ContactCustomerModel))]
         public int CustomerContactRefno { get; set; }
 
         [NotNull]

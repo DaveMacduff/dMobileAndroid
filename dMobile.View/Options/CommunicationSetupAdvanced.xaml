@@ -1,0 +1,60 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<custompages:DMobileContentPage
+    xmlns:custompages="clr-namespace:dMobile.View.CustomPages"
+    xmlns="http://xamarin.com/schemas/2014/forms"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    x:Class="dMobile.View.Options.CommunicationSetupAdvanced">
+    <ContentPage.Content>
+        <AbsoluteLayout>
+            <Grid Padding="10" AbsoluteLayout.LayoutFlags="All" AbsoluteLayout.LayoutBounds="0,0,1,1">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="*" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+
+                <Frame OutlineColor="{DynamicResource BorderColor}" Grid.Row="0">
+                    <ScrollView>
+                        <Grid Padding="10">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="*" />
+                                <RowDefinition Height="Auto" />
+                            </Grid.RowDefinitions>
+
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+
+                            <Label x:Name="lblConnectionAttempts" Grid.Row="0" Text="Connection Attempts" VerticalOptions="Center"/>
+                            <Entry x:Name="updnConnectionAttempts" Grid.Row="0" Grid.Column="1" Keyboard="Numeric" TextChanged="TextChanged"/>
+
+                            <Label x:Name="lblSendTimeOutSec" Grid.Row="1" Text="Send Timeout Seconds" VerticalOptions="Center"/>
+                            <Entry x:Name="updnSendTimeOutSec" Grid.Row="1" Grid.Column="1" Keyboard="Numeric" TextChanged="TextChanged"/>
+
+                            <Label x:Name="lblSendAttempts" Grid.Row="2" Text="Send Attempts" VerticalOptions="Center"/>
+                            <Entry x:Name="updnSendAttempts" Grid.Row="2" Grid.Column="1" Keyboard="Numeric" TextChanged="TextChanged"/>
+
+                            <Label x:Name="lblReceiveAttempts" Grid.Row="3" Text="Receive Attempts" VerticalOptions="Center"/>
+                            <Entry x:Name="updnReceiveAttempts" Grid.Row="3" Grid.Column="1" Keyboard="Numeric" TextChanged="TextChanged"/>
+
+                            <Label x:Name="lblReceiveTimeOutSec" Grid.Row="4" Text="Receive Timeout Seconds" VerticalOptions="Center"/>
+                            <Entry x:Name="updnReceiveTimeOutSec" Grid.Row="4" Grid.Column="1" Keyboard="Numeric" TextChanged="TextChanged"/>
+
+                            <Label x:Name="lblReceiveBufferSize" Grid.Row="5" Text="Receive Buffer Size Bytes" VerticalOptions="Center"/>
+                            <Entry x:Name="updnReceiveBufferSize" Grid.Row="5" Grid.Column="1" Keyboard="Numeric" TextChanged="TextChanged"/>
+                        </Grid>
+                    </ScrollView>
+                    </Frame>
+
+                <Button x:Name="btnSave" Grid.Row="1" Text="Save" Clicked="BtnSave_Clicked" IsEnabled="{Binding IsChangesMade}"/>
+
+            </Grid>
+        </AbsoluteLayout>
+    </ContentPage.Content>
+</custompages:DMobileContentPage>

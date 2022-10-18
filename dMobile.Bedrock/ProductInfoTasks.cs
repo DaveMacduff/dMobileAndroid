@@ -590,12 +590,12 @@ namespace dMobile.Bedrock
         /// </summary>
         /// <param name="prodCode"><see cref="string"/> Product code.</param>
         /// <param name="prodSchemeComponents"><see cref="ProdScheme"/> Scheme components.</param>
-        /// <param name="prodSchemeData"><see cref="SProductSchemeData"/> Scheme data.</param>
+        /// <param name="prodSchemeData"><see cref="ProductSchemeData"/> Scheme data.</param>
         /// <returns><see cref="string"/> Unique scheme id.</returns>
         public static string GetUniqueSchemeIDFromSProdSchemeData(
             string prodCode,
             ProdScheme prodSchemeComponents,
-            SProductSchemeData prodSchemeData)
+            ProductSchemeData prodSchemeData)
         {
             _ = prodCode ?? throw new ArgumentNullException(nameof(prodCode));
             var schemeID = string.Empty;
@@ -657,12 +657,12 @@ namespace dMobile.Bedrock
         /// </summary>
         /// <param name="prodCode"><see cref="string"/> Product code.</param>
         /// <param name="prodSchemeComponents"><see cref="ProdScheme"/> Scheme components.</param>
-        /// <param name="prodSchemeData"><see cref="SProductSchemeData"/> Scheme data.</param>
+        /// <param name="prodSchemeData"><see cref="ProductSchemeData"/> Scheme data.</param>
         /// <returns><see cref="string"/> Scheme id.</returns>
         public static string GetActSchemeIDFromSProdSchemeData(
             string prodCode,
             ProdScheme prodSchemeComponents,
-            SProductSchemeData prodSchemeData)
+            ProductSchemeData prodSchemeData)
         {
             _ = prodCode ?? throw new ArgumentNullException(nameof(prodCode));
             var schemeID = string.Empty;
