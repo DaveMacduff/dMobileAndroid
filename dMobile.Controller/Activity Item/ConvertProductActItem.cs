@@ -2,31 +2,24 @@
 // Copyright (c) InterSect Business Systems Inc. All rights reserved.
 // </copyright>
 
-using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Data;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Xml;
-using System.Xml.Linq;
-using dMobile.Bedrock;
-using dMobile.Resources.Types;
-using Xamarin.Forms;
-
 namespace dMobile.Controller.Activity_Item
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Collections.ObjectModel;
+    using System.Text;
+    using System.Threading.Tasks;
+    using System.Xml;
+    using System.Xml.Linq;
+    using dMobile.Bedrock;
+    using dMobile.Resources.Types;
+    using Xamarin.Forms;
+
     /// <summary>
     /// Defines the <see cref="ConvertProductActItem" />.
     /// </summary>
     public class ConvertProductActItem : ActItem
     {
-        /// <summary>
-        /// Defines the toProdRefno.
-        /// </summary>
-        private int toProdRefno;
-
         /// <summary>
         /// Initializes a new instance of the <see cref="ConvertProductActItem"/> class.
         /// </summary>
@@ -35,6 +28,36 @@ namespace dMobile.Controller.Activity_Item
             : base(activity)
         {
             this.FullClassName = typeof(ConvertProductActItem).FullName;
+        }
+
+        /// <summary>
+        /// Gets or sets the FromProdRefno
+        /// Gets the FROM product reference number..
+        /// </summary>
+        public int FromProdRefno { get; set; }
+
+        /// <summary>
+        /// Gets or sets the ToProdRefno
+        /// Gets the TO product reference number..
+        /// </summary>
+        public int ToProdRefno { get; set; }
+
+        /// <summary>
+        /// The IsCatchAsk.
+        /// </summary>
+        /// <returns>.</returns>
+        public override bool IsCatchAsk()
+        {
+            return this.ProdInfo.IsCatchAsk;
+        }
+
+        /// <summary>
+        /// The IsCatchAskZero.
+        /// </summary>
+        /// <returns>.</returns>
+        public override bool IsCatchAskZero()
+        {
+            return this.IsCatchAsk();
         }
 
         /// <summary>
@@ -56,44 +79,17 @@ namespace dMobile.Controller.Activity_Item
         }
 
         /// <summary>
-        /// The IsCatchAsk.
-        /// </summary>
-        /// <returns>.</returns>
-        public override bool IsCatchAsk()
-        {
-            var isCatchAsk = this.ProdInfo.IsCatchAsk;
-            if (isCatchAsk)
-            {
-                // modules are for exclusions
-                isCatchAsk = this.SysEnv.SysSettings.IsConvertUnitCatchAskEnabled;
-            }
-
-            return isCatchAsk;
-        }
-
-        /// <summary>
-        /// The IsCatchAskZero.
-        /// </summary>
-        /// <returns>.</returns>
-        public override bool IsCatchAskZero()
-        {
-            var result = this.IsCatchAsk();
-            if (result && this.ProdInfo.IsCatchAskZero)
-            {
-                result = !this.SysEnv.SysSettings.IsConvertUnitModuleNoCatchAskZeroEnabled;
-            }
-
-            return result;
-        }
-
-        /// <summary>
-        /// The UpdateListItemQuantity.
+        /// Update activity item quantities.
         /// </summary>
         /// <param name="selectedActivityItem">The selectedActivityItem<see cref="object"/>.</param>
-        /// <param name="quantity">.</param>
-        /// <param name="baseQuantity">.</param>
-        /// <param name="weightQuantity">.</param>
-        public override void AddToQuantityInActivityItem(object selectedActivityItem, decimal quantity, decimal baseQuantity, decimal weightQuantity)
+        /// <param name="quantity"><see cref="decimal"/> Alternate quantity.</param>
+        /// <param name="baseQuantity"><see cref="decimal"/> Base quantity.</param>
+        /// <param name="weightQuantity"><see cref="decimal"/> Weight quantity.</param>
+        public override void AddToQuantityInActivityItem(
+            object selectedActivityItem,
+            decimal quantity,
+            decimal baseQuantity,
+            decimal weightQuantity)
         {
             throw new NotImplementedException();
         }
@@ -139,9 +135,9 @@ namespace dMobile.Controller.Activity_Item
             {
                 var item = new ConvertProductItem()
                 {
-                    From_prod_fk_refno = Convert.ToInt32(data.Root.Element("from_prod_fk_refno").Value),
-                    To_prod_fk_refno = Convert.ToInt32(data.Root.Element("to_prod_fk_refno").Value),
-                    Location_map_refno = Convert.ToInt32(data.Root.Element("location_map_refno").Value),
+                    FromProdFKRefno = Convert.ToInt32(data.Root?.Element("from_prod_fk_refno")?.Value),
+                    ToProdFKRefno = Convert.ToInt32(data.Root?.Element("to_prod_fk_refno")?.Value),
+                    LocMapRefno = Convert.ToInt32(data.Root?.Element("location_map_refno")?.Value),
                 };
 
                 this.ListItems.Add(item);
@@ -162,22 +158,22 @@ namespace dMobile.Controller.Activity_Item
         }
 
         /// <summary>
-        /// The GetActivityItemList.
+        /// Get activity item list.
         /// </summary>
         /// <param name="isSubmitBatch">.</param>
-        /// <returns>.</returns>
-        public override async Task<List<object>> GetActivityItemList(bool isSubmitBatch)
+        /// <returns><see cref="List{T}"/> List of activity items.</returns>
+        public override Task<List<object>> GetActivityItemList(bool isSubmitBatch)
         {
-            var moveTable = new DataTable("ActivityConvertProductItem");
-
-            moveTable.Columns.Add("from_prod_fk_refno", Type.GetType("System.Int32"));
-            moveTable.Columns.Add("to_prod_fk_refno", Type.GetType("System.Int32"));
-            moveTable.Columns.Add("location_map_refno", Type.GetType("System.Int32"));
-
-            // this.DataViewItems = moveTable.DefaultView;
-            // this.DataViewItems.Table.TableName = this.MainGridMappingName;
-            this.ListItems = moveTable.Select().ToList<object>();
-            return this.ListItems;
+            // This list activity is not used for this activity, filled in list data for future possible disconnected mode.
+            this.ListItems.Clear();
+            var item = new ConvertProductItem
+            {
+                LocMapRefno = this.LocMapRefno,
+                FromProdFKRefno = this.FromProdRefno,
+                ToProdFKRefno = this.ToProdRefno,
+            };
+            this.ListItems.Add(item);
+            return Task.FromResult(this.ListItems);
         }
 
         /// <summary>
@@ -203,11 +199,22 @@ namespace dMobile.Controller.Activity_Item
         /// <summary>
         /// The SelectActivityItem.
         /// </summary>
-        /// <param name="selectedActivityItem">The selectedActivityItem<see cref="object"/>.</param>
-        /// <returns>The <see cref="Task"/>.</returns>
+        /// <param name="activityItem"><see cref="object"/> The activity item.</param>
+        /// <returns>The <see cref="Task"/> Task operation.</returns>
         public override Task AssignActivityItem(object activityItem)
         {
-            throw new NotImplementedException();
+            var item = activityItem as ConvertProductItem;
+            item = item ?? throw new NullReferenceException("activityItem as ConvertProductItem == null");
+            this.FromProdRefno = item.FromProdFKRefno;
+            this.ToProdRefno = item.ToProdFKRefno;
+            _ = Task.Run(async () =>
+            {
+                this.LocMap =
+                    await LocationMapTasks.GetSLocMapFromLocMapRefno(
+                        ((ConvertProductItem)activityItem).LocMapRefno);
+            });
+
+            return Task.CompletedTask;
         }
 
         /// <summary>
@@ -237,8 +244,8 @@ namespace dMobile.Controller.Activity_Item
                 {
                     var xmlError = new XmlDocument();
                     xmlError.LoadXml(reqData);
-                    var errorDetail = xmlError.DocumentElement["detail"].InnerText;
-                    if (errorDetail.Contains("MSGBOX-"))
+                    var errorDetail = xmlError.DocumentElement?["detail"]!.InnerText;
+                    if (errorDetail != null && errorDetail.Contains("MSGBOX-"))
                     {
                         throw new MessageOnlyException(errorDetail);
                     }
@@ -254,16 +261,16 @@ namespace dMobile.Controller.Activity_Item
         /// The CreateSubmitXML.
         /// </summary>
         /// <param name="data">.</param>
-        /// <returns>.</returns>
+        /// <returns><see cref="string"/> Submission string.</returns>
         public async override Task<string> CreateSubmitXML(XDocument data)
         {
-            var strXML = new StringBuilder();
-            using var writer = XmlWriter.Create(strXML);
-            var prodCode = data.Root.Element("ProductCode").Value.PadRight(10);
-            var barCodeCode = data.Root.Element("ProductUnitBarCodeCode").Value.PadRight(20);
-            var isBC = bool.Parse(data.Root.Element("ProductUnitIsBC").Value);
-            var unitCode = data.Root.Element("UnitCode").Value;
-            var symbologyPrefix = data.Root.Element("ProductUnitBarCodeSymbologyPrefix").Value;
+            var result = new StringBuilder();
+            using var writer = XmlWriter.Create(result);
+            var prodCode = data.Root?.Element("ProductCode")!.Value.PadRight(totalWidth: 10);
+            var barCodeCode = data.Root?.Element("ProductUnitBarCodeCode")!.Value.PadRight(totalWidth: 20);
+            var isBC = bool.Parse(data.Root?.Element("ProductUnitIsBC")?.Value ?? string.Empty);
+            var unitCode = data.Root?.Element("UnitCode")!.Value;
+            var symbologyPrefix = data.Root?.Element("ProductUnitBarCodeSymbologyPrefix")?.Value;
 
             var request = XDocument.Parse(
                 "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>" + "<imclient>"
@@ -280,10 +287,10 @@ namespace dMobile.Controller.Activity_Item
                 + "</imclient>");
 
             request.Save(writer);
-            writer.Flush();
+            await writer.FlushAsync();
             writer.Close();
 
-            return strXML.ToString();
+            return result.ToString();
         }
 
         /// <summary>
@@ -293,7 +300,11 @@ namespace dMobile.Controller.Activity_Item
         /// <param name="quantity">.</param>
         /// <param name="baseQuantity">.</param>
         /// <param name="weightQuantity">.</param>
-        public override void ReplaceQuantityInActivityItem(object selectedActivityItem, decimal quantity, decimal baseQuantity, decimal weightQuantity)
+        public override void ReplaceQuantityInActivityItem(
+            object selectedActivityItem,
+            decimal quantity,
+            decimal baseQuantity,
+            decimal weightQuantity)
         {
             throw new NotImplementedException();
         }
@@ -333,13 +344,8 @@ namespace dMobile.Controller.Activity_Item
         /// <returns>The <see cref="Task{int}"/>.</returns>
         public override async Task<int> Delete()
         {
-            var fkRefno = 0;
-
-            if (this.ListItems != null)
-            {
-                this.ListItems.Clear();
-            }
-
+            const int fkRefno = 0;
+            this.ListItems?.Clear();
             return fkRefno;
         }
 
@@ -429,28 +435,6 @@ namespace dMobile.Controller.Activity_Item
         public override Task<SLabelQuantity> GetLabelQuantity(bool isRepackQuantityOnly)
         {
             throw new NotImplementedException();
-        }
-
-        /// <summary>
-        /// Gets or sets the FromProdRefno
-        /// Gets the FROM product reference number..
-        /// </summary>
-        public int FromProdRefno { get; set; }
-
-        /// <summary>
-        /// Gets or sets the ToProdRefno
-        /// Gets the TO product reference number..
-        /// </summary>
-        public int ToProdRefno
-        {
-            get
-            {
-                return this.toProdRefno;
-            }
-            set
-            {
-                this.toProdRefno = value;
-            }
         }
     }
 }

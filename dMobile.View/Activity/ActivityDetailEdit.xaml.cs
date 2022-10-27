@@ -258,15 +258,10 @@ namespace dMobile.View.Activity
                 ValidateSchemeExtra();
 
                 var prodInfo = this.ActDetail.ActItem.ProdInfo;
-                this.ActDetail.UniqueSchemeID = ProductInfoTasks.GetUniqueSchemeIDFromSProdSchemeData(
+                var uniqueSchemeId = ProductInfoTasks.GetUniqueSchemeIDFromSProdSchemeData(
                     prodInfo.Code,
                     prodInfo.Scheme,
-                    this.ActDetail.SchemeData);
-
-                this.ActDetail.SchemeID = ProductInfoTasks.GetActSchemeIDFromSProdSchemeData(
-                    prodInfo.Code,
-                    prodInfo.Scheme,
-                    this.ActDetail.SchemeData);
+                    this.ActDetailEdit.SchemeData);
 
                 // IsReadyToApply will perform any validations, such as duplicate checks and
                 // quantity validations.
@@ -276,9 +271,7 @@ namespace dMobile.View.Activity
                     + "<itm_refno>" + this.ActDetail.ActItem.ItemFKRefno + "</itm_refno>"
                     + "<alt_qty>" + this.ActDetailEdit.AltQuantity + "</alt_qty>"
                     + "<wt_qty>" + this.ActDetailEdit.WeightQuantity + "</wt_qty>"
-                    + "<ActivityDetailUniqueSchemeID>" +
-                        this.ActDetail.UniqueSchemeID +
-                        "</ActivityDetailUniqueSchemeID>"
+                    + "<ActivityDetailUniqueSchemeID>" + uniqueSchemeId + "</ActivityDetailUniqueSchemeID>"
                     + "</imclient>");
 
                 await this.ActDetail.ActItem.IsReadyToApply(xmlParam);
@@ -655,8 +648,18 @@ namespace dMobile.View.Activity
                     async Task AssignScheme()
                     {
                         var scheme = this.ActDetailEdit.SchemeData;
-                        scheme.SingleTradeItemSerialNumber = this.cboSerialNo.Text;
-                        scheme.LogisticUnitBatchLotNumber = this.cboLotNo.Text;
+                        var schemeSingleTradeItemSerialNumber = this.cboSerialNo.Text;
+                        if (schemeSingleTradeItemSerialNumber != null)
+                        {
+                            scheme.SingleTradeItemSerialNumber = schemeSingleTradeItemSerialNumber;
+                        }
+
+                        var schemeLogisticUnitBatchLotNumber = this.cboLotNo.Text;
+                        if (schemeLogisticUnitBatchLotNumber != null)
+                        {
+                            scheme.LogisticUnitBatchLotNumber = schemeLogisticUnitBatchLotNumber;
+                        }
+
                         scheme.LogisticUnitProductionDate = this.dtProductionDate.Date;
                         scheme.LogisticUnitBestBeforeSellByDate = this.dtBestBeforeDate.Date;
                         scheme = await AssignSchemeVariant(scheme);
@@ -886,6 +889,28 @@ namespace dMobile.View.Activity
             {
                 if (await this.IsReadyToSave())
                 {
+                    var uniqueSchemeId = ProductInfoTasks.GetUniqueSchemeIDFromSProdSchemeData(
+                        this.ActDetail.ActItem.ProdInfo.Code,
+                        this.ActDetail.ActItem.ProdInfo.Scheme,
+                        this.ActDetailEdit.SchemeData);
+
+                    var schemeId = ProductInfoTasks.GetActSchemeIDFromSProdSchemeData(
+                        this.ActDetail.ActItem.ProdInfo.Code,
+                        this.ActDetail.ActItem.ProdInfo.Scheme,
+                        this.ActDetailEdit.SchemeData);
+
+                    this.ActDetail.UniqueSchemeID = uniqueSchemeId;
+                    this.ActDetail.SchemeID = schemeId;
+                    this.ActDetail.SchemeData = this.ActDetailEdit.SchemeData;
+                    this.ActDetail.Quantity = this.ActDetailEdit.AltQuantity;
+                    this.ActDetail.BaseQuantity = this.ActDetailEdit.BaseQuantity;
+                    this.ActDetail.WeightQuantity = this.ActDetailEdit.WeightQuantity;
+                    this.ActDetail.ActExtra.Text1 = this.ActDetailEdit.ActExtra.Text1;
+                    this.ActDetail.ActExtra.Text2 = this.ActDetailEdit.ActExtra.Text2;
+                    this.ActDetail.ActExtra.Text3 = this.ActDetailEdit.ActExtra.Text3;
+                    this.ActDetail.ActExtra.Text4 = this.ActDetailEdit.ActExtra.Text4;
+                    this.ActDetail.ActExtra.DateTime1 = this.ActDetailEdit.ActExtra.DateTime1;
+
                     this.AskToPrintProductLabels = false;
 
                     if (this.ActSubType == SysCommon.ActSubTypes.Receiving &&

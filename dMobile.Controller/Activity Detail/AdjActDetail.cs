@@ -417,7 +417,9 @@ namespace dMobile.Controller.Activity_Detail
         public override async Task Submit(object selectedActivityDetail, XDocument data)
         {
             var xmlDoc = new XmlDocument();
-            var strXmlSend = await this.CreateSubmitXML(XDocument.Parse("<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?><params></params>"));
+            var strXmlSend =
+                await this.CreateSubmitXML(
+                    XDocument.Parse("<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?><params></params>"));
             var reqData = SysCommon.SubmitComm(strXmlSend);
 
             if (reqData.Length > 0)

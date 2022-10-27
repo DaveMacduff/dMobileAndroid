@@ -2,9 +2,6 @@
 // Copyright (c) InterSect Business Systems Inc. All rights reserved.
 // </copyright>
 
-using dMobile.Controller.Activity_Detail;
-using dMobile.Controller.Activity_Item;
-
 namespace dMobile.View.Activity
 {
     using System;
@@ -12,199 +9,131 @@ namespace dMobile.View.Activity
     using System.Threading.Tasks;
     using System.Xml.Linq;
     using Android.Views;
-    using dMobile.BarCodeScanner.BarCodeParsing;
-    using dMobile.BarCodeScanner.BarCodeScanners;
-    using dMobile.Bedrock;
-    using dMobile.Controller;
-    using dMobile.Resources.Enums;
-    using dMobile.Resources.Types;
-    using dMobile.View.CustomPages.Modal;
-    using dMobile.View.Forms;
+    using BarCodeScanner.BarCodeParsing;
+    using BarCodeScanner.BarCodeScanners;
+    using Bedrock;
+    using Controller.Activity_Detail;
+    using Controller.Activity_Item;
+    using Resources.Enums;
+    using Resources.Types;
+    using CustomPages.Modal;
+    using Forms;
     using Xamarin.Forms;
     using Xamarin.Forms.Xaml;
     using Resource = dMobile.Resources.Properties.Resources;
 
+    /// <summary>
+    /// Activity convert product detail.
+    /// </summary>
     [XamlCompilation(XamlCompilationOptions.Compile)]
     public partial class ActivityConvertProductDetail : DMobileModal, IAppArea
     {
-        private bool isFirstAppearance = true;
-
         /// <summary>
-        /// Constructor.
+        /// Initializes a new instance of the <see cref="ActivityConvertProductDetail"/> class.
         /// </summary>
-        /// <param name="actDetail"></param>
-        /// <param name="actSubTypes"></param>
+        /// <param name="actDetail"><see cref="ActDetail"/> Convert product activity detail.</param>
+        /// <param name="actSubTypes"><see cref="SysCommon.ActSubTypes"/> Activity sub types.</param>
         public ActivityConvertProductDetail(ActDetail actDetail, SysCommon.ActSubTypes actSubTypes)
         {
             this.InitializeComponent();
 
-            this.cmdAdd.Text = "Add";
+            this.CmdAdd.Text = "Add";
+            this.SysEnv = SysEnvironment.GetInstance();
+            this.Scanner = ScannerEngine.GetInstance().Scanner;
+            this.Title = this.GetControlDescription();
 
-            if (!DesignMode.IsDesignModeEnabled)
-            {
-                this.SysEnv = SysEnvironment.GetInstance();
-                this.Scanner = ScannerEngine.GetInstance().Scanner;
-
-                this.ActSubType = actSubTypes;
-                this.ActDetail = actDetail;
-                this.ActDetail.ActSubType = this.ActSubType;
-                this.ActDetail.ActItem.ActSubType = this.ActSubType;
-                this.ActDetail.ActItem.ActHdr.ActSubType = this.ActSubType;
-
-                this.Title = this.GetControlDescription();
-            }
+            this.ActSubType = actSubTypes;
+            this.ActDetail = actDetail;
+            this.ActDetail.ActSubType = this.ActSubType;
+            this.ActDetail.ActItem.ActSubType = this.ActSubType;
+            this.ActDetail.ActItem.ActHdr.ActSubType = this.ActSubType;
         }
 
         /// <summary>
-        /// The OnAppearing.
-        /// </summary>
-        protected override async void OnAppearing()
-        {
-            base.OnAppearing();
-
-            this.ListViewDisplayExtraInfo.ItemsSource = this.ExtraInfoItems;
-
-            MessagingCenter.Subscribe<string>(this, EventTypes.OnKeyUp.ToString(), async (keyPressed) =>
-            {
-                _ = Enum.TryParse(keyPressed, out Keycode keycode);
-
-                if (!this.Loading)
-                {
-                    if (keycode == Keycode.Enter)
-                    {
-                        await this.AddManually();
-                    }
-                    else if (keycode == Keycode.F1)
-                    {
-                        await this.CloseForm();
-                    }
-                    else if (keycode == Keycode.Del)
-                    {
-                        // Commented out because we currently don't support it
-                        // but wanted to. Uncomment to add most of this functionality
-                        // back in.
-                        // DeleteAdjustment();
-                    }
-                }
-            });
-
-            try
-            {
-                if (this.isFirstAppearance)
-                {
-                    this.isFirstAppearance = false;
-                    _ = await this.ActDetail.GetActivityDetailList(false);
-
-                    await Device.InvokeOnMainThreadAsync(() =>
-                    {
-                        this.MainActivityItems = this.ActDetail.DesignGrid(ref this.GridMainActivity, ref this.ListViewMainActivity);
-                        this.ListViewMainActivity.ItemsSource = this.MainActivityItems;
-                    });
-
-                    this.ActDetail.ActItem.SelectedActivityItem = null;
-
-                    if (this.ActDetail.ActItem.ListItems[0] is ConvertProductItem convertProductItem)
-                    {
-                        this.FromProdRefno = convertProductItem.From_prod_fk_refno;
-                        this.ToProdRefno = convertProductItem.To_prod_fk_refno;
-                    }
-
-                    var prodInfo = new ProductInfo();
-                    this.ToProduct = await ProductInfoTasks.GetInfoFromRefno(this.ToProdRefno);
-                    this.FromProduct = await ProductInfoTasks.GetInfoFromRefno(this.FromProdRefno);
-
-                    // fill in all the activity data
-                    this.ActDetail.ActItem.ProdInfo = this.ToProduct;
-                }
-
-                await this.ucActivityConvertProductDetail_GotFocus(this, new EventArgs());
-            }
-            catch (Exception ex)
-            {
-                await Device.InvokeOnMainThreadAsync(async () => await this.DisplayAlert("Error", "this.ucActivityConvertProductDetail_GotFocus threw an error " + ex, "OK"));
-            }
-        }
-
-        protected override bool OnBackButtonPressed()
-        {
-            Device.BeginInvokeOnMainThread(async () =>
-            {
-                _ = await this.CancelChanges();
-                _ = base.OnBackButtonPressed();
-                await this.Close();
-            });
-
-            return true;
-        }
-
-        /// <summary>
-        /// The OnDisappearing.
-        /// </summary>
-        protected override async void OnDisappearing()
-        {
-            MessagingCenter.Unsubscribe<string>(this, EventTypes.OnKeyUp.ToString());
-            await this.ScannerDisable();
-
-            base.OnDisappearing();
-        }
-
-        /// <summary>
-        /// The product we are changing out of.
+        /// Gets or sets the product we are changing out of.
         /// </summary>
         private int FromProdRefno { get; set; }
 
         /// <summary>
-        /// The desired product to change into.
+        /// Gets or sets the desired product to change into.
         /// </summary>
         private int ToProdRefno { get; set; }
 
+        /// <summary>
+        /// Gets or set the to product information.
+        /// </summary>
         private ProductInfo ToProduct { get; set; }
 
+        /// <summary>
+        /// Gets or sets the from product information.
+        /// </summary>
         private ProductInfo FromProduct { get; set; }
 
-        private LocationMap LocMap
-        {
-            get
-            {
-                return this.ActDetail.LocMap;
-            }
-
-            set
-            {
-                this.ActDetail.LocMap = value;
-            }
-        }
-
+        /// <summary>
+        /// Gets or sets the system environment.
+        /// </summary>
         private SysEnvironment SysEnv { get; set; }
 
+        /// <summary>
+        /// Gets or sets the bar code scanner engine.
+        /// </summary>
         private BarCodeScanner Scanner { get; set; }
 
+        /// <summary>
+        /// Gets or sets the activity sub type.
+        /// </summary>
         private SysCommon.ActSubTypes ActSubType { get; set; }
 
+        /// <summary>
+        /// Gets or sets a value indicating whether the bar code handler is registered.
+        /// </summary>
         private bool IsBarCodeHandlerRegistered { get; set; } = false;
 
+        /// <summary>
+        /// Gets or sets a value indicating whether the control is loaded.
+        /// </summary>
         private bool IsControlLoaded { get; set; } = false;
 
+        /// <summary>
+        /// Gets or sets a value indicating whether changes have been made.
+        /// </summary>
         private bool IsChangesMade { get; set; } = false;
 
+        /// <summary>
+        /// Gets or sets the convert product activity detail.
+        /// </summary>
         private ActDetail ActDetail { get; set; } = null;
 
-        public ObservableCollection<string> ExtraInfoItems { get; set; } = new ObservableCollection<string>();
-        public ObservableCollection<object> MainActivityItems { get; set; } = new ObservableCollection<object>();
+        /// <summary>
+        /// Gets or sets the activity convert product extra info items.
+        /// </summary>
+        private ObservableCollection<string> ExtraInfoItems { get; set; } = new ObservableCollection<string>();
 
         /// <summary>
-        /// Unregister the bar code scan event handler and disable the scanner.
+        /// Gets or sets the main activity items.
+        /// </summary>
+        private ObservableCollection<object> MainActivityItems { get; set; } = new ObservableCollection<object>();
+
+        /// <summary>
+        /// Gets or sets a value indicating whether to performing loading data upon got focus.
+        /// </summary>
+        private bool IsFirstAppearance { get; set; } = true;
+        
+        /// <summary>
+        /// Un-register the bar code scan event handler and disable the scanner.
         /// </summary>
         /// <returns><see cref="Task"/> Task operation.</returns>
         public async Task ScannerDisable()
         {
             if (this.Scanner != null)
             {
-                this.Scanner.BarCodeScan -= new BarCodeScanner.BarCodeScanEventHandler(this.BarCodeHandler);
-                await this.Scanner.Stop();
+                if (this.IsBarCodeHandlerRegistered)
+                {
+                    this.Scanner.BarCodeScan -= new BarCodeScanner.BarCodeScanEventHandler(this.BarCodeHandler);
+                    await this.Scanner.Stop();
+                    this.IsBarCodeHandlerRegistered = false;
+                }
             }
-
-            this.IsBarCodeHandlerRegistered = false;
         }
 
         /// <summary>
@@ -213,26 +142,28 @@ namespace dMobile.View.Activity
         /// <returns><see cref="Task"/> Task operation.</returns>
         public async Task ScannerEnable()
         {
-            if (!this.IsBarCodeHandlerRegistered && this.Scanner != null)
+            if (this.Scanner != null)
             {
-                await this.Scanner.Start();
-                this.Scanner.BarCodeScan += new BarCodeScanner.BarCodeScanEventHandler(this.BarCodeHandler);
-                this.IsBarCodeHandlerRegistered = true;
+                if (!this.IsBarCodeHandlerRegistered)
+                {
+                    await this.Scanner.Start();
+                    this.Scanner.BarCodeScan += new BarCodeScanner.BarCodeScanEventHandler(this.BarCodeHandler);
+                    this.IsBarCodeHandlerRegistered = true;
+                }
             }
         }
 
         /// <summary>
-        ///
+        /// Check if the activity item is ready to save.
         /// </summary>
-        /// <returns></returns>
-        /// <remarks></remarks>
+        /// <returns><see cref="bool"/> True if it is ready to save, else false.</returns>
         public async Task<bool> IsReadyToSave()
         {
-            var isReadyToSave = false;
+            var isReadyToSave = true;
 
             try
             {
-                isReadyToSave = this.IsValidData();
+                // Currently no reason to validate detail, because the detail was already submitted.
             }
             catch (MessageOnlyException ex)
             {
@@ -257,10 +188,9 @@ namespace dMobile.View.Activity
         }
 
         /// <summary>
-        ///
+        /// Check if the activity item is ready to close.
         /// </summary>
-        /// <returns></returns>
-        /// <remarks></remarks>
+        /// <returns><see cref="bool"/> True if the activity item is ready to close, else false.</returns>
         public async Task<bool> IsReadyToClose()
         {
             var isReadyToClose = true;
@@ -277,7 +207,7 @@ namespace dMobile.View.Activity
                 {
                     // NOTE: This code is needed to clean up the scanner driver.
                     // Symbol had threading issues without this call when dMobile was terminating.
-                    // All user controls that initalize a bar code need this code.
+                    // All user controls that initialize a bar code need this code.
                     // The parent form (not a user control) will call scanner.terminate and dispose
                     // of the scanner instance upon exiting dMobile.
                     await this.ScannerDisable();
@@ -309,20 +239,9 @@ namespace dMobile.View.Activity
         }
 
         /// <summary>
-        ///
+        /// Save any activity item data changes.
         /// </summary>
-        /// <returns></returns>
-        /// <remarks></remarks>
-        public string GetControlDescription()
-        {
-            return "Convert Products";
-        }
-
-        /// <summary>
-        ///
-        /// </summary>
-        /// <returns></returns>
-        /// <remarks></remarks>
+        /// <returns><see cref="bool"/> True if the save was successful, else false.</returns>
         public async Task<bool> SaveChanges()
         {
             var saveComplete = false;
@@ -331,13 +250,18 @@ namespace dMobile.View.Activity
             {
                 if (await this.IsReadyToSave())
                 {
-                    if (this.HasData() &&
-                        // this.SysEnv.SysSettings.CanPrintProductLabelConvertProduct &&
-                        this.SysEnv.SysSettings.IsPrintProductLabelsAsBatch && // batch means print at save instead of by item
-                        !this.SysEnv.SysSettings.IsDisconnectedMode)
+                    var isPrintLabels = this.HasData();
+                    isPrintLabels = isPrintLabels && this.SysEnv.SysSettings.CanPrintProductLabelConvertProduct;
+                    isPrintLabels = isPrintLabels && this.SysEnv.SysSettings.IsPrintProductLabelsAsBatch;
+                    isPrintLabels = isPrintLabels && !this.SysEnv.SysSettings.IsDisconnectedMode;
+                    if (isPrintLabels)
                     {
                         // weren't allowed to print on add or scan, so print now
-                        if (await Device.InvokeOnMainThreadAsync(async () => await this.DisplayAlert("Print Label", "Print Product Labels?", "Yes", "No")))
+                        if (await Device.InvokeOnMainThreadAsync(async () => await this.DisplayAlert(
+                                "Print Label",
+                                "Print Product Labels?",
+                                "Yes",
+                                "No")))
                         {
                             await this.PrintBatchProductLabels();
                         }
@@ -348,7 +272,10 @@ namespace dMobile.View.Activity
                 }
                 else
                 {
-                    await Device.InvokeOnMainThreadAsync(async () => await this.DisplayAlert("Data Validation", "Data failed validation. Check your data.", "OK"));
+                    await Device.InvokeOnMainThreadAsync(async () => await this.DisplayAlert(
+                        "Data Validation",
+                        "Data failed validation. Check your data.",
+                        "OK"));
                 }
             }
             catch (Exception ex)
@@ -366,10 +293,9 @@ namespace dMobile.View.Activity
         }
 
         /// <summary>
-        ///
+        /// Cancel any pending activity item changes.
         /// </summary>
-        /// <returns></returns>
-        /// <remarks></remarks>
+        /// <returns><see cref="bool"/> True if the pending changes where canceled, else false.</returns>
         public async Task<bool> CancelChanges()
         {
             var cancelChanges = true;
@@ -401,11 +327,12 @@ namespace dMobile.View.Activity
         }
 
         /// <summary>
-        ///
+        /// Get the activity item return XDocument information.
         /// </summary>
-        /// <returns></returns>
-        /// <remarks></remarks>
+        /// <returns><see cref="XDocument"/> Activity item return information.</returns>
+#pragma warning disable CS1998 // Async method lacks 'await' operators and will run synchronously
         public async Task<XDocument> GetXML()
+#pragma warning restore CS1998 // Async method lacks 'await' operators and will run synchronously
         {
             var unqScheme = ProductInfoTasks.GetUniqueSchemeIDFromSProdSchemeData(
                 this.ActDetail.ActItem.ProdInfo.Code,
@@ -419,30 +346,212 @@ namespace dMobile.View.Activity
 
             var schemeData = this.ActDetail.SchemeData;
 
-            var request = XDocument.Parse("<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>"
-                                          + "<params>"
-                                          + "<serial>" + schemeData.SingleTradeItemSerialNumber + "</serial>"
-                                          + "<pdate>" + schemeData.LogisticUnitProductionDate + "</pdate>"
-                                          + "<lot_no>" + schemeData.LogisticUnitBatchLotNumber + "</lot_no>"
-                                          + "<bdate>" + schemeData.LogisticUnitBestBeforeSellByDate + "</bdate>"
-                                          + "<variant_code>" + schemeData.VariantCode + "</variant_code>"
-                                          + "<variant_no>" + schemeData.VariantNumber + "</variant_no>"
-                                          + "<alt_qty>" + this.ActDetail.Quantity + "</alt_qty>"
-                                          + "<wt_qty>" + this.ActDetail.WeightQuantity + "</wt_qty>"
-                                          + "<base_qty>" + this.ActDetail.BaseQuantity + "</base_qty>"
-                                          + "<scheme_id>" + scheme + "</scheme_id>"
-                                          + "<unq_scheme_id>" + unqScheme + "</unq_scheme_id>"
-                                          + "</params>");
+            var request = XDocument.Parse(
+                "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>"
+                + "<params>"
+                + "<serial>" + schemeData.SingleTradeItemSerialNumber + "</serial>"
+                + "<pdate>" + schemeData.LogisticUnitProductionDate + "</pdate>"
+                + "<lot_no>" + schemeData.LogisticUnitBatchLotNumber + "</lot_no>"
+                + "<bdate>" + schemeData.LogisticUnitBestBeforeSellByDate + "</bdate>"
+                + "<variant_code>" + schemeData.VariantCode + "</variant_code>"
+                + "<variant_no>" + schemeData.VariantNumber + "</variant_no>"
+                + "<alt_qty>" + this.ActDetail.Quantity + "</alt_qty>"
+                + "<wt_qty>" + this.ActDetail.WeightQuantity + "</wt_qty>"
+                + "<base_qty>" + this.ActDetail.BaseQuantity + "</base_qty>"
+                + "<scheme_id>" + scheme + "</scheme_id>"
+                + "<unq_scheme_id>" + unqScheme + "</unq_scheme_id>"
+                + "</params>");
 
             return request;
         }
 
         /// <summary>
-        ///
+        /// Fires just before the page is displayed.
         /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="oBarCodeScanArgs"></param>
-        /// <remarks></remarks>
+        protected override async void OnAppearing()
+        {
+            base.OnAppearing();
+            this.ListViewDisplayExtraInfo.ItemsSource = this.ExtraInfoItems;
+            MessagingCenter.Subscribe<string>(this, EventTypes.OnKeyUp.ToString(), KeyUpHandlerCallback);
+
+            try
+            {
+                if (this.IsFirstAppearance)
+                {
+                    await ScannerStart();
+                    this.IsFirstAppearance = false;
+                    _ = await this.ActDetail.GetActivityDetailList(false);
+
+                    await Device.InvokeOnMainThreadAsync(() =>
+                    {
+                        this.MainActivityItems = this.ActDetail.DesignGrid(
+                            ref this.GridMainActivity,
+                            ref this.ListViewMainActivity);
+                        this.ListViewMainActivity.ItemsSource = this.MainActivityItems;
+                    });
+
+                    this.ActDetail.ActItem.SelectedActivityItem = this.ActDetail.ActItem.ListItems[0];
+                    if (this.ActDetail.ActItem.ListItems[0] is ConvertProductItem convertProductItem)
+                    {
+                        this.FromProdRefno = convertProductItem.FromProdFKRefno;
+                        this.ToProdRefno = convertProductItem.ToProdFKRefno;
+                    }
+
+                    var prodInfo = new ProductInfo();
+                    this.ToProduct = await ProductInfoTasks.GetInfoFromRefno(this.ToProdRefno);
+                    this.FromProduct = await ProductInfoTasks.GetInfoFromRefno(this.FromProdRefno);
+
+                    // fill in all the activity data
+                    this.ActDetail.ActItem.ProdInfo = this.ToProduct;
+                }
+
+                await this.ScannerEnable();
+
+                if (!this.IsControlLoaded)
+                {
+                    this.IsControlLoaded = true;
+                }
+            }
+            catch (TaskCanceledException)
+            {
+                // Do nothing, task cancelled by user
+            }
+            catch (MessageOnlyException msgEx)
+            {
+                await Device.InvokeOnMainThreadAsync(async () =>
+                    await Application.Current.MainPage.DisplayAlert(
+                        this.GetControlDescription(),
+                        msgEx.Message,
+                        Resource.OK));
+            }
+            catch (Exception ex)
+            {
+                await Device.InvokeOnMainThreadAsync(async () => await this.DisplayAlert(
+                    "Error",
+                    "this.ucActivityConvertProductDetail_GotFocus threw an error " + ex,
+                    "OK"));
+            }
+
+            //////////////////////////////////////////////////////////////////////////
+            async Task ScannerStart()
+            {
+                if (this.Scanner != null)
+                {
+                    await this.Scanner.Start();
+                    this.Scanner.BarCodeScan += new BarCodeScanner.BarCodeScanEventHandler(this.BarCodeHandler);
+                    this.IsBarCodeHandlerRegistered = true;
+                }
+            }
+
+            //////////////////////////////////////////////////////////////////////////
+            async void KeyUpHandlerCallback(string keyPressed)
+            {
+                _ = Enum.TryParse(keyPressed, out Keycode keycode);
+
+                if (!this.Loading)
+                {
+                    if (keycode == Keycode.Enter)
+                    {
+                        await this.AddManually();
+                    }
+                    else if (keycode == Keycode.F1)
+                    {
+                        await this.CloseForm();
+                    }
+                    else if (keycode == Keycode.Del)
+                    {
+                        // Commented out because we currently don't support it
+                        // but wanted to. Uncomment to add most of this functionality
+                        // back in.
+                        // DeleteAdjustment();
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        /// On back button pressed handler.
+        /// </summary>
+        /// <returns><see cref="bool"/> True upon completion.</returns>
+        /// <remarks>Code lens reports no references yet this event does fire.</remarks>
+        protected override bool OnBackButtonPressed()
+        {
+            Device.BeginInvokeOnMainThread(PerformBackPress);
+            return true;
+
+            //////////////////////////////////////////////////////////////////////////
+            async void PerformBackPress()
+            {
+                _ = await this.CancelChanges();
+                _ = base.OnBackButtonPressed();
+                await this.Close();
+            }
+        }
+
+        /// <summary>
+        /// Fires just before the page disappears.
+        /// </summary>
+        protected override async void OnDisappearing()
+        {
+            MessagingCenter.Unsubscribe<string>(this, EventTypes.OnKeyUp.ToString());
+            await this.ScannerDisable();
+            base.OnDisappearing();
+        }
+
+        /// <summary>
+        /// Add manually new activity detail.
+        /// </summary>
+        /// <returns><see cref="Task"/> Task operation.</returns>
+        private async Task AddManually()
+        {
+            var form = new FormDialogContainer(
+                EDialogTypes.ActivityDetailEdit,
+                this.ActDetail,
+                SysCommon.ActSubTypes.ConvertProduct);
+            if (await form.DisplayControl.ShowDialog() == DialogResult.OK)
+            {
+                var xmlDoc = await form.GetXML();
+                await Task.Run(async () =>
+                {
+                    await this.CreateAdjustment(xmlDoc);
+
+                    await Device.InvokeOnMainThreadAsync(() =>
+                    {
+                        this.MainActivityItems = this.ActDetail.DesignGrid(
+                            ref this.GridMainActivity,
+                            ref this.ListViewMainActivity);
+                        this.ListViewMainActivity.ItemsSource = this.MainActivityItems;
+                        this.SelectRow(this.ActDetail.ListDetails.Count - 1);
+                    });
+
+                    // We check if we are allowed to print on scan
+                    if (this.SysEnv.SysSettings is
+                        {
+                            CanPrintProductLabelConvertProduct: true,
+                            IsPrintProductLabelsAsBatch: false,
+                            IsDisconnectedMode: false
+                        })
+                    {
+                        await this.PrintProductLabel();
+                    }
+                });
+            }
+        }
+
+        /// <summary>
+        /// Get the control description.
+        /// </summary>
+        /// <returns><see cref="string"/> Control description.</returns>
+        private string GetControlDescription()
+        {
+            return "Convert Products";
+        }
+
+        /// <summary>
+        /// Bar code scan event handler.
+        /// </summary>
+        /// <param name="sender"><see cref="object"/> Sender instance.</param>
+        /// <param name="scanArgs"><see cref="BarCodeScannerEventArgs"/> Sender bar code scanner event arguments.</param>
         private async Task BarCodeHandler(object sender, BarCodeScannerEventArgs scanArgs)
         {
             if (this.Loading || scanArgs == null)
@@ -450,21 +559,18 @@ namespace dMobile.View.Activity
                 return;
             }
 
-            BarCodeParse parse = null;
-            var isInsertReady = false;
-
             try
             {
                 this.Loading = true;
                 await this.ScannerDisable();
 
                 var tempItemProdSchemeData = new ActItemSchemeData();
-                parse = scanArgs.ParseInfo;
+                var parse = scanArgs.ParseInfo;
 
                 // GLOBAL LOCATION IDENTIFIER SCANNED
                 if (!string.IsNullOrEmpty(parse.LocationIdentifier))
                 {
-                    this.LocMap.CurrLocMap = await LocationMapTasks.GetSLocMapFromLocMapRefno(
+                    this.ActDetail.LocMap.CurrLocMap = await LocationMapTasks.GetSLocMapFromLocMapRefno(
                         await LocationMapTasks.GetLocMapRefnoFromBarCodeGlobalLocIdentifier(parse.LocationIdentifier));
                 }
                 else
@@ -473,61 +579,12 @@ namespace dMobile.View.Activity
                     AssertNotLineItemDetail(parse);
                     AssertNotShippingContainer(parse);
 
-                    var prodUnitRefno = 0;
-                    prodUnitRefno = await SysShared.IdentifyProductScanned(this.ActSubType, parse);
                     // Check if product scanned matches the FROM product
                     // Location is set in ConvertProduct screen
-
                     // Product identifier
                     if (!string.IsNullOrEmpty(parse.ProductIdentifier))
                     {
-                        var tempFromProdUnitRefno = 0;
-
-                        tempFromProdUnitRefno = await SysShared.IdentifyProductScanned(this.ActSubType, parse);
-
-                        var scannedProduct = new ProductInfo();
-                        scannedProduct = await ProductInfoTasks.GetInfoFromUnitRefno(tempFromProdUnitRefno);
-
-                        // this.FromProdRefno = tempFromProdRefno;
-
-                        // Insert a new activity detail record
-                        this.ActDetail.Quantity = 0;
-                        this.ActDetail.BaseQuantity = 0;
-                        this.ActDetail.WeightQuantity = 0;
-                        this.ActDetail.SchemeID = string.Empty;
-                        this.ActDetail.UniqueSchemeID = string.Empty;
-                        this.ActDetail.ActExtra.Text1 = string.Empty;
-                        this.ActDetail.ActExtra.Text2 = string.Empty;
-                        this.ActDetail.ActExtra.Text3 = string.Empty;
-                        this.ActDetail.ActExtra.Text4 = string.Empty;
-                        this.ActDetail.ActExtra.DateTime1 = new DateTime(1980, 1, 1);
-
-                        // Assigns all data to the ActivityDetail
-                        isInsertReady = await SysShared.GatherProductData(
-                            parse,
-                            this.ActSubType,
-                            this.ActDetail.ActItem,
-                            tempItemProdSchemeData,
-                            isInsertReady,
-                            this.ActDetail,
-                            false);
-
-                        // Confirm that scanned matches from data. If not, then what is wrong
-                        if (scannedProduct.Code != this.FromProduct.Code)
-                        {
-                            throw new MessageOnlyException("Cannot scan a different \"From\" product than what was set.");
-                        }
-
-                        var xmlDoc = this.ActDetail.GetXML(this.ActDetail);
-
-                        await this.CreateAdjustment(xmlDoc);
-                        // We check if we are allowed to print on scan
-                        if (// this.SysEnv.SysSettings.CanPrintProductLabelConvertProduct && // TODO possibly remove this.
-                            !this.SysEnv.SysSettings.IsPrintProductLabelsAsBatch &&
-                            !this.SysEnv.SysSettings.IsDisconnectedMode)
-                        {
-                            await this.PrintProductLabel();
-                        }
+                        await HandleProductIdentifier(parse, tempItemProdSchemeData);
                     }
                 }
             }
@@ -556,43 +613,88 @@ namespace dMobile.View.Activity
                 await this.ScannerEnable();
                 this.Loading = false;
             }
-        }
 
-        private static void AssertNotShippingContainer(BarCodeParse parse)
-        {
-            // Shipping container scanned, skid
-            if (!string.IsNullOrEmpty(parse.SSCC18))
+            //////////////////////////////////////////////////////////////////////////
+            async Task HandleProductIdentifier(BarCodeParse barCodeParse, ActItemSchemeData actItemSchemeData)
             {
-                throw new MessageOnlyException("Scanning a shipping container bar code is not supported here!");
-            }
-        }
+                var tempFromProdUnitRefno = await SysShared.IdentifyProductScanned(this.ActSubType, barCodeParse);
+                var scannedProduct = await ProductInfoTasks.GetInfoFromUnitRefno(tempFromProdUnitRefno);
 
-        private static void AssertNotLineItemDetail(BarCodeParse parse)
-        {
-            // Activity detail fk refno
-            if (!string.IsNullOrEmpty(parse.ActDetailFKRefno))
+                // this.FromProdRefno = tempFromProdRefno;
+
+                // Insert a new activity detail record
+                this.ActDetail.Quantity = 0;
+                this.ActDetail.BaseQuantity = 0;
+                this.ActDetail.WeightQuantity = 0;
+                this.ActDetail.SchemeID = string.Empty;
+                this.ActDetail.UniqueSchemeID = string.Empty;
+                this.ActDetail.ActExtra.Text1 = string.Empty;
+                this.ActDetail.ActExtra.Text2 = string.Empty;
+                this.ActDetail.ActExtra.Text3 = string.Empty;
+                this.ActDetail.ActExtra.Text4 = string.Empty;
+                this.ActDetail.ActExtra.DateTime1 = new DateTime(1980, 1, 1);
+
+                // Assigns all data to the ActivityDetail
+                await SysShared.GatherProductData(
+                    barCodeParse,
+                    this.ActSubType,
+                    this.ActDetail.ActItem,
+                    actItemSchemeData,
+                    isInsertDetailReady: false,
+                    this.ActDetail,
+                    isForceStopForEdit: false);
+
+                // Confirm that scanned matches from data. If not, then what is wrong
+                if (scannedProduct.Code != this.FromProduct.Code)
+                {
+                    throw new MessageOnlyException("Cannot scan a different \"From\" product than what was set.");
+                }
+
+                var xmlDoc = this.ActDetail.GetXML(this.ActDetail);
+
+                await this.CreateAdjustment(xmlDoc);
+
+                // We check if we are allowed to print on scan
+                if (this.SysEnv.SysSettings is
+                    {
+                        CanPrintProductLabelConvertProduct: true,
+                        IsPrintProductLabelsAsBatch: false,
+                        IsDisconnectedMode: false
+                    })
+                {
+                    await this.PrintProductLabel();
+                }
+            }
+
+            //////////////////////////////////////////////////////////////////////////
+            void AssertNotShippingContainer(BarCodeParse parse)
             {
-                throw new MessageOnlyException("Scanning an line item detail bar code is not supported here!");
+                // Shipping container scanned, skid
+                if (!string.IsNullOrEmpty(parse.SSCC18))
+                {
+                    throw new MessageOnlyException("Scanning a shipping container bar code is not supported here!");
+                }
             }
-        }
 
-        private static void AssertNotLineItem(BarCodeParse parse)
-        {
-            // Activity item fk refno
-            if (!string.IsNullOrEmpty(parse.ActItemFKRefno))
+            //////////////////////////////////////////////////////////////////////////
+            void AssertNotLineItemDetail(BarCodeParse parse)
             {
-                throw new MessageOnlyException("Scanning a line item bar code is not supported here!");
+                // Activity detail fk refno
+                if (!string.IsNullOrEmpty(parse.ActDetailFKRefno))
+                {
+                    throw new MessageOnlyException("Scanning an line item detail bar code is not supported here!");
+                }
             }
-        }
 
-        /// <summary>
-        ///
-        /// </summary>
-        /// <returns></returns>
-        /// <remarks></remarks>
-        private bool IsValidData()
-        {
-            return true;
+            //////////////////////////////////////////////////////////////////////////
+            void AssertNotLineItem(BarCodeParse parse)
+            {
+                // Activity item fk refno
+                if (!string.IsNullOrEmpty(parse.ActItemFKRefno))
+                {
+                    throw new MessageOnlyException("Scanning a line item bar code is not supported here!");
+                }
+            }
         }
 
         /// <summary>
@@ -636,46 +738,6 @@ namespace dMobile.View.Activity
         }
 
         /// <summary>
-        /// Adding products manually instead of scanning.
-        /// </summary>
-        private async Task AddManually()
-        {
-            var form = new FormDialogContainer(EDialogTypes.ActivityDetailEdit, this.ActDetail, SysCommon.ActSubTypes.ConvertProduct);
-
-            if (await form.DisplayControl.ShowDialog() == DialogResult.OK)
-            {
-                var xmlDoc = await form.GetXML();
-
-                try
-                {
-                    this.Loading = true;
-
-                    await Task.Run(async () =>
-                    {
-                        await this.CreateAdjustment(xmlDoc);
-
-                        // We check if we are allowed to print on scan
-                        if (
-                                // (this.SysEnv.SysSettings.CanPrintProductLabelConvertProduct &&// TODO remove true || (workaround com server not updated with value yet)
-                                !this.SysEnv.SysSettings.IsPrintProductLabelsAsBatch &&
-                                !this.SysEnv.SysSettings.IsDisconnectedMode)
-                        {
-                            await this.PrintProductLabel();
-                        }
-                    });
-                }
-                catch (Exception ex)
-                {
-                    await Device.InvokeOnMainThreadAsync(async () => await this.DisplayAlert("Error", ex.Message, "OK"));
-                }
-                finally
-                {
-                    this.Loading = false;
-                }
-            }
-        }
-
-        /// <summary>
         /// Creates an adjustment for the product.
         /// </summary>
         /// <remarks>
@@ -706,7 +768,6 @@ namespace dMobile.View.Activity
                 data.Root.Element("ser_refno").SetValue(this.ActDetail.DetailFKRefno);
 
                 var detail = this.ActDetail.InsertListDetail(this.MainActivityItems);
-                this.SelectRow(this.ActDetail.ListDetails.Count - 1);
             }
             catch (MessageOnlyException me)
             {
@@ -743,6 +804,7 @@ namespace dMobile.View.Activity
             {
                 // Create COM request to remove
                 var data = new XDocument();
+
                 // TODO send the fk_refno to delete over
                 var sendRequest = await this.ActDetail.CreateDeleteXML(data);
                 var response = SysCommon.SubmitComm(sendRequest);
@@ -806,7 +868,7 @@ namespace dMobile.View.Activity
         }
 
         /// <summary>
-        /// Causes all current adjustments to pring prooduct labels.
+        /// Causes all current adjustments to print product labels.
         /// </summary>
         /// <remarks>
         /// Sends an xml string to the COM server to print the product labels.
@@ -853,6 +915,10 @@ namespace dMobile.View.Activity
             return this.ActDetail.ListDetails.Count == 0;
         }
 
+        /// <summary>
+        /// Check if there is any activity detail exists.
+        /// </summary>
+        /// <returns><see cref="bool"/> True if activity detail exists.</returns>
         private bool HasData()
         {
             return !this.NoData();
@@ -877,20 +943,32 @@ namespace dMobile.View.Activity
         /// <summary>
         /// Click handler for the Add button.
         /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private async void cmdAdd_Click(object sender, EventArgs e)
+        /// <param name="sender"><see cref="object"/> Sender instance.</param>
+        /// <param name="e"><see cref="EventArgs"/> Event arguments.</param>
+        private async void CmdAdd_Click(object sender, EventArgs e)
         {
-            await this.AddManually();
-        }
-
-        private async Task ucActivityConvertProductDetail_GotFocus(object sender, EventArgs e)
-        {
-            await this.ScannerEnable();
-
-            if (!this.IsControlLoaded)
+            try
             {
-                this.IsControlLoaded = true;
+                await this.AddManually();
+            }
+            catch (TaskCanceledException)
+            {
+                // Do nothing, task cancelled by user
+            }
+            catch (MessageOnlyException msgEx)
+            {
+                await Device.InvokeOnMainThreadAsync(async () =>
+                    await Application.Current.MainPage.DisplayAlert(
+                        this.GetControlDescription(),
+                        msgEx.Message,
+                        Resource.OK));
+            }
+            catch (Exception ex)
+            {
+                await Device.InvokeOnMainThreadAsync(async () => await this.DisplayAlert(
+                    "Error",
+                    "this.ucActivityConvertProductDetail_GotFocus threw an error " + ex,
+                    "OK"));
             }
         }
 
@@ -901,16 +979,18 @@ namespace dMobile.View.Activity
 
         private void SelectRow(int row)
         {
+            this.ActDetail.SelectedListItemIdx = row;
             if (row < 0)
             {
                 return;
             }
 
-            this.ActDetail.ActItem.SelectedActivityItem = this.ActDetail.ActItem.ListItems[row];
+            this.ActDetail.ActItem.SelectedActivityItem = this.ActDetail.ActItem.ListItems[0];
+            this.ActDetail.SelectedActivityDetail = this.MainActivityItems[row];
             this.DisplaySummary();
         }
 
-        private void txtSearch_TextChanged(object sender, TextChangedEventArgs e)
+        private void TxtSearch_TextChanged(object sender, TextChangedEventArgs e)
         {
             this.MainActivityItems = this.ActDetail.Search(e.NewTextValue);
             this.ListViewMainActivity.ItemsSource = this.MainActivityItems;

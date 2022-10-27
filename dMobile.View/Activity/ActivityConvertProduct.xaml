@@ -2,22 +2,32 @@
 <custompages:DMobileContentPage  xmlns:custompages="clr-namespace:dMobile.View.CustomPages" 
                                  xmlns="http://xamarin.com/schemas/2014/forms"
                                  xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-                                 xmlns:Helpers="clr-namespace:dMobile.View.Helpers" 
+                                 xmlns:helpers="clr-namespace:dMobile.View.Helpers" 
                                  xmlns:customcontrols="clr-namespace:dMobile.View.CustomControls"
-                                 x:Class="dMobile.View.Activity.ActivityConvertProduct">
+                                 xmlns:modal="clr-namespace:dMobile.View.CustomPages.Modal;assembly=dMobile.View"
+                                 x:Class="dMobile.View.Activity.ActivityConvertProduct" x:DataType="modal:DMobileModal">
     <ContentPage.ToolbarItems>
-        <ToolbarItem x:Name="optionsMenu" IconImageSource="{Binding OptionsIconSource}" Clicked="optionsMenu_Clicked" />
+        <ToolbarItem x:Name="OptionsMenu"
+                     IconImageSource="{Binding OptionsIconSource}"
+                     Clicked="OptionsMenu_Clicked" />
     </ContentPage.ToolbarItems>
     <ContentPage.Content>
         <AbsoluteLayout VerticalOptions="Center">
-            <Grid x:Name="gridContainer" Padding="10" AbsoluteLayout.LayoutFlags="All" AbsoluteLayout.LayoutBounds="0,0,1,1">
+            <Grid x:Name="GridContainer"
+                  Padding="10"
+                  AbsoluteLayout.LayoutFlags="All"
+                  AbsoluteLayout.LayoutBounds="0,0,1,1">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="*"/>
                     <RowDefinition Height="Auto"/>
                 </Grid.RowDefinitions>
 
-                <Frame VerticalOptions="Start" Grid.Row="0" OutlineColor="{DynamicResource BorderColor}">
-                    <ListView x:Name="ListViewDisplayExtraInfo" SelectionMode="None" HasUnevenRows="true" IsEnabled="{Binding Loading, Converter={Helpers:BoolConverter}}" SeparatorVisibility="None" >
+                <Frame VerticalOptions="Start" Grid.Row="0" BackgroundColor="{DynamicResource BorderColor}">
+                    <ListView x:Name="ListViewDisplayExtraInfo"
+                              SelectionMode="None"
+                              HasUnevenRows="true"
+                              IsEnabled="{Binding Loading, Converter={helpers:BoolConverter}}"
+                              SeparatorVisibility="None" >
                         <ListView.ItemTemplate>
                             <DataTemplate>
                                 <ViewCell>
@@ -42,11 +52,35 @@
                         <ColumnDefinition Width="30*"/>
                     </Grid.ColumnDefinitions>
 
-                    <Button x:Name="cmdLocation" Grid.Row="0" Grid.Column="0" Clicked="cmdLocation_Click" IsEnabled="{Binding Loading, Converter={Helpers:BoolConverter}}"/>
-                    <customcontrols:CustomPicker x:Name="BarCodeModifier1Picker" Grid.Row="0" Grid.Column="1" Image="arrow_drop_down" SelectedIndexChanged="BarCodeModifier1Picker_SelectedIndexChanged" IsEnabled="{Binding Loading, Converter={Helpers:BoolConverter}}"/>
-                    <Button x:Name="cmdSelectFromProduct" Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" Clicked="cmdSelectFromUnit_Click" IsEnabled="{Binding Loading, Converter={Helpers:BoolConverter}}"/>
-                    <Button x:Name="cmdSelectToProduct" Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2" Clicked="cmdSelectToUnit_Click" IsEnabled="{Binding Loading, Converter={Helpers:BoolConverter}}"/>
-                    <Button x:Name="cmdDetail" Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="2" Clicked="cmdDetail_Click" IsEnabled="{Binding Loading, Converter={Helpers:BoolConverter}}"/>
+                    <Button x:Name="CmdLocation"
+                            Grid.Row="0"
+                            Grid.Column="0"
+                            Clicked="CmdLocation_Click"
+                            IsEnabled="{Binding Loading, Converter={helpers:BoolConverter}}"/>
+                    <customcontrols:CustomPicker x:Name="BarCodeModifier1Picker"
+                                                 Grid.Row="0"
+                                                 Grid.Column="1"
+                                                 Image="arrow_drop_down"
+                                                 SelectedIndexChanged="BarCodeModifier1Picker_SelectedIndexChanged"
+                                                 IsEnabled="{Binding Loading, Converter={helpers:BoolConverter}}"/>
+                    <Button x:Name="CmdSelectFromProduct"
+                            Grid.Row="1"
+                            Grid.Column="0"
+                            Grid.ColumnSpan="2"
+                            Clicked="CmdSelectFromUnit_Click"
+                            IsEnabled="{Binding Loading, Converter={helpers:BoolConverter}}"/>
+                    <Button x:Name="CmdSelectToProduct"
+                            Grid.Row="2"
+                            Grid.Column="0"
+                            Grid.ColumnSpan="2"
+                            Clicked="CmdSelectToUnit_Click"
+                            IsEnabled="{Binding Loading, Converter={helpers:BoolConverter}}"/>
+                    <Button x:Name="CmdDetail"
+                            Grid.Row="3"
+                            Grid.Column="0"
+                            Grid.ColumnSpan="2"
+                            Clicked="CmdDetail_Click"
+                            IsEnabled="{Binding Loading, Converter={helpers:BoolConverter}}"/>
                 </Grid>
             </Grid>
 

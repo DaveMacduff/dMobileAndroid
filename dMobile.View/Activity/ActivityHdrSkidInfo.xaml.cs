@@ -1120,7 +1120,7 @@ namespace dMobile.View.Activity
             else
             {
                 // this.cmdSkidProduct.IsEnabled = false;
-                // this.cmdLocation.IsEnabled = false;
+                // this.CmdLocation.IsEnabled = false;
                 this.txtTi.IsEnabled = false;
                 this.txtHi.IsEnabled = false;
                 this.txtHeight.IsEnabled = false;

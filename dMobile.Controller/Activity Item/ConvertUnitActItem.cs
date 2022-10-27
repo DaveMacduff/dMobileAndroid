@@ -56,9 +56,9 @@ namespace dMobile.Controller.Activity_Item
         }
 
         /// <summary>
-                 /// The IsCatchAsk.
-                 /// </summary>
-                 /// <returns>.</returns>
+        /// The IsCatchAsk.
+        /// </summary>
+        /// <returns>.</returns>
         public override bool IsCatchAsk()
         {
             var isCatchAsk = this.ProdInfo.IsCatchAsk;

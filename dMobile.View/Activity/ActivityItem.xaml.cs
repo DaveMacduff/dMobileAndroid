@@ -398,54 +398,6 @@ namespace dMobile.View.Activity
         }
 
         /// <summary>
-        /// Unregister the bar code scan event handler and disable the scanner.
-        /// </summary>
-        /// <returns><see cref="Task"/> Task operation.</returns>
-        public async Task ScannerDisable()
-        {
-            if (this.Scanner != null)
-            {
-                if (this.IsBarCodeHandlerRegistered)
-                {
-                    this.Scanner.BarCodeScan -= new BarCodeScanner.BarCodeScanEventHandler(this.BarCodeHandler);
-                    await this.Scanner.Stop();
-                    this.IsBarCodeHandlerRegistered = false;
-                }
-            }
-        }
-
-        /// <summary>
-        /// Registers the bar code scan event handler and enables the scanner.
-        /// </summary>
-        /// <returns><see cref="Task"/> Task operation.</returns>
-        public async Task ScannerEnable()
-        {
-            if (this.Scanner != null)
-            {
-                if (!this.IsBarCodeHandlerRegistered)
-                {
-                    await this.Scanner.Start();
-                    this.Scanner.BarCodeScan += new BarCodeScanner.BarCodeScanEventHandler(this.BarCodeHandler);
-                    this.IsBarCodeHandlerRegistered = true;
-                }
-            }
-        }
-
-        /// <summary>
-        /// Registers the bar code scan event handler and enables the scanner.
-        /// </summary>
-        /// <returns><see cref="Task"/> Task operation.</returns>
-        public async Task ScannerStart()
-        {
-            if (this.Scanner != null)
-            {
-                await this.Scanner.Start();
-                this.Scanner.BarCodeScan += new BarCodeScanner.BarCodeScanEventHandler(this.BarCodeHandler);
-                this.IsBarCodeHandlerRegistered = true;
-            }
-        }
-
-        /// <summary>
         /// Check if the activity item is ready to save.
         /// </summary>
         /// <returns><see cref="bool"/> True if it is ready to save, else false.</returns>
@@ -1011,7 +963,7 @@ namespace dMobile.View.Activity
                 if (this.IsFirstAppearance)
                 {
                     this.IsFirstAppearance = false;
-                    await this.ScannerStart();
+                    await ScannerStart();
                     this.CmdSelectSkidIsEnabled = this.SysEnv.SysSettings.IsSkidTrackingModule;
                     this.CmdClearSelectedSkidIsEnabled = this.ActItem.ActHdr.SkidInfo.CurrSkid.SkidFKRefno != 0
                         && this.CmdAddSkidIsEnabled && this.CmdSelectSkidIsEnabled;
@@ -1025,10 +977,8 @@ namespace dMobile.View.Activity
                     {
                         Device.BeginInvokeOnMainThread(() => this.ExtraInfoItems.Clear());
                     }
-                    else
-                    {
-                        await this.ActAppearing();
-                    }
+
+                    await this.ActAppearing();
                 }
             }
             catch (MessageOnlyException ex)
@@ -1044,7 +994,7 @@ namespace dMobile.View.Activity
                 this.IsFirstAppearance = true;
                 await Device.InvokeOnMainThreadAsync(async () =>
                 {
-                    var msg = "This activity unexpectedly failed to initialize correctly." +
+                    const string msg = "This activity unexpectedly failed to initialize correctly." +
                               " Please exit and try again.";
                     var errorReport = new FormErrorReport(msg, ex);
                     _ = await errorReport.ShowDialog();
@@ -1060,6 +1010,17 @@ namespace dMobile.View.Activity
                 ////    GC.WaitForPendingFinalizers();
                 ////});
             }
+
+            //////////////////////////////////////////////////////////////////////////
+            async Task ScannerStart()
+            {
+                if (this.Scanner != null)
+                {
+                    await this.Scanner.Start();
+                    this.Scanner.BarCodeScan += new BarCodeScanner.BarCodeScanEventHandler(this.BarCodeHandler);
+                    this.IsBarCodeHandlerRegistered = true;
+                }
+            }
         }
 
         /// <summary>
@@ -1069,6 +1030,40 @@ namespace dMobile.View.Activity
         {
             await this.ActDisappearing();
             base.OnDisappearing();
+        }
+
+        /// <summary>
+        /// Un-register the bar code scan event handler and disable the scanner.
+        /// </summary>
+        /// <returns><see cref="Task"/> Task operation.</returns>
+        public async Task ScannerDisable()
+        {
+            if (this.Scanner != null)
+            {
+                if (this.IsBarCodeHandlerRegistered)
+                {
+                    this.Scanner.BarCodeScan -= new BarCodeScanner.BarCodeScanEventHandler(this.BarCodeHandler);
+                    await this.Scanner.Stop();
+                    this.IsBarCodeHandlerRegistered = false;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Registers the bar code scan event handler and enables the scanner.
+        /// </summary>
+        /// <returns><see cref="Task"/> Task operation.</returns>
+        public async Task ScannerEnable()
+        {
+            if (this.Scanner != null)
+            {
+                if (!this.IsBarCodeHandlerRegistered)
+                {
+                    await this.Scanner.Start();
+                    this.Scanner.BarCodeScan += new BarCodeScanner.BarCodeScanEventHandler(this.BarCodeHandler);
+                    this.IsBarCodeHandlerRegistered = true;
+                }
+            }
         }
 
         /// <summary>
@@ -1085,66 +1080,68 @@ namespace dMobile.View.Activity
             //////////////////////////////////////////////////////////////////////////
             void SubscribeKeyUpHandlers()
             {
+                async void KeyUpHandlerCallback(string keyPressed)
+                {
+                    if (this.Loading)
+                    {
+                        return;
+                    }
+
+                    var svdIsScanReg = this.IsBarCodeHandlerRegistered;
+                    await this.ScannerDisable();
+
+                    _ = Enum.TryParse(keyPressed, out Keycode keycode);
+
+                    if (keycode == Keycode.Enter)
+                    {
+                        await AppearingEnterKey();
+                    }
+                    else if (keycode == Keycode.Clear)
+                    {
+                        await AppearingClearKey();
+                    }
+                    else if (keycode == Keycode.Del)
+                    {
+                        await AppearingDelKey();
+                    }
+                    else if (keycode == Keycode.F1)
+                    {
+                        await AppearingF1Key();
+                    }
+                    else if (keycode == Keycode.F2)
+                    {
+                        await OnAppearingF2Key();
+                    }
+                    else if (keycode == Keycode.F3)
+                    {
+                        await OnAppearingF3Key();
+                    }
+                    else if (keycode == Keycode.F4)
+                    {
+                        await OnAppearingF4Key();
+                    }
+                    else if (keycode == Keycode.DpadDown)
+                    {
+                        AppearingDpadDown();
+                    }
+                    else if (keycode == Keycode.DpadUp)
+                    {
+                        AppearingDpadUp();
+                    }
+
+                    if (svdIsScanReg)
+                    {
+                        await this.ScannerEnable();
+                    }
+                }
+
                 MessagingCenter.Subscribe<string>(
                     this,
                     EventTypes.OnKeyUp.ToString(),
-                    async (keyPressed) =>
-                    {
-                        if (this.Loading)
-                        {
-                            return;
-                        }
-
-                        var svdIsScanReg = this.IsBarCodeHandlerRegistered;
-                        await this.ScannerDisable();
-
-                        _ = Enum.TryParse(keyPressed, out Keycode keycode);
-
-                        if (keycode == Keycode.Enter)
-                        {
-                            await OnAppearingEnterKey();
-                        }
-                        else if (keycode == Keycode.Clear)
-                        {
-                            await OnAppearingClearKey();
-                        }
-                        else if (keycode == Keycode.Del)
-                        {
-                            await OnAppearingDelKey();
-                        }
-                        else if (keycode == Keycode.F1)
-                        {
-                            await OnAppearingF1Key();
-                        }
-                        else if (keycode == Keycode.F2)
-                        {
-                            await OnAppearingF2Key();
-                        }
-                        else if (keycode == Keycode.F3)
-                        {
-                            await OnAppearingF3Key();
-                        }
-                        else if (keycode == Keycode.F4)
-                        {
-                            await OnAppearingF4Key();
-                        }
-                        else if (keycode == Keycode.DpadDown)
-                        {
-                            OnAppearingDpadDown();
-                        }
-                        else if (keycode == Keycode.DpadUp)
-                        {
-                            OnAppearingDpadUp();
-                        }
-
-                        if (svdIsScanReg)
-                        {
-                            await this.ScannerEnable();
-                        }
-                    });
+                    KeyUpHandlerCallback);
 
                 //////////////////////////////////////////////////////////////////////////
-                async Task OnAppearingEnterKey()
+                async Task AppearingEnterKey()
                 {
                     if (this.Loading)
                     {
@@ -1171,7 +1168,7 @@ namespace dMobile.View.Activity
                 }
 
                 //////////////////////////////////////////////////////////////////////////
-                async Task OnAppearingClearKey()
+                async Task AppearingClearKey()
                 {
                     if (await this.CancelChanges())
                     {
@@ -1185,7 +1182,7 @@ namespace dMobile.View.Activity
                 }
 
                 //////////////////////////////////////////////////////////////////////////
-                async Task OnAppearingF1Key()
+                async Task AppearingF1Key()
                 {
                     if (await this.SaveChanges())
                     {
@@ -1199,7 +1196,7 @@ namespace dMobile.View.Activity
                 }
 
                 //////////////////////////////////////////////////////////////////////////
-                void OnAppearingDpadDown()
+                void AppearingDpadDown()
                 {
                     if (this.ListViewMainActivity.SelectedItem != null &&
                         Convert.ToInt32(this.MainActivityItems.IndexOf(
@@ -1217,7 +1214,7 @@ namespace dMobile.View.Activity
                 }
 
                 //////////////////////////////////////////////////////////////////////////
-                void OnAppearingDpadUp()
+                void AppearingDpadUp()
                 {
                     if (this.ListViewMainActivity.SelectedItem != null &&
                         Convert.ToInt32(this.MainActivityItems.IndexOf(
@@ -1234,29 +1231,15 @@ namespace dMobile.View.Activity
                 }
 
                 //////////////////////////////////////////////////////////////////////////
-                async Task OnAppearingDelKey()
+                async Task AppearingDelKey()
                 {
                     if (this.Loading)
                     {
                         return;
                     }
 
-                    var isItemSelected = true;
-                    if (this.ListViewMainActivity.SelectedItem == null)
-                    {
-                        isItemSelected = false;
-                    }
-
-                    if (Convert.ToInt32(this.MainActivityItems.IndexOf(
-                        this.ListViewMainActivity.SelectedItem)) < 0)
-                    {
-                        isItemSelected = false;
-                    }
-                    else
-                    {
-                        isItemSelected = true;
-                    }
-
+                    var isItemSelected =
+                        Convert.ToInt32(this.MainActivityItems.IndexOf(this.ListViewMainActivity.SelectedItem)) >= 0;
                     if (!isItemSelected)
                     {
                         await Device.InvokeOnMainThreadAsync(async () =>
@@ -1755,8 +1738,7 @@ namespace dMobile.View.Activity
         /// Bar code scan event handler.
         /// </summary>
         /// <param name="sender"><see cref="object"/> Sender instance.</param>
-        /// <param name="scanArgs"><see cref="BarCodeScannerEventArgs"/> Sender bar code scanner
-        /// event arguments.</param>
+        /// <param name="scanArgs"><see cref="BarCodeScannerEventArgs"/> Sender bar code scanner event arguments.</param>
         private async Task BarCodeHandler(object sender, BarCodeScannerEventArgs scanArgs)
         {
             if (this.Loading)

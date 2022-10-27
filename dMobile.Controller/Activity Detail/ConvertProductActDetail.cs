@@ -108,15 +108,43 @@ namespace dMobile.Controller.Activity_Detail
                 var labelWeight = new Label { VerticalOptions = LayoutOptions.Center };
                 var labelSerialNo = new Label { VerticalOptions = LayoutOptions.Center };
                 var labelProdDate = new Label { VerticalOptions = LayoutOptions.Center };
-                var labelBBSBDate = new Label { VerticalOptions = LayoutOptions.Center };
+                var labelBestDate = new Label { VerticalOptions = LayoutOptions.Center };
                 var labelLot = new Label { VerticalOptions = LayoutOptions.Center };
                 var labelVariant = new Label { VerticalOptions = LayoutOptions.Center };
 
-                labelQty.SetBinding(Label.TextProperty, new Binding("ActivityDetailQuantity", BindingMode.Default, null, null, "{0:F3}"));
-                labelWeight.SetBinding(Label.TextProperty, new Binding("ActivityDetailWeightQuantity", BindingMode.Default, null, null, "{0:F3}"));
+                labelQty.SetBinding(
+                    Label.TextProperty,
+                    new Binding(
+                        "ActivityDetailQuantity",
+                        BindingMode.Default,
+                        null,
+                        null,
+                        "{0:F3}"));
+                labelWeight.SetBinding(
+                    Label.TextProperty,
+                    new Binding(
+                        "ActivityDetailWeightQuantity",
+                        BindingMode.Default,
+                        null,
+                        null,
+                        "{0:F3}"));
                 labelSerialNo.SetBinding(Label.TextProperty, new Binding("ActivityDetailSingleTradeItemSerialNumber"));
-                labelProdDate.SetBinding(Label.TextProperty, new Binding("ActivityDetailLogisticUnitProductionDate", BindingMode.Default, null, null, "{0:MM/dd/yyyy}"));
-                labelBBSBDate.SetBinding(Label.TextProperty, new Binding("ActivityDetailLogisticUnitBestBeforeSellByDate", BindingMode.Default, null, null, "{0:MM/dd/yyyy}"));
+                labelProdDate.SetBinding(
+                    Label.TextProperty,
+                    new Binding(
+                        "ActivityDetailLogisticUnitProductionDate",
+                        BindingMode.Default,
+                        null,
+                        null,
+                        "{0:MM/dd/yyyy}"));
+                labelBestDate.SetBinding(
+                    Label.TextProperty,
+                    new Binding(
+                        "ActivityDetailLogisticUnitBestBeforeSellByDate",
+                        BindingMode.Default,
+                        null,
+                        null,
+                        "{0:MM/dd/yyyy}"));
                 labelLot.SetBinding(Label.TextProperty, new Binding("ActivityDetailLogisticUnitBatchLotNumber"));
                 labelVariant.SetBinding(Label.TextProperty, new Binding("ProductSchemeVariantCode"));
 
@@ -126,35 +154,45 @@ namespace dMobile.Controller.Activity_Detail
                 Grid.SetColumn(labelQty, 0);
                 Grid.SetColumn(labelWeight, 1);
 
-                if (this.ActItem.ProdInfo.Scheme.IsSerialTracked)
-                {
-                    gridData.Children.Add(labelSerialNo);
-                    Grid.SetColumn(labelSerialNo, 2);
-                }
+                ////if (this.ActItem.ProdInfo.Scheme.IsSerialTracked)
+                ////{
+                ////    gridData.Children.Add(labelSerialNo);
+                ////    Grid.SetColumn(labelSerialNo, 2);
+                ////}
+                gridData.Children.Add(labelSerialNo);
+                Grid.SetColumn(labelSerialNo, 2);
 
-                if (this.ActItem.ProdInfo.Scheme.IsProductionDateTracked)
-                {
-                    gridData.Children.Add(labelProdDate);
-                    Grid.SetColumn(labelProdDate, 3);
-                }
+                ////if (this.ActItem.ProdInfo.Scheme.IsProductionDateTracked)
+                ////{
+                ////    gridData.Children.Add(labelProdDate);
+                ////    Grid.SetColumn(labelProdDate, 3);
+                ////}
+                gridData.Children.Add(labelProdDate);
+                Grid.SetColumn(labelProdDate, 3);
 
-                if (this.ActItem.ProdInfo.Scheme.IsBestBeforeDateTracked)
-                {
-                    gridData.Children.Add(labelBBSBDate);
-                    Grid.SetColumn(labelBBSBDate, 4);
-                }
+                ////if (this.ActItem.ProdInfo.Scheme.IsBestBeforeDateTracked)
+                ////{
+                ////    gridData.Children.Add(labelBestDate);
+                ////    Grid.SetColumn(labelBestDate, 4);
+                ////}
+                gridData.Children.Add(labelBestDate);
+                Grid.SetColumn(labelBestDate, 4);
 
-                if (this.ActItem.ProdInfo.Scheme.IsLotTracked)
-                {
-                    gridData.Children.Add(labelLot);
-                    Grid.SetColumn(labelLot, 5);
-                }
+                ////if (this.ActItem.ProdInfo.Scheme.IsLotTracked)
+                ////{
+                ////    gridData.Children.Add(labelLot);
+                ////    Grid.SetColumn(labelLot, 5);
+                ////}
+                gridData.Children.Add(labelLot);
+                Grid.SetColumn(labelLot, 5);
 
-                if (this.ActItem.ProdInfo.Scheme.IsVariantTracked)
-                {
-                    gridData.Children.Add(labelVariant);
-                    Grid.SetColumn(labelVariant, 6);
-                }
+                ////if (this.ActItem.ProdInfo.Scheme.IsVariantTracked)
+                ////{
+                ////    gridData.Children.Add(labelVariant);
+                ////    Grid.SetColumn(labelVariant, 6);
+                ////}
+                gridData.Children.Add(labelVariant);
+                Grid.SetColumn(labelVariant, 6);
 
                 return new ViewCell { View = gridData };
             });
@@ -184,9 +222,13 @@ namespace dMobile.Controller.Activity_Detail
             ConvertProductDetail detail = null;
             if (this.ListDetails != null)
             {
-                detail = new ConvertProductDetail();
-                detail.ActivityDetailRefno = this.DetailRefno;
-                detail.ActivityDetailFKRefno = this.DetailFKRefno;
+                detail = new ConvertProductDetail
+                {
+                    ActivityDetailRefno = this.DetailRefno,
+                    ActivityDetailFKRefno = this.DetailFKRefno,
+                    ActivityDetailSchemeID = this.SchemeID,
+                    ActivityDetailUniqueSchemeID = this.UniqueSchemeID,
+                };
 
                 this.InsertListDetailProduct(detail);
                 this.InsertListDetailQuantity(detail);
@@ -194,8 +236,6 @@ namespace dMobile.Controller.Activity_Detail
                 this.InsertListDetailExtra(detail);
                 this.InsertListDetailLocation(detail);
 
-                detail.ActivityDetailSchemeID = this.SchemeID;
-                detail.ActivityDetailUniqueSchemeID = this.UniqueSchemeID;
                 ////detail.ActivityDetailStatus = (int)SysCommon.ActStatus.Inserted;
                 this.ListDetails.Add(detail);
             }
@@ -210,14 +250,13 @@ namespace dMobile.Controller.Activity_Detail
         public override void UpdateListDetail(int listDetailIdx)
         {
             var detail = (ConvertProductDetail)this.ListDetails[listDetailIdx];
+            detail.ActivityDetailQuantity += Math.Round(this.Quantity, 3);
+            detail.ActivityDetailBaseQuantity += Math.Round(this.BaseQuantity, 3);
+            detail.ActivityDetailWeightQuantity += Math.Round(this.WeightQuantity, 3);
             ////if (detail.ActivityDetailStatus == (int)SysCommon.ActStatus.NoChange)
             ////{
             ////    detail.ActivityDetailStatus = (int)SysCommon.ActStatus.Updated;
             ////}
-
-            detail.ActivityDetailQuantity += Math.Round(this.Quantity, 3);
-            detail.ActivityDetailBaseQuantity += Math.Round(this.BaseQuantity, 3);
-            detail.ActivityDetailWeightQuantity += Math.Round(this.WeightQuantity, 3);
         }
 
         /// <summary>
@@ -258,13 +297,15 @@ namespace dMobile.Controller.Activity_Detail
                 this.ActItem.ActHdr.HdrFKRefno = Convert.ToInt32(data.Root.Element("hdr_refno").Value);
 
                 // Update Scheme data
-                var schemeData = new ProductSchemeData();
-                schemeData.LogisticUnitProductionDate = Convert.ToDateTime(data.Root.Element("pdate").Value);
-                schemeData.LogisticUnitBestBeforeSellByDate = Convert.ToDateTime(data.Root.Element("bdate").Value);
-                schemeData.SingleTradeItemSerialNumber = Convert.ToString(data.Root.Element("serial").Value);
-                schemeData.LogisticUnitBatchLotNumber = Convert.ToString(data.Root.Element("lot_no").Value);
-                schemeData.VariantCode = Convert.ToString(data.Root.Element("variant_code").Value);
-                schemeData.VariantNumber = Convert.ToInt32(data.Root.Element("variant_no").Value);
+                var schemeData = new ProductSchemeData
+                {
+                    LogisticUnitProductionDate = Convert.ToDateTime(data.Root.Element("pdate").Value),
+                    LogisticUnitBestBeforeSellByDate = Convert.ToDateTime(data.Root.Element("bdate").Value),
+                    SingleTradeItemSerialNumber = Convert.ToString(data.Root.Element("serial").Value),
+                    LogisticUnitBatchLotNumber = Convert.ToString(data.Root.Element("lot_no").Value),
+                    VariantCode = Convert.ToString(data.Root.Element("variant_code").Value),
+                    VariantNumber = Convert.ToInt32(data.Root.Element("variant_no").Value),
+                };
                 this.SchemeData = schemeData;
 
                 this.ListDetails.Add(new ConvertProductDetail()
@@ -383,19 +424,55 @@ namespace dMobile.Controller.Activity_Detail
                 observableCollection.Add(convertProductDetail);
             }
 
-            var labelQtyHeader = new Label { Text = "Quantity", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
-            var labelWeightHeader = new Label { Text = "Weight", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
-            var labelSerialNoHeader = new Label { Text = "SerialNo", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
-            var labelProdDateHeader = new Label { Text = "Prod Date", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
-            var labelBBSBDateHeader = new Label { Text = "BBSB Date", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
-            var labelLotHeader = new Label { Text = "Lot", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
-            var labelVariantHeader = new Label { Text = "Variant", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
+            var labelQtyHeader = new Label
+            {
+                Text = "Quantity",
+                VerticalOptions = LayoutOptions.Center,
+                FontAttributes = FontAttributes.Bold,
+            };
+
+            var labelWeightHeader = new Label
+            {
+                Text = "Weight",
+                VerticalOptions = LayoutOptions.Center,
+                FontAttributes = FontAttributes.Bold,
+            };
+            var labelSerialNoHeader = new Label
+            {
+                Text = "SerialNo",
+                VerticalOptions = LayoutOptions.Center,
+                FontAttributes = FontAttributes.Bold,
+            };
+            var labelProdDateHeader = new Label
+            {
+                Text = "Prod Date",
+                VerticalOptions = LayoutOptions.Center,
+                FontAttributes = FontAttributes.Bold,
+            };
+            var labelBestDateHeader = new Label
+            {
+                Text = "Best Date",
+                VerticalOptions = LayoutOptions.Center,
+                FontAttributes = FontAttributes.Bold,
+            };
+            var labelLotHeader = new Label
+            {
+                Text = "Lot",
+                VerticalOptions = LayoutOptions.Center,
+                FontAttributes = FontAttributes.Bold,
+            };
+            var labelVariantHeader = new Label
+            {
+                Text = "Variant",
+                VerticalOptions = LayoutOptions.Center,
+                FontAttributes = FontAttributes.Bold,
+            };
 
             this.ColumnWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(labelQtyHeader.Text);
             this.ColumnWidth1 = DependencyService.Get<IGridService>().CalculateTextWidth(labelWeightHeader.Text);
             this.ColumnWidth2 = DependencyService.Get<IGridService>().CalculateTextWidth(labelSerialNoHeader.Text);
             this.ColumnWidth3 = DependencyService.Get<IGridService>().CalculateTextWidth(labelProdDateHeader.Text);
-            this.ColumnWidth4 = DependencyService.Get<IGridService>().CalculateTextWidth(labelBBSBDateHeader.Text);
+            this.ColumnWidth4 = DependencyService.Get<IGridService>().CalculateTextWidth(labelBestDateHeader.Text);
             this.ColumnWidth5 = DependencyService.Get<IGridService>().CalculateTextWidth(labelLotHeader.Text);
             this.ColumnWidth6 = DependencyService.Get<IGridService>().CalculateTextWidth(labelVariantHeader.Text);
 
@@ -423,49 +500,72 @@ namespace dMobile.Controller.Activity_Detail
             gridHeader.Children.Add(labelWeightHeader);
             Grid.SetColumn(labelWeightHeader, 1);
 
-            if (this.ActItem.ProdInfo.Scheme.IsSerialTracked)
-            {
-                gridHeader.Children.Add(labelSerialNoHeader);
-                Grid.SetColumn(labelSerialNoHeader, 2);
-            }
+            ////if (this.ActItem.ProdInfo.Scheme.IsSerialTracked)
+            ////{
+            ////    gridHeader.Children.Add(labelSerialNoHeader);
+            ////    Grid.SetColumn(labelSerialNoHeader, 2);
+            ////}
+            gridHeader.Children.Add(labelSerialNoHeader);
+            Grid.SetColumn(labelSerialNoHeader, 2);
 
-            if (this.ActItem.ProdInfo.Scheme.IsProductionDateTracked)
-            {
-                gridHeader.Children.Add(labelProdDateHeader);
-                Grid.SetColumn(labelProdDateHeader, 3);
-            }
+            ////if (this.ActItem.ProdInfo.Scheme.IsProductionDateTracked)
+            ////{
+            ////    gridHeader.Children.Add(labelProdDateHeader);
+            ////    Grid.SetColumn(labelProdDateHeader, 3);
+            ////}
+            gridHeader.Children.Add(labelProdDateHeader);
+            Grid.SetColumn(labelProdDateHeader, 3);
 
-            if (this.ActItem.ProdInfo.Scheme.IsBestBeforeDateTracked)
-            {
-                gridHeader.Children.Add(labelBBSBDateHeader);
-                Grid.SetColumn(labelBBSBDateHeader, 4);
-            }
+            ////if (this.ActItem.ProdInfo.Scheme.IsBestBeforeDateTracked)
+            ////{
+            ////    gridHeader.Children.Add(labelBestDateHeader);
+            ////    Grid.SetColumn(labelBestDateHeader, 4);
+            ////}
+            gridHeader.Children.Add(labelBestDateHeader);
+            Grid.SetColumn(labelBestDateHeader, 4);
 
-            if (this.ActItem.ProdInfo.Scheme.IsLotTracked)
-            {
-                gridHeader.Children.Add(labelLotHeader);
-                Grid.SetColumn(labelLotHeader, 5);
-            }
+            ////if (this.ActItem.ProdInfo.Scheme.IsLotTracked)
+            ////{
+            ////    gridHeader.Children.Add(labelLotHeader);
+            ////    Grid.SetColumn(labelLotHeader, 5);
+            ////}
+            gridHeader.Children.Add(labelLotHeader);
+            Grid.SetColumn(labelLotHeader, 5);
 
-            if (this.ActItem.ProdInfo.Scheme.IsVariantTracked)
-            {
-                gridHeader.Children.Add(labelVariantHeader);
-                Grid.SetColumn(labelVariantHeader, 6);
-            }
+            ////if (this.ActItem.ProdInfo.Scheme.IsVariantTracked)
+            ////{
+            ////    gridHeader.Children.Add(labelVariantHeader);
+            ////    Grid.SetColumn(labelVariantHeader, 6);
+            ////}
+            gridHeader.Children.Add(labelVariantHeader);
+            Grid.SetColumn(labelVariantHeader, 6);
 
             Grid.SetRow(gridHeader, 0);
 
             gridMain.Children.Add(gridHeader);
 
-            foreach (ConvertProductDetail convertProductDetail in observableCollection)
+            foreach (ConvertProductDetail detail in observableCollection)
             {
-                var detailWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(string.Format("{0:F3}", convertProductDetail.ActivityDetailQuantity));
-                var detailWidth1 = DependencyService.Get<IGridService>().CalculateTextWidth(string.Format("{0:F3}", convertProductDetail.ActivityDetailWeightQuantity));
-                var detailWidth2 = DependencyService.Get<IGridService>().CalculateTextWidth(convertProductDetail.ActivityDetailSingleTradeItemSerialNumber);
-                var detailWidth3 = DependencyService.Get<IGridService>().CalculateTextWidth(Convert.ToString(convertProductDetail.ActivityDetailLogisticUnitProductionDate.ToString("MM/dd/yyyy")));
-                var detailWidth4 = DependencyService.Get<IGridService>().CalculateTextWidth(Convert.ToString(convertProductDetail.ActivityDetailLogisticUnitBestBeforeSellByDate.ToString("MM/dd/yyyy")));
-                var detailWidth5 = DependencyService.Get<IGridService>().CalculateTextWidth(convertProductDetail.ActivityDetailLogisticUnitBatchLotNumber);
-                var detailWidth6 = DependencyService.Get<IGridService>().CalculateTextWidth(convertProductDetail.ProductSchemeVariantCode);
+                var detailWidth0 = DependencyService.Get<IGridService>()
+                    .CalculateTextWidth($"{detail.ActivityDetailQuantity:F3}");
+
+                var detailWidth1 = DependencyService.Get<IGridService>().CalculateTextWidth(
+                    $"{detail.ActivityDetailWeightQuantity:F3}");
+
+                var detailWidth2 = DependencyService.Get<IGridService>().CalculateTextWidth(
+                    detail.ActivityDetailSingleTradeItemSerialNumber);
+
+                var detailWidth3 = DependencyService.Get<IGridService>().CalculateTextWidth(
+                    Convert.ToString(detail.ActivityDetailLogisticUnitProductionDate.ToString("MM/dd/yyyy")));
+
+                var detailWidth4 = DependencyService.Get<IGridService>().CalculateTextWidth(
+                    Convert.ToString(detail.ActivityDetailLogisticUnitBestBeforeSellByDate.ToString("MM/dd/yyyy")));
+
+                var detailWidth5 = DependencyService.Get<IGridService>().CalculateTextWidth(
+                    detail.ActivityDetailLogisticUnitBatchLotNumber);
+
+                var detailWidth6 = DependencyService.Get<IGridService>().CalculateTextWidth(
+                    detail.ProductSchemeVariantCode);
 
                 if (detailWidth0 > this.ColumnWidth0)
                 {
@@ -586,7 +686,7 @@ namespace dMobile.Controller.Activity_Detail
             // int fkRefno = Convert.ToInt32(data.Root.Element("fk_refno").Value);
             // or just append an xml line to the request
             var xmlString = new StringBuilder();
-            var xml = XmlWriter.Create(xmlString);
+            var xml = XmlWriter.Create(xmlString, new XmlWriterSettings() { Async = true });
 
             // Set the FK refno to be the selected row
             dynamic selectedActivityItem = this.ActItem.SelectedActivityItem;
@@ -608,7 +708,7 @@ namespace dMobile.Controller.Activity_Detail
                 + "</imclient>");
 
             request.Save(xml);
-            xml.Flush();
+            await xml.FlushAsync();
             xml.Close();
 
             return xmlString.ToString();
@@ -623,7 +723,7 @@ namespace dMobile.Controller.Activity_Detail
         {
             var prnSettings = new PrinterSettings().LoadData();
             var xmlString = new StringBuilder();
-            var xml = XmlWriter.Create(xmlString);
+            var xml = XmlWriter.Create(xmlString, new XmlWriterSettings() { Async = true });
             var request = XDocument.Parse(
                 "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>"
                 + "<imclient>"
@@ -640,7 +740,7 @@ namespace dMobile.Controller.Activity_Detail
                 + "</mobile_printer_name>"
                 + "</imclient>");
             request.Save(xml);
-            xml.Flush();
+            await xml.FlushAsync();
             xml.Close();
 
             return xmlString.ToString();
@@ -656,14 +756,13 @@ namespace dMobile.Controller.Activity_Detail
             var xmlString = new StringBuilder();
             var xml = XmlWriter.Create(xmlString);
 
-            var fromProdRefno = Convert.ToInt32((this.ActItem.ListItems[0] as ConvertProductItem).From_prod_fk_refno);
-            var toProdRefno = Convert.ToInt32((this.ActItem.ListItems[0] as ConvertProductItem).To_prod_fk_refno);
-
+            var fromProdRefno = Convert.ToInt32(((ConvertProductItem)this.ActItem.ListItems[0]).FromProdFKRefno);
+            var toProdRefno = Convert.ToInt32(((ConvertProductItem)this.ActItem.ListItems[0]).ToProdFKRefno);
             var fromProd = await ProductInfoTasks.GetInfoFromRefno(fromProdRefno);
             var toProd = await ProductInfoTasks.GetInfoFromRefno(toProdRefno);
+
             var prodDate = Convert.ToDateTime(data.Root.Element("pdate").Value);
             var bestBeforeDate = Convert.ToDateTime(data.Root.Element("bdate").Value);
-
             var serial = data.Root.Element("serial").Value;
             var pdate = prodDate.ToString("MM/dd/yyyy");
             var bdate = bestBeforeDate.ToString("MM/dd/yyyy");
@@ -740,7 +839,7 @@ namespace dMobile.Controller.Activity_Detail
         /// <returns><see cref="string"/> Get activity item control description.</returns>
         public override string GetControlDescription()
         {
-            throw new NotImplementedException();
+            return "Convert Product";
         }
 
         /// <summary>
@@ -757,19 +856,54 @@ namespace dMobile.Controller.Activity_Detail
         {
             mainActivityItems.Add(actDetail);
 
-            var labelQtyHeader = new Label { Text = "Quantity", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
-            var labelWeightHeader = new Label { Text = "Weight", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
-            var labelSerialNoHeader = new Label { Text = "SerialNo", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
-            var labelProdDateHeader = new Label { Text = "Prod Date", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
-            var labelBBSBDateHeader = new Label { Text = "BBSB Date", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
-            var labelLotHeader = new Label { Text = "Lot", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
-            var labelVariantHeader = new Label { Text = "Variant", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
+            var labelQtyHeader = new Label
+            {
+                Text = "Quantity",
+                VerticalOptions = LayoutOptions.Center,
+                FontAttributes = FontAttributes.Bold,
+            };
+            var labelWeightHeader = new Label
+            {
+                Text = "Weight",
+                VerticalOptions = LayoutOptions.Center,
+                FontAttributes = FontAttributes.Bold,
+            };
+            var labelSerialNoHeader = new Label
+            {
+                Text = "SerialNo",
+                VerticalOptions = LayoutOptions.Center,
+                FontAttributes = FontAttributes.Bold,
+            };
+            var labelProdDateHeader = new Label
+            {
+                Text = "Prod Date",
+                VerticalOptions = LayoutOptions.Center,
+                FontAttributes = FontAttributes.Bold,
+            };
+            var labelBestDateHeader = new Label
+            {
+                Text = "Best Date",
+                VerticalOptions = LayoutOptions.Center,
+                FontAttributes = FontAttributes.Bold,
+            };
+            var labelLotHeader = new Label
+            {
+                Text = "Lot",
+                VerticalOptions = LayoutOptions.Center,
+                FontAttributes = FontAttributes.Bold,
+            };
+            var labelVariantHeader = new Label
+            {
+                Text = "Variant",
+                VerticalOptions = LayoutOptions.Center,
+                FontAttributes = FontAttributes.Bold,
+            };
 
             this.ColumnWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(labelQtyHeader.Text);
             this.ColumnWidth1 = DependencyService.Get<IGridService>().CalculateTextWidth(labelWeightHeader.Text);
             this.ColumnWidth2 = DependencyService.Get<IGridService>().CalculateTextWidth(labelSerialNoHeader.Text);
             this.ColumnWidth3 = DependencyService.Get<IGridService>().CalculateTextWidth(labelProdDateHeader.Text);
-            this.ColumnWidth4 = DependencyService.Get<IGridService>().CalculateTextWidth(labelBBSBDateHeader.Text);
+            this.ColumnWidth4 = DependencyService.Get<IGridService>().CalculateTextWidth(labelBestDateHeader.Text);
             this.ColumnWidth5 = DependencyService.Get<IGridService>().CalculateTextWidth(labelLotHeader.Text);
             this.ColumnWidth6 = DependencyService.Get<IGridService>().CalculateTextWidth(labelVariantHeader.Text);
 
@@ -797,47 +931,64 @@ namespace dMobile.Controller.Activity_Detail
             gridHeader.Children.Add(labelWeightHeader);
             Grid.SetColumn(labelWeightHeader, 1);
 
-            if (this.ActItem.ProdInfo.Scheme.IsSerialTracked)
-            {
-                gridHeader.Children.Add(labelSerialNoHeader);
-                Grid.SetColumn(labelSerialNoHeader, 2);
-            }
+            ////if (this.ActItem.ProdInfo.Scheme.IsSerialTracked)
+            ////{
+            ////    gridHeader.Children.Add(labelSerialNoHeader);
+            ////    Grid.SetColumn(labelSerialNoHeader, 2);
+            ////}
+            gridHeader.Children.Add(labelSerialNoHeader);
+            Grid.SetColumn(labelSerialNoHeader, 2);
 
-            if (this.ActItem.ProdInfo.Scheme.IsProductionDateTracked)
-            {
-                gridHeader.Children.Add(labelProdDateHeader);
-                Grid.SetColumn(labelProdDateHeader, 3);
-            }
+            ////if (this.ActItem.ProdInfo.Scheme.IsProductionDateTracked)
+            ////{
+            ////    gridHeader.Children.Add(labelProdDateHeader);
+            ////    Grid.SetColumn(labelProdDateHeader, 3);
+            ////}
+            gridHeader.Children.Add(labelProdDateHeader);
+            Grid.SetColumn(labelProdDateHeader, 3);
 
-            if (this.ActItem.ProdInfo.Scheme.IsBestBeforeDateTracked)
-            {
-                gridHeader.Children.Add(labelBBSBDateHeader);
-                Grid.SetColumn(labelBBSBDateHeader, 4);
-            }
+            ////if (this.ActItem.ProdInfo.Scheme.IsBestBeforeDateTracked)
+            ////{
+            ////    gridHeader.Children.Add(labelBestDateHeader);
+            ////    Grid.SetColumn(labelBestDateHeader, 4);
+            ////}
+            gridHeader.Children.Add(labelBestDateHeader);
+            Grid.SetColumn(labelBestDateHeader, 4);
 
-            if (this.ActItem.ProdInfo.Scheme.IsLotTracked)
-            {
-                gridHeader.Children.Add(labelLotHeader);
-                Grid.SetColumn(labelLotHeader, 5);
-            }
+            ////if (this.ActItem.ProdInfo.Scheme.IsLotTracked)
+            ////{
+            ////    gridHeader.Children.Add(labelLotHeader);
+            ////    Grid.SetColumn(labelLotHeader, 5);
+            ////}
+            gridHeader.Children.Add(labelLotHeader);
+            Grid.SetColumn(labelLotHeader, 5);
 
-            if (this.ActItem.ProdInfo.Scheme.IsVariantTracked)
-            {
-                gridHeader.Children.Add(labelVariantHeader);
-                Grid.SetColumn(labelVariantHeader, 6);
-            }
+            ////if (this.ActItem.ProdInfo.Scheme.IsVariantTracked)
+            ////{
+            ////    gridHeader.Children.Add(labelVariantHeader);
+            ////    Grid.SetColumn(labelVariantHeader, 6);
+            ////}
+            gridHeader.Children.Add(labelVariantHeader);
+            Grid.SetColumn(labelVariantHeader, 6);
 
             Grid.SetRow(gridHeader, 0);
 
             gridMain.Children.Add(gridHeader);
 
-            var detailWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(string.Format("{0:F3}", actDetail.ActivityDetailQuantity));
-            var detailWidth1 = DependencyService.Get<IGridService>().CalculateTextWidth(string.Format("{0:F3}", actDetail.ActivityDetailWeightQuantity));
-            var detailWidth2 = DependencyService.Get<IGridService>().CalculateTextWidth(actDetail.ActivityDetailSingleTradeItemSerialNumber);
-            var detailWidth3 = DependencyService.Get<IGridService>().CalculateTextWidth(Convert.ToString(actDetail.ActivityDetailLogisticUnitProductionDate.ToString("MM/dd/yyyy")));
-            var detailWidth4 = DependencyService.Get<IGridService>().CalculateTextWidth(Convert.ToString(actDetail.ActivityDetailLogisticUnitBestBeforeSellByDate.ToString("MM/dd/yyyy")));
-            var detailWidth5 = DependencyService.Get<IGridService>().CalculateTextWidth(actDetail.ActivityDetailLogisticUnitBatchLotNumber);
-            var detailWidth6 = DependencyService.Get<IGridService>().CalculateTextWidth(actDetail.ProductSchemeVariantCode);
+            var detailWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(
+                $"{actDetail.ActivityDetailQuantity:F3}");
+            var detailWidth1 = DependencyService.Get<IGridService>().CalculateTextWidth(
+                $"{actDetail.ActivityDetailWeightQuantity:F3}");
+            var detailWidth2 = DependencyService.Get<IGridService>().CalculateTextWidth(
+                actDetail.ActivityDetailSingleTradeItemSerialNumber);
+            var detailWidth3 = DependencyService.Get<IGridService>().CalculateTextWidth(
+                Convert.ToString(actDetail.ActivityDetailLogisticUnitProductionDate.ToString("MM/dd/yyyy")));
+            var detailWidth4 = DependencyService.Get<IGridService>().CalculateTextWidth(
+                Convert.ToString(actDetail.ActivityDetailLogisticUnitBestBeforeSellByDate.ToString("MM/dd/yyyy")));
+            var detailWidth5 = DependencyService.Get<IGridService>().CalculateTextWidth(
+                actDetail.ActivityDetailLogisticUnitBatchLotNumber);
+            var detailWidth6 = DependencyService.Get<IGridService>().CalculateTextWidth(
+                actDetail.ProductSchemeVariantCode);
 
             if (detailWidth0 > this.ColumnWidth0)
             {
