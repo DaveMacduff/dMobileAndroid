@@ -699,6 +699,16 @@ namespace dMobile.View.Activity
                         parse.LocationIdentifier));
                 this.LocMap.CurrLocMap = tmpLoc;
                 this.LocMap.ChosenLocMap = this.LocMap.CurrLocMap.Clone();
+
+                if (this.LocMap.CurrLocMap.WhsLocMapRefno != 0)
+                {
+                    _ = await Device.InvokeOnMainThreadAsync(() =>
+                        this.CmdLocation.Text = LocationMapTasks.GetCurrentReadableLocation());
+                }
+                else
+                {
+                    _ = await Device.InvokeOnMainThreadAsync(() => this.CmdLocation.Text = "Set Location");
+                }
             }
         }
 

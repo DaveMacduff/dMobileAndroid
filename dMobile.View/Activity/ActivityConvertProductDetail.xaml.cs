@@ -554,51 +554,68 @@ namespace dMobile.View.Activity
         /// <param name="scanArgs"><see cref="BarCodeScannerEventArgs"/> Sender bar code scanner event arguments.</param>
         private async Task BarCodeHandler(object sender, BarCodeScannerEventArgs scanArgs)
         {
-            if (this.Loading || scanArgs == null)
+            if (this.Loading)
             {
                 return;
             }
 
+            scanArgs = scanArgs ?? throw new ArgumentNullException(nameof(scanArgs));
+            this.Loading = true;
+
             try
             {
-                this.Loading = true;
-                await this.ScannerDisable();
-
-                var tempItemProdSchemeData = new ActItemSchemeData();
                 var parse = scanArgs.ParseInfo;
 
                 // GLOBAL LOCATION IDENTIFIER SCANNED
                 if (!string.IsNullOrEmpty(parse.LocationIdentifier))
                 {
-                    this.ActDetail.LocMap.CurrLocMap = await LocationMapTasks.GetSLocMapFromLocMapRefno(
-                        await LocationMapTasks.GetLocMapRefnoFromBarCodeGlobalLocIdentifier(parse.LocationIdentifier));
+                    throw new MessageOnlyException("Scanning a global location identifier bar code is not supported here.");
                 }
-                else
+                else if (!string.IsNullOrEmpty(parse.ProductIdentifier))
                 {
-                    AssertNotLineItem(parse);
-                    AssertNotLineItemDetail(parse);
-                    AssertNotShippingContainer(parse);
-
-                    // Check if product scanned matches the FROM product
-                    // Location is set in ConvertProduct screen
-                    // Product identifier
-                    if (!string.IsNullOrEmpty(parse.ProductIdentifier))
-                    {
-                        await HandleProductIdentifier(parse, tempItemProdSchemeData);
-                    }
+                    throw new MessageOnlyException("Scanning a product identifier bar code is not supported here.");
+                }
+                else if (!string.IsNullOrEmpty(parse.ActItemFKRefno))
+                {
+                    throw new MessageOnlyException("Scanning a line item bar code is not supported here.");
+                }
+                else if (!string.IsNullOrEmpty(parse.ActDetailFKRefno))
+                {
+                    throw new MessageOnlyException("Scanning a line item detail bar code is not supported here.");
+                }
+                else if (!string.IsNullOrEmpty(parse.SSCC18))
+                {
+                    throw new MessageOnlyException("Scanning a shipping container bar code is not supported here.");
                 }
             }
             catch (TaskCanceledException)
             {
-                // Do nothing, task cancelled by user
+                // Do nothing as task is being canceled from IdentifyProductScanned when user
+                // declines to assign bar code to product.
             }
-            catch (MessageOnlyException ex)
+            catch (MessageOnlyException msgEx)
             {
                 await Device.InvokeOnMainThreadAsync(async () =>
                     await Application.Current.MainPage.DisplayAlert(
                         this.GetControlDescription(),
-                        ex.Message,
+                        msgEx.Message,
                         Resource.OK));
+            }
+            catch (GatherProductDataException prodDataEx)
+            {
+                await Device.InvokeOnMainThreadAsync(async () =>
+                {
+                    var errRpt = new FormErrorReport(this.ActSubType, prodDataEx);
+                    _ = await errRpt.ShowDialog();
+                });
+            }
+            catch (IsReadyToApplyException isReadyEx)
+            {
+                await Device.InvokeOnMainThreadAsync(async () =>
+                {
+                    var errRpt = new FormErrorReport(this.ActSubType, isReadyEx);
+                    _ = await errRpt.ShowDialog();
+                });
             }
             catch (Exception ex)
             {
@@ -608,93 +625,8 @@ namespace dMobile.View.Activity
                     _ = await errRpt.ShowDialog();
                 });
             }
-            finally
-            {
-                await this.ScannerEnable();
-                this.Loading = false;
-            }
 
-            //////////////////////////////////////////////////////////////////////////
-            async Task HandleProductIdentifier(BarCodeParse barCodeParse, ActItemSchemeData actItemSchemeData)
-            {
-                var tempFromProdUnitRefno = await SysShared.IdentifyProductScanned(this.ActSubType, barCodeParse);
-                var scannedProduct = await ProductInfoTasks.GetInfoFromUnitRefno(tempFromProdUnitRefno);
-
-                // this.FromProdRefno = tempFromProdRefno;
-
-                // Insert a new activity detail record
-                this.ActDetail.Quantity = 0;
-                this.ActDetail.BaseQuantity = 0;
-                this.ActDetail.WeightQuantity = 0;
-                this.ActDetail.SchemeID = string.Empty;
-                this.ActDetail.UniqueSchemeID = string.Empty;
-                this.ActDetail.ActExtra.Text1 = string.Empty;
-                this.ActDetail.ActExtra.Text2 = string.Empty;
-                this.ActDetail.ActExtra.Text3 = string.Empty;
-                this.ActDetail.ActExtra.Text4 = string.Empty;
-                this.ActDetail.ActExtra.DateTime1 = new DateTime(1980, 1, 1);
-
-                // Assigns all data to the ActivityDetail
-                await SysShared.GatherProductData(
-                    barCodeParse,
-                    this.ActSubType,
-                    this.ActDetail.ActItem,
-                    actItemSchemeData,
-                    isInsertDetailReady: false,
-                    this.ActDetail,
-                    isForceStopForEdit: false);
-
-                // Confirm that scanned matches from data. If not, then what is wrong
-                if (scannedProduct.Code != this.FromProduct.Code)
-                {
-                    throw new MessageOnlyException("Cannot scan a different \"From\" product than what was set.");
-                }
-
-                var xmlDoc = this.ActDetail.GetXML(this.ActDetail);
-
-                await this.CreateAdjustment(xmlDoc);
-
-                // We check if we are allowed to print on scan
-                if (this.SysEnv.SysSettings is
-                    {
-                        CanPrintProductLabelConvertProduct: true,
-                        IsPrintProductLabelsAsBatch: false,
-                        IsDisconnectedMode: false
-                    })
-                {
-                    await this.PrintProductLabel();
-                }
-            }
-
-            //////////////////////////////////////////////////////////////////////////
-            void AssertNotShippingContainer(BarCodeParse parse)
-            {
-                // Shipping container scanned, skid
-                if (!string.IsNullOrEmpty(parse.SSCC18))
-                {
-                    throw new MessageOnlyException("Scanning a shipping container bar code is not supported here!");
-                }
-            }
-
-            //////////////////////////////////////////////////////////////////////////
-            void AssertNotLineItemDetail(BarCodeParse parse)
-            {
-                // Activity detail fk refno
-                if (!string.IsNullOrEmpty(parse.ActDetailFKRefno))
-                {
-                    throw new MessageOnlyException("Scanning an line item detail bar code is not supported here!");
-                }
-            }
-
-            //////////////////////////////////////////////////////////////////////////
-            void AssertNotLineItem(BarCodeParse parse)
-            {
-                // Activity item fk refno
-                if (!string.IsNullOrEmpty(parse.ActItemFKRefno))
-                {
-                    throw new MessageOnlyException("Scanning a line item bar code is not supported here!");
-                }
-            }
+            this.Loading = false;
         }
 
         /// <summary>
@@ -985,9 +917,21 @@ namespace dMobile.View.Activity
                 return;
             }
 
-            this.ActDetail.ActItem.SelectedActivityItem = this.ActDetail.ActItem.ListItems[0];
+            this.MainActivityItems[row] = this.ActDetail.ListDetails[row];
             this.ActDetail.SelectedActivityDetail = this.MainActivityItems[row];
+            this.ListViewMainActivity.SelectedItem = this.ActDetail.SelectedActivityDetail;
+
+            Device.BeginInvokeOnMainThread(() =>
+            {
+                this.ListViewMainActivity.ScrollTo(
+                    this.ActDetail.SelectedActivityDetail,
+                    ScrollToPosition.MakeVisible,
+                    false);
+            });
+
+
             this.DisplaySummary();
+
         }
 
         private void TxtSearch_TextChanged(object sender, TextChangedEventArgs e)
