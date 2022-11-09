@@ -39,7 +39,7 @@ namespace dMobile.View.Options
 
                 try
                 {
-                    this.ucRefreshDataOptions_GotFocus(this, new EventArgs());
+                    this.ucRefreshDataOptions_GotFocus(this, EventArgs.Empty);
                 }
                 catch (Exception ex)
                 {

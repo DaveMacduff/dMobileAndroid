@@ -84,7 +84,7 @@ namespace dMobile.View.Options
             try
             {
                 this.Loading = true;
-                await this.ucSubmitBatch_GotFocus(this, new EventArgs());
+                await this.ucSubmitBatch_GotFocus(this, EventArgs.Empty);
             }
             catch (Exception ex)
             {

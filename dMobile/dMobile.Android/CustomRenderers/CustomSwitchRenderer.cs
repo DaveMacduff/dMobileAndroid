@@ -48,7 +48,7 @@ namespace dMobile.Droid.CustomRenderers
         private void Control_Click(object sender, EventArgs e)
         {
             var customSwitch = (CustomSwitch)this.Element;
-            customSwitch.Click?.Invoke(this, new EventArgs());
+            customSwitch.Click?.Invoke(this, EventArgs.Empty);
         }
     }
 }

@@ -131,7 +131,7 @@ namespace dMobile.View.Activity
 
             try
             {
-                await this.ucActivityHdrPickingSelectCriteria_GotFocus(this, new EventArgs());
+                await this.ucActivityHdrPickingSelectCriteria_GotFocus(this, EventArgs.Empty);
             }
             catch (Exception ex)
             {
@@ -140,7 +140,7 @@ namespace dMobile.View.Activity
 
             try
             {
-                await this.tabLocation_GotFocus(this, new EventArgs());
+                await this.tabLocation_GotFocus(this, EventArgs.Empty);
             }
             catch (Exception ex)
             {

@@ -121,15 +121,9 @@ namespace dMobile.Bedrock
         /// </summary>
         public string FullClassName
         {
-            get
-            {
-                return this.fullClassName;
-            }
+            get => this.fullClassName;
 
-            set
-            {
-                this.fullClassName = value;
-            }
+            set => this.fullClassName = value;
         }
 
         /// <summary>
@@ -137,15 +131,9 @@ namespace dMobile.Bedrock
         /// </summary>
         public string FilePath
         {
-            get
-            {
-                return this.filePath;
-            }
+            get => this.filePath;
 
-            set
-            {
-                this.filePath = value;
-            }
+            set => this.filePath = value;
         }
 
         /// <summary>
@@ -153,15 +141,9 @@ namespace dMobile.Bedrock
         /// </summary>
         public string FileASCIIZ
         {
-            get
-            {
-                return this.fileASCIIZ;
-            }
+            get => this.fileASCIIZ;
 
-            set
-            {
-                this.fileASCIIZ = value;
-            }
+            set => this.fileASCIIZ = value;
         }
 
         /// <summary>
@@ -169,15 +151,9 @@ namespace dMobile.Bedrock
         /// </summary>
         public string FileName
         {
-            get
-            {
-                return this.fileName;
-            }
+            get => this.fileName;
 
-            set
-            {
-                this.fileName = value;
-            }
+            set => this.fileName = value;
         }
 
         /// <summary>
@@ -185,15 +161,9 @@ namespace dMobile.Bedrock
         /// </summary>
         public int HostIPAddressComponent1
         {
-            get
-            {
-                return this.hostIPAddressComponent1;
-            }
+            get => this.hostIPAddressComponent1;
 
-            set
-            {
-                this.hostIPAddressComponent1 = value;
-            }
+            set => this.hostIPAddressComponent1 = value;
         }
 
         /// <summary>
@@ -201,15 +171,9 @@ namespace dMobile.Bedrock
         /// </summary>
         public int HostIPAddressComponent2
         {
-            get
-            {
-                return this.hostIPAddressComponent2;
-            }
+            get => this.hostIPAddressComponent2;
 
-            set
-            {
-                this.hostIPAddressComponent2 = value;
-            }
+            set => this.hostIPAddressComponent2 = value;
         }
 
         /// <summary>
@@ -217,15 +181,9 @@ namespace dMobile.Bedrock
         /// </summary>
         public int HostIPAddressComponent3
         {
-            get
-            {
-                return this.hostIPAddressComponent3;
-            }
+            get => this.hostIPAddressComponent3;
 
-            set
-            {
-                this.hostIPAddressComponent3 = value;
-            }
+            set => this.hostIPAddressComponent3 = value;
         }
 
         /// <summary>
@@ -233,15 +191,9 @@ namespace dMobile.Bedrock
         /// </summary>
         public int HostIPAddressComponent4
         {
-            get
-            {
-                return this.hostIPAddressComponent4;
-            }
+            get => this.hostIPAddressComponent4;
 
-            set
-            {
-                this.hostIPAddressComponent4 = value;
-            }
+            set => this.hostIPAddressComponent4 = value;
         }
 
         /// <summary>
@@ -249,15 +201,9 @@ namespace dMobile.Bedrock
         /// </summary>
         public int BaseSocketPort
         {
-            get
-            {
-                return this.baseSocketPort;
-            }
+            get => this.baseSocketPort;
 
-            set
-            {
-                this.baseSocketPort = value;
-            }
+            set => this.baseSocketPort = value;
         }
 
         /// <summary>
@@ -265,15 +211,9 @@ namespace dMobile.Bedrock
         /// </summary>
         public int MaxSocketPorts
         {
-            get
-            {
-                return this.maxSocketPorts;
-            }
+            get => this.maxSocketPorts;
 
-            set
-            {
-                this.maxSocketPorts = value;
-            }
+            set => this.maxSocketPorts = value;
         }
 
         /// <summary>
@@ -281,15 +221,9 @@ namespace dMobile.Bedrock
         /// </summary>
         public int DefaultSocketPort
         {
-            get
-            {
-                return this.defaultSocketPort;
-            }
+            get => this.defaultSocketPort;
 
-            set
-            {
-                this.defaultSocketPort = value;
-            }
+            set => this.defaultSocketPort = value;
         }
 
         /// <summary>
@@ -297,15 +231,9 @@ namespace dMobile.Bedrock
         /// </summary>
         public int ConnectionAttempts
         {
-            get
-            {
-                return this.connectionAttempts;
-            }
+            get => this.connectionAttempts;
 
-            set
-            {
-                this.connectionAttempts = value;
-            }
+            set => this.connectionAttempts = value;
         }
 
         /// <summary>
@@ -313,15 +241,9 @@ namespace dMobile.Bedrock
         /// </summary>
         public int SendTimeOutSeconds
         {
-            get
-            {
-                return this.sendTimeOutSeconds;
-            }
+            get => this.sendTimeOutSeconds;
 
-            set
-            {
-                this.sendTimeOutSeconds = value;
-            }
+            set => this.sendTimeOutSeconds = value;
         }
 
         /// <summary>
@@ -329,15 +251,9 @@ namespace dMobile.Bedrock
         /// </summary>
         public int SendAttempts
         {
-            get
-            {
-                return this.sendAttempts;
-            }
+            get => this.sendAttempts;
 
-            set
-            {
-                this.sendAttempts = value;
-            }
+            set => this.sendAttempts = value;
         }
 
         /// <summary>
@@ -345,15 +261,9 @@ namespace dMobile.Bedrock
         /// </summary>
         public int ReceiveAttempts
         {
-            get
-            {
-                return this.receiveAttempts;
-            }
+            get => this.receiveAttempts;
 
-            set
-            {
-                this.receiveAttempts = value;
-            }
+            set => this.receiveAttempts = value;
         }
 
         /// <summary>
@@ -361,15 +271,9 @@ namespace dMobile.Bedrock
         /// </summary>
         public int ReceiveTimeOutSeconds
         {
-            get
-            {
-                return this.receiveTimeOutSeconds;
-            }
+            get => this.receiveTimeOutSeconds;
 
-            set
-            {
-                this.receiveTimeOutSeconds = value;
-            }
+            set => this.receiveTimeOutSeconds = value;
         }
 
         /// <summary>
@@ -377,15 +281,9 @@ namespace dMobile.Bedrock
         /// </summary>
         public int ReceiveBufferSize
         {
-            get
-            {
-                return this.receiveBufferSize;
-            }
+            get => this.receiveBufferSize;
 
-            set
-            {
-                this.receiveBufferSize = value;
-            }
+            set => this.receiveBufferSize = value;
         }
 
         /// <summary>

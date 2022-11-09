@@ -103,15 +103,9 @@ namespace dMobile.Bedrock
         /// </summary>
         public bool IsOverContinue
         {
-            get
-            {
-                return this.isOverContinue;
-            }
+            get => this.isOverContinue;
 
-            set
-            {
-                this.isOverContinue = value;
-            }
+            set => this.isOverContinue = value;
         }
     }
 }

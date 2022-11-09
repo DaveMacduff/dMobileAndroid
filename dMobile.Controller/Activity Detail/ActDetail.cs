@@ -38,7 +38,7 @@ namespace dMobile.Controller.Activity_Detail
         /// </summary>
         /// <param name="publisher"><see cref="IDataLayerEventPublisher"/> Data layer event publisher.</param>
         /// <param name="eventArgs"><see cref="DataLayerEventArgs"/> Data layer event arguments.</param>
-        public delegate void OnDataLayerStatusOutEventHandler(
+        public delegate void DataLayerStatusOutEventHandler(
             IDataLayerEventPublisher publisher,
             DataLayerEventArgs eventArgs);
 
@@ -47,19 +47,19 @@ namespace dMobile.Controller.Activity_Detail
         /// </summary>
         /// <param name="publisher"><see cref="IDataLayerEventPublisher"/> Data layer event publisher.</param>
         /// <param name="eventArgs"><see cref="DataLayerEventArgs"/> Data layer event arguments.</param>
-        public delegate void OnDataLayerProgressOutEventHandler(
+        public delegate void DataLayerProgressOutEventHandler(
             IDataLayerEventPublisher publisher,
             DataLayerEventArgs eventArgs);
 
         /// <summary>
         /// On data layer status out event.
         /// </summary>
-        public event OnDataLayerStatusOutEventHandler OnDataLayerStatusOut;
+        public event DataLayerStatusOutEventHandler OnDataLayerStatusOut;
 
         /// <summary>
         /// On data layer progress out event.
         /// </summary>
-        public event OnDataLayerProgressOutEventHandler OnDataLayerProgressOut;
+        public event DataLayerProgressOutEventHandler OnDataLayerProgressOut;
 
         /// <summary>
         /// Gets or sets the full class name.
@@ -172,6 +172,7 @@ namespace dMobile.Controller.Activity_Detail
         /// Delete one or a set of activity detail.
         /// </summary>
         /// <returns><see cref="Task{int}"/> Previous non deleted detail foreign key reference number.</returns>
+        /// <remarks>this is a test of the emergency broadcast system.</remarks>
         public abstract Task<int> Delete();
 
         /// <summary>
@@ -528,59 +529,6 @@ namespace dMobile.Controller.Activity_Detail
         }
 
         /// <summary>
-        /// Get a string formatted xml of default detail values.
-        /// </summary>
-        /// <returns><see cref="string"/> Activity detail defaults XML string.</returns>
-        public virtual string GetRequestDetailDefaults()
-        {
-            // Init the production and best before date as empty intentional.
-            // We want to send a 'blank' date if it is not tracked rather than {01/01/1900} as the empty date.
-            var bestBeforeDate = string.Empty;
-
-            if (this.ActItem.ProdInfo.Scheme.IsBestBeforeDateTracked &&
-                !SysCommon.IsEmptyDateTime(this.SchemeData.LogisticUnitBestBeforeSellByDate))
-            {
-                bestBeforeDate = this.SchemeData.LogisticUnitBestBeforeSellByDate.ToString("MM/dd/yyyy");
-            }
-
-            var productionDate = string.Empty;
-
-            if (this.ActItem.ProdInfo.Scheme.IsProductionDateTracked &&
-                !SysCommon.IsEmptyDateTime(this.SchemeData.LogisticUnitProductionDate))
-            {
-                productionDate = this.SchemeData.LogisticUnitProductionDate.ToString("MM/dd/yyyy");
-            }
-
-            var def = "<prod_id>" + this.ActItem.ProdInfo.Code + "</prod_id>"
-                      + "<is_bc>" + this.ActItem.ProdInfo.UnitIsBC + "</is_bc>"
-                      + "<whs_id>" + this.LocMap.CurrLocMap.WhsFKRefno + "</whs_id>"
-                      + "<sect_refno>" + this.LocMap.CurrLocMap.SectFKRefno + "</sect_refno>"
-                      + "<slot_refno>" + this.LocMap.CurrLocMap.SlotFKRefno + "</slot_refno>"
-                      + "<refno>" + this.ActItem.ActHdr.HdrFKRefno + "</refno>"
-                      + "<itm_refno>" + this.ActItem.ItemFKRefno + "</itm_refno>"
-                      + "<ser_refno>" + this.DetailFKRefno + "</ser_refno>"
-                      + "<alt_qty>" + this.Quantity + "</alt_qty>"
-                      + "<alt_unit>" + this.ActItem.ProdInfo.UnitCode + "</alt_unit>"
-                      + "<base_qty>" + this.BaseQuantity + "</base_qty>"
-                      + "<base_unit>" + this.ActItem.ProdInfo.BaseUnitCode + "</base_unit>"
-                      + "<wt_qty>" + this.WeightQuantity + "</wt_qty>"
-                      + "<wt_unit>" + this.ActItem.ProdInfo.WeightUnitCode + "</wt_unit>"
-                      + "<serial>" + this.SchemeData.SingleTradeItemSerialNumber + "</serial>"
-                      + "<lot_no>" + this.SchemeData.LogisticUnitBatchLotNumber + "</lot_no>"
-                      + "<pdate>" + productionDate + "</pdate>"
-                      + "<bdate>" + bestBeforeDate + "</bdate>"
-                      + "<variant_no>" + this.SchemeData.VariantNumber + "</variant_no>"
-                      + "<extra1>" + this.ActExtra.Text1 + "</extra1>"
-                      + "<extra2>" + this.ActExtra.Text2 + "</extra2>"
-                      + "<extra3>" + this.ActExtra.Text3 + "</extra3>"
-                      + "<extra4>" + this.ActExtra.Text4 + "</extra4>"
-                      + "<extra5>" + this.ActExtra.DateTime1 + "</extra5>"
-                      + "<is_disconnected>" + this.SysEnv.SysSettings.IsDisconnectedMode + "</is_disconnected>";
-
-            return def;
-        }
-
-        /// <summary>
         /// Get activity detail XML data.
         /// </summary>
         /// <param name="actDetail"><see cref="ActDetail"/> Activity detail.</param>
@@ -619,13 +567,8 @@ namespace dMobile.Controller.Activity_Detail
         /// <returns>.</returns>
         public bool IsSchemeComplete(ActItem actItem)
         {
-            var isComplete = true;
-
-            if (actItem.ProdInfo.Scheme.IsBestBeforeDateTracked &&
-                SysCommon.IsEmptyDateTime(this.SchemeData.LogisticUnitBestBeforeSellByDate))
-            {
-                isComplete = false;
-            }
+            var isComplete = !(actItem.ProdInfo.Scheme.IsBestBeforeDateTracked &&
+                                SysCommon.IsEmptyDateTime(this.SchemeData.LogisticUnitBestBeforeSellByDate));
 
             if (actItem.ProdInfo.Scheme.IsLotTracked &&
                 string.IsNullOrEmpty(this.SchemeData.LogisticUnitBatchLotNumber))
@@ -669,13 +612,8 @@ namespace dMobile.Controller.Activity_Detail
         /// <returns><see cref="bool"/> True if the label scheme is complete else false.</returns>
         public bool IsLabelSchemeComplete(ProductSchemeData schemeData)
         {
-            var isComplete = true;
-
-            if (this.ActItem.ProdInfo.Scheme.LabelInfo.IsBestBeforeDateTracked &&
-                SysCommon.IsEmptyDateTime(schemeData.LogisticUnitBestBeforeSellByDate))
-            {
-                isComplete = false;
-            }
+            var isComplete = !(this.ActItem.ProdInfo.Scheme.LabelInfo.IsBestBeforeDateTracked &&
+                                SysCommon.IsEmptyDateTime(schemeData.LogisticUnitBestBeforeSellByDate));
 
             if (this.ActItem.ProdInfo.Scheme.LabelInfo.IsLotTracked &&
                 string.IsNullOrEmpty(schemeData.LogisticUnitBatchLotNumber))
@@ -872,6 +810,132 @@ namespace dMobile.Controller.Activity_Detail
         /// </summary>
         /// <param name="listDetailIdx"><see cref="int"/> Zero based list detail index.</param>
         public abstract void UpdateListDetail(int listDetailIdx);
+
+        /// <summary>
+        /// Register data layer listener status out.
+        /// </summary>
+        /// <param name="listener"><see cref="IDataAccessEventListener"/> Event listener.</param>
+        public void RegLayerListenerStatOut(IDataLayerEventListener listener)
+        {
+            this.OnDataLayerStatusOut += new DataLayerStatusOutEventHandler(listener.OnLayerStatOut);
+        }
+
+        /// <summary>
+        /// Un-register data layer listener status out.
+        /// </summary>
+        /// <param name="listener"><see cref="IDataAccessEventListener"/> Event listener.</param>
+        public void UnregLayerListenerStatOut(IDataLayerEventListener listener)
+        {
+            this.OnDataLayerStatusOut -= new DataLayerStatusOutEventHandler(listener.OnLayerStatOut);
+        }
+
+        /// <summary>
+        /// Register data layer listener progress out.
+        /// </summary>
+        /// <param name="listener"><see cref="IDataAccessEventListener"/> Event listener.</param>
+        public void RegLayerListenerProgOut(IDataLayerEventListener listener)
+        {
+            this.OnDataLayerProgressOut += new DataLayerProgressOutEventHandler(listener.OnLayerProgOut);
+        }
+
+        /// <summary>
+        /// Unregister data layer listener progress out.
+        /// </summary>
+        /// <param name="listener"><see cref="IDataAccessEventListener"/> Event listener.</param>
+        public void UnregLayerListenerProgOut(IDataLayerEventListener listener)
+        {
+            this.OnDataLayerProgressOut -= new DataLayerProgressOutEventHandler(listener.OnLayerProgOut);
+        }
+
+        /// <summary>
+        /// On data access status out event.
+        /// </summary>
+        /// <param name="publisher"><see cref="IDataAccessEventPublisher"/> Event publisher.</param>
+        /// <param name="eventArgs"><see cref="DataAccessEventArgs"/> Data access event arguments.</param>
+        public void OnDataAccessStatusOut(IDataAccessEventPublisher publisher, DataAccessEventArgs eventArgs)
+        {
+            if (!this.SysEnv.SysSettings.IsDisconnectedMode || eventArgs.OverrideDisconnectedMode)
+            {
+                if (this.OnDataLayerStatusOut != null)
+                {
+                    this.DataEventArgs.OverrideDisconnectedMode = eventArgs.OverrideDisconnectedMode;
+                    this.DataEventArgs.StatusOutMsg = eventArgs.StatusOutMsg;
+                    this.OnDataLayerStatusOut(this, this.DataEventArgs);
+                }
+            }
+        }
+
+        /// <summary>
+        /// On data access progress out event.
+        /// </summary>
+        /// <param name="publisher"><see cref="IDataAccessEventPublisher"/> Event publisher.</param>
+        /// <param name="eventArgs"><see cref="DataAccessEventArgs"/> Data access event arguments.</param>
+        public void OnDataAccessProgressOut(IDataAccessEventPublisher publisher, DataAccessEventArgs eventArgs)
+        {
+            if (this.OnDataLayerProgressOut != null)
+            {
+                this.DataEventArgs.OverrideDisconnectedMode = eventArgs.OverrideDisconnectedMode;
+                this.DataEventArgs.CurrentValue = eventArgs.CurrentValue;
+                this.DataEventArgs.MinValue = eventArgs.MinValue;
+                this.DataEventArgs.MaxValue = eventArgs.MaxValue;
+                this.DataEventArgs.SetMinMaxValue = eventArgs.SetMinMaxValue;
+
+                this.OnDataLayerProgressOut(this, this.DataEventArgs);
+            }
+        }
+
+        /// <summary>
+        /// Get a string formatted xml of default detail values.
+        /// </summary>
+        /// <returns><see cref="string"/> Activity detail defaults XML string.</returns>
+        protected virtual string GetRequestDetailDefaults()
+        {
+            // Init the production and best before date as empty intentional.
+            // We want to send a 'blank' date if it is not tracked rather than {01/01/1900} as the empty date.
+            var bestBeforeDate = string.Empty;
+
+            if (this.ActItem.ProdInfo.Scheme.IsBestBeforeDateTracked &&
+                !SysCommon.IsEmptyDateTime(this.SchemeData.LogisticUnitBestBeforeSellByDate))
+            {
+                bestBeforeDate = this.SchemeData.LogisticUnitBestBeforeSellByDate.ToString("MM/dd/yyyy");
+            }
+
+            var productionDate = string.Empty;
+
+            if (this.ActItem.ProdInfo.Scheme.IsProductionDateTracked &&
+                !SysCommon.IsEmptyDateTime(this.SchemeData.LogisticUnitProductionDate))
+            {
+                productionDate = this.SchemeData.LogisticUnitProductionDate.ToString("MM/dd/yyyy");
+            }
+
+            var def = "<prod_id>" + this.ActItem.ProdInfo.Code + "</prod_id>"
+                      + "<is_bc>" + this.ActItem.ProdInfo.UnitIsBC + "</is_bc>"
+                      + "<whs_id>" + this.LocMap.CurrLocMap.WhsFKRefno + "</whs_id>"
+                      + "<sect_refno>" + this.LocMap.CurrLocMap.SectFKRefno + "</sect_refno>"
+                      + "<slot_refno>" + this.LocMap.CurrLocMap.SlotFKRefno + "</slot_refno>"
+                      + "<refno>" + this.ActItem.ActHdr.HdrFKRefno + "</refno>"
+                      + "<itm_refno>" + this.ActItem.ItemFKRefno + "</itm_refno>"
+                      + "<ser_refno>" + this.DetailFKRefno + "</ser_refno>"
+                      + "<alt_qty>" + this.Quantity + "</alt_qty>"
+                      + "<alt_unit>" + this.ActItem.ProdInfo.UnitCode + "</alt_unit>"
+                      + "<base_qty>" + this.BaseQuantity + "</base_qty>"
+                      + "<base_unit>" + this.ActItem.ProdInfo.BaseUnitCode + "</base_unit>"
+                      + "<wt_qty>" + this.WeightQuantity + "</wt_qty>"
+                      + "<wt_unit>" + this.ActItem.ProdInfo.WeightUnitCode + "</wt_unit>"
+                      + "<serial>" + this.SchemeData.SingleTradeItemSerialNumber + "</serial>"
+                      + "<lot_no>" + this.SchemeData.LogisticUnitBatchLotNumber + "</lot_no>"
+                      + "<pdate>" + productionDate + "</pdate>"
+                      + "<bdate>" + bestBeforeDate + "</bdate>"
+                      + "<variant_no>" + this.SchemeData.VariantNumber + "</variant_no>"
+                      + "<extra1>" + this.ActExtra.Text1 + "</extra1>"
+                      + "<extra2>" + this.ActExtra.Text2 + "</extra2>"
+                      + "<extra3>" + this.ActExtra.Text3 + "</extra3>"
+                      + "<extra4>" + this.ActExtra.Text4 + "</extra4>"
+                      + "<extra5>" + this.ActExtra.DateTime1 + "</extra5>"
+                      + "<is_disconnected>" + this.SysEnv.SysSettings.IsDisconnectedMode + "</is_disconnected>";
+
+            return def;
+        }
 
         /// <summary>
         /// Assign activity detail product information from the activity item.
@@ -1208,79 +1272,6 @@ namespace dMobile.Controller.Activity_Detail
             {
                 this.DataEventArgs.CurrentValue = currentValue;
                 this.DataEventArgs.SetMinMaxValue = false;
-                this.OnDataLayerProgressOut(this, this.DataEventArgs);
-            }
-        }
-
-        /// <summary>
-        /// Register data layer listener status out.
-        /// </summary>
-        /// <param name="listener"><see cref="IDataAccessEventListener"/> Event listener.</param>
-        public void RegLayerListenerStatOut(IDataLayerEventListener listener)
-        {
-            this.OnDataLayerStatusOut += new OnDataLayerStatusOutEventHandler(listener.OnLayerStatOut);
-        }
-
-        /// <summary>
-        /// Unregister data layer listener status out.
-        /// </summary>
-        /// <param name="listener"><see cref="IDataAccessEventListener"/> Event listener.</param>
-        public void UnregLayerListenerStatOut(IDataLayerEventListener listener)
-        {
-            this.OnDataLayerStatusOut -= new OnDataLayerStatusOutEventHandler(listener.OnLayerStatOut);
-        }
-
-        /// <summary>
-        /// Register data layer listener progress out.
-        /// </summary>
-        /// <param name="listener"><see cref="IDataAccessEventListener"/> Event listener.</param>
-        public void RegLayerListenerProgOut(IDataLayerEventListener listener)
-        {
-            this.OnDataLayerProgressOut += new OnDataLayerProgressOutEventHandler(listener.OnLayerProgOut);
-        }
-
-        /// <summary>
-        /// Unregister data layer listener progress out.
-        /// </summary>
-        /// <param name="listener"><see cref="IDataAccessEventListener"/> Event listener.</param>
-        public void UnregLayerListenerProgOut(IDataLayerEventListener listener)
-        {
-            this.OnDataLayerProgressOut -= new OnDataLayerProgressOutEventHandler(listener.OnLayerProgOut);
-        }
-
-        /// <summary>
-        /// On data access status out event.
-        /// </summary>
-        /// <param name="publisher"><see cref="IDataAccessEventPublisher"/> Event publisher.</param>
-        /// <param name="eventArgs"><see cref="DataAccessEventArgs"/> Data access event arguments.</param>
-        public void OnDataAccessStatusOut(IDataAccessEventPublisher publisher, DataAccessEventArgs eventArgs)
-        {
-            if (!this.SysEnv.SysSettings.IsDisconnectedMode || eventArgs.OverrideDisconnectedMode)
-            {
-                if (this.OnDataLayerStatusOut != null)
-                {
-                    this.DataEventArgs.OverrideDisconnectedMode = eventArgs.OverrideDisconnectedMode;
-                    this.DataEventArgs.StatusOutMsg = eventArgs.StatusOutMsg;
-                    this.OnDataLayerStatusOut(this, this.DataEventArgs);
-                }
-            }
-        }
-
-        /// <summary>
-        /// On data access progress out event.
-        /// </summary>
-        /// <param name="publisher"><see cref="IDataAccessEventPublisher"/> Event publisher.</param>
-        /// <param name="eventArgs"><see cref="DataAccessEventArgs"/> Data access event arguments.</param>
-        public void OnDataAccessProgressOut(IDataAccessEventPublisher publisher, DataAccessEventArgs eventArgs)
-        {
-            if (this.OnDataLayerProgressOut != null)
-            {
-                this.DataEventArgs.OverrideDisconnectedMode = eventArgs.OverrideDisconnectedMode;
-                this.DataEventArgs.CurrentValue = eventArgs.CurrentValue;
-                this.DataEventArgs.MinValue = eventArgs.MinValue;
-                this.DataEventArgs.MaxValue = eventArgs.MaxValue;
-                this.DataEventArgs.SetMinMaxValue = eventArgs.SetMinMaxValue;
-
                 this.OnDataLayerProgressOut(this, this.DataEventArgs);
             }
         }

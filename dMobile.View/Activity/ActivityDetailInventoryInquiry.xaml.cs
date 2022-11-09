@@ -50,8 +50,8 @@ namespace dMobile.View.Activity
 
             try
             {
-                await this.ucActivityDetailInventoryInquiry_GotFocus(this, new EventArgs());
-                await this.tmrActivityItemInventoryInquiry_Tick(this, new EventArgs());
+                await this.ucActivityDetailInventoryInquiry_GotFocus(this, EventArgs.Empty);
+                await this.tmrActivityItemInventoryInquiry_Tick(this, EventArgs.Empty);
             }
             catch (Exception ex)
             {

@@ -148,7 +148,7 @@ namespace dMobile.View.Activity
                     this.LocMap.CurrLocMap = await LocationMapTasks.GetSLocMapFromLocMapRefno(this.LocMap.LoginWhsLocMapRefno);
                 }
 
-                await this.ucActivityPurchaseOrderWorkSheet_GotFocus(this, new EventArgs());
+                await this.ucActivityPurchaseOrderWorkSheet_GotFocus(this, EventArgs.Empty);
             }
             catch (Exception ex)
             {
@@ -166,7 +166,7 @@ namespace dMobile.View.Activity
         protected override async void OnDisappearing()
         {
             MessagingCenter.Unsubscribe<string>(this, EventTypes.OnKeyUp.ToString());
-            await this.ucActivityHdr_LostFocus(this, new EventArgs());
+            await this.ucActivityHdr_LostFocus(this, EventArgs.Empty);
 
             base.OnDisappearing();
         }

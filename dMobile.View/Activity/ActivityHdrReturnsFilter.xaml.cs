@@ -114,7 +114,7 @@ namespace dMobile.View.Activity
 
             try
             {
-                this.ucActivityReturnsFilter_GotFocus(this, new EventArgs());
+                this.ucActivityReturnsFilter_GotFocus(this, EventArgs.Empty);
             }
             catch (Exception ex)
             {

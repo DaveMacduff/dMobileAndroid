@@ -29,12 +29,6 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
         /// <summary>
         /// Gets the Bar Code Parse Exception.
         /// </summary>
-        public BarCodeParseException Exception
-        {
-            get
-            {
-                return this.exception;
-            }
-        }
+        public BarCodeParseException Exception => this.exception;
     }
 }

@@ -109,15 +109,9 @@ namespace dMobile.Bedrock
         /// </summary>
         private string FileName
         {
-            get
-            {
-                return this.fileName;
-            }
+            get => this.fileName;
 
-            set
-            {
-                this.fileName = value;
-            }
+            set => this.fileName = value;
         }
 
         /// <summary>

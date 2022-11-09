@@ -187,7 +187,7 @@ namespace dMobile.View.Activity
 
             try
             {
-                this.ucActivityHdrAdjustmentFilter_GotFocus(this, new EventArgs());
+                this.ucActivityHdrAdjustmentFilter_GotFocus(this, EventArgs.Empty);
             }
             catch (Exception ex)
             {

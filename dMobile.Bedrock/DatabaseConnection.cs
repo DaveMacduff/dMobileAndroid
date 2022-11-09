@@ -61,15 +61,9 @@ namespace dMobile.Bedrock
         /// </summary>
         public DatabaseConnection DataConnUniq
         {
-            get
-            {
-                return dataConnUniq;
-            }
+            get => dataConnUniq;
 
-            set
-            {
-                dataConnUniq = value;
-            }
+            set => dataConnUniq = value;
         }
 
         /// <summary>
@@ -77,15 +71,9 @@ namespace dMobile.Bedrock
         /// </summary>
         public SQLiteConnectionString ConnString
         {
-            get
-            {
-                return connString;
-            }
+            get => connString;
 
-            set
-            {
-                connString = value;
-            }
+            set => connString = value;
         }
 
         /// <summary>
@@ -93,15 +81,9 @@ namespace dMobile.Bedrock
         /// </summary>
         public string DBASCIIZ
         {
-            get
-            {
-                return dbASCIIZ;
-            }
+            get => dbASCIIZ;
 
-            set
-            {
-                dbASCIIZ = value;
-            }
+            set => dbASCIIZ = value;
         }
 
         /// <summary>
@@ -109,49 +91,25 @@ namespace dMobile.Bedrock
         /// </summary>
         public string DBPath
         {
-            get
-            {
-                return dbPath;
-            }
+            get => dbPath;
 
-            set
-            {
-                dbPath = value;
-            }
+            set => dbPath = value;
         }
 
         /// <summary>
         /// Gets the DBPassword.
         /// </summary>
-        public string DBPassword
-        {
-            get
-            {
-                return dbPassword;
-            }
-        }
+        public string DBPassword => dbPassword;
 
         /// <summary>
         /// Gets the DBName.
         /// </summary>
-        public string DBName
-        {
-            get
-            {
-                return dbName;
-            }
-        }
+        public string DBName => dbName;
 
         /// <summary>
         /// Gets the SQLConn.
         /// </summary>
-        public SQLiteAsyncConnection SQLConn
-        {
-            get
-            {
-                return sqlConn;
-            }
-        }
+        public SQLiteAsyncConnection SQLConn => sqlConn;
 
         /// <summary>
         /// The GetInstance.

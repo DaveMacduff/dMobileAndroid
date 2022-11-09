@@ -77,8 +77,8 @@ namespace dMobile.Bedrock
         /// </summary>
         public SysCommon.ActSubTypes eActivitySubType
         {
-            get { return this.m_eActivitySubType; }
-            set { this.m_eActivitySubType = value; }
+            get => this.m_eActivitySubType;
+            set => this.m_eActivitySubType = value;
         }
 
         /// <summary>
@@ -86,8 +86,8 @@ namespace dMobile.Bedrock
         /// </summary>
         public SysCommon.ActStatus eActivityStatus
         {
-            get { return this.m_eActivityStatus; }
-            set { this.m_eActivityStatus = value; }
+            get => this.m_eActivityStatus;
+            set => this.m_eActivityStatus = value;
         }
 
         /// <summary>
@@ -95,8 +95,8 @@ namespace dMobile.Bedrock
         /// </summary>
         public int iActivityStatusIdx
         {
-            get { return this.m_iActivityStatusIdx; }
-            set { this.m_iActivityStatusIdx = value; }
+            get => this.m_iActivityStatusIdx;
+            set => this.m_iActivityStatusIdx = value;
         }
 
         /// <summary>
@@ -104,8 +104,8 @@ namespace dMobile.Bedrock
         /// </summary>
         public int iActivitySubTypeIdx
         {
-            get { return this.m_iActivitySubTypeIdx; }
-            set { this.m_iActivitySubTypeIdx = value; }
+            get => this.m_iActivitySubTypeIdx;
+            set => this.m_iActivitySubTypeIdx = value;
         }
 
         /// <summary>
@@ -113,8 +113,8 @@ namespace dMobile.Bedrock
         /// </summary>
         public string strFullClassName
         {
-            get { return this.m_strFullClassName; }
-            set { this.m_strFullClassName = value; }
+            get => this.m_strFullClassName;
+            set => this.m_strFullClassName = value;
         }
 
         /// <summary>
@@ -122,8 +122,8 @@ namespace dMobile.Bedrock
         /// </summary>
         public string strFilePath
         {
-            get { return this.m_strFilePath; }
-            set { this.m_strFilePath = value; }
+            get => this.m_strFilePath;
+            set => this.m_strFilePath = value;
         }
 
         /// <summary>
@@ -131,8 +131,8 @@ namespace dMobile.Bedrock
         /// </summary>
         public string strFileASCIIZ
         {
-            get { return this.m_strFileASCIIZ; }
-            set { this.m_strFileASCIIZ = value; }
+            get => this.m_strFileASCIIZ;
+            set => this.m_strFileASCIIZ = value;
         }
 
         /// <summary>
@@ -140,8 +140,8 @@ namespace dMobile.Bedrock
         /// </summary>
         public string strFileName
         {
-            get { return this.m_strFileName; }
-            set { this.m_strFileName = value; }
+            get => this.m_strFileName;
+            set => this.m_strFileName = value;
         }
 
         /// <summary>

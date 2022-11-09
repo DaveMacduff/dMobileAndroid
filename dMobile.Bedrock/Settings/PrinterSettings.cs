@@ -140,10 +140,7 @@ namespace dMobile.Bedrock
                 return this.allPrinters;
             }
 
-            set
-            {
-                this.allPrinters = value;
-            }
+            set => this.allPrinters = value;
         }
 
         /// <summary>
@@ -152,15 +149,9 @@ namespace dMobile.Bedrock
         /// </summary>
         public bool IsEnabledShippingLabelPrinter
         {
-            get
-            {
-                return this.isEnabledShippingLabelPrinter;
-            }
+            get => this.isEnabledShippingLabelPrinter;
 
-            set
-            {
-                this.isEnabledShippingLabelPrinter = value;
-            }
+            set => this.isEnabledShippingLabelPrinter = value;
         }
 
         /// <summary>
@@ -168,15 +159,9 @@ namespace dMobile.Bedrock
         /// </summary>
         public string ShippingLabelPrinterName
         {
-            get
-            {
-                return this.shippingLabelPrinterName;
-            }
+            get => this.shippingLabelPrinterName;
 
-            set
-            {
-                this.shippingLabelPrinterName = value;
-            }
+            set => this.shippingLabelPrinterName = value;
         }
 
         /// <summary>
@@ -185,15 +170,9 @@ namespace dMobile.Bedrock
         /// </summary>
         public bool IsEnabledShelfLabelPrinter
         {
-            get
-            {
-                return this.isEnabledShelfLabelPrinter;
-            }
+            get => this.isEnabledShelfLabelPrinter;
 
-            set
-            {
-                this.isEnabledShelfLabelPrinter = value;
-            }
+            set => this.isEnabledShelfLabelPrinter = value;
         }
 
         /// <summary>
@@ -201,15 +180,9 @@ namespace dMobile.Bedrock
         /// </summary>
         public string ShelfLabelPrinterName
         {
-            get
-            {
-                return this.shelfLabelPrinterName;
-            }
+            get => this.shelfLabelPrinterName;
 
-            set
-            {
-                this.shelfLabelPrinterName = value;
-            }
+            set => this.shelfLabelPrinterName = value;
         }
 
         /// <summary>
@@ -218,15 +191,9 @@ namespace dMobile.Bedrock
         /// </summary>
         public bool IsEnabledProductLabelPrinter
         {
-            get
-            {
-                return this.isEnabledProductLabelPrinter;
-            }
+            get => this.isEnabledProductLabelPrinter;
 
-            set
-            {
-                this.isEnabledProductLabelPrinter = value;
-            }
+            set => this.isEnabledProductLabelPrinter = value;
         }
 
         /// <summary>
@@ -234,15 +201,9 @@ namespace dMobile.Bedrock
         /// </summary>
         public string ProductLabelPrinterName
         {
-            get
-            {
-                return this.productLabelPrinterName;
-            }
+            get => this.productLabelPrinterName;
 
-            set
-            {
-                this.productLabelPrinterName = value;
-            }
+            set => this.productLabelPrinterName = value;
         }
 
         /// <summary>
@@ -250,15 +211,9 @@ namespace dMobile.Bedrock
         /// </summary>
         public string FullClassName
         {
-            get
-            {
-                return this.fullClassName;
-            }
+            get => this.fullClassName;
 
-            set
-            {
-                this.fullClassName = value;
-            }
+            set => this.fullClassName = value;
         }
 
         /// <summary>
@@ -266,15 +221,9 @@ namespace dMobile.Bedrock
         /// </summary>
         public string FilePath
         {
-            get
-            {
-                return this.filePath;
-            }
+            get => this.filePath;
 
-            set
-            {
-                this.filePath = value;
-            }
+            set => this.filePath = value;
         }
 
         /// <summary>
@@ -282,15 +231,9 @@ namespace dMobile.Bedrock
         /// </summary>
         public string FileASCIIZ
         {
-            get
-            {
-                return this.fileASCIIZ;
-            }
+            get => this.fileASCIIZ;
 
-            set
-            {
-                this.fileASCIIZ = value;
-            }
+            set => this.fileASCIIZ = value;
         }
 
         /// <summary>
@@ -298,15 +241,9 @@ namespace dMobile.Bedrock
         /// </summary>
         public string FileName
         {
-            get
-            {
-                return this.fileName;
-            }
+            get => this.fileName;
 
-            set
-            {
-                this.fileName = value;
-            }
+            set => this.fileName = value;
         }
 
         /// <summary>

@@ -353,7 +353,7 @@ namespace dMobile.View.Activity
             {
                 if (this.FirstOnAppearing)
                 {
-                    await this.ActItemInventoryInquiry_GotFocus(this, new EventArgs());
+                    await this.ActItemInventoryInquiry_GotFocus(this, EventArgs.Empty);
                     await this.RefreshData();
                     this.FirstOnAppearing = false;
                 }

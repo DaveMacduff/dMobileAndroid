@@ -833,15 +833,9 @@ namespace dMobile.Bedrock
         /// </summary>
         public bool IsInvStrict
         {
-            get
-            {
-                return this.isInvStrict;
-            }
+            get => this.isInvStrict;
 
-            set
-            {
-                this.isInvStrict = value;
-            }
+            set => this.isInvStrict = value;
         }
 
         /// <summary>
@@ -849,15 +843,9 @@ namespace dMobile.Bedrock
         /// </summary>
         public DateTime LastRefreshData
         {
-            get
-            {
-                return this.lastRefreshData;
-            }
+            get => this.lastRefreshData;
 
-            set
-            {
-                this.lastRefreshData = value;
-            }
+            set => this.lastRefreshData = value;
         }
 
         /// <summary>
@@ -865,15 +853,9 @@ namespace dMobile.Bedrock
         /// </summary>
         public bool IsDetailEditScreenSetFocus2CatchWeight
         {
-            get
-            {
-                return this.isDetailEditScreenSetFocus2CatchWeight;
-            }
+            get => this.isDetailEditScreenSetFocus2CatchWeight;
 
-            set
-            {
-                this.isDetailEditScreenSetFocus2CatchWeight = value;
-            }
+            set => this.isDetailEditScreenSetFocus2CatchWeight = value;
         }
 
         /// <summary>
@@ -881,15 +863,9 @@ namespace dMobile.Bedrock
         /// </summary>
         public bool IsPrintProductLabelsAsBatch
         {
-            get
-            {
-                return this.isPrintProductLabelsAsBatch;
-            }
+            get => this.isPrintProductLabelsAsBatch;
 
-            set
-            {
-                this.isPrintProductLabelsAsBatch = value;
-            }
+            set => this.isPrintProductLabelsAsBatch = value;
         }
 
         /// <summary>
@@ -897,15 +873,9 @@ namespace dMobile.Bedrock
         /// </summary>
         public bool IsSetCatchWeightZero
         {
-            get
-            {
-                return this.isSetCatchWeightZero;
-            }
+            get => this.isSetCatchWeightZero;
 
-            set
-            {
-                this.isSetCatchWeightZero = value;
-            }
+            set => this.isSetCatchWeightZero = value;
         }
 
         /// <summary>
@@ -913,15 +883,9 @@ namespace dMobile.Bedrock
         /// </summary>
         public bool IsSetCatchCountZero
         {
-            get
-            {
-                return this.isSetCatchCountZero;
-            }
+            get => this.isSetCatchCountZero;
 
-            set
-            {
-                this.isSetCatchCountZero = value;
-            }
+            set => this.isSetCatchCountZero = value;
         }
 
         /// <summary>
@@ -929,15 +893,9 @@ namespace dMobile.Bedrock
         /// </summary>
         public bool IsIntegerCheckOverride
         {
-            get
-            {
-                return this.isIntegerCheckOverride;
-            }
+            get => this.isIntegerCheckOverride;
 
-            set
-            {
-                this.isIntegerCheckOverride = value;
-            }
+            set => this.isIntegerCheckOverride = value;
         }
 
         /// <summary>
@@ -945,15 +903,9 @@ namespace dMobile.Bedrock
         /// </summary>
         public bool IsEnableDefaultDetailValues
         {
-            get
-            {
-                return this.isEnableDefaultDetailValues;
-            }
+            get => this.isEnableDefaultDetailValues;
 
-            set
-            {
-                this.isEnableDefaultDetailValues = value;
-            }
+            set => this.isEnableDefaultDetailValues = value;
         }
 
         /// <summary>
@@ -961,15 +913,9 @@ namespace dMobile.Bedrock
         /// </summary>
         public bool IsEnableDefaultDetailExtraValues
         {
-            get
-            {
-                return this.isEnableDefaultDetailExtraValues;
-            }
+            get => this.isEnableDefaultDetailExtraValues;
 
-            set
-            {
-                this.isEnableDefaultDetailExtraValues = value;
-            }
+            set => this.isEnableDefaultDetailExtraValues = value;
         }
 
         /// <summary>
@@ -977,15 +923,9 @@ namespace dMobile.Bedrock
         /// </summary>
         public Theme Theme
         {
-            get
-            {
-                return this.theme;
-            }
+            get => this.theme;
 
-            set
-            {
-                this.theme = value;
-            }
+            set => this.theme = value;
         }
 
         /// <summary>
@@ -993,15 +933,9 @@ namespace dMobile.Bedrock
         /// </summary>
         public bool IsDisconnectedMode
         {
-            get
-            {
-                return this.isDisconnectedMode;
-            }
+            get => this.isDisconnectedMode;
 
-            set
-            {
-                this.isDisconnectedMode = value;
-            }
+            set => this.isDisconnectedMode = value;
         }
 
         /// <summary>
@@ -1009,15 +943,9 @@ namespace dMobile.Bedrock
         /// </summary>
         public bool IsDisconnectedModeLoadDetail
         {
-            get
-            {
-                return this.isDisconnectedModeLoadDetail;
-            }
+            get => this.isDisconnectedModeLoadDetail;
 
-            set
-            {
-                this.isDisconnectedModeLoadDetail = value;
-            }
+            set => this.isDisconnectedModeLoadDetail = value;
         }
 
         /// <summary>
@@ -1025,15 +953,9 @@ namespace dMobile.Bedrock
         /// </summary>
         public int DetailDateMinMaxValidYearRange
         {
-            get
-            {
-                return this.detailDateMinMaxValidYearRange;
-            }
+            get => this.detailDateMinMaxValidYearRange;
 
-            set
-            {
-                this.detailDateMinMaxValidYearRange = value;
-            }
+            set => this.detailDateMinMaxValidYearRange = value;
         }
 
         /// <summary>
@@ -1041,15 +963,9 @@ namespace dMobile.Bedrock
         /// </summary>
         public decimal ProdWeightUnitTolerancePercent
         {
-            get
-            {
-                return this.prodWeightUnitTolerancePercent;
-            }
+            get => this.prodWeightUnitTolerancePercent;
 
-            set
-            {
-                this.prodWeightUnitTolerancePercent = value;
-            }
+            set => this.prodWeightUnitTolerancePercent = value;
         }
 
         /// <summary>
@@ -1060,14 +976,8 @@ namespace dMobile.Bedrock
         /// </summary>
         public bool DoesSelectingADifferentProductClearSkid
         {
-            get
-            {
-                return this.doesSelectingADifferentProductClearSkid;
-            }
-            set
-            {
-                this.doesSelectingADifferentProductClearSkid = value;
-            }
+            get => this.doesSelectingADifferentProductClearSkid;
+            set => this.doesSelectingADifferentProductClearSkid = value;
         }
 
         /// <summary>
@@ -1077,14 +987,8 @@ namespace dMobile.Bedrock
         /// </summary>
         public bool IsProductLabelCatchAsk
         {
-            get
-            {
-                return this.isProductLabelCatchAsk;
-            }
-            set
-            {
-                this.isProductLabelCatchAsk = value;
-            }
+            get => this.isProductLabelCatchAsk;
+            set => this.isProductLabelCatchAsk = value;
         }
 
         /// <summary>
@@ -1095,14 +999,8 @@ namespace dMobile.Bedrock
         /// </summary>
         public string DefaultLanguage
         {
-            get
-            {
-                return this.defaultLanguage;
-            }
-            set
-            {
-                this.defaultLanguage = value;
-            }
+            get => this.defaultLanguage;
+            set => this.defaultLanguage = value;
         }
 
         /// <summary>
@@ -1114,14 +1012,8 @@ namespace dMobile.Bedrock
         [XmlArrayItem("Path")]
         public List<string> LanguagePaths
         {
-            get
-            {
-                return this.languagePaths;
-            }
-            set
-            {
-                this.languagePaths = value;
-            }
+            get => this.languagePaths;
+            set => this.languagePaths = value;
         }
 
         /// <summary>
@@ -1131,15 +1023,9 @@ namespace dMobile.Bedrock
         /// </summary>
         public bool InventoryInquirySearchEntireWarehouse
         {
-            get
-            {
-                return this.inventoryInquirySearchEntireWarehouse;
-            }
+            get => this.inventoryInquirySearchEntireWarehouse;
 
-            set
-            {
-                this.inventoryInquirySearchEntireWarehouse = value;
-            }
+            set => this.inventoryInquirySearchEntireWarehouse = value;
         }
 
         /// <summary>
@@ -1147,15 +1033,9 @@ namespace dMobile.Bedrock
         /// </summary>
         public string GTINCompanyPrefix
         {
-            get
-            {
-                return this.gtinCompanyPrefix;
-            }
+            get => this.gtinCompanyPrefix;
 
-            set
-            {
-                this.gtinCompanyPrefix = value;
-            }
+            set => this.gtinCompanyPrefix = value;
         }
 
         /// <summary>
@@ -1163,15 +1043,9 @@ namespace dMobile.Bedrock
         /// </summary>
         public bool IsProductUnitBarCodeModifier1
         {
-            get
-            {
-                return this.isProductUnitBarCodeModifier1;
-            }
+            get => this.isProductUnitBarCodeModifier1;
 
-            set
-            {
-                this.isProductUnitBarCodeModifier1 = value;
-            }
+            set => this.isProductUnitBarCodeModifier1 = value;
         }
 
         /// <summary>
@@ -1179,15 +1053,9 @@ namespace dMobile.Bedrock
         /// </summary>
         public string ProductUnitBarCodeModifier1Codes
         {
-            get
-            {
-                return this.productUnitBarCodeModifier1Codes;
-            }
+            get => this.productUnitBarCodeModifier1Codes;
 
-            set
-            {
-                this.productUnitBarCodeModifier1Codes = value;
-            }
+            set => this.productUnitBarCodeModifier1Codes = value;
         }
 
         // public string LocMapWarehouseMask
@@ -1311,15 +1179,9 @@ namespace dMobile.Bedrock
         /// </summary>
         public bool IsDefaultLocToProductDefaultLoc
         {
-            get
-            {
-                return this.isDefaultLocToProductDefaultLoc;
-            }
+            get => this.isDefaultLocToProductDefaultLoc;
 
-            set
-            {
-                this.isDefaultLocToProductDefaultLoc = value;
-            }
+            set => this.isDefaultLocToProductDefaultLoc = value;
         }
 
         /// <summary>
@@ -1327,15 +1189,9 @@ namespace dMobile.Bedrock
         /// </summary>
         public bool IsVerifyProductLocation
         {
-            get
-            {
-                return this.isVerifyProductLocation;
-            }
+            get => this.isVerifyProductLocation;
 
-            set
-            {
-                this.isVerifyProductLocation = value;
-            }
+            set => this.isVerifyProductLocation = value;
         }
 
         /// <summary>
@@ -1343,15 +1199,9 @@ namespace dMobile.Bedrock
         /// </summary>
         public bool IsPutAwaySkidNoCatchAskZeroEnabled
         {
-            get
-            {
-                return this.isPutAwaySkidNoCatchAskZeroEnabled;
-            }
+            get => this.isPutAwaySkidNoCatchAskZeroEnabled;
 
-            set
-            {
-                this.isPutAwaySkidNoCatchAskZeroEnabled = value;
-            }
+            set => this.isPutAwaySkidNoCatchAskZeroEnabled = value;
         }
 
         /// <summary>
@@ -1359,15 +1209,9 @@ namespace dMobile.Bedrock
         /// </summary>
         public bool IsPOWorkSheetNoCatchAskZeroEnabled
         {
-            get
-            {
-                return this.isPOWorkSheetNoCatchAskZeroEnabled;
-            }
+            get => this.isPOWorkSheetNoCatchAskZeroEnabled;
 
-            set
-            {
-                this.isPOWorkSheetNoCatchAskZeroEnabled = value;
-            }
+            set => this.isPOWorkSheetNoCatchAskZeroEnabled = value;
         }
 
         /// <summary>
@@ -1375,15 +1219,9 @@ namespace dMobile.Bedrock
         /// </summary>
         public bool IsReceivingNoCatchAskZeroEnabled
         {
-            get
-            {
-                return this.isReceivingNoCatchAskZeroEnabled;
-            }
+            get => this.isReceivingNoCatchAskZeroEnabled;
 
-            set
-            {
-                this.isReceivingNoCatchAskZeroEnabled = value;
-            }
+            set => this.isReceivingNoCatchAskZeroEnabled = value;
         }
 
         /// <summary>
@@ -1391,15 +1229,9 @@ namespace dMobile.Bedrock
         /// </summary>
         public bool IsReceivingModule
         {
-            get
-            {
-                return this.isReceivingModule;
-            }
+            get => this.isReceivingModule;
 
-            set
-            {
-                this.isReceivingModule = value;
-            }
+            set => this.isReceivingModule = value;
         }
 
         /// <summary>
@@ -1407,15 +1239,9 @@ namespace dMobile.Bedrock
         /// </summary>
         public bool IsReceivingCatchAskEnabled
         {
-            get
-            {
-                return this.isReceivingCatchAskEnabled;
-            }
+            get => this.isReceivingCatchAskEnabled;
 
-            set
-            {
-                this.isReceivingCatchAskEnabled = value;
-            }
+            set => this.isReceivingCatchAskEnabled = value;
         }
 
         /// <summary>
@@ -1423,15 +1249,9 @@ namespace dMobile.Bedrock
         /// </summary>
         public bool IsReceivingExtraDetailEnabled
         {
-            get
-            {
-                return this.isReceivingExtraDetailEnabled;
-            }
+            get => this.isReceivingExtraDetailEnabled;
 
-            set
-            {
-                this.isReceivingExtraDetailEnabled = value;
-            }
+            set => this.isReceivingExtraDetailEnabled = value;
         }
 
         /// <summary>
@@ -1439,15 +1259,9 @@ namespace dMobile.Bedrock
         /// </summary>
         public bool CanPrintProductLabelReceiving
         {
-            get
-            {
-                return this.canPrintProductLabelReceiving;
-            }
+            get => this.canPrintProductLabelReceiving;
 
-            set
-            {
-                this.canPrintProductLabelReceiving = value;
-            }
+            set => this.canPrintProductLabelReceiving = value;
         }
 
         /// <summary>
@@ -1455,15 +1269,9 @@ namespace dMobile.Bedrock
         /// </summary>
         public bool AllowAddProduct2Receiving
         {
-            get
-            {
-                return this.allowAddProduct2Receiving;
-            }
+            get => this.allowAddProduct2Receiving;
 
-            set
-            {
-                this.allowAddProduct2Receiving = value;
-            }
+            set => this.allowAddProduct2Receiving = value;
         }
 
         /// <summary>
@@ -1471,15 +1279,9 @@ namespace dMobile.Bedrock
         /// </summary>
         public bool IsPOWorkSheetCatchAskEnabled
         {
-            get
-            {
-                return this.isPOWorkSheetCatchAskEnabled;
-            }
+            get => this.isPOWorkSheetCatchAskEnabled;
 
-            set
-            {
-                this.isPOWorkSheetCatchAskEnabled = value;
-            }
+            set => this.isPOWorkSheetCatchAskEnabled = value;
         }
 
         /// <summary>
@@ -1487,15 +1289,9 @@ namespace dMobile.Bedrock
         /// </summary>
         public bool IsPOWorkSheetModule
         {
-            get
-            {
-                return this.isPurchaseOrderWorkSheetModule;
-            }
+            get => this.isPurchaseOrderWorkSheetModule;
 
-            set
-            {
-                this.isPurchaseOrderWorkSheetModule = value;
-            }
+            set => this.isPurchaseOrderWorkSheetModule = value;
         }
 
         /// <summary>
@@ -1503,15 +1299,9 @@ namespace dMobile.Bedrock
         /// </summary>
         public bool IsReceivingCreateNewItemNoAsk
         {
-            get
-            {
-                return this.isReceivingCreateNewItemNoAsk;
-            }
+            get => this.isReceivingCreateNewItemNoAsk;
 
-            set
-            {
-                this.isReceivingCreateNewItemNoAsk = value;
-            }
+            set => this.isReceivingCreateNewItemNoAsk = value;
         }
 
         /// <summary>
@@ -1519,15 +1309,9 @@ namespace dMobile.Bedrock
         /// </summary>
         public bool IsPOWorkSheetCreateNewItemNoAsk
         {
-            get
-            {
-                return this.isPOWorkSheetCreateNewItemNoAsk;
-            }
+            get => this.isPOWorkSheetCreateNewItemNoAsk;
 
-            set
-            {
-                this.isPOWorkSheetCreateNewItemNoAsk = value;
-            }
+            set => this.isPOWorkSheetCreateNewItemNoAsk = value;
         }
 
         /// <summary>
@@ -1535,15 +1319,9 @@ namespace dMobile.Bedrock
         /// </summary>
         public SysCommon.ActReceivingQtyUnderValLevels RecvQtyUnderWarn
         {
-            get
-            {
-                return this.recvQtyUnderWarn;
-            }
+            get => this.recvQtyUnderWarn;
 
-            set
-            {
-                this.recvQtyUnderWarn = value;
-            }
+            set => this.recvQtyUnderWarn = value;
         }
 
         /// <summary>
@@ -1551,15 +1329,9 @@ namespace dMobile.Bedrock
         /// </summary>
         public SysCommon.ActReceivingQtyOverValLevels RecvQtyOverWarn
         {
-            get
-            {
-                return this.recvQtyOverWarn;
-            }
+            get => this.recvQtyOverWarn;
 
-            set
-            {
-                this.recvQtyOverWarn = value;
-            }
+            set => this.recvQtyOverWarn = value;
         }
 
         /// <summary>
@@ -1567,15 +1339,9 @@ namespace dMobile.Bedrock
         /// </summary>
         public bool AskRecvPrintAllSkidLabelsUponSave
         {
-            get
-            {
-                return this.askRecvPrintAllSkidLabelsUponSave;
-            }
+            get => this.askRecvPrintAllSkidLabelsUponSave;
 
-            set
-            {
-                this.askRecvPrintAllSkidLabelsUponSave = value;
-            }
+            set => this.askRecvPrintAllSkidLabelsUponSave = value;
         }
 
         /// <summary>
@@ -1583,15 +1349,9 @@ namespace dMobile.Bedrock
         /// </summary>
         public bool IsPickingNoCatchAskZeroEnabled
         {
-            get
-            {
-                return this.isPickingNoCatchAskZeroEnabled;
-            }
+            get => this.isPickingNoCatchAskZeroEnabled;
 
-            set
-            {
-                this.isPickingNoCatchAskZeroEnabled = value;
-            }
+            set => this.isPickingNoCatchAskZeroEnabled = value;
         }
 
         /// <summary>
@@ -1599,15 +1359,9 @@ namespace dMobile.Bedrock
         /// </summary>
         public bool IsPickingModuleDisallowLoadingAllOrders
         {
-            get
-            {
-                return this.isPickingModuleDisallowLoadingAllOrders;
-            }
+            get => this.isPickingModuleDisallowLoadingAllOrders;
 
-            set
-            {
-                this.isPickingModuleDisallowLoadingAllOrders = value;
-            }
+            set => this.isPickingModuleDisallowLoadingAllOrders = value;
         }
 
         /// <summary>
@@ -1615,15 +1369,9 @@ namespace dMobile.Bedrock
         /// </summary>
         public int PickItemDescOpt
         {
-            get
-            {
-                return this.pickItemDescOpt;
-            }
+            get => this.pickItemDescOpt;
 
-            set
-            {
-                this.pickItemDescOpt = value;
-            }
+            set => this.pickItemDescOpt = value;
         }
 
         /// <summary>
@@ -1631,15 +1379,9 @@ namespace dMobile.Bedrock
         /// </summary>
         public bool IsPickMod
         {
-            get
-            {
-                return this.isPickMod;
-            }
+            get => this.isPickMod;
 
-            set
-            {
-                this.isPickMod = value;
-            }
+            set => this.isPickMod = value;
         }
 
         /// <summary>
@@ -1647,15 +1389,9 @@ namespace dMobile.Bedrock
         /// </summary>
         public bool IsPickHideRouteCol
         {
-            get
-            {
-                return this.isPickHideRouteCol;
-            }
+            get => this.isPickHideRouteCol;
 
-            set
-            {
-                this.isPickHideRouteCol = value;
-            }
+            set => this.isPickHideRouteCol = value;
         }
 
         /// <summary>
@@ -1663,15 +1399,9 @@ namespace dMobile.Bedrock
         /// </summary>
         public bool IsPickOverrideMsg1
         {
-            get
-            {
-                return this.isPickOverrideMsg1;
-            }
+            get => this.isPickOverrideMsg1;
 
-            set
-            {
-                this.isPickOverrideMsg1 = value;
-            }
+            set => this.isPickOverrideMsg1 = value;
         }
 
         /// <summary>
@@ -1679,15 +1409,9 @@ namespace dMobile.Bedrock
         /// </summary>
         public bool IsPickConfirmExit
         {
-            get
-            {
-                return this.isPickConfirmExit;
-            }
+            get => this.isPickConfirmExit;
 
-            set
-            {
-                this.isPickConfirmExit = value;
-            }
+            set => this.isPickConfirmExit = value;
         }
 
         /// <summary>
@@ -1695,15 +1419,9 @@ namespace dMobile.Bedrock
         /// </summary>
         public bool IsPickCatchAsk
         {
-            get
-            {
-                return this.isPickCatchAsk;
-            }
+            get => this.isPickCatchAsk;
 
-            set
-            {
-                this.isPickCatchAsk = value;
-            }
+            set => this.isPickCatchAsk = value;
         }
 
         /// <summary>
@@ -1711,15 +1429,9 @@ namespace dMobile.Bedrock
         /// </summary>
         public bool IsPickExtraDet
         {
-            get
-            {
-                return this.isPickExtraDet;
-            }
+            get => this.isPickExtraDet;
 
-            set
-            {
-                this.isPickExtraDet = value;
-            }
+            set => this.isPickExtraDet = value;
         }
 
         /// <summary>
@@ -1727,15 +1439,9 @@ namespace dMobile.Bedrock
         /// </summary>
         public bool IsPickMustReviewItemsBeforeRel
         {
-            get
-            {
-                return this.isPickMustReviewItemsBeforeRel;
-            }
+            get => this.isPickMustReviewItemsBeforeRel;
 
-            set
-            {
-                this.isPickMustReviewItemsBeforeRel = value;
-            }
+            set => this.isPickMustReviewItemsBeforeRel = value;
         }
 
         /// <summary>
@@ -1743,15 +1449,9 @@ namespace dMobile.Bedrock
         /// </summary>
         public bool IsPickPopupCmnt
         {
-            get
-            {
-                return this.isPickPopupCmnt;
-            }
+            get => this.isPickPopupCmnt;
 
-            set
-            {
-                this.isPickPopupCmnt = value;
-            }
+            set => this.isPickPopupCmnt = value;
         }
 
         /// <summary>
@@ -1759,15 +1459,9 @@ namespace dMobile.Bedrock
         /// </summary>
         public bool IsPickRefreshOrdAfterRel
         {
-            get
-            {
-                return this.isPickRefreshOrdAfterRel;
-            }
+            get => this.isPickRefreshOrdAfterRel;
 
-            set
-            {
-                this.isPickRefreshOrdAfterRel = value;
-            }
+            set => this.isPickRefreshOrdAfterRel = value;
         }
 
         /// <summary>
@@ -1775,15 +1469,9 @@ namespace dMobile.Bedrock
         /// </summary>
         public bool IsPickQtyUnderShowBaseQtyAvail
         {
-            get
-            {
-                return this.isPickQtyUnderShowBaseQtyAvail;
-            }
+            get => this.isPickQtyUnderShowBaseQtyAvail;
 
-            set
-            {
-                this.isPickQtyUnderShowBaseQtyAvail = value;
-            }
+            set => this.isPickQtyUnderShowBaseQtyAvail = value;
         }
 
         /// <summary>
@@ -1791,15 +1479,9 @@ namespace dMobile.Bedrock
         /// </summary>
         public bool IsPickDisallowManualAddProd
         {
-            get
-            {
-                return this.isPickDisallowManualAddProd;
-            }
+            get => this.isPickDisallowManualAddProd;
 
-            set
-            {
-                this.isPickDisallowManualAddProd = value;
-            }
+            set => this.isPickDisallowManualAddProd = value;
         }
 
         /// <summary>
@@ -1807,15 +1489,9 @@ namespace dMobile.Bedrock
         /// </summary>
         public bool IsPickAssocBarCodePwdReq
         {
-            get
-            {
-                return this.isPickAssocBarCodePwdReq;
-            }
+            get => this.isPickAssocBarCodePwdReq;
 
-            set
-            {
-                this.isPickAssocBarCodePwdReq = value;
-            }
+            set => this.isPickAssocBarCodePwdReq = value;
         }
 
         /// <summary>
@@ -1823,15 +1499,9 @@ namespace dMobile.Bedrock
         /// </summary>
         public bool AllowAddProd2Pick
         {
-            get
-            {
-                return this.allowAddProd2Pick;
-            }
+            get => this.allowAddProd2Pick;
 
-            set
-            {
-                this.allowAddProd2Pick = value;
-            }
+            set => this.allowAddProd2Pick = value;
         }
 
         /// <summary>
@@ -1839,15 +1509,9 @@ namespace dMobile.Bedrock
         /// </summary>
         public bool IsPrePickCrit
         {
-            get
-            {
-                return this.isPrePickCrit;
-            }
+            get => this.isPrePickCrit;
 
-            set
-            {
-                this.isPrePickCrit = value;
-            }
+            set => this.isPrePickCrit = value;
         }
 
         /// <summary>
@@ -1855,15 +1519,9 @@ namespace dMobile.Bedrock
         /// </summary>
         public SysCommon.ActPickingQtyUnderValLevels PickQtyUnderWarn
         {
-            get
-            {
-                return this.pickQtyUnderWarn;
-            }
+            get => this.pickQtyUnderWarn;
 
-            set
-            {
-                this.pickQtyUnderWarn = value;
-            }
+            set => this.pickQtyUnderWarn = value;
         }
 
         /// <summary>
@@ -1871,15 +1529,9 @@ namespace dMobile.Bedrock
         /// </summary>
         public SysCommon.ActPickingQtyOverValLevels PickQtyOverWarn
         {
-            get
-            {
-                return this.pickQtyOverWarn;
-            }
+            get => this.pickQtyOverWarn;
 
-            set
-            {
-                this.pickQtyOverWarn = value;
-            }
+            set => this.pickQtyOverWarn = value;
         }
 
         /// <summary>
@@ -1887,15 +1539,9 @@ namespace dMobile.Bedrock
         /// </summary>
         public bool IsPickConfirmDet
         {
-            get
-            {
-                return this.isPickConfirmDet;
-            }
+            get => this.isPickConfirmDet;
 
-            set
-            {
-                this.isPickConfirmDet = value;
-            }
+            set => this.isPickConfirmDet = value;
         }
 
         /// <summary>
@@ -1903,15 +1549,9 @@ namespace dMobile.Bedrock
         /// </summary>
         public bool IsPickShowItemQtyAvail
         {
-            get
-            {
-                return this.isPickShowItemQtyAvail;
-            }
+            get => this.isPickShowItemQtyAvail;
 
-            set
-            {
-                this.isPickShowItemQtyAvail = value;
-            }
+            set => this.isPickShowItemQtyAvail = value;
         }
 
         /// <summary>
@@ -1919,15 +1559,9 @@ namespace dMobile.Bedrock
         /// </summary>
         public bool IsRelByOrder
         {
-            get
-            {
-                return this.isRelByOrder;
-            }
+            get => this.isRelByOrder;
 
-            set
-            {
-                this.isRelByOrder = value;
-            }
+            set => this.isRelByOrder = value;
         }
 
         /// <summary>
@@ -1935,15 +1569,9 @@ namespace dMobile.Bedrock
         /// </summary>
         public bool IsRelBySect
         {
-            get
-            {
-                return this.isRelBySect;
-            }
+            get => this.isRelBySect;
 
-            set
-            {
-                this.isRelBySect = value;
-            }
+            set => this.isRelBySect = value;
         }
 
         /// <summary>
@@ -1951,15 +1579,9 @@ namespace dMobile.Bedrock
         /// </summary>
         public int PickDetGridDesignLayout
         {
-            get
-            {
-                return this.pickDetGridDesignLayout;
-            }
+            get => this.pickDetGridDesignLayout;
 
-            set
-            {
-                this.pickDetGridDesignLayout = value;
-            }
+            set => this.pickDetGridDesignLayout = value;
         }
 
         /// <summary>
@@ -1967,15 +1589,9 @@ namespace dMobile.Bedrock
         /// </summary>
         public bool IsPickCreateNewItemNoAsk
         {
-            get
-            {
-                return this.isPickCreateNewItemNoAsk;
-            }
+            get => this.isPickCreateNewItemNoAsk;
 
-            set
-            {
-                this.isPickCreateNewItemNoAsk = value;
-            }
+            set => this.isPickCreateNewItemNoAsk = value;
         }
 
         /// <summary>
@@ -1983,15 +1599,9 @@ namespace dMobile.Bedrock
         /// </summary>
         public bool IsPickDisableMakeSkid
         {
-            get
-            {
-                return this.isPickDisableMakeSkid;
-            }
+            get => this.isPickDisableMakeSkid;
 
-            set
-            {
-                this.isPickDisableMakeSkid = value;
-            }
+            set => this.isPickDisableMakeSkid = value;
         }
 
         /// <summary>
@@ -1999,15 +1609,9 @@ namespace dMobile.Bedrock
         /// </summary>
         public bool IsPickAddManualDetailPasswordRequired
         {
-            get
-            {
-                return this.isPickAddManualDetailPasswordRequired;
-            }
+            get => this.isPickAddManualDetailPasswordRequired;
 
-            set
-            {
-                this.isPickAddManualDetailPasswordRequired = value;
-            }
+            set => this.isPickAddManualDetailPasswordRequired = value;
         }
 
         /// <summary>
@@ -2015,15 +1619,9 @@ namespace dMobile.Bedrock
         /// </summary>
         public bool IsPickingSingleModuleNoCatchAskZeroEnabled
         {
-            get
-            {
-                return this.isPickingSingleModuleNoCatchAskZeroEnabled;
-            }
+            get => this.isPickingSingleModuleNoCatchAskZeroEnabled;
 
-            set
-            {
-                this.isPickingSingleModuleNoCatchAskZeroEnabled = value;
-            }
+            set => this.isPickingSingleModuleNoCatchAskZeroEnabled = value;
         }
 
         /// <summary>
@@ -2031,15 +1629,9 @@ namespace dMobile.Bedrock
         /// </summary>
         public bool IsPickSingleProd
         {
-            get
-            {
-                return this.isPickSingleProd;
-            }
+            get => this.isPickSingleProd;
 
-            set
-            {
-                this.isPickSingleProd = value;
-            }
+            set => this.isPickSingleProd = value;
         }
 
         /// <summary>
@@ -2047,15 +1639,9 @@ namespace dMobile.Bedrock
         /// </summary>
         public bool IsPickSingleCatchAsk
         {
-            get
-            {
-                return this.isPickSingleCatchAsk;
-            }
+            get => this.isPickSingleCatchAsk;
 
-            set
-            {
-                this.isPickSingleCatchAsk = value;
-            }
+            set => this.isPickSingleCatchAsk = value;
         }
 
         /// <summary>
@@ -2063,15 +1649,9 @@ namespace dMobile.Bedrock
         /// </summary>
         public bool IsPickSingleScanProdMustMatchSelProd
         {
-            get
-            {
-                return this.isPickSingleScanProdMustMatchSelProd;
-            }
+            get => this.isPickSingleScanProdMustMatchSelProd;
 
-            set
-            {
-                this.isPickSingleScanProdMustMatchSelProd = value;
-            }
+            set => this.isPickSingleScanProdMustMatchSelProd = value;
         }
 
         /// <summary>
@@ -2079,15 +1659,9 @@ namespace dMobile.Bedrock
         /// </summary>
         public bool IsPickSinglePrintShipLabelFullQuantity
         {
-            get
-            {
-                return this.isPickSinglePrintShipLabelFullQuantity;
-            }
+            get => this.isPickSinglePrintShipLabelFullQuantity;
 
-            set
-            {
-                this.isPickSinglePrintShipLabelFullQuantity = value;
-            }
+            set => this.isPickSinglePrintShipLabelFullQuantity = value;
         }
 
         /// <summary>
@@ -2095,15 +1669,9 @@ namespace dMobile.Bedrock
         /// </summary>
         public int PickSingleShipLabelStopThresholdQuantity
         {
-            get
-            {
-                return this.pickSingleShipLabelStopThresholdQuantity;
-            }
+            get => this.pickSingleShipLabelStopThresholdQuantity;
 
-            set
-            {
-                this.pickSingleShipLabelStopThresholdQuantity = value;
-            }
+            set => this.pickSingleShipLabelStopThresholdQuantity = value;
         }
 
         /// <summary>
@@ -2111,15 +1679,9 @@ namespace dMobile.Bedrock
         /// </summary>
         public bool CanPrintShippingLabel
         {
-            get
-            {
-                return this.canPrintShippingLabel;
-            }
+            get => this.canPrintShippingLabel;
 
-            set
-            {
-                this.canPrintShippingLabel = value;
-            }
+            set => this.canPrintShippingLabel = value;
         }
 
         /// <summary>
@@ -2127,15 +1689,9 @@ namespace dMobile.Bedrock
         /// </summary>
         public bool IsFullQuantityEnabled
         {
-            get
-            {
-                return this.isFullQuantityEnabled;
-            }
+            get => this.isFullQuantityEnabled;
 
-            set
-            {
-                this.isFullQuantityEnabled = value;
-            }
+            set => this.isFullQuantityEnabled = value;
         }
 
         /// <summary>
@@ -2143,15 +1699,9 @@ namespace dMobile.Bedrock
         /// </summary>
         public bool IsRepackQuantityEnabled
         {
-            get
-            {
-                return this.isRepackQuantityEnabled;
-            }
+            get => this.isRepackQuantityEnabled;
 
-            set
-            {
-                this.isRepackQuantityEnabled = value;
-            }
+            set => this.isRepackQuantityEnabled = value;
         }
 
         /// <summary>
@@ -2159,15 +1709,9 @@ namespace dMobile.Bedrock
         /// </summary>
         public bool IsDryQuantityEnabled
         {
-            get
-            {
-                return this.isDryQuantityEnabled;
-            }
+            get => this.isDryQuantityEnabled;
 
-            set
-            {
-                this.isDryQuantityEnabled = value;
-            }
+            set => this.isDryQuantityEnabled = value;
         }
 
         /// <summary>
@@ -2175,15 +1719,9 @@ namespace dMobile.Bedrock
         /// </summary>
         public bool IsDryRepackQuantityEnabled
         {
-            get
-            {
-                return this.isDryRepackQuantityEnabled;
-            }
+            get => this.isDryRepackQuantityEnabled;
 
-            set
-            {
-                this.isDryRepackQuantityEnabled = value;
-            }
+            set => this.isDryRepackQuantityEnabled = value;
         }
 
         /// <summary>
@@ -2191,15 +1729,9 @@ namespace dMobile.Bedrock
         /// </summary>
         public bool IsFreshQuantityEnabled
         {
-            get
-            {
-                return this.isFreshQuantityEnabled;
-            }
+            get => this.isFreshQuantityEnabled;
 
-            set
-            {
-                this.isFreshQuantityEnabled = value;
-            }
+            set => this.isFreshQuantityEnabled = value;
         }
 
         /// <summary>
@@ -2207,15 +1739,9 @@ namespace dMobile.Bedrock
         /// </summary>
         public bool IsFreshRepackQuantityEnabled
         {
-            get
-            {
-                return this.isFreshRepackQuantityEnabled;
-            }
+            get => this.isFreshRepackQuantityEnabled;
 
-            set
-            {
-                this.isFreshRepackQuantityEnabled = value;
-            }
+            set => this.isFreshRepackQuantityEnabled = value;
         }
 
         /// <summary>
@@ -2223,15 +1749,9 @@ namespace dMobile.Bedrock
         /// </summary>
         public bool IsFrozenQuantityEnabled
         {
-            get
-            {
-                return this.isFrozenQuantityEnabled;
-            }
+            get => this.isFrozenQuantityEnabled;
 
-            set
-            {
-                this.isFrozenQuantityEnabled = value;
-            }
+            set => this.isFrozenQuantityEnabled = value;
         }
 
         /// <summary>
@@ -2239,15 +1759,9 @@ namespace dMobile.Bedrock
         /// </summary>
         public bool IsFrozenRepackQuantityEnabled
         {
-            get
-            {
-                return this.isFrozenRepackQuantityEnabled;
-            }
+            get => this.isFrozenRepackQuantityEnabled;
 
-            set
-            {
-                this.isFrozenRepackQuantityEnabled = value;
-            }
+            set => this.isFrozenRepackQuantityEnabled = value;
         }
 
         /// <summary>
@@ -2255,15 +1769,9 @@ namespace dMobile.Bedrock
         /// </summary>
         public bool IsLiveQuantityEnabled
         {
-            get
-            {
-                return this.isLiveQuantityEnabled;
-            }
+            get => this.isLiveQuantityEnabled;
 
-            set
-            {
-                this.isLiveQuantityEnabled = value;
-            }
+            set => this.isLiveQuantityEnabled = value;
         }
 
         /// <summary>
@@ -2271,15 +1779,9 @@ namespace dMobile.Bedrock
         /// </summary>
         public bool IsLiveRepackQuantityEnabled
         {
-            get
-            {
-                return this.isLiveRepackQuantityEnabled;
-            }
+            get => this.isLiveRepackQuantityEnabled;
 
-            set
-            {
-                this.isLiveRepackQuantityEnabled = value;
-            }
+            set => this.isLiveRepackQuantityEnabled = value;
         }
 
         /// <summary>
@@ -2287,15 +1789,9 @@ namespace dMobile.Bedrock
         /// </summary>
         public bool IsPalletQuantityEnabled
         {
-            get
-            {
-                return this.isPalletQuantityEnabled;
-            }
+            get => this.isPalletQuantityEnabled;
 
-            set
-            {
-                this.isPalletQuantityEnabled = value;
-            }
+            set => this.isPalletQuantityEnabled = value;
         }
 
         /// <summary>
@@ -2303,15 +1799,9 @@ namespace dMobile.Bedrock
         /// </summary>
         public bool IsBundleQuantityEnabled
         {
-            get
-            {
-                return this.isBundleQuantityEnabled;
-            }
+            get => this.isBundleQuantityEnabled;
 
-            set
-            {
-                this.isBundleQuantityEnabled = value;
-            }
+            set => this.isBundleQuantityEnabled = value;
         }
 
         /// <summary>
@@ -2319,15 +1809,9 @@ namespace dMobile.Bedrock
         /// </summary>
         public bool IsReturnsNoCatchAskZeroEnabled
         {
-            get
-            {
-                return this.isReturnsNoCatchAskZeroEnabled;
-            }
+            get => this.isReturnsNoCatchAskZeroEnabled;
 
-            set
-            {
-                this.isReturnsNoCatchAskZeroEnabled = value;
-            }
+            set => this.isReturnsNoCatchAskZeroEnabled = value;
         }
 
         /// <summary>
@@ -2335,15 +1819,9 @@ namespace dMobile.Bedrock
         /// </summary>
         public bool IsRetMod
         {
-            get
-            {
-                return this.isRetMod;
-            }
+            get => this.isRetMod;
 
-            set
-            {
-                this.isRetMod = value;
-            }
+            set => this.isRetMod = value;
         }
 
         /// <summary>
@@ -2351,15 +1829,9 @@ namespace dMobile.Bedrock
         /// </summary>
         public bool IsRetExtraDetEnabled
         {
-            get
-            {
-                return this.isRetExtraDetEnabled;
-            }
+            get => this.isRetExtraDetEnabled;
 
-            set
-            {
-                this.isRetExtraDetEnabled = value;
-            }
+            set => this.isRetExtraDetEnabled = value;
         }
 
         /// <summary>
@@ -2367,15 +1839,9 @@ namespace dMobile.Bedrock
         /// </summary>
         public bool IsRetConfirmDet
         {
-            get
-            {
-                return this.isRetConfirmDet;
-            }
+            get => this.isRetConfirmDet;
 
-            set
-            {
-                this.isRetConfirmDet = value;
-            }
+            set => this.isRetConfirmDet = value;
         }
 
         /// <summary>
@@ -2383,15 +1849,9 @@ namespace dMobile.Bedrock
         /// </summary>
         public bool AllowAddProd2Ret
         {
-            get
-            {
-                return this.allowAddProduct2Returns;
-            }
+            get => this.allowAddProduct2Returns;
 
-            set
-            {
-                this.allowAddProduct2Returns = value;
-            }
+            set => this.allowAddProduct2Returns = value;
         }
 
         /// <summary>
@@ -2399,15 +1859,9 @@ namespace dMobile.Bedrock
         /// </summary>
         public bool IsRetCatchAskEnabled
         {
-            get
-            {
-                return this.isRetCatchAskEnabled;
-            }
+            get => this.isRetCatchAskEnabled;
 
-            set
-            {
-                this.isRetCatchAskEnabled = value;
-            }
+            set => this.isRetCatchAskEnabled = value;
         }
 
         /// <summary>
@@ -2415,15 +1869,9 @@ namespace dMobile.Bedrock
         /// </summary>
         public bool IsRetCreateNewItemNoAsk
         {
-            get
-            {
-                return this.isRetCreateNewItemNoAsk;
-            }
+            get => this.isRetCreateNewItemNoAsk;
 
-            set
-            {
-                this.isRetCreateNewItemNoAsk = value;
-            }
+            set => this.isRetCreateNewItemNoAsk = value;
         }
 
         /// <summary>
@@ -2431,15 +1879,9 @@ namespace dMobile.Bedrock
         /// </summary>
         public bool IsPhysicalModule
         {
-            get
-            {
-                return this.isPhysicalCountModule;
-            }
+            get => this.isPhysicalCountModule;
 
-            set
-            {
-                this.isPhysicalCountModule = value;
-            }
+            set => this.isPhysicalCountModule = value;
         }
 
         /// <summary>
@@ -2447,15 +1889,9 @@ namespace dMobile.Bedrock
         /// </summary>
         public bool IsPhysicalCatchAskEnabled
         {
-            get
-            {
-                return this.isPhysicalCatchAskEnabled;
-            }
+            get => this.isPhysicalCatchAskEnabled;
 
-            set
-            {
-                this.isPhysicalCatchAskEnabled = value;
-            }
+            set => this.isPhysicalCatchAskEnabled = value;
         }
 
         /// <summary>
@@ -2463,15 +1899,9 @@ namespace dMobile.Bedrock
         /// </summary>
         public bool IsPhysicalExtraDetailEnabled
         {
-            get
-            {
-                return this.isPhysicalExtraDetailEnabled;
-            }
+            get => this.isPhysicalExtraDetailEnabled;
 
-            set
-            {
-                this.isPhysicalExtraDetailEnabled = value;
-            }
+            set => this.isPhysicalExtraDetailEnabled = value;
         }
 
         /// <summary>
@@ -2479,15 +1909,9 @@ namespace dMobile.Bedrock
         /// </summary>
         public bool AllowAddProduct2Physical
         {
-            get
-            {
-                return this.allowAddProduct2PhysicalCounts;
-            }
+            get => this.allowAddProduct2PhysicalCounts;
 
-            set
-            {
-                this.allowAddProduct2PhysicalCounts = value;
-            }
+            set => this.allowAddProduct2PhysicalCounts = value;
         }
 
         /// <summary>
@@ -2495,15 +1919,9 @@ namespace dMobile.Bedrock
         /// </summary>
         public bool IsPhysicalCreateNewItemNoAsk
         {
-            get
-            {
-                return this.isPhysicalCreateNewItemNoAsk;
-            }
+            get => this.isPhysicalCreateNewItemNoAsk;
 
-            set
-            {
-                this.isPhysicalCreateNewItemNoAsk = value;
-            }
+            set => this.isPhysicalCreateNewItemNoAsk = value;
         }
 
         /// <summary>
@@ -2511,15 +1929,9 @@ namespace dMobile.Bedrock
         /// </summary>
         public bool IsPhysicalDoNotDefaultProductLocation
         {
-            get
-            {
-                return this.isPhysicalDoNotDefaultProductLocation;
-            }
+            get => this.isPhysicalDoNotDefaultProductLocation;
 
-            set
-            {
-                this.isPhysicalDoNotDefaultProductLocation = value;
-            }
+            set => this.isPhysicalDoNotDefaultProductLocation = value;
         }
 
         /// <summary>
@@ -2527,15 +1939,9 @@ namespace dMobile.Bedrock
         /// </summary>
         public bool IsCycleCountNoCatchAskZeroEnabled
         {
-            get
-            {
-                return this.isCycleCountNoCatchAskZeroEnabled;
-            }
+            get => this.isCycleCountNoCatchAskZeroEnabled;
 
-            set
-            {
-                this.isCycleCountNoCatchAskZeroEnabled = value;
-            }
+            set => this.isCycleCountNoCatchAskZeroEnabled = value;
         }
 
         /// <summary>
@@ -2543,15 +1949,9 @@ namespace dMobile.Bedrock
         /// </summary>
         public bool IsCycleModule
         {
-            get
-            {
-                return this.isCycleCountModule;
-            }
+            get => this.isCycleCountModule;
 
-            set
-            {
-                this.isCycleCountModule = value;
-            }
+            set => this.isCycleCountModule = value;
         }
 
         /// <summary>
@@ -2559,15 +1959,9 @@ namespace dMobile.Bedrock
         /// </summary>
         public bool IsCycleCatchAskEnabled
         {
-            get
-            {
-                return this.isCycleCatchAskEnabled;
-            }
+            get => this.isCycleCatchAskEnabled;
 
-            set
-            {
-                this.isCycleCatchAskEnabled = value;
-            }
+            set => this.isCycleCatchAskEnabled = value;
         }
 
         /// <summary>
@@ -2575,15 +1969,9 @@ namespace dMobile.Bedrock
         /// </summary>
         public bool IsCycleExtraDetailEnabled
         {
-            get
-            {
-                return this.isCycleCountExtraDetailEnabled;
-            }
+            get => this.isCycleCountExtraDetailEnabled;
 
-            set
-            {
-                this.isCycleCountExtraDetailEnabled = value;
-            }
+            set => this.isCycleCountExtraDetailEnabled = value;
         }
 
         /// <summary>
@@ -2591,15 +1979,9 @@ namespace dMobile.Bedrock
         /// </summary>
         public bool AllowAddProduct2Cycle
         {
-            get
-            {
-                return this.allowAddProduct2CycleCounts;
-            }
+            get => this.allowAddProduct2CycleCounts;
 
-            set
-            {
-                this.allowAddProduct2CycleCounts = value;
-            }
+            set => this.allowAddProduct2CycleCounts = value;
         }
 
         /// <summary>
@@ -2607,15 +1989,9 @@ namespace dMobile.Bedrock
         /// </summary>
         public bool IsCycleCreateNewItemNoAsk
         {
-            get
-            {
-                return this.isCycleCreateNewItemNoAsk;
-            }
+            get => this.isCycleCreateNewItemNoAsk;
 
-            set
-            {
-                this.isCycleCreateNewItemNoAsk = value;
-            }
+            set => this.isCycleCreateNewItemNoAsk = value;
         }
 
         /// <summary>
@@ -2623,15 +1999,9 @@ namespace dMobile.Bedrock
         /// </summary>
         public bool IsCycleDoNotDefaultProductLocation
         {
-            get
-            {
-                return this.isCycleDoNotDefaultProductLocation;
-            }
+            get => this.isCycleDoNotDefaultProductLocation;
 
-            set
-            {
-                this.isCycleDoNotDefaultProductLocation = value;
-            }
+            set => this.isCycleDoNotDefaultProductLocation = value;
         }
 
         /// <summary>
@@ -2639,15 +2009,9 @@ namespace dMobile.Bedrock
         /// </summary>
         public bool IsFinishedExtraDetailEnabled
         {
-            get
-            {
-                return this.isFinishedExtraDetailEnabled;
-            }
+            get => this.isFinishedExtraDetailEnabled;
 
-            set
-            {
-                this.isFinishedExtraDetailEnabled = value;
-            }
+            set => this.isFinishedExtraDetailEnabled = value;
         }
 
         /// <summary>
@@ -2655,15 +2019,9 @@ namespace dMobile.Bedrock
         /// </summary>
         public bool IsIngredientsExtraDetailEnabled
         {
-            get
-            {
-                return this.isMaterialExtraDetailEnabled;
-            }
+            get => this.isMaterialExtraDetailEnabled;
 
-            set
-            {
-                this.isMaterialExtraDetailEnabled = value;
-            }
+            set => this.isMaterialExtraDetailEnabled = value;
         }
 
         /// <summary>
@@ -2671,15 +2029,9 @@ namespace dMobile.Bedrock
         /// </summary>
         public bool IsByProductsExtraDetailEnabled
         {
-            get
-            {
-                return this.isByProductsExtraDetailEnabled;
-            }
+            get => this.isByProductsExtraDetailEnabled;
 
-            set
-            {
-                this.isByProductsExtraDetailEnabled = value;
-            }
+            set => this.isByProductsExtraDetailEnabled = value;
         }
 
         /// <summary>
@@ -2687,15 +2039,9 @@ namespace dMobile.Bedrock
         /// </summary>
         public bool IsTicketMaterialNoCatchAskZeroEnabled
         {
-            get
-            {
-                return this.isTicketMaterialNoCatchAskZeroEnabled;
-            }
+            get => this.isTicketMaterialNoCatchAskZeroEnabled;
 
-            set
-            {
-                this.isTicketMaterialNoCatchAskZeroEnabled = value;
-            }
+            set => this.isTicketMaterialNoCatchAskZeroEnabled = value;
         }
 
         /// <summary>
@@ -2703,15 +2049,9 @@ namespace dMobile.Bedrock
         /// </summary>
         public bool IsTicketByProductNoCatchAskZeroEnabled
         {
-            get
-            {
-                return this.isTicketByProductNoCatchAskZeroEnabled;
-            }
+            get => this.isTicketByProductNoCatchAskZeroEnabled;
 
-            set
-            {
-                this.isTicketByProductNoCatchAskZeroEnabled = value;
-            }
+            set => this.isTicketByProductNoCatchAskZeroEnabled = value;
         }
 
         /// <summary>
@@ -2719,15 +2059,9 @@ namespace dMobile.Bedrock
         /// </summary>
         public bool IsTicketFinishedNoCatchAskZeroEnabled
         {
-            get
-            {
-                return this.isTicketFinishedNoCatchAskZeroEnabled;
-            }
+            get => this.isTicketFinishedNoCatchAskZeroEnabled;
 
-            set
-            {
-                this.isTicketFinishedNoCatchAskZeroEnabled = value;
-            }
+            set => this.isTicketFinishedNoCatchAskZeroEnabled = value;
         }
 
         /// <summary>
@@ -2735,15 +2069,9 @@ namespace dMobile.Bedrock
         /// </summary>
         public bool IsPhysicalCountNoCatchAskZeroEnabled
         {
-            get
-            {
-                return this.isPhysicalCountNoCatchAskZeroEnabled;
-            }
+            get => this.isPhysicalCountNoCatchAskZeroEnabled;
 
-            set
-            {
-                this.isPhysicalCountNoCatchAskZeroEnabled = value;
-            }
+            set => this.isPhysicalCountNoCatchAskZeroEnabled = value;
         }
 
         /// <summary>
@@ -2751,15 +2079,9 @@ namespace dMobile.Bedrock
         /// </summary>
         public bool IsTicketFinishedGoodModule
         {
-            get
-            {
-                return this.isTicketFinishedGoodModule;
-            }
+            get => this.isTicketFinishedGoodModule;
 
-            set
-            {
-                this.isTicketFinishedGoodModule = value;
-            }
+            set => this.isTicketFinishedGoodModule = value;
         }
 
         /// <summary>
@@ -2767,15 +2089,9 @@ namespace dMobile.Bedrock
         /// </summary>
         public bool IsTicketMaterialModule
         {
-            get
-            {
-                return this.isTicketMaterialModule;
-            }
+            get => this.isTicketMaterialModule;
 
-            set
-            {
-                this.isTicketMaterialModule = value;
-            }
+            set => this.isTicketMaterialModule = value;
         }
 
         /// <summary>
@@ -2783,15 +2099,9 @@ namespace dMobile.Bedrock
         /// </summary>
         public bool IsTicketByProductModule
         {
-            get
-            {
-                return this.isTicketByProductModule;
-            }
+            get => this.isTicketByProductModule;
 
-            set
-            {
-                this.isTicketByProductModule = value;
-            }
+            set => this.isTicketByProductModule = value;
         }
 
         /// <summary>
@@ -2799,15 +2109,9 @@ namespace dMobile.Bedrock
         /// </summary>
         public bool IsTicketFinishedCatchAskEnabled
         {
-            get
-            {
-                return this.isTicketFinishedCatchAskEnabled;
-            }
+            get => this.isTicketFinishedCatchAskEnabled;
 
-            set
-            {
-                this.isTicketFinishedCatchAskEnabled = value;
-            }
+            set => this.isTicketFinishedCatchAskEnabled = value;
         }
 
         /// <summary>
@@ -2815,15 +2119,9 @@ namespace dMobile.Bedrock
         /// </summary>
         public bool IsTicketMaterialCatchAskEnabled
         {
-            get
-            {
-                return this.isTicketMaterialCatchAskEnabled;
-            }
+            get => this.isTicketMaterialCatchAskEnabled;
 
-            set
-            {
-                this.isTicketMaterialCatchAskEnabled = value;
-            }
+            set => this.isTicketMaterialCatchAskEnabled = value;
         }
 
         /// <summary>
@@ -2831,15 +2129,9 @@ namespace dMobile.Bedrock
         /// </summary>
         public bool IsTicketByProductCatchAskEnabled
         {
-            get
-            {
-                return this.isTicketByProductCatchAskEnabled;
-            }
+            get => this.isTicketByProductCatchAskEnabled;
 
-            set
-            {
-                this.isTicketByProductCatchAskEnabled = value;
-            }
+            set => this.isTicketByProductCatchAskEnabled = value;
         }
 
         /// <summary>
@@ -2847,15 +2139,9 @@ namespace dMobile.Bedrock
         /// </summary>
         public bool AllowAddProduct2TicketFinished
         {
-            get
-            {
-                return this.allowAddProduct2TicketFinishedGood;
-            }
+            get => this.allowAddProduct2TicketFinishedGood;
 
-            set
-            {
-                this.allowAddProduct2TicketFinishedGood = value;
-            }
+            set => this.allowAddProduct2TicketFinishedGood = value;
         }
 
         /// <summary>
@@ -2863,15 +2149,9 @@ namespace dMobile.Bedrock
         /// </summary>
         public bool AllowAddProduct2TicketMaterial
         {
-            get
-            {
-                return this.allowAddProduct2TicketMaterial;
-            }
+            get => this.allowAddProduct2TicketMaterial;
 
-            set
-            {
-                this.allowAddProduct2TicketMaterial = value;
-            }
+            set => this.allowAddProduct2TicketMaterial = value;
         }
 
         /// <summary>
@@ -2879,15 +2159,9 @@ namespace dMobile.Bedrock
         /// </summary>
         public bool AllowAddProduct2TicketByProduct
         {
-            get
-            {
-                return this.allowAddProduct2TicketByProduct;
-            }
+            get => this.allowAddProduct2TicketByProduct;
 
-            set
-            {
-                this.allowAddProduct2TicketByProduct = value;
-            }
+            set => this.allowAddProduct2TicketByProduct = value;
         }
 
         /// <summary>
@@ -2895,15 +2169,9 @@ namespace dMobile.Bedrock
         /// </summary>
         public bool IsTicketMaterialCreateNewItemNoAsk
         {
-            get
-            {
-                return this.isTicketMaterialCreateNewItemNoAsk;
-            }
+            get => this.isTicketMaterialCreateNewItemNoAsk;
 
-            set
-            {
-                this.isTicketMaterialCreateNewItemNoAsk = value;
-            }
+            set => this.isTicketMaterialCreateNewItemNoAsk = value;
         }
 
         /// <summary>
@@ -2911,15 +2179,9 @@ namespace dMobile.Bedrock
         /// </summary>
         public bool IsTicketByProductCreateNewItemNoAsk
         {
-            get
-            {
-                return this.isTicketByProductCreateNewItemNoAsk;
-            }
+            get => this.isTicketByProductCreateNewItemNoAsk;
 
-            set
-            {
-                this.isTicketByProductCreateNewItemNoAsk = value;
-            }
+            set => this.isTicketByProductCreateNewItemNoAsk = value;
         }
 
         /// <summary>
@@ -2927,15 +2189,9 @@ namespace dMobile.Bedrock
         /// </summary>
         public bool IsAdjustmentNoCatchAskZeroEnabled
         {
-            get
-            {
-                return this.isAdjustmentNoCatchAskZeroEnabled;
-            }
+            get => this.isAdjustmentNoCatchAskZeroEnabled;
 
-            set
-            {
-                this.isAdjustmentNoCatchAskZeroEnabled = value;
-            }
+            set => this.isAdjustmentNoCatchAskZeroEnabled = value;
         }
 
         /// <summary>
@@ -2943,15 +2199,9 @@ namespace dMobile.Bedrock
         /// </summary>
         public bool IsInventoryAdjustmentModule
         {
-            get
-            {
-                return this.isInventoryAdjustmentModule;
-            }
+            get => this.isInventoryAdjustmentModule;
 
-            set
-            {
-                this.isInventoryAdjustmentModule = value;
-            }
+            set => this.isInventoryAdjustmentModule = value;
         }
 
         /// <summary>
@@ -2959,15 +2209,9 @@ namespace dMobile.Bedrock
         /// </summary>
         public bool IsAdjustmentCatchAskEnabled
         {
-            get
-            {
-                return this.isAdjustmentModuleCatchAskEnabled;
-            }
+            get => this.isAdjustmentModuleCatchAskEnabled;
 
-            set
-            {
-                this.isAdjustmentModuleCatchAskEnabled = value;
-            }
+            set => this.isAdjustmentModuleCatchAskEnabled = value;
         }
 
         /// <summary>
@@ -2975,15 +2219,9 @@ namespace dMobile.Bedrock
         /// </summary>
         public bool IsAdjustmentsExtraDetailEnabled
         {
-            get
-            {
-                return this.isAdjustmentsExtraDetailEnabled;
-            }
+            get => this.isAdjustmentsExtraDetailEnabled;
 
-            set
-            {
-                this.isAdjustmentsExtraDetailEnabled = value;
-            }
+            set => this.isAdjustmentsExtraDetailEnabled = value;
         }
 
         /// <summary>
@@ -2991,15 +2229,9 @@ namespace dMobile.Bedrock
         /// </summary>
         public bool IsEnabledAdjustmentTypeFresh2Frozen
         {
-            get
-            {
-                return this.isEnabledAdjustmentTypeFresh2Frozen;
-            }
+            get => this.isEnabledAdjustmentTypeFresh2Frozen;
 
-            set
-            {
-                this.isEnabledAdjustmentTypeFresh2Frozen = value;
-            }
+            set => this.isEnabledAdjustmentTypeFresh2Frozen = value;
         }
 
         /// <summary>
@@ -3007,15 +2239,9 @@ namespace dMobile.Bedrock
         /// </summary>
         public bool AllowAddProduct2Adjustments
         {
-            get
-            {
-                return this.allowAddProduct2Adjustments;
-            }
+            get => this.allowAddProduct2Adjustments;
 
-            set
-            {
-                this.allowAddProduct2Adjustments = value;
-            }
+            set => this.allowAddProduct2Adjustments = value;
         }
 
         /// <summary>
@@ -3023,15 +2249,9 @@ namespace dMobile.Bedrock
         /// </summary>
         public bool IsAdjustmentCreateNewItemNoAsk
         {
-            get
-            {
-                return this.isAdjustmentCreateNewItemNoAsk;
-            }
+            get => this.isAdjustmentCreateNewItemNoAsk;
 
-            set
-            {
-                this.isAdjustmentCreateNewItemNoAsk = value;
-            }
+            set => this.isAdjustmentCreateNewItemNoAsk = value;
         }
 
         /// <summary>
@@ -3039,15 +2259,9 @@ namespace dMobile.Bedrock
         /// </summary>
         public bool IsTransferNoCatchAskZeroEnabled
         {
-            get
-            {
-                return this.isTransferNoCatchAskZeroEnabled;
-            }
+            get => this.isTransferNoCatchAskZeroEnabled;
 
-            set
-            {
-                this.isTransferNoCatchAskZeroEnabled = value;
-            }
+            set => this.isTransferNoCatchAskZeroEnabled = value;
         }
 
         /// <summary>
@@ -3055,14 +2269,8 @@ namespace dMobile.Bedrock
         /// </summary>
         public bool CanPrintProductLabelTransfers
         {
-            get
-            {
-                return this.canPrintProductLabelTransfers;
-            }
-            set
-            {
-                this.canPrintProductLabelTransfers = value;
-            }
+            get => this.canPrintProductLabelTransfers;
+            set => this.canPrintProductLabelTransfers = value;
         }
 
         /// <summary>
@@ -3070,15 +2278,9 @@ namespace dMobile.Bedrock
         /// </summary>
         public bool IsTransMod
         {
-            get
-            {
-                return this.isTransMod;
-            }
+            get => this.isTransMod;
 
-            set
-            {
-                this.isTransMod = value;
-            }
+            set => this.isTransMod = value;
         }
 
         /// <summary>
@@ -3086,15 +2288,9 @@ namespace dMobile.Bedrock
         /// </summary>
         public bool IsTransCatchAskEnabled
         {
-            get
-            {
-                return this.isTransCatchAskEnabled;
-            }
+            get => this.isTransCatchAskEnabled;
 
-            set
-            {
-                this.isTransCatchAskEnabled = value;
-            }
+            set => this.isTransCatchAskEnabled = value;
         }
 
         /// <summary>
@@ -3102,15 +2298,9 @@ namespace dMobile.Bedrock
         /// </summary>
         public bool IsTransExtraDetEnabled
         {
-            get
-            {
-                return this.isTransExtraDetEnabled;
-            }
+            get => this.isTransExtraDetEnabled;
 
-            set
-            {
-                this.isTransExtraDetEnabled = value;
-            }
+            set => this.isTransExtraDetEnabled = value;
         }
 
         /// <summary>
@@ -3118,15 +2308,9 @@ namespace dMobile.Bedrock
         /// </summary>
         public bool AllowAddProd2Trans
         {
-            get
-            {
-                return this.allowAddProd2Trans;
-            }
+            get => this.allowAddProd2Trans;
 
-            set
-            {
-                this.allowAddProd2Trans = value;
-            }
+            set => this.allowAddProd2Trans = value;
         }
 
         /// <summary>
@@ -3134,15 +2318,9 @@ namespace dMobile.Bedrock
         /// </summary>
         public bool IsTransCreateNewItemNoAsk
         {
-            get
-            {
-                return this.isTransCreateNewItemNoAsk;
-            }
+            get => this.isTransCreateNewItemNoAsk;
 
-            set
-            {
-                this.isTransCreateNewItemNoAsk = value;
-            }
+            set => this.isTransCreateNewItemNoAsk = value;
         }
 
         // public bool IsTransConfirmFromDet
@@ -3175,15 +2353,9 @@ namespace dMobile.Bedrock
         /// </summary>
         public SysCommon.ActTransfersQtyUnderValLevels TransQtyUnderWarn
         {
-            get
-            {
-                return this.transQtyUnderWarn;
-            }
+            get => this.transQtyUnderWarn;
 
-            set
-            {
-                this.transQtyUnderWarn = value;
-            }
+            set => this.transQtyUnderWarn = value;
         }
 
         /// <summary>
@@ -3191,15 +2363,9 @@ namespace dMobile.Bedrock
         /// </summary>
         public SysCommon.ActTransfersQtyOverValLevels TransQtyOverWarn
         {
-            get
-            {
-                return this.transQtyOverWarn;
-            }
+            get => this.transQtyOverWarn;
 
-            set
-            {
-                this.transQtyOverWarn = value;
-            }
+            set => this.transQtyOverWarn = value;
         }
 
         /// <summary>
@@ -3207,15 +2373,9 @@ namespace dMobile.Bedrock
         /// </summary>
         public bool IsConvertUnitModuleNoCatchAskZeroEnabled
         {
-            get
-            {
-                return this.isConvertUnitModuleNoCatchAskZeroEnabled;
-            }
+            get => this.isConvertUnitModuleNoCatchAskZeroEnabled;
 
-            set
-            {
-                this.isConvertUnitModuleNoCatchAskZeroEnabled = value;
-            }
+            set => this.isConvertUnitModuleNoCatchAskZeroEnabled = value;
         }
 
         /// <summary>
@@ -3223,15 +2383,9 @@ namespace dMobile.Bedrock
         /// </summary>
         public bool IsConvertUnitsModule
         {
-            get
-            {
-                return this.isConvertUnitsModule;
-            }
+            get => this.isConvertUnitsModule;
 
-            set
-            {
-                this.isConvertUnitsModule = value;
-            }
+            set => this.isConvertUnitsModule = value;
         }
 
         /// <summary>
@@ -3239,15 +2393,9 @@ namespace dMobile.Bedrock
         /// </summary>
         public bool IsConvertUnitCatchAskEnabled
         {
-            get
-            {
-                return this.isConvertUnitCatchAskEnabled;
-            }
+            get => this.isConvertUnitCatchAskEnabled;
 
-            set
-            {
-                this.isConvertUnitCatchAskEnabled = value;
-            }
+            set => this.isConvertUnitCatchAskEnabled = value;
         }
 
         /// <summary>
@@ -3255,15 +2403,9 @@ namespace dMobile.Bedrock
         /// </summary>
         public bool IsConvertUnitOnlyShowSell
         {
-            get
-            {
-                return this.isConvertUnitOnlyShowSell;
-            }
+            get => this.isConvertUnitOnlyShowSell;
 
-            set
-            {
-                this.isConvertUnitOnlyShowSell = value;
-            }
+            set => this.isConvertUnitOnlyShowSell = value;
         }
 
         /// <summary>
@@ -3271,15 +2413,9 @@ namespace dMobile.Bedrock
         /// </summary>
         public bool CanPrintProductLabelConvertUnits
         {
-            get
-            {
-                return this.canPrintProductLabelConvertUnits;
-            }
+            get => this.canPrintProductLabelConvertUnits;
 
-            set
-            {
-                this.canPrintProductLabelConvertUnits = value;
-            }
+            set => this.canPrintProductLabelConvertUnits = value;
         }
 
         /// <summary>
@@ -3290,14 +2426,8 @@ namespace dMobile.Bedrock
         /// </summary>
         public bool CanPrintProductLabelConvertProduct
         {
-            get
-            {
-                return this.canPrintProductLabelConvertProduct;
-            }
-            set
-            {
-                this.canPrintProductLabelConvertProduct = value;
-            }
+            get => this.canPrintProductLabelConvertProduct;
+            set => this.canPrintProductLabelConvertProduct = value;
         }
 
         /// <summary>
@@ -3305,15 +2435,9 @@ namespace dMobile.Bedrock
         /// </summary>
         public bool IsMoveInventoryModuleNoCatchAskZeroEnabled
         {
-            get
-            {
-                return this.isMoveInventoryModuleNoCatchAskZeroEnabled;
-            }
+            get => this.isMoveInventoryModuleNoCatchAskZeroEnabled;
 
-            set
-            {
-                this.isMoveInventoryModuleNoCatchAskZeroEnabled = value;
-            }
+            set => this.isMoveInventoryModuleNoCatchAskZeroEnabled = value;
         }
 
         /// <summary>
@@ -3321,15 +2445,9 @@ namespace dMobile.Bedrock
         /// </summary>
         public bool IsMovesModule
         {
-            get
-            {
-                return this.isMovesModule;
-            }
+            get => this.isMovesModule;
 
-            set
-            {
-                this.isMovesModule = value;
-            }
+            set => this.isMovesModule = value;
         }
 
         /// <summary>
@@ -3337,15 +2455,9 @@ namespace dMobile.Bedrock
         /// </summary>
         public bool IsMoveInventoryCatchAskEnabled
         {
-            get
-            {
-                return this.isMoveInventoryCatchAskEnabled;
-            }
+            get => this.isMoveInventoryCatchAskEnabled;
 
-            set
-            {
-                this.isMoveInventoryCatchAskEnabled = value;
-            }
+            set => this.isMoveInventoryCatchAskEnabled = value;
         }
 
         /// <summary>
@@ -3353,15 +2465,9 @@ namespace dMobile.Bedrock
         /// </summary>
         public bool IsSkidTrackingModule
         {
-            get
-            {
-                return this.isSkidTrackingModule;
-            }
+            get => this.isSkidTrackingModule;
 
-            set
-            {
-                this.isSkidTrackingModule = value;
-            }
+            set => this.isSkidTrackingModule = value;
         }
 
         /// <summary>
@@ -3369,15 +2475,9 @@ namespace dMobile.Bedrock
         /// </summary>
         public bool IsAddToSkidModule
         {
-            get
-            {
-                return this.isAddToSkidModule;
-            }
+            get => this.isAddToSkidModule;
 
-            set
-            {
-                this.isAddToSkidModule = value;
-            }
+            set => this.isAddToSkidModule = value;
         }
 
         /// <summary>
@@ -3385,15 +2485,9 @@ namespace dMobile.Bedrock
         /// </summary>
         public bool IsRemoveFromSkidModule
         {
-            get
-            {
-                return this.isRemoveFromSkidModule;
-            }
+            get => this.isRemoveFromSkidModule;
 
-            set
-            {
-                this.isRemoveFromSkidModule = value;
-            }
+            set => this.isRemoveFromSkidModule = value;
         }
 
         /// <summary>
@@ -3401,15 +2495,9 @@ namespace dMobile.Bedrock
         /// </summary>
         public bool IsBreakSkidModule
         {
-            get
-            {
-                return this.isBreakSkidModule;
-            }
+            get => this.isBreakSkidModule;
 
-            set
-            {
-                this.isBreakSkidModule = value;
-            }
+            set => this.isBreakSkidModule = value;
         }
 
         /// <summary>
@@ -3417,15 +2505,9 @@ namespace dMobile.Bedrock
         /// </summary>
         public bool IsCreateSkidModule
         {
-            get
-            {
-                return this.isCreateSkidModule;
-            }
+            get => this.isCreateSkidModule;
 
-            set
-            {
-                this.isCreateSkidModule = value;
-            }
+            set => this.isCreateSkidModule = value;
         }
 
         /// <summary>
@@ -3433,15 +2515,9 @@ namespace dMobile.Bedrock
         /// </summary>
         public bool IsMoveSkidModule
         {
-            get
-            {
-                return this.isMoveSkidModule;
-            }
+            get => this.isMoveSkidModule;
 
-            set
-            {
-                this.isMoveSkidModule = value;
-            }
+            set => this.isMoveSkidModule = value;
         }
 
         /// <summary>
@@ -3449,15 +2525,9 @@ namespace dMobile.Bedrock
         /// </summary>
         public bool IsPutAwayModule
         {
-            get
-            {
-                return this.isPutAwayModule;
-            }
+            get => this.isPutAwayModule;
 
-            set
-            {
-                this.isPutAwayModule = value;
-            }
+            set => this.isPutAwayModule = value;
         }
 
         /// <summary>
@@ -3465,15 +2535,9 @@ namespace dMobile.Bedrock
         /// </summary>
         public bool IsPutAwaySkidCatchAskEnabled
         {
-            get
-            {
-                return this.isPutAwaySkidCatchAskEnabled;
-            }
+            get => this.isPutAwaySkidCatchAskEnabled;
 
-            set
-            {
-                this.isPutAwaySkidCatchAskEnabled = value;
-            }
+            set => this.isPutAwaySkidCatchAskEnabled = value;
         }
 
         /// <summary>
@@ -3481,15 +2545,9 @@ namespace dMobile.Bedrock
         /// </summary>
         public bool IsReplenishmentModule
         {
-            get
-            {
-                return this.isReplenishmentModule;
-            }
+            get => this.isReplenishmentModule;
 
-            set
-            {
-                this.isReplenishmentModule = value;
-            }
+            set => this.isReplenishmentModule = value;
         }
 
         /// <summary>

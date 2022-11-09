@@ -421,15 +421,9 @@ namespace dMobile.Bedrock
         /// </summary>
         public string FilePath
         {
-            get
-            {
-                return this.filePath;
-            }
+            get => this.filePath;
 
-            set
-            {
-                this.filePath = value;
-            }
+            set => this.filePath = value;
         }
 
         /// <summary>
@@ -440,15 +434,9 @@ namespace dMobile.Bedrock
         /// </remarks>
         public string FileASCIIZ
         {
-            get
-            {
-                return this.fileASCIIZ;
-            }
+            get => this.fileASCIIZ;
 
-            set
-            {
-                this.fileASCIIZ = value;
-            }
+            set => this.fileASCIIZ = value;
         }
 
         /// <summary>
@@ -459,15 +447,9 @@ namespace dMobile.Bedrock
         /// </remarks>
         public string FileName
         {
-            get
-            {
-                return this.fileName;
-            }
+            get => this.fileName;
 
-            set
-            {
-                this.fileName = value;
-            }
+            set => this.fileName = value;
         }
 
         /// <summary>
@@ -475,15 +457,9 @@ namespace dMobile.Bedrock
         /// </summary>
         public string FullClassName
         {
-            get
-            {
-                return this.fullClassName;
-            }
+            get => this.fullClassName;
 
-            set
-            {
-                this.fullClassName = value;
-            }
+            set => this.fullClassName = value;
         }
 
         /// <summary>
@@ -491,15 +467,9 @@ namespace dMobile.Bedrock
         /// </summary>
         public bool IsRuleEnabled_Parse_Code_128_AI01_BC_AI30_exclusive
         {
-            get
-            {
-                return this.isRuleEnabled_Parse_Code_128_AI01_BC_AI30_exclusive;
-            }
+            get => this.isRuleEnabled_Parse_Code_128_AI01_BC_AI30_exclusive;
 
-            set
-            {
-                this.isRuleEnabled_Parse_Code_128_AI01_BC_AI30_exclusive = value;
-            }
+            set => this.isRuleEnabled_Parse_Code_128_AI01_BC_AI30_exclusive = value;
         }
 
         /// <summary>
@@ -507,15 +477,9 @@ namespace dMobile.Bedrock
         /// </summary>
         public string RuleDescription_Parse_Code_128_AI01_BC_AI30_exclusive
         {
-            get
-            {
-                return this.ruleDescription_Parse_Code_128_AI01_BC_AI30_exclusive;
-            }
+            get => this.ruleDescription_Parse_Code_128_AI01_BC_AI30_exclusive;
 
-            set
-            {
-                this.ruleDescription_Parse_Code_128_AI01_BC_AI30_exclusive = value;
-            }
+            set => this.ruleDescription_Parse_Code_128_AI01_BC_AI30_exclusive = value;
         }
 
         /// <summary>
@@ -523,15 +487,9 @@ namespace dMobile.Bedrock
         /// </summary>
         public bool IsRuleEnabled_Parse_Code128_China_Seafood
         {
-            get
-            {
-                return this.isRuleEnabled_Parse_Code128_China_Seafood;
-            }
+            get => this.isRuleEnabled_Parse_Code128_China_Seafood;
 
-            set
-            {
-                this.isRuleEnabled_Parse_Code128_China_Seafood = value;
-            }
+            set => this.isRuleEnabled_Parse_Code128_China_Seafood = value;
         }
 
         /// <summary>
@@ -539,15 +497,9 @@ namespace dMobile.Bedrock
         /// </summary>
         public string RuleDescription_Parse_Code128_China_Seafood
         {
-            get
-            {
-                return this.ruleDescription_Parse_Code128_China_Seafood;
-            }
+            get => this.ruleDescription_Parse_Code128_China_Seafood;
 
-            set
-            {
-                this.ruleDescription_Parse_Code128_China_Seafood = value;
-            }
+            set => this.ruleDescription_Parse_Code128_China_Seafood = value;
         }
 
         /// <summary>
@@ -555,15 +507,9 @@ namespace dMobile.Bedrock
         /// </summary>
         public bool IsRuleEnabled_Parse_UCC_12_UPC_E_as_Deli_PLU
         {
-            get
-            {
-                return this.isRuleEnabled_Parse_UCC_12_UPC_E_as_Deli_PLU;
-            }
+            get => this.isRuleEnabled_Parse_UCC_12_UPC_E_as_Deli_PLU;
 
-            set
-            {
-                this.isRuleEnabled_Parse_UCC_12_UPC_E_as_Deli_PLU = value;
-            }
+            set => this.isRuleEnabled_Parse_UCC_12_UPC_E_as_Deli_PLU = value;
         }
 
         /// <summary>
@@ -571,15 +517,9 @@ namespace dMobile.Bedrock
         /// </summary>
         public string RuleDescription_Parse_UCC_12_UPC_E_Deli_PLU_Enabled
         {
-            get
-            {
-                return this.ruleDescription_Parse_UCC_12_UPC_E_Deli_PLU_Enabled;
-            }
+            get => this.ruleDescription_Parse_UCC_12_UPC_E_Deli_PLU_Enabled;
 
-            set
-            {
-                this.ruleDescription_Parse_UCC_12_UPC_E_Deli_PLU_Enabled = value;
-            }
+            set => this.ruleDescription_Parse_UCC_12_UPC_E_Deli_PLU_Enabled = value;
         }
 
         /// <summary>
@@ -587,15 +527,9 @@ namespace dMobile.Bedrock
         /// </summary>
         public bool IsRuleEnabled_Parse_UCC_12_UPC_E_as_Deli_PLU_4_Digit_Amount
         {
-            get
-            {
-                return this.isRuleEnabled_Parse_UCC_12_UPC_E_as_Deli_PLU_4_Digit_Amount;
-            }
+            get => this.isRuleEnabled_Parse_UCC_12_UPC_E_as_Deli_PLU_4_Digit_Amount;
 
-            set
-            {
-                this.isRuleEnabled_Parse_UCC_12_UPC_E_as_Deli_PLU_4_Digit_Amount = value;
-            }
+            set => this.isRuleEnabled_Parse_UCC_12_UPC_E_as_Deli_PLU_4_Digit_Amount = value;
         }
 
         /// <summary>
@@ -603,15 +537,9 @@ namespace dMobile.Bedrock
         /// </summary>
         public string RuleDescription_Parse_UCC_12_UPC_E_as_Deli_PLU_4_Digit_Amount_Enabled
         {
-            get
-            {
-                return this.ruleDescription_Parse_UCC_12_UPC_E_as_Deli_PLU_4_Digit_Amount_Enabled;
-            }
+            get => this.ruleDescription_Parse_UCC_12_UPC_E_as_Deli_PLU_4_Digit_Amount_Enabled;
 
-            set
-            {
-                this.ruleDescription_Parse_UCC_12_UPC_E_as_Deli_PLU_4_Digit_Amount_Enabled = value;
-            }
+            set => this.ruleDescription_Parse_UCC_12_UPC_E_as_Deli_PLU_4_Digit_Amount_Enabled = value;
         }
 
         /// <summary>
@@ -619,15 +547,9 @@ namespace dMobile.Bedrock
         /// </summary>
         public bool IsRuleEnabled_ProductBarCodeMinimumLengthRequirement4Digits
         {
-            get
-            {
-                return this.isRuleEnabled_ProductBarCodeMinimumLengthRequirement4Digits;
-            }
+            get => this.isRuleEnabled_ProductBarCodeMinimumLengthRequirement4Digits;
 
-            set
-            {
-                this.isRuleEnabled_ProductBarCodeMinimumLengthRequirement4Digits = value;
-            }
+            set => this.isRuleEnabled_ProductBarCodeMinimumLengthRequirement4Digits = value;
         }
 
         /// <summary>
@@ -636,15 +558,9 @@ namespace dMobile.Bedrock
         /// </summary>
         public string RuleDescription_ProductBarCodeMinimumLengthRequirement4Digits
         {
-            get
-            {
-                return this.ruleDescription_ProductBarCodeMinimumLengthRequirement4Digits;
-            }
+            get => this.ruleDescription_ProductBarCodeMinimumLengthRequirement4Digits;
 
-            set
-            {
-                this.ruleDescription_ProductBarCodeMinimumLengthRequirement4Digits = value;
-            }
+            set => this.ruleDescription_ProductBarCodeMinimumLengthRequirement4Digits = value;
         }
 
         /// <summary>
@@ -652,15 +568,9 @@ namespace dMobile.Bedrock
         /// </summary>
         public bool IsRuleEnabled_Parse_Code_128_AI01_Nossack_AI21_SkidNumber_BoxCount
         {
-            get
-            {
-                return this.ruleEnabled_Parse_Code_128_AI01_Nossack_AI21_SkidNumber_BoxCount;
-            }
+            get => this.ruleEnabled_Parse_Code_128_AI01_Nossack_AI21_SkidNumber_BoxCount;
 
-            set
-            {
-                this.ruleEnabled_Parse_Code_128_AI01_Nossack_AI21_SkidNumber_BoxCount = value;
-            }
+            set => this.ruleEnabled_Parse_Code_128_AI01_Nossack_AI21_SkidNumber_BoxCount = value;
         }
 
         /// <summary>
@@ -669,15 +579,9 @@ namespace dMobile.Bedrock
         /// </summary>
         public string RuleDescription_Parse_Code_128_AI01_Nossack_AI21_SkidNumber_BoxCount
         {
-            get
-            {
-                return this.ruleDescription_Parse_Code_128_AI01_Nossack_AI21_SkidNumber_BoxCount;
-            }
+            get => this.ruleDescription_Parse_Code_128_AI01_Nossack_AI21_SkidNumber_BoxCount;
 
-            set
-            {
-                this.ruleDescription_Parse_Code_128_AI01_Nossack_AI21_SkidNumber_BoxCount = value;
-            }
+            set => this.ruleDescription_Parse_Code_128_AI01_Nossack_AI21_SkidNumber_BoxCount = value;
         }
 
         /// <summary>
@@ -686,15 +590,9 @@ namespace dMobile.Bedrock
         /// </summary>
         public bool IsRuleEnabled_Recognize_Code_128_AI17_ExpiryDate_As_AI15_BestBeforeDate
         {
-            get
-            {
-                return this.ruleEnabled_Recognize_Code_128_AI17_ExpiryDate_As_AI15_BestBeforeDate;
-            }
+            get => this.ruleEnabled_Recognize_Code_128_AI17_ExpiryDate_As_AI15_BestBeforeDate;
 
-            set
-            {
-                this.ruleEnabled_Recognize_Code_128_AI17_ExpiryDate_As_AI15_BestBeforeDate = value;
-            }
+            set => this.ruleEnabled_Recognize_Code_128_AI17_ExpiryDate_As_AI15_BestBeforeDate = value;
         }
 
         /// <summary>
@@ -703,15 +601,9 @@ namespace dMobile.Bedrock
         /// </summary>
         public string RuleDescription_Recognize_Code_128_AI17_ExpiryDate_As_AI15_BestBeforeDate
         {
-            get
-            {
-                return this.ruleDescription_Recognize_Code_128_AI17_ExpiryDate_As_AI15_BestBeforeDate;
-            }
+            get => this.ruleDescription_Recognize_Code_128_AI17_ExpiryDate_As_AI15_BestBeforeDate;
 
-            set
-            {
-                this.ruleDescription_Recognize_Code_128_AI17_ExpiryDate_As_AI15_BestBeforeDate = value;
-            }
+            set => this.ruleDescription_Recognize_Code_128_AI17_ExpiryDate_As_AI15_BestBeforeDate = value;
         }
 
         /// <summary>
@@ -720,15 +612,9 @@ namespace dMobile.Bedrock
         /// </summary>
         public bool IsRuleEnabled_Recognize_Code_128_AI13_PackagingDate_As_AI11_ProductionDate
         {
-            get
-            {
-                return this.isRuleEnabled_Recognize_Code_128_AI13_PackagingDate_As_AI11_ProductionDate;
-            }
+            get => this.isRuleEnabled_Recognize_Code_128_AI13_PackagingDate_As_AI11_ProductionDate;
 
-            set
-            {
-                this.isRuleEnabled_Recognize_Code_128_AI13_PackagingDate_As_AI11_ProductionDate = value;
-            }
+            set => this.isRuleEnabled_Recognize_Code_128_AI13_PackagingDate_As_AI11_ProductionDate = value;
         }
 
         /// <summary>
@@ -737,15 +623,9 @@ namespace dMobile.Bedrock
         /// </summary>
         public string RuleDescription_Recognize_Code_128_AI13_PackagingDate_As_AI11_ProductionDate
         {
-            get
-            {
-                return this.ruleDescription_Recognize_Code_128_AI13_PackagingDate_As_AI11_ProductionDate;
-            }
+            get => this.ruleDescription_Recognize_Code_128_AI13_PackagingDate_As_AI11_ProductionDate;
 
-            set
-            {
-                this.ruleDescription_Recognize_Code_128_AI13_PackagingDate_As_AI11_ProductionDate = value;
-            }
+            set => this.ruleDescription_Recognize_Code_128_AI13_PackagingDate_As_AI11_ProductionDate = value;
         }
 
         /// <summary>
@@ -753,15 +633,9 @@ namespace dMobile.Bedrock
         /// </summary>
         public bool IsRuleEnabled_ParseWOOLWICH_Code_128_RemoveSpaces
         {
-            get
-            {
-                return this.isRuleEnabled_ParseWOOLWICH_Code_128_RemoveSpaces;
-            }
+            get => this.isRuleEnabled_ParseWOOLWICH_Code_128_RemoveSpaces;
 
-            set
-            {
-                this.isRuleEnabled_ParseWOOLWICH_Code_128_RemoveSpaces = value;
-            }
+            set => this.isRuleEnabled_ParseWOOLWICH_Code_128_RemoveSpaces = value;
         }
 
         /// <summary>
@@ -769,15 +643,9 @@ namespace dMobile.Bedrock
         /// </summary>
         public string RuleDescription_ParseWOOLWICH_Code_128_RemoveSpaces
         {
-            get
-            {
-                return this.ruleDescription_ParseWOOLWICH_Code_128_RemoveSpaces;
-            }
+            get => this.ruleDescription_ParseWOOLWICH_Code_128_RemoveSpaces;
 
-            set
-            {
-                this.ruleDescription_ParseWOOLWICH_Code_128_RemoveSpaces = value;
-            }
+            set => this.ruleDescription_ParseWOOLWICH_Code_128_RemoveSpaces = value;
         }
 
         /// <summary>
@@ -785,15 +653,9 @@ namespace dMobile.Bedrock
         /// </summary>
         public bool IsRuleEnabled_ParseCode_128AsUCC_EAN_128_SymbolCompliant
         {
-            get
-            {
-                return this.isRuleEnabled_ParseCode_128AsUCC_EAN_128_SymbolCompliant;
-            }
+            get => this.isRuleEnabled_ParseCode_128AsUCC_EAN_128_SymbolCompliant;
 
-            set
-            {
-                this.isRuleEnabled_ParseCode_128AsUCC_EAN_128_SymbolCompliant = value;
-            }
+            set => this.isRuleEnabled_ParseCode_128AsUCC_EAN_128_SymbolCompliant = value;
         }
 
         /// <summary>
@@ -802,15 +664,9 @@ namespace dMobile.Bedrock
         /// </summary>
         public string RuleDescription_ParseCode_128AsUCC_EAN_128_SymbolCompliant
         {
-            get
-            {
-                return this.ruleDescription_ParseCode_128AsUCC_EAN_128_SymbolCompliant;
-            }
+            get => this.ruleDescription_ParseCode_128AsUCC_EAN_128_SymbolCompliant;
 
-            set
-            {
-                this.ruleDescription_ParseCode_128AsUCC_EAN_128_SymbolCompliant = value;
-            }
+            set => this.ruleDescription_ParseCode_128AsUCC_EAN_128_SymbolCompliant = value;
         }
 
         /// <summary>
@@ -818,15 +674,9 @@ namespace dMobile.Bedrock
         /// </summary>
         public bool IsRuleEnabled_ParseFINICA_Code_128_as_EAN_UCC_128
         {
-            get
-            {
-                return this.isRuleEnabled_ParseFINICA_Code_128_as_EAN_UCC_128;
-            }
+            get => this.isRuleEnabled_ParseFINICA_Code_128_as_EAN_UCC_128;
 
-            set
-            {
-                this.isRuleEnabled_ParseFINICA_Code_128_as_EAN_UCC_128 = value;
-            }
+            set => this.isRuleEnabled_ParseFINICA_Code_128_as_EAN_UCC_128 = value;
         }
 
         /// <summary>
@@ -834,15 +684,9 @@ namespace dMobile.Bedrock
         /// </summary>
         public string RuleDescription_ParseFINICA_Code_128_as_EAN_UCC_128
         {
-            get
-            {
-                return this.ruleDescription_ParseFINICA_Code_128_as_EAN_UCC_128;
-            }
+            get => this.ruleDescription_ParseFINICA_Code_128_as_EAN_UCC_128;
 
-            set
-            {
-                this.ruleDescription_ParseFINICA_Code_128_as_EAN_UCC_128 = value;
-            }
+            set => this.ruleDescription_ParseFINICA_Code_128_as_EAN_UCC_128 = value;
         }
 
         /// <summary>
@@ -850,15 +694,9 @@ namespace dMobile.Bedrock
         /// </summary>
         public bool IsRuleEnabled_NoCheckDigitInGlobalLocationNumber
         {
-            get
-            {
-                return this.isRuleEnabled_NoCheckDigitInGlobalLocationNumber;
-            }
+            get => this.isRuleEnabled_NoCheckDigitInGlobalLocationNumber;
 
-            set
-            {
-                this.isRuleEnabled_NoCheckDigitInGlobalLocationNumber = value;
-            }
+            set => this.isRuleEnabled_NoCheckDigitInGlobalLocationNumber = value;
         }
 
         /// <summary>
@@ -866,15 +704,9 @@ namespace dMobile.Bedrock
         /// </summary>
         public string RuleDescription_NoCheckDigitInGlobalLocationNumber
         {
-            get
-            {
-                return this.ruleDescription_NoCheckDigitInGlobalLocationNumber;
-            }
+            get => this.ruleDescription_NoCheckDigitInGlobalLocationNumber;
 
-            set
-            {
-                this.ruleDescription_NoCheckDigitInGlobalLocationNumber = value;
-            }
+            set => this.ruleDescription_NoCheckDigitInGlobalLocationNumber = value;
         }
 
         /// <summary>
@@ -882,15 +714,9 @@ namespace dMobile.Bedrock
         /// </summary>
         public bool IsRuleEnabled_NoZeroPaddingOfProductIdentifierForUCC_EAN_Family
         {
-            get
-            {
-                return this.isRuleEnabled_NoZeroPaddingOfProductIdentifierForUCC_EAN_Family;
-            }
+            get => this.isRuleEnabled_NoZeroPaddingOfProductIdentifierForUCC_EAN_Family;
 
-            set
-            {
-                this.isRuleEnabled_NoZeroPaddingOfProductIdentifierForUCC_EAN_Family = value;
-            }
+            set => this.isRuleEnabled_NoZeroPaddingOfProductIdentifierForUCC_EAN_Family = value;
         }
 
         /// <summary>
@@ -899,15 +725,9 @@ namespace dMobile.Bedrock
         /// </summary>
         public string RuleDescription_NoZeroPaddingOfProductIdentifierForUCC_EAN_Family
         {
-            get
-            {
-                return this.ruleDescription_NoZeroPaddingOfProductIdentifierForUCC_EAN_Family;
-            }
+            get => this.ruleDescription_NoZeroPaddingOfProductIdentifierForUCC_EAN_Family;
 
-            set
-            {
-                this.ruleDescription_NoZeroPaddingOfProductIdentifierForUCC_EAN_Family = value;
-            }
+            set => this.ruleDescription_NoZeroPaddingOfProductIdentifierForUCC_EAN_Family = value;
         }
 
         /// <summary>
@@ -915,15 +735,9 @@ namespace dMobile.Bedrock
         /// </summary>
         public bool IsRuleEnabled_Parse_Code128_OvationFielding_Lamb
         {
-            get
-            {
-                return this.isRuleEnabled_Parse_Code128_OvationFielding_Lamb;
-            }
+            get => this.isRuleEnabled_Parse_Code128_OvationFielding_Lamb;
 
-            set
-            {
-                this.isRuleEnabled_Parse_Code128_OvationFielding_Lamb = value;
-            }
+            set => this.isRuleEnabled_Parse_Code128_OvationFielding_Lamb = value;
         }
 
         /// <summary>
@@ -931,15 +745,9 @@ namespace dMobile.Bedrock
         /// </summary>
         public string RuleDescription_Parse_Code128_OvationFielding_Lamb
         {
-            get
-            {
-                return this.ruleDescription_Parse_Code128_OvationFielding_Lamb;
-            }
+            get => this.ruleDescription_Parse_Code128_OvationFielding_Lamb;
 
-            set
-            {
-                this.ruleDescription_Parse_Code128_OvationFielding_Lamb = value;
-            }
+            set => this.ruleDescription_Parse_Code128_OvationFielding_Lamb = value;
         }
 
         /// <summary>
@@ -947,15 +755,9 @@ namespace dMobile.Bedrock
         /// </summary>
         public bool IsRuleEnabled_Parse_Renees_Code_128_RemoveSpaces
         {
-            get
-            {
-                return this.isRuleEnabled_Parse_Renees_Code_128_RemoveSpaces;
-            }
+            get => this.isRuleEnabled_Parse_Renees_Code_128_RemoveSpaces;
 
-            set
-            {
-                this.isRuleEnabled_Parse_Renees_Code_128_RemoveSpaces = value;
-            }
+            set => this.isRuleEnabled_Parse_Renees_Code_128_RemoveSpaces = value;
         }
 
         /// <summary>
@@ -963,15 +765,9 @@ namespace dMobile.Bedrock
         /// </summary>
         public string RuleDescription_Parse_Renees_Code_128_RemoveSpaces
         {
-            get
-            {
-                return this.ruleDescription_Parse_Renees_Code_128_RemoveSpaces;
-            }
+            get => this.ruleDescription_Parse_Renees_Code_128_RemoveSpaces;
 
-            set
-            {
-                this.ruleDescription_Parse_Renees_Code_128_RemoveSpaces = value;
-            }
+            set => this.ruleDescription_Parse_Renees_Code_128_RemoveSpaces = value;
         }
 
         /// <summary>
@@ -979,15 +775,9 @@ namespace dMobile.Bedrock
         /// </summary>
         public bool IsRuleEnabled_Parse_LanzMeats_Code_128_AI10_as_AI21
         {
-            get
-            {
-                return this.isRuleEnabled_ParseLanzMeats_Code_128_AI10_as_AI21;
-            }
+            get => this.isRuleEnabled_ParseLanzMeats_Code_128_AI10_as_AI21;
 
-            set
-            {
-                this.isRuleEnabled_ParseLanzMeats_Code_128_AI10_as_AI21 = value;
-            }
+            set => this.isRuleEnabled_ParseLanzMeats_Code_128_AI10_as_AI21 = value;
         }
 
         /// <summary>
@@ -995,15 +785,9 @@ namespace dMobile.Bedrock
         /// </summary>
         public string RuleDescription_Parse_LanzMeats_Code_128_AI10_as_AI21
         {
-            get
-            {
-                return this.ruleDescription_ParseLanzMeats_Code_128_AI10_as_AI21;
-            }
+            get => this.ruleDescription_ParseLanzMeats_Code_128_AI10_as_AI21;
 
-            set
-            {
-                this.ruleDescription_ParseLanzMeats_Code_128_AI10_as_AI21 = value;
-            }
+            set => this.ruleDescription_ParseLanzMeats_Code_128_AI10_as_AI21 = value;
         }
 
         /// <summary>
@@ -1012,15 +796,9 @@ namespace dMobile.Bedrock
         /// </summary>
         public bool IsRuleEnabled_HeritageGlobalLocationIdentifierSecondPassIgnoreCheckDigit
         {
-            get
-            {
-                return this.isRuleEnabled_HeritageGlobalLocationIdentifierSecondPassIgnoreCheckDigit;
-            }
+            get => this.isRuleEnabled_HeritageGlobalLocationIdentifierSecondPassIgnoreCheckDigit;
 
-            set
-            {
-                this.isRuleEnabled_HeritageGlobalLocationIdentifierSecondPassIgnoreCheckDigit = value;
-            }
+            set => this.isRuleEnabled_HeritageGlobalLocationIdentifierSecondPassIgnoreCheckDigit = value;
         }
 
         /// <summary>
@@ -1028,15 +806,9 @@ namespace dMobile.Bedrock
         /// </summary>
         public string RuleDescription_HeritageGlobalLocationIdentifierSecondPassIgnoreCheckDigit
         {
-            get
-            {
-                return this.ruleDescription_HeritageGlobalLocationIdentifierSecondPassIgnoreCheckDigit;
-            }
+            get => this.ruleDescription_HeritageGlobalLocationIdentifierSecondPassIgnoreCheckDigit;
 
-            set
-            {
-                this.ruleDescription_HeritageGlobalLocationIdentifierSecondPassIgnoreCheckDigit = value;
-            }
+            set => this.ruleDescription_HeritageGlobalLocationIdentifierSecondPassIgnoreCheckDigit = value;
         }
 
         /// <summary>
@@ -1045,15 +817,9 @@ namespace dMobile.Bedrock
         /// </summary>
         public bool IsRuleEnabled_ParseNossackBrokerMultiNationalProductFromChili
         {
-            get
-            {
-                return this.isRuleEnabled_ParseNossackBrokerMultiNationalProductFromChili;
-            }
+            get => this.isRuleEnabled_ParseNossackBrokerMultiNationalProductFromChili;
 
-            set
-            {
-                this.isRuleEnabled_ParseNossackBrokerMultiNationalProductFromChili = value;
-            }
+            set => this.isRuleEnabled_ParseNossackBrokerMultiNationalProductFromChili = value;
         }
 
         /// <summary>
@@ -1061,15 +827,9 @@ namespace dMobile.Bedrock
         /// </summary>
         public string RuleDescription_ParseNossackBrokerMultiNationalProductFromChili
         {
-            get
-            {
-                return this.ruleDescription_ParseNossackBrokerMultiNationalProductFromChili;
-            }
+            get => this.ruleDescription_ParseNossackBrokerMultiNationalProductFromChili;
 
-            set
-            {
-                this.ruleDescription_ParseNossackBrokerMultiNationalProductFromChili = value;
-            }
+            set => this.ruleDescription_ParseNossackBrokerMultiNationalProductFromChili = value;
         }
 
         /// <summary>
@@ -1077,15 +837,9 @@ namespace dMobile.Bedrock
         /// </summary>
         public bool IsRuleEnabled_ParseEAN_UCC128_Nossack_GreenleaPremierMeats
         {
-            get
-            {
-                return this.isRuleEnabled_ParseEAN_UCC128_Nossack_GreenleaPremierMeats;
-            }
+            get => this.isRuleEnabled_ParseEAN_UCC128_Nossack_GreenleaPremierMeats;
 
-            set
-            {
-                this.isRuleEnabled_ParseEAN_UCC128_Nossack_GreenleaPremierMeats = value;
-            }
+            set => this.isRuleEnabled_ParseEAN_UCC128_Nossack_GreenleaPremierMeats = value;
         }
 
         /// <summary>
@@ -1093,15 +847,9 @@ namespace dMobile.Bedrock
         /// </summary>
         public string RuleDescription_ParseEAN_UCC128_Nossack_GreenleaPremierMeats
         {
-            get
-            {
-                return this.ruleDescription_ParseEAN_UCC128_Nossack_GreenleaPremierMeats;
-            }
+            get => this.ruleDescription_ParseEAN_UCC128_Nossack_GreenleaPremierMeats;
 
-            set
-            {
-                this.ruleDescription_ParseEAN_UCC128_Nossack_GreenleaPremierMeats = value;
-            }
+            set => this.ruleDescription_ParseEAN_UCC128_Nossack_GreenleaPremierMeats = value;
         }
 
         /// <summary>
@@ -1109,15 +857,9 @@ namespace dMobile.Bedrock
         /// </summary>
         public bool IsRuleEnabled_Parse_UCC_13_as_UPC_12_UPC_E
         {
-            get
-            {
-                return this.isRuleEnabled_Parse_UCC_13_as_UPC_12_UPC_E;
-            }
+            get => this.isRuleEnabled_Parse_UCC_13_as_UPC_12_UPC_E;
 
-            set
-            {
-                this.isRuleEnabled_Parse_UCC_13_as_UPC_12_UPC_E = value;
-            }
+            set => this.isRuleEnabled_Parse_UCC_13_as_UPC_12_UPC_E = value;
         }
 
         /// <summary>
@@ -1125,15 +867,9 @@ namespace dMobile.Bedrock
         /// </summary>
         public string RuleDescription_Parse_UCC_13_as_UPC_12_UPC_E_Enabled
         {
-            get
-            {
-                return this.ruleDescription_Parse_UCC_13_as_UPC_12_UPC_E_Enabled;
-            }
+            get => this.ruleDescription_Parse_UCC_13_as_UPC_12_UPC_E_Enabled;
 
-            set
-            {
-                this.ruleDescription_Parse_UCC_13_as_UPC_12_UPC_E_Enabled = value;
-            }
+            set => this.ruleDescription_Parse_UCC_13_as_UPC_12_UPC_E_Enabled = value;
         }
 
         /// <summary>
@@ -1141,15 +877,9 @@ namespace dMobile.Bedrock
         /// </summary>
         public bool IsRuleEnabled_Parse_HelaSpiceCanada_Code_128
         {
-            get
-            {
-                return this.isRuleEnabled_Parse_HelaSpiceCanada_Code_128;
-            }
+            get => this.isRuleEnabled_Parse_HelaSpiceCanada_Code_128;
 
-            set
-            {
-                this.isRuleEnabled_Parse_HelaSpiceCanada_Code_128 = value;
-            }
+            set => this.isRuleEnabled_Parse_HelaSpiceCanada_Code_128 = value;
         }
 
         /// <summary>
@@ -1157,15 +887,9 @@ namespace dMobile.Bedrock
         /// </summary>
         public string RuleDescription_Parse_HelaSpiceCanada_Code_128
         {
-            get
-            {
-                return this.ruleDescription_Parse_HelaSpiceCanada_Code_128;
-            }
+            get => this.ruleDescription_Parse_HelaSpiceCanada_Code_128;
 
-            set
-            {
-                this.ruleDescription_Parse_HelaSpiceCanada_Code_128 = value;
-            }
+            set => this.ruleDescription_Parse_HelaSpiceCanada_Code_128 = value;
         }
 
         /// <summary>
@@ -1173,15 +897,9 @@ namespace dMobile.Bedrock
         /// </summary>
         public bool IsRuleEnabled_NebraskaBeef_Parse_Lot_as_Serial_Code_128
         {
-            get
-            {
-                return this.isRuleEnabled_NebraskaBeef_Parse_Lot_as_Serial_Code_128;
-            }
+            get => this.isRuleEnabled_NebraskaBeef_Parse_Lot_as_Serial_Code_128;
 
-            set
-            {
-                this.isRuleEnabled_NebraskaBeef_Parse_Lot_as_Serial_Code_128 = value;
-            }
+            set => this.isRuleEnabled_NebraskaBeef_Parse_Lot_as_Serial_Code_128 = value;
         }
 
         /// <summary>
@@ -1189,15 +907,9 @@ namespace dMobile.Bedrock
         /// </summary>
         public string RuleDescription_NebraskaBeef_Parse_Lot_as_Serial_Code_128
         {
-            get
-            {
-                return this.ruleDescription_NebraskaBeef_Parse_Lot_as_Serial_Code_128;
-            }
+            get => this.ruleDescription_NebraskaBeef_Parse_Lot_as_Serial_Code_128;
 
-            set
-            {
-                this.ruleDescription_NebraskaBeef_Parse_Lot_as_Serial_Code_128 = value;
-            }
+            set => this.ruleDescription_NebraskaBeef_Parse_Lot_as_Serial_Code_128 = value;
         }
 
         /// <summary>
@@ -1205,15 +917,9 @@ namespace dMobile.Bedrock
         /// </summary>
         public bool IsRuleEnabled_ParseNorthernCoop_AustraliaBeefTrim_Product25612
         {
-            get
-            {
-                return this.isRuleEnabled_ParseNorthernCoop_AustraliaBeefTrim_Product25612;
-            }
+            get => this.isRuleEnabled_ParseNorthernCoop_AustraliaBeefTrim_Product25612;
 
-            set
-            {
-                this.isRuleEnabled_ParseNorthernCoop_AustraliaBeefTrim_Product25612 = value;
-            }
+            set => this.isRuleEnabled_ParseNorthernCoop_AustraliaBeefTrim_Product25612 = value;
         }
 
         /// <summary>
@@ -1221,15 +927,9 @@ namespace dMobile.Bedrock
         /// </summary>
         public string RuleDescription_ParseNorthernCoop_AustraliaBeefTrim_Product25612
         {
-            get
-            {
-                return this.ruleDescription_ParseNorthernCoop_AustraliaBeefTrim_Product25612;
-            }
+            get => this.ruleDescription_ParseNorthernCoop_AustraliaBeefTrim_Product25612;
 
-            set
-            {
-                this.ruleDescription_ParseNorthernCoop_AustraliaBeefTrim_Product25612 = value;
-            }
+            set => this.ruleDescription_ParseNorthernCoop_AustraliaBeefTrim_Product25612 = value;
         }
 
         /// <summary>
@@ -1237,15 +937,9 @@ namespace dMobile.Bedrock
         /// </summary>
         public bool IsRuleEnabled_ParseSumwaFarmFedWholeDuck_UseWeightRangeToIDProduct
         {
-            get
-            {
-                return this.isRuleEnabled_ParseSumwaFarmFedWholeDuck_UseWeightRangeToIDProduct;
-            }
+            get => this.isRuleEnabled_ParseSumwaFarmFedWholeDuck_UseWeightRangeToIDProduct;
 
-            set
-            {
-                this.isRuleEnabled_ParseSumwaFarmFedWholeDuck_UseWeightRangeToIDProduct = value;
-            }
+            set => this.isRuleEnabled_ParseSumwaFarmFedWholeDuck_UseWeightRangeToIDProduct = value;
         }
 
         /// <summary>
@@ -1253,15 +947,9 @@ namespace dMobile.Bedrock
         /// </summary>
         public string RuleDescription_ParseSumwaFarmFedWholeDuck_UseWeightRangeToIDProduct
         {
-            get
-            {
-                return this.ruleDescription_ParseSumwaFarmFedWholeDuck_UseWeightRangeToIDProduct;
-            }
+            get => this.ruleDescription_ParseSumwaFarmFedWholeDuck_UseWeightRangeToIDProduct;
 
-            set
-            {
-                this.ruleDescription_ParseSumwaFarmFedWholeDuck_UseWeightRangeToIDProduct = value;
-            }
+            set => this.ruleDescription_ParseSumwaFarmFedWholeDuck_UseWeightRangeToIDProduct = value;
         }
 
         /// <summary>
@@ -1269,15 +957,9 @@ namespace dMobile.Bedrock
         /// </summary>
         public bool IsRuleEnabled_ParseEAN_UCC128_NossackProduct94600_ChileanBackRibs
         {
-            get
-            {
-                return this.isRuleEnabled_ParseEAN_UCC128_NossackProduct94600_ChileanBackRibs;
-            }
+            get => this.isRuleEnabled_ParseEAN_UCC128_NossackProduct94600_ChileanBackRibs;
 
-            set
-            {
-                this.isRuleEnabled_ParseEAN_UCC128_NossackProduct94600_ChileanBackRibs = value;
-            }
+            set => this.isRuleEnabled_ParseEAN_UCC128_NossackProduct94600_ChileanBackRibs = value;
         }
 
         /// <summary>
@@ -1285,15 +967,9 @@ namespace dMobile.Bedrock
         /// </summary>
         public string RuleDescription_ParseEAN_UCC128_NossackProduct94600_ChileanBackRibs
         {
-            get
-            {
-                return this.ruleDescription_ParseEAN_UCC128_NossackProduct94600_ChileanBackRibs;
-            }
+            get => this.ruleDescription_ParseEAN_UCC128_NossackProduct94600_ChileanBackRibs;
 
-            set
-            {
-                this.ruleDescription_ParseEAN_UCC128_NossackProduct94600_ChileanBackRibs = value;
-            }
+            set => this.ruleDescription_ParseEAN_UCC128_NossackProduct94600_ChileanBackRibs = value;
         }
 
         /// <summary>
@@ -1301,15 +977,9 @@ namespace dMobile.Bedrock
         /// </summary>
         public bool IsRuleEnabled_ParseEAN_UCC128_Dovre_KiiNaturalsCrisps
         {
-            get
-            {
-                return this.isRuleEnabled_ParseEAN_UCC128_Dovre_KiiNaturalsCrisps;
-            }
+            get => this.isRuleEnabled_ParseEAN_UCC128_Dovre_KiiNaturalsCrisps;
 
-            set
-            {
-                this.isRuleEnabled_ParseEAN_UCC128_Dovre_KiiNaturalsCrisps = value;
-            }
+            set => this.isRuleEnabled_ParseEAN_UCC128_Dovre_KiiNaturalsCrisps = value;
         }
 
         /// <summary>
@@ -1317,15 +987,9 @@ namespace dMobile.Bedrock
         /// </summary>
         public string RuleDescription_ParseEAN_UCC128_Dovre_KiiNaturalsCrisps
         {
-            get
-            {
-                return this.ruleDescription_ParseEAN_UCC128_Dovre_KiiNaturalsCrisps;
-            }
+            get => this.ruleDescription_ParseEAN_UCC128_Dovre_KiiNaturalsCrisps;
 
-            set
-            {
-                this.ruleDescription_ParseEAN_UCC128_Dovre_KiiNaturalsCrisps = value;
-            }
+            set => this.ruleDescription_ParseEAN_UCC128_Dovre_KiiNaturalsCrisps = value;
         }
 
         /// <summary>
@@ -1333,15 +997,9 @@ namespace dMobile.Bedrock
         /// </summary>
         public bool IsRuleEnabled_ParseEAN_UCC128_NossackProduct51134_FrozenPorkCollarRemoveAI00
         {
-            get
-            {
-                return this.isRuleEnabled_ParseEAN_UCC128_NossackProduct51134_FrozenPorkCollarRemoveAI00;
-            }
+            get => this.isRuleEnabled_ParseEAN_UCC128_NossackProduct51134_FrozenPorkCollarRemoveAI00;
 
-            set
-            {
-                this.isRuleEnabled_ParseEAN_UCC128_NossackProduct51134_FrozenPorkCollarRemoveAI00 = value;
-            }
+            set => this.isRuleEnabled_ParseEAN_UCC128_NossackProduct51134_FrozenPorkCollarRemoveAI00 = value;
         }
 
         /// <summary>
@@ -1350,15 +1008,9 @@ namespace dMobile.Bedrock
         /// </summary>
         public string RuleDescription_ParseEAN_UCC128_NossackProduct51134_FrozenPorkCollarRemoveAI00
         {
-            get
-            {
-                return this.ruleDescription_ParseEAN_UCC128_NossackProduct51134_FrozenPorkCollarRemoveAI00;
-            }
+            get => this.ruleDescription_ParseEAN_UCC128_NossackProduct51134_FrozenPorkCollarRemoveAI00;
 
-            set
-            {
-                this.ruleDescription_ParseEAN_UCC128_NossackProduct51134_FrozenPorkCollarRemoveAI00 = value;
-            }
+            set => this.ruleDescription_ParseEAN_UCC128_NossackProduct51134_FrozenPorkCollarRemoveAI00 = value;
         }
 
         /// <summary>
@@ -1368,15 +1020,9 @@ namespace dMobile.Bedrock
         /// </summary>
         public bool IsRuleEnabled_ParseEAN_UCC128_SuppressAllParseErrorsForNonTrackedComponents
         {
-            get
-            {
-                return this.isRuleEnabled_ParseEAN_UCC128_SuppressAllParseErrorsForNonTrackedComponents;
-            }
+            get => this.isRuleEnabled_ParseEAN_UCC128_SuppressAllParseErrorsForNonTrackedComponents;
 
-            set
-            {
-                this.isRuleEnabled_ParseEAN_UCC128_SuppressAllParseErrorsForNonTrackedComponents = value;
-            }
+            set => this.isRuleEnabled_ParseEAN_UCC128_SuppressAllParseErrorsForNonTrackedComponents = value;
         }
 
         /// <summary>
@@ -1386,15 +1032,9 @@ namespace dMobile.Bedrock
         /// </summary>
         public string RuleDescription_ParseEAN_UCC128_SuppressAllParseErrorsForNonTrackedComponents
         {
-            get
-            {
-                return this.ruleDescription_ParseEAN_UCC128_SuppressAllParseErrorsForNonTrackedComponents;
-            }
+            get => this.ruleDescription_ParseEAN_UCC128_SuppressAllParseErrorsForNonTrackedComponents;
 
-            set
-            {
-                this.ruleDescription_ParseEAN_UCC128_SuppressAllParseErrorsForNonTrackedComponents = value;
-            }
+            set => this.ruleDescription_ParseEAN_UCC128_SuppressAllParseErrorsForNonTrackedComponents = value;
         }
 
         /// <summary>
@@ -1402,15 +1042,9 @@ namespace dMobile.Bedrock
         /// </summary>
         public bool IsRuleEnabled_Parse_Code128_CleanSubstituteCharacter
         {
-            get
-            {
-                return this.isRuleEnabled_Parse_Code128_CleanSubstituteCharacter;
-            }
+            get => this.isRuleEnabled_Parse_Code128_CleanSubstituteCharacter;
 
-            set
-            {
-                this.isRuleEnabled_Parse_Code128_CleanSubstituteCharacter = value;
-            }
+            set => this.isRuleEnabled_Parse_Code128_CleanSubstituteCharacter = value;
         }
 
         /// <summary>
@@ -1418,15 +1052,9 @@ namespace dMobile.Bedrock
         /// </summary>
         public string RuleDescription_Parse_Code128_CleanSubstituteCharacter
         {
-            get
-            {
-                return this.ruleDescription_Parse_Code128_CleanSubstituteCharacter;
-            }
+            get => this.ruleDescription_Parse_Code128_CleanSubstituteCharacter;
 
-            set
-            {
-                this.ruleDescription_Parse_Code128_CleanSubstituteCharacter = value;
-            }
+            set => this.ruleDescription_Parse_Code128_CleanSubstituteCharacter = value;
         }
 
         /// <summary>
@@ -1435,15 +1063,9 @@ namespace dMobile.Bedrock
         /// </summary>
         public bool IsRuleEnabled_ParseEAN_UCC128_BourvyExports_ProductionDate
         {
-            get
-            {
-                return this.isRuleEnabled_ParseEAN_UCC128_BourvyExports_ProductionDate;
-            }
+            get => this.isRuleEnabled_ParseEAN_UCC128_BourvyExports_ProductionDate;
 
-            set
-            {
-                this.isRuleEnabled_ParseEAN_UCC128_BourvyExports_ProductionDate = value;
-            }
+            set => this.isRuleEnabled_ParseEAN_UCC128_BourvyExports_ProductionDate = value;
         }
 
         /// <summary>
@@ -1451,15 +1073,9 @@ namespace dMobile.Bedrock
         /// </summary>
         public string RuleDescription_ParseEAN_UCC128_BourvyExports_ProductionDate
         {
-            get
-            {
-                return this.ruleDescription_ParseEAN_UCC128_BourvyExports_ProductionDate;
-            }
+            get => this.ruleDescription_ParseEAN_UCC128_BourvyExports_ProductionDate;
 
-            set
-            {
-                this.ruleDescription_ParseEAN_UCC128_BourvyExports_ProductionDate = value;
-            }
+            set => this.ruleDescription_ParseEAN_UCC128_BourvyExports_ProductionDate = value;
         }
 
         /// <summary>

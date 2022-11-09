@@ -442,14 +442,14 @@ namespace dMobile.Controller.Activity
         {
             if (this.SysEnv.SysSettings.IsDisconnectedMode)
             {
-                this.DataLayerProgressOutHandler(this, new EventArgs(), 5);
+                this.DataLayerProgressOutHandler(this, EventArgs.Empty, 5);
             }
             else
             {
-                this.DataLayerProgressOutHandler(this, new EventArgs(), 2);
+                this.DataLayerProgressOutHandler(this, EventArgs.Empty, 2);
                 await this.Purge();
 
-                this.DataLayerProgressOutHandler(this, new EventArgs(), 5);
+                this.DataLayerProgressOutHandler(this, EventArgs.Empty, 5);
 
                 var adj = new TableActivityAdjustment();
                 adj.RegisterDataAccessListenerProgressOut((IDataAccessEventListener)this);
@@ -525,10 +525,10 @@ namespace dMobile.Controller.Activity
         {
             if (this.AdjSettings.AdjustmentType == SysCommon.AdjTypes.Debox && !this.SysEnv.SysSettings.IsDisconnectedMode)
             {
-                var sLocMapAndRefno = await LocationMapTasks.GetSLocMapFromLocMapFKRefno(
+                var sLocMapAndRefno = await LocationMapTasks.GetSLocMapFromLocMapFkRefno(
                     int.Parse(this.XMLDataCriteria.Root.Element("whs_id").Value),
                     int.Parse(this.XMLDataCriteria.Root.Element("sect_refno").Value),
-                    slotLocMapFKRefno: 0);
+                    slotLocMapFkRefno: 0);
                 var locMap = sLocMapAndRefno.SLocMap;
                 var prnSettings = new PrinterSettings().LoadData();
 

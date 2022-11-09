@@ -106,10 +106,7 @@ namespace dMobile.Controller.Activity_Item
                 return this.locMapRefno;
             }
 
-            set
-            {
-                this.locMapRefno = value;
-            }
+            set => this.locMapRefno = value;
         }
 
         /// <summary>
@@ -157,6 +154,36 @@ namespace dMobile.Controller.Activity_Item
         /// </summary>
         public int SelectedListItemIdx { get; set; } = -1;
 
+        /// <summary>
+        /// Create activity.
+        /// </summary>
+        /// <param name="actSubTypes"><see cref="SysCommon.ActSubTypes"/> Activity sub type.</param>
+        /// <returns><see cref="Task"/> Task operation.</returns>
+        protected async Task Create(SysCommon.ActSubTypes actSubTypes)
+        {
+            try
+            {
+                var conn = DatabaseConnection.GetInstance().SQLConn;
+
+                await conn.ExecuteAsync(
+                    "INSERT INTO tActivityItem (ActivityItemSubType, ActivityItemStatus," +
+                    " ActivityRefno) VALUES (?, ?, ?)",
+                    Convert.ToInt32(actSubTypes),
+                    Convert.ToInt32(SysCommon.ActStatus.Inserted),
+                    Convert.ToInt32(this.ActHdr.HdrRefno));
+
+                this.ItemRefno = Convert.ToInt32(await conn.ExecuteScalarAsync<int>(
+                    "SELECT last_insert_rowid() FROM tActivityItem"));
+            }
+            catch (SQLiteException ex)
+            {
+                throw new Exception("Database exception occurred.", ex);
+            }
+            catch
+            {
+                throw;
+            }
+        }
 
         /// <summary>
         /// Gets or sets a value indicating whether allowed to add skid detail.
@@ -263,7 +290,11 @@ namespace dMobile.Controller.Activity_Item
         /// <param name="quantity"><see cref="decimal"/> Alt quantity.</param>
         /// <param name="baseQuantity"><see cref="decimal"/> Base quantity.</param>
         /// <param name="weightQuantity"><see cref="decimal"/> Weight quantity.</param>
-        public abstract void AddToQuantityInActivityItem(object selectedActivityItem, decimal quantity, decimal baseQuantity, decimal weightQuantity);
+        public abstract void AddToQuantityInActivityItem(
+            object selectedActivityItem,
+            decimal quantity,
+            decimal baseQuantity,
+            decimal weightQuantity);
 
         /// <summary>
         /// Replaces the activity item quantities. Does not add to the existing values.
@@ -272,7 +303,11 @@ namespace dMobile.Controller.Activity_Item
         /// <param name="quantity"><see cref="decimal"/> Alt quantity.</param>
         /// <param name="baseQuantity"><see cref="decimal"/> Base quantity.</param>
         /// <param name="weightQuantity"><see cref="decimal"/> Weight quantity.</param>
-        public abstract void ReplaceQuantityInActivityItem(object selectedActivityItem, decimal quantity, decimal baseQuantity, decimal weightQuantity);
+        public abstract void ReplaceQuantityInActivityItem(
+            object selectedActivityItem,
+            decimal quantity,
+            decimal baseQuantity,
+            decimal weightQuantity);
 
         /// <summary>
         /// Update the activity item table data with the selected activity item object data.
@@ -398,8 +433,11 @@ namespace dMobile.Controller.Activity_Item
             var isGetDefault = false;
             if (this.SysEnv.SysSettings.IsDefaultLocToProductDefaultLoc)
             {
-                if ((this.ActSubType == SysCommon.ActSubTypes.PhysicalCounts && this.SysEnv.SysSettings.IsPhysicalDoNotDefaultProductLocation)
-                    || (this.ActSubType == SysCommon.ActSubTypes.CycleCounts && this.SysEnv.SysSettings.IsCycleDoNotDefaultProductLocation))
+                if ((this.ActSubType == SysCommon.ActSubTypes.PhysicalCounts &&
+                     this.SysEnv.SysSettings.IsPhysicalDoNotDefaultProductLocation)
+                    ||
+                    (this.ActSubType == SysCommon.ActSubTypes.CycleCounts &&
+                     this.SysEnv.SysSettings.IsCycleDoNotDefaultProductLocation))
                 {
                     isGetDefault = false;
                 }
@@ -495,37 +533,6 @@ namespace dMobile.Controller.Activity_Item
                             false);
                     }
                 }
-            }
-        }
-
-        /// <summary>
-        /// Create activity.
-        /// </summary>
-        /// <param name="actSubTypes"><see cref="SysCommon.ActSubTypes"/> Activity sub type.</param>
-        /// <returns><see cref="Task"/> Task operation.</returns>
-        public async Task Create(SysCommon.ActSubTypes actSubTypes)
-        {
-            try
-            {
-                var conn = DatabaseConnection.GetInstance().SQLConn;
-
-                await conn.ExecuteAsync(
-                    "INSERT INTO tActivityItem (ActivityItemSubType, ActivityItemStatus," +
-                    " ActivityRefno) VALUES (?, ?, ?)",
-                    Convert.ToInt32(actSubTypes),
-                    Convert.ToInt32(SysCommon.ActStatus.Inserted),
-                    Convert.ToInt32(this.ActHdr.HdrRefno));
-
-                this.ItemRefno = Convert.ToInt32(await conn.ExecuteScalarAsync<int>(
-                    "SELECT last_insert_rowid() FROM tActivityItem"));
-            }
-            catch (SQLiteException ex)
-            {
-                throw new Exception("Database exception occurred.", ex);
-            }
-            catch
-            {
-                throw;
             }
         }
 

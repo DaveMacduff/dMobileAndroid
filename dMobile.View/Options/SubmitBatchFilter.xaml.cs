@@ -120,7 +120,7 @@ namespace dMobile.View.Options
 
             try
             {
-                this.ucSubmitBatchFilter_GotFocus(this, new EventArgs());
+                this.ucSubmitBatchFilter_GotFocus(this, EventArgs.Empty);
             }
             catch (Exception ex)
             {

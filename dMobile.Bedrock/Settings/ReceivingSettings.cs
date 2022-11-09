@@ -120,8 +120,8 @@ namespace dMobile.Bedrock
         /// </summary>
         public bool IsApplyIssuedDateFilter
         {
-            get { return this.isApplyIssuedDateFilter; }
-            set { this.isApplyIssuedDateFilter = value; }
+            get => this.isApplyIssuedDateFilter;
+            set => this.isApplyIssuedDateFilter = value;
         }
 
         /// <summary>
@@ -129,8 +129,8 @@ namespace dMobile.Bedrock
         /// </summary>
         public bool IsApplyArrivalDateFilter
         {
-            get { return this.isApplyArrivalDateFilter; }
-            set { this.isApplyArrivalDateFilter = value; }
+            get => this.isApplyArrivalDateFilter;
+            set => this.isApplyArrivalDateFilter = value;
         }
 
         /// <summary>
@@ -138,8 +138,8 @@ namespace dMobile.Bedrock
         /// </summary>
         public DateTime dtIssuedDateFilter
         {
-            get { return this.m_dtIssuedDateFilter; }
-            set { this.m_dtIssuedDateFilter = value; }
+            get => this.m_dtIssuedDateFilter;
+            set => this.m_dtIssuedDateFilter = value;
         }
 
         /// <summary>
@@ -147,8 +147,8 @@ namespace dMobile.Bedrock
         /// </summary>
         public DateTime dtArrivalDateFilter
         {
-            get { return this.m_dtArrivalDateFilter; }
-            set { this.m_dtArrivalDateFilter = value; }
+            get => this.m_dtArrivalDateFilter;
+            set => this.m_dtArrivalDateFilter = value;
         }
 
         /// <summary>
@@ -156,8 +156,8 @@ namespace dMobile.Bedrock
         /// </summary>
         public string strFullClassName
         {
-            get { return this.m_strFullClassName; }
-            set { this.m_strFullClassName = value; }
+            get => this.m_strFullClassName;
+            set => this.m_strFullClassName = value;
         }
 
         /// <summary>
@@ -165,8 +165,8 @@ namespace dMobile.Bedrock
         /// </summary>
         public string strFilePath
         {
-            get { return this.m_strFilePath; }
-            set { this.m_strFilePath = value; }
+            get => this.m_strFilePath;
+            set => this.m_strFilePath = value;
         }
 
         /// <summary>
@@ -174,8 +174,8 @@ namespace dMobile.Bedrock
         /// </summary>
         public string strFileASCIIZ
         {
-            get { return this.m_strFileASCIIZ; }
-            set { this.m_strFileASCIIZ = value; }
+            get => this.m_strFileASCIIZ;
+            set => this.m_strFileASCIIZ = value;
         }
 
         /// <summary>
@@ -183,8 +183,8 @@ namespace dMobile.Bedrock
         /// </summary>
         public string strFileName
         {
-            get { return this.m_strFileName; }
-            set { this.m_strFileName = value; }
+            get => this.m_strFileName;
+            set => this.m_strFileName = value;
         }
 
         /// <summary>
@@ -192,8 +192,8 @@ namespace dMobile.Bedrock
         /// </summary>
         public int iSortBy1Index
         {
-            get { return this.m_iSortBy1Index; }
-            set { this.m_iSortBy1Index = value; }
+            get => this.m_iSortBy1Index;
+            set => this.m_iSortBy1Index = value;
         }
 
         /// <summary>
@@ -201,8 +201,8 @@ namespace dMobile.Bedrock
         /// </summary>
         public Sort SortBy1Value
         {
-            get { return this.sortBy1Value; }
-            set { this.sortBy1Value = value; }
+            get => this.sortBy1Value;
+            set => this.sortBy1Value = value;
         }
 
         /// <summary>
@@ -210,8 +210,8 @@ namespace dMobile.Bedrock
         /// </summary>
         public int iSortBy2Index
         {
-            get { return this.m_iSortBy2Index; }
-            set { this.m_iSortBy2Index = value; }
+            get => this.m_iSortBy2Index;
+            set => this.m_iSortBy2Index = value;
         }
 
         /// <summary>
@@ -219,8 +219,8 @@ namespace dMobile.Bedrock
         /// </summary>
         public Sort SortBy2Value
         {
-            get { return this.sortBy2Value; }
-            set { this.sortBy2Value = value; }
+            get => this.sortBy2Value;
+            set => this.sortBy2Value = value;
         }
 
         /// <summary>
@@ -228,8 +228,8 @@ namespace dMobile.Bedrock
         /// </summary>
         public int iSortBy3Index
         {
-            get { return this.m_iSortBy3Index; }
-            set { this.m_iSortBy3Index = value; }
+            get => this.m_iSortBy3Index;
+            set => this.m_iSortBy3Index = value;
         }
 
         /// <summary>
@@ -237,8 +237,8 @@ namespace dMobile.Bedrock
         /// </summary>
         public Sort SortBy3Value
         {
-            get { return this.sortBy3Value; }
-            set { this.sortBy3Value = value; }
+            get => this.sortBy3Value;
+            set => this.sortBy3Value = value;
         }
 
         /// <summary>
@@ -246,8 +246,8 @@ namespace dMobile.Bedrock
         /// </summary>
         public int iSortBy4Index
         {
-            get { return this.m_iSortBy4Index; }
-            set { this.m_iSortBy4Index = value; }
+            get => this.m_iSortBy4Index;
+            set => this.m_iSortBy4Index = value;
         }
 
         /// <summary>
@@ -255,8 +255,8 @@ namespace dMobile.Bedrock
         /// </summary>
         public Sort SortBy4Value
         {
-            get { return this.sortBy4Value; }
-            set { this.sortBy4Value = value; }
+            get => this.sortBy4Value;
+            set => this.sortBy4Value = value;
         }
 
         /// <summary>

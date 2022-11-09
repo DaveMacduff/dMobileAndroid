@@ -258,9 +258,15 @@ namespace dMobile.Controller.Activity_Detail
                 // The IEnumerable will be same instance of initial list, you have to call ToList or ToArray
                 // to create a new collection.
                 // Linq is slower than a for loop, but the number of line items would likely be sub 500 normally.
-                var foundItem = (ProductionTicketByProductItem)(from item in this.ActItem.ListItems.OfType<ProductionTicketByProductItem>()
-                                                  where item.ActivityItemRefno == this.ActItem.ItemRefno
-                                                  select item);
+                ProductionTicketByProductItem foundItem = null;
+                foreach (ProductionTicketByProductItem item in this.ActItem.ListItems)
+                {
+                    if (item.ActivityItemRefno == this.ActItem.ItemRefno)
+                    {
+                        foundItem = item;
+                        break;
+                    }
+                }
 
                 // Also verify that line item reference number matches, just in case. If a FirstOrDefault
                 // was used it could have returned an incorrect default reference.
@@ -419,16 +425,16 @@ namespace dMobile.Controller.Activity_Detail
         {
             if (this.SysEnv.SysSettings.IsDisconnectedMode)
             {
-                this.DataLayerProgressOutHandler(this, new EventArgs(), 5);
+                this.DataLayerProgressOutHandler(this, EventArgs.Empty, 5);
             }
             else
             {
-                this.DataLayerProgressOutHandler(this, new EventArgs(), 2);
+                this.DataLayerProgressOutHandler(this, EventArgs.Empty, 2);
 
                 var tableTicketDetail = new TableActivityProductionTicketByProductDetail();
                 await tableTicketDetail.PurgeData();
 
-                this.DataLayerProgressOutHandler(this, new EventArgs(), 5);
+                this.DataLayerProgressOutHandler(this, EventArgs.Empty, 5);
 
                 tableTicketDetail.RegisterDataAccessListenerProgressOut((TicketByProdActDetail)this);
                 await tableTicketDetail.RequestData(this.ActItem.ItemRefno);

@@ -102,7 +102,7 @@ namespace dMobile.View.Activity
 
             try
             {
-                this.ucActivityHdrPhysicalCountFilter_GotFocus(this, new EventArgs());
+                this.ucActivityHdrPhysicalCountFilter_GotFocus(this, EventArgs.Empty);
             }
             catch (Exception ex)
             {

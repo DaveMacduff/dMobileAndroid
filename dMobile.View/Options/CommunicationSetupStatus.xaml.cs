@@ -96,10 +96,7 @@ namespace dMobile.View.Options
                 }
             }
 
-            set
-            {
-                this.itemsList = value;
-            }
+            set => this.itemsList = value;
         }
 
         /// <summary>

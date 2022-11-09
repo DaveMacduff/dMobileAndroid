@@ -39,15 +39,9 @@ namespace dMobile.Bedrock
         /// </summary>
         public int Row
         {
-            get
-            {
-                return this.row;
-            }
+            get => this.row;
 
-            set
-            {
-                this.row = value;
-            }
+            set => this.row = value;
         }
 
         /// <summary>

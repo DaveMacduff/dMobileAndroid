@@ -433,12 +433,12 @@ namespace dMobile.View.Activity
 
         private void chkApplyProductionDate_Toggled(object sender, ToggledEventArgs e)
         {
-            this.IdentifyChangesMade(sender, new EventArgs());
+            this.IdentifyChangesMade(sender, EventArgs.Empty);
         }
 
         private void dtpProductionDate_DateSelected(object sender, DateChangedEventArgs e)
         {
-            this.IdentifyChangesMade(sender, new EventArgs());
+            this.IdentifyChangesMade(sender, EventArgs.Empty);
         }
     }
 }

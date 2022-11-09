@@ -252,9 +252,15 @@ namespace dMobile.Controller.Activity_Detail
                 // The IEnumerable will be same instance of initial list, you have to call ToList or ToArray
                 // to create a new collection.
                 // Linq is slower than a for loop, but the number of line items would likely be sub 500 normally.
-                var foundItem = (TransferItem)(from item in this.ActItem.ListItems.OfType<TransferItem>()
-                                                      where item.ActivityItemRefno == this.ActItem.ItemRefno
-                                                      select item);
+                TransferItem foundItem = null;
+                foreach (TransferItem item in this.ActItem.ListItems)
+                {
+                    if (item.ActivityItemRefno == this.ActItem.ItemRefno)
+                    {
+                        foundItem = item;
+                        break;
+                    }
+                }
 
                 // Also verify that line item reference number matches, just in case. If a FirstOrDefault
                 // was used it could have returned an incorrect default reference.
@@ -298,7 +304,9 @@ namespace dMobile.Controller.Activity_Detail
         {
             if (!this.SysEnv.SysSettings.IsDisconnectedMode)
             {
-                var xmlDelete = await this.CreateDeleteXML(XDocument.Parse("<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?><params></params>"));
+                var xmlDelete = await this.CreateDeleteXML(
+                    XDocument.Parse(
+                        $"<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?><params></params>"));
                 var reqData = SysCommon.SubmitComm(xmlDelete);
 
                 if (reqData.Length > 0)
@@ -330,9 +338,8 @@ namespace dMobile.Controller.Activity_Detail
             // string oldSort = this.DataViewDetails.Sort;
             // this.DataViewDetails.Sort = "ActivityDetailFKRefno";
             // int rowIdx = this.DataViewDetails.Find(FKRefno);
-            var transferDetail = this.ListDetails.OfType<TransferDetail>().Where(transferDetail =>
-            transferDetail.ActivityDetailFKRefno == this.DetailFKRefno).FirstOrDefault();
-
+            var transferDetail = this.ListDetails.OfType<TransferDetail>().FirstOrDefault(transferDetail =>
+                transferDetail.ActivityDetailFKRefno == this.DetailFKRefno);
             if (transferDetail != null)
             {
                 this.ListDetails.Remove(transferDetail);
@@ -427,18 +434,18 @@ namespace dMobile.Controller.Activity_Detail
         {
             if (this.SysEnv.SysSettings.IsDisconnectedMode)
             {
-                this.DataLayerProgressOutHandler(this, new EventArgs(), 5);
+                this.DataLayerProgressOutHandler(this, EventArgs.Empty, 5);
             }
             else
             {
-                this.DataLayerProgressOutHandler(this, new EventArgs(), 2);
+                this.DataLayerProgressOutHandler(this, EventArgs.Empty, 2);
 
                 if (this.ActSubType == SysCommon.ActSubTypes.TransferFrom)
                 {
                     var tableActTransferDetail = new TableActivityTransferFromDetail();
                     await tableActTransferDetail.PurgeData();
 
-                    this.DataLayerProgressOutHandler(this, new EventArgs(), 5);
+                    this.DataLayerProgressOutHandler(this, EventArgs.Empty, 5);
 
                     tableActTransferDetail.RegisterDataAccessListenerProgressOut((TransferActDetail)this);
                     await tableActTransferDetail.RequestData(this.ActItem.ItemRefno);
@@ -449,7 +456,7 @@ namespace dMobile.Controller.Activity_Detail
                     var tableActTransferDetail = new TableActivityTransferToDetail();
                     await tableActTransferDetail.PurgeData();
 
-                    this.DataLayerProgressOutHandler(this, new EventArgs(), 5);
+                    this.DataLayerProgressOutHandler(this, EventArgs.Empty, 5);
 
                     tableActTransferDetail.RegisterDataAccessListenerProgressOut((TransferActDetail)this);
                     await tableActTransferDetail.RequestData(this.ActItem.ItemRefno);

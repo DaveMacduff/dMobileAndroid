@@ -388,15 +388,9 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
         /// trade item. It is of variable length and may have up to eight digits.</remarks>
         public int LogisticUnitVariableCount
         {
-            get
-            {
-                return logisticUnitVariableCount;
-            }
+            get => logisticUnitVariableCount;
 
-            set
-            {
-                logisticUnitVariableCount = value;
-            }
+            set => logisticUnitVariableCount = value;
         }
 
         /// <summary>
@@ -404,15 +398,9 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
         /// </summary>
         public long ManufacturerSerialNumber
         {
-            get
-            {
-                return manufacturerSerialNumber;
-            }
+            get => manufacturerSerialNumber;
 
-            set
-            {
-                manufacturerSerialNumber = value;
-            }
+            set => manufacturerSerialNumber = value;
         }
 
         /// <summary>
@@ -426,15 +414,9 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
         /// <remarks>Contains parsing rules.</remarks>
         public SysBarCodeSettings Settings
         {
-            get
-            {
-                return settings;
-            }
+            get => settings;
 
-            set
-            {
-                settings = value;
-            }
+            set => settings = value;
         }
 
         /// <summary>
@@ -443,15 +425,9 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
         /// <remarks>Contains the symbology characters.</remarks>
         public string Raw
         {
-            get
-            {
-                return raw;
-            }
+            get => raw;
 
-            set
-            {
-                raw = value;
-            }
+            set => raw = value;
         }
 
         /// <summary>
@@ -459,15 +435,9 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
         /// </summary>
         public BarCodeSymbologies Symbology
         {
-            get
-            {
-                return symbology;
-            }
+            get => symbology;
 
-            set
-            {
-                symbology = value;
-            }
+            set => symbology = value;
         }
 
         /// <summary>
@@ -475,15 +445,9 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
         /// </summary>
         public BarCodeParseDetails Details
         {
-            get
-            {
-                return this.parseDetails;
-            }
+            get => this.parseDetails;
 
-            set
-            {
-                this.parseDetails = value;
-            }
+            set => this.parseDetails = value;
         }
 
         /// <summary>
@@ -493,15 +457,9 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
         /// taken from the raw data.</remarks>
         public string SymbologyPrefix
         {
-            get
-            {
-                return symbologyPrefix;
-            }
+            get => symbologyPrefix;
 
-            set
-            {
-                symbologyPrefix = value;
-            }
+            set => symbologyPrefix = value;
         }
 
         /// <summary>
@@ -509,15 +467,9 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
         /// </summary>
         public string Data
         {
-            get
-            {
-                return data;
-            }
+            get => data;
 
-            set
-            {
-                data = value;
-            }
+            set => data = value;
         }
 
         /// <summary>
@@ -525,15 +477,9 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
         /// </summary>
         public string ProductIdentifier
         {
-            get
-            {
-                return productIdentifier;
-            }
+            get => productIdentifier;
 
-            set
-            {
-                productIdentifier = value;
-            }
+            set => productIdentifier = value;
         }
 
         /// <summary>
@@ -542,15 +488,9 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
         /// </summary>
         public string Remainder
         {
-            get
-            {
-                return remainder;
-            }
+            get => remainder;
 
-            set
-            {
-                remainder = value;
-            }
+            set => remainder = value;
         }
 
         /// <summary>
@@ -561,15 +501,9 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
         /// because this.data can be altered or shortened during parsing.</remarks>
         public int Length
         {
-            get
-            {
-                return length;
-            }
+            get => length;
 
-            set
-            {
-                length = value;
-            }
+            set => length = value;
         }
 
         /// <summary>
@@ -577,15 +511,9 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
         /// </summary>
         public int PackagingType
         {
-            get
-            {
-                return packagingType;
-            }
+            get => packagingType;
 
-            set
-            {
-                packagingType = value;
-            }
+            set => packagingType = value;
         }
 
         /// <summary>
@@ -593,15 +521,9 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
         /// </summary>
         public int NumberSystemCharacter
         {
-            get
-            {
-                return numberSystemCharacter;
-            }
+            get => numberSystemCharacter;
 
-            set
-            {
-                numberSystemCharacter = value;
-            }
+            set => numberSystemCharacter = value;
         }
 
         /// <summary>
@@ -609,15 +531,9 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
         /// </summary>
         public string SSCC18
         {
-            get
-            {
-                return sscc18;
-            }
+            get => sscc18;
 
-            set
-            {
-                sscc18 = value;
-            }
+            set => sscc18 = value;
         }
 
         /// <summary>
@@ -625,15 +541,9 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
         /// </summary>
         public string CompanyPrefix
         {
-            get
-            {
-                return companyPrefix;
-            }
+            get => companyPrefix;
 
-            set
-            {
-                companyPrefix = value;
-            }
+            set => companyPrefix = value;
         }
 
         /// <summary>
@@ -641,15 +551,9 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
         /// </summary>
         public string ItemReference
         {
-            get
-            {
-                return itemReference;
-            }
+            get => itemReference;
 
-            set
-            {
-                itemReference = value;
-            }
+            set => itemReference = value;
         }
 
         /// <summary>
@@ -662,15 +566,9 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
         /// ensures that the number is correctly composed.</remarks>
         public string GTIN
         {
-            get
-            {
-                return gtin;
-            }
+            get => gtin;
 
-            set
-            {
-                gtin = value;
-            }
+            set => gtin = value;
         }
 
         /// <summary>
@@ -699,15 +597,9 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
         /// ensures that the number is correctly composed.</remarks>
         public string GTINLogisticUnit
         {
-            get
-            {
-                return gtinLogisticUnit;
-            }
+            get => gtinLogisticUnit;
 
-            set
-            {
-                gtinLogisticUnit = value;
-            }
+            set => gtinLogisticUnit = value;
         }
 
         /// <summary>
@@ -723,15 +615,9 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
         /// trade item to which it relates.</remarks>
         public string SingleTradeItemSerialNumber
         {
-            get
-            {
-                return singleTradeItemSerialNumber;
-            }
+            get => singleTradeItemSerialNumber;
 
-            set
-            {
-                singleTradeItemSerialNumber = value;
-            }
+            set => singleTradeItemSerialNumber = value;
         }
 
         /// <summary>
@@ -746,15 +632,9 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
         /// a machine number, a time, or an internal production code. The data is alphanumeric.</remarks>
         public string LogisticUnitBatchLotNumber
         {
-            get
-            {
-                return logisticUnitBatchLotNumber;
-            }
+            get => logisticUnitBatchLotNumber;
 
-            set
-            {
-                logisticUnitBatchLotNumber = value;
-            }
+            set => logisticUnitBatchLotNumber = value;
         }
 
         /// <summary>
@@ -772,15 +652,9 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
         /// if it is not necessary to specify the day, the field must be filled with two zeros.</remarks>
         public DateTime LogisticUnitBestBeforeSellByDate
         {
-            get
-            {
-                return logisticUnitBestBeforeSellByDate;
-            }
+            get => logisticUnitBestBeforeSellByDate;
 
-            set
-            {
-                logisticUnitBestBeforeSellByDate = value;
-            }
+            set => logisticUnitBestBeforeSellByDate = value;
         }
 
         /// <summary>
@@ -802,15 +676,9 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
         /// if it is not necessary to specify the day, the field must be filled with two zeros.</remarks>
         public DateTime LogisticUnitExpiryUseByDate
         {
-            get
-            {
-                return logisticUnitExpiryUseByDate;
-            }
+            get => logisticUnitExpiryUseByDate;
 
-            set
-            {
-                logisticUnitExpiryUseByDate = value;
-            }
+            set => logisticUnitExpiryUseByDate = value;
         }
 
         /// <summary>
@@ -827,15 +695,9 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
         /// if it is not necessary to specify the day, the field must be filled with two zeros.</remarks>
         public DateTime LogisticUnitProductionDate
         {
-            get
-            {
-                return logisticUnitProductionDate;
-            }
+            get => logisticUnitProductionDate;
 
-            set
-            {
-                logisticUnitProductionDate = value;
-            }
+            set => logisticUnitProductionDate = value;
         }
 
         /// <summary>
@@ -852,15 +714,9 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
         /// if it is not necessary to specify the day, the field must be filled with two zeros.</remarks>
         public DateTime LogisticUnitDueDate
         {
-            get
-            {
-                return logisticUnitDueDate;
-            }
+            get => logisticUnitDueDate;
 
-            set
-            {
-                logisticUnitDueDate = value;
-            }
+            set => logisticUnitDueDate = value;
         }
 
         /// <summary>
@@ -877,15 +733,9 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
         /// if it is not necessary to specify the day, the field must be filled with two zeros.</remarks>
         public DateTime LogisticUnitPackagingDate
         {
-            get
-            {
-                return logisticUnitPackagingDate;
-            }
+            get => logisticUnitPackagingDate;
 
-            set
-            {
-                logisticUnitPackagingDate = value;
-            }
+            set => logisticUnitPackagingDate = value;
         }
 
         /// <summary>
@@ -912,15 +762,9 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
         /// and any third party acting on its behalf, it should be ignored.</remarks>
         public int LogisticUnitProductVariant
         {
-            get
-            {
-                return logisticUnitProductVariant;
-            }
+            get => logisticUnitProductVariant;
 
-            set
-            {
-                logisticUnitProductVariant = value;
-            }
+            set => logisticUnitProductVariant = value;
         }
 
         /// <summary>
@@ -928,15 +772,9 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
         /// </summary>
         public decimal NetWeightMetricKG
         {
-            get
-            {
-                return netWeightMetricKG;
-            }
+            get => netWeightMetricKG;
 
-            set
-            {
-                netWeightMetricKG = value;
-            }
+            set => netWeightMetricKG = value;
         }
 
         /// <summary>
@@ -944,15 +782,9 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
         /// </summary>
         public bool NetWeightMetricKGFoundAI
         {
-            get
-            {
-                return netWeightMetricKGFoundAI;
-            }
+            get => netWeightMetricKGFoundAI;
 
-            set
-            {
-                netWeightMetricKGFoundAI = value;
-            }
+            set => netWeightMetricKGFoundAI = value;
         }
 
         /// <summary>
@@ -961,15 +793,9 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
         /// </summary>
         public decimal NetWeightNonMetricLB
         {
-            get
-            {
-                return netWeightNonMetricLB;
-            }
+            get => netWeightNonMetricLB;
 
-            set
-            {
-                netWeightNonMetricLB = value;
-            }
+            set => netWeightNonMetricLB = value;
         }
 
         /// <summary>
@@ -977,15 +803,9 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
         /// </summary>
         public bool NetWeightNonMetricLBFoundAI
         {
-            get
-            {
-                return netWeightNonMetricLBFoundAI;
-            }
+            get => netWeightNonMetricLBFoundAI;
 
-            set
-            {
-                netWeightNonMetricLBFoundAI = value;
-            }
+            set => netWeightNonMetricLBFoundAI = value;
         }
 
         /// <summary>
@@ -994,15 +814,9 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
         /// </summary>
         public decimal GrossWeightMetricKG
         {
-            get
-            {
-                return grossWeightMetricKG;
-            }
+            get => grossWeightMetricKG;
 
-            set
-            {
-                grossWeightMetricKG = value;
-            }
+            set => grossWeightMetricKG = value;
         }
 
         /// <summary>
@@ -1010,15 +824,9 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
         /// </summary>
         public bool GrossWeightMetricKGFoundAI
         {
-            get
-            {
-                return grossWeightMetricKGFoundAI;
-            }
+            get => grossWeightMetricKGFoundAI;
 
-            set
-            {
-                grossWeightMetricKGFoundAI = value;
-            }
+            set => grossWeightMetricKGFoundAI = value;
         }
 
         /// <summary>
@@ -1027,15 +835,9 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
         /// </summary>
         public decimal GrossWeightNonMetricLB
         {
-            get
-            {
-                return grossWeightNonMetricLB;
-            }
+            get => grossWeightNonMetricLB;
 
-            set
-            {
-                grossWeightNonMetricLB = value;
-            }
+            set => grossWeightNonMetricLB = value;
         }
 
         /// <summary>
@@ -1043,15 +845,9 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
         /// </summary>
         public bool GrossWeightNonMetricLBFoundAI
         {
-            get
-            {
-                return grossWeightNonMetricLBFoundAI;
-            }
+            get => grossWeightNonMetricLBFoundAI;
 
-            set
-            {
-                grossWeightNonMetricLBFoundAI = value;
-            }
+            set => grossWeightNonMetricLBFoundAI = value;
         }
 
         /// <summary>
@@ -1060,15 +856,9 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
         /// </summary>
         public decimal LengthOr1stDimensionMeters
         {
-            get
-            {
-                return lengthOr1stDimensionMeters;
-            }
+            get => lengthOr1stDimensionMeters;
 
-            set
-            {
-                lengthOr1stDimensionMeters = value;
-            }
+            set => lengthOr1stDimensionMeters = value;
         }
 
         /// <summary>
@@ -1083,15 +873,9 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
         /// Check Digit: N1.</remarks>
         public string LocationIdentifier
         {
-            get
-            {
-                return locationIdentifier;
-            }
+            get => locationIdentifier;
 
-            set
-            {
-                locationIdentifier = value;
-            }
+            set => locationIdentifier = value;
         }
 
         /// <summary>
@@ -1106,15 +890,9 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
         /// This information refers to the identification number of the contained trade items.</remarks>
         public int LogisticUnitCountOfTradeItems
         {
-            get
-            {
-                return logisticUnitCountOfTradeItems;
-            }
+            get => logisticUnitCountOfTradeItems;
 
-            set
-            {
-                logisticUnitCountOfTradeItems = value;
-            }
+            set => logisticUnitCountOfTradeItems = value;
         }
 
         /// <summary>
@@ -1123,15 +901,9 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
         /// </summary>
         public string ActFKRefno
         {
-            get
-            {
-                return actFKRefno;
-            }
+            get => actFKRefno;
 
-            set
-            {
-                actFKRefno = value;
-            }
+            set => actFKRefno = value;
         }
 
         /// <summary>
@@ -1140,15 +912,9 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
         /// </summary>
         public string ActItemFKRefno
         {
-            get
-            {
-                return actItemFKRefno;
-            }
+            get => actItemFKRefno;
 
-            set
-            {
-                actItemFKRefno = value;
-            }
+            set => actItemFKRefno = value;
         }
 
         /// <summary>
@@ -1157,15 +923,9 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
         /// </summary>
         public string ActDetailFKRefno
         {
-            get
-            {
-                return actDetailFKRefno;
-            }
+            get => actDetailFKRefno;
 
-            set
-            {
-                actDetailFKRefno = value;
-            }
+            set => actDetailFKRefno = value;
         }
 
         /// <summary>
@@ -1173,15 +933,9 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
         /// </summary>
         public string SystemGTINCompanyPrefix
         {
-            get
-            {
-                return systemGTINCompanyPrefix;
-            }
+            get => systemGTINCompanyPrefix;
 
-            set
-            {
-                systemGTINCompanyPrefix = value;
-            }
+            set => systemGTINCompanyPrefix = value;
         }
 
         /// <summary>

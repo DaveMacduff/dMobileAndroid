@@ -415,18 +415,18 @@ namespace dMobile.Controller.Activity_Item
         {
             if (this.SysEnv.SysSettings.IsDisconnectedMode)
             {
-                this.DataLayerProgressOutHandler(this, new EventArgs(), 5);
+                this.DataLayerProgressOutHandler(this, EventArgs.Empty, 5);
             }
             else
             {
-                this.DataLayerProgressOutHandler(this, new EventArgs(), 2);
+                this.DataLayerProgressOutHandler(this, EventArgs.Empty, 2);
 
                 var tableActTicketMatItem = new TableActivityProductionTicketMaterialItem();
                 var tableActTicketMatDetail = new TableActivityProductionTicketMaterialDetail();
                 await tableActTicketMatDetail.PurgeData();
                 await tableActTicketMatItem.PurgeData();
 
-                this.DataLayerProgressOutHandler(this, new EventArgs(), 5);
+                this.DataLayerProgressOutHandler(this, EventArgs.Empty, 5);
 
                 tableActTicketMatItem.RegisterDataAccessListenerProgressOut((TicketMaterialActItem)this);
                 await tableActTicketMatItem.RequestData(this.ActHdr.HdrRefno);

@@ -21,8 +21,8 @@ namespace dMobile.View.CustomControls
 
         public string Image
         {
-            get { return (string)this.GetValue(ImageProperty); }
-            set { this.SetValue(ImageProperty, value); }
+            get => (string)this.GetValue(ImageProperty);
+            set => this.SetValue(ImageProperty, value);
         }
 
         public string Text { get; set; } = string.Empty;

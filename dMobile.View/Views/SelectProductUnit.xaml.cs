@@ -370,7 +370,8 @@ namespace dMobile.View.Views
             {
                 if (this.IsBarCodeHandlerRegistered)
                 {
-                    this.Scanner.BarCodeScan -= new BarCodeScanner.BarCodeScanners.BarCodeScanner.BarCodeScanEventHandler(this.BarCodeHandler);
+                    this.Scanner.BarCodeScan -=
+                        new BarCodeScanner.BarCodeScanners.BarCodeScanner.BarCodeScanEventHandler(this.BarCodeHandler);
                     await this.Scanner.Stop();
                     this.IsBarCodeHandlerRegistered = false;
                 }
@@ -388,23 +389,10 @@ namespace dMobile.View.Views
                 if (!this.IsBarCodeHandlerRegistered)
                 {
                     await this.Scanner.Start();
-                    this.Scanner.BarCodeScan += new BarCodeScanner.BarCodeScanners.BarCodeScanner.BarCodeScanEventHandler(this.BarCodeHandler);
+                    this.Scanner.BarCodeScan +=
+                        new BarCodeScanner.BarCodeScanners.BarCodeScanner.BarCodeScanEventHandler(this.BarCodeHandler);
                     this.IsBarCodeHandlerRegistered = true;
                 }
-            }
-        }
-
-        /// <summary>
-        /// Registers the bar code scan event handler and enables the scanner.
-        /// </summary>
-        /// <returns><see cref="Task"/> Task operation.</returns>
-        public async Task ScannerStart()
-        {
-            if (this.Scanner != null)
-            {
-                await this.Scanner.Start();
-                this.Scanner.BarCodeScan += new BarCodeScanner.BarCodeScanners.BarCodeScanner.BarCodeScanEventHandler(this.BarCodeHandler);
-                this.IsBarCodeHandlerRegistered = true;
             }
         }
 
@@ -422,7 +410,7 @@ namespace dMobile.View.Views
                 if (this.IsFirstAppearance)
                 {
                     this.IsFirstAppearance = false;
-                    await this.ScannerStart();
+                    await ScannerStart();
                     _ = await Device.InvokeOnMainThreadAsync(() => this.cboSearch.SelectedIndex = 0);
                     await this.ActAppearing();
                 }
@@ -441,8 +429,8 @@ namespace dMobile.View.Views
                 this.IsFirstAppearance = true;
                 await Device.InvokeOnMainThreadAsync(async () =>
                 {
-                    var msg = "This activity unexpectedly failed to initialize correctly." +
-                              " Please exit and try again.";
+                    const string msg = "This activity unexpectedly failed to initialize correctly." +
+                                       " Please exit and try again.";
                     var errorReport = new FormErrorReport(msg, ex);
                     _ = await errorReport.ShowDialog();
                 });
@@ -457,6 +445,19 @@ namespace dMobile.View.Views
                     GC.Collect();
                     GC.WaitForPendingFinalizers();
                 });
+            }
+
+            //////////////////////////////////////////////////////////////////////////
+            // Registers the bar code scan event handler and enables the scanner.
+            async Task ScannerStart()
+            {
+                if (this.Scanner != null)
+                {
+                    await this.Scanner.Start();
+                    this.Scanner.BarCodeScan +=
+                        new BarCodeScanner.BarCodeScanners.BarCodeScanner.BarCodeScanEventHandler(this.BarCodeHandler);
+                    this.IsBarCodeHandlerRegistered = true;
+                }
             }
         }
 
@@ -475,16 +476,19 @@ namespace dMobile.View.Views
         /// <returns><see cref="bool"/> True.</returns>
         protected override bool OnBackButtonPressed()
         {
-            Device.BeginInvokeOnMainThread(async () =>
+            Device.BeginInvokeOnMainThread(BackButtonCallback);
+
+            return true;
+
+            //////////////////////////////////////////////////////////////////////////
+            async void BackButtonCallback()
             {
                 _ = base.OnBackButtonPressed();
 
                 _ = await this.CancelChanges();
                 this.DialogResult = DialogResult.None;
                 await this.Close();
-            });
-
-            return true;
+            }
         }
 
         /// <summary>
@@ -501,37 +505,50 @@ namespace dMobile.View.Views
                 {
                     _ = Enum.TryParse(keyPressed, out Keycode keycode);
 
-                    if (keycode == Keycode.Enter || keycode == Keycode.F1)
+                    switch (keycode)
                     {
-                        if (this.dgProducts.SelectedItem != null)
+                        case Keycode.DpadDown:
                         {
-                            if (await this.SaveChanges())
+                            if (this.dgProducts.SelectedItem != null && Convert.ToInt32(
+                                    this.ProductUnits.IndexOf(this.dgProducts.SelectedItem as ProductUnit)) <
+                                this.ProductUnits.Count - 1)
                             {
-                                this.DialogResult = DialogResult.OK;
-                                await this.Close();
+                                this.dgProducts.SelectedItem = this.ProductUnits[
+                                    this.ProductUnits.IndexOf(this.dgProducts.SelectedItem as ProductUnit) + 1];
+                                this.dgProducts.ScrollTo(this.dgProducts.SelectedItem, ScrollToPosition.MakeVisible, true);
                             }
+
+                            break;
                         }
-                    }
-                    else if (keycode == Keycode.DpadDown)
-                    {
-                        if (this.dgProducts.SelectedItem != null && Convert.ToInt32(
-                            this.ProductUnits.IndexOf(this.dgProducts.SelectedItem as ProductUnit)) <
-                            this.ProductUnits.Count - 1)
+
+                        case Keycode.DpadUp:
                         {
-                            this.dgProducts.SelectedItem = this.ProductUnits[
-                                this.ProductUnits.IndexOf(this.dgProducts.SelectedItem as ProductUnit) + 1];
-                            this.dgProducts.ScrollTo(this.dgProducts.SelectedItem, ScrollToPosition.MakeVisible, true);
+                            if (this.dgProducts.SelectedItem != null && Convert.ToInt32(
+                                    this.ProductUnits.IndexOf(this.dgProducts.SelectedItem as ProductUnit)) > 0)
+                            {
+                                this.dgProducts.SelectedItem = this.ProductUnits[
+                                    this.ProductUnits.IndexOf(this.dgProducts.SelectedItem as ProductUnit) - 1];
+                                this.dgProducts.ScrollTo(this.dgProducts.SelectedItem, ScrollToPosition.MakeVisible, true);
+                            }
+
+                            break;
                         }
-                    }
-                    else if (keycode == Keycode.DpadUp)
-                    {
-                        if (this.dgProducts.SelectedItem != null && Convert.ToInt32(
-                            this.ProductUnits.IndexOf(this.dgProducts.SelectedItem as ProductUnit)) > 0)
+
+                        case Keycode.Enter:
+                        case Keycode.F1:
                         {
-                            this.dgProducts.SelectedItem = this.ProductUnits[
-                                this.ProductUnits.IndexOf(this.dgProducts.SelectedItem as ProductUnit) - 1];
-                            this.dgProducts.ScrollTo(this.dgProducts.SelectedItem, ScrollToPosition.MakeVisible, true);
+                            if (this.dgProducts.SelectedItem != null)
+                            {
+                                if (await this.SaveChanges())
+                                {
+                                    this.DialogResult = DialogResult.OK;
+                                    await this.Close();
+                                }
+                            }
+
+                            break;
                         }
+
                     }
                 });
             }
@@ -559,87 +576,94 @@ namespace dMobile.View.Views
                     // Product unit filter specified.
                     if (this.ProdUnitRefnoFilter != 0)
                     {
-                        if (this.ActSubType != SysCommon.ActSubTypes.Receiving && this.ActSubType != SysCommon.ActSubTypes.PurchaseOrderWorkSheet)
+                        if (this.ActSubType != SysCommon.ActSubTypes.Receiving &&
+                            this.ActSubType != SysCommon.ActSubTypes.PurchaseOrderWorkSheet)
                         {
                             // By Code
-                            if (this.cboSearch.SelectedIndex == 0)
-                            {
-                                // this.ListProdUnits.RowFilter = "ProductUnitRefno <> " + this.ProdUnitRefnoFilter + " AND ProductCode LIKE \'%%" + search.Trim() + "%\' AND ProductUnitIsSellUnit AND ProductUnitIsBC";
-                                this.FilteredListProdUnits = this.ListProdUnits.Where(productUnit => productUnit.ProductUnitRefno != this.ProdUnitRefnoFilter && productUnit.ProductCode.ToLower().Contains(search.ToLower().Trim()) && productUnit.ProductUnitIsSellUnit && productUnit.ProductUnitIsBC).ToList();
-                            }
-                            else
-                            {
-                                // this.ListProdUnits.RowFilter = "ProductUnitRefno <> " + this.ProdUnitRefnoFilter + " AND ProductDescription LIKE \'%" + search.Trim() + "%\' AND ProductUnitIsSellUnit" + " AND ProductUnitIsBC";
-                                this.FilteredListProdUnits = this.ListProdUnits.Where(productUnit => productUnit.ProductUnitRefno != this.ProdUnitRefnoFilter && productUnit.ProductDescription.ToLower().Contains(search.ToLower().Trim()) && productUnit.ProductUnitIsSellUnit && productUnit.ProductUnitIsBC).ToList();
-                            }
+                            this.FilteredListProdUnits = this.cboSearch.SelectedIndex == 0
+                                ? this.ListProdUnits.Where(productUnit =>
+                                        productUnit.ProductUnitRefno != this.ProdUnitRefnoFilter &&
+                                        productUnit.ProductCode.ToLower()
+                                            .Contains(search.ToLower()
+                                                .Trim()) &&
+                                        productUnit.ProductUnitIsSellUnit &&
+                                        productUnit.ProductUnitIsBC)
+                                    .ToList()
+                                :
+
+                                this.ListProdUnits.Where(productUnit =>
+                                        productUnit.ProductUnitRefno != this.ProdUnitRefnoFilter &&
+                                        productUnit.ProductDescription.ToLower()
+                                            .Contains(search.ToLower()
+                                                .Trim()) &&
+                                        productUnit.ProductUnitIsSellUnit &&
+                                        productUnit.ProductUnitIsBC)
+                                    .ToList();
 
                             // this.ListProdUnits.Sort = "UnitCode, ProductUnitBC DESC";
-                            _ = this.FilteredListProdUnits.OrderByDescending(productUnit => productUnit.UnitCode).ThenBy(productUnit => productUnit.ProductUnitBC);
+                            _ = this.FilteredListProdUnits.OrderByDescending(productUnit => productUnit.UnitCode)
+                                .ThenBy(productUnit => productUnit.ProductUnitBC);
                         }
                         else
                         {
-                            if (this.ActSubType != SysCommon.ActSubTypes.Receiving && this.ActSubType != SysCommon.ActSubTypes.PurchaseOrderWorkSheet)
+                            if (this.ActSubType != SysCommon.ActSubTypes.Receiving &&
+                                this.ActSubType != SysCommon.ActSubTypes.PurchaseOrderWorkSheet)
                             {
                                 // ByCode
-                                if (this.cboSearch.SelectedIndex == 0)
-                                {
-                                    // this.ListProdUnits.RowFilter = "ProductUnitRefno <> " + this.ProdUnitRefnoFilter + " AND ProductCode LIKE \'%" + search.Trim() + "%\' AND ProductUnitIsSellUnit" + " AND ProductUnitIsBC";
-                                    this.FilteredListProdUnits = this.ListProdUnits.Where(productUnit => productUnit.ProductUnitRefno != this.ProdUnitRefnoFilter && productUnit.ProductCode.ToLower().Contains(search.ToLower().Trim()) && productUnit.ProductUnitIsSellUnit && productUnit.ProductUnitIsBC).ToList();
-                                }
-                                else
-                                {
-                                    // this.ListProdUnits.RowFilter = "ProductUnitRefno <> " + this.ProdUnitRefnoFilter + " AND ProductDescription LIKE \'%" + search.Trim() + "%\' AND ProductUnitIsSellUnit" + " AND ProductUnitIsBC";
-                                    this.FilteredListProdUnits = this.ListProdUnits.Where(productUnit => productUnit.ProductUnitRefno != this.ProdUnitRefnoFilter && productUnit.ProductDescription.ToLower().Contains(search.ToLower().Trim()) && productUnit.ProductUnitIsSellUnit && productUnit.ProductUnitIsBC).ToList();
-                                }
+                                this.FilteredListProdUnits = this.cboSearch.SelectedIndex == 0
+                                    ? this.ListProdUnits.Where(productUnit =>
+                                        productUnit.ProductUnitRefno != this.ProdUnitRefnoFilter &&
+                                        productUnit.ProductCode.ToLower().Contains(search.ToLower().Trim()) &&
+                                        productUnit.ProductUnitIsSellUnit && productUnit.ProductUnitIsBC).ToList()
+                                    :
+                                    this.ListProdUnits.Where(productUnit =>
+                                        productUnit.ProductUnitRefno != this.ProdUnitRefnoFilter &&
+                                        productUnit.ProductDescription.ToLower().Contains(search.ToLower().Trim()) &&
+                                        productUnit.ProductUnitIsSellUnit && productUnit.ProductUnitIsBC).ToList();
                             }
                             else
                             {
                                 // By Code
-                                if (this.cboSearch.SelectedIndex == 0)
-                                {
-                                    // this.ListProdUnits.RowFilter = "ProductUnitRefno <> " + this.ProdUnitRefnoFilter + " AND ProductCode LIKE \'%" + search.Trim() + "%\'";
-                                    this.FilteredListProdUnits = this.ListProdUnits.Where(productUnit => productUnit.ProductUnitRefno != this.ProdUnitRefnoFilter && productUnit.ProductCode.ToLower().Contains(search.ToLower().Trim())).ToList();
-                                }
-                                else
-                                {
-                                    // this.ListProdUnits.RowFilter = "ProductUnitRefno <> " + this.ProdUnitRefnoFilter + " AND ProductDescription LIKE \'%" + search.Trim() + "%\'";
-                                    this.FilteredListProdUnits = this.ListProdUnits.Where(productUnit => productUnit.ProductUnitRefno != this.ProdUnitRefnoFilter && productUnit.ProductDescription.ToLower().Contains(search.ToLower().Trim())).ToList();
-                                }
+                                this.FilteredListProdUnits = this.cboSearch.SelectedIndex == 0
+                                    ? this.ListProdUnits.Where(productUnit =>
+                                        productUnit.ProductUnitRefno != this.ProdUnitRefnoFilter && productUnit
+                                            .ProductCode.ToLower().Contains(search.ToLower().Trim())).ToList()
+                                    :
+                                    this.ListProdUnits.Where(productUnit =>
+                                        productUnit.ProductUnitRefno != this.ProdUnitRefnoFilter && productUnit
+                                            .ProductDescription.ToLower().Contains(search.ToLower().Trim())).ToList();
                             }
                         }
                     }
                     else
                     {
-                        if (this.ActSubType != SysCommon.ActSubTypes.Receiving && this.ActSubType != SysCommon.ActSubTypes.PurchaseOrderWorkSheet)
+                        if (this.ActSubType != SysCommon.ActSubTypes.Receiving &&
+                            this.ActSubType != SysCommon.ActSubTypes.PurchaseOrderWorkSheet)
                         {
                             // By Code
-                            if (this.cboSearch.SelectedIndex == 0)
-                            {
-                                // this.ListProdUnits.RowFilter = "ProductCode LIKE \'%" + search.Trim() + "%\' AND ProductUnitIsSellUnit";
-                                this.FilteredListProdUnits = this.ListProdUnits.Where(productUnit => productUnit.ProductCode.ToLower().Contains(search.ToLower().Trim()) && productUnit.ProductUnitIsSellUnit).ToList();
-                            }
-                            else
-                            {
-                                // this.ListProdUnits.RowFilter = "ProductDescription LIKE \'%" + search.Trim() + "%\' AND ProductUnitIsSellUnit";
-                                this.FilteredListProdUnits = this.ListProdUnits.Where(productUnit => productUnit.ProductDescription.ToLower().Contains(search.ToLower().Trim()) && productUnit.ProductUnitIsSellUnit).ToList();
-                            }
+                            this.FilteredListProdUnits = this.cboSearch.SelectedIndex == 0
+                                ? this.ListProdUnits.Where(productUnit =>
+                                    productUnit.ProductCode.ToLower().Contains(search.ToLower().Trim()) &&
+                                    productUnit.ProductUnitIsSellUnit).ToList()
+                                :
+                                this.ListProdUnits.Where(productUnit =>
+                                    productUnit.ProductDescription.ToLower().Contains(search.ToLower().Trim()) &&
+                                    productUnit.ProductUnitIsSellUnit).ToList();
 
                             // this.ListProdUnits.Sort = "UnitCode, ProductUnitBC DESC";
-                            _ = this.FilteredListProdUnits.OrderByDescending(productUnit => productUnit.UnitCode).ThenBy(productUnit => productUnit.ProductUnitBC);
+                            _ = this.FilteredListProdUnits.OrderByDescending(productUnit => productUnit.UnitCode)
+                                .ThenBy(productUnit => productUnit.ProductUnitBC);
                         }
                         else
                         {
                             // By Code
-                            if (this.cboSearch.SelectedIndex == 0)
-                            {
-                                // this.ListProdUnits.RowFilter = "ProductCode LIKE \'%" + search.Trim() + "%\'";
-                                this.FilteredListProdUnits = this.ListProdUnits.Where(productUnit => productUnit.ProductCode.ToLower().Contains(search.ToLower().Trim())).ToList();
-                            }
-                            else
-                            {
-                                // this.ListProdUnits.RowFilter = "ProductDescription LIKE \'%" + search.Trim() + "%\'";
-                                this.FilteredListProdUnits = this.ListProdUnits.Where(productUnit => productUnit.ProductDescription.ToLower().Contains(search.ToLower().Trim())).ToList();
-                            }
+                            this.FilteredListProdUnits = this.cboSearch.SelectedIndex == 0
+                                ? this.ListProdUnits.Where(productUnit =>
+                                    productUnit.ProductCode.ToLower().Contains(search.ToLower().Trim())).ToList()
+                                :
+                                this.ListProdUnits.Where(productUnit =>
+                                        productUnit.ProductDescription.ToLower().Contains(search.ToLower().Trim()))
+                                    .ToList();
                         }
                     }
                 }
@@ -648,13 +672,14 @@ namespace dMobile.View.Views
                     // Product unit filter specified.
                     if (this.ProdUnitRefnoFilter != 0)
                     {
-                        if (this.ActSubType != SysCommon.ActSubTypes.Receiving && this.ActSubType != SysCommon.ActSubTypes.PurchaseOrderWorkSheet)
+                        if (this.ActSubType != SysCommon.ActSubTypes.Receiving &&
+                            this.ActSubType != SysCommon.ActSubTypes.PurchaseOrderWorkSheet)
                         {
                             // By Code
                             if (this.cboSearch.SelectedIndex == 0)
                             {
-                                // this.ListProdUnits.RowFilter = "ProductRefno = " + this.ProdRefnoFilter + " AND ProductUnitRefno <> " + this.ProdUnitRefnoFilter + " AND ProductCode LIKE \'%" + search.Trim() + "%\' AND ProductUnitIsSellUnit" + " AND ProductUnitIsBC";
-                                this.FilteredListProdUnits = this.ListProdUnits.Where(productUnit => productUnit.ProductRefno == this.ProdRefnoFilter &&
+                                this.FilteredListProdUnits = this.ListProdUnits.Where(productUnit =>
+                                    productUnit.ProductRefno == this.ProdRefnoFilter &&
                                 productUnit.ProductUnitRefno != this.ProdUnitRefnoFilter &&
                                 productUnit.ProductCode.ToLower().Contains(search.ToLower().Trim()) &&
                                 productUnit.ProductUnitIsSellUnit &&
@@ -662,8 +687,8 @@ namespace dMobile.View.Views
                             }
                             else
                             {
-                                // this.ListProdUnits.RowFilter = "ProductRefno = " + this.ProdRefnoFilter + " AND ProductUnitRefno <> " + this.ProdUnitRefnoFilter + " AND ProductDescription LIKE \'%" + search.Trim() + "%\' AND ProductUnitIsSellUnit" + " AND ProductUnitIsBC";
-                                this.FilteredListProdUnits = this.ListProdUnits.Where(productUnit => productUnit.ProductRefno == this.ProdRefnoFilter &&
+                                this.FilteredListProdUnits = this.ListProdUnits.Where(productUnit =>
+                                    productUnit.ProductRefno == this.ProdRefnoFilter &&
                                 productUnit.ProductUnitRefno == this.ProdUnitRefnoFilter &&
                                 productUnit.ProductDescription.ToLower().Contains(search.ToLower().Trim()) &&
                                 productUnit.ProductUnitIsSellUnit &&
@@ -673,59 +698,58 @@ namespace dMobile.View.Views
                         else
                         {
                             // By Code
-                            if (this.cboSearch.SelectedIndex == 0)
-                            {
-                                // this.ListProdUnits.RowFilter = "ProductRefno = " + this.ProdRefnoFilter + " AND ProductUnitRefno <> " + this.ProdUnitRefnoFilter + " AND ProductCode LIKE \'%" + search.Trim() + "%\'";
-                                this.FilteredListProdUnits = this.ListProdUnits.Where(productUnit => productUnit.ProductRefno == this.ProdRefnoFilter && productUnit.ProductUnitRefno != this.ProdUnitRefnoFilter && productUnit.ProductCode.ToLower().Contains(search.ToLower().Trim())).ToList();
-                            }
-                            else
-                            {
-                                // this.ListProdUnits.RowFilter = "ProductRefno = " + this.ProdRefnoFilter + " AND ProductUnitRefno <> " + this.ProdUnitRefnoFilter + " AND ProductDescription LIKE \'%" + search.Trim() + "%\'";
-                                this.FilteredListProdUnits = this.ListProdUnits.Where(productUnit => productUnit.ProductRefno == this.ProdRefnoFilter && productUnit.ProductUnitRefno != this.ProdUnitRefnoFilter && productUnit.ProductDescription.ToLower().Contains(search.ToLower().Trim())).ToList();
-                            }
+                            this.FilteredListProdUnits = this.cboSearch.SelectedIndex == 0
+                                ? this.ListProdUnits.Where(productUnit =>
+                                    productUnit.ProductRefno == this.ProdRefnoFilter &&
+                                    productUnit.ProductUnitRefno != this.ProdUnitRefnoFilter &&
+                                    productUnit.ProductCode.ToLower().Contains(search.ToLower().Trim())).ToList()
+                                :
+                                this.ListProdUnits.Where(productUnit =>
+                                        productUnit.ProductRefno == this.ProdRefnoFilter &&
+                                        productUnit.ProductUnitRefno != this.ProdUnitRefnoFilter &&
+                                        productUnit.ProductDescription.ToLower().Contains(search.ToLower().Trim()))
+                                    .ToList();
                         }
                     }
                     else
                     {
-                        if (this.ActSubType != SysCommon.ActSubTypes.Receiving && this.ActSubType != SysCommon.ActSubTypes.PurchaseOrderWorkSheet)
+                        if (this.ActSubType != SysCommon.ActSubTypes.Receiving &&
+                            this.ActSubType != SysCommon.ActSubTypes.PurchaseOrderWorkSheet)
                         {
                             // By Code
-                            if (this.cboSearch.SelectedIndex == 0)
-                            {
-                                // this.ListProdUnits.RowFilter = "ProductRefno = " + this.ProdRefnoFilter + " AND ProductCode LIKE \'%" + search.Trim() + "%\' AND ProductUnitIsSellUnit";
-                                this.FilteredListProdUnits = this.ListProdUnits.Where(productUnit => productUnit.ProductRefno == this.ProdRefnoFilter && productUnit.ProductCode.ToLower().Contains(search.ToLower().Trim()) && productUnit.ProductUnitIsSellUnit).ToList();
-                            }
-                            else
-                            {
-                                // this.ListProdUnits.RowFilter = "ProductRefno = " + this.ProdRefnoFilter + " AND ProductDescription LIKE \'%" + search.Trim() + "%\' AND ProductUnitIsSellUnit";
-                                this.FilteredListProdUnits = this.ListProdUnits.Where(productUnit => productUnit.ProductRefno == this.ProdRefnoFilter && productUnit.ProductDescription.ToLower().Contains(search.ToLower().Trim()) && productUnit.ProductUnitIsSellUnit).ToList();
-                            }
+                            this.FilteredListProdUnits = this.cboSearch.SelectedIndex == 0
+                                ? this.ListProdUnits.Where(productUnit =>
+                                    productUnit.ProductRefno == this.ProdRefnoFilter &&
+                                    productUnit.ProductCode.ToLower().Contains(search.ToLower().Trim()) &&
+                                    productUnit.ProductUnitIsSellUnit).ToList()
+                                : this.ListProdUnits.Where(productUnit =>
+                                    productUnit.ProductRefno == this.ProdRefnoFilter &&
+                                    productUnit.ProductDescription.ToLower().Contains(search.ToLower().Trim()) &&
+                                    productUnit.ProductUnitIsSellUnit).ToList();
                         }
                         else
                         {
                             // By Code
-                            if (this.cboSearch.SelectedIndex == 0)
-                            {
-                                // this.ListProdUnits.RowFilter = "ProductRefno = " + this.ProdRefnoFilter + " AND ProductCode LIKE \'%" + search.Trim() + "%\'";
-                                this.FilteredListProdUnits = this.ListProdUnits.Where(productUnit => productUnit.ProductRefno == this.ProdRefnoFilter && productUnit.ProductCode.ToLower().Contains(search.ToLower().Trim())).ToList();
-                            }
-                            else
-                            {
-                                // this.ListProdUnits.RowFilter = "ProductRefno = " + this.ProdRefnoFilter + " AND ProductDescription LIKE \'%" + search.Trim() + "%\'";
-                                this.FilteredListProdUnits = this.ListProdUnits.Where(productUnit => productUnit.ProductRefno == this.ProdRefnoFilter && productUnit.ProductDescription.ToLower().Contains(search.ToLower().Trim())).ToList();
-                            }
+                            this.FilteredListProdUnits = this.cboSearch.SelectedIndex == 0
+                                ? this.ListProdUnits.Where(productUnit =>
+                                    productUnit.ProductRefno == this.ProdRefnoFilter && productUnit.ProductCode
+                                        .ToLower().Contains(search.ToLower().Trim())).ToList()
+                                : this.ListProdUnits.Where(productUnit =>
+                                    productUnit.ProductRefno == this.ProdRefnoFilter && productUnit.ProductDescription
+                                        .ToLower().Contains(search.ToLower().Trim())).ToList();
                         }
                     }
                 }
 
-                if (this.ActSubType != SysCommon.ActSubTypes.Receiving && this.ActSubType != SysCommon.ActSubTypes.PurchaseOrderWorkSheet)
+                if (this.ActSubType != SysCommon.ActSubTypes.Receiving &&
+                    this.ActSubType != SysCommon.ActSubTypes.PurchaseOrderWorkSheet)
                 {
-                    // this.ListProdUnits.RowFilter = "ProductUnitIsSellUnit";
-                    this.FilteredListProdUnits = this.ListProdUnits.Where(productUnit => productUnit.ProductUnitIsSellUnit).ToList();
+                    this.FilteredListProdUnits = this.ListProdUnits
+                        .Where(productUnit => productUnit.ProductUnitIsSellUnit).ToList();
                 }
                 else
                 {
-                    this.FilteredListProdUnits = this.ListProdUnits;
+                    ////this.FilteredListProdUnits = this.ListProdUnits;
                 }
             }
         }
@@ -961,11 +985,10 @@ namespace dMobile.View.Views
                     var entry = sender as Entry;
                     var startLength = entry.Text.Length;
 
-                    await Task.Delay(300);
+                    ////await Task.Delay(300);
 
                     if (startLength == entry.Text.Length)
-                    {
-                        this.ApplySearchFilter(this.txtSearchProduct.Text);
+                    {this.ApplySearchFilter(this.txtSearchProduct.Text);
                         await this.AddProductUnitToObservableCollection();
                     }
                 }

@@ -1293,50 +1293,45 @@ namespace dMobile.Bedrock
         public static string SubmitComm(string sendData)
         {
             Debug.WriteLine(sendData);
-            var recvData = string.Empty;
+            string receivedData;
             var sysEnv = SysEnvironment.GetInstance();
-            using (var sysSock = sysEnv.SysSock.Connect())
+            using var sysSock = sysEnv.SysSock.Connect();
+            _ = sysSock ?? throw new Exception("Failed to connect.");
+
+            try
             {
-                _ = sysSock ?? throw new Exception("Failed to connect.");
+                // KLUDGE: Temp fix until we can share a socket
+                ////System.Threading.Thread.Sleep(500);
 
-                try
+                var bytesSent = sysEnv.SysSock.SendRequest(sysSock, sendData);
+                var compressedData = sysEnv.SysSock.ReceiveResponse(sysSock);
+
+                receivedData = Compress.UnZip(compressedData.ToArray());
+
+                // Only errors from the comm server will contain reserved xml characters that need
+                // special handling.
+                // Table data with special characters will be handled when being loaded in the
+                // xml.dom object.
+                if (receivedData.Contains("<message>ERROR</message>"))
                 {
-                    // KLUDGE: Temp fix until we can share a socket
-                    ////System.Threading.Thread.Sleep(500);
-
-                    var bytesSent = sysEnv.SysSock.SendRequest(sysSock, sendData);
-                    var compressedData = sysEnv.SysSock.ReceiveResponse(sysSock);
-
-                    recvData = Compress.UnZip(compressedData.ToArray());
-
-                    // Only errors from the comm server will contain reserved xml characters that need
-                    // special handling.
-                    // Table data with special characters will be handled when being loaded in the
-                    // xml.dom object.
-                    if (recvData.Contains("<message>ERROR</message>"))
-                    {
-                        recvData = SysCommon.RemoveXMLReservedChars(recvData);
-                    }
-                    else if (recvData.IsNullOrEmpty())
-                    {
-                        throw new Exception("Unexpected no data received from communication submission.");
-                    }
+                    receivedData = SysCommon.RemoveXMLReservedChars(receivedData);
                 }
-                catch
+                else if (receivedData.IsNullOrEmpty())
                 {
-                    throw;
-                }
-                finally
-                {
-                    if (sysSock != null)
-                    {
-                        sysSock.Disconnect(true);
-                        sysSock.Close();
-                    }
+                    throw new Exception("Unexpected no data received from communication submission.");
                 }
             }
+            catch
+            {
+                throw;
+            }
+            finally
+            {
+                sysSock.Disconnect(true);
+                sysSock.Close();
+            }
 
-            return recvData;
+            return receivedData;
         }
 
         /// <summary>

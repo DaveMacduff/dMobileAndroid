@@ -54,7 +54,7 @@ namespace dMobile.View.Options
                 try
                 {
                     this.RefreshNICList();
-                    this.ucAbout_GotFocus(this, new EventArgs());
+                    this.ucAbout_GotFocus(this, EventArgs.Empty);
                 }
                 catch (Exception ex)
                 {
@@ -250,10 +250,7 @@ namespace dMobile.View.Options
 
             public string DisplayMember
             {
-                get
-                {
-                    return this.displayMember;
-                }
+                get => this.displayMember;
 
                 set
                 {

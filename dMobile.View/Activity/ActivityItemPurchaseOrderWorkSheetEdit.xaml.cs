@@ -93,7 +93,7 @@ namespace dMobile.View.Activity
 
             try
             {
-                await this.ucActivityDetailEdit_GotFocus(this, new EventArgs());
+                await this.ucActivityDetailEdit_GotFocus(this, EventArgs.Empty);
             }
             catch (Exception ex)
             {
@@ -132,14 +132,8 @@ namespace dMobile.View.Activity
 
         public bool IsEscapeTrapped
         {
-            get
-            {
-                return this.isEscapeTrapped;
-            }
-            set
-            {
-                this.isEscapeTrapped = value;
-            }
+            get => this.isEscapeTrapped;
+            set => this.isEscapeTrapped = value;
         }
         public bool IsNumericTrapped { get; set; } = false;
 

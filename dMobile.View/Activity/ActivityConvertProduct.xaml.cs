@@ -325,7 +325,8 @@ namespace dMobile.View.Activity
             {
                 if (await this.IsReadyToSave())
                 {
-                    if (this.FromProdRefno != 0 && this.ActItem.ListItems.Count != 0 && this.ActDetail.ListDetails.Count != 0)
+                    if (this.FromProdRefno != 0 && this.ActItem.ListItems.Count != 0 &&
+                        this.ActDetail.ListDetails.Count != 0)
                     {
                         saveComplete = true;
                         this.IsChangesMade = false;
@@ -1128,7 +1129,8 @@ namespace dMobile.View.Activity
                 this.ToProdRefno = await this.SelectProduct(false);
 
                 this.ActItem.ProdInfo = await ProductInfoTasks.GetInfoFromRefno(this.ToProdRefno);
-                this.ActItem.ProdInfo.Scheme = await ProductInfoTasks.GetSchemeComponentsFromRefno(this.ActItem.ProdInfo.Refno);
+                this.ActItem.ProdInfo.Scheme = await ProductInfoTasks.GetSchemeComponentsFromRefno(
+                    this.ActItem.ProdInfo.Refno);
 
                 if (this.ToProdRefno != 0)
                 {
@@ -1285,19 +1287,9 @@ namespace dMobile.View.Activity
             try
             {
                 await this.ActDisappearing();
-                await this.AssertLocationSet();
-                this.AssertFromProductSet();
-                this.AssertToProductSet();
-                AssertToDoesNotEqualFrom();
-
-                await this.ActItem.Delete();
-                this.ActItem.LocMap = this.LocMap.CurrLocMap;
-                this.ActItem.ProdInfo = this.ToProdInfo;
-                await this.ActItem.Insert(await this.GetXML(), false);
-
-                var detail = new dMobile.Resources.Types.ActivityDetail();
-                await this.ActDetail.AssignThisFromDetailAsync(detail, clearThisValues: true);
-                this.ActDetail.ActItem = this.ActItem;
+                await ValidateCanPerformClick();
+                await FillActivityItem();
+                await CreateAndFillActivityDetail();
 
                 var form = new FormDialogContainer(
                     EDialogTypes.ActivityConvertProductDetail,
@@ -1306,12 +1298,11 @@ namespace dMobile.View.Activity
 
                 if (await form.DisplayControl.ShowDialog() == DialogResult.OK)
                 {
-                    // Detail Save
-                    // If save, we send to comm server
+                    // Detail was already submitted to the comm server or saved in the local tables.
                 }
                 else
                 {
-                    // Detail Cancel
+                    // Detail was already submitted to the comm server or saved in the local tables.
                 }
             }
             catch (MessageOnlyException ex)
@@ -1338,12 +1329,42 @@ namespace dMobile.View.Activity
             this.DisplaySummary();
 
             //////////////////////////////////////////////////////////////////////////
+            // Validate whether allowed to perform the click detail event.
+            async Task ValidateCanPerformClick()
+            {
+                await this.AssertLocationSet();
+                this.AssertFromProductSet();
+                this.AssertToProductSet();
+                AssertToDoesNotEqualFrom();
+            }
+
+            //////////////////////////////////////////////////////////////////////////
+            // Check if the 'to' product and 'from' product are NOT the same.
             void AssertToDoesNotEqualFrom()
             {
                 if (this.ToProdRefno == this.FromProdRefno)
                 {
-                    throw new MessageOnlyException("TO Product cannot be the same as FROM Product.");
+                    throw new MessageOnlyException("TO Product cannot be the same as the FROM Product.");
                 }
+            }
+
+            //////////////////////////////////////////////////////////////////////////
+            // Fill the activity item.
+            async Task FillActivityItem()
+            {
+                await this.ActItem.Delete();
+                this.ActItem.LocMap = this.LocMap.CurrLocMap;
+                this.ActItem.ProdInfo = this.ToProdInfo;
+                await this.ActItem.Insert(await this.GetXML(), false);
+            }
+
+            //////////////////////////////////////////////////////////////////////////
+            // Create new detail instance and fill it.
+            async Task CreateAndFillActivityDetail()
+            {
+                var detail = new dMobile.Resources.Types.ActivityDetail();
+                await this.ActDetail.AssignThisFromDetailAsync(detail, clearThisValues: true);
+                this.ActDetail.ActItem = this.ActItem;
             }
         }
 

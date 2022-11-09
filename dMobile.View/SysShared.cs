@@ -319,7 +319,7 @@ namespace dMobile.View
                 !sysEnv.SysSettings.IsDisconnectedMode)
             {
                 var locMap = LocationMap.GetInstance();
-                var sLocMapAndRefno = await GetSLocMapFromLocMapFKRefno(
+                var sLocMapAndRefno = await GetSLocMapFromLocMapFkRefno(
                     itemSchemeData.LocMapWhsFKRefno,
                     itemSchemeData.LocMapSectFKRefno,
                     itemSchemeData.LocMapSlotFKRefno);

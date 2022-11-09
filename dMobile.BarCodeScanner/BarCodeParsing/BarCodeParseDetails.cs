@@ -45,24 +45,12 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
         /// <summary>
         /// Checks if there are any errors.
         /// </summary>
-        public bool HasErrors
-        {
-            get
-            {
-                return this.errorDetails.Count > 0;
-            }
-        }
+        public bool HasErrors => this.errorDetails.Count > 0;
 
         /// <summary>
         /// Gets the number of errors.
         /// </summary>
-        public int ErrorCount
-        {
-            get
-            {
-                return this.errorDetails.Count;
-            }
-        }
+        public int ErrorCount => this.errorDetails.Count;
 
         /// <summary>
         /// Adds a detail of what went wrong with the parse.

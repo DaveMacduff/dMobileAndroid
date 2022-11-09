@@ -119,14 +119,8 @@ namespace dMobile.View.Options
 
         public ObservableCollection<string> ExtraInfoItems
         {
-            get
-            {
-                return this.itemsList;
-            }
-            set
-            {
-                this.itemsList = value;
-            }
+            get => this.itemsList;
+            set => this.itemsList = value;
         }
 
         private int MinIPAddress { get; } = 0;

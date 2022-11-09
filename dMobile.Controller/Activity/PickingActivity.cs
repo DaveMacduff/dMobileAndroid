@@ -134,7 +134,7 @@ namespace dMobile.Controller.Activity
         /// <returns>The <see cref="Task"/>.</returns>
         public override async Task PrintLabel(XDocument data)
         {
-            var sLocMapAndRefno = await LocationMapTasks.GetSLocMapFromLocMapFKRefno(
+            var sLocMapAndRefno = await LocationMapTasks.GetSLocMapFromLocMapFkRefno(
                 int.Parse(this.XMLDataCriteria.Root.Element("whs_id").Value),
                 int.Parse(this.XMLDataCriteria.Root.Element("sect_refno").Value),
                 0);
@@ -234,10 +234,10 @@ namespace dMobile.Controller.Activity
                 var xmlString = new StringBuilder();
                 var xml = XmlWriter.Create(xmlString);
                 XDocument request = null;
-                var sLocMapAndRefno = await LocationMapTasks.GetSLocMapFromLocMapFKRefno(
+                var sLocMapAndRefno = await LocationMapTasks.GetSLocMapFromLocMapFkRefno(
                     int.Parse(this.XMLDataCriteria.Root.Element("whs_id").Value),
                     int.Parse(this.XMLDataCriteria.Root.Element("sect_refno").Value),
-                    slotLocMapFKRefno: 0);
+                    slotLocMapFkRefno: 0);
                 var locMap = sLocMapAndRefno.SLocMap;
 
                 request = XDocument.Parse(
@@ -319,10 +319,10 @@ namespace dMobile.Controller.Activity
         /// <returns>A <see cref="Task{TResult}"/> representing the result of the asynchronous operation.</returns>
         public async Task<bool> IsSalesOrderBeingPicked()
         {
-            var sLocMapAndRefno = await LocationMapTasks.GetSLocMapFromLocMapFKRefno(
+            var sLocMapAndRefno = await LocationMapTasks.GetSLocMapFromLocMapFkRefno(
                 int.Parse(this.XMLDataCriteria.Root.Element("whs_id").Value),
                 int.Parse(this.XMLDataCriteria.Root.Element("sect_refno").Value),
-                slotLocMapFKRefno: 0);
+                slotLocMapFkRefno: 0);
             var locMap = sLocMapAndRefno.SLocMap;
             var reqData = string.Empty;
             var xmlString = new StringBuilder();
@@ -376,10 +376,10 @@ namespace dMobile.Controller.Activity
 
             if (!this.SysEnv.SysSettings.IsDisconnectedMode)
             {
-                var sLocMapAndRefno = await LocationMapTasks.GetSLocMapFromLocMapFKRefno(
+                var sLocMapAndRefno = await LocationMapTasks.GetSLocMapFromLocMapFkRefno(
                     int.Parse(this.XMLDataCriteria.Root.Element("whs_id").Value),
                     int.Parse(this.XMLDataCriteria.Root.Element("sect_refno").Value),
-                    slotLocMapFKRefno: 0);
+                    slotLocMapFkRefno: 0);
                 var locMap = sLocMapAndRefno.SLocMap;
                 var reqData = string.Empty;
                 var xmlString = new StringBuilder();
@@ -1046,14 +1046,14 @@ namespace dMobile.Controller.Activity
         {
             if (this.SysEnv.SysSettings.IsDisconnectedMode)
             {
-                this.DataLayerProgressOutHandler(this, new EventArgs(), 5);
+                this.DataLayerProgressOutHandler(this, EventArgs.Empty, 5);
             }
             else
             {
-                this.DataLayerProgressOutHandler(this, new EventArgs(), 2);
+                this.DataLayerProgressOutHandler(this, EventArgs.Empty, 2);
                 await this.Purge();
 
-                this.DataLayerProgressOutHandler(this, new EventArgs(), 5);
+                this.DataLayerProgressOutHandler(this, EventArgs.Empty, 5);
 
                 var actPicking = new TableActivityPicking();
                 try
@@ -1181,10 +1181,10 @@ namespace dMobile.Controller.Activity
             var isReleased = false;
 
             var locMapRefno = 0;
-            var sLocMapAndRefno = await LocationMapTasks.GetSLocMapFromLocMapFKRefno(
+            var sLocMapAndRefno = await LocationMapTasks.GetSLocMapFromLocMapFkRefno(
                 int.Parse(this.XMLDataCriteria.Root.Element("whs_id").Value),
                 int.Parse(this.XMLDataCriteria.Root.Element("sect_refno").Value),
-                slotLocMapFKRefno: 0);
+                slotLocMapFkRefno: 0);
             var locMap = sLocMapAndRefno.SLocMap;
 
             var msg = string.Format("Release order# {0} for warehouse {1}, section {2}?", this.HdrFKRefno, locMap.WhsName, locMap.SectName);

@@ -128,7 +128,7 @@ namespace dMobile.View.Activity
                     }
                 }
 
-                this.ucActivityShippingLabelEdit_GotFocus(this, new EventArgs());
+                this.ucActivityShippingLabelEdit_GotFocus(this, EventArgs.Empty);
             }
             catch (Exception ex)
             {
@@ -172,15 +172,9 @@ namespace dMobile.View.Activity
 
         private SLabelQuantity LabelQtyEdit
         {
-            get
-            {
-                return this.labelQtyEdit;
-            }
+            get => this.labelQtyEdit;
 
-            set
-            {
-                this.labelQtyEdit = value;
-            }
+            set => this.labelQtyEdit = value;
         }
 
         private SysEnvironment SysEnv { get; set; }

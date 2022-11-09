@@ -572,18 +572,18 @@ namespace dMobile.Controller.Activity_Item
         {
             if (this.SysEnv.SysSettings.IsDisconnectedMode)
             {
-                this.DataLayerProgressOutHandler(this, new EventArgs(), 5);
+                this.DataLayerProgressOutHandler(this, EventArgs.Empty, 5);
             }
             else
             {
-                this.DataLayerProgressOutHandler(this, new EventArgs(), 2);
+                this.DataLayerProgressOutHandler(this, EventArgs.Empty, 2);
 
                 var tableActPickItem = new TableActivityPickingItem();
                 var tableActPickDetail = new TableActivityPickingDetail();
                 await tableActPickDetail.PurgeData();
                 await tableActPickItem.PurgeData();
 
-                this.DataLayerProgressOutHandler(this, new EventArgs(), 5);
+                this.DataLayerProgressOutHandler(this, EventArgs.Empty, 5);
 
                 tableActPickItem.RegisterDataAccessListenerProgressOut((PickSingleActItem)this);
                 await tableActPickItem.RequestData(this.ActHdr.HdrRefno, data);

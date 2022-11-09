@@ -131,7 +131,7 @@ namespace dMobile.View.Activity
 
             try
             {
-                await this.ucActivityProductLabel_GotFocus(this, new EventArgs());
+                await this.ucActivityProductLabel_GotFocus(this, EventArgs.Empty);
             }
             catch (Exception ex)
             {

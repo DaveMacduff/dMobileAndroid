@@ -56,7 +56,7 @@ namespace dMobile.View.Pages
                     {
                         if (this.btnClose.IsEnabled)
                         {
-                            this.BtnClose_Clicked(this, new EventArgs());
+                            this.BtnClose_Clicked(this, EventArgs.Empty);
                         }
                     }
                 }
@@ -66,7 +66,7 @@ namespace dMobile.View.Pages
                 }
             });
 
-            await Task.Run(async () => await this.LoadData(this, new EventArgs()));
+            await Task.Run(async () => await this.LoadData(this, EventArgs.Empty));
         }
 
         /// <summary>
@@ -171,7 +171,7 @@ namespace dMobile.View.Pages
             IDataNubPublisher databaseNubEventPublisher,
             DataNubEventArgs databaseNubEventArgs)
         {
-            this.StartUpStatusOut(this, new EventArgs(), databaseNubEventArgs.StatusOutMsg);
+            this.StartUpStatusOut(this, EventArgs.Empty, databaseNubEventArgs.StatusOutMsg);
         }
 
         /// <summary>

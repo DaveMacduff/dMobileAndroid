@@ -76,10 +76,7 @@ namespace dMobile.Bedrock
                 return this.currLocMapRefno;
             }
 
-            set
-            {
-                this.currLocMapRefno = value;
-            }
+            set => this.currLocMapRefno = value;
         }
 
         /// <summary>
@@ -105,10 +102,7 @@ namespace dMobile.Bedrock
                 return this.chosenLocMapRefno;
             }
 
-            set
-            {
-                this.chosenLocMapRefno = value;
-            }
+            set => this.chosenLocMapRefno = value;
         }
 
         /// <summary>
@@ -122,12 +116,7 @@ namespace dMobile.Bedrock
         /// <returns>.</returns>
         public static LocationMap GetInstance()
         {
-            if (LocMap == null)
-            {
-                LocMap = new LocationMap();
-            }
-
-            return LocMap;
+            return LocMap ??= new LocationMap();
         }
     }
 }

@@ -98,7 +98,7 @@ namespace dMobile.View.Activity
 
             try
             {
-                this.ucActivityDetailEdit_GotFocus(this, new EventArgs());
+                this.ucActivityDetailEdit_GotFocus(this, EventArgs.Empty);
             }
             catch (Exception ex)
             {

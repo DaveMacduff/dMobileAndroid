@@ -54,7 +54,7 @@ namespace dMobile.View.Options
 
                 try
                 {
-                    this.ucSetupDefaults_GotFocus(this, new EventArgs());
+                    this.ucSetupDefaults_GotFocus(this, EventArgs.Empty);
                 }
                 catch (Exception ex)
                 {
@@ -86,11 +86,11 @@ namespace dMobile.View.Options
 
                 if (keycode == Keycode.Enter)
                 {
-                    this.BtnSave_Clicked(this, new EventArgs());
+                    this.BtnSave_Clicked(this, EventArgs.Empty);
                 }
                 else if (keycode == Keycode.F1)
                 {
-                    this.BtnSave_Clicked(this, new EventArgs());
+                    this.BtnSave_Clicked(this, EventArgs.Empty);
                 }
             });
 
@@ -132,10 +132,7 @@ namespace dMobile.View.Options
 
         public bool IsChangesMade
         {
-            get
-            {
-                return this.isChangesMade;
-            }
+            get => this.isChangesMade;
 
             set
             {
@@ -702,38 +699,38 @@ namespace dMobile.View.Options
 
         private void ChkEnableShippingMobilePrinter_Toggled(object sender, ToggledEventArgs e)
         {
-            this.IdentifyChangesMade(sender, new EventArgs());
+            this.IdentifyChangesMade(sender, EventArgs.Empty);
         }
 
         private async void ChkDisconnectMode_Toggled(object sender, ToggledEventArgs e)
         {
             await this.ValidateEntry(sender, new CancelEventArgs());
-            this.IdentifyChangesMade(sender, new EventArgs());
+            this.IdentifyChangesMade(sender, EventArgs.Empty);
         }
 
         private void ChkDisconnectedModeLoadDetail_Toggled(object sender, ToggledEventArgs e)
         {
-            this.IdentifyChangesMade(sender, new EventArgs());
+            this.IdentifyChangesMade(sender, EventArgs.Empty);
         }
 
         private void ChkVerifyLocationWhenProductChanged_Toggled(object sender, ToggledEventArgs e)
         {
-            this.IdentifyChangesMade(sender, new EventArgs());
+            this.IdentifyChangesMade(sender, EventArgs.Empty);
         }
 
         private void ChkPrintProductLabelsAsBatch_Toggled(object sender, ToggledEventArgs e)
         {
-            this.IdentifyChangesMade(sender, new EventArgs());
+            this.IdentifyChangesMade(sender, EventArgs.Empty);
         }
 
         private void ChkEnableShelfMobilePrinter_Toggled(object sender, ToggledEventArgs e)
         {
-            this.IdentifyChangesMade(sender, new EventArgs());
+            this.IdentifyChangesMade(sender, EventArgs.Empty);
         }
 
         private void ChkEnableProductMobilePrinter_Toggled(object sender, ToggledEventArgs e)
         {
-            this.IdentifyChangesMade(sender, new EventArgs());
+            this.IdentifyChangesMade(sender, EventArgs.Empty);
         }
 
         private async void BtnSave_Clicked(object sender, EventArgs e)
@@ -748,7 +745,7 @@ namespace dMobile.View.Options
         {
             if ((Theme)this.themePicker.SelectedItem != this.SysEnv.SysSettings.Theme)
             {
-                this.IdentifyChangesMade(sender, new EventArgs());
+                this.IdentifyChangesMade(sender, EventArgs.Empty);
 
                 var picker = sender as Picker;
                 var theme = (Theme)picker.SelectedItem;

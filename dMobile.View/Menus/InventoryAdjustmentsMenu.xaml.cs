@@ -92,7 +92,7 @@ namespace dMobile.View.Menus
 
             try
             {
-                this.ucInventoryAdjustmentsMenu_GotFocus(this, new EventArgs());
+                this.ucInventoryAdjustmentsMenu_GotFocus(this, EventArgs.Empty);
             }
             catch (Exception ex)
             {

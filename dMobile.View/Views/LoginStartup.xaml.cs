@@ -402,7 +402,7 @@ namespace dMobile.View.Views
                         if (keycode == Keycode.Enter)
                         {
                             _ = await this.IsReadyToClose();
-                            this.cmdLogin_Click(this, new EventArgs());
+                            this.cmdLogin_Click(this, EventArgs.Empty);
                         }
 
                         await this.LoginStartup_GotFocus();

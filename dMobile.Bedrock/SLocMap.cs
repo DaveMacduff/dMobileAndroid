@@ -78,10 +78,7 @@ namespace dMobile.Bedrock
         /// </summary>
         public string SlotCoord1Name
         {
-            get
-            {
-                return this.slotCoord1Name;
-            }
+            get => this.slotCoord1Name;
 
             set
             {
@@ -102,10 +99,7 @@ namespace dMobile.Bedrock
         /// </summary>
         public string SlotCoord2Name
         {
-            get
-            {
-                return this.slotCoord2Name;
-            }
+            get => this.slotCoord2Name;
 
             set
             {
@@ -126,10 +120,7 @@ namespace dMobile.Bedrock
         /// </summary>
         public string SlotCoord3Name
         {
-            get
-            {
-                return this.slotCoord3Name;
-            }
+            get => this.slotCoord3Name;
 
             set
             {

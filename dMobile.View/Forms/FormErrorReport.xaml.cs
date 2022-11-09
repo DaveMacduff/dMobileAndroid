@@ -233,11 +233,11 @@ namespace dMobile.View.Forms
                     this.buttonContinue.Text,
                     this.buttonSendReport.Text)))
             {
-                this.ButtonContinue_Click(this, new EventArgs());
+                this.ButtonContinue_Click(this, EventArgs.Empty);
             }
             else
             {
-                this.ButtonSendReport_Clicked(this, new EventArgs());
+                this.ButtonSendReport_Clicked(this, EventArgs.Empty);
             }
 
             return this.DialogResult;

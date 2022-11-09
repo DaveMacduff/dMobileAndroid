@@ -117,7 +117,7 @@ namespace dMobile.View.Activity
 
             try
             {
-                await this.ActItemInventoryInquiry_GotFocus(this, new EventArgs());
+                await this.ActItemInventoryInquiry_GotFocus(this, EventArgs.Empty);
                 await this.RefreshData();
             }
             catch (Exception ex)

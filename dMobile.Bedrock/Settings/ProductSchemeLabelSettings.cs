@@ -118,10 +118,7 @@ namespace dMobile.Bedrock
                 return this.allProdSchemeLabel;
             }
 
-            set
-            {
-                this.allProdSchemeLabel = value;
-            }
+            set => this.allProdSchemeLabel = value;
         }
 
         /// <summary>
@@ -129,15 +126,9 @@ namespace dMobile.Bedrock
         /// </summary>
         public string FullClassName
         {
-            get
-            {
-                return this.fullClassName;
-            }
+            get => this.fullClassName;
 
-            set
-            {
-                this.fullClassName = value;
-            }
+            set => this.fullClassName = value;
         }
 
         /// <summary>
@@ -145,15 +136,9 @@ namespace dMobile.Bedrock
         /// </summary>
         public string FilePath
         {
-            get
-            {
-                return this.filePath;
-            }
+            get => this.filePath;
 
-            set
-            {
-                this.filePath = value;
-            }
+            set => this.filePath = value;
         }
 
         /// <summary>
@@ -161,15 +146,9 @@ namespace dMobile.Bedrock
         /// </summary>
         public string FileASCIIZ
         {
-            get
-            {
-                return this.fileASCIIZ;
-            }
+            get => this.fileASCIIZ;
 
-            set
-            {
-                this.fileASCIIZ = value;
-            }
+            set => this.fileASCIIZ = value;
         }
 
         /// <summary>
@@ -177,15 +156,9 @@ namespace dMobile.Bedrock
         /// </summary>
         public string FileName
         {
-            get
-            {
-                return this.fileName;
-            }
+            get => this.fileName;
 
-            set
-            {
-                this.fileName = value;
-            }
+            set => this.fileName = value;
         }
 
         /// <summary>
@@ -565,15 +538,9 @@ namespace dMobile.Bedrock
             /// </summary>
             public bool IsVariantTracked
             {
-                get
-                {
-                    return this.isVariantTracked;
-                }
+                get => this.isVariantTracked;
 
-                set
-                {
-                    this.isVariantTracked = value;
-                }
+                set => this.isVariantTracked = value;
             }
 
             /// <summary>

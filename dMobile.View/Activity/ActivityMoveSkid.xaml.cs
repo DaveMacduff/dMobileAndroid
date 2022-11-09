@@ -495,8 +495,8 @@ namespace dMobile.View.Activity
             {
                 await Device.InvokeOnMainThreadAsync(async () =>
                 {
-                    var msg = "This activity unexpectedly failed to initialize correctly." +
-                              " Please exit and try again.";
+                    const string msg = "This activity unexpectedly failed to initialize correctly." +
+                                       " Please exit and try again.";
                     var errorReport = new FormErrorReport(msg, ex);
                     _ = await errorReport.ShowDialog();
                 });
@@ -521,18 +521,20 @@ namespace dMobile.View.Activity
                 {
                     _ = Enum.TryParse(keyPressed, out Keycode keycode);
 
-                    if (keycode == Keycode.F1)
+                    switch (keycode)
                     {
-                        await OnAppearingF1Key();
-                    }
-                    else if (keycode == Keycode.Enter)
-                    {
-                        await this.SkidCodeEnter();
+                        case Keycode.F1:
+                            await AppearingF1Key();
+                            break;
+
+                        case Keycode.Enter:
+                            await this.SkidCodeEnter();
+                            break;
                     }
                 });
 
                 //////////////////////////////////////////////////////////////////////////
-                async Task OnAppearingF1Key()
+                async Task AppearingF1Key()
                 {
                     try
                     {
@@ -663,46 +665,46 @@ namespace dMobile.View.Activity
             {
                 // GLOBAL LOCATION IDENTIFIER SCANNED
                 if (!string.IsNullOrEmpty(parse.LocationIdentifier))
+                {
+                    var locMapRefno = await LocationMapTasks.GetLocMapRefnoFromBarCodeGlobalLocIdentifier(
+                        parse.LocationIdentifier);
+
+                    if (locMapRefno > 0)
                     {
-                        var locMapRefno = await LocationMapTasks.GetLocMapRefnoFromBarCodeGlobalLocIdentifier(
-                            parse.LocationIdentifier);
-
-                        if (locMapRefno > 0)
-                        {
-                            this.LocMap.ChosenLocMap = await LocationMapTasks.GetSLocMapFromLocMapRefno(locMapRefno);
-                        }
-
-                        await Device.InvokeOnMainThreadAsync(() =>
-                        {
-                            if (this.LocMap.ChosenLocMap.WhsLocMapRefno != 0)
-                            {
-                                this.cmdToLocation.Text = LocationMapTasks.GetCurrentReadableLocation();
-                            }
-                            else
-                            {
-                                this.cmdToLocation.Text = "Set Location";
-                            }
-                        });
+                        this.LocMap.ChosenLocMap = await LocationMapTasks.GetSLocMapFromLocMapRefno(locMapRefno);
                     }
-                    else
+
+                    await Device.InvokeOnMainThreadAsync(() =>
                     {
+                        if (this.LocMap.ChosenLocMap.WhsLocMapRefno != 0)
+                        {
+                            this.cmdToLocation.Text = LocationMapTasks.GetCurrentReadableLocation();
+                        }
+                        else
+                        {
+                            this.cmdToLocation.Text = "Set Location";
+                        }
+                    });
+                }
+                else
+                {
                     // PRODUCT IDENTIFIER
                     if (!string.IsNullOrEmpty(parse.ProductIdentifier))
-                        {
-                            throw new MessageOnlyException("Scanning a shipping container bar code is not supported here!");
-                        }
+                    {
+                        throw new MessageOnlyException("Scanning a shipping container bar code is not supported here!");
+                    }
 
                     // ACTIVITY ITEM FK REFNO
                     if (!string.IsNullOrEmpty(parse.ActItemFKRefno))
-                        {
-                            throw new MessageOnlyException("Scanning a line item bar code is not supported here!");
-                        }
+                    {
+                        throw new MessageOnlyException("Scanning a line item bar code is not supported here!");
+                    }
 
                     // ACTIVITY DETAIL FK REFNO
                     if (!string.IsNullOrEmpty(parse.ActDetailFKRefno))
-                        {
-                            throw new MessageOnlyException("Scanning an line item detail bar code is not supported here!");
-                        }
+                    {
+                        throw new MessageOnlyException("Scanning an line item detail bar code is not supported here!");
+                    }
 
                     // SHIPPING CONAINTER SCANNED, SKID
                     if (!string.IsNullOrEmpty(parse.SSCC18))
@@ -765,39 +767,23 @@ namespace dMobile.View.Activity
                 this.txtSkidCode.Text = this.SkidInfo.CurrSkid.SkidCode.ToString();
 
                 var location = LocationMapTasks.GetReadableLocation(this.SkidInfo.CurrSkid.LocMap, true);
-                this.ExtraInfoItems.Add(string.Format("Current: {0}", location));
+                this.ExtraInfoItems.Add($"Current: {location}");
+                this.lblProductBCUnit.Text = $"Product: {this.SkidInfo.CurrSkid.ProdInfo.Code}" +
+                                             $" {this.SkidInfo.CurrSkid.ProdInfo.UnitBC}" +
+                                             $" {this.SkidInfo.CurrSkid.ProdInfo.UnitCode}";
+                this.ExtraInfoItems.Add($"Bar Code: {this.SkidInfo.CurrSkid.LogisticUnitSkidCode}");
 
-                this.lblProductBCUnit.Text = string.Format(
-                    "Product: {0} {1} {2}",
-                    this.SkidInfo.CurrSkid.ProdInfo.Code,
-                    this.SkidInfo.CurrSkid.ProdInfo.UnitBC,
-                    this.SkidInfo.CurrSkid.ProdInfo.UnitCode);
-                this.ExtraInfoItems.Add(string.Format("Bar Code: {0}", this.SkidInfo.CurrSkid.LogisticUnitSkidCode));
-
-                var qty = string.Format(
-                    "Qty: {0} {1}",
-                    Math.Round(this.SkidInfo.CurrSkid.Quantity, 3),
-                    this.SkidInfo.CurrSkid.ProdInfo.UnitCode);
+                var qty = $"Qty: {Math.Round(this.SkidInfo.CurrSkid.Quantity, 3)}" +
+                          $" {this.SkidInfo.CurrSkid.ProdInfo.UnitCode}";
                 this.ExtraInfoItems.Add(qty);
 
-                this.ExtraInfoItems.Add(string.Format(
-                    "Weight: {0} {1}",
-                    Math.Round(this.SkidInfo.CurrSkid.WeightQuantity, 3),
-                    this.SkidInfo.CurrSkid.ProdInfo.WeightUnitCode));
-                this.ExtraInfoItems.Add(string.Format(
-                    "Ti: {0} Hi: {1}",
-                    this.SkidInfo.CurrSkid.Ti,
-                    this.SkidInfo.CurrSkid.Hi));
-                this.ExtraInfoItems.Add(string.Format(
-                    "Height: {0} {1}",
-                    this.SkidInfo.CurrSkid.Height,
-                    this.SkidInfo.CurrSkid.HeightUnit));
-                this.ExtraInfoItems.Add(string.Format(
-                    "Cube: {0} {1}",
-                    this.SkidInfo.CurrSkid.Cube,
-                    this.SkidInfo.CurrSkid.CubeUnit));
-                this.ExtraInfoItems.Add(string.Format("CHEP: {0}", this.SkidInfo.CurrSkid.IsCHEP));
-                this.ExtraInfoItems.Add(string.Format("Hold: {0}", this.SkidInfo.CurrSkid.IsHold));
+                this.ExtraInfoItems.Add($"Weight: {Math.Round(this.SkidInfo.CurrSkid.WeightQuantity, 3)}" +
+                                        $" {this.SkidInfo.CurrSkid.ProdInfo.WeightUnitCode}");
+                this.ExtraInfoItems.Add($"Ti: {this.SkidInfo.CurrSkid.Ti} Hi: {this.SkidInfo.CurrSkid.Hi}");
+                this.ExtraInfoItems.Add($"Height: {this.SkidInfo.CurrSkid.Height} {this.SkidInfo.CurrSkid.HeightUnit}");
+                this.ExtraInfoItems.Add($"Cube: {this.SkidInfo.CurrSkid.Cube} {this.SkidInfo.CurrSkid.CubeUnit}");
+                this.ExtraInfoItems.Add($"CHEP: {this.SkidInfo.CurrSkid.IsCHEP}");
+                this.ExtraInfoItems.Add($"Hold: {this.SkidInfo.CurrSkid.IsHold}");
             }
             else
             {
@@ -813,14 +799,13 @@ namespace dMobile.View.Activity
             try
             {
                 this.SkidInfo = await SysSkidInfo.GetSkidInfoFromBarCodeOrCode(this.txtSkidCode.Text);
-
                 if (this.SkidInfo.CurrSkid.SkidFKRefno != 0)
                 {
                     this.LocMap.CurrLocMap = await LocationMapTasks.GetSLocMapFromLocMapRefno(
                         this.SkidInfo.CurrSkid.LocMapRefno);
                 }
 
-                await Device.InvokeOnMainThreadAsync(() => this.DisplaySkidInfo());
+                await Device.InvokeOnMainThreadAsync(this.DisplaySkidInfo);
             }
             catch (Exception ex)
             {

@@ -5,7 +5,6 @@
 namespace dMobile.View.Forms
 {
     using System;
-    using System.Collections.Generic;
     using System.ComponentModel;
     using System.Threading.Tasks;
     using dMobile.BarCodeScanner.BarCodeScanners;
@@ -83,14 +82,14 @@ namespace dMobile.View.Forms
         private BarCodeScanner Scanner { get; set; } = ScannerEngine.GetInstance().Scanner;
 
         /// <summary>
-        /// Unregister the bar code scan event handler and disable the scanner.
+        /// Un-register the bar code scan event handler and disable the scanner.
         /// </summary>
         /// <returns><see cref="Task"/> Task operation.</returns>
         public async Task ScannerDisable()
         {
             if (this.Scanner != null)
             {
-                this.Scanner.BarCodeScan -= new BarCodeScanner.BarCodeScanEventHandler(this.BarCodeHandler);
+                this.Scanner.BarCodeScan -= new BarCodeScanner.BarCodeScanEventHandler(BarCodeHandler);
                 await this.Scanner.Stop();
             }
 
@@ -106,7 +105,7 @@ namespace dMobile.View.Forms
             if (!this.IsBarCodeHandlerRegistered)
             {
                 await this.Scanner.Start();
-                this.Scanner.BarCodeScan += new BarCodeScanner.BarCodeScanEventHandler(this.BarCodeHandler);
+                this.Scanner.BarCodeScan += new BarCodeScanner.BarCodeScanEventHandler(BarCodeHandler);
                 this.IsBarCodeHandlerRegistered = true;
             }
         }
@@ -124,7 +123,7 @@ namespace dMobile.View.Forms
         /// </summary>
         /// <param name="sender"><see cref="object"/> Sender object.</param>
         /// <param name="scanArgs"><see cref="BarCodeScannerEventArgs"/> Scan event arguments.</param>
-        private Task BarCodeHandler(object sender, BarCodeScannerEventArgs scanArgs)
+        private static Task BarCodeHandler(object sender, BarCodeScannerEventArgs scanArgs)
         {
             throw new NotImplementedException();
         }
@@ -185,11 +184,13 @@ namespace dMobile.View.Forms
         /// <param name="e"><see cref="EventArgs"/> Event arguments.</param>
         private void CmdCancel_Click(object sender, EventArgs e)
         {
-            Device.BeginInvokeOnMainThread(async () =>
+            async void CancelCallback()
             {
                 this.DialogResult = DialogResult.Cancel;
                 await this.Close();
-            });
+            }
+
+            Device.BeginInvokeOnMainThread(CancelCallback);
         }
 
         /// <summary>

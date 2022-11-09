@@ -97,15 +97,9 @@ namespace dMobile.Bedrock
         /// </summary>
         public bool IsRefreshDataFailed
         {
-            get
-            {
-                return this.isRefreshDataFailed;
-            }
+            get => this.isRefreshDataFailed;
 
-            set
-            {
-                this.isRefreshDataFailed = value;
-            }
+            set => this.isRefreshDataFailed = value;
         }
 
         /// <summary>
@@ -113,15 +107,9 @@ namespace dMobile.Bedrock
         /// </summary>
         public bool IsDataCreatedInStartUp
         {
-            get
-            {
-                return this.isDataCreatedOnStartUp;
-            }
+            get => this.isDataCreatedOnStartUp;
 
-            set
-            {
-                this.isDataCreatedOnStartUp = value;
-            }
+            set => this.isDataCreatedOnStartUp = value;
         }
 
         /// <summary>
@@ -129,15 +117,9 @@ namespace dMobile.Bedrock
         /// </summary>
         public bool IsRefreshedLastDataChangesOnly
         {
-            get
-            {
-                return this.isRefreshedLastDataChangesOnly;
-            }
+            get => this.isRefreshedLastDataChangesOnly;
 
-            set
-            {
-                this.isRefreshedLastDataChangesOnly = value;
-            }
+            set => this.isRefreshedLastDataChangesOnly = value;
         }
 
         /// <summary>
@@ -145,15 +127,9 @@ namespace dMobile.Bedrock
         /// </summary>
         public DateTime RefreshedDataLast
         {
-            get
-            {
-                return this.refreshedDataLast;
-            }
+            get => this.refreshedDataLast;
 
-            set
-            {
-                this.refreshedDataLast = value;
-            }
+            set => this.refreshedDataLast = value;
         }
 
         /// <summary>
@@ -161,15 +137,9 @@ namespace dMobile.Bedrock
         /// </summary>
         public bool PurchaseOrderWorkSheet
         {
-            get
-            {
-                return this.purchaseOrderWorkSheet;
-            }
+            get => this.purchaseOrderWorkSheet;
 
-            set
-            {
-                this.purchaseOrderWorkSheet = value;
-            }
+            set => this.purchaseOrderWorkSheet = value;
         }
 
         /// <summary>
@@ -177,15 +147,9 @@ namespace dMobile.Bedrock
         /// </summary>
         public bool Transfers
         {
-            get
-            {
-                return this.transfers;
-            }
+            get => this.transfers;
 
-            set
-            {
-                this.transfers = value;
-            }
+            set => this.transfers = value;
         }
 
         /// <summary>
@@ -193,15 +157,9 @@ namespace dMobile.Bedrock
         /// </summary>
         public bool RefreshDataChangesOnly
         {
-            get
-            {
-                return this.refreshDataChangesOnly;
-            }
+            get => this.refreshDataChangesOnly;
 
-            set
-            {
-                this.refreshDataChangesOnly = value;
-            }
+            set => this.refreshDataChangesOnly = value;
         }
 
         /// <summary>
@@ -209,15 +167,9 @@ namespace dMobile.Bedrock
         /// </summary>
         public bool SystemData
         {
-            get
-            {
-                return this.systemData;
-            }
+            get => this.systemData;
 
-            set
-            {
-                this.systemData = value;
-            }
+            set => this.systemData = value;
         }
 
         /// <summary>
@@ -225,15 +177,9 @@ namespace dMobile.Bedrock
         /// </summary>
         public bool Adjustments
         {
-            get
-            {
-                return this.adjustments;
-            }
+            get => this.adjustments;
 
-            set
-            {
-                this.adjustments = value;
-            }
+            set => this.adjustments = value;
         }
 
         /// <summary>
@@ -241,15 +187,9 @@ namespace dMobile.Bedrock
         /// </summary>
         public bool PurchaseOrders
         {
-            get
-            {
-                return this.purchaseOrders;
-            }
+            get => this.purchaseOrders;
 
-            set
-            {
-                this.purchaseOrders = value;
-            }
+            set => this.purchaseOrders = value;
         }
 
         /// <summary>
@@ -257,15 +197,9 @@ namespace dMobile.Bedrock
         /// </summary>
         public bool SalesOrders
         {
-            get
-            {
-                return this.salesOrders;
-            }
+            get => this.salesOrders;
 
-            set
-            {
-                this.salesOrders = value;
-            }
+            set => this.salesOrders = value;
         }
 
         /// <summary>
@@ -273,15 +207,9 @@ namespace dMobile.Bedrock
         /// </summary>
         public bool ProductionTickets
         {
-            get
-            {
-                return this.productionTickets;
-            }
+            get => this.productionTickets;
 
-            set
-            {
-                this.productionTickets = value;
-            }
+            set => this.productionTickets = value;
         }
 
         /// <summary>
@@ -289,15 +217,9 @@ namespace dMobile.Bedrock
         /// </summary>
         public bool Replenishment
         {
-            get
-            {
-                return this.replenishment;
-            }
+            get => this.replenishment;
 
-            set
-            {
-                this.replenishment = value;
-            }
+            set => this.replenishment = value;
         }
 
         /// <summary>
@@ -305,15 +227,9 @@ namespace dMobile.Bedrock
         /// </summary>
         public bool Counts
         {
-            get
-            {
-                return this.counts;
-            }
+            get => this.counts;
 
-            set
-            {
-                this.counts = value;
-            }
+            set => this.counts = value;
         }
 
         /// <summary>

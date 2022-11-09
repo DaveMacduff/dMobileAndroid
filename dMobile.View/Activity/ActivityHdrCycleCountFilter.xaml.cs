@@ -99,7 +99,7 @@ namespace dMobile.View.Activity
 
             try
             {
-                this.ucActivityHdrCycleCountFilter_GotFocus(this, new EventArgs());
+                this.ucActivityHdrCycleCountFilter_GotFocus(this, EventArgs.Empty);
             }
             catch (Exception ex)
             {

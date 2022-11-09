@@ -53,8 +53,8 @@ namespace dMobile.View.Menus
             try
             {
                 this.EnableControls();
-                this.ucOptionsMenu_GotFocus(this, new EventArgs());
-                this.cmdRefreshData_GotFocus(this, new EventArgs());
+                this.ucOptionsMenu_GotFocus(this, EventArgs.Empty);
+                this.cmdRefreshData_GotFocus(this, EventArgs.Empty);
             }
             catch (Exception ex)
             {

@@ -127,7 +127,7 @@ namespace dMobile.View.Forms
                 {
                     if (keycode == Keycode.Enter || keycode == Keycode.F1)
                     {
-                        this.CmdOK_Click(null, new EventArgs());
+                        this.CmdOK_Click(null, EventArgs.Empty);
                     }
                 }
             });

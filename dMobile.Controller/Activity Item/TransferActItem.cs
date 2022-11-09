@@ -393,11 +393,11 @@ namespace dMobile.Controller.Activity_Item
         {
             if (this.SysEnv.SysSettings.IsDisconnectedMode)
             {
-                this.DataLayerProgressOutHandler(this, new EventArgs(), 5);
+                this.DataLayerProgressOutHandler(this, EventArgs.Empty, 5);
             }
             else
             {
-                this.DataLayerProgressOutHandler(this, new EventArgs(), 2);
+                this.DataLayerProgressOutHandler(this, EventArgs.Empty, 2);
 
                 if (this.ActSubType == SysCommon.ActSubTypes.TransferFrom)
                 {
@@ -406,7 +406,7 @@ namespace dMobile.Controller.Activity_Item
                     await tableActTransferDetail.PurgeData();
                     await tableActTransferItem.PurgeData();
 
-                    this.DataLayerProgressOutHandler(this, new EventArgs(), 5);
+                    this.DataLayerProgressOutHandler(this, EventArgs.Empty, 5);
 
                     tableActTransferItem.RegisterDataAccessListenerProgressOut((TransferActItem)this);
                     await tableActTransferItem.RequestData(this.ActHdr.HdrRefno);
@@ -419,7 +419,7 @@ namespace dMobile.Controller.Activity_Item
                     await tableActTransferDetail.PurgeData();
                     await tableActTransferItem.PurgeData();
 
-                    this.DataLayerProgressOutHandler(this, new EventArgs(), 5);
+                    this.DataLayerProgressOutHandler(this, EventArgs.Empty, 5);
 
                     tableActTransferItem.RegisterDataAccessListenerProgressOut((TransferActItem)this);
                     await tableActTransferItem.RequestData(this.ActHdr.HdrRefno);

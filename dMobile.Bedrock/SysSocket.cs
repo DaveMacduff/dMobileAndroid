@@ -54,15 +54,9 @@ namespace dMobile.Bedrock
         /// </summary>
         public string ReceiveEOM
         {
-            get
-            {
-                return this.receiveEOM;
-            }
+            get => this.receiveEOM;
 
-            set
-            {
-                this.receiveEOM = value;
-            }
+            set => this.receiveEOM = value;
         }
 
         /// <summary>
@@ -110,15 +104,9 @@ namespace dMobile.Bedrock
         /// </summary>
         public int ReceiveTimeOutMilliseconds
         {
-            get
-            {
-                return this.recvTimeOutMilliseconds;
-            }
+            get => this.recvTimeOutMilliseconds;
 
-            set
-            {
-                this.recvTimeOutMilliseconds = value;
-            }
+            set => this.recvTimeOutMilliseconds = value;
         }
 
         /// <summary>

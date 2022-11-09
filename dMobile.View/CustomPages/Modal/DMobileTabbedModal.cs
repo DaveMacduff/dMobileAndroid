@@ -41,10 +41,7 @@ namespace dMobile.View.CustomPages.Modal
         /// </summary>
         public bool Loading
         {
-            get
-            {
-                return this.loading;
-            }
+            get => this.loading;
 
             set
             {
@@ -64,10 +61,7 @@ namespace dMobile.View.CustomPages.Modal
         /// </summary>
         public string OptionsIconSource
         {
-            get
-            {
-                return this.optionsIconSource;
-            }
+            get => this.optionsIconSource;
 
             set
             {
@@ -80,10 +74,7 @@ namespace dMobile.View.CustomPages.Modal
         /// Gets the Closed
         /// Checks if content page has been close..
         /// </summary>
-        private Task Closed
-        {
-            get { return this.Tcs.Task; }
-        }
+        private Task Closed => this.Tcs.Task;
 
         /// <summary>
         /// Gets or sets the task completion source.

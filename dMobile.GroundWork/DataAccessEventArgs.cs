@@ -36,15 +36,9 @@ namespace dMobile.GroundWork
 
         public bool SetMinMaxValue
         {
-            get
-            {
-                return this.setMinMaxValue;
-            }
+            get => this.setMinMaxValue;
 
-            set
-            {
-                this.setMinMaxValue = value;
-            }
+            set => this.setMinMaxValue = value;
         }
 
         public bool OverrideDisconnectedMode { get; set; } = false;
@@ -57,15 +51,9 @@ namespace dMobile.GroundWork
 
         public int CurrentValue
         {
-            get
-            {
-                return this.currentValue;
-            }
+            get => this.currentValue;
 
-            set
-            {
-                this.currentValue = value;
-            }
+            set => this.currentValue = value;
         }
     }
 }

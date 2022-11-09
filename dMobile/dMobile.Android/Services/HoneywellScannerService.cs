@@ -38,7 +38,7 @@ namespace dMobile.Droid.Services
                 void ScannerProfileRetrieved(object sender, EventArgs e)
                 {
                     this.BarcodeReader = callback.BarcodeReader;
-                    this.OnProfileInfoRecieved?.Invoke(this, new EventArgs());
+                    this.OnProfileInfoRecieved?.Invoke(this, EventArgs.Empty);
                 }
             }
             catch (Exception ex)
@@ -124,7 +124,7 @@ namespace dMobile.Droid.Services
                 ////            }
                 ////        }
                 ////    }
-                this.ProfileDataReady?.Invoke(this, new EventArgs());
+                this.ProfileDataReady?.Invoke(this, EventArgs.Empty);
             }
         }
 
@@ -165,7 +165,7 @@ namespace dMobile.Droid.Services
             {
                 this.Manager = p0;
                 this.BarcodeReader = this.Manager.CreateBarcodeReader();
-                this.OnCreatedComplete?.Invoke(this, new EventArgs());
+                this.OnCreatedComplete?.Invoke(this, EventArgs.Empty);
             }
 
             public void SetJniIdentityHashCode(int value)

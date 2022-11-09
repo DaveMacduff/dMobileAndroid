@@ -196,7 +196,7 @@ namespace dMobile.Bedrock
             static async Task UpdateSkidWithNewLocation(SysSkidInfo skid, SLocMap moveToLocMap)
             {
                 var tempSkidInfo = skid.CurrSkid;
-                var sLocMapAndRefno = await GetSLocMapFromLocMapFKRefno(
+                var sLocMapAndRefno = await GetSLocMapFromLocMapFkRefno(
                     moveToLocMap.WhsFKRefno,
                     moveToLocMap.SectFKRefno,
                     moveToLocMap.SlotFKRefno);
@@ -772,7 +772,7 @@ namespace dMobile.Bedrock
                     IsPutAway = bool.Parse(result.SelectSingleNode("/VFPData/cskidinfo/skidisputaway").InnerText),
                 };
 
-                var sLocMapAndRefno = await LocationMapTasks.GetSLocMapFromLocMapFKRefno(
+                var sLocMapAndRefno = await LocationMapTasks.GetSLocMapFromLocMapFkRefno(
                     int.Parse(result.SelectSingleNode("/VFPData/cskidinfo/locationmapwarehousefkrefno").InnerText),
                     int.Parse(result.SelectSingleNode("/VFPData/cskidinfo/locationmapsectionfkrefno").InnerText),
                     int.Parse(result.SelectSingleNode("/VFPData/cskidinfo/locationmapslotfkrefno").InnerText));

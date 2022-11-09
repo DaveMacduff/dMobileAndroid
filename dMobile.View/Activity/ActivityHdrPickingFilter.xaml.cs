@@ -151,7 +151,7 @@ namespace dMobile.View.Activity
                     this.Filters.Add("Delivery Descending", new Sort() { SortValue = "ActivityPickingDeliveryDateTime", SortOrder = SortOrder.DESC });
                 }
 
-                await this.ucActivityPickingFilter_GotFocus(this, new EventArgs());
+                await this.ucActivityPickingFilter_GotFocus(this, EventArgs.Empty);
             }
             catch (Exception ex)
             {
@@ -662,22 +662,22 @@ namespace dMobile.View.Activity
 
         private void chkApplyRouteCode_Toggled(object sender, ToggledEventArgs e)
         {
-            this.IdentifyChangesMade(this, new EventArgs());
+            this.IdentifyChangesMade(this, EventArgs.Empty);
         }
 
         private void chkApplyIssuedDate_Toggled(object sender, ToggledEventArgs e)
         {
-            this.IdentifyChangesMade(this, new EventArgs());
+            this.IdentifyChangesMade(this, EventArgs.Empty);
         }
 
         private void chkApplyOrderedDate_Toggled(object sender, ToggledEventArgs e)
         {
-            this.IdentifyChangesMade(this, new EventArgs());
+            this.IdentifyChangesMade(this, EventArgs.Empty);
         }
 
         private void chkApplyDeliveryDate_Toggled(object sender, ToggledEventArgs e)
         {
-            this.IdentifyChangesMade(this, new EventArgs());
+            this.IdentifyChangesMade(this, EventArgs.Empty);
         }
 
         private async void BtnSave_Clicked(object sender, EventArgs e)

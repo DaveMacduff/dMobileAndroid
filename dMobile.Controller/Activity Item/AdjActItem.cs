@@ -373,18 +373,18 @@ namespace dMobile.Controller.Activity_Item
         {
             if (this.SysEnv.SysSettings.IsDisconnectedMode)
             {
-                this.DataLayerProgressOutHandler(this, new EventArgs(), 5);
+                this.DataLayerProgressOutHandler(this, EventArgs.Empty, 5);
             }
             else
             {
-                this.DataLayerProgressOutHandler(this, new EventArgs(), 2);
+                this.DataLayerProgressOutHandler(this, EventArgs.Empty, 2);
 
                 var adjItem = new TableActivityAdjustmentItem();
                 var adjDetail = new TableActivityAdjustmentDetail();
                 await adjDetail.PurgeData();
                 await adjItem.PurgeData();
 
-                this.DataLayerProgressOutHandler(this, new EventArgs(), 5);
+                this.DataLayerProgressOutHandler(this, EventArgs.Empty, 5);
 
                 adjItem.RegisterDataAccessListenerProgressOut(this);
                 await adjItem.RequestData(this.ActHdr.HdrRefno);

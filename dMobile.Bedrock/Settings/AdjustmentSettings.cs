@@ -128,8 +128,8 @@ namespace dMobile.Bedrock
         /// </summary>
         public bool IsApplyAdjustmentDate
         {
-            get { return this.isApplyAdjustmentDate; }
-            set { this.isApplyAdjustmentDate = value; }
+            get => this.isApplyAdjustmentDate;
+            set => this.isApplyAdjustmentDate = value;
         }
 
         /// <summary>
@@ -137,8 +137,8 @@ namespace dMobile.Bedrock
         /// </summary>
         public DateTime AdjustmentDate
         {
-            get { return this.adjustmentDate; }
-            set { this.adjustmentDate = value; }
+            get => this.adjustmentDate;
+            set => this.adjustmentDate = value;
         }
 
         /// <summary>
@@ -146,8 +146,8 @@ namespace dMobile.Bedrock
         /// </summary>
         public bool NegateScanQuantity
         {
-            get { return this.negateScanQuantity; }
-            set { this.negateScanQuantity = value; }
+            get => this.negateScanQuantity;
+            set => this.negateScanQuantity = value;
         }
 
         /// <summary>
@@ -155,8 +155,8 @@ namespace dMobile.Bedrock
         /// </summary>
         public bool IsApplyAdjustmentType
         {
-            get { return this.isApplyAdjustmentType; }
-            set { this.isApplyAdjustmentType = value; }
+            get => this.isApplyAdjustmentType;
+            set => this.isApplyAdjustmentType = value;
         }
 
         /// <summary>
@@ -164,8 +164,8 @@ namespace dMobile.Bedrock
         /// </summary>
         public SysCommon.AdjTypes AdjustmentType
         {
-            get { return this.adjustmentType; }
-            set { this.adjustmentType = value; }
+            get => this.adjustmentType;
+            set => this.adjustmentType = value;
         }
 
         /// <summary>
@@ -173,8 +173,8 @@ namespace dMobile.Bedrock
         /// </summary>
         public string FullClassName
         {
-            get { return this.fullClassName; }
-            set { this.fullClassName = value; }
+            get => this.fullClassName;
+            set => this.fullClassName = value;
         }
 
         /// <summary>
@@ -182,8 +182,8 @@ namespace dMobile.Bedrock
         /// </summary>
         public string FilePath
         {
-            get { return this.filePath; }
-            set { this.filePath = value; }
+            get => this.filePath;
+            set => this.filePath = value;
         }
 
         /// <summary>
@@ -194,8 +194,8 @@ namespace dMobile.Bedrock
         /// </remarks>
         public string FileASCIIZ
         {
-            get { return this.fileASCIIZ; }
-            set { this.fileASCIIZ = value; }
+            get => this.fileASCIIZ;
+            set => this.fileASCIIZ = value;
         }
 
         /// <summary>
@@ -206,8 +206,8 @@ namespace dMobile.Bedrock
         /// </remarks>
         public string FileName
         {
-            get { return this.fileName; }
-            set { this.fileName = value; }
+            get => this.fileName;
+            set => this.fileName = value;
         }
 
         /// <summary>
@@ -215,8 +215,8 @@ namespace dMobile.Bedrock
         /// </summary>
         public int SortBy1Index
         {
-            get { return this.sortBy1Index; }
-            set { this.sortBy1Index = value; }
+            get => this.sortBy1Index;
+            set => this.sortBy1Index = value;
         }
 
         /// <summary>
@@ -224,8 +224,8 @@ namespace dMobile.Bedrock
         /// </summary>
         public Sort SortBy1Value
         {
-            get { return this.sortBy1Value; }
-            set { this.sortBy1Value = value; }
+            get => this.sortBy1Value;
+            set => this.sortBy1Value = value;
         }
 
         /// <summary>
@@ -233,8 +233,8 @@ namespace dMobile.Bedrock
         /// </summary>
         public int SortBy2Index
         {
-            get { return this.sortBy2Index; }
-            set { this.sortBy2Index = value; }
+            get => this.sortBy2Index;
+            set => this.sortBy2Index = value;
         }
 
         /// <summary>
@@ -242,8 +242,8 @@ namespace dMobile.Bedrock
         /// </summary>
         public Sort SortBy2Value
         {
-            get { return this.sortBy2Value; }
-            set { this.sortBy2Value = value; }
+            get => this.sortBy2Value;
+            set => this.sortBy2Value = value;
         }
 
         /// <summary>
@@ -251,8 +251,8 @@ namespace dMobile.Bedrock
         /// </summary>
         public int SortBy3Index
         {
-            get { return this.sortBy3Index; }
-            set { this.sortBy3Index = value; }
+            get => this.sortBy3Index;
+            set => this.sortBy3Index = value;
         }
 
         /// <summary>
@@ -260,8 +260,8 @@ namespace dMobile.Bedrock
         /// </summary>
         public Sort SortBy3Value
         {
-            get { return this.sortBy3Value; }
-            set { this.sortBy3Value = value; }
+            get => this.sortBy3Value;
+            set => this.sortBy3Value = value;
         }
 
         // METHODS

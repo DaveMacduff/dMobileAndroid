@@ -6,7 +6,7 @@
                     xmlns:customcontrols="clr-namespace:dMobile.View.CustomControls"
                     x:Class="dMobile.View.Activity.ActivityItemSingle">
     <ContentPage.ToolbarItems>
-        <ToolbarItem x:Name="optionsMenu" IconImageSource="{Binding OptionsIconSource}" Clicked="optionsMenu_Clicked" IsEnabled="{Binding Loading, Converter={Helpers:BoolConverter}}"/>
+        <ToolbarItem x:Name="optionsMenu" IconImageSource="{Binding OptionsIconSource}" Clicked="OptionsMenu_Clicked" IsEnabled="{Binding Loading, Converter={Helpers:BoolConverter}}"/>
     </ContentPage.ToolbarItems>
     <ContentPage.Content>
         <AbsoluteLayout VerticalOptions="Center">
@@ -65,7 +65,7 @@
                 <Grid Grid.Row="3">
                     <Button x:Name="cmdDetails" Grid.Row="0" Grid.Column="0" Clicked="CmdDetails_Click" IsEnabled="{Binding Loading, Converter={Helpers:BoolConverter}}"/>
                     <Button x:Name="cmdPrevious" Grid.Row="0" Grid.Column="1" Clicked="cmdPrevious_Click" IsEnabled="{Binding Loading, Converter={Helpers:BoolConverter}}"/>
-                    <Button x:Name="cmdNext" Grid.Row="0" Grid.Column="2" Clicked="cmdNext_Click" IsEnabled="{Binding Loading, Converter={Helpers:BoolConverter}}"/>
+                    <Button x:Name="cmdNext" Grid.Row="0" Grid.Column="2" Clicked="CmdNext_Click" IsEnabled="{Binding Loading, Converter={Helpers:BoolConverter}}"/>
                 </Grid>
             </Grid>
 

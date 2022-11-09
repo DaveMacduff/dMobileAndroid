@@ -90,7 +90,7 @@ namespace dMobile.View.Activity
 
             try
             {
-                await this.ucActivityHdrReleaseByOrder_GotFocus(this, new EventArgs());
+                await this.ucActivityHdrReleaseByOrder_GotFocus(this, EventArgs.Empty);
             }
             catch (Exception ex)
             {
@@ -172,7 +172,7 @@ namespace dMobile.View.Activity
         protected override async void OnDisappearing()
         {
             MessagingCenter.Unsubscribe<string>(this, EventTypes.OnKeyUp.ToString());
-            await this.ucActivityHdrReleaseByOrder_LostFocus(this, new EventArgs());
+            await this.ucActivityHdrReleaseByOrder_LostFocus(this, EventArgs.Empty);
 
             base.OnDisappearing();
         }

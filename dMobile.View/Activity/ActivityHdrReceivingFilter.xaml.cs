@@ -122,7 +122,7 @@ namespace dMobile.View.Activity
 
             try
             {
-                await this.ucActivityReceivingFilter_GotFocus(this, new EventArgs());
+                await this.ucActivityReceivingFilter_GotFocus(this, EventArgs.Empty);
             }
             catch (Exception ex)
             {

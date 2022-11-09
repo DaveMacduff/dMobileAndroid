@@ -538,16 +538,16 @@ namespace dMobile.Controller.Activity_Detail
         {
             if (this.SysEnv.SysSettings.IsDisconnectedMode)
             {
-                this.DataLayerProgressOutHandler(this, new EventArgs(), 5);
+                this.DataLayerProgressOutHandler(this, EventArgs.Empty, 5);
             }
             else
             {
-                this.DataLayerProgressOutHandler(this, new EventArgs(), 2);
+                this.DataLayerProgressOutHandler(this, EventArgs.Empty, 2);
 
                 var tableActRecvDetail = new TableActivityReceivingDetail();
                 await tableActRecvDetail.PurgeData();
 
-                this.DataLayerProgressOutHandler(this, new EventArgs(), 5);
+                this.DataLayerProgressOutHandler(this, EventArgs.Empty, 5);
 
                 tableActRecvDetail.RegisterDataAccessListenerProgressOut((RecvActDetail)this);
                 await tableActRecvDetail.RequestData(this.ActItem.ItemRefno);

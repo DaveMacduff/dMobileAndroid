@@ -52,15 +52,9 @@ namespace dMobile.Bedrock
         /// </summary>
         public int CurrentValue
         {
-            get
-            {
-                return this.currentValue;
-            }
+            get => this.currentValue;
 
-            set
-            {
-                this.currentValue = value;
-            }
+            set => this.currentValue = value;
         }
     }
 }

@@ -35,15 +35,9 @@ namespace dMobile.GroundWork
 
         public DataNubEventArgs MsgEventArgs
         {
-            get
-            {
-                return this.msgEventArgs;
-            }
+            get => this.msgEventArgs;
 
-            set
-            {
-                this.msgEventArgs = value;
-            }
+            set => this.msgEventArgs = value;
         }
 
         public DatabaseConnection DBConn { get; set; }

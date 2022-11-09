@@ -605,7 +605,7 @@ namespace dMobile.Controller.Activity_Item
         {
             try
             {
-                this.DataLayerProgressOutHandler(this, new EventArgs(), 5);
+                this.DataLayerProgressOutHandler(this, EventArgs.Empty, 5);
 
                 var reqData = SysCommon.SubmitComm(await this.CreateSubmitXML(data));
                 this.ListItems = await this.GetActivityItemList(false);
@@ -620,7 +620,7 @@ namespace dMobile.Controller.Activity_Item
                     }
                     else
                     {
-                        this.DataLayerProgressOutHandler(this, new EventArgs(), 50);
+                        this.DataLayerProgressOutHandler(this, EventArgs.Empty, 50);
 
                         using (var ds = new DataSet())
                         {
@@ -651,13 +651,13 @@ namespace dMobile.Controller.Activity_Item
                             }
                         }
 
-                        this.DataLayerProgressOutHandler(this, new EventArgs(), 80);
+                        this.DataLayerProgressOutHandler(this, EventArgs.Empty, 80);
                     }
                 }
 
-                this.DataLayerProgressOutHandler(this, new EventArgs(), 95);
+                this.DataLayerProgressOutHandler(this, EventArgs.Empty, 95);
                 await this.FormatGrid();
-                this.DataLayerProgressOutHandler(this, new EventArgs(), 100);
+                this.DataLayerProgressOutHandler(this, EventArgs.Empty, 100);
             }
             catch (Exception ex)
             {

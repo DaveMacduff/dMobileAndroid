@@ -139,7 +139,7 @@ namespace dMobile.View.Options
             if (this.isFirstAppearance)
             {
                 this.isFirstAppearance = false;
-                await this.RefreshDataStatus_GotFocus(this, new EventArgs());
+                await this.RefreshDataStatus_GotFocus(this, EventArgs.Empty);
             }
         }
 

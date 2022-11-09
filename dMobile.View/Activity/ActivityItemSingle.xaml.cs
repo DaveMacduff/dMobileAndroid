@@ -2,10 +2,6 @@
 // Copyright (c) InterSect Business Systems Inc. All rights reserved.
 // </copyright>
 
-using dMobile.Controller.Activity;
-using dMobile.Controller.Activity_Detail;
-using dMobile.Controller.Activity_Item;
-
 namespace dMobile.View.Activity
 {
     using System;
@@ -23,6 +19,9 @@ namespace dMobile.View.Activity
     using dMobile.BarCodeScanner.BarCodeScanners;
     using dMobile.Bedrock;
     using dMobile.Controller;
+    using dMobile.Controller.Activity;
+    using dMobile.Controller.Activity_Detail;
+    using dMobile.Controller.Activity_Item;
     using dMobile.Resources.Enums;
     using dMobile.Resources.Types;
     using dMobile.View.CustomPages.Modal;
@@ -159,159 +158,6 @@ namespace dMobile.View.Activity
         }
 
         /// <summary>
-        /// Check if options in displayActionSheet are enabled/disabled and rebuild list.
-        /// </summary>
-        /// <param name="propertyName">.</param>
-        protected override void OnPropertyChanged([CallerMemberName] string propertyName = null)
-        {
-            base.OnPropertyChanged(propertyName);
-
-            if (
-                propertyName == nameof(this.cmdLocationText) ||
-                propertyName == nameof(this.cmdLocationIsEnabled) ||
-                propertyName == nameof(this.cmdFilterText) ||
-                propertyName == nameof(this.cmdFilterIsEnabled) ||
-                propertyName == nameof(this.cmdSelectSkidText) ||
-                propertyName == nameof(this.cmdSelectSkidIsEnabled) ||
-                propertyName == nameof(this.cmdAddProductText) ||
-                propertyName == nameof(this.cmdAddProductIsEnabled) ||
-                propertyName == nameof(this.cmdAddSkidText) ||
-                propertyName == nameof(this.cmdAddSkidIsEnabled))
-            {
-                this.PopulateOptionsMenu();
-            }
-        }
-
-        /// <summary>
-        /// Populates a string array to be used in DisplayActionSheet.
-        /// </summary>
-        private void PopulateOptionsMenu()
-        {
-            this.OptionsMenuItems.Clear();
-
-            if (this.cmdLocationIsEnabled)
-            {
-                this.OptionsMenuItems.Add(this.cmdLocationText);
-            }
-
-            if (this.cmdFilterIsEnabled)
-            {
-                this.OptionsMenuItems.Add(this.cmdFilterText);
-            }
-
-            if (this.cmdSelectSkidIsEnabled)
-            {
-                this.OptionsMenuItems.Add(this.cmdSelectSkidText);
-            }
-
-            if (this.cmdAddProductIsEnabled)
-            {
-                this.OptionsMenuItems.Add(this.cmdAddProductText);
-            }
-
-            if (this.cmdAddSkidIsEnabled)
-            {
-                this.OptionsMenuItems.Add(this.cmdAddSkidText);
-            }
-        }
-
-        /// <summary>
-        /// The OnAppearing.
-        /// </summary>
-        protected override async void OnAppearing()
-        {
-            base.OnAppearing();
-
-            this.ListViewDisplayExtraInfo.ItemsSource = this.ExtraInfoItems;
-
-            MessagingCenter.Subscribe<string>(this, EventTypes.OnKeyUp.ToString(), async (keyPressed) =>
-            {
-                _ = Enum.TryParse(keyPressed, out Keycode keycode);
-
-                if (!this.Loading)
-                {
-                    if (keycode == Keycode.Enter || keycode == Keycode.F1)
-                    {
-                        if (await this.SaveChanges())
-                        {
-                            this.DialogResult = DialogResult.OK;
-                            await this.Close();
-                        }
-                    }
-                    else if (keycode == Keycode.F2)
-                    {
-                        await this.KeyUpF2_ShowLineItemComment(this, null);
-                    }
-                    else if (keycode == Keycode.F3)
-                    {
-                        await this.KeyUpF3_ShowTotalQuantity(this, null);
-                    }
-                }
-            });
-
-            try
-            {
-                await this.ucActivityItem_GotFocus(this, new EventArgs());
-                await this.tmrActivityItemLoaded_Tick(this, new EventArgs());
-            }
-            catch (Exception ex)
-            {
-                await Device.InvokeOnMainThreadAsync(async () => await this.DisplayAlert("Error", "this.ucActivityItem_GotFocus threw an error " + ex, "OK"));
-            }
-            finally
-            {
-                this.Loading = false;
-            }
-        }
-
-        /// <summary>
-        /// The OnDisappearing.
-        /// </summary>
-        protected override async void OnDisappearing()
-        {
-            MessagingCenter.Unsubscribe<string>(this, EventTypes.OnKeyUp.ToString());
-            await this.ScannerDisable();
-
-            base.OnDisappearing();
-        }
-
-        /// <summary>
-        /// The OnBackButtonPressed.
-        /// </summary>
-        /// <returns>The <see cref="bool"/>.</returns>
-        protected override bool OnBackButtonPressed()
-        {
-            Device.BeginInvokeOnMainThread(async () =>
-            {
-                _ = base.OnBackButtonPressed();
-
-                if (await this.CancelChanges())
-                {
-                    this.DialogResult = DialogResult.None;
-                    await this.Close();
-                }
-            });
-
-            return true;
-        }
-
-        /// <summary>
-        /// Gets or sets a value indicating whether IsShowDataValidMsg.
-        /// </summary>
-        private bool IsShowDataValidMsg
-        {
-            get
-            {
-                return this.isShowDataValidMsg;
-            }
-
-            set
-            {
-                this.isShowDataValidMsg = value;
-            }
-        }
-
-        /// <summary>
         /// Gets or sets a value indicating whether IsChangesMade.
         /// </summary>
         private bool IsChangesMade { get; set; } = false;
@@ -374,15 +220,23 @@ namespace dMobile.View.Activity
         /// <summary>
         /// Gets or sets the ExtraInfoItems.
         /// </summary>
-        public ObservableCollection<string> ExtraInfoItems { get; set; } = new ObservableCollection<string>();
+        private ObservableCollection<string> ExtraInfoItems { get; set; } = new ObservableCollection<string>();
 
         /// <summary>
         /// Gets or sets the OptionsMenuItems.
         /// </summary>
-        public List<string> OptionsMenuItems { get; set; } = new List<string>();
+        private List<string> OptionsMenuItems { get; set; } = new List<string>();
 
         /// <summary>
-        /// Unregister the bar code scan event handler and disable the scanner.
+        /// Gets or sets a value indicating whether IsShowDataValidMsg.
+        /// </summary>
+        private bool IsShowDataValidMsg
+        {
+            get => this.isShowDataValidMsg;
+            set => this.isShowDataValidMsg = value;
+        }
+        /// <summary>
+        /// Un-register the bar code scan event handler and disable the scanner.
         /// </summary>
         /// <returns><see cref="Task"/> Task operation.</returns>
         public async Task ScannerDisable()
@@ -816,14 +670,11 @@ namespace dMobile.View.Activity
 
                     // Lekker requirement, cancel will update the reviewed header status.
                     // update the header record as reviewed if all items were reviewed
-                    var isReviewed = true;
-
-                    foreach (PickingItem pickingItem in this.ActItem.ListItems)
-                    {
-                        isReviewed = isReviewed && Convert.ToBoolean(pickingItem.ActivityItemPickingIsReviewed);
-                    }
-
-                    (this.ActHdr.SelectedActivity as Picking).ActivityPickingIsReviewed = isReviewed;
+                    var isReviewed = this.ActItem.ListItems.Cast<PickingItem>().Aggregate(
+                        true,
+                        (current, pickingItem) =>
+                            current && Convert.ToBoolean(pickingItem.ActivityItemPickingIsReviewed));
+                    ((Picking)this.ActHdr.SelectedActivity).ActivityPickingIsReviewed = isReviewed;
 
                     // Clear any properties.
                     cancelChanges = true;
@@ -833,13 +684,10 @@ namespace dMobile.View.Activity
 
                     if (this.ActItem.SelectedActivityItem != null)
                     {
-                        foreach (PickingItem pickingItem in this.ActItem.ListItems)
+                        if (this.ActItem.ListItems.Cast<PickingItem>().Any(pickingItem =>
+                                Convert.ToDecimal(pickingItem.ActivityItemPickingBaseQuantityShipped) != 0))
                         {
-                            if (Convert.ToDecimal(pickingItem.ActivityItemPickingBaseQuantityShipped) != 0)
-                            {
-                                hasNotBeenPicked = false;
-                                break;
-                            }
+                            hasNotBeenPicked = false;
                         }
                     }
 
@@ -847,7 +695,10 @@ namespace dMobile.View.Activity
                     {
                         if (!await ((PickingActivity)this.ActHdr).ClearSalesOrderBeingPicked(true))
                         {
-                            await Device.InvokeOnMainThreadAsync(async () => await this.DisplayAlert("Clear Picker", "Unable to clear the current picker.", "OK"));
+                            await Device.InvokeOnMainThreadAsync(async () => await this.DisplayAlert(
+                                "Clear Picker",
+                                "Unable to clear the current picker.",
+                                "OK"));
                         }
                     }
                 }
@@ -918,6 +769,39 @@ namespace dMobile.View.Activity
         public void OnLayerProgOut(IDataLayerEventPublisher publisher, DataLayerEventArgs dataLayerEventArgs)
         {
         }
+        /// <summary>
+        /// Populates a string array to be used in DisplayActionSheet.
+        /// </summary>
+        private void PopulateOptionsMenu()
+        {
+            this.OptionsMenuItems.Clear();
+
+            if (this.cmdLocationIsEnabled)
+            {
+                this.OptionsMenuItems.Add(this.cmdLocationText);
+            }
+
+            if (this.cmdFilterIsEnabled)
+            {
+                this.OptionsMenuItems.Add(this.cmdFilterText);
+            }
+
+            if (this.cmdSelectSkidIsEnabled)
+            {
+                this.OptionsMenuItems.Add(this.cmdSelectSkidText);
+            }
+
+            if (this.cmdAddProductIsEnabled)
+            {
+                this.OptionsMenuItems.Add(this.cmdAddProductText);
+            }
+
+            if (this.cmdAddSkidIsEnabled)
+            {
+                this.OptionsMenuItems.Add(this.cmdAddSkidText);
+            }
+        }
+
 
         /// <summary>
         /// The PrintSkidLabels.
@@ -926,12 +810,18 @@ namespace dMobile.View.Activity
         private async Task PrintSkidLabels()
         {
             // Print all receiving skid labels.
-            if (this.ActSubType == SysCommon.ActSubTypes.Receiving && !this.SysEnv.SysSettings.IsDisconnectedMode && this.SysEnv.SysSettings.IsSkidTrackingModule && this.SysEnv.SysSettings.AskRecvPrintAllSkidLabelsUponSave)
+            if (this.ActSubType == SysCommon.ActSubTypes.Receiving && !this.SysEnv.SysSettings.IsDisconnectedMode &&
+                this.SysEnv.SysSettings.IsSkidTrackingModule &&
+                this.SysEnv.SysSettings.AskRecvPrintAllSkidLabelsUponSave)
             {
-                if (await Device.InvokeOnMainThreadAsync(async () => await this.DisplayAlert("Skid Labels", "Do you wish to print all skid label(s)?", "Yes", "No")))
+                if (await Device.InvokeOnMainThreadAsync(async () => await this.DisplayAlert(
+                        "Skid Labels",
+                        "Do you wish to print all skid label(s)?",
+                        "Yes",
+                        "No")))
                 {
                     var xmlString = new StringBuilder();
-                    var xml = XmlWriter.Create(xmlString);
+                    var xml = XmlWriter.Create(xmlString, new XmlWriterSettings() { Async = true });
                     var request = XDocument.Parse(
                         "<?xml version=\"1.0\" encoding=\"utf-8\" standalone=\"yes\"?>"
                         + "<imclient>"
@@ -945,7 +835,7 @@ namespace dMobile.View.Activity
                         + "</imclient>");
 
                     request.Save(xml);
-                    xml.Flush();
+                    await xml.FlushAsync();
                     xml.Close();
 
                     var reqData = SysCommon.SubmitComm(xmlString.ToString());
@@ -978,6 +868,7 @@ namespace dMobile.View.Activity
         /// </summary>
         /// <param name="sender">.</param>
         /// <param name="scanArgs">The scanArgs<see cref="BarCodeScannerEventArgs"/>.</param>
+        /// <exception cref="MessageOnlyException"></exception>
         /// <returns>The <see cref="Task"/>.</returns>
         private async Task BarCodeHandler(object sender, BarCodeScannerEventArgs scanArgs)
         {
@@ -988,9 +879,8 @@ namespace dMobile.View.Activity
 
             this.Loading = true;
 
-            // TODO: Test barcodehandler
+            // TODO: Test BarCodeHandler
             var msg = string.Empty;
-            var prodUnitRefno = 0;
             var currentSelectedActivityItem = this.ActItem.SelectedActivityItem;
             var foundSelectedActivityItem = this.ActItem.SelectedActivityItem;
             var actItemFoundRefno = 0;
@@ -1006,12 +896,15 @@ namespace dMobile.View.Activity
                 // Global location identifier.
                 if (!string.IsNullOrEmpty(barCodeParse.LocationIdentifier))
                 {
-                    this.LocMap.CurrLocMap = await LocationMapTasks.GetSLocMapFromLocMapRefno(await LocationMapTasks.GetLocMapRefnoFromBarCodeGlobalLocIdentifier(barCodeParse.LocationIdentifier));
+                    this.LocMap.CurrLocMap = await LocationMapTasks.GetSLocMapFromLocMapRefno(
+                        await LocationMapTasks.GetLocMapRefnoFromBarCodeGlobalLocIdentifier(barCodeParse
+                            .LocationIdentifier));
 
                     if (this.LocMap.CurrLocMap.WhsLocMapRefno != 0)
                     {
                         var currentReadableLocation = LocationMapTasks.GetCurrentReadableLocation();
-                        _ = await Device.InvokeOnMainThreadAsync(() => this.cmdLocationText = "Location: " + Environment.NewLine + currentReadableLocation);
+                        _ = await Device.InvokeOnMainThreadAsync(() =>
+                            this.cmdLocationText = "Location: " + Environment.NewLine + currentReadableLocation);
                     }
                     else
                     {
@@ -1029,6 +922,7 @@ namespace dMobile.View.Activity
                     }
 
                     // Product identifier.
+                    var prodUnitRefno = 0;
                     if (!string.IsNullOrEmpty(barCodeParse.ProductIdentifier))
                     {
                         // Not allowed to count individual boxes on a skid. Skids must be
@@ -1056,8 +950,8 @@ namespace dMobile.View.Activity
                                 throw new MessageOnlyException(
                                     string.Format(
                                     "Scanned product code \'{0}\' does not match the currently selected one \'{1}\'",
-                                     ProductInfoTasks.GetCurrReadableProdBCUnit(tempProdInfo),
-                                     ProductInfoTasks.GetCurrReadableProdBCUnit(this.ActItem.ProdInfo)));
+                                    arg0: ProductInfoTasks.GetCurrReadableProdBCUnit(tempProdInfo),
+                                    arg1: ProductInfoTasks.GetCurrReadableProdBCUnit(this.ActItem.ProdInfo)));
                             }
                         }
 
@@ -1066,7 +960,11 @@ namespace dMobile.View.Activity
                         if (actItemFoundRefno > 0)
                         {
                             // foundSelectedActivityItem = this.ActItem.DataViewItems.Find(actItemFoundRefno);
-                            foundSelectedActivityItem = this.ActItem.ListItems.OfType<object>().Where(activityItem => Convert.ToString(activityItem.GetType().GetProperty("ActivityItemRefno")?.GetValue(activityItem)) == Convert.ToString(actItemFoundRefno)).FirstOrDefault();
+                            foundSelectedActivityItem = Enumerable.OfType<object>(this.ActItem.ListItems)
+                                .FirstOrDefault(activityItem => Convert.ToString(activityItem.GetType()
+                                                                    .GetProperty("ActivityItemRefno")
+                                                                    ?.GetValue(activityItem)) ==
+                                                                Convert.ToString(actItemFoundRefno));
                         }
                         else
                         {
@@ -1076,13 +974,15 @@ namespace dMobile.View.Activity
 
                                 if (this.ActItem.IsAskCreateNewItem)
                                 {
+                                    msg =
+                                        $"A line item does not exist for this warehouse {this.LocMap.CurrLocMap.WhsCode}" +
+                                        $" and product \'{ProductInfoTasks.GetCurrReadableProdBCUnit(tempProdInfo)}.\'" +
+                                        $"{Environment.NewLine}Do you wish to create one?";
                                     if (await Device.InvokeOnMainThreadAsync(async () => await this.DisplayAlert(
-                                        this.GetControlDescription(),
-                                        string.Format("A line item does not exist for this warehouse {0} and product \'{1}.\'" + Environment.NewLine + "Do you wish to create one?",
-                                        this.LocMap.CurrLocMap.WhsCode,
-                                        ProductInfoTasks.GetCurrReadableProdBCUnit(tempProdInfo)),
-                                        "Yes",
-                                        "No")))
+                                            this.GetControlDescription(),
+                                            msg,
+                                            "Yes",
+                                            "No")))
                                     {
                                         isAddNewItem = true;
                                     }
@@ -1102,17 +1002,18 @@ namespace dMobile.View.Activity
                                 }
                                 else
                                 {
-                                    throw new GatherProductDataException(this.ActItem.GetItemNotFoundMessage(this.LocMap, tempProdInfo), true);
+                                    throw new GatherProductDataException(
+                                        this.ActItem.GetItemNotFoundMessage(
+                                            this.LocMap,
+                                            tempProdInfo),
+                                        true);
                                 }
                             }
                             else
                             {
-                                msg = string.Format("Line item was not found for " + Environment.NewLine + "Location {0} " + Environment.NewLine + "Product {1} BC {2} UOM {3}",
-                                    LocationMapTasks.GetCurrentReadableLocation(),
-                                    tempProdInfo.Code,
-                                    tempProdInfo.UnitBC,
-                                    tempProdInfo.UnitCode);
-
+                                msg = $"Line item was not found for {Environment.NewLine}Location" +
+                                       $" {LocationMapTasks.GetCurrentReadableLocation()} {Environment.NewLine}" +
+                                       $"Product {tempProdInfo.Code} BC {tempProdInfo.UnitBC} UOM {tempProdInfo.UnitCode}";
                                 throw new MessageOnlyException(msg);
                             }
                         }
@@ -1128,20 +1029,31 @@ namespace dMobile.View.Activity
                         }
                         else
                         {
-                            // foundSelectedActivityItem = this.ActItem.DataViewItems.Find(scanArgs.ParseInfo.ActItemFKRefno);
-                            foundSelectedActivityItem = this.ActItem.ListItems.OfType<object>().Where(activityItem => Convert.ToString(activityItem.GetType().GetProperty(this.ActItem.GetDataViewSortFKRefnoIdx())?.GetValue(activityItem)) == Convert.ToString(scanArgs.ParseInfo.ActItemFKRefno)).FirstOrDefault();
+                            foundSelectedActivityItem = this.ActItem.ListItems.OfType<object>().FirstOrDefault(
+                                activityItem =>
+                                    Convert.ToString(activityItem.GetType()
+                                        .GetProperty(this.ActItem.GetDataViewSortFKRefnoIdx())
+                                        ?.GetValue(activityItem)) ==
+                                    Convert.ToString(scanArgs.ParseInfo.ActItemFKRefno));
 
                             if (foundSelectedActivityItem != null)
                             {
                                 await this.ActItem.AssignActivityItem(foundSelectedActivityItem);
                                 actItemFoundRefno = this.ActItem.ItemRefno;
-                                // this.ActItem.DataViewItems.Sort = "ActivityItemRefno";
-                                // foundSelectedActivityItem = this.ActItem.DataViewItems.Find(actItemFoundRefno);
-                                foundSelectedActivityItem = this.ActItem.ListItems.OfType<object>().Where(activityItem => Convert.ToString(activityItem.GetType().GetProperty("ActivityItemRefno")?.GetValue(activityItem)) == Convert.ToString(actItemFoundRefno)).FirstOrDefault();
+                                foundSelectedActivityItem = this.ActItem.ListItems
+                                    .OfType<object>()
+                                    .FirstOrDefault(activityItem => Convert.ToString(activityItem.GetType()
+                                        .GetProperty("ActivityItemRefno")
+                                        ?.GetValue(activityItem)) == Convert.ToString(actItemFoundRefno));
                             }
                             else
                             {
-                                throw new MessageOnlyException(this.ActItem.GetUnableToFindItemFKRefnoMessage(scanArgs.ParseInfo.ActItemFKRefno));
+                                if (scanArgs != null)
+                                {
+                                    throw new MessageOnlyException(
+                                        this.ActItem.GetUnableToFindItemFKRefnoMessage(
+                                            scanArgs.ParseInfo.ActItemFKRefno));
+                                }
                             }
                         }
                     }
@@ -1155,11 +1067,15 @@ namespace dMobile.View.Activity
                         }
                         else
                         {
-                            // this.ActItem.DataViewItems.Sort = this.ActItem.GetDataViewSortFKRefnoIdx();
-                            tempItemSchemeData = await this.ActItem.GetProdSchemeDataFromDetailFKRefno(int.Parse(barCodeParse.ActDetailFKRefno));
-                            // foundSelectedActivityItem = this.ActItem.DataViewItems.Find(tempItemSchemeData.ActItemFKRefno.ToString());
-                            foundSelectedActivityItem = this.ActItem.ListItems.OfType<object>().Where(activityItem =>
-                            Convert.ToString(activityItem.GetType().GetProperty(this.ActItem.GetDataViewSortFKRefnoIdx())?.GetValue(activityItem)) == Convert.ToString(tempItemSchemeData.ActItemFKRefno.ToString())).FirstOrDefault();
+                            tempItemSchemeData =
+                                await this.ActItem.GetProdSchemeDataFromDetailFKRefno(
+                                    int.Parse(barCodeParse.ActDetailFKRefno));
+                            foundSelectedActivityItem = this.ActItem.ListItems.OfType<object>().FirstOrDefault(
+                                activityItem =>
+                                    Convert.ToString(activityItem.GetType()
+                                        .GetProperty(this.ActItem.GetDataViewSortFKRefnoIdx())
+                                        ?.GetValue(activityItem)) ==
+                                    Convert.ToString(tempItemSchemeData.ActItemFKRefno.ToString()));
 
                             if (foundSelectedActivityItem != null)
                             {
@@ -1167,21 +1083,28 @@ namespace dMobile.View.Activity
                                 actItemFoundRefno = this.ActItem.ItemRefno;
                                 // this.ActItem.DataViewItems.Sort = "ActivityItemRefno";
                                 // foundSelectedActivityItem = this.ActItem.DataViewItems.Find(actItemFoundRefno);
-                                foundSelectedActivityItem = this.ActItem.ListItems.OfType<object>().Where(activityItem => Convert.ToString(activityItem.GetType().GetProperty("ActivityItemRefno")?.GetValue(activityItem)) == Convert.ToString(actItemFoundRefno)).FirstOrDefault();
+                                foundSelectedActivityItem = this.ActItem.ListItems
+                                    .OfType<object>()
+                                    .FirstOrDefault(activityItem => Convert.ToString(activityItem.GetType()
+                                                                        .GetProperty("ActivityItemRefno")
+                                                                        ?.GetValue(activityItem)) ==
+                                                                    Convert.ToString(actItemFoundRefno));
                             }
                             else
                             {
-                                throw new MessageOnlyException(this.ActItem.GetUnableToFindItemFKRefnoMessage(scanArgs.ParseInfo.ActItemFKRefno));
+                                throw new MessageOnlyException(
+                                    this.ActItem.GetUnableToFindItemFKRefnoMessage(scanArgs.ParseInfo.ActItemFKRefno));
                             }
                         }
                     }
 
                     if (!string.IsNullOrEmpty(barCodeParse.ActDetailFKRefno) && this.SysEnv.SysSettings.IsDisconnectedMode)
                     {
-                        throw new MessageOnlyException("Scanning an line item detail bar code is not supported here in disconnected mode.");
+                        throw new MessageOnlyException(
+                            "Scanning an line item detail bar code is not supported here in disconnected mode.");
                     }
 
-                    // Shipping containser scanned, skid
+                    // Shipping container scanned, skid
                     if (!string.IsNullOrEmpty(barCodeParse.SSCC18))
                     {
                         if (!this.SysEnv.SysSettings.IsSkidTrackingModule)
@@ -1191,7 +1114,8 @@ namespace dMobile.View.Activity
 
                         if (this.SysEnv.SysSettings.IsDisconnectedMode)
                         {
-                            throw new MessageOnlyException("Scanning a shipping container bar code is not supported in disconnected mode.");
+                            throw new MessageOnlyException(
+                                "Scanning a shipping container bar code is not supported in disconnected mode.");
                         }
 
                         this.ActHdr.SkidInfo = await SysSkidInfo.GetSkidInfoFromBarCodeOrCode(barCodeParse.SSCC18);
@@ -1203,17 +1127,21 @@ namespace dMobile.View.Activity
 
                         prodUnitRefno = this.ActHdr.SkidInfo.CurrSkid.ProdInfo.UnitRefno;
                         actItemFoundRefno = await this.ActItem.GetActivityItemRefno(prodUnitRefno);
-                        // this.ActItem.DataViewItems.Sort = "ActivityItemRefno";
                         if (actItemFoundRefno > 0)
                         {
-                            // foundSelectedActivityItem = this.ActItem.DataViewItems.Find(actItemFoundRefno);
-                            foundSelectedActivityItem = this.ActItem.ListItems.OfType<object>().Where(activityItem => Convert.ToString(activityItem.GetType().GetProperty("ActivityItemRefno")?.GetValue(activityItem)) == Convert.ToString(actItemFoundRefno)).FirstOrDefault();
+                            foundSelectedActivityItem = this.ActItem.ListItems.OfType<object>()
+                                .FirstOrDefault(activityItem => Convert.ToString(activityItem.GetType()
+                                                                    .GetProperty("ActivityItemRefno")
+                                                                    ?.GetValue(activityItem)) ==
+                                                                Convert.ToString(actItemFoundRefno));
                         }
                         else
                         {
                             if (this.ActItem.IsAllowAddItem)
                             {
-                                await this.ActItem.Insert(ProductInfoTasks.GetXML(this.ActHdr.SkidInfo.CurrSkid.ProdInfo), false);
+                                await this.ActItem.Insert(
+                                    ProductInfoTasks.GetXML(this.ActHdr.SkidInfo.CurrSkid.ProdInfo),
+                                    false);
 
                                 // This is a little dangerous we assume that the new row idx will be the last one
                                 foundSelectedActivityItem = this.ActItem.ListItems.Last();
@@ -1248,7 +1176,8 @@ namespace dMobile.View.Activity
                     {
                         if (this.ActHdr.SkidInfo.CurrSkid.ProdInfo.UnitRefno != this.ActItem.ProdInfo.UnitRefno)
                         {
-                            throw new MessageOnlyException("Identified line item product does not match the selected skid product.");
+                            throw new MessageOnlyException(
+                                "Identified line item product does not match the selected skid product.");
                         }
                     }
 
@@ -1261,8 +1190,9 @@ namespace dMobile.View.Activity
                             this.ActSubType == SysCommon.ActSubTypes.TransferFrom ||
                             this.ActSubType == SysCommon.ActSubTypes.TransferTo))
                         {
-                            // LocationMapRefno is assumed to be the picking WarehouseLocationMapRefno
-                            int locMapRefno = await this.ActItem.GetDefaultLocMapRefno(Convert.ToInt32((foundSelectedActivityItem as dynamic).LocationMapRefno), Convert.ToInt32((foundSelectedActivityItem as dynamic).ProductRefno));
+                            int locMapRefno = await this.ActItem.GetDefaultLocMapRefno(
+                                Convert.ToInt32((foundSelectedActivityItem as dynamic).LocationMapRefno),
+                                Convert.ToInt32((foundSelectedActivityItem as dynamic).ProductRefno));
 
                             if (this.LocMap.CurrLocMapRefno != locMapRefno)
                             {
@@ -1272,24 +1202,22 @@ namespace dMobile.View.Activity
 
                         // Not allowed to count individual boxes on a skid. Skids must be
                         // scanned as a whole unit or built in skid maintenance.
-
                         // DEV-827 This change to allow counting partial skids is a bad idea.
-                        ////                        if (this.ActSubType == SysCommon.ActSubTypes.PhysicalCounts
-                        ////                            || this.ActSubType == SysCommon.ActSubTypes.CycleCounts)
-                        ////                        {
-                        ////                            if (this.ActItem.ActHdr.SkidInfo.CurrSkid.SkidFKRefno != 0)
-                        ////                            {
-                        ////                                this.ActItem.ActHdr.SkidInfo = new SysSkidInfo();
+                        //// if (this.ActSubType == SysCommon.ActSubTypes.PhysicalCounts
+                        ////    || this.ActSubType == SysCommon.ActSubTypes.CycleCounts)
+                        //// {
+                        ////    if (this.ActItem.ActHdr.SkidInfo.CurrSkid.SkidFKRefno != 0)
+                        ////    {
+                        ////        this.ActItem.ActHdr.SkidInfo = new SysSkidInfo();
                         ////#if MULTILANGUAGE
-                        ////                this.cmdSelectSkid.Text = Translator.GetInstance().Translate(TranslatorVocabulary.SelectSkid);
+                        ////        this.cmdSelectSkid.Text = Translator.GetInstance().Translate(TranslatorVocabulary.SelectSkid);
                         ////#else
-                        ////                                this.cmdSelectSkid.Text = "Select Skid";
+                        ////        this.cmdSelectSkid.Text = "Select Skid";
                         ////#endif
-                        ////                            }
-                        ////                        }
+                        ////     }
+                        //// }
 
                         var isInsertReady = false;
-
                         var actDetail = ActDetailFacade.GetActDetail(this.ActItem, this.ActSubType);
 
                         // Did not use this.ActItem.ActHdr.SkidInfo.CurrSkid.LogisticUnitSkidCode because of the len of the code
@@ -1298,20 +1226,31 @@ namespace dMobile.View.Activity
 
                         if (this.ActItem.ActHdr.SkidInfo.CurrSkid.SkidFKRefno != 0)
                         {
-                            schemeData.LogisticUnitSkidNumber = this.ActItem.ActHdr.SkidInfo.CurrSkid.SkidCode;
-                            schemeData.LogisticUnitBatchLotNumber = this.ActItem.ActHdr.SkidInfo.CurrSkid.SchemeData.LogisticUnitBatchLotNumber;
-                            schemeData.LogisticUnitBestBeforeSellByDate = this.ActItem.ActHdr.SkidInfo.CurrSkid.SchemeData.LogisticUnitBestBeforeSellByDate;
-                            schemeData.LogisticUnitProductionDate = this.ActItem.ActHdr.SkidInfo.CurrSkid.SchemeData.LogisticUnitProductionDate;
-                            schemeData.VariantCode = this.ActItem.ActHdr.SkidInfo.CurrSkid.SchemeData.VariantCode;
-                            schemeData.VariantNumber = this.ActItem.ActHdr.SkidInfo.CurrSkid.SchemeData.VariantNumber;
-                            schemeData.VariantDescription = this.ActItem.ActHdr.SkidInfo.CurrSkid.SchemeData.VariantDescription;
+                            var skidInfo = this.ActItem.ActHdr.SkidInfo.CurrSkid;
+                            schemeData.LogisticUnitSkidNumber = skidInfo.SkidCode;
+                            schemeData.LogisticUnitBatchLotNumber = skidInfo.SchemeData.LogisticUnitBatchLotNumber;
+                            schemeData.LogisticUnitBestBeforeSellByDate = skidInfo.SchemeData.LogisticUnitBestBeforeSellByDate;
+                            schemeData.LogisticUnitProductionDate = skidInfo.SchemeData.LogisticUnitProductionDate;
+                            schemeData.VariantCode = skidInfo.SchemeData.VariantCode;
+                            schemeData.VariantNumber = skidInfo.SchemeData.VariantNumber;
+                            schemeData.VariantDescription = skidInfo.SchemeData.VariantDescription;
                         }
 
                         tempItemSchemeData.ProdSchemeData = schemeData;
                         actDetail.SchemeData = schemeData;
 
-                        isInsertReady = await SysShared.GatherProductData(barCodeParse, this.ActSubType, this.ActItem, tempItemSchemeData, isInsertReady, actDetail, false);
-                        await this.InsertActivityDetail(foundSelectedActivityItem, actDetail, barCodeParse, isInsertReady);
+                        isInsertReady = await SysShared.GatherProductData(barCodeParse,
+                            this.ActSubType,
+                            this.ActItem,
+                            tempItemSchemeData,
+                            isInsertDetailReady: false,
+                            actDetail,
+                            false);
+                        await this.InsertActivityDetail(
+                            foundSelectedActivityItem,
+                            actDetail,
+                            barCodeParse,
+                            isInsertReady);
                     }
                     else
                     {
@@ -1344,7 +1283,11 @@ namespace dMobile.View.Activity
                         await actDetail.InsertSkid(this.ActHdr.SkidInfo);
 
                         // Upon a save of completed data update the data view to to show new item and quantity change
-                        this.ActItem.AddToQuantityInActivityItem(foundSelectedActivityItem, actDetail.Quantity, actDetail.BaseQuantity, actDetail.WeightQuantity);
+                        this.ActItem.AddToQuantityInActivityItem(
+                            foundSelectedActivityItem,
+                            actDetail.Quantity,
+                            actDetail.BaseQuantity,
+                            actDetail.WeightQuantity);
                         currentSelectedActivityItem = foundSelectedActivityItem;
                         await this.ActItem.UpdateItemTableQuantity(currentSelectedActivityItem);
                     }
@@ -1435,6 +1378,122 @@ namespace dMobile.View.Activity
         }
 
         /// <summary>
+        /// Check if options in displayActionSheet are enabled/disabled and rebuild list.
+        /// </summary>
+        /// <param name="propertyName">.</param>
+        protected override void OnPropertyChanged([CallerMemberName] string propertyName = null)
+        {
+            base.OnPropertyChanged(propertyName);
+
+            if (
+                propertyName == nameof(this.cmdLocationText) ||
+                propertyName == nameof(this.cmdLocationIsEnabled) ||
+                propertyName == nameof(this.cmdFilterText) ||
+                propertyName == nameof(this.cmdFilterIsEnabled) ||
+                propertyName == nameof(this.cmdSelectSkidText) ||
+                propertyName == nameof(this.cmdSelectSkidIsEnabled) ||
+                propertyName == nameof(this.cmdAddProductText) ||
+                propertyName == nameof(this.cmdAddProductIsEnabled) ||
+                propertyName == nameof(this.cmdAddSkidText) ||
+                propertyName == nameof(this.cmdAddSkidIsEnabled))
+            {
+                this.PopulateOptionsMenu();
+            }
+        }
+
+        /// <summary>
+        /// The OnAppearing.
+        /// </summary>
+        protected override async void OnAppearing()
+        {
+            base.OnAppearing();
+
+            this.ListViewDisplayExtraInfo.ItemsSource = this.ExtraInfoItems;
+
+            MessagingCenter.Subscribe<string>(this, EventTypes.OnKeyUp.ToString(), async (keyPressed) =>
+            {
+                _ = Enum.TryParse(keyPressed, out Keycode keycode);
+
+                if (!this.Loading)
+                {
+                    switch (keycode)
+                    {
+                        case Keycode.Enter:
+
+                        case Keycode.F1:
+                        {
+                            if (await this.SaveChanges())
+                            {
+                                this.DialogResult = DialogResult.OK;
+                                await this.Close();
+                            }
+
+                            break;
+                        }
+
+                        case Keycode.F2:
+                            await this.KeyUpF2_ShowLineItemComment(this, null);
+                            break;
+
+                        case Keycode.F3:
+                            await this.KeyUpF3_ShowTotalQuantity(this, null);
+                            break;
+
+                    }
+                }
+            });
+
+            try
+            {
+                await this.ucActivityItem_GotFocus(this, EventArgs.Empty);
+                await this.tmrActivityItemLoaded_Tick(this, EventArgs.Empty);
+            }
+            catch (Exception ex)
+            {
+                await Device.InvokeOnMainThreadAsync(async () => await this.DisplayAlert(
+                    "Error",
+                    "this.ucActivityItem_GotFocus threw an error " + ex,
+                    "OK"));
+            }
+            finally
+            {
+                this.Loading = false;
+            }
+        }
+
+        /// <summary>
+        /// The OnDisappearing.
+        /// </summary>
+        protected override async void OnDisappearing()
+        {
+            MessagingCenter.Unsubscribe<string>(this, EventTypes.OnKeyUp.ToString());
+            await this.ScannerDisable();
+
+            base.OnDisappearing();
+        }
+
+        /// <summary>
+        /// The OnBackButtonPressed.
+        /// </summary>
+        /// <returns>The <see cref="bool"/>.</returns>
+        protected override bool OnBackButtonPressed()
+        {
+            Device.BeginInvokeOnMainThread(BackButtonCallback);
+            return true;
+
+            async void BackButtonCallback()
+            {
+                _ = base.OnBackButtonPressed();
+
+                if (await this.CancelChanges())
+                {
+                    this.DialogResult = DialogResult.None;
+                    await this.Close();
+                }
+            }
+        }
+
+        /// <summary>
         /// The DisplayData.
         /// </summary>
         /// <returns>The <see cref="Task"/>.</returns>
@@ -1464,14 +1523,17 @@ namespace dMobile.View.Activity
             if (this.LocMap.CurrLocMap.WhsLocMapRefno > 0)
             {
                 var currentReadableLocation = LocationMapTasks.GetCurrentReadableLocation();
-                _ = await Device.InvokeOnMainThreadAsync(() => this.cmdLocationText = "Location: " + Environment.NewLine + currentReadableLocation);
+                _ = await Device.InvokeOnMainThreadAsync(() =>
+                    this.cmdLocationText = "Location: " + Environment.NewLine + currentReadableLocation);
             }
             else
             {
                 _ = await Device.InvokeOnMainThreadAsync(() => this.cmdLocationText = "Set Location");
             }
 
-            _ = await Device.InvokeOnMainThreadAsync(() => this.lblProductBCUnit.Text = "Product: " + ProductInfoTasks.GetCurrReadableProdBCUnit(this.ActItem.ProdInfo));
+            _ = await Device.InvokeOnMainThreadAsync(() =>
+                this.lblProductBCUnit.Text =
+                    "Product: " + ProductInfoTasks.GetCurrReadableProdBCUnit(this.ActItem.ProdInfo));
 
             var selectedActivityItem = this.ActItem.SelectedActivityItem as PickingItem;
 
@@ -1480,12 +1542,22 @@ namespace dMobile.View.Activity
                 var ordQty = Convert.ToDecimal(selectedActivityItem.ActivityItemPickingQuantityOrdered);
                 var ordWtQty = Convert.ToDecimal(selectedActivityItem.ActivityItemPickingWeightQuantityOrdered);
 
-                _ = await Device.InvokeOnMainThreadAsync(() => this.lblOrderedQuantity.Text = "Ordered: " + SysCommon.NiceQuantityReadableString(this.ActItem.ProdInfo, ordQty, ordWtQty));
+                _ = await Device.InvokeOnMainThreadAsync(() =>
+                    this.lblOrderedQuantity.Text = "Ordered: " +
+                                                   SysCommon.NiceQuantityReadableString(
+                                                       this.ActItem.ProdInfo,
+                                                       ordQty,
+                                                       ordWtQty));
 
                 var shpQty = Convert.ToDecimal(selectedActivityItem.ActivityItemPickingQuantityShipped);
                 var shpWtQty = Convert.ToDecimal(selectedActivityItem.ActivityItemPickingWeightQuantityShipped);
 
-                _ = await Device.InvokeOnMainThreadAsync(() => this.lblShippedQuantity.Text = "Shipped: " + SysCommon.NiceQuantityReadableString(this.ActItem.ProdInfo, shpQty, shpWtQty));
+                _ = await Device.InvokeOnMainThreadAsync(() =>
+                    this.lblShippedQuantity.Text = "Shipped: " +
+                                                   SysCommon.NiceQuantityReadableString(
+                                                       this.ActItem.ProdInfo,
+                                                       shpQty,
+                                                       shpWtQty));
 
                 if (Convert.ToString(selectedActivityItem.IsActivityItemPickingComment) == "*")
                 {
@@ -1502,7 +1574,10 @@ namespace dMobile.View.Activity
                 {
                     if (Convert.ToString(selectedActivityItem.IsActivityItemPickingComment) == "*")
                     {
-                        await Device.InvokeOnMainThreadAsync(async () => await this.DisplayAlert("Comment", await this.ActItem.GetComment(this.ActItem.ItemRefno), "OK"));
+                        await Device.InvokeOnMainThreadAsync(async () => await this.DisplayAlert(
+                            "Comment",
+                            await this.ActItem.GetComment(this.ActItem.ItemRefno),
+                            "OK"));
                     }
                 }
 
@@ -1548,7 +1623,11 @@ namespace dMobile.View.Activity
         /// <param name="barCodeParse">.</param>
         /// <param name="isInsertDetailReady">The isInsertDetailReady<see cref="bool"/>.</param>
         /// <returns>The <see cref="Task"/>.</returns>
-        private async Task InsertActivityDetail(object selectedActivityItem, ActDetail actDetail, BarCodeParse barCodeParse, bool isInsertDetailReady)
+        private async Task InsertActivityDetail(
+            object selectedActivityItem,
+            ActDetail actDetail,
+            BarCodeParse barCodeParse,
+            bool isInsertDetailReady)
         {
             if (isInsertDetailReady)
             {
@@ -1557,7 +1636,11 @@ namespace dMobile.View.Activity
 
                 // Upon a save of completed data update the data view to to show new item
                 // and quantity change
-                this.ActItem.AddToQuantityInActivityItem(selectedActivityItem, actDetail.Quantity, actDetail.BaseQuantity, actDetail.WeightQuantity);
+                this.ActItem.AddToQuantityInActivityItem(
+                    selectedActivityItem,
+                    actDetail.Quantity,
+                    actDetail.BaseQuantity,
+                    actDetail.WeightQuantity);
                 await this.ActItem.UpdateItemTableQuantity(selectedActivityItem);
             }
 
@@ -1625,14 +1708,16 @@ namespace dMobile.View.Activity
                         // Do not warn if product is out of stock WO# 12054
                         if (available > 0 && shipped < ordered)
                         {
-                            throw new MessageOnlyException("Some line items exists where the shipped quantity is less that the quantity ordered.");
+                            throw new MessageOnlyException(
+                                "Some line items exists where the shipped quantity is less that the quantity ordered.");
                         }
                     }
                     else
                     {
                         if (shipped < ordered)
                         {
-                            throw new MessageOnlyException("Some line items exists where the shipped quantity is less that the quantity ordered.");
+                            throw new MessageOnlyException(
+                                "Some line items exists where the shipped quantity is less that the quantity ordered.");
                         }
                     }
                 }
@@ -1650,9 +1735,9 @@ namespace dMobile.View.Activity
                 // Only print full cases not repacks
                 if (this.ActItem.ProdInfo.BoxCount < 2)
                 {
-                    var labelQuantity = new SLabelQuantity();
-                    labelQuantity = await this.ActItem.GetLabelQuantity(!this.SysEnv.SysSettings.IsPickSinglePrintShipLabelFullQuantity);
-
+                    var labelQuantity =
+                        await this.ActItem.GetLabelQuantity(!this.SysEnv.SysSettings
+                            .IsPickSinglePrintShipLabelFullQuantity);
                     var totalQty = labelQuantity.FullQuantity
                                    + labelQuantity.FreshQuantity
                                    + labelQuantity.FrozenQuantity
@@ -1662,7 +1747,8 @@ namespace dMobile.View.Activity
                     // GetLabelQuantity will also tell if the line item has been printed already.
                     if (!labelQuantity.IsPrinted)
                     {
-                        if (totalQty > this.SysEnv.SysSettings.PickSingleShipLabelStopThresholdQuantity && this.SysEnv.SysSettings.PickSingleShipLabelStopThresholdQuantity > 0)
+                        if (totalQty > this.SysEnv.SysSettings.PickSingleShipLabelStopThresholdQuantity &&
+                            this.SysEnv.SysSettings.PickSingleShipLabelStopThresholdQuantity > 0)
                         {
                             var formLblQty = new FormShipLabelQuantity();
                             {
@@ -1752,16 +1838,19 @@ namespace dMobile.View.Activity
                         // Do not warn if product is out of stock WO# 12054
                         if (available > 0 && shipped < ordered)
                         {
-                            string msg;
-                            if (this.SysEnv.SysSettings.IsPickQtyUnderShowBaseQtyAvail)
+                            var msg = this.SysEnv.SysSettings.IsPickQtyUnderShowBaseQtyAvail switch
                             {
-                                // TODO: UnitCode should be baseUnitCode, check where this is in table
-                                msg = string.Format("The quantity shipped is less than the quantity ordered." + Environment.NewLine + "On Hand {0} {1}", Convert.ToDecimal(pickingItem.ActivityItemPickingBaseQuantityAvailable), Convert.ToString(pickingItem.UnitCode));
-                            }
-                            else
-                            {
-                                msg = string.Format("The quantity shipped is less than the quantity ordered." + Environment.NewLine + "On Hand {0} {1}", Convert.ToDecimal(pickingItem.ActivityItemPickingQuantityAvailable), Convert.ToString(pickingItem.UnitCode));
-                            }
+                                true => string.Format(
+                                    "The quantity shipped is less than the quantity ordered." + Environment.NewLine +
+                                    "On Hand {0} {1}",
+                                    Convert.ToDecimal(pickingItem.ActivityItemPickingBaseQuantityAvailable),
+                                    Convert.ToString(pickingItem.UnitCode)),
+                                _ => string.Format(
+                                    "The quantity shipped is less than the quantity ordered." + Environment.NewLine +
+                                    "On Hand {0} {1}",
+                                    Convert.ToDecimal(pickingItem.ActivityItemPickingQuantityAvailable),
+                                    Convert.ToString(pickingItem.UnitCode))
+                            };
 
                             throw new MessageOnlyException(msg);
                         }
@@ -1791,7 +1880,10 @@ namespace dMobile.View.Activity
             }
             catch (Exception ex)
             {
-                await Device.InvokeOnMainThreadAsync(async () => await this.DisplayAlert(this.GetControlDescription(), ex.Message, "OK"));
+                await Device.InvokeOnMainThreadAsync(async () => await this.DisplayAlert(
+                    this.GetControlDescription(),
+                    ex.Message,
+                    "OK"));
             }
 
             this.ActItem.ListItems = await this.ActItem.GetActivityItemList(false);
@@ -1800,27 +1892,28 @@ namespace dMobile.View.Activity
             {
                 await this.ActItem.AssignActivityItem(this.ActItem.ListItems[0]);
 
-                var cmnt = await this.ActItem.GetComment(Convert.ToInt32((this.ActItem.SelectedActivityItem as PickingItem).ActivityItemRefno));
-
-                if (!string.IsNullOrEmpty(cmnt))
+                var comment = await this.ActItem.GetComment(
+                        Convert.ToInt32(((PickingItem)this.ActItem.SelectedActivityItem).ActivityItemRefno));
+                if (!string.IsNullOrEmpty(comment))
                 {
-                    if (cmnt.Length > 30)
+                    if (comment.Length > 30)
                     {
                         for (var line = 1; line <= 3; line++)
                         {
-                            this.ExtraInfoItems.Add(cmnt);
+                            this.ExtraInfoItems.Add(comment);
                         }
                     }
                     else
                     {
-                        this.ExtraInfoItems.Add(cmnt);
+                        this.ExtraInfoItems.Add(comment);
                     }
                 }
 
                 if (this.LocMap.CurrLocMap.WhsLocMapRefno != 0)
                 {
                     var currentReadableLocation = LocationMapTasks.GetCurrentReadableLocation();
-                    _ = await Device.InvokeOnMainThreadAsync(() => this.cmdLocationText = "Location: " + Environment.NewLine + currentReadableLocation);
+                    _ = await Device.InvokeOnMainThreadAsync(() =>
+                        this.cmdLocationText = "Location: " + Environment.NewLine + currentReadableLocation);
                 }
                 else
                 {
@@ -1866,7 +1959,8 @@ namespace dMobile.View.Activity
                 if (this.LocMap.CurrLocMap.WhsLocMapRefno != 0)
                 {
                     var currentReadableLocation = LocationMapTasks.GetCurrentReadableLocation();
-                    _ = await Device.InvokeOnMainThreadAsync(() => this.cmdLocationText = "Location: " + Environment.NewLine + currentReadableLocation);
+                    _ = await Device.InvokeOnMainThreadAsync(() =>
+                        this.cmdLocationText = "Location: " + Environment.NewLine + currentReadableLocation);
                 }
                 else
                 {
@@ -1944,7 +2038,8 @@ namespace dMobile.View.Activity
                         if (this.LocMap.CurrLocMap.WhsLocMapRefno != 0)
                         {
                             var currentReadableLocation = LocationMapTasks.GetCurrentReadableLocation();
-                            _ = await Device.InvokeOnMainThreadAsync(() => this.cmdLocationText = "Location: " + Environment.NewLine + currentReadableLocation);
+                            _ = await Device.InvokeOnMainThreadAsync(() =>
+                                this.cmdLocationText = "Location: " + Environment.NewLine + currentReadableLocation);
                         }
                         else
                         {
@@ -2004,7 +2099,8 @@ namespace dMobile.View.Activity
                             this.LocMap.CurrLocMap = this.ActHdr.SkidInfo.CurrSkid.LocMap;
 
                             var currentReadableLocation = LocationMapTasks.GetCurrentReadableLocation();
-                            _ = await Device.InvokeOnMainThreadAsync(() => this.cmdLocationText = "Location: " + Environment.NewLine + currentReadableLocation);
+                            _ = await Device.InvokeOnMainThreadAsync(() =>
+                                this.cmdLocationText = "Location: " + Environment.NewLine + currentReadableLocation);
 
                             this.cmdLocationIsEnabled = false;
                         }
@@ -2119,7 +2215,11 @@ namespace dMobile.View.Activity
                             // this.ActItem.DataViewItems.Sort = "ActivityItemRefno";
                             // foundRowIdx = this.ActItem.DataViewItems.Find(itemFoundRefno);
                             // this.ActItem.CurrRowIdx = foundRowIdx;
-                            this.ActItem.SelectedActivityItem = this.ActItem.ListItems.OfType<object>().Where(activityItem => Convert.ToString(activityItem.GetType().GetProperty("ActivityItemRefno")?.GetValue(activityItem)) == Convert.ToString(itemFoundRefno)).FirstOrDefault();
+                            this.ActItem.SelectedActivityItem = this.ActItem.ListItems.OfType<object>()
+                                .FirstOrDefault(activityItem => Convert.ToString(activityItem.GetType()
+                                                                    .GetProperty("ActivityItemRefno")
+                                                                    ?.GetValue(activityItem)) ==
+                                                                Convert.ToString(itemFoundRefno));
                         }
                         else
                         {
@@ -2147,8 +2247,8 @@ namespace dMobile.View.Activity
                         {
                             // LocationMapRefno is assumed to be the picking WarehouseLocationMapRefno
                             int locMapRefno = this.ActItem.GetDefaultLocMapRefno(
-                                Convert.ToInt32((this.ActItem.SelectedActivityItem as dynamic).LocationMapRefno),
-                                Convert.ToInt32((this.ActItem.SelectedActivityItem as dynamic).ProductRefno));
+                                Convert.ToInt32(((dynamic)this.ActItem.SelectedActivityItem)?.LocationMapRefno),
+                                Convert.ToInt32(((dynamic)this.ActItem.SelectedActivityItem)?.ProductRefno));
 
                             if (this.LocMap.CurrLocMapRefno != locMapRefno)
                             {
@@ -2275,10 +2375,10 @@ namespace dMobile.View.Activity
                     // Refreshing will have to be accomplished by exiting the items activity.
                     switch (this.ActSubType)
                     {
-                        case SysCommon.ActSubTypes.PhysicalCounts:
+                        case SysCommon.ActSubTypes.CycleCounts:
                             break;
 
-                        case SysCommon.ActSubTypes.CycleCounts:
+                        case SysCommon.ActSubTypes.PhysicalCounts:
                             break;
 
                         default:
@@ -2323,20 +2423,18 @@ namespace dMobile.View.Activity
                     {
                         prodUnitRefno = this.ActHdr.SkidInfo.CurrSkid.ProdInfo.UnitRefno;
                         actItemFoundRefno = await this.ActItem.GetActivityItemRefno(prodUnitRefno);
-
-                        // this.ActItem.DataViewItems.Sort = "ActivityItemRefno";
                         if (actItemFoundRefno > 0)
                         {
-                            // foundObject = this.ActItem.DataViewItems.Find(actItemFoundRefno);
-                            foundObject = this.ActItem.ListItems.OfType<object>().Where(
-                                activityItem => Convert.ToString(activityItem.GetType().GetProperty("ActivityItemRefno")?.
-                                GetValue(activityItem)) == Convert.ToString(actItemFoundRefno)).FirstOrDefault();
+                            foundObject = this.ActItem.ListItems.OfType<object>().FirstOrDefault(activityItem =>
+                                Convert.ToString(activityItem.GetType().GetProperty("ActivityItemRefno")?.
+                                GetValue(activityItem)) == Convert.ToString(actItemFoundRefno));
                         }
                         else
                         {
                             if (this.ActItem.IsAllowAddItem)
                             {
-                                await this.ActItem.Insert(ProductInfoTasks.GetXML(this.ActHdr.SkidInfo.CurrSkid.ProdInfo), false);
+                                await this.ActItem.Insert(
+                                    ProductInfoTasks.GetXML(this.ActHdr.SkidInfo.CurrSkid.ProdInfo), false);
 
                                 // This is a little dangerous we assume that the new row idx
                                 // will be the last one
@@ -2439,11 +2537,10 @@ namespace dMobile.View.Activity
                     await this.ScannerDisable();
                     await this.ActItem.AssignActivityItem(this.ActItem.SelectedActivityItem);
 
+                    var currentSkid = this.ActItem.ActHdr.SkidInfo.CurrSkid;
                     if (this.ActItem.ActHdr.SkidInfo.CurrSkid.SkidFKRefno != 0)
                     {
-                        var currSkid = this.ActItem.ActHdr.SkidInfo.CurrSkid;
-
-                        if (currSkid.ProdInfo.Refno != this.ActItem.ProdInfo.Refno)
+                        if (currentSkid.ProdInfo.Refno != this.ActItem.ProdInfo.Refno)
                         {
                             throw new MessageOnlyException("Selected line item product must match the" +
                                 " selected skid product.");
@@ -2465,11 +2562,10 @@ namespace dMobile.View.Activity
 
                     await this.ActItem.UpdateItemTableQuantity(this.ActItem.SelectedActivityItem);
 
-                    if (this.ActHdr.SkidInfo.CurrSkid.SkidFKRefno != 0)
+                    if (currentSkid.SkidFKRefno != 0)
                     {
                         this.cmdAddSkidIsEnabled = true;
-
-                        this.cmdSelectSkidText = "Skid# " + this.ActHdr.SkidInfo.CurrSkid.SkidCode;
+                        this.cmdSelectSkidText = "Skid# " + currentSkid.SkidCode;
                         this.cmdLocationIsEnabled = false;
                     }
                     else
@@ -2506,11 +2602,11 @@ namespace dMobile.View.Activity
         }
 
         /// <summary>
-        /// The cmdNext_Click.
+        /// The CmdNext_Click.
         /// </summary>
         /// <param name="sender">.</param>
         /// <param name="e">.</param>
-        private async void cmdNext_Click(object sender, EventArgs e)
+        private async void CmdNext_Click(object sender, EventArgs e)
         {
             if (this.IsControlLoaded)
             {
@@ -2532,7 +2628,12 @@ namespace dMobile.View.Activity
                                 {
                                     case SysCommon.ActPickingQtyUnderValLevels.ValidateWarnAndContinue:
 
-                                        if (await Device.InvokeOnMainThreadAsync(async () => !await this.DisplayAlert("Quantity Validation", ex.Message + Environment.NewLine + "Continue?", "Yes", "No")))
+                                        if (await Device.InvokeOnMainThreadAsync(async () =>
+                                                !await this.DisplayAlert(
+                                                    "Quantity Validation",
+                                                    ex.Message + Environment.NewLine + "Continue?",
+                                                    "Yes",
+                                                    "No")))
                                         {
                                             isValid = false;
                                         }
@@ -2541,7 +2642,11 @@ namespace dMobile.View.Activity
 
                                     case SysCommon.ActPickingQtyUnderValLevels.ValidateWarnAndStop:
 
-                                        await Device.InvokeOnMainThreadAsync(async () => await this.DisplayAlert("Quantity Validation", ex.Message, "OK"));
+                                        await Device.InvokeOnMainThreadAsync(async () =>
+                                            await this.DisplayAlert(
+                                                "Quantity Validation",
+                                                ex.Message,
+                                                "OK"));
                                         isValid = false;
 
                                         break;
@@ -2550,7 +2655,10 @@ namespace dMobile.View.Activity
                         }
                         else
                         {
-                            await Device.InvokeOnMainThreadAsync(async () => await this.DisplayAlert(this.GetControlDescription(), "Last Item", "OK"));
+                            await Device.InvokeOnMainThreadAsync(async () => await this.DisplayAlert(
+                                this.GetControlDescription(),
+                                "Last Item",
+                                "OK"));
                         }
                     }
 
@@ -2568,7 +2676,9 @@ namespace dMobile.View.Activity
                             if (this.LocMap.CurrLocMap.WhsLocMapRefno != 0)
                             {
                                 var currentReadableLocation = LocationMapTasks.GetCurrentReadableLocation();
-                                _ = await Device.InvokeOnMainThreadAsync(() => this.cmdLocationText = "Location: " + Environment.NewLine + currentReadableLocation);
+                                _ = await Device.InvokeOnMainThreadAsync(() =>
+                                    this.cmdLocationText =
+                                        "Location: " + Environment.NewLine + currentReadableLocation);
                             }
                             else
                             {
@@ -2625,7 +2735,11 @@ namespace dMobile.View.Activity
                             {
                                 case SysCommon.ActPickingQtyUnderValLevels.ValidateWarnAndContinue:
 
-                                    if (await Device.InvokeOnMainThreadAsync(async () => !await this.DisplayAlert("Quantity Validation", ex.Message + Environment.NewLine + "Continue?", "Yes", "No")))
+                                    if (await Device.InvokeOnMainThreadAsync(async () => !await this.DisplayAlert(
+                                            "Quantity Validation",
+                                            ex.Message + Environment.NewLine + "Continue?",
+                                            "Yes",
+                                            "No")))
                                     {
                                         isValid = false;
                                     }
@@ -2634,7 +2748,10 @@ namespace dMobile.View.Activity
 
                                 case SysCommon.ActPickingQtyUnderValLevels.ValidateWarnAndStop:
 
-                                    await Device.InvokeOnMainThreadAsync(async () => await this.DisplayAlert("Quantity Validation", ex.Message, "OK"));
+                                    await Device.InvokeOnMainThreadAsync(async () => await this.DisplayAlert(
+                                        "Quantity Validation",
+                                        ex.Message,
+                                        "OK"));
 
                                     isValid = false;
                                     break;
@@ -2656,7 +2773,9 @@ namespace dMobile.View.Activity
                             if (this.LocMap.CurrLocMap.WhsLocMapRefno != 0)
                             {
                                 var currentReadableLocation = LocationMapTasks.GetCurrentReadableLocation();
-                                _ = await Device.InvokeOnMainThreadAsync(() => this.cmdLocationText = "Location: " + Environment.NewLine + currentReadableLocation);
+                                _ = await Device.InvokeOnMainThreadAsync(() =>
+                                    this.cmdLocationText =
+                                        "Location: " + Environment.NewLine + currentReadableLocation);
                             }
                             else
                             {
@@ -2705,11 +2824,16 @@ namespace dMobile.View.Activity
                     throw new MessageOnlyException("Please select and line item to show the comments for.");
                 }
 
-                string comment = await this.ActItem.GetComment(Convert.ToInt32((this.ActItem.SelectedActivityItem as dynamic).ActivityItemRefno));
+                string comment =
+                    await this.ActItem.GetComment(
+                        Convert.ToInt32((this.ActItem.SelectedActivityItem as dynamic).ActivityItemRefno));
 
                 if (!string.IsNullOrEmpty(comment))
                 {
-                    await Device.InvokeOnMainThreadAsync(async () => await this.DisplayAlert("Item Comment", comment, "OK"));
+                    await Device.InvokeOnMainThreadAsync(async () => await this.DisplayAlert(
+                        "Item Comment",
+                        comment,
+                        "OK"));
                 }
             }
             catch (MessageOnlyException ex)
@@ -2750,7 +2874,10 @@ namespace dMobile.View.Activity
 
                 if (!string.IsNullOrEmpty(msg))
                 {
-                    await Device.InvokeOnMainThreadAsync(async () => await this.DisplayAlert(this.GetControlDescription(), msg, "OK"));
+                    await Device.InvokeOnMainThreadAsync(async () => await this.DisplayAlert(
+                        this.GetControlDescription(),
+                        msg,
+                        "OK"));
                 }
             }
             catch (MessageOnlyException ex)
@@ -2776,11 +2903,11 @@ namespace dMobile.View.Activity
         }
 
         /// <summary>
-        /// The optionsMenu_Clicked.
+        /// The OptionsMenu_Clicked.
         /// </summary>
         /// <param name="sender">The sender<see cref="object"/>.</param>
         /// <param name="e">The e<see cref="EventArgs"/>.</param>
-        private async void optionsMenu_Clicked(object sender, EventArgs e)
+        private async void OptionsMenu_Clicked(object sender, EventArgs e)
         {
             if (this.Loading)
             {
@@ -2794,7 +2921,11 @@ namespace dMobile.View.Activity
                     "Location: " + Environment.NewLine + currentReadableLocation);
             });
 
-            var result = await this.DisplayActionSheet("ActivityItemSingle Options", "Close", null, this.OptionsMenuItems.ToArray());
+            var result = await this.DisplayActionSheet(
+                "ActivityItemSingle Options",
+                "Close",
+                null,
+                this.OptionsMenuItems.ToArray());
 
             if (result == this.cmdLocationText && this.cmdLocationIsEnabled)
             {

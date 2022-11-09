@@ -94,15 +94,9 @@ namespace dMobile.Bedrock
         /// </summary>
         public string CurrentBarCodeModifier1
         {
-            get
-            {
-                return currentBarCodeModifier1;
-            }
+            get => currentBarCodeModifier1;
 
-            set
-            {
-                currentBarCodeModifier1 = value;
-            }
+            set => currentBarCodeModifier1 = value;
         }
 
         /// <summary>
@@ -110,15 +104,9 @@ namespace dMobile.Bedrock
         /// </summary>
         public string DeviceID
         {
-            get
-            {
-                return deviceID;
-            }
+            get => deviceID;
 
-            set
-            {
-                deviceID = value;
-            }
+            set => deviceID = value;
         }
 
         /// <summary>
@@ -127,15 +115,9 @@ namespace dMobile.Bedrock
         /// </summary>
         public bool IsEnableAllModuleBypassLicense
         {
-            get
-            {
-                return isEnableAllModuleBypassLicense;
-            }
+            get => isEnableAllModuleBypassLicense;
 
-            set
-            {
-                isEnableAllModuleBypassLicense = value;
-            }
+            set => isEnableAllModuleBypassLicense = value;
         }
 
         /// <summary>
@@ -155,10 +137,7 @@ namespace dMobile.Bedrock
                 return sysSettings;
             }
 
-            set
-            {
-                sysSettings = value;
-            }
+            set => sysSettings = value;
         }
 
         /// <summary>
@@ -178,10 +157,7 @@ namespace dMobile.Bedrock
                 return refreshOpt;
             }
 
-            set
-            {
-                refreshOpt = value;
-            }
+            set => refreshOpt = value;
         }
 
         /// <summary>
@@ -189,8 +165,8 @@ namespace dMobile.Bedrock
         /// </summary>
         public ContactLogin ContactLog
         {
-            get { return contactLog; }
-            set { contactLog = value; }
+            get => contactLog;
+            set => contactLog = value;
         }
 
         /// <summary>
@@ -210,10 +186,7 @@ namespace dMobile.Bedrock
                 return commSetup;
             }
 
-            set
-            {
-                commSetup = value;
-            }
+            set => commSetup = value;
         }
 
         /// <summary>
@@ -245,10 +218,7 @@ namespace dMobile.Bedrock
                 return sysSock;
             }
 
-            set
-            {
-                sysSock = value;
-            }
+            set => sysSock = value;
         }
 
         /// <summary>
@@ -268,10 +238,7 @@ namespace dMobile.Bedrock
                 return barCodeSettingsInstance;
             }
 
-            set
-            {
-                barCodeSettingsInstance = value;
-            }
+            set => barCodeSettingsInstance = value;
         }
 
         /// <summary>
@@ -279,15 +246,9 @@ namespace dMobile.Bedrock
         /// </summary>
         public bool IsCommunicationTestSuccessful
         {
-            get
-            {
-                return isCommunicationTestSuccessful;
-            }
+            get => isCommunicationTestSuccessful;
 
-            set
-            {
-                isCommunicationTestSuccessful = value;
-            }
+            set => isCommunicationTestSuccessful = value;
         }
 
         /// <summary>
@@ -316,10 +277,7 @@ namespace dMobile.Bedrock
                 return isWindowsMobile6Device;
             }
 
-            set
-            {
-                isWindowsMobile6Device = value;
-            }
+            set => isWindowsMobile6Device = value;
         }
 
         // METHODS

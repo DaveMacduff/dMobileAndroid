@@ -514,7 +514,7 @@ namespace dMobile.View.Views
                     await this.UpdateLocationDisplay();
                 }
 
-                await TabLocation_GotFocus(this, new EventArgs());
+                await TabLocation_GotFocus(this, EventArgs.Empty);
             }
             catch (MessageOnlyException ex)
             {

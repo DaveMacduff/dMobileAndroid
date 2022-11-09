@@ -61,10 +61,7 @@ namespace dMobile.View.Views
         /// </summary>
         public bool FilterOnAllowConvertProduct
         {
-            get
-            {
-                return this.filterOnAllowConvertProduct;
-            }
+            get => this.filterOnAllowConvertProduct;
 
             set
             {
@@ -126,7 +123,7 @@ namespace dMobile.View.Views
 
             try
             {
-                await this.ucSelectProduct_GotFocus(this, new EventArgs());
+                await this.ucSelectProduct_GotFocus(this, EventArgs.Empty);
             }
             catch (Exception ex)
             {

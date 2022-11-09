@@ -141,7 +141,7 @@ namespace dMobile.View.Activity
                     await this.ClearContents();
                 }
 
-                await this.ucActivitySkidPutAway_GotFocus(this, new EventArgs());
+                await this.ucActivitySkidPutAway_GotFocus(this, EventArgs.Empty);
             }
             catch (Exception ex)
             {
