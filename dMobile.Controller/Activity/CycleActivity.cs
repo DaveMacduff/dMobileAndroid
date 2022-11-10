@@ -113,7 +113,7 @@ namespace dMobile.Controller.Activity
         /// The GetFKRefnoIdx.
         /// </summary>
         /// <returns>.</returns>
-        public override string GetFKRefnoIdx()
+        public override string GetFkRefnoIdx()
         {
             return "ActivityStringFKRefno";
         }
@@ -380,7 +380,7 @@ namespace dMobile.Controller.Activity
             if (selectedActivity is Count header)
             {
                 this.SelectedActivity = header;
-                this.HdrFKRefno = header.ActivityFKRefno;
+                this.HdrFkRefno = header.ActivityFKRefno;
                 this.HdrRefno = header.ActivityRefno;
 
                 if (this.SysEnv.SysSettings.IsDefaultLocToProductDefaultLoc)
@@ -418,7 +418,7 @@ namespace dMobile.Controller.Activity
         {
             if (selectedItem is Count count)
             {
-                this.HdrFKRefno = Convert.ToInt32(count.ActivityFKRefno);
+                this.HdrFkRefno = Convert.ToInt32(count.ActivityFKRefno);
                 this.HdrRefno = Convert.ToInt32(count.ActivityRefno);
             }
             return this.HdrRefno;
@@ -530,10 +530,10 @@ namespace dMobile.Controller.Activity
         /// </summary>
         /// <param name="resourceType"><see cref="object"/> Resource model (ActivityCountModel).</param>
         /// <returns><see cref="int"/> Found activity foreign key refno, else 0 if not found.</returns>
-        public override int GetFKRefno(object resourceType)
+        public override int GetFkRefno(object resourceType)
         {
-            object tmpFKRefno = ((Count)resourceType).ActivityFKRefno;
-            return tmpFKRefno == null ? 0 : Convert.ToInt32(tmpFKRefno);
+            object tmpFkRefno = ((Count)resourceType).ActivityFKRefno;
+            return tmpFkRefno == null ? 0 : Convert.ToInt32(tmpFkRefno);
         }
 
         /// <summary>

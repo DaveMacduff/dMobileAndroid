@@ -5,9 +5,9 @@
 namespace dMobile.Controller.Activity
 {
     /// <summary>
-    /// Defines the <see cref="POWorkSheetActivityFactory" />.
+    /// Defines the <see cref="PoWorkSheetActivityFactory" />.
     /// </summary>
-    public class POWorkSheetActivityFactory : ActivityFactory
+    public class PoWorkSheetActivityFactory : ActivityFactory
     {
         /// <summary>
         /// The GetActivity.
@@ -15,7 +15,7 @@ namespace dMobile.Controller.Activity
         /// <returns>The <see cref="Activity"/>.</returns>
         public override Activity GetActivity()
         {
-            return new POWorkSheetActivity();
+            return new PoWorkSheetActivity();
         }
     }
 }

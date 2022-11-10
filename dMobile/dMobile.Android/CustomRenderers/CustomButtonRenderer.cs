@@ -31,6 +31,7 @@ namespace dMobile.Droid.CustomRenderers
         {
         }
 
+        /// <inheritdoc/>
         protected override void OnElementChanged(ElementChangedEventArgs<Button> e)
         {
             base.OnElementChanged(e);

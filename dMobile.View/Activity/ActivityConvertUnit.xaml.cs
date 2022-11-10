@@ -229,6 +229,7 @@ namespace dMobile.View.Activity
             }
         }
 
+        /// <inheritdoc/>
         protected override bool OnBackButtonPressed()
         {
             Device.BeginInvokeOnMainThread(async () =>
@@ -342,6 +343,7 @@ namespace dMobile.View.Activity
         /// </summary>
         /// <returns></returns>
         /// <remarks></remarks>
+        /// <inheritdoc/>
         public async Task<bool> IsReadyToClose()
         {
             var isReadyToClose = true;
@@ -396,6 +398,7 @@ namespace dMobile.View.Activity
         /// </summary>
         /// <returns></returns>
         /// <remarks></remarks>
+        /// <inheritdoc/>
         public async Task<bool> SaveChanges()
         {
             var saveComplete = false;
@@ -533,6 +536,7 @@ namespace dMobile.View.Activity
         /// </summary>
         /// <returns></returns>
         /// <remarks></remarks>
+        /// <inheritdoc/>
         public async Task<bool> CancelChanges()
         {
             var cancelChanges = true;
@@ -587,6 +591,7 @@ namespace dMobile.View.Activity
         ///
         /// </summary>
         /// <returns></returns>
+        /// <inheritdoc/>
         public async Task<XDocument> GetXML()
         {
             var xmlDoc = XDocument.Parse(
@@ -728,8 +733,8 @@ namespace dMobile.View.Activity
                             this.ActDetail.Quantity = 0;
                             this.ActDetail.BaseQuantity = 0;
                             this.ActDetail.WeightQuantity = 0;
-                            this.ActDetail.SchemeID = string.Empty;
-                            this.ActDetail.UniqueSchemeID = string.Empty;
+                            this.ActDetail.SchemeId = string.Empty;
+                            this.ActDetail.UniqueSchemeId = string.Empty;
                             this.ActDetail.ActExtra.Text1 = string.Empty;
                             this.ActDetail.ActExtra.Text2 = string.Empty;
                             this.ActDetail.ActExtra.Text3 = string.Empty;
@@ -738,7 +743,7 @@ namespace dMobile.View.Activity
 
                             isInsertReady = await SysShared.GatherProductData(parse, this.ActSubType, this.ActItem, tempItemProdSchemeData, isInsertReady, this.ActDetail, false);
 
-                            var xmlDoc = this.ActDetail.GetXML(this.ActDetail);
+                            var xmlDoc = this.ActDetail.GetXml(this.ActDetail);
 
                             await this.ActItem.Insert(xmlDoc, false);
 
@@ -932,8 +937,8 @@ namespace dMobile.View.Activity
             _ = req.AppendFormat("<whs_id>{0}</whs_id>", this.LocMap.CurrLocMap.WhsFKRefno);
             _ = req.AppendFormat("<sect_refno>{0}</sect_refno>", this.LocMap.CurrLocMap.SectFKRefno);
             _ = req.AppendFormat("<slot_refno>{0}</slot_refno>", this.LocMap.CurrLocMap.SlotFKRefno);
-            _ = req.AppendFormat("<refno>{0}</refno>", this.ActItem.ActHdr.HdrFKRefno);
-            _ = req.AppendFormat("<itm_refno>{0}</itm_refno>", this.ActItem.ItemFKRefno);
+            _ = req.AppendFormat("<refno>{0}</refno>", this.ActItem.ActHdr.HdrFkRefno);
+            _ = req.AppendFormat("<itm_refno>{0}</itm_refno>", this.ActItem.ItemFkRefno);
             _ = req.AppendFormat("<prod_id>{0}</prod_id>", this.ActDetail.ListDetails[idx].GetType().GetProperty("ProductCode")?.GetValue(this.ActDetail.ListDetails[idx]));
             _ = req.AppendFormat("<bc>{0}</bc>", this.ActDetail.ListDetails[idx].GetType().GetProperty("ProductUnitBC")?.GetValue(this.ActDetail.ListDetails[idx]));
             _ = req.AppendFormat("<alt_unit>{0}</alt_unit>", this.ActDetail.ListDetails[idx].GetType().GetProperty("UnitCode")?.GetValue(this.ActDetail.ListDetails[idx]));
@@ -988,8 +993,8 @@ namespace dMobile.View.Activity
             _ = req.AppendFormat("<whs_id>{0}</whs_id>", this.LocMap.CurrLocMap.WhsFKRefno);
             _ = req.AppendFormat("<sect_refno>{0}</sect_refno>", this.LocMap.CurrLocMap.SectFKRefno);
             _ = req.AppendFormat("<slot_refno>{0}</slot_refno>", this.LocMap.CurrLocMap.SlotFKRefno);
-            _ = req.AppendFormat("<refno>{0}</refno>", this.ActItem.ActHdr.HdrFKRefno);
-            _ = req.AppendFormat("<itm_refno>{0}</itm_refno>", this.ActItem.ItemFKRefno);
+            _ = req.AppendFormat("<refno>{0}</refno>", this.ActItem.ActHdr.HdrFkRefno);
+            _ = req.AppendFormat("<itm_refno>{0}</itm_refno>", this.ActItem.ItemFkRefno);
             _ = req.AppendFormat("<prod_id>{0}</prod_id>", items[0].GetType().GetProperty("ProductCode")?.GetValue(items[0]));
             _ = req.AppendFormat("<bc>{0}</bc>", items[0].GetType().GetProperty("ProductUnitBC")?.GetValue(items[0]));
             _ = req.AppendFormat("<alt_unit>{0}</alt_unit>", items[0].GetType().GetProperty("UnitCode")?.GetValue(items[0]));
@@ -1015,8 +1020,8 @@ namespace dMobile.View.Activity
                 _ = req.AppendFormat("<whs_id>{0}</whs_id>", this.LocMap.CurrLocMap.WhsFKRefno);
                 _ = req.AppendFormat("<sect_refno>{0}</sect_refno>", this.LocMap.CurrLocMap.SectFKRefno);
                 _ = req.AppendFormat("<slot_refno>{0}</slot_refno>", this.LocMap.CurrLocMap.SlotFKRefno);
-                _ = req.AppendFormat("<refno>{0}</refno>", this.ActItem.ActHdr.HdrFKRefno);
-                _ = req.AppendFormat("<itm_refno>{0}</itm_refno>", this.ActItem.ItemFKRefno);
+                _ = req.AppendFormat("<refno>{0}</refno>", this.ActItem.ActHdr.HdrFkRefno);
+                _ = req.AppendFormat("<itm_refno>{0}</itm_refno>", this.ActItem.ItemFkRefno);
                 _ = req.AppendFormat("<prod_id>{0}</prod_id>", detail[idx].GetType().GetProperty("ProductCode")?.GetValue(detail[idx]));
                 _ = req.AppendFormat("<bc>{0}</bc>", detail[idx].GetType().GetProperty("ProductUnitBC")?.GetValue(detail[idx]));
                 _ = req.AppendFormat("<alt_unit>{0}</alt_unit>", detail[idx].GetType().GetProperty("UnitCode")?.GetValue(detail[idx]));
@@ -1109,8 +1114,8 @@ namespace dMobile.View.Activity
                 this.ActDetail.Quantity = 0;
                 this.ActDetail.BaseQuantity = 0;
                 this.ActDetail.WeightQuantity = 0;
-                this.ActDetail.SchemeID = string.Empty;
-                this.ActDetail.UniqueSchemeID = string.Empty;
+                this.ActDetail.SchemeId = string.Empty;
+                this.ActDetail.UniqueSchemeId = string.Empty;
                 this.ActDetail.ActExtra.Text1 = string.Empty;
                 this.ActDetail.ActExtra.Text2 = string.Empty;
                 this.ActDetail.ActExtra.Text3 = string.Empty;
@@ -1339,9 +1344,9 @@ namespace dMobile.View.Activity
             //////////////////////////////////////////////////////////////////////////
             void SetDetailScheme()
             {
-                this.ActDetail.SchemeID =
+                this.ActDetail.SchemeId =
                     Convert.ToString((this.ActItem.ListItems[0] as dynamic).ActivityDetailSchemeID);
-                this.ActDetail.UniqueSchemeID =
+                this.ActDetail.UniqueSchemeId =
                     Convert.ToString((this.ActItem.ListItems[0] as dynamic).ActivityDetailUniqueSchemeID);
 
                 var prodSchemeData = new ProductSchemeData
@@ -1560,7 +1565,7 @@ namespace dMobile.View.Activity
         {
             await this.ActDetail.AssignActivityDetail(e.SelectedItem);
             this.ActDetail.SelectedListItemIdx = e.SelectedItemIndex;
-            this.SelectedActivityDetailFKRefno = this.ActDetail.DetailFKRefno;
+            this.SelectedActivityDetailFKRefno = this.ActDetail.DetailFkRefno;
         }
 
         /// <summary>

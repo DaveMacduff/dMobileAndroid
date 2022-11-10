@@ -24,6 +24,7 @@ namespace dMobile.GroundWork
         ///
         /// </summary>
         /// <param name="actSubType"></param>
+        /// <inheritdoc/>
         public override async Task PurgeData(SysCommon.ActSubTypes actSubType)
         {
             try

@@ -126,6 +126,7 @@ namespace dMobile.View.Menus
         /// </summary>
         /// <returns></returns>
         /// <remarks></remarks>
+        /// <inheritdoc/>
         public async Task<bool> IsReadyToSave()
         {
             return true;
@@ -136,6 +137,7 @@ namespace dMobile.View.Menus
         /// </summary>
         /// <returns></returns>
         /// <remarks></remarks>
+        /// <inheritdoc/>
         public async Task<bool> IsReadyToClose()
         {
             return true;
@@ -156,6 +158,7 @@ namespace dMobile.View.Menus
         /// </summary>
         /// <returns></returns>
         /// <remarks></remarks>
+        /// <inheritdoc/>
         public async Task<bool> SaveChanges()
         {
             return true;
@@ -166,6 +169,7 @@ namespace dMobile.View.Menus
         /// </summary>
         /// <returns></returns>
         /// <remarks></remarks>
+        /// <inheritdoc/>
         public async Task<bool> CancelChanges()
         {
             return true;
@@ -176,6 +180,7 @@ namespace dMobile.View.Menus
         /// </summary>
         /// <returns></returns>
         /// <remarks></remarks>
+        /// <inheritdoc/>
         public async Task<XDocument> GetXML()
         {
             var xmldocParams = XDocument.Parse(

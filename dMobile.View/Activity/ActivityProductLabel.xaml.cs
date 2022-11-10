@@ -366,7 +366,7 @@ namespace dMobile.View.Activity
                 {
                     if (await Device.InvokeOnMainThreadAsync(async () => await this.DisplayAlert(this.GetControlDescription(), "Print product labels?", "Yes", "No")))
                     {
-                        var sendReq = await this.ActDetail.CreateSubmitProductLabelXML(await this.GetXML());
+                        var sendReq = await this.ActDetail.CreateSubmitProductLabelXml(await this.GetXML());
                         var strData = SysCommon.SubmitComm(sendReq);
 
                         if (strData.Length > 0)
@@ -468,7 +468,7 @@ namespace dMobile.View.Activity
         /// <returns>.</returns>
         public async Task<XDocument> GetXML()
         {
-            return await this.ActDetailEdit.GetXMLFromActivityDetailEdit(this.ActDetailEdit);
+            return await this.ActDetailEdit.GetXmlFromActivityDetailEdit(this.ActDetailEdit);
         }
 
         /// <summary>
@@ -899,12 +899,12 @@ namespace dMobile.View.Activity
 
             if (isRetVal)
             {
-                this.ActDetail.SchemeID = ProductInfoTasks.GetActSchemeIDFromSProdSchemeData(
+                this.ActDetail.SchemeId = ProductInfoTasks.GetActSchemeIDFromSProdSchemeData(
                     this.ActDetail.ActItem.ProdInfo.Code,
                     this.ActDetail.ActItem.ProdInfo.Scheme,
                     this.ActDetail.SchemeData);
 
-                this.ActDetail.UniqueSchemeID = ProductInfoTasks.GetUniqueSchemeIDFromSProdSchemeData(
+                this.ActDetail.UniqueSchemeId = ProductInfoTasks.GetUniqueSchemeIDFromSProdSchemeData(
                     this.ActDetail.ActItem.ProdInfo.Code,
                     this.ActDetail.ActItem.ProdInfo.Scheme,
                     this.ActDetail.SchemeData);
@@ -913,10 +913,10 @@ namespace dMobile.View.Activity
                 var xmlParam = XDocument.Parse(
                     "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>"
                     + "<imclient>"
-                    + "<itm_refno>" + this.ActDetail.ActItem.ItemFKRefno + "</itm_refno>"
+                    + "<itm_refno>" + this.ActDetail.ActItem.ItemFkRefno + "</itm_refno>"
                     + "<alt_qty>" + this.ActDetailEdit.AltQuantity + "</alt_qty>"
                     + "<wt_qty>" + this.ActDetailEdit.AltQuantity + "</wt_qty>"
-                    + "<ActivityDetailUniqueSchemeID>" + this.ActDetail.UniqueSchemeID + "</ActivityDetailUniqueSchemeID>"
+                    + "<ActivityDetailUniqueSchemeID>" + this.ActDetail.UniqueSchemeId + "</ActivityDetailUniqueSchemeID>"
                     + "</imclient>");
 
                 await this.ActDetail.ActItem.IsReadyToApply(xmlParam);

@@ -40,38 +40,31 @@ namespace dMobile.Resources.QueryResults
     // + "WHERE tLocationMapSlot.LocationMapRefno = ?";
     public class tLocationMapSlotQueryResult
     {
-        private int locationMapSlotCode;
-        private int slotCoord3LocationMapRefno;
-        private int locationMapSectionCode;
-        private int warehouseLocationMapRefno;
-        private string locationMapWarehouseSectionMask;
-        private bool locationMapWarehouseIsSlotTracked;
-        private string locationMapWarehouseSlotCoordinate3Name;
         private string locationMapWarehouseSlotCoordinate3Mask;
 
         public int LocationMapRefno { get; set; }
-        public int LocationMapSlotCode { get => this.locationMapSlotCode; set => this.locationMapSlotCode = value; }
+        public int LocationMapSlotCode { get; set; }
         public string LocationMapSlotName { get; set; }
         public int LocationMapSlotFKRefno { get; set; }
         public int SlotCoord1LocationMapRefno { get; set; }
         public int SlotCoord2LocationMapRefno { get; set; }
-        public int SlotCoord3LocationMapRefno { get => this.slotCoord3LocationMapRefno; set => this.slotCoord3LocationMapRefno = value; }
+        public int SlotCoord3LocationMapRefno { get; set; }
         public int SectionLocationMapRefno { get; set; }
-        public int LocationMapSectionCode { get => this.locationMapSectionCode; set => this.locationMapSectionCode = value; }
+        public int LocationMapSectionCode { get; set; }
         public string LocationMapSectionName { get; set; }
         public int LocationMapSectionFKRefno { get; set; }
-        public int WarehouseLocationMapRefno { get => this.warehouseLocationMapRefno; set => this.warehouseLocationMapRefno = value; }
+        public int WarehouseLocationMapRefno { get; set; }
         public string LocationMapWarehouseName { get; set; }
         public int LocationMapWarehouseCode { get; set; }
         public bool LocationMapWarehouseIsWMS { get; set; }
         public int LocationMapWarehouseFKRefno { get; set; }
         public string LocationMapWarehouseMask { get; set; }
-        public string LocationMapWarehouseSectionMask { get => this.locationMapWarehouseSectionMask; set => this.locationMapWarehouseSectionMask = value; }
+        public string LocationMapWarehouseSectionMask { get; set; }
         public bool LocationMapWarehouseIsSectionTracked { get; set; }
-        public bool LocationMapWarehouseIsSlotTracked { get => this.locationMapWarehouseIsSlotTracked; set => this.locationMapWarehouseIsSlotTracked = value; }
+        public bool LocationMapWarehouseIsSlotTracked { get; set; }
         public string LocationMapWarehouseSlotCoordinate1Name { get; set; }
         public string LocationMapWarehouseSlotCoordinate2Name { get; set; }
-        public string LocationMapWarehouseSlotCoordinate3Name { get => this.locationMapWarehouseSlotCoordinate3Name; set => this.locationMapWarehouseSlotCoordinate3Name = value; }
+        public string LocationMapWarehouseSlotCoordinate3Name { get; set; }
         public string LocationMapWarehouseSlotMask { get; set; }
         public string LocationMapWarehouseSlotCoordinate1Mask { get; set; }
         public string LocationMapWarehouseSlotCoordinate2Mask { get; set; }

@@ -8,6 +8,9 @@ namespace dMobile.Resources.Models
     using SQLite;
     using SQLiteNetExtensions.Attributes;
 
+    /// <summary>
+    /// Activity detail transfer model.
+    /// </summary>
     [Table("tActivityDetailTransfer")]
     public class tActivityDetailTransferModel
     {

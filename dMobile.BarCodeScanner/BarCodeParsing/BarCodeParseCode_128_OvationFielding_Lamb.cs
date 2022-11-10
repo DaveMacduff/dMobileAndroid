@@ -60,6 +60,7 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
         /// </summary>
         /// <param name="barCodeData"></param>
         /// <returns></returns>
+        /// <inheritdoc/>
         protected override string IdentifyProductIdentifier(string barCodeData)
         {
             this.ProductIdentifier = barCodeData.Substring(0, 5);
@@ -73,6 +74,7 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
         /// </summary>
         /// <param name="barCodeData"></param>
         /// <returns></returns>
+        /// <inheritdoc/>
         protected override string IdentifyGTIN(string barCodeData)
         {
             this.Data = barCodeData;
@@ -88,6 +90,7 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
         /// </summary>
         /// <param name="barCodeData"></param>
         /// <returns></returns>
+        /// <inheritdoc/>
         protected override string IdentifyLogisticUnitPackagingDate(string barCodeData)
         {
             var year = Convert.ToInt32(barCodeData.Substring(0, 2));
@@ -118,6 +121,7 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
         /// </summary>
         /// <param name="barCodeData"></param>
         /// <returns></returns>
+        /// <inheritdoc/>
         protected override string IdentifyNetWeightMetricKG(string barCodeData)
         {
             this.NetWeightMetricKGFoundAI = false;

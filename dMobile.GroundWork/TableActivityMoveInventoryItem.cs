@@ -24,6 +24,7 @@ namespace dMobile.GroundWork
         ///
         /// </summary>
         /// <remarks></remarks>
+        /// <inheritdoc/>
         public override async Task PurgeData()
         {
             this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging move inventory items.", true);

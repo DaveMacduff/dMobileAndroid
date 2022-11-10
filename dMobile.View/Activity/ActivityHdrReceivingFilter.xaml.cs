@@ -140,6 +140,7 @@ namespace dMobile.View.Activity
             base.OnDisappearing();
         }
 
+        /// <inheritdoc/>
         protected override bool OnBackButtonPressed()
         {
             Device.BeginInvokeOnMainThread(async () =>
@@ -281,6 +282,7 @@ namespace dMobile.View.Activity
         /// </summary>
         /// <returns></returns>
         /// <remarks></remarks>
+        /// <inheritdoc/>
         public async Task<bool> IsReadyToSave()
         {
             var IsReadyToSave = true;
@@ -301,6 +303,7 @@ namespace dMobile.View.Activity
         /// </summary>
         /// <returns></returns>
         /// <remarks></remarks>
+        /// <inheritdoc/>
         public async Task<bool> IsReadyToClose()
         {
             return !this.bChangesMade;
@@ -321,6 +324,7 @@ namespace dMobile.View.Activity
         /// </summary>
         /// <returns></returns>
         /// <remarks></remarks>
+        /// <inheritdoc/>
         public async Task<bool> SaveChanges()
         {
             var bSaveComplete = false;
@@ -372,6 +376,7 @@ namespace dMobile.View.Activity
         /// </summary>
         /// <returns></returns>
         /// <remarks></remarks>
+        /// <inheritdoc/>
         public async Task<bool> CancelChanges()
         {
             var bCancelChanges = true;
@@ -410,6 +415,7 @@ namespace dMobile.View.Activity
         /// </summary>
         /// <returns></returns>
         /// <remarks></remarks>
+        /// <inheritdoc/>
         public async Task<XDocument> GetXML()
         {
             var request = XDocument.Parse("<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>" +

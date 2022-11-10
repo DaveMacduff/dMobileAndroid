@@ -7,9 +7,9 @@ using dMobile.Controller.Activity_Item;
 namespace dMobile.Controller.Activity_Detail
 {
     /// <summary>
-    /// <see cref="POWorkSheetActDetailFactory" /> Purchase order work sheet activity detail factory.
+    /// <see cref="PoWorkSheetActDetailFactory" /> Purchase order work sheet activity detail factory.
     /// </summary>
-    public class POWorkSheetActDetailFactory : ActDetailFactory
+    public class PoWorkSheetActDetailFactory : ActDetailFactory
     {
         /// <summary>
         /// Get the purchase order work sheet activity detail.
@@ -18,7 +18,7 @@ namespace dMobile.Controller.Activity_Detail
         /// <returns><see cref="ActDetail"/> Purchase order work sheet activity detail.</returns>
         public override ActDetail GetActDetail(ActItem actItem)
         {
-            return new POWorkSheetActDetail(actItem);
+            return new PoWorkSheetActDetail(actItem);
         }
     }
 }

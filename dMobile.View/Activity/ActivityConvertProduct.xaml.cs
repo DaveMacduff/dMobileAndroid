@@ -799,8 +799,8 @@ namespace dMobile.View.Activity
             _ = req.AppendFormat("<whs_id>{0}</whs_id>", this.LocMap.CurrLocMap.WhsFKRefno);
             _ = req.AppendFormat("<sect_refno>{0}</sect_refno>", this.LocMap.CurrLocMap.SectFKRefno);
             _ = req.AppendFormat("<slot_refno>{0}</slot_refno>", this.LocMap.CurrLocMap.SlotFKRefno);
-            _ = req.AppendFormat("<refno>{0}</refno>", this.ActItem.ActHdr.HdrFKRefno);
-            _ = req.AppendFormat("<itm_refno>{0}</itm_refno>", this.ActItem.ItemFKRefno);
+            _ = req.AppendFormat("<refno>{0}</refno>", this.ActItem.ActHdr.HdrFkRefno);
+            _ = req.AppendFormat("<itm_refno>{0}</itm_refno>", this.ActItem.ItemFkRefno);
             _ = req.AppendFormat("<prod_id>{0}</prod_id>", prodId);
             _ = req.AppendFormat("<bc>{0}</bc>", prodUnitBc);
             _ = req.AppendFormat("<alt_unit>{0}</alt_unit>", unitCode);

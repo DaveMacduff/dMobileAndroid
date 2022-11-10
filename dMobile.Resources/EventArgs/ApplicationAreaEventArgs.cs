@@ -9,6 +9,8 @@ namespace dMobile.Resources.EventArgs
         /// <summary>
         /// Initializes a new instance of the <see cref="AppEventArgs"/> class.
         /// </summary>
-        public AppEventArgs() { }
+        public AppEventArgs()
+        {
+        }
     }
 }

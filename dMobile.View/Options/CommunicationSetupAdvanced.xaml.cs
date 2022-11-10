@@ -112,6 +112,7 @@ namespace dMobile.View.Options
             base.OnDisappearing();
         }
 
+        /// <inheritdoc/>
         protected override bool OnBackButtonPressed()
         {
             Device.BeginInvokeOnMainThread(async () =>

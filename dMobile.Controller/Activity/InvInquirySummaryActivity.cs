@@ -39,7 +39,7 @@ namespace dMobile.Controller.Activity
         /// The GetFKRefnoIdx.
         /// </summary>
         /// <returns>.</returns>
-        public override string GetFKRefnoIdx()
+        public override string GetFkRefnoIdx()
         {
             return "ActivityStringFKRefno";
         }
@@ -63,7 +63,7 @@ namespace dMobile.Controller.Activity
             if (selectedActivity is InvInquirySummaryActivity inquiry)
             {
                 this.SelectedActivity = inquiry;
-                this.HdrFKRefno = inquiry.HdrRefno;
+                this.HdrFkRefno = inquiry.HdrRefno;
                 this.HdrRefno = inquiry.HdrRefno;
             }
         }
@@ -78,7 +78,7 @@ namespace dMobile.Controller.Activity
             if (selectedItem is InvInquirySummaryActivity inquiry)
             {
                 this.SelectedActivity = inquiry;
-                this.HdrFKRefno = Convert.ToInt32(inquiry.HdrRefno);
+                this.HdrFkRefno = Convert.ToInt32(inquiry.HdrRefno);
                 this.HdrRefno = Convert.ToInt32(inquiry.HdrRefno);
             }
 
@@ -158,7 +158,7 @@ namespace dMobile.Controller.Activity
         /// </summary>
         /// <param name="resourceType"><see cref="object"/> Resource model (tActivity??Model).</param>
         /// <returns><see cref="int"/> Found activity foreign key refno, else 0 if not found.</returns>
-        public override int GetFKRefno(object resourceType)
+        public override int GetFkRefno(object resourceType)
         {
             throw new NotImplementedException();
         }

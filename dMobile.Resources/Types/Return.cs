@@ -12,20 +12,16 @@ namespace dMobile.Resources.Types
 
     public class Return
     {
-        private DateTime activityReturnsDeliveryDateTime;
-        private int locationMapWarehouseFKRefno;
-        private string activityReturnsCustomerShipToInfo;
-
         public int ActivityRefno { get; set; }
         public int ActivityFKRefno { get; set; }
         public string ActivityStringFKRefno { get; set; }
         public DateTime ActivityReturnsOrderedDateTime { get; set; }
-        public DateTime ActivityReturnsDeliveryDateTime { get => this.activityReturnsDeliveryDateTime; set => this.activityReturnsDeliveryDateTime = value; }
+        public DateTime ActivityReturnsDeliveryDateTime { get; set; }
         public int LocationMapRefno { get; set; }
-        public int LocationMapWarehouseFKRefno { get => this.locationMapWarehouseFKRefno; set => this.locationMapWarehouseFKRefno = value; }
+        public int LocationMapWarehouseFKRefno { get; set; }
         public string LocationMapWarehouseName { get; set; }
         public string ActivityReturnsCustomerContactName { get; set; }
-        public string ActivityReturnsCustomerShipToInfo { get => this.activityReturnsCustomerShipToInfo; set => this.activityReturnsCustomerShipToInfo = value; }
+        public string ActivityReturnsCustomerShipToInfo { get; set; }
         public int ActivityStatus { get; set; }
     }
 }

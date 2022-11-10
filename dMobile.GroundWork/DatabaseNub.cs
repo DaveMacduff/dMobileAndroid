@@ -192,11 +192,13 @@ namespace dMobile.GroundWork
             }
         }
 
+        /// <inheritdoc/>
         public void RegNubListenerStatOut(IDataNubListener dataNubEventListener)
         {
             this.OnNubStatOut += new OnNubStatOutEventHandler(dataNubEventListener.OnNubStatOut);
         }
 
+        /// <inheritdoc/>
         public void UnregNubListenerStatOut(IDataNubListener dataNubEventListener)
         {
             this.OnNubStatOut -= new OnNubStatOutEventHandler(dataNubEventListener.OnNubStatOut);

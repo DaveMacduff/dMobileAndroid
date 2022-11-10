@@ -25,7 +25,7 @@ namespace dMobile.Controller.Activity
         protected Activity()
         {
 
-            this.HdrFKRefno = 0;
+            this.HdrFkRefno = 0;
             this.HdrRefno = 0;
             this.SelectedListItemIdx = -1;
             this.ListHdrs = new List<object>();
@@ -35,7 +35,7 @@ namespace dMobile.Controller.Activity
             this.FullClassName = typeof(Activity).FullName;
             this.DataEventArgs = new DataLayerEventArgs();
             this.SelectedActivity = null;
-            this.XMLDataCriteria = null;
+            this.XmlDataCriteria = null;
         }
 
         /// <summary>
@@ -43,7 +43,7 @@ namespace dMobile.Controller.Activity
         /// </summary>
         /// <param name="publisher"><see cref="IDataLayerEventPublisher"/> Data layer event publisher.</param>
         /// <param name="eventArgs"><see cref="DataLayerEventArgs"/> Data layer event arguments.</param>
-        public delegate void OnDataLayerStatusOutEventHandler(
+        public delegate void DataLayerStatusOutEventHandler(
             IDataLayerEventPublisher publisher,
             DataLayerEventArgs eventArgs);
 
@@ -52,19 +52,19 @@ namespace dMobile.Controller.Activity
         /// </summary>
         /// <param name="publisher"><see cref="IDataLayerEventPublisher"/> Data layer event publisher.</param>
         /// <param name="eventArgs"><see cref="DataLayerEventArgs"/> Data layer event arguments.</param>
-        public delegate void OnDataLayerProgressOutEventHandler(
+        public delegate void DataLayerProgressOutEventHandler(
             IDataLayerEventPublisher publisher,
             DataLayerEventArgs eventArgs);
 
         /// <summary>
         /// On data layer status out event handler.
         /// </summary>
-        public event OnDataLayerStatusOutEventHandler OnDataLayerStatusOut;
+        public event DataLayerStatusOutEventHandler OnDataLayerStatusOut;
 
         /// <summary>
         /// On data layer progress out event handler.
         /// </summary>
-        public event OnDataLayerProgressOutEventHandler OnDataLayerProgressOut;
+        public event DataLayerProgressOutEventHandler OnDataLayerProgressOut;
 
         /// <summary>
         /// Gets or sets the full class name. Used for error reporting.
@@ -83,12 +83,12 @@ namespace dMobile.Controller.Activity
         /// <summary>
         /// Gets or sets the XML data criteria. Used for data exchange between activities.
         /// </summary>
-        public XDocument XMLDataCriteria { get; set; }
+        public XDocument XmlDataCriteria { get; set; }
 
         /// <summary>
         /// Gets or sets the activity foreign key reference number.
         /// </summary>
-        public int HdrFKRefno { get; set; } = 0;
+        public int HdrFkRefno { get; set; } = 0;
 
         /// <summary>
         /// Gets or sets the list of activity headers.
@@ -189,14 +189,14 @@ namespace dMobile.Controller.Activity
         /// Get the foreign key refno index.
         /// </summary>
         /// <returns>.</returns>
-        public abstract string GetFKRefnoIdx();
+        public abstract string GetFkRefnoIdx();
 
         /// <summary>
         /// Get the activity foreign key reference number.
         /// </summary>
         /// <param name="resourceType"><see cref="object"/> Resource model type (t????Model).</param>
         /// <returns><see cref="int"/> Found activity foreign key refno, else 0 if not found.</returns>
-        public abstract int GetFKRefno(object resourceType);
+        public abstract int GetFkRefno(object resourceType);
 
         /// <summary>
         /// Purge all activity data.
@@ -208,7 +208,7 @@ namespace dMobile.Controller.Activity
         /// Make create activity submission XML.
         /// </summary>
         /// <returns>.</returns>
-        public virtual XDocument CreateSubmitXML()
+        public virtual XDocument CreateSubmitXml()
         {
             var xmldocSubmission = XDocument.Parse(
                 "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>"
@@ -270,9 +270,9 @@ namespace dMobile.Controller.Activity
                     Convert.ToInt32(SysCommon.ActStatus.Inserted),
                     Convert.ToInt32(actSubType));
 
-                var queryID = "select last_insert_rowid() from tActivity";
+                var queryId = "select last_insert_rowid() from tActivity";
                 this.HdrRefno = Convert.ToInt32(
-                    await DatabaseConnection.GetInstance().SQLConn.ExecuteScalarAsync<int>(queryID));
+                    await DatabaseConnection.GetInstance().SQLConn.ExecuteScalarAsync<int>(queryId));
             }
             catch (SQLiteException ex)
             {
@@ -431,7 +431,7 @@ namespace dMobile.Controller.Activity
         /// status out listener.</param>
         public void RegLayerListenerStatOut(IDataLayerEventListener listener)
         {
-            this.OnDataLayerStatusOut += new OnDataLayerStatusOutEventHandler(
+            this.OnDataLayerStatusOut += new DataLayerStatusOutEventHandler(
                 listener.OnLayerStatOut);
         }
 
@@ -442,7 +442,7 @@ namespace dMobile.Controller.Activity
         /// status out listener.</param>
         public void UnregLayerListenerStatOut(IDataLayerEventListener listener)
         {
-            this.OnDataLayerStatusOut -= new OnDataLayerStatusOutEventHandler(
+            this.OnDataLayerStatusOut -= new DataLayerStatusOutEventHandler(
                 listener.OnLayerStatOut);
         }
 
@@ -453,7 +453,7 @@ namespace dMobile.Controller.Activity
         /// status out listener.</param>
         public void RegLayerListenerProgOut(IDataLayerEventListener listener)
         {
-            this.OnDataLayerProgressOut += new OnDataLayerProgressOutEventHandler(
+            this.OnDataLayerProgressOut += new DataLayerProgressOutEventHandler(
                 listener.OnLayerProgOut);
         }
 
@@ -464,7 +464,7 @@ namespace dMobile.Controller.Activity
         /// status out listener.</param>
         public void UnregLayerListenerProgOut(IDataLayerEventListener listener)
         {
-            this.OnDataLayerProgressOut -= new OnDataLayerProgressOutEventHandler(
+            this.OnDataLayerProgressOut -= new DataLayerProgressOutEventHandler(
                 listener.OnLayerProgOut);
         }
     }

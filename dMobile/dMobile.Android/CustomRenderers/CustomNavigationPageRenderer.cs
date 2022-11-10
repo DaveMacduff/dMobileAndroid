@@ -26,6 +26,7 @@ namespace dMobile.Droid.CustomRenderers
         /// </summary>
         /// <param name="context">The context<see cref="Context"/>.</param>
         public CustomNavigationPageRenderer(Context context) : base(context) { }
+        /// <inheritdoc/>
         protected override void OnAttachedToWindow()
         {
             base.OnAttachedToWindow();

@@ -10,9 +10,7 @@ namespace dMobile.Resources.Types
 
     public class Message
     {
-        private string messageValue;
-
         public int MessageIndex { get; set; }
-        public string MessageValue { get => this.messageValue; set => this.messageValue = value; }
+        public string MessageValue { get; set; }
     }
 }

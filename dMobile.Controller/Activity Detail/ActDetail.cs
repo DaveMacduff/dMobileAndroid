@@ -94,7 +94,7 @@ namespace dMobile.Controller.Activity_Detail
         /// <summary>
         /// Gets or sets the activity detail foreign key reference number.
         /// </summary>
-        public int DetailFKRefno { get; set; } = 0;
+        public int DetailFkRefno { get; set; } = 0;
 
         /// <summary>
         /// Gets or sets the product scheme data.
@@ -104,12 +104,12 @@ namespace dMobile.Controller.Activity_Detail
         /// <summary>
         /// Gets or sets the unique scheme id.
         /// </summary>
-        public string UniqueSchemeID { get; set; } = string.Empty;
+        public string UniqueSchemeId { get; set; } = string.Empty;
 
         /// <summary>
         /// Gets or sets the scheme id.
         /// </summary>
-        public string SchemeID { get; set; } = string.Empty;
+        public string SchemeId { get; set; } = string.Empty;
 
         /// <summary>
         /// Gets or sets the alt quantity.
@@ -186,14 +186,14 @@ namespace dMobile.Controller.Activity_Detail
         /// </summary>
         /// <param name="data"><see cref="XDocument"/> Filter criteria.</param>
         /// <returns>The <see cref="Task{string}"/> Submission XML.</returns>
-        public abstract Task<string> CreateSubmitXML(XDocument data);
+        public abstract Task<string> CreateSubmitXml(XDocument data);
 
         /// <summary>
         ///  Delete submission XML.
         /// </summary>
         /// <param name="data"><see cref="XDocument"/> Filter criteria.</param>
         /// <returns>The <see cref="Task{string}"/> Deletion XML.</returns>
-        public abstract Task<string> CreateDeleteXML(XDocument data);
+        public abstract Task<string> CreateDeleteXml(XDocument data);
 
         /// <summary>
         /// Submit the request to the comm server.
@@ -255,7 +255,7 @@ namespace dMobile.Controller.Activity_Detail
             if (selectedActivityDetail is ActivityDetail detail)
             {
                 this.DetailRefno = detail.ActivityDetailRefno;
-                this.DetailFKRefno = detail.ActivityDetailFKRefno;
+                this.DetailFkRefno = detail.ActivityDetailFKRefno;
                 this.Quantity = detail.ActivityDetailQuantity;
                 this.BaseQuantity = detail.ActivityDetailBaseQuantity;
                 this.WeightQuantity = detail.ActivityDetailWeightQuantity;
@@ -277,8 +277,8 @@ namespace dMobile.Controller.Activity_Detail
                 };
                 this.SchemeData = schemeData;
 
-                this.SchemeID = detail.ActivityDetailSchemeID;
-                this.UniqueSchemeID = detail.ActivityDetailUniqueSchemeID;
+                this.SchemeId = detail.ActivityDetailSchemeID;
+                this.UniqueSchemeId = detail.ActivityDetailUniqueSchemeID;
                 this.ActExtra.Text1 = detail.ActivityDetailExtra1Text;
                 this.ActExtra.Text2 = detail.ActivityDetailExtra2Text;
                 this.ActExtra.Text3 = detail.ActivityDetailExtra3Text;
@@ -305,7 +305,7 @@ namespace dMobile.Controller.Activity_Detail
         /// </summary>
         /// <param name="selectedActivityDetail"><see cref="object"/> Selected activity detail.</param>
         /// <returns><see cref="int"/> Activity detail foreign key reference number.</returns>
-        public abstract int GetFKRefno(object selectedActivityDetail);
+        public abstract int GetFkRefno(object selectedActivityDetail);
 
         /// <summary>
         /// Insert a skid.
@@ -364,7 +364,7 @@ namespace dMobile.Controller.Activity_Detail
         {
             // Document activity references
             this.DetailRefno = 0;
-            this.DetailFKRefno = 0;
+            this.DetailFkRefno = 0;
 
             // Quantity and weights
             this.Quantity = 0;
@@ -373,8 +373,8 @@ namespace dMobile.Controller.Activity_Detail
 
             // Scheme
             this.SchemeData = new ProductSchemeData();
-            this.SchemeID = string.Empty;
-            this.UniqueSchemeID = string.Empty;
+            this.SchemeId = string.Empty;
+            this.UniqueSchemeId = string.Empty;
 
             // Extra HACCP etc.
             this.ActExtra.Text1 = string.Empty;
@@ -414,7 +414,7 @@ namespace dMobile.Controller.Activity_Detail
                     this.BaseQuantity = actDetail.ActivityDetailBaseQuantity;
                     this.WeightQuantity = actDetail.ActivityDetailWeightQuantity;
                     this.DetailRefno = actDetail.ActivityDetailRefno;
-                    this.DetailFKRefno = actDetail.ActivityDetailFKRefno;
+                    this.DetailFkRefno = actDetail.ActivityDetailFKRefno;
                     if (this.LocMap.CurrLocMapRefno != actDetail.LocationMapRefno)
                     {
                         this.LocMap.CurrLocMap = await LocationMapTasks.GetSLocMapFromLocMapRefno(actDetail.LocationMapRefno);
@@ -491,8 +491,8 @@ namespace dMobile.Controller.Activity_Detail
 
                 this.SchemeData = tmpSchemeData;
 
-                this.SchemeID = Convert.ToString(detail.ActivityDetailSchemeID);
-                this.UniqueSchemeID = Convert.ToString(detail.ActivityDetailUniqueSchemeID);
+                this.SchemeId = Convert.ToString(detail.ActivityDetailSchemeID);
+                this.UniqueSchemeId = Convert.ToString(detail.ActivityDetailUniqueSchemeID);
             }
         }
 
@@ -506,13 +506,13 @@ namespace dMobile.Controller.Activity_Detail
             // Check for duplicate
             if (this.SysEnv.SysSettings.IsDisconnectedMode)
             {
-                if (string.Compare(this.UniqueSchemeID, string.Empty) > 0)
+                if (string.Compare(this.UniqueSchemeId, string.Empty) > 0)
                 {
-                    var isDupSchemeId = await ProductInfoTasks.IsDuplicateUniqueSchemeID(this.UniqueSchemeID);
+                    var isDupSchemeId = await ProductInfoTasks.IsDuplicateUniqueSchemeID(this.UniqueSchemeId);
 
                     if (isDupSchemeId)
                     {
-                        throw new Exception("Duplicate scheme ID!" + Environment.NewLine + this.UniqueSchemeID);
+                        throw new Exception("Duplicate scheme ID!" + Environment.NewLine + this.UniqueSchemeId);
                     }
                 }
             }
@@ -523,7 +523,7 @@ namespace dMobile.Controller.Activity_Detail
         /// </summary>
         /// <param name="data"><see cref="XDocument"/> Data to use to populate label.</param>
         /// <returns><see cref="Task{string}"/> Submission string.</returns>
-        public virtual Task<string> CreateSubmitProductLabelXML(XDocument data)
+        public virtual Task<string> CreateSubmitProductLabelXml(XDocument data)
         {
             throw new NotImplementedException();
         }
@@ -533,7 +533,7 @@ namespace dMobile.Controller.Activity_Detail
         /// </summary>
         /// <param name="actDetail"><see cref="ActDetail"/> Activity detail.</param>
         /// <returns><see cref="XDocument"/> Activity detail XML.</returns>
-        public XDocument GetXML(ActDetail actDetail)
+        public XDocument GetXml(ActDetail actDetail)
         {
             return XDocument.Parse(
                 "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>"
@@ -677,11 +677,11 @@ namespace dMobile.Controller.Activity_Detail
         /// </summary>
         /// <param name="data"><see cref="XDocument"/> Activity detail data.</param>
         /// <returns><see cref="Task"/> Task operation.</returns>
-        public async Task FillActDetailObjFromXML(XDocument data)
+        public async Task FillActDetailObjFromXml(XDocument data)
         {
             if (!string.IsNullOrEmpty(data.Root.Element("ser_refno").Value))
             {
-                this.DetailFKRefno = int.Parse(data.Root.Element("ser_refno").Value);
+                this.DetailFkRefno = int.Parse(data.Root.Element("ser_refno").Value);
             }
 
             if (!string.IsNullOrEmpty(data.Root.Element("refno").Value))
@@ -741,11 +741,11 @@ namespace dMobile.Controller.Activity_Detail
             tmpSchemeData = await this.FillSchemeDataVarInfoFromSchemeDataVarNo(tmpSchemeData);
             this.SchemeData = tmpSchemeData;
 
-            this.SchemeID = ProductInfoTasks.GetActSchemeIDFromSProdSchemeData(
+            this.SchemeId = ProductInfoTasks.GetActSchemeIDFromSProdSchemeData(
                 this.ActItem.ProdInfo.Code,
                 this.ActItem.ProdInfo.Scheme,
                 this.SchemeData);
-            this.UniqueSchemeID = ProductInfoTasks.GetUniqueSchemeIDFromSProdSchemeData(
+            this.UniqueSchemeId = ProductInfoTasks.GetUniqueSchemeIDFromSProdSchemeData(
                 this.ActItem.ProdInfo.Code,
                 this.ActItem.ProdInfo.Scheme,
                 this.SchemeData);
@@ -913,9 +913,9 @@ namespace dMobile.Controller.Activity_Detail
                       + "<whs_id>" + this.LocMap.CurrLocMap.WhsFKRefno + "</whs_id>"
                       + "<sect_refno>" + this.LocMap.CurrLocMap.SectFKRefno + "</sect_refno>"
                       + "<slot_refno>" + this.LocMap.CurrLocMap.SlotFKRefno + "</slot_refno>"
-                      + "<refno>" + this.ActItem.ActHdr.HdrFKRefno + "</refno>"
-                      + "<itm_refno>" + this.ActItem.ItemFKRefno + "</itm_refno>"
-                      + "<ser_refno>" + this.DetailFKRefno + "</ser_refno>"
+                      + "<refno>" + this.ActItem.ActHdr.HdrFkRefno + "</refno>"
+                      + "<itm_refno>" + this.ActItem.ItemFkRefno + "</itm_refno>"
+                      + "<ser_refno>" + this.DetailFkRefno + "</ser_refno>"
                       + "<alt_qty>" + this.Quantity + "</alt_qty>"
                       + "<alt_unit>" + this.ActItem.ProdInfo.UnitCode + "</alt_unit>"
                       + "<base_qty>" + this.BaseQuantity + "</base_qty>"
@@ -1051,11 +1051,11 @@ namespace dMobile.Controller.Activity_Detail
             }
 
             this.IsUpdateView = true;
-            this.ActItem.ItemFKRefno = int.Parse(xmlData.DocumentElement["itm_refno"].InnerText);
+            this.ActItem.ItemFkRefno = int.Parse(xmlData.DocumentElement["itm_refno"].InnerText);
 
             // Assign a temporary activity detail until a full activity detail refresh occurs.
-            this.DetailFKRefno = int.Parse(xmlData.DocumentElement["ser_refno"].InnerText) * -1;
-            this.DetailRefno = this.DetailFKRefno;
+            this.DetailFkRefno = int.Parse(xmlData.DocumentElement["ser_refno"].InnerText) * -1;
+            this.DetailRefno = this.DetailFkRefno;
         }
 
         /// <summary>
@@ -1068,12 +1068,12 @@ namespace dMobile.Controller.Activity_Detail
             int actDetailRefno;
             try
             {
-                if (string.CompareOrdinal(this.UniqueSchemeID, string.Empty) > 0)
+                if (string.CompareOrdinal(this.UniqueSchemeId, string.Empty) > 0)
                 {
-                    var isDupSchemeId = await ProductInfoTasks.IsDuplicateUniqueSchemeID(this.UniqueSchemeID);
+                    var isDupSchemeId = await ProductInfoTasks.IsDuplicateUniqueSchemeID(this.UniqueSchemeId);
                     if (isDupSchemeId)
                     {
-                        throw new Exception("Duplicate scheme ID!" + Environment.NewLine + this.UniqueSchemeID);
+                        throw new Exception("Duplicate scheme ID!" + Environment.NewLine + this.UniqueSchemeId);
                     }
                 }
 
@@ -1124,8 +1124,8 @@ namespace dMobile.Controller.Activity_Detail
                     Convert.ToInt32(this.ActItem.ItemRefno),
                     Convert.ToInt32(this.LocMap.CurrLocMapRefno),
                     Convert.ToInt32(this.ActItem.ProdInfo.UnitRefno),
-                    Convert.ToString(this.UniqueSchemeID),
-                    Convert.ToString(this.SchemeID),
+                    Convert.ToString(this.UniqueSchemeId),
+                    Convert.ToString(this.SchemeId),
                     Convert.ToDecimal(this.Quantity),
                     Convert.ToDecimal(this.BaseQuantity),
                     Convert.ToDecimal(this.WeightQuantity),
@@ -1144,7 +1144,7 @@ namespace dMobile.Controller.Activity_Detail
                 actDetailRefno = Convert.ToInt32(await conn.ExecuteScalarAsync<int>(
                     "SELECT last_insert_rowid() FROM tActivityDetail"));
                 this.DetailRefno = actDetailRefno;
-                this.DetailFKRefno = actDetailRefno * -1;
+                this.DetailFkRefno = actDetailRefno * -1;
 
                 if (this.SchemeData.VariantNumber > 0)
                 {

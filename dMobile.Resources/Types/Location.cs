@@ -10,11 +10,9 @@ namespace dMobile.Resources.Types
 
     public class Location
     {
-        private string locationMapType;
-
         public int LocationMapWarehouseCode { get; set; }
         public string LocationMapSectionName { get; set; }
         public string LocationMapSlotName { get; set; }
-        public string LocationMapType { get => this.locationMapType; set => this.locationMapType = value; }
+        public string LocationMapType { get; set; }
     }
 }

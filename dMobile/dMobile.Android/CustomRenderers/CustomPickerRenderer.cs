@@ -28,6 +28,7 @@ namespace dMobile.Droid.CustomRenderers
         /// <param name="context">The context<see cref="Context"/>.</param>
         public CustomPickerRenderer(Context context) : base(context) { }
 
+        /// <inheritdoc/>
         protected override void OnElementChanged(ElementChangedEventArgs<Picker> e)
         {
             base.OnElementChanged(e);

@@ -128,7 +128,7 @@ namespace dMobile.Controller.Activity_Detail
                     HorizontalOptions = LayoutOptions.Start,
                 };
 
-                var labelActivityDetailSchemeIDReceiveDetail = new Label
+                var labelActivityDetailSchemeIdReceiveDetail = new Label
                 {
                     VerticalOptions = LayoutOptions.Center,
                     HorizontalOptions = LayoutOptions.Start,
@@ -141,19 +141,19 @@ namespace dMobile.Controller.Activity_Detail
                     Label.TextProperty,
                     new Binding("ActivityDetailWeightQuantity", BindingMode.Default, null, null, "{0:F3}"));
                 labelUnitCodeReceiveDetail.SetBinding(Label.TextProperty, new Binding("UnitCode"));
-                labelActivityDetailSchemeIDReceiveDetail.SetBinding(
+                labelActivityDetailSchemeIdReceiveDetail.SetBinding(
                     Label.TextProperty,
                     new Binding("ActivityDetailSchemeID"));
 
                 gridData.Children.Add(labelActivityDetailQuantityReceiveDetail);
                 gridData.Children.Add(labelActivityDetailWeightQuantityReceiveDetail);
                 gridData.Children.Add(labelUnitCodeReceiveDetail);
-                gridData.Children.Add(labelActivityDetailSchemeIDReceiveDetail);
+                gridData.Children.Add(labelActivityDetailSchemeIdReceiveDetail);
 
                 Grid.SetColumn(labelActivityDetailQuantityReceiveDetail, 0);
                 Grid.SetColumn(labelActivityDetailWeightQuantityReceiveDetail, 1);
                 Grid.SetColumn(labelUnitCodeReceiveDetail, 2);
-                Grid.SetColumn(labelActivityDetailSchemeIDReceiveDetail, 3);
+                Grid.SetColumn(labelActivityDetailSchemeIdReceiveDetail, 3);
 
                 return new ViewCell { View = gridData };
             });
@@ -186,7 +186,7 @@ namespace dMobile.Controller.Activity_Detail
                 + "<skid_data>" + skidInfo.CurrSkid.SkidCode + "</skid_data>"
                 + "</params>");
 
-            var xmlSend = await this.CreateSubmitXML(request);
+            var xmlSend = await this.CreateSubmitXml(request);
             var reqData = SysCommon.SubmitComm(xmlSend);
 
             if (reqData.Length > 0)
@@ -209,8 +209,8 @@ namespace dMobile.Controller.Activity_Detail
                 }
 
                 this.IsUpdateView = true;
-                this.DetailFKRefno = int.Parse(xmlDoc.DocumentElement["ser_refno"].InnerText);
-                this.ActItem.ItemFKRefno = int.Parse(xmlDoc.DocumentElement["itm_refno"].InnerText);
+                this.DetailFkRefno = int.Parse(xmlDoc.DocumentElement["ser_refno"].InnerText);
+                this.ActItem.ItemFkRefno = int.Parse(xmlDoc.DocumentElement["itm_refno"].InnerText);
                 this.Quantity = decimal.Parse(xmlDoc.DocumentElement["alt_qty"].InnerText);
                 this.BaseQuantity = decimal.Parse(xmlDoc.DocumentElement["base_qty"].InnerText);
                 this.WeightQuantity = decimal.Parse(xmlDoc.DocumentElement["wt_qty"].InnerText);
@@ -226,7 +226,7 @@ namespace dMobile.Controller.Activity_Detail
         {
             if (!this.SysEnv.SysSettings.IsDisconnectedMode)
             {
-                var xmlDelete = await this.CreateDeleteXML(
+                var xmlDelete = await this.CreateDeleteXml(
                     XDocument.Parse("<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?><params></params>"));
                 var reqData = SysCommon.SubmitComm(xmlDelete);
                 if (reqData.Length > 0)
@@ -255,7 +255,7 @@ namespace dMobile.Controller.Activity_Detail
         /// </summary>
         /// <param name="detailData">.</param>
         /// <returns>.</returns>
-        public override async Task<string> CreateSubmitProductLabelXML(XDocument detailData)
+        public override async Task<string> CreateSubmitProductLabelXml(XDocument detailData)
         {
             var xmlString = new StringBuilder();
             var xml = XmlWriter.Create(xmlString);
@@ -292,9 +292,9 @@ namespace dMobile.Controller.Activity_Detail
                 + "<whs_id>" + this.LocMap.CurrLocMap.WhsFKRefno + "</whs_id>"
                 + "<sect_refno>" + this.LocMap.CurrLocMap.SectFKRefno + "</sect_refno>"
                 + "<slot_refno>" + this.LocMap.CurrLocMap.SlotFKRefno + "</slot_refno>"
-                + "<refno>" + this.ActItem.ActHdr.HdrFKRefno + "</refno>"
-                + "<itm_refno>" + this.ActItem.ItemFKRefno + "</itm_refno>"
-                + "<pono>" + ((RecvActivity)this.ActItem.ActHdr).PONO + "</pono>"
+                + "<refno>" + this.ActItem.ActHdr.HdrFkRefno + "</refno>"
+                + "<itm_refno>" + this.ActItem.ItemFkRefno + "</itm_refno>"
+                + "<pono>" + ((RecvActivity)this.ActItem.ActHdr).Pono + "</pono>"
                 + "<alt_qty>" + detailData.Root.Element("alt_qty").Value + "</alt_qty>"
                 + "<alt_unit>" + this.ActItem.ProdInfo.UnitCode + "</alt_unit>"
                 + "<base_qty>" + detailData.Root.Element("base_qty").Value + "</base_qty>"
@@ -323,7 +323,7 @@ namespace dMobile.Controller.Activity_Detail
         /// <returns>The <see cref="Task"/>.</returns>
         public override async Task Insert(XDocument data)
         {
-            await this.FillActDetailObjFromXML(data);
+            await this.FillActDetailObjFromXml(data);
 
             if (this.SysEnv.SysSettings.IsDisconnectedMode)
             {
@@ -333,7 +333,7 @@ namespace dMobile.Controller.Activity_Detail
                 var rowsAffected = await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(
                     query,
                     Convert.ToInt32(actDetailRefno),
-                    Convert.ToInt32(this.DetailFKRefno));
+                    Convert.ToInt32(this.DetailFkRefno));
                 if (rowsAffected <= 0)
                 {
                     throw new Exception("Unable to insert activity detail in disconnected mode.");
@@ -343,7 +343,7 @@ namespace dMobile.Controller.Activity_Detail
             }
             else
             {
-                this.SubmitDetailToCommServer(await this.CreateSubmitXML(XDocument.Parse(
+                this.SubmitDetailToCommServer(await this.CreateSubmitXml(XDocument.Parse(
                     "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?><params></params>")));
                 if (this.DetailRefno >= 0)
                 {
@@ -355,8 +355,8 @@ namespace dMobile.Controller.Activity_Detail
                             " ActivityItemFKRefno = ? WHERE ActivityItemRefno = ?";
                 var rowsAffected = await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(
                     query,
-                    Convert.ToString(this.ActItem.ItemFKRefno),
-                    this.ActItem.ItemFKRefno,
+                    Convert.ToString(this.ActItem.ItemFkRefno),
+                    this.ActItem.ItemFkRefno,
                     this.ActItem.ItemRefno);
                 if (rowsAffected <= 0)
                 {
@@ -384,8 +384,8 @@ namespace dMobile.Controller.Activity_Detail
                 }
                 else if (foundItem.ActivityItemRefno == this.ActItem.ItemRefno)
                 {
-                    foundItem.ActivityItemFKRefno = this.ActItem.ItemFKRefno;
-                    foundItem.ActivityItemStringFKRefno = Convert.ToString(this.ActItem.ItemFKRefno);
+                    foundItem.ActivityItemFKRefno = this.ActItem.ItemFkRefno;
+                    foundItem.ActivityItemStringFKRefno = Convert.ToString(this.ActItem.ItemFkRefno);
                 }
                 else
                 {
@@ -402,7 +402,7 @@ namespace dMobile.Controller.Activity_Detail
         {
             if (!this.SysEnv.SysSettings.IsDisconnectedMode)
             {
-                var xmlDelete = await this.CreateDeleteXML(
+                var xmlDelete = await this.CreateDeleteXml(
                     XDocument.Parse("<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?><params></params>"));
                 var reqData = SysCommon.SubmitComm(xmlDelete);
 
@@ -437,7 +437,7 @@ namespace dMobile.Controller.Activity_Detail
             // this.DataViewDetails.Sort = "ActivityDetailFKRefno";
             // int rowIdx = this.DataViewDetails.Find(this.FKRefno);
             var receiveDetail = this.ListDetails.OfType<ReceiveDetail>().Where(receiveDetail =>
-            receiveDetail.ActivityDetailFKRefno == this.DetailFKRefno).FirstOrDefault();
+            receiveDetail.ActivityDetailFKRefno == this.DetailFkRefno).FirstOrDefault();
 
             if (receiveDetail != null)
             {
@@ -472,7 +472,7 @@ namespace dMobile.Controller.Activity_Detail
         public override async Task Submit(object selectedActivityDetail, XDocument data)
         {
             var xmlDoc = new XmlDocument();
-            var xmlSend = await this.CreateSubmitXML(
+            var xmlSend = await this.CreateSubmitXml(
                 XDocument.Parse("<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?><params></params>"));
             var reqData = SysCommon.SubmitComm(xmlSend);
 
@@ -496,11 +496,11 @@ namespace dMobile.Controller.Activity_Detail
                 }
                 else
                 {
-                    this.DetailFKRefno = int.Parse(xmlDoc.DocumentElement["ser_refno"].InnerText);
+                    this.DetailFkRefno = int.Parse(xmlDoc.DocumentElement["ser_refno"].InnerText);
 
                     if (selectedActivityDetail is ReceiveDetail receiveDetail)
                     {
-                        receiveDetail.ActivityDetailFKRefno = this.DetailFKRefno;
+                        receiveDetail.ActivityDetailFKRefno = this.DetailFkRefno;
                         receiveDetail.ActivityDetailStatus = Convert.ToInt32(SysCommon.ActStatus.NoChange);
                     }
 
@@ -524,7 +524,7 @@ namespace dMobile.Controller.Activity_Detail
 
             if (!isAdd && selectedActivityDetail is ReceiveDetail receiveDetail)
             {
-                this.DetailFKRefno = Convert.ToInt32(receiveDetail.ActivityDetailFKRefno);
+                this.DetailFkRefno = Convert.ToInt32(receiveDetail.ActivityDetailFKRefno);
                 this.LocMap.CurrLocMap = await LocationMapTasks.GetSLocMapFromLocMapRefno(
                     Convert.ToInt32(receiveDetail.LocationMapRefno));
             }
@@ -570,7 +570,7 @@ namespace dMobile.Controller.Activity_Detail
         /// </summary>
         /// <param name="selectedActivityDetail">The selectedActivityDetail<see cref="object"/>.</param>
         /// <returns>.</returns>
-        public override int GetFKRefno(object selectedActivityDetail)
+        public override int GetFkRefno(object selectedActivityDetail)
         {
             return (selectedActivityDetail as ReceiveDetail).ActivityDetailFKRefno;
         }
@@ -975,7 +975,7 @@ namespace dMobile.Controller.Activity_Detail
                 FontAttributes = FontAttributes.Bold,
             };
 
-            var labelActivityDetailSchemeIDReceiveDetailHeader = new Label
+            var labelActivityDetailSchemeIdReceiveDetailHeader = new Label
             {
                 Text = "Scheme ID",
                 VerticalOptions = LayoutOptions.Center,
@@ -990,7 +990,7 @@ namespace dMobile.Controller.Activity_Detail
             this.ColumnWidth2 = DependencyService.Get<IGridService>().CalculateTextWidth(
                 labelUnitCodeReceiveDetailHeader.Text);
             this.ColumnWidth3 = DependencyService.Get<IGridService>().CalculateTextWidth(
-                labelActivityDetailSchemeIDReceiveDetailHeader.Text);
+                labelActivityDetailSchemeIdReceiveDetailHeader.Text);
 
             // Header grid
             var gridHeader = new Grid
@@ -1010,12 +1010,12 @@ namespace dMobile.Controller.Activity_Detail
             gridHeader.Children.Add(labelActivityDetailQuantityReceiveDetailHeader);
             gridHeader.Children.Add(labelActivityDetailWeightQuantityReceiveDetailHeader);
             gridHeader.Children.Add(labelUnitCodeReceiveDetailHeader);
-            gridHeader.Children.Add(labelActivityDetailSchemeIDReceiveDetailHeader);
+            gridHeader.Children.Add(labelActivityDetailSchemeIdReceiveDetailHeader);
 
             Grid.SetColumn(labelActivityDetailQuantityReceiveDetailHeader, 0);
             Grid.SetColumn(labelActivityDetailWeightQuantityReceiveDetailHeader, 1);
             Grid.SetColumn(labelUnitCodeReceiveDetailHeader, 2);
-            Grid.SetColumn(labelActivityDetailSchemeIDReceiveDetailHeader, 3);
+            Grid.SetColumn(labelActivityDetailSchemeIdReceiveDetailHeader, 3);
 
             Grid.SetRow(gridHeader, 0);
 
@@ -1096,7 +1096,7 @@ namespace dMobile.Controller.Activity_Detail
         /// </summary>
         /// <param name="data">.</param>
         /// <returns>.</returns>
-        public override async Task<string> CreateSubmitXML(XDocument data)
+        public override async Task<string> CreateSubmitXml(XDocument data)
         {
             var xmlString = new StringBuilder();
             var xml = XmlWriter.Create(xmlString);
@@ -1113,7 +1113,7 @@ namespace dMobile.Controller.Activity_Detail
                     + "</command>"
                     + await SysCommon.GetRequestDefaults(false)
                     + this.GetRequestDetailDefaults()
-                    + "<pono>" + ((RecvActivity)this.ActItem.ActHdr).PONO + "</pono>"
+                    + "<pono>" + ((RecvActivity)this.ActItem.ActHdr).Pono + "</pono>"
                     + "<ord_qty>" + this.Quantity + "</ord_qty>"
                     + "<ord_unit>" + this.ActItem.ProdInfo.UnitCode + "</ord_unit>"
                     + "<skid_fk_refno>" + this.ActItem.ActHdr.SkidInfo.CurrSkid.SkidFKRefno + "</skid_fk_refno>"
@@ -1132,9 +1132,9 @@ namespace dMobile.Controller.Activity_Detail
                     + await SysCommon.GetRequestDefaults(false)
                     + "<skid_data>" + data.Root.Element("skid_data").Value + "</skid_data>"
                     + "<whs_id>" + this.LocMap.CurrLocMap.WhsFKRefno + "</whs_id>"
-                    + "<refno>" + this.ActItem.ActHdr.HdrFKRefno + "</refno>"
-                    + "<itm_refno>" + this.ActItem.ItemFKRefno + "</itm_refno>"
-                    + "<pono>" + ((RecvActivity)this.ActItem.ActHdr).PONO + "</pono>"
+                    + "<refno>" + this.ActItem.ActHdr.HdrFkRefno + "</refno>"
+                    + "<itm_refno>" + this.ActItem.ItemFkRefno + "</itm_refno>"
+                    + "<pono>" + ((RecvActivity)this.ActItem.ActHdr).Pono + "</pono>"
                     + "<is_negate_qty>false</is_negate_qty>"
                     + "<extra1>" + this.ActExtra.Text1 + "</extra1>"
                     + "<extra2>" + this.ActExtra.Text2 + "</extra2>"
@@ -1156,7 +1156,7 @@ namespace dMobile.Controller.Activity_Detail
         /// </summary>
         /// <param name="data">.</param>
         /// <returns>.</returns>
-        public override async Task<string> CreateDeleteXML(XDocument data)
+        public override async Task<string> CreateDeleteXml(XDocument data)
         {
             var xmlString = new StringBuilder();
             var xml = XmlWriter.Create(xmlString);
@@ -1173,7 +1173,7 @@ namespace dMobile.Controller.Activity_Detail
                     + "</command>"
                     + await SysCommon.GetRequestDefaults(false)
                     + this.GetRequestDetailDefaults()
-                    + "<pono>" + ((RecvActivity)this.ActItem.ActHdr).PONO + "</pono>"
+                    + "<pono>" + ((RecvActivity)this.ActItem.ActHdr).Pono + "</pono>"
                     + "<ord_qty>" + this.Quantity + "</ord_qty>"
                     + "<ord_unit>" + this.ActItem.ProdInfo.UnitCode + "</ord_unit>"
                     + "<skid_fk_refno>" + this.ActItem.ActHdr.SkidInfo.CurrSkid.SkidFKRefno + "</skid_fk_refno>"
@@ -1192,9 +1192,9 @@ namespace dMobile.Controller.Activity_Detail
                     + await SysCommon.GetRequestDefaults(false)
                     + "<skid_data>" + data.Root.Element("skid_data").Value + "</skid_data>"
                     + "<whs_id>" + this.LocMap.CurrLocMap.WhsFKRefno + "</whs_id>"
-                    + "<refno>" + this.ActItem.ActHdr.HdrFKRefno + "</refno>"
-                    + "<itm_refno>" + this.ActItem.ItemFKRefno + "</itm_refno>"
-                    + "<pono>" + ((RecvActivity)this.ActItem.ActHdr).PONO + "</pono>"
+                    + "<refno>" + this.ActItem.ActHdr.HdrFkRefno + "</refno>"
+                    + "<itm_refno>" + this.ActItem.ItemFkRefno + "</itm_refno>"
+                    + "<pono>" + ((RecvActivity)this.ActItem.ActHdr).Pono + "</pono>"
                     + "<is_negate_qty>false</is_negate_qty>"
                     + "</imclient>");
             }
@@ -1212,7 +1212,7 @@ namespace dMobile.Controller.Activity_Detail
         /// <returns><see cref="string"/> Get activity item control description.</returns>
         public override string GetControlDescription()
         {
-            return string.Format("Receive # {0}", this.ActItem.ActHdr.HdrFKRefno);
+            return string.Format("Receive # {0}", this.ActItem.ActHdr.HdrFkRefno);
         }
 
         /// <summary>
@@ -1227,7 +1227,7 @@ namespace dMobile.Controller.Activity_Detail
             {
                 detail = new ReceiveDetail();
                 detail.ActivityDetailRefno = this.DetailRefno;
-                detail.ActivityDetailFKRefno = this.DetailFKRefno;
+                detail.ActivityDetailFKRefno = this.DetailFkRefno;
 
                 this.InsertListDetailProduct(detail);
                 this.InsertListDetailQuantity(detail);
@@ -1235,8 +1235,8 @@ namespace dMobile.Controller.Activity_Detail
                 this.InsertListDetailExtra(detail);
                 this.InsertListDetailLocation(detail);
 
-                detail.ActivityDetailSchemeID = this.SchemeID;
-                detail.ActivityDetailUniqueSchemeID = this.UniqueSchemeID;
+                detail.ActivityDetailSchemeID = this.SchemeId;
+                detail.ActivityDetailUniqueSchemeID = this.UniqueSchemeId;
                 detail.ActivityDetailStatus = (int)SysCommon.ActStatus.Inserted;
                 this.ListDetails.Add(detail);
             }
@@ -1299,7 +1299,7 @@ namespace dMobile.Controller.Activity_Detail
                 FontAttributes = FontAttributes.Bold,
             };
 
-            var labelActivityDetailSchemeIDReceiveDetailHeader = new Label
+            var labelActivityDetailSchemeIdReceiveDetailHeader = new Label
             {
                 Text = "Scheme ID",
                 VerticalOptions = LayoutOptions.Center,
@@ -1314,7 +1314,7 @@ namespace dMobile.Controller.Activity_Detail
             this.ColumnWidth2 = DependencyService.Get<IGridService>().CalculateTextWidth(
                 labelUnitCodeReceiveDetailHeader.Text);
             this.ColumnWidth3 = DependencyService.Get<IGridService>().CalculateTextWidth(
-                labelActivityDetailSchemeIDReceiveDetailHeader.Text);
+                labelActivityDetailSchemeIdReceiveDetailHeader.Text);
 
             // Header grid
             var gridHeader = new Grid
@@ -1334,12 +1334,12 @@ namespace dMobile.Controller.Activity_Detail
             gridHeader.Children.Add(labelActivityDetailQuantityReceiveDetailHeader);
             gridHeader.Children.Add(labelActivityDetailWeightQuantityReceiveDetailHeader);
             gridHeader.Children.Add(labelUnitCodeReceiveDetailHeader);
-            gridHeader.Children.Add(labelActivityDetailSchemeIDReceiveDetailHeader);
+            gridHeader.Children.Add(labelActivityDetailSchemeIdReceiveDetailHeader);
 
             Grid.SetColumn(labelActivityDetailQuantityReceiveDetailHeader, 0);
             Grid.SetColumn(labelActivityDetailWeightQuantityReceiveDetailHeader, 1);
             Grid.SetColumn(labelUnitCodeReceiveDetailHeader, 2);
-            Grid.SetColumn(labelActivityDetailSchemeIDReceiveDetailHeader, 3);
+            Grid.SetColumn(labelActivityDetailSchemeIdReceiveDetailHeader, 3);
 
             Grid.SetRow(gridHeader, 0);
 

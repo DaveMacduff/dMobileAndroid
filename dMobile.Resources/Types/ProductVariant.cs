@@ -6,11 +6,9 @@ namespace dMobile.Resources.Types
 {
     public class ProductVariant
     {
-        private string productSchemeVariantDisplay;
-
         public string ProductSchemeVariantCode { get; set; }
         public int ProductSchemeVariantNo { get; set; }
-        public string ProductSchemeVariantDisplay { get => this.productSchemeVariantDisplay; set => this.productSchemeVariantDisplay = value; }
+        public string ProductSchemeVariantDisplay { get; set; }
     }
 }
 

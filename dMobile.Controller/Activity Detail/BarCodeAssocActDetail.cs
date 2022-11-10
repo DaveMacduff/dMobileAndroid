@@ -22,9 +22,9 @@ namespace dMobile.Controller.Activity_Detail
         /// <summary>
         /// Initializes a new instance of the <see cref="BarCodeAssocActDetail"/> class.
         /// </summary>
-        /// <param name="_actItem">.</param>
-        public BarCodeAssocActDetail(ActItem _actItem)
-          : base(_actItem)
+        /// <param name="actItem">.</param>
+        public BarCodeAssocActDetail(ActItem actItem)
+          : base(actItem)
         {
             this.FullClassName = typeof(BarCodeAssocActDetail).FullName;
         }
@@ -41,7 +41,7 @@ namespace dMobile.Controller.Activity_Detail
             {
                 detail = new ActivityDetail();
                 detail.ActivityDetailRefno = this.DetailRefno;
-                detail.ActivityDetailFKRefno = this.DetailFKRefno;
+                detail.ActivityDetailFKRefno = this.DetailFkRefno;
 
                 this.InsertListDetailProduct(detail);
                 this.InsertListDetailQuantity(detail);
@@ -49,8 +49,8 @@ namespace dMobile.Controller.Activity_Detail
                 this.InsertListDetailExtra(detail);
                 this.InsertListDetailLocation(detail);
 
-                detail.ActivityDetailSchemeID = this.SchemeID;
-                detail.ActivityDetailUniqueSchemeID = this.UniqueSchemeID;
+                detail.ActivityDetailSchemeID = this.SchemeId;
+                detail.ActivityDetailUniqueSchemeID = this.UniqueSchemeId;
                 ////detail.ActivityDetailStatus = (int)SysCommon.ActStatus.Inserted;
                 this.ListDetails.Add(detail);
             }
@@ -149,7 +149,7 @@ namespace dMobile.Controller.Activity_Detail
         /// </summary>
         /// <param name="selectedActivityDetail">The selectedActivityDetail<see cref="object"/>.</param>
         /// <returns>.</returns>
-        public override int GetFKRefno(object selectedActivityDetail)
+        public override int GetFkRefno(object selectedActivityDetail)
         {
             return (selectedActivityDetail as dynamic).ActivityDetailFKRefno;
         }
@@ -200,7 +200,7 @@ namespace dMobile.Controller.Activity_Detail
         /// </summary>
         /// <param name="data">.</param>
         /// <returns>.</returns>
-        public override Task<string> CreateDeleteXML(XDocument data)
+        public override Task<string> CreateDeleteXml(XDocument data)
         {
             throw new NotImplementedException();
         }
@@ -210,7 +210,7 @@ namespace dMobile.Controller.Activity_Detail
         /// </summary>
         /// <param name="data">.</param>
         /// <returns>.</returns>
-        public override Task<string> CreateSubmitXML(XDocument data)
+        public override Task<string> CreateSubmitXml(XDocument data)
         {
             throw new NotImplementedException();
         }

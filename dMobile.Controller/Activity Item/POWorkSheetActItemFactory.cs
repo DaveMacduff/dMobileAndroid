@@ -7,9 +7,9 @@ using dMobile.Controller.Activity;
 namespace dMobile.Controller.Activity_Item
 {
     /// <summary>
-    /// Defines the <see cref="POWorkSheetActItemFactory" />.
+    /// Defines the <see cref="PoWorkSheetActItemFactory" />.
     /// </summary>
-    public class POWorkSheetActItemFactory : ActItemFactory
+    public class PoWorkSheetActItemFactory : ActItemFactory
     {
         /// <summary>
         /// The GetActItem.
@@ -18,7 +18,7 @@ namespace dMobile.Controller.Activity_Item
         /// <returns>The <see cref="ActItem"/>.</returns>
         public override ActItem GetActItem(Activity.Activity activity)
         {
-            return new POWorkSheetActItem(activity);
+            return new PoWorkSheetActItem(activity);
         }
     }
 }

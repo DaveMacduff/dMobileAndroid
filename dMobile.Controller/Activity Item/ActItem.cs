@@ -39,24 +39,24 @@ namespace dMobile.Controller.Activity_Item
         /// </summary>
         /// <param name="publisher">The publisher<see cref="IDataLayerEventPublisher"/>.</param>
         /// <param name="args">The dataLayerEventArgs<see cref="DataLayerEventArgs"/>.</param>
-        public delegate void OnDataLayerStatusOutEventHandler(IDataLayerEventPublisher publisher, DataLayerEventArgs args);
+        public delegate void DataLayerStatusOutEventHandler(IDataLayerEventPublisher publisher, DataLayerEventArgs args);
 
         /// <summary>
         /// The data layer progress out event handler.
         /// </summary>
         /// <param name="publisher">The publisher<see cref="IDataLayerEventPublisher"/>.</param>
         /// <param name="args">The dataLayerEventArgs<see cref="DataLayerEventArgs"/>.</param>
-        public delegate void OnDataLayerProgressOutEventHandler(IDataLayerEventPublisher publisher, DataLayerEventArgs args);
+        public delegate void DataLayerProgressOutEventHandler(IDataLayerEventPublisher publisher, DataLayerEventArgs args);
 
         /// <summary>
         /// Data layer status out event handler.
         /// </summary>
-        public event OnDataLayerStatusOutEventHandler OnDataLayerStatusOut;
+        public event DataLayerStatusOutEventHandler OnDataLayerStatusOut;
 
         /// <summary>
         /// Data layer progress out event handler.
         /// </summary>
-        public event OnDataLayerProgressOutEventHandler OnDataLayerProgressOut;
+        public event DataLayerProgressOutEventHandler OnDataLayerProgressOut;
 
         /// <summary>
         /// Gets or sets a value indicating whether to ask to create a new item..
@@ -137,7 +137,7 @@ namespace dMobile.Controller.Activity_Item
         /// <summary>
         /// Gets or sets the activity item foreign key reference number..
         /// </summary>
-        public int ItemFKRefno { get; set; } = 0;
+        public int ItemFkRefno { get; set; } = 0;
 
         /// <summary>
         /// Gets or sets the activity header..
@@ -211,7 +211,7 @@ namespace dMobile.Controller.Activity_Item
         /// </summary>
         /// <param name="data"><see cref="XDocument"/> Filter criteria.</param>
         /// <returns><see cref="string"/> Created XML submission data.</returns>
-        public abstract Task<string> CreateSubmitXML(XDocument data);
+        public abstract Task<string> CreateSubmitXml(XDocument data);
 
         /// <summary>
         /// Search for activity items using the search text.
@@ -261,7 +261,7 @@ namespace dMobile.Controller.Activity_Item
         /// Get the data view sort foreign key reference number index name.
         /// </summary>
         /// <returns><see cref="string"/> Foreign key index name.</returns>
-        public abstract string GetDataViewSortFKRefnoIdx();
+        public abstract string GetDataViewSortFkRefnoIdx();
 
         /// <summary>
         /// Get the activity item control description.
@@ -272,16 +272,16 @@ namespace dMobile.Controller.Activity_Item
         /// <summary>
         /// Get the unable to find item message.
         /// </summary>
-        /// <param name="actItemStringFKRefno"><see cref="string"/> Activity item string foreign key reference number.</param>
+        /// <param name="actItemStringFkRefno"><see cref="string"/> Activity item string foreign key reference number.</param>
         /// <returns><see cref="string"/> Unable to find item message.</returns>
-        public abstract string GetUnableToFindItemFKRefnoMessage(string actItemStringFKRefno);
+        public abstract string GetUnableToFindItemFkRefnoMessage(string actItemStringFkRefno);
 
         /// <summary>
         /// Get the unable to parse item message.
         /// </summary>
-        /// <param name="actItemStringFKRefno"><see cref="string"/> Activity item string foreign key reference number.</param>
+        /// <param name="actItemStringFkRefno"><see cref="string"/> Activity item string foreign key reference number.</param>
         /// <returns><see cref="string"/> Unable to find item message.</returns>
-        public abstract string GetUnableToParseItemFKRefnoMessage(string actItemStringFKRefno);
+        public abstract string GetUnableToParseItemFkRefnoMessage(string actItemStringFkRefno);
 
         /// <summary>
         /// Add quantity to the existing activity item quantities. Does not reset existing values.
@@ -321,14 +321,14 @@ namespace dMobile.Controller.Activity_Item
         /// </summary>
         /// <param name="resourceType"><see cref="object"/> Resource model type (t????Model).</param>
         /// <returns><see cref="int"/> Found activity foreign key refno, else 0 if not found.</returns>
-        public abstract int GetFKRefno(object resourceType);
+        public abstract int GetFkRefno(object resourceType);
 
         /// <summary>
         /// Get the product scheme data from the detail foreign key reference number.
         /// </summary>
-        /// <param name="actDetailFKRefno"><see cref="int"/> Activity detail foreign key reference number.</param>
+        /// <param name="actDetailFkRefno"><see cref="int"/> Activity detail foreign key reference number.</param>
         /// <returns><see cref="Task{SActItemSchemeData}"/> Activity item scheme data.</returns>
-        public abstract Task<ActItemSchemeData> GetProdSchemeDataFromDetailFKRefno(int actDetailFKRefno);
+        public abstract Task<ActItemSchemeData> GetProdSchemeDataFromDetailFkRefno(int actDetailFkRefno);
 
         /// <summary>
         /// Get activity item comment.
@@ -356,7 +356,7 @@ namespace dMobile.Controller.Activity_Item
         /// </summary>
         /// <param name="data"><see cref="XDocument"/> Create delete XML request.</param>
         /// <returns><see cref="Task{string}"/> Delete XML.</returns>
-        public abstract Task<string> CreateDeleteXML(XDocument data);
+        public abstract Task<string> CreateDeleteXml(XDocument data);
 
         /// <summary>
         /// Update the activity item.
@@ -375,8 +375,8 @@ namespace dMobile.Controller.Activity_Item
         /// Assign the activity item values from the activity item parameter arguments.
         /// </summary>
         /// <param name="activityItem"><see cref="object"/> Activity item.</param>
-        /// <returns><see cref="Task"/> Task operation.</returns>
-        public abstract Task AssignActivityItem(object activityItem);
+        /// <returns><see cref="Task{T}"/> Activity item foreign key reference number.</returns>
+        public abstract Task<int> AssignActivityItem(object activityItem);
 
         /// <summary>
         /// Get the default location map reference number for a warehouse, product.
@@ -404,6 +404,14 @@ namespace dMobile.Controller.Activity_Item
         /// </summary>
         /// <returns><see cref="bool"/> True if catch ask zero is enabled else false.</returns>
         public abstract bool IsCatchAskZero();
+
+        /// <summary>
+        /// Iterate through the activity item list items searching for them matching the activity item foreign key
+        /// reference number.
+        /// </summary>
+        /// <param name="activityItemFkRefno"><see cref="int"/> Activity item foreign key reference number.</param>
+        /// <returns><see cref="int"/> Found activity item list items index number.</returns>
+        public abstract int FindActivityItemIndex(int activityItemFkRefno);
 
         /// <summary>
         /// Determine what the selected location map should be when an activity line item or detail is selected.
@@ -519,16 +527,16 @@ namespace dMobile.Controller.Activity_Item
             // Check for duplicate
             if (this.SysEnv.SysSettings.IsDisconnectedMode)
             {
-                var actDetailUniqSchemeID = data.Root.Element("ActivityDetailUniqueSchemeID").Value;
-                if (string.Compare(actDetailUniqSchemeID, string.Empty) > 0)
+                var actDetailUniqSchemeId = data.Root.Element("ActivityDetailUniqueSchemeID").Value;
+                if (string.Compare(actDetailUniqSchemeId, string.Empty) > 0)
                 {
-                    var isDupSchemeID = await ProductInfoTasks.IsDuplicateUniqueSchemeID(
-                        actDetailUniqSchemeID);
-                    if (isDupSchemeID)
+                    var isDupSchemeId = await ProductInfoTasks.IsDuplicateUniqueSchemeID(
+                        actDetailUniqSchemeId);
+                    if (isDupSchemeId)
                     {
                         throw new IsReadyToApplyException(
                             "Duplicate scheme id!" +
-                            Environment.NewLine + actDetailUniqSchemeID,
+                            Environment.NewLine + actDetailUniqSchemeId,
                             false,
                             false);
                     }
@@ -649,7 +657,7 @@ namespace dMobile.Controller.Activity_Item
         /// <param name="listener"><see cref="IDataAccessEventListener"/> Data access event listener.</param>
         public void RegLayerListenerStatOut(IDataLayerEventListener listener)
         {
-            this.OnDataLayerStatusOut += new OnDataLayerStatusOutEventHandler(
+            this.OnDataLayerStatusOut += new DataLayerStatusOutEventHandler(
                 listener.OnLayerStatOut);
         }
 
@@ -659,7 +667,7 @@ namespace dMobile.Controller.Activity_Item
         /// <param name="listener"><see cref="IDataAccessEventListener"/> Data access event listener.</param>
         public void UnregLayerListenerStatOut(IDataLayerEventListener listener)
         {
-            this.OnDataLayerStatusOut -= new OnDataLayerStatusOutEventHandler(
+            this.OnDataLayerStatusOut -= new DataLayerStatusOutEventHandler(
                 listener.OnLayerStatOut);
         }
 
@@ -669,7 +677,7 @@ namespace dMobile.Controller.Activity_Item
         /// <param name="listener"><see cref="IDataAccessEventListener"/> Data access event listener.</param>
         public void RegLayerListenerProgOut(IDataLayerEventListener listener)
         {
-            this.OnDataLayerProgressOut += new OnDataLayerProgressOutEventHandler(
+            this.OnDataLayerProgressOut += new DataLayerProgressOutEventHandler(
                 listener.OnLayerProgOut);
         }
 
@@ -679,7 +687,7 @@ namespace dMobile.Controller.Activity_Item
         /// <param name="listener"><see cref="IDataAccessEventListener"/> Data access event listener.</param>
         public void UnregLayerListenerProgOut(IDataLayerEventListener listener)
         {
-            this.OnDataLayerProgressOut -= new OnDataLayerProgressOutEventHandler(
+            this.OnDataLayerProgressOut -= new DataLayerProgressOutEventHandler(
                 listener.OnLayerProgOut);
         }
     }

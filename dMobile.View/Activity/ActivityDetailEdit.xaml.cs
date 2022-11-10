@@ -268,7 +268,7 @@ namespace dMobile.View.Activity
                 var xmlParam = XDocument.Parse(
                     "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>"
                     + "<imclient>"
-                    + "<itm_refno>" + this.ActDetail.ActItem.ItemFKRefno + "</itm_refno>"
+                    + "<itm_refno>" + this.ActDetail.ActItem.ItemFkRefno + "</itm_refno>"
                     + "<alt_qty>" + this.ActDetailEdit.AltQuantity + "</alt_qty>"
                     + "<wt_qty>" + this.ActDetailEdit.WeightQuantity + "</wt_qty>"
                     + "<ActivityDetailUniqueSchemeID>" + uniqueSchemeId + "</ActivityDetailUniqueSchemeID>"
@@ -899,8 +899,8 @@ namespace dMobile.View.Activity
                         this.ActDetail.ActItem.ProdInfo.Scheme,
                         this.ActDetailEdit.SchemeData);
 
-                    this.ActDetail.UniqueSchemeID = uniqueSchemeId;
-                    this.ActDetail.SchemeID = schemeId;
+                    this.ActDetail.UniqueSchemeId = uniqueSchemeId;
+                    this.ActDetail.SchemeId = schemeId;
                     this.ActDetail.SchemeData = this.ActDetailEdit.SchemeData;
                     this.ActDetail.Quantity = this.ActDetailEdit.AltQuantity;
                     this.ActDetail.BaseQuantity = this.ActDetailEdit.BaseQuantity;
@@ -1012,7 +1012,7 @@ namespace dMobile.View.Activity
         /// <returns><see cref="XDocument"/> Activity item return information.</returns>
         public async Task<XDocument> GetXML()
         {
-            return await this.ActDetailEdit.GetXMLFromActivityDetailEdit(this.ActDetailEdit);
+            return await this.ActDetailEdit.GetXmlFromActivityDetailEdit(this.ActDetailEdit);
         }
 
         /// <summary>
@@ -1651,7 +1651,7 @@ namespace dMobile.View.Activity
                     actDetailLabel.FullClassName = this.ActDetail.FullClassName;
                     actDetailLabel.ActItem = this.ActDetail.ActItem;
                     actDetailLabel.ActSubType = this.ActSubType;
-                    actDetailLabel.DetailFKRefno = this.ActDetail.DetailFKRefno;
+                    actDetailLabel.DetailFkRefno = this.ActDetail.DetailFkRefno;
                     actDetailLabel.SelectedLocMap = this.ActDetail.SelectedLocMap;
 
                     actDetailLabel.Quantity = this.ActDetailEdit.AltQuantity;
@@ -1670,8 +1670,8 @@ namespace dMobile.View.Activity
                 }
                 else
                 {
-                    var sendReq = await this.ActDetail.CreateSubmitProductLabelXML(
-                        await this.ActDetailEdit.GetXMLFromActivityDetailEdit(this.ActDetailEdit));
+                    var sendReq = await this.ActDetail.CreateSubmitProductLabelXml(
+                        await this.ActDetailEdit.GetXmlFromActivityDetailEdit(this.ActDetailEdit));
                     var reqData = SysCommon.SubmitComm(sendReq);
                     if (reqData.Length > 0)
                     {

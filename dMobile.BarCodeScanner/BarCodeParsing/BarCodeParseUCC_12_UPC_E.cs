@@ -13,6 +13,7 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
         /// </summary>
         /// <param name="barCodeData"></param>
         /// <returns></returns>
+        /// <inheritdoc/>
         public override void ParseBarCodeData(string barCodeData)
         {
             barCodeData = this.IdentifyProductIdentifier(barCodeData);
@@ -25,6 +26,7 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
         /// </summary>
         /// <param name="barCodeData"></param>
         /// <returns></returns>
+        /// <inheritdoc/>
         protected override string IdentifyProductIdentifier(string barCodeData)
         {
             var isDeliScaleBarCode = false;
@@ -109,6 +111,7 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
         /// </summary>
         /// <param name="barCodeData"></param>
         /// <returns></returns>
+        /// <inheritdoc/>
         protected override string IdentifyGTIN(string barCodeData)
         {
             var iLen = (barCodeData.Length > 14) ? 14 : barCodeData.Length;

@@ -20,9 +20,6 @@ namespace dMobile.Resources.Types
     // sql.Append("FROM tActivityItem ");
     public class BarcodeAssociationItem
     {
-        private string productUnitBarCodeModifier1;
-        private int activityItemStatus;
-
         public int ActivityItemRefno { get; set; }
         public string ProductCode { get; set; }
         public int ProductUnitRefno { get; set; }
@@ -31,8 +28,8 @@ namespace dMobile.Resources.Types
         public string UnitCode { get; set; }
         public int ProductUnitBarCodeRefno { get; set; }
         public string ProductUnitBarCodeCode { get; set; }
-        public string ProductUnitBarCodeModifier1 { get => this.productUnitBarCodeModifier1; set => this.productUnitBarCodeModifier1 = value; }
+        public string ProductUnitBarCodeModifier1 { get; set; }
         public int ProductUnitBarCodeSymbologyEnum { get; set; }
-        public int ActivityItemStatus { get => this.activityItemStatus; set => this.activityItemStatus = value; }
+        public int ActivityItemStatus { get; set; }
     }
 }

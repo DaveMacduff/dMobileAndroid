@@ -18,9 +18,9 @@ using Xamarin.Forms;
 namespace dMobile.Controller.Activity
 {
     /// <summary>
-    /// Defines the <see cref="POWorkSheetActivity" />.
+    /// Defines the <see cref="PoWorkSheetActivity" />.
     /// </summary>
-    public class POWorkSheetActivity : Activity
+    public class PoWorkSheetActivity : Activity
     {
         /// <summary>
         /// Defines the columnWidth0.
@@ -48,12 +48,12 @@ namespace dMobile.Controller.Activity
         private List<PurchaseOrderWorkSheetItem> listPurchaseOrderWorkSheetItems = new List<PurchaseOrderWorkSheetItem>();
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="POWorkSheetActivity"/> class.
+        /// Initializes a new instance of the <see cref="PoWorkSheetActivity"/> class.
         /// </summary>
-        public POWorkSheetActivity()
+        public PoWorkSheetActivity()
           : base()
         {
-            this.FullClassName = typeof(POWorkSheetActivity).FullName;
+            this.FullClassName = typeof(PoWorkSheetActivity).FullName;
 
             // Data grid
             var dataTemplate = new DataTemplate(() =>
@@ -69,21 +69,21 @@ namespace dMobile.Controller.Activity
                     },
                 };
 
-                var labelActivityPOProductID = new Label { VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start };
-                var labelActivityPOOrdered = new Label { VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start };
-                var labelActivityPOWeight = new Label { VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start };
+                var labelActivityPoProductId = new Label { VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start };
+                var labelActivityPoOrdered = new Label { VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start };
+                var labelActivityPoWeight = new Label { VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start };
 
-                labelActivityPOProductID.SetBinding(Label.TextProperty, new Binding("ProductCode"));
-                labelActivityPOOrdered.SetBinding(Label.TextProperty, new Binding("ActivityItemPurchaseOrderWorkSheetQuantityOrdered", BindingMode.Default, null, null, "{0:F3}"));
-                labelActivityPOWeight.SetBinding(Label.TextProperty, new Binding("ActivityItemPurchaseOrderWorkSheetWeightQuantityOrdered", BindingMode.Default, null, null, "{0:F3}"));
+                labelActivityPoProductId.SetBinding(Label.TextProperty, new Binding("ProductCode"));
+                labelActivityPoOrdered.SetBinding(Label.TextProperty, new Binding("ActivityItemPurchaseOrderWorkSheetQuantityOrdered", BindingMode.Default, null, null, "{0:F3}"));
+                labelActivityPoWeight.SetBinding(Label.TextProperty, new Binding("ActivityItemPurchaseOrderWorkSheetWeightQuantityOrdered", BindingMode.Default, null, null, "{0:F3}"));
 
-                gridData.Children.Add(labelActivityPOProductID);
-                gridData.Children.Add(labelActivityPOOrdered);
-                gridData.Children.Add(labelActivityPOWeight);
+                gridData.Children.Add(labelActivityPoProductId);
+                gridData.Children.Add(labelActivityPoOrdered);
+                gridData.Children.Add(labelActivityPoWeight);
 
-                Grid.SetColumn(labelActivityPOProductID, 0);
-                Grid.SetColumn(labelActivityPOOrdered, 1);
-                Grid.SetColumn(labelActivityPOWeight, 2);
+                Grid.SetColumn(labelActivityPoProductId, 0);
+                Grid.SetColumn(labelActivityPoOrdered, 1);
+                Grid.SetColumn(labelActivityPoWeight, 2);
 
                 return new ViewCell { View = gridData };
             });
@@ -107,7 +107,7 @@ namespace dMobile.Controller.Activity
         /// The GetFKRefnoIdx.
         /// </summary>
         /// <returns>.</returns>
-        public override string GetFKRefnoIdx()
+        public override string GetFkRefnoIdx()
         {
             throw new NotImplementedException();
         }
@@ -155,11 +155,11 @@ namespace dMobile.Controller.Activity
                 observableCollection.Add(purchaseOrderWorkSheetItem);
             }
 
-            var labelProductID = new Label { Text = "Product ID", VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start, FontAttributes = FontAttributes.Bold };
+            var labelProductId = new Label { Text = "Product ID", VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start, FontAttributes = FontAttributes.Bold };
             var labelOrdered = new Label { Text = "Ordered", VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start, FontAttributes = FontAttributes.Bold };
             var labelWeight = new Label { Text = "Weight", VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start, FontAttributes = FontAttributes.Bold };
 
-            this.columnWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(labelProductID.Text);
+            this.columnWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(labelProductId.Text);
             this.columnWidth1 = DependencyService.Get<IGridService>().CalculateTextWidth(labelOrdered.Text);
             this.columnWidth2 = DependencyService.Get<IGridService>().CalculateTextWidth(labelWeight.Text);
 
@@ -177,11 +177,11 @@ namespace dMobile.Controller.Activity
 
             gridHeader.SetDynamicResource(VisualElement.BackgroundColorProperty, "HeaderColor");
 
-            gridHeader.Children.Add(labelProductID);
+            gridHeader.Children.Add(labelProductId);
             gridHeader.Children.Add(labelOrdered);
             gridHeader.Children.Add(labelWeight);
 
-            Grid.SetColumn(labelProductID, 0);
+            Grid.SetColumn(labelProductId, 0);
             Grid.SetColumn(labelOrdered, 1);
             Grid.SetColumn(labelWeight, 2);
 
@@ -315,7 +315,7 @@ namespace dMobile.Controller.Activity
             if (selectedActivity is PurchaseOrderWorkSheetItem header)
             {
                 this.SelectedActivity = header;
-                this.HdrFKRefno = header.ActivityRefno;
+                this.HdrFkRefno = header.ActivityRefno;
                 this.HdrRefno = header.ActivityRefno;
 
                 if (this.SysEnv.SysSettings.IsDefaultLocToProductDefaultLoc)
@@ -355,7 +355,7 @@ namespace dMobile.Controller.Activity
 
             if (poWorkSheet != null)
             {
-                this.HdrFKRefno = Convert.ToInt32(poWorkSheet.ActivityRefno);
+                this.HdrFkRefno = Convert.ToInt32(poWorkSheet.ActivityRefno);
                 this.HdrRefno = Convert.ToInt32(poWorkSheet.ActivityRefno);
             }
 
@@ -414,7 +414,7 @@ namespace dMobile.Controller.Activity
         /// </summary>
         /// <param name="resourceType"><see cref="object"/> Resource model (tActivity??Model).</param>
         /// <returns><see cref="int"/> Found activity foreign key refno, else 0 if not found.</returns>
-        public override int GetFKRefno(object resourceType)
+        public override int GetFkRefno(object resourceType)
         {
             throw new NotImplementedException();
         }

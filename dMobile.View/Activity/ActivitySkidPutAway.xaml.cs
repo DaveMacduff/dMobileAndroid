@@ -159,6 +159,7 @@ namespace dMobile.View.Activity
             base.OnDisappearing();
         }
 
+        /// <inheritdoc/>
         protected override bool OnBackButtonPressed()
         {
             Device.BeginInvokeOnMainThread(async () =>
@@ -274,10 +275,10 @@ namespace dMobile.View.Activity
                         this.LocMap.CurrLocMap = this.Activity.SkidInfo.CurrSkid.LocMap;
                         this.cmdLocation.Text = LocationMapTasks.GetReadableLocation(this.Activity.SkidInfo.CurrSkid.LocMap);
 
-                        this.Activity.HdrFKRefno = this.Activity.SkidInfo.CurrSkid.SkidFKRefno;
+                        this.Activity.HdrFkRefno = this.Activity.SkidInfo.CurrSkid.SkidFKRefno;
                         this.Activity.HdrRefno = this.Activity.SkidInfo.CurrSkid.SkidFKRefno;
 
-                        this.ActItem.ItemFKRefno = this.Activity.SkidInfo.CurrSkid.SkidFKRefno;
+                        this.ActItem.ItemFkRefno = this.Activity.SkidInfo.CurrSkid.SkidFKRefno;
                         this.ActItem.ItemRefno = this.Activity.SkidInfo.CurrSkid.SkidFKRefno;
                         this.ActItem.LocMap = this.LocMap.CurrLocMap;
                         this.ActItem.ProdInfo = this.Activity.SkidInfo.CurrSkid.ProdInfo;
@@ -384,8 +385,8 @@ namespace dMobile.View.Activity
                     this.ActDetail.Quantity = fillQty.Quantity;
                     this.ActDetail.BaseQuantity = fillQty.BaseQuantity;
                     this.ActDetail.WeightQuantity = fillQty.WeightQuantity;
-                    this.ActDetail.SchemeID = this.ActDetailOnSkid.SchemeID;
-                    this.ActDetail.UniqueSchemeID = this.ActDetailOnSkid.UniqueSchemeID;
+                    this.ActDetail.SchemeId = this.ActDetailOnSkid.SchemeId;
+                    this.ActDetail.UniqueSchemeId = this.ActDetailOnSkid.UniqueSchemeId;
                     this.ActDetail.SchemeData = this.ActDetailOnSkid.SchemeData;
                     this.ActDetail.ActExtra.Text1 = string.Empty;
                     this.ActDetail.ActExtra.Text2 = string.Empty;
@@ -775,11 +776,11 @@ namespace dMobile.View.Activity
             });
 
             this.Activity.SkidInfo = new SysSkidInfo();
-            this.Activity.HdrFKRefno = this.Activity.SkidInfo.CurrSkid.SkidFKRefno;
+            this.Activity.HdrFkRefno = this.Activity.SkidInfo.CurrSkid.SkidFKRefno;
             this.Activity.HdrRefno = this.Activity.SkidInfo.CurrSkid.SkidFKRefno;
 
             this.ActItem = ActItemFacade.GetActItem(this.Activity, this.ActSubType);
-            this.ActItem.ItemFKRefno = this.Activity.SkidInfo.CurrSkid.SkidFKRefno;
+            this.ActItem.ItemFkRefno = this.Activity.SkidInfo.CurrSkid.SkidFKRefno;
             this.ActItem.ItemRefno = this.Activity.SkidInfo.CurrSkid.SkidFKRefno;
 
             this.ActDetailOnSkid = ActDetailFacade.GetActDetail(this.ActItem, SysCommon.ActSubTypes.SkidInfo);
@@ -900,8 +901,8 @@ namespace dMobile.View.Activity
                 _ = request.AppendFormat("<whs_id>{0}</whs_id>", currSkid.LocMap.WhsFKRefno);
                 _ = request.AppendFormat("<sect_refno>{0}</sect_refno>", currSkid.LocMap.SectFKRefno);
                 _ = request.AppendFormat("<slot_refno>{0}</slot_refno>", currSkid.LocMap.SlotFKRefno);
-                _ = request.AppendFormat("<refno></refno>", this.ActItem.ActHdr.HdrFKRefno);
-                _ = request.AppendFormat("<itm_refno>{0}</itm_refno>", this.ActItem.ItemFKRefno);
+                _ = request.AppendFormat("<refno></refno>", this.ActItem.ActHdr.HdrFkRefno);
+                _ = request.AppendFormat("<itm_refno>{0}</itm_refno>", this.ActItem.ItemFkRefno);
                 _ = request.AppendFormat("<prod_id>{0}</prod_id>", skidDetail[idx].GetType().GetProperty("ProductCode")?.GetValue(skidDetail[idx]));
                 _ = request.AppendFormat("<bc>{0}</bc>", skidDetail[idx].GetType().GetProperty("ProductUnitBC")?.GetValue(skidDetail[idx]));
                 _ = request.AppendFormat("<alt_unit>{0}</alt_unit>", skidDetail[idx].GetType().GetProperty("UnitCode")?.GetValue(skidDetail[idx]));
@@ -940,8 +941,8 @@ namespace dMobile.View.Activity
                 _ = request.AppendFormat("<whs_id>{0}</whs_id>", this.LocMap.CurrLocMap.WhsFKRefno);
                 _ = request.AppendFormat("<sect_refno>{0}</sect_refno>", this.LocMap.CurrLocMap.SectFKRefno);
                 _ = request.AppendFormat("<slot_refno>{0}</slot_refno>", this.LocMap.CurrLocMap.SlotFKRefno);
-                _ = request.AppendFormat("<refno></refno>", this.ActItem.ActHdr.HdrFKRefno);
-                _ = request.AppendFormat("<itm_refno>{0}</itm_refno>", this.ActItem.ItemFKRefno);
+                _ = request.AppendFormat("<refno></refno>", this.ActItem.ActHdr.HdrFkRefno);
+                _ = request.AppendFormat("<itm_refno>{0}</itm_refno>", this.ActItem.ItemFkRefno);
                 _ = request.AppendFormat("<prod_id>{0}</prod_id>", detail[idx].GetType().GetProperty("ProductCode").GetValue(detail[idx]));
                 _ = request.AppendFormat("<bc>{0}</bc>", detail[idx].GetType().GetProperty("ProductUnitBC").GetValue(detail[idx]));
                 _ = request.AppendFormat("<alt_unit>{0}</alt_unit>", detail[idx].GetType().GetProperty("UnitCode").GetValue(detail[idx]));
@@ -1026,8 +1027,8 @@ namespace dMobile.View.Activity
             }
 
             actDetail.SchemeData = schemeData;
-            actDetail.SchemeID = ProductInfoTasks.GetActSchemeIDFromSProdSchemeData(this.ActItem.ProdInfo.Code, this.ActItem.ProdInfo.Scheme, actDetail.SchemeData);
-            actDetail.UniqueSchemeID = ProductInfoTasks.GetUniqueSchemeIDFromSProdSchemeData(this.ActItem.ProdInfo.Code, this.ActItem.ProdInfo.Scheme, actDetail.SchemeData);
+            actDetail.SchemeId = ProductInfoTasks.GetActSchemeIDFromSProdSchemeData(this.ActItem.ProdInfo.Code, this.ActItem.ProdInfo.Scheme, actDetail.SchemeData);
+            actDetail.UniqueSchemeId = ProductInfoTasks.GetUniqueSchemeIDFromSProdSchemeData(this.ActItem.ProdInfo.Code, this.ActItem.ProdInfo.Scheme, actDetail.SchemeData);
 
             if (isInsertDetailReady)
             {
@@ -1070,7 +1071,7 @@ namespace dMobile.View.Activity
             {
                 this.Loading = true;
                 var prodUnitRefno = 0;
-                var svdActDetailFKRefno = this.ActDetailOnSkid.DetailFKRefno;
+                var svdActDetailFKRefno = this.ActDetailOnSkid.DetailFkRefno;
 
                 try
                 {
@@ -1158,10 +1159,10 @@ namespace dMobile.View.Activity
                                 _ = await Device.InvokeOnMainThreadAsync(() => this.cmdLocation.IsEnabled = true);
                                 _ = await Device.InvokeOnMainThreadAsync(() => this.cmdLocation.Text = LocationMapTasks.GetReadableLocation(this.Activity.SkidInfo.CurrSkid.LocMap));
 
-                                this.Activity.HdrFKRefno = this.Activity.SkidInfo.CurrSkid.SkidFKRefno;
+                                this.Activity.HdrFkRefno = this.Activity.SkidInfo.CurrSkid.SkidFKRefno;
                                 this.Activity.HdrRefno = this.Activity.SkidInfo.CurrSkid.SkidFKRefno;
 
-                                this.ActItem.ItemFKRefno = this.Activity.SkidInfo.CurrSkid.SkidFKRefno;
+                                this.ActItem.ItemFkRefno = this.Activity.SkidInfo.CurrSkid.SkidFKRefno;
                                 this.ActItem.ItemRefno = this.Activity.SkidInfo.CurrSkid.SkidFKRefno;
                                 this.ActItem.ProdInfo = this.Activity.SkidInfo.CurrSkid.ProdInfo;
                                 this.ActItem.ProdInfo.Unit2BaseUnitFactor = await ProductInfoTasks.GetUnitRelationFactor(this.ActItem.ProdInfo);
@@ -1205,7 +1206,7 @@ namespace dMobile.View.Activity
                         _ = await Device.InvokeOnMainThreadAsync(() => this.cmdSelectSkid.Text = "Select Skid");
                     }
 
-                    this.ActDetailOnSkid.DetailFKRefno = svdActDetailFKRefno;
+                    this.ActDetailOnSkid.DetailFkRefno = svdActDetailFKRefno;
                 }
                 catch (IsReadyToApplyException ex)
                 {
@@ -1218,7 +1219,7 @@ namespace dMobile.View.Activity
                         _ = await Device.InvokeOnMainThreadAsync(() => this.cmdSelectSkid.Text = "Select Skid");
                     }
 
-                    this.ActDetailOnSkid.DetailFKRefno = svdActDetailFKRefno;
+                    this.ActDetailOnSkid.DetailFkRefno = svdActDetailFKRefno;
 
                     if (!ex.SuppressError)
                     {
@@ -1240,7 +1241,7 @@ namespace dMobile.View.Activity
                         _ = await Device.InvokeOnMainThreadAsync(() => this.cmdSelectSkid.Text = "Select Skid");
                     }
 
-                    this.ActDetailOnSkid.DetailFKRefno = svdActDetailFKRefno;
+                    this.ActDetailOnSkid.DetailFkRefno = svdActDetailFKRefno;
 
                     if (!ex.SuppressError)
                     {
@@ -1262,7 +1263,7 @@ namespace dMobile.View.Activity
                         _ = await Device.InvokeOnMainThreadAsync(() => this.cmdSelectSkid.Text = "Select Skid");
                     }
 
-                    this.ActDetailOnSkid.DetailFKRefno = svdActDetailFKRefno;
+                    this.ActDetailOnSkid.DetailFkRefno = svdActDetailFKRefno;
 
                     await Device.InvokeOnMainThreadAsync(async () =>
                     {
@@ -1290,9 +1291,9 @@ namespace dMobile.View.Activity
                 var xmlParam = XDocument.Parse(
                     "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>"
                     + "<imclient>"
-                    + "<itm_refno>" + this.ActDetail.ActItem.ItemFKRefno + "</itm_refno>"
+                    + "<itm_refno>" + this.ActDetail.ActItem.ItemFkRefno + "</itm_refno>"
                     + "<alt_qty>" + this.ActDetail.Quantity + "</alt_qty>"
-                    + "<ActivityDetailUniqueSchemeID>" + this.ActDetail.UniqueSchemeID + "</ActivityDetailUniqueSchemeID>"
+                    + "<ActivityDetailUniqueSchemeID>" + this.ActDetail.UniqueSchemeId + "</ActivityDetailUniqueSchemeID>"
                     + "</imclient>");
 
                 await this.ActDetail.IsReadyToApply(xmlParam);

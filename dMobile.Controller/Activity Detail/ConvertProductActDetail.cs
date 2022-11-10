@@ -27,7 +27,7 @@ namespace dMobile.Controller.Activity_Detail
         /// <summary>
         /// Gets or sets the ID.
         /// </summary>
-        public int ID { get; set; } = 0;
+        public int Id { get; set; } = 0;
 
         /// <summary>
         /// Gets or sets the grid column 0 width....
@@ -78,11 +78,11 @@ namespace dMobile.Controller.Activity_Detail
         /// <summary>
         /// Initializes a new instance of the <see cref="ConvertProductActDetail"/> class.
         /// </summary>
-        /// <param name="_actItem">.</param>
-        public ConvertProductActDetail(ActItem _actItem)
-            : base(_actItem)
+        /// <param name="actItem">.</param>
+        public ConvertProductActDetail(ActItem actItem)
+            : base(actItem)
         {
-            this.ID = 0;
+            this.Id = 0;
             this.FullClassName = typeof(ConvertProductActDetail).FullName;
 
             // Data grid
@@ -225,9 +225,9 @@ namespace dMobile.Controller.Activity_Detail
                 detail = new ConvertProductDetail
                 {
                     ActivityDetailRefno = this.DetailRefno,
-                    ActivityDetailFKRefno = this.DetailFKRefno,
-                    ActivityDetailSchemeID = this.SchemeID,
-                    ActivityDetailUniqueSchemeID = this.UniqueSchemeID,
+                    ActivityDetailFKRefno = this.DetailFkRefno,
+                    ActivityDetailSchemeID = this.SchemeId,
+                    ActivityDetailUniqueSchemeID = this.UniqueSchemeId,
                 };
 
                 this.InsertListDetailProduct(detail);
@@ -292,9 +292,9 @@ namespace dMobile.Controller.Activity_Detail
                 this.Quantity = Convert.ToDecimal(data.Root.Element("alt_qty").Value);
                 this.BaseQuantity = Convert.ToDecimal(data.Root.Element("base_qty").Value);
                 this.WeightQuantity = Convert.ToDecimal(data.Root.Element("wt_qty").Value);
-                this.DetailFKRefno = Convert.ToInt32(data.Root.Element("ser_refno").Value);
-                this.ActItem.ItemFKRefno = Convert.ToInt32(data.Root.Element("itm_refno").Value);
-                this.ActItem.ActHdr.HdrFKRefno = Convert.ToInt32(data.Root.Element("hdr_refno").Value);
+                this.DetailFkRefno = Convert.ToInt32(data.Root.Element("ser_refno").Value);
+                this.ActItem.ItemFkRefno = Convert.ToInt32(data.Root.Element("itm_refno").Value);
+                this.ActItem.ActHdr.HdrFkRefno = Convert.ToInt32(data.Root.Element("hdr_refno").Value);
 
                 // Update Scheme data
                 var schemeData = new ProductSchemeData
@@ -320,9 +320,9 @@ namespace dMobile.Controller.Activity_Detail
                     ActivityDetailLogisticUnitBatchLotNumber = this.SchemeData.LogisticUnitBatchLotNumber,
                     ProductSchemeVariantCode = this.SchemeData.VariantCode,
                     ProductSchemeVariantNo = this.SchemeData.VariantNumber,
-                    ActivityDetailFKRefno = this.DetailFKRefno,
-                    ActivityItemFKRefno = this.ActItem.ItemFKRefno,
-                    ActivityHdrFKRefno = this.ActItem.ActHdr.HdrFKRefno,
+                    ActivityDetailFKRefno = this.DetailFkRefno,
+                    ActivityItemFKRefno = this.ActItem.ItemFkRefno,
+                    ActivityHdrFKRefno = this.ActItem.ActHdr.HdrFkRefno,
                 });
             }
         }
@@ -376,7 +376,7 @@ namespace dMobile.Controller.Activity_Detail
         /// </summary>
         /// <param name="selectedActivityDetail">The selectedActivityDetail<see cref="object"/>.</param>
         /// <returns>.</returns>
-        public override int GetFKRefno(object selectedActivityDetail)
+        public override int GetFkRefno(object selectedActivityDetail)
         {
             return Convert.ToInt32((selectedActivityDetail as dynamic).ActivityDetailFKRefno);
         }
@@ -680,7 +680,7 @@ namespace dMobile.Controller.Activity_Detail
         /// </summary>
         /// <param name="data">.</param>
         /// <returns>.</returns>
-        public override async Task<string> CreateDeleteXML(XDocument data)
+        public override async Task<string> CreateDeleteXml(XDocument data)
         {
             // Expecting fk_refno as input
             // int fkRefno = Convert.ToInt32(data.Root.Element("fk_refno").Value);
@@ -690,9 +690,9 @@ namespace dMobile.Controller.Activity_Detail
 
             // Set the FK refno to be the selected row
             dynamic selectedActivityItem = this.ActItem.SelectedActivityItem;
-            this.ActItem.ActHdr.HdrFKRefno = Convert.ToInt32(selectedActivityItem.ActivityHdrFKRefno);
-            this.ActItem.ItemFKRefno = Convert.ToInt32(selectedActivityItem.ActivityItemFKRefno);
-            this.DetailFKRefno = Convert.ToInt32(selectedActivityItem.ActivityDetailFKRefno);
+            this.ActItem.ActHdr.HdrFkRefno = Convert.ToInt32(selectedActivityItem.ActivityHdrFKRefno);
+            this.ActItem.ItemFkRefno = Convert.ToInt32(selectedActivityItem.ActivityItemFKRefno);
+            this.DetailFkRefno = Convert.ToInt32(selectedActivityItem.ActivityDetailFKRefno);
             var request = XDocument.Parse(
                 "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>"
                 + "<imclient>"
@@ -719,7 +719,7 @@ namespace dMobile.Controller.Activity_Detail
         /// </summary>
         /// <param name="data">.</param>
         /// <returns>.</returns>
-        public override async Task<string> CreateSubmitProductLabelXML(XDocument data)
+        public override async Task<string> CreateSubmitProductLabelXml(XDocument data)
         {
             var prnSettings = new PrinterSettings().LoadData();
             var xmlString = new StringBuilder();
@@ -751,7 +751,7 @@ namespace dMobile.Controller.Activity_Detail
         /// </summary>
         /// <param name="data">.</param>
         /// <returns>.</returns>
-        public override async Task<string> CreateSubmitXML(XDocument data)
+        public override async Task<string> CreateSubmitXml(XDocument data)
         {
             var xmlString = new StringBuilder();
             var xml = XmlWriter.Create(xmlString);
@@ -783,8 +783,8 @@ namespace dMobile.Controller.Activity_Detail
             req.AppendFormat("<whs_id>{0}</whs_id>", this.LocMap.CurrLocMap.WhsFKRefno);
             req.AppendFormat("<sect_refno>{0}</sect_refno>", this.LocMap.CurrLocMap.SectFKRefno);
             req.AppendFormat("<slot_refno>{0}</slot_refno>", this.LocMap.CurrLocMap.SlotFKRefno);
-            req.AppendFormat("<hdr_refno>{0}</hdr_refno>", this.ActItem.ActHdr.HdrFKRefno);
-            req.AppendFormat("<itm_refno>{0}</itm_refno>", this.ActItem.ItemFKRefno);
+            req.AppendFormat("<hdr_refno>{0}</hdr_refno>", this.ActItem.ActHdr.HdrFkRefno);
+            req.AppendFormat("<itm_refno>{0}</itm_refno>", this.ActItem.ItemFkRefno);
             req.AppendFormat("<prod_id>{0}</prod_id>", fromProd.Code);
             req.AppendFormat("<bc>{0}</bc>", fromProd.UnitBC);
             req.AppendFormat("<alt_unit>{0}</alt_unit>", fromProd.UnitCode);
@@ -805,8 +805,8 @@ namespace dMobile.Controller.Activity_Detail
             req.AppendFormat("<whs_id>{0}</whs_id>", this.LocMap.CurrLocMap.WhsFKRefno);
             req.AppendFormat("<sect_refno>{0}</sect_refno>", this.LocMap.CurrLocMap.SectFKRefno);
             req.AppendFormat("<slot_refno>{0}</slot_refno>", this.LocMap.CurrLocMap.SlotFKRefno);
-            req.AppendFormat("<hdr_refno>{0}</hdr_refno>", this.ActItem.ActHdr.HdrFKRefno);
-            req.AppendFormat("<itm_refno>{0}</itm_refno>", this.ActItem.ItemFKRefno);
+            req.AppendFormat("<hdr_refno>{0}</hdr_refno>", this.ActItem.ActHdr.HdrFkRefno);
+            req.AppendFormat("<itm_refno>{0}</itm_refno>", this.ActItem.ItemFkRefno);
             req.AppendFormat("<prod_id>{0}</prod_id>", toProd.Code);
             req.AppendFormat("<bc>{0}</bc>", toProd.UnitBC);
             req.AppendFormat("<alt_unit>{0}</alt_unit>", toProd.UnitCode);

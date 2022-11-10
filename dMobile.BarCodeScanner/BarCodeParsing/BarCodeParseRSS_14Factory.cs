@@ -6,6 +6,7 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
 {
     class BarCodeParseRSS_14Factory : BarCodeParseFactory
     {
+        /// <inheritdoc/>
         public override BarCodeParse GetBarCodeParse()
         {
             return new BarCodeParseRSS_14();

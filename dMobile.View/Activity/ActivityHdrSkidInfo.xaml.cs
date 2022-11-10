@@ -91,7 +91,7 @@ namespace dMobile.View.Activity
 
             // Init objects.
             this.CallingActSubType = callingActSubType;
-            this.CallingActFKRefno = activity.HdrFKRefno;
+            this.CallingActFKRefno = activity.HdrFkRefno;
 
             // Set default form flags.
             this.IsNewSkid = true;
@@ -131,8 +131,8 @@ namespace dMobile.View.Activity
 
             // Save the current location to restore it upon canceling.
             this.CallingActSubType = callingActSubType;
-            this.CallingActFKRefno = actItem.ActHdr.HdrFKRefno;
-            this.CallingActItemFKRefno = actItem.ItemFKRefno;
+            this.CallingActFKRefno = actItem.ActHdr.HdrFkRefno;
+            this.CallingActItemFKRefno = actItem.ItemFkRefno;
 
             this.IsNewSkid = true;
         }
@@ -1284,12 +1284,12 @@ namespace dMobile.View.Activity
 
                 // Create the activity skid detail, activity item.
                 var activity = ActivityFacade.GetActivity(SysCommon.ActSubTypes.SkidInfo);
-                activity.HdrFKRefno = this.SkidInfo.CurrSkid.SkidFKRefno;
+                activity.HdrFkRefno = this.SkidInfo.CurrSkid.SkidFKRefno;
                 activity.HdrRefno = this.SkidInfo.CurrSkid.SkidFKRefno;
                 activity.SkidInfo = this.SkidInfo;
 
                 var actItem = ActItemFacade.GetActItem(activity, SysCommon.ActSubTypes.SkidInfo);
-                actItem.ItemFKRefno = this.SkidInfo.CurrSkid.SkidFKRefno;
+                actItem.ItemFkRefno = this.SkidInfo.CurrSkid.SkidFKRefno;
                 actItem.ItemRefno = this.SkidInfo.CurrSkid.SkidFKRefno;
 
                 actItem.LocMap = this.LocMap;

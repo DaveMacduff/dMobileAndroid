@@ -20,12 +20,15 @@ namespace dMobile.Droid.Services
     {
         private Dictionary<string, object> barcodeReaderSettings = new Dictionary<string, object>();
         private event EventHandler OnProfileInfoRecieved;
+        /// <inheritdoc/>
         public event EventHandler ProfileDataReady;
         public BarcodeReader BarcodeReader { get; set; }
+        /// <inheritdoc/>
         public Dictionary<string, object> BarcodeReaderSettings { get => this.barcodeReaderSettings; set => this.barcodeReaderSettings = value; }
         private string packageProfileName = Android.App.Application.Context.PackageName;
         private string defaultProfileName = "DEFAULT";
 
+        /// <inheritdoc/>
         public void GetScannerProfile()
         {
             try

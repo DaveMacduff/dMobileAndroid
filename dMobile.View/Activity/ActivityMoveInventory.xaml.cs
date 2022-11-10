@@ -408,7 +408,7 @@ namespace dMobile.View.Activity
                         if (((MoveDetail)this.ActDetail.ListDetails[idx]).ActivityDetailStatus !=
                             (int)SysCommon.ActStatus.NoChange)
                         {
-                            this.ActItem.ItemFKRefno = 0;
+                            this.ActItem.ItemFkRefno = 0;
                             this.ActItem.ItemRefno = 0;
                             var prodInfo = await ProductInfoTasks.GetInfoFromUnitRefno(Convert.ToInt32(
                                 this.ActDetail.ListDetails[idx].GetType().GetProperty(
@@ -655,7 +655,7 @@ namespace dMobile.View.Activity
         {
             await this.ActDetail.AssignActivityDetail(e.SelectedItem);
             this.ActDetail.SelectedListItemIdx = e.SelectedItemIndex;
-            this.SelectedActivityDetailFKRefno = this.ActDetail.DetailFKRefno;
+            this.SelectedActivityDetailFKRefno = this.ActDetail.DetailFkRefno;
         }
 
         /// <summary>
@@ -674,7 +674,7 @@ namespace dMobile.View.Activity
                 {
                     foreach (var item in this.ActDetail.ListDetails)
                     {
-                        if (this.SelectedActivityDetailFKRefno == this.ActDetail.GetFKRefno(item))
+                        if (this.SelectedActivityDetailFKRefno == this.ActDetail.GetFkRefno(item))
                         {
                             selectedItem = item;
                             this.ActDetail.SelectedListItemIdx++;
@@ -689,12 +689,12 @@ namespace dMobile.View.Activity
                     this.ActDetail.SelectedListItemIdx = 0;
                     selectedItem = this.ActDetail.ListDetails[this.ActDetail.SelectedListItemIdx];
                     await this.ActDetail.AssignActivityDetail(selectedItem);
-                    this.SelectedActivityDetailFKRefno = this.ActDetail.DetailFKRefno;
+                    this.SelectedActivityDetailFKRefno = this.ActDetail.DetailFkRefno;
                 }
                 else
                 {
                     await this.ActDetail.AssignActivityDetail(selectedItem);
-                    this.SelectedActivityDetailFKRefno = this.ActDetail.DetailFKRefno;
+                    this.SelectedActivityDetailFKRefno = this.ActDetail.DetailFkRefno;
                 }
 
                 Device.BeginInvokeOnMainThread(() =>
@@ -708,7 +708,7 @@ namespace dMobile.View.Activity
                 // Clear the activity nothing can be selected.
                 this.ActDetail.SelectedListItemIdx = -1;
                 this.ActDetail.SelectedActivityDetail = null;
-                this.ActDetail.DetailFKRefno = 0;
+                this.ActDetail.DetailFkRefno = 0;
                 this.ActDetail.DetailRefno = 0;
                 this.SelectedActivityDetailFKRefno = 0;
                 Device.BeginInvokeOnMainThread(() =>
@@ -1021,8 +1021,8 @@ namespace dMobile.View.Activity
                 this.ActDetail.Quantity = 0;
                 this.ActDetail.BaseQuantity = 0;
                 this.ActDetail.WeightQuantity = 0;
-                this.ActDetail.SchemeID = string.Empty;
-                this.ActDetail.UniqueSchemeID = string.Empty;
+                this.ActDetail.SchemeId = string.Empty;
+                this.ActDetail.UniqueSchemeId = string.Empty;
                 this.ActDetail.ActExtra.Text1 = string.Empty;
                 this.ActDetail.ActExtra.Text2 = string.Empty;
                 this.ActDetail.ActExtra.Text3 = string.Empty;
@@ -1078,7 +1078,7 @@ namespace dMobile.View.Activity
         {
             if (isInsertDetailReady)
             {
-                actDetail.DetailFKRefno = 0;
+                actDetail.DetailFkRefno = 0;
                 ////var xmlDoc = this.ActDetail.GetXML(this.ActDetail);
                 ////await this.ActDetail.Insert(xmlDoc);
                 var detailIdx = this.ActDetail.FindListDetailIndex(activityDetailRefno: actDetail.DetailRefno);

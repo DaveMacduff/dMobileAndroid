@@ -22,17 +22,14 @@ namespace dMobile.Resources.QueryResults
     // + "AND tProductUnitBarCode.ProductUnitBarCodeModifier1 = ?";
     public class ProductUnitBarcodeQueryResult
     {
-        private int productSchemeRefno;
-        private string unitCode;
-
         public int ProductUnitRefno { get; set; }
         public int ProductUnitBarCodeRefno { get; set; }
         public int WarehouseProductSchemeRefno { get; set; }
-        public int ProductSchemeRefno { get => this.productSchemeRefno; set => this.productSchemeRefno = value; }
+        public int ProductSchemeRefno { get; set; }
         public string ProductCode { get; set; }
         public string ProductDescription { get; set; }
         public string ProductUnitBC { get; set; }
-        public string UnitCode { get => this.unitCode; set => this.unitCode = value; }
+        public string UnitCode { get; set; }
     }
 }
 

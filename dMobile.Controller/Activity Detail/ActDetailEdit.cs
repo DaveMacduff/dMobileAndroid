@@ -116,7 +116,7 @@ namespace dMobile.Controller.Activity_Detail
         /// </summary>
         /// <param name="detailEdit"><see cref="ActDetailEdit"/> Activity detail edit object.</param>
         /// <returns><see cref="XDocument"/> Activity detail edit XML data.</returns>
-        public Task<XDocument> GetXMLFromActivityDetailEdit(ActDetailEdit detailEdit)
+        public Task<XDocument> GetXmlFromActivityDetailEdit(ActDetailEdit detailEdit)
         {
             var isBatchPrintProductLabel = SysEnvironment.GetInstance().SysSettings.IsPrintProductLabelsAsBatch;
 

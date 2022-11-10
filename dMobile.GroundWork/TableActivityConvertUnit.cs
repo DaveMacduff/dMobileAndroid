@@ -23,6 +23,7 @@ namespace dMobile.GroundWork
         ///
         /// </summary>
         /// <remarks></remarks>
+        /// <inheritdoc/>
         public override async Task PurgeData()
         {
             try

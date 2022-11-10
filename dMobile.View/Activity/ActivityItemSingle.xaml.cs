@@ -492,62 +492,62 @@ namespace dMobile.View.Activity
             {
                 case SysCommon.ActSubTypes.PhysicalCounts:
 
-                    desc = string.Format("Count # {0}", this.ActItem.ActHdr.HdrFKRefno);
+                    desc = string.Format("Count # {0}", this.ActItem.ActHdr.HdrFkRefno);
                     break;
 
                 case SysCommon.ActSubTypes.Receiving:
 
-                    desc = string.Format("Receive # {0}", this.ActItem.ActHdr.HdrFKRefno);
+                    desc = string.Format("Receive # {0}", this.ActItem.ActHdr.HdrFkRefno);
                     break;
 
                 case SysCommon.ActSubTypes.Picking:
 
-                    desc = string.Format("Pick # {0}", this.ActItem.ActHdr.HdrFKRefno);
+                    desc = string.Format("Pick # {0}", this.ActItem.ActHdr.HdrFkRefno);
                     break;
 
                 case SysCommon.ActSubTypes.TransferFrom:
 
-                    desc = string.Format("Transfer from # {0}", this.ActItem.ActHdr.HdrFKRefno);
+                    desc = string.Format("Transfer from # {0}", this.ActItem.ActHdr.HdrFkRefno);
                     break;
 
                 case SysCommon.ActSubTypes.TransferTo:
 
-                    desc = string.Format("Transfer to # {0}", this.ActItem.ActHdr.HdrFKRefno);
+                    desc = string.Format("Transfer to # {0}", this.ActItem.ActHdr.HdrFkRefno);
                     break;
 
                 case SysCommon.ActSubTypes.Returns:
 
-                    desc = string.Format("Return # {0}", this.ActItem.ActHdr.HdrFKRefno);
+                    desc = string.Format("Return # {0}", this.ActItem.ActHdr.HdrFkRefno);
                     break;
 
                 case SysCommon.ActSubTypes.CycleCounts:
 
-                    desc = string.Format("Count # {0}", this.ActItem.ActHdr.HdrFKRefno);
+                    desc = string.Format("Count # {0}", this.ActItem.ActHdr.HdrFkRefno);
                     break;
 
                 case SysCommon.ActSubTypes.Adjustment:
 
-                    desc = string.Format("Adjustment # {0}", this.ActItem.ActHdr.HdrFKRefno);
+                    desc = string.Format("Adjustment # {0}", this.ActItem.ActHdr.HdrFkRefno);
                     break;
 
                 case SysCommon.ActSubTypes.TicketFinished:
 
-                    desc = string.Format("Ticket Finished # {0}", this.ActItem.ActHdr.HdrFKRefno);
+                    desc = string.Format("Ticket Finished # {0}", this.ActItem.ActHdr.HdrFkRefno);
                     break;
 
                 case SysCommon.ActSubTypes.TicketMaterial:
 
-                    desc = string.Format("Ticket Material # {0}", this.ActItem.ActHdr.HdrFKRefno);
+                    desc = string.Format("Ticket Material # {0}", this.ActItem.ActHdr.HdrFkRefno);
                     break;
 
                 case SysCommon.ActSubTypes.TicketAddProduct:
 
-                    desc = string.Format("Ticket Add-Product # {0}", this.ActItem.ActHdr.HdrFKRefno);
+                    desc = string.Format("Ticket Add-Product # {0}", this.ActItem.ActHdr.HdrFkRefno);
                     break;
 
                 case SysCommon.ActSubTypes.PickingSingle:
 
-                    desc = string.Format("Pick # {0}", this.ActItem.ActHdr.HdrFKRefno);
+                    desc = string.Format("Pick # {0}", this.ActItem.ActHdr.HdrFkRefno);
                     break;
 
                 default:
@@ -829,7 +829,7 @@ namespace dMobile.View.Activity
                         + "<command>"
                         + "<action>SUBMIT PRINT ALL SKID LABELS</action>"
                         + "<whs_id>" + this.LocMap.CurrLocMap.WhsFKRefno + "</whs_id>"
-                        + "<fk_refno>" + this.ActHdr.HdrFKRefno + "</fk_refno>"
+                        + "<fk_refno>" + this.ActHdr.HdrFkRefno + "</fk_refno>"
                         + "<fk_source>PO</fk_source>"
                         + "</command>"
                         + "</imclient>");
@@ -1032,7 +1032,7 @@ namespace dMobile.View.Activity
                             foundSelectedActivityItem = this.ActItem.ListItems.OfType<object>().FirstOrDefault(
                                 activityItem =>
                                     Convert.ToString(activityItem.GetType()
-                                        .GetProperty(this.ActItem.GetDataViewSortFKRefnoIdx())
+                                        .GetProperty(this.ActItem.GetDataViewSortFkRefnoIdx())
                                         ?.GetValue(activityItem)) ==
                                     Convert.ToString(scanArgs.ParseInfo.ActItemFKRefno));
 
@@ -1051,7 +1051,7 @@ namespace dMobile.View.Activity
                                 if (scanArgs != null)
                                 {
                                     throw new MessageOnlyException(
-                                        this.ActItem.GetUnableToFindItemFKRefnoMessage(
+                                        this.ActItem.GetUnableToFindItemFkRefnoMessage(
                                             scanArgs.ParseInfo.ActItemFKRefno));
                                 }
                             }
@@ -1068,14 +1068,14 @@ namespace dMobile.View.Activity
                         else
                         {
                             tempItemSchemeData =
-                                await this.ActItem.GetProdSchemeDataFromDetailFKRefno(
+                                await this.ActItem.GetProdSchemeDataFromDetailFkRefno(
                                     int.Parse(barCodeParse.ActDetailFKRefno));
                             foundSelectedActivityItem = this.ActItem.ListItems.OfType<object>().FirstOrDefault(
                                 activityItem =>
                                     Convert.ToString(activityItem.GetType()
-                                        .GetProperty(this.ActItem.GetDataViewSortFKRefnoIdx())
+                                        .GetProperty(this.ActItem.GetDataViewSortFkRefnoIdx())
                                         ?.GetValue(activityItem)) ==
-                                    Convert.ToString(tempItemSchemeData.ActItemFKRefno.ToString()));
+                                    Convert.ToString(tempItemSchemeData.ActItemFkRefno.ToString()));
 
                             if (foundSelectedActivityItem != null)
                             {
@@ -1093,7 +1093,7 @@ namespace dMobile.View.Activity
                             else
                             {
                                 throw new MessageOnlyException(
-                                    this.ActItem.GetUnableToFindItemFKRefnoMessage(scanArgs.ParseInfo.ActItemFKRefno));
+                                    this.ActItem.GetUnableToFindItemFkRefnoMessage(scanArgs.ParseInfo.ActItemFKRefno));
                             }
                         }
                     }
@@ -1272,10 +1272,10 @@ namespace dMobile.View.Activity
                         var xmlParam = XDocument.Parse(
                             "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>"
                             + "<imclient>"
-                            + "<itm_refno>" + this.ActItem.ItemFKRefno + "</itm_refno>"
+                            + "<itm_refno>" + this.ActItem.ItemFkRefno + "</itm_refno>"
                             + "<alt_qty>" + this.ActHdr.SkidInfo.CurrSkid.Quantity + "</alt_qty>"
                             + "<wt_qty>" + this.ActHdr.SkidInfo.CurrSkid.WeightQuantity + "</wt_qty>"
-                            + "<ActivityDetailUniqueSchemeID>" + actDetail.UniqueSchemeID + "</ActivityDetailUniqueSchemeID>"
+                            + "<ActivityDetailUniqueSchemeID>" + actDetail.UniqueSchemeId + "</ActivityDetailUniqueSchemeID>"
                             + "</imclient>");
 
                         await this.ActItem.IsReadyToApply(xmlParam);
@@ -1631,7 +1631,7 @@ namespace dMobile.View.Activity
         {
             if (isInsertDetailReady)
             {
-                var xmlDoc = actDetail.GetXML(actDetail);
+                var xmlDoc = actDetail.GetXml(actDetail);
                 await actDetail.Insert(xmlDoc);
 
                 // Upon a save of completed data update the data view to to show new item
@@ -1766,7 +1766,7 @@ namespace dMobile.View.Activity
                                         + "<params>"
                                         + await SysCommon.GetRequestDefaults(false)
                                         + "<whs_id>" + this.LocMap.CurrLocMap.WhsFKRefno + "</whs_id>"
-                                        + "<itm_refno>" + this.ActItem.ItemFKRefno + "</itm_refno>"
+                                        + "<itm_refno>" + this.ActItem.ItemFkRefno + "</itm_refno>"
                                         + "<sect_refno>" + this.LocMap.CurrLocMap.SectFKRefno + "</sect_refno>"
                                         + "<full_alt_qty>" + labelQuantity.FullQuantity + "</full_alt_qty>"
                                         + "<repack_alt_qty>0</repack_alt_qty>"
@@ -1796,7 +1796,7 @@ namespace dMobile.View.Activity
                                 + "<params>"
                                 + await SysCommon.GetRequestDefaults(false)
                                 + "<whs_id>" + this.LocMap.CurrLocMap.WhsFKRefno + "</whs_id>"
-                                + "<itm_refno>" + this.ActItem.ItemFKRefno + "</itm_refno>"
+                                + "<itm_refno>" + this.ActItem.ItemFkRefno + "</itm_refno>"
                                 + "<sect_refno>" + this.LocMap.CurrLocMap.SectFKRefno + "</sect_refno>"
                                 + "<full_alt_qty>" + labelQuantity.FullQuantity + "</full_alt_qty>"
                                 + "<repack_alt_qty>0</repack_alt_qty>"
@@ -1876,7 +1876,7 @@ namespace dMobile.View.Activity
 
             try
             {
-                await this.ActItem.Refresh(this.ActHdr.XMLDataCriteria);
+                await this.ActItem.Refresh(this.ActHdr.XmlDataCriteria);
             }
             catch (Exception ex)
             {
@@ -2475,10 +2475,10 @@ namespace dMobile.View.Activity
                         var xmlParam = XDocument.Parse(
                             "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>"
                             + "<imclient>"
-                            + "<itm_refno>" + this.ActItem.ItemFKRefno + "</itm_refno>"
+                            + "<itm_refno>" + this.ActItem.ItemFkRefno + "</itm_refno>"
                             + "<alt_qty>" + this.ActHdr.SkidInfo.CurrSkid.Quantity + "</alt_qty>"
                             + "<wt_qty>" + this.ActHdr.SkidInfo.CurrSkid.WeightQuantity + "</wt_qty>"
-                            + "<ActivityDetailUniqueSchemeID>" + actDetail.UniqueSchemeID + "</ActivityDetailUniqueSchemeID>"
+                            + "<ActivityDetailUniqueSchemeID>" + actDetail.UniqueSchemeId + "</ActivityDetailUniqueSchemeID>"
                             + "</imclient>");
 
                         await this.ActItem.IsReadyToApply(xmlParam);

@@ -44,11 +44,11 @@ namespace dMobile.Controller.Activity
                     },
                 };
 
-                var stringFKRefno = new Label { VerticalOptions = LayoutOptions.Center };
+                var stringFkRefno = new Label { VerticalOptions = LayoutOptions.Center };
                 var orderedDateTime = new Label { VerticalOptions = LayoutOptions.Center };
                 var deliveryDateTime = new Label { VerticalOptions = LayoutOptions.Center };
 
-                stringFKRefno.SetBinding(Label.TextProperty, new Binding("ActivityStringFKRefno"));
+                stringFkRefno.SetBinding(Label.TextProperty, new Binding("ActivityStringFKRefno"));
                 orderedDateTime.SetBinding(Label.TextProperty, new Binding(
                     "ActivityReturnsOrderedDateTime",
                     BindingMode.Default,
@@ -59,11 +59,11 @@ namespace dMobile.Controller.Activity
                     Label.TextProperty,
                     new Binding("ActivityReturnsDeliveryDateTime", BindingMode.Default, null, null, "{0:MM/dd/yyyy}"));
 
-                gridData.Children.Add(stringFKRefno);
+                gridData.Children.Add(stringFkRefno);
                 gridData.Children.Add(orderedDateTime);
                 gridData.Children.Add(deliveryDateTime);
 
-                Grid.SetColumn(stringFKRefno, 0);
+                Grid.SetColumn(stringFkRefno, 0);
                 Grid.SetColumn(orderedDateTime, 1);
                 Grid.SetColumn(deliveryDateTime, 2);
 
@@ -105,7 +105,7 @@ namespace dMobile.Controller.Activity
         /// The GetFKRefnoIdx.
         /// </summary>
         /// <returns>.</returns>
-        public override string GetFKRefnoIdx()
+        public override string GetFkRefnoIdx()
         {
             return "ActivityStringFKRefno";
         }
@@ -355,7 +355,7 @@ namespace dMobile.Controller.Activity
             if (selectedActivity is Return header)
             {
                 this.SelectedActivity = header;
-                this.HdrFKRefno = header.ActivityFKRefno;
+                this.HdrFkRefno = header.ActivityFKRefno;
                 this.HdrRefno = header.ActivityRefno;
 
                 if (this.SysEnv.SysSettings.IsDefaultLocToProductDefaultLoc)
@@ -393,7 +393,7 @@ namespace dMobile.Controller.Activity
         {
             if (selectedItem is Return returns)
             {
-                this.HdrFKRefno = Convert.ToInt32(returns.ActivityFKRefno);
+                this.HdrFkRefno = Convert.ToInt32(returns.ActivityFKRefno);
                 this.HdrRefno = Convert.ToInt32(returns.ActivityRefno);
             }
 
@@ -481,10 +481,10 @@ namespace dMobile.Controller.Activity
         /// </summary>
         /// <param name="resourceType"><see cref="object"/> Resource model (tActivity??Model).</param>
         /// <returns><see cref="int"/> Found activity foreign key refno, else 0 if not found.</returns>
-        public override int GetFKRefno(object resourceType)
+        public override int GetFkRefno(object resourceType)
         {
-            object tmpFKRefno = ((Return)resourceType).ActivityFKRefno;
-            return tmpFKRefno == null ? 0 : Convert.ToInt32(tmpFKRefno);
+            object tmpFkRefno = ((Return)resourceType).ActivityFKRefno;
+            return tmpFkRefno == null ? 0 : Convert.ToInt32(tmpFkRefno);
         }
 
         /// <summary>

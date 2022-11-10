@@ -35,33 +35,27 @@ namespace dMobile.Resources.QueryResults
     // "AND tUnit.UnitCode = ?";
     public class ProductInfoQueryResult
     {
-        private int productFKRefno;
-        private string productUnitSizeDescription;
-        private bool productIsCatchWeight;
-        private bool productUnitIsSellUnit;
-        private decimal productUnitWeightTolerance;
-
         public int ProductUnitRefno { get; set; }
         public int ProductRefno { get; set; }
-        public int ProductFKRefno { get => this.productFKRefno; set => this.productFKRefno = value; }
+        public int ProductFKRefno { get; set; }
         public string ProductCode { get; set; }
         public string ProductDescription { get; set; }
         public string UnitCode { get; set; }
         public string BaseUnitCode { get; set; }
         public string WeightUnitCode { get; set; }
-        public string ProductUnitSizeDescription { get => this.productUnitSizeDescription; set => this.productUnitSizeDescription = value; }
+        public string ProductUnitSizeDescription { get; set; }
         public bool ProductUnitIsBC { get; set; }
         public string ProductUnitBC { get; set; }
         public bool ProductIsCatchAsk { get; set; }
         public bool ProductIsCatchAskZero { get; set; }
         public bool ProductAllowConvertProduct { get; set; }
         public bool ProductIsCatchCount { get; set; }
-        public bool ProductIsCatchWeight { get => this.productIsCatchWeight; set => this.productIsCatchWeight = value; }
+        public bool ProductIsCatchWeight { get; set; }
         public decimal ProductUnitWeight { get; set; }
         public string ProductBrandDescription { get; set; }
         public bool ProductUnitIsDefault { get; set; }
-        public bool ProductUnitIsSellUnit { get => this.productUnitIsSellUnit; set => this.productUnitIsSellUnit = value; }
+        public bool ProductUnitIsSellUnit { get; set; }
         public decimal ProductUnitBoxCount { get; set; }
-        public decimal ProductUnitWeightTolerance { get => this.productUnitWeightTolerance; set => this.productUnitWeightTolerance = value; }
+        public decimal ProductUnitWeightTolerance { get; set; }
     }
 }

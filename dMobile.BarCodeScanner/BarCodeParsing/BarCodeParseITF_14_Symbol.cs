@@ -52,6 +52,7 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
         /// </summary>
         /// <param name="barCodeData"></param>
         /// <returns></returns>
+        /// <inheritdoc/>
         protected override string IdentifyPackagingType(string barCodeData)
         {
             var strBarCodeData = barCodeData;
@@ -69,6 +70,7 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
         /// </summary>
         /// <param name="barCodeData"></param>
         /// <returns></returns>
+        /// <inheritdoc/>
         protected override string IdentifyProductIdentifier(string barCodeData)
         {
             if (this.Settings.IsRuleEnabled_NoZeroPaddingOfProductIdentifierForUCC_EAN_Family)
@@ -90,6 +92,7 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
         /// </summary>
         /// <param name="barCodeData"></param>
         /// <returns></returns>
+        /// <inheritdoc/>
         protected override string IdentifyCompanyPrefix(string barCodeData)
         {
             var strBarCodeData = barCodeData;
@@ -107,6 +110,7 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
         /// </summary>
         /// <param name="barCodeData"></param>
         /// <returns></returns>
+        /// <inheritdoc/>
         protected override string IdentifyItemReference(string barCodeData)
         {
             this.ItemReference = barCodeData.Substring(0, 5);
@@ -122,6 +126,7 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
         /// </summary>
         /// <param name="barCodeData"></param>
         /// <returns></returns>
+        /// <inheritdoc/>
         protected override string IdentifyGTIN(string barCodeData)
         {
             this.GTIN = barCodeData.Substring(0, 14);

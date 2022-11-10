@@ -50,22 +50,22 @@ namespace dMobile.Controller.Activity_Detail
                 var labelQty = new Label { VerticalOptions = LayoutOptions.Center };
                 var labelWeight = new Label { VerticalOptions = LayoutOptions.Center };
                 var labelUnitCode = new Label { VerticalOptions = LayoutOptions.Center };
-                var labelSchemeID = new Label { VerticalOptions = LayoutOptions.Center };
+                var labelSchemeId = new Label { VerticalOptions = LayoutOptions.Center };
 
                 labelQty.SetBinding(Label.TextProperty, new Binding("ActivityDetailQuantity", BindingMode.Default, null, null, "{0:F3}"));
                 labelWeight.SetBinding(Label.TextProperty, new Binding("ActivityDetailWeightQuantity", BindingMode.Default, null, null, "{0:F3}"));
                 labelUnitCode.SetBinding(Label.TextProperty, new Binding("UnitCode"));
-                labelSchemeID.SetBinding(Label.TextProperty, new Binding("ActivityDetailSchemeID"));
+                labelSchemeId.SetBinding(Label.TextProperty, new Binding("ActivityDetailSchemeID"));
 
                 gridData.Children.Add(labelQty);
                 gridData.Children.Add(labelWeight);
                 gridData.Children.Add(labelUnitCode);
-                gridData.Children.Add(labelSchemeID);
+                gridData.Children.Add(labelSchemeId);
 
                 Grid.SetColumn(labelQty, 0);
                 Grid.SetColumn(labelWeight, 1);
                 Grid.SetColumn(labelUnitCode, 2);
-                Grid.SetColumn(labelSchemeID, 3);
+                Grid.SetColumn(labelSchemeId, 3);
 
                 return new ViewCell { View = gridData };
             });
@@ -132,7 +132,7 @@ namespace dMobile.Controller.Activity_Detail
             {
                 detail = new CountDetail();
                 detail.ActivityDetailRefno = this.DetailRefno;
-                detail.ActivityDetailFKRefno = this.DetailFKRefno;
+                detail.ActivityDetailFKRefno = this.DetailFkRefno;
 
                 this.InsertListDetailProduct(detail);
                 this.InsertListDetailQuantity(detail);
@@ -140,8 +140,8 @@ namespace dMobile.Controller.Activity_Detail
                 this.InsertListDetailExtra(detail);
                 this.InsertListDetailLocation(detail);
 
-                detail.ActivityDetailSchemeID = this.SchemeID;
-                detail.ActivityDetailUniqueSchemeID = this.UniqueSchemeID;
+                detail.ActivityDetailSchemeID = this.SchemeId;
+                detail.ActivityDetailUniqueSchemeID = this.UniqueSchemeId;
                 detail.ActivityDetailStatus = (int)SysCommon.ActStatus.Inserted;
                 this.ListDetails.Add(detail);
             }
@@ -170,6 +170,7 @@ namespace dMobile.Controller.Activity_Detail
         /// 
         /// </summary>
         /// <param name="skidInfo"></param>
+        /// <inheritdoc/>
         public override async Task InsertSkid(SysSkidInfo skidInfo)
         {
             var request = XDocument.Parse(
@@ -178,7 +179,7 @@ namespace dMobile.Controller.Activity_Detail
                 + "<skid_data>" + skidInfo.CurrSkid.SkidCode + "</skid_data>"
                 + "</params>");
 
-            var xmlSend = await this.CreateSubmitXML(request);
+            var xmlSend = await this.CreateSubmitXml(request);
             var reqData = SysCommon.SubmitComm(xmlSend);
 
             if (reqData.Length > 0)
@@ -201,8 +202,8 @@ namespace dMobile.Controller.Activity_Detail
                 }
 
                 this.IsUpdateView = true;
-                this.DetailFKRefno = int.Parse(xmlDoc.DocumentElement["ser_refno"].InnerText);
-                this.ActItem.ItemFKRefno = int.Parse(xmlDoc.DocumentElement["itm_refno"].InnerText);
+                this.DetailFkRefno = int.Parse(xmlDoc.DocumentElement["ser_refno"].InnerText);
+                this.ActItem.ItemFkRefno = int.Parse(xmlDoc.DocumentElement["itm_refno"].InnerText);
                 this.Quantity = decimal.Parse(xmlDoc.DocumentElement["alt_qty"].InnerText);
                 this.BaseQuantity = decimal.Parse(xmlDoc.DocumentElement["base_qty"].InnerText);
                 this.WeightQuantity = decimal.Parse(xmlDoc.DocumentElement["wt_qty"].InnerText);
@@ -213,11 +214,12 @@ namespace dMobile.Controller.Activity_Detail
         ///
         /// </summary>
         /// <param name="skidInfo"></param>
+        /// <inheritdoc/>
         public override async Task DeleteSkid(SysSkidInfo skidInfo)
         {
             if (!this.SysEnv.SysSettings.IsDisconnectedMode)
             {
-                var xmlDelete = await this.CreateDeleteXML(XDocument.Parse("<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?><params></params>"));
+                var xmlDelete = await this.CreateDeleteXml(XDocument.Parse("<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?><params></params>"));
 
                 var reqData = SysCommon.SubmitComm(xmlDelete);
 
@@ -249,7 +251,7 @@ namespace dMobile.Controller.Activity_Detail
         /// <returns>The <see cref="Task"/>.</returns>
         public override async Task Insert(XDocument data)
         {
-            await this.FillActDetailObjFromXML(data);
+            await this.FillActDetailObjFromXml(data);
 
             if (this.SysEnv.SysSettings.IsDisconnectedMode)
             {
@@ -260,7 +262,7 @@ namespace dMobile.Controller.Activity_Detail
                 var rowsAffected = await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(
                     query,
                     Convert.ToInt32(actDetailRefno),
-                    Convert.ToInt32(this.DetailFKRefno));
+                    Convert.ToInt32(this.DetailFkRefno));
                 if (rowsAffected <= 0)
                 {
                     throw new Exception("Unable to insert activity detail in disconnected mode.");
@@ -270,7 +272,7 @@ namespace dMobile.Controller.Activity_Detail
             }
             else
             {
-                this.SubmitDetailToCommServer(await this.CreateSubmitXML(XDocument.Parse(
+                this.SubmitDetailToCommServer(await this.CreateSubmitXml(XDocument.Parse(
                     "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?><params></params>")));
                 if (this.DetailRefno >= 0)
                 {
@@ -282,8 +284,8 @@ namespace dMobile.Controller.Activity_Detail
                             " ActivityItemFKRefno = ? WHERE ActivityItemRefno = ?";
                 var rowsAffected = await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(
                     query,
-                    Convert.ToString(this.ActItem.ItemFKRefno),
-                    this.ActItem.ItemFKRefno,
+                    Convert.ToString(this.ActItem.ItemFkRefno),
+                    this.ActItem.ItemFkRefno,
                     this.ActItem.ItemRefno);
                 if (rowsAffected <= 0)
                 {
@@ -316,8 +318,8 @@ namespace dMobile.Controller.Activity_Detail
                 }
                 else if (foundItem.ActivityItemRefno == this.ActItem.ItemRefno)
                 {
-                    foundItem.ActivityItemFKRefno = this.ActItem.ItemFKRefno;
-                    foundItem.ActivityItemStringFKRefno = Convert.ToString(this.ActItem.ItemFKRefno);
+                    foundItem.ActivityItemFKRefno = this.ActItem.ItemFkRefno;
+                    foundItem.ActivityItemStringFKRefno = Convert.ToString(this.ActItem.ItemFkRefno);
                 }
                 else
                 {
@@ -329,11 +331,12 @@ namespace dMobile.Controller.Activity_Detail
         /// <summary>
         ///
         /// </summary>
+        /// <inheritdoc/>
         public override async Task<int> Delete()
         {
             if (!this.SysEnv.SysSettings.IsDisconnectedMode)
             {
-                var xmlDelete = await this.CreateDeleteXML(XDocument.Parse("<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?><params></params>"));
+                var xmlDelete = await this.CreateDeleteXml(XDocument.Parse("<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?><params></params>"));
                 var reqData = SysCommon.SubmitComm(xmlDelete);
 
                 if (reqData.Length > 0)
@@ -366,7 +369,7 @@ namespace dMobile.Controller.Activity_Detail
             // string oldSort = this.DataViewDetails.Sort;
             // this.DataViewDetails.Sort = "ActivityDetailFKRefno";
             // int rowIdx = this.DataViewDetails.Find(this.FKRefno);
-            var countDetail = this.ListDetails.OfType<CountDetail>().Where(countDetail => countDetail.ActivityDetailFKRefno == this.DetailFKRefno).FirstOrDefault();
+            var countDetail = this.ListDetails.OfType<CountDetail>().Where(countDetail => countDetail.ActivityDetailFKRefno == this.DetailFkRefno).FirstOrDefault();
 
             if (countDetail != null)
             {
@@ -397,10 +400,11 @@ namespace dMobile.Controller.Activity_Detail
         /// </summary>
         /// <param name="rowIdx"></param>
         /// <param name="data"></param>
+        /// <inheritdoc/>
         public override async Task Submit(object selectedActivityDetail, XDocument data)
         {
             var xmlDoc = new XmlDocument();
-            var xmlSend = await this.CreateSubmitXML(XDocument.Parse("<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?><params></params>"));
+            var xmlSend = await this.CreateSubmitXml(XDocument.Parse("<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?><params></params>"));
 
             var reqData = SysCommon.SubmitComm(xmlSend);
 
@@ -424,11 +428,11 @@ namespace dMobile.Controller.Activity_Detail
                 }
                 else
                 {
-                    this.DetailFKRefno = int.Parse(xmlDoc.DocumentElement["ser_refno"].InnerText);
+                    this.DetailFkRefno = int.Parse(xmlDoc.DocumentElement["ser_refno"].InnerText);
 
                     if (selectedActivityDetail is CountDetail countDetail)
                     {
-                        countDetail.ActivityDetailFKRefno = this.DetailFKRefno;
+                        countDetail.ActivityDetailFKRefno = this.DetailFkRefno;
                         countDetail.ActivityDetailStatus = Convert.ToInt32(SysCommon.ActStatus.NoChange);
                     }
 
@@ -440,6 +444,7 @@ namespace dMobile.Controller.Activity_Detail
         /// <summary>
         ///
         /// </summary>
+        /// <inheritdoc/>
         public override async Task Refresh()
         {
             if (this.SysEnv.SysSettings.IsDisconnectedMode)
@@ -465,6 +470,7 @@ namespace dMobile.Controller.Activity_Detail
         /// </summary>
         /// <param name="idx"></param>
         /// <returns></returns>
+        /// <inheritdoc/>
         public override int GetRefno(object selectedActivityDetail)
         {
             return (selectedActivityDetail as CountDetail).ActivityDetailRefno;
@@ -475,7 +481,8 @@ namespace dMobile.Controller.Activity_Detail
         /// </summary>
         /// <param name="selectedIndex"></param>
         /// <returns></returns>
-        public override int GetFKRefno(object selectedActivityDetail)
+        /// <inheritdoc/>
+        public override int GetFkRefno(object selectedActivityDetail)
         {
             return (selectedActivityDetail as CountDetail).ActivityDetailFKRefno;
         }
@@ -485,6 +492,7 @@ namespace dMobile.Controller.Activity_Detail
         /// </summary>
         /// <param name="isSubmitBatch"></param>
         /// <returns></returns>
+        /// <inheritdoc/>
         public override async Task<List<object>> GetActivityDetailList(bool isSubmitBatch)
         {
             var sql = new StringBuilder();
@@ -834,6 +842,7 @@ namespace dMobile.Controller.Activity_Detail
             return this.ListDetails;
         }
 
+        /// <inheritdoc/>
         public override ObservableCollection<object> DesignGrid(ref Grid gridMain, ref ListView listViewMain)
         {
             var observableCollection = new ObservableCollection<object>();
@@ -892,12 +901,12 @@ namespace dMobile.Controller.Activity_Detail
             var labelQtyHeader = new Label { Text = "Qty", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
             var labelWeightHeader = new Label { Text = "Weight", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
             var labelUnitCodeHeader = new Label { Text = string.Empty, VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
-            var labelSchemeIDHeader = new Label { Text = "Scheme ID", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
+            var labelSchemeIdHeader = new Label { Text = "Scheme ID", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
 
             this.ColumnWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(labelQtyHeader.Text);
             this.ColumnWidth1 = DependencyService.Get<IGridService>().CalculateTextWidth(labelWeightHeader.Text);
             this.ColumnWidth2 = DependencyService.Get<IGridService>().CalculateTextWidth(labelUnitCodeHeader.Text);
-            this.ColumnWidth3 = DependencyService.Get<IGridService>().CalculateTextWidth(labelSchemeIDHeader.Text);
+            this.ColumnWidth3 = DependencyService.Get<IGridService>().CalculateTextWidth(labelSchemeIdHeader.Text);
 
             // Header grid
             var gridHeader = new Grid
@@ -918,12 +927,12 @@ namespace dMobile.Controller.Activity_Detail
             gridHeader.Children.Add(labelQtyHeader);
             gridHeader.Children.Add(labelWeightHeader);
             gridHeader.Children.Add(labelUnitCodeHeader);
-            gridHeader.Children.Add(labelSchemeIDHeader);
+            gridHeader.Children.Add(labelSchemeIdHeader);
 
             Grid.SetColumn(labelQtyHeader, 0);
             Grid.SetColumn(labelWeightHeader, 1);
             Grid.SetColumn(labelUnitCodeHeader, 2);
-            Grid.SetColumn(labelSchemeIDHeader, 3);
+            Grid.SetColumn(labelSchemeIdHeader, 3);
 
             Grid.SetRow(gridHeader, 0);
 
@@ -971,6 +980,7 @@ namespace dMobile.Controller.Activity_Detail
         /// </summary>
         /// <param name="searchText"></param>
         /// <returns></returns>
+        /// <inheritdoc/>
         public override ObservableCollection<object> Search(string searchText)
         {
             var observableCollection = new ObservableCollection<object>();
@@ -1045,7 +1055,8 @@ namespace dMobile.Controller.Activity_Detail
         /// </summary>
         /// <param name="data"></param>
         /// <returns></returns>
-        public override async Task<string> CreateSubmitXML(XDocument data)
+        /// <inheritdoc/>
+        public override async Task<string> CreateSubmitXml(XDocument data)
         {
             var xmlString = new StringBuilder();
             var xml = XmlWriter.Create(xmlString);
@@ -1102,8 +1113,8 @@ namespace dMobile.Controller.Activity_Detail
                     + "<whs_id>" + this.LocMap.CurrLocMap.WhsFKRefno + "</whs_id>"
                     + "<sect_refno>" + this.LocMap.CurrLocMap.SectFKRefno + "</sect_refno>"
                     + "<slot_refno>" + this.LocMap.CurrLocMap.SlotFKRefno + "</slot_refno>"
-                    + "<refno>" + this.ActItem.ActHdr.HdrFKRefno + "</refno>"
-                    + "<itm_refno>" + this.ActItem.ItemFKRefno + "</itm_refno>"
+                    + "<refno>" + this.ActItem.ActHdr.HdrFkRefno + "</refno>"
+                    + "<itm_refno>" + this.ActItem.ItemFkRefno + "</itm_refno>"
                     + "<is_negate_qty>false</is_negate_qty>"
                     + "<extra1>" + this.ActExtra.Text1 + "</extra1>"
                     + "<extra2>" + this.ActExtra.Text2 + "</extra2>"
@@ -1125,7 +1136,8 @@ namespace dMobile.Controller.Activity_Detail
         /// </summary>
         /// <param name="data"></param>
         /// <returns></returns>
-        public override async Task<string> CreateDeleteXML(XDocument data)
+        /// <inheritdoc/>
+        public override async Task<string> CreateDeleteXml(XDocument data)
         {
             var xmlString = new StringBuilder();
             var xml = XmlWriter.Create(xmlString);
@@ -1161,8 +1173,8 @@ namespace dMobile.Controller.Activity_Detail
                     + "<whs_id>" + this.LocMap.CurrLocMap.WhsFKRefno + "</whs_id>"
                     + "<sect_refno>" + this.LocMap.CurrLocMap.SectFKRefno + "</sect_refno>"
                     + "<slot_refno>" + this.LocMap.CurrLocMap.SlotFKRefno + "</slot_refno>"
-                    + "<refno>" + this.ActItem.ActHdr.HdrFKRefno + "</refno>"
-                    + "<itm_refno>" + this.ActItem.ItemFKRefno + "</itm_refno>"
+                    + "<refno>" + this.ActItem.ActHdr.HdrFkRefno + "</refno>"
+                    + "<itm_refno>" + this.ActItem.ItemFkRefno + "</itm_refno>"
                     + "<is_negate_qty>false</is_negate_qty>"
                     + "</imclient>");
             }
@@ -1180,7 +1192,7 @@ namespace dMobile.Controller.Activity_Detail
         /// <returns><see cref="string"/> Get activity item control description.</returns>
         public override string GetControlDescription()
         {
-            return string.Format("Physical count # {0}", this.ActItem.ActHdr.HdrFKRefno);
+            return string.Format("Physical count # {0}", this.ActItem.ActHdr.HdrFkRefno);
         }
 
         /// <summary>
@@ -1200,12 +1212,12 @@ namespace dMobile.Controller.Activity_Detail
             var labelQtyHeader = new Label { Text = "Qty", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
             var labelWeightHeader = new Label { Text = "Weight", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
             var labelUnitCodeHeader = new Label { Text = string.Empty, VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
-            var labelSchemeIDHeader = new Label { Text = "Scheme ID", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
+            var labelSchemeIdHeader = new Label { Text = "Scheme ID", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
 
             this.ColumnWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(labelQtyHeader.Text);
             this.ColumnWidth1 = DependencyService.Get<IGridService>().CalculateTextWidth(labelWeightHeader.Text);
             this.ColumnWidth2 = DependencyService.Get<IGridService>().CalculateTextWidth(labelUnitCodeHeader.Text);
-            this.ColumnWidth3 = DependencyService.Get<IGridService>().CalculateTextWidth(labelSchemeIDHeader.Text);
+            this.ColumnWidth3 = DependencyService.Get<IGridService>().CalculateTextWidth(labelSchemeIdHeader.Text);
 
             // Header grid
             var gridHeader = new Grid
@@ -1225,12 +1237,12 @@ namespace dMobile.Controller.Activity_Detail
             gridHeader.Children.Add(labelQtyHeader);
             gridHeader.Children.Add(labelWeightHeader);
             gridHeader.Children.Add(labelUnitCodeHeader);
-            gridHeader.Children.Add(labelSchemeIDHeader);
+            gridHeader.Children.Add(labelSchemeIdHeader);
 
             Grid.SetColumn(labelQtyHeader, 0);
             Grid.SetColumn(labelWeightHeader, 1);
             Grid.SetColumn(labelUnitCodeHeader, 2);
-            Grid.SetColumn(labelSchemeIDHeader, 3);
+            Grid.SetColumn(labelSchemeIdHeader, 3);
 
             Grid.SetRow(gridHeader, 0);
 

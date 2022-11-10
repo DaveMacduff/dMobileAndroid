@@ -25,6 +25,7 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
         /// </summary>
         /// <param name="barCodeData"></param>
         /// <returns></returns>
+        /// <inheritdoc/>
         protected override string IdentifyProductIdentifier(string barCodeData)
         {
             this.ProductIdentifier = barCodeData;

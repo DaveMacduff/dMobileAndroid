@@ -90,6 +90,7 @@ namespace dMobile.View.Options
             MessagingCenter.Unsubscribe<string>(this, EventTypes.OnKeyUp.ToString());
         }
 
+        /// <inheritdoc/>
         protected override bool OnBackButtonPressed()
         {
             Device.BeginInvokeOnMainThread(async () =>
@@ -164,6 +165,7 @@ namespace dMobile.View.Options
         /// </summary>
         /// <returns></returns>
         /// <remarks></remarks>
+        /// <inheritdoc/>
         public async Task<bool> IsReadyToSave()
         {
             var isReadyToSave = true;
@@ -208,6 +210,7 @@ namespace dMobile.View.Options
         /// </summary>
         /// <returns></returns>
         /// <remarks></remarks>
+        /// <inheritdoc/>
         public async Task<bool> SaveChanges()
         {
             var isSaveComplete = false;
@@ -260,6 +263,7 @@ namespace dMobile.View.Options
         /// </summary>
         /// <returns></returns>
         /// <remarks></remarks>
+        /// <inheritdoc/>
         public async Task<bool> IsReadyToClose()
         {
             var isReadyToClose = true;
@@ -316,6 +320,7 @@ namespace dMobile.View.Options
         /// </summary>
         /// <returns></returns>
         /// <remarks></remarks>
+        /// <inheritdoc/>
         public async Task<bool> CancelChanges()
         {
             var cancelChanges = true;
@@ -372,6 +377,7 @@ namespace dMobile.View.Options
         /// </summary>
         /// <returns></returns>
         /// <remarks></remarks>
+        /// <inheritdoc/>
         public async Task<XDocument> GetXML()
         {
             var xmldocParams = XDocument.Parse(
@@ -592,6 +598,7 @@ namespace dMobile.View.Options
         /// <param name="sysSocketEventPublisher"></param>
         /// <param name="sysSocketEventArgs"></param>
         /// <remarks></remarks>
+        /// <inheritdoc/>
         public void OnSysSocketStatusOut(ISysSocketEventPublisher sysSocketEventPublisher, SysSocketEventArgs sysSocketEventArgs)
         {
             this.AddCommMsg(this, null, sysSocketEventArgs.StatusOutMsg);

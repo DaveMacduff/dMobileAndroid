@@ -484,7 +484,7 @@ namespace dMobile.View.Activity
 
                         // CreateSubmitProductLabelXML assumes actItem and
                         // Loc.sSelectedLocationMap is correct
-                        sendReq = await this.ActDetail.CreateSubmitProductLabelXML(request);
+                        sendReq = await this.ActDetail.CreateSubmitProductLabelXml(request);
                         errDetail = string.Empty;
                         data = SysCommon.SubmitComm(sendReq);
                         if (data.Length > 0)
@@ -1146,7 +1146,7 @@ namespace dMobile.View.Activity
                                 + "<action>SUBMIT SALES ORDER DETAIL CONFIRM</action>"
                                 + "</command>"
                                 + await SysCommon.GetRequestDefaults(false)
-                                + "<refno>" + this.ActDetail.DetailFKRefno + "</refno>"
+                                + "<refno>" + this.ActDetail.DetailFkRefno + "</refno>"
                                 + "</imclient>");
                         }
                         else if (this.ActSubType == SysCommon.ActSubTypes.TransferFrom)
@@ -1158,7 +1158,7 @@ namespace dMobile.View.Activity
                                 + "<action>SUBMIT TRANSFER FROM DETAIL CONFIRM</action>"
                                 + "</command>"
                                 + await SysCommon.GetRequestDefaults(false)
-                                + "<refno>" + this.ActDetail.DetailFKRefno + "</refno>"
+                                + "<refno>" + this.ActDetail.DetailFkRefno + "</refno>"
                                 + "</imclient>");
                         }
                         else if (this.ActSubType == SysCommon.ActSubTypes.TransferTo)
@@ -1170,7 +1170,7 @@ namespace dMobile.View.Activity
                                 + "<action>SUBMIT TRANSFER TO DETAIL CONFIRM</action>"
                                 + "</command>"
                                 + await SysCommon.GetRequestDefaults(false)
-                                + "<refno>" + this.ActDetail.DetailFKRefno + "</refno>"
+                                + "<refno>" + this.ActDetail.DetailFkRefno + "</refno>"
                                 + "</imclient>");
                         }
                         else
@@ -1270,7 +1270,7 @@ namespace dMobile.View.Activity
         {
             await this.ActDetail.AssignActivityDetail(e.SelectedItem);
             this.ActDetail.SelectedListItemIdx = e.SelectedItemIndex;
-            this.SelectedActivityDetailFKRefno = this.ActDetail.DetailFKRefno;
+            this.SelectedActivityDetailFKRefno = this.ActDetail.DetailFkRefno;
             await this.DisplayDataItem();
         }
 
@@ -1291,7 +1291,7 @@ namespace dMobile.View.Activity
 
             this.Loading = true;
             var prodUnitRefno = 0;
-            var svdActDetailFKRefno = this.ActDetail.DetailFKRefno;
+            var svdActDetailFKRefno = this.ActDetail.DetailFkRefno;
             var parse = scanArgs.ParseInfo;
 
             try
@@ -1463,7 +1463,7 @@ namespace dMobile.View.Activity
                         }
 
                         // Insert a new activity detail record
-                        this.ActDetail.UniqueSchemeID = ProductInfoTasks.GetUniqueSchemeIDFromSProdSchemeData(
+                        this.ActDetail.UniqueSchemeId = ProductInfoTasks.GetUniqueSchemeIDFromSProdSchemeData(
                             this.ActDetail.ActItem.ProdInfo.Code,
                             this.ActDetail.ActItem.ProdInfo.Scheme,
                             this.ActDetail.SchemeData);
@@ -1472,10 +1472,10 @@ namespace dMobile.View.Activity
                         var xmlParam = XDocument.Parse(
                         "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>"
                         + "<imclient>"
-                        + "<itm_refno>" + this.ActDetail.ActItem.ItemFKRefno + "</itm_refno>"
+                        + "<itm_refno>" + this.ActDetail.ActItem.ItemFkRefno + "</itm_refno>"
                         + "<alt_qty>" + this.ActDetail.ActItem.ActHdr.SkidInfo.CurrSkid.Quantity + "</alt_qty>"
                         + "<wt_qty>" + this.ActDetail.ActItem.ActHdr.SkidInfo.CurrSkid.WeightQuantity + "</wt_qty>"
-                        + "<ActivityDetailUniqueSchemeID>" + this.ActDetail.UniqueSchemeID + "</ActivityDetailUniqueSchemeID>"
+                        + "<ActivityDetailUniqueSchemeID>" + this.ActDetail.UniqueSchemeId + "</ActivityDetailUniqueSchemeID>"
                         + "</imclient>");
 
                         await this.ActDetail.ActItem.IsReadyToApply(xmlParam);
@@ -1816,7 +1816,7 @@ namespace dMobile.View.Activity
                 {
                     foreach (var item in this.ActDetail.ListDetails)
                     {
-                        if (this.SelectedActivityDetailFKRefno == this.ActDetail.GetFKRefno(item))
+                        if (this.SelectedActivityDetailFKRefno == this.ActDetail.GetFkRefno(item))
                         {
                             selectedItem = item;
                             this.ActDetail.SelectedListItemIdx++;
@@ -1831,12 +1831,12 @@ namespace dMobile.View.Activity
                     this.ActDetail.SelectedListItemIdx = 0;
                     selectedItem = this.ActDetail.ListDetails[this.ActDetail.SelectedListItemIdx];
                     await this.ActDetail.AssignActivityDetail(selectedItem);
-                    this.SelectedActivityDetailFKRefno = this.ActDetail.DetailFKRefno;
+                    this.SelectedActivityDetailFKRefno = this.ActDetail.DetailFkRefno;
                 }
                 else
                 {
                     await this.ActDetail.AssignActivityDetail(selectedItem);
-                    this.SelectedActivityDetailFKRefno = this.ActDetail.DetailFKRefno;
+                    this.SelectedActivityDetailFKRefno = this.ActDetail.DetailFkRefno;
                 }
 
                 Device.BeginInvokeOnMainThread(() =>
@@ -1850,7 +1850,7 @@ namespace dMobile.View.Activity
                 // Clear the activity nothing can be selected.
                 this.ActDetail.SelectedListItemIdx = -1;
                 this.ActDetail.SelectedActivityDetail = null;
-                this.ActDetail.DetailFKRefno = 0;
+                this.ActDetail.DetailFkRefno = 0;
                 this.ActDetail.DetailRefno = 0;
                 this.SelectedActivityDetailFKRefno = 0;
                 Device.BeginInvokeOnMainThread(() =>
@@ -1889,8 +1889,8 @@ namespace dMobile.View.Activity
         /// <returns>The <see cref="Task"/>.</returns>
         private async Task InsertActivityDetail(ActDetail actDetail)
         {
-            actDetail.DetailFKRefno = 0;
-            var xmlDoc = actDetail.GetXML(actDetail);
+            actDetail.DetailFkRefno = 0;
+            var xmlDoc = actDetail.GetXml(actDetail);
             await actDetail.Insert(xmlDoc);
 
             var detailIdx = this.ActDetail.FindListDetailIndex(activityDetailRefno: actDetail.DetailRefno);
@@ -2320,8 +2320,8 @@ namespace dMobile.View.Activity
                 this.ActDetail.Quantity = 0;
                 this.ActDetail.BaseQuantity = 0;
                 this.ActDetail.WeightQuantity = 0;
-                this.ActDetail.SchemeID = string.Empty;
-                this.ActDetail.UniqueSchemeID = string.Empty;
+                this.ActDetail.SchemeId = string.Empty;
+                this.ActDetail.UniqueSchemeId = string.Empty;
                 this.ActDetail.ActExtra.Text1 = string.Empty;
                 this.ActDetail.ActExtra.Text2 = string.Empty;
                 this.ActDetail.ActExtra.Text3 = string.Empty;
@@ -2611,7 +2611,7 @@ namespace dMobile.View.Activity
                             "Yes",
                             "No")))
                     {
-                        this.ActDetail.UniqueSchemeID = ProductInfoTasks.GetUniqueSchemeIDFromSProdSchemeData(
+                        this.ActDetail.UniqueSchemeId = ProductInfoTasks.GetUniqueSchemeIDFromSProdSchemeData(
                             this.ActDetail.ActItem.ProdInfo.Code,
                             this.ActDetail.ActItem.ProdInfo.Scheme,
                             this.ActDetail.SchemeData);
@@ -2621,10 +2621,10 @@ namespace dMobile.View.Activity
                         var xmlParam = XDocument.Parse(
                             "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>"
                             + "<imclient>"
-                            + "<itm_refno>" + this.ActDetail.ActItem.ItemFKRefno + "</itm_refno>"
+                            + "<itm_refno>" + this.ActDetail.ActItem.ItemFkRefno + "</itm_refno>"
                             + "<alt_qty>" + this.ActDetail.ActItem.ActHdr.SkidInfo.CurrSkid.Quantity + "</alt_qty>"
                             + "<wt_qty>" + this.ActDetail.ActItem.ActHdr.SkidInfo.CurrSkid.WeightQuantity + "</wt_qty>"
-                            + "<ActivityDetailUniqueSchemeID>" + this.ActDetail.UniqueSchemeID + "</ActivityDetailUniqueSchemeID>"
+                            + "<ActivityDetailUniqueSchemeID>" + this.ActDetail.UniqueSchemeId + "</ActivityDetailUniqueSchemeID>"
                             + "</imclient>");
 
                         await this.ActDetail.ActItem.IsReadyToApply(xmlParam);

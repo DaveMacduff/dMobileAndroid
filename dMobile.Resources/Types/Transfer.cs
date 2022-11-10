@@ -8,19 +8,15 @@ namespace dMobile.Resources.Types
 
     public class Transfer
     {
-        private int activityStatus;
-        private string locationMapWarehouseName;
-        private DateTime activityTransferDateTime;
-
         public int ActivityRefno { get; set; }
         public int ActivityFKRefno { get; set; }
         public int LocationMapRefno { get; set; }
         public int LocationMapWarehouseFKRefno { get; set; }
-        public int ActivityStatus { get => this.activityStatus; set => this.activityStatus = value; }
+        public int ActivityStatus { get; set; }
         public string ActivityStringFKRefno { get; set; }
         public string ActivityTransferDescription { get; set; }
-        public string LocationMapWarehouseName { get => this.locationMapWarehouseName; set => this.locationMapWarehouseName = value; }
+        public string LocationMapWarehouseName { get; set; }
         public DateTime ActivityTransferArrivalDateTime { get; set; }
-        public DateTime ActivityTransferDateTime { get => this.activityTransferDateTime; set => this.activityTransferDateTime = value; }
+        public DateTime ActivityTransferDateTime { get; set; }
     }
 }

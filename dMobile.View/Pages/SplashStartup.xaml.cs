@@ -106,6 +106,7 @@ namespace dMobile.View.Pages
         /// </summary>
         /// <returns></returns>
         /// <remarks></remarks>
+        /// <inheritdoc/>
         public async Task<bool> IsReadyToSave()
         {
             var isReadyToSave = true;
@@ -117,6 +118,7 @@ namespace dMobile.View.Pages
         /// </summary>
         /// <returns></returns>
         /// <remarks></remarks>
+        /// <inheritdoc/>
         public async Task<bool> IsReadyToClose()
         {
             return true;
@@ -137,6 +139,7 @@ namespace dMobile.View.Pages
         /// </summary>
         /// <returns></returns>
         /// <remarks></remarks>
+        /// <inheritdoc/>
         public async Task<bool> SaveChanges()
         {
             return true;
@@ -147,6 +150,7 @@ namespace dMobile.View.Pages
         /// </summary>
         /// <returns></returns>
         /// <remarks></remarks>
+        /// <inheritdoc/>
         public async Task<bool> CancelChanges()
         {
             return true;
@@ -157,6 +161,7 @@ namespace dMobile.View.Pages
         /// </summary>
         /// <returns></returns>
         /// <remarks></remarks>
+        /// <inheritdoc/>
         public async Task<XDocument> GetXML()
         {
             var doc = XDocument.Parse(
@@ -167,6 +172,7 @@ namespace dMobile.View.Pages
             return doc;
         }
 
+        /// <inheritdoc/>
         public void OnNubStatOut(
             IDataNubPublisher databaseNubEventPublisher,
             DataNubEventArgs databaseNubEventArgs)

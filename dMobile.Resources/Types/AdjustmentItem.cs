@@ -12,26 +12,22 @@ namespace dMobile.Resources.Types
 
     public class AdjustmentItem
     {
-        private int activityItemStatus;
-        private decimal activityItemAdjustmentWeightQuantity;
-        private string locationName;
-
         public int ActivityItemRefno { get; set; }
         public int ActivityItemFKRefno { get; set; }
         public int ProductUnitRefno { get; set; }
         public int ProductRefno { get; set; }
         public int LocationMapRefno { get; set; }
         public int LocationCode { get; set; }
-        public int ActivityItemStatus { get => this.activityItemStatus; set => this.activityItemStatus = value; }
+        public int ActivityItemStatus { get; set; }
         public decimal ActivityItemAdjustmentQuantity { get; set; }
         public decimal ActivityItemAdjustmentBaseQuantity { get; set; }
-        public decimal ActivityItemAdjustmentWeightQuantity { get => this.activityItemAdjustmentWeightQuantity; set => this.activityItemAdjustmentWeightQuantity = value; }
+        public decimal ActivityItemAdjustmentWeightQuantity { get; set; }
         public string ActivityItemStringFKRefno { get; set; }
         public string ProductUnitBC { get; set; }
         public string ProductUnitSizeDescription { get; set; }
         public string ProductCode { get; set; }
         public string ProductDescription { get; set; }
         public string UnitCode { get; set; }
-        public string LocationName { get => this.locationName; set => this.locationName = value; }
+        public string LocationName { get; set; }
     }
 }

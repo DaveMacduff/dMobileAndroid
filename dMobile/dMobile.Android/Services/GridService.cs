@@ -17,6 +17,7 @@ namespace dMobile.Droid.Services
 {
     public class GridService : IGridService
     {
+        /// <inheritdoc/>
         public double CalculateTextWidth(string text)
         {
             var bounds = new Android.Graphics.Rect();

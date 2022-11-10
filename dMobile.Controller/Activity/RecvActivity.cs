@@ -69,7 +69,7 @@ namespace dMobile.Controller.Activity
                     },
                 };
 
-                var labelActivityReceivingPONumber = new Label
+                var labelActivityReceivingPoNumber = new Label
                 {
                     VerticalOptions = LayoutOptions.Center,
                     HorizontalOptions = LayoutOptions.Start,
@@ -87,7 +87,7 @@ namespace dMobile.Controller.Activity
                     HorizontalOptions = LayoutOptions.Start,
                 };
 
-                labelActivityReceivingPONumber.SetBinding(Label.TextProperty, new Binding("ActivityReceivingPONumber"));
+                labelActivityReceivingPoNumber.SetBinding(Label.TextProperty, new Binding("ActivityReceivingPONumber"));
                 labelActivityReceivingIssuedDateTime.SetBinding(
                     Label.TextProperty,
                     new Binding("ActivityReceivingIssuedDateTime", BindingMode.Default, null, null, "{0:MM/dd/yyyy}"));
@@ -95,11 +95,11 @@ namespace dMobile.Controller.Activity
                     Label.TextProperty,
                     new Binding("ActivityReceivingArrivalDateTime", BindingMode.Default, null, null, "{0:MM/dd/yyyy}"));
 
-                gridData.Children.Add(labelActivityReceivingPONumber);
+                gridData.Children.Add(labelActivityReceivingPoNumber);
                 gridData.Children.Add(labelActivityReceivingIssuedDateTime);
                 gridData.Children.Add(labelActivityReceivingArrivalDateTime);
 
-                Grid.SetColumn(labelActivityReceivingPONumber, 0);
+                Grid.SetColumn(labelActivityReceivingPoNumber, 0);
                 Grid.SetColumn(labelActivityReceivingIssuedDateTime, 1);
                 Grid.SetColumn(labelActivityReceivingArrivalDateTime, 2);
 
@@ -124,13 +124,13 @@ namespace dMobile.Controller.Activity
         /// <summary>
         /// Gets or sets the PONO.
         /// </summary>
-        public string PONO { get; set; } = string.Empty;
+        public string Pono { get; set; } = string.Empty;
 
         /// <summary>
         /// The GetFKRefnoIdx.
         /// </summary>
         /// <returns>.</returns>
-        public override string GetFKRefnoIdx()
+        public override string GetFkRefnoIdx()
         {
             return "ActivityStringFKRefno";
         }
@@ -152,7 +152,7 @@ namespace dMobile.Controller.Activity
         /// <returns>The <see cref="ObservableCollection{object}"/>.</returns>
         public override ObservableCollection<object> DesignGrid(ref Grid gridMainActivity, ref ListView listViewMainActivity)
         {
-            var labelPOReceiving = new Label
+            var labelPoReceiving = new Label
             {
                 Text = "PO #",
                 VerticalOptions = LayoutOptions.Center,
@@ -176,7 +176,7 @@ namespace dMobile.Controller.Activity
                 FontAttributes = FontAttributes.Bold,
             };
 
-            this.columnWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(labelPOReceiving.Text);
+            this.columnWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(labelPoReceiving.Text);
             this.columnWidth1 = DependencyService.Get<IGridService>().CalculateTextWidth(labelIssuedReceiving.Text);
             this.columnWidth2 = DependencyService.Get<IGridService>().CalculateTextWidth(labelArrivedReceiving.Text);
             var gridHeader = new Grid
@@ -192,11 +192,11 @@ namespace dMobile.Controller.Activity
 
             gridHeader.SetDynamicResource(VisualElement.BackgroundColorProperty, "HeaderColor");
 
-            gridHeader.Children.Add(labelPOReceiving);
+            gridHeader.Children.Add(labelPoReceiving);
             gridHeader.Children.Add(labelIssuedReceiving);
             gridHeader.Children.Add(labelArrivedReceiving);
 
-            Grid.SetColumn(labelPOReceiving, 0);
+            Grid.SetColumn(labelPoReceiving, 0);
             Grid.SetColumn(labelIssuedReceiving, 1);
             Grid.SetColumn(labelArrivedReceiving, 2);
 
@@ -388,6 +388,7 @@ namespace dMobile.Controller.Activity
         /// </summary>
         /// <param name="searchText"></param>
         /// <returns></returns>
+        /// <inheritdoc/>
         public override ObservableCollection<object> Search(string searchText)
         {
             var observableCollection = new ObservableCollection<object>();
@@ -412,7 +413,7 @@ namespace dMobile.Controller.Activity
             if (selectedActivity is Receive header)
             {
                 this.SelectedActivity = header;
-                this.HdrFKRefno = header.ActivityFKRefno;
+                this.HdrFkRefno = header.ActivityFKRefno;
                 this.HdrRefno = header.ActivityRefno;
 
                 if (this.SysEnv.SysSettings.IsDefaultLocToProductDefaultLoc)
@@ -451,9 +452,9 @@ namespace dMobile.Controller.Activity
         {
             if (selectedItem is Receive receive)
             {
-                this.HdrFKRefno = Convert.ToInt32(receive.ActivityFKRefno);
+                this.HdrFkRefno = Convert.ToInt32(receive.ActivityFKRefno);
                 this.HdrRefno = Convert.ToInt32(receive.ActivityRefno);
-                this.PONO = Convert.ToString(receive.ActivityReceivingPONumber);
+                this.Pono = Convert.ToString(receive.ActivityReceivingPONumber);
             }
 
             return this.HdrRefno;
@@ -569,10 +570,10 @@ namespace dMobile.Controller.Activity
         /// </summary>
         /// <param name="resourceType"><see cref="object"/> Resource model (tActivity??Model).</param>
         /// <returns><see cref="int"/> Found activity foreign key refno, else 0 if not found.</returns>
-        public override int GetFKRefno(object resourceType)
+        public override int GetFkRefno(object resourceType)
         {
-            object tmpFKRefno = ((Receive)resourceType).ActivityFKRefno;
-            return tmpFKRefno == null ? 0 : Convert.ToInt32(tmpFKRefno);
+            object tmpFkRefno = ((Receive)resourceType).ActivityFKRefno;
+            return tmpFkRefno == null ? 0 : Convert.ToInt32(tmpFkRefno);
         }
 
         /// <summary>

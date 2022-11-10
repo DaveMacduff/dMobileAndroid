@@ -42,6 +42,7 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
         /// </summary>
         /// <param name="barCodeData"></param>
         /// <returns></returns>
+        /// <inheritdoc/>
         protected override string IdentifyManufacturerSerialNumber(string barCodeData)
         {
             this.ManufacturerSerialNumber = Convert.ToInt64(barCodeData.Substring(0, 9));
@@ -57,6 +58,7 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
         /// </summary>
         /// <param name="barCodeData"></param>
         /// <returns></returns>
+        /// <inheritdoc/>
         protected override string IdentifyPackagingType(string barCodeData)
         {
             this.PackagingType = Convert.ToInt32(barCodeData.Substring(0, 1));
@@ -72,6 +74,7 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
         /// </summary>
         /// <param name="barCodeData"></param>
         /// <returns></returns>
+        /// <inheritdoc/>
         protected override string IdentifyProductIdentifier(string barCodeData)
         {
             this.ProductIdentifier = barCodeData;
@@ -85,6 +88,7 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
         /// </summary>
         /// <param name="barCodeData"></param>
         /// <returns></returns>
+        /// <inheritdoc/>
         protected override string IdentifyCompanyPrefix(string barCodeData)
         {
             this.CompanyPrefix = barCodeData.Substring(0, 7);
@@ -100,6 +104,7 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
         /// </summary>
         /// <param name="barCodeData"></param>
         /// <returns></returns>
+        /// <inheritdoc/>
         protected override string IdentifySSCC18(string barCodeData)
         {
             if (barCodeData.StartsWith("00") && barCodeData.Length >= 18)

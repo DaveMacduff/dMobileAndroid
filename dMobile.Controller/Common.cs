@@ -22,7 +22,7 @@ namespace dMobile.Controller
         /// </summary>
         /// <param name="data"><see cref="XDocument"/> Scheme data.</param>
         /// <returns><see cref="ProductSchemeData"/> Product scheme data.</returns>
-        public static ProductSchemeData FillSProductSchemeDataFromXML(XDocument data)
+        public static ProductSchemeData FillSProductSchemeDataFromXml(XDocument data)
         {
             var schemeData = new ProductSchemeData
             {
@@ -46,11 +46,11 @@ namespace dMobile.Controller
         /// </summary>
         /// <param name="data"><see cref="XDocument"/> Scheme data.</param>
         /// <returns><see cref="ActItemSchemeData"/> Activity item, product scheme data.</returns>
-        public static ActItemSchemeData FillSActItemSchemeDataFromXML(XDocument data)
+        public static ActItemSchemeData FillSActItemSchemeDataFromXml(XDocument data)
         {
             var actItemSchemeData = new ActItemSchemeData
             {
-                ProdSchemeData = FillSProductSchemeDataFromXML(data),
+                ProdSchemeData = FillSProductSchemeDataFromXml(data),
                 ActDetailBaseQuantity = decimal.Parse(data.Root.Element("base_qty").Value),
                 ActDetailQuantity = decimal.Parse(data.Root.Element("alt_qty").Value),
                 ActDetailWeightQuantity = decimal.Parse(data.Root.Element("wt_qty").Value),

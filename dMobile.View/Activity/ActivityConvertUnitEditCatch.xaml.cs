@@ -104,6 +104,7 @@ namespace dMobile.View.Activity
         /// </summary>
         /// <returns></returns>
         /// <remarks></remarks>
+        /// <inheritdoc/>
         public async Task<bool> IsReadyToSave()
         {
             var isReadyToSave = false;
@@ -140,12 +141,12 @@ namespace dMobile.View.Activity
                 await ValidateQuantity();
 
                 var prodInfo = this.ActDetail.ActItem.ProdInfo;
-                this.ActDetail.UniqueSchemeID = ProductInfoTasks.GetUniqueSchemeIDFromSProdSchemeData(
+                this.ActDetail.UniqueSchemeId = ProductInfoTasks.GetUniqueSchemeIDFromSProdSchemeData(
                     prodInfo.Code,
                     prodInfo.Scheme,
                     this.ActDetail.SchemeData);
 
-                this.ActDetail.SchemeID = ProductInfoTasks.GetActSchemeIDFromSProdSchemeData(
+                this.ActDetail.SchemeId = ProductInfoTasks.GetActSchemeIDFromSProdSchemeData(
                     prodInfo.Code,
                     prodInfo.Scheme,
                     this.ActDetail.SchemeData);
@@ -155,11 +156,11 @@ namespace dMobile.View.Activity
                 var xmlParam = XDocument.Parse(
                     "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>"
                     + "<imclient>"
-                    + "<itm_refno>" + this.ActDetail.ActItem.ItemFKRefno + "</itm_refno>"
+                    + "<itm_refno>" + this.ActDetail.ActItem.ItemFkRefno + "</itm_refno>"
                     + "<alt_qty>" + this.ActDetailEdit.AltQuantity + "</alt_qty>"
                     + "<wt_qty>" + this.ActDetailEdit.WeightQuantity + "</wt_qty>"
                     + "<ActivityDetailUniqueSchemeID>" +
-                        this.ActDetail.UniqueSchemeID +
+                        this.ActDetail.UniqueSchemeId +
                         "</ActivityDetailUniqueSchemeID>"
                     + "</imclient>");
 
@@ -530,6 +531,7 @@ namespace dMobile.View.Activity
         /// </summary>
         /// <returns></returns>
         /// <remarks></remarks>
+        /// <inheritdoc/>
         public async Task<bool> IsReadyToClose()
         {
             var isReadyToClose = false;
@@ -592,6 +594,7 @@ namespace dMobile.View.Activity
         /// </summary>
         /// <returns></returns>
         /// <remarks></remarks>
+        /// <inheritdoc/>
         public async Task<bool> SaveChanges()
         {
             var saveComplete = false;
@@ -630,6 +633,7 @@ namespace dMobile.View.Activity
         /// </summary>
         /// <returns></returns>
         /// <remarks></remarks>
+        /// <inheritdoc/>
         public async Task<bool> CancelChanges()
         {
             var cancelChanges = true;
@@ -668,6 +672,7 @@ namespace dMobile.View.Activity
         /// </summary>
         /// <returns></returns>
         /// <remarks></remarks>
+        /// <inheritdoc/>
         public async Task<XDocument> GetXML()
         {
             var unqScheme = ProductInfoTasks.GetUniqueSchemeIDFromSProdSchemeData(
@@ -733,6 +738,7 @@ namespace dMobile.View.Activity
             base.OnDisappearing();
         }
 
+        /// <inheritdoc/>
         protected override bool OnBackButtonPressed()
         {
             Device.BeginInvokeOnMainThread(async () =>

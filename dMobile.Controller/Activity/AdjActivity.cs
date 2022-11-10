@@ -44,11 +44,11 @@ namespace dMobile.Controller.Activity
                     },
                 };
 
-                var labelActivityStringFKRefno = new Label { VerticalOptions = LayoutOptions.Center };
+                var labelActivityStringFkRefno = new Label { VerticalOptions = LayoutOptions.Center };
                 var labelActivityAdjustmentDateTime = new Label { VerticalOptions = LayoutOptions.Center };
                 var labelActivityAdjustmentDescription = new Label { VerticalOptions = LayoutOptions.Center };
 
-                labelActivityStringFKRefno.SetBinding(
+                labelActivityStringFkRefno.SetBinding(
                     Label.TextProperty,
                     new Binding("ActivityStringFKRefno"));
                 labelActivityAdjustmentDateTime.SetBinding(
@@ -58,11 +58,11 @@ namespace dMobile.Controller.Activity
                     Label.TextProperty,
                     new Binding("ActivityAdjustmentDescription"));
 
-                gridData.Children.Add(labelActivityStringFKRefno, 0, 0);
+                gridData.Children.Add(labelActivityStringFkRefno, 0, 0);
                 gridData.Children.Add(labelActivityAdjustmentDateTime, 0, 0);
                 gridData.Children.Add(labelActivityAdjustmentDescription, 0, 0);
 
-                Grid.SetColumn(labelActivityStringFKRefno, 0);
+                Grid.SetColumn(labelActivityStringFkRefno, 0);
                 Grid.SetColumn(labelActivityAdjustmentDateTime, 1);
                 Grid.SetColumn(labelActivityAdjustmentDescription, 2);
 
@@ -122,7 +122,7 @@ namespace dMobile.Controller.Activity
         /// Get the activity header foreign key reference index name.
         /// </summary>
         /// <returns><see cref="string"/> Index name.</returns>
-        public override string GetFKRefnoIdx()
+        public override string GetFkRefnoIdx()
         {
             return "ActivityStringFKRefno";
         }
@@ -376,7 +376,7 @@ namespace dMobile.Controller.Activity
             if (selectedActivity is Adjustment header)
             {
                 this.SelectedActivity = header;
-                this.HdrFKRefno = header.ActivityFKRefno;
+                this.HdrFkRefno = header.ActivityFKRefno;
                 this.HdrRefno = header.ActivityRefno;
 
                 if (this.SysEnv.SysSettings.IsDefaultLocToProductDefaultLoc)
@@ -426,7 +426,7 @@ namespace dMobile.Controller.Activity
         {
             if (selectedItem is Adjustment adjustment)
             {
-                this.HdrFKRefno = Convert.ToInt32(adjustment.ActivityFKRefno);
+                this.HdrFkRefno = Convert.ToInt32(adjustment.ActivityFKRefno);
                 this.HdrRefno = Convert.ToInt32(adjustment.ActivityRefno);
             }
 
@@ -526,8 +526,8 @@ namespace dMobile.Controller.Activity
             if (this.AdjSettings.AdjustmentType == SysCommon.AdjTypes.Debox && !this.SysEnv.SysSettings.IsDisconnectedMode)
             {
                 var sLocMapAndRefno = await LocationMapTasks.GetSLocMapFromLocMapFkRefno(
-                    int.Parse(this.XMLDataCriteria.Root.Element("whs_id").Value),
-                    int.Parse(this.XMLDataCriteria.Root.Element("sect_refno").Value),
+                    int.Parse(this.XmlDataCriteria.Root.Element("whs_id").Value),
+                    int.Parse(this.XmlDataCriteria.Root.Element("sect_refno").Value),
                     slotLocMapFkRefno: 0);
                 var locMap = sLocMapAndRefno.SLocMap;
                 var prnSettings = new PrinterSettings().LoadData();
@@ -544,7 +544,7 @@ namespace dMobile.Controller.Activity
                     + "<action>SUBMIT PRINT DEBOX PRODUCT LABEL</action>"
                     + "</command>"
                     + await SysCommon.GetRequestDefaults(false)
-                    + "<refno>" + this.HdrFKRefno + "</refno>"
+                    + "<refno>" + this.HdrFkRefno + "</refno>"
                     + "<whs_id>" + locMap.WhsFKRefno + "</whs_id>"
                     + "<sect_refno>" + locMap.SectFKRefno + "</sect_refno>"
                     + "<label_qty>" + labelQuantity + "</label_qty>"
@@ -564,13 +564,13 @@ namespace dMobile.Controller.Activity
                             docError.LoadXml(reqData);
                             throw new MessageOnlyException(string.Format(
                                 "Order# {0} print shipping label(s) failed." + Environment.NewLine + "{1}",
-                                this.HdrFKRefno,
+                                this.HdrFkRefno,
                                 docError.DocumentElement["detail"].InnerText));
                         }
                     }
                     else
                     {
-                        throw new Exception(string.Format("Order# {0} Print shipping label(s) failed.", this.HdrFKRefno));
+                        throw new Exception(string.Format("Order# {0} Print shipping label(s) failed.", this.HdrFkRefno));
                     }
                 }
             }
@@ -594,7 +594,7 @@ namespace dMobile.Controller.Activity
                       + "<action>COMPLETE DEBOX ADJUSTMENT</action>"
                       + "</command>"
                       + await SysCommon.GetRequestDefaults(false)
-                      + "<refno>" + this.HdrFKRefno + "</refno>"
+                      + "<refno>" + this.HdrFkRefno + "</refno>"
                       + "</imclient>";
 
                 var reqData = SysCommon.SubmitComm(xml);
@@ -626,10 +626,10 @@ namespace dMobile.Controller.Activity
         /// </summary>
         /// <param name="resourceType"><see cref="object"/> Resource model type (tActivity??Model).</param>
         /// <returns><see cref="int"/> Found activity foreign key refno, else 0 if not found.</returns>
-        public override int GetFKRefno(object resourceType)
+        public override int GetFkRefno(object resourceType)
         {
-            object tmpFKRefno = ((Adjustment)resourceType).ActivityFKRefno;
-            return tmpFKRefno == null ? 0 : Convert.ToInt32(tmpFKRefno);
+            object tmpFkRefno = ((Adjustment)resourceType).ActivityFKRefno;
+            return tmpFkRefno == null ? 0 : Convert.ToInt32(tmpFkRefno);
         }
 
         /// <summary>

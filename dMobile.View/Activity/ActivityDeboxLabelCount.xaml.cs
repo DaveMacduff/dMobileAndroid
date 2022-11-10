@@ -34,14 +34,17 @@ namespace dMobile.View.Activity
 
         public int Quantity { get; private set; }
 
+        /// <inheritdoc/>
         public async Task ScannerDisable()
         {
         }
 
+        /// <inheritdoc/>
         public async Task ScannerEnable()
         {
         }
 
+        /// <inheritdoc/>
         public async Task<bool> IsReadyToClose()
         {
             return true;
@@ -52,6 +55,7 @@ namespace dMobile.View.Activity
             return "Debox Label Count";
         }
 
+        /// <inheritdoc/>
         public async Task<bool> SaveChanges()
         {
             var saveComplete = false;
@@ -65,16 +69,19 @@ namespace dMobile.View.Activity
             return saveComplete;
         }
 
+        /// <inheritdoc/>
         public async Task<bool> CancelChanges()
         {
             return await this.IsReadyToClose();
         }
 
+        /// <inheritdoc/>
         public async Task<bool> IsReadyToSave()
         {
             return true;
         }
 
+        /// <inheritdoc/>
         public async Task<XDocument> GetXML()
         {
             var result = XDocument.Parse(

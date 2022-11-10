@@ -82,19 +82,19 @@ namespace dMobile.Controller.Activity
                     },
                 };
 
-                var labelActivityStringFKRefno = new Label { VerticalOptions = LayoutOptions.Center };
+                var labelActivityStringFkRefno = new Label { VerticalOptions = LayoutOptions.Center };
                 var labelActivityPickingDeliveryDateTime = new Label { VerticalOptions = LayoutOptions.Center };
                 var labelActivityPickingRouteCode = new Label { VerticalOptions = LayoutOptions.Center };
                 var labelActivityPickingRouteStop = new Label { VerticalOptions = LayoutOptions.Center };
                 var labelActivityPickingCustomerShipToInfo = new Label { VerticalOptions = LayoutOptions.Center };
 
-                labelActivityStringFKRefno.SetBinding(Label.TextProperty, new Binding("ActivityStringFKRefno"));
+                labelActivityStringFkRefno.SetBinding(Label.TextProperty, new Binding("ActivityStringFKRefno"));
                 labelActivityPickingDeliveryDateTime.SetBinding(Label.TextProperty, new Binding("ActivityPickingDeliveryDateTime", BindingMode.Default, null, null, "{0:MM/dd/yyyy}"));
                 labelActivityPickingRouteCode.SetBinding(Label.TextProperty, new Binding("RouteCode"));
                 labelActivityPickingRouteStop.SetBinding(Label.TextProperty, new Binding("RouteStop"));
                 labelActivityPickingCustomerShipToInfo.SetBinding(Label.TextProperty, new Binding("ActivityPickingCustomerShipToInfo"));
 
-                gridData.Children.Add(labelActivityStringFKRefno);
+                gridData.Children.Add(labelActivityStringFkRefno);
                 gridData.Children.Add(labelActivityPickingDeliveryDateTime);
 
                 if (!this.SysEnv.SysSettings.IsPickHideRouteCol)
@@ -105,7 +105,7 @@ namespace dMobile.Controller.Activity
 
                 gridData.Children.Add(labelActivityPickingCustomerShipToInfo);
 
-                Grid.SetColumn(labelActivityStringFKRefno, 0);
+                Grid.SetColumn(labelActivityStringFkRefno, 0);
                 Grid.SetColumn(labelActivityPickingDeliveryDateTime, 1);
 
                 if (!this.SysEnv.SysSettings.IsPickHideRouteCol)
@@ -135,8 +135,8 @@ namespace dMobile.Controller.Activity
         public override async Task PrintLabel(XDocument data)
         {
             var sLocMapAndRefno = await LocationMapTasks.GetSLocMapFromLocMapFkRefno(
-                int.Parse(this.XMLDataCriteria.Root.Element("whs_id").Value),
-                int.Parse(this.XMLDataCriteria.Root.Element("sect_refno").Value),
+                int.Parse(this.XmlDataCriteria.Root.Element("whs_id").Value),
+                int.Parse(this.XmlDataCriteria.Root.Element("sect_refno").Value),
                 0);
             var locMap = sLocMapAndRefno.SLocMap;
             var xmlString = new StringBuilder();
@@ -172,7 +172,7 @@ namespace dMobile.Controller.Activity
         + "<action>SUBMIT PRINT SHIPPING LABEL</action>"
         + "</command>"
         + await SysCommon.GetRequestDefaults(false)
-        + "<refno>" + this.HdrFKRefno + "</refno>"
+        + "<refno>" + this.HdrFkRefno + "</refno>"
         + "<itm_refno>" + data.Root.Element("itm_refno").Value + "</itm_refno>"
         + "<whs_id>" + locMap.WhsFKRefno + "</whs_id>"
         + "<sect_refno>" + locMap.SectFKRefno + "</sect_refno>"
@@ -208,12 +208,12 @@ namespace dMobile.Controller.Activity
                         var docError = new XmlDocument();
                         docError.LoadXml(reqData);
 
-                        throw new MessageOnlyException(string.Format("Order# {0} print shipping label(s) failed." + Environment.NewLine + "{1}", this.HdrFKRefno, docError.DocumentElement["detail"].InnerText));
+                        throw new MessageOnlyException(string.Format("Order# {0} print shipping label(s) failed." + Environment.NewLine + "{1}", this.HdrFkRefno, docError.DocumentElement["detail"].InnerText));
                     }
                 }
                 else
                 {
-                    throw new Exception(string.Format("Order# {0} Print shipping label(s) failed.", this.HdrFKRefno));
+                    throw new Exception(string.Format("Order# {0} Print shipping label(s) failed.", this.HdrFkRefno));
                 }
             }
         }
@@ -235,8 +235,8 @@ namespace dMobile.Controller.Activity
                 var xml = XmlWriter.Create(xmlString);
                 XDocument request = null;
                 var sLocMapAndRefno = await LocationMapTasks.GetSLocMapFromLocMapFkRefno(
-                    int.Parse(this.XMLDataCriteria.Root.Element("whs_id").Value),
-                    int.Parse(this.XMLDataCriteria.Root.Element("sect_refno").Value),
+                    int.Parse(this.XmlDataCriteria.Root.Element("whs_id").Value),
+                    int.Parse(this.XmlDataCriteria.Root.Element("sect_refno").Value),
                     slotLocMapFkRefno: 0);
                 var locMap = sLocMapAndRefno.SLocMap;
 
@@ -247,7 +247,7 @@ namespace dMobile.Controller.Activity
                     + "<action>REQUEST SHIPPING LABEL QUANTITY</action>"
                     + "</command>"
                     + await SysCommon.GetRequestDefaults(false)
-                    + "<refno>" + this.HdrFKRefno + "</refno>"
+                    + "<refno>" + this.HdrFkRefno + "</refno>"
                     + "<sect_refno>" + locMap.SectFKRefno + "</sect_refno>"
                     + "</imclient>");
 
@@ -266,7 +266,7 @@ namespace dMobile.Controller.Activity
                     // Check if result is an error message
                     if (reqData.Contains("<message>ERROR</message>"))
                     {
-                        throw new Exception(string.Format("Order# {0} request shipping label(s) quantity failed." + Environment.NewLine + "{1}", this.HdrFKRefno, xmlResult.DocumentElement["detail"].InnerText));
+                        throw new Exception(string.Format("Order# {0} request shipping label(s) quantity failed." + Environment.NewLine + "{1}", this.HdrFkRefno, xmlResult.DocumentElement["detail"].InnerText));
                     }
                     else
                     {
@@ -297,7 +297,7 @@ namespace dMobile.Controller.Activity
                 }
                 else
                 {
-                    throw new Exception(string.Format("Order# {0} request shipping label(s) quantity failed.", this.HdrFKRefno));
+                    throw new Exception(string.Format("Order# {0} request shipping label(s) quantity failed.", this.HdrFkRefno));
                 }
             }
             catch (Exception ex)
@@ -320,8 +320,8 @@ namespace dMobile.Controller.Activity
         public async Task<bool> IsSalesOrderBeingPicked()
         {
             var sLocMapAndRefno = await LocationMapTasks.GetSLocMapFromLocMapFkRefno(
-                int.Parse(this.XMLDataCriteria.Root.Element("whs_id").Value),
-                int.Parse(this.XMLDataCriteria.Root.Element("sect_refno").Value),
+                int.Parse(this.XmlDataCriteria.Root.Element("whs_id").Value),
+                int.Parse(this.XmlDataCriteria.Root.Element("sect_refno").Value),
                 slotLocMapFkRefno: 0);
             var locMap = sLocMapAndRefno.SLocMap;
             var reqData = string.Empty;
@@ -335,7 +335,7 @@ namespace dMobile.Controller.Activity
                 + "<command>"
                 + "<action>REQUEST SALES ORDER IS BEING PICKED</action>"
                 + await SysCommon.GetRequestDefaults(false)
-                + "<refno>" + this.HdrFKRefno.ToString() + "</refno>"
+                + "<refno>" + this.HdrFkRefno.ToString() + "</refno>"
                 + "<whs_id>" + locMap.WhsFKRefno + "</whs_id>"
                 + "<sect_refno>" + locMap.SectFKRefno + "</sect_refno>"
                 + "</command>"
@@ -377,8 +377,8 @@ namespace dMobile.Controller.Activity
             if (!this.SysEnv.SysSettings.IsDisconnectedMode)
             {
                 var sLocMapAndRefno = await LocationMapTasks.GetSLocMapFromLocMapFkRefno(
-                    int.Parse(this.XMLDataCriteria.Root.Element("whs_id").Value),
-                    int.Parse(this.XMLDataCriteria.Root.Element("sect_refno").Value),
+                    int.Parse(this.XmlDataCriteria.Root.Element("whs_id").Value),
+                    int.Parse(this.XmlDataCriteria.Root.Element("sect_refno").Value),
                     slotLocMapFkRefno: 0);
                 var locMap = sLocMapAndRefno.SLocMap;
                 var reqData = string.Empty;
@@ -393,7 +393,7 @@ namespace dMobile.Controller.Activity
                     + "<command>"
                     + "<action>SUBMIT SALES ORDER CLEAR BEING PICKED</action>"
                     + await SysCommon.GetRequestDefaults(false)
-                    + "<refno>" + this.HdrFKRefno.ToString() + "</refno>"
+                    + "<refno>" + this.HdrFkRefno.ToString() + "</refno>"
                     + "<whs_id>" + locMap.WhsFKRefno + "</whs_id>"
                     + "<sect_refno>" + locMap.SectFKRefno + "</sect_refno>"
                     + "<device_only>" + clearDeviceOnly + "</device_only>"
@@ -440,7 +440,7 @@ namespace dMobile.Controller.Activity
         {
             var isReleased = false;
 
-            if (await Device.InvokeOnMainThreadAsync(async () => await Application.Current.MainPage.DisplayAlert(this.GetControlDescription(), string.Format("Release order# {0} ?", this.HdrFKRefno), "Yes", "No")))
+            if (await Device.InvokeOnMainThreadAsync(async () => await Application.Current.MainPage.DisplayAlert(this.GetControlDescription(), string.Format("Release order# {0} ?", this.HdrFkRefno), "Yes", "No")))
             {
                 var reqResult = string.Empty;
                 var xmlString = new StringBuilder();
@@ -453,7 +453,7 @@ namespace dMobile.Controller.Activity
                     + "<action>RELEASE SALES ORDER BY ORDER</action>"
                     + "</command>"
                     + await SysCommon.GetRequestDefaults(false)
-                    + "<refno>" + this.HdrFKRefno.ToString() + "</refno>"
+                    + "<refno>" + this.HdrFkRefno.ToString() + "</refno>"
                     + "</imclient>");
 
                 request.Save(xml);
@@ -470,14 +470,14 @@ namespace dMobile.Controller.Activity
                         docError.LoadXml(reqResult);
                         var errorDetail = docError.DocumentElement["detail"].InnerText;
 
-                        throw new Exception(string.Format("Release order# {0} failed." + Environment.NewLine + errorDetail, this.HdrFKRefno, null));
+                        throw new Exception(string.Format("Release order# {0} failed." + Environment.NewLine + errorDetail, this.HdrFkRefno, null));
                     }
 
                     isReleased = true;
                 }
                 else
                 {
-                    throw new Exception(string.Format("Release order# {0} failed.", this.HdrFKRefno));
+                    throw new Exception(string.Format("Release order# {0} failed.", this.HdrFkRefno));
                 }
             }
 
@@ -511,7 +511,7 @@ namespace dMobile.Controller.Activity
                 // Do not warn if product is out of stock WO# 12054
                 if (rowsAffected > 0)
                 {
-                    throw new Exception(string.Format("Order# {0} quantity under check failed." + Environment.NewLine + "{1} Items exist where the quantity shipped is less than the quantity ordered.", this.HdrFKRefno, rowsAffected));
+                    throw new Exception(string.Format("Order# {0} quantity under check failed." + Environment.NewLine + "{1} Items exist where the quantity shipped is less than the quantity ordered.", this.HdrFkRefno, rowsAffected));
                 }
             }
             else
@@ -527,7 +527,7 @@ namespace dMobile.Controller.Activity
                     + "<action>REQUEST SALES ORDER QUANTITY UNDER CHECK</action>"
                     + "</command>"
                     + await SysCommon.GetRequestDefaults(false)
-                    + "<refno>" + this.HdrFKRefno + "</refno>"
+                    + "<refno>" + this.HdrFkRefno + "</refno>"
                     + "<whs_id>" + locMap.CurrLocMap.WhsFKRefno + "</whs_id>"
                     + "<sect_refno>" + locMap.CurrLocMap.SectFKRefno + "</sect_refno>"
                     + "</imclient>");
@@ -546,12 +546,12 @@ namespace dMobile.Controller.Activity
                         docError.LoadXml(reqResult);
                         var errorDetail = docError.DocumentElement["detail"].InnerText;
 
-                        throw new Exception(string.Format("Order# {0} quantity under check failed." + Environment.NewLine + "{1}", this.HdrFKRefno, errorDetail));
+                        throw new Exception(string.Format("Order# {0} quantity under check failed." + Environment.NewLine + "{1}", this.HdrFkRefno, errorDetail));
                     }
                 }
                 else
                 {
-                    throw new Exception(string.Format("Order# {0} quantity under check failed.", this.HdrFKRefno));
+                    throw new Exception(string.Format("Order# {0} quantity under check failed.", this.HdrFkRefno));
                 }
             }
         }
@@ -575,8 +575,8 @@ namespace dMobile.Controller.Activity
                     if (this.SysEnv.SysSettings.IsPrePickCrit
                         && this.SysEnv.SysSettings.IsRelBySect
                         && !this.SysEnv.SysSettings.IsDisconnectedMode
-                        && this.XMLDataCriteria != null
-                        && int.Parse(this.XMLDataCriteria.Root.Element("sect_refno").Value) != 0)
+                        && this.XmlDataCriteria != null
+                        && int.Parse(this.XmlDataCriteria.Root.Element("sect_refno").Value) != 0)
                     {
                         if (!isResult)
                         {
@@ -629,8 +629,8 @@ namespace dMobile.Controller.Activity
                 if (this.SysEnv.SysSettings.IsPrePickCrit
                     && this.SysEnv.SysSettings.IsRelBySect
                     && !this.SysEnv.SysSettings.IsDisconnectedMode
-                    && this.XMLDataCriteria != null
-                    && int.Parse(this.XMLDataCriteria.Root.Element("sect_refno").Value) != 0)
+                    && this.XmlDataCriteria != null
+                    && int.Parse(this.XmlDataCriteria.Root.Element("sect_refno").Value) != 0)
                 {
                     isResult = await this.ReleaseBySection();
                 }
@@ -647,7 +647,7 @@ namespace dMobile.Controller.Activity
         /// The GetFKRefnoIdx.
         /// </summary>
         /// <returns>.</returns>
-        public override string GetFKRefnoIdx()
+        public override string GetFkRefnoIdx()
         {
             return "ActivityStringFKRefno";
         }
@@ -992,7 +992,7 @@ namespace dMobile.Controller.Activity
             if (selectedActivity is Picking header)
             {
                 this.SelectedActivity = header;
-                this.HdrFKRefno = header.ActivityFKRefno;
+                this.HdrFkRefno = header.ActivityFKRefno;
                 this.HdrRefno = header.ActivityRefno;
 
                 if (this.SysEnv.SysSettings.IsDefaultLocToProductDefaultLoc)
@@ -1030,7 +1030,7 @@ namespace dMobile.Controller.Activity
         {
             if (selectedItem is Picking picking)
             {
-                this.HdrFKRefno = Convert.ToInt32(picking.ActivityFKRefno);
+                this.HdrFkRefno = Convert.ToInt32(picking.ActivityFKRefno);
                 this.HdrRefno = Convert.ToInt32(picking.ActivityRefno);
             }
 
@@ -1182,12 +1182,12 @@ namespace dMobile.Controller.Activity
 
             var locMapRefno = 0;
             var sLocMapAndRefno = await LocationMapTasks.GetSLocMapFromLocMapFkRefno(
-                int.Parse(this.XMLDataCriteria.Root.Element("whs_id").Value),
-                int.Parse(this.XMLDataCriteria.Root.Element("sect_refno").Value),
+                int.Parse(this.XmlDataCriteria.Root.Element("whs_id").Value),
+                int.Parse(this.XmlDataCriteria.Root.Element("sect_refno").Value),
                 slotLocMapFkRefno: 0);
             var locMap = sLocMapAndRefno.SLocMap;
 
-            var msg = string.Format("Release order# {0} for warehouse {1}, section {2}?", this.HdrFKRefno, locMap.WhsName, locMap.SectName);
+            var msg = string.Format("Release order# {0} for warehouse {1}, section {2}?", this.HdrFkRefno, locMap.WhsName, locMap.SectName);
 
             // if (MessageBox.Show(
             //    msg,
@@ -1209,7 +1209,7 @@ namespace dMobile.Controller.Activity
                     + "<action>RELEASE SALES ORDER BY ORDER ITEM SECTION</action>"
                     + "</command>"
                     + await SysCommon.GetRequestDefaults(false)
-                    + "<refno>" + this.HdrFKRefno.ToString() + "</refno>"
+                    + "<refno>" + this.HdrFkRefno.ToString() + "</refno>"
                     + "<whs_id>" + locMap.WhsFKRefno + "</whs_id>"
                     + "<sect_refno>" + locMap.SectFKRefno + "</sect_refno>"
                     + "</imclient>");
@@ -1228,14 +1228,14 @@ namespace dMobile.Controller.Activity
                         docError.LoadXml(reqData);
                         var errorDetail = docError.DocumentElement["detail"].InnerText;
 
-                        throw new Exception(string.Format("Release order# {0} by order item section {1} failed." + Environment.NewLine + errorDetail, this.HdrFKRefno.ToString(), locMap.SectName));
+                        throw new Exception(string.Format("Release order# {0} by order item section {1} failed." + Environment.NewLine + errorDetail, this.HdrFkRefno.ToString(), locMap.SectName));
                     }
 
                     isReleased = true;
                 }
                 else
                 {
-                    throw new Exception(string.Format("Release order# {0} by order item section {1} failed.", this.HdrFKRefno, locMap.SectName));
+                    throw new Exception(string.Format("Release order# {0} by order item section {1} failed.", this.HdrFkRefno, locMap.SectName));
                 }
             }
 
@@ -1247,10 +1247,10 @@ namespace dMobile.Controller.Activity
         /// </summary>
         /// <param name="resourceType"><see cref="object"/> Resource model (tActivity??Model).</param>
         /// <returns><see cref="int"/> Found activity foreign key refno, else 0 if not found.</returns>
-        public override int GetFKRefno(object resourceType)
+        public override int GetFkRefno(object resourceType)
         {
-            object tmpFKRefno = ((Picking)resourceType).ActivityFKRefno;
-            return tmpFKRefno == null ? 0 : Convert.ToInt32(tmpFKRefno);
+            object tmpFkRefno = ((Picking)resourceType).ActivityFKRefno;
+            return tmpFkRefno == null ? 0 : Convert.ToInt32(tmpFkRefno);
         }
 
         /// <summary>

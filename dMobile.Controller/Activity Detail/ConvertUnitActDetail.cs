@@ -132,10 +132,10 @@ namespace dMobile.Controller.Activity_Detail
             var detail = new ConvertUnitDetail
             {
                 ActivityDetailRefno = this.DetailRefno,
-                ActivityDetailFKRefno = this.DetailFKRefno,
+                ActivityDetailFKRefno = this.DetailFkRefno,
                 CountNumber = count,
-                ActivityDetailSchemeID = this.SchemeID,
-                ActivityDetailUniqueSchemeID = this.UniqueSchemeID,
+                ActivityDetailSchemeID = this.SchemeId,
+                ActivityDetailUniqueSchemeID = this.UniqueSchemeId,
                 ////detail.ActivityDetailStatus = (int)SysCommon.ActStatus.Inserted,
             };
 
@@ -246,7 +246,7 @@ namespace dMobile.Controller.Activity_Detail
         /// </summary>
         /// <param name="selectedActivityDetail">The selectedActivityDetail<see cref="object"/>.</param>
         /// <returns>.</returns>
-        public override int GetFKRefno(object selectedActivityDetail)
+        public override int GetFkRefno(object selectedActivityDetail)
         {
             return ((ConvertUnitDetail)selectedActivityDetail).ActivityDetailFKRefno;
         }
@@ -446,7 +446,7 @@ namespace dMobile.Controller.Activity_Detail
         /// </summary>
         /// <param name="data">.</param>
         /// <returns>.</returns>
-        public override Task<string> CreateDeleteXML(XDocument data)
+        public override Task<string> CreateDeleteXml(XDocument data)
         {
             throw new NotImplementedException();
         }
@@ -456,7 +456,7 @@ namespace dMobile.Controller.Activity_Detail
         /// </summary>
         /// <param name="data">.</param>
         /// <returns>.</returns>
-        public override Task<string> CreateSubmitXML(XDocument data)
+        public override Task<string> CreateSubmitXml(XDocument data)
         {
             throw new NotImplementedException();
         }
@@ -467,7 +467,7 @@ namespace dMobile.Controller.Activity_Detail
         /// <returns><see cref="string"/> Get activity item control description.</returns>
         public override string GetControlDescription()
         {
-            return $"Convert Unit # {this.ActItem.ActHdr.HdrFKRefno}";
+            return $"Convert Unit # {this.ActItem.ActHdr.HdrFkRefno}";
         }
 
         /// <summary>

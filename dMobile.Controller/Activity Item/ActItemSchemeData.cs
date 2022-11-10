@@ -21,7 +21,7 @@ namespace dMobile.Controller.Activity_Item
         /// Gets or sets the activity item foreign key reference number.
         /// </summary>
         /// <example>ar_oehdr.reference number.</example>
-        public int ActItemFKRefno { get; set; } = 0;
+        public int ActItemFkRefno { get; set; } = 0;
 
         /// <summary>
         /// Gets or sets the activity detail quantity. The alt_qty.
@@ -62,18 +62,18 @@ namespace dMobile.Controller.Activity_Item
         /// Gets or sets the warehouse location map foreign key reference number.
         /// </summary>
         /// <example>iv_locwh.wh_locat.</example>
-        public int LocMapWhsFKRefno { get; set; } = 0;
+        public int LocMapWhsFkRefno { get; set; } = 0;
 
         /// <summary>
         /// Gets or sets the section location map foreign key reference number.
         /// </summary>
         /// <example>iv_sect.reference number.</example>
-        public int LocMapSectFKRefno { get; set; } = 0; 
+        public int LocMapSectFkRefno { get; set; } = 0; 
 
         /// <summary>
         /// Gets or sets the slot location map foreign key reference number.
         /// </summary>
         /// <example>iv_slot.reference number.</example>
-        public int LocMapSlotFKRefno { get; set; } = 0;
+        public int LocMapSlotFkRefno { get; set; } = 0;
     }
 }

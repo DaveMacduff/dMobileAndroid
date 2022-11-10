@@ -30,6 +30,7 @@ namespace dMobile.GroundWork
         ///
         /// </summary>
         /// <remarks></remarks>
+        /// <inheritdoc/>
         public override async Task RequestData()
         {
             try
@@ -125,6 +126,7 @@ namespace dMobile.GroundWork
         ///
         /// </summary>
         /// <remarks></remarks>
+        /// <inheritdoc/>
         public override async Task<int> DataStatus()
         {
             int rowsAffected;
@@ -149,6 +151,7 @@ namespace dMobile.GroundWork
         ///
         /// </summary>
         /// <remarks></remarks>
+        /// <inheritdoc/>
         public override async Task PurgeData()
         {
             try
@@ -172,6 +175,7 @@ namespace dMobile.GroundWork
         /// <param name="prodLocMapType"></param>
         /// <param name="whsLocMapFKRefno"></param>
         /// <returns></returns>
+        /// <inheritdoc/>
         protected override async Task<string> SendRequest(int prodLocMapType, int whsLocMapFKRefno)
         {
             return await this.SendComm(await this.CreateRequest(prodLocMapType, whsLocMapFKRefno));
@@ -182,6 +186,7 @@ namespace dMobile.GroundWork
         /// </summary>
         /// <param name="reqData"></param>
         /// <param name="whsLocMapRefno"></param>
+        /// <inheritdoc/>
         protected override async Task Save(string reqData, int whsLocMapRefno)
         {
             var prodRefno = 0;
@@ -661,6 +666,7 @@ namespace dMobile.GroundWork
         /// </summary>
         /// <returns></returns>
         /// <remarks></remarks>
+        /// <inheritdoc/>
         protected async override Task<string> CreateRequest(int prodLocMapType, int whsLocMapFKRefno)
         {
             var xmlString = new StringBuilder();

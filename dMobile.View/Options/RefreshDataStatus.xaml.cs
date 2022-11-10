@@ -152,6 +152,7 @@ namespace dMobile.View.Options
             base.OnDisappearing();
         }
 
+        /// <inheritdoc/>
         protected override bool OnBackButtonPressed()
         {
             Device.BeginInvokeOnMainThread(async () =>
@@ -336,6 +337,7 @@ namespace dMobile.View.Options
         /// </summary>
         /// <returns></returns>
         /// <remarks></remarks>
+        /// <inheritdoc/>
         public async Task<bool> IsReadyToSave()
         {
             var isReadyToSave = true;
@@ -361,6 +363,7 @@ namespace dMobile.View.Options
         /// </summary>
         /// <returns></returns>
         /// <remarks></remarks>
+        /// <inheritdoc/>
         public async Task<bool> IsReadyToClose()
         {
             return true;
@@ -388,6 +391,7 @@ namespace dMobile.View.Options
         /// </summary>
         /// <returns></returns>
         /// <remarks></remarks>
+        /// <inheritdoc/>
         public async Task<bool> SaveChanges()
         {
             return true;
@@ -398,6 +402,7 @@ namespace dMobile.View.Options
         /// </summary>
         /// <returns></returns>
         /// <remarks></remarks>
+        /// <inheritdoc/>
         public async Task<bool> CancelChanges()
         {
             return true;
@@ -408,6 +413,7 @@ namespace dMobile.View.Options
         /// </summary>
         /// <returns></returns>
         /// <remarks></remarks>
+        /// <inheritdoc/>
         public async Task<XDocument> GetXML()
         {
             var xmldocParams = XDocument.Parse(
@@ -425,6 +431,7 @@ namespace dMobile.View.Options
         /// <param name="sysSettingsEventPublisher"></param>
         /// <param name="sysSettingsEventArgs"></param>
         /// <remarks></remarks>
+        /// <inheritdoc/>
         public void OnSysSettingsProgressOut(
             ISysSettingsEventPublisher sysSettingsEventPublisher,
             SysSettingsEventArgs sysSettingsEventArgs)
@@ -443,6 +450,7 @@ namespace dMobile.View.Options
         /// <param name="sysSettingsEventPublisher"></param>
         /// <param name="sysSettingsEventArgs"></param>
         /// <remarks></remarks>
+        /// <inheritdoc/>
         public void OnSysSettingsStatusOut(
             ISysSettingsEventPublisher sysSettingsEventPublisher,
             SysSettingsEventArgs sysSettingsEventArgs)
@@ -456,6 +464,7 @@ namespace dMobile.View.Options
         /// <param name="BarCodeSettingsEventPublisher"></param>
         /// <param name="barCodeSettingsEventArgs"></param>
         /// <remarks></remarks>
+        /// <inheritdoc/>
         public void OnBarCodeSettingsProgressOut(
             IBarCodeSettingsEventPublisher barCodeSettingsEventPublisher,
             BarCodeSettingsEventArgs barCodeSettingsEventArgs)
@@ -474,6 +483,7 @@ namespace dMobile.View.Options
         /// <param name="BarCodeSettingsEventPublisher"></param>
         /// <param name="barCodeSettingsEventArgs"></param>
         /// <remarks></remarks>
+        /// <inheritdoc/>
         public void OnBarCodeSettingsStatusOut(
             IBarCodeSettingsEventPublisher barCodeSettingsEventPublisher,
             BarCodeSettingsEventArgs barCodeSettingsEventArgs)
@@ -487,6 +497,7 @@ namespace dMobile.View.Options
         /// <param name="PrinterSettingsEventPublisher"></param>
         /// <param name="PrinterSettingsEventArgs"></param>
         /// <remarks></remarks>
+        /// <inheritdoc/>
         public void OnPrnSettingsProgressOut(
             IPrnSettingsPublisher printerSettingsEventPublisher,
             PrnSettingsArgs printerSettingsEventArgs)
@@ -505,6 +516,7 @@ namespace dMobile.View.Options
         /// <param name="PrinterSettingsEventPublisher"></param>
         /// <param name="PrinterSettingsEventArgs"></param>
         /// <remarks></remarks>
+        /// <inheritdoc/>
         public void OnPrnSettingsStatusOut(
             IPrnSettingsPublisher printerSettingsEventPublisher,
             PrnSettingsArgs printerSettingsEventArgs)
@@ -517,6 +529,7 @@ namespace dMobile.View.Options
         /// </summary>
         /// <param name="prodSchemeLabelSettingsPublisher"></param>
         /// <param name="prodSchemeLabelSettingsArgs"></param>
+        /// <inheritdoc/>
         public void OnProdSchemeLabelSettingsStatusOut(
           IProdSchemeLabelSettingsPublisher prodSchemeLabelSettingsPublisher,
           ProdSchemeLabelSettingsEventArgs prodSchemeLabelSettingsArgs)
@@ -529,6 +542,7 @@ namespace dMobile.View.Options
         /// </summary>
         /// <param name="prodSchemeLabelSettingsPublisher"></param>
         /// <param name="prodSchemeLabelSettingsArgs"></param>
+        /// <inheritdoc/>
         public void OnProdSchemeLabelSettingsProgressOut(
           IProdSchemeLabelSettingsPublisher prodSchemeLabelSettingsPublisher,
           ProdSchemeLabelSettingsEventArgs prodSchemeLabelSettingsArgs)
@@ -546,6 +560,7 @@ namespace dMobile.View.Options
         /// </summary>
         /// <param name="databaseNubEventPublisher"></param>
         /// <param name="databaseNubEventArgs"></param>
+        /// <inheritdoc/>
         public void OnNubStatOut(IDataNubPublisher databaseNubEventPublisher, DataNubEventArgs databaseNubEventArgs)
         {
             this.StatusOut(databaseNubEventArgs.StatusOutMsg);
@@ -556,6 +571,7 @@ namespace dMobile.View.Options
         /// </summary>
         /// <param name="dataAccessEventPublisher"></param>
         /// <param name="dataAccessEventArgs"></param>
+        /// <inheritdoc/>
         public void OnDataAccessStatusOut(
             IDataAccessEventPublisher dataAccessEventPublisher,
             DataAccessEventArgs dataAccessEventArgs)
@@ -568,6 +584,7 @@ namespace dMobile.View.Options
         /// </summary>
         /// <param name="dataAccessEventPublisher"></param>
         /// <param name="dataAccessEventArgs"></param>
+        /// <inheritdoc/>
         public void OnDataAccessProgressOut(
             IDataAccessEventPublisher dataAccessEventPublisher,
             DataAccessEventArgs dataAccessEventArgs)

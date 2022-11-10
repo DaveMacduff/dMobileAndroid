@@ -87,6 +87,17 @@ namespace dMobile.Controller.Activity_Item
         }
 
         /// <summary>
+        /// Find the list item index of the item that matches the activity item foreign key reference number.
+        /// </summary>
+        /// <param name="activityItemFkRefno"><see cref="int"/> Activity item foreign key reference number.</param>
+        /// <returns><see cref="int"/> Activity list item found index, else -1.</returns>
+        public override int FindActivityItemIndex(int activityItemFkRefno)
+        {
+            var foundIdx = -1;
+            return foundIdx;
+        }
+
+        /// <summary>
         /// The UpdateListItemQuantity.
         /// </summary>
         /// <param name="selectedActivityItem">The selectedActivityItem<see cref="object"/>.</param>
@@ -101,9 +112,9 @@ namespace dMobile.Controller.Activity_Item
         /// <summary>
         /// The GetUnableToParseItemFKRefnoMessage.
         /// </summary>
-        /// <param name="actItemStringFKRefno">.</param>
+        /// <param name="actItemStringFkRefno">.</param>
         /// <returns>.</returns>
-        public override string GetUnableToParseItemFKRefnoMessage(string actItemStringFKRefno)
+        public override string GetUnableToParseItemFkRefnoMessage(string actItemStringFkRefno)
         {
             return string.Empty;
         }
@@ -111,9 +122,9 @@ namespace dMobile.Controller.Activity_Item
         /// <summary>
         /// The GetUnableToFindItemFKRefnoMessage.
         /// </summary>
-        /// <param name="actItemStringFKRefno">.</param>
+        /// <param name="actItemStringFkRefno">.</param>
         /// <returns>.</returns>
-        public override string GetUnableToFindItemFKRefnoMessage(string actItemStringFKRefno)
+        public override string GetUnableToFindItemFkRefnoMessage(string actItemStringFkRefno)
         {
             return string.Empty;
         }
@@ -122,7 +133,7 @@ namespace dMobile.Controller.Activity_Item
         /// The GetDataViewSortFKRefnoIdx.
         /// </summary>
         /// <returns>.</returns>
-        public override string GetDataViewSortFKRefnoIdx()
+        public override string GetDataViewSortFkRefnoIdx()
         {
             return string.Empty;
         }
@@ -137,7 +148,7 @@ namespace dMobile.Controller.Activity_Item
         {
             if (this.ListItems != null)
             {
-                var schemeData = Common.FillSActItemSchemeDataFromXML(data);
+                var schemeData = Common.FillSActItemSchemeDataFromXml(data);
                 var item = new ConvertUnitItem()
                 {
                     ProductUnitRefno = this.ProdInfo.UnitRefno,
@@ -164,7 +175,7 @@ namespace dMobile.Controller.Activity_Item
                         this.ProdInfo.Code,
                         this.ProdInfo.Scheme,
                         schemeData.ProdSchemeData),
-                    ActivityDetailFKRefno = this.ItemFKRefno,
+                    ActivityDetailFKRefno = this.ItemFkRefno,
                     ActivityDetailRefno = this.ItemRefno,
                 };
                 this.ListItems.Add(item);
@@ -176,10 +187,10 @@ namespace dMobile.Controller.Activity_Item
         /// <summary>
         /// The DesignGrid.
         /// </summary>
-        /// <param name="GridMainActivity">The GridMainActivity<see cref="Grid"/>.</param>
-        /// <param name="ListViewMainActivity">The ListViewMainActivity<see cref="ListView"/>.</param>
+        /// <param name="gridMainActivity">The GridMainActivity<see cref="Grid"/>.</param>
+        /// <param name="listViewMainActivity">The ListViewMainActivity<see cref="ListView"/>.</param>
         /// <returns>The <see cref="ObservableCollection{object}"/>.</returns>
-        public override ObservableCollection<object> DesignGrid(ref Grid GridMainActivity, ref ListView ListViewMainActivity)
+        public override ObservableCollection<object> DesignGrid(ref Grid gridMainActivity, ref ListView listViewMainActivity)
         {
             throw new NotImplementedException();
         }
@@ -243,14 +254,14 @@ namespace dMobile.Controller.Activity_Item
         /// The SelectActivityItem.
         /// </summary>
         /// <param name="selectedActivityItem">The selectedActivityItem<see cref="object"/>.</param>
-        /// <returns>The <see cref="Task"/>.</returns>
-        public override async Task AssignActivityItem(object activityItem)
+        /// <returns><see cref="Task{T}"/> Activity item foreign key reference number.</returns>
+        public override async Task<int> AssignActivityItem(object activityItem)
         {
             if (activityItem is AdjustmentItem item)
             {
                 this.SelectedActivityItem = item;
                 this.ItemRefno = item.ActivityItemRefno;
-                this.ItemFKRefno = item.ActivityItemFKRefno;
+                this.ItemFkRefno = item.ActivityItemFKRefno;
                 this.ProdInfo = await ProductInfoTasks.GetInfoFromUnitRefno(item.ProductUnitRefno);
                 this.ProdInfo.Scheme = await ProductInfoTasks.GetSchemeComponentsFromRefno(this.ProdInfo.Refno);
 
@@ -296,6 +307,8 @@ namespace dMobile.Controller.Activity_Item
                 // LocationMap.GetInstance().CurrLocMap warehouse needs to be set before call to GetSchemeComponentsFromRefno.
                 this.ProdInfo.Scheme = await ProductInfoTasks.GetSchemeComponentsFromRefno(this.ProdInfo.Refno);
             }
+
+            return this.ItemFkRefno;
         }
 
         /// <summary>
@@ -316,7 +329,7 @@ namespace dMobile.Controller.Activity_Item
         /// <returns>The <see cref="Task"/>.</returns>
         public override async Task Submit(XDocument data, object selectedActivityItem)
         {
-            var reqData = SysCommon.SubmitComm(await this.CreateSubmitXML(data));
+            var reqData = SysCommon.SubmitComm(await this.CreateSubmitXml(data));
 
             if (reqData.Length > 0)
             {
@@ -343,13 +356,13 @@ namespace dMobile.Controller.Activity_Item
         /// </summary>
         /// <param name="data">.</param>
         /// <returns>.</returns>
-        public async override Task<string> CreateSubmitXML(XDocument data)
+        public async override Task<string> CreateSubmitXml(XDocument data)
         {
-            var strXML = new StringBuilder();
-            using var writer = XmlWriter.Create(strXML);
+            var strXml = new StringBuilder();
+            using var writer = XmlWriter.Create(strXml);
             var prodCode = data.Root.Element("ProductCode").Value.PadRight(10);
             var barCodeCode = data.Root.Element("ProductUnitBarCodeCode").Value.PadRight(20);
-            var isBC = bool.Parse(data.Root.Element("ProductUnitIsBC").Value);
+            var isBc = bool.Parse(data.Root.Element("ProductUnitIsBC").Value);
             var unitCode = data.Root.Element("UnitCode").Value;
             var symbologyPrefix = data.Root.Element("ProductUnitBarCodeSymbologyPrefix").Value;
 
@@ -360,7 +373,7 @@ namespace dMobile.Controller.Activity_Item
                 + "</command>"
                 + await SysCommon.GetRequestDefaults(false)
                 + "<prod_id>" + prodCode + "</prod_id>"
-                + "<is_bc>" + isBC.ToString() + "</is_bc>"
+                + "<is_bc>" + isBc.ToString() + "</is_bc>"
                 + "<symbology>" + symbologyPrefix + "</symbology>"
                 + "<alt_unit>" + unitCode + "</alt_unit>"
                 + "<gtin>" + barCodeCode + "</gtin>"
@@ -371,7 +384,7 @@ namespace dMobile.Controller.Activity_Item
             writer.Flush();
             writer.Close();
 
-            return strXML.ToString();
+            return strXml.ToString();
         }
 
         /// <summary>
@@ -406,7 +419,7 @@ namespace dMobile.Controller.Activity_Item
         /// </summary>
         /// <param name="resourceType"><see cref="object"/> Resource model type.</param>
         /// <returns><see cref="int"/> Found activity item foreign key refno, else 0 if not found.</returns>
-        public override int GetFKRefno(object resourceType)
+        public override int GetFkRefno(object resourceType)
         {
             throw new NotImplementedException();
         }
@@ -437,9 +450,9 @@ namespace dMobile.Controller.Activity_Item
         /// <summary>
         /// The GetProdSchemeDataFromDetailFKRefno.
         /// </summary>
-        /// <param name="actDetailFKRefno">The actDetailFKRefno<see cref="int"/>.</param>
+        /// <param name="actDetailFkRefno">The actDetailFKRefno<see cref="int"/>.</param>
         /// <returns>The <see cref="Task{SActItemSchemeData}"/>.</returns>
-        public override Task<ActItemSchemeData> GetProdSchemeDataFromDetailFKRefno(int actDetailFKRefno)
+        public override Task<ActItemSchemeData> GetProdSchemeDataFromDetailFkRefno(int actDetailFkRefno)
         {
             throw new NotImplementedException();
         }
@@ -459,7 +472,7 @@ namespace dMobile.Controller.Activity_Item
         /// </summary>
         /// <param name="data">The data<see cref="XDocument"/>.</param>
         /// <returns>The <see cref="Task{string}"/>.</returns>
-        public override Task<string> CreateDeleteXML(XDocument data)
+        public override Task<string> CreateDeleteXml(XDocument data)
         {
             throw new NotImplementedException();
         }

@@ -686,7 +686,7 @@ namespace dMobile.View.Activity
                 {
                     foreach (var item in this.ActDetail.ListDetails)
                     {
-                        if (this.SelectedActivityDetailFKRefno == this.ActDetail.GetFKRefno(item))
+                        if (this.SelectedActivityDetailFKRefno == this.ActDetail.GetFkRefno(item))
                         {
                             selectedItem = item;
                             this.ListViewMainActivity.SelectedItem = selectedItem;
@@ -704,7 +704,7 @@ namespace dMobile.View.Activity
                 else
                 {
                     await this.ActDetail.AssignActivityDetail(selectedItem);
-                    this.SelectedActivityDetailFKRefno = this.ActDetail.DetailFKRefno;
+                    this.SelectedActivityDetailFKRefno = this.ActDetail.DetailFkRefno;
                 }
 
                 this.ListViewMainActivity.ScrollTo(selectedItem, ScrollToPosition.MakeVisible, false);
@@ -715,7 +715,7 @@ namespace dMobile.View.Activity
             {
                 // Clear the activity nothing can be selected.
                 this.ActDetail.SelectedActivityDetail = null;
-                this.ActDetail.DetailFKRefno = 0;
+                this.ActDetail.DetailFkRefno = 0;
                 this.ActDetail.DetailRefno = 0;
                 this.ListViewMainActivity.SelectedItem = null;
             }
@@ -800,7 +800,7 @@ namespace dMobile.View.Activity
         /// <param name="currRowIdx"><see cref="int"/> Current row index.</param>
         private void CleanUpBarCodeHandler(int svdActDetailFKRefno, int currRowIdx)
         {
-            this.ActDetail.DetailFKRefno = svdActDetailFKRefno;
+            this.ActDetail.DetailFkRefno = svdActDetailFKRefno;
 
             if (this.ActDetail.ListDetails.Count > 0 && currRowIdx + 1 <= this.ActDetail.ListDetails.Count &&
                 this.MainActivityItems.Count > currRowIdx)
@@ -825,7 +825,7 @@ namespace dMobile.View.Activity
 
             var prodUnitRefno = 0;
             var currRowIdx = this.MainActivityItems.IndexOf(this.ListViewMainActivity.SelectedItem);
-            var svdActDetailFKRefno = this.ActDetail.DetailFKRefno;
+            var svdActDetailFKRefno = this.ActDetail.DetailFkRefno;
 
             try
             {
@@ -981,8 +981,8 @@ namespace dMobile.View.Activity
         /// <returns>The <see cref="Task"/>.</returns>
         private async Task InsertActivityDetail(ActDetail actDetail)
         {
-            actDetail.DetailFKRefno = 0;
-            var xmlDoc = actDetail.GetXML(actDetail);
+            actDetail.DetailFkRefno = 0;
+            var xmlDoc = actDetail.GetXml(actDetail);
             await actDetail.Insert(xmlDoc);
 
             var detailIdx = this.ActDetail.FindListDetailIndex(activityDetailRefno: actDetail.DetailRefno);
@@ -1015,9 +1015,9 @@ namespace dMobile.View.Activity
         /// <returns><see cref="Task"/> Task operation.</returns>
         private async Task RemoveActivityDetail()
         {
-            this.ActDetail.DetailFKRefno = 0;
-            var xmlDoc = this.ActDetail.GetXML(this.ActDetail);
-            await this.ActDetail.FillActDetailObjFromXML(xmlDoc);
+            this.ActDetail.DetailFkRefno = 0;
+            var xmlDoc = this.ActDetail.GetXml(this.ActDetail);
+            await this.ActDetail.FillActDetailObjFromXml(xmlDoc);
             _ = await this.ActDetail.Delete();
         }
 
@@ -1153,7 +1153,7 @@ namespace dMobile.View.Activity
         private async Task RemoveQuantity(SFillQuantity fillQty, bool modifyQuantity)
         {
             var data = new XDocument();
-            var xmlReq = await this.ActDetail.CreateDeleteXML(data);
+            var xmlReq = await this.ActDetail.CreateDeleteXml(data);
 
             // replace default fields with fillQty
             if (modifyQuantity)
@@ -1237,8 +1237,8 @@ namespace dMobile.View.Activity
                 this.ActDetail.Quantity = 0;
                 this.ActDetail.BaseQuantity = 0;
                 this.ActDetail.WeightQuantity = 0;
-                this.ActDetail.SchemeID = string.Empty;
-                this.ActDetail.UniqueSchemeID = string.Empty;
+                this.ActDetail.SchemeId = string.Empty;
+                this.ActDetail.UniqueSchemeId = string.Empty;
                 this.ActDetail.ActExtra.Text1 = string.Empty;
                 this.ActDetail.ActExtra.Text2 = string.Empty;
                 this.ActDetail.ActExtra.Text3 = string.Empty;
@@ -1327,7 +1327,7 @@ namespace dMobile.View.Activity
         private async void ListViewMainActivity_ItemSelected(object sender, SelectedItemChangedEventArgs e)
         {
             await this.ActDetail.AssignActivityDetail(e.SelectedItem);
-            this.SelectedActivityDetailFKRefno = this.ActDetail.DetailFKRefno;
+            this.SelectedActivityDetailFKRefno = this.ActDetail.DetailFkRefno;
             this.DisplaySummaryData();
         }
 

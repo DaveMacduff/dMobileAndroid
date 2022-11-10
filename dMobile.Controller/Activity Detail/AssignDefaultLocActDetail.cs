@@ -159,7 +159,7 @@ namespace dMobile.Controller.Activity_Detail
             {
                 detail = new ActivityDetail();
                 detail.ActivityDetailRefno = this.DetailRefno;
-                detail.ActivityDetailFKRefno = this.DetailFKRefno;
+                detail.ActivityDetailFKRefno = this.DetailFkRefno;
 
                 this.InsertListDetailProduct(detail);
                 this.InsertListDetailQuantity(detail);
@@ -167,8 +167,8 @@ namespace dMobile.Controller.Activity_Detail
                 this.InsertListDetailExtra(detail);
                 this.InsertListDetailLocation(detail);
 
-                detail.ActivityDetailSchemeID = this.SchemeID;
-                detail.ActivityDetailUniqueSchemeID = this.UniqueSchemeID;
+                detail.ActivityDetailSchemeID = this.SchemeId;
+                detail.ActivityDetailUniqueSchemeID = this.UniqueSchemeId;
                 ////detail.ActivityDetailStatus = (int)SysCommon.ActStatus.Inserted;
                 this.ListDetails.Add(detail);
             }
@@ -226,7 +226,7 @@ namespace dMobile.Controller.Activity_Detail
                 {
                     this.ListDetails.Add(new MoveDetail()
                     {
-                        ActivityDetailFKRefno = this.DetailFKRefno,
+                        ActivityDetailFKRefno = this.DetailFkRefno,
                         ActivityDetailRefno = this.DetailRefno,
 
                         ProductUnitRefno = this.ActItem.ProdInfo.UnitRefno,
@@ -247,8 +247,8 @@ namespace dMobile.Controller.Activity_Detail
                         ActivityDetailLogisticUnitBatchLotNumber = this.SchemeData.LogisticUnitBatchLotNumber,
                         ProductSchemeVariantCode = this.SchemeData.VariantCode,
                         ProductSchemeVariantNo = this.SchemeData.VariantNumber,
-                        ActivityDetailSchemeID = this.SchemeID,
-                        ActivityDetailUniqueSchemeID = this.UniqueSchemeID,
+                        ActivityDetailSchemeID = this.SchemeId,
+                        ActivityDetailUniqueSchemeID = this.UniqueSchemeId,
                     });
                 }
 
@@ -278,7 +278,7 @@ namespace dMobile.Controller.Activity_Detail
                 await this.AssignThisFromDetailAsync(moveDetail, false);
 
                 var xmlDoc = new XmlDocument();
-                var xmlSend = await this.CreateSubmitXML(data);
+                var xmlSend = await this.CreateSubmitXml(data);
                 var reqData = SysCommon.SubmitComm(xmlSend);
 
                 if (reqData.Length > 0)
@@ -300,7 +300,7 @@ namespace dMobile.Controller.Activity_Detail
                     }
                     else
                     {
-                        this.DetailFKRefno = int.Parse(xmlDoc.DocumentElement["ser_refno"].InnerText);
+                        this.DetailFkRefno = int.Parse(xmlDoc.DocumentElement["ser_refno"].InnerText);
                         moveDetail.ActivityDetailStatus = Convert.ToInt32(SysCommon.ActStatus.NoChange);
 
                         await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(
@@ -338,7 +338,7 @@ namespace dMobile.Controller.Activity_Detail
         /// </summary>
         /// <param name="selectedActivityDetail">The selectedActivityDetail<see cref="object"/>.</param>
         /// <returns>.</returns>
-        public override int GetFKRefno(object selectedActivityDetail)
+        public override int GetFkRefno(object selectedActivityDetail)
         {
             throw new NotImplementedException();
         }
@@ -516,7 +516,7 @@ namespace dMobile.Controller.Activity_Detail
         /// </summary>
         /// <param name="data">.</param>
         /// <returns>.</returns>
-        public override Task<string> CreateDeleteXML(XDocument data)
+        public override Task<string> CreateDeleteXml(XDocument data)
         {
             throw new NotImplementedException();
         }
@@ -526,7 +526,7 @@ namespace dMobile.Controller.Activity_Detail
         /// </summary>
         /// <param name="data">.</param>
         /// <returns>.</returns>
-        public override async Task<string> CreateSubmitXML(XDocument data)
+        public override async Task<string> CreateSubmitXml(XDocument data)
         {
             var xmlString = new StringBuilder();
             var xml = XmlWriter.Create(xmlString);
@@ -559,8 +559,8 @@ namespace dMobile.Controller.Activity_Detail
                 + "<slot_refno>" + data.Root.Element("slot_refno").Value + "</slot_refno>"
                 + "<to_sect_refno>" + data.Root.Element("to_sect_refno").Value + "</to_sect_refno>"
                 + "<to_slot_refno>" + data.Root.Element("to_slot_refno").Value + "</to_slot_refno>"
-                + "<refno>" + this.ActItem.ActHdr.HdrFKRefno + "</refno>"
-                + "<itm_refno>" + this.ActItem.ItemFKRefno + "</itm_refno>"
+                + "<refno>" + this.ActItem.ActHdr.HdrFkRefno + "</refno>"
+                + "<itm_refno>" + this.ActItem.ItemFkRefno + "</itm_refno>"
                 + "<alt_qty>" + this.Quantity + "</alt_qty>"
                 + "<alt_unit>" + this.ActItem.ProdInfo.UnitCode + "</alt_unit>"
                 + "<base_qty>" + this.BaseQuantity + "</base_qty>"
@@ -572,7 +572,7 @@ namespace dMobile.Controller.Activity_Detail
                 + "<pdate>" + production + "</pdate>"
                 + "<bdate>" + bestBefore + "</bdate>"
                 + "<variant_no>" + this.SchemeData.VariantNumber + "</variant_no>"
-                + "<ser_refno>" + this.DetailFKRefno + "</ser_refno>"
+                + "<ser_refno>" + this.DetailFkRefno + "</ser_refno>"
                 + "</imclient>");
 
             request.Save(xml);

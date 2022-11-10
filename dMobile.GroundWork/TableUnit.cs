@@ -29,6 +29,7 @@ namespace dMobile.GroundWork
         ///
         /// </summary>
         /// <remarks></remarks>
+        /// <inheritdoc/>
         public override async Task RequestData()
         {
             try
@@ -130,6 +131,7 @@ namespace dMobile.GroundWork
         ///
         /// </summary>
         /// <remarks></remarks>
+        /// <inheritdoc/>
         public override async Task<int> DataStatus()
         {
             int rowsAffected;
@@ -151,6 +153,7 @@ namespace dMobile.GroundWork
         ///
         /// </summary>
         /// <remarks></remarks>
+        /// <inheritdoc/>
         public override async Task PurgeData()
         {
             try
@@ -175,6 +178,7 @@ namespace dMobile.GroundWork
         /// </summary>
         /// <param name="reqData"></param>
         /// <remarks></remarks>
+        /// <inheritdoc/>
         protected override async Task Save(string reqData)
         {
             var errMsg = string.Empty;
@@ -257,6 +261,7 @@ namespace dMobile.GroundWork
         /// </summary>
         /// <returns></returns>
         /// <remarks></remarks>
+        /// <inheritdoc/>
         protected override async Task<string> CreateRequest()
         {
             var xmlString = new StringBuilder();

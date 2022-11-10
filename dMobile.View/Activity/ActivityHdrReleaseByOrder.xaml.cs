@@ -177,6 +177,7 @@ namespace dMobile.View.Activity
             base.OnDisappearing();
         }
 
+        /// <inheritdoc/>
         protected override bool OnBackButtonPressed()
         {
             Device.BeginInvokeOnMainThread(async () =>
@@ -246,6 +247,7 @@ namespace dMobile.View.Activity
         /// </summary>
         /// <returns></returns>
         /// <remarks></remarks>
+        /// <inheritdoc/>
         public async Task<bool> IsReadyToSave()
         {
             return true;
@@ -256,6 +258,7 @@ namespace dMobile.View.Activity
         /// </summary>
         /// <returns></returns>
         /// <remarks></remarks>
+        /// <inheritdoc/>
         public async Task<bool> IsReadyToClose()
         {
             if (this.Scanner != null)
@@ -298,6 +301,7 @@ namespace dMobile.View.Activity
         /// </summary>
         /// <returns></returns>
         /// <remarks></remarks>
+        /// <inheritdoc/>
         public async Task<bool> SaveChanges()
         {
             return true;
@@ -308,6 +312,7 @@ namespace dMobile.View.Activity
         /// </summary>
         /// <returns></returns>
         /// <remarks></remarks>
+        /// <inheritdoc/>
         public async Task<bool> CancelChanges()
         {
             var cancelChanges = true;
@@ -354,6 +359,7 @@ namespace dMobile.View.Activity
         /// </summary>
         /// <returns></returns>
         /// <remarks></remarks>
+        /// <inheritdoc/>
         public async Task<XDocument> GetXML()
         {
             var xmldocParams = XDocument.Parse(
@@ -520,7 +526,7 @@ namespace dMobile.View.Activity
 
                     if (!string.IsNullOrEmpty(actStringFKRefno))
                     {
-                        var selectedActivity = this.Activity.ListHdrs.OfType<object>().Where(activity => Convert.ToString(activity.GetType().GetProperty(this.Activity.GetFKRefnoIdx()).GetValue(activity)) == actStringFKRefno).FirstOrDefault();
+                        var selectedActivity = this.Activity.ListHdrs.OfType<object>().Where(activity => Convert.ToString(activity.GetType().GetProperty(this.Activity.GetFkRefnoIdx()).GetValue(activity)) == actStringFKRefno).FirstOrDefault();
 
                         if (selectedActivity != null)
                         {
@@ -531,7 +537,7 @@ namespace dMobile.View.Activity
                         }
                         else
                         {
-                            this.Activity.HdrFKRefno = 0;
+                            this.Activity.HdrFkRefno = 0;
                             this.Activity.HdrRefno = 0;
 
                             message = string.Format("Unable To Find Reference# {0}", actStringFKRefno);

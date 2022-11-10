@@ -61,6 +61,28 @@ namespace dMobile.Controller.Activity_Item
         }
 
         /// <summary>
+        /// Find the list item index of the item that matches the activity item foreign key reference number.
+        /// </summary>
+        /// <param name="activityItemFkRefno"><see cref="int"/> Activity item foreign key reference number.</param>
+        /// <returns><see cref="int"/> Activity list item found index, else -1.</returns>
+        public override int FindActivityItemIndex(int activityItemFkRefno)
+        {
+            var foundIdx = -1;
+
+            // ReSharper disable once ForeachCanBeConvertedToQueryUsingAnotherGetEnumerator
+            foreach (var item in this.ListItems)
+            {
+                foundIdx++;
+                if (((ConvertProductActItem)item).ItemFkRefno == activityItemFkRefno)
+                {
+                    break;
+                }
+            }
+
+            return foundIdx;
+        }
+
+        /// <summary>
         /// Set the activity item selected activity item.
         /// </summary>
         /// <param name="actItemFoundRefno"><see cref="int"/> Activity item reference number to look up.</param>
@@ -97,9 +119,9 @@ namespace dMobile.Controller.Activity_Item
         /// <summary>
         /// The GetUnableToParseItemFKRefnoMessage.
         /// </summary>
-        /// <param name="actItemStringFKRefno">.</param>
+        /// <param name="actItemStringFkRefno">.</param>
         /// <returns>.</returns>
-        public override string GetUnableToParseItemFKRefnoMessage(string actItemStringFKRefno)
+        public override string GetUnableToParseItemFkRefnoMessage(string actItemStringFkRefno)
         {
             return string.Empty;
         }
@@ -107,9 +129,9 @@ namespace dMobile.Controller.Activity_Item
         /// <summary>
         /// The GetUnableToFindItemFKRefnoMessage.
         /// </summary>
-        /// <param name="actItemStringFKRefno">.</param>
+        /// <param name="actItemStringFkRefno">.</param>
         /// <returns>.</returns>
-        public override string GetUnableToFindItemFKRefnoMessage(string actItemStringFKRefno)
+        public override string GetUnableToFindItemFkRefnoMessage(string actItemStringFkRefno)
         {
             return string.Empty;
         }
@@ -118,7 +140,7 @@ namespace dMobile.Controller.Activity_Item
         /// The GetDataViewSortFKRefnoIdx.
         /// </summary>
         /// <returns>.</returns>
-        public override string GetDataViewSortFKRefnoIdx()
+        public override string GetDataViewSortFkRefnoIdx()
         {
             return string.Empty;
         }
@@ -149,10 +171,10 @@ namespace dMobile.Controller.Activity_Item
         /// <summary>
         /// The DesignGrid.
         /// </summary>
-        /// <param name="GridMainActivity">The GridMainActivity<see cref="Grid"/>.</param>
-        /// <param name="ListViewMainActivity">The ListViewMainActivity<see cref="ListView"/>.</param>
+        /// <param name="gridMainActivity">The GridMainActivity<see cref="Grid"/>.</param>
+        /// <param name="listViewMainActivity">The ListViewMainActivity<see cref="ListView"/>.</param>
         /// <returns>The <see cref="ObservableCollection{object}"/>.</returns>
-        public override ObservableCollection<object> DesignGrid(ref Grid GridMainActivity, ref ListView ListViewMainActivity)
+        public override ObservableCollection<object> DesignGrid(ref Grid gridMainActivity, ref ListView listViewMainActivity)
         {
             throw new NotImplementedException();
         }
@@ -200,9 +222,10 @@ namespace dMobile.Controller.Activity_Item
         /// The SelectActivityItem.
         /// </summary>
         /// <param name="activityItem"><see cref="object"/> The activity item.</param>
-        /// <returns>The <see cref="Task"/> Task operation.</returns>
-        public override Task AssignActivityItem(object activityItem)
+        /// <returns><see cref="Task{T}"/> Activity item foreign key reference number.</returns>
+        public override Task<int> AssignActivityItem(object activityItem)
         {
+            Task<int> itemFKRefno = Task.FromResult(0);
             var item = activityItem as ConvertProductItem;
             item = item ?? throw new NullReferenceException("activityItem as ConvertProductItem == null");
             this.FromProdRefno = item.FromProdFKRefno;
@@ -214,7 +237,7 @@ namespace dMobile.Controller.Activity_Item
                         ((ConvertProductItem)activityItem).LocMapRefno);
             });
 
-            return Task.CompletedTask;
+            return itemFKRefno;
         }
 
         /// <summary>
@@ -235,7 +258,7 @@ namespace dMobile.Controller.Activity_Item
         /// <returns>The <see cref="Task"/>.</returns>
         public override async Task Submit(XDocument data, object selectedActivityItem)
         {
-            var reqData = SysCommon.SubmitComm(await this.CreateSubmitXML(data));
+            var reqData = SysCommon.SubmitComm(await this.CreateSubmitXml(data));
 
             if (reqData.Length > 0)
             {
@@ -262,13 +285,13 @@ namespace dMobile.Controller.Activity_Item
         /// </summary>
         /// <param name="data">.</param>
         /// <returns><see cref="string"/> Submission string.</returns>
-        public async override Task<string> CreateSubmitXML(XDocument data)
+        public async override Task<string> CreateSubmitXml(XDocument data)
         {
             var result = new StringBuilder();
             using var writer = XmlWriter.Create(result);
             var prodCode = data.Root?.Element("ProductCode")!.Value.PadRight(totalWidth: 10);
             var barCodeCode = data.Root?.Element("ProductUnitBarCodeCode")!.Value.PadRight(totalWidth: 20);
-            var isBC = bool.Parse(data.Root?.Element("ProductUnitIsBC")?.Value ?? string.Empty);
+            var isBc = bool.Parse(data.Root?.Element("ProductUnitIsBC")?.Value ?? string.Empty);
             var unitCode = data.Root?.Element("UnitCode")!.Value;
             var symbologyPrefix = data.Root?.Element("ProductUnitBarCodeSymbologyPrefix")?.Value;
 
@@ -279,7 +302,7 @@ namespace dMobile.Controller.Activity_Item
                 + "</command>"
                 + await SysCommon.GetRequestDefaults(false)
                 + "<prod_id>" + prodCode + "</prod_id>"
-                + "<is_bc>" + isBC.ToString() + "</is_bc>"
+                + "<is_bc>" + isBc.ToString() + "</is_bc>"
                 + "<symbology>" + symbologyPrefix + "</symbology>"
                 + "<alt_unit>" + unitCode + "</alt_unit>"
                 + "<gtin>" + barCodeCode + "</gtin>"
@@ -324,7 +347,7 @@ namespace dMobile.Controller.Activity_Item
         /// </summary>
         /// <param name="resourceType"><see cref="object"/> Resource model type.</param>
         /// <returns><see cref="int"/> Found activity item foreign key reference number, else 0 if not found.</returns>
-        public override int GetFKRefno(object resourceType)
+        public override int GetFkRefno(object resourceType)
         {
             throw new NotImplementedException();
         }
@@ -352,9 +375,9 @@ namespace dMobile.Controller.Activity_Item
         /// <summary>
         /// The GetProdSchemeDataFromDetailFKRefno.
         /// </summary>
-        /// <param name="actDetailFKRefno">The actDetailFKRefno<see cref="int"/>.</param>
+        /// <param name="actDetailFkRefno">The actDetailFKRefno<see cref="int"/>.</param>
         /// <returns>The <see cref="Task{SActItemSchemeData}"/>.</returns>
-        public override Task<ActItemSchemeData> GetProdSchemeDataFromDetailFKRefno(int actDetailFKRefno)
+        public override Task<ActItemSchemeData> GetProdSchemeDataFromDetailFkRefno(int actDetailFkRefno)
         {
             throw new NotImplementedException();
         }
@@ -374,7 +397,7 @@ namespace dMobile.Controller.Activity_Item
         /// </summary>
         /// <param name="data">The data<see cref="XDocument"/>.</param>
         /// <returns>The <see cref="Task{string}"/>.</returns>
-        public override Task<string> CreateDeleteXML(XDocument data)
+        public override Task<string> CreateDeleteXml(XDocument data)
         {
             throw new NotImplementedException();
         }

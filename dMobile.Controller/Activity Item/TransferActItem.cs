@@ -92,29 +92,29 @@ namespace dMobile.Controller.Activity_Item
                     },
                 };
 
-                var labelProductID = new Label { VerticalOptions = LayoutOptions.Center };
-                var labelBC = new Label { VerticalOptions = LayoutOptions.Center };
+                var labelProductId = new Label { VerticalOptions = LayoutOptions.Center };
+                var labelBc = new Label { VerticalOptions = LayoutOptions.Center };
                 var labelUnitCode = new Label { VerticalOptions = LayoutOptions.Center };
                 var labelRequired = new Label { VerticalOptions = LayoutOptions.Center };
                 var labelQty = new Label { VerticalOptions = LayoutOptions.Center };
                 var labelWhs = new Label { VerticalOptions = LayoutOptions.Center };
 
-                labelProductID.SetBinding(Label.TextProperty, new Binding("ProductCode"));
-                labelBC.SetBinding(Label.TextProperty, new Binding("ProductUnitBC"));
+                labelProductId.SetBinding(Label.TextProperty, new Binding("ProductCode"));
+                labelBc.SetBinding(Label.TextProperty, new Binding("ProductUnitBC"));
                 labelUnitCode.SetBinding(Label.TextProperty, new Binding("UnitCode"));
                 labelRequired.SetBinding(Label.TextProperty, new Binding("ActivityItemTransferRequiredQuantity", BindingMode.Default, null, null, "{0:F3}"));
                 labelQty.SetBinding(Label.TextProperty, new Binding("ActivityItemTransferQuantity", BindingMode.Default, null, null, "{0:F3}"));
                 labelWhs.SetBinding(Label.TextProperty, new Binding("LocationCode"));
 
-                gridData.Children.Add(labelProductID);
-                gridData.Children.Add(labelBC);
+                gridData.Children.Add(labelProductId);
+                gridData.Children.Add(labelBc);
                 gridData.Children.Add(labelUnitCode);
                 gridData.Children.Add(labelRequired);
                 gridData.Children.Add(labelQty);
                 gridData.Children.Add(labelWhs);
 
-                Grid.SetColumn(labelProductID, 0);
-                Grid.SetColumn(labelBC, 1);
+                Grid.SetColumn(labelProductId, 0);
+                Grid.SetColumn(labelBc, 1);
                 Grid.SetColumn(labelUnitCode, 2);
                 Grid.SetColumn(labelRequired, 3);
                 Grid.SetColumn(labelQty, 4);
@@ -208,6 +208,28 @@ namespace dMobile.Controller.Activity_Item
         }
 
         /// <summary>
+        /// Find the list item index of the item that matches the activity item foreign key reference number.
+        /// </summary>
+        /// <param name="activityItemFkRefno"><see cref="int"/> Activity item foreign key reference number.</param>
+        /// <returns><see cref="int"/> Activity list item found index, else -1.</returns>
+        public override int FindActivityItemIndex(int activityItemFkRefno)
+        {
+            var foundIdx = -1;
+
+            // ReSharper disable once ForeachCanBeConvertedToQueryUsingAnotherGetEnumerator
+            foreach (var item in this.ListItems)
+            {
+                foundIdx++;
+                if (((TransferItem)item).ActivityItemFKRefno == activityItemFkRefno)
+                {
+                    break;
+                }
+            }
+
+            return foundIdx;
+        }
+
+        /// <summary>
         /// The IsReadyToApply.
         /// </summary>
         /// <param name="data">.</param>
@@ -217,7 +239,7 @@ namespace dMobile.Controller.Activity_Item
             await base.IsReadyToApply(data);
 
             // New items are identified with 0 < this.FKRefno, do not validate.
-            if (this.SysEnv.SysSettings.TransQtyOverWarn != SysCommon.ActTransfersQtyOverValLevels.NoValidationOrWarning && this.ItemFKRefno > 0)
+            if (this.SysEnv.SysSettings.TransQtyOverWarn != SysCommon.ActTransfersQtyOverValLevels.NoValidationOrWarning && this.ItemFkRefno > 0)
             {
                 try
                 {
@@ -246,28 +268,28 @@ namespace dMobile.Controller.Activity_Item
         /// <summary>
         /// The GetUnableToParseItemFKRefnoMessage.
         /// </summary>
-        /// <param name="actItemStringFKRefno">.</param>
+        /// <param name="actItemStringFkRefno">.</param>
         /// <returns>.</returns>
-        public override string GetUnableToParseItemFKRefnoMessage(string actItemStringFKRefno)
+        public override string GetUnableToParseItemFkRefnoMessage(string actItemStringFkRefno)
         {
-            return string.Format("Unable to parse the transfer item # {0}", actItemStringFKRefno);
+            return string.Format("Unable to parse the transfer item # {0}", actItemStringFkRefno);
         }
 
         /// <summary>
         /// The GetUnableToFindItemFKRefnoMessage.
         /// </summary>
-        /// <param name="actItemStringFKRefno">.</param>
+        /// <param name="actItemStringFkRefno">.</param>
         /// <returns>.</returns>
-        public override string GetUnableToFindItemFKRefnoMessage(string actItemStringFKRefno)
+        public override string GetUnableToFindItemFkRefnoMessage(string actItemStringFkRefno)
         {
-            return string.Format("Unable to find the transfer item # {0}", actItemStringFKRefno);
+            return string.Format("Unable to find the transfer item # {0}", actItemStringFkRefno);
         }
 
         /// <summary>
         /// The GetDataViewSortFKRefnoIdx.
         /// </summary>
         /// <returns>.</returns>
-        public override string GetDataViewSortFKRefnoIdx()
+        public override string GetDataViewSortFkRefnoIdx()
         {
             return "ActivityItemStringFKRefno";
         }
@@ -302,7 +324,7 @@ namespace dMobile.Controller.Activity_Item
                 transaction.Execute(queryActivityItem, parametersActivityItem.ToArray());
 
                 this.ItemRefno = Convert.ToInt32(transaction.ExecuteScalar<int>("SELECT last_insert_rowid() FROM tActivityItem"));
-                this.ItemFKRefno = this.ItemRefno * -1;
+                this.ItemFkRefno = this.ItemRefno * -1;
 
                 var queryTransferItem = "INSERT INTO tActivityItemTransfer (" +
                                         "ActivityItemRefno, " +
@@ -339,8 +361,8 @@ namespace dMobile.Controller.Activity_Item
                     parametersTransferItem.Add(Convert.ToInt32(SysCommon.ActSubTypes.TransferTo));
                 }
 
-                parametersTransferItem.Add(Convert.ToInt32(this.ItemFKRefno));
-                parametersTransferItem.Add(Convert.ToString(this.ItemFKRefno));
+                parametersTransferItem.Add(Convert.ToInt32(this.ItemFkRefno));
+                parametersTransferItem.Add(Convert.ToString(this.ItemFkRefno));
                 parametersTransferItem.Add(Convert.ToInt32(prodUnitRefno));
                 parametersTransferItem.Add(Convert.ToInt32(this.LocMap.WhsLocMapRefno));
                 parametersTransferItem.Add(Convert.ToInt32(0));
@@ -360,8 +382,8 @@ namespace dMobile.Controller.Activity_Item
                 var item = new TransferItem()
                 {
                     ActivityItemRefno = this.ItemRefno,
-                    ActivityItemFKRefno = this.ItemFKRefno,
-                    ActivityItemStringFKRefno = this.ItemFKRefno.ToString(),
+                    ActivityItemFKRefno = this.ItemFkRefno,
+                    ActivityItemStringFKRefno = this.ItemFkRefno.ToString(),
                     ProductUnitRefno = prodUnitRefno,
                     ProductRefno = int.Parse(data.Root.Element("ProductRefno").Value),
                     ProductCode = data.Root.Element("ProductCode").Value,
@@ -431,22 +453,22 @@ namespace dMobile.Controller.Activity_Item
         /// <summary>
         /// The DesignGrid.
         /// </summary>
-        /// <param name="GridMainActivity">The GridMainActivity<see cref="Grid"/>.</param>
-        /// <param name="ListViewMainActivity">The ListViewMainActivity<see cref="ListView"/>.</param>
+        /// <param name="gridMainActivity">The GridMainActivity<see cref="Grid"/>.</param>
+        /// <param name="listViewMainActivity">The ListViewMainActivity<see cref="ListView"/>.</param>
         /// <returns>The <see cref="ObservableCollection{object}"/>.</returns>
-        public override ObservableCollection<object> DesignGrid(ref Grid GridMainActivity, ref ListView ListViewMainActivity)
+        public override ObservableCollection<object> DesignGrid(ref Grid gridMainActivity, ref ListView listViewMainActivity)
         {
             var observableCollection = new ObservableCollection<object>();
 
-            var labelProductIDHeader = new Label { Text = "Product ID", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
-            var labelBCHeader = new Label { Text = "BC", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
+            var labelProductIdHeader = new Label { Text = "Product ID", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
+            var labelBcHeader = new Label { Text = "BC", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
             var labelUnitCodeHeader = new Label { Text = string.Empty, VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
             var labelRequiredHeader = new Label { Text = "Required", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
             var labelQtyHeader = new Label { Text = "Qty", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
             var labelWhsHeader = new Label { Text = "Whs", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
 
-            this.columnWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(labelProductIDHeader.Text);
-            this.columnWidth1 = DependencyService.Get<IGridService>().CalculateTextWidth(labelBCHeader.Text);
+            this.columnWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(labelProductIdHeader.Text);
+            this.columnWidth1 = DependencyService.Get<IGridService>().CalculateTextWidth(labelBcHeader.Text);
             this.columnWidth2 = DependencyService.Get<IGridService>().CalculateTextWidth(labelUnitCodeHeader.Text);
             this.columnWidth3 = DependencyService.Get<IGridService>().CalculateTextWidth(labelRequiredHeader.Text);
             this.columnWidth4 = DependencyService.Get<IGridService>().CalculateTextWidth(labelQtyHeader.Text);
@@ -469,15 +491,15 @@ namespace dMobile.Controller.Activity_Item
 
             gridHeader.SetDynamicResource(VisualElement.BackgroundColorProperty, "HeaderColor");
 
-            gridHeader.Children.Add(labelProductIDHeader);
-            gridHeader.Children.Add(labelBCHeader);
+            gridHeader.Children.Add(labelProductIdHeader);
+            gridHeader.Children.Add(labelBcHeader);
             gridHeader.Children.Add(labelUnitCodeHeader);
             gridHeader.Children.Add(labelRequiredHeader);
             gridHeader.Children.Add(labelQtyHeader);
             gridHeader.Children.Add(labelWhsHeader);
 
-            Grid.SetColumn(labelProductIDHeader, 0);
-            Grid.SetColumn(labelBCHeader, 1);
+            Grid.SetColumn(labelProductIdHeader, 0);
+            Grid.SetColumn(labelBcHeader, 1);
             Grid.SetColumn(labelUnitCodeHeader, 2);
             Grid.SetColumn(labelRequiredHeader, 3);
             Grid.SetColumn(labelQtyHeader, 4);
@@ -485,7 +507,7 @@ namespace dMobile.Controller.Activity_Item
 
             Grid.SetRow(gridHeader, 0);
 
-            GridMainActivity.Children.Add(gridHeader);
+            gridMainActivity.Children.Add(gridHeader);
 
             foreach (TransferItem transferItem in this.ListItems)
             {
@@ -556,7 +578,7 @@ namespace dMobile.Controller.Activity_Item
                 }
             }
 
-            ListViewMainActivity.ItemTemplate = (DataTemplate)this.resourceDictionary["dataTemplateTransferItem"];
+            listViewMainActivity.ItemTemplate = (DataTemplate)this.resourceDictionary["dataTemplateTransferItem"];
 
             return observableCollection;
         }
@@ -737,14 +759,14 @@ namespace dMobile.Controller.Activity_Item
         /// Select an activity item.
         /// </summary>
         /// <param name="selectedActivityItem"><see cref="object"/> Selected activity object.</param>
-        /// <returns><see cref="Task"/> Task operation.</returns>
-        public override async Task AssignActivityItem(object activityItem)
+        /// <returns><see cref="Task{T}"/> Activity item foreign key reference number.</returns>
+        public override async Task<int> AssignActivityItem(object activityItem)
         {
             if (activityItem is TransferItem item)
             {
                 this.SelectedActivityItem = item;
                 this.ItemRefno = item.ActivityItemRefno;
-                this.ItemFKRefno = item.ActivityItemFKRefno;
+                this.ItemFkRefno = item.ActivityItemFKRefno;
                 this.ProdInfo = await ProductInfoTasks.GetInfoFromUnitRefno(item.ProductUnitRefno);
                 this.ProdInfo.Scheme = await ProductInfoTasks.GetSchemeComponentsFromRefno(this.ProdInfo.Refno);
 
@@ -790,6 +812,8 @@ namespace dMobile.Controller.Activity_Item
                 // LocationMap.GetInstance().CurrLocMap warehouse needs to be set before call to GetSchemeComponentsFromRefno.
                 this.ProdInfo.Scheme = await ProductInfoTasks.GetSchemeComponentsFromRefno(this.ProdInfo.Refno);
             }
+
+            return this.ItemFkRefno;
         }
 
         /// <summary>
@@ -819,7 +843,7 @@ namespace dMobile.Controller.Activity_Item
             if (results?.Count > 0)
             {
                 this.ItemRefno = Convert.ToInt32(results[0].ActivityItemRefno);
-                this.ItemFKRefno = Convert.ToInt32(results[0].ActivityItemFKRefno);
+                this.ItemFkRefno = Convert.ToInt32(results[0].ActivityItemFKRefno);
                 this.ProdInfo = await ProductInfoTasks.GetInfoFromUnitRefno(Convert.ToInt32(results[0].ProductUnitRefno));
                 this.ProdInfo.Scheme = await ProductInfoTasks.GetSchemeComponentsFromRefno(this.ProdInfo.Refno);
 
@@ -834,7 +858,7 @@ namespace dMobile.Controller.Activity_Item
         /// </summary>
         /// <param name="data">.</param>
         /// <returns>.</returns>
-        public async override Task<string> CreateSubmitXML(XDocument data)
+        public async override Task<string> CreateSubmitXml(XDocument data)
         {
             var xmlString = new StringBuilder();
             var xml = XmlWriter.Create(xmlString);
@@ -925,9 +949,9 @@ namespace dMobile.Controller.Activity_Item
         /// <summary>
         /// The TransferModuleQuantityOverCheck.
         /// </summary>
-        /// <param name="actItemTransFKRefno">.</param>
+        /// <param name="actItemTransFkRefno">.</param>
         /// <param name="actItemTransQuantity">.</param>
-        private void TransferModuleQuantityOverCheck(int actItemTransFKRefno, decimal actItemTransQuantity)
+        private void TransferModuleQuantityOverCheck(int actItemTransFkRefno, decimal actItemTransQuantity)
         {
             if (this.SelectedActivityItem is TransferItem transferItem)
             {
@@ -946,10 +970,10 @@ namespace dMobile.Controller.Activity_Item
         /// </summary>
         /// <param name="resourceType"><see cref="object"/> Resource model type.</param>
         /// <returns><see cref="int"/> Found activity item foreign key refno, else 0 if not found.</returns>
-        public override int GetFKRefno(object resourceType)
+        public override int GetFkRefno(object resourceType)
         {
-            object tmpFKItRefno = ((TransferItem)resourceType).ActivityItemFKRefno;
-            return tmpFKItRefno == null ? 0 : Convert.ToInt32(tmpFKItRefno);
+            object tmpFkItRefno = ((TransferItem)resourceType).ActivityItemFKRefno;
+            return tmpFkItRefno == null ? 0 : Convert.ToInt32(tmpFkItRefno);
         }
 
         /// <summary>
@@ -958,7 +982,7 @@ namespace dMobile.Controller.Activity_Item
         /// <returns><see cref="string"/> Get activity item control description.</returns>
         public override string GetControlDescription()
         {
-            return string.Format("Transfer # {0}", this.ActHdr.HdrFKRefno);
+            return string.Format("Transfer # {0}", this.ActHdr.HdrFkRefno);
         }
 
         /// <summary>
@@ -973,9 +997,9 @@ namespace dMobile.Controller.Activity_Item
         /// <summary>
         /// The GetProdSchemeDataFromDetailFKRefno.
         /// </summary>
-        /// <param name="actDetailFKRefno">The actDetailFKRefno<see cref="int"/>.</param>
+        /// <param name="actDetailFkRefno">The actDetailFKRefno<see cref="int"/>.</param>
         /// <returns>The <see cref="Task{SActItemSchemeData}"/>.</returns>
-        public override Task<ActItemSchemeData> GetProdSchemeDataFromDetailFKRefno(int actDetailFKRefno)
+        public override Task<ActItemSchemeData> GetProdSchemeDataFromDetailFkRefno(int actDetailFkRefno)
         {
             throw new NotImplementedException();
         }
@@ -1006,7 +1030,7 @@ namespace dMobile.Controller.Activity_Item
         /// </summary>
         /// <param name="data">The data<see cref="XDocument"/>.</param>
         /// <returns>The <see cref="Task{string}"/>.</returns>
-        public override Task<string> CreateDeleteXML(XDocument data)
+        public override Task<string> CreateDeleteXml(XDocument data)
         {
             throw new NotImplementedException();
         }

@@ -86,7 +86,7 @@ namespace dMobile.Controller.Activity
                     break;
 
                 case SysCommon.ActSubTypes.PurchaseOrderWorkSheet:
-                    actFactory = new POWorkSheetActivityFactory();
+                    actFactory = new PoWorkSheetActivityFactory();
                     break;
 
                 case SysCommon.ActSubTypes.MoveInventory:

@@ -86,23 +86,23 @@ namespace dMobile.Controller.Activity
                 var labelQty = new Label { VerticalOptions = LayoutOptions.Center };
                 var labelWeight = new Label { VerticalOptions = LayoutOptions.Center };
                 var labelUnitCode = new Label { VerticalOptions = LayoutOptions.Center };
-                var labelSchemeID = new Label { VerticalOptions = LayoutOptions.Center };
+                var labelSchemeId = new Label { VerticalOptions = LayoutOptions.Center };
 
                 labelQty.SetBinding(Label.TextProperty, new Binding("ActivityStringFKRefno"));
                 labelWeight.SetBinding(Label.TextProperty, new Binding("ActivityPickingOrderedDateTime", BindingMode.Default, null, null, "{0:MM/dd/yyyy}"));
                 labelUnitCode.SetBinding(Label.TextProperty, new Binding("ActivityPickingDeliveryDateTime", BindingMode.Default, null, null, "{0:MM/dd/yyyy}"));
-                labelSchemeID.SetBinding(Label.TextProperty, new Binding("RouteCode"));
-                labelSchemeID.SetBinding(Label.TextProperty, new Binding("RouteStop"));
+                labelSchemeId.SetBinding(Label.TextProperty, new Binding("RouteCode"));
+                labelSchemeId.SetBinding(Label.TextProperty, new Binding("RouteStop"));
 
                 gridData.Children.Add(labelQty);
                 gridData.Children.Add(labelWeight);
                 gridData.Children.Add(labelUnitCode);
-                gridData.Children.Add(labelSchemeID);
+                gridData.Children.Add(labelSchemeId);
 
                 Grid.SetColumn(labelQty, 0);
                 Grid.SetColumn(labelWeight, 1);
                 Grid.SetColumn(labelUnitCode, 2);
-                Grid.SetColumn(labelSchemeID, 3);
+                Grid.SetColumn(labelSchemeId, 3);
 
                 return new ViewCell { View = gridData };
             });
@@ -134,7 +134,7 @@ namespace dMobile.Controller.Activity
             if (this.SysEnv.SysSettings.IsRelByOrder && !this.SysEnv.SysSettings.IsDisconnectedMode)
             {
                 // if (MessageBox.Show(string.Format("Release Order# {0} To Invoice Status?", this.FKRefno), "Release Order", MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button2) == DialogResult.Yes)
-                if (await Device.InvokeOnMainThreadAsync(async () => await Application.Current.MainPage.DisplayAlert("Release Order", string.Format("Release Order# {0} To Invoice Status?", this.HdrFKRefno), "Yes", "No")))
+                if (await Device.InvokeOnMainThreadAsync(async () => await Application.Current.MainPage.DisplayAlert("Release Order", string.Format("Release Order# {0} To Invoice Status?", this.HdrFkRefno), "Yes", "No")))
                 {
                     // GC.Collect();
                     // GC.WaitForPendingFinalizers();
@@ -149,7 +149,7 @@ namespace dMobile.Controller.Activity
                         + "<action>RELEASE SALES ORDER BY ORDER</action>"
                         + "</command>"
                         + await SysCommon.GetRequestDefaults(false)
-                        + "<refno>" + this.HdrFKRefno + "</refno>"
+                        + "<refno>" + this.HdrFkRefno + "</refno>"
                         + "</imclient>");
 
                     request.Save(xml);
@@ -166,12 +166,12 @@ namespace dMobile.Controller.Activity
                             docError.LoadXml(reqData);
                             var errorDetail = docError.DocumentElement["detail"].InnerText;
 
-                            throw new Exception(string.Format("Release order # {0} to invoice status failed." + Environment.NewLine + errorDetail, this.HdrFKRefno, null));
+                            throw new Exception(string.Format("Release order # {0} to invoice status failed." + Environment.NewLine + errorDetail, this.HdrFkRefno, null));
                         }
                     }
                     else
                     {
-                        throw new Exception(string.Format("Release order # {0} to invoice status failed.", this.HdrFKRefno));
+                        throw new Exception(string.Format("Release order # {0} to invoice status failed.", this.HdrFkRefno));
                     }
 
                     isResult = true;
@@ -185,7 +185,7 @@ namespace dMobile.Controller.Activity
         /// The GetFKRefnoIdx.
         /// </summary>
         /// <returns>.</returns>
-        public override string GetFKRefnoIdx()
+        public override string GetFkRefnoIdx()
         {
             return "ActivityStringFKRefno";
         }
@@ -510,7 +510,7 @@ namespace dMobile.Controller.Activity
             if (selectedActivity is Picking header)
             {
                 this.SelectedActivity = header;
-                this.HdrFKRefno = header.ActivityFKRefno;
+                this.HdrFkRefno = header.ActivityFKRefno;
                 this.HdrRefno = header.ActivityRefno;
 
                 if (this.SysEnv.SysSettings.IsDefaultLocToProductDefaultLoc)
@@ -548,7 +548,7 @@ namespace dMobile.Controller.Activity
         {
             if (selectedItem is Picking picking)
             {
-                this.HdrFKRefno = Convert.ToInt32(picking.ActivityFKRefno);
+                this.HdrFkRefno = Convert.ToInt32(picking.ActivityFKRefno);
                 this.HdrRefno = Convert.ToInt32(picking.ActivityRefno);
             }
 
@@ -763,7 +763,7 @@ namespace dMobile.Controller.Activity
         /// </summary>
         /// <param name="resourceType"><see cref="object"/> Resource model (tActivity??Model).</param>
         /// <returns><see cref="int"/> Found activity foreign key refno, else 0 if not found.</returns>
-        public override int GetFKRefno(object resourceType)
+        public override int GetFkRefno(object resourceType)
         {
             throw new NotImplementedException();
         }

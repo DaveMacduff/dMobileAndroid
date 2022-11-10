@@ -8,9 +8,7 @@ namespace dMobile.Resources.Types
 
     public class Sort
     {
-        private SortOrder sortOrder = SortOrder.ASC;
-
         public string SortValue { get; set; } = string.Empty;
-        public SortOrder SortOrder { get => this.sortOrder; set => this.sortOrder = value; }
+        public SortOrder SortOrder { get; set; } = SortOrder.ASC;
     }
 }

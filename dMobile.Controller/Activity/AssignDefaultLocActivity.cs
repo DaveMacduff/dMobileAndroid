@@ -39,7 +39,7 @@ namespace dMobile.Controller.Activity
         /// The GetFKRefnoIdx.
         /// </summary>
         /// <returns>.</returns>
-        public override string GetFKRefnoIdx()
+        public override string GetFkRefnoIdx()
         {
             return "ActivityStringFKRefno";
         }
@@ -61,7 +61,7 @@ namespace dMobile.Controller.Activity
         public override async Task SelectActivity(object selectedActivity)
         {
             this.SelectedActivity = selectedActivity;
-            this.HdrFKRefno = Convert.ToInt32((selectedActivity as dynamic).ActivityRefno);
+            this.HdrFkRefno = Convert.ToInt32((selectedActivity as dynamic).ActivityRefno);
             this.HdrRefno = Convert.ToInt32((selectedActivity as dynamic).ActivityRefno);
         }
 
@@ -72,7 +72,7 @@ namespace dMobile.Controller.Activity
         /// <returns>.</returns>
         public override int GetRefnoFromRowIdx(object selectedObject)
         {
-            this.HdrFKRefno = Convert.ToInt32((selectedObject as dynamic).ActivityRefno);
+            this.HdrFkRefno = Convert.ToInt32((selectedObject as dynamic).ActivityRefno);
             this.HdrRefno = Convert.ToInt32((selectedObject as dynamic).ActivityRefno);
 
             return this.HdrRefno;
@@ -144,7 +144,7 @@ namespace dMobile.Controller.Activity
         /// </summary>
         /// <param name="resourceType"><see cref="object"/> Resource model (tActivity??Model).</param>
         /// <returns><see cref="int"/> Found activity foreign key refno, else 0 if not found.</returns>
-        public override int GetFKRefno(object resourceType)
+        public override int GetFkRefno(object resourceType)
         {
             throw new NotImplementedException();
         }

@@ -13,6 +13,7 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
     {
         public static readonly string KiiNaturalsCrispsVendorNumber = "0678629";
 
+        /// <inheritdoc/>
         protected override string IdentifyGTIN(string barCodeData)
         {
             var data = barCodeData;
@@ -24,6 +25,7 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
             return base.IdentifyGTIN(data);
         }
 
+        /// <inheritdoc/>
         protected override string IdentifyGTINinLogisticUnit(string barCodeData)
         {
             // They have their GTIN's ID'd 02 instead of 01
@@ -31,6 +33,7 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
             return barCodeData;
         }
 
+        /// <inheritdoc/>
         protected override string IdentifyLogisticUnitBestBeforeSellByDate(string barCodeData)
         {
             var tempData = barCodeData;

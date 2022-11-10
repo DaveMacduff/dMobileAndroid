@@ -30,6 +30,7 @@ namespace dMobile.GroundWork
         ///
         /// </summary>
         /// <remarks></remarks>
+        /// <inheritdoc/>
         public override async Task RequestData(int actItemRefno)
         {
             try
@@ -100,6 +101,7 @@ namespace dMobile.GroundWork
         ///
         /// </summary>
         /// <remarks></remarks>
+        /// <inheritdoc/>
         public override async Task PurgeData()
         {
             try
@@ -145,6 +147,7 @@ namespace dMobile.GroundWork
         ///
         /// </summary>
         /// <remarks></remarks>
+        /// <inheritdoc/>
         public override async Task<int> DataStatus()
         {
             int rowsAffected;
@@ -167,6 +170,7 @@ namespace dMobile.GroundWork
         /// </summary>
         /// <param name="actItemPickRefno"></param>
         /// <returns></returns>
+        /// <inheritdoc/>
         protected override async Task<string> SendRequest(int actItemPickRefno)
         {
             var results = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<tActivityItemPickingModel>("SELECT * FROM tActivityItemPicking WHERE ActivityItemRefno = ?", actItemPickRefno);
@@ -189,6 +193,7 @@ namespace dMobile.GroundWork
         /// </summary>
         /// <param name="reqData"></param>
         /// <param name="actItemPickRefno"></param>
+        /// <inheritdoc/>
         protected override async Task Save(string reqData, int actItemPickRefno)
         {
             var errMsg = string.Empty;
@@ -335,6 +340,7 @@ namespace dMobile.GroundWork
         /// </summary>
         /// <param name="actItemPickFKRefno"></param>
         /// <returns></returns>
+        /// <inheritdoc/>
         protected override async Task<string> CreateRequest(int actItemPickFKRefno)
         {
             var xmlString = new StringBuilder();

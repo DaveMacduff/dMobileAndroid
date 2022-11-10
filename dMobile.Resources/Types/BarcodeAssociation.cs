@@ -9,15 +9,6 @@ namespace dMobile.Resources.Types
     /// </summary>
     public class BarcodeAssociation
     {
-        /// <summary>
-        /// Defines the activityStatus.
-        /// </summary>
-        private int activityStatus;
-
-        /// <summary>
-        /// Defines the productUnitBarCodeModifier1.
-        /// </summary>
-        private string productUnitBarCodeModifier1;
 
         /// <summary>
         /// Gets or sets the ActivityRefno.
@@ -32,7 +23,7 @@ namespace dMobile.Resources.Types
         /// <summary>
         /// Gets or sets the ActivityStatus.
         /// </summary>
-        public int ActivityStatus { get => this.activityStatus; set => this.activityStatus = value; }
+        public int ActivityStatus { get; set; }
 
         /// <summary>
         /// Gets or sets the ProductCode.
@@ -57,6 +48,6 @@ namespace dMobile.Resources.Types
         /// <summary>
         /// Gets or sets the ProductUnitBarCodeModifier1.
         /// </summary>
-        public string ProductUnitBarCodeModifier1 { get => this.productUnitBarCodeModifier1; set => this.productUnitBarCodeModifier1 = value; }
+        public string ProductUnitBarCodeModifier1 { get; set; }
     }
 }

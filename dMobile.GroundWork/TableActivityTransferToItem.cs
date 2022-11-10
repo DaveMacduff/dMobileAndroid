@@ -30,6 +30,7 @@ namespace dMobile.GroundWork
         ///
         /// </summary>
         /// <remarks></remarks>
+        /// <inheritdoc/>
         public override async Task RequestData(int actRefno)
         {
             try
@@ -100,6 +101,7 @@ namespace dMobile.GroundWork
         ///
         /// </summary>
         /// <remarks></remarks>
+        /// <inheritdoc/>
         public override async Task PurgeData()
         {
             this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging transfer items.", true);
@@ -134,6 +136,7 @@ namespace dMobile.GroundWork
         ///
         /// </summary>
         /// <remarks></remarks>
+        /// <inheritdoc/>
         public override async Task<int> DataStatus()
         {
             int rowsAffected;
@@ -156,6 +159,7 @@ namespace dMobile.GroundWork
         /// </summary>
         /// <returns></returns>
         /// <remarks></remarks>
+        /// <inheritdoc/>
         protected override async Task<string> SendRequest(int actRefno)
         {
             var results = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<tActivityTransferModel>("SELECT * FROM tActivityTransfer WHERE ActivityRefno = ?", Convert.ToInt32(actRefno));
@@ -178,6 +182,7 @@ namespace dMobile.GroundWork
         /// </summary>
         /// <param name="reqData"></param>
         /// <remarks></remarks>
+        /// <inheritdoc/>
         protected override async Task Save(string reqData, int actRefno)
         {
             await DatabaseConnection.GetInstance().SQLConn.RunInTransactionAsync(transaction =>
@@ -298,6 +303,7 @@ namespace dMobile.GroundWork
         /// </summary>
         /// <param name="transFKRefno"></param>
         /// <returns></returns>
+        /// <inheritdoc/>
         protected override async Task<string> CreateRequest(int transFKRefno)
         {
             var xmlString = new StringBuilder();

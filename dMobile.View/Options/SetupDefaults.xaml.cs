@@ -107,6 +107,7 @@ namespace dMobile.View.Options
             MessagingCenter.Unsubscribe<string>(this, EventTypes.OnKeyUp.ToString());
         }
 
+        /// <inheritdoc/>
         protected override bool OnBackButtonPressed()
         {
             Device.BeginInvokeOnMainThread(async () =>

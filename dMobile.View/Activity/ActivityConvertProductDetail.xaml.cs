@@ -684,20 +684,20 @@ namespace dMobile.View.Activity
             try
             {
                 // Create adjustment
-                var request = await this.ActDetail.CreateSubmitXML(data);
+                var request = await this.ActDetail.CreateSubmitXml(data);
                 var response = SysCommon.SubmitComm(request);
                 SysCommon.CheckCommResponseForErrors(response);
 
                 // Parse response for the updated fk_refnos
                 // Modify and change the ActivityDetail/Item/Header to be up to date with the response fk_refnos
                 var responseData = XDocument.Parse(response);
-                this.ActDetail.ActItem.ActHdr.HdrFKRefno = Convert.ToInt32(responseData.Root.Element("fk_refno").Value);
-                this.ActDetail.ActItem.ItemFKRefno = Convert.ToInt32(responseData.Root.Element("fkit_refno").Value);
-                this.ActDetail.DetailFKRefno = Convert.ToInt32(responseData.Root.Element("ser_refno").Value);
+                this.ActDetail.ActItem.ActHdr.HdrFkRefno = Convert.ToInt32(responseData.Root.Element("fk_refno").Value);
+                this.ActDetail.ActItem.ItemFkRefno = Convert.ToInt32(responseData.Root.Element("fkit_refno").Value);
+                this.ActDetail.DetailFkRefno = Convert.ToInt32(responseData.Root.Element("ser_refno").Value);
 
-                data.Root.Add(new XElement("hdr_refno", this.ActDetail.ActItem.ActHdr.HdrFKRefno));
-                data.Root.Add(new XElement("itm_refno", this.ActDetail.ActItem.ItemFKRefno));
-                data.Root.Element("ser_refno").SetValue(this.ActDetail.DetailFKRefno);
+                data.Root.Add(new XElement("hdr_refno", this.ActDetail.ActItem.ActHdr.HdrFkRefno));
+                data.Root.Add(new XElement("itm_refno", this.ActDetail.ActItem.ItemFkRefno));
+                data.Root.Element("ser_refno").SetValue(this.ActDetail.DetailFkRefno);
 
                 var detail = this.ActDetail.InsertListDetail(this.MainActivityItems);
             }
@@ -738,7 +738,7 @@ namespace dMobile.View.Activity
                 var data = new XDocument();
 
                 // TODO send the fk_refno to delete over
-                var sendRequest = await this.ActDetail.CreateDeleteXML(data);
+                var sendRequest = await this.ActDetail.CreateDeleteXml(data);
                 var response = SysCommon.SubmitComm(sendRequest);
                 SysCommon.CheckCommResponseForErrors(response);
 
@@ -816,7 +816,7 @@ namespace dMobile.View.Activity
             {
                 // Create COM request to remove
                 var data = new XDocument();
-                var sendRequest = await this.ActDetail.CreateSubmitProductLabelXML(data);
+                var sendRequest = await this.ActDetail.CreateSubmitProductLabelXml(data);
                 var response = SysCommon.SubmitComm(sendRequest);
                 SysCommon.CheckCommResponseForErrors(response);
             }

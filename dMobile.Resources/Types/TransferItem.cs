@@ -12,27 +12,23 @@ namespace dMobile.Resources.Types
 
     public class TransferItem
     {
-        private int activityItemStatus;
-        private decimal activityItemTransferWeightQuantity;
-        private string locationName;
-
         public int ActivityItemRefno { get; set; }
         public int ActivityItemFKRefno { get; set; }
         public int ProductUnitRefno { get; set; }
         public int ProductRefno { get; set; }
         public int LocationMapRefno { get; set; }
         public int LocationCode { get; set; }
-        public int ActivityItemStatus { get => this.activityItemStatus; set => this.activityItemStatus = value; }
+        public int ActivityItemStatus { get; set; }
         public decimal ActivityItemTransferRequiredQuantity { get; set; }
         public decimal ActivityItemTransferQuantity { get; set; }
         public decimal ActivityItemTransferBaseQuantity { get; set; }
-        public decimal ActivityItemTransferWeightQuantity { get => this.activityItemTransferWeightQuantity; set => this.activityItemTransferWeightQuantity = value; }
+        public decimal ActivityItemTransferWeightQuantity { get; set; }
         public string ActivityItemStringFKRefno { get; set; }
         public string ProductUnitBC { get; set; }
         public string ProductUnitSizeDescription { get; set; }
         public string ProductCode { get; set; }
         public string ProductDescription { get; set; }
         public string UnitCode { get; set; }
-        public string LocationName { get => this.locationName; set => this.locationName = value; }
+        public string LocationName { get; set; }
     }
 }

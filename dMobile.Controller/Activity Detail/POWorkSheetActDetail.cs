@@ -15,18 +15,18 @@ using Xamarin.Forms;
 namespace dMobile.Controller.Activity_Detail
 {
     /// <summary>
-    /// Defines the <see cref="POWorkSheetActDetail" />.
+    /// Defines the <see cref="PoWorkSheetActDetail" />.
     /// </summary>
-    public class POWorkSheetActDetail : ActDetail
+    public class PoWorkSheetActDetail : ActDetail
     {
         /// <summary>
-        /// Initializes a new instance of the <see cref="POWorkSheetActDetail"/> class.
+        /// Initializes a new instance of the <see cref="PoWorkSheetActDetail"/> class.
         /// </summary>
         /// <param name="activityItem">.</param>
-        public POWorkSheetActDetail(ActItem activityItem)
+        public PoWorkSheetActDetail(ActItem activityItem)
           : base(activityItem)
         {
-            this.FullClassName = typeof(POWorkSheetActDetail).FullName;
+            this.FullClassName = typeof(PoWorkSheetActDetail).FullName;
         }
 
         /// <summary>
@@ -103,7 +103,7 @@ namespace dMobile.Controller.Activity_Detail
         /// </summary>
         /// <param name="selectedActivityDetail">The selectedActivityDetail<see cref="object"/>.</param>
         /// <returns>.</returns>
-        public override int GetFKRefno(object selectedActivityDetail)
+        public override int GetFkRefno(object selectedActivityDetail)
         {
             throw new NotImplementedException();
         }
@@ -162,7 +162,7 @@ namespace dMobile.Controller.Activity_Detail
         /// </summary>
         /// <param name="data">.</param>
         /// <returns>.</returns>
-        public override Task<string> CreateDeleteXML(XDocument data)
+        public override Task<string> CreateDeleteXml(XDocument data)
         {
             throw new NotImplementedException();
         }
@@ -172,7 +172,7 @@ namespace dMobile.Controller.Activity_Detail
         /// </summary>
         /// <param name="data">.</param>
         /// <returns>.</returns>
-        public override Task<string> CreateSubmitXML(XDocument data)
+        public override Task<string> CreateSubmitXml(XDocument data)
         {
             throw new NotImplementedException();
         }
@@ -183,7 +183,7 @@ namespace dMobile.Controller.Activity_Detail
         /// <returns><see cref="string"/> Get activity item control description.</returns>
         public override string GetControlDescription()
         {
-            return string.Format("PO worksheet # {0}", this.ActItem.ActHdr.HdrFKRefno);
+            return string.Format("PO worksheet # {0}", this.ActItem.ActHdr.HdrFkRefno);
         }
 
         /// <summary>
@@ -198,7 +198,7 @@ namespace dMobile.Controller.Activity_Detail
             {
                 detail = new ActivityDetail();
                 detail.ActivityDetailRefno = this.DetailRefno;
-                detail.ActivityDetailFKRefno = this.DetailFKRefno;
+                detail.ActivityDetailFKRefno = this.DetailFkRefno;
 
                 this.InsertListDetailProduct(detail);
                 this.InsertListDetailQuantity(detail);
@@ -206,8 +206,8 @@ namespace dMobile.Controller.Activity_Detail
                 this.InsertListDetailExtra(detail);
                 this.InsertListDetailLocation(detail);
 
-                detail.ActivityDetailSchemeID = this.SchemeID;
-                detail.ActivityDetailUniqueSchemeID = this.UniqueSchemeID;
+                detail.ActivityDetailSchemeID = this.SchemeId;
+                detail.ActivityDetailUniqueSchemeID = this.UniqueSchemeId;
                 ////detail.ActivityDetailStatus = (int)SysCommon.ActStatus.Inserted;
                 this.ListDetails.Add(detail);
             }

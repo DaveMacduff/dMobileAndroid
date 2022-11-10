@@ -463,7 +463,7 @@ namespace dMobile.View.Activity
                     this.FirstOnAppearing = false;
                     await this.ScannerStart();
                     this.ExtraInfoItems.Clear();
-                    this.ActHdr.XMLDataCriteria = XDocument.Parse(
+                    this.ActHdr.XmlDataCriteria = XDocument.Parse(
                                 "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>" +
                                 "<params>" +
                                 "<whs_id>0</whs_id>" +
@@ -564,7 +564,7 @@ namespace dMobile.View.Activity
                     ((PickingActivity)this.ActHdr).PickingLocationMapFilter = tmpLocMap;
                     sectFKRefno = tmpLocMap.SectFKRefno;
 
-                    this.ActHdr.XMLDataCriteria = XDocument.Parse(
+                    this.ActHdr.XmlDataCriteria = XDocument.Parse(
                                 "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>"
                                 + "<params>"
                                 + "<whs_id>" + tmpLocMap.WhsFKRefno + "</whs_id>"
@@ -890,7 +890,7 @@ namespace dMobile.View.Activity
                                         int.Parse(result.Root.Element("LocationMapRefno").Value));
                                     locMap.CurrLocMap = sLocMap;
 
-                                    this.ActHdr.XMLDataCriteria = XDocument.Parse(
+                                    this.ActHdr.XmlDataCriteria = XDocument.Parse(
                                         "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>"
                                         + "<params>"
                                         + "<whs_id>" + sLocMap.WhsFKRefno + "</whs_id>"
@@ -1035,7 +1035,7 @@ namespace dMobile.View.Activity
                 // Remember that the headers have been filtered by the login warehouse.
                 var selectedActivity = this.ActHdr.ListHdrs.OfType<object>().FirstOrDefault(
                     activity => Convert.ToString(activity.GetType().GetProperty(
-                        this.ActHdr.GetFKRefnoIdx()).GetValue(activity)) ==
+                        this.ActHdr.GetFkRefnoIdx()).GetValue(activity)) ==
                         actHdrStringFKRefno);
                 if (selectedActivity != null)
                 {
@@ -1052,7 +1052,7 @@ namespace dMobile.View.Activity
                 }
                 else
                 {
-                    this.ActHdr.HdrFKRefno = 0;
+                    this.ActHdr.HdrFkRefno = 0;
                     this.ActHdr.HdrRefno = 0;
                     throw new MessageOnlyException(string.Format(
                         "Unable to find reference # {0}. Perhaps change your login warehouse.",
@@ -1106,7 +1106,7 @@ namespace dMobile.View.Activity
             {
                 this.ActHdr.RegLayerListenerStatOut(this);
                 this.ActHdr.RegLayerListenerProgOut(this);
-                await this.ActHdr.Refresh(this.ActHdr.XMLDataCriteria);
+                await this.ActHdr.Refresh(this.ActHdr.XmlDataCriteria);
                 this.ActHdr.ListHdrs = await this.ActHdr.GetActivityList(isSubmitBatch: false);
                 await this.DesignGrid();
             }
@@ -1152,16 +1152,17 @@ namespace dMobile.View.Activity
             {
                 // Iterate through the list of headers looking for a foreign key match.
                 // Faster than LINQ.
-                this.ActHdr.SelectedListItemIdx = -1;
+                this.ActHdr.SelectedListItemIdx = 0;
                 object selectedItem = null;
                 foreach (var hdr in this.ActHdr.ListHdrs)
                 {
-                    if (this.SelectedActivityFkRefno == this.ActHdr.GetFKRefno(hdr))
+                    if (this.SelectedActivityFkRefno == this.ActHdr.GetFkRefno(hdr))
                     {
                         selectedItem = hdr;
-                        this.ActHdr.SelectedListItemIdx++;
                         break;
                     }
+
+                    this.ActHdr.SelectedListItemIdx++;
                 }
 
                 // Select the first header if no match was found, else select the item.
@@ -1180,7 +1181,7 @@ namespace dMobile.View.Activity
 
                 Device.BeginInvokeOnMainThread(() =>
                 {
-                    this.ListViewMainActivity.ScrollTo(selectedItem, ScrollToPosition.MakeVisible, false);
+                    this.ListViewMainActivity.ScrollTo(this.ListViewMainActivity.SelectedItem, ScrollToPosition.MakeVisible, false);
                 });
             }
             else
@@ -1188,7 +1189,7 @@ namespace dMobile.View.Activity
                 // Clear the activity nothing can be selected.
                 this.ActHdr.SelectedListItemIdx = -1;
                 this.ActHdr.SelectedActivity = null;
-                this.ActHdr.HdrFKRefno = 0;
+                this.ActHdr.HdrFkRefno = 0;
                 this.ActHdr.HdrRefno = 0;
                 Device.BeginInvokeOnMainThread(() =>
                 {
@@ -1361,7 +1362,7 @@ namespace dMobile.View.Activity
         {
             this.ActHdr.SelectedListItemIdx = e.SelectedItemIndex;
             await this.ActHdr.SelectActivity(e.SelectedItem);
-            this.SelectedActivityFkRefno = this.ActHdr.HdrFKRefno;
+            this.SelectedActivityFkRefno = this.ActHdr.HdrFkRefno;
             await DisplayData();
 
             async Task DisplayData()

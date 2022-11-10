@@ -8,9 +8,7 @@ namespace dMobile.Resources.Types
 
     public class TotalQuantity
     {
-        private decimal received;
-
         public decimal Ordered { get; set; }
-        public decimal Received { get => this.received; set => this.received = value; }
+        public decimal Received { get; set; }
     }
 }

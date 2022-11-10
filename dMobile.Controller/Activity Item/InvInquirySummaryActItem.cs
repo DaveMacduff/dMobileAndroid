@@ -119,12 +119,12 @@ namespace dMobile.Controller.Activity_Item
                     },
                 };
 
-                var labelProductID = new Label { VerticalOptions = LayoutOptions.Center };
-                var labelBC = new Label { VerticalOptions = LayoutOptions.Center };
+                var labelProductId = new Label { VerticalOptions = LayoutOptions.Center };
+                var labelBc = new Label { VerticalOptions = LayoutOptions.Center };
                 var labelQuantity = new Label { VerticalOptions = LayoutOptions.Center };
                 var labelUnitCode = new Label { VerticalOptions = LayoutOptions.Center };
                 var labelProdDate = new Label { VerticalOptions = LayoutOptions.Center };
-                var labelBBDate = new Label { VerticalOptions = LayoutOptions.Center };
+                var labelBbDate = new Label { VerticalOptions = LayoutOptions.Center };
                 var labelSection = new Label { VerticalOptions = LayoutOptions.Center };
                 var labelSlot = new Label { VerticalOptions = LayoutOptions.Center };
                 var labelSkid = new Label { VerticalOptions = LayoutOptions.Center };
@@ -132,12 +132,12 @@ namespace dMobile.Controller.Activity_Item
                 var labelWeightUnitCode = new Label { VerticalOptions = LayoutOptions.Center };
 
                 // Set label bindings
-                labelProductID.SetBinding(Label.TextProperty, new Binding("ProductCode"));
-                labelBC.SetBinding(Label.TextProperty, new Binding("ProductUnitBC"));
+                labelProductId.SetBinding(Label.TextProperty, new Binding("ProductCode"));
+                labelBc.SetBinding(Label.TextProperty, new Binding("ProductUnitBC"));
                 labelQuantity.SetBinding(Label.TextProperty, new Binding("ActivityItemQuantity", BindingMode.Default, null, null, "{0:F3}"));
                 labelUnitCode.SetBinding(Label.TextProperty, new Binding("UnitCode"));
                 labelProdDate.SetBinding(Label.TextProperty, new Binding("ActivityDetailLogisticUnitProductionDate"));
-                labelBBDate.SetBinding(Label.TextProperty, new Binding("ActivityDetailLogisticUnitBestbeforesellbydate"));
+                labelBbDate.SetBinding(Label.TextProperty, new Binding("ActivityDetailLogisticUnitBestbeforesellbydate"));
                 labelSection.SetBinding(Label.TextProperty, new Binding("LocationMapSectionFKRefno"));
                 labelSlot.SetBinding(Label.TextProperty, new Binding("LocationMapSlotFKRefno"));
                 labelSkid.SetBinding(Label.TextProperty, new Binding("SkidCode"));
@@ -145,8 +145,8 @@ namespace dMobile.Controller.Activity_Item
                 labelWeightUnitCode.SetBinding(Label.TextProperty, new Binding("WeightUnitCode"));
 
                 // Add labels to grid
-                gridData.Children.Add(labelProductID);
-                gridData.Children.Add(labelBC);
+                gridData.Children.Add(labelProductId);
+                gridData.Children.Add(labelBc);
                 gridData.Children.Add(labelQuantity);
                 gridData.Children.Add(labelUnitCode);
 
@@ -157,7 +157,7 @@ namespace dMobile.Controller.Activity_Item
 
                 if (this.ProdInfo.Scheme.IsBestBeforeDateTracked)
                 {
-                    gridData.Children.Add(labelBBDate);
+                    gridData.Children.Add(labelBbDate);
                 }
 
                 if (this.LocMap.IsSectionTracked)
@@ -175,8 +175,8 @@ namespace dMobile.Controller.Activity_Item
                 gridData.Children.Add(labelWeightUnitCode);
 
                 // Set label columns
-                Grid.SetColumn(labelProductID, 0);
-                Grid.SetColumn(labelBC, 1);
+                Grid.SetColumn(labelProductId, 0);
+                Grid.SetColumn(labelBc, 1);
                 Grid.SetColumn(labelQuantity, 2);
                 Grid.SetColumn(labelUnitCode, 3);
 
@@ -187,7 +187,7 @@ namespace dMobile.Controller.Activity_Item
 
                 if (this.ProdInfo.Scheme.IsBestBeforeDateTracked)
                 {
-                    Grid.SetColumn(labelBBDate, 5);
+                    Grid.SetColumn(labelBbDate, 5);
                 }
 
                 if (this.LocMap.IsSectionTracked)
@@ -255,9 +255,9 @@ namespace dMobile.Controller.Activity_Item
         /// <summary>
         /// The GetUnableToParseItemFKRefnoMessage.
         /// </summary>
-        /// <param name="actItemStringFKRefno">.</param>
+        /// <param name="actItemStringFkRefno">.</param>
         /// <returns>.</returns>
-        public override string GetUnableToParseItemFKRefnoMessage(string actItemStringFKRefno)
+        public override string GetUnableToParseItemFkRefnoMessage(string actItemStringFkRefno)
         {
             return string.Empty;
         }
@@ -265,9 +265,9 @@ namespace dMobile.Controller.Activity_Item
         /// <summary>
         /// The GetUnableToFindItemFKRefnoMessage.
         /// </summary>
-        /// <param name="actItemStringFKRefno">.</param>
+        /// <param name="actItemStringFkRefno">.</param>
         /// <returns>.</returns>
-        public override string GetUnableToFindItemFKRefnoMessage(string actItemStringFKRefno)
+        public override string GetUnableToFindItemFkRefnoMessage(string actItemStringFkRefno)
         {
             return string.Empty;
         }
@@ -276,7 +276,7 @@ namespace dMobile.Controller.Activity_Item
         /// The GetDataViewSortFKRefnoIdx.
         /// </summary>
         /// <returns>.</returns>
-        public override string GetDataViewSortFKRefnoIdx()
+        public override string GetDataViewSortFkRefnoIdx()
         {
             return string.Empty;
         }
@@ -300,10 +300,10 @@ namespace dMobile.Controller.Activity_Item
         /// <summary>
         /// The DesignGrid.
         /// </summary>
-        /// <param name="GridMainActivity">The GridMainActivity<see cref="Grid"/>.</param>
-        /// <param name="ListViewMainActivity">The ListViewMainActivity<see cref="ListView"/>.</param>
+        /// <param name="gridMainActivity">The GridMainActivity<see cref="Grid"/>.</param>
+        /// <param name="listViewMainActivity">The ListViewMainActivity<see cref="ListView"/>.</param>
         /// <returns>The <see cref="ObservableCollection{object}"/>.</returns>
-        public override ObservableCollection<object> DesignGrid(ref Grid GridMainActivity, ref ListView ListViewMainActivity)
+        public override ObservableCollection<object> DesignGrid(ref Grid gridMainActivity, ref ListView listViewMainActivity)
         {
             var observableCollection = new ObservableCollection<object>();
 
@@ -313,24 +313,24 @@ namespace dMobile.Controller.Activity_Item
                 observableCollection.Add(activityItem);
             }
 
-            var labelProductIDHeader = new Label { Text = "Product ID", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
-            var labelBCHeader = new Label { Text = string.Empty, VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
+            var labelProductIdHeader = new Label { Text = "Product ID", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
+            var labelBcHeader = new Label { Text = string.Empty, VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
             var labelQuantityHeader = new Label { Text = "Quantity", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
             var labelUnitCodeHeader = new Label { Text = string.Empty, VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
             var labelProdDateHeader = new Label { Text = "Prod Date", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
-            var labelBBDateHeader = new Label { Text = "BB/SB Date", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
+            var labelBbDateHeader = new Label { Text = "BB/SB Date", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
             var labelSectionHeader = new Label { Text = "Section", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
             var labelSlotHeader = new Label { Text = "Slot", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
             var labelSkidHeader = new Label { Text = "Skid", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
             var labelWeightHeader = new Label { Text = "Weight", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
             var labelWeightUnitCodeHeader = new Label { Text = string.Empty, VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
 
-            this.columnWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(labelProductIDHeader.Text);
-            this.columnWidth1 = DependencyService.Get<IGridService>().CalculateTextWidth(labelBCHeader.Text);
+            this.columnWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(labelProductIdHeader.Text);
+            this.columnWidth1 = DependencyService.Get<IGridService>().CalculateTextWidth(labelBcHeader.Text);
             this.columnWidth2 = DependencyService.Get<IGridService>().CalculateTextWidth(labelQuantityHeader.Text);
             this.columnWidth3 = DependencyService.Get<IGridService>().CalculateTextWidth(labelUnitCodeHeader.Text);
             this.columnWidth4 = DependencyService.Get<IGridService>().CalculateTextWidth(labelProdDateHeader.Text);
-            this.columnWidth5 = DependencyService.Get<IGridService>().CalculateTextWidth(labelBBDateHeader.Text);
+            this.columnWidth5 = DependencyService.Get<IGridService>().CalculateTextWidth(labelBbDateHeader.Text);
             this.columnWidth6 = DependencyService.Get<IGridService>().CalculateTextWidth(labelSectionHeader.Text);
             this.columnWidth7 = DependencyService.Get<IGridService>().CalculateTextWidth(labelSlotHeader.Text);
             this.columnWidth8 = DependencyService.Get<IGridService>().CalculateTextWidth(labelSkidHeader.Text);
@@ -359,8 +359,8 @@ namespace dMobile.Controller.Activity_Item
             gridHeader.SetDynamicResource(VisualElement.BackgroundColorProperty, "HeaderColor");
 
             // Add labels to grid
-            gridHeader.Children.Add(labelProductIDHeader);
-            gridHeader.Children.Add(labelBCHeader);
+            gridHeader.Children.Add(labelProductIdHeader);
+            gridHeader.Children.Add(labelBcHeader);
             gridHeader.Children.Add(labelQuantityHeader);
             gridHeader.Children.Add(labelUnitCodeHeader);
 
@@ -371,7 +371,7 @@ namespace dMobile.Controller.Activity_Item
 
             if (this.ProdInfo.Scheme.IsBestBeforeDateTracked)
             {
-                gridHeader.Children.Add(labelBBDateHeader);
+                gridHeader.Children.Add(labelBbDateHeader);
             }
 
             if (this.LocMap.IsSectionTracked)
@@ -389,8 +389,8 @@ namespace dMobile.Controller.Activity_Item
             gridHeader.Children.Add(labelWeightUnitCodeHeader);
 
             // Set label columns
-            Grid.SetColumn(labelProductIDHeader, 0);
-            Grid.SetColumn(labelBCHeader, 1);
+            Grid.SetColumn(labelProductIdHeader, 0);
+            Grid.SetColumn(labelBcHeader, 1);
             Grid.SetColumn(labelQuantityHeader, 2);
             Grid.SetColumn(labelUnitCodeHeader, 3);
 
@@ -401,7 +401,7 @@ namespace dMobile.Controller.Activity_Item
 
             if (this.ProdInfo.Scheme.IsBestBeforeDateTracked)
             {
-                Grid.SetColumn(labelBBDateHeader, 5);
+                Grid.SetColumn(labelBbDateHeader, 5);
             }
 
             if (this.LocMap.IsSectionTracked)
@@ -420,7 +420,7 @@ namespace dMobile.Controller.Activity_Item
 
             Grid.SetRow(gridHeader, 0);
 
-            GridMainActivity.Children.Add(gridHeader);
+            gridMainActivity.Children.Add(gridHeader);
 
             foreach (ActivityItem activityItem in observableCollection)
             {
@@ -535,7 +535,7 @@ namespace dMobile.Controller.Activity_Item
                 }
             }
 
-            ListViewMainActivity.ItemTemplate = (DataTemplate)this.resourceDictionary["dataTemplateInvInquirySummaryItem"];
+            listViewMainActivity.ItemTemplate = (DataTemplate)this.resourceDictionary["dataTemplateInvInquirySummaryItem"];
 
             return observableCollection;
         }
@@ -590,10 +590,12 @@ namespace dMobile.Controller.Activity_Item
         /// The SelectActivityItem.
         /// </summary>
         /// <param name="selectedActivityItem">The selectedActivityItem<see cref="object"/>.</param>
-        /// <returns>The <see cref="Task"/>.</returns>
-        public override async Task AssignActivityItem(object activityItem)
+        /// <returns><see cref="Task{T}"/> Activity item foreign key reference number.</returns>
+        public override async Task<int> AssignActivityItem(object activityItem)
         {
+            Task<int> itemFkRefno = Task.FromResult(0);
             this.SelectedActivityItem = activityItem;
+            return await itemFkRefno;
         }
 
         /// <summary>
@@ -607,7 +609,7 @@ namespace dMobile.Controller.Activity_Item
             {
                 this.DataLayerProgressOutHandler(this, EventArgs.Empty, 5);
 
-                var reqData = SysCommon.SubmitComm(await this.CreateSubmitXML(data));
+                var reqData = SysCommon.SubmitComm(await this.CreateSubmitXml(data));
                 this.ListItems = await this.GetActivityItemList(false);
 
                 if (reqData.Length > 0)
@@ -679,17 +681,17 @@ namespace dMobile.Controller.Activity_Item
 
                 foreach (ActivityItem activityItem in this.ListItems)
                 {
-                    var sectionFKRefno = Convert.ToInt32(activityItem.LocationMapSectionFKRefno);
+                    var sectionFkRefno = Convert.ToInt32(activityItem.LocationMapSectionFKRefno);
                     string sectionName;
 
-                    if (names.ContainsKey(sectionFKRefno))
+                    if (names.ContainsKey(sectionFkRefno))
                     {
-                        sectionName = names[sectionFKRefno];
+                        sectionName = names[sectionFkRefno];
                     }
                     else
                     {
-                        sectionName = await LocationMapTasks.GetSectionName(sectionFKRefno);
-                        names.Add(sectionFKRefno, sectionName);
+                        sectionName = await LocationMapTasks.GetSectionName(sectionFkRefno);
+                        names.Add(sectionFkRefno, sectionName);
                     }
 
                     activityItem.LocationMapSectionFKRefno = sectionName;
@@ -706,17 +708,17 @@ namespace dMobile.Controller.Activity_Item
 
                 foreach (ActivityItem activityItem in this.ListItems)
                 {
-                    var slotFKRefno = Convert.ToInt32(activityItem.LocationMapSlotFKRefno);
+                    var slotFkRefno = Convert.ToInt32(activityItem.LocationMapSlotFKRefno);
                     string slotName;
 
-                    if (names.ContainsKey(slotFKRefno))
+                    if (names.ContainsKey(slotFkRefno))
                     {
-                        slotName = names[slotFKRefno];
+                        slotName = names[slotFkRefno];
                     }
                     else
                     {
-                        slotName = await LocationMapTasks.GetSlotName(slotFKRefno);
-                        names.Add(slotFKRefno, slotName);
+                        slotName = await LocationMapTasks.GetSlotName(slotFkRefno);
+                        names.Add(slotFkRefno, slotName);
                     }
 
                     activityItem.LocationMapSlotFKRefno = slotName;
@@ -731,7 +733,7 @@ namespace dMobile.Controller.Activity_Item
         /// </summary>
         /// <param name="data">.</param>
         /// <returns>.</returns>
-        public async override Task<string> CreateSubmitXML(XDocument data)
+        public async override Task<string> CreateSubmitXml(XDocument data)
         {
             var xmlString = new StringBuilder();
             var xml = XmlWriter.Create(xmlString);
@@ -803,7 +805,7 @@ namespace dMobile.Controller.Activity_Item
         /// </summary>
         /// <param name="resourceType"><see cref="object"/> Resource model type.</param>
         /// <returns><see cref="int"/> Found activity item foreign key refno, else 0 if not found.</returns>
-        public override int GetFKRefno(object resourceType)
+        public override int GetFkRefno(object resourceType)
         {
             throw new NotImplementedException();
         }
@@ -829,9 +831,9 @@ namespace dMobile.Controller.Activity_Item
         /// <summary>
         /// The GetProdSchemeDataFromDetailFKRefno.
         /// </summary>
-        /// <param name="actDetailFKRefno">The actDetailFKRefno<see cref="int"/>.</param>
+        /// <param name="actDetailFkRefno">The actDetailFKRefno<see cref="int"/>.</param>
         /// <returns>The <see cref="Task{SActItemSchemeData}"/>.</returns>
-        public override Task<ActItemSchemeData> GetProdSchemeDataFromDetailFKRefno(int actDetailFKRefno)
+        public override Task<ActItemSchemeData> GetProdSchemeDataFromDetailFkRefno(int actDetailFkRefno)
         {
             throw new NotImplementedException();
         }
@@ -862,7 +864,7 @@ namespace dMobile.Controller.Activity_Item
         /// </summary>
         /// <param name="data">The data<see cref="XDocument"/>.</param>
         /// <returns>The <see cref="Task{string}"/>.</returns>
-        public override Task<string> CreateDeleteXML(XDocument data)
+        public override Task<string> CreateDeleteXml(XDocument data)
         {
             throw new NotImplementedException();
         }
@@ -956,6 +958,28 @@ namespace dMobile.Controller.Activity_Item
         public override bool IsCatchAskZero()
         {
             throw new NotImplementedException();
+        }
+
+        /// <summary>
+        /// Find the list item index of the item that matches the activity item foreign key reference number.
+        /// </summary>
+        /// <param name="activityItemFkRefno"><see cref="int"/> Activity item foreign key reference number.</param>
+        /// <returns><see cref="int"/> Activity list item found index, else -1.</returns>
+        public override int FindActivityItemIndex(int activityItemFkRefno)
+        {
+            var foundIdx = -1;
+
+            // ReSharper disable once ForeachCanBeConvertedToQueryUsingAnotherGetEnumerator
+            foreach (var item in this.ListItems)
+            {
+                foundIdx++;
+                if (((InvInquirySummaryActItem)item).ItemFkRefno == activityItemFkRefno)
+                {
+                    break;
+                }
+            }
+
+            return foundIdx;
         }
     }
 }

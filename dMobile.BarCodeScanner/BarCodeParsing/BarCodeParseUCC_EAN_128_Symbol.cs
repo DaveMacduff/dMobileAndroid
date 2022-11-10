@@ -9,6 +9,7 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
 
     public class BarCodeParseUCC_EAN_128_Symbol : BarCodeParse
     {
+        /// <inheritdoc/>
         public override void ParseBarCodeData(string barCodeData)
         {
             try
@@ -155,6 +156,7 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
         /// </summary>
         /// <param name="barCodeData"></param>
         /// <returns></returns>
+        /// <inheritdoc/>
         protected override string IdentifyProductIdentifier(string barCodeData)
         {
             var tempData = barCodeData;
@@ -203,6 +205,7 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
         /// </summary>
         /// <param name="barCodeData"></param>
         /// <returns></returns>
+        /// <inheritdoc/>
         protected override string IdentifyCompanyPrefix(string barCodeData)
         {
             var tempData = barCodeData;
@@ -223,6 +226,7 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
         /// </summary>
         /// <param name="barCodeData"></param>
         /// <returns></returns>
+        /// <inheritdoc/>
         protected override string IdentifyGTIN(string barCodeData)
         {
             var tempData = barCodeData;
@@ -286,6 +290,7 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
         /// </summary>
         /// <param name="barCodeData"></param>
         /// <returns></returns>
+        /// <inheritdoc/>
         protected override string IdentifyGTINinLogisticUnit(string barCodeData)
         {
             var tempData = barCodeData;
@@ -309,6 +314,7 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
         /// </summary>
         /// <param name="barCodeData"></param>
         /// <returns></returns>
+        /// <inheritdoc/>
         protected override string IdentifySSCC18(string barCodeData)
         {
             var tempData = barCodeData;
@@ -341,6 +347,7 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
         /// </summary>
         /// <param name="barCodeData"></param>
         /// <returns></returns>
+        /// <inheritdoc/>
         protected override string IdentifyLogisticUnitBatchLotNumber(string barCodeData)
         {
             var tempData = barCodeData;
@@ -418,6 +425,7 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
         /// </summary>
         /// <param name="barCodeData"></param>
         /// <returns></returns>
+        /// <inheritdoc/>
         protected override string IdentifySingleTradeItemSerialNumber(string barCodeData)
         {
             var tempData = barCodeData;
@@ -516,6 +524,7 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
         /// </summary>
         /// <param name="barCodeData"></param>
         /// <returns></returns>
+        /// <inheritdoc/>
         protected override string IdentifyLogisticUnitProductionDate(string barCodeData)
         {
             var tempData = barCodeData;
@@ -575,6 +584,7 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
         /// </summary>
         /// <param name="barCodeData"></param>
         /// <returns></returns>
+        /// <inheritdoc/>
         protected override string IdentifyLogisticUnitDueDate(string barCodeData)
         {
             var tempData = barCodeData;
@@ -633,6 +643,7 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
         /// </summary>
         /// <param name="barCodeData"></param>
         /// <returns></returns>
+        /// <inheritdoc/>
         protected override string IdentifyLogisticUnitPackagingDate(string barCodeData)
         {
             var tempData = barCodeData;
@@ -721,6 +732,7 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
         /// </summary>
         /// <param name="barCodeData"></param>
         /// <returns></returns>
+        /// <inheritdoc/>
         protected override string IdentifyLogisticUnitBestBeforeSellByDate(string barCodeData)
         {
             var tempData = barCodeData;
@@ -780,6 +792,7 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
         /// </summary>
         /// <param name="barCodeData"></param>
         /// <returns></returns>
+        /// <inheritdoc/>
         protected override string IdentifyLogisticUnitExpiryUseByDate(string barCodeData)
         {
             var tempData = barCodeData;
@@ -846,6 +859,7 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
         /// </summary>
         /// <param name="barCodeData"></param>
         /// <returns></returns>
+        /// <inheritdoc/>
         protected override string IdentifyLogisticUnitProductVariant(string barCodeData)
         {
             var tempData = barCodeData;
@@ -889,6 +903,7 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
         /// </summary>
         /// <param name="barCodeData"></param>
         /// <returns></returns>
+        /// <inheritdoc/>
         protected override string IdentifyLogisticUnitCountOfTradeItems(string barCodeData)
         {
             var tempData = barCodeData;
@@ -933,6 +948,7 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
         /// </summary>
         /// <param name="barCodeData"></param>
         /// <returns></returns>
+        /// <inheritdoc/>
         protected override string IdentifyLogisticUnitVariableCount(string barCodeData)
         {
             var codeData = barCodeData;
@@ -1025,6 +1041,7 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
         /// </summary>
         /// <param name="barCodeData"></param>
         /// <returns></returns>
+        /// <inheritdoc/>
         protected override string IdentifyLocationIdentifier(string barCodeData)
         {
             var tempData = barCodeData;
@@ -1057,6 +1074,7 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
         /// </summary>
         /// <param name="barCodeData"></param>
         /// <returns></returns>
+        /// <inheritdoc/>
         protected override string IdentifyNetWeightMetricKG(string barCodeData)
         {
             var tempData = barCodeData;
@@ -1134,6 +1152,7 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
         /// </summary>
         /// <param name="barCodeData"></param>
         /// <returns></returns>
+        /// <inheritdoc/>
         protected override string IdentifyNetWeightNonMetricLB(string barCodeData)
         {
             var tempData = barCodeData;
@@ -1212,6 +1231,7 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
         /// </summary>
         /// <param name="barCodeData"></param>
         /// <returns></returns>
+        /// <inheritdoc/>
         protected override string IdentifyGrossWeightMetricKG(string barCodeData)
         {
             var tempData = barCodeData;
@@ -1293,6 +1313,7 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
         /// </summary>
         /// <param name="barCodeData"></param>
         /// <returns></returns>
+        /// <inheritdoc/>
         protected override string IdentifyGrossWeightNonMetricLB(string barCodeData)
         {
             var tempData = barCodeData;
@@ -1372,6 +1393,7 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
         /// </summary>
         /// <param name="barCodeData"></param>
         /// <returns></returns>
+        /// <inheritdoc/>
         protected override string IdentifyLengthOr1stDimensionMeters(string barCodeData)
         {
             var tempData = barCodeData;
@@ -1450,6 +1472,7 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
         /// </summary>
         /// <param name="barCodeData"></param>
         /// <returns></returns>
+        /// <inheritdoc/>
         protected override string IdentifyActivityFKRefno(string barCodeData)
         {
             var tempData = barCodeData;
@@ -1514,6 +1537,7 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
         /// </summary>
         /// <param name="barCodeData"></param>
         /// <returns></returns>
+        /// <inheritdoc/>
         protected override string IdentifyActivityItemFKRefno(string barCodeData)
         {
             var tempData = barCodeData;
@@ -1577,6 +1601,7 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
         /// </summary>
         /// <param name="barCodeData"></param>
         /// <returns></returns>
+        /// <inheritdoc/>
         protected override string IdentifyActivityDetailFKRefno(string barCodeData)
         {
             var tempData = barCodeData;
