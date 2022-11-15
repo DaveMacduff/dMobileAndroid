@@ -1054,9 +1054,8 @@ namespace dMobile.View.Activity
                 {
                     this.ActHdr.HdrFkRefno = 0;
                     this.ActHdr.HdrRefno = 0;
-                    throw new MessageOnlyException(string.Format(
-                        "Unable to find reference # {0}. Perhaps change your login warehouse.",
-                        actHdrStringFKRefno));
+                    throw new MessageOnlyException(
+                        $"Unable to find reference # {actHdrStringFKRefno}. Perhaps change your login warehouse.");
                 }
             }
         }

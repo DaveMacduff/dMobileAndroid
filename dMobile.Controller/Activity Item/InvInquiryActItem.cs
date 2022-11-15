@@ -285,9 +285,11 @@ namespace dMobile.Controller.Activity_Item
 
                 var detailWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(inventoryInquiryItem.Productcode);
                 var detailWidth1 = DependencyService.Get<IGridService>().CalculateTextWidth(inventoryInquiryItem.Productunitbc);
-                var detailWidth2 = DependencyService.Get<IGridService>().CalculateTextWidth(string.Format("{0:F3}", inventoryInquiryItem.ActivityItemQuantity));
+                var detailWidth2 = DependencyService.Get<IGridService>().CalculateTextWidth(
+                    $"{inventoryInquiryItem.ActivityItemQuantity:F3}");
                 var detailWidth3 = DependencyService.Get<IGridService>().CalculateTextWidth(inventoryInquiryItem.UnitCode);
-                var detailWidth4 = DependencyService.Get<IGridService>().CalculateTextWidth(string.Format("{0:F3}", inventoryInquiryItem.ActivityItemWeightQuantity));
+                var detailWidth4 = DependencyService.Get<IGridService>().CalculateTextWidth(
+                    $"{inventoryInquiryItem.ActivityItemWeightQuantity:F3}");
                 var detailWidth5 = DependencyService.Get<IGridService>().CalculateTextWidth(inventoryInquiryItem.WeightUnitCode);
 
                 if (detailWidth0 > this.columnWidth0)
@@ -380,7 +382,7 @@ namespace dMobile.Controller.Activity_Item
         /// <returns><see cref="Task{T}"/> Activity item foreign key reference number.</returns>
         public override async Task<int> AssignActivityItem(object activityItem)
         {
-            Task<int> itemFkRefno = Task.FromResult(0);
+            var itemFkRefno = Task.FromResult(0);
             this.SelectedActivityItem = activityItem;
             return await itemFkRefno;
         }
@@ -407,14 +409,12 @@ namespace dMobile.Controller.Activity_Item
                     }
                     else
                     {
-                        using (var ds = new DataSet())
-                        {
-                            ds.ReadXml(SysCommon.GetXmlReader(ref reqData), XmlReadMode.Auto);
+                        using var ds = new DataSet();
+                        ds.ReadXml(SysCommon.GetXmlReader(ref reqData), XmlReadMode.Auto);
 
-                            if (ds.Tables.Count != 0)
-                            {
-                                this.ListItems = ds.Tables["tActivityItem"].Select().ToList<object>();
-                            }
+                        if (ds.Tables.Count != 0)
+                        {
+                            this.ListItems = ds.Tables["tActivityItem"].Select().ToList<object>();
                         }
                     }
                 }

@@ -670,13 +670,10 @@ namespace dMobile.View.Activity
                                         (this.Parse.Symbology == BarCodeSymbologies.UCC_12_UPC_E ||
                                         this.Parse.Symbology == BarCodeSymbologies.EAN_UCC_13))
                                     {
-                                        await this.AddScanMsg(sender, scanArgs, string.Format(
-                                            "Product Deli Scale Amount {0}",
-                                            this.Parse.DeliScaleAmount));
-                                        await this.AddScanMsg(sender, scanArgs, string.Format(
-                                            "Product Deli Scale Weight {0} {1}",
-                                            deliScaleWeight,
-                                            deliScaleWeightUnit));
+                                        await this.AddScanMsg(sender, scanArgs,
+                                            $"Product Deli Scale Amount {this.Parse.DeliScaleAmount}");
+                                        await this.AddScanMsg(sender, scanArgs,
+                                            $"Product Deli Scale Weight {deliScaleWeight} {deliScaleWeightUnit}");
 
                                         if (this.SysEnv.BarCodeSettings.IsRuleEnabled_Parse_UCC_12_UPC_E_as_Deli_PLU_4_Digit_Amount)
                                         {
@@ -741,9 +738,7 @@ namespace dMobile.View.Activity
                         }
                         else
                         {
-                            throw new Exception(string.Format(
-                                "Unable to locate the product scheme for product \'{0}\'",
-                                prodCode));
+                            throw new Exception($"Unable to locate the product scheme for product \'{prodCode}\'");
                         }
                     }
                 }
@@ -870,7 +865,7 @@ namespace dMobile.View.Activity
                 await this.AddScanMsg(
                     sender,
                     scanArgs,
-                    string.Format("Length: {0} prefix excluded", scanArgs.ParseInfo.Length));
+                    $"Length: {scanArgs.ParseInfo.Length} prefix excluded");
 
                 // Raw Bar Code Data
                 await this.AddScanMsg(sender, scanArgs, "Bar Code Raw");
@@ -896,7 +891,7 @@ namespace dMobile.View.Activity
                         await this.AddScanMsg(
                             sender,
                             scanArgs,
-                            string.Format("{0} Errors", this.Parse.Details.ErrorCount));
+                            $"{this.Parse.Details.ErrorCount} Errors");
                     }
 
                     var count = this.Parse.Details.ErrorCount;
@@ -944,63 +939,58 @@ namespace dMobile.View.Activity
                             await this.AddScanMsg(
                                 sender,
                                 scanArgs,
-                                string.Format("Code: {0}", skid.CurrSkid.LogisticUnitSkidCode));
+                                $"Code: {skid.CurrSkid.LogisticUnitSkidCode}");
                             await this.AddScanMsg(
                                 sender,
                                 scanArgs,
-                                string.Format("Refno: {0}", skid.CurrSkid.SkidFKRefno));
+                                $"Refno: {skid.CurrSkid.SkidFKRefno}");
                             await this.AddScanMsg(
                                 sender,
                                 scanArgs,
-                                string.Format("Number: {0}", skid.CurrSkid.SkidCode));
+                                $"Number: {skid.CurrSkid.SkidCode}");
 
                             var locReadable = LocationMapTasks.GetReadableLocation(
                                 skid.CurrSkid.LocMap);
 
-                            var skidQty = string.Format(
-                                "Qty: {0} {1} @ {2} {3}",
-                                skid.CurrSkid.Quantity,
-                                skid.CurrSkid.ProdInfo.UnitCode,
-                                skid.CurrSkid.WeightQuantity,
-                                skid.CurrSkid.ProdInfo.WeightUnitCode);
+                            var skidQty =
+                                $"Qty: {skid.CurrSkid.Quantity} {skid.CurrSkid.ProdInfo.UnitCode} @ {skid.CurrSkid.WeightQuantity} {skid.CurrSkid.ProdInfo.WeightUnitCode}";
 
-                            await this.AddScanMsg(sender, scanArgs, string.Format("Location: {0}", locReadable));
-                            await this.AddScanMsg(sender, scanArgs, string.Format(
-                                "Product: {0}",
-                                ProductInfoTasks.GetCurrReadableProdBCUnit(skid.CurrSkid.ProdInfo)));
+                            await this.AddScanMsg(sender, scanArgs, $"Location: {locReadable}");
+                            await this.AddScanMsg(sender, scanArgs,
+                                $"Product: {ProductInfoTasks.GetCurrReadableProdBCUnit(skid.CurrSkid.ProdInfo)}");
                             await this.AddScanMsg(sender, scanArgs, skidQty);
                             await this.AddScanMsg(
                                 sender,
                                 scanArgs,
-                                string.Format("Put Away: {0}", skid.CurrSkid.IsPutAway));
+                                $"Put Away: {skid.CurrSkid.IsPutAway}");
                             await this.AddScanMsg(
                                 sender,
                                 scanArgs,
-                                string.Format("On Hold: {0}", skid.CurrSkid.IsHold));
+                                $"On Hold: {skid.CurrSkid.IsHold}");
                             await this.AddScanMsg(
                                 sender,
                                 scanArgs,
-                                string.Format("Cube: {0} {1}", skid.CurrSkid.Cube, skid.CurrSkid.CubeUnit));
+                                $"Cube: {skid.CurrSkid.Cube} {skid.CurrSkid.CubeUnit}");
                             await this.AddScanMsg(
                                 sender,
                                 scanArgs,
-                                string.Format("Height: {0} {1}", skid.CurrSkid.Height, skid.CurrSkid.HeightUnit));
+                                $"Height: {skid.CurrSkid.Height} {skid.CurrSkid.HeightUnit}");
                             await this.AddScanMsg(
                                 sender,
                                 scanArgs,
-                                string.Format("Ti/Hi: {0}/{1}", skid.CurrSkid.Ti, skid.CurrSkid.Hi));
+                                $"Ti/Hi: {skid.CurrSkid.Ti}/{skid.CurrSkid.Hi}");
                             await this.AddScanMsg(
                                 sender,
                                 scanArgs,
-                                string.Format("CHEP: {0}", skid.CurrSkid.IsCHEP));
+                                $"CHEP: {skid.CurrSkid.IsCHEP}");
                             await this.AddScanMsg(
                                 sender,
                                 scanArgs,
-                                string.Format("Completed: {0}", skid.CurrSkid.IsCompleted));
+                                $"Completed: {skid.CurrSkid.IsCompleted}");
                             await this.AddScanMsg(
                                 sender,
                                 scanArgs,
-                                string.Format("Consumed: {0}", skid.CurrSkid.IsConsumed));
+                                $"Consumed: {skid.CurrSkid.IsConsumed}");
                         }
                         else
                         {
@@ -1029,15 +1019,15 @@ namespace dMobile.View.Activity
                 {
                     var locMap = await LocationMapTasks.GetSLocMapFromLocMapRefno(locMapRefno);
 
-                    await this.AddScanMsg(sender, scanArgs, string.Format("Warehouse code: {0}", locMap.WhsCode));
-                    await this.AddScanMsg(sender, scanArgs, string.Format("Warehouse refno: {0}", locMap.WhsFKRefno));
-                    await this.AddScanMsg(sender, scanArgs, string.Format("Warehouse name: {0}", locMap.WhsName));
-                    await this.AddScanMsg(sender, scanArgs, string.Format("Section code: {0}", locMap.SectCode));
-                    await this.AddScanMsg(sender, scanArgs, string.Format("Section refno: {0}", locMap.SectFKRefno));
-                    await this.AddScanMsg(sender, scanArgs, string.Format("Section name: {0}", locMap.SectName));
-                    await this.AddScanMsg(sender, scanArgs, string.Format("Slot code: {0}", locMap.SlotCode));
-                    await this.AddScanMsg(sender, scanArgs, string.Format("Slot refno: {0}", locMap.SlotFKRefno));
-                    await this.AddScanMsg(sender, scanArgs, string.Format("Slot name: {0}", locMap.SlotName));
+                    await this.AddScanMsg(sender, scanArgs, $"Warehouse code: {locMap.WhsCode}");
+                    await this.AddScanMsg(sender, scanArgs, $"Warehouse refno: {locMap.WhsFKRefno}");
+                    await this.AddScanMsg(sender, scanArgs, $"Warehouse name: {locMap.WhsName}");
+                    await this.AddScanMsg(sender, scanArgs, $"Section code: {locMap.SectCode}");
+                    await this.AddScanMsg(sender, scanArgs, $"Section refno: {locMap.SectFKRefno}");
+                    await this.AddScanMsg(sender, scanArgs, $"Section name: {locMap.SectName}");
+                    await this.AddScanMsg(sender, scanArgs, $"Slot code: {locMap.SlotCode}");
+                    await this.AddScanMsg(sender, scanArgs, $"Slot refno: {locMap.SlotFKRefno}");
+                    await this.AddScanMsg(sender, scanArgs, $"Slot name: {locMap.SlotName}");
                 }
                 else
                 {

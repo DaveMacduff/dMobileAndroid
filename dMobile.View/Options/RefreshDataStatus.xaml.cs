@@ -720,6 +720,7 @@ namespace dMobile.View.Options
                         _ = this.SysEnv.RefreshOpt.SaveData(ref tempRefreshOpt3);
                     }
                 }
+
                 // }
             });
 

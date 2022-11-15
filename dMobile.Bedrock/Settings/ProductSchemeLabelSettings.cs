@@ -292,7 +292,8 @@ namespace dMobile.Bedrock
 
             if (schemeLblInfo.SchemeRefno == 0)
             {
-                throw new Exception(string.Format("GetSchemeInfoFromSchemeRefno failed. Could not find scheme refno {0} in the AllProdSchemeLabel arraylist.", schemeRefno));
+                throw new Exception(
+                    $"GetSchemeInfoFromSchemeRefno failed. Could not find scheme refno {schemeRefno} in the AllProdSchemeLabel arraylist.");
             }
 
             return schemeLblInfo;
@@ -366,102 +367,100 @@ namespace dMobile.Bedrock
 
             try
             {
-                using (var ds = new DataSet())
+                using var ds = new DataSet();
+                if (this.OnProdSchemeLabelSettingsStatusOut != null)
                 {
+                    msgArg.StatusOutMsg = "Reading received data.";
+
+                    this.OnProdSchemeLabelSettingsStatusOut(this, msgArg);
+                }
+
+                ds.ReadXml(SysCommon.GetXmlReader(ref xmlData), XmlReadMode.Auto);
+
+                if (this.OnProdSchemeLabelSettingsStatusOut != null)
+                {
+                    msgArg.StatusOutMsg = "Saving product scheme label settings.";
+
+                    this.OnProdSchemeLabelSettingsStatusOut(this, msgArg);
+                }
+
+                if (ds.Tables.Count != 0)
+                {
+                    var progMax = ds.Tables["seg"].Rows.Count;
+
                     if (this.OnProdSchemeLabelSettingsStatusOut != null)
                     {
-                        msgArg.StatusOutMsg = "Reading received data.";
+                        msgArg.StatusOutMsg = $"Records {progMax}";
 
                         this.OnProdSchemeLabelSettingsStatusOut(this, msgArg);
                     }
 
-                    ds.ReadXml(SysCommon.GetXmlReader(ref xmlData), XmlReadMode.Auto);
-
-                    if (this.OnProdSchemeLabelSettingsStatusOut != null)
+                    if (this.OnProdSchemeLabelSettingsProgressOut != null)
                     {
-                        msgArg.StatusOutMsg = "Saving product scheme label settings.";
-
-                        this.OnProdSchemeLabelSettingsStatusOut(this, msgArg);
+                        msgArg.CurrentValue = 0;
+                        msgArg.MinValue = 0;
+                        msgArg.MaxValue = progMax;
+                        this.OnProdSchemeLabelSettingsProgressOut(this, msgArg);
                     }
 
-                    if (ds.Tables.Count != 0)
+                    this.AllProdSchemeLabel.Clear();
+                    var progValue = 0;
+                    var schemeLblInfo = new ProdSchemeLabelInfo();
+
+                    foreach (DataRow drow in ds.Tables["seg"].Rows)
                     {
-                        var progMax = ds.Tables["seg"].Rows.Count;
+                        schemeCode = Convert.ToString(drow["ProductSchemeCode"]);
+                        errMsg = "Scheme code \'" + errMsg + "\'";
 
-                        if (this.OnProdSchemeLabelSettingsStatusOut != null)
+                        var results = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<tProductSchemeModel>("SELECT * FROM tProductScheme WHERE ProductSchemeCode = ?", schemeCode);
+
+                        // if (!drScheme.Seek(DbSeekOptions.FirstEqual, new object[] { schemeCode }))
+                        // {
+                        //    throw new Exception("Unable to locate the product scheme code in tProductScheme."
+                        //        + Environment.NewLine + errMsg);
+                        // }
+
+                        // if (!drScheme.Read())
+                        if (results == null || results.Count <= 0)
                         {
-                            msgArg.StatusOutMsg = string.Format("Records {0}", progMax);
-
-                            this.OnProdSchemeLabelSettingsStatusOut(this, msgArg);
+                            throw new Exception("drProdScheme.Read() failed." + Environment.NewLine + errMsg);
                         }
+
+                        // schemeLblInfo.SchemeRefno = Convert.ToInt32(drScheme.GetValue(Convert.ToInt32(SysCommon.ProdSchemeFields.Refno)));
+                        schemeLblInfo.SchemeRefno = Convert.ToInt32(results[0].ProductSchemeRefno);
+                        schemeLblInfo.IsBestBeforeDateTracked = Convert.ToBoolean(drow["ProductSchemeLabelIsBestBeforeDateTracked"]);
+                        schemeLblInfo.IsLotTracked = Convert.ToBoolean(drow["ProductSchemeLabelIsLotTracked"]);
+                        schemeLblInfo.IsProductionDateTracked = Convert.ToBoolean(drow["ProductSchemeLabelIsProductionDateTracked"]);
+                        schemeLblInfo.IsSerialTracked = Convert.ToBoolean(drow["ProductSchemeLabelIsSerialTracked"]);
+                        schemeLblInfo.IsVariantTracked = Convert.ToBoolean(drow["ProductSchemeLabelIsVariantTracked"]);
+
+                        this.AllProdSchemeLabel.Add(schemeLblInfo);
+
+                        progValue += 1;
 
                         if (this.OnProdSchemeLabelSettingsProgressOut != null)
                         {
-                            msgArg.CurrentValue = 0;
-                            msgArg.MinValue = 0;
-                            msgArg.MaxValue = progMax;
-                            this.OnProdSchemeLabelSettingsProgressOut(this, msgArg);
-                        }
-
-                        this.AllProdSchemeLabel.Clear();
-                        var progValue = 0;
-                        var schemeLblInfo = new ProdSchemeLabelInfo();
-
-                        foreach (DataRow drow in ds.Tables["seg"].Rows)
-                        {
-                            schemeCode = Convert.ToString(drow["ProductSchemeCode"]);
-                            errMsg = "Scheme code \'" + errMsg + "\'";
-
-                            var results = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<tProductSchemeModel>("SELECT * FROM tProductScheme WHERE ProductSchemeCode = ?", schemeCode);
-
-                            // if (!drScheme.Seek(DbSeekOptions.FirstEqual, new object[] { schemeCode }))
-                            // {
-                            //    throw new Exception("Unable to locate the product scheme code in tProductScheme."
-                            //        + Environment.NewLine + errMsg);
-                            // }
-
-                            // if (!drScheme.Read())
-                            if (results == null || results.Count <= 0)
-                            {
-                                throw new Exception("drProdScheme.Read() failed." + Environment.NewLine + errMsg);
-                            }
-
-                            // schemeLblInfo.SchemeRefno = Convert.ToInt32(drScheme.GetValue(Convert.ToInt32(SysCommon.ProdSchemeFields.Refno)));
-                            schemeLblInfo.SchemeRefno = Convert.ToInt32(results[0].ProductSchemeRefno);
-                            schemeLblInfo.IsBestBeforeDateTracked = Convert.ToBoolean(drow["ProductSchemeLabelIsBestBeforeDateTracked"]);
-                            schemeLblInfo.IsLotTracked = Convert.ToBoolean(drow["ProductSchemeLabelIsLotTracked"]);
-                            schemeLblInfo.IsProductionDateTracked = Convert.ToBoolean(drow["ProductSchemeLabelIsProductionDateTracked"]);
-                            schemeLblInfo.IsSerialTracked = Convert.ToBoolean(drow["ProductSchemeLabelIsSerialTracked"]);
-                            schemeLblInfo.IsVariantTracked = Convert.ToBoolean(drow["ProductSchemeLabelIsVariantTracked"]);
-
-                            this.AllProdSchemeLabel.Add(schemeLblInfo);
-
-                            progValue += 1;
-
-                            if (this.OnProdSchemeLabelSettingsProgressOut != null)
-                            {
-                                msgArg.CurrentValue = progValue;
-                                msgArg.MinValue = 0;
-                                msgArg.MaxValue = progMax;
-                                this.OnProdSchemeLabelSettingsProgressOut(this, msgArg);
-                            }
-                        }
-
-                        if (this.OnProdSchemeLabelSettingsProgressOut != null)
-                        {
-                            msgArg.CurrentValue = progMax;
+                            msgArg.CurrentValue = progValue;
                             msgArg.MinValue = 0;
                             msgArg.MaxValue = progMax;
                             this.OnProdSchemeLabelSettingsProgressOut(this, msgArg);
                         }
                     }
 
-                    if (this.OnProdSchemeLabelSettingsStatusOut != null)
+                    if (this.OnProdSchemeLabelSettingsProgressOut != null)
                     {
-                        msgArg.StatusOutMsg = "Saving product scheme label settings complete.";
-
-                        this.OnProdSchemeLabelSettingsStatusOut(this, msgArg);
+                        msgArg.CurrentValue = progMax;
+                        msgArg.MinValue = 0;
+                        msgArg.MaxValue = progMax;
+                        this.OnProdSchemeLabelSettingsProgressOut(this, msgArg);
                     }
+                }
+
+                if (this.OnProdSchemeLabelSettingsStatusOut != null)
+                {
+                    msgArg.StatusOutMsg = "Saving product scheme label settings complete.";
+
+                    this.OnProdSchemeLabelSettingsStatusOut(this, msgArg);
                 }
             }
             catch (SQLiteException ex)

@@ -2056,11 +2056,13 @@ namespace dMobile.View.Activity
             if (await LocationMapTasks.IsCompleteLocMap(this.LocMap.CurrLocMapRefno) &&
                 !this.SysEnv.SysSettings.IsDefaultLocToProductDefaultLoc)
             {
+                var isVerifyActivity = this.ActSubType == SysCommon.ActSubTypes.Picking ||
+                                       this.ActSubType == SysCommon.ActSubTypes.PickingSingle ||
+                                       this.ActSubType == SysCommon.ActSubTypes.TransferFrom ||
+                                       this.ActSubType == SysCommon.ActSubTypes.TransferTo;
+
                 // RULE: CHECK IF THE CURRENT LOCATION AND PRODUCT HOME LOCATION ARE THE SAME
-                if (this.SysEnv.SysSettings.IsVerifyProductLocation &&
-                    (this.ActSubType == SysCommon.ActSubTypes.Picking ||
-                     this.ActSubType == SysCommon.ActSubTypes.PickingSingle ||
-                     this.ActSubType == SysCommon.ActSubTypes.TransferFrom))
+                if (this.SysEnv.SysSettings.IsVerifyProductLocation && isVerifyActivity)
                 {
                     // LocationMapRefno is assumed to be the picking WarehouseLocationMapRefno
                     // Picking activity items only have the warehouse, not section or slot.

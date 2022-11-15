@@ -858,6 +858,7 @@ namespace dMobile.View.Activity
                 var gridData = new Grid
                 {
                     Padding = new Thickness(5),
+
                     // ColumnSpacing = 15,
                     ColumnDefinitions =
                     {
@@ -946,6 +947,7 @@ namespace dMobile.View.Activity
                 var gridData = new Grid
                 {
                     Padding = new Thickness(5),
+
                     // ColumnSpacing = 15,
                     ColumnDefinitions =
                     {

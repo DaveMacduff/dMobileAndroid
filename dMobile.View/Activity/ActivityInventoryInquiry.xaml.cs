@@ -397,6 +397,7 @@ namespace dMobile.View.Activity
                     // DisplayData();
                     // this.LoadData();
                     cancelChanges = false;
+
                     // this.IsChangesMade = false;
                 }
             }
@@ -530,6 +531,7 @@ namespace dMobile.View.Activity
                             var tempProdInfo = new ProductInfo();
                             tempProdInfo = await ProductInfoTasks.GetInfoFromUnitRefno(prodUnitRefno);
                             this.ActItem.ProdInfo = tempProdInfo;
+
                             // <issue="13609" author="RD" date="2016/02/22"/>
                             SysShared.AssertSuppressedErrorsAgainstScheme(this.ActItem.ProdInfo, this.BarParse);
                             _ = await Device.InvokeOnMainThreadAsync(() => this.cmdSelectProduct.Text = this.ActItem.ProdInfo.Code);

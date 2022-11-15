@@ -570,7 +570,7 @@ namespace dMobile.Controller.Activity
                     }
                     else
                     {
-                        throw new Exception(string.Format("Order# {0} Print shipping label(s) failed.", this.HdrFkRefno));
+                        throw new Exception($"Order# {this.HdrFkRefno} Print shipping label(s) failed.");
                     }
                 }
             }
@@ -607,7 +607,7 @@ namespace dMobile.Controller.Activity
                         docError.LoadXml(reqData);
                         var errorDetail = docError.DocumentElement["detail"].InnerText;
 
-                        throw new Exception(string.Format("Debox failed. {0}", Environment.NewLine + errorDetail));
+                        throw new Exception($"Debox failed. {Environment.NewLine + errorDetail}");
                     }
                 }
                 else

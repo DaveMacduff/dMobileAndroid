@@ -73,7 +73,7 @@ namespace dMobile.GroundWork
             {
                 rowsAffected = Convert.ToInt32(await DatabaseConnection.GetInstance().SQLConn.ExecuteScalarAsync<int>("SELECT COUNT(ActivityRefno) FROM tActivity WHERE ActivitySubType = ?", Convert.ToInt32(SysCommon.ActSubTypes.Picking)));
 
-                this.DataAccessStatusOutHandler(this, EventArgs.Empty, string.Format("{0} sales orders.", rowsAffected), true);
+                this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"{rowsAffected} sales orders.", true);
             }
             catch (SQLiteException ex)
             {
@@ -132,62 +132,61 @@ namespace dMobile.GroundWork
             {
                 try
                 {
-                    using (var ds = new DataSet())
+                    using var ds = new DataSet();
+                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Reading received data.", false);
+
+                    ds.ReadXml(SysCommon.GetXmlReader(ref reqData), XmlReadMode.Auto);
+
+                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving sales orders.", false);
+
+                    if (ds.Tables.Count != 0)
                     {
-                        this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Reading received data.", false);
+                        var progMax = Convert.ToInt32(ds.Tables["tActivityPicking"].Rows.Count);
 
-                        ds.ReadXml(SysCommon.GetXmlReader(ref reqData), XmlReadMode.Auto);
+                        this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"Records {progMax}", false);
 
-                        this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving sales orders.", false);
+                        var actRefno = 0;
+                        var progValue = 0;
+                        var whsLocMapRefno = 0;
+                        var routeRefno = 0;
+                        var pickRouteCode = string.Empty;
+                        var actPickFKRefno = 0;
 
-                        if (ds.Tables.Count != 0)
+                        this.DataAccessProgressOutHandler(this, EventArgs.Empty, 0, 0, progMax);
+
+                        foreach (DataRow drow in ds.Tables["tActivityPicking"].Rows)
                         {
-                            var progMax = Convert.ToInt32(ds.Tables["tActivityPicking"].Rows.Count);
+                            transaction.Execute("INSERT INTO tActivity (ActivityStatus, ActivitySubType) VALUES (?, ?)", 0, Convert.ToInt32(SysCommon.ActSubTypes.Picking));
 
-                            this.DataAccessStatusOutHandler(this, EventArgs.Empty, string.Format("Records {0}", progMax), false);
+                            actRefno = Convert.ToInt32(transaction.ExecuteScalar<int>("SELECT last_insert_rowid() FROM tActivity"));
+                            actPickFKRefno = Convert.ToInt32(drow["ActivityFKRefno"]);
+                            whsLocMapRefno = this.GetWhsLocMapRefnoFromDataRow(drow, transaction);
 
-                            var actRefno = 0;
-                            var progValue = 0;
-                            var whsLocMapRefno = 0;
-                            var routeRefno = 0;
-                            var pickRouteCode = string.Empty;
-                            var actPickFKRefno = 0;
-
-                            this.DataAccessProgressOutHandler(this, EventArgs.Empty, 0, 0, progMax);
-
-                            foreach (DataRow drow in ds.Tables["tActivityPicking"].Rows)
+                            var queryInsertPicking = "INSERT INTO tActivityPicking (" +
+                                                     "ActivityRefno, " +
+                                                     "ActivitySubType, " +
+                                                     "ActivityFKRefno, " +
+                                                     "ActivityStringFKRefno, " +
+                                                     "WarehouseLocationMapRefno, " +
+                                                     "ActivityPickingOrderedDateTime, " +
+                                                     "ActivityPickingDeliveryDateTime, " +
+                                                     "ActivityPickingCustomerContactName, " +
+                                                     "ActivityPickingCustomerShipToInfo, " +
+                                                     "ActivityPickingIsReviewed" +
+                                                     ") VALUES (" +
+                                                     "?, " +
+                                                     "?, " +
+                                                     "?, " +
+                                                     "?, " +
+                                                     "?, " +
+                                                     "?, " +
+                                                     "?, " +
+                                                     "?, " +
+                                                     "?, " +
+                                                     "?" +
+                                                     ")";
+                            var parametersInsertPicking = new object[]
                             {
-                                transaction.Execute("INSERT INTO tActivity (ActivityStatus, ActivitySubType) VALUES (?, ?)", 0, Convert.ToInt32(SysCommon.ActSubTypes.Picking));
-
-                                actRefno = Convert.ToInt32(transaction.ExecuteScalar<int>("SELECT last_insert_rowid() FROM tActivity"));
-                                actPickFKRefno = Convert.ToInt32(drow["ActivityFKRefno"]);
-                                whsLocMapRefno = this.GetWhsLocMapRefnoFromDataRow(drow, transaction);
-
-                                var queryInsertPicking = "INSERT INTO tActivityPicking (" +
-                                                         "ActivityRefno, " +
-                                                         "ActivitySubType, " +
-                                                         "ActivityFKRefno, " +
-                                                         "ActivityStringFKRefno, " +
-                                                         "WarehouseLocationMapRefno, " +
-                                                         "ActivityPickingOrderedDateTime, " +
-                                                         "ActivityPickingDeliveryDateTime, " +
-                                                         "ActivityPickingCustomerContactName, " +
-                                                         "ActivityPickingCustomerShipToInfo, " +
-                                                         "ActivityPickingIsReviewed" +
-                                                         ") VALUES (" +
-                                                         "?, " +
-                                                         "?, " +
-                                                         "?, " +
-                                                         "?, " +
-                                                         "?, " +
-                                                         "?, " +
-                                                         "?, " +
-                                                         "?, " +
-                                                         "?, " +
-                                                         "?" +
-                                                         ")";
-                                var parametersInsertPicking = new object[]
-                                {
                                     actRefno,
                                     Convert.ToInt32(SysCommon.ActSubTypes.Picking),
                                     actPickFKRefno,
@@ -198,45 +197,44 @@ namespace dMobile.GroundWork
                                     Convert.ToString(drow["ActivityPickingCustomerContactName"]),
                                     Convert.ToString(drow["ActivityPickingCustomerShipToInfo"]),
                                     false,
-                                };
+                            };
 
-                                transaction.Execute(queryInsertPicking, parametersInsertPicking);
+                            transaction.Execute(queryInsertPicking, parametersInsertPicking);
 
-                                routeRefno = 0;
-                                pickRouteCode = Convert.ToString(drow["ActivityPickingRouteCode"]);
-                                if (!string.IsNullOrEmpty(pickRouteCode))
+                            routeRefno = 0;
+                            pickRouteCode = Convert.ToString(drow["ActivityPickingRouteCode"]);
+                            if (!string.IsNullOrEmpty(pickRouteCode))
+                            {
+                                var resultRoutes = transaction.Query<tRouteModel>("SELECT * FROM tRoute WHERE RouteCode = ?", pickRouteCode);
+
+                                if (resultRoutes?.Count > 0)
                                 {
-                                    var resultRoutes = transaction.Query<tRouteModel>("SELECT * FROM tRoute WHERE RouteCode = ?", pickRouteCode);
-
-                                    if (resultRoutes?.Count > 0)
-                                    {
-                                        routeRefno = resultRoutes[0].RouteRefno;
-                                    }
-                                    else
-                                    {
-                                        throw new Exception("drRoute.Read() failed.");
-                                    }
+                                    routeRefno = resultRoutes[0].RouteRefno;
                                 }
-
-                                if (routeRefno != 0)
+                                else
                                 {
-                                    transaction.Execute("INSERT INTO tActivityPickingRoute (PickingActivityRefno, RouteRefno, RouteStop) VALUES (?, ?, ?)", actRefno, routeRefno, Convert.ToInt32(drow["ActivityPickingRouteStop"]));
-                                }
-
-                                progValue++;
-                                if (progValue % 10 == 0)
-                                {
-                                    this.DataAccessProgressOutHandler(this, EventArgs.Empty, progValue);
+                                    throw new Exception("drRoute.Read() failed.");
                                 }
                             }
 
-                            this.DataAccessProgressOutHandler(this, EventArgs.Empty, progMax);
+                            if (routeRefno != 0)
+                            {
+                                transaction.Execute("INSERT INTO tActivityPickingRoute (PickingActivityRefno, RouteRefno, RouteStop) VALUES (?, ?, ?)", actRefno, routeRefno, Convert.ToInt32(drow["ActivityPickingRouteStop"]));
+                            }
+
+                            progValue++;
+                            if (progValue % 10 == 0)
+                            {
+                                this.DataAccessProgressOutHandler(this, EventArgs.Empty, progValue);
+                            }
                         }
 
-                        transaction.Commit();
-
-                        this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving sales orders complete.", false);
+                        this.DataAccessProgressOutHandler(this, EventArgs.Empty, progMax);
                     }
+
+                    transaction.Commit();
+
+                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving sales orders complete.", false);
                 }
                 catch (SQLiteException ex)
                 {

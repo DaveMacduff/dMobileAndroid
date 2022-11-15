@@ -75,7 +75,7 @@ namespace dMobile.GroundWork
             {
                 rowsAffected = Convert.ToInt32(await DatabaseConnection.GetInstance().SQLConn.ExecuteScalarAsync<int>("SELECT COUNT(*) FROM tContactUser"));
 
-                this.DataAccessStatusOutHandler(this, EventArgs.Empty, string.Format("{0} users.", rowsAffected), true);
+                this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"{rowsAffected} users.", true);
             }
             catch (SQLiteException ex)
             {
@@ -237,70 +237,69 @@ namespace dMobile.GroundWork
             {
                 try
                 {
-                    using (var ds = new DataSet())
+                    using var ds = new DataSet();
+                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Reading received data.", false);
+
+                    ds.ReadXml(SysCommon.GetXmlReader(ref reqData), XmlReadMode.Auto);
+
+                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving users.", false);
+
+                    // Check to see what users already exist
+                    var resultsContactUser = transaction.Query<tContactUserModel>("SELECT ContactUserCode FROM tContactUser");
+
+                    if (ds.Tables.Count != 0)
                     {
-                        this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Reading received data.", false);
+                        var progMax = Convert.ToInt32(ds.Tables["tContactUser"].Rows.Count);
 
-                        ds.ReadXml(SysCommon.GetXmlReader(ref reqData), XmlReadMode.Auto);
+                        this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"Records {progMax}", false);
 
-                        this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving users.", false);
+                        var queryInsertContactUser = "INSERT INTO tContactUser " +
+                                                     "(ContactRefno, " +
+                                                     "ContactSubType, " +
+                                                     "ContactUserCode, " +
+                                                     "ContactUserName, " +
+                                                     "ContactUserPassword, " +
+                                                     "ContactUserIsAllowedAssociateProductBarCode, " +
+                                                     "ContactUserIsAllowedPickingModuleOverridePicker, " +
+                                                     "ContactUserIsAllowedPickingModuleOverrideAddManualDetail, " +
+                                                     "ContactUserLocalizationLanguage) " +
+                                                     "VALUES " +
+                                                     "(?, " +
+                                                     "?, " +
+                                                     "?, " +
+                                                     "?, " +
+                                                     "?, " +
+                                                     "?, " +
+                                                     "?, " +
+                                                     "?, " +
+                                                     "?)";
 
-                        // Check to see what users already exist
-                        var resultsContactUser = transaction.Query<tContactUserModel>("SELECT ContactUserCode FROM tContactUser");
+                        var progValue = 0;
+                        var contactRefno = 0;
+                        var contactCode = 0;
+                        var contactName = string.Empty;
 
-                        if (ds.Tables.Count != 0)
+                        this.DataAccessProgressOutHandler(this, EventArgs.Empty, 0, 0, progMax);
+
+                        foreach (DataRow drow in ds.Tables["tContactUser"].Rows)
                         {
-                            var progMax = Convert.ToInt32(ds.Tables["tContactUser"].Rows.Count);
+                            contactCode = Convert.ToInt32(drow["ContactUserCode"]);
 
-                            this.DataAccessStatusOutHandler(this, EventArgs.Empty, string.Format("Records {0}", progMax), false);
-
-                            var queryInsertContactUser = "INSERT INTO tContactUser " +
-                                                         "(ContactRefno, " +
-                                                         "ContactSubType, " +
-                                                         "ContactUserCode, " +
-                                                         "ContactUserName, " +
-                                                         "ContactUserPassword, " +
-                                                         "ContactUserIsAllowedAssociateProductBarCode, " +
-                                                         "ContactUserIsAllowedPickingModuleOverridePicker, " +
-                                                         "ContactUserIsAllowedPickingModuleOverrideAddManualDetail, " +
-                                                         "ContactUserLocalizationLanguage) " +
-                                                         "VALUES " +
-                                                         "(?, " +
-                                                         "?, " +
-                                                         "?, " +
-                                                         "?, " +
-                                                         "?, " +
-                                                         "?, " +
-                                                         "?, " +
-                                                         "?, " +
-                                                         "?)";
-
-                            var progValue = 0;
-                            var contactRefno = 0;
-                            var contactCode = 0;
-                            var contactName = string.Empty;
-
-                            this.DataAccessProgressOutHandler(this, EventArgs.Empty, 0, 0, progMax);
-
-                            foreach (DataRow drow in ds.Tables["tContactUser"].Rows)
+                            /// Check to see if user already exists in table
+                            if (resultsContactUser.FirstOrDefault(x => x.ContactUserCode == contactCode) != null)
                             {
-                                contactCode = Convert.ToInt32(drow["ContactUserCode"]);
+                                continue;
+                            }
 
-                                /// Check to see if user already exists in table
-                                if (resultsContactUser.FirstOrDefault(x => x.ContactUserCode == contactCode) != null)
-                                {
-                                    continue;
-                                }
+                            transaction.Execute("INSERT INTO tContact (ContactSubType) VALUES (?)", Convert.ToInt32(SysCommon.ContactSubTypes.User));
+                            contactRefno = Convert.ToInt32(transaction.ExecuteScalar<int>("SELECT last_insert_rowid() FROM tContact"));
 
-                                transaction.Execute("INSERT INTO tContact (ContactSubType) VALUES (?)", Convert.ToInt32(SysCommon.ContactSubTypes.User));
-                                contactRefno = Convert.ToInt32(transaction.ExecuteScalar<int>("SELECT last_insert_rowid() FROM tContact"));
+                            errMsg = "Code " + contactCode;
+                            contactName = drow["ContactUserName"].ToString();
+                            errMsg += Environment.NewLine + "Name \'" + contactName + "\'";
 
-                                errMsg = "Code " + contactCode;
-                                contactName = drow["ContactUserName"].ToString();
-                                errMsg += Environment.NewLine + "Name \'" + contactName + "\'";
-
-                                var parametersInsertContactUser = new object[]
-                                {
+                            var parametersInsertContactUser = new object[]
+                            {
                                     contactRefno,
                                     Convert.ToInt32(SysCommon.ContactSubTypes.User),
                                     contactCode,
@@ -310,24 +309,23 @@ namespace dMobile.GroundWork
                                     Convert.ToBoolean(drow["ContactUserIsAllowedPickingModuleOverridePicker"]),
                                     Convert.ToBoolean(drow["ContactUserIsAllowedPickingModuleOverrideAddManualDetail"]),
                                     Convert.ToString(drow["ContactUserLocalizationLanguage"]),
-                                };
+                            };
 
-                                transaction.Execute(queryInsertContactUser, parametersInsertContactUser);
+                            transaction.Execute(queryInsertContactUser, parametersInsertContactUser);
 
-                                progValue++;
-                                if (progValue % 100 == 0)
-                                {
-                                    this.DataAccessProgressOutHandler(this, EventArgs.Empty, progValue, 0, progMax);
-                                }
+                            progValue++;
+                            if (progValue % 100 == 0)
+                            {
+                                this.DataAccessProgressOutHandler(this, EventArgs.Empty, progValue, 0, progMax);
                             }
-
-                            this.DataAccessProgressOutHandler(this, EventArgs.Empty, progMax, 0, progMax);
                         }
 
-                        transaction.Commit();
-
-                        this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving users complete.", false);
+                        this.DataAccessProgressOutHandler(this, EventArgs.Empty, progMax, 0, progMax);
                     }
+
+                    transaction.Commit();
+
+                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving users complete.", false);
                 }
                 catch (SQLiteException ex)
                 {

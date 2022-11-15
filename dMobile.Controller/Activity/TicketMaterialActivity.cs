@@ -347,6 +347,7 @@ namespace dMobile.Controller.Activity
             // {
             // this.DataViewHdrs.RowFilter = "ActivityStringFKRefno LIKE \'%" + searchText.Trim() + "%\'";
             this.ListHdrs = this.listProductionTicketMaterial.Where(prodTicket => prodTicket.ActivityStringFKRefno.ToLower().Contains(searchText.ToLower().Trim())).Cast<object>().ToList();
+
             // }
             // else
             // {

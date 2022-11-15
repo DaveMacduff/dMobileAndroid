@@ -154,7 +154,7 @@ namespace dMobile.GroundWork
             {
                 rowsAffected = Convert.ToInt32(await DatabaseConnection.GetInstance().SQLConn.ExecuteScalarAsync<int>("SELECT COUNT(ActivityItemRefno) FROM tActivityItem WHERE ActivityItemSubType = ?", Convert.ToInt32(SysCommon.ActSubTypes.TicketFinished)));
 
-                this.DataAccessStatusOutHandler(this, EventArgs.Empty, string.Format("{0} finished ticket items.", rowsAffected), true);
+                this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"{rowsAffected} finished ticket items.", true);
             }
             catch (SQLiteException ex)
             {
@@ -197,60 +197,59 @@ namespace dMobile.GroundWork
             {
                 try
                 {
-                    using (var ds = new DataSet())
+                    using var ds = new DataSet();
+                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Reading received data.", false);
+
+                    ds.ReadXml(SysCommon.GetXmlReader(ref reqData), XmlReadMode.Auto);
+
+                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving finished ticket items.", false);
+
+                    if (ds.Tables.Count != 0)
                     {
-                        this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Reading received data.", false);
+                        var progMax = Convert.ToInt32(ds.Tables["tActivityItemProduction"].Rows.Count);
 
-                        ds.ReadXml(SysCommon.GetXmlReader(ref reqData), XmlReadMode.Auto);
+                        this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"Records {progMax}", false);
 
-                        this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving finished ticket items.", false);
+                        var actItemRefno = 0;
+                        var progValue = 0;
+                        var prodUnitRefno = 0;
+                        var locMapRefno = 0;
 
-                        if (ds.Tables.Count != 0)
+                        this.DataAccessProgressOutHandler(this, EventArgs.Empty, 0, 0, progMax);
+
+                        foreach (DataRow drow in ds.Tables["tActivityItemProduction"].Rows)
                         {
-                            var progMax = Convert.ToInt32(ds.Tables["tActivityItemProduction"].Rows.Count);
+                            transaction.Execute("INSERT INTO tActivityItem (ActivityItemSubType, ActivityItemStatus, ActivityRefno) VALUES (?, ?, ?)", Convert.ToInt32(SysCommon.ActSubTypes.TicketFinished), Convert.ToInt32(SysCommon.ActStatus.NoChange), Convert.ToInt32(actRefno));
+                            actItemRefno = Convert.ToInt32(transaction.ExecuteScalar<int>("SELECT last_insert_rowid() FROM tActivityItem"));
+                            prodUnitRefno = this.GetProductUnitRefnoFromDataRow(drow, transaction, false);
 
-                            this.DataAccessStatusOutHandler(this, EventArgs.Empty, string.Format("Records {0}", progMax), false);
-
-                            var actItemRefno = 0;
-                            var progValue = 0;
-                            var prodUnitRefno = 0;
-                            var locMapRefno = 0;
-
-                            this.DataAccessProgressOutHandler(this, EventArgs.Empty, 0, 0, progMax);
-
-                            foreach (DataRow drow in ds.Tables["tActivityItemProduction"].Rows)
+                            var queryActivityItemProduction = "INSERT INTO tActivityItemProduction (" +
+                                                              "ActivityItemRefno, " +
+                                                              "ActivityItemSubType, " +
+                                                              "ProductUnitRefno, " +
+                                                              "LocationMapRefno, " +
+                                                              "ActivityItemProductionQuantity, " +
+                                                              "ActivityItemProductionBaseQuantity, " +
+                                                              "ActivityItemProductionWeightQuantity, " +
+                                                              "ActivityItemProductionDescription, " +
+                                                              "ActivityItemProductionQuantityExpected, " +
+                                                              "ActivityItemProductionBaseQuantityExpected, " +
+                                                              "ActivityItemProductionWeightQuantityExpected" +
+                                                              ") VALUES (" +
+                                                              "?, " +
+                                                              "?, " +
+                                                              "?, " +
+                                                              "?, " +
+                                                              "?, " +
+                                                              "?, " +
+                                                              "?, " +
+                                                              "?, " +
+                                                              "?, " +
+                                                              "?, " +
+                                                              "?" +
+                                                              ")";
+                            var parametersActivityItemProduction = new object[]
                             {
-                                transaction.Execute("INSERT INTO tActivityItem (ActivityItemSubType, ActivityItemStatus, ActivityRefno) VALUES (?, ?, ?)", Convert.ToInt32(SysCommon.ActSubTypes.TicketFinished), Convert.ToInt32(SysCommon.ActStatus.NoChange), Convert.ToInt32(actRefno));
-                                actItemRefno = Convert.ToInt32(transaction.ExecuteScalar<int>("SELECT last_insert_rowid() FROM tActivityItem"));
-                                prodUnitRefno = this.GetProductUnitRefnoFromDataRow(drow, transaction, false);
-
-                                var queryActivityItemProduction = "INSERT INTO tActivityItemProduction (" +
-                                                                  "ActivityItemRefno, " +
-                                                                  "ActivityItemSubType, " +
-                                                                  "ProductUnitRefno, " +
-                                                                  "LocationMapRefno, " +
-                                                                  "ActivityItemProductionQuantity, " +
-                                                                  "ActivityItemProductionBaseQuantity, " +
-                                                                  "ActivityItemProductionWeightQuantity, " +
-                                                                  "ActivityItemProductionDescription, " +
-                                                                  "ActivityItemProductionQuantityExpected, " +
-                                                                  "ActivityItemProductionBaseQuantityExpected, " +
-                                                                  "ActivityItemProductionWeightQuantityExpected" +
-                                                                  ") VALUES (" +
-                                                                  "?, " +
-                                                                  "?, " +
-                                                                  "?, " +
-                                                                  "?, " +
-                                                                  "?, " +
-                                                                  "?, " +
-                                                                  "?, " +
-                                                                  "?, " +
-                                                                  "?, " +
-                                                                  "?, " +
-                                                                  "?" +
-                                                                  ")";
-                                var parametersActivityItemProduction = new object[]
-                                {
                                     actItemRefno,
                                     Convert.ToInt32(SysCommon.ActSubTypes.TicketFinished),
                                     prodUnitRefno,
@@ -262,27 +261,26 @@ namespace dMobile.GroundWork
                                     Convert.ToDecimal(drow["ActivityItemProductionQuantityExpected"]),
                                     Convert.ToDecimal(drow["ActivityItemProductionBaseQuantityExpected"]),
                                     Convert.ToDecimal(drow["ActivityItemProductionWeightQuantityExpected"]),
-                                };
+                            };
 
-                                transaction.Execute(queryActivityItemProduction, parametersActivityItemProduction);
+                            transaction.Execute(queryActivityItemProduction, parametersActivityItemProduction);
 
-                                var actItemProductionFKRefno = Convert.ToInt32(drow["ActivityItemProductionFKRefno"]);
-                                transaction.Execute("INSERT INTO tActivityItemProductionFinished (ActivityItemRefno, ActivityItemFKRefno, ActivityItemStringFKRefno) VALUES (?, ?, ?)", actItemRefno, actItemProductionFKRefno, Convert.ToString(actItemProductionFKRefno));
+                            var actItemProductionFKRefno = Convert.ToInt32(drow["ActivityItemProductionFKRefno"]);
+                            transaction.Execute("INSERT INTO tActivityItemProductionFinished (ActivityItemRefno, ActivityItemFKRefno, ActivityItemStringFKRefno) VALUES (?, ?, ?)", actItemRefno, actItemProductionFKRefno, Convert.ToString(actItemProductionFKRefno));
 
-                                progValue++;
-                                if (progValue % 100 == 0)
-                                {
-                                    this.DataAccessProgressOutHandler(this, EventArgs.Empty, progValue, 0, progMax);
-                                }
+                            progValue++;
+                            if (progValue % 100 == 0)
+                            {
+                                this.DataAccessProgressOutHandler(this, EventArgs.Empty, progValue, 0, progMax);
                             }
-
-                            this.DataAccessProgressOutHandler(this, EventArgs.Empty, progMax, 0, progMax);
                         }
 
-                        transaction.Commit();
-
-                        this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving finished ticket items complete.", false);
+                        this.DataAccessProgressOutHandler(this, EventArgs.Empty, progMax, 0, progMax);
                     }
+
+                    transaction.Commit();
+
+                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving finished ticket items complete.", false);
                 }
                 catch (SQLiteException ex)
                 {

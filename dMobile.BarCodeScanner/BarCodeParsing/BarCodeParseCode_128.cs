@@ -53,6 +53,7 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
                     var barCodeParse = new BarCodeParseCode_128_FINICA_as_EAN_UCC_128();
                     barCodeParse.ParseBarCodeData(barCodeData);
                 }
+
                 // 8767 is the Ovation Fielding pack site identifier WO# 11127
                 else if (this.Settings.IsRuleEnabled_Parse_Code128_OvationFielding_Lamb
                     && this.Remainder.Length == 32

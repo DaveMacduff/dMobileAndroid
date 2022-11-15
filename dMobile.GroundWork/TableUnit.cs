@@ -139,7 +139,7 @@ namespace dMobile.GroundWork
             {
                 rowsAffected = Convert.ToInt32(await DatabaseConnection.GetInstance().SQLConn.ExecuteScalarAsync<int>("SELECT COUNT(*) FROM tUnit"));
 
-                this.DataAccessStatusOutHandler(this, EventArgs.Empty, string.Format("{0} units of measure.", rowsAffected), true);
+                this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"{rowsAffected} units of measure.", true);
             }
             catch (SQLiteException ex)
             {
@@ -187,62 +187,60 @@ namespace dMobile.GroundWork
             {
                 try
                 {
-                    using (var ds = new DataSet())
+                    using var ds = new DataSet();
+                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Reading received data.", false);
+
+                    ds.ReadXml(SysCommon.GetXmlReader(ref reqData), XmlReadMode.Auto);
+
+                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving units of measure.", false);
+
+                    if (ds.Tables.Count != 0)
                     {
-                        this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Reading received data.", false);
+                        var progMax = ds.Tables["tUnit"].Rows.Count;
 
-                        ds.ReadXml(SysCommon.GetXmlReader(ref reqData), XmlReadMode.Auto);
+                        this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"Records {progMax}", false);
 
-                        this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving units of measure.", false);
+                        var progValue = 0;
+                        var isUnitFound = false;
+                        var unitCode = string.Empty;
 
-                        if (ds.Tables.Count != 0)
+                        this.DataAccessProgressOutHandler(this, EventArgs.Empty, 0, 0, progMax);
+
+                        foreach (DataRow drow in ds.Tables["tUnit"].Rows)
                         {
-                            var progMax = ds.Tables["tUnit"].Rows.Count;
+                            unitCode = drow["UnitCode"].ToString();
+                            errMsg = "Unit code \'" + unitCode + "\'";
+                            isUnitFound = false;
 
-                            this.DataAccessStatusOutHandler(this, EventArgs.Empty, string.Format("Records {0}", progMax), false);
-
-                            var progValue = 0;
-                            var isUnitFound = false;
-                            var unitCode = string.Empty;
-
-                            this.DataAccessProgressOutHandler(this, EventArgs.Empty, 0, 0, progMax);
-
-                            foreach (DataRow drow in ds.Tables["tUnit"].Rows)
+                            if (this.SysEnv.RefreshOpt.RefreshDataChangesOnly)
                             {
-                                unitCode = drow["UnitCode"].ToString();
-                                errMsg = "Unit code \'" + unitCode + "\'";
-                                isUnitFound = false;
+                                var results = transaction.Query<tUnitModel>("SELECT UnitCode FROM tUnit WHERE UnitCode = ?", unitCode);
 
-                                if (this.SysEnv.RefreshOpt.RefreshDataChangesOnly)
+                                if (results?.Count > 0)
                                 {
-                                    var results = transaction.Query<tUnitModel>("SELECT UnitCode FROM tUnit WHERE UnitCode = ?", unitCode);
-
-                                    if (results?.Count > 0)
-                                    {
-                                        isUnitFound = true;
-                                    }
+                                    isUnitFound = true;
                                 }
-
-                                if (!isUnitFound)
-                                {
-                                    transaction.Execute("INSERT INTO tUnit (UnitCode) VALUES (?)", unitCode);
-                                }
-
-                                progValue++;
-
-                                if (progValue % 100 == 0)
-                                {
-                                    this.DataAccessProgressOutHandler(this, EventArgs.Empty, progValue, 0, progMax);
-                                }
-
-                                this.DataAccessProgressOutHandler(this, EventArgs.Empty, progMax, 0, progMax);
                             }
+
+                            if (!isUnitFound)
+                            {
+                                transaction.Execute("INSERT INTO tUnit (UnitCode) VALUES (?)", unitCode);
+                            }
+
+                            progValue++;
+
+                            if (progValue % 100 == 0)
+                            {
+                                this.DataAccessProgressOutHandler(this, EventArgs.Empty, progValue, 0, progMax);
+                            }
+
+                            this.DataAccessProgressOutHandler(this, EventArgs.Empty, progMax, 0, progMax);
                         }
-
-                        transaction.Commit();
-
-                        this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving units of measure complete.", false);
                     }
+
+                    transaction.Commit();
+
+                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving units of measure complete.", false);
                 }
                 catch (SQLiteException ex)
                 {

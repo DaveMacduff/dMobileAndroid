@@ -144,7 +144,7 @@ namespace dMobile.GroundWork
             {
                 rowsAffected = Convert.ToInt32(await DatabaseConnection.GetInstance().SQLConn.ExecuteScalarAsync<int>("SELECT COUNT(ActivityItemRefno) FROM tActivityItem WHERE ActivityItemSubType = ?", Convert.ToInt32(SysCommon.ActSubTypes.TransferTo)));
 
-                this.DataAccessStatusOutHandler(this, EventArgs.Empty, string.Format("{0} transfer items.", rowsAffected), true);
+                this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"{rowsAffected} transfer items.", true);
             }
             catch (SQLiteException ex)
             {
@@ -171,7 +171,7 @@ namespace dMobile.GroundWork
             }
             else
             {
-                throw new Exception(string.Format("Unable to locate the transfer refno {0} in tActivityTransfer.", actRefno));
+                throw new Exception($"Unable to locate the transfer refno {actRefno} in tActivityTransfer.");
             }
 
             return await this.SendComm(await this.CreateRequest(transFKRefno));
@@ -201,7 +201,7 @@ namespace dMobile.GroundWork
                         {
                             var progMax = Convert.ToInt32(ds.Tables["tActivityItemTransfer"].Rows.Count);
 
-                            this.DataAccessStatusOutHandler(this, EventArgs.Empty, string.Format("Records {0}", progMax), false);
+                            this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"Records {progMax}", false);
 
                             var actItemRefno = 0;
                             var progValue = 0;

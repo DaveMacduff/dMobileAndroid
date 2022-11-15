@@ -96,7 +96,7 @@ namespace dMobile.GroundWork
             {
                 rowsAffected = Convert.ToInt32(await DatabaseConnection.GetInstance().SQLConn.ExecuteScalarAsync<int>("SELECT COUNT(*) FROM tLocationMapSlotCoordinate"));
 
-                this.DataAccessStatusOutHandler(this, EventArgs.Empty, string.Format("{0} slot coordinates.", rowsAffected), true);
+                this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"{rowsAffected} slot coordinates.", true);
             }
             catch (SQLiteException ex)
             {
@@ -116,87 +116,85 @@ namespace dMobile.GroundWork
             {
                 try
                 {
-                    using (var ds = new DataSet())
+                    using var ds = new DataSet();
+                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Reading received data.", false);
+
+                    ds.ReadXml(SysCommon.GetXmlReader(ref reqData), XmlReadMode.Auto);
+
+                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving slot coordinates.", false);
+
+                    if (ds.Tables.Count != 0)
                     {
-                        this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Reading received data.", false);
+                        var progMax = Convert.ToInt32(ds.Tables["tLocationMapSlotCoordinate"].Rows.Count);
 
-                        ds.ReadXml(SysCommon.GetXmlReader(ref reqData), XmlReadMode.Auto);
+                        this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"Records {progMax}", false);
 
-                        this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving slot coordinates.", false);
+                        var progValue = 0;
+                        var isSlotCoordFound = false;
+                        var slotCoordType = Convert.ToInt32(SysCommon.LocMapSlotCoordTypes.Coord1);
+                        var slotCoordCode = string.Empty;
+                        var whsLocMapRefno = 0;
 
-                        if (ds.Tables.Count != 0)
+                        this.DataAccessProgressOutHandler(this, EventArgs.Empty, 0, 0, progMax);
+
+                        foreach (DataRow drow in ds.Tables["tLocationMapSlotCoordinate"].Rows)
                         {
-                            var progMax = Convert.ToInt32(ds.Tables["tLocationMapSlotCoordinate"].Rows.Count);
+                            slotCoordCode = drow["LocationMapSlotCoordinateCode"].ToString();
+                            slotCoordType = Convert.ToInt32(drow["LocationMapSlotCoordinateEnum"]);
 
-                            this.DataAccessStatusOutHandler(this, EventArgs.Empty, string.Format("Records {0}", progMax), false);
-
-                            var progValue = 0;
-                            var isSlotCoordFound = false;
-                            var slotCoordType = Convert.ToInt32(SysCommon.LocMapSlotCoordTypes.Coord1);
-                            var slotCoordCode = string.Empty;
-                            var whsLocMapRefno = 0;
-
-                            this.DataAccessProgressOutHandler(this, EventArgs.Empty, 0, 0, progMax);
-
-                            foreach (DataRow drow in ds.Tables["tLocationMapSlotCoordinate"].Rows)
+                            switch (slotCoordType)
                             {
-                                slotCoordCode = drow["LocationMapSlotCoordinateCode"].ToString();
-                                slotCoordType = Convert.ToInt32(drow["LocationMapSlotCoordinateEnum"]);
+                                case (int)SysCommon.LocMapSlotCoordTypes.Coord1:
+                                    break;
 
-                                switch (slotCoordType)
+                                case (int)SysCommon.LocMapSlotCoordTypes.Coord2:
+                                    break;
+
+                                case (int)SysCommon.LocMapSlotCoordTypes.Coord3:
+                                    break;
+
+                                default:
+
+                                    throw new Exception("Unidentified slot coordinate enum type " + slotCoordType);
+                            }
+
+                            whsLocMapRefno = this.GetWhsLocMapRefnoFromDataRow(drow, transaction);
+                            isSlotCoordFound = false;
+
+                            if (this.SysEnv.RefreshOpt.RefreshDataChangesOnly)
+                            {
+                                var results = transaction.Query<tLocationMapSlotCoordinateModel>("SELECT * FROM tLocationMapSlotCoordinate WHERE LocationMapSlotCoordinateEnum = ? AND LocationMapSlotCoordinateCode = ? AND WarehouseLocationMapRefno = ?",
+                                    slotCoordType,
+                                    slotCoordCode,
+                                    whsLocMapRefno);
+
+                                if (results?.Count > 0)
                                 {
-                                    case (int)SysCommon.LocMapSlotCoordTypes.Coord1:
-                                        break;
-
-                                    case (int)SysCommon.LocMapSlotCoordTypes.Coord2:
-                                        break;
-
-                                    case (int)SysCommon.LocMapSlotCoordTypes.Coord3:
-                                        break;
-
-                                    default:
-
-                                        throw new Exception("Unidentified slot coordinate enum type " + slotCoordType);
-                                }
-
-                                whsLocMapRefno = this.GetWhsLocMapRefnoFromDataRow(drow, transaction);
-                                isSlotCoordFound = false;
-
-                                if (this.SysEnv.RefreshOpt.RefreshDataChangesOnly)
-                                {
-                                    var results = transaction.Query<tLocationMapSlotCoordinateModel>("SELECT * FROM tLocationMapSlotCoordinate WHERE LocationMapSlotCoordinateEnum = ? AND LocationMapSlotCoordinateCode = ? AND WarehouseLocationMapRefno = ?",
-                                        slotCoordType,
-                                        slotCoordCode,
-                                        whsLocMapRefno);
-
-                                    if (results?.Count > 0)
-                                    {
-                                        isSlotCoordFound = true;
-                                    }
-                                }
-
-                                if (!isSlotCoordFound)
-                                {
-                                    transaction.Execute("INSERT INTO tLocationMapSlotCoordinate (LocationMapSlotCoordinateEnum, WarehouseLocationMapRefno, LocationMapSlotCoordinateCode) VALUES (?, ?, ?)",
-                                        Convert.ToInt32(drow["LocationMapSlotCoordinateEnum"]),
-                                        whsLocMapRefno,
-                                        Convert.ToString(drow["LocationMapSlotCoordinateCode"]));
-                                }
-
-                                progValue++;
-                                if (progValue % 100 == 0)
-                                {
-                                    this.DataAccessProgressOutHandler(this, EventArgs.Empty, progValue, 0, progMax);
+                                    isSlotCoordFound = true;
                                 }
                             }
 
-                            this.DataAccessProgressOutHandler(this, EventArgs.Empty, progMax, 0, progMax);
+                            if (!isSlotCoordFound)
+                            {
+                                transaction.Execute("INSERT INTO tLocationMapSlotCoordinate (LocationMapSlotCoordinateEnum, WarehouseLocationMapRefno, LocationMapSlotCoordinateCode) VALUES (?, ?, ?)",
+                                    Convert.ToInt32(drow["LocationMapSlotCoordinateEnum"]),
+                                    whsLocMapRefno,
+                                    Convert.ToString(drow["LocationMapSlotCoordinateCode"]));
+                            }
+
+                            progValue++;
+                            if (progValue % 100 == 0)
+                            {
+                                this.DataAccessProgressOutHandler(this, EventArgs.Empty, progValue, 0, progMax);
+                            }
                         }
 
-                        transaction.Commit();
-
-                        this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving slot coordinates complete.", false);
+                        this.DataAccessProgressOutHandler(this, EventArgs.Empty, progMax, 0, progMax);
                     }
+
+                    transaction.Commit();
+
+                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving slot coordinates complete.", false);
                 }
                 catch (SQLiteException ex)
                 {

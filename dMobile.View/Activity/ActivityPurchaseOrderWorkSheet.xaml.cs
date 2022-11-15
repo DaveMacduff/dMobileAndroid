@@ -234,6 +234,7 @@ namespace dMobile.View.Activity
             await Task.Run(async () =>
             {
                 var message = string.Empty;
+
                 // int prodUnitRefno = 0;
                 var actItemFoundRefno = 0;
                 var currentRowIdx = Convert.ToInt32(this.MainActivityItems.IndexOf(this.ListViewMainActivity.SelectedItem));
@@ -278,6 +279,7 @@ namespace dMobile.View.Activity
                             var oProductInfo = new ProductInfo();
                             oProductInfo = await ProductInfoTasks.GetInfoFromUnitRefno(this.prodUnitRefno);
                             actItemFoundRefno = await this.ActItem.GetActivityItemRefno(this.prodUnitRefno);
+
                             // <issue="13609" author="RD" date="2016/02/22"/>
                             SysShared.AssertSuppressedErrorsAgainstScheme(oProductInfo, this.BarParse);
                         }
@@ -638,6 +640,7 @@ namespace dMobile.View.Activity
                     // DisplayData();
                     // this.LoadData();
                     cancelChanges = false;
+
                     // this.IsChangesMade = false;
                 }
             }
@@ -707,6 +710,7 @@ namespace dMobile.View.Activity
             {
                 await this.ScannerDisable();
             }
+
             // }
         }
 

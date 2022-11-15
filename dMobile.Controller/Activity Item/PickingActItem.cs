@@ -212,7 +212,8 @@ namespace dMobile.Controller.Activity_Item
 
             if (this.SysEnv.SysSettings.IsPickOverrideMsg1)
             {
-                msg = string.Format("Product scanned, code \'{0}\' bc \'{1}\' unit \'{2}\', is not found on this order for warehouse {3}.", prodInfo.Code, prodInfo.UnitBC, prodInfo.UnitCode, locMap.CurrLocMap.WhsFKRefno);
+                msg =
+                    $"Product scanned, code \'{prodInfo.Code}\' bc \'{prodInfo.UnitBC}\' unit \'{prodInfo.UnitCode}\', is not found on this order for warehouse {locMap.CurrLocMap.WhsFKRefno}.";
             }
 
             return msg;
@@ -490,7 +491,7 @@ namespace dMobile.Controller.Activity_Item
         /// <returns>.</returns>
         public override string GetUnableToParseItemFkRefnoMessage(string actItemStringFkRefno)
         {
-            return string.Format("Unable to parse sales order item # {0}.", actItemStringFkRefno);
+            return $"Unable to parse sales order item # {actItemStringFkRefno}.";
         }
 
         /// <summary>
@@ -500,7 +501,7 @@ namespace dMobile.Controller.Activity_Item
         /// <returns>.</returns>
         public override string GetUnableToFindItemFkRefnoMessage(string actItemStringFkRefno)
         {
-            return string.Format("Unable to find sales order item # {0}.", actItemStringFkRefno);
+            return $"Unable to find sales order item # {actItemStringFkRefno}.";
         }
 
         /// <summary>
@@ -807,9 +808,12 @@ namespace dMobile.Controller.Activity_Item
                 var detailWidth1 = DependencyService.Get<IGridService>().CalculateTextWidth(pickingItem.ProductCode);
                 var detailWidth2 = DependencyService.Get<IGridService>().CalculateTextWidth(pickingItem.ProductUnitBC);
                 var detailWidth3 = DependencyService.Get<IGridService>().CalculateTextWidth(pickingItem.UnitCode);
-                var detailWidth4 = DependencyService.Get<IGridService>().CalculateTextWidth(string.Format("{0:F3}", pickingItem.ActivityItemPickingQuantityOrdered));
-                var detailWidth5 = DependencyService.Get<IGridService>().CalculateTextWidth(string.Format("{0:F3}", pickingItem.ActivityItemPickingWeightQuantityShipped));
-                var detailWidth6 = DependencyService.Get<IGridService>().CalculateTextWidth(string.Format("{0:F3}", pickingItem.ActivityItemPickingQuantityAvailable));
+                var detailWidth4 = DependencyService.Get<IGridService>().CalculateTextWidth(
+                    $"{pickingItem.ActivityItemPickingQuantityOrdered:F3}");
+                var detailWidth5 = DependencyService.Get<IGridService>().CalculateTextWidth(
+                    $"{pickingItem.ActivityItemPickingWeightQuantityShipped:F3}");
+                var detailWidth6 = DependencyService.Get<IGridService>().CalculateTextWidth(
+                    $"{pickingItem.ActivityItemPickingQuantityAvailable:F3}");
 
                 if (detailWidth0 > this.columnWidth0)
                 {
@@ -1039,6 +1043,7 @@ namespace dMobile.Controller.Activity_Item
             // if (string.IsNullOrEmpty(this.ActItemFilter))
             // {
             this.ListItems = this.listPickingItems.Where(pickingItem => pickingItem.ProductCode.ToString().ToLower().Contains(searchText.ToLower().Trim())).Cast<object>().ToList();
+
             // }
             // else
             // {
@@ -1417,7 +1422,7 @@ namespace dMobile.Controller.Activity_Item
                             + "tActivityItem.ActivityItemRefno "
                             + "INNER JOIN tProductUnit ON tProductUnit.ProductUnitRefno = tActivityItemPicking.ProductUnitRefno "
                             + "INNER JOIN tUnit ON tUnit.UnitRefno = tProductUnit.WtUnitRefno "
-                            + string.Format("WHERE tActivityItem.ActivityRefno = {0} ", this.ActHdr.HdrRefno)
+                            + $"WHERE tActivityItem.ActivityRefno = {this.ActHdr.HdrRefno} "
                             + "GROUP BY tUnit.UnitCode";
 
                 var results = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<PickingItemSummary>(query);
@@ -1429,13 +1434,8 @@ namespace dMobile.Controller.Activity_Item
                         // Because an agregate sum function is used in a query. There will always be a result record.
                         // This causes problems detecting if there is nothing to sum, resulting in null.
                         // Converting Convert.ToDecimal(dr["Ordered"]) fails because there is not data. However to a string works.
-                        msg += string.Format("Total ordered:\r{0} @ {1}{2}\nTotal shipped:\r{3} @ {4}{5}",
-                            Convert.ToInt32(Convert.ToDecimal(pickingItem.Ordered)),
-                            Convert.ToDecimal(pickingItem.WeightOrdered),
-                            Convert.ToString(pickingItem.WtUnitCode),
-                            Convert.ToInt32(Convert.ToDecimal(pickingItem.Shipped)),
-                            Convert.ToDecimal(pickingItem.WeightShipped),
-                            Convert.ToString(pickingItem.WtUnitCode));
+                        msg +=
+                            $"Total ordered:\r{Convert.ToInt32(Convert.ToDecimal(pickingItem.Ordered))} @ {Convert.ToDecimal(pickingItem.WeightOrdered)}{Convert.ToString(pickingItem.WtUnitCode)}\nTotal shipped:\r{Convert.ToInt32(Convert.ToDecimal(pickingItem.Shipped))} @ {Convert.ToDecimal(pickingItem.WeightShipped)}{Convert.ToString(pickingItem.WtUnitCode)}";
                     }
                 }
             }
@@ -1460,7 +1460,8 @@ namespace dMobile.Controller.Activity_Item
 
                 if (shipped + actItemPickQuantity > ordered)
                 {
-                    throw new Exception(string.Format("The resulting quantity shipped {0} {1} will be greater than the quantity ordered {2} {3}.", shipped + actItemPickQuantity, this.ProdInfo.UnitCode, ordered, this.ProdInfo.UnitCode));
+                    throw new Exception(
+                        $"The resulting quantity shipped {shipped + actItemPickQuantity} {this.ProdInfo.UnitCode} will be greater than the quantity ordered {ordered} {this.ProdInfo.UnitCode}.");
                 }
             }
         }
@@ -1482,7 +1483,7 @@ namespace dMobile.Controller.Activity_Item
         /// <returns><see cref="string"/> Get activity item control description.</returns>
         public override string GetControlDescription()
         {
-            return string.Format("Pick # {0}", this.ActHdr.HdrFkRefno);
+            return $"Pick # {this.ActHdr.HdrFkRefno}";
         }
 
         /// <summary>

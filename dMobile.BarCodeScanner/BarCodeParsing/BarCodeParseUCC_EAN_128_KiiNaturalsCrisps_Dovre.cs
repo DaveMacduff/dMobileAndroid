@@ -17,6 +17,7 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
         protected override string IdentifyGTIN(string barCodeData)
         {
             var data = barCodeData;
+
             // they have their GTIN's ID'd 02 instead of 01
             if (data.StartsWith("02") && data.Length >= 16)
             {

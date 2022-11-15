@@ -492,62 +492,62 @@ namespace dMobile.View.Activity
             {
                 case SysCommon.ActSubTypes.PhysicalCounts:
 
-                    desc = string.Format("Count # {0}", this.ActItem.ActHdr.HdrFkRefno);
+                    desc = $"Count # {this.ActItem.ActHdr.HdrFkRefno}";
                     break;
 
                 case SysCommon.ActSubTypes.Receiving:
 
-                    desc = string.Format("Receive # {0}", this.ActItem.ActHdr.HdrFkRefno);
+                    desc = $"Receive # {this.ActItem.ActHdr.HdrFkRefno}";
                     break;
 
                 case SysCommon.ActSubTypes.Picking:
 
-                    desc = string.Format("Pick # {0}", this.ActItem.ActHdr.HdrFkRefno);
+                    desc = $"Pick # {this.ActItem.ActHdr.HdrFkRefno}";
                     break;
 
                 case SysCommon.ActSubTypes.TransferFrom:
 
-                    desc = string.Format("Transfer from # {0}", this.ActItem.ActHdr.HdrFkRefno);
+                    desc = $"Transfer from # {this.ActItem.ActHdr.HdrFkRefno}";
                     break;
 
                 case SysCommon.ActSubTypes.TransferTo:
 
-                    desc = string.Format("Transfer to # {0}", this.ActItem.ActHdr.HdrFkRefno);
+                    desc = $"Transfer to # {this.ActItem.ActHdr.HdrFkRefno}";
                     break;
 
                 case SysCommon.ActSubTypes.Returns:
 
-                    desc = string.Format("Return # {0}", this.ActItem.ActHdr.HdrFkRefno);
+                    desc = $"Return # {this.ActItem.ActHdr.HdrFkRefno}";
                     break;
 
                 case SysCommon.ActSubTypes.CycleCounts:
 
-                    desc = string.Format("Count # {0}", this.ActItem.ActHdr.HdrFkRefno);
+                    desc = $"Count # {this.ActItem.ActHdr.HdrFkRefno}";
                     break;
 
                 case SysCommon.ActSubTypes.Adjustment:
 
-                    desc = string.Format("Adjustment # {0}", this.ActItem.ActHdr.HdrFkRefno);
+                    desc = $"Adjustment # {this.ActItem.ActHdr.HdrFkRefno}";
                     break;
 
                 case SysCommon.ActSubTypes.TicketFinished:
 
-                    desc = string.Format("Ticket Finished # {0}", this.ActItem.ActHdr.HdrFkRefno);
+                    desc = $"Ticket Finished # {this.ActItem.ActHdr.HdrFkRefno}";
                     break;
 
                 case SysCommon.ActSubTypes.TicketMaterial:
 
-                    desc = string.Format("Ticket Material # {0}", this.ActItem.ActHdr.HdrFkRefno);
+                    desc = $"Ticket Material # {this.ActItem.ActHdr.HdrFkRefno}";
                     break;
 
                 case SysCommon.ActSubTypes.TicketAddProduct:
 
-                    desc = string.Format("Ticket Add-Product # {0}", this.ActItem.ActHdr.HdrFkRefno);
+                    desc = $"Ticket Add-Product # {this.ActItem.ActHdr.HdrFkRefno}";
                     break;
 
                 case SysCommon.ActSubTypes.PickingSingle:
 
-                    desc = string.Format("Pick # {0}", this.ActItem.ActHdr.HdrFkRefno);
+                    desc = $"Pick # {this.ActItem.ActHdr.HdrFkRefno}";
                     break;
 
                 default:
@@ -956,6 +956,7 @@ namespace dMobile.View.Activity
                         }
 
                         actItemFoundRefno = await this.ActItem.GetActivityItemRefno(prodUnitRefno);
+
                         // this.ActItem.DataViewItems.Sort = "ActivityItemRefno";
                         if (actItemFoundRefno > 0)
                         {
@@ -1081,6 +1082,7 @@ namespace dMobile.View.Activity
                             {
                                 await this.ActItem.AssignActivityItem(foundSelectedActivityItem);
                                 actItemFoundRefno = this.ActItem.ItemRefno;
+
                                 // this.ActItem.DataViewItems.Sort = "ActivityItemRefno";
                                 // foundSelectedActivityItem = this.ActItem.DataViewItems.Find(actItemFoundRefno);
                                 foundSelectedActivityItem = this.ActItem.ListItems
@@ -1183,20 +1185,28 @@ namespace dMobile.View.Activity
 
                     if (string.IsNullOrEmpty(barCodeParse.SSCC18))
                     {
+                        var isVerifyActivity = this.ActSubType == SysCommon.ActSubTypes.Picking ||
+                                               this.ActSubType == SysCommon.ActSubTypes.PickingSingle ||
+                                               this.ActSubType == SysCommon.ActSubTypes.TransferFrom ||
+                                               this.ActSubType == SysCommon.ActSubTypes.TransferTo;
+
                         // Rule: check if the current location and product home location are the same
-                        if (this.SysEnv.SysSettings.IsVerifyProductLocation &&
-                            (this.ActSubType == SysCommon.ActSubTypes.Picking ||
-                            this.ActSubType == SysCommon.ActSubTypes.PickingSingle ||
-                            this.ActSubType == SysCommon.ActSubTypes.TransferFrom ||
-                            this.ActSubType == SysCommon.ActSubTypes.TransferTo))
+                        if (this.SysEnv.SysSettings.IsDefaultLocToProductDefaultLoc)
+                        {
+                            // The location is already assigned.
+                        }
+                        else if (this.SysEnv.SysSettings.IsVerifyProductLocation && isVerifyActivity)
                         {
                             int locMapRefno = await this.ActItem.GetDefaultLocMapRefno(
                                 Convert.ToInt32((foundSelectedActivityItem as dynamic).LocationMapRefno),
                                 Convert.ToInt32((foundSelectedActivityItem as dynamic).ProductRefno));
-
-                            if (this.LocMap.CurrLocMapRefno != locMapRefno)
+                            if (await LocationMapTasks.IsCompleteLocMap(locMapRefno))
                             {
-                                throw new MessageOnlyException("The current location does not match the product home location.");
+                                if (this.LocMap.CurrLocMapRefno != locMapRefno)
+                                {
+                                    // Should we have just defaulted to the product location?
+                                    throw new MessageOnlyException("The current location does not match the product home location.");
+                                }
                             }
                         }
 
@@ -1239,7 +1249,8 @@ namespace dMobile.View.Activity
                         tempItemSchemeData.ProdSchemeData = schemeData;
                         actDetail.SchemeData = schemeData;
 
-                        isInsertReady = await SysShared.GatherProductData(barCodeParse,
+                        isInsertReady = await SysShared.GatherProductData(
+                            barCodeParse,
                             this.ActSubType,
                             this.ActItem,
                             tempItemSchemeData,

@@ -46,7 +46,7 @@ namespace dMobile.GroundWork
                     {
                         var reqData = string.Empty;
 
-                        this.DataAccessStatusOutHandler(this, EventArgs.Empty, string.Format("For family {0}", family.FamilyCode), true);
+                        this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"For family {family.FamilyCode}", true);
 
                         reqData = await this.SendRequest(family.FamilyCode);
 
@@ -121,7 +121,8 @@ namespace dMobile.GroundWork
                 }
                 else
                 {
-                    throw new Exception(string.Format("Unable to locate product Refno from product FK Refno {0} in tProduct", prodFKRefno));
+                    throw new Exception(
+                        $"Unable to locate product Refno from product FK Refno {prodFKRefno} in tProduct");
                 }
             }
             catch (SQLiteException ex)
@@ -143,7 +144,7 @@ namespace dMobile.GroundWork
             {
                 rowsAffected = Convert.ToInt32(await DatabaseConnection.GetInstance().SQLConn.ExecuteScalarAsync<int>("SELECT COUNT(*) FROM tProduct"));
 
-                this.DataAccessStatusOutHandler(this, EventArgs.Empty, string.Format("{0} products.", rowsAffected), true);
+                this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"{rowsAffected} products.", true);
             }
             catch (SQLiteException ex)
             {
@@ -189,7 +190,7 @@ namespace dMobile.GroundWork
 
                     this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Reading received data.", false);
 
-                    var startIndex = data.IndexOf("<VFPData");
+                    var startIndex = data.IndexOf("<VFPData", StringComparison.Ordinal);
                     var sett = new XmlReaderSettings();
                     sett.CheckCharacters = false;
                     sett.CloseInput = false;
@@ -218,6 +219,8 @@ namespace dMobile.GroundWork
                         var isProdFound = false;
                         var progValue = 0;
                         var familyRefno = 0;
+
+                        // Deprecated scheme moved to product warehouse level.
                         var schemeRefno = 0;
 
                         // f01
@@ -239,6 +242,7 @@ namespace dMobile.GroundWork
                         var isCatchAsk = false;
 
                         // f07
+                        // Deprecated scheme moved to product warehouse level.
                         var schemeCode = string.Empty;
 
                         // f08
@@ -258,6 +262,18 @@ namespace dMobile.GroundWork
 
                         while (!reader.EOF)
                         {
+                            prodCode = string.Empty;
+                            prodFKRefno = 0;
+                            description = string.Empty;
+                            isCatchCount = false;
+                            isCatchWeight = false;
+                            isCatchAsk = false;
+                            schemeCode = string.Empty;
+                            familyCode = string.Empty;
+                            brandDescription = string.Empty;
+                            isCatchAskZero = false;
+                            isAllowConvertProduct = false;
+
                             // fill one record
                             // we do this by looping until an end segment is found
                             var recordFilled = false;
@@ -318,6 +334,7 @@ namespace dMobile.GroundWork
                                 continue;
                             }
 
+                            familyRefno = 0;
                             dictionaryFamily.TryGetValue(familyCode, out familyRefno);
                             isProdFound = false;
 
@@ -412,7 +429,7 @@ namespace dMobile.GroundWork
                         } // end while loop of reading data in
 
                         this.DataAccessProgressOutHandler(this, EventArgs.Empty, 100, 0, 100); // complete
-                        this.DataAccessStatusOutHandler(this, EventArgs.Empty, string.Format("Records {0}", processedCount), false);
+                        this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"Records {processedCount}", false);
                     } // using xml stream reader
 
                     transaction.Commit();

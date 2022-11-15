@@ -622,6 +622,7 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
             if (tempData.StartsWith("310") && tempData.Length >= 10)
             {
                 this.NetWeightMetricKGFoundAI = true;
+
                 // get the number of decimal places
                 var places = Convert.ToInt32(tempData.Substring(3, 1));
 
@@ -661,6 +662,7 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
             if (tempData.StartsWith("320") && tempData.Length >= 10)
             {
                 this.NetWeightNonMetricLBFoundAI = true;
+
                 // get the number of decimal places
                 var places = Convert.ToInt32(tempData.Substring(3, 1));
 
@@ -700,6 +702,7 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
             if (tempData.StartsWith("330") && tempData.Length >= 10)
             {
                 this.GrossWeightMetricKGFoundAI = true;
+
                 // get the number of decimal places
                 var places = Convert.ToInt32(tempData.Substring(3, 1));
 
@@ -738,6 +741,7 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
             if (tempData.StartsWith("340") && tempData.Length >= 10)
             {
                 this.GrossWeightNonMetricLBFoundAI = true;
+
                 // get the number of decimal places
                 var places = Convert.ToInt32(tempData.Substring(3, 1));
 

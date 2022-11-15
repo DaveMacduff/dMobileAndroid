@@ -407,65 +407,63 @@ namespace dMobile.Bedrock
         {
             var msgArg = new PrnSettingsArgs();
 
-            using (var ds = new DataSet())
+            using var ds = new DataSet();
+            if (this.OnPrnSettingsStatusOut != null)
             {
+                msgArg.StatusOutMsg = "Reading received data.";
+                this.OnPrnSettingsStatusOut(this, msgArg);
+            }
+
+            ds.ReadXml(SysCommon.GetXmlReader(ref xmlData), XmlReadMode.Auto);
+
+            if (this.OnPrnSettingsStatusOut != null)
+            {
+                msgArg.StatusOutMsg = "Saving printer settings.";
+                this.OnPrnSettingsStatusOut(this, msgArg);
+            }
+
+            if (ds.Tables.Count != 0)
+            {
+                var progMax = ds.Tables["tPrinterSettings"].Rows.Count;
+
                 if (this.OnPrnSettingsStatusOut != null)
                 {
-                    msgArg.StatusOutMsg = "Reading received data.";
+                    msgArg.StatusOutMsg = $"Records {progMax}";
                     this.OnPrnSettingsStatusOut(this, msgArg);
                 }
 
-                ds.ReadXml(SysCommon.GetXmlReader(ref xmlData), XmlReadMode.Auto);
-
-                if (this.OnPrnSettingsStatusOut != null)
+                if (this.OnPrnSettingsProgressOut != null)
                 {
-                    msgArg.StatusOutMsg = "Saving printer settings.";
-                    this.OnPrnSettingsStatusOut(this, msgArg);
+                    msgArg.CurrentValue = 0;
+                    msgArg.MinValue = 0;
+                    msgArg.MaxValue = progMax;
+                    this.OnPrnSettingsProgressOut(this, msgArg);
                 }
 
-                if (ds.Tables.Count != 0)
-                {
-                    var progMax = ds.Tables["tPrinterSettings"].Rows.Count;
+                var progValue = 0;
+                var prnInfo = new PrinterInfo();
 
-                    if (this.OnPrnSettingsStatusOut != null)
-                    {
-                        msgArg.StatusOutMsg = string.Format("Records {0}", progMax);
-                        this.OnPrnSettingsStatusOut(this, msgArg);
-                    }
+                foreach (DataRow drow in ds.Tables["tPrinterSettings"].Rows)
+                {
+                    prnInfo.Name = Convert.ToString(drow["PrinterSettingsPrinterName"]);
+                    this.AllPrinters.Add(prnInfo);
+
+                    progValue += 1;
 
                     if (this.OnPrnSettingsProgressOut != null)
                     {
-                        msgArg.CurrentValue = 0;
+                        msgArg.CurrentValue = progValue;
                         msgArg.MinValue = 0;
                         msgArg.MaxValue = progMax;
                         this.OnPrnSettingsProgressOut(this, msgArg);
                     }
-
-                    var progValue = 0;
-                    var prnInfo = new PrinterInfo();
-
-                    foreach (DataRow drow in ds.Tables["tPrinterSettings"].Rows)
-                    {
-                        prnInfo.Name = Convert.ToString(drow["PrinterSettingsPrinterName"]);
-                        this.AllPrinters.Add(prnInfo);
-
-                        progValue += 1;
-
-                        if (this.OnPrnSettingsProgressOut != null)
-                        {
-                            msgArg.CurrentValue = progValue;
-                            msgArg.MinValue = 0;
-                            msgArg.MaxValue = progMax;
-                            this.OnPrnSettingsProgressOut(this, msgArg);
-                        }
-                    }
                 }
+            }
 
-                if (this.OnPrnSettingsStatusOut != null)
-                {
-                    msgArg.StatusOutMsg = "Saving printer settings complete.";
-                    this.OnPrnSettingsStatusOut(this, msgArg);
-                }
+            if (this.OnPrnSettingsStatusOut != null)
+            {
+                msgArg.StatusOutMsg = "Saving printer settings complete.";
+                this.OnPrnSettingsStatusOut(this, msgArg);
             }
         }
 

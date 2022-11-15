@@ -258,28 +258,26 @@ namespace dMobile.Controller.Activity_Detail
                     }
                     else
                     {
-                        using (var ds = new DataSet())
+                        using var ds = new DataSet();
+                        ds.ReadXml(SysCommon.GetXmlReader(ref reqData), XmlReadMode.Auto);
+
+                        if (ds.Tables.Count != 0)
                         {
-                            ds.ReadXml(SysCommon.GetXmlReader(ref reqData), XmlReadMode.Auto);
-
-                            if (ds.Tables.Count != 0)
+                            // TODO: Test
+                            foreach (DataRow row in ds.Tables["tActivityDetail"].Rows)
                             {
-                                // TODO: Test
-                                foreach (DataRow row in ds.Tables["tActivityDetail"].Rows)
+                                var inquiryDetail = new InventoryInquiryDetail
                                 {
-                                    var inquiryDetail = new InventoryInquiryDetail
-                                    {
-                                        ProductCode = Convert.ToString(row["ProductCode"] != DBNull.Value ? row["ProductCode"] : null),
-                                        ProductUnitBC = Convert.ToString(row["ProductUnitBC"] != DBNull.Value ? row["ProductUnitBC"] : null),
-                                        UnitCode = Convert.ToString(row["UnitCode"] != DBNull.Value ? row["UnitCode"] : null),
-                                        WtUnitCode = Convert.ToString(row["WeightUnitCode"] != DBNull.Value ? row["WeightUnitCode"] : null),
-                                        ActivityDetailQuantity = Convert.ToDecimal(row["ActivityDetailQuantity"] != DBNull.Value ? row["ActivityDetailQuantity"] : null),
-                                        ActivityDetailWeightQuantity = Convert.ToDecimal(row["ActivityDetailWeightQuantity"] != DBNull.Value ? row["ActivityDetailWeightQuantity"] : null),
-                                        ActivityDetailSchemeID = Convert.ToString(row["ActivityDetailSchemeID"] != DBNull.Value ? row["ActivityDetailSchemeID"] : null),
-                                    };
+                                    ProductCode = Convert.ToString(row["ProductCode"] != DBNull.Value ? row["ProductCode"] : null),
+                                    ProductUnitBC = Convert.ToString(row["ProductUnitBC"] != DBNull.Value ? row["ProductUnitBC"] : null),
+                                    UnitCode = Convert.ToString(row["UnitCode"] != DBNull.Value ? row["UnitCode"] : null),
+                                    WtUnitCode = Convert.ToString(row["WeightUnitCode"] != DBNull.Value ? row["WeightUnitCode"] : null),
+                                    ActivityDetailQuantity = Convert.ToDecimal(row["ActivityDetailQuantity"] != DBNull.Value ? row["ActivityDetailQuantity"] : null),
+                                    ActivityDetailWeightQuantity = Convert.ToDecimal(row["ActivityDetailWeightQuantity"] != DBNull.Value ? row["ActivityDetailWeightQuantity"] : null),
+                                    ActivityDetailSchemeID = Convert.ToString(row["ActivityDetailSchemeID"] != DBNull.Value ? row["ActivityDetailSchemeID"] : null),
+                                };
 
-                                    this.ListDetails.Add(inquiryDetail);
-                                }
+                                this.ListDetails.Add(inquiryDetail);
                             }
                         }
                     }
@@ -378,8 +376,10 @@ namespace dMobile.Controller.Activity_Detail
 
             foreach (InventoryInquiryDetail inquiryDetail in observableCollection)
             {
-                var detailWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(string.Format("{0:F3}", inquiryDetail.ActivityDetailQuantity));
-                var detailWidth1 = DependencyService.Get<IGridService>().CalculateTextWidth(string.Format("{0:F3}", inquiryDetail.ActivityDetailWeightQuantity));
+                var detailWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(
+                    $"{inquiryDetail.ActivityDetailQuantity:F3}");
+                var detailWidth1 = DependencyService.Get<IGridService>().CalculateTextWidth(
+                    $"{inquiryDetail.ActivityDetailWeightQuantity:F3}");
                 var detailWidth2 = DependencyService.Get<IGridService>().CalculateTextWidth(inquiryDetail.UnitCode);
                 var detailWidth3 = DependencyService.Get<IGridService>().CalculateTextWidth(inquiryDetail.ActivityDetailSchemeID);
 
@@ -540,8 +540,10 @@ namespace dMobile.Controller.Activity_Detail
 
             gridMain.Children.Add(gridHeader);
 
-            var detailWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(string.Format("{0:F3}", actDetail.ActivityDetailQuantity));
-            var detailWidth1 = DependencyService.Get<IGridService>().CalculateTextWidth(string.Format("{0:F3}", actDetail.ActivityDetailWeightQuantity));
+            var detailWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(
+                $"{actDetail.ActivityDetailQuantity:F3}");
+            var detailWidth1 = DependencyService.Get<IGridService>().CalculateTextWidth(
+                $"{actDetail.ActivityDetailWeightQuantity:F3}");
             var detailWidth2 = DependencyService.Get<IGridService>().CalculateTextWidth(actDetail.UnitCode);
             var detailWidth3 = DependencyService.Get<IGridService>().CalculateTextWidth(actDetail.ActivityDetailSchemeID);
 

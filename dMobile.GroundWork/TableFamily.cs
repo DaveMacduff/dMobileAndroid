@@ -72,7 +72,7 @@ namespace dMobile.GroundWork
             {
                 rowsAffected = Convert.ToInt32(await DatabaseConnection.GetInstance().SQLConn.ExecuteScalarAsync<int>("SELECT COUNT(*) FROM tFamily"));
 
-                this.DataAccessStatusOutHandler(this, EventArgs.Empty, string.Format("{0} families.", rowsAffected), true);
+                this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"{rowsAffected} families.", true);
             }
             catch (SQLiteException ex)
             {
@@ -182,61 +182,59 @@ namespace dMobile.GroundWork
             {
                 try
                 {
-                    using (var ds = new DataSet())
+                    using var ds = new DataSet();
+                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Reading received data.", false);
+
+                    ds.ReadXml(SysCommon.GetXmlReader(ref reqData), XmlReadMode.Auto);
+
+                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving families.", false);
+
+                    if (ds.Tables.Count != 0)
                     {
-                        this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Reading received data.", false);
+                        var progMax = ds.Tables["tFamily"].Rows.Count;
 
-                        ds.ReadXml(SysCommon.GetXmlReader(ref reqData), XmlReadMode.Auto);
+                        this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"Records {progMax}", false);
 
-                        this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving families.", false);
+                        var progValue = 0;
+                        var isFamilyFound = false;
+                        var familyCode = string.Empty;
 
-                        if (ds.Tables.Count != 0)
+                        this.DataAccessProgressOutHandler(this, EventArgs.Empty, 0, 0, progMax);
+
+                        foreach (DataRow drow in ds.Tables["tFamily"].Rows)
                         {
-                            var progMax = ds.Tables["tFamily"].Rows.Count;
+                            familyCode = drow["FamilyCode"].ToString();
+                            errMsg = "Family \'" + familyCode + "\'";
+                            isFamilyFound = false;
 
-                            this.DataAccessStatusOutHandler(this, EventArgs.Empty, string.Format("Records {0}", progMax), false);
-
-                            var progValue = 0;
-                            var isFamilyFound = false;
-                            var familyCode = string.Empty;
-
-                            this.DataAccessProgressOutHandler(this, EventArgs.Empty, 0, 0, progMax);
-
-                            foreach (DataRow drow in ds.Tables["tFamily"].Rows)
+                            if (this.SysEnv.RefreshOpt.RefreshDataChangesOnly)
                             {
-                                familyCode = drow["FamilyCode"].ToString();
-                                errMsg = "Family \'" + familyCode + "\'";
-                                isFamilyFound = false;
+                                var results = transaction.Query<tFamilyModel>("SELECT FamilyCode FROM tFamily WHERE FamilyCode = ?", familyCode);
 
-                                if (this.SysEnv.RefreshOpt.RefreshDataChangesOnly)
+                                if (results?.Count > 0)
                                 {
-                                    var results = transaction.Query<tFamilyModel>("SELECT FamilyCode FROM tFamily WHERE FamilyCode = ?", familyCode);
-
-                                    if (results?.Count > 0)
-                                    {
-                                        isFamilyFound = true;
-                                    }
-                                }
-
-                                if (!isFamilyFound)
-                                {
-                                    transaction.Execute("INSERT INTO tFamily (FamilyCode) VALUES (?)", familyCode);
-                                }
-
-                                progValue++;
-                                if (progValue % 100 == 0)
-                                {
-                                    this.DataAccessProgressOutHandler(this, EventArgs.Empty, progValue, 0, progMax);
+                                    isFamilyFound = true;
                                 }
                             }
 
-                            this.DataAccessProgressOutHandler(this, EventArgs.Empty, progMax, 0, progMax);
+                            if (!isFamilyFound)
+                            {
+                                transaction.Execute("INSERT INTO tFamily (FamilyCode) VALUES (?)", familyCode);
+                            }
+
+                            progValue++;
+                            if (progValue % 100 == 0)
+                            {
+                                this.DataAccessProgressOutHandler(this, EventArgs.Empty, progValue, 0, progMax);
+                            }
                         }
 
-                        transaction.Commit();
-
-                        this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving families complete.", false);
+                        this.DataAccessProgressOutHandler(this, EventArgs.Empty, progMax, 0, progMax);
                     }
+
+                    transaction.Commit();
+
+                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving families complete.", false);
                 }
                 catch (SQLiteException ex)
                 {

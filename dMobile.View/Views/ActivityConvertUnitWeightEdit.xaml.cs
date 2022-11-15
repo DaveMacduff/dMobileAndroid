@@ -59,10 +59,10 @@ namespace dMobile.View.Views
             this.lblUnitNumberValue.Text = Convert.ToString(convertUnitDetail.CountNumber) ?? string.Empty;
 
             this.lblQuantity.Text = "Quantity";
-            this.lblQuantityValue.Text = Convert.ToString(string.Format("{0:F3}", convertUnitDetail.ActivityDetailQuantity)) ?? string.Empty;
+            this.lblQuantityValue.Text = Convert.ToString($"{convertUnitDetail.ActivityDetailQuantity:F3}") ?? string.Empty;
 
             this.lblWeight.Text = "Weight";
-            this.entryWeight.Text = Convert.ToString(string.Format("{0:F3}", convertUnitDetail.ActivityDetailWeightQuantity)) ?? string.Empty;
+            this.entryWeight.Text = Convert.ToString($"{convertUnitDetail.ActivityDetailWeightQuantity:F3}") ?? string.Empty;
 
             this.cmdSave.Text = "Save";
             this.cmdCancel.Text = "Cancel";

@@ -621,7 +621,7 @@ namespace dMobile.Bedrock
 
                 if (OnSysSettingsStatusOut != null)
                 {
-                    msgEventArg.StatusOutMsg = string.Format("Saving system settings {0}.", sysSettingsNumber);
+                    msgEventArg.StatusOutMsg = $"Saving system settings {sysSettingsNumber}.";
                     OnSysSettingsStatusOut(settings, msgEventArg);
                 }
 
@@ -631,7 +631,7 @@ namespace dMobile.Bedrock
 
                     if (OnSysSettingsStatusOut != null)
                     {
-                        msgEventArg.StatusOutMsg = string.Format("Records {0}.", progMax);
+                        msgEventArg.StatusOutMsg = $"Records {progMax}.";
                         OnSysSettingsStatusOut(settings, msgEventArg);
                     }
 
@@ -682,7 +682,7 @@ namespace dMobile.Bedrock
 
                 if (OnSysSettingsStatusOut != null)
                 {
-                    msgEventArg.StatusOutMsg = string.Format("Saving system settings {0} complete.", sysSettingsNumber);
+                    msgEventArg.StatusOutMsg = $"Saving system settings {sysSettingsNumber} complete.";
                     OnSysSettingsStatusOut(settings, msgEventArg);
                 }
             }

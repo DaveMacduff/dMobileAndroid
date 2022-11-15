@@ -49,7 +49,7 @@ namespace dMobile.Bedrock
             string errMsg;
             if (message.Contains(msgToken))
             {
-                errMsg = message.Substring(message.IndexOf(msgToken) + msgToken.Length);
+                errMsg = message.Substring(message.IndexOf(msgToken, StringComparison.Ordinal) + msgToken.Length);
             }
             else
             {

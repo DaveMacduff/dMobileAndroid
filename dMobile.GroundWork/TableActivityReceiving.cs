@@ -72,7 +72,7 @@ namespace dMobile.GroundWork
             {
                 rowsAffected = Convert.ToInt32(await DatabaseConnection.GetInstance().SQLConn.ExecuteScalarAsync<int>("SELECT COUNT(ActivityRefno) FROM tActivity WHERE ActivitySubType = ?", Convert.ToInt32(SysCommon.ActSubTypes.Receiving)));
 
-                this.DataAccessStatusOutHandler(this, EventArgs.Empty, string.Format("{0} receiving.", rowsAffected), true);
+                this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"{rowsAffected} receiving.", true);
             }
             catch (SQLiteException ex)
             {
@@ -118,63 +118,62 @@ namespace dMobile.GroundWork
             {
                 try
                 {
-                    using (var ds = new DataSet())
+                    using var ds = new DataSet();
+                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Reading received data.", false);
+
+                    ds.ReadXml(SysCommon.GetXmlReader(ref reqData), XmlReadMode.Auto);
+
+                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving receiving.", false);
+
+                    if (ds.Tables.Count != 0)
                     {
-                        this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Reading received data.", false);
+                        var progMax = Convert.ToInt32(ds.Tables["tActivityPurchaseOrder"].Rows.Count);
 
-                        ds.ReadXml(SysCommon.GetXmlReader(ref reqData), XmlReadMode.Auto);
+                        this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"Records {progMax}", false);
 
-                        this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving receiving.", false);
+                        var actRefno = 0;
+                        var progValue = 0;
+                        var whsLocMapRefno = 0;
+                        var recvFKRefno = 0;
+                        var recvPONumber = string.Empty;
 
-                        if (ds.Tables.Count != 0)
+                        this.DataAccessProgressOutHandler(this, EventArgs.Empty, 0, 0, progMax);
+
+                        foreach (DataRow drow in ds.Tables["tActivityPurchaseOrder"].Rows)
                         {
-                            var progMax = Convert.ToInt32(ds.Tables["tActivityPurchaseOrder"].Rows.Count);
+                            transaction.Execute("INSERT INTO tActivity (ActivityStatus, ActivitySubType) VALUES (?, ?)", 0, Convert.ToInt32(SysCommon.ActSubTypes.Receiving));
+                            actRefno = Convert.ToInt32(transaction.ExecuteScalar<int>("SELECT last_insert_rowid() FROM tActivity"));
+                            recvFKRefno = Convert.ToInt32(drow["ActivityFKRefno"]);
+                            recvPONumber = drow["ActivityPurchaseOrderPONumber"].ToString();
+                            whsLocMapRefno = this.GetWhsLocMapRefnoFromDataRow(drow, transaction);
 
-                            this.DataAccessStatusOutHandler(this, EventArgs.Empty, string.Format("Records {0}", progMax), false);
-
-                            var actRefno = 0;
-                            var progValue = 0;
-                            var whsLocMapRefno = 0;
-                            var recvFKRefno = 0;
-                            var recvPONumber = string.Empty;
-
-                            this.DataAccessProgressOutHandler(this, EventArgs.Empty, 0, 0, progMax);
-
-                            foreach (DataRow drow in ds.Tables["tActivityPurchaseOrder"].Rows)
+                            var query = "INSERT INTO tActivityReceiving (" +
+                                        "ActivityRefno, " +
+                                        "ActivitySubType, " +
+                                        "ActivityFKRefno, " +
+                                        "ActivityStringFKRefno, " +
+                                        "ActivityReceivingPONumber, " +
+                                        "WarehouseLocationMapRefno, " +
+                                        "ActivityReceivingIssuedDateTime, " +
+                                        "ActivityReceivingArrivalDateTime, " +
+                                        "ActivityReceivingVendorContactName, " +
+                                        "ActivityReceivingVendorSupplierContactName, " +
+                                        "ActivityReceivingVendorSupplierGTINCompanyPrefix" +
+                                        ") VALUES (" +
+                                        "?, " +
+                                        "?, " +
+                                        "?, " +
+                                        "?, " +
+                                        "?, " +
+                                        "?, " +
+                                        "?, " +
+                                        "?, " +
+                                        "?, " +
+                                        "?, " +
+                                        "?" +
+                                        ")";
+                            var parameters = new object[]
                             {
-                                transaction.Execute("INSERT INTO tActivity (ActivityStatus, ActivitySubType) VALUES (?, ?)", 0, Convert.ToInt32(SysCommon.ActSubTypes.Receiving));
-                                actRefno = Convert.ToInt32(transaction.ExecuteScalar<int>("SELECT last_insert_rowid() FROM tActivity"));
-                                recvFKRefno = Convert.ToInt32(drow["ActivityFKRefno"]);
-                                recvPONumber = drow["ActivityPurchaseOrderPONumber"].ToString();
-                                whsLocMapRefno = this.GetWhsLocMapRefnoFromDataRow(drow, transaction);
-
-                                var query = "INSERT INTO tActivityReceiving (" +
-                                            "ActivityRefno, " +
-                                            "ActivitySubType, " +
-                                            "ActivityFKRefno, " +
-                                            "ActivityStringFKRefno, " +
-                                            "ActivityReceivingPONumber, " +
-                                            "WarehouseLocationMapRefno, " +
-                                            "ActivityReceivingIssuedDateTime, " +
-                                            "ActivityReceivingArrivalDateTime, " +
-                                            "ActivityReceivingVendorContactName, " +
-                                            "ActivityReceivingVendorSupplierContactName, " +
-                                            "ActivityReceivingVendorSupplierGTINCompanyPrefix" +
-                                            ") VALUES (" +
-                                            "?, " +
-                                            "?, " +
-                                            "?, " +
-                                            "?, " +
-                                            "?, " +
-                                            "?, " +
-                                            "?, " +
-                                            "?, " +
-                                            "?, " +
-                                            "?, " +
-                                            "?" +
-                                            ")";
-                                var parameters = new object[]
-                                {
                                     actRefno,
                                     Convert.ToInt32(SysCommon.ActSubTypes.Receiving),
                                     recvFKRefno,
@@ -186,24 +185,23 @@ namespace dMobile.GroundWork
                                     drow["ActivityPurchaseOrderVendorContactName"].ToString(),
                                     drow["ActivityPurchaseOrderVendorSupplierContactName"].ToString(),
                                     drow["ActivityPurchaseOrderVendorSupplierGTINCompanyPrefix"].ToString(),
-                                };
+                            };
 
-                                transaction.Execute(query, parameters);
+                            transaction.Execute(query, parameters);
 
-                                progValue++;
-                                if (progValue % 10 == 0)
-                                {
-                                    this.DataAccessProgressOutHandler(this, EventArgs.Empty, progValue, 0, progMax);
-                                }
+                            progValue++;
+                            if (progValue % 10 == 0)
+                            {
+                                this.DataAccessProgressOutHandler(this, EventArgs.Empty, progValue, 0, progMax);
                             }
-
-                            this.DataAccessProgressOutHandler(this, EventArgs.Empty, progMax, 0, progMax);
                         }
 
-                        transaction.Commit();
-
-                        this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving receiving complete.", false);
+                        this.DataAccessProgressOutHandler(this, EventArgs.Empty, progMax, 0, progMax);
                     }
+
+                    transaction.Commit();
+
+                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving receiving complete.", false);
                 }
                 catch (SQLiteException ex)
                 {

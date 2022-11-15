@@ -254,7 +254,7 @@ namespace dMobile.View.Forms
                 }
                 else if (this.UserCode != Convert.ToInt32(this.txtLoginID.Text))
                 {
-                    throw new MessageOnlyException(string.Format("Invalid login id {0}", this.txtLoginID.Text));
+                    throw new MessageOnlyException($"Invalid login id {this.txtLoginID.Text}");
                 }
 
                 // Override the contact login password with the system one if bypass licenses is enabled.

@@ -132,7 +132,7 @@ namespace dMobile.GroundWork
             {
                 rowsAffected = Convert.ToInt32(await DatabaseConnection.GetInstance().SQLConn.ExecuteScalarAsync<int>("SELECT COUNT(*) FROM tRoute"));
 
-                this.DataAccessStatusOutHandler(this, EventArgs.Empty, string.Format("{0} routes.", rowsAffected), true);
+                this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"{rowsAffected} routes.", true);
             }
             catch (SQLiteException ex)
             {
@@ -176,68 +176,66 @@ namespace dMobile.GroundWork
             {
                 try
                 {
-                    using (var ds = new DataSet())
+                    using var ds = new DataSet();
+                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Reading received data.", false);
+
+                    ds.ReadXml(SysCommon.GetXmlReader(ref reqData), XmlReadMode.Auto);
+
+                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving routes.", false);
+
+                    if (ds.Tables.Count != 0)
                     {
-                        this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Reading received data.", false);
+                        var progValue = 0;
+                        var isRouteFound = false;
+                        var routeDesc = string.Empty;
+                        var routeDayOfWeek = string.Empty;
+                        var routeCode = string.Empty;
+                        var progMax = Convert.ToInt32(ds.Tables["tRoute"].Rows.Count);
 
-                        ds.ReadXml(SysCommon.GetXmlReader(ref reqData), XmlReadMode.Auto);
+                        this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"Records {progMax}", false);
+                        this.DataAccessProgressOutHandler(this, EventArgs.Empty, 0, 0, progMax);
 
-                        this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving routes.", false);
-
-                        if (ds.Tables.Count != 0)
+                        foreach (DataRow drow in ds.Tables["tRoute"].Rows)
                         {
-                            var progValue = 0;
-                            var isRouteFound = false;
-                            var routeDesc = string.Empty;
-                            var routeDayOfWeek = string.Empty;
-                            var routeCode = string.Empty;
-                            var progMax = Convert.ToInt32(ds.Tables["tRoute"].Rows.Count);
+                            routeCode = Convert.ToString(drow["RouteCode"]);
+                            errMsg = "Route code \'" + routeCode + "\'";
+                            routeDayOfWeek = Convert.ToString(drow["RouteDayOfWeek"]);
+                            errMsg += Environment.NewLine + "Route dow \'" + routeDayOfWeek + "\'";
+                            routeDesc = Convert.ToString(drow["RouteDescription"]);
+                            errMsg += Environment.NewLine + "Route desc \'" + routeDesc + "\'";
 
-                            this.DataAccessStatusOutHandler(this, EventArgs.Empty, string.Format("Records {0}", progMax), false);
-                            this.DataAccessProgressOutHandler(this, EventArgs.Empty, 0, 0, progMax);
+                            isRouteFound = false;
 
-                            foreach (DataRow drow in ds.Tables["tRoute"].Rows)
+                            var resultsRoute = transaction.Query<tRouteModel>("SELECT RouteCode FROM tRoute WHERE RouteCode = ?", routeCode);
+
+                            if (resultsRoute?.Count > 0)
                             {
-                                routeCode = Convert.ToString(drow["RouteCode"]);
-                                errMsg = "Route code \'" + routeCode + "\'";
-                                routeDayOfWeek = Convert.ToString(drow["RouteDayOfWeek"]);
-                                errMsg += Environment.NewLine + "Route dow \'" + routeDayOfWeek + "\'";
-                                routeDesc = Convert.ToString(drow["RouteDescription"]);
-                                errMsg += Environment.NewLine + "Route desc \'" + routeDesc + "\'";
+                                isRouteFound = true;
 
-                                isRouteFound = false;
-
-                                var resultsRoute = transaction.Query<tRouteModel>("SELECT RouteCode FROM tRoute WHERE RouteCode = ?", routeCode);
-
-                                if (resultsRoute?.Count > 0)
+                                if (this.SysEnv.RefreshOpt.RefreshDataChangesOnly)
                                 {
-                                    isRouteFound = true;
-
-                                    if (this.SysEnv.RefreshOpt.RefreshDataChangesOnly)
-                                    {
-                                        transaction.Execute("UPDATE tRoute SET RouteDescription = ?, RouteDayOfWeek = ? WHERE RouteCode = ?", routeDesc, routeDayOfWeek, routeCode);
-                                    }
-                                }
-
-                                if (!isRouteFound)
-                                {
-                                    transaction.Execute("INSERT INTO tRoute (RouteCode, RouteDescription, RouteDayOfWeek) VALUES (?, ?, ?)", routeCode, routeDesc, routeDayOfWeek);
-                                }
-
-                                progValue++;
-                                if (progValue % 100 == 0)
-                                {
-                                    this.DataAccessProgressOutHandler(this, EventArgs.Empty, progValue, 0, progMax);
+                                    transaction.Execute("UPDATE tRoute SET RouteDescription = ?, RouteDayOfWeek = ? WHERE RouteCode = ?", routeDesc, routeDayOfWeek, routeCode);
                                 }
                             }
 
-                            this.DataAccessProgressOutHandler(this, EventArgs.Empty, progMax, 0, progMax);
+                            if (!isRouteFound)
+                            {
+                                transaction.Execute("INSERT INTO tRoute (RouteCode, RouteDescription, RouteDayOfWeek) VALUES (?, ?, ?)", routeCode, routeDesc, routeDayOfWeek);
+                            }
+
+                            progValue++;
+                            if (progValue % 100 == 0)
+                            {
+                                this.DataAccessProgressOutHandler(this, EventArgs.Empty, progValue, 0, progMax);
+                            }
                         }
 
-                        transaction.Commit();
-
-                        this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving routes complete.", false);
+                        this.DataAccessProgressOutHandler(this, EventArgs.Empty, progMax, 0, progMax);
                     }
+
+                    transaction.Commit();
+
+                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving routes complete.", false);
                 }
                 catch (SQLiteException ex)
                 {

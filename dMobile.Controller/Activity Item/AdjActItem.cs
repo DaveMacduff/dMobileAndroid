@@ -509,7 +509,7 @@ namespace dMobile.Controller.Activity_Item
                 var detailWidth1 = DependencyService.Get<IGridService>().CalculateTextWidth(adjustmentItem.ProductUnitBC);
                 var detailWidth2 = DependencyService.Get<IGridService>().CalculateTextWidth(adjustmentItem.UnitCode);
                 var detailWidth3 = DependencyService.Get<IGridService>().CalculateTextWidth(
-                    string.Format("{0:F3}", adjustmentItem.ActivityItemAdjustmentQuantity));
+                    $"{adjustmentItem.ActivityItemAdjustmentQuantity:F3}");
                 var detailWidth4 = DependencyService.Get<IGridService>().CalculateTextWidth(
                     Convert.ToString(adjustmentItem.LocationCode));
 
@@ -901,7 +901,7 @@ namespace dMobile.Controller.Activity_Item
         /// <returns><see cref="string"/> Get activity item control description.</returns>
         public override string GetControlDescription()
         {
-            return string.Format("Adjustment # {0}", this.ActHdr.HdrFkRefno);
+            return $"Adjustment # {this.ActHdr.HdrFkRefno}";
         }
 
         /// <summary>

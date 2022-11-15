@@ -453,8 +453,10 @@ namespace dMobile.Controller.Activity_Detail
 
             foreach (SkidPutAwayDetail skidPutAwayDetail in observableCollection)
             {
-                var detailWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(string.Format("{0:F3}", skidPutAwayDetail.ActivityDetailQuantity));
-                var detailWidth1 = DependencyService.Get<IGridService>().CalculateTextWidth(string.Format("{0:F3}", skidPutAwayDetail.ActivityDetailWeightQuantity));
+                var detailWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(
+                    $"{skidPutAwayDetail.ActivityDetailQuantity:F3}");
+                var detailWidth1 = DependencyService.Get<IGridService>().CalculateTextWidth(
+                    $"{skidPutAwayDetail.ActivityDetailWeightQuantity:F3}");
                 var detailWidth2 = DependencyService.Get<IGridService>().CalculateTextWidth(skidPutAwayDetail.UnitCode);
                 var detailWidth3 = DependencyService.Get<IGridService>().CalculateTextWidth(skidPutAwayDetail.ActivityDetailSchemeID);
 
@@ -590,8 +592,10 @@ namespace dMobile.Controller.Activity_Detail
 
             gridMain.Children.Add(gridHeader);
 
-            var detailWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(string.Format("{0:F3}", actDetail.ActivityDetailQuantity));
-            var detailWidth1 = DependencyService.Get<IGridService>().CalculateTextWidth(string.Format("{0:F3}", actDetail.ActivityDetailWeightQuantity));
+            var detailWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(
+                $"{actDetail.ActivityDetailQuantity:F3}");
+            var detailWidth1 = DependencyService.Get<IGridService>().CalculateTextWidth(
+                $"{actDetail.ActivityDetailWeightQuantity:F3}");
             var detailWidth2 = DependencyService.Get<IGridService>().CalculateTextWidth(actDetail.UnitCode);
             var detailWidth3 = DependencyService.Get<IGridService>().CalculateTextWidth(actDetail.ActivityDetailSchemeID);
 

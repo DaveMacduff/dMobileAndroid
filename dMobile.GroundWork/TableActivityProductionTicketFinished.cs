@@ -71,7 +71,7 @@ namespace dMobile.GroundWork
             {
                 rowsAffected = Convert.ToInt32(await DatabaseConnection.GetInstance().SQLConn.ExecuteScalarAsync<int>("SELECT COUNT(ActivityRefno) FROM tActivity WHERE ActivitySubType = ?", Convert.ToInt32(SysCommon.ActSubTypes.TicketFinished)));
 
-                this.DataAccessStatusOutHandler(this, EventArgs.Empty, string.Format("{0} finished tickets.", rowsAffected), true);
+                this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"{rowsAffected} finished tickets.", true);
             }
             catch (SQLiteException ex)
             {
@@ -124,90 +124,88 @@ namespace dMobile.GroundWork
             {
                 try
                 {
-                    using (var ds = new DataSet())
+                    using var ds = new DataSet();
+                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Reading received data.", false);
+
+                    ds.ReadXml(SysCommon.GetXmlReader(ref reqData), XmlReadMode.Auto);
+
+                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving finished tickets.", false);
+
+                    if (ds.Tables.Count != 0)
                     {
-                        this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Reading received data.", false);
+                        var progMax = Convert.ToInt32(ds.Tables["tActivityProduction"].Rows.Count);
 
-                        ds.ReadXml(SysCommon.GetXmlReader(ref reqData), XmlReadMode.Auto);
+                        this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"Records {progMax}", false);
 
-                        this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving finished tickets.", false);
+                        var actRefno = 0;
+                        var progValue = 0;
+                        var whsLocMapRefno = 0;
 
-                        if (ds.Tables.Count != 0)
+                        this.DataAccessProgressOutHandler(this, EventArgs.Empty, 0, 0, progMax);
+
+                        foreach (DataRow drow in ds.Tables["tActivityProduction"].Rows)
                         {
-                            var progMax = Convert.ToInt32(ds.Tables["tActivityProduction"].Rows.Count);
+                            transaction.Execute("INSERT INTO tActivity (ActivityStatus, ActivitySubType) VALUES (?, ?)", 0, Convert.ToInt32(SysCommon.ActSubTypes.TicketFinished));
+                            actRefno = Convert.ToInt32(transaction.ExecuteScalar<int>("SELECT last_insert_rowid() FROM tActivity"));
+                            var queryActivityProduction = "INSERT INTO tActivityProduction (" +
+                                                          "ActivityRefno, " +
+                                                          "ActivitySubType, " +
+                                                          "WarehouseLocationMapRefno, " +
+                                                          "ActivityProductionDateTime, " +
+                                                          "ActivityProductionDescription" +
+                                                          ") VALUES (" +
+                                                          "?, " +
+                                                          "?, " +
+                                                          "?, " +
+                                                          "?, " +
+                                                          "?" +
+                                                          ")";
+                            var parametersActivityProduction = new List<object>();
+                            parametersActivityProduction.Add(actRefno);
+                            parametersActivityProduction.Add(Convert.ToInt32(SysCommon.ActSubTypes.TicketFinished));
 
-                            this.DataAccessStatusOutHandler(this, EventArgs.Empty, string.Format("Records {0}", progMax), false);
+                            whsLocMapRefno = this.GetWhsLocMapRefnoFromDataRow(drow, transaction);
+                            parametersActivityProduction.Add(whsLocMapRefno);
+                            var dt = DateTime.Parse(Convert.ToDateTime(drow["ActivityProductionDateTime"]).ToShortDateString());
+                            parametersActivityProduction.Add(dt);
+                            parametersActivityProduction.Add(drow["ActivityProductionDescription"].ToString());
+                            transaction.Execute(queryActivityProduction, parametersActivityProduction.ToArray());
 
-                            var actRefno = 0;
-                            var progValue = 0;
-                            var whsLocMapRefno = 0;
-
-                            this.DataAccessProgressOutHandler(this, EventArgs.Empty, 0, 0, progMax);
-
-                            foreach (DataRow drow in ds.Tables["tActivityProduction"].Rows)
+                            var actProductionFKRefno = Convert.ToInt32(drow["ActivityFKRefno"]);
+                            var queryActivityProductionFinished = "INSERT INTO tActivityProductionFinished (" +
+                                                                  "ActivityRefno, " +
+                                                                  "ActivityFKRefno, " +
+                                                                  "ActivityStringFKRefno, " +
+                                                                  "ActivityProductionFinishedDefaultLogisticUnitBatchLotNumber" +
+                                                                  ") VALUES (" +
+                                                                  "?, " +
+                                                                  "?, " +
+                                                                  "?, " +
+                                                                  "?" +
+                                                                  ")";
+                            var parametersActivityProductionFinished = new object[]
                             {
-                                transaction.Execute("INSERT INTO tActivity (ActivityStatus, ActivitySubType) VALUES (?, ?)", 0, Convert.ToInt32(SysCommon.ActSubTypes.TicketFinished));
-                                actRefno = Convert.ToInt32(transaction.ExecuteScalar<int>("SELECT last_insert_rowid() FROM tActivity"));
-                                var queryActivityProduction = "INSERT INTO tActivityProduction (" +
-                                                              "ActivityRefno, " +
-                                                              "ActivitySubType, " +
-                                                              "WarehouseLocationMapRefno, " +
-                                                              "ActivityProductionDateTime, " +
-                                                              "ActivityProductionDescription" +
-                                                              ") VALUES (" +
-                                                              "?, " +
-                                                              "?, " +
-                                                              "?, " +
-                                                              "?, " +
-                                                              "?" +
-                                                              ")";
-                                var parametersActivityProduction = new List<object>();
-                                parametersActivityProduction.Add(actRefno);
-                                parametersActivityProduction.Add(Convert.ToInt32(SysCommon.ActSubTypes.TicketFinished));
-
-                                whsLocMapRefno = this.GetWhsLocMapRefnoFromDataRow(drow, transaction);
-                                parametersActivityProduction.Add(whsLocMapRefno);
-                                var dt = DateTime.Parse(Convert.ToDateTime(drow["ActivityProductionDateTime"]).ToShortDateString());
-                                parametersActivityProduction.Add(dt);
-                                parametersActivityProduction.Add(drow["ActivityProductionDescription"].ToString());
-                                transaction.Execute(queryActivityProduction, parametersActivityProduction.ToArray());
-
-                                var actProductionFKRefno = Convert.ToInt32(drow["ActivityFKRefno"]);
-                                var queryActivityProductionFinished = "INSERT INTO tActivityProductionFinished (" +
-                                                                      "ActivityRefno, " +
-                                                                      "ActivityFKRefno, " +
-                                                                      "ActivityStringFKRefno, " +
-                                                                      "ActivityProductionFinishedDefaultLogisticUnitBatchLotNumber" +
-                                                                      ") VALUES (" +
-                                                                      "?, " +
-                                                                      "?, " +
-                                                                      "?, " +
-                                                                      "?" +
-                                                                      ")";
-                                var parametersActivityProductionFinished = new object[]
-                                {
                                     actRefno,
                                     actProductionFKRefno,
                                     actProductionFKRefno.ToString(),
                                     string.Empty,
-                                };
+                            };
 
-                                transaction.Execute(queryActivityProductionFinished, parametersActivityProductionFinished);
+                            transaction.Execute(queryActivityProductionFinished, parametersActivityProductionFinished);
 
-                                progValue++;
-                                if (progValue % 10 == 0)
-                                {
-                                    this.DataAccessProgressOutHandler(this, EventArgs.Empty, progValue, 0, progMax);
-                                }
+                            progValue++;
+                            if (progValue % 10 == 0)
+                            {
+                                this.DataAccessProgressOutHandler(this, EventArgs.Empty, progValue, 0, progMax);
                             }
-
-                            this.DataAccessProgressOutHandler(this, EventArgs.Empty, progMax, 0, progMax);
                         }
 
-                        transaction.Commit();
-
-                        this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving finished tickets complete.", false);
+                        this.DataAccessProgressOutHandler(this, EventArgs.Empty, progMax, 0, progMax);
                     }
+
+                    transaction.Commit();
+
+                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving finished tickets complete.", false);
                 }
                 catch (SQLiteException ex)
                 {

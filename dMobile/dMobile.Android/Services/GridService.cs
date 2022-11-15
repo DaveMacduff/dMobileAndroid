@@ -23,6 +23,7 @@ namespace dMobile.Droid.Services
             var bounds = new Android.Graphics.Rect();
             var textView = new TextView(Forms.Context);
             textView.Paint.GetTextBounds(text, 0, text.Length, bounds);
+
             // Adding 10 to accommodate cases where last letter being cut off
             var length = bounds.Width() + 10;
             return length / Forms.Context.Resources.DisplayMetrics.ScaledDensity;

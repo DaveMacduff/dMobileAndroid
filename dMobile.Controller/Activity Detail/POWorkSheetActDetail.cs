@@ -183,7 +183,7 @@ namespace dMobile.Controller.Activity_Detail
         /// <returns><see cref="string"/> Get activity item control description.</returns>
         public override string GetControlDescription()
         {
-            return string.Format("PO worksheet # {0}", this.ActItem.ActHdr.HdrFkRefno);
+            return $"PO worksheet # {this.ActItem.ActHdr.HdrFkRefno}";
         }
 
         /// <summary>

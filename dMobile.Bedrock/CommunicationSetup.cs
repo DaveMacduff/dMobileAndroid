@@ -332,7 +332,7 @@ namespace dMobile.Bedrock
             }
 
             // Create a FileStream to read with.
-            FileStream reader = new FileStream(fullPathToMyFile, FileMode.Open);
+            var reader = new FileStream(fullPathToMyFile, FileMode.Open);
 
             // Deserialize the stream to the object, and close the TextReader
             commSetup = (CommunicationSetup)serializer.Deserialize(reader);

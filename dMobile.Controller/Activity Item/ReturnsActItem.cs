@@ -295,7 +295,7 @@ namespace dMobile.Controller.Activity_Item
         /// <returns>.</returns>
         public override string GetUnableToParseItemFkRefnoMessage(string actItemStringFkRefno)
         {
-            return string.Format("Unable to parse returns item # {0}", actItemStringFkRefno);
+            return $"Unable to parse returns item # {actItemStringFkRefno}";
         }
 
         /// <summary>
@@ -305,7 +305,7 @@ namespace dMobile.Controller.Activity_Item
         /// <returns>.</returns>
         public override string GetUnableToFindItemFkRefnoMessage(string actItemStringFkRefno)
         {
-            return string.Format("Unable to find returns item # {0}", actItemStringFkRefno);
+            return $"Unable to find returns item # {actItemStringFkRefno}";
         }
 
         /// <summary>
@@ -416,7 +416,8 @@ namespace dMobile.Controller.Activity_Item
                 var detailWidth1 = DependencyService.Get<IGridService>().CalculateTextWidth(returnItem.ProductCode);
                 var detailWidth2 = DependencyService.Get<IGridService>().CalculateTextWidth(returnItem.ProductUnitBC);
                 var detailWidth3 = DependencyService.Get<IGridService>().CalculateTextWidth(returnItem.UnitCode);
-                var detailWidth4 = DependencyService.Get<IGridService>().CalculateTextWidth(string.Format("{0:F3}", returnItem.ActivityItemReturnsQuantityReturned));
+                var detailWidth4 = DependencyService.Get<IGridService>().CalculateTextWidth(
+                    $"{returnItem.ActivityItemReturnsQuantityReturned:F3}");
                 if (detailWidth0 > this.columnWidth0)
                 {
                     this.columnWidth0 = detailWidth0;
@@ -607,6 +608,7 @@ namespace dMobile.Controller.Activity_Item
             // if (string.IsNullOrEmpty(this.ActItemFilter))
             // {
             this.ListItems = this.listReturnItems.Where(returnItem => returnItem.ProductCode.ToLower().Contains(searchText.ToLower().Trim())).Cast<object>().ToList();
+
             // }
             // else
             // {
@@ -842,7 +844,7 @@ namespace dMobile.Controller.Activity_Item
         /// <returns><see cref="string"/> Get activity item control description.</returns>
         public override string GetControlDescription()
         {
-            return string.Format("Return # {0}", this.ActHdr.HdrFkRefno);
+            return $"Return # {this.ActHdr.HdrFkRefno}";
         }
 
         /// <summary>
@@ -915,7 +917,7 @@ namespace dMobile.Controller.Activity_Item
                             + "tActivityItem.ActivityItemRefno "
                             + "INNER JOIN tProductUnit ON tProductUnit.ProductUnitRefno = tActivityItemPicking.ProductUnitRefno "
                             + "INNER JOIN tUnit ON tUnit.UnitRefno = tProductUnit.WtUnitRefno "
-                            + string.Format("WHERE tActivityItem.ActivityRefno = {0} ", this.ActHdr.HdrRefno)
+                            + $"WHERE tActivityItem.ActivityRefno = {this.ActHdr.HdrRefno} "
                             + "GROUP BY tUnit.UnitCode";
 
                 var results = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<PickingItemSummary>(query);
@@ -927,13 +929,8 @@ namespace dMobile.Controller.Activity_Item
                         // Because an agregate sum function is used in a query. There will always be a result record.
                         // This causes problems detecting if there is nothing to sum, resulting in null.
                         // Converting Convert.ToDecimal(dr["Ordered"]) fails because there is not data. However to a string works.
-                        msg += string.Format("Total ordered:\r{0} @ {1}{2}\nTotal shipped:\r{3} @ {4}{5}",
-                            Convert.ToInt32(Convert.ToDecimal(pickingItem.Ordered)),
-                            Convert.ToDecimal(pickingItem.WeightOrdered),
-                            Convert.ToString(pickingItem.WtUnitCode),
-                            Convert.ToInt32(Convert.ToDecimal(pickingItem.Shipped)),
-                            Convert.ToDecimal(pickingItem.WeightShipped),
-                            Convert.ToString(pickingItem.WtUnitCode));
+                        msg +=
+                            $"Total ordered:\r{Convert.ToInt32(Convert.ToDecimal(pickingItem.Ordered))} @ {Convert.ToDecimal(pickingItem.WeightOrdered)}{Convert.ToString(pickingItem.WtUnitCode)}\nTotal shipped:\r{Convert.ToInt32(Convert.ToDecimal(pickingItem.Shipped))} @ {Convert.ToDecimal(pickingItem.WeightShipped)}{Convert.ToString(pickingItem.WtUnitCode)}";
                     }
                 }
             }

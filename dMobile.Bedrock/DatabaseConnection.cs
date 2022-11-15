@@ -156,6 +156,7 @@ namespace dMobile.Bedrock
                 // sqlConn.Dispose();
                 sqlConn = null;
                 dataConnUniq = null;
+
                 // }
             }
         }
@@ -171,6 +172,7 @@ namespace dMobile.Bedrock
                 // if (sqlConn.State == ConnectionState.Open)
                 // {
                 await sqlConn.CloseAsync();
+
                 // }
             }
         }

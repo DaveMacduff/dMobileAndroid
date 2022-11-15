@@ -225,7 +225,7 @@ namespace dMobile.Controller.Activity_Item
         /// <returns><see cref="Task{T}"/> Activity item foreign key reference number.</returns>
         public override Task<int> AssignActivityItem(object activityItem)
         {
-            Task<int> itemFKRefno = Task.FromResult(0);
+            var itemFKRefno = Task.FromResult(0);
             var item = activityItem as ConvertProductItem;
             item = item ?? throw new NullReferenceException("activityItem as ConvertProductItem == null");
             this.FromProdRefno = item.FromProdFKRefno;

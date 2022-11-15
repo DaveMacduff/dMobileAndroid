@@ -63,13 +63,7 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
             {
                 // General Barcode parsing failure.
                 throw new BarCodeParseException(
-                    string.Format(
-#if MULTILANGUAGE
-                    Translator.GetInstance().Translate(TranslatorVocabulary.FailedToParse),
-#else
-                    "Failed to parse '{0}'.",
-#endif
-                    barCodeData),
+                    $"Failed to parse '{barCodeData}'.",
                     e);
             }
             finally
@@ -176,13 +170,7 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
                     this.AddParseErrorDetail(
                         BarCodeExceptionReason.ProductionDate_InvalidDate,
                         new BarCodeParseException(
-                            string.Format(
-#if MULTILANGUAGE
-                            Translator.GetInstance().Translate(TranslatorVocabulary.CannotConvertToAValidDdmmyyDatetime), // Note: this is a specific DDMMYY for this Nossack rule exception
-#else
-                            "Cannot convert {0} to a valid DDMMYY DateTime.", // Note: this is a specific DDMMYY for this Nossack rule exception
-#endif
-                            barCodeData.Substring(2, 6)),
+                            $"Cannot convert {barCodeData.Substring(2, 6)} to a valid DDMMYY DateTime.",
 #if MULTILANGUAGE
                         Translator.GetInstance().Translate(TranslatorVocabulary.ProductionDatezz), e));
 #else

@@ -135,7 +135,7 @@ namespace dMobile.Controller.Activity_Item
             }
             else
             {
-                throw new Exception(string.Format("Unable to location the product unit refno {0} in tProductUnit.", prodUnitRefno));
+                throw new Exception($"Unable to location the product unit refno {prodUnitRefno} in tProductUnit.");
             }
 
             // Check if the bar code is already associated to this product or another product
@@ -161,7 +161,7 @@ namespace dMobile.Controller.Activity_Item
 
                     await Device.InvokeOnMainThreadAsync(async () => await Application.Current.MainPage.DisplayAlert(
                         "Bar Code",
-                        string.Format("Scanned bar code is already associated to a different product {0} {1} {2}.", prodCode, prodUnitBc, unitCode),
+                        $"Scanned bar code is already associated to a different product {prodCode} {prodUnitBc} {unitCode}.",
                         "Yes",
                         "No"));
                 }
@@ -228,6 +228,7 @@ namespace dMobile.Controller.Activity_Item
                         if (!this.SysEnv.SysSettings.IsDisconnectedMode)
                         {
                             var temp = this.CreateSubmitXml(data).Result;
+
                             // string temp = Task.Run(async () => await this.CreateSubmitXML(data)).ToString();
                             var reqData = SysCommon.SubmitComm(temp);
                             if (reqData.Length > 0)

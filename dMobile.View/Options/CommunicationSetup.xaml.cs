@@ -425,8 +425,9 @@ namespace dMobile.View.Options
                 if ((int.Parse(this.updnBasePort.Text) < this.MinPort || int.Parse(this.updnBasePort.Text) > this.MaxPort) == true)
                 {
                     e.Cancel = true;
-                    throw new MessageOnlyException(string.Format("Base port must be between {0} and {1}", this.MinPort, this.MaxPort));
+                    throw new MessageOnlyException($"Base port must be between {this.MinPort} and {this.MaxPort}");
                 }
+
                 // }
 
                 // Socket Max Ports
@@ -436,8 +437,9 @@ namespace dMobile.View.Options
                 {
                     e.Cancel = true;
 
-                    throw new MessageOnlyException(string.Format("port must be between {0} and {1}", this.MinPort, this.MaxNumberOfPorts));
+                    throw new MessageOnlyException($"port must be between {this.MinPort} and {this.MaxNumberOfPorts}");
                 }
+
                 // }
 
                 // IP Address Component 1
@@ -447,8 +449,10 @@ namespace dMobile.View.Options
                 {
                     e.Cancel = true;
 
-                    throw new MessageOnlyException(string.Format("IP address component must be between {0} and {1}", this.MinIPAddress, this.MaxIPAddress));
+                    throw new MessageOnlyException(
+                        $"IP address component must be between {this.MinIPAddress} and {this.MaxIPAddress}");
                 }
+
                 // }
 
                 // IP Address Component 2
@@ -458,8 +462,10 @@ namespace dMobile.View.Options
                 {
                     e.Cancel = true;
 
-                    throw new MessageOnlyException(string.Format("IP address component must be between {0} and {1}", this.MinIPAddress, this.MaxIPAddress));
+                    throw new MessageOnlyException(
+                        $"IP address component must be between {this.MinIPAddress} and {this.MaxIPAddress}");
                 }
+
                 // }
 
                 // IP Address Component 3
@@ -469,8 +475,10 @@ namespace dMobile.View.Options
                 {
                     e.Cancel = true;
 
-                    throw new MessageOnlyException(string.Format("IP address component must be between {0} and {1}", this.MinIPAddress, this.MaxIPAddress));
+                    throw new MessageOnlyException(
+                        $"IP address component must be between {this.MinIPAddress} and {this.MaxIPAddress}");
                 }
+
                 // }
 
                 // IP Address Component 4
@@ -480,8 +488,10 @@ namespace dMobile.View.Options
                 {
                     e.Cancel = true;
 
-                    throw new MessageOnlyException(string.Format("IP address component must be between {0} and {1}", this.MinIPAddress, this.MaxIPAddress));
+                    throw new MessageOnlyException(
+                        $"IP address component must be between {this.MinIPAddress} and {this.MaxIPAddress}");
                 }
+
                 // }
 
                 // Default Socket Port
@@ -493,8 +503,10 @@ namespace dMobile.View.Options
                 {
                     e.Cancel = true;
 
-                    throw new MessageOnlyException(string.Format("Default port must be between {0} and {1}", this.updnBasePort.Text, this.MaxPort));
+                    throw new MessageOnlyException(
+                        $"Default port must be between {this.updnBasePort.Text} and {this.MaxPort}");
                 }
+
                 // }
             }
             catch (MessageOnlyException ex)
@@ -638,49 +650,53 @@ namespace dMobile.View.Options
                 var reqData = string.Empty;
 
                 this.ExtraInfoItems.Clear();
+
                 // this.lstCommMsg.ItemsSource = null;
                 this.SysEnv.SysSock.BasePort = this.SysEnv.CommSetup.BaseSocketPort;
 
-                this.AddCommMsg(this, EventArgs.Empty, string.Format("Base socket port: {0}", this.SysEnv.SysSock.BasePort));
+                this.AddCommMsg(this, EventArgs.Empty, $"Base socket port: {this.SysEnv.SysSock.BasePort}");
 
                 this.SysEnv.SysSock.DefSocketPort = this.SysEnv.CommSetup.DefaultSocketPort;
 
-                this.AddCommMsg(this, EventArgs.Empty, string.Format("Default socket port: {0}", this.SysEnv.SysSock.DefSocketPort));
+                this.AddCommMsg(this, EventArgs.Empty, $"Default socket port: {this.SysEnv.SysSock.DefSocketPort}");
 
                 this.SysEnv.SysSock.MaxPorts = this.SysEnv.CommSetup.MaxSocketPorts;
 
-                this.AddCommMsg(this, EventArgs.Empty, string.Format("Max socket port: {0}", this.SysEnv.SysSock.MaxPorts));
+                this.AddCommMsg(this, EventArgs.Empty, $"Max socket port: {this.SysEnv.SysSock.MaxPorts}");
 
                 this.SysEnv.SysSock.ConnTotalRetries = this.SysEnv.CommSetup.ConnectionAttempts;
 
-                this.AddCommMsg(this, EventArgs.Empty, string.Format("Connection retries: {0}", this.SysEnv.SysSock.ConnTotalRetries));
+                this.AddCommMsg(this, EventArgs.Empty, $"Connection retries: {this.SysEnv.SysSock.ConnTotalRetries}");
 
                 this.SysEnv.SysSock.SendTotalRetries = this.SysEnv.CommSetup.SendAttempts;
 
-                this.AddCommMsg(this, EventArgs.Empty, string.Format("Socket send retries: {0}", this.SysEnv.SysSock.SendTotalRetries));
+                this.AddCommMsg(this, EventArgs.Empty, $"Socket send retries: {this.SysEnv.SysSock.SendTotalRetries}");
 
                 this.SysEnv.SysSock.RecvTotalRetries = this.SysEnv.CommSetup.ReceiveAttempts;
 
-                this.AddCommMsg(this, EventArgs.Empty, string.Format("Socket receive retries: {0}", this.SysEnv.SysSock.RecvTotalRetries));
+                this.AddCommMsg(this, EventArgs.Empty,
+                    $"Socket receive retries: {this.SysEnv.SysSock.RecvTotalRetries}");
 
                 this.SysEnv.SysSock.SendTimeOutMilliseconds = this.SysEnv.CommSetup.SendTimeOutSeconds * 1000;
 
-                this.AddCommMsg(this, EventArgs.Empty, string.Format("Send time out: {0} seconds.", this.SysEnv.CommSetup.SendTimeOutSeconds));
+                this.AddCommMsg(this, EventArgs.Empty,
+                    $"Send time out: {this.SysEnv.CommSetup.SendTimeOutSeconds} seconds.");
 
                 this.SysEnv.SysSock.ReceiveTimeOutMilliseconds = this.SysEnv.CommSetup.ReceiveTimeOutSeconds * 1000;
 
-                this.AddCommMsg(this, EventArgs.Empty, string.Format("Receive time out: {0} seconds.", this.SysEnv.CommSetup.ReceiveTimeOutSeconds));
+                this.AddCommMsg(this, EventArgs.Empty,
+                    $"Receive time out: {this.SysEnv.CommSetup.ReceiveTimeOutSeconds} seconds.");
 
                 this.SysEnv.SysSock.RecvBuffSize = this.SysEnv.CommSetup.ReceiveBufferSize;
 
-                this.AddCommMsg(this, EventArgs.Empty, string.Format("Receive buffer size: {0} ", this.SysEnv.SysSock.RecvBuffSize));
+                this.AddCommMsg(this, EventArgs.Empty, $"Receive buffer size: {this.SysEnv.SysSock.RecvBuffSize} ");
 
                 this.SysEnv.SysSock.ServerIP = this.SysEnv.CommSetup.HostIPAddressComponent1
                     + "." + this.SysEnv.CommSetup.HostIPAddressComponent2 + "."
                     + this.SysEnv.CommSetup.HostIPAddressComponent3 + "."
                     + this.SysEnv.CommSetup.HostIPAddressComponent4;
 
-                this.AddCommMsg(this, EventArgs.Empty, string.Format("Server host ip: {0}", this.SysEnv.SysSock.ServerIP));
+                this.AddCommMsg(this, EventArgs.Empty, $"Server host ip: {this.SysEnv.SysSock.ServerIP}");
                 this.AddCommMsg(this, EventArgs.Empty, "Creating connection request.");
 
                 sendReq = Bedrock.CommunicationSetup.CreateXMLSubmitDeviceID();
@@ -700,7 +716,7 @@ namespace dMobile.View.Options
                         this.AddCommMsg(this, EventArgs.Empty, "Sending device id.");
                         bytesSent = this.SysEnv.SysSock.SendRequest(socket, sendReq);
 
-                        this.AddCommMsg(this, EventArgs.Empty, string.Format("Bytes sent: {0}", bytesSent));
+                        this.AddCommMsg(this, EventArgs.Empty, $"Bytes sent: {bytesSent}");
 
                         this.AddCommMsg(this, EventArgs.Empty, "Waiting for response.");
                         bytRecvData = this.SysEnv.SysSock.ReceiveResponse(socket);
@@ -734,7 +750,8 @@ namespace dMobile.View.Options
                     this.AddCommMsg(this, EventArgs.Empty, "Connection failed.");
 
                     // MessageBox.Show(string.Format("Code {0}, {1}", ex.ErrorCode, ex.Message));
-                    Device.BeginInvokeOnMainThread(async () => await this.DisplayAlert("Error", string.Format("Code {0}, {1}", ex.ErrorCode, ex.Message), "OK"));
+                    Device.BeginInvokeOnMainThread(async () => await this.DisplayAlert("Error",
+                        $"Code {ex.ErrorCode}, {ex.Message}", "OK"));
                 }
                 finally
                 {

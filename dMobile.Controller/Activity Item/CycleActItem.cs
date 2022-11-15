@@ -237,7 +237,7 @@ namespace dMobile.Controller.Activity_Item
         /// <returns>.</returns>
         public override string GetUnableToParseItemFkRefnoMessage(string actItemStringFkRefno)
         {
-            return string.Format("Unable To Parse Count Item# {0}", actItemStringFkRefno);
+            return $"Unable To Parse Count Item# {actItemStringFkRefno}";
         }
 
         /// <summary>
@@ -247,7 +247,7 @@ namespace dMobile.Controller.Activity_Item
         /// <returns>.</returns>
         public override string GetUnableToFindItemFkRefnoMessage(string actItemStringFkRefno)
         {
-            return string.Format("Unable To Find Count Item# {0}", actItemStringFkRefno);
+            return $"Unable To Find Count Item# {actItemStringFkRefno}";
         }
 
         /// <summary>
@@ -509,9 +509,12 @@ namespace dMobile.Controller.Activity_Item
                 var detailWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(countItem.ProductCode);
                 var detailWidth1 = DependencyService.Get<IGridService>().CalculateTextWidth(countItem.ProductUnitBC);
                 var detailWidth2 = DependencyService.Get<IGridService>().CalculateTextWidth(countItem.UnitCode);
-                var detailWidth3 = DependencyService.Get<IGridService>().CalculateTextWidth(string.Format("{0:F3}", countItem.ActivityItemCountQuantityOnHand));
-                var detailWidth4 = DependencyService.Get<IGridService>().CalculateTextWidth(string.Format("{0:F3}", countItem.ActivityItemCountQuantity));
-                var detailWidth5 = DependencyService.Get<IGridService>().CalculateTextWidth(string.Format("{0:F3}", countItem.ActivityItemCountWeightQuantityOnHand));
+                var detailWidth3 = DependencyService.Get<IGridService>().CalculateTextWidth(
+                    $"{countItem.ActivityItemCountQuantityOnHand:F3}");
+                var detailWidth4 = DependencyService.Get<IGridService>().CalculateTextWidth(
+                    $"{countItem.ActivityItemCountQuantity:F3}");
+                var detailWidth5 = DependencyService.Get<IGridService>().CalculateTextWidth(
+                    $"{countItem.ActivityItemCountWeightQuantityOnHand:F3}");
 
                 if (detailWidth0 > this.columnWidth0)
                 {
@@ -909,6 +912,7 @@ namespace dMobile.Controller.Activity_Item
             // {
             // this.DataViewItems.RowFilter = "ProductCode LIKE \'%" + searchText.Trim() + "%\'";
             this.ListItems = this.listCountItems.Where(countItem => countItem.ProductCode.ToString().ToLower().Contains(searchText.ToLower().Trim())).Cast<object>().ToList();
+
             // }
             // else
             // {
@@ -1186,7 +1190,7 @@ namespace dMobile.Controller.Activity_Item
         /// <returns><see cref="string"/> Get activity item control description.</returns>
         public override string GetControlDescription()
         {
-            return string.Format("Cycle count # {0}", this.ActHdr.HdrFkRefno);
+            return $"Cycle count # {this.ActHdr.HdrFkRefno}";
         }
 
         /// <summary>

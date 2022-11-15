@@ -47,7 +47,8 @@ namespace dMobile.GroundWork
 
                     if (results?.Count > 0)
                     {
-                        this.DataAccessStatusOutHandler(this, EventArgs.Empty, string.Format("For whs \'{0}\'.", results[0].LocationMapWarehouseName), true);
+                        this.DataAccessStatusOutHandler(this, EventArgs.Empty,
+                            $"For whs \'{results[0].LocationMapWarehouseName}\'.", true);
                     }
                     else
                     {
@@ -127,7 +128,7 @@ namespace dMobile.GroundWork
             {
                 rowsAffected = Convert.ToInt32(await DatabaseConnection.GetInstance().SQLConn.ExecuteScalarAsync<int>("SELECT COUNT(*) FROM tLocationMapSlot"));
 
-                this.DataAccessStatusOutHandler(this, EventArgs.Empty, string.Format("{0} slots.", rowsAffected), false);
+                this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"{rowsAffected} slots.", false);
             }
             catch (SQLiteException ex)
             {
@@ -169,232 +170,231 @@ namespace dMobile.GroundWork
             {
                 try
                 {
-                    var startIndex = recvData.IndexOf("<VFPData");
+                    var startIndex = recvData.IndexOf("<VFPData", StringComparison.Ordinal);
 
-                    using (var stringReader = new StringReader(recvData.Substring(startIndex)))
-                    using (var reader = XmlReader.Create(stringReader))
+                    using var stringReader = new StringReader(recvData.Substring(startIndex));
+                    using var reader = XmlReader.Create(stringReader);
+                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Reading received data.", false);
+
+                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving slots.", false);
+
+                    var locMapRefno = 0;
+                    var isLocMapSlotFound = false;
+                    var sectLocMapRefno = 0;
+                    var whsLocMapRefno = 0;
+                    var coord1Refno = 0;
+                    var coord2Refno = 0;
+                    var coord3Refno = 0;
+
+                    // f01
+                    var slotName = string.Empty;
+
+                    // f02
+                    var slotBarCode = string.Empty;
+
+                    // f03
+                    var slotFKRefno = 0;
+
+                    // f04
+                    var sectFKRefno = 0;
+
+                    // f05
+                    var slotCoord1 = string.Empty;
+
+                    // f06
+                    var slotCoord2 = string.Empty;
+
+                    // f07
+                    var slotCoord3 = string.Empty;
+
+                    var slot1Lookup = new Dictionary<string, int>();
+                    var slot2Lookup = new Dictionary<string, int>();
+                    var slot3Lookup = new Dictionary<string, int>();
+
+                    this.DataAccessProgressOutHandler(this, EventArgs.Empty, 0, 0, 100);
+
+                    while (!reader.EOF)
                     {
-                        this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Reading received data.", false);
+                        var recordFilled = false;
+                        var elementName = string.Empty;
 
-                        this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving slots.", false);
-
-                        var locMapRefno = 0;
-                        var isLocMapSlotFound = false;
-                        var sectLocMapRefno = 0;
-                        var whsLocMapRefno = 0;
-                        var coord1Refno = 0;
-                        var coord2Refno = 0;
-                        var coord3Refno = 0;
-
-                        // f01
-                        var slotName = string.Empty;
-
-                        // f02
-                        var slotBarCode = string.Empty;
-
-                        // f03
-                        var slotFKRefno = 0;
-
-                        // f04
-                        var sectFKRefno = 0;
-
-                        // f05
-                        var slotCoord1 = string.Empty;
-
-                        // f06
-                        var slotCoord2 = string.Empty;
-
-                        // f07
-                        var slotCoord3 = string.Empty;
-
-                        var slot1Lookup = new Dictionary<string, int>();
-                        var slot2Lookup = new Dictionary<string, int>();
-                        var slot3Lookup = new Dictionary<string, int>();
-
-                        this.DataAccessProgressOutHandler(this, EventArgs.Empty, 0, 0, 100);
-
-                        while (!reader.EOF)
+                        while (!recordFilled && reader.Read())
                         {
-                            var recordFilled = false;
-                            var elementName = string.Empty;
-
-                            while (!recordFilled && reader.Read())
+                            // Fill one record
+                            if (reader.NodeType == XmlNodeType.Element)
                             {
-                                // Fill one record
-                                if (reader.NodeType == XmlNodeType.Element)
-                                {
-                                    elementName = reader.Name;
-                                }
-                                else if (reader.NodeType == XmlNodeType.Text)
-                                {
-                                    switch (elementName)
-                                    {
-                                        case "seg":
-                                            // beginning a segment
-                                            break;
-                                        case "f01":
-                                            slotName = reader.Value;
-                                            break;
-                                        case "f02":
-                                            slotBarCode = reader.Value;
-                                            break;
-                                        case "f03":
-                                            slotFKRefno = reader.ReadContentAsInt();
-                                            break;
-                                        case "f04":
-                                            sectFKRefno = reader.ReadContentAsInt();
-                                            break;
-                                        case "f05":
-                                            slotCoord1 = reader.Value;
-                                            break;
-                                        case "f06":
-                                            slotCoord2 = reader.Value;
-                                            break;
-                                        case "f07":
-                                            slotCoord3 = reader.Value;
-                                            break;
-                                    }
-                                }
-                                else if (reader.NodeType == XmlNodeType.EndElement && reader.Name == "seg")
-                                {
-                                    recordFilled = true; // we are full
-                                }
-                            } // end of fill one record
-
-                            if (!recordFilled)
-                            {
-                                continue;
+                                elementName = reader.Name;
                             }
-
-                            errMsg = "Slot fk refno " + slotFKRefno;
-                            errMsg += Environment.NewLine + "Slot name \'" + slotName + "\'";
-                            errMsg += Environment.NewLine + "Slot bar code \'" + slotBarCode + "\'";
-                            errMsg += Environment.NewLine + "Sect fk refno " + sectFKRefno;
-
-                            var resultsLocationMapSection = transaction.Query<tLocationMapSectionModel>("SELECT * FROM tLocationMapSection WHERE LocationMapSectionFKRefno = ?", sectFKRefno);
-
-                            if (resultsLocationMapSection?.Count > 0)
+                            else if (reader.NodeType == XmlNodeType.Text)
                             {
-                                sectLocMapRefno = resultsLocationMapSection[0].LocationMapRefno;
-                                whsLocMapRefno = resultsLocationMapSection[0].WarehouseLocationMapRefno;
+                                switch (elementName)
+                                {
+                                    case "seg":
+                                        // beginning a segment
+                                        break;
+                                    case "f01":
+                                        slotName = reader.Value;
+                                        break;
+                                    case "f02":
+                                        slotBarCode = reader.Value;
+                                        break;
+                                    case "f03":
+                                        slotFKRefno = reader.ReadContentAsInt();
+                                        break;
+                                    case "f04":
+                                        sectFKRefno = reader.ReadContentAsInt();
+                                        break;
+                                    case "f05":
+                                        slotCoord1 = reader.Value;
+                                        break;
+                                    case "f06":
+                                        slotCoord2 = reader.Value;
+                                        break;
+                                    case "f07":
+                                        slotCoord3 = reader.Value;
+                                        break;
+                                }
+                            }
+                            else if (reader.NodeType == XmlNodeType.EndElement && reader.Name == "seg")
+                            {
+                                recordFilled = true; // we are full
+                            }
+                        } // end of fill one record
+
+                        if (!recordFilled)
+                        {
+                            continue;
+                        }
+
+                        errMsg = "Slot fk refno " + slotFKRefno;
+                        errMsg += Environment.NewLine + "Slot name \'" + slotName + "\'";
+                        errMsg += Environment.NewLine + "Slot bar code \'" + slotBarCode + "\'";
+                        errMsg += Environment.NewLine + "Sect fk refno " + sectFKRefno;
+
+                        var resultsLocationMapSection = transaction.Query<tLocationMapSectionModel>("SELECT * FROM tLocationMapSection WHERE LocationMapSectionFKRefno = ?", sectFKRefno);
+
+                        if (resultsLocationMapSection?.Count > 0)
+                        {
+                            sectLocMapRefno = resultsLocationMapSection[0].LocationMapRefno;
+                            whsLocMapRefno = resultsLocationMapSection[0].WarehouseLocationMapRefno;
+                        }
+                        else
+                        {
+                            throw new Exception("No results in tLocationMapSection for LocationMapSectionFKRefno " + sectFKRefno + Environment.NewLine + errMsg);
+                        }
+
+                        errMsg += Environment.NewLine + "Slot coordinate 1 \'" + slotCoord1 + "\'";
+
+                        if (!slot1Lookup.TryGetValue(whsLocMapRefno.ToString() + slotCoord1, out coord1Refno))
+                        {
+                            var query = "SELECT * FROM tLocationMapSlotCoordinate WHERE LocationMapSlotCoordinateEnum = ? AND LocationMapSlotCoordinateCode = ? AND WarehouseLocationMapRefno = ?";
+                            var resultsLocationMapSlotCoordinate1 = transaction.Query<tLocationMapSlotCoordinateModel>(query, Convert.ToInt32(SysCommon.LocMapSlotCoordTypes.Coord1), slotCoord1, whsLocMapRefno);
+
+                            if (resultsLocationMapSlotCoordinate1?.Count > 0)
+                            {
+                                coord1Refno = resultsLocationMapSlotCoordinate1[0].LocationMapSlotCoordinateRefno;
+                                slot1Lookup.Add(whsLocMapRefno.ToString() + slotCoord1, coord1Refno);
                             }
                             else
                             {
-                                throw new Exception("No results in tLocationMapSection for LocationMapSectionFKRefno " + sectFKRefno + Environment.NewLine + errMsg);
+                                throw new Exception("No results in tLocationMapSlotCoordinate. Slot coord 1. Parameters: " + SysCommon.LocMapSlotCoordTypes.Coord1 + " " + slotCoord1 + " " + whsLocMapRefno + Environment.NewLine + errMsg);
                             }
+                        }
 
-                            errMsg += Environment.NewLine + "Slot coordinate 1 \'" + slotCoord1 + "\'";
+                        errMsg += Environment.NewLine + "Slot coordinate 2 \'" + slotCoord2 + "\'";
 
-                            if (!slot1Lookup.TryGetValue(whsLocMapRefno.ToString() + slotCoord1, out coord1Refno))
+                        if (!slot2Lookup.TryGetValue(whsLocMapRefno.ToString() + slotCoord2, out coord2Refno))
+                        {
+                            var query = "SELECT * FROM tLocationMapSlotCoordinate WHERE LocationMapSlotCoordinateEnum = ? AND LocationMapSlotCoordinateCode = ? AND WarehouseLocationMapRefno = ?";
+                            var resultsLocationMapSlotCoordinate2 = transaction.Query<tLocationMapSlotCoordinateModel>(query, Convert.ToInt32(SysCommon.LocMapSlotCoordTypes.Coord2), slotCoord2, whsLocMapRefno);
+
+                            if (resultsLocationMapSlotCoordinate2?.Count > 0)
                             {
-                                var query = "SELECT * FROM tLocationMapSlotCoordinate WHERE LocationMapSlotCoordinateEnum = ? AND LocationMapSlotCoordinateCode = ? AND WarehouseLocationMapRefno = ?";
-                                var resultsLocationMapSlotCoordinate1 = transaction.Query<tLocationMapSlotCoordinateModel>(query, Convert.ToInt32(SysCommon.LocMapSlotCoordTypes.Coord1), slotCoord1, whsLocMapRefno);
-
-                                if (resultsLocationMapSlotCoordinate1?.Count > 0)
-                                {
-                                    coord1Refno = resultsLocationMapSlotCoordinate1[0].LocationMapSlotCoordinateRefno;
-                                    slot1Lookup.Add(whsLocMapRefno.ToString() + slotCoord1, coord1Refno);
-                                }
-                                else
-                                {
-                                    throw new Exception("No results in tLocationMapSlotCoordinate. Slot coord 1. Parameters: " + SysCommon.LocMapSlotCoordTypes.Coord1 + " " + slotCoord1 + " " + whsLocMapRefno + Environment.NewLine + errMsg);
-                                }
+                                coord2Refno = resultsLocationMapSlotCoordinate2[0].LocationMapSlotCoordinateRefno;
+                                slot2Lookup.Add(whsLocMapRefno.ToString() + slotCoord2, coord2Refno);
                             }
-
-                            errMsg += Environment.NewLine + "Slot coordinate 2 \'" + slotCoord2 + "\'";
-
-                            if (!slot2Lookup.TryGetValue(whsLocMapRefno.ToString() + slotCoord2, out coord2Refno))
+                            else
                             {
-                                var query = "SELECT * FROM tLocationMapSlotCoordinate WHERE LocationMapSlotCoordinateEnum = ? AND LocationMapSlotCoordinateCode = ? AND WarehouseLocationMapRefno = ?";
-                                var resultsLocationMapSlotCoordinate2 = transaction.Query<tLocationMapSlotCoordinateModel>(query, Convert.ToInt32(SysCommon.LocMapSlotCoordTypes.Coord2), slotCoord2, whsLocMapRefno);
-
-                                if (resultsLocationMapSlotCoordinate2?.Count > 0)
-                                {
-                                    coord2Refno = resultsLocationMapSlotCoordinate2[0].LocationMapSlotCoordinateRefno;
-                                    slot2Lookup.Add(whsLocMapRefno.ToString() + slotCoord2, coord2Refno);
-                                }
-                                else
-                                {
-                                    throw new Exception("No results in tLocationMapSlotCoordinate. Slot coord 2. Parameters: " + SysCommon.LocMapSlotCoordTypes.Coord2 + " " + slotCoord2 + " " + whsLocMapRefno + Environment.NewLine + errMsg);
-                                }
+                                throw new Exception("No results in tLocationMapSlotCoordinate. Slot coord 2. Parameters: " + SysCommon.LocMapSlotCoordTypes.Coord2 + " " + slotCoord2 + " " + whsLocMapRefno + Environment.NewLine + errMsg);
                             }
+                        }
 
-                            errMsg += Environment.NewLine + "Slot coordinate 3 \'" + slotCoord3 + "\'";
+                        errMsg += Environment.NewLine + "Slot coordinate 3 \'" + slotCoord3 + "\'";
 
-                            if (!slot3Lookup.TryGetValue(whsLocMapRefno.ToString() + slotCoord3, out coord3Refno))
+                        if (!slot3Lookup.TryGetValue(whsLocMapRefno.ToString() + slotCoord3, out coord3Refno))
+                        {
+                            var query = "SELECT * FROM tLocationMapSlotCoordinate WHERE LocationMapSlotCoordinateEnum = ? AND LocationMapSlotCoordinateCode = ? AND WarehouseLocationMapRefno = ?";
+                            var resultsLocationMapSlotCoordinate3 = transaction.Query<tLocationMapSlotCoordinateModel>(query, Convert.ToInt32(SysCommon.LocMapSlotCoordTypes.Coord3), slotCoord3, whsLocMapRefno);
+
+                            if (resultsLocationMapSlotCoordinate3?.Count > 0)
                             {
-                                var query = "SELECT * FROM tLocationMapSlotCoordinate WHERE LocationMapSlotCoordinateEnum = ? AND LocationMapSlotCoordinateCode = ? AND WarehouseLocationMapRefno = ?";
-                                var resultsLocationMapSlotCoordinate3 = transaction.Query<tLocationMapSlotCoordinateModel>(query, Convert.ToInt32(SysCommon.LocMapSlotCoordTypes.Coord3), slotCoord3, whsLocMapRefno);
-
-                                if (resultsLocationMapSlotCoordinate3?.Count > 0)
-                                {
-                                    coord3Refno = resultsLocationMapSlotCoordinate3[0].LocationMapSlotCoordinateRefno;
-                                    slot3Lookup.Add(whsLocMapRefno.ToString() + slotCoord3, coord3Refno);
-                                }
-                                else
-                                {
-                                    throw new Exception("No results in tLocationMapSlotCoordinate. Slot coord 3. Parameters: " + SysCommon.LocMapSlotCoordTypes.Coord3 + " " + slotCoord3 + " " + whsLocMapRefno + Environment.NewLine + errMsg);
-                                }
+                                coord3Refno = resultsLocationMapSlotCoordinate3[0].LocationMapSlotCoordinateRefno;
+                                slot3Lookup.Add(whsLocMapRefno.ToString() + slotCoord3, coord3Refno);
                             }
-
-                            isLocMapSlotFound = false;
-
-                            if (this.SysEnv.RefreshOpt.RefreshDataChangesOnly)
+                            else
                             {
-                                var results = transaction.Query<tLocationMapSlotModel>("SELECT LocationMapSlotFKRefno FROM tLocationMapSlot WHERE LocationMapSlotFKRefno = ?", slotFKRefno);
-
-                                if (results?.Count > 0)
-                                {
-                                    isLocMapSlotFound = true;
-
-                                    var queryUpdate = "UPDATE tLocationMapSlot "
-                                                      + "SET SectionLocationMapRefno = " + sectLocMapRefno + ","
-                                                      + "LocationMapSlotCode = " + slotFKRefno.ToString()
-                                                      + "LocationMapSlotName = \'" + slotName + "\',"
-                                                      + "SlotCoord1LocationMapRefno = " + coord1Refno + ","
-                                                      + "SlotCoord2LocationMapRefno = " + coord2Refno + ","
-                                                      + "SlotCoord3LocationMapRefno = " + coord3Refno + ","
-                                                      + "LocationMapSlotBarCode = \'" + slotBarCode + "\' "
-                                                      + "WHERE LocationMapSlotFKRefno = " + slotFKRefno;
-
-                                    transaction.Execute(queryUpdate);
-                                }
+                                throw new Exception("No results in tLocationMapSlotCoordinate. Slot coord 3. Parameters: " + SysCommon.LocMapSlotCoordTypes.Coord3 + " " + slotCoord3 + " " + whsLocMapRefno + Environment.NewLine + errMsg);
                             }
+                        }
 
-                            if (!isLocMapSlotFound)
+                        isLocMapSlotFound = false;
+
+                        if (this.SysEnv.RefreshOpt.RefreshDataChangesOnly)
+                        {
+                            var results = transaction.Query<tLocationMapSlotModel>("SELECT LocationMapSlotFKRefno FROM tLocationMapSlot WHERE LocationMapSlotFKRefno = ?", slotFKRefno);
+
+                            if (results?.Count > 0)
                             {
-                                transaction.Execute("INSERT INTO tLocationMap (LocationMapSubType) VALUES (?)", Convert.ToInt32(SysCommon.LocMapSubTypes.Slot));
+                                isLocMapSlotFound = true;
 
-                                locMapRefno = Convert.ToInt32(transaction.ExecuteScalar<int>("SELECT last_insert_rowid() FROM tLocationMap"));
+                                var queryUpdate = "UPDATE tLocationMapSlot "
+                                                  + "SET SectionLocationMapRefno = " + sectLocMapRefno + ","
+                                                  + "LocationMapSlotCode = " + slotFKRefno.ToString()
+                                                  + "LocationMapSlotName = \'" + slotName + "\',"
+                                                  + "SlotCoord1LocationMapRefno = " + coord1Refno + ","
+                                                  + "SlotCoord2LocationMapRefno = " + coord2Refno + ","
+                                                  + "SlotCoord3LocationMapRefno = " + coord3Refno + ","
+                                                  + "LocationMapSlotBarCode = \'" + slotBarCode + "\' "
+                                                  + "WHERE LocationMapSlotFKRefno = " + slotFKRefno;
 
-                                var queryInsert = "INSERT INTO tLocationMapSlot " +
-                                                  "(" +
-                                                  "LocationMapRefno, " +
-                                                  "LocationMapSubType, " +
-                                                  "SectionLocationMapRefno, " +
-                                                  "LocationMapSlotCode, " +
-                                                  "LocationMapSlotName, " +
-                                                  "SlotCoord1LocationMapRefno, " +
-                                                  "SlotCoord2LocationMapRefno, " +
-                                                  "SlotCoord3LocationMapRefno, " +
-                                                  "LocationMapSlotFKRefno, " +
-                                                  "LocationMapSlotBarCode, " +
-                                                  "WarehouseLocationMapRefno" +
-                                                  ") VALUES (" +
-                                                  "?, " +
-                                                  "?, " +
-                                                  "?, " +
-                                                  "?, " +
-                                                  "?, " +
-                                                  "?, " +
-                                                  "?, " +
-                                                  "?, " +
-                                                  "?, " +
-                                                  "?, " +
-                                                  "?" +
-                                                  ")";
-                                var parametersInsert = new object[]
-                                {
+                                transaction.Execute(queryUpdate);
+                            }
+                        }
+
+                        if (!isLocMapSlotFound)
+                        {
+                            transaction.Execute("INSERT INTO tLocationMap (LocationMapSubType) VALUES (?)", Convert.ToInt32(SysCommon.LocMapSubTypes.Slot));
+
+                            locMapRefno = Convert.ToInt32(transaction.ExecuteScalar<int>("SELECT last_insert_rowid() FROM tLocationMap"));
+
+                            var queryInsert = "INSERT INTO tLocationMapSlot " +
+                                              "(" +
+                                              "LocationMapRefno, " +
+                                              "LocationMapSubType, " +
+                                              "SectionLocationMapRefno, " +
+                                              "LocationMapSlotCode, " +
+                                              "LocationMapSlotName, " +
+                                              "SlotCoord1LocationMapRefno, " +
+                                              "SlotCoord2LocationMapRefno, " +
+                                              "SlotCoord3LocationMapRefno, " +
+                                              "LocationMapSlotFKRefno, " +
+                                              "LocationMapSlotBarCode, " +
+                                              "WarehouseLocationMapRefno" +
+                                              ") VALUES (" +
+                                              "?, " +
+                                              "?, " +
+                                              "?, " +
+                                              "?, " +
+                                              "?, " +
+                                              "?, " +
+                                              "?, " +
+                                              "?, " +
+                                              "?, " +
+                                              "?, " +
+                                              "?" +
+                                              ")";
+                            var parametersInsert = new object[]
+                            {
                                     locMapRefno,
                                     Convert.ToInt32(SysCommon.LocMapSubTypes.Slot),
                                     sectLocMapRefno,
@@ -406,26 +406,25 @@ namespace dMobile.GroundWork
                                     slotFKRefno,
                                     slotBarCode,
                                     whsLocMapRefno,
-                                };
+                            };
 
-                                transaction.Execute(queryInsert, parametersInsert);
-                            }
+                            transaction.Execute(queryInsert, parametersInsert);
+                        }
 
-                            ++recordCount;
-                            if (recordCount % 100 == 0)
-                            {
-                                this.DataAccessProgressOutHandler(this, EventArgs.Empty, recordCount / 10 % 100, 0, 100);
-                            }
-                        } // end of record data
+                        ++recordCount;
+                        if (recordCount % 100 == 0)
+                        {
+                            this.DataAccessProgressOutHandler(this, EventArgs.Empty, recordCount / 10 % 100, 0, 100);
+                        }
+                    } // end of record data
 
-                        this.DataAccessProgressOutHandler(this, EventArgs.Empty, 100, 0, 100);
+                    this.DataAccessProgressOutHandler(this, EventArgs.Empty, 100, 0, 100);
 
-                        transaction.Commit();
+                    transaction.Commit();
 
-                        this.DataAccessStatusOutHandler(this, EventArgs.Empty, string.Format("Records {0}", recordCount), false);
+                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"Records {recordCount}", false);
 
-                        this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving slots complete.", false);
-                    }
+                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving slots complete.", false);
                 }
                 catch (SQLiteException ex)
                 {

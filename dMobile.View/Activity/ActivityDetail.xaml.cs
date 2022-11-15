@@ -2020,15 +2020,15 @@ namespace dMobile.View.Activity
                     case SysCommon.ActSubTypes.InventoryInquiry:
                         if (this.ActDetail.ActItem.ProdInfo.Refno <= 0)
                         {
-                            this.ExtraInfoItems.Add(string.Format("PRODUCT: {0}", "All"));
+                            this.ExtraInfoItems.Add($"PRODUCT: {"All"}");
                         }
                         else
                         {
-                            this.ExtraInfoItems.Add(string.Format("PRODUCT: {0}", ProductInfoTasks.GetCurrReadableProdBCUnit(
-                                this.ActDetail.ActItem.ProdInfo)));
+                            this.ExtraInfoItems.Add(
+                                $"PRODUCT: {ProductInfoTasks.GetCurrReadableProdBCUnit(this.ActDetail.ActItem.ProdInfo)}");
                         }
 
-                        this.ExtraInfoItems.Add(string.Format("LOCATION: {0}", LocationMapTasks.GetCurrentReadableLocation()));
+                        this.ExtraInfoItems.Add($"LOCATION: {LocationMapTasks.GetCurrentReadableLocation()}");
                         break;
 
                     case SysCommon.ActSubTypes.InventoryReplenishment:

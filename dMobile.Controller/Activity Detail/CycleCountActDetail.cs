@@ -949,8 +949,10 @@ namespace dMobile.Controller.Activity_Detail
 
             foreach (CountDetail countDetail in observableCollection)
             {
-                var detailWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(string.Format("{0:F3}", countDetail.ActivityDetailQuantity));
-                var detailWidth1 = DependencyService.Get<IGridService>().CalculateTextWidth(string.Format("{0:F3}", countDetail.ActivityDetailWeightQuantity));
+                var detailWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(
+                    $"{countDetail.ActivityDetailQuantity:F3}");
+                var detailWidth1 = DependencyService.Get<IGridService>().CalculateTextWidth(
+                    $"{countDetail.ActivityDetailWeightQuantity:F3}");
                 var detailWidth2 = DependencyService.Get<IGridService>().CalculateTextWidth(countDetail.UnitCode);
                 var detailWidth3 = DependencyService.Get<IGridService>().CalculateTextWidth(countDetail.ActivityDetailSchemeID);
 
@@ -1154,7 +1156,7 @@ namespace dMobile.Controller.Activity_Detail
         /// <returns><see cref="string"/> Get activity item control description.</returns>
         public override string GetControlDescription()
         {
-            return string.Format("Cycle count # {0}", this.ActItem.ActHdr.HdrFkRefno);
+            return $"Cycle count # {this.ActItem.ActHdr.HdrFkRefno}";
         }
 
         /// <summary>
@@ -1210,8 +1212,10 @@ namespace dMobile.Controller.Activity_Detail
 
             gridMain.Children.Add(gridHeader);
 
-            var detailWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(string.Format("{0:F3}", actDetail.ActivityDetailQuantity));
-            var detailWidth1 = DependencyService.Get<IGridService>().CalculateTextWidth(string.Format("{0:F3}", actDetail.ActivityDetailWeightQuantity));
+            var detailWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(
+                $"{actDetail.ActivityDetailQuantity:F3}");
+            var detailWidth1 = DependencyService.Get<IGridService>().CalculateTextWidth(
+                $"{actDetail.ActivityDetailWeightQuantity:F3}");
             var detailWidth2 = DependencyService.Get<IGridService>().CalculateTextWidth(actDetail.UnitCode);
             var detailWidth3 = DependencyService.Get<IGridService>().CalculateTextWidth(actDetail.ActivityDetailSchemeID);
 

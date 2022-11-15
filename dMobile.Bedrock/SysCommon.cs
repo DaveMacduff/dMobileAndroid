@@ -1,4 +1,5 @@
 using System.Diagnostics;
+
 // <copyright file="SysCommon.cs" company="InterSect Business Systems Inc">
 // Copyright (c) InterSect Business Systems Inc. All rights reserved.
 // </copyright>
@@ -1489,7 +1490,7 @@ namespace dMobile.Bedrock
             var build = Assembly.GetExecutingAssembly().GetName().Version.Build;
             var revision = Assembly.GetExecutingAssembly().GetName().Version.Revision;
 
-            return string.Format("{0}.{1}.{2}.{3}", major, minor, build, revision);
+            return $"{major}.{minor}.{build}.{revision}";
         }
 
         /// <summary>
@@ -1517,6 +1518,7 @@ namespace dMobile.Bedrock
             // Dim oSnd As SysSound = New SysSound(strFullPathToMyFile)
             // oSnd.Play()
             var result = false;
+
             // #if MULTILANGUAGE
             //      string errorMsg = Translator.GetInstance().Translate(TranslatorVocabulary.AnUnanticipatedErrorOccuredInDmobile) + Constants.vbCrLf +
             // #else
@@ -1738,7 +1740,7 @@ namespace dMobile.Bedrock
         {
             // Parse the Data into Schema and Data
             var endSchema = "</xsd:schema>";
-            var eoSchemaEnd = xml.IndexOf(endSchema);
+            var eoSchemaEnd = xml.IndexOf(endSchema, StringComparison.Ordinal);
             if (eoSchemaEnd >= 0)
             {
                 var length = xml.Length;

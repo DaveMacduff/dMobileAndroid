@@ -155,7 +155,7 @@ namespace dMobile.GroundWork
             {
                 rowsAffected = Convert.ToInt32(await DatabaseConnection.GetInstance().SQLConn.ExecuteScalarAsync<int>("SELECT COUNT(ActivityDetailRefno) FROM tActivityDetail WHERE ActivityDetailSubType = ?", Convert.ToInt32(SysCommon.ActSubTypes.Picking)));
 
-                this.DataAccessStatusOutHandler(this, EventArgs.Empty, string.Format("{0} Sales order details.", rowsAffected), true);
+                this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"{rowsAffected} Sales order details.", true);
             }
             catch (SQLiteException ex)
             {
@@ -202,126 +202,124 @@ namespace dMobile.GroundWork
             {
                 try
                 {
-                    using (var ds = new DataSet())
+                    using var ds = new DataSet();
+                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Reading received data.", false);
+
+                    ds.ReadXml(SysCommon.GetXmlReader(ref reqData), XmlReadMode.Auto);
+
+                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving sales order details.", false);
+
+                    if (ds.Tables.Count != 0)
                     {
-                        this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Reading received data.", false);
+                        var progMax = Convert.ToInt32(ds.Tables["tActivityDetailPicking"].Rows.Count);
 
-                        ds.ReadXml(SysCommon.GetXmlReader(ref reqData), XmlReadMode.Auto);
+                        this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"Records {progMax}", false);
 
-                        this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving sales order details.", false);
+                        var actDetailRefno = 0;
+                        var progValue = 0;
+                        var actDetailPickFKRefno = 0;
+                        var productUnitRefno = 0;
 
-                        if (ds.Tables.Count != 0)
+                        this.DataAccessProgressOutHandler(this, EventArgs.Empty, 0, 0, progMax);
+
+                        var resultPickingItems = transaction.Query<tActivityItemPickingModel>("SELECT * FROM tActivityItemPicking WHERE ActivityItemRefno = ?", actItemPickRefno);
+
+                        if (resultPickingItems == null || (resultPickingItems != null && resultPickingItems.Count == 0))
                         {
-                            var progMax = Convert.ToInt32(ds.Tables["tActivityDetailPicking"].Rows.Count);
-
-                            this.DataAccessStatusOutHandler(this, EventArgs.Empty, string.Format("Records {0}", progMax), false);
-
-                            var actDetailRefno = 0;
-                            var progValue = 0;
-                            var actDetailPickFKRefno = 0;
-                            var productUnitRefno = 0;
-
-                            this.DataAccessProgressOutHandler(this, EventArgs.Empty, 0, 0, progMax);
-
-                            var resultPickingItems = transaction.Query<tActivityItemPickingModel>("SELECT * FROM tActivityItemPicking WHERE ActivityItemRefno = ?", actItemPickRefno);
-
-                            if (resultPickingItems == null || (resultPickingItems != null && resultPickingItems.Count == 0))
-                            {
-                                throw new Exception("No results in tActivityItemPicking for ActivityItemRefno " + actItemPickRefno);
-                            }
-
-                            productUnitRefno = resultPickingItems[0].ProductUnitRefno;
-
-                            foreach (DataRow drow in ds.Tables["tActivityDetailPicking"].Rows)
-                            {
-                                var useFNo = false;
-                                errMsg = "Arguments:";
-
-                                var queryInsertDetail = "INSERT INTO tActivityDetail " +
-                                                        "(" +
-                                                        "ActivityDetailSubType, " +
-                                                        "ActivityDetailStatus, " +
-                                                        "ActivityItemRefno, " +
-                                                        "LocationMapRefno, " +
-                                                        "ProductUnitRefno, " +
-                                                        "ActivityDetailUniqueSchemeID, " +
-                                                        "ActivityDetailSchemeID, " +
-                                                        "ActivityDetailQuantity, " +
-                                                        "ActivityDetailBaseQuantity, " +
-                                                        "ActivityDetailWeightQuantity, " +
-                                                        "ActivityDetailSingleTradeItemSerialNumber, " +
-                                                        "ActivityDetailLogisticUnitBatchLotNumber, " +
-                                                        "ActivityDetailLogisticUnitBestBeforeSellByDate, " +
-                                                        "ActivityDetailLogisticUnitExpiryUseByDate, " +
-                                                        "ActivityDetailLogisticUnitProductionDate, " +
-                                                        "ActivityDetailLogisticUnitDueDate, " +
-                                                        "ActivityDetailLogisticUnitPackagingDate, " +
-                                                        "ActivityDetailLogisticUnitSkidNumber" +
-                                                        ") " +
-                                                        "VALUES" +
-                                                        "(" +
-                                                        "?, " +
-                                                        "?, " +
-                                                        "?, " +
-                                                        "?, " +
-                                                        "?, " +
-                                                        "?, " +
-                                                        "?, " +
-                                                        "?, " +
-                                                        "?, " +
-                                                        "?, " +
-                                                        "?, " +
-                                                        "?, " +
-                                                        "?, " +
-                                                        "?, " +
-                                                        "?, " +
-                                                        "?, " +
-                                                        "?, " +
-                                                        "?" +
-                                                        ")";
-                                var parametersInsertDetail = new List<object>();
-                                parametersInsertDetail.Add(Convert.ToInt32(SysCommon.ActSubTypes.Picking));
-                                parametersInsertDetail.Add(0);
-                                parametersInsertDetail.Add(actItemPickRefno);
-                                parametersInsertDetail.Add(this.GetDetailLocation(drow, transaction, useFNo));
-                                parametersInsertDetail.Add(productUnitRefno);
-                                parametersInsertDetail.AddRange(this.SaveDetail(drow, transaction, useFNo));
-
-                                transaction.Execute(queryInsertDetail, parametersInsertDetail.ToArray());
-
-                                actDetailRefno = Convert.ToInt32(transaction.ExecuteScalar<int>("SELECT last_insert_rowid() FROM tActivityDetail"));
-                                actDetailPickFKRefno = Convert.ToInt32(drow["ActivityDetailFKRefno"]);
-                                errMsg += Environment.NewLine + "Detail fk refno " + actDetailPickFKRefno;
-
-                                var queryInsertPickingDetail = "INSERT INTO tActivityDetailPicking (" +
-                                                               "ActivityDetailRefno, " +
-                                                               "ActivityDetailFKRefno, " +
-                                                               "ActivityDetailPickingIsConfirmed" +
-                                                               ") VALUES (" +
-                                                               "?, " +
-                                                               "?, " +
-                                                               "?" +
-                                                               ")";
-
-                                transaction.Execute(queryInsertPickingDetail, actDetailRefno, actDetailPickFKRefno, Convert.ToBoolean(drow["ActivityDetailPickingIsConfirmed"]));
-
-                                this.SaveCommonDetailVariant(drow, transaction, actDetailRefno, false);
-                                this.SaveDetailExtra(drow, transaction, actDetailRefno, false);
-
-                                progValue++;
-                                if (progValue % 100 == 0)
-                                {
-                                    this.DataAccessProgressOutHandler(this, EventArgs.Empty, progValue, 0, progMax);
-                                }
-                            }
-
-                            this.DataAccessProgressOutHandler(this, EventArgs.Empty, progMax, 0, progMax);
+                            throw new Exception("No results in tActivityItemPicking for ActivityItemRefno " + actItemPickRefno);
                         }
 
-                        transaction.Commit();
+                        productUnitRefno = resultPickingItems[0].ProductUnitRefno;
 
-                        this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving sales order details completed.", false);
+                        foreach (DataRow drow in ds.Tables["tActivityDetailPicking"].Rows)
+                        {
+                            var useFNo = false;
+                            errMsg = "Arguments:";
+
+                            var queryInsertDetail = "INSERT INTO tActivityDetail " +
+                                                    "(" +
+                                                    "ActivityDetailSubType, " +
+                                                    "ActivityDetailStatus, " +
+                                                    "ActivityItemRefno, " +
+                                                    "LocationMapRefno, " +
+                                                    "ProductUnitRefno, " +
+                                                    "ActivityDetailUniqueSchemeID, " +
+                                                    "ActivityDetailSchemeID, " +
+                                                    "ActivityDetailQuantity, " +
+                                                    "ActivityDetailBaseQuantity, " +
+                                                    "ActivityDetailWeightQuantity, " +
+                                                    "ActivityDetailSingleTradeItemSerialNumber, " +
+                                                    "ActivityDetailLogisticUnitBatchLotNumber, " +
+                                                    "ActivityDetailLogisticUnitBestBeforeSellByDate, " +
+                                                    "ActivityDetailLogisticUnitExpiryUseByDate, " +
+                                                    "ActivityDetailLogisticUnitProductionDate, " +
+                                                    "ActivityDetailLogisticUnitDueDate, " +
+                                                    "ActivityDetailLogisticUnitPackagingDate, " +
+                                                    "ActivityDetailLogisticUnitSkidNumber" +
+                                                    ") " +
+                                                    "VALUES" +
+                                                    "(" +
+                                                    "?, " +
+                                                    "?, " +
+                                                    "?, " +
+                                                    "?, " +
+                                                    "?, " +
+                                                    "?, " +
+                                                    "?, " +
+                                                    "?, " +
+                                                    "?, " +
+                                                    "?, " +
+                                                    "?, " +
+                                                    "?, " +
+                                                    "?, " +
+                                                    "?, " +
+                                                    "?, " +
+                                                    "?, " +
+                                                    "?, " +
+                                                    "?" +
+                                                    ")";
+                            var parametersInsertDetail = new List<object>();
+                            parametersInsertDetail.Add(Convert.ToInt32(SysCommon.ActSubTypes.Picking));
+                            parametersInsertDetail.Add(0);
+                            parametersInsertDetail.Add(actItemPickRefno);
+                            parametersInsertDetail.Add(this.GetDetailLocation(drow, transaction, useFNo));
+                            parametersInsertDetail.Add(productUnitRefno);
+                            parametersInsertDetail.AddRange(this.SaveDetail(drow, transaction, useFNo));
+
+                            transaction.Execute(queryInsertDetail, parametersInsertDetail.ToArray());
+
+                            actDetailRefno = Convert.ToInt32(transaction.ExecuteScalar<int>("SELECT last_insert_rowid() FROM tActivityDetail"));
+                            actDetailPickFKRefno = Convert.ToInt32(drow["ActivityDetailFKRefno"]);
+                            errMsg += Environment.NewLine + "Detail fk refno " + actDetailPickFKRefno;
+
+                            var queryInsertPickingDetail = "INSERT INTO tActivityDetailPicking (" +
+                                                           "ActivityDetailRefno, " +
+                                                           "ActivityDetailFKRefno, " +
+                                                           "ActivityDetailPickingIsConfirmed" +
+                                                           ") VALUES (" +
+                                                           "?, " +
+                                                           "?, " +
+                                                           "?" +
+                                                           ")";
+
+                            transaction.Execute(queryInsertPickingDetail, actDetailRefno, actDetailPickFKRefno, Convert.ToBoolean(drow["ActivityDetailPickingIsConfirmed"]));
+
+                            this.SaveCommonDetailVariant(drow, transaction, actDetailRefno, false);
+                            this.SaveDetailExtra(drow, transaction, actDetailRefno, false);
+
+                            progValue++;
+                            if (progValue % 100 == 0)
+                            {
+                                this.DataAccessProgressOutHandler(this, EventArgs.Empty, progValue, 0, progMax);
+                            }
+                        }
+
+                        this.DataAccessProgressOutHandler(this, EventArgs.Empty, progMax, 0, progMax);
                     }
+
+                    transaction.Commit();
+
+                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving sales order details completed.", false);
                 }
                 catch (SQLiteException ex)
                 {

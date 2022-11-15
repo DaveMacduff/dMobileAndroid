@@ -1252,226 +1252,224 @@ namespace dMobile.Bedrock
 
             try
             {
-                using (var ds = new DataSet())
+                using var ds = new DataSet();
+                if (this.OnBarCodeSettingsStatusOut != null)
                 {
+                    msgEventArg.StatusOutMsg = "Reading received data.";
+                    this.OnBarCodeSettingsStatusOut(this, msgEventArg);
+                }
+
+                ds.ReadXml(SysCommon.GetXmlReader(ref xmlData), XmlReadMode.Auto);
+
+                if (this.OnBarCodeSettingsStatusOut != null)
+                {
+                    msgEventArg.StatusOutMsg = "Saving bar code settings.";
+                    this.OnBarCodeSettingsStatusOut(this, msgEventArg);
+                }
+
+                if (ds.Tables.Count != 0)
+                {
+                    var progMax = ds.Tables["tBarCodeSettings"].Rows.Count;
+
                     if (this.OnBarCodeSettingsStatusOut != null)
                     {
-                        msgEventArg.StatusOutMsg = "Reading received data.";
+                        msgEventArg.StatusOutMsg = $"Records {progMax}.";
                         this.OnBarCodeSettingsStatusOut(this, msgEventArg);
                     }
 
-                    ds.ReadXml(SysCommon.GetXmlReader(ref xmlData), XmlReadMode.Auto);
-
-                    if (this.OnBarCodeSettingsStatusOut != null)
+                    var progValue = 0;
+                    if (this.OnBarCodeSettingsProgressOut != null)
                     {
-                        msgEventArg.StatusOutMsg = "Saving bar code settings.";
-                        this.OnBarCodeSettingsStatusOut(this, msgEventArg);
+                        msgEventArg.CurrentValue = 0;
+                        msgEventArg.MinValue = 0;
+                        msgEventArg.MaxValue = progMax;
+                        this.OnBarCodeSettingsProgressOut(this, msgEventArg);
                     }
 
-                    if (ds.Tables.Count != 0)
+                    foreach (DataRow drow in ds.Tables["tBarCodeSettings"].Rows)
                     {
-                        var progMax = ds.Tables["tBarCodeSettings"].Rows.Count;
-
-                        if (this.OnBarCodeSettingsStatusOut != null)
+                        var rule = (SysCommon.BarCodeRules)Convert.ToInt32(drow["BarCodeSettingsRuleFKRefno"]);
+                        var enabled = Convert.ToBoolean(drow["BarCodeSettingsRuleEnabled"]);
+                        var description = Convert.ToString(drow["BarCodeSettingsRuleDescription"]);
+                        switch (rule)
                         {
-                            msgEventArg.StatusOutMsg = string.Format("Records {0}.", progMax);
-                            this.OnBarCodeSettingsStatusOut(this, msgEventArg);
+                            case SysCommon.BarCodeRules.ParseCode_128AsUCC_EAN_128_SymbolCompliant:
+                                this.IsRuleEnabled_ParseCode_128AsUCC_EAN_128_SymbolCompliant = enabled;
+                                this.RuleDescription_ParseCode_128AsUCC_EAN_128_SymbolCompliant = description;
+                                break;
+
+                            case SysCommon.BarCodeRules.ParseFINICA_Code_128_as_EAN_UCC_128:
+                                this.IsRuleEnabled_ParseFINICA_Code_128_as_EAN_UCC_128 = enabled;
+                                this.RuleDescription_ParseFINICA_Code_128_as_EAN_UCC_128 = description;
+                                break;
+
+                            case SysCommon.BarCodeRules.NoCheckDigitInGlobalLocationNumber:
+                                this.IsRuleEnabled_NoCheckDigitInGlobalLocationNumber = enabled;
+                                this.RuleDescription_NoCheckDigitInGlobalLocationNumber = description;
+                                break;
+
+                            case SysCommon.BarCodeRules.NoZeroPaddingOfProductIdentifierForUCC_EAN_Family:
+                                this.IsRuleEnabled_NoZeroPaddingOfProductIdentifierForUCC_EAN_Family = enabled;
+                                this.RuleDescription_NoZeroPaddingOfProductIdentifierForUCC_EAN_Family = description;
+                                break;
+
+                            case SysCommon.BarCodeRules.ParseWOOLWICH_Code_128_RemoveSpaces:
+                                this.IsRuleEnabled_ParseWOOLWICH_Code_128_RemoveSpaces = enabled;
+                                this.RuleDescription_ParseWOOLWICH_Code_128_RemoveSpaces = description;
+                                break;
+
+                            case SysCommon.BarCodeRules.Recognize_Code_128_AI13_PackagingDate_As_AI11_ProductionDate:
+                                this.IsRuleEnabled_Recognize_Code_128_AI13_PackagingDate_As_AI11_ProductionDate = enabled;
+                                this.RuleDescription_Recognize_Code_128_AI13_PackagingDate_As_AI11_ProductionDate = description;
+                                break;
+
+                            case SysCommon.BarCodeRules.Recognize_Code_128_AI17_ExpiryDate_As_AI15_BestBeforeDate:
+                                this.IsRuleEnabled_Recognize_Code_128_AI17_ExpiryDate_As_AI15_BestBeforeDate = enabled;
+                                this.RuleDescription_Recognize_Code_128_AI17_ExpiryDate_As_AI15_BestBeforeDate = description;
+                                break;
+
+                            case SysCommon.BarCodeRules.Parse_Code_128_AI01_Nossack_AI21_SkidNumber_BoxCount:
+                                this.IsRuleEnabled_Parse_Code_128_AI01_Nossack_AI21_SkidNumber_BoxCount = enabled;
+                                this.RuleDescription_Parse_Code_128_AI01_Nossack_AI21_SkidNumber_BoxCount = description;
+                                break;
+
+                            case SysCommon.BarCodeRules.ProductBarCodeMinimumLength4Digits:
+                                this.IsRuleEnabled_ProductBarCodeMinimumLengthRequirement4Digits = enabled;
+                                this.RuleDescription_ProductBarCodeMinimumLengthRequirement4Digits = description;
+                                break;
+
+                            case SysCommon.BarCodeRules.Parse_UCC_12_UPC_E_as_Deli_PLU:
+                                this.IsRuleEnabled_Parse_UCC_12_UPC_E_as_Deli_PLU = enabled;
+                                this.RuleDescription_Parse_UCC_12_UPC_E_Deli_PLU_Enabled = description;
+                                break;
+
+                            case SysCommon.BarCodeRules.Parse_Code128_OvationFielding_Lamb:
+                                this.IsRuleEnabled_Parse_Code128_OvationFielding_Lamb = enabled;
+                                this.RuleDescription_Parse_Code128_OvationFielding_Lamb = description;
+                                break;
+
+                            case SysCommon.BarCodeRules.Parse_Code128_China_Seafood:
+                                this.IsRuleEnabled_Parse_Code128_China_Seafood = enabled;
+                                this.RuleDescription_Parse_Code128_China_Seafood = description;
+                                break;
+
+                            case SysCommon.BarCodeRules.Parse_Code_128_AI01_BC_AI30_exclusive:
+                                this.IsRuleEnabled_Parse_Code_128_AI01_BC_AI30_exclusive = enabled;
+                                this.RuleDescription_Parse_Code_128_AI01_BC_AI30_exclusive = description;
+                                break;
+
+                            case SysCommon.BarCodeRules.ParseRenees_Code_128_RemoveSpaces:
+                                this.IsRuleEnabled_Parse_Renees_Code_128_RemoveSpaces = enabled;
+                                this.RuleDescription_Parse_Renees_Code_128_RemoveSpaces = description;
+                                break;
+
+                            case SysCommon.BarCodeRules.ParseLanzMeats_Code_128_AI10_as_AI21:
+                                this.IsRuleEnabled_Parse_LanzMeats_Code_128_AI10_as_AI21 = enabled;
+                                this.RuleDescription_Parse_LanzMeats_Code_128_AI10_as_AI21 = description;
+                                break;
+
+                            case SysCommon.BarCodeRules.HeritageGlobalLocationIdentifierSecondPassIgnoreCheckDigit:
+                                this.IsRuleEnabled_HeritageGlobalLocationIdentifierSecondPassIgnoreCheckDigit = enabled;
+                                this.RuleDescription_HeritageGlobalLocationIdentifierSecondPassIgnoreCheckDigit = description;
+                                break;
+
+                            case SysCommon.BarCodeRules.ParseNossackBrokerMultiNationalProductFromChili:
+                                this.IsRuleEnabled_ParseNossackBrokerMultiNationalProductFromChili = enabled;
+                                this.RuleDescription_ParseNossackBrokerMultiNationalProductFromChili = description;
+                                break;
+
+                            case SysCommon.BarCodeRules.ParseUCC_13asUPC_12_UPC_E:
+                                this.IsRuleEnabled_Parse_UCC_13_as_UPC_12_UPC_E = enabled;
+                                this.RuleDescription_Parse_UCC_13_as_UPC_12_UPC_E_Enabled = description;
+                                break;
+
+                            case SysCommon.BarCodeRules.Parse_HelaSpiceCanada_Code_128:
+                                this.IsRuleEnabled_Parse_HelaSpiceCanada_Code_128 = enabled;
+                                this.RuleDescription_Parse_HelaSpiceCanada_Code_128 = description;
+                                break;
+
+                            case SysCommon.BarCodeRules.NebraskaBeef_Parse_Lot_as_Serial_Code_128:
+                                this.isRuleEnabled_NebraskaBeef_Parse_Lot_as_Serial_Code_128 = enabled;
+                                this.RuleDescription_NebraskaBeef_Parse_Lot_as_Serial_Code_128 = description;
+                                break;
+
+                            case SysCommon.BarCodeRules.ParseNorthernCoop_AustraliaBeefTrim_Product25612:
+                                this.IsRuleEnabled_ParseNorthernCoop_AustraliaBeefTrim_Product25612 = enabled;
+                                this.RuleDescription_ParseNorthernCoop_AustraliaBeefTrim_Product25612 = description;
+                                break;
+
+                            case SysCommon.BarCodeRules.ParseSumwaFarmFedWholeDuck_UseWeightRangeToIDProduct:
+                                this.IsRuleEnabled_ParseSumwaFarmFedWholeDuck_UseWeightRangeToIDProduct = enabled;
+                                this.RuleDescription_ParseSumwaFarmFedWholeDuck_UseWeightRangeToIDProduct = description;
+                                break;
+
+                            case SysCommon.BarCodeRules.ParseEAN_UCC128_NossackProduct94600_ChileanBackRibs:
+                                this.IsRuleEnabled_ParseEAN_UCC128_NossackProduct94600_ChileanBackRibs = enabled;
+                                this.RuleDescription_ParseEAN_UCC128_NossackProduct94600_ChileanBackRibs = description;
+                                break;
+
+                            case SysCommon.BarCodeRules.ParseEAN_UCC128_NossackProduct51134_FrozenPorkCollarRemoveAI00:
+                                this.IsRuleEnabled_ParseEAN_UCC128_NossackProduct51134_FrozenPorkCollarRemoveAI00 = enabled;
+                                this.RuleDescription_ParseEAN_UCC128_NossackProduct51134_FrozenPorkCollarRemoveAI00 = description;
+                                break;
+
+                            case SysCommon.BarCodeRules.ParseEAN_UCC128_SuppressAllParseErrorsForNonTrackedComponents:
+                                this.IsRuleEnabled_ParseEAN_UCC128_SuppressAllParseErrorsForNonTrackedComponents = enabled;
+                                this.RuleDescription_ParseEAN_UCC128_SuppressAllParseErrorsForNonTrackedComponents = description;
+                                break;
+
+                            case SysCommon.BarCodeRules.ParseEAN_UCC128_Nossack_GreenleaPremierMeats:
+                                this.IsRuleEnabled_ParseEAN_UCC128_Nossack_GreenleaPremierMeats = enabled;
+                                this.RuleDescription_ParseEAN_UCC128_Nossack_GreenleaPremierMeats = description;
+                                break;
+
+                            case SysCommon.BarCodeRules.ParseEAN_UCC128_Dovre_KiiNaturalsCrisps:
+                                this.IsRuleEnabled_ParseEAN_UCC128_Dovre_KiiNaturalsCrisps = enabled;
+                                this.RuleDescription_ParseEAN_UCC128_Dovre_KiiNaturalsCrisps = description;
+                                break;
+
+                            case SysCommon.BarCodeRules.Parse_Code128_CleanSubstituteCharacter:
+                                this.IsRuleEnabled_Parse_Code128_CleanSubstituteCharacter = enabled;
+                                this.RuleDescription_Parse_Code128_CleanSubstituteCharacter = description;
+                                break;
+
+                            case SysCommon.BarCodeRules.Parse_UCC_12_UPC_E_as_Deli_PLU_4_Digit_Amount_Enabled:
+                                this.IsRuleEnabled_Parse_UCC_12_UPC_E_as_Deli_PLU_4_Digit_Amount = enabled;
+                                this.RuleDescription_Parse_UCC_12_UPC_E_as_Deli_PLU_4_Digit_Amount_Enabled = description;
+                                break;
+
+                            case SysCommon.BarCodeRules.ParseEAN_UCC128_BourvyExports_ProductionDate:
+                                this.IsRuleEnabled_ParseEAN_UCC128_BourvyExports_ProductionDate = enabled;
+                                this.RuleDescription_ParseEAN_UCC128_BourvyExports_ProductionDate = description;
+                                break;
+
+                            default:
+                                throw new NotImplementedException("Bar code rule setting not defined.");
                         }
 
-                        var progValue = 0;
+                        progValue++;
                         if (this.OnBarCodeSettingsProgressOut != null)
                         {
-                            msgEventArg.CurrentValue = 0;
+                            msgEventArg.CurrentValue = progValue;
                             msgEventArg.MinValue = 0;
                             msgEventArg.MaxValue = progMax;
                             this.OnBarCodeSettingsProgressOut(this, msgEventArg);
                         }
+                    } // foreach bar code rule
 
-                        foreach (DataRow drow in ds.Tables["tBarCodeSettings"].Rows)
-                        {
-                            var rule = (SysCommon.BarCodeRules)Convert.ToInt32(drow["BarCodeSettingsRuleFKRefno"]);
-                            var enabled = Convert.ToBoolean(drow["BarCodeSettingsRuleEnabled"]);
-                            var description = Convert.ToString(drow["BarCodeSettingsRuleDescription"]);
-                            switch (rule)
-                            {
-                                case SysCommon.BarCodeRules.ParseCode_128AsUCC_EAN_128_SymbolCompliant:
-                                    this.IsRuleEnabled_ParseCode_128AsUCC_EAN_128_SymbolCompliant = enabled;
-                                    this.RuleDescription_ParseCode_128AsUCC_EAN_128_SymbolCompliant = description;
-                                    break;
-
-                                case SysCommon.BarCodeRules.ParseFINICA_Code_128_as_EAN_UCC_128:
-                                    this.IsRuleEnabled_ParseFINICA_Code_128_as_EAN_UCC_128 = enabled;
-                                    this.RuleDescription_ParseFINICA_Code_128_as_EAN_UCC_128 = description;
-                                    break;
-
-                                case SysCommon.BarCodeRules.NoCheckDigitInGlobalLocationNumber:
-                                    this.IsRuleEnabled_NoCheckDigitInGlobalLocationNumber = enabled;
-                                    this.RuleDescription_NoCheckDigitInGlobalLocationNumber = description;
-                                    break;
-
-                                case SysCommon.BarCodeRules.NoZeroPaddingOfProductIdentifierForUCC_EAN_Family:
-                                    this.IsRuleEnabled_NoZeroPaddingOfProductIdentifierForUCC_EAN_Family = enabled;
-                                    this.RuleDescription_NoZeroPaddingOfProductIdentifierForUCC_EAN_Family = description;
-                                    break;
-
-                                case SysCommon.BarCodeRules.ParseWOOLWICH_Code_128_RemoveSpaces:
-                                    this.IsRuleEnabled_ParseWOOLWICH_Code_128_RemoveSpaces = enabled;
-                                    this.RuleDescription_ParseWOOLWICH_Code_128_RemoveSpaces = description;
-                                    break;
-
-                                case SysCommon.BarCodeRules.Recognize_Code_128_AI13_PackagingDate_As_AI11_ProductionDate:
-                                    this.IsRuleEnabled_Recognize_Code_128_AI13_PackagingDate_As_AI11_ProductionDate = enabled;
-                                    this.RuleDescription_Recognize_Code_128_AI13_PackagingDate_As_AI11_ProductionDate = description;
-                                    break;
-
-                                case SysCommon.BarCodeRules.Recognize_Code_128_AI17_ExpiryDate_As_AI15_BestBeforeDate:
-                                    this.IsRuleEnabled_Recognize_Code_128_AI17_ExpiryDate_As_AI15_BestBeforeDate = enabled;
-                                    this.RuleDescription_Recognize_Code_128_AI17_ExpiryDate_As_AI15_BestBeforeDate = description;
-                                    break;
-
-                                case SysCommon.BarCodeRules.Parse_Code_128_AI01_Nossack_AI21_SkidNumber_BoxCount:
-                                    this.IsRuleEnabled_Parse_Code_128_AI01_Nossack_AI21_SkidNumber_BoxCount = enabled;
-                                    this.RuleDescription_Parse_Code_128_AI01_Nossack_AI21_SkidNumber_BoxCount = description;
-                                    break;
-
-                                case SysCommon.BarCodeRules.ProductBarCodeMinimumLength4Digits:
-                                    this.IsRuleEnabled_ProductBarCodeMinimumLengthRequirement4Digits = enabled;
-                                    this.RuleDescription_ProductBarCodeMinimumLengthRequirement4Digits = description;
-                                    break;
-
-                                case SysCommon.BarCodeRules.Parse_UCC_12_UPC_E_as_Deli_PLU:
-                                    this.IsRuleEnabled_Parse_UCC_12_UPC_E_as_Deli_PLU = enabled;
-                                    this.RuleDescription_Parse_UCC_12_UPC_E_Deli_PLU_Enabled = description;
-                                    break;
-
-                                case SysCommon.BarCodeRules.Parse_Code128_OvationFielding_Lamb:
-                                    this.IsRuleEnabled_Parse_Code128_OvationFielding_Lamb = enabled;
-                                    this.RuleDescription_Parse_Code128_OvationFielding_Lamb = description;
-                                    break;
-
-                                case SysCommon.BarCodeRules.Parse_Code128_China_Seafood:
-                                    this.IsRuleEnabled_Parse_Code128_China_Seafood = enabled;
-                                    this.RuleDescription_Parse_Code128_China_Seafood = description;
-                                    break;
-
-                                case SysCommon.BarCodeRules.Parse_Code_128_AI01_BC_AI30_exclusive:
-                                    this.IsRuleEnabled_Parse_Code_128_AI01_BC_AI30_exclusive = enabled;
-                                    this.RuleDescription_Parse_Code_128_AI01_BC_AI30_exclusive = description;
-                                    break;
-
-                                case SysCommon.BarCodeRules.ParseRenees_Code_128_RemoveSpaces:
-                                    this.IsRuleEnabled_Parse_Renees_Code_128_RemoveSpaces = enabled;
-                                    this.RuleDescription_Parse_Renees_Code_128_RemoveSpaces = description;
-                                    break;
-
-                                case SysCommon.BarCodeRules.ParseLanzMeats_Code_128_AI10_as_AI21:
-                                    this.IsRuleEnabled_Parse_LanzMeats_Code_128_AI10_as_AI21 = enabled;
-                                    this.RuleDescription_Parse_LanzMeats_Code_128_AI10_as_AI21 = description;
-                                    break;
-
-                                case SysCommon.BarCodeRules.HeritageGlobalLocationIdentifierSecondPassIgnoreCheckDigit:
-                                    this.IsRuleEnabled_HeritageGlobalLocationIdentifierSecondPassIgnoreCheckDigit = enabled;
-                                    this.RuleDescription_HeritageGlobalLocationIdentifierSecondPassIgnoreCheckDigit = description;
-                                    break;
-
-                                case SysCommon.BarCodeRules.ParseNossackBrokerMultiNationalProductFromChili:
-                                    this.IsRuleEnabled_ParseNossackBrokerMultiNationalProductFromChili = enabled;
-                                    this.RuleDescription_ParseNossackBrokerMultiNationalProductFromChili = description;
-                                    break;
-
-                                case SysCommon.BarCodeRules.ParseUCC_13asUPC_12_UPC_E:
-                                    this.IsRuleEnabled_Parse_UCC_13_as_UPC_12_UPC_E = enabled;
-                                    this.RuleDescription_Parse_UCC_13_as_UPC_12_UPC_E_Enabled = description;
-                                    break;
-
-                                case SysCommon.BarCodeRules.Parse_HelaSpiceCanada_Code_128:
-                                    this.IsRuleEnabled_Parse_HelaSpiceCanada_Code_128 = enabled;
-                                    this.RuleDescription_Parse_HelaSpiceCanada_Code_128 = description;
-                                    break;
-
-                                case SysCommon.BarCodeRules.NebraskaBeef_Parse_Lot_as_Serial_Code_128:
-                                    this.isRuleEnabled_NebraskaBeef_Parse_Lot_as_Serial_Code_128 = enabled;
-                                    this.RuleDescription_NebraskaBeef_Parse_Lot_as_Serial_Code_128 = description;
-                                    break;
-
-                                case SysCommon.BarCodeRules.ParseNorthernCoop_AustraliaBeefTrim_Product25612:
-                                    this.IsRuleEnabled_ParseNorthernCoop_AustraliaBeefTrim_Product25612 = enabled;
-                                    this.RuleDescription_ParseNorthernCoop_AustraliaBeefTrim_Product25612 = description;
-                                    break;
-
-                                case SysCommon.BarCodeRules.ParseSumwaFarmFedWholeDuck_UseWeightRangeToIDProduct:
-                                    this.IsRuleEnabled_ParseSumwaFarmFedWholeDuck_UseWeightRangeToIDProduct = enabled;
-                                    this.RuleDescription_ParseSumwaFarmFedWholeDuck_UseWeightRangeToIDProduct = description;
-                                    break;
-
-                                case SysCommon.BarCodeRules.ParseEAN_UCC128_NossackProduct94600_ChileanBackRibs:
-                                    this.IsRuleEnabled_ParseEAN_UCC128_NossackProduct94600_ChileanBackRibs = enabled;
-                                    this.RuleDescription_ParseEAN_UCC128_NossackProduct94600_ChileanBackRibs = description;
-                                    break;
-
-                                case SysCommon.BarCodeRules.ParseEAN_UCC128_NossackProduct51134_FrozenPorkCollarRemoveAI00:
-                                    this.IsRuleEnabled_ParseEAN_UCC128_NossackProduct51134_FrozenPorkCollarRemoveAI00 = enabled;
-                                    this.RuleDescription_ParseEAN_UCC128_NossackProduct51134_FrozenPorkCollarRemoveAI00 = description;
-                                    break;
-
-                                case SysCommon.BarCodeRules.ParseEAN_UCC128_SuppressAllParseErrorsForNonTrackedComponents:
-                                    this.IsRuleEnabled_ParseEAN_UCC128_SuppressAllParseErrorsForNonTrackedComponents = enabled;
-                                    this.RuleDescription_ParseEAN_UCC128_SuppressAllParseErrorsForNonTrackedComponents = description;
-                                    break;
-
-                                case SysCommon.BarCodeRules.ParseEAN_UCC128_Nossack_GreenleaPremierMeats:
-                                    this.IsRuleEnabled_ParseEAN_UCC128_Nossack_GreenleaPremierMeats = enabled;
-                                    this.RuleDescription_ParseEAN_UCC128_Nossack_GreenleaPremierMeats = description;
-                                    break;
-
-                                case SysCommon.BarCodeRules.ParseEAN_UCC128_Dovre_KiiNaturalsCrisps:
-                                    this.IsRuleEnabled_ParseEAN_UCC128_Dovre_KiiNaturalsCrisps = enabled;
-                                    this.RuleDescription_ParseEAN_UCC128_Dovre_KiiNaturalsCrisps = description;
-                                    break;
-
-                                case SysCommon.BarCodeRules.Parse_Code128_CleanSubstituteCharacter:
-                                    this.IsRuleEnabled_Parse_Code128_CleanSubstituteCharacter = enabled;
-                                    this.RuleDescription_Parse_Code128_CleanSubstituteCharacter = description;
-                                    break;
-
-                                case SysCommon.BarCodeRules.Parse_UCC_12_UPC_E_as_Deli_PLU_4_Digit_Amount_Enabled:
-                                    this.IsRuleEnabled_Parse_UCC_12_UPC_E_as_Deli_PLU_4_Digit_Amount = enabled;
-                                    this.RuleDescription_Parse_UCC_12_UPC_E_as_Deli_PLU_4_Digit_Amount_Enabled = description;
-                                    break;
-
-                                case SysCommon.BarCodeRules.ParseEAN_UCC128_BourvyExports_ProductionDate:
-                                    this.IsRuleEnabled_ParseEAN_UCC128_BourvyExports_ProductionDate = enabled;
-                                    this.RuleDescription_ParseEAN_UCC128_BourvyExports_ProductionDate = description;
-                                    break;
-
-                                default:
-                                    throw new NotImplementedException("Bar code rule setting not defined.");
-                            }
-
-                            progValue++;
-                            if (this.OnBarCodeSettingsProgressOut != null)
-                            {
-                                msgEventArg.CurrentValue = progValue;
-                                msgEventArg.MinValue = 0;
-                                msgEventArg.MaxValue = progMax;
-                                this.OnBarCodeSettingsProgressOut(this, msgEventArg);
-                            }
-                        } // foreach bar code rule
-
-                        if (this.OnBarCodeSettingsProgressOut != null)
-                        {
-                            msgEventArg.CurrentValue = progMax;
-                            msgEventArg.MinValue = 0;
-                            msgEventArg.MaxValue = progMax;
-                            this.OnBarCodeSettingsProgressOut(this, msgEventArg);
-                        }
-                    }
-
-                    if (this.OnBarCodeSettingsStatusOut != null)
+                    if (this.OnBarCodeSettingsProgressOut != null)
                     {
-                        msgEventArg.StatusOutMsg = "Saving bar code settings complete.";
-                        this.OnBarCodeSettingsStatusOut(this, msgEventArg);
+                        msgEventArg.CurrentValue = progMax;
+                        msgEventArg.MinValue = 0;
+                        msgEventArg.MaxValue = progMax;
+                        this.OnBarCodeSettingsProgressOut(this, msgEventArg);
                     }
+                }
+
+                if (this.OnBarCodeSettingsStatusOut != null)
+                {
+                    msgEventArg.StatusOutMsg = "Saving bar code settings complete.";
+                    this.OnBarCodeSettingsStatusOut(this, msgEventArg);
                 }
             }
             catch (Exception ex)

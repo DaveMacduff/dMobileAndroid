@@ -988,15 +988,9 @@ namespace dMobile.View.Activity
             this.ExtraInfoItems.Add("Product: " + this.ActDetail.ActItem.ProdInfo.Code +
                 this.ActDetail.ActItem.ProdInfo.UnitBC + "  " +
                 this.ActDetail.ActItem.ProdInfo.Desc);
-            this.ExtraInfoItems.Add(string.Format(
-                "Production Date: {0}",
-                this.ActDetail.SchemeData.LogisticUnitProductionDate));
-            this.ExtraInfoItems.Add(string.Format(
-                "Quantity {0} {1} @ {2} {3}",
-                this.ActDetail.Quantity,
-                skid.ProdInfo.UnitCode,
-                this.ActDetail.WeightQuantity,
-                skid.ProdInfo.WeightUnitCode));
+            this.ExtraInfoItems.Add($"Production Date: {this.ActDetail.SchemeData.LogisticUnitProductionDate}");
+            this.ExtraInfoItems.Add(
+                $"Quantity {this.ActDetail.Quantity} {skid.ProdInfo.UnitCode} @ {this.ActDetail.WeightQuantity} {skid.ProdInfo.WeightUnitCode}");
             this.ExtraInfoItems.Add("SIZE: " + this.ActDetail.ActItem.ProdInfo.UnitSizeDesc);
         }
 

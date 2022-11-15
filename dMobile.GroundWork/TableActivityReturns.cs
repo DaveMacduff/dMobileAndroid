@@ -96,7 +96,7 @@ namespace dMobile.GroundWork
             {
                 rowsAffected = Convert.ToInt32(await DatabaseConnection.GetInstance().SQLConn.ExecuteScalarAsync<int>("SELECT COUNT(ActivityRefno) FROM tActivity WHERE ActivitySubType = ?", Convert.ToInt32(SysCommon.ActSubTypes.Returns)));
 
-                this.DataAccessStatusOutHandler(this, EventArgs.Empty, string.Format("{0} sales returns.", rowsAffected), true);
+                this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"{rowsAffected} sales returns.", true);
             }
             catch (SQLiteException ex)
             {
@@ -130,7 +130,7 @@ namespace dMobile.GroundWork
                         {
                             var progMax = Convert.ToInt32(ds.Tables["tActivityReturns"].Rows.Count);
 
-                            this.DataAccessStatusOutHandler(this, EventArgs.Empty, string.Format("Records {0}", progMax), false);
+                            this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"Records {progMax}", false);
 
                             var actRefno = 0;
                             var progValue = 0;

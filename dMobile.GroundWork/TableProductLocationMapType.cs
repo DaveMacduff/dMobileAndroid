@@ -53,7 +53,7 @@ namespace dMobile.GroundWork
                         whsLocMapName = locationMapWarehouse.LocationMapWarehouseName;
                         whsLocMapRefno = locationMapWarehouse.LocationMapRefno;
 
-                        this.DataAccessStatusOutHandler(this, EventArgs.Empty, string.Format("For whs \'{0}\'.", whsLocMapName), true);
+                        this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"For whs \'{whsLocMapName}\'.", true);
 
                         this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Default picking locations.", true);
 
@@ -134,7 +134,7 @@ namespace dMobile.GroundWork
             {
                 rowsAffected = Convert.ToInt32(await DatabaseConnection.GetInstance().SQLConn.ExecuteScalarAsync<int>("SELECT COUNT(*) FROM tProductLocationMapType"));
 
-                this.DataAccessStatusOutHandler(this, EventArgs.Empty, string.Format("{0} product locations.", rowsAffected), true);
+                this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"{rowsAffected} product locations.", true);
             }
             catch (SQLiteException ex)
             {
@@ -214,7 +214,7 @@ namespace dMobile.GroundWork
                         {
                             var progMax = Convert.ToInt32(ds.Tables["seg"].Rows.Count);
 
-                            this.DataAccessStatusOutHandler(this, EventArgs.Empty, string.Format("Records {0}", progMax), false);
+                            this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"Records {progMax}", false);
 
                             var progValue = 0;
                             var isLocMapTypeFound = false;
@@ -262,7 +262,7 @@ namespace dMobile.GroundWork
 
                                     default:
 
-                                        throw new Exception(string.Format("Undefined location map subtype {0}", locMapSubType));
+                                        throw new Exception($"Undefined location map subtype {locMapSubType}");
                                 }
 
                                 // prodLocMapType = Picking, Receiving, Floor.
@@ -316,7 +316,7 @@ namespace dMobile.GroundWork
 
                                     default:
 
-                                        throw new Exception(string.Format("Undefined location map subtype {0}", locMapSubType));
+                                        throw new Exception($"Undefined location map subtype {locMapSubType}");
                                 }
 
                                 isLocMapTypeFound = false;
@@ -420,7 +420,7 @@ namespace dMobile.GroundWork
                 {
                     this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Reading received data.", false);
 
-                    var startIndex = reqData.IndexOf("<VFPData");
+                    var startIndex = reqData.IndexOf("<VFPData", StringComparison.Ordinal);
                     var sett = new XmlReaderSettings();
                     sett.CheckCharacters = false;
                     sett.CloseInput = false;
@@ -441,12 +441,16 @@ namespace dMobile.GroundWork
 
                         var prodRefno = 0;
                         var locMapRefno = 0;
+
                         // f01
                         var locMapFKRefno = 0;
+
                         // f02
                         var locMapSubType = 0;
+
                         // f03
                         var prodLocMapType = 0;
+
                         // f04
                         var prodFKRefno = 0;
                         var currProdLocMapRefno = 0;
@@ -534,7 +538,7 @@ namespace dMobile.GroundWork
 
                                 default:
 
-                                    throw new Exception(string.Format("Undefined location map subtype {0}", locMapSubType));
+                                    throw new Exception($"Undefined location map subtype {locMapSubType}");
                             }
 
                             // prodLocMapType = Picking, Receiving, Floor.
@@ -598,7 +602,7 @@ namespace dMobile.GroundWork
                                     break;
 
                                 default:
-                                    throw new Exception(string.Format("Undefined location map subtype {0}", locMapSubType));
+                                    throw new Exception($"Undefined location map subtype {locMapSubType}");
                             }
 
                             isLocMapTypeFound = false;
@@ -638,7 +642,7 @@ namespace dMobile.GroundWork
 
                         this.DataAccessProgressOutHandler(this, EventArgs.Empty, 100, 0, 100);
 
-                        this.DataAccessStatusOutHandler(this, EventArgs.Empty, string.Format("Records {0}", recordCount), false);
+                        this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"Records {recordCount}", false);
 
                         warehouseLookup = null;
                         sectionLookup = null;

@@ -247,6 +247,7 @@ namespace dMobile.View.Activity
                     // DisplayData();
                     // this.LoadData();
                     cancelChanges = false;
+
                     // this.IsChangesMade = false;
                 }
             }

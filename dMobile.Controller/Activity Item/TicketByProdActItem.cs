@@ -272,7 +272,7 @@ namespace dMobile.Controller.Activity_Item
         /// <returns>.</returns>
         public override string GetUnableToParseItemFkRefnoMessage(string actItemStringFkRefno)
         {
-            return string.Format("Unable to parse production item# {0}", actItemStringFkRefno);
+            return $"Unable to parse production item# {actItemStringFkRefno}";
         }
 
         /// <summary>
@@ -282,7 +282,7 @@ namespace dMobile.Controller.Activity_Item
         /// <returns>.</returns>
         public override string GetUnableToFindItemFkRefnoMessage(string actItemStringFkRefno)
         {
-            return string.Format("Unable to find production item# {0}", actItemStringFkRefno);
+            return $"Unable to find production item# {actItemStringFkRefno}";
         }
 
         /// <summary>
@@ -543,8 +543,10 @@ namespace dMobile.Controller.Activity_Item
                 var detailWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(Convert.ToString(productionTicketByProductItem.ProductCode));
                 var detailWidth1 = DependencyService.Get<IGridService>().CalculateTextWidth(productionTicketByProductItem.ProductUnitBC);
                 var detailWidth2 = DependencyService.Get<IGridService>().CalculateTextWidth(productionTicketByProductItem.BaseUnitCode);
-                var detailWidth3 = DependencyService.Get<IGridService>().CalculateTextWidth(string.Format("{0:F3}", productionTicketByProductItem.ActivityItemProductionQuantity));
-                var detailWidth4 = DependencyService.Get<IGridService>().CalculateTextWidth(string.Format("{0:F3}", productionTicketByProductItem.ActivityItemProductionWeightQuantity));
+                var detailWidth3 = DependencyService.Get<IGridService>().CalculateTextWidth(
+                    $"{productionTicketByProductItem.ActivityItemProductionQuantity:F3}");
+                var detailWidth4 = DependencyService.Get<IGridService>().CalculateTextWidth(
+                    $"{productionTicketByProductItem.ActivityItemProductionWeightQuantity:F3}");
 
                 if (detailWidth0 > this.columnWidth0)
                 {
@@ -742,6 +744,7 @@ namespace dMobile.Controller.Activity_Item
             // if (string.IsNullOrEmpty(this.ActItemFilter))
             // {
             this.ListItems = this.listProductionTicketByProductItems.Where(prodTicketByProdItem => prodTicketByProdItem.ProductCode.ToString().ToLower().Contains(searchText.ToLower().Trim())).Cast<object>().ToList();
+
             // }
             // else
             // {
@@ -996,7 +999,7 @@ namespace dMobile.Controller.Activity_Item
         /// <returns><see cref="string"/> Get activity item control description.</returns>
         public override string GetControlDescription()
         {
-            return string.Format("Production ticket # {0}", this.ActHdr.HdrFkRefno);
+            return $"Production ticket # {this.ActHdr.HdrFkRefno}";
         }
 
         /// <summary>

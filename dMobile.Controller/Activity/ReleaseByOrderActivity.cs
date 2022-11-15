@@ -134,7 +134,8 @@ namespace dMobile.Controller.Activity
             if (this.SysEnv.SysSettings.IsRelByOrder && !this.SysEnv.SysSettings.IsDisconnectedMode)
             {
                 // if (MessageBox.Show(string.Format("Release Order# {0} To Invoice Status?", this.FKRefno), "Release Order", MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button2) == DialogResult.Yes)
-                if (await Device.InvokeOnMainThreadAsync(async () => await Application.Current.MainPage.DisplayAlert("Release Order", string.Format("Release Order# {0} To Invoice Status?", this.HdrFkRefno), "Yes", "No")))
+                if (await Device.InvokeOnMainThreadAsync(async () => await Application.Current.MainPage.DisplayAlert("Release Order",
+                        $"Release Order# {this.HdrFkRefno} To Invoice Status?", "Yes", "No")))
                 {
                     // GC.Collect();
                     // GC.WaitForPendingFinalizers();
@@ -171,7 +172,7 @@ namespace dMobile.Controller.Activity
                     }
                     else
                     {
-                        throw new Exception(string.Format("Release order # {0} to invoice status failed.", this.HdrFkRefno));
+                        throw new Exception($"Release order # {this.HdrFkRefno} to invoice status failed.");
                     }
 
                     isResult = true;
@@ -467,6 +468,7 @@ namespace dMobile.Controller.Activity
             // {
             // this.DataViewHdrs.RowFilter = "ActivityStringFKRefno LIKE \'%" + searchText.Trim() + "%\'";
             this.ListHdrs = this.listPicking.Where(picking => picking.ActivityStringFKRefno.ToLower().Contains(searchText.ToLower().Trim())).Cast<object>().ToList();
+
             // }
             // else
             // {
@@ -611,11 +613,11 @@ namespace dMobile.Controller.Activity
                 {
                     if (string.IsNullOrEmpty(filter))
                     {
-                        filter += string.Format("RouteCode = \'{0}\'", pickingSettings.strRouteCodeSelectedValue);
+                        filter += $"RouteCode = \'{pickingSettings.strRouteCodeSelectedValue}\'";
                     }
                     else
                     {
-                        filter += string.Format(" AND RouteCode = \'{0}\'", pickingSettings.strRouteCodeSelectedValue);
+                        filter += $" AND RouteCode = \'{pickingSettings.strRouteCodeSelectedValue}\'";
                     }
                 }
             }

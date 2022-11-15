@@ -568,7 +568,7 @@ namespace dMobile.Controller.Activity_Detail
         public bool IsSchemeComplete(ActItem actItem)
         {
             var isComplete = !(actItem.ProdInfo.Scheme.IsBestBeforeDateTracked &&
-                                SysCommon.IsEmptyDateTime(this.SchemeData.LogisticUnitBestBeforeSellByDate));
+                               SysCommon.IsEmptyDateTime(this.SchemeData.LogisticUnitBestBeforeSellByDate));
 
             if (actItem.ProdInfo.Scheme.IsLotTracked &&
                 string.IsNullOrEmpty(this.SchemeData.LogisticUnitBatchLotNumber))
@@ -613,7 +613,7 @@ namespace dMobile.Controller.Activity_Detail
         public bool IsLabelSchemeComplete(ProductSchemeData schemeData)
         {
             var isComplete = !(this.ActItem.ProdInfo.Scheme.LabelInfo.IsBestBeforeDateTracked &&
-                                SysCommon.IsEmptyDateTime(schemeData.LogisticUnitBestBeforeSellByDate));
+                               SysCommon.IsEmptyDateTime(schemeData.LogisticUnitBestBeforeSellByDate));
 
             if (this.ActItem.ProdInfo.Scheme.LabelInfo.IsLotTracked &&
                 string.IsNullOrEmpty(schemeData.LogisticUnitBatchLotNumber))

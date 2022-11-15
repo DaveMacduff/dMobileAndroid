@@ -43,7 +43,7 @@ namespace dMobile.GroundWork
             var build = System.Reflection.Assembly.GetExecutingAssembly().GetName().Version.Build;
             var revision = System.Reflection.Assembly.GetExecutingAssembly().GetName().Version.Revision;
 
-            return string.Format("{0}.{1}.{2}.{3}", major, minor, build, revision);
+            return $"{major}.{minor}.{build}.{revision}";
         }
     }
 }

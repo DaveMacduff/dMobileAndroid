@@ -561,6 +561,7 @@ namespace dMobile.View.Activity
                     // DisplayData();
                     // this.LoadData();
                     cancelChanges = false;
+
                     // this.IsChangesMade = false;
                 }
             }
@@ -615,10 +616,8 @@ namespace dMobile.View.Activity
                 // TODO: Test selected listItem value is correct
                 await Device.InvokeOnMainThreadAsync(() =>
                 {
-                    this.lblFullUnitInfo.Text = string.Format("Qty {0} {1} @ {2} {3}", (this.ActItem.ListItems[0] as dynamic).ActivityDetailQuantity,
-                                                fromProdInfo.UnitCode,
-                                                Math.Round(Convert.ToDecimal((this.ActItem.ListItems[0] as dynamic).ActivityDetailQuantity), 3),
-                                                fromProdInfo.WeightUnitCode);
+                    this.lblFullUnitInfo.Text =
+                        $"Qty {(this.ActItem.ListItems[0] as dynamic).ActivityDetailQuantity} {fromProdInfo.UnitCode} @ {Math.Round(Convert.ToDecimal((this.ActItem.ListItems[0] as dynamic).ActivityDetailQuantity), 3)} {fromProdInfo.WeightUnitCode}";
                 });
             }
             else
@@ -816,7 +815,8 @@ namespace dMobile.View.Activity
                 }
 
                 var toProdInfo = await ProductInfoTasks.GetInfoFromUnitRefno(this.ToProdUnitRefno);
-                _ = await Device.InvokeOnMainThreadAsync(() => this.lblConvertedUnitInfo.Text = string.Format("Qty {0} {1} @ {2} {3}", Math.Round(qty, 3), toProdInfo.UnitCode, Math.Round(wtQty, 3), toProdInfo.WeightUnitCode));
+                _ = await Device.InvokeOnMainThreadAsync(() => this.lblConvertedUnitInfo.Text =
+                    $"Qty {Math.Round(qty, 3)} {toProdInfo.UnitCode} @ {Math.Round(wtQty, 3)} {toProdInfo.WeightUnitCode}");
             }
             else
             {
@@ -1221,11 +1221,8 @@ namespace dMobile.View.Activity
 
                 await Device.InvokeOnMainThreadAsync(() =>
                 {
-                    this.cmdSelectToUnit.Text = string.Format("{0} {1}\'S ({2} per {3})",
-                        this.ActItem.ProdInfo.UnitBC,
-                        this.ActItem.ProdInfo.UnitCode,
-                        Math.Round(this.ActDetail.Quantity, 3),
-                        Convert.ToString((this.ActItem.ListItems[0] as dynamic).UnitCode));
+                    this.cmdSelectToUnit.Text =
+                        $"{this.ActItem.ProdInfo.UnitBC} {this.ActItem.ProdInfo.UnitCode}\'S ({Math.Round(this.ActDetail.Quantity, 3)} per {Convert.ToString((this.ActItem.ListItems[0] as dynamic).UnitCode)})";
                 });
 
                 var xmlDoc = await form.GetXML();

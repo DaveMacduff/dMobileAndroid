@@ -32,6 +32,7 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
             {
                 barCodeData = barCodeData.Remove(0, 1);
             }
+
             // end parse GTIN
             this.Remainder = barCodeData;
         }

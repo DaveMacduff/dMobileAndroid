@@ -380,7 +380,7 @@ namespace dMobile.Controller.Activity_Item
         /// <returns>.</returns>
         public override string GetUnableToParseItemFkRefnoMessage(string actItemStringFkRefno)
         {
-            return string.Format("Unable to parse purchase order item# {0}", actItemStringFkRefno);
+            return $"Unable to parse purchase order item# {actItemStringFkRefno}";
         }
 
         /// <summary>
@@ -390,7 +390,7 @@ namespace dMobile.Controller.Activity_Item
         /// <returns>.</returns>
         public override string GetUnableToFindItemFkRefnoMessage(string actItemStringFkRefno)
         {
-            return string.Format("Unable to find purchase order item# {0}", actItemStringFkRefno);
+            return $"Unable to find purchase order item# {actItemStringFkRefno}";
         }
 
         /// <summary>
@@ -538,8 +538,10 @@ namespace dMobile.Controller.Activity_Item
                 var detailWidth1 = DependencyService.Get<IGridService>().CalculateTextWidth(receiveItem.ProductCode);
                 var detailWidth2 = DependencyService.Get<IGridService>().CalculateTextWidth(receiveItem.ProductUnitBC);
                 var detailWidth3 = DependencyService.Get<IGridService>().CalculateTextWidth(receiveItem.UnitCode);
-                var detailWidth4 = DependencyService.Get<IGridService>().CalculateTextWidth(string.Format("{0:F3}", receiveItem.ActivityItemReceivingQuantityOrdered));
-                var detailWidth5 = DependencyService.Get<IGridService>().CalculateTextWidth(string.Format("{0:F3}", receiveItem.ActivityItemReceivingQuantityReceived));
+                var detailWidth4 = DependencyService.Get<IGridService>().CalculateTextWidth(
+                    $"{receiveItem.ActivityItemReceivingQuantityOrdered:F3}");
+                var detailWidth5 = DependencyService.Get<IGridService>().CalculateTextWidth(
+                    $"{receiveItem.ActivityItemReceivingQuantityReceived:F3}");
 
                 if (detailWidth0 > this.columnWidth0)
                 {
@@ -1013,7 +1015,7 @@ namespace dMobile.Controller.Activity_Item
                         + "FROM tActivityItem "
                         + "INNER JOIN tActivityItemReceiving ON tActivityItemReceiving.ActivityItemRefno = "
                         + "tActivityItem.ActivityItemRefno "
-                        + string.Format("WHERE tActivityItem.ActivityRefno = {0}", this.ActHdr.HdrRefno);
+                        + $"WHERE tActivityItem.ActivityRefno = {this.ActHdr.HdrRefno}";
 
             var results = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<TotalQuantity>(query);
 
@@ -1024,7 +1026,7 @@ namespace dMobile.Controller.Activity_Item
                     // Because an aggregate sum function is used in a query. There will always be a result record.
                     // This causes problems detecting if there is a valid result.
                     // Converting Convert.ToDecimal(dr["Ordered"]) fails because there is not data. However to a string works.
-                    msg += string.Format("\r{0} / {1}", Convert.ToString(result.Ordered), Convert.ToString(result.Received));
+                    msg += $"\r{Convert.ToString(result.Ordered)} / {Convert.ToString(result.Received)}";
                 }
             }
 
@@ -1086,12 +1088,8 @@ namespace dMobile.Controller.Activity_Item
 
                 if (received + actItemRecvQuantity > ordered)
                 {
-                    throw new Exception(string.Format(
-                        "The resulting quantity received {0} {1} will be greater than the quantity ordered {2} {3}.",
-                        received + actItemRecvQuantity,
-                        this.ProdInfo.UnitCode,
-                        ordered,
-                        this.ProdInfo.UnitCode));
+                    throw new Exception(
+                        $"The resulting quantity received {received + actItemRecvQuantity} {this.ProdInfo.UnitCode} will be greater than the quantity ordered {ordered} {this.ProdInfo.UnitCode}.");
                 }
             }
         }
@@ -1113,7 +1111,7 @@ namespace dMobile.Controller.Activity_Item
         /// <returns><see cref="string"/> Get activity item control description.</returns>
         public override string GetControlDescription()
         {
-            return string.Format("Receive # {0}", this.ActHdr.HdrFkRefno);
+            return $"Receive # {this.ActHdr.HdrFkRefno}";
         }
 
         /// <summary>

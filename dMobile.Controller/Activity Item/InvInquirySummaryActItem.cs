@@ -426,14 +426,16 @@ namespace dMobile.Controller.Activity_Item
             {
                 var detailWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(activityItem.ProductCode);
                 var detailWidth1 = DependencyService.Get<IGridService>().CalculateTextWidth(activityItem.ProductUnitBC);
-                var detailWidth2 = DependencyService.Get<IGridService>().CalculateTextWidth(string.Format("{0:F3}", activityItem.ActivityItemQuantity));
+                var detailWidth2 = DependencyService.Get<IGridService>().CalculateTextWidth(
+                    $"{activityItem.ActivityItemQuantity:F3}");
                 var detailWidth3 = DependencyService.Get<IGridService>().CalculateTextWidth(activityItem.UnitCode);
                 var detailWidth4 = DependencyService.Get<IGridService>().CalculateTextWidth(activityItem.ActivityDetailLogisticUnitProductionDate);
                 var detailWidth5 = DependencyService.Get<IGridService>().CalculateTextWidth(activityItem.ActivityDetailLogisticUnitBestBeforeSellByDate);
                 var detailWidth6 = DependencyService.Get<IGridService>().CalculateTextWidth(activityItem.LocationMapSectionFKRefno);
                 var detailWidth7 = DependencyService.Get<IGridService>().CalculateTextWidth(activityItem.LocationMapSlotFKRefno);
                 var detailWidth8 = DependencyService.Get<IGridService>().CalculateTextWidth(activityItem.SkidCode);
-                var detailWidth9 = DependencyService.Get<IGridService>().CalculateTextWidth(string.Format("{0:F3}", activityItem.ActivityItemWeightQuantity));
+                var detailWidth9 = DependencyService.Get<IGridService>().CalculateTextWidth(
+                    $"{activityItem.ActivityItemWeightQuantity:F3}");
                 var detailWidth10 = DependencyService.Get<IGridService>().CalculateTextWidth(activityItem.WeightUnitCode);
 
                 if (detailWidth0 > this.columnWidth0)
@@ -593,7 +595,7 @@ namespace dMobile.Controller.Activity_Item
         /// <returns><see cref="Task{T}"/> Activity item foreign key reference number.</returns>
         public override async Task<int> AssignActivityItem(object activityItem)
         {
-            Task<int> itemFkRefno = Task.FromResult(0);
+            var itemFkRefno = Task.FromResult(0);
             this.SelectedActivityItem = activityItem;
             return await itemFkRefno;
         }

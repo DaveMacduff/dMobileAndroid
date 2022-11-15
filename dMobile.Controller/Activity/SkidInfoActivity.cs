@@ -458,10 +458,10 @@ namespace dMobile.Controller.Activity
                 var detailWidth1 = DependencyService.Get<IGridService>().CalculateTextWidth(skid.ProductCode);
                 var detailWidth2 = DependencyService.Get<IGridService>().CalculateTextWidth(skid.ProductUnitBC);
                 var detailWidth3 = DependencyService.Get<IGridService>().CalculateTextWidth(
-                    string.Format("{0:F3}", skid.Quantity));
+                    $"{skid.Quantity:F3}");
                 var detailWidth4 = DependencyService.Get<IGridService>().CalculateTextWidth(skid.UnitCode);
                 var detailWidth5 = DependencyService.Get<IGridService>().CalculateTextWidth(
-                    string.Format("{0:F3}", skid.WeightQuantity));
+                    $"{skid.WeightQuantity:F3}");
                 var detailWidth6 = DependencyService.Get<IGridService>().CalculateTextWidth(skid.WeightUnitCode);
                 var detailWidth7 = DependencyService.Get<IGridService>().CalculateTextWidth(skid.LocationName);
 

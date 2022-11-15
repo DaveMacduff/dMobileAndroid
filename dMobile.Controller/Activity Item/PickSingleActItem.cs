@@ -302,7 +302,7 @@ namespace dMobile.Controller.Activity_Item
                 }
                 else
                 {
-                    throw new Exception(string.Format("Order # {0} item request shipping label(s) quantity failed.", this.ItemFkRefno));
+                    throw new Exception($"Order # {this.ItemFkRefno} item request shipping label(s) quantity failed.");
                 }
             }
             catch (Exception ex)
@@ -552,7 +552,7 @@ namespace dMobile.Controller.Activity_Item
         /// <returns>.</returns>
         public override string GetUnableToParseItemFkRefnoMessage(string actItemStringFkRefno)
         {
-            return string.Format("Unable to parse sales order item # {0}", actItemStringFkRefno);
+            return $"Unable to parse sales order item # {actItemStringFkRefno}";
         }
 
         /// <summary>
@@ -562,7 +562,7 @@ namespace dMobile.Controller.Activity_Item
         /// <returns>.</returns>
         public override string GetUnableToFindItemFkRefnoMessage(string actItemStringFkRefno)
         {
-            return string.Format("Unable to find sales order item # {0}", actItemStringFkRefno);
+            return $"Unable to find sales order item # {actItemStringFkRefno}";
         }
 
         /// <summary>
@@ -720,9 +720,12 @@ namespace dMobile.Controller.Activity_Item
                 var detailWidth1 = DependencyService.Get<IGridService>().CalculateTextWidth(pickingItem.ProductCode);
                 var detailWidth2 = DependencyService.Get<IGridService>().CalculateTextWidth(pickingItem.ProductUnitBC);
                 var detailWidth3 = DependencyService.Get<IGridService>().CalculateTextWidth(pickingItem.UnitCode);
-                var detailWidth4 = DependencyService.Get<IGridService>().CalculateTextWidth(string.Format("{0:F3}", pickingItem.ActivityItemPickingQuantityOrdered));
-                var detailWidth5 = DependencyService.Get<IGridService>().CalculateTextWidth(string.Format("{0:F3}", pickingItem.ActivityItemPickingWeightQuantityShipped));
-                var detailWidth6 = DependencyService.Get<IGridService>().CalculateTextWidth(string.Format("{0:F3}", pickingItem.ActivityItemPickingQuantityAvailable));
+                var detailWidth4 = DependencyService.Get<IGridService>().CalculateTextWidth(
+                    $"{pickingItem.ActivityItemPickingQuantityOrdered:F3}");
+                var detailWidth5 = DependencyService.Get<IGridService>().CalculateTextWidth(
+                    $"{pickingItem.ActivityItemPickingWeightQuantityShipped:F3}");
+                var detailWidth6 = DependencyService.Get<IGridService>().CalculateTextWidth(
+                    $"{pickingItem.ActivityItemPickingQuantityAvailable:F3}");
 
                 if (detailWidth0 > this.columnWidth0)
                 {
@@ -956,6 +959,7 @@ namespace dMobile.Controller.Activity_Item
             // if (string.IsNullOrEmpty(this.ActItemFilter))
             // {
             this.ListItems = this.listPickingItems.Where(pickingItem => pickingItem.ProductCode.ToString().ToLower().Contains(searchText.ToLower().Trim())).Cast<object>().ToList();
+
             // }
             // else
             // {
@@ -1178,7 +1182,8 @@ namespace dMobile.Controller.Activity_Item
 
                 if (shipped + actItemPickQuantity > ordered)
                 {
-                    throw new Exception(string.Format("The resulting quantity shipped {0} {1} will be greater than the quantity ordered {2} {3}.", shipped + actItemPickQuantity, this.ProdInfo.UnitCode, ordered, this.ProdInfo.UnitCode));
+                    throw new Exception(
+                        $"The resulting quantity shipped {shipped + actItemPickQuantity} {this.ProdInfo.UnitCode} will be greater than the quantity ordered {ordered} {this.ProdInfo.UnitCode}.");
                 }
             }
         }
@@ -1200,7 +1205,7 @@ namespace dMobile.Controller.Activity_Item
         /// <returns><see cref="string"/> Get activity item control description.</returns>
         public override string GetControlDescription()
         {
-            return string.Format("Pick # {0}", this.ActHdr.HdrFkRefno);
+            return $"Pick # {this.ActHdr.HdrFkRefno}";
         }
 
         /// <summary>

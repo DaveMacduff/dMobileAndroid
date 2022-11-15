@@ -131,7 +131,7 @@ namespace dMobile.Bedrock
                 {
                     if (this.OnSysSocketStatusOut != null)
                     {
-                        sockEventArgs.StatusOutMsg = string.Format("IP address {0}", this.ServerIP);
+                        sockEventArgs.StatusOutMsg = $"IP address {this.ServerIP}";
                         this.OnSysSocketStatusOut(this, sockEventArgs);
                     }
 
@@ -141,7 +141,7 @@ namespace dMobile.Bedrock
 
                     if (this.OnSysSocketStatusOut != null)
                     {
-                        sockEventArgs.StatusOutMsg = string.Format("Connection attempt {0} port {1}.", attempt, port);
+                        sockEventArgs.StatusOutMsg = $"Connection attempt {attempt} port {port}.";
                         this.OnSysSocketStatusOut(this, sockEventArgs);
                     }
 
@@ -162,7 +162,7 @@ namespace dMobile.Bedrock
                     {
                         if (this.OnSysSocketStatusOut != null)
                         {
-                            sockEventArgs.StatusOutMsg = string.Format("Connection attempt failed on port {0}.", port);
+                            sockEventArgs.StatusOutMsg = $"Connection attempt failed on port {port}.";
                             this.OnSysSocketStatusOut(this, sockEventArgs);
                         }
 
@@ -235,7 +235,7 @@ namespace dMobile.Bedrock
 
                         if (this.OnSysSocketStatusOut != null)
                         {
-                            sockEventArgs.StatusOutMsg = string.Format("Code {0}.", ex.ErrorCode);
+                            sockEventArgs.StatusOutMsg = $"Code {ex.ErrorCode}.";
                             this.OnSysSocketStatusOut(this, sockEventArgs);
                         }
 
@@ -292,7 +292,7 @@ namespace dMobile.Bedrock
                         ipAddress = ipAddressLoopVariable;
                         if (this.OnSysSocketStatusOut != null)
                         {
-                            sockEventArgs.StatusOutMsg = string.Format("IP address {0} ", ipAddress.ToString());
+                            sockEventArgs.StatusOutMsg = $"IP address {ipAddress.ToString()} ";
                             this.OnSysSocketStatusOut(this, sockEventArgs);
                         }
 
@@ -302,7 +302,7 @@ namespace dMobile.Bedrock
 
                         if (this.OnSysSocketStatusOut != null)
                         {
-                            sockEventArgs.StatusOutMsg = string.Format("Connection attempt {0} port {1}.", attempt, port);
+                            sockEventArgs.StatusOutMsg = $"Connection attempt {attempt} port {port}.";
                             this.OnSysSocketStatusOut(this, sockEventArgs);
                         }
 
@@ -323,7 +323,7 @@ namespace dMobile.Bedrock
                     {
                         if (this.OnSysSocketStatusOut != null)
                         {
-                            sockEventArgs.StatusOutMsg = string.Format("Connection attempt failed on port {0}.", port);
+                            sockEventArgs.StatusOutMsg = $"Connection attempt failed on port {port}.";
                             this.OnSysSocketStatusOut(this, sockEventArgs);
                         }
 
@@ -398,7 +398,7 @@ namespace dMobile.Bedrock
 
                         if (this.OnSysSocketStatusOut != null)
                         {
-                            sockEventArgs.StatusOutMsg = string.Format("Code {0}.", ex.ErrorCode);
+                            sockEventArgs.StatusOutMsg = $"Code {ex.ErrorCode}.";
                             this.OnSysSocketStatusOut(this, sockEventArgs);
                         }
 
@@ -448,7 +448,7 @@ namespace dMobile.Bedrock
 
             if (this.OnSysSocketStatusOut != null)
             {
-                sysSocketEventArgs.StatusOutMsg = string.Format("Bytes to send {0} ", totalBytes2Send.Length);
+                sysSocketEventArgs.StatusOutMsg = $"Bytes to send {totalBytes2Send.Length} ";
                 this.OnSysSocketStatusOut(this, sysSocketEventArgs);
             }
 
@@ -459,7 +459,7 @@ namespace dMobile.Bedrock
                 {
                     if (this.OnSysSocketStatusOut != null)
                     {
-                        sysSocketEventArgs.StatusOutMsg = string.Format("Send attempt {0} of {1} ", attempt, this.SendTotalRetries);
+                        sysSocketEventArgs.StatusOutMsg = $"Send attempt {attempt} of {this.SendTotalRetries} ";
                         this.OnSysSocketStatusOut(this, sysSocketEventArgs);
                     }
 
@@ -471,7 +471,7 @@ namespace dMobile.Bedrock
 
                             if (this.OnSysSocketStatusOut != null)
                             {
-                                sysSocketEventArgs.StatusOutMsg = string.Format("Sending bytes {0} ", bytesRemaining2BeSent);
+                                sysSocketEventArgs.StatusOutMsg = $"Sending bytes {bytesRemaining2BeSent} ";
                                 this.OnSysSocketStatusOut(this, sysSocketEventArgs);
                             }
 
@@ -481,7 +481,7 @@ namespace dMobile.Bedrock
 
                             if (this.OnSysSocketStatusOut != null)
                             {
-                                sysSocketEventArgs.StatusOutMsg = string.Format("Bytes sent {0} ", bytesSent);
+                                sysSocketEventArgs.StatusOutMsg = $"Bytes sent {bytesSent} ";
                                 this.OnSysSocketStatusOut(this, sysSocketEventArgs);
                             }
 
@@ -491,7 +491,7 @@ namespace dMobile.Bedrock
 
                             if (this.OnSysSocketStatusOut != null)
                             {
-                                sysSocketEventArgs.StatusOutMsg = string.Format("Bytes remaining {0} ", bytesRemaining2BeSent);
+                                sysSocketEventArgs.StatusOutMsg = $"Bytes remaining {bytesRemaining2BeSent} ";
                                 this.OnSysSocketStatusOut(this, sysSocketEventArgs);
                             }
 
@@ -521,7 +521,7 @@ namespace dMobile.Bedrock
 
                     if (this.OnSysSocketStatusOut != null)
                     {
-                        sysSocketEventArgs.StatusOutMsg = string.Format("Code {0}", ex.ErrorCode);
+                        sysSocketEventArgs.StatusOutMsg = $"Code {ex.ErrorCode}";
                         this.OnSysSocketStatusOut(this, sysSocketEventArgs);
                     }
 
@@ -582,7 +582,7 @@ namespace dMobile.Bedrock
                 {
                     if (this.OnSysSocketStatusOut != null)
                     {
-                        sysSocketEventArgs.StatusOutMsg = string.Format("Receive attempt {0} of {1} ", attempt, this.RecvTotalRetries);
+                        sysSocketEventArgs.StatusOutMsg = $"Receive attempt {attempt} of {this.RecvTotalRetries} ";
                         this.OnSysSocketStatusOut(this, sysSocketEventArgs);
                     }
 
@@ -594,7 +594,7 @@ namespace dMobile.Bedrock
 
                             if (this.OnSysSocketStatusOut != null)
                             {
-                                sysSocketEventArgs.StatusOutMsg = string.Format("Received {0} bytes", bytesReceived);
+                                sysSocketEventArgs.StatusOutMsg = $"Received {bytesReceived} bytes";
                                 this.OnSysSocketStatusOut(this, sysSocketEventArgs);
                             }
 
@@ -617,7 +617,7 @@ namespace dMobile.Bedrock
 
                         if (this.OnSysSocketStatusOut != null)
                         {
-                            sysSocketEventArgs.StatusOutMsg = string.Format("Code {0}", ex.ErrorCode);
+                            sysSocketEventArgs.StatusOutMsg = $"Code {ex.ErrorCode}";
                             this.OnSysSocketStatusOut(this, sysSocketEventArgs);
                         }
 

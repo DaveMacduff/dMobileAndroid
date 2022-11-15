@@ -43,7 +43,7 @@ namespace dMobile.GroundWork
                 {
                     foreach (var family in resultsFamily)
                     {
-                        this.DataAccessStatusOutHandler(this, EventArgs.Empty, string.Format("For family {0}", family.FamilyCode), true);
+                        this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"For family {family.FamilyCode}", true);
 
                         var reqData = await this.SendRequest(family.FamilyCode);
 
@@ -88,7 +88,7 @@ namespace dMobile.GroundWork
             {
                 rowsAffected = Convert.ToInt32(await DatabaseConnection.GetInstance().SQLConn.ExecuteScalarAsync<int>("SELECT COUNT(*) FROM tLocationMapWarehouseProductScheme"));
 
-                this.DataAccessStatusOutHandler(this, EventArgs.Empty, string.Format("{0} warehouse product schemes.", rowsAffected), true);
+                this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"{rowsAffected} warehouse product schemes.", true);
             }
             catch (SQLiteException ex)
             {
@@ -147,7 +147,8 @@ namespace dMobile.GroundWork
                         {
                             var progMax = Convert.ToInt32(ds.Tables["tLocationMapWarehouseProductScheme"].Rows.Count);
 
-                            this.DataAccessStatusOutHandler(this, EventArgs.Empty, string.Format("Records {0}", ds.Tables["tLocationMapWarehouseProductScheme"].Rows.Count), false);
+                            this.DataAccessStatusOutHandler(this, EventArgs.Empty,
+                                $"Records {ds.Tables["tLocationMapWarehouseProductScheme"].Rows.Count}", false);
 
                             var progValue = 0;
                             var productFKRefno = 0;
@@ -192,7 +193,8 @@ namespace dMobile.GroundWork
                                 }
                                 else
                                 {
-                                    throw new Exception(string.Format("Unable to locate the product refno using the product FKRefno {0} in tProduct.", productFKRefno) + Environment.NewLine + errMsg);
+                                    throw new Exception(
+                                        $"Unable to locate the product refno using the product FKRefno {productFKRefno} in tProduct." + Environment.NewLine + errMsg);
                                 }
 
                                 // Find the warehouse
@@ -204,7 +206,8 @@ namespace dMobile.GroundWork
                                 }
                                 else
                                 {
-                                    throw new Exception(string.Format("Unable to locate the locationMapWarehouse location map refno using the locMapWhsFKRefno {0} in tLocationMapWarehouse.", locMapWhsFKRefno) + Environment.NewLine + errMsg);
+                                    throw new Exception(
+                                        $"Unable to locate the locationMapWarehouse location map refno using the locMapWhsFKRefno {locMapWhsFKRefno} in tLocationMapWarehouse." + Environment.NewLine + errMsg);
                                 }
 
                                 isWhsProdSchemeFound = false;

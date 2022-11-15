@@ -76,6 +76,7 @@ namespace dMobile.GroundWork
             File.Create(dbASCIIZ);
 
             DatabaseConnection.GetInstance();
+
             // DatabaseConnection.OpenDataBaseConnection();
         }
 

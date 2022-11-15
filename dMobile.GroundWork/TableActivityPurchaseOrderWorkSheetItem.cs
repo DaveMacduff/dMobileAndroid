@@ -23,7 +23,7 @@ namespace dMobile.GroundWork
         /// Initializes a new instance of the <see cref="TableActivityPurchaseOrderWorkSheetItem"/> class.
         /// </summary>
         public TableActivityPurchaseOrderWorkSheetItem()
-      : base()
+            : base()
         {
             this.FullClassName = "dMobile.GroundWork.TableActivityPurchaseOrderWorkSheetItem";
         }
@@ -72,7 +72,7 @@ namespace dMobile.GroundWork
             {
                 rowsAffected = Convert.ToInt32(await DatabaseConnection.GetInstance().SQLConn.ExecuteScalarAsync<int>("SELECT COUNT(ActivityItemRefno) FROM tActivityItem WHERE ActivityItemSubType = ?", Convert.ToInt32(SysCommon.ActSubTypes.PurchaseOrderWorkSheet)));
 
-                this.DataAccessStatusOutHandler(this, EventArgs.Empty, string.Format("{0} work sheet items.", rowsAffected), true);
+                this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"{rowsAffected} work sheet items.", true);
             }
             catch (SQLiteException ex)
             {
@@ -134,62 +134,61 @@ namespace dMobile.GroundWork
             {
                 try
                 {
-                    using (var ds = new DataSet())
+                    using var ds = new DataSet();
+                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Reading received data.", false);
+
+                    ds.ReadXml(SysCommon.GetXmlReader(ref reqData), XmlReadMode.Auto);
+
+                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving work sheet items.", false);
+
+                    if (ds.Tables.Count != 0)
                     {
-                        this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Reading received data.", false);
+                        var progMax = Convert.ToInt32(ds.Tables["tActivityItemPurchaseOrderWorkSheet"].Rows.Count);
 
-                        ds.ReadXml(SysCommon.GetXmlReader(ref reqData), XmlReadMode.Auto);
+                        this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"Records {progMax}", false);
 
-                        this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving work sheet items.", false);
+                        var actItemRefno = 0;
+                        var progValue = 0;
+                        var whsLocMapRefno = 0;
+                        var actItemWorkSheetFKRefno = 0;
+                        var prodUnitRefno = 0;
 
-                        if (ds.Tables.Count != 0)
+                        this.DataAccessProgressOutHandler(this, EventArgs.Empty, 0, 0, progMax);
+
+                        foreach (DataRow drow in ds.Tables["tActivityItemPurchaseOrderWorkSheet"].Rows)
                         {
-                            var progMax = Convert.ToInt32(ds.Tables["tActivityItemPurchaseOrderWorkSheet"].Rows.Count);
+                            transaction.Execute("INSERT INTO tActivity (ActivityStatus, ActivitySubType) VALUES (?, ?)", 0, Convert.ToInt32(SysCommon.ActSubTypes.PurchaseOrderWorkSheet));
+                            actRefno = Convert.ToInt32(transaction.ExecuteScalar<int>("SELECT last_insert_rowid() FROM tActivity"));
+                            transaction.Execute("INSERT INTO tActivityItem (ActivityItemSubType, ActivityItemStatus, ActivityRefno) VALUES (?, ?, ?)", Convert.ToInt32(SysCommon.ActSubTypes.PurchaseOrderWorkSheet), 0, actRefno);
+                            actItemRefno = Convert.ToInt32(transaction.ExecuteScalar<int>("SELECT last_insert_rowid() FROM tActivityItem"));
+                            prodUnitRefno = this.GetProductUnitRefnoFromDataRow(drow, transaction, false);
+                            whsLocMapRefno = this.GetWhsLocMapRefnoFromDataRow(drow, transaction);
 
-                            this.DataAccessStatusOutHandler(this, EventArgs.Empty, string.Format("Records {0}", progMax), false);
+                            actItemWorkSheetFKRefno = Convert.ToInt32(drow["ActivityItemFKRefno"]);
 
-                            var actItemRefno = 0;
-                            var progValue = 0;
-                            var whsLocMapRefno = 0;
-                            var actItemWorkSheetFKRefno = 0;
-                            var prodUnitRefno = 0;
-
-                            this.DataAccessProgressOutHandler(this, EventArgs.Empty, 0, 0, progMax);
-
-                            foreach (DataRow drow in ds.Tables["tActivityItemPurchaseOrderWorkSheet"].Rows)
+                            var query = "INSERT INTO tActivityItemPurchaseOrderWorkSheet (" +
+                                        "ActivityItemRefno, " +
+                                        "ActivityItemSubType, " +
+                                        "ActivityItemFKRefno, " +
+                                        "ActivityItemStringFKRefno, " +
+                                        "ProductUnitRefno, " +
+                                        "WarehouseLocationMapRefno, " +
+                                        "ActivityItemPurchaseOrderWorkSheetQuantityOrdered, " +
+                                        "ActivityItemPurchaseOrderWorkSheetBaseQuantityOrdered, " +
+                                        "ActivityItemPurchaseOrderWorkSheetWeightQuantityOrdered" +
+                                        ") VALUES (" +
+                                        "?, " +
+                                        "?, " +
+                                        "?, " +
+                                        "?, " +
+                                        "?, " +
+                                        "?, " +
+                                        "?, " +
+                                        "?, " +
+                                        "?" +
+                                        ")";
+                            var parameters = new object[]
                             {
-                                transaction.Execute("INSERT INTO tActivity (ActivityStatus, ActivitySubType) VALUES (?, ?)", 0, Convert.ToInt32(SysCommon.ActSubTypes.PurchaseOrderWorkSheet));
-                                actRefno = Convert.ToInt32(transaction.ExecuteScalar<int>("SELECT last_insert_rowid() FROM tActivity"));
-                                transaction.Execute("INSERT INTO tActivityItem (ActivityItemSubType, ActivityItemStatus, ActivityRefno) VALUES (?, ?, ?)", Convert.ToInt32(SysCommon.ActSubTypes.PurchaseOrderWorkSheet), 0, actRefno);
-                                actItemRefno = Convert.ToInt32(transaction.ExecuteScalar<int>("SELECT last_insert_rowid() FROM tActivityItem"));
-                                prodUnitRefno = this.GetProductUnitRefnoFromDataRow(drow, transaction, false);
-                                whsLocMapRefno = this.GetWhsLocMapRefnoFromDataRow(drow, transaction);
-
-                                actItemWorkSheetFKRefno = Convert.ToInt32(drow["ActivityItemFKRefno"]);
-
-                                var query = "INSERT INTO tActivityItemPurchaseOrderWorkSheet (" +
-                                            "ActivityItemRefno, " +
-                                            "ActivityItemSubType, " +
-                                            "ActivityItemFKRefno, " +
-                                            "ActivityItemStringFKRefno, " +
-                                            "ProductUnitRefno, " +
-                                            "WarehouseLocationMapRefno, " +
-                                            "ActivityItemPurchaseOrderWorkSheetQuantityOrdered, " +
-                                            "ActivityItemPurchaseOrderWorkSheetBaseQuantityOrdered, " +
-                                            "ActivityItemPurchaseOrderWorkSheetWeightQuantityOrdered" +
-                                            ") VALUES (" +
-                                            "?, " +
-                                            "?, " +
-                                            "?, " +
-                                            "?, " +
-                                            "?, " +
-                                            "?, " +
-                                            "?, " +
-                                            "?, " +
-                                            "?" +
-                                            ")";
-                                var parameters = new object[]
-                                {
                                     Convert.ToInt32(actItemRefno),
                                     Convert.ToInt32(SysCommon.ActSubTypes.PurchaseOrderWorkSheet),
                                     Convert.ToInt32(actItemWorkSheetFKRefno),
@@ -199,24 +198,23 @@ namespace dMobile.GroundWork
                                     Convert.ToDecimal(drow["ActivityItemPurchaseOrderWorkSheetQuantityOrdered"]),
                                     Convert.ToDecimal(drow["ActivityItemPurchaseOrderWorkSheetBaseQuantityOrdered"]),
                                     Convert.ToDecimal(drow["ActivityItemPurchaseOrderWorkSheetWeightQuantityOrdered"]),
-                                };
+                            };
 
-                                transaction.Execute(query, parameters);
+                            transaction.Execute(query, parameters);
 
-                                progValue++;
-                                if (progValue % 100 == 0)
-                                {
-                                    this.DataAccessProgressOutHandler(this, EventArgs.Empty, progValue, 0, progMax);
-                                }
+                            progValue++;
+                            if (progValue % 100 == 0)
+                            {
+                                this.DataAccessProgressOutHandler(this, EventArgs.Empty, progValue, 0, progMax);
                             }
-
-                            this.DataAccessProgressOutHandler(this, EventArgs.Empty, progMax, 0, progMax);
                         }
 
-                        transaction.Commit();
-
-                        this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving work sheet items complete.", false);
+                        this.DataAccessProgressOutHandler(this, EventArgs.Empty, progMax, 0, progMax);
                     }
+
+                    transaction.Commit();
+
+                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving work sheet items complete.", false);
                 }
                 catch (SQLiteException ex)
                 {

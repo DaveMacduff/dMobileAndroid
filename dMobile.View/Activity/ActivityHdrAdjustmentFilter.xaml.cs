@@ -129,6 +129,7 @@ namespace dMobile.View.Activity
             _ = this.AdjTypes.Add(new ComboBoxMembers("Convert Product", Convert.ToInt32(SysCommon.AdjTypes.ConvertProduct).ToString()));
             _ = this.AdjTypes.Add(new ComboBoxMembers("Debox", Convert.ToInt32(SysCommon.AdjTypes.Debox).ToString()));
             _ = this.AdjTypes.Add(new ComboBoxMembers("Convert Skid", Convert.ToInt32(SysCommon.AdjTypes.ConvertSkid).ToString()));
+
             // </WO>
             this.adjustmentTypeFilters.Clear();
             this.adjustmentTypeFilters.Add("Inventory", Convert.ToInt32(SysCommon.AdjTypes.Inventory).ToString());

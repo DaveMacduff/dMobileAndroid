@@ -1074,13 +1074,9 @@ namespace dMobile.View.Activity
             var fillQty = this.GetActivityItemQuantity();
 
             this.ExtraInfoItems.Clear();
-            this.ExtraInfoItems.Add(string.Format("Product ID {0}", skidInfo.ProdInfo.Code));
-            this.ExtraInfoItems.Add(string.Format(
-                "Quantity {0} {1} @ {2} {3}",
-                fillQty.Quantity,
-                skidInfo.ProdInfo.UnitCode,
-                fillQty.WeightQuantity,
-                skidInfo.ProdInfo.WeightUnitCode));
+            this.ExtraInfoItems.Add($"Product ID {skidInfo.ProdInfo.Code}");
+            this.ExtraInfoItems.Add(
+                $"Quantity {fillQty.Quantity} {skidInfo.ProdInfo.UnitCode} @ {fillQty.WeightQuantity} {skidInfo.ProdInfo.WeightUnitCode}");
         }
 
         /// <summary>

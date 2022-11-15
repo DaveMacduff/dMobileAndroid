@@ -24,7 +24,7 @@ namespace dMobile.GroundWork
         /// Initializes a new instance of the <see cref="TableWarehouseLocationMapType"/> class.
         /// </summary>
         public TableWarehouseLocationMapType()
-      : base()
+            : base()
         {
             this.FullClassName = "dMobile.GroundWork.TableWarehouseLocationMapType";
         }
@@ -91,7 +91,7 @@ namespace dMobile.GroundWork
             {
                 rowsAffected = Convert.ToInt32(await DatabaseConnection.GetInstance().SQLConn.ExecuteScalarAsync<int>("SELECT COUNT(*) FROM tWarehouseLocationMapType"));
 
-                this.DataAccessStatusOutHandler(this, EventArgs.Empty, string.Format("{0} warehouse locations.", rowsAffected), true);
+                this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"{rowsAffected} warehouse locations.", true);
             }
             catch (SQLiteException ex)
             {
@@ -153,167 +153,165 @@ namespace dMobile.GroundWork
             {
                 try
                 {
-                    using (var ds = new DataSet())
+                    using var ds = new DataSet();
+                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Reading received data.", false);
+
+                    ds.ReadXml(SysCommon.GetXmlReader(ref reqData), XmlReadMode.Auto);
+
+                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving warehouse locations.", false);
+
+                    if (ds.Tables.Count != 0)
                     {
-                        this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Reading received data.", false);
+                        var progMax = Convert.ToInt32(ds.Tables["seg"].Rows.Count);
 
-                        ds.ReadXml(SysCommon.GetXmlReader(ref reqData), XmlReadMode.Auto);
+                        this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"Records {progMax}", false);
 
-                        this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving warehouse locations.", false);
+                        var progValue = 0;
+                        var isLocMapTypeFound = false;
 
-                        if (ds.Tables.Count != 0)
+                        this.DataAccessProgressOutHandler(this, EventArgs.Empty, 0, 0, progMax);
+
+                        foreach (DataRow drow in ds.Tables["seg"].Rows)
                         {
-                            var progMax = Convert.ToInt32(ds.Tables["seg"].Rows.Count);
+                            whsLocMapFKRefno = Convert.ToInt32(drow["WarehouseLocationMapFKRefno"]);
+                            errMsg += Environment.NewLine + "Warehouse fk refno " + whsLocMapFKRefno;
 
-                            this.DataAccessStatusOutHandler(this, EventArgs.Empty, string.Format("Records {0}", progMax), false);
+                            var resultsLocationMapWarehouse = transaction.Query<tLocationMapWarehouseModel>("SELECT * FROM tLocationMapWarehouse WHERE LocationMapWarehouseFKRefno = ?", whsLocMapFKRefno);
 
-                            var progValue = 0;
-                            var isLocMapTypeFound = false;
-
-                            this.DataAccessProgressOutHandler(this, EventArgs.Empty, 0, 0, progMax);
-
-                            foreach (DataRow drow in ds.Tables["seg"].Rows)
+                            if (resultsLocationMapWarehouse?.Count > 0)
                             {
-                                whsLocMapFKRefno = Convert.ToInt32(drow["WarehouseLocationMapFKRefno"]);
-                                errMsg += Environment.NewLine + "Warehouse fk refno " + whsLocMapFKRefno;
+                                whsLocMapRefno = resultsLocationMapWarehouse[0].LocationMapRefno;
+                            }
+                            else
+                            {
+                                throw new Exception("drWhs.Read() failed." + Environment.NewLine + errMsg);
+                            }
 
-                                var resultsLocationMapWarehouse = transaction.Query<tLocationMapWarehouseModel>("SELECT * FROM tLocationMapWarehouse WHERE LocationMapWarehouseFKRefno = ?", whsLocMapFKRefno);
+                            locMapFKRefno = Convert.ToInt32(drow["LocationMapFKRefno"]);
+                            errMsg += Environment.NewLine + "Map fk refno " + locMapFKRefno;
 
-                                if (resultsLocationMapWarehouse?.Count > 0)
-                                {
-                                    whsLocMapRefno = resultsLocationMapWarehouse[0].LocationMapRefno;
-                                }
-                                else
-                                {
-                                    throw new Exception("drWhs.Read() failed." + Environment.NewLine + errMsg);
-                                }
+                            // locMapSubType = Warehouse, Section, Slot.
+                            // Create error message for locMapSubType.
+                            locMapSubType = Convert.ToInt32(drow["LocationMapSubType"]);
+                            switch (locMapSubType)
+                            {
+                                case (int)SysCommon.LocMapSubTypes.Warehouse:
+                                    errMsg += Environment.NewLine + "Map sub type = " + locMapSubType
+                                        + ", 'Warehouse'.";
+                                    break;
 
-                                locMapFKRefno = Convert.ToInt32(drow["LocationMapFKRefno"]);
-                                errMsg += Environment.NewLine + "Map fk refno " + locMapFKRefno;
+                                case (int)SysCommon.LocMapSubTypes.Section:
+                                    errMsg += Environment.NewLine + "Map sub type = " + locMapSubType
+                                        + ", 'Section'.";
+                                    break;
 
-                                // locMapSubType = Warehouse, Section, Slot.
-                                // Create error message for locMapSubType.
-                                locMapSubType = Convert.ToInt32(drow["LocationMapSubType"]);
-                                switch (locMapSubType)
-                                {
-                                    case (int)SysCommon.LocMapSubTypes.Warehouse:
-                                        errMsg += Environment.NewLine + "Map sub type = " + locMapSubType
-                                            + ", 'Warehouse'.";
-                                        break;
+                                case (int)SysCommon.LocMapSubTypes.Slot:
+                                    errMsg += Environment.NewLine + "Map sub type = " + locMapSubType
+                                        + ", 'Slot'.";
+                                    break;
 
-                                    case (int)SysCommon.LocMapSubTypes.Section:
-                                        errMsg += Environment.NewLine + "Map sub type = " + locMapSubType
-                                            + ", 'Section'.";
-                                        break;
+                                default:
 
-                                    case (int)SysCommon.LocMapSubTypes.Slot:
-                                        errMsg += Environment.NewLine + "Map sub type = " + locMapSubType
-                                            + ", 'Slot'.";
-                                        break;
+                                    throw new Exception($"Undefined location map subtype {locMapSubType}");
+                            }
 
-                                    default:
+                            // whsLocMapType = Picking, Receiving, Floor.
+                            whsLocMapType = Convert.ToInt32(drow["WarehouseLocationMapType"]);
+                            errMsg += Environment.NewLine + "Map type " + whsLocMapType;
 
-                                        throw new Exception(string.Format("Undefined location map subtype {0}", locMapSubType));
-                                }
+                            // Find the key for the locMapSubType.
+                            switch (locMapSubType)
+                            {
+                                case (int)SysCommon.LocMapSubTypes.Warehouse:
+                                    var resultsWarehouse = transaction.Query<tLocationMapWarehouseModel>("SELECT * FROM tLocationMapWarehouse WHERE LocationMapWarehouseFKRefno = ?", locMapFKRefno);
 
-                                // whsLocMapType = Picking, Receiving, Floor.
-                                whsLocMapType = Convert.ToInt32(drow["WarehouseLocationMapType"]);
-                                errMsg += Environment.NewLine + "Map type " + whsLocMapType;
-
-                                // Find the key for the locMapSubType.
-                                switch (locMapSubType)
-                                {
-                                    case (int)SysCommon.LocMapSubTypes.Warehouse:
-                                        var resultsWarehouse = transaction.Query<tLocationMapWarehouseModel>("SELECT * FROM tLocationMapWarehouse WHERE LocationMapWarehouseFKRefno = ?", locMapFKRefno);
-
-                                        if (resultsWarehouse?.Count > 0)
-                                        {
-                                            locMapRefno = resultsWarehouse[0].LocationMapRefno;
-                                        }
-                                        else
-                                        {
-                                            throw new Exception("drWhs.Read() failed." + Environment.NewLine + errMsg);
-                                        }
-
-                                        break;
-
-                                    case (int)SysCommon.LocMapSubTypes.Section:
-                                        var resultsLocationMapSection = transaction.Query<tLocationMapSectionModel>("SELECT * FROM tLocationMapSection WHERE LocationMapSectionFKRefno = ?", locMapFKRefno);
-
-                                        if (resultsLocationMapSection?.Count > 0)
-                                        {
-                                            locMapRefno = resultsLocationMapSection[0].LocationMapRefno;
-                                        }
-                                        else
-                                        {
-                                            throw new Exception("drSect.Read() failed." + Environment.NewLine + errMsg);
-                                        }
-
-                                        break;
-
-                                    case (int)SysCommon.LocMapSubTypes.Slot:
-                                        var resultsLocationMapSlot = transaction.Query<tLocationMapSlotModel>("SELECT * FROM tLocationMapSlot WHERE LocationMapSlotFKRefno = ?", locMapFKRefno);
-
-                                        if (resultsLocationMapSlot?.Count > 0)
-                                        {
-                                            locMapRefno = resultsLocationMapSlot[0].LocationMapRefno;
-                                        }
-                                        else
-                                        {
-                                            throw new Exception("drSlot.Read() failed." + Environment.NewLine + errMsg);
-                                        }
-
-                                        break;
-
-                                    default:
-                                        throw new Exception(string.Format("Undefined location map subtype {0}", locMapSubType));
-                                }
-
-                                isLocMapTypeFound = false;
-                                currWhsLocMapRefno = 0;
-
-                                if (this.SysEnv.RefreshOpt.RefreshDataChangesOnly)
-                                {
-                                    var resultsWarehouseLocationMapType = transaction.Query<tWarehouseLocationMapTypeModel>("SELECT * FROM tWarehouseLocationMapType WHERE WarehouseLocationMapRefno = ? AND WarehouseLocationMapTypeEnum = ?", whsLocMapRefno, whsLocMapType);
-
-                                    if (resultsWarehouseLocationMapType?.Count > 0)
+                                    if (resultsWarehouse?.Count > 0)
                                     {
-                                        currWhsLocMapRefno = resultsWarehouseLocationMapType[0].LocationMapRefno;
-                                        isLocMapTypeFound = true;
+                                        locMapRefno = resultsWarehouse[0].LocationMapRefno;
                                     }
                                     else
                                     {
-                                        throw new Exception("drLocMapType.Read() failed." + Environment.NewLine + errMsg);
+                                        throw new Exception("drWhs.Read() failed." + Environment.NewLine + errMsg);
                                     }
-                                }
 
-                                if (isLocMapTypeFound)
-                                {
-                                    if (currWhsLocMapRefno != locMapRefno)
+                                    break;
+
+                                case (int)SysCommon.LocMapSubTypes.Section:
+                                    var resultsLocationMapSection = transaction.Query<tLocationMapSectionModel>("SELECT * FROM tLocationMapSection WHERE LocationMapSectionFKRefno = ?", locMapFKRefno);
+
+                                    if (resultsLocationMapSection?.Count > 0)
                                     {
-                                        // Update the LocMapRefno if different
-                                        transaction.Execute("UPDATE tWarehouseLocationMapType SET LocationMapRefno = ? WHERE WarehouseLocationMapRefno = ? AND WarehouseLocationMapTypeEnum = ?", locMapRefno, whsLocMapRefno, whsLocMapType);
+                                        locMapRefno = resultsLocationMapSection[0].LocationMapRefno;
                                     }
+                                    else
+                                    {
+                                        throw new Exception("drSect.Read() failed." + Environment.NewLine + errMsg);
+                                    }
+
+                                    break;
+
+                                case (int)SysCommon.LocMapSubTypes.Slot:
+                                    var resultsLocationMapSlot = transaction.Query<tLocationMapSlotModel>("SELECT * FROM tLocationMapSlot WHERE LocationMapSlotFKRefno = ?", locMapFKRefno);
+
+                                    if (resultsLocationMapSlot?.Count > 0)
+                                    {
+                                        locMapRefno = resultsLocationMapSlot[0].LocationMapRefno;
+                                    }
+                                    else
+                                    {
+                                        throw new Exception("drSlot.Read() failed." + Environment.NewLine + errMsg);
+                                    }
+
+                                    break;
+
+                                default:
+                                    throw new Exception($"Undefined location map subtype {locMapSubType}");
+                            }
+
+                            isLocMapTypeFound = false;
+                            currWhsLocMapRefno = 0;
+
+                            if (this.SysEnv.RefreshOpt.RefreshDataChangesOnly)
+                            {
+                                var resultsWarehouseLocationMapType = transaction.Query<tWarehouseLocationMapTypeModel>("SELECT * FROM tWarehouseLocationMapType WHERE WarehouseLocationMapRefno = ? AND WarehouseLocationMapTypeEnum = ?", whsLocMapRefno, whsLocMapType);
+
+                                if (resultsWarehouseLocationMapType?.Count > 0)
+                                {
+                                    currWhsLocMapRefno = resultsWarehouseLocationMapType[0].LocationMapRefno;
+                                    isLocMapTypeFound = true;
                                 }
                                 else
                                 {
-                                    transaction.Execute("INSERT INTO tWarehouseLocationMapType (WarehouseLocationMapRefno, WarehouseLocationMapTypeEnum, LocationMapRefno) VALUES (?, ?, ?)", whsLocMapRefno, whsLocMapType, locMapRefno);
-                                }
-
-                                progValue++;
-                                if (progValue % 100 == 0)
-                                {
-                                    this.DataAccessProgressOutHandler(this, EventArgs.Empty, progValue, 0, progMax);
+                                    throw new Exception("drLocMapType.Read() failed." + Environment.NewLine + errMsg);
                                 }
                             }
 
-                            this.DataAccessProgressOutHandler(this, EventArgs.Empty, progMax, 0, progMax);
+                            if (isLocMapTypeFound)
+                            {
+                                if (currWhsLocMapRefno != locMapRefno)
+                                {
+                                    // Update the LocMapRefno if different
+                                    transaction.Execute("UPDATE tWarehouseLocationMapType SET LocationMapRefno = ? WHERE WarehouseLocationMapRefno = ? AND WarehouseLocationMapTypeEnum = ?", locMapRefno, whsLocMapRefno, whsLocMapType);
+                                }
+                            }
+                            else
+                            {
+                                transaction.Execute("INSERT INTO tWarehouseLocationMapType (WarehouseLocationMapRefno, WarehouseLocationMapTypeEnum, LocationMapRefno) VALUES (?, ?, ?)", whsLocMapRefno, whsLocMapType, locMapRefno);
+                            }
+
+                            progValue++;
+                            if (progValue % 100 == 0)
+                            {
+                                this.DataAccessProgressOutHandler(this, EventArgs.Empty, progValue, 0, progMax);
+                            }
                         }
 
-                        transaction.Commit();
-
-                        this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving warehouse locations complete.", false);
+                        this.DataAccessProgressOutHandler(this, EventArgs.Empty, progMax, 0, progMax);
                     }
+
+                    transaction.Commit();
+
+                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving warehouse locations complete.", false);
                 }
                 catch (SQLiteException ex)
                 {

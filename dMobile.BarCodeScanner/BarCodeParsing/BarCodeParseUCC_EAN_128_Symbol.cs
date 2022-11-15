@@ -107,13 +107,7 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
             {
                 // General Barcode parsing failure.
                 throw new BarCodeParseException(
-                    string.Format(
-#if MULTILANGUAGE
-                        Translator.GetInstance().Translate(TranslatorVocabulary.FailedToParse),
-#else
-                        "Failed to parse '{0}'.",
-#endif
-                        barCodeData),
+                    $"Failed to parse '{barCodeData}'.",
                     e);
             }
             finally
@@ -357,6 +351,7 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
             {
                 // remove the AI
                 tempData = tempData.Remove(0, 2);
+
                 // variable AI look for group separator
                 var aiIndex = this.FindGroupSeparatorInBarCode(tempData);
                 var dataLength = 0;
@@ -398,14 +393,7 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
                     this.AddParseErrorDetail(
                         BarCodeExceptionReason.BatchLotNumber_InvalidFormat,
                         new BarCodeParseException(
-                            string.Format(
-#if MULTILANGUAGE
-                                Translator.GetInstance().Translate(TranslatorVocabulary.FailedToResizeStringToLength),
-#else
-                                "Failed to resize string '{0}' to length {1}.",
-#endif
-                                tempData ?? string.Empty,
-                                dataLength),
+                            $"Failed to resize string '{tempData ?? string.Empty}' to length {dataLength}.",
 #if MULTILANGUAGE
                             Translator.GetInstance().Translate(TranslatorVocabulary.BatchLotNumberz),
 #else
@@ -413,6 +401,7 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
 #endif
                             e));
                 }
+
                 // remove the Batch / Lot Number from the bar code data
                 tempData = tempData.Remove(0, aiIndex);
             }
@@ -498,20 +487,14 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
                     this.AddParseErrorDetail(
                         BarCodeExceptionReason.SingleTradeItemSerialNumber_InvalidFormat,
                         new BarCodeParseException(
-                            string.Format(
-#if MULTILANGUAGE
-                                Translator.GetInstance().Translate(TranslatorVocabulary.FailedToResizeStringToLength),
-#else
-                                "Failed to resize string '{0}' to length {1}.",
-#endif
-                                tempData ?? string.Empty,
-                                dataLength),
+                            $"Failed to resize string '{tempData ?? string.Empty}' to length {dataLength}.",
 #if MULTILANGUAGE
                             Translator.GetInstance().Translate(TranslatorVocabulary.SerialNumber), e));
 #else
                             "Serial Number", e));
 #endif
                 }
+
                 // remove the Batch / Lot Number from the bar code data
                 tempData = tempData.Remove(0, aiIndex);
             }
@@ -559,19 +542,14 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
                     this.AddParseErrorDetail(
                         BarCodeExceptionReason.ProductionDate_InvalidDate,
                         new BarCodeParseException(
-                            string.Format(
-#if MULTILANGUAGE
-                                Translator.GetInstance().Translate(TranslatorVocabulary.CannotConvertToAValidYymmddDatetime),
-#else
-                                "Cannot convert {0} to a valid YYMMDD DateTime.",
-#endif
-                                barCodeData.Substring(2, 6)),
+                            $"Cannot convert {barCodeData.Substring(2, 6)} to a valid YYMMDD DateTime.",
 #if MULTILANGUAGE
                             Translator.GetInstance().Translate(TranslatorVocabulary.ProductionDatezz), e));
 #else
                             "Production Date", e));
 #endif
                 }
+
                 // remove the PRODUCTION DATE from the bar code data
                 tempData = tempData.Remove(0, 6);
             }
@@ -617,13 +595,7 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
                     this.AddParseErrorDetail(
                         BarCodeExceptionReason.DueDate_InvalidDate,
                         new BarCodeParseException(
-                            string.Format(
-#if MULTILANGUAGE
-                                Translator.GetInstance().Translate(TranslatorVocabulary.CannotConvertToAValidYymmddDatetime),
-#else
-                                "Cannot convert {0} to a valid YYMMDD DateTime.",
-#endif
-                                barCodeData.Substring(2, 6)),
+                            $"Cannot convert {barCodeData.Substring(2, 6)} to a valid YYMMDD DateTime.",
 #if MULTILANGUAGE
                             Translator.GetInstance().Translate(TranslatorVocabulary.DueDatez), e));
 #else
@@ -705,13 +677,7 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
                         this.AddParseErrorDetail(
                            BarCodeExceptionReason.PackagingDate_InvalidDate,
                            new BarCodeParseException(
-                               string.Format(
-#if MULTILANGUAGE
-                                   Translator.GetInstance().Translate(TranslatorVocabulary.CannotConvertToAValidYymmddDatetime),
-#else
-                                   "Cannot convert {0} to a valid YYMMDD DateTime.",
-#endif
-                                   barCodeData.Substring(2, 6)),
+                               $"Cannot convert {barCodeData.Substring(2, 6)} to a valid YYMMDD DateTime.",
 #if MULTILANGUAGE
                                Translator.GetInstance().Translate(TranslatorVocabulary.PackagingDatez), e));
 #else
@@ -766,13 +732,7 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
                     this.AddParseErrorDetail(
                         BarCodeExceptionReason.BestBeforeSellByDate_InvalidDate,
                         new BarCodeParseException(
-                            string.Format(
-#if MULTILANGUAGE
-                                Translator.GetInstance().Translate(TranslatorVocabulary.CannotConvertToAValidYymmddDatetime),
-#else
-                                "Cannot convert {0} to a valid YYMMDD DateTime.",
-#endif
-                                barCodeData.Substring(2, 6)),
+                            $"Cannot convert {barCodeData.Substring(2, 6)} to a valid YYMMDD DateTime.",
 #if MULTILANGUAGE
                             Translator.GetInstance().Translate(TranslatorVocabulary.BestBeforeSellByDate), e));
 #else
@@ -833,13 +793,7 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
                     this.AddParseErrorDetail(
                         BarCodeExceptionReason.ExpiryUseByDate_InvalidDate,
                         new BarCodeParseException(
-                            string.Format(
-#if MULTILANGUAGE
-                                Translator.GetInstance().Translate(TranslatorVocabulary.CannotConvertToAValidYymmddDatetime),
-#else
-                                "Cannot convert {0} to a valid YYMMDD DateTime.",
-#endif
-                                barCodeData.Substring(2, 6)),
+                            $"Cannot convert {barCodeData.Substring(2, 6)} to a valid YYMMDD DateTime.",
 #if MULTILANGUAGE
                             Translator.GetInstance().Translate(TranslatorVocabulary.ExpiryUseBySellByDate), e));
 #else
@@ -877,13 +831,7 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
                     this.AddParseErrorDetail(
                         BarCodeExceptionReason.ProductVariant_InvalidInteger,
                         new BarCodeParseException(
-                        string.Format(
-#if MULTILANGUAGE
-                            Translator.GetInstance().Translate(TranslatorVocabulary.CannotConvertToAnInteger),
-#else
-                            "Cannot convert {0} to an integer.",
-#endif
-                            barCodeData.Substring(2, 2)),
+                            $"Cannot convert {barCodeData.Substring(2, 2)} to an integer.",
 #if MULTILANGUAGE
                         Translator.GetInstance().Translate(TranslatorVocabulary.ProductVariantz), e));
 #else
@@ -922,13 +870,7 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
                     this.AddParseErrorDetail(
                         BarCodeExceptionReason.CountOfTradeItems_InvalidInteger,
                         new BarCodeParseException(
-                            string.Format(
-#if MULTILANGUAGE
-                                Translator.GetInstance().Translate(TranslatorVocabulary.CannotConvertToAnInteger),
-#else
-                                "Cannot convert {0} to an integer.",
-#endif
-                                barCodeData.Substring(2, 8)),
+                            $"Cannot convert {barCodeData.Substring(2, 8)} to an integer.",
 #if MULTILANGUAGE
                             Translator.GetInstance().Translate(TranslatorVocabulary.CountOfTradeItemsz), e));
 #else
@@ -1013,13 +955,7 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
                             this.AddParseErrorDetail(
                                 BarCodeExceptionReason.VariableCount_InvalidInteger,
                                 new BarCodeParseException(
-                                string.Format(
-#if MULTILANGUAGE
-                                    Translator.GetInstance().Translate(TranslatorVocabulary.CannotConvertToAnInteger),
-#else
-                                    "Cannot convert {0} to an integer.",
-#endif
-                                    codeData.Substring(0, dataLength)),
+                                    $"Cannot convert {codeData.Substring(0, dataLength)} to an integer.",
 #if MULTILANGUAGE
                                 Translator.GetInstance().Translate(TranslatorVocabulary.VariableCountz), e));
 #else
@@ -1093,6 +1029,7 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
 
                     // remove the AI
                     tempData = tempData.Remove(0, 4);
+
                     // assign the METRIC NET WEIGHT KG
                     var strWholeNumber = tempData.Substring(0, 6);
                     if (places != 0)
@@ -1117,7 +1054,7 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
                                 string.Format(Translator.GetInstance().Translate(TranslatorVocabulary.FailedToParsez), barCodeData),
                             Translator.GetInstance().Translate(TranslatorVocabulary.MetricNetWeightKg), e));
 #else
-                                string.Format("Failed to parse '{0}'", barCodeData),
+                                $"Failed to parse '{barCodeData}'",
                             "Metric Net Weight KG", e));
 #endif
                     }
@@ -1126,13 +1063,7 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
                         this.AddParseErrorDetail(
                            BarCodeExceptionReason.NetWeightMetricKG_UnknownDecimalPlaces,
                            new BarCodeParseException(
-                               string.Format(
-#if MULTILANGUAGE
-                                Translator.GetInstance().Translate(TranslatorVocabulary.FailedToParseCouldNotDetermineNumberOfDecimalPlaces),
-#else
-                                "Failed to parse '{0}'. Could not determine number of decimal places.",
-#endif
-                               barCodeData),
+                               $"Failed to parse '{barCodeData}'. Could not determine number of decimal places.",
 #if MULTILANGUAGE
                            Translator.GetInstance().Translate(TranslatorVocabulary.MetricNetWeightKg), e));
 #else
@@ -1140,6 +1071,7 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
 #endif
                     }
                 }
+
                 // remove the METRIC NET WEIGHT KG from the bar code data
                 tempData = barCodeData.Substring(10);
             }
@@ -1195,7 +1127,7 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
                                 string.Format(Translator.GetInstance().Translate(TranslatorVocabulary.FailedToParse), barCodeData),
                                 Translator.GetInstance().Translate(TranslatorVocabulary.NonMetricNetWeightLb), e));
 #else
-                                string.Format("Failed to parse '{0}'.", barCodeData),
+                                $"Failed to parse '{barCodeData}'.",
                                 "Non Metric Net Weight LB", e));
 #endif
                     }
@@ -1204,13 +1136,7 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
                         this.AddParseErrorDetail(
                             BarCodeExceptionReason.NetWeightNonMetricLB_UnknownDecimalPlaces,
                             new BarCodeParseException(
-                                string.Format(
-#if MULTILANGUAGE
-                                    Translator.GetInstance().Translate(TranslatorVocabulary.FailedToParseCouldNotDetermineNumberOfDecimalPlaces),
-#else
-                                    "Failed to parse '{0}'. Could not determine number of decimal places.",
-#endif
-                                    barCodeData),
+                                $"Failed to parse '{barCodeData}'. Could not determine number of decimal places.",
 #if MULTILANGUAGE
                                 Translator.GetInstance().Translate(TranslatorVocabulary.NonMetricNetWeightLb), e));
 #else
@@ -1275,7 +1201,7 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
                                 string.Format(Translator.GetInstance().Translate(TranslatorVocabulary.FailedToParsez), barCodeData),
                             Translator.GetInstance().Translate(TranslatorVocabulary.MetricGrossWeightKg), e));
 #else
-                                string.Format("Failed to parse '{0}'", barCodeData),
+                                $"Failed to parse '{barCodeData}'",
                             "Metric Gross Weight KG", e));
 #endif
                     }
@@ -1284,13 +1210,7 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
                         this.AddParseErrorDetail(
                                BarCodeExceptionReason.GrossWeightMetricKG_UnknownDecimalPlaces,
                                new BarCodeParseException(
-                                   string.Format(
-#if MULTILANGUAGE
-                                    Translator.GetInstance().Translate(TranslatorVocabulary.FailedToParseCouldNotDetermineNumberOfDecimalPlaces),
-#else
-                                    "Failed to parse '{0}'. Could not determine number of decimal places.",
-#endif
-                                    barCodeData),
+                                   $"Failed to parse '{barCodeData}'. Could not determine number of decimal places.",
 #if MULTILANGUAGE
                                Translator.GetInstance().Translate(TranslatorVocabulary.MetricGrossWeightKg), e));
 #else
@@ -1298,6 +1218,7 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
 #endif
                     }
                 }
+
                 // remove the NON METRIC WEIGHT LB from the bar code data
 
                 // Change to substring of original to remove what was consumed.
@@ -1356,7 +1277,7 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
                             string.Format(Translator.GetInstance().Translate(TranslatorVocabulary.FailedToParsez), barCodeData),
                             Translator.GetInstance().Translate(TranslatorVocabulary.NonMetricGrossWeightLb),
 #else
-                            string.Format("Failed to parse '{0}'", barCodeData),
+                                $"Failed to parse '{barCodeData}'",
                             "Non Metric Gross Weight LB",
 #endif
                             e));
@@ -1366,13 +1287,7 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
                         this.AddParseErrorDetail(
                                BarCodeExceptionReason.GrossWeightNonMetricLB_UnknownDecimalPlaces,
                                new BarCodeParseException(
-                                   string.Format(
-#if MULTILANGUAGE
-                                    Translator.GetInstance().Translate(TranslatorVocabulary.FailedToParseCouldNotDetermineNumberOfDecimalPlaces),
-#else
-                                    "Failed to parse '{0}'. Could not determine number of decimal places.",
-#endif
-                                    barCodeData),
+                                   $"Failed to parse '{barCodeData}'. Could not determine number of decimal places.",
 #if MULTILANGUAGE
                                Translator.GetInstance().Translate(TranslatorVocabulary.NonMetricGrossWeightLb), e));
 #else
@@ -1434,7 +1349,7 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
                                 string.Format(Translator.GetInstance().Translate(TranslatorVocabulary.FailedToParsez), barCodeData),
                                 Translator.GetInstance().Translate(TranslatorVocabulary.LengthInMeters),
 #else
-                                string.Format("Failed to parse '{0}'", barCodeData),
+                                $"Failed to parse '{barCodeData}'",
                                 "Length in Meters",
 #endif
                             e));
@@ -1444,13 +1359,7 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
                         this.AddParseErrorDetail(
                             BarCodeExceptionReason.DimensionMeters_UnknownDecimalPlaces,
                             new BarCodeParseException(
-                                string.Format(
-#if MULTILANGUAGE
-                                    Translator.GetInstance().Translate(TranslatorVocabulary.FailedToParseCouldNotDetermineNumberOfDecimalPlaces),
-#else
-                                    "Failed to parse '{0}'. Could not determine number of decimal places.",
-#endif
-                                    barCodeData),
+                                $"Failed to parse '{barCodeData}'. Could not determine number of decimal places.",
 #if MULTILANGUAGE
                                 Translator.GetInstance().Translate(TranslatorVocabulary.LengthInMeters),
 #else
@@ -1519,7 +1428,7 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
 #if MULTILANGUAGE
                             string.Format(Translator.GetInstance().Translate(TranslatorVocabulary.FailedToParsez), barCodeData),
 #else
-                            string.Format("Failed to parse '{0}'", barCodeData),
+                            $"Failed to parse '{barCodeData}'",
 #endif
                             "Activity FK Refno",
                             e));
@@ -1584,11 +1493,12 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
 #if MULTILANGUAGE
                             string.Format(Translator.GetInstance().Translate(TranslatorVocabulary.FailedToParsez), barCodeData),
 #else
-                            string.Format("Failed to parse '{0}'", barCodeData),
+                            $"Failed to parse '{barCodeData}'",
 #endif
                         "Activity Item FK Refno",
                         e));
                 }
+
                 // remove the Activity Item FK Refno data from the bar code data
                 tempData = tempData.Remove(0, aiIndex);
             }
@@ -1647,11 +1557,12 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
 #if MULTILANGUAGE
                                 string.Format(Translator.GetInstance().Translate(TranslatorVocabulary.FailedToParsez), barCodeData),
 #else
-                                string.Format("Failed to parse '{0}'", barCodeData),
+                            $"Failed to parse '{barCodeData}'",
 #endif
                             "Activity Detail FK Refno",
                             e));
                 }
+
                 // remove the Activity Detail FK Refno data from the bar code data
                 tempData = tempData.Remove(0, aiIndex);
             }

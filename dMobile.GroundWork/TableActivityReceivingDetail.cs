@@ -154,7 +154,7 @@ namespace dMobile.GroundWork
             {
                 rowsAffected = Convert.ToInt32(await DatabaseConnection.GetInstance().SQLConn.ExecuteScalarAsync<int>("SELECT COUNT(tActivityDetail.ActivityDetailRefno) FROM tActivityDetail WHERE tActivityDetail.ActivityDetailSubType = ?", Convert.ToInt32(SysCommon.ActSubTypes.Receiving)));
 
-                this.DataAccessStatusOutHandler(this, EventArgs.Empty, string.Format("{0} receiving details.", rowsAffected), true);
+                this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"{rowsAffected} receiving details.", true);
             }
             catch (SQLiteException ex)
             {
@@ -200,115 +200,113 @@ namespace dMobile.GroundWork
             {
                 try
                 {
-                    using (var ds = new DataSet())
+                    using var ds = new DataSet();
+                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Reading received data.", false);
+
+                    ds.ReadXml(SysCommon.GetXmlReader(ref reqData), XmlReadMode.Auto);
+
+                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving receiving details.", false);
+
+                    if (ds.Tables.Count != 0)
                     {
-                        this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Reading received data.", false);
+                        var progMax = Convert.ToInt32(ds.Tables["tActivityDetailPurchaseOrder"].Rows.Count);
 
-                        ds.ReadXml(SysCommon.GetXmlReader(ref reqData), XmlReadMode.Auto);
+                        this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"Records {progMax}", false);
 
-                        this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving receiving details.", false);
+                        var actDetailRefno = 0;
+                        var productUnitRefno = 0;
+                        var progValue = 0;
+                        var recvDetailFKRefno = 0;
 
-                        if (ds.Tables.Count != 0)
+                        this.DataAccessProgressOutHandler(this, EventArgs.Empty, 0, 0, progMax);
+
+                        var results = transaction.Query<tActivityItemReceivingModel>("SELECT * FROM tActivityItemReceiving WHERE ActivityItemRefno = ?", actItemRecvRefno);
+
+                        if (results == null || results?.Count == 0)
                         {
-                            var progMax = Convert.ToInt32(ds.Tables["tActivityDetailPurchaseOrder"].Rows.Count);
-
-                            this.DataAccessStatusOutHandler(this, EventArgs.Empty, string.Format("Records {0}", progMax), false);
-
-                            var actDetailRefno = 0;
-                            var productUnitRefno = 0;
-                            var progValue = 0;
-                            var recvDetailFKRefno = 0;
-
-                            this.DataAccessProgressOutHandler(this, EventArgs.Empty, 0, 0, progMax);
-
-                            var results = transaction.Query<tActivityItemReceivingModel>("SELECT * FROM tActivityItemReceiving WHERE ActivityItemRefno = ?", actItemRecvRefno);
-
-                            if (results == null || results?.Count == 0)
-                            {
-                                throw new Exception("No results in tActivityItemReceiving for ActivityItemRefno " + actItemRecvRefno + " " + this.FullClassName);
-                            }
-
-                            productUnitRefno = results[0].ProductUnitRefno;
-
-                            foreach (DataRow drow in ds.Tables["tActivityDetailPurchaseOrder"].Rows)
-                            {
-                                errMsg = "Arguments:";
-
-                                var queryInsertDetail = "INSERT INTO tActivityDetail " +
-                                                        "(" +
-                                                        "ActivityDetailSubType, " +
-                                                        "ActivityDetailStatus, " +
-                                                        "ActivityItemRefno, " +
-                                                        "LocationMapRefno, " +
-                                                        "ProductUnitRefno, " +
-                                                        "ActivityDetailUniqueSchemeID, " +
-                                                        "ActivityDetailSchemeID, " +
-                                                        "ActivityDetailQuantity, " +
-                                                        "ActivityDetailBaseQuantity, " +
-                                                        "ActivityDetailWeightQuantity, " +
-                                                        "ActivityDetailSingleTradeItemSerialNumber, " +
-                                                        "ActivityDetailLogisticUnitBatchLotNumber, " +
-                                                        "ActivityDetailLogisticUnitBestBeforeSellByDate, " +
-                                                        "ActivityDetailLogisticUnitExpiryUseByDate, " +
-                                                        "ActivityDetailLogisticUnitProductionDate, " +
-                                                        "ActivityDetailLogisticUnitDueDate, " +
-                                                        "ActivityDetailLogisticUnitPackagingDate, " +
-                                                        "ActivityDetailLogisticUnitSkidNumber" +
-                                                        ") " +
-                                                        "VALUES" +
-                                                        "(" +
-                                                        "?, " +
-                                                        "?, " +
-                                                        "?, " +
-                                                        "?, " +
-                                                        "?, " +
-                                                        "?, " +
-                                                        "?, " +
-                                                        "?, " +
-                                                        "?, " +
-                                                        "?, " +
-                                                        "?, " +
-                                                        "?, " +
-                                                        "?, " +
-                                                        "?, " +
-                                                        "?, " +
-                                                        "?, " +
-                                                        "?, " +
-                                                        "?" +
-                                                        ")";
-                                var parametersInsertDetail = new List<object>();
-                                parametersInsertDetail.Add(Convert.ToInt32(SysCommon.ActSubTypes.Receiving));
-                                parametersInsertDetail.Add(Convert.ToInt32(0));
-                                parametersInsertDetail.Add(actItemRecvRefno);
-                                parametersInsertDetail.Add(this.GetDetailLocation(drow, transaction, false));
-                                parametersInsertDetail.Add(productUnitRefno);
-                                parametersInsertDetail.AddRange(this.SaveDetail(drow, transaction, false));
-
-                                transaction.Execute(queryInsertDetail, parametersInsertDetail.ToArray());
-
-                                actDetailRefno = Convert.ToInt32(transaction.ExecuteScalar<int>("SELECT last_insert_rowid() FROM tActivityDetail"));
-                                recvDetailFKRefno = Convert.ToInt32(drow["ActivityDetailFKRefno"]);
-                                errMsg += Environment.NewLine + "Detail fk refno " + recvDetailFKRefno;
-
-                                transaction.Execute("INSERT INTO tActivityDetailReceiving (ActivityDetailRefno, ActivityDetailFKRefno) VALUES (?, ?)", actDetailRefno, recvDetailFKRefno);
-
-                                this.SaveCommonDetailVariant(drow, transaction, actDetailRefno, false);
-                                this.SaveDetailExtra(drow, transaction, actDetailRefno, false);
-
-                                progValue++;
-                                if (progValue % 10 == 0)
-                                {
-                                    this.DataAccessProgressOutHandler(this, EventArgs.Empty, progValue, 0, progMax);
-                                }
-                            }
-
-                            this.DataAccessProgressOutHandler(this, EventArgs.Empty, progMax, 0, progMax);
+                            throw new Exception("No results in tActivityItemReceiving for ActivityItemRefno " + actItemRecvRefno + " " + this.FullClassName);
                         }
 
-                        transaction.Commit();
+                        productUnitRefno = results[0].ProductUnitRefno;
 
-                        this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving receiving details complete.", false);
+                        foreach (DataRow drow in ds.Tables["tActivityDetailPurchaseOrder"].Rows)
+                        {
+                            errMsg = "Arguments:";
+
+                            var queryInsertDetail = "INSERT INTO tActivityDetail " +
+                                                    "(" +
+                                                    "ActivityDetailSubType, " +
+                                                    "ActivityDetailStatus, " +
+                                                    "ActivityItemRefno, " +
+                                                    "LocationMapRefno, " +
+                                                    "ProductUnitRefno, " +
+                                                    "ActivityDetailUniqueSchemeID, " +
+                                                    "ActivityDetailSchemeID, " +
+                                                    "ActivityDetailQuantity, " +
+                                                    "ActivityDetailBaseQuantity, " +
+                                                    "ActivityDetailWeightQuantity, " +
+                                                    "ActivityDetailSingleTradeItemSerialNumber, " +
+                                                    "ActivityDetailLogisticUnitBatchLotNumber, " +
+                                                    "ActivityDetailLogisticUnitBestBeforeSellByDate, " +
+                                                    "ActivityDetailLogisticUnitExpiryUseByDate, " +
+                                                    "ActivityDetailLogisticUnitProductionDate, " +
+                                                    "ActivityDetailLogisticUnitDueDate, " +
+                                                    "ActivityDetailLogisticUnitPackagingDate, " +
+                                                    "ActivityDetailLogisticUnitSkidNumber" +
+                                                    ") " +
+                                                    "VALUES" +
+                                                    "(" +
+                                                    "?, " +
+                                                    "?, " +
+                                                    "?, " +
+                                                    "?, " +
+                                                    "?, " +
+                                                    "?, " +
+                                                    "?, " +
+                                                    "?, " +
+                                                    "?, " +
+                                                    "?, " +
+                                                    "?, " +
+                                                    "?, " +
+                                                    "?, " +
+                                                    "?, " +
+                                                    "?, " +
+                                                    "?, " +
+                                                    "?, " +
+                                                    "?" +
+                                                    ")";
+                            var parametersInsertDetail = new List<object>();
+                            parametersInsertDetail.Add(Convert.ToInt32(SysCommon.ActSubTypes.Receiving));
+                            parametersInsertDetail.Add(Convert.ToInt32(0));
+                            parametersInsertDetail.Add(actItemRecvRefno);
+                            parametersInsertDetail.Add(this.GetDetailLocation(drow, transaction, false));
+                            parametersInsertDetail.Add(productUnitRefno);
+                            parametersInsertDetail.AddRange(this.SaveDetail(drow, transaction, false));
+
+                            transaction.Execute(queryInsertDetail, parametersInsertDetail.ToArray());
+
+                            actDetailRefno = Convert.ToInt32(transaction.ExecuteScalar<int>("SELECT last_insert_rowid() FROM tActivityDetail"));
+                            recvDetailFKRefno = Convert.ToInt32(drow["ActivityDetailFKRefno"]);
+                            errMsg += Environment.NewLine + "Detail fk refno " + recvDetailFKRefno;
+
+                            transaction.Execute("INSERT INTO tActivityDetailReceiving (ActivityDetailRefno, ActivityDetailFKRefno) VALUES (?, ?)", actDetailRefno, recvDetailFKRefno);
+
+                            this.SaveCommonDetailVariant(drow, transaction, actDetailRefno, false);
+                            this.SaveDetailExtra(drow, transaction, actDetailRefno, false);
+
+                            progValue++;
+                            if (progValue % 10 == 0)
+                            {
+                                this.DataAccessProgressOutHandler(this, EventArgs.Empty, progValue, 0, progMax);
+                            }
+                        }
+
+                        this.DataAccessProgressOutHandler(this, EventArgs.Empty, progMax, 0, progMax);
                     }
+
+                    transaction.Commit();
+
+                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving receiving details complete.", false);
                 }
                 catch (SQLiteException ex)
                 {

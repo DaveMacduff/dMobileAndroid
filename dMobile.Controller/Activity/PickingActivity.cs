@@ -213,7 +213,7 @@ namespace dMobile.Controller.Activity
                 }
                 else
                 {
-                    throw new Exception(string.Format("Order# {0} Print shipping label(s) failed.", this.HdrFkRefno));
+                    throw new Exception($"Order# {this.HdrFkRefno} Print shipping label(s) failed.");
                 }
             }
         }
@@ -297,7 +297,7 @@ namespace dMobile.Controller.Activity
                 }
                 else
                 {
-                    throw new Exception(string.Format("Order# {0} request shipping label(s) quantity failed.", this.HdrFkRefno));
+                    throw new Exception($"Order# {this.HdrFkRefno} request shipping label(s) quantity failed.");
                 }
             }
             catch (Exception ex)
@@ -440,7 +440,8 @@ namespace dMobile.Controller.Activity
         {
             var isReleased = false;
 
-            if (await Device.InvokeOnMainThreadAsync(async () => await Application.Current.MainPage.DisplayAlert(this.GetControlDescription(), string.Format("Release order# {0} ?", this.HdrFkRefno), "Yes", "No")))
+            if (await Device.InvokeOnMainThreadAsync(async () => await Application.Current.MainPage.DisplayAlert(this.GetControlDescription(),
+                    $"Release order# {this.HdrFkRefno} ?", "Yes", "No")))
             {
                 var reqResult = string.Empty;
                 var xmlString = new StringBuilder();
@@ -477,7 +478,7 @@ namespace dMobile.Controller.Activity
                 }
                 else
                 {
-                    throw new Exception(string.Format("Release order# {0} failed.", this.HdrFkRefno));
+                    throw new Exception($"Release order# {this.HdrFkRefno} failed.");
                 }
             }
 
@@ -551,7 +552,7 @@ namespace dMobile.Controller.Activity
                 }
                 else
                 {
-                    throw new Exception(string.Format("Order# {0} quantity under check failed.", this.HdrFkRefno));
+                    throw new Exception($"Order# {this.HdrFkRefno} quantity under check failed.");
                 }
             }
         }
@@ -1187,7 +1188,7 @@ namespace dMobile.Controller.Activity
                 slotLocMapFkRefno: 0);
             var locMap = sLocMapAndRefno.SLocMap;
 
-            var msg = string.Format("Release order# {0} for warehouse {1}, section {2}?", this.HdrFkRefno, locMap.WhsName, locMap.SectName);
+            var msg = $"Release order# {this.HdrFkRefno} for warehouse {locMap.WhsName}, section {locMap.SectName}?";
 
             // if (MessageBox.Show(
             //    msg,
@@ -1235,7 +1236,8 @@ namespace dMobile.Controller.Activity
                 }
                 else
                 {
-                    throw new Exception(string.Format("Release order# {0} by order item section {1} failed.", this.HdrFkRefno, locMap.SectName));
+                    throw new Exception(
+                        $"Release order# {this.HdrFkRefno} by order item section {locMap.SectName} failed.");
                 }
             }
 

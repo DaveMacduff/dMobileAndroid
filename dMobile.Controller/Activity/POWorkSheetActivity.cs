@@ -192,8 +192,10 @@ namespace dMobile.Controller.Activity
             foreach (PurchaseOrderWorkSheetItem purchaseOrderWorkSheetItem in observableCollection)
             {
                 var detailWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(purchaseOrderWorkSheetItem.ProductCode);
-                var detailWidth1 = DependencyService.Get<IGridService>().CalculateTextWidth(string.Format("{0:F3}", purchaseOrderWorkSheetItem.ActivityItemPurchaseOrderWorkSheetQuantityOrdered));
-                var detailWidth2 = DependencyService.Get<IGridService>().CalculateTextWidth(string.Format("{0:F3}", purchaseOrderWorkSheetItem.ActivityItemPurchaseOrderWorkSheetWeightQuantityOrdered));
+                var detailWidth1 = DependencyService.Get<IGridService>().CalculateTextWidth(
+                    $"{purchaseOrderWorkSheetItem.ActivityItemPurchaseOrderWorkSheetQuantityOrdered:F3}");
+                var detailWidth2 = DependencyService.Get<IGridService>().CalculateTextWidth(
+                    $"{purchaseOrderWorkSheetItem.ActivityItemPurchaseOrderWorkSheetWeightQuantityOrdered:F3}");
 
                 if (detailWidth0 > this.columnWidth0)
                 {

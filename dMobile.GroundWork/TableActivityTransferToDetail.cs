@@ -109,7 +109,7 @@ namespace dMobile.GroundWork
             {
                 rowsAffected = Convert.ToInt32(await DatabaseConnection.GetInstance().SQLConn.ExecuteScalarAsync<int>("SELECT COUNT(ActivityDetailRefno) FROM tActivityDetail WHERE ActivityDetailSubType = ?", Convert.ToInt32(SysCommon.ActSubTypes.TransferTo)));
 
-                this.DataAccessStatusOutHandler(this, EventArgs.Empty, string.Format("{0} transfer details.", rowsAffected), true);
+                this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"{rowsAffected} transfer details.", true);
             }
             catch (SQLiteException ex)
             {
@@ -182,7 +182,8 @@ namespace dMobile.GroundWork
             }
             else
             {
-                throw new Exception("drItem.Read() failed. " + string.Format("Unable to locate to activity item transfer refno {0} in tActivityItemTransfer.", actItemRefno));
+                throw new Exception("drItem.Read() failed. " +
+                                    $"Unable to locate to activity item transfer refno {actItemRefno} in tActivityItemTransfer.");
             }
 
             return await this.SendComm(await this.CreateRequest(actItemFKRefno));
@@ -214,7 +215,7 @@ namespace dMobile.GroundWork
                         {
                             var progMax = Convert.ToInt32(ds.Tables["tActivityDetailTransfer"].Rows.Count);
 
-                            this.DataAccessStatusOutHandler(this, EventArgs.Empty, string.Format("Records {0}", progMax), false);
+                            this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"Records {progMax}", false);
 
                             var actDetailRefno = 0;
                             var progValue = 0;
@@ -226,7 +227,8 @@ namespace dMobile.GroundWork
 
                             if (resultsActivityItemTransfer == null || resultsActivityItemTransfer?.Count == 0)
                             {
-                                throw new Exception(string.Format("Unable to locate the activity item transfer refno {0} in tActivityItemTransfer.", actItemTransferRefno) + Environment.NewLine + errMsg);
+                                throw new Exception(
+                                    $"Unable to locate the activity item transfer refno {actItemTransferRefno} in tActivityItemTransfer." + Environment.NewLine + errMsg);
                             }
 
                             foreach (DataRow drow in ds.Tables["tActivityDetailTransfer"].Rows)

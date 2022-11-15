@@ -445,9 +445,9 @@ namespace dMobile.Controller.Activity_Detail
                 var detailWidth2 = DependencyService.Get<IGridService>().
                     CalculateTextWidth(moveInventoryDetail.UnitCode);
                 var detailWidth3 = DependencyService.Get<IGridService>().
-                    CalculateTextWidth(string.Format("{0:F3}", moveInventoryDetail.ActivityDetailQuantity));
+                    CalculateTextWidth($"{moveInventoryDetail.ActivityDetailQuantity:F3}");
                 var detailWidth4 = DependencyService.Get<IGridService>().
-                    CalculateTextWidth(string.Format("{0:F3}", moveInventoryDetail.ActivityDetailWeightQuantity));
+                    CalculateTextWidth($"{moveInventoryDetail.ActivityDetailWeightQuantity:F3}");
                 var detailWidth5 = DependencyService.Get<IGridService>().
                     CalculateTextWidth(moveInventoryDetail.ActivityDetailSchemeID);
 
@@ -710,9 +710,9 @@ namespace dMobile.Controller.Activity_Detail
             var detailWidth1 = DependencyService.Get<IGridService>().CalculateTextWidth(actDetail.ProductUnitBC);
             var detailWidth2 = DependencyService.Get<IGridService>().CalculateTextWidth(actDetail.UnitCode);
             var detailWidth3 = DependencyService.Get<IGridService>()
-                .CalculateTextWidth(string.Format("{0:F3}", actDetail.ActivityDetailQuantity));
+                .CalculateTextWidth($"{actDetail.ActivityDetailQuantity:F3}");
             var detailWidth4 = DependencyService.Get<IGridService>()
-                .CalculateTextWidth(string.Format("{0:F3}", actDetail.ActivityDetailWeightQuantity));
+                .CalculateTextWidth($"{actDetail.ActivityDetailWeightQuantity:F3}");
             var detailWidth5 = DependencyService.Get<IGridService>()
                 .CalculateTextWidth(actDetail.ActivityDetailSchemeID);
 

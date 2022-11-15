@@ -31,6 +31,7 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
             {
                 barCodeData = this.IdentifyProductIdentifier(barCodeData);   // does not remove data
                 barCodeData = this.IdentifyGTIN(barCodeData);   // does not remove data
+
                                                                 // parse the GTIN
                 barCodeData = this.IdentifyPackagingType(barCodeData);
                 barCodeData = barCodeData.Remove(0, 2);   // remove the UPC numbering system or EAN prefix
@@ -42,6 +43,7 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
                 {
                     barCodeData = barCodeData.Remove(0, 1);    // remove the check digit
                 }
+
                 // end parse GTIN
             }
             this.Remainder = barCodeData;

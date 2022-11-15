@@ -154,7 +154,7 @@ namespace dMobile.GroundWork
                 var query = "SELECT COUNT(ActivityDetailRefno) FROM tActivityDetail WHERE ActivityDetailSubType = ?";
                 rowsAffected = await DatabaseConnection.GetInstance().SQLConn.ExecuteScalarAsync<int>(query, Convert.ToInt32(SysCommon.ActSubTypes.PhysicalCounts));
 
-                this.DataAccessStatusOutHandler(this, EventArgs.Empty, string.Format("{0} Physical count details.", rowsAffected), true);
+                this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"{rowsAffected} Physical count details.", true);
             }
             catch (SQLiteException ex)
             {
@@ -211,7 +211,7 @@ namespace dMobile.GroundWork
                         if (ds.Tables.Count != 0)
                         {
                             var progMax = Convert.ToInt32(ds.Tables["tActivityDetailCount"].Rows.Count);
-                            this.DataAccessStatusOutHandler(this, EventArgs.Empty, string.Format("Records {0}.", progMax), false);
+                            this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"Records {progMax}.", false);
                             var actDetailRefno = 0;
                             var progValue = 0;
                             var actDetailPhysicalFKRefno = 0;

@@ -551,31 +551,32 @@ namespace dMobile.View.Pages
                 sysSock.SendTotalRetries = this.SysEnv.CommSetup.SendAttempts;
                 sysSock.RecvTotalRetries = this.SysEnv.CommSetup.ReceiveAttempts;
 
-                this.StartUpStatusOut(sender, e, string.Format("Base socket port: {0}", sysSock.BasePort));
-                this.StartUpStatusOut(sender, e, string.Format("Default socket port: {0}", sysSock.DefSocketPort));
-                this.StartUpStatusOut(sender, e, string.Format("Max socket port: {0}", sysSock.MaxPorts));
-                this.StartUpStatusOut(sender, e, string.Format("Connection retries: {0}", sysSock.ConnTotalRetries));
-                this.StartUpStatusOut(sender, e, string.Format("Socket send retries: {0}", sysSock.SendTotalRetries));
-                this.StartUpStatusOut(sender, e, string.Format("Socket receive retries: {0}", sysSock.RecvTotalRetries));
+                this.StartUpStatusOut(sender, e, $"Base socket port: {sysSock.BasePort}");
+                this.StartUpStatusOut(sender, e, $"Default socket port: {sysSock.DefSocketPort}");
+                this.StartUpStatusOut(sender, e, $"Max socket port: {sysSock.MaxPorts}");
+                this.StartUpStatusOut(sender, e, $"Connection retries: {sysSock.ConnTotalRetries}");
+                this.StartUpStatusOut(sender, e, $"Socket send retries: {sysSock.SendTotalRetries}");
+                this.StartUpStatusOut(sender, e, $"Socket receive retries: {sysSock.RecvTotalRetries}");
 
                 sysSock.SendTimeOutMilliseconds = this.SysEnv.CommSetup.SendTimeOutSeconds * 1000;
 
-                this.StartUpStatusOut(sender, e, string.Format("Send time out: {0} seconds.", this.SysEnv.CommSetup.SendTimeOutSeconds));
+                this.StartUpStatusOut(sender, e, $"Send time out: {this.SysEnv.CommSetup.SendTimeOutSeconds} seconds.");
 
                 sysSock.ReceiveTimeOutMilliseconds = this.SysEnv.CommSetup.ReceiveTimeOutSeconds * 1000;
 
-                this.StartUpStatusOut(sender, e, string.Format("Receive time out: {0} seconds.", this.SysEnv.CommSetup.ReceiveTimeOutSeconds));
+                this.StartUpStatusOut(sender, e,
+                    $"Receive time out: {this.SysEnv.CommSetup.ReceiveTimeOutSeconds} seconds.");
 
                 sysSock.RecvBuffSize = this.SysEnv.CommSetup.ReceiveBufferSize;
 
-                this.StartUpStatusOut(sender, e, string.Format("Receive buffer size: {0} ", sysSock.RecvBuffSize));
+                this.StartUpStatusOut(sender, e, $"Receive buffer size: {sysSock.RecvBuffSize} ");
 
                 sysSock.ServerIP = this.SysEnv.CommSetup.HostIPAddressComponent1 + "."
                     + this.SysEnv.CommSetup.HostIPAddressComponent2 + "."
                     + this.SysEnv.CommSetup.HostIPAddressComponent3 + "."
                     + this.SysEnv.CommSetup.HostIPAddressComponent4;
 
-                this.StartUpStatusOut(sender, e, string.Format("Server host IP: {0}", sysSock.ServerIP));
+                this.StartUpStatusOut(sender, e, $"Server host IP: {sysSock.ServerIP}");
                 this.StartUpStatusOut(sender, e, "Creating connection request.");
 
                 try
@@ -594,7 +595,7 @@ namespace dMobile.View.Pages
                         var sendReq = CommunicationSetup.CreateXMLSubmitDeviceID();
                         var bytesSent = sysSock.SendRequest(socket, sendReq);
 
-                        this.StartUpStatusOut(sender, e, string.Format("Bytes sent: {0}", bytesSent));
+                        this.StartUpStatusOut(sender, e, $"Bytes sent: {bytesSent}");
                         this.StartUpStatusOut(sender, e, "Waiting for response.");
 
                         var bytRecvData = sysSock.ReceiveResponse(socket);

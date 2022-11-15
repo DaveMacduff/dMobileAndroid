@@ -272,7 +272,7 @@ namespace dMobile.Controller.Activity_Item
         /// <returns>.</returns>
         public override string GetUnableToParseItemFkRefnoMessage(string actItemStringFkRefno)
         {
-            return string.Format("Unable to parse the transfer item # {0}", actItemStringFkRefno);
+            return $"Unable to parse the transfer item # {actItemStringFkRefno}";
         }
 
         /// <summary>
@@ -282,7 +282,7 @@ namespace dMobile.Controller.Activity_Item
         /// <returns>.</returns>
         public override string GetUnableToFindItemFkRefnoMessage(string actItemStringFkRefno)
         {
-            return string.Format("Unable to find the transfer item # {0}", actItemStringFkRefno);
+            return $"Unable to find the transfer item # {actItemStringFkRefno}";
         }
 
         /// <summary>
@@ -537,8 +537,10 @@ namespace dMobile.Controller.Activity_Item
                 var detailWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(transferItem.ProductCode);
                 var detailWidth1 = DependencyService.Get<IGridService>().CalculateTextWidth(transferItem.ProductUnitBC);
                 var detailWidth2 = DependencyService.Get<IGridService>().CalculateTextWidth(transferItem.UnitCode);
-                var detailWidth3 = DependencyService.Get<IGridService>().CalculateTextWidth(string.Format("{0:F3}", transferItem.ActivityItemTransferRequiredQuantity));
-                var detailWidth4 = DependencyService.Get<IGridService>().CalculateTextWidth(string.Format("{0:F3}", transferItem.ActivityItemTransferQuantity));
+                var detailWidth3 = DependencyService.Get<IGridService>().CalculateTextWidth(
+                    $"{transferItem.ActivityItemTransferRequiredQuantity:F3}");
+                var detailWidth4 = DependencyService.Get<IGridService>().CalculateTextWidth(
+                    $"{transferItem.ActivityItemTransferQuantity:F3}");
                 var detailWidth5 = DependencyService.Get<IGridService>().CalculateTextWidth(Convert.ToString(transferItem.LocationCode));
 
                 if (detailWidth0 > this.columnWidth0)
@@ -720,6 +722,7 @@ namespace dMobile.Controller.Activity_Item
             // if (string.IsNullOrEmpty(this.ActItemFilter))
             // {
             this.ListItems = this.listTransferItems.Where(transferItem => transferItem.ProductCode.ToLower().Contains(searchText.ToLower().Trim())).Cast<object>().ToList();
+
             // }
             // else
             // {
@@ -960,7 +963,8 @@ namespace dMobile.Controller.Activity_Item
 
                 if (transferred + actItemTransQuantity > required)
                 {
-                    throw new Exception(string.Format("The resulting quantity transferred {0} {1} will be greater than the quantity required {2} {3}.", transferred + actItemTransQuantity, this.ProdInfo.UnitCode, required, this.ProdInfo.UnitCode));
+                    throw new Exception(
+                        $"The resulting quantity transferred {transferred + actItemTransQuantity} {this.ProdInfo.UnitCode} will be greater than the quantity required {required} {this.ProdInfo.UnitCode}.");
                 }
             }
         }
@@ -982,7 +986,7 @@ namespace dMobile.Controller.Activity_Item
         /// <returns><see cref="string"/> Get activity item control description.</returns>
         public override string GetControlDescription()
         {
-            return string.Format("Transfer # {0}", this.ActHdr.HdrFkRefno);
+            return $"Transfer # {this.ActHdr.HdrFkRefno}";
         }
 
         /// <summary>

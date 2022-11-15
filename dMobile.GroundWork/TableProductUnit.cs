@@ -46,7 +46,7 @@ namespace dMobile.GroundWork
                 {
                     foreach (var family in resultsFamily)
                     {
-                        this.DataAccessStatusOutHandler(this, EventArgs.Empty, string.Format("For family {0}", family.FamilyCode), true);
+                        this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"For family {family.FamilyCode}", true);
 
                         reqData = await this.SendRequest(family.FamilyCode);
 
@@ -189,7 +189,7 @@ namespace dMobile.GroundWork
             {
                 rowsAffected = Convert.ToInt32(await DatabaseConnection.GetInstance().SQLConn.ExecuteScalarAsync<int>("SELECT COUNT(*) FROM tProductUnit"));
 
-                this.DataAccessStatusOutHandler(this, EventArgs.Empty, string.Format("{0} product units.", rowsAffected), true);
+                this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"{rowsAffected} product units.", true);
             }
             catch (SQLiteException ex)
             {
@@ -231,164 +231,191 @@ namespace dMobile.GroundWork
             {
                 try
                 {
-                    var startIndex = reqData.IndexOf("<VFPData");
+                    var startIndex = reqData.IndexOf("<VFPData", StringComparison.Ordinal);
 
                     this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Reading received data.", false);
 
-                    using (var stringReader = new StringReader(reqData.Substring(startIndex)))
-                    using (var reader = XmlReader.Create(stringReader))
+                    using var stringReader = new StringReader(reqData.Substring(startIndex));
+                    using var reader = XmlReader.Create(stringReader);
+                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving product uom.", false);
+
+                    var resultsUnit = transaction.Query<tUnitModel>("SELECT * FROM tUnit");
+
+                    if (resultsUnit?.Count > 0)
                     {
-                        this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving product uom.", false);
-
-                        var resultsUnit = transaction.Query<tUnitModel>("SELECT * FROM tUnit");
-
-                        if (resultsUnit?.Count > 0)
+                        foreach (var unit in resultsUnit)
                         {
-                            foreach (var unit in resultsUnit)
+                            unitLookup.Add(unit.UnitCode, unit.UnitRefno);
+                        }
+                    }
+
+                    var prodRefno = 0;
+                    var unitRefno = 0;
+                    var baseUnitRefno = 0;
+                    var wtUnitRefno = 0;
+                    var isProdUnitFound = false;
+                    var prodCode = string.Empty;
+
+                    // f01
+                    var isProdUnitBC = false;
+
+                    // f02
+                    decimal prodUnitWeight = 0;
+
+                    // f03
+                    var description = string.Empty;
+
+                    // f04
+                    var prodFKRefno = 0;
+
+                    // f05
+                    var unitCode = string.Empty;
+
+                    // f06
+                    var baseUnitCode = string.Empty;
+
+                    // f07
+                    var wtUnitCode = string.Empty;
+
+                    // f08
+                    var isProdUnitSellUnit = false;
+
+                    // f09
+                    var isProdUnitDefault = false;
+
+                    // f10
+                    decimal boxCount = 0;
+
+                    // f11
+                    var weightTolerance = 0.00M;
+
+                    this.DataAccessProgressOutHandler(this, EventArgs.Empty, 0, 0, 100);
+
+                    while (!reader.EOF)
+                    {
+                        prodRefno = 0;
+                        unitRefno = 0;
+                        baseUnitRefno = 0;
+                        wtUnitRefno = 0;
+                        isProdUnitFound = false;
+                        prodCode = string.Empty;
+                        isProdUnitBC = false;
+                        prodUnitWeight = 0;
+                        description = string.Empty;
+                        prodFKRefno = 0;
+                        unitCode = string.Empty;
+                        baseUnitCode = string.Empty;
+                        wtUnitCode = string.Empty;
+                        isProdUnitSellUnit = false;
+                        isProdUnitDefault = false;
+                        boxCount = 0;
+                        weightTolerance = 0.00M;
+
+                        var recordFilled = false;
+                        var elementName = string.Empty;
+
+                        while (!recordFilled && reader.Read())
+                        {
+                            // fill one record
+                            if (reader.NodeType == XmlNodeType.Element)
                             {
-                                unitLookup.Add(unit.UnitCode, unit.UnitRefno);
+                                elementName = reader.Name;
                             }
+                            else if (reader.NodeType == XmlNodeType.Text)
+                            {
+                                switch (elementName)
+                                {
+                                    case "f01":
+                                        isProdUnitBC = reader.ReadContentAsBoolean();
+                                        break;
+                                    case "f02":
+                                        prodUnitWeight = reader.ReadContentAsDecimal();
+                                        break;
+                                    case "f03":
+                                        description = reader.Value;
+                                        break;
+                                    case "f04":
+                                        prodFKRefno = reader.ReadContentAsInt();
+                                        break;
+                                    case "f05":
+                                        unitCode = reader.Value;
+                                        break;
+                                    case "f06":
+                                        baseUnitCode = reader.Value;
+                                        break;
+                                    case "f07":
+                                        wtUnitCode = reader.Value;
+                                        break;
+                                    case "f08":
+                                        isProdUnitSellUnit = reader.ReadContentAsBoolean();
+                                        break;
+                                    case "f09":
+                                        isProdUnitDefault = reader.ReadContentAsBoolean();
+                                        break;
+                                    case "f10":
+                                        boxCount = reader.ReadContentAsDecimal();
+                                        break;
+                                    case "f11":
+                                        weightTolerance = reader.ReadContentAsDecimal();
+                                        break;
+                                }
+                            }
+                            else if (reader.NodeType == XmlNodeType.EndElement && reader.Name == "seg")
+                            {
+                                recordFilled = true; // we are full;
+                            }
+                        } // end of fill record
+
+                        if (!recordFilled)
+                        {
+                            continue; // prevent the last record (empty) from being used (set to last due to no overwriting)
                         }
 
-                        var prodRefno = 0;
-                        var unitRefno = 0;
-                        var baseUnitRefno = 0;
-                        var wtUnitRefno = 0;
-                        var isProdUnitFound = false;
-                        var prodCode = string.Empty;
+                        prodCode = string.Empty;
 
-                        // f01
-                        var isProdUnitBC = false;
-                        // f02
-                        decimal prodUnitWeight = 0;
-                        // f03
-                        var description = string.Empty;
-                        // f04
-                        var prodFKRefno = 0;
-                        // f05
-                        var unitCode = string.Empty;
-                        // f06
-                        var baseUnitCode = string.Empty;
-                        // f07
-                        var wtUnitCode = string.Empty;
-                        // f08
-                        var isProdUnitSellUnit = false;
-                        // f09
-                        var isProdUnitDefault = false;
-                        // f10
-                        decimal boxCount = 0;
-                        // f11
-                        var weightTolerance = 0.00M;
+                        errMsg.Length = 0;
+                        errMsg.Append("FK refno: ").Append(prodFKRefno);
 
-                        this.DataAccessProgressOutHandler(this, EventArgs.Empty, 0, 0, 100);
+                        errMsg.Append(Environment.NewLine).Append("Is sell unit: ").Append(isProdUnitSellUnit);
+                        errMsg.Append(Environment.NewLine).Append("Is bc: ").Append(isProdUnitBC);
+                        errMsg.Append(Environment.NewLine).Append("Is default: ").Append(isProdUnitDefault);
+                        errMsg.Append(Environment.NewLine).Append("Box count: ").Append(boxCount);
 
-                        while (!reader.EOF)
+                        var resultsProduct = transaction.Query<tProductModel>("SELECT * FROM tProduct WHERE ProductFKRefno = ?", prodFKRefno);
+
+                        if (resultsProduct?.Count > 0)
                         {
-                            var recordFilled = false;
-                            var elementName = string.Empty;
+                            prodRefno = resultsProduct[0].ProductRefno;
+                            prodCode = resultsProduct[0].ProductCode;
+                        }
+                        else
+                        {
+                            throw new Exception("drProd.Read() failed." + Environment.NewLine + errMsg.ToString());
+                        }
 
-                            while (!recordFilled && reader.Read())
+                        errMsg.Append(Environment.NewLine).Append("Refno: \'").Append(prodRefno).Append("\'");
+                        errMsg.Append(Environment.NewLine).Append("Code: \'").Append(prodCode).Append("\'");
+                        errMsg.Append(Environment.NewLine).Append("Unit: \'").Append(unitCode).Append("\'");
+
+                        unitLookup.TryGetValue(unitCode, out unitRefno);
+
+                        errMsg.Append(Environment.NewLine).Append("Base unit: \'").Append(baseUnitCode).Append("\'");
+                        unitLookup.TryGetValue(baseUnitCode, out baseUnitRefno);
+
+                        errMsg.Append(Environment.NewLine).Append("Weight unit: \'").Append(wtUnitCode).Append("\'");
+                        unitLookup.TryGetValue(wtUnitCode, out wtUnitRefno);
+
+                        isProdUnitFound = false;
+
+                        var resultsUnitProductUnit = transaction.Query<tProductUnitModel>("SELECT * FROM tProductUnit WHERE ProductRefno = ? AND UnitRefno = ? AND ProductUnitIsBC = ?", prodRefno, unitRefno, isProdUnitBC);
+
+                        if (resultsUnitProductUnit?.Count > 0)
+                        {
+                            isProdUnitFound = true;
+
+                            if (this.SysEnv.RefreshOpt.RefreshDataChangesOnly)
                             {
-                                // fill one record
-                                if (reader.NodeType == XmlNodeType.Element)
-                                {
-                                    elementName = reader.Name;
-                                }
-                                else if (reader.NodeType == XmlNodeType.Text)
-                                {
-                                    switch (elementName)
-                                    {
-                                        case "f01":
-                                            isProdUnitBC = reader.ReadContentAsBoolean();
-                                            break;
-                                        case "f02":
-                                            prodUnitWeight = reader.ReadContentAsDecimal();
-                                            break;
-                                        case "f03":
-                                            description = reader.Value;
-                                            break;
-                                        case "f04":
-                                            prodFKRefno = reader.ReadContentAsInt();
-                                            break;
-                                        case "f05":
-                                            unitCode = reader.Value;
-                                            break;
-                                        case "f06":
-                                            baseUnitCode = reader.Value;
-                                            break;
-                                        case "f07":
-                                            wtUnitCode = reader.Value;
-                                            break;
-                                        case "f08":
-                                            isProdUnitSellUnit = reader.ReadContentAsBoolean();
-                                            break;
-                                        case "f09":
-                                            isProdUnitDefault = reader.ReadContentAsBoolean();
-                                            break;
-                                        case "f10":
-                                            boxCount = reader.ReadContentAsDecimal();
-                                            break;
-                                        case "f11":
-                                            weightTolerance = reader.ReadContentAsDecimal();
-                                            break;
-                                    }
-                                }
-                                else if (reader.NodeType == XmlNodeType.EndElement && reader.Name == "seg")
-                                {
-                                    recordFilled = true; // we are full;
-                                }
-                            } // end of fill record
-
-                            if (!recordFilled)
-                            {
-                                continue; // prevent the last record (empty) from being used (set to last due to no overwriting)
-                            }
-
-                            prodCode = string.Empty;
-
-                            errMsg.Length = 0;
-                            errMsg.Append("FK refno: ").Append(prodFKRefno);
-
-                            errMsg.Append(Environment.NewLine).Append("Is sell unit: ").Append(isProdUnitSellUnit);
-                            errMsg.Append(Environment.NewLine).Append("Is bc: ").Append(isProdUnitBC);
-                            errMsg.Append(Environment.NewLine).Append("Is default: ").Append(isProdUnitDefault);
-                            errMsg.Append(Environment.NewLine).Append("Box count: ").Append(boxCount);
-
-                            var resultsProduct = transaction.Query<tProductModel>("SELECT * FROM tProduct WHERE ProductFKRefno = ?", prodFKRefno);
-
-                            if (resultsProduct?.Count > 0)
-                            {
-                                prodRefno = resultsProduct[0].ProductRefno;
-                                prodCode = resultsProduct[0].ProductCode;
-                            }
-                            else
-                            {
-                                throw new Exception("drProd.Read() failed." + Environment.NewLine + errMsg.ToString());
-                            }
-
-                            errMsg.Append(Environment.NewLine).Append("Refno: \'").Append(prodRefno).Append("\'");
-                            errMsg.Append(Environment.NewLine).Append("Code: \'").Append(prodCode).Append("\'");
-                            errMsg.Append(Environment.NewLine).Append("Unit: \'").Append(unitCode).Append("\'");
-
-                            unitLookup.TryGetValue(unitCode, out unitRefno);
-
-                            errMsg.Append(Environment.NewLine).Append("Base unit: \'").Append(baseUnitCode).Append("\'");
-                            unitLookup.TryGetValue(baseUnitCode, out baseUnitRefno);
-
-                            errMsg.Append(Environment.NewLine).Append("Weight unit: \'").Append(wtUnitCode).Append("\'");
-                            unitLookup.TryGetValue(wtUnitCode, out wtUnitRefno);
-
-                            isProdUnitFound = false;
-
-                            var resultsUnitProductUnit = transaction.Query<tProductUnitModel>("SELECT * FROM tProductUnit WHERE ProductRefno = ? AND UnitRefno = ? AND ProductUnitIsBC = ?", prodRefno, unitRefno, isProdUnitBC);
-
-                            if (resultsUnitProductUnit?.Count > 0)
-                            {
-                                isProdUnitFound = true;
-
-                                if (this.SysEnv.RefreshOpt.RefreshDataChangesOnly)
-                                {
-                                    var queryUpdate = @"UPDATE tProductUnit
+                                var queryUpdate = @"UPDATE tProductUnit
                                             SET BaseUnitRefno =  ?,
                                             WtUnitRefno = ?,
                                             ProductUnitWeight = ?,
@@ -399,8 +426,8 @@ namespace dMobile.GroundWork
                                              WHERE ProductRefno = ?
                                              AND UnitRefno = ?
                                              AND ProductUnitIsBC = ?";
-                                    var parametersUpdate = new object[]
-                                    {
+                                var parametersUpdate = new object[]
+                                {
                                         Convert.ToInt32(baseUnitRefno),
                                         Convert.ToInt32(wtUnitRefno),
                                         Convert.ToDecimal(prodUnitWeight),
@@ -411,42 +438,42 @@ namespace dMobile.GroundWork
                                         Convert.ToInt32(prodRefno),
                                         Convert.ToInt32(unitRefno),
                                         Convert.ToInt32(isProdUnitBC),
-                                    };
+                                };
 
-                                    transaction.Execute(queryUpdate, parametersUpdate);
-                                }
+                                transaction.Execute(queryUpdate, parametersUpdate);
                             }
+                        }
 
-                            if (!isProdUnitFound)
+                        if (!isProdUnitFound)
+                        {
+                            var queryInsert = "INSERT INTO tProductUnit " +
+                                              "(ProductRefno, " +
+                                              "UnitRefno, " +
+                                              "BaseUnitRefno, " +
+                                              "WtUnitRefno, " +
+                                              "ProductUnitIsBC, " +
+                                              "ProductUnitBC, " +
+                                              "ProductUnitWeight, " +
+                                              "ProductUnitSizeDescription, " +
+                                              "ProductUnitIsSellUnit, " +
+                                              "ProductUnitIsDefault, " +
+                                              "ProductUnitBoxCount," +
+                                              "ProductUnitWeightTolerance) " +
+                                              "VALUES " +
+                                              "(?, " +
+                                              "?, " +
+                                              "?, " +
+                                              "?, " +
+                                              "?, " +
+                                              "?, " +
+                                              "?, " +
+                                              "?, " +
+                                              "?, " +
+                                              "?, " +
+                                              "?," +
+                                              "?)";
+                            var parametersInsert = new object[]
                             {
-                                var queryInsert = "INSERT INTO tProductUnit " +
-                                                  "(ProductRefno, " +
-                                                  "UnitRefno, " +
-                                                  "BaseUnitRefno, " +
-                                                  "WtUnitRefno, " +
-                                                  "ProductUnitIsBC, " +
-                                                  "ProductUnitBC, " +
-                                                  "ProductUnitWeight, " +
-                                                  "ProductUnitSizeDescription, " +
-                                                  "ProductUnitIsSellUnit, " +
-                                                  "ProductUnitIsDefault, " +
-                                                  "ProductUnitBoxCount," +
-                                                  "ProductUnitWeightTolerance) " +
-                                                  "VALUES " +
-                                                  "(?, " +
-                                                  "?, " +
-                                                  "?, " +
-                                                  "?, " +
-                                                  "?, " +
-                                                  "?, " +
-                                                  "?, " +
-                                                  "?, " +
-                                                  "?, " +
-                                                  "?, " +
-                                                  "?," +
-                                                  "?)";
-                                var parametersInsert = new object[]
-                                {
                                     Convert.ToInt32(prodRefno),
                                     Convert.ToInt32(unitRefno),
                                     Convert.ToInt32(baseUnitRefno),
@@ -459,26 +486,25 @@ namespace dMobile.GroundWork
                                     Convert.ToInt32(isProdUnitDefault),
                                     Convert.ToDecimal(boxCount),
                                     Convert.ToDecimal(weightTolerance),
-                                };
+                            };
 
-                                transaction.Execute(queryInsert, parametersInsert);
-                            }
+                            transaction.Execute(queryInsert, parametersInsert);
+                        }
 
-                            ++recordCount;
-                            if (recordCount % 100 == 0)
-                            {
-                                this.DataAccessProgressOutHandler(this, EventArgs.Empty, recordCount / 10 % 100, 0, 100);
-                            }
-                        } // end of data
+                        ++recordCount;
+                        if (recordCount % 100 == 0)
+                        {
+                            this.DataAccessProgressOutHandler(this, EventArgs.Empty, recordCount / 10 % 100, 0, 100);
+                        }
+                    } // end of data
 
-                        this.DataAccessProgressOutHandler(this, EventArgs.Empty, 100, 0, 100);
+                    this.DataAccessProgressOutHandler(this, EventArgs.Empty, 100, 0, 100);
 
-                        this.DataAccessStatusOutHandler(this, EventArgs.Empty, string.Format("Records {0}", recordCount), false);
+                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"Records {recordCount}", false);
 
-                        transaction.Commit();
+                    transaction.Commit();
 
-                        this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving product uom complete.", false);
-                    }
+                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving product uom complete.", false);
                 }
                 catch (SQLiteException ex)
                 {

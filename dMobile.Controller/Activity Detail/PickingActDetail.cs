@@ -999,9 +999,9 @@ namespace dMobile.Controller.Activity_Detail
                 var detailWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(
                     pickingDetail.ActivityDetailIsConfirmedString);
                 var detailWidth1 = DependencyService.Get<IGridService>().CalculateTextWidth(
-                    string.Format("{0:F3}", pickingDetail.ActivityDetailQuantity));
+                    $"{pickingDetail.ActivityDetailQuantity:F3}");
                 var detailWidth2 = DependencyService.Get<IGridService>().CalculateTextWidth(
-                    string.Format("{0:F3}", pickingDetail.ActivityDetailWeightQuantity));
+                    $"{pickingDetail.ActivityDetailWeightQuantity:F3}");
                 var detailWidth3 = DependencyService.Get<IGridService>().CalculateTextWidth(pickingDetail.UnitCode);
                 var detailWidth4 = DependencyService.Get<IGridService>().CalculateTextWidth(
                     pickingDetail.ActivityDetailSchemeID);
@@ -1152,9 +1152,9 @@ namespace dMobile.Controller.Activity_Detail
             var detailWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(
                 ((PickingDetail)actDetail).ActivityDetailIsConfirmedString);
             var detailWidth1 = DependencyService.Get<IGridService>().CalculateTextWidth(
-                string.Format("{0:F3}", actDetail.ActivityDetailQuantity));
+                $"{actDetail.ActivityDetailQuantity:F3}");
             var detailWidth2 = DependencyService.Get<IGridService>().CalculateTextWidth(
-                string.Format("{0:F3}", actDetail.ActivityDetailWeightQuantity));
+                $"{actDetail.ActivityDetailWeightQuantity:F3}");
             var detailWidth3 = DependencyService.Get<IGridService>().CalculateTextWidth(actDetail.UnitCode);
             var detailWidth4 = DependencyService.Get<IGridService>().CalculateTextWidth(
                 actDetail.ActivityDetailSchemeID);
@@ -1475,7 +1475,7 @@ namespace dMobile.Controller.Activity_Detail
             ////{this.ActItem.ProdInfo.UnitCode}";
             ////return prod;
 
-            return string.Format("Pick # {0}", this.ActItem.ActHdr.HdrFkRefno);
+            return $"Pick # {this.ActItem.ActHdr.HdrFkRefno}";
         }
 
         /// <summary>

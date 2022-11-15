@@ -93,7 +93,7 @@ namespace dMobile.GroundWork
             {
                 rowsAffected = Convert.ToInt32(await DatabaseConnection.GetInstance().SQLConn.ExecuteScalarAsync<int>("SELECT COUNT(*) FROM tProductSchemeVariantXRef"));
 
-                this.DataAccessStatusOutHandler(this, EventArgs.Empty, string.Format("{0} product scheme variant xrefs.", rowsAffected), true);
+                this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"{rowsAffected} product scheme variant xrefs.", true);
             }
             catch (SQLiteException ex)
             {
@@ -115,91 +115,89 @@ namespace dMobile.GroundWork
             {
                 try
                 {
-                    using (var ds = new DataSet())
+                    using var ds = new DataSet();
+                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Reading received data.", false);
+
+                    ds.ReadXml(SysCommon.GetXmlReader(ref reqData), XmlReadMode.Auto);
+
+                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving product scheme variant xrefs.", false);
+
+                    if (ds.Tables.Count != 0)
                     {
-                        this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Reading received data.", false);
+                        var progMax = Convert.ToInt32(ds.Tables["tProductSchemeVariantXRef"].Rows.Count);
 
-                        ds.ReadXml(SysCommon.GetXmlReader(ref reqData), XmlReadMode.Auto);
+                        this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"Records {progMax}", false);
 
-                        this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving product scheme variant xrefs.", false);
+                        var schemeRefno = 0;
+                        var schemeVarRefno = 0;
+                        var progValue = 0;
+                        var isSchemeVarXRef = false;
+                        var schemeCode = string.Empty;
+                        var schemeVariantNo = 0;
 
-                        if (ds.Tables.Count != 0)
+                        this.DataAccessProgressOutHandler(this, EventArgs.Empty, 0, 0, progMax);
+
+                        foreach (DataRow drow in ds.Tables["tProductSchemeVariantXRef"].Rows)
                         {
-                            var progMax = Convert.ToInt32(ds.Tables["tProductSchemeVariantXRef"].Rows.Count);
+                            schemeCode = drow["ProductSchemeCode"].ToString();
+                            errMsg = "Code \'" + schemeCode + "\'";
 
-                            this.DataAccessStatusOutHandler(this, EventArgs.Empty, string.Format("Records {0}", progMax), false);
+                            var resultsProductScheme = transaction.Query<tProductSchemeModel>("SELECT * FROM tProductScheme WHERE ProductSchemeCode = ?", schemeCode);
 
-                            var schemeRefno = 0;
-                            var schemeVarRefno = 0;
-                            var progValue = 0;
-                            var isSchemeVarXRef = false;
-                            var schemeCode = string.Empty;
-                            var schemeVariantNo = 0;
-
-                            this.DataAccessProgressOutHandler(this, EventArgs.Empty, 0, 0, progMax);
-
-                            foreach (DataRow drow in ds.Tables["tProductSchemeVariantXRef"].Rows)
+                            if (resultsProductScheme?.Count > 0)
                             {
-                                schemeCode = drow["ProductSchemeCode"].ToString();
-                                errMsg = "Code \'" + schemeCode + "\'";
+                                schemeRefno = resultsProductScheme[0].ProductSchemeRefno;
+                            }
+                            else
+                            {
+                                throw new Exception("drScheme.Read() failed." + Environment.NewLine + errMsg);
+                            }
 
-                                var resultsProductScheme = transaction.Query<tProductSchemeModel>("SELECT * FROM tProductScheme WHERE ProductSchemeCode = ?", schemeCode);
+                            schemeVariantNo = Convert.ToInt32(drow["ProductSchemeVariantNo"]);
+                            errMsg += Environment.NewLine + "Variant no " + schemeVariantNo;
 
-                                if (resultsProductScheme?.Count > 0)
+                            var resultsProductSchemeVariant = transaction.Query<tProductSchemeVariantModel>("SELECT * FROM tProductSchemeVariant WHERE ProductSchemeVariantNo = ?", schemeVariantNo);
+
+                            if (resultsProductSchemeVariant?.Count > 0)
+                            {
+                                schemeVarRefno = resultsProductSchemeVariant[0].ProductSchemeVariantRefno;
+                            }
+                            else
+                            {
+                                throw new Exception("drSchemeVar.Read() failed." + Environment.NewLine + errMsg);
+                            }
+
+                            isSchemeVarXRef = false;
+
+                            if (this.SysEnv.RefreshOpt.RefreshDataChangesOnly)
+                            {
+                                var resultsProductSchemeVariantXRef = transaction.Query<tProductSchemeVariantXRefModel>("SELECT * FROM tProductSchemeVariantXRef WHERE ProductSchemeRefno = ? AND ProductSchemeVariantRefno = ?", schemeRefno, schemeVarRefno);
+
+                                if (resultsProductSchemeVariantXRef?.Count > 0)
                                 {
-                                    schemeRefno = resultsProductScheme[0].ProductSchemeRefno;
-                                }
-                                else
-                                {
-                                    throw new Exception("drScheme.Read() failed." + Environment.NewLine + errMsg);
-                                }
-
-                                schemeVariantNo = Convert.ToInt32(drow["ProductSchemeVariantNo"]);
-                                errMsg += Environment.NewLine + "Variant no " + schemeVariantNo;
-
-                                var resultsProductSchemeVariant = transaction.Query<tProductSchemeVariantModel>("SELECT * FROM tProductSchemeVariant WHERE ProductSchemeVariantNo = ?", schemeVariantNo);
-
-                                if (resultsProductSchemeVariant?.Count > 0)
-                                {
-                                    schemeVarRefno = resultsProductSchemeVariant[0].ProductSchemeVariantRefno;
-                                }
-                                else
-                                {
-                                    throw new Exception("drSchemeVar.Read() failed." + Environment.NewLine + errMsg);
-                                }
-
-                                isSchemeVarXRef = false;
-
-                                if (this.SysEnv.RefreshOpt.RefreshDataChangesOnly)
-                                {
-                                    var resultsProductSchemeVariantXRef = transaction.Query<tProductSchemeVariantXRefModel>("SELECT * FROM tProductSchemeVariantXRef WHERE ProductSchemeRefno = ? AND ProductSchemeVariantRefno = ?", schemeRefno, schemeVarRefno);
-
-                                    if (resultsProductSchemeVariantXRef?.Count > 0)
-                                    {
-                                        isSchemeVarXRef = true;
-                                    }
-                                }
-
-                                if (!isSchemeVarXRef)
-                                {
-                                    transaction.Execute("INSERT INTO tProductSchemeVariantXRef (ProductSchemeRefno, ProductSchemeVariantRefno) VALUES (?, ?)", schemeRefno, schemeVarRefno);
-                                }
-
-                                progValue++;
-
-                                if (progValue % 100 == 0)
-                                {
-                                    this.DataAccessProgressOutHandler(this, EventArgs.Empty, progValue, 0, progMax);
+                                    isSchemeVarXRef = true;
                                 }
                             }
 
-                            this.DataAccessProgressOutHandler(this, EventArgs.Empty, progMax, 0, progMax);
+                            if (!isSchemeVarXRef)
+                            {
+                                transaction.Execute("INSERT INTO tProductSchemeVariantXRef (ProductSchemeRefno, ProductSchemeVariantRefno) VALUES (?, ?)", schemeRefno, schemeVarRefno);
+                            }
+
+                            progValue++;
+
+                            if (progValue % 100 == 0)
+                            {
+                                this.DataAccessProgressOutHandler(this, EventArgs.Empty, progValue, 0, progMax);
+                            }
                         }
 
-                        transaction.Commit();
-
-                        this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving product scheme variant xref complete.", false);
+                        this.DataAccessProgressOutHandler(this, EventArgs.Empty, progMax, 0, progMax);
                     }
+
+                    transaction.Commit();
+
+                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving product scheme variant xref complete.", false);
                 }
                 catch (SQLiteException ex)
                 {

@@ -114,7 +114,7 @@ namespace dMobile.GroundWork
                 var query = "SELECT COUNT(tActivityDetail.ActivityDetailRefno) FROM tActivityDetail WHERE tActivityDetail.ActivityDetailSubType = ?";
                 rowsAffected = await DatabaseConnection.GetInstance().SQLConn.ExecuteScalarAsync<int>(query, Convert.ToInt32(SysCommon.ActSubTypes.CycleCounts));
 
-                this.DataAccessStatusOutHandler(this, EventArgs.Empty, string.Format("{0} cycle count detail(s)", rowsAffected), true);
+                this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"{rowsAffected} cycle count detail(s)", true);
             }
             catch (SQLiteException ex)
             {
@@ -224,7 +224,7 @@ namespace dMobile.GroundWork
                         {
                             var progMax = Convert.ToInt32(ds.Tables["tActivityDetailCount"].Rows.Count);
 
-                            this.DataAccessStatusOutHandler(this, EventArgs.Empty, string.Format("Records {0}.", progMax), false);
+                            this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"Records {progMax}.", false);
 
                             var actDetailRefno = 0;
                             var progValue = 0;

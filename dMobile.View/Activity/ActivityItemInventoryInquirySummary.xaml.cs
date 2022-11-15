@@ -311,6 +311,7 @@ namespace dMobile.View.Activity
                 if (this.MainActivityItems.Count > 0)
                 {
                     _ = await Device.InvokeOnMainThreadAsync(() => this.ListViewMainActivity.SelectedItem = this.MainActivityItems[0]);
+
                     // TODO: test
                     await this.ActItem.AssignActivityItem(this.ActItem.ListItems[0]);
                 }
@@ -498,22 +499,19 @@ namespace dMobile.View.Activity
 
             if (selectedItem != null)
             {
-                this.ExtraInfoItems.Add(string.Format(
-                    "Quantity {0} {1} @ {2} {3}",
-                    selectedItem.ActivityItemQuantity,
-                    selectedItem.UnitCode,
-                    selectedItem.ActivityItemWeightQuantity,
-                    selectedItem.WeightUnitCode));
+                this.ExtraInfoItems.Add(
+                    $"Quantity {selectedItem.ActivityItemQuantity} {selectedItem.UnitCode} @ {selectedItem.ActivityItemWeightQuantity} {selectedItem.WeightUnitCode}");
 
                 if (this.ActItem.LocMap.IsSectionTracked)
                 {
                     if (this.ActItem.LocMap.IsSlotTracked)
                     {
-                        this.ExtraInfoItems.Add(string.Format("Section {0} Slot {1}", selectedItem.LocationMapSectionFKRefno, selectedItem.LocationMapSlotFKRefno));
+                        this.ExtraInfoItems.Add(
+                            $"Section {selectedItem.LocationMapSectionFKRefno} Slot {selectedItem.LocationMapSlotFKRefno}");
                     }
                     else
                     {
-                        this.ExtraInfoItems.Add(string.Format("Section {0}", selectedItem.LocationMapSectionFKRefno));
+                        this.ExtraInfoItems.Add($"Section {selectedItem.LocationMapSectionFKRefno}");
                     }
                 }
             }
@@ -522,8 +520,8 @@ namespace dMobile.View.Activity
                 this.ExtraInfoItems.Add("No product at selected location.");
             }
 
-            this.ExtraInfoItems.Add(string.Format("Product ID {0}", prodInfo.Code));
-            this.ExtraInfoItems.Add(string.Format("Whs {0} {1}", this.ActItem.LocMap.WhsFKRefno, this.ActItem.LocMap.WhsName));
+            this.ExtraInfoItems.Add($"Product ID {prodInfo.Code}");
+            this.ExtraInfoItems.Add($"Whs {this.ActItem.LocMap.WhsFKRefno} {this.ActItem.LocMap.WhsName}");
         }
 
         /// <summary>

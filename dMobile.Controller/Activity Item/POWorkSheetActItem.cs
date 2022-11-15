@@ -199,7 +199,7 @@ namespace dMobile.Controller.Activity_Item
         /// <returns>.</returns>
         public override string GetUnableToParseItemFkRefnoMessage(string actItemStringFkRefno)
         {
-            return string.Format("Unable to parse purchase order work sheet item# {0}", actItemStringFkRefno);
+            return $"Unable to parse purchase order work sheet item# {actItemStringFkRefno}";
         }
 
         /// <summary>
@@ -209,7 +209,7 @@ namespace dMobile.Controller.Activity_Item
         /// <returns>.</returns>
         public override string GetUnableToFindItemFkRefnoMessage(string actItemStringFkRefno)
         {
-            return string.Format("Unable to find purchase order work sheet item# {0}", actItemStringFkRefno);
+            return $"Unable to find purchase order work sheet item# {actItemStringFkRefno}";
         }
 
         /// <summary>
@@ -656,8 +656,10 @@ namespace dMobile.Controller.Activity_Item
             foreach (PurchaseOrderWorkSheetItem purchaseOrderWorkSheetItem in observableCollection)
             {
                 var detailWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(purchaseOrderWorkSheetItem.ProductCode);
-                var detailWidth1 = DependencyService.Get<IGridService>().CalculateTextWidth(string.Format("{0:F3}", purchaseOrderWorkSheetItem.ActivityItemPurchaseOrderWorkSheetQuantityOrdered));
-                var detailWidth2 = DependencyService.Get<IGridService>().CalculateTextWidth(string.Format("{0:F3}", purchaseOrderWorkSheetItem.ActivityItemPurchaseOrderWorkSheetWeightQuantityOrdered));
+                var detailWidth1 = DependencyService.Get<IGridService>().CalculateTextWidth(
+                    $"{purchaseOrderWorkSheetItem.ActivityItemPurchaseOrderWorkSheetQuantityOrdered:F3}");
+                var detailWidth2 = DependencyService.Get<IGridService>().CalculateTextWidth(
+                    $"{purchaseOrderWorkSheetItem.ActivityItemPurchaseOrderWorkSheetWeightQuantityOrdered:F3}");
 
                 if (detailWidth0 > this.columnWidth0)
                 {
@@ -782,6 +784,7 @@ namespace dMobile.Controller.Activity_Item
             // if (string.IsNullOrEmpty(this.ActItemFilter))
             // {
             this.ListItems = this.listPurchaseOrderWorkSheetItems.Where(purchaseOrderWorkSheetItem => purchaseOrderWorkSheetItem.ProductCode.ToString().ToLower().Contains(searchText.ToLower().Trim())).Cast<object>().ToList();
+
             // }
             // else
             // {
@@ -1037,7 +1040,7 @@ namespace dMobile.Controller.Activity_Item
         /// <returns><see cref="string"/> Get activity item control description.</returns>
         public override string GetControlDescription()
         {
-            return string.Format("PO worksheet # {0}", this.ActHdr.HdrFkRefno);
+            return $"PO worksheet # {this.ActHdr.HdrFkRefno}";
         }
 
         /// <summary>

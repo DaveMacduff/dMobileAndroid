@@ -45,7 +45,7 @@ namespace dMobile.GroundWork
                 {
                     foreach (var family in results)
                     {
-                        this.DataAccessStatusOutHandler(this, EventArgs.Empty, string.Format("For family {0}", family.FamilyCode), true);
+                        this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"For family {family.FamilyCode}", true);
 
                         reqData = await this.SendRequest(family.FamilyCode);
 
@@ -114,7 +114,7 @@ namespace dMobile.GroundWork
             {
                 rowsAffected = Convert.ToInt32(await DatabaseConnection.GetInstance().SQLConn.ExecuteScalarAsync<int>("SELECT COUNT(*) FROM tProductUnitBarCode"));
 
-                this.DataAccessStatusOutHandler(this, EventArgs.Empty, string.Format("{0} product uom bar codes.", rowsAffected), true);
+                this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"{rowsAffected} product uom bar codes.", true);
             }
             catch (SQLiteException ex)
             {
@@ -158,191 +158,196 @@ namespace dMobile.GroundWork
                 {
                     this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Reading received data.", false);
 
-                    var startIndex = reqData.IndexOf("<VFPData");
-                    var sett = new XmlReaderSettings();
-                    sett.CheckCharacters = false;
-                    sett.CloseInput = false;
-                    sett.ConformanceLevel = ConformanceLevel.Auto;
-                    sett.IgnoreComments = true;
-                    sett.IgnoreProcessingInstructions = true;
-                    sett.IgnoreWhitespace = false;
-                    sett.ValidationFlags = System.Xml.Schema.XmlSchemaValidationFlags.None;
-                    sett.ValidationType = ValidationType.None;
-
-                    using (var stringReader = new StringReader(reqData.Substring(startIndex)))
-                    using (var reader = XmlReader.Create(stringReader, sett))
+                    var startIndex = reqData.IndexOf("<VFPData", StringComparison.Ordinal);
+                    var sett = new XmlReaderSettings
                     {
-                        this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving product uom bar codes.", false);
+                        CheckCharacters = false,
+                        CloseInput = false,
+                        ConformanceLevel = ConformanceLevel.Auto,
+                        IgnoreComments = true,
+                        IgnoreProcessingInstructions = true,
+                        IgnoreWhitespace = false,
+                        ValidationFlags = System.Xml.Schema.XmlSchemaValidationFlags.None,
+                        ValidationType = ValidationType.None,
+                    };
 
-                        var resultsUnit = transaction.Query<tUnitModel>("SELECT * FROM tUnit");
+                    using var stringReader = new StringReader(reqData.Substring(startIndex));
+                    using var reader = XmlReader.Create(stringReader, sett);
+                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving product uom bar codes.", false);
 
-                        if (resultsUnit?.Count > 0)
+                    var resultsUnit = transaction.Query<tUnitModel>("SELECT * FROM tUnit");
+
+                    if (resultsUnit?.Count > 0)
+                    {
+                        foreach (var unit in resultsUnit)
                         {
-                            foreach (var unit in resultsUnit)
+                            unitLookup.Add(unit.UnitCode, unit.UnitRefno);
+                        }
+                    }
+
+                    var prodRefno = 0;
+                    var prodUnitRefno = 0;
+                    var unitRefno = 0;
+                    var recordCount = 0;
+                    var isProdUnitBarCodeFound = false;
+
+                    var prodUnitBarCodeRaw = string.Empty;
+
+                    // f01
+                    var prodUnitBarCodeIsBC = false;
+
+                    // f02
+                    var prodFKRefno = 0;
+
+                    // f03
+                    var unitCode = string.Empty;
+
+                    // f04
+                    var prodUnitBarCodeCode = string.Empty;
+
+                    // f05
+                    var prodUnitBarCodeSymbologyEnum = 0;
+
+                    // f06
+                    var prodUnitBarCodeModifier1 = string.Empty;
+
+                    this.DataAccessProgressOutHandler(this, EventArgs.Empty, 0, 0, 100);
+
+                    while (!reader.EOF)
+                    {
+                        // fill one record
+                        // we do this by looping until an end segment is found
+                        var recordFilled = false;
+                        var elementName = string.Empty;
+                        prodUnitBarCodeModifier1 = string.Empty; // not always present, so we must fill it
+                        while (!recordFilled && reader.Read())
+                        {
+                            if (reader.NodeType == XmlNodeType.Element)
                             {
-                                unitLookup.Add(unit.UnitCode, unit.UnitRefno);
+                                elementName = reader.Name;
+                            }
+                            else if (reader.NodeType == XmlNodeType.Text)
+                            {
+                                switch (elementName)
+                                {
+                                    case "f01":
+                                        prodUnitBarCodeIsBC = reader.ReadContentAsBoolean();
+                                        break;
+                                    case "f02":
+                                        prodFKRefno = reader.ReadContentAsInt();
+                                        break;
+                                    case "f03":
+                                        unitCode = reader.Value;
+                                        break;
+                                    case "f04":
+                                        prodUnitBarCodeCode = reader.Value;
+                                        break;
+                                    case "f05":
+                                        prodUnitBarCodeSymbologyEnum = reader.ReadContentAsInt();
+                                        break;
+                                    case "f06":
+                                        prodUnitBarCodeModifier1 = reader.Value;
+                                        break;
+                                }
+                            }
+                            else if (reader.NodeType == XmlNodeType.EndElement && reader.Name == "seg")
+                            {
+                                recordFilled = true; // we are full;
+                            }
+                        } // end of fill record
+
+                        if (!recordFilled)
+                        {
+                            continue;
+                        }
+
+                        prodUnitBarCodeRaw = string.Empty;
+                        errMsg = "FK Refno " + prodFKRefno;
+
+                        var resultsProduct = transaction.Query<tProductModel>("SELECT * FROM tProduct WHERE ProductFKRefno = ?", prodFKRefno);
+
+                        if (resultsProduct?.Count > 0)
+                        {
+                            prodRefno = Convert.ToInt32(resultsProduct[0].ProductRefno);
+                        }
+                        else
+                        {
+                            throw new Exception("drProd.Read() failed." + Environment.NewLine + errMsg);
+                        }
+
+                        errMsg += Environment.NewLine + "Unit code " + unitCode;
+
+                        unitLookup.TryGetValue(unitCode, out unitRefno);
+
+                        errMsg += Environment.NewLine + "Bar code is bc " + prodUnitBarCodeIsBC;
+
+                        var resultsProductUnit = transaction.Query<tProductUnitModel>("SELECT * FROM tProductUnit WHERE ProductRefno = ? AND UnitRefno = ? AND ProductUnitIsBC = ?", prodRefno, unitRefno, Convert.ToInt32(prodUnitBarCodeIsBC));
+
+                        if (resultsProductUnit?.Count > 0)
+                        {
+                            prodUnitRefno = resultsProductUnit[0].ProductUnitRefno;
+                        }
+                        else
+                        {
+                            throw new Exception("drProdUnit.Read() failed." + Environment.NewLine + errMsg);
+                        }
+
+                        isProdUnitBarCodeFound = false;
+
+                        if (this.SysEnv.RefreshOpt.RefreshDataChangesOnly)
+                        {
+                            var resultsProductUnitBarcode = transaction.Query<tProductUnitBarCodeModel>("SELECT ProductUnitBarCodeCode, ProductUnitBarCodeModifier1 FROM tProductUnitBarCode WHERE ProductUnitBarCodeCode = ? AND ProductUnitBarCodeModifier1 = ?", prodUnitBarCodeCode, prodUnitBarCodeModifier1);
+
+                            if (resultsProductUnitBarcode?.Count > 0)
+                            {
+                                isProdUnitBarCodeFound = true;
+
+                                var queryUpdate = "UPDATE tProductUnitBarCode " +
+                                                  "SET ProductUnitRefno = ?, " +
+                                                  "ProductUnitBarCodeSymbologyEnum = ?, " +
+                                                  "ProductUnitBarCodeStatus = ? " +
+                                                  "WHERE ProductUnitBarCodeCode = ? " +
+                                                  "AND ProductUnitBarCodeModifier1 = ?";
+
+                                transaction.Execute(queryUpdate, prodUnitRefno, prodUnitBarCodeSymbologyEnum, Convert.ToInt32(SysCommon.ActStatus.NoChange), prodUnitBarCodeCode, prodUnitBarCodeModifier1);
                             }
                         }
 
-                        var prodRefno = 0;
-                        var prodUnitRefno = 0;
-                        var unitRefno = 0;
-                        var recordCount = 0;
-                        var isProdUnitBarCodeFound = false;
-
-                        var prodUnitBarCodeRaw = string.Empty;
-
-                        // f01
-                        var prodUnitBarCodeIsBC = false;
-                        // f02
-                        var prodFKRefno = 0;
-                        // f03
-                        var unitCode = string.Empty;
-                        // f04
-                        var prodUnitBarCodeCode = string.Empty;
-                        // f05
-                        var prodUnitBarCodeSymbologyEnum = 0;
-                        // f06
-                        var prodUnitBarCodeModifier1 = string.Empty;
-
-                        this.DataAccessProgressOutHandler(this, EventArgs.Empty, 0, 0, 100);
-
-                        while (!reader.EOF)
+                        if (!isProdUnitBarCodeFound)
                         {
-                            // fill one record
-                            // we do this by looping until an end segment is found
-                            var recordFilled = false;
-                            var elementName = string.Empty;
-                            prodUnitBarCodeModifier1 = string.Empty; // not always present, so we must fill it
-                            while (!recordFilled && reader.Read())
-                            {
-                                if (reader.NodeType == XmlNodeType.Element)
-                                {
-                                    elementName = reader.Name;
-                                }
-                                else if (reader.NodeType == XmlNodeType.Text)
-                                {
-                                    switch (elementName)
-                                    {
-                                        case "f01":
-                                            prodUnitBarCodeIsBC = reader.ReadContentAsBoolean();
-                                            break;
-                                        case "f02":
-                                            prodFKRefno = reader.ReadContentAsInt();
-                                            break;
-                                        case "f03":
-                                            unitCode = reader.Value;
-                                            break;
-                                        case "f04":
-                                            prodUnitBarCodeCode = reader.Value;
-                                            break;
-                                        case "f05":
-                                            prodUnitBarCodeSymbologyEnum = reader.ReadContentAsInt();
-                                            break;
-                                        case "f06":
-                                            prodUnitBarCodeModifier1 = reader.Value;
-                                            break;
-                                    }
-                                }
-                                else if (reader.NodeType == XmlNodeType.EndElement && reader.Name == "seg")
-                                {
-                                    recordFilled = true; // we are full;
-                                }
-                            } // end of fill record
+                            var queryInsert = "INSERT INTO tProductUnitBarCode " +
+                                              "(ProductUnitRefno, " +
+                                              "ProductUnitBarCodeCode, " +
+                                              "ProductUnitBarCodeRaw, " +
+                                              "ProductUnitBarCodeSymbologyEnum, " +
+                                              "ProductUnitBarCodeModifier1, " +
+                                              "ProductUnitBarCodeStatus) " +
+                                              "VALUES " +
+                                              "(?, " +
+                                              "?, " +
+                                              "?, " +
+                                              "?, " +
+                                              "?, " +
+                                              "?)";
 
-                            if (!recordFilled)
-                            {
-                                continue;
-                            }
+                            transaction.Execute(queryInsert, prodUnitRefno, prodUnitBarCodeCode, prodUnitBarCodeRaw, prodUnitBarCodeSymbologyEnum, prodUnitBarCodeModifier1, Convert.ToInt32(SysCommon.ActStatus.NoChange));
+                        }
 
-                            prodUnitBarCodeRaw = string.Empty;
-                            errMsg = "FK Refno " + prodFKRefno;
+                        ++recordCount;
+                        if (recordCount % 100 == 0)
+                        {
+                            this.DataAccessProgressOutHandler(this, EventArgs.Empty, recordCount / 10 % 100, 0, 100);
+                        }
+                    } // end of data
 
-                            var resultsProduct = transaction.Query<tProductModel>("SELECT * FROM tProduct WHERE ProductFKRefno = ?", prodFKRefno);
+                    this.DataAccessProgressOutHandler(this, EventArgs.Empty, 100, 0, 100);
 
-                            if (resultsProduct?.Count > 0)
-                            {
-                                prodRefno = Convert.ToInt32(resultsProduct[0].ProductRefno);
-                            }
-                            else
-                            {
-                                throw new Exception("drProd.Read() failed." + Environment.NewLine + errMsg);
-                            }
+                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"Records {recordCount}", false);
 
-                            errMsg += Environment.NewLine + "Unit code " + unitCode;
+                    unitLookup = null;
+                    transaction.Commit();
 
-                            unitLookup.TryGetValue(unitCode, out unitRefno);
-
-                            errMsg += Environment.NewLine + "Bar code is bc " + prodUnitBarCodeIsBC;
-
-                            var resultsProductUnit = transaction.Query<tProductUnitModel>("SELECT * FROM tProductUnit WHERE ProductRefno = ? AND UnitRefno = ? AND ProductUnitIsBC = ?", prodRefno, unitRefno, Convert.ToInt32(prodUnitBarCodeIsBC));
-
-                            if (resultsProductUnit?.Count > 0)
-                            {
-                                prodUnitRefno = resultsProductUnit[0].ProductUnitRefno;
-                            }
-                            else
-                            {
-                                throw new Exception("drProdUnit.Read() failed." + Environment.NewLine + errMsg);
-                            }
-
-                            isProdUnitBarCodeFound = false;
-
-                            if (this.SysEnv.RefreshOpt.RefreshDataChangesOnly)
-                            {
-                                var resultsProductUnitBarcode = transaction.Query<tProductUnitBarCodeModel>("SELECT ProductUnitBarCodeCode, ProductUnitBarCodeModifier1 FROM tProductUnitBarCode WHERE ProductUnitBarCodeCode = ? AND ProductUnitBarCodeModifier1 = ?", prodUnitBarCodeCode, prodUnitBarCodeModifier1);
-
-                                if (resultsProductUnitBarcode?.Count > 0)
-                                {
-                                    isProdUnitBarCodeFound = true;
-
-                                    var queryUpdate = "UPDATE tProductUnitBarCode " +
-                                                      "SET ProductUnitRefno = ?, " +
-                                                      "ProductUnitBarCodeSymbologyEnum = ?, " +
-                                                      "ProductUnitBarCodeStatus = ? " +
-                                                      "WHERE ProductUnitBarCodeCode = ? " +
-                                                      "AND ProductUnitBarCodeModifier1 = ?";
-
-                                    transaction.Execute(queryUpdate, prodUnitRefno, prodUnitBarCodeSymbologyEnum, Convert.ToInt32(SysCommon.ActStatus.NoChange), prodUnitBarCodeCode, prodUnitBarCodeModifier1);
-                                }
-                            }
-
-                            if (!isProdUnitBarCodeFound)
-                            {
-                                var queryInsert = "INSERT INTO tProductUnitBarCode " +
-                                                  "(ProductUnitRefno, " +
-                                                  "ProductUnitBarCodeCode, " +
-                                                  "ProductUnitBarCodeRaw, " +
-                                                  "ProductUnitBarCodeSymbologyEnum, " +
-                                                  "ProductUnitBarCodeModifier1, " +
-                                                  "ProductUnitBarCodeStatus) " +
-                                                  "VALUES " +
-                                                  "(?, " +
-                                                  "?, " +
-                                                  "?, " +
-                                                  "?, " +
-                                                  "?, " +
-                                                  "?)";
-
-                                transaction.Execute(queryInsert, prodUnitRefno, prodUnitBarCodeCode, prodUnitBarCodeRaw, prodUnitBarCodeSymbologyEnum, prodUnitBarCodeModifier1, Convert.ToInt32(SysCommon.ActStatus.NoChange));
-                            }
-
-                            ++recordCount;
-                            if (recordCount % 100 == 0)
-                            {
-                                this.DataAccessProgressOutHandler(this, EventArgs.Empty, recordCount / 10 % 100, 0, 100);
-                            }
-                        } // end of data
-
-                        this.DataAccessProgressOutHandler(this, EventArgs.Empty, 100, 0, 100);
-
-                        this.DataAccessStatusOutHandler(this, EventArgs.Empty, string.Format("Records {0}", recordCount), false);
-
-                        unitLookup = null;
-                        transaction.Commit();
-
-                        this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving product uom bar codes complete.", false);
-                    }
+                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving product uom bar codes complete.", false);
                 }
                 catch (SQLiteException ex)
                 {

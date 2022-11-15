@@ -468,9 +468,8 @@ namespace dMobile.GroundWork
                 }
                 else
                 {
-                    throw new Exception(string.Format(
-                        "Unable to locate product scheme no {0} in tProductSchemeVariant",
-                        schemeVariantNo));
+                    throw new Exception(
+                        $"Unable to locate product scheme no {schemeVariantNo} in tProductSchemeVariant");
                 }
             }
         }

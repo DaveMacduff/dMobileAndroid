@@ -488,7 +488,7 @@ namespace dMobile.Bedrock
                                          " tLocationMapSection.WarehouseLocationMapRefno "
                                          + "WHERE tLocationMapSlot.LocationMapRefno = ?";
 
-                    var results = await conn.QueryAsync<tLocationMapSlotQueryResult>(
+                        var results = await conn.QueryAsync<tLocationMapSlotQueryResult>(
                         query,
                         Convert.ToInt32(locMapRefno));
 
@@ -554,7 +554,7 @@ namespace dMobile.Bedrock
                                          + "= tLocationMapSection.WarehouseLocationMapRefno "
                                          + "WHERE tLocationMapSection.LocationMapRefno = ?";
 
-                    var results = await conn.QueryAsync<tLocationMapSectionQueryResult>(
+                        var results = await conn.QueryAsync<tLocationMapSectionQueryResult>(
                         query,
                         Convert.ToInt32(locMapRefno));
 
@@ -607,7 +607,7 @@ namespace dMobile.Bedrock
                                          + "FROM tLocationMapWarehouse "
                                          + "WHERE tLocationMapWarehouse.LocationMapRefno = ?";
 
-                    var results = await conn.QueryAsync<tLocationMapWarehouseModel>(
+                        var results = await conn.QueryAsync<tLocationMapWarehouseModel>(
                         query,
                         Convert.ToInt32(locMapRefno));
 

@@ -337,6 +337,7 @@ namespace dMobile.View.Activity
                     // DisplayData();
                     // this.LoadData();
                     cancelChanges = false;
+
                     // this.IsChangesMade = false;
                 }
             }
@@ -465,6 +466,7 @@ namespace dMobile.View.Activity
             {
                 await this.ScannerDisable();
             }
+
             // }
         }
 
@@ -540,14 +542,14 @@ namespace dMobile.View.Activity
                             this.Activity.HdrFkRefno = 0;
                             this.Activity.HdrRefno = 0;
 
-                            message = string.Format("Unable To Find Reference# {0}", actStringFKRefno);
+                            message = $"Unable To Find Reference# {actStringFKRefno}";
 
                             await Device.InvokeOnMainThreadAsync(async () => await this.DisplayAlert(this.GetControlDescription(), message, "OK"));
                         }
                     }
                     else
                     {
-                        message = string.Format("Unable To Parse Reference# {0}", actStringFKRefno);
+                        message = $"Unable To Parse Reference# {actStringFKRefno}";
 
                         await Device.InvokeOnMainThreadAsync(async () => await this.DisplayAlert(this.GetControlDescription(), message, "OK"));
                     }

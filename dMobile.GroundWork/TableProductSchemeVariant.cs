@@ -158,7 +158,7 @@ namespace dMobile.GroundWork
             {
                 rowsAffected = Convert.ToInt32(await DatabaseConnection.GetInstance().SQLConn.ExecuteScalarAsync<int>("SELECT COUNT(*) FROM tProductSchemeVariant"));
 
-                this.DataAccessStatusOutHandler(this, EventArgs.Empty, string.Format("{0} product scheme variants.", rowsAffected), false);
+                this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"{rowsAffected} product scheme variants.", false);
             }
             catch (SQLiteException ex)
             {
@@ -182,80 +182,78 @@ namespace dMobile.GroundWork
             {
                 try
                 {
-                    using (var ds = new DataSet())
+                    using var ds = new DataSet();
+                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Reading received data.", false);
+
+                    ds.ReadXml(SysCommon.GetXmlReader(ref reqData), XmlReadMode.Auto);
+
+                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving product scheme variants.", false);
+
+                    if (ds.Tables.Count != 0)
                     {
-                        this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Reading received data.", false);
+                        var progMax = Convert.ToInt32(ds.Tables["tProductSchemeVariant"].Rows.Count);
 
-                        ds.ReadXml(SysCommon.GetXmlReader(ref reqData), XmlReadMode.Auto);
+                        this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"Records {progMax}", false);
 
-                        this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving product scheme variants.", false);
+                        var progValue = 0;
+                        var isSchemeVarFound = false;
+                        var schemeVarCode = string.Empty;
+                        var schemeVarDesc = string.Empty;
+                        var schemeVarNo = 0;
+                        var schemeVarIsDefault = false;
 
-                        if (ds.Tables.Count != 0)
+                        this.DataAccessProgressOutHandler(this, EventArgs.Empty, 0, 0, progMax);
+
+                        foreach (DataRow drow in ds.Tables["tProductSchemeVariant"].Rows)
                         {
-                            var progMax = Convert.ToInt32(ds.Tables["tProductSchemeVariant"].Rows.Count);
+                            schemeVarCode = drow["ProductSchemeVariantCode"].ToString();
+                            errMsg = "Variant code \'" + schemeVarCode + "\'";
+                            schemeVarDesc = drow["ProductSchemeVariantDescription"].ToString();
+                            errMsg += Environment.NewLine + "Variant desc \'" + schemeVarDesc + "\'";
+                            schemeVarNo = Convert.ToInt32(drow["ProductSchemeVariantNo"]);
+                            errMsg += Environment.NewLine + "Variant no " + schemeVarNo;
+                            schemeVarIsDefault = Convert.ToBoolean(drow["ProductSchemeVariantIsDefault"]);
+                            errMsg += Environment.NewLine + "Variant is default " + schemeVarIsDefault;
+                            isSchemeVarFound = false;
 
-                            this.DataAccessStatusOutHandler(this, EventArgs.Empty, string.Format("Records {0}", progMax), false);
+                            var resultsProductSchemeVariant = transaction.Query<tProductSchemeVariantModel>("SELECT ProductSchemeVariantNo FROM tProductSchemeVariant WHERE ProductSchemeVariantNo = ?", schemeVarNo);
 
-                            var progValue = 0;
-                            var isSchemeVarFound = false;
-                            var schemeVarCode = string.Empty;
-                            var schemeVarDesc = string.Empty;
-                            var schemeVarNo = 0;
-                            var schemeVarIsDefault = false;
-
-                            this.DataAccessProgressOutHandler(this, EventArgs.Empty, 0, 0, progMax);
-
-                            foreach (DataRow drow in ds.Tables["tProductSchemeVariant"].Rows)
+                            if (resultsProductSchemeVariant?.Count > 0)
                             {
-                                schemeVarCode = drow["ProductSchemeVariantCode"].ToString();
-                                errMsg = "Variant code \'" + schemeVarCode + "\'";
-                                schemeVarDesc = drow["ProductSchemeVariantDescription"].ToString();
-                                errMsg += Environment.NewLine + "Variant desc \'" + schemeVarDesc + "\'";
-                                schemeVarNo = Convert.ToInt32(drow["ProductSchemeVariantNo"]);
-                                errMsg += Environment.NewLine + "Variant no " + schemeVarNo;
-                                schemeVarIsDefault = Convert.ToBoolean(drow["ProductSchemeVariantIsDefault"]);
-                                errMsg += Environment.NewLine + "Variant is default " + schemeVarIsDefault;
-                                isSchemeVarFound = false;
+                                isSchemeVarFound = true;
 
-                                var resultsProductSchemeVariant = transaction.Query<tProductSchemeVariantModel>("SELECT ProductSchemeVariantNo FROM tProductSchemeVariant WHERE ProductSchemeVariantNo = ?", schemeVarNo);
-
-                                if (resultsProductSchemeVariant?.Count > 0)
+                                if (this.SysEnv.RefreshOpt.RefreshDataChangesOnly)
                                 {
-                                    isSchemeVarFound = true;
+                                    var queryUpdate = "UPDATE tProductSchemeVariant "
+                                                      + "SET ProductSchemeVariantCode = \'" + schemeVarCode + "\', "
+                                                      + "ProductSchemeVariantDescription = \'" + schemeVarDesc + "\', "
+                                                      + "ProductSchemeVariantIsDefault = " + Convert.ToString(schemeVarIsDefault ? 1 : 0)
+                                                      + " WHERE ProductSchemeVariantNo = " + schemeVarNo;
 
-                                    if (this.SysEnv.RefreshOpt.RefreshDataChangesOnly)
-                                    {
-                                        var queryUpdate = "UPDATE tProductSchemeVariant "
-                                                          + "SET ProductSchemeVariantCode = \'" + schemeVarCode + "\', "
-                                                          + "ProductSchemeVariantDescription = \'" + schemeVarDesc + "\', "
-                                                          + "ProductSchemeVariantIsDefault = " + Convert.ToString(schemeVarIsDefault ? 1 : 0)
-                                                          + " WHERE ProductSchemeVariantNo = " + schemeVarNo;
-
-                                        transaction.Execute(queryUpdate);
-                                    }
+                                    transaction.Execute(queryUpdate);
                                 }
-
-                                if (!isSchemeVarFound)
-                                {
-                                    var queryInsert = "INSERT INTO tProductSchemeVariant (ProductSchemeVariantCode, ProductSchemeVariantDescription, ProductSchemeVariantNo, ProductSchemeVariantIsDefault) VALUES (?, ?, ?, ?)";
-
-                                    transaction.Execute(queryInsert, schemeVarCode, schemeVarDesc, schemeVarNo, schemeVarIsDefault);
-                                }
-
-                                progValue++;
-                                if (progValue % 100 == 0)
-                                {
-                                    this.DataAccessProgressOutHandler(this, EventArgs.Empty, progValue, 0, progMax);
-                                }
-
-                                this.DataAccessProgressOutHandler(this, EventArgs.Empty, progMax, 0, progMax);
                             }
+
+                            if (!isSchemeVarFound)
+                            {
+                                var queryInsert = "INSERT INTO tProductSchemeVariant (ProductSchemeVariantCode, ProductSchemeVariantDescription, ProductSchemeVariantNo, ProductSchemeVariantIsDefault) VALUES (?, ?, ?, ?)";
+
+                                transaction.Execute(queryInsert, schemeVarCode, schemeVarDesc, schemeVarNo, schemeVarIsDefault);
+                            }
+
+                            progValue++;
+                            if (progValue % 100 == 0)
+                            {
+                                this.DataAccessProgressOutHandler(this, EventArgs.Empty, progValue, 0, progMax);
+                            }
+
+                            this.DataAccessProgressOutHandler(this, EventArgs.Empty, progMax, 0, progMax);
                         }
-
-                        transaction.Commit();
-
-                        this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving product scheme variants complete.", false);
                     }
+
+                    transaction.Commit();
+
+                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving product scheme variants complete.", false);
                 }
                 catch (SQLiteException ex)
                 {

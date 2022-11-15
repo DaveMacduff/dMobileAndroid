@@ -110,7 +110,7 @@ namespace dMobile.GroundWork
                 var query = "SELECT COUNT(tActivityItem.ActivityItemRefno) FROM tActivityItem WHERE tActivityItem.ActivityItemSubType = ?";
                 rowsAffected = await DatabaseConnection.GetInstance().SQLConn.ExecuteScalarAsync<int>(query, (int)SysCommon.ActSubTypes.Adjustment);
 
-                this.DataAccessStatusOutHandler(this, EventArgs.Empty, string.Format("{0} adjustment items.", rowsAffected), true);
+                this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"{rowsAffected} adjustment items.", true);
             }
             catch (SQLiteException ex)
             {
@@ -186,61 +186,60 @@ namespace dMobile.GroundWork
             {
                 try
                 {
-                    using (var ds = new DataSet())
+                    using var ds = new DataSet();
+                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Reading received data.", false);
+
+                    ds.ReadXml(SysCommon.GetXmlReader(ref reqData), XmlReadMode.Auto);
+
+                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving adjustment items.", false);
+
+                    if (ds.Tables.Count != 0)
                     {
-                        this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Reading received data.", false);
+                        var progMax = Convert.ToInt32(ds.Tables["tActivityItemAdjustment"].Rows.Count);
 
-                        ds.ReadXml(SysCommon.GetXmlReader(ref reqData), XmlReadMode.Auto);
+                        this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"Records {progMax}", false);
 
-                        this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving adjustment items.", false);
+                        var actItemRefno = 0;
+                        var progValue = 0;
+                        var actItemAdjFKRefno = 0;
+                        var prodUnitRefno = 0;
+                        var locMapRefno = 0;
 
-                        if (ds.Tables.Count != 0)
+                        this.DataAccessProgressOutHandler(this, EventArgs.Empty, 0, 0, progMax);
+
+                        foreach (DataRow drow in ds.Tables["tActivityItemAdjustment"].Rows)
                         {
-                            var progMax = Convert.ToInt32(ds.Tables["tActivityItemAdjustment"].Rows.Count);
+                            transaction.Execute("INSERT INTO tActivityItem (ActivityItemSubType, ActivityItemStatus, ActivityRefno) VALUES (?, ?, ?)", Convert.ToInt32(SysCommon.ActSubTypes.Adjustment), Convert.ToInt32(SysCommon.ActStatus.NoChange), actRefno);
 
-                            this.DataAccessStatusOutHandler(this, EventArgs.Empty, string.Format("Records {0}", progMax), false);
+                            actItemRefno = Convert.ToInt32(transaction.ExecuteScalar<int>("SELECT last_insert_rowid() FROM tActivityItem"));
+                            prodUnitRefno = this.GetProductUnitRefnoFromDataRow(drow, transaction, false);
+                            locMapRefno = this.GetWhsLocMapRefnoFromDataRow(drow, transaction);
+                            actItemAdjFKRefno = Convert.ToInt32(drow["ActivityItemFKRefno"]);
 
-                            var actItemRefno = 0;
-                            var progValue = 0;
-                            var actItemAdjFKRefno = 0;
-                            var prodUnitRefno = 0;
-                            var locMapRefno = 0;
-
-                            this.DataAccessProgressOutHandler(this, EventArgs.Empty, 0, 0, progMax);
-
-                            foreach (DataRow drow in ds.Tables["tActivityItemAdjustment"].Rows)
+                            var query = "INSERT INTO tActivityItemAdjustment " +
+                                        "(ActivityItemRefno, " +
+                                        "ActivityItemSubType, " +
+                                        "ActivityItemFKRefno, " +
+                                        "ActivityItemStringFKRefno, " +
+                                        "ProductUnitRefno, " +
+                                        "WarehouseLocationMapRefno, " +
+                                        "ActivityItemAdjustmentQuantity, " +
+                                        "ActivityItemAdjustmentBaseQuantity, " +
+                                        "ActivityItemAdjustmentWeightQuantity, " +
+                                        "ActivityItemAdjustmentDescription) " +
+                                        "VALUES " +
+                                        "(?, " +
+                                        "?, " +
+                                        "?, " +
+                                        "?, " +
+                                        "?, " +
+                                        "?, " +
+                                        "?, " +
+                                        "?, " +
+                                        "?, " +
+                                        "?)";
+                            var parameters = new object[]
                             {
-                                transaction.Execute("INSERT INTO tActivityItem (ActivityItemSubType, ActivityItemStatus, ActivityRefno) VALUES (?, ?, ?)", Convert.ToInt32(SysCommon.ActSubTypes.Adjustment), Convert.ToInt32(SysCommon.ActStatus.NoChange), actRefno);
-
-                                actItemRefno = Convert.ToInt32(transaction.ExecuteScalar<int>("SELECT last_insert_rowid() FROM tActivityItem"));
-                                prodUnitRefno = this.GetProductUnitRefnoFromDataRow(drow, transaction, false);
-                                locMapRefno = this.GetWhsLocMapRefnoFromDataRow(drow, transaction);
-                                actItemAdjFKRefno = Convert.ToInt32(drow["ActivityItemFKRefno"]);
-
-                                var query = "INSERT INTO tActivityItemAdjustment " +
-                                            "(ActivityItemRefno, " +
-                                            "ActivityItemSubType, " +
-                                            "ActivityItemFKRefno, " +
-                                            "ActivityItemStringFKRefno, " +
-                                            "ProductUnitRefno, " +
-                                            "WarehouseLocationMapRefno, " +
-                                            "ActivityItemAdjustmentQuantity, " +
-                                            "ActivityItemAdjustmentBaseQuantity, " +
-                                            "ActivityItemAdjustmentWeightQuantity, " +
-                                            "ActivityItemAdjustmentDescription) " +
-                                            "VALUES " +
-                                            "(?, " +
-                                            "?, " +
-                                            "?, " +
-                                            "?, " +
-                                            "?, " +
-                                            "?, " +
-                                            "?, " +
-                                            "?, " +
-                                            "?, " +
-                                            "?)";
-                                var parameters = new object[]
-                                {
                                     actItemRefno,
                                     Convert.ToInt32(SysCommon.ActSubTypes.Adjustment),
                                     actItemAdjFKRefno,
@@ -251,24 +250,23 @@ namespace dMobile.GroundWork
                                     Convert.ToDecimal(drow["ActivityItemAdjustmentBaseQuantity"]),
                                     Convert.ToDecimal(drow["ActivityItemAdjustmentWeightQuantity"]),
                                     Convert.ToString(drow["ActivityItemAdjustmentDescription"]),
-                                };
+                            };
 
-                                transaction.Execute(query, parameters);
+                            transaction.Execute(query, parameters);
 
-                                progValue++;
-                                if (progValue % 100 == 0)
-                                {
-                                    this.DataAccessProgressOutHandler(this, EventArgs.Empty, progValue, 0, progMax);
-                                }
-
-                                this.DataAccessProgressOutHandler(this, EventArgs.Empty, progMax, 0, progMax);
+                            progValue++;
+                            if (progValue % 100 == 0)
+                            {
+                                this.DataAccessProgressOutHandler(this, EventArgs.Empty, progValue, 0, progMax);
                             }
+
+                            this.DataAccessProgressOutHandler(this, EventArgs.Empty, progMax, 0, progMax);
                         }
-
-                        transaction.Commit();
-
-                        this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving adjustment items complete.", false);
                     }
+
+                    transaction.Commit();
+
+                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving adjustment items complete.", false);
                 }
                 catch (SQLiteException ex)
                 {

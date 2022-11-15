@@ -153,6 +153,11 @@ namespace dMobile.View.Views
         private string ProdCode { get; set; } = string.Empty;
 
         /// <summary>
+        /// Gets or sets the product brand.
+        /// </summary>
+        private string ProdBrand { get; set; } = string.Empty;
+
+        /// <summary>
         /// Gets or sets a value indicating whether changes have been made.
         /// </summary>
         private bool IsChangesMade { get; set; } = false;
@@ -348,6 +353,7 @@ namespace dMobile.View.Views
                 + "<ProductRefno>" + this.ProdRefno + "</ProductRefno>"
                 + "<ProductCode>" + this.ProdCode + "</ProductCode>"
                 + "<ProductDescription>" + SysCommon.AddXMLReservedChars(this.ProdDesc) + "</ProductDescription>"
+                + "<ProductBrand>" + this.ProdBrand + "</ProductBrand>"
                 + "<UnitCode>" + this.UnitCode + "</UnitCode>"
                 + "<BaseUnitCode>" + this.BaseUnitCode + "</BaseUnitCode>"
                 + "<WeightUnitCode>" + this.WeightUnitCode + "</WeightUnitCode>"
@@ -860,6 +866,9 @@ namespace dMobile.View.Views
 
             try
             {
+                var prod = await ProductInfoTasks.GetInfoFromRefno(prodUnit.ProductRefno);
+                this.ProdBrand = Convert.ToString(prod.BrandDesc);
+
                 this.ProdUnitRefno = Convert.ToInt32(prodUnit.ProductUnitRefno);
                 this.ProdRefno = Convert.ToInt32(prodUnit.ProductRefno);
                 this.ProdDesc = Convert.ToString(prodUnit.ProductDescription);
@@ -873,7 +882,7 @@ namespace dMobile.View.Views
 
                 await Device.InvokeOnMainThreadAsync(() =>
                 {
-                    this.lblProductDescription.Text = this.ProdCode + "  " + this.ProdDesc;
+                    this.lblProductDescription.Text = this.ProdCode + "  " + this.ProdDesc + " " + this.ProdBrand;
                 });
             }
             catch (Exception ex)

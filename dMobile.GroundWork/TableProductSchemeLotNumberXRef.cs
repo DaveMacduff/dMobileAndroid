@@ -95,7 +95,8 @@ namespace dMobile.GroundWork
             {
                 rowsAffected = Convert.ToInt32(await DatabaseConnection.GetInstance().SQLConn.ExecuteScalarAsync<int>("SELECT COUNT(*) FROM tProductSchemeLotNumberXRef"));
 
-                this.DataAccessStatusOutHandler(this, EventArgs.Empty, string.Format("{0} product scheme lot number xrefs.", rowsAffected), true);
+                this.DataAccessStatusOutHandler(this, EventArgs.Empty,
+                    $"{rowsAffected} product scheme lot number xrefs.", true);
             }
             catch (SQLiteException ex)
             {
@@ -117,91 +118,89 @@ namespace dMobile.GroundWork
             {
                 try
                 {
-                    using (var ds = new DataSet())
+                    using var ds = new DataSet();
+                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Reading received data.", false);
+
+                    ds.ReadXml(SysCommon.GetXmlReader(ref reqData), XmlReadMode.Auto);
+
+                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving product scheme lot number xref.", false);
+
+                    if (ds.Tables.Count != 0)
                     {
-                        this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Reading received data.", false);
+                        var progMax = Convert.ToInt32(ds.Tables["tProductSchemeLotNumberXRef"].Rows.Count);
 
-                        ds.ReadXml(SysCommon.GetXmlReader(ref reqData), XmlReadMode.Auto);
+                        this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"Records {progMax}", false);
 
-                        this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving product scheme lot number xref.", false);
+                        var schemeRefno = 0;
+                        var schemeLotRefno = 0;
+                        var progValue = 0;
+                        var isSchemeLotXRef = false;
+                        var schemeCode = string.Empty;
+                        var schemeLotCode = string.Empty;
 
-                        if (ds.Tables.Count != 0)
+                        this.DataAccessProgressOutHandler(this, EventArgs.Empty, 0, 0, progMax);
+
+                        foreach (DataRow drow in ds.Tables["tProductSchemeLotNumberXRef"].Rows)
                         {
-                            var progMax = Convert.ToInt32(ds.Tables["tProductSchemeLotNumberXRef"].Rows.Count);
+                            schemeCode = Convert.ToString(drow["ProductSchemeCode"]);
+                            errMsg = "Scheme code \'" + schemeCode + "\'";
 
-                            this.DataAccessStatusOutHandler(this, EventArgs.Empty, string.Format("Records {0}", progMax), false);
+                            var resultsProductScheme = transaction.Query<tProductSchemeModel>("SELECT * FROM tProductScheme WHERE ProductSchemeCode = ?", schemeCode);
 
-                            var schemeRefno = 0;
-                            var schemeLotRefno = 0;
-                            var progValue = 0;
-                            var isSchemeLotXRef = false;
-                            var schemeCode = string.Empty;
-                            var schemeLotCode = string.Empty;
-
-                            this.DataAccessProgressOutHandler(this, EventArgs.Empty, 0, 0, progMax);
-
-                            foreach (DataRow drow in ds.Tables["tProductSchemeLotNumberXRef"].Rows)
+                            if (resultsProductScheme?.Count > 0)
                             {
-                                schemeCode = Convert.ToString(drow["ProductSchemeCode"]);
-                                errMsg = "Scheme code \'" + schemeCode + "\'";
+                                schemeRefno = resultsProductScheme[0].ProductSchemeRefno;
+                            }
+                            else
+                            {
+                                throw new Exception("drScheme.Read() failed." + Environment.NewLine + errMsg);
+                            }
 
-                                var resultsProductScheme = transaction.Query<tProductSchemeModel>("SELECT * FROM tProductScheme WHERE ProductSchemeCode = ?", schemeCode);
+                            schemeLotCode = Convert.ToString(drow["ProductSchemeLotNumberCode"]);
+                            errMsg += Environment.NewLine + "Scheme lot code \'" + schemeLotCode + "\'";
 
-                                if (resultsProductScheme?.Count > 0)
+                            var resultsProductSchemeLotNumber = transaction.Query<tProductSchemeLotNumberModel>("SELECT * FROM tProductSchemeLotNumber WHERE ProductSchemeLotNumberCode = ?", schemeLotCode);
+
+                            if (resultsProductSchemeLotNumber?.Count > 0)
+                            {
+                                schemeLotRefno = resultsProductSchemeLotNumber[0].ProductSchemeLotNumberRefno;
+                            }
+                            else
+                            {
+                                throw new Exception("drSchemeLot.Read() failed." + Environment.NewLine + errMsg);
+                            }
+
+                            isSchemeLotXRef = false;
+
+                            if (this.SysEnv.RefreshOpt.RefreshDataChangesOnly)
+                            {
+                                var resultsProductSchemeLotNumberXRef = transaction.Query<tProductSchemeLotNumberXRefModel>("SELECT ProductSchemeRefno, ProductSchemeLotNumberRefno FROM tProductSchemeLotNumberXRef WHERE ProductSchemeRefno = ? AND ProductSchemeLotNumberRefno = ?", schemeRefno, schemeLotRefno);
+
+                                if (resultsProductSchemeLotNumberXRef?.Count > 0)
                                 {
-                                    schemeRefno = resultsProductScheme[0].ProductSchemeRefno;
-                                }
-                                else
-                                {
-                                    throw new Exception("drScheme.Read() failed." + Environment.NewLine + errMsg);
-                                }
-
-                                schemeLotCode = Convert.ToString(drow["ProductSchemeLotNumberCode"]);
-                                errMsg += Environment.NewLine + "Scheme lot code \'" + schemeLotCode + "\'";
-
-                                var resultsProductSchemeLotNumber = transaction.Query<tProductSchemeLotNumberModel>("SELECT * FROM tProductSchemeLotNumber WHERE ProductSchemeLotNumberCode = ?", schemeLotCode);
-
-                                if (resultsProductSchemeLotNumber?.Count > 0)
-                                {
-                                    schemeLotRefno = resultsProductSchemeLotNumber[0].ProductSchemeLotNumberRefno;
-                                }
-                                else
-                                {
-                                    throw new Exception("drSchemeLot.Read() failed." + Environment.NewLine + errMsg);
-                                }
-
-                                isSchemeLotXRef = false;
-
-                                if (this.SysEnv.RefreshOpt.RefreshDataChangesOnly)
-                                {
-                                    var resultsProductSchemeLotNumberXRef = transaction.Query<tProductSchemeLotNumberXRefModel>("SELECT ProductSchemeRefno, ProductSchemeLotNumberRefno FROM tProductSchemeLotNumberXRef WHERE ProductSchemeRefno = ? AND ProductSchemeLotNumberRefno = ?", schemeRefno, schemeLotRefno);
-
-                                    if (resultsProductSchemeLotNumberXRef?.Count > 0)
-                                    {
-                                        isSchemeLotXRef = true;
-                                    }
-                                }
-
-                                if (!isSchemeLotXRef)
-                                {
-                                    transaction.Execute("INSERT INTO tProductSchemeLotNumberXRef (ProductSchemeRefno, ProductSchemeLotNumberRefno) VALUES (?, ?)", schemeRefno, schemeLotRefno);
-                                }
-
-                                progValue++;
-
-                                if (progValue % 100 == 0)
-                                {
-                                    this.DataAccessProgressOutHandler(this, EventArgs.Empty, progValue, 0, progMax);
+                                    isSchemeLotXRef = true;
                                 }
                             }
 
-                            this.DataAccessProgressOutHandler(this, EventArgs.Empty, progMax, 0, progMax);
+                            if (!isSchemeLotXRef)
+                            {
+                                transaction.Execute("INSERT INTO tProductSchemeLotNumberXRef (ProductSchemeRefno, ProductSchemeLotNumberRefno) VALUES (?, ?)", schemeRefno, schemeLotRefno);
+                            }
+
+                            progValue++;
+
+                            if (progValue % 100 == 0)
+                            {
+                                this.DataAccessProgressOutHandler(this, EventArgs.Empty, progValue, 0, progMax);
+                            }
                         }
 
-                        transaction.Commit();
-
-                        this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving product scheme lot number xref complete.", false);
+                        this.DataAccessProgressOutHandler(this, EventArgs.Empty, progMax, 0, progMax);
                     }
+
+                    transaction.Commit();
+
+                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving product scheme lot number xref complete.", false);
                 }
                 catch (SQLiteException ex)
                 {

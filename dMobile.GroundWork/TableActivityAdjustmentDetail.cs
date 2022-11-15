@@ -101,7 +101,7 @@ namespace dMobile.GroundWork
                 var query = "SELECT COUNT(tActivityDetail.ActivityDetailRefno) FROM tActivityDetail WHERE tActivityDetail.ActivityDetailSubType = ?";
                 rowsAffected = await DatabaseConnection.GetInstance().SQLConn.ExecuteScalarAsync<int>(query, Convert.ToInt32(SysCommon.ActSubTypes.Adjustment));
 
-                this.DataAccessStatusOutHandler(this, EventArgs.Empty, string.Format("{0} adjustment details.", rowsAffected), true);
+                this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"{rowsAffected} adjustment details.", true);
             }
             catch (SQLiteException ex)
             {
@@ -173,9 +173,7 @@ namespace dMobile.GroundWork
             }
             else
             {
-                throw new Exception(string.Format(
-                    "Unable to locate item adjustment {0} in tActivityItemAdjustment",
-                    actItemAdjRefno));
+                throw new Exception($"Unable to locate item adjustment {actItemAdjRefno} in tActivityItemAdjustment");
             }
 
             return await this.SendComm(await this.CreateRequest(actItemAdjFKRefno));
@@ -205,7 +203,7 @@ namespace dMobile.GroundWork
                             var progValue = 0;
                             var actDetailAdjFKRefno = 0;
                             var progMax = Convert.ToInt32(ds.Tables["tActivityDetailAdjustment"].Rows.Count);
-                            this.DataAccessStatusOutHandler(this, EventArgs.Empty, string.Format("Records {0}", progMax), false);
+                            this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"Records {progMax}", false);
                             this.DataAccessProgressOutHandler(this, EventArgs.Empty, 0, 0, progMax);
 
                             // Find the line item.
@@ -221,6 +219,9 @@ namespace dMobile.GroundWork
                             // Iterate through the detail rows and insert them.
                             foreach (DataRow drow in ds.Tables["tActivityDetailAdjustment"].Rows)
                             {
+                                actDetailRefno = 0;
+                                progValue = 0;
+                                actDetailAdjFKRefno = 0;
                                 errMsg = "Arguments:";
                                 InsertActivityDetail(actItemAdjRefno, transaction, adjustmentItemResults, drow);
                                 errMsg = InsertActivityAdjustmentDetail(

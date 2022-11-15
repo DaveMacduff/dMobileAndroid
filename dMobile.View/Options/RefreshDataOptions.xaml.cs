@@ -262,7 +262,7 @@ namespace dMobile.View.Options
 ///
 /// </summary>
 /// <returns>A <see cref="Task"/> representing the result of the asynchronous operation.</returns>
-        public async Task RefreshCompelete()
+        public async Task RefreshComplete()
         {
             if (this.IsRefreshComplete)
             {
@@ -497,7 +497,7 @@ namespace dMobile.View.Options
                         {
                             var xmlDoc = await form.GetXML();
                             this.IsRefreshComplete = bool.Parse(xmlDoc.Root.Element("IsRefreshComplete").Value);
-                            await this.RefreshCompelete();
+                            await this.RefreshComplete();
                         }
                     });
                 }

@@ -36,6 +36,7 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
                 // KLUDGE: PLU (price look up) codes always start with the number 2 according to
                 // Fedor March 12 / 2013 - Warning this will bite us later
                 var s = Convert.ToString(Convert.ToInt64(barCodeData));
+
                 // 2 = deli
                 // 9 = organic
                 // 3 or 4 = produce conventionally grown

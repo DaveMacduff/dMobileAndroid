@@ -154,7 +154,7 @@ namespace dMobile.GroundWork
             {
                 rowsAffected = Convert.ToInt32(await DatabaseConnection.GetInstance().SQLConn.ExecuteScalarAsync<int>("SELECT COUNT(ActivityDetailRefno) FROM tActivityDetail WHERE ActivityDetailSubType = ?", Convert.ToInt32(SysCommon.ActSubTypes.TicketFinished)));
 
-                this.DataAccessStatusOutHandler(this, EventArgs.Empty, string.Format("{0} finished ticket details.", rowsAffected), true);
+                this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"{rowsAffected} finished ticket details.", true);
             }
             catch (SQLiteException ex)
             {
@@ -199,113 +199,111 @@ namespace dMobile.GroundWork
             {
                 try
                 {
-                    using (var ds = new DataSet())
+                    using var ds = new DataSet();
+                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Reading received data.", false);
+
+                    ds.ReadXml(SysCommon.GetXmlReader(ref reqData), XmlReadMode.Auto);
+
+                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving finished ticket details.", false);
+
+                    if (ds.Tables.Count != 0)
                     {
-                        this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Reading received data.", false);
+                        var progMax = Convert.ToInt32(ds.Tables["tActivityDetailProduction"].Rows.Count);
 
-                        ds.ReadXml(SysCommon.GetXmlReader(ref reqData), XmlReadMode.Auto);
+                        this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"Records {progMax}", false);
 
-                        this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving finished ticket details.", false);
+                        var actDetailRefno = 0;
+                        var progValue = 0;
+                        var actDetailFKRefno = 0;
 
-                        if (ds.Tables.Count != 0)
+                        this.DataAccessProgressOutHandler(this, EventArgs.Empty, 0, 0, progMax);
+
+                        var results = transaction.Query<tActivityItemProductionModel>("SELECT * FROM tActivityItemProduction WHERE ActivityItemRefno = ?", actItemProductionRefno);
+
+                        if (results == null || (results != null && results.Count == 0))
                         {
-                            var progMax = Convert.ToInt32(ds.Tables["tActivityDetailProduction"].Rows.Count);
-
-                            this.DataAccessStatusOutHandler(this, EventArgs.Empty, string.Format("Records {0}", progMax), false);
-
-                            var actDetailRefno = 0;
-                            var progValue = 0;
-                            var actDetailFKRefno = 0;
-
-                            this.DataAccessProgressOutHandler(this, EventArgs.Empty, 0, 0, progMax);
-
-                            var results = transaction.Query<tActivityItemProductionModel>("SELECT * FROM tActivityItemProduction WHERE ActivityItemRefno = ?", actItemProductionRefno);
-
-                            if (results == null || (results != null && results.Count == 0))
-                            {
-                                throw new Exception("No results for ActivityItemRefno ." + actItemProductionRefno + " in tActivityItemProduction." + Environment.NewLine + errMsg);
-                            }
-
-                            foreach (DataRow drow in ds.Tables["tActivityDetailProduction"].Rows)
-                            {
-                                errMsg = "Arguments:";
-
-                                var queryInsertDetail = "INSERT INTO tActivityDetail " +
-                                                        "(" +
-                                                        "ActivityDetailSubType, " +
-                                                        "ActivityDetailStatus, " +
-                                                        "ActivityItemRefno, " +
-                                                        "LocationMapRefno, " +
-                                                        "ProductUnitRefno, " +
-                                                        "ActivityDetailUniqueSchemeID, " +
-                                                        "ActivityDetailSchemeID, " +
-                                                        "ActivityDetailQuantity, " +
-                                                        "ActivityDetailBaseQuantity, " +
-                                                        "ActivityDetailWeightQuantity, " +
-                                                        "ActivityDetailSingleTradeItemSerialNumber, " +
-                                                        "ActivityDetailLogisticUnitBatchLotNumber, " +
-                                                        "ActivityDetailLogisticUnitBestBeforeSellByDate, " +
-                                                        "ActivityDetailLogisticUnitExpiryUseByDate, " +
-                                                        "ActivityDetailLogisticUnitProductionDate, " +
-                                                        "ActivityDetailLogisticUnitDueDate, " +
-                                                        "ActivityDetailLogisticUnitPackagingDate, " +
-                                                        "ActivityDetailLogisticUnitSkidNumber" +
-                                                        ") " +
-                                                        "VALUES" +
-                                                        "(" +
-                                                        "?, " +
-                                                        "?, " +
-                                                        "?, " +
-                                                        "?, " +
-                                                        "?, " +
-                                                        "?, " +
-                                                        "?, " +
-                                                        "?, " +
-                                                        "?, " +
-                                                        "?, " +
-                                                        "?, " +
-                                                        "?, " +
-                                                        "?, " +
-                                                        "?, " +
-                                                        "?, " +
-                                                        "?, " +
-                                                        "?, " +
-                                                        "?" +
-                                                        ")";
-                                var parametersInsertDetail = new List<object>();
-                                parametersInsertDetail.Add(Convert.ToInt32(SysCommon.ActSubTypes.TicketFinished));
-                                parametersInsertDetail.Add(Convert.ToInt32(0));
-                                parametersInsertDetail.Add(actItemProductionRefno);
-                                parametersInsertDetail.Add(this.GetDetailLocation(drow, transaction, false));
-                                parametersInsertDetail.Add(results[0].ProductUnitRefno);
-                                parametersInsertDetail.AddRange(this.SaveDetail(drow, transaction, false));
-
-                                transaction.Execute(queryInsertDetail, parametersInsertDetail.ToArray());
-
-                                actDetailRefno = Convert.ToInt32(transaction.ExecuteScalar<int>("SELECT last_insert_rowid() FROM tActivityDetail"));
-                                actDetailFKRefno = Convert.ToInt32(drow["ActivityDetailProductionFKRefno"]);
-
-                                errMsg = "FK detail refno " + actDetailFKRefno;
-
-                                transaction.Execute("INSERT INTO tActivityDetailProductionFinished (ActivityDetailRefno, ActivityDetailFKRefno) VALUES (?, ?)", actDetailRefno, actDetailFKRefno);
-
-                                this.SaveCommonDetailVariant(drow, transaction, actDetailRefno, false);
-                                this.SaveDetailExtra(drow, transaction, actDetailRefno, false);
-
-                                progValue++;
-                                if (progValue % 100 == 0)
-                                {
-                                    this.DataAccessProgressOutHandler(this, EventArgs.Empty, progValue, 0, progMax);
-                                }
-                            }
-
-                            this.DataAccessProgressOutHandler(this, EventArgs.Empty, progMax, 0, progMax);
+                            throw new Exception("No results for ActivityItemRefno ." + actItemProductionRefno + " in tActivityItemProduction." + Environment.NewLine + errMsg);
                         }
 
-                        transaction.Commit();
+                        foreach (DataRow drow in ds.Tables["tActivityDetailProduction"].Rows)
+                        {
+                            errMsg = "Arguments:";
 
-                        this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving finished ticket details complete.", false);
+                            var queryInsertDetail = "INSERT INTO tActivityDetail " +
+                                                    "(" +
+                                                    "ActivityDetailSubType, " +
+                                                    "ActivityDetailStatus, " +
+                                                    "ActivityItemRefno, " +
+                                                    "LocationMapRefno, " +
+                                                    "ProductUnitRefno, " +
+                                                    "ActivityDetailUniqueSchemeID, " +
+                                                    "ActivityDetailSchemeID, " +
+                                                    "ActivityDetailQuantity, " +
+                                                    "ActivityDetailBaseQuantity, " +
+                                                    "ActivityDetailWeightQuantity, " +
+                                                    "ActivityDetailSingleTradeItemSerialNumber, " +
+                                                    "ActivityDetailLogisticUnitBatchLotNumber, " +
+                                                    "ActivityDetailLogisticUnitBestBeforeSellByDate, " +
+                                                    "ActivityDetailLogisticUnitExpiryUseByDate, " +
+                                                    "ActivityDetailLogisticUnitProductionDate, " +
+                                                    "ActivityDetailLogisticUnitDueDate, " +
+                                                    "ActivityDetailLogisticUnitPackagingDate, " +
+                                                    "ActivityDetailLogisticUnitSkidNumber" +
+                                                    ") " +
+                                                    "VALUES" +
+                                                    "(" +
+                                                    "?, " +
+                                                    "?, " +
+                                                    "?, " +
+                                                    "?, " +
+                                                    "?, " +
+                                                    "?, " +
+                                                    "?, " +
+                                                    "?, " +
+                                                    "?, " +
+                                                    "?, " +
+                                                    "?, " +
+                                                    "?, " +
+                                                    "?, " +
+                                                    "?, " +
+                                                    "?, " +
+                                                    "?, " +
+                                                    "?, " +
+                                                    "?" +
+                                                    ")";
+                            var parametersInsertDetail = new List<object>();
+                            parametersInsertDetail.Add(Convert.ToInt32(SysCommon.ActSubTypes.TicketFinished));
+                            parametersInsertDetail.Add(Convert.ToInt32(0));
+                            parametersInsertDetail.Add(actItemProductionRefno);
+                            parametersInsertDetail.Add(this.GetDetailLocation(drow, transaction, false));
+                            parametersInsertDetail.Add(results[0].ProductUnitRefno);
+                            parametersInsertDetail.AddRange(this.SaveDetail(drow, transaction, false));
+
+                            transaction.Execute(queryInsertDetail, parametersInsertDetail.ToArray());
+
+                            actDetailRefno = Convert.ToInt32(transaction.ExecuteScalar<int>("SELECT last_insert_rowid() FROM tActivityDetail"));
+                            actDetailFKRefno = Convert.ToInt32(drow["ActivityDetailProductionFKRefno"]);
+
+                            errMsg = "FK detail refno " + actDetailFKRefno;
+
+                            transaction.Execute("INSERT INTO tActivityDetailProductionFinished (ActivityDetailRefno, ActivityDetailFKRefno) VALUES (?, ?)", actDetailRefno, actDetailFKRefno);
+
+                            this.SaveCommonDetailVariant(drow, transaction, actDetailRefno, false);
+                            this.SaveDetailExtra(drow, transaction, actDetailRefno, false);
+
+                            progValue++;
+                            if (progValue % 100 == 0)
+                            {
+                                this.DataAccessProgressOutHandler(this, EventArgs.Empty, progValue, 0, progMax);
+                            }
+                        }
+
+                        this.DataAccessProgressOutHandler(this, EventArgs.Empty, progMax, 0, progMax);
                     }
+
+                    transaction.Commit();
+
+                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving finished ticket details complete.", false);
                 }
                 catch (SQLiteException ex)
                 {
