@@ -1428,7 +1428,6 @@ namespace dMobile.View.Activity
 
                         case SysCommon.ActSubTypes.Receiving:
                             DisplayDataReceiving();
-
                             break;
 
                         case SysCommon.ActSubTypes.ReleaseByOrder:

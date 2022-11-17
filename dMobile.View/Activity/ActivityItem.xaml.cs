@@ -692,7 +692,6 @@ namespace dMobile.View.Activity
                 this.Loading = true;
                 if (this.IsFirstAppearance)
                 {
-                    this.IsFirstAppearance = false;
                     await this.ScannerStart();
                     this.CmdSelectSkidIsEnabled = this.SysEnv.SysSettings.IsSkidTrackingModule;
                     this.CmdClearSelectedSkidIsEnabled = this.ActItem.ActHdr.SkidInfo.CurrSkid.SkidFKRefno != 0
@@ -702,6 +701,8 @@ namespace dMobile.View.Activity
                     await this.RefreshBySubType();
                     this.ActItem.UnregLayerListenerProgOut(this);
                     await this.DesignGrid();
+
+                    this.IsFirstAppearance = false;
 
                     if (this.MainActivityItems == null || this.MainActivityItems.Count == 0)
                     {
@@ -2218,6 +2219,8 @@ namespace dMobile.View.Activity
             {
                 throw new MessageOnlyException("Location must be set first!");
             }
+
+            this.ActItem.LocMap = this.LocMap.CurrLocMap;
         }
 
         /// <summary>
@@ -3532,9 +3535,7 @@ namespace dMobile.View.Activity
                             Resource.OK));
                 }
 
-                var form = new FormDialogContainer(
-                    EDialogTypes.SelectLocationMap,
-                    SysCommon.ActSubTypes.NotApplicable);
+                var form = new FormDialogContainer(EDialogTypes.SelectLocationMap, SysCommon.ActSubTypes.NotApplicable);
                 if (await form.DisplayControl.ShowDialog() == DialogResult.OK)
                 {
                     this.LocMap.CurrLocMap = this.LocMap.ChosenLocMap.Clone();

@@ -1111,7 +1111,9 @@ namespace dMobile.Controller.Activity_Item
         /// <returns><see cref="string"/> Get activity item control description.</returns>
         public override string GetControlDescription()
         {
-            return $"Receive # {this.ActHdr.HdrFkRefno}";
+            ////return $"Receive # {this.ActHdr.HdrFkRefno}";
+            var poNumber = ((Receive)this.ActHdr.SelectedActivity).ActivityReceivingPONumber;
+            return $"PO number # {poNumber}";
         }
 
         /// <summary>
