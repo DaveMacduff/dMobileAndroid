@@ -2,6 +2,8 @@
 // Copyright (c) InterSect Business Systems Inc. All rights reserved.
 // </copyright>
 
+using Android.Provider;
+
 namespace dMobile.View.Activity
 {
     using System;
@@ -616,8 +618,9 @@ namespace dMobile.View.Activity
                 // TODO: Test selected listItem value is correct
                 await Device.InvokeOnMainThreadAsync(() =>
                 {
-                    this.lblFullUnitInfo.Text =
-                        $"Qty {(this.ActItem.ListItems[0] as dynamic).ActivityDetailQuantity} {fromProdInfo.UnitCode} @ {Math.Round(Convert.ToDecimal((this.ActItem.ListItems[0] as dynamic).ActivityDetailQuantity), 3)} {fromProdInfo.WeightUnitCode}";
+                    this.lblFullUnitInfo.Text = $"Qty {(this.ActItem.ListItems[0] as dynamic).ActivityDetailQuantity}" +
+                                                $" {fromProdInfo.UnitCode} @ {Math.Round(Convert.ToDecimal((this.ActItem.ListItems[0] as dynamic).ActivityDetailQuantity), 3)}" +
+                                                $" {fromProdInfo.WeightUnitCode}";
                 });
             }
             else
@@ -1546,9 +1549,17 @@ namespace dMobile.View.Activity
 
         private async void cmdSave_Clicked(object sender, EventArgs e)
         {
-            if (await this.SaveChanges())
+            string msg = "Confirm to convert unit?";
+            if (await Device.InvokeOnMainThreadAsync(async () => await Application.Current.MainPage.DisplayAlert(
+                    this.GetControlDescription(),
+                    msg,
+                    "Yes",
+                    "No")))
             {
-                await this.Close();
+                if (await this.SaveChanges())
+                {
+                    await this.Close();
+                }
             }
         }
 

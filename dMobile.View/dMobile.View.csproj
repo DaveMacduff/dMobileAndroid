@@ -25,12 +25,6 @@
     <AdditionalFiles Include="stylecop.json" />
   </ItemGroup>
   <ItemGroup>
-    <Reference Include="Mono.Android">
-      <HintPath Condition="Exists('//Library/Frameworks/Xamarin.Android.framework/Versions/Current/lib/xamarin.android/xbuild-frameworks/MonoAndroid/v9.0/Mono.Android.dll')">//Library/Frameworks/Xamarin.Android.framework/Versions/Current/lib/xamarin.android/xbuild-frameworks/MonoAndroid/v9.0/Mono.Android.dll</HintPath>
-      <HintPath Condition="Exists('C:\Program Files (x86)\Microsoft Visual Studio\2019\Professional\Common7\IDE\ReferenceAssemblies\Microsoft\Framework\MonoAndroid\v9.0\Mono.Android.dll')">C:\Program Files (x86)\Microsoft Visual Studio\2019\Professional\Common7\IDE\ReferenceAssemblies\Microsoft\Framework\MonoAndroid\v9.0\Mono.Android.dll</HintPath>
-    </Reference>
-  </ItemGroup>
-  <ItemGroup>
     <ProjectReference Include="..\dMobile.BarCodeScanner\dMobile.BarCodeScanner.csproj" />
     <ProjectReference Include="..\dMobile.Bedrock\dMobile.Bedrock.csproj" />
     <ProjectReference Include="..\dMobile.Controller\dMobile.Controller.csproj" />
@@ -49,8 +43,16 @@
     <PackageReference Include="Xamarin.Forms" Version="4.8.0.1821" />
   </ItemGroup>
   <ItemGroup>
+    <Reference Include="Mono.Android">
+      <HintPath>..\..\..\Program Files\Microsoft Visual Studio\2022\Professional\Common7\IDE\ReferenceAssemblies\Microsoft\Framework\MonoAndroid\v9.0\Mono.Android.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
     <Compile Update="Activity\ActivityConvertUnitEditCatch.xaml.cs">
       <DependentUpon>ActivityConvertUnitEditCatch.xaml</DependentUpon>
+    </Compile>
+    <Compile Update="Activity\ActivityConvertUnitDetail.xaml.cs">
+      <DependentUpon>ActivityConvertUnitDetail.xaml</DependentUpon>
     </Compile>
     <Compile Update="Activity\ActivityHdr.xaml.cs">
       <DependentUpon>ActivityHdr.xaml</DependentUpon>

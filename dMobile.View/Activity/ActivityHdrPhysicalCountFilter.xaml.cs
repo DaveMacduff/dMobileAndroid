@@ -212,7 +212,7 @@ namespace dMobile.View.Activity
         /// <param name="e">The e<see cref="EventArgs"/>.</param>
         public void ucActivityHdrPhysicalCountFilter_GotFocus(object sender, EventArgs e)
         {
-            // Reload CountSettings because intial values will be scewed because of SelectedIndexChanged events firing
+            // Reload CountSettings because initial values will be screwed because of SelectedIndexChanged events firing
             if (!this.IsControlLoaded)
             {
                 this.LoadData();

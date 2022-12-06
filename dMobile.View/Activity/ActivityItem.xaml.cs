@@ -2573,10 +2573,10 @@ namespace dMobile.View.Activity
                     this.SelectedActivityItemFkRefno = await this.ActItem.AssignActivityItem(selectedItem);
                     this.ListViewMainActivity.SelectedItem = this.ActItem.SelectedActivityItem;
 
-                    ////Device.BeginInvokeOnMainThread(() =>
-                    ////{
-                    ////    this.MainActivityItems[this.ActItem.SelectedListItemIdx] = this.ActItem.SelectedActivityItem;
-                    ////});
+                    Device.BeginInvokeOnMainThread(() =>
+                    {
+                        this.MainActivityItems[this.ActItem.SelectedListItemIdx] = this.ActItem.SelectedActivityItem;
+                    });
                 }
 
                 Device.BeginInvokeOnMainThread(() =>
@@ -3883,7 +3883,7 @@ namespace dMobile.View.Activity
                 await this.ActDisappearing();
                 if (await this.DisplayAlert(
                     "Add Skid",
-                    "Add the ENTIRE skid to this activity?",
+                    "Add the available skid quantity to this activity?",
                     "Yes",
                     "No"))
                 {

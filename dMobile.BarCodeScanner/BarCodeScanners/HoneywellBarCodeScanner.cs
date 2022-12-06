@@ -8,7 +8,6 @@ namespace dMobile.BarCodeScanner.BarCodeScanners
     using System.Collections.Generic;
     using System.Threading;
     using System.Threading.Tasks;
-    using Android.Util;
     using dMobile.Resources.Services;
     using Honeywell.AIDC.CrossPlatform;
     using Xamarin.Forms;
@@ -81,7 +80,7 @@ namespace dMobile.BarCodeScanner.BarCodeScanners
 
             if (this.HoneywellReader == null)
             {
-                _ = Log.Error("HoneywellBarcodeScanner", "Unexpected this.HoneywellReader == null");
+                ////_ = Log.Error("HoneywellBarcodeScanner", "Unexpected this.HoneywellReader == null");
                 this.HoneywellReader = new BarcodeReader();
             }
 
@@ -95,7 +94,7 @@ namespace dMobile.BarCodeScanner.BarCodeScanners
             else
             {
                 var errMsg = $"HoneywellBarcodeScanner, OpenAsync failed, Code: {result.Code} Message: {result.Message}.";
-                _ = Log.Error("HoneywellBarcodeScanner", errMsg);
+                ////_ = Log.Error("HoneywellBarcodeScanner", errMsg);
                 throw new Exception(errMsg);
             }
         }
@@ -113,7 +112,7 @@ namespace dMobile.BarCodeScanner.BarCodeScanners
 
             if (this.HoneywellReader == null)
             {
-                _ = Log.Error("HoneywellBarcodeScanner", "Unexpected this.HoneywellReader == null");
+                ////_ = Log.Error("HoneywellBarcodeScanner", "Unexpected this.HoneywellReader == null");
                 this.HoneywellReader = new BarcodeReader();
             }
 
@@ -125,7 +124,7 @@ namespace dMobile.BarCodeScanner.BarCodeScanners
             else
             {
                 var errMsg = $"HoneywellBarcodeScanner, CloseAsync failed, Code: {result.Code} Message: {result.Message}.";
-                _ = Log.Error("HoneywellBarcodeScanner", errMsg);
+                ////_ = Log.Error("HoneywellBarcodeScanner", errMsg);
                 throw new Exception(errMsg);
             }
         }
@@ -165,7 +164,7 @@ namespace dMobile.BarCodeScanner.BarCodeScanners
             catch (Exception ex)
             {
                 var errMsg = ex.Message;
-                _ = Log.Error("HoneywellBarcodeScanner", errMsg);
+                ////_ = Log.Error("HoneywellBarcodeScanner", errMsg);
                 throw new Exception(errMsg);
             }
         }
@@ -201,7 +200,7 @@ namespace dMobile.BarCodeScanner.BarCodeScanners
                         catch (Exception ex)
                         {
                             var errMsg = $"SetSymbologySettings - Error setting symbology settings {ex.Message}";
-                            Log.Error("SetSymbologySettings", errMsg);
+                            ////Log.Error("SetSymbologySettings", errMsg);
                             throw new Exception(errMsg);
                         }
                     };

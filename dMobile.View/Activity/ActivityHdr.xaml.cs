@@ -407,7 +407,7 @@ namespace dMobile.View.Activity
             if (dataLayerEventArgs.CurrentValue > 0 && dataLayerEventArgs.MaxValue > 0)
             {
                 ////double percent = 100 * dataLayerEventArgs.CurrentValue / dataLayerEventArgs.MaxValue;
-                ////this.progBarMain.Progress = percent / 100;
+                ////this.ProgBarMain.Progress = percent / 100;
             }
         }
 

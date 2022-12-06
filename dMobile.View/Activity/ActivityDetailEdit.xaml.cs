@@ -2,15 +2,13 @@
 // Copyright (c) InterSect Business Systems Inc. All rights reserved.
 // </copyright>
 
-using System.Globalization;
-using System.Runtime.CompilerServices;
-using dMobile.Controller.Activity_Detail;
-
 namespace dMobile.View.Activity
 {
     using System;
     using System.Collections.Generic;
     using System.Collections.ObjectModel;
+    using System.Globalization;
+    using System.Runtime.CompilerServices;
     using System.Threading.Tasks;
     using System.Xml;
     using System.Xml.Linq;
@@ -22,6 +20,7 @@ namespace dMobile.View.Activity
     using dMobile.Resources.Types;
     using dMobile.View.CustomPages.Modal;
     using dMobile.View.Forms;
+    using dMobile.Controller.Activity_Detail;
     using Xamarin.Forms;
     using Xamarin.Forms.Xaml;
     using Resource = dMobile.Resources.Properties.Resources;
@@ -41,6 +40,13 @@ namespace dMobile.View.Activity
         {
             this.InitializeComponent();
 
+            this.ExtraInfoItems = new ObservableCollection<string>();
+            this.SysEnv = SysEnvironment.GetInstance();
+            this.ActSubType = actSubTypes;
+            this.ListSerialNumbers = new List<SerialNumber>();
+            this.ListLots = new List<LotNumber>();
+            this.ListVariants = new List<ProductVariant>();
+
             this.lblQty.Text = "Quantity";
             this.lblUnit.Text = "KG";
             this.lblBaseQty.Text = "Base Qty";
@@ -52,13 +58,21 @@ namespace dMobile.View.Activity
             this.lblLotNo.Text = "Lot No";
             this.lblBestBeforeDate.Text = "Best Before";
             this.lblVariantCode.Text = "Variant";
+            this.dtBestBeforeDate.Date = DateTime.Now;
+            this.dtProductionDate.Date = DateTime.Now;
+            this.dtExtraDetail5.Date = DateTime.Now;
+            if (this.SysEnv.SysSettings.DetailDateMinMaxValidYearRange != 0)
+            {
+                var lower = DateTime.Now.AddYears(this.SysEnv.SysSettings.DetailDateMinMaxValidYearRange * -1);
+                this.dtBestBeforeDate.MinimumDate = lower;
+                this.dtProductionDate.MinimumDate = lower;
+                this.dtExtraDetail5.MinimumDate = lower;
 
-            this.ExtraInfoItems = new ObservableCollection<string>();
-            this.SysEnv = SysEnvironment.GetInstance();
-            this.ActSubType = actSubTypes;
-            this.ListSerialNumbers = new List<SerialNumber>();
-            this.ListLots = new List<LotNumber>();
-            this.ListVariants = new List<ProductVariant>();
+                var upper = DateTime.Now.AddYears(this.SysEnv.SysSettings.DetailDateMinMaxValidYearRange);
+                this.dtBestBeforeDate.MaximumDate = upper;
+                this.dtProductionDate.MaximumDate = upper;
+                this.dtExtraDetail5.MaximumDate = upper;
+            }
 
             this.ActDetail = actDetail;
             this.ActDetail.ActSubType = this.ActSubType;
@@ -81,15 +95,15 @@ namespace dMobile.View.Activity
                 },
             };
 
-            if (!this.ActDetail.ActItem.ProdInfo.Scheme.IsBestBeforeDateTrackedDefault)
-            {
-                this.dtBestBeforeDate.Date = DateTime.Now;
-            }
+            ////if (!this.ActDetail.ActItem.ProdInfo.Scheme.IsBestBeforeDateTrackedDefault)
+            ////{
+            ////    this.dtBestBeforeDate.Date = DateTime.Now;
+            ////}
 
-            if (!this.ActDetail.ActItem.ProdInfo.Scheme.IsProductionDateTrackedDefault)
-            {
-                this.dtProductionDate.Date = DateTime.Now;
-            }
+            ////if (!this.ActDetail.ActItem.ProdInfo.Scheme.IsProductionDateTrackedDefault)
+            ////{
+            ////    this.dtProductionDate.Date = DateTime.Now;
+            ////}
 
             this.Title = this.ActDetail.GetControlDescription();
             this.lbl1.Text = this.ActDetail.ActItem.ProdInfo.Scheme.Extra1Caption;

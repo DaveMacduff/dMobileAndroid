@@ -2,25 +2,24 @@
 // Copyright (c) InterSect Business Systems Inc. All rights reserved.
 // </copyright>
 
-using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Linq;
-using System.Threading.Tasks;
-using System.Xml.Linq;
-using Android.Views;
-using dMobile.BarCodeScanner.BarCodeParsing;
-using dMobile.BarCodeScanner.BarCodeScanners;
-using dMobile.Bedrock;
-using dMobile.Resources.Enums;
-using dMobile.Resources.Types;
-using dMobile.View.CustomPages.Modal;
-using dMobile.View.Forms;
-using Xamarin.Forms;
-using Xamarin.Forms.Xaml;
-
 namespace dMobile.View.Views
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Collections.ObjectModel;
+    using System.Linq;
+    using System.Threading.Tasks;
+    using System.Xml.Linq;
+    using Android.Views;
+    using dMobile.BarCodeScanner.BarCodeParsing;
+    using dMobile.BarCodeScanner.BarCodeScanners;
+    using dMobile.Bedrock;
+    using dMobile.Resources.Enums;
+    using dMobile.Resources.Types;
+    using dMobile.View.CustomPages.Modal;
+    using dMobile.View.Forms;
+    using Xamarin.Forms;
+    using Xamarin.Forms.Xaml;
     using Resource = Resources.Properties.Resources;
 
     /// <summary>
@@ -90,7 +89,7 @@ namespace dMobile.View.Views
         /// <summary>
         /// Gets or sets the bar code scanner engine.
         /// </summary>
-        private BarCodeScanner.BarCodeScanners.BarCodeScanner Scanner { get; set; }
+        private dMobile.BarCodeScanner.BarCodeScanners.BarCodeScanner Scanner { get; set; }
 
         /// <summary>
         /// Gets or sets the system environment instance.
@@ -377,7 +376,7 @@ namespace dMobile.View.Views
                 if (this.IsBarCodeHandlerRegistered)
                 {
                     this.Scanner.BarCodeScan -=
-                        new BarCodeScanner.BarCodeScanners.BarCodeScanner.BarCodeScanEventHandler(this.BarCodeHandler);
+                        new dMobile.BarCodeScanner.BarCodeScanners.BarCodeScanner.BarCodeScanEventHandler(this.BarCodeHandler);
                     await this.Scanner.Stop();
                     this.IsBarCodeHandlerRegistered = false;
                 }
@@ -396,7 +395,7 @@ namespace dMobile.View.Views
                 {
                     await this.Scanner.Start();
                     this.Scanner.BarCodeScan +=
-                        new BarCodeScanner.BarCodeScanners.BarCodeScanner.BarCodeScanEventHandler(this.BarCodeHandler);
+                        new dMobile.BarCodeScanner.BarCodeScanners.BarCodeScanner.BarCodeScanEventHandler(this.BarCodeHandler);
                     this.IsBarCodeHandlerRegistered = true;
                 }
             }
@@ -461,7 +460,7 @@ namespace dMobile.View.Views
                 {
                     await this.Scanner.Start();
                     this.Scanner.BarCodeScan +=
-                        new BarCodeScanner.BarCodeScanners.BarCodeScanner.BarCodeScanEventHandler(this.BarCodeHandler);
+                        new dMobile.BarCodeScanner.BarCodeScanners.BarCodeScanner.BarCodeScanEventHandler(this.BarCodeHandler);
                     this.IsBarCodeHandlerRegistered = true;
                 }
             }
@@ -747,16 +746,16 @@ namespace dMobile.View.Views
                     }
                 }
 
-                if (this.ActSubType != SysCommon.ActSubTypes.Receiving &&
-                    this.ActSubType != SysCommon.ActSubTypes.PurchaseOrderWorkSheet)
-                {
-                    this.FilteredListProdUnits = this.ListProdUnits
-                        .Where(productUnit => productUnit.ProductUnitIsSellUnit).ToList();
-                }
-                else
-                {
-                    ////this.FilteredListProdUnits = this.ListProdUnits;
-                }
+                ////if (this.ActSubType != SysCommon.ActSubTypes.Receiving &&
+                ////    this.ActSubType != SysCommon.ActSubTypes.PurchaseOrderWorkSheet)
+                ////{
+                ////    this.FilteredListProdUnits = this.ListProdUnits
+                ////        .Where(productUnit => productUnit.ProductUnitIsSellUnit).ToList();
+                ////}
+                ////else
+                ////{
+                ////    ////this.FilteredListProdUnits = this.ListProdUnits;
+                ////}
             }
         }
 
@@ -994,10 +993,11 @@ namespace dMobile.View.Views
                     var entry = sender as Entry;
                     var startLength = entry.Text.Length;
 
-                    ////await Task.Delay(300);
+                    await Task.Delay(300);
 
                     if (startLength == entry.Text.Length)
-                    {this.ApplySearchFilter(this.txtSearchProduct.Text);
+                    {
+                        this.ApplySearchFilter(this.txtSearchProduct.Text);
                         await this.AddProductUnitToObservableCollection();
                     }
                 }

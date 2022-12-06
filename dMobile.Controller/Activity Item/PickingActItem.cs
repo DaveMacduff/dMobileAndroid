@@ -1179,6 +1179,60 @@ namespace dMobile.Controller.Activity_Item
                 this.ItemRefno = Convert.ToInt32(results[0].ActivityItemRefno);
                 foundActItemRefno = this.ItemRefno;
             }
+            else
+            {
+                // If location defaulting is on, attempt to find a matching line item by ignoring the line item
+                // warehouse location. Yes this will be a problem if the sales order has multiple item lines
+                // on it for the same product and different warehouse.
+                // Picking is the only activity that could have this sort of problem. All other activities are
+                // warehouse friend because the can't mix warehouses or are created by the mobile itself.
+                if (this.SysEnv.SysSettings.IsDefaultLocToProductDefaultLoc)
+                {
+                    sql = new StringBuilder();
+                    sql.Append("SELECT tActivityItem.ActivityItemRefno,");
+                    sql.Append("tActivityItemPicking.ActivityItemFKRefno,");
+                    sql.Append("tActivityItemPicking.ProductUnitRefno,");
+                    sql.Append("tLocationMapWarehouse.LocationMapRefno ");
+                    sql.Append("FROM tActivityItemPicking ");
+                    sql.Append("INNER JOIN tActivityItem ON tActivityItem.ActivityItemRefno ");
+                    sql.Append("= tActivityItemPicking.ActivityItemRefno ");
+                    sql.Append("INNER JOIN tLocationMapWarehouse ON tLocationMapWarehouse.LocationMapRefno ");
+                    sql.Append("= tActivityItemPicking.WarehouseLocationMapRefno ");
+                    sql.AppendFormat("WHERE tActivityItem.ActivityRefno = {0} ", this.ActHdr.HdrRefno);
+                    sql.AppendFormat("AND tActivityItemPicking.ProductUnitRefno = {0}", prodUnitRefno);
+
+                    results = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<PickingItem>(sql.ToString());
+
+                    if (results != null && results.Count > 0)
+                    {
+                        var locMapRefno = await LocationMapTasks.GetDefaultLocMapRefnoFromWhsProdRefno(
+                            Convert.ToInt32(results[0].LocationMapRefno),
+                            prodUnitRefno,
+                            SysCommon.ProdLocMapTypes.Picking);
+
+                        if (!await LocationMapTasks.IsCompleteLocMap(locMapRefno))
+                        {
+                            // Default location to the floor.
+                            locMapRefno = await LocationMapTasks.GetDefaultLocMapRefnoFromWhsProdRefno(
+                                Convert.ToInt32(results[0].LocationMapRefno),
+                                prodUnitRefno,
+                                SysCommon.ProdLocMapTypes.Floor);
+                        }
+
+                        if (await LocationMapTasks.IsCompleteLocMap(locMapRefno))
+                        {
+                            LocationMap.GetInstance().CurrLocMap = await LocationMapTasks.GetSLocMapFromLocMapRefno(locMapRefno);
+                            LocationMap.GetInstance().ChosenLocMap = LocationMap.GetInstance().CurrLocMap;
+                            this.LocMap = LocationMap.GetInstance().CurrLocMap;
+                            this.ItemFkRefno = Convert.ToInt32(results[0].ActivityItemFKRefno);
+                            this.ProdInfo = await ProductInfoTasks.GetInfoFromUnitRefno(Convert.ToInt32(results[0].ProductUnitRefno));
+                            this.ProdInfo.Scheme = await ProductInfoTasks.GetSchemeComponentsFromRefno(this.ProdInfo.Refno);
+                            this.ItemRefno = Convert.ToInt32(results[0].ActivityItemRefno);
+                            foundActItemRefno = this.ItemRefno;
+                        }
+                    }
+                }
+            }
 
             return foundActItemRefno;
         }

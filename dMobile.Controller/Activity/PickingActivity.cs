@@ -1196,7 +1196,11 @@ namespace dMobile.Controller.Activity
             //    MessageBoxButtons.YesNo,
             //    MessageBoxIcon.Question,
             //    MessageBoxDefaultButton.Button2) == DialogResult.Yes)
-            if (await Device.InvokeOnMainThreadAsync(async () => await Application.Current.MainPage.DisplayAlert(this.GetControlDescription(), msg, "Yes", "No")))
+            if (await Device.InvokeOnMainThreadAsync(async () => await Application.Current.MainPage.DisplayAlert(
+                    this.GetControlDescription(),
+                    msg,
+                    "Yes",
+                    "No")))
             {
                 var reqData = string.Empty;
                 var xmlString = new StringBuilder();
