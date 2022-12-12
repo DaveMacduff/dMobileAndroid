@@ -3,15 +3,15 @@
     xmlns:modal="clr-namespace:dMobile.View.CustomPages.Modal"
     xmlns="http://xamarin.com/schemas/2014/forms"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-    xmlns:Helpers="clr-namespace:dMobile.View.Helpers"
+    xmlns:helpers="clr-namespace:dMobile.View.Helpers"
     xmlns:input="http://schemas.microsoft.com/netfx/2009/xaml/presentation"
-    x:Class="dMobile.View.Activity.ActivityConvertUnitDetail">
-    <ContentPage.ToolbarItems>
-        <ToolbarItem x:Name="OptionsMenu" IconImageSource="{Binding OptionsIconSource}" Clicked="OptionsMenu_Clicked" IsEnabled="{Binding Loading, Converter={Helpers:BoolConverter}}"/>
-    </ContentPage.ToolbarItems>
+    x:Class="dMobile.View.Activity.ActivityConvertUnitDetail" x:DataType="modal:DMobileModal">
     <ContentPage.Content>
         <AbsoluteLayout VerticalOptions="Center">
-            <Grid x:Name="GridContainer" Padding="10" AbsoluteLayout.LayoutFlags="All" AbsoluteLayout.LayoutBounds="0,0,1,1">
+            <Grid x:Name="GridContainer"
+                  Padding="10"
+                  AbsoluteLayout.LayoutFlags="All"
+                  AbsoluteLayout.LayoutBounds="0,0,1,1">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto"/>
                     <RowDefinition Height="65*"/>
@@ -22,7 +22,10 @@
 
                 <Label x:Name="LblSkidNumber" Grid.Row="0" FontAttributes="Bold"/>
 
-                <Frame VerticalOptions="Start" Grid.Row="1" Grid.Column="0" OutlineColor="{DynamicResource BorderColor}">
+                <Frame VerticalOptions="Start"
+                       Grid.Row="1"
+                       Grid.Column="0"
+                       BorderColor="{DynamicResource BorderColor}">
                     <ScrollView Orientation="Horizontal">
                         <Grid x:Name="GridMainActivity">
                             <Grid.RowDefinitions>
@@ -32,14 +35,16 @@
                             <ListView x:Name="ListViewMainActivity"
                                       ItemSelected="ListViewMainActivity_ItemSelected"
                                       HasUnevenRows="true"
-                                      IsEnabled="{Binding Loading, Converter={Helpers:BoolConverter}}"
+                                      IsEnabled="{Binding Loading, Converter={helpers:BoolConverter}}"
                                       Grid.Row="1"/>
                         </Grid>
                     </ScrollView>
                 </Frame>
 
-                <Frame VerticalOptions="Start" Grid.Row="2" OutlineColor="{DynamicResource BorderColor}">
-                    <ListView x:Name="ListViewDisplayExtraInfo" SelectionMode="None" HasUnevenRows="true" IsEnabled="{Binding Loading, Converter={Helpers:BoolConverter}}" SeparatorVisibility="None" >
+                <Frame VerticalOptions="Start" Grid.Row="2" BorderColor="{DynamicResource BorderColor}">
+                    <ListView x:Name="ListViewDisplayExtraInfo" SelectionMode="None" HasUnevenRows="true"
+                              IsEnabled="{Binding Loading, Converter={helpers:BoolConverter}}"
+                              SeparatorVisibility="None">
                         <ListView.ItemTemplate>
                             <DataTemplate>
                                 <ViewCell>
@@ -53,25 +58,19 @@
                 </Frame>
 
                 <Grid Grid.Row="3">
-                    <Entry x:Name="TxtSearchDetail" Grid.Row="0" Grid.Column="0" TextChanged="TxtSearchHdr_TextChanged" IsEnabled="{Binding Loading, Converter={Helpers:BoolConverter}}"/>
+                    <Entry x:Name="TxtSearchDetail" Grid.Row="0" Grid.Column="0" TextChanged="TxtSearchHdr_TextChanged"
+                           IsEnabled="{Binding Loading, Converter={helpers:BoolConverter}}" />
                     <Button x:Name="CmdAddDetail"
                             Grid.Row="0"
                             Grid.Column="1"
                             Text="Add Detail"
                             Clicked="CmdAddDetail_Click"
-                            IsEnabled="{Binding Loading, Converter={Helpers:BoolConverter}}"/>
+                            IsEnabled="{Binding Loading, Converter={helpers:BoolConverter}}"/>
                 </Grid>
 
                 <Grid Grid.Row="4">
                     <ProgressBar x:Name="ProgBarMain" Grid.Row="0" Grid.Column="0" Visual="Default"></ProgressBar>
                 </Grid>
-                
-                <!--<Grid x:Name="gridButtonContainer" Grid.Row="3" Grid.ColumnSpan="2" IsEnabled="{Binding Loading, Converter={Helpers:BoolConverter}}">-->
-                    <!--<Button x:Name="cmdSelectSkid" Grid.Row="3" Grid.Column="0" Text="Select Skid" Clicked="CmdSelectSkid_Click" IsEnabled="{Binding Loading, Converter={Helpers:BoolConverter}}"/>-->
-                    
-                    <!--<Button x:Name="cmdLocation" Grid.Row="1" Grid.Column="0" Text="Set Location" Clicked="CmdLocation_Click" IsEnabled="{Binding Loading, Converter={Helpers:BoolConverter}}"/>
-                    <Button x:Name="cmdAddSkid" Grid.Row="1" Grid.Column="1" Text="Add Skid" Clicked="CmdAddSkid_Click" IsEnabled="{Binding Loading, Converter={Helpers:BoolConverter}}"/>-->
-                <!--</Grid>-->
             </Grid>
 
             <ActivityIndicator IsVisible="{Binding Loading}" 

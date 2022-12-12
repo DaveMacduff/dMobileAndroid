@@ -1965,12 +1965,26 @@ namespace dMobile.View.Activity
                     case SysCommon.ActSubTypes.Adjustment:
                         if (this.ListViewMainActivity.SelectedItem is AdjustmentDetail adjustmentDetail)
                         {
-                            var loc = adjustmentDetail.Location;
-                            var locCode = Convert.ToString(adjustmentDetail.LocationCode);
-                            var locName = adjustmentDetail.LocationName;
+                            // Get the cycle count line item location.
+                            var countItemLocMap = await LocationMapTasks.GetSLocMapFromLocMapRefno(
+                                Convert.ToInt32(adjustmentDetail.LocationMapRefno));
+                            var countLoc = LocationMapTasks.GetReadableLocation(countItemLocMap);
 
-                            this.ExtraInfoItems.Add("LOCATION: " + loc + ": " + locCode + " " + locName);
-                            this.ExtraInfoItems.Add(adjustmentDetail.ActivityDetailSchemeID);
+                            // Using the cycle count line item warehouse, get the product default
+                            // picking location.
+                            var defLocMapRefno = await LocationMapTasks.GetDefaultLocMapRefnoFromWhsProdRefno(
+                                countItemLocMap.WhsLocMapRefno,
+                                Convert.ToInt32(adjustmentDetail.ProductRefno),
+                                SysCommon.ProdLocMapTypes.Picking);
+                            var defProdLoc = LocationMapTasks.GetReadableLocation(
+                                await LocationMapTasks.GetSLocMapFromLocMapRefno(defLocMapRefno));
+                            var prodDesc = adjustmentDetail.ProductDescription.ToString();
+                            var prodUnitSizeDesc = adjustmentDetail.ProductUnitSizeDescription.ToString();
+                            this.ExtraInfoItems.Add(prodDesc.Trim() + " " + prodUnitSizeDesc.Trim());
+
+                            this.ExtraInfoItems.Add("Default Location: " + defProdLoc.Trim());
+                            this.ExtraInfoItems.Add("Adjusted Location: " + countLoc.Trim());
+                            ////this.ExtraInfoItems.Add(cycleDetail.ActivityDetailSchemeID);
                         }
 
                         break;
@@ -1988,28 +2002,28 @@ namespace dMobile.View.Activity
                         break;
 
                     case SysCommon.ActSubTypes.CycleCounts:
-                        if (this.ListViewMainActivity.SelectedItem is CountDetail countDetail)
+                        if (this.ListViewMainActivity.SelectedItem is CountDetail cycleDetail)
                         {
                             // Get the cycle count line item location.
                             var countItemLocMap = await LocationMapTasks.GetSLocMapFromLocMapRefno(
-                                Convert.ToInt32(countDetail.LocationMapRefno));
+                                Convert.ToInt32(cycleDetail.LocationMapRefno));
                             var countLoc = LocationMapTasks.GetReadableLocation(countItemLocMap);
 
                             // Using the cycle count line item warehouse, get the product default
                             // picking location.
                             var defLocMapRefno = await LocationMapTasks.GetDefaultLocMapRefnoFromWhsProdRefno(
                                 countItemLocMap.WhsLocMapRefno,
-                                Convert.ToInt32(countDetail.ProductRefno),
+                                Convert.ToInt32(cycleDetail.ProductRefno),
                                 SysCommon.ProdLocMapTypes.Picking);
                             var defProdLoc = LocationMapTasks.GetReadableLocation(
                             await LocationMapTasks.GetSLocMapFromLocMapRefno(defLocMapRefno));
-                            var prodDesc = countDetail.ProductDescription.ToString();
-                            var prodUnitSizeDesc = countDetail.ProductUnitSizeDescription.ToString();
+                            var prodDesc = cycleDetail.ProductDescription.ToString();
+                            var prodUnitSizeDesc = cycleDetail.ProductUnitSizeDescription.ToString();
                             this.ExtraInfoItems.Add(prodDesc.Trim() + " " + prodUnitSizeDesc.Trim());
 
                             this.ExtraInfoItems.Add("Default Location: " + defProdLoc.Trim());
-                            this.ExtraInfoItems.Add("Count Location: " + countLoc.Trim());
-                            this.ExtraInfoItems.Add(countDetail.ActivityDetailSchemeID);
+                            this.ExtraInfoItems.Add("Counted Location: " + countLoc.Trim());
+                            ////this.ExtraInfoItems.Add(cycleDetail.ActivityDetailSchemeID);
                         }
 
                         break;
@@ -2044,90 +2058,184 @@ namespace dMobile.View.Activity
                         break;
 
                     case SysCommon.ActSubTypes.PhysicalCounts:
-                        if (this.ListViewMainActivity.SelectedItem is CountDetail physicalCountDetail)
+                        if (this.ListViewMainActivity.SelectedItem is CountDetail physicalDetail)
                         {
-                            var loc = physicalCountDetail.Location;
-                            var locCode = Convert.ToString(physicalCountDetail.LocationCode);
-                            var locName = physicalCountDetail.LocationName;
+                            // Get the cycle count line item location.
+                            var countItemLocMap = await LocationMapTasks.GetSLocMapFromLocMapRefno(
+                                Convert.ToInt32(physicalDetail.LocationMapRefno));
+                            var countLoc = LocationMapTasks.GetReadableLocation(countItemLocMap);
 
-                            this.ExtraInfoItems.Add("LOCATION: " + loc + ": " + locCode + " " + locName);
-                            this.ExtraInfoItems.Add(physicalCountDetail.ActivityDetailSchemeID);
+                            // Using the cycle count line item warehouse, get the product default
+                            // picking location.
+                            var defLocMapRefno = await LocationMapTasks.GetDefaultLocMapRefnoFromWhsProdRefno(
+                                countItemLocMap.WhsLocMapRefno,
+                                Convert.ToInt32(physicalDetail.ProductRefno),
+                                SysCommon.ProdLocMapTypes.Picking);
+                            var defProdLoc = LocationMapTasks.GetReadableLocation(
+                                await LocationMapTasks.GetSLocMapFromLocMapRefno(defLocMapRefno));
+                            var prodDesc = physicalDetail.ProductDescription.ToString();
+                            var prodUnitSizeDesc = physicalDetail.ProductUnitSizeDescription.ToString();
+                            this.ExtraInfoItems.Add(prodDesc.Trim() + " " + prodUnitSizeDesc.Trim());
+
+                            this.ExtraInfoItems.Add("Default Location: " + defProdLoc.Trim());
+                            this.ExtraInfoItems.Add("Counted Location: " + countLoc.Trim());
+                            ////this.ExtraInfoItems.Add(physicalDetail.ActivityDetailSchemeID);
                         }
 
                         break;
 
                     case SysCommon.ActSubTypes.Picking:
-                        if (this.ListViewMainActivity.SelectedItem is PickingDetail pickingDetail)
+                        if (this.ListViewMainActivity.SelectedItem is PickingDetail pickDetail)
                         {
-                            this.ExtraInfoItems.Add(LocationMapTasks.GetCurrentReadableLocation(isSeparateSlotCoords: true));
+                            // Get the line item location.
+                            var itemLocMap = await LocationMapTasks.GetSLocMapFromLocMapRefno(
+                                Convert.ToInt32(pickDetail.LocationMapRefno));
+                            var detailLoc = LocationMapTasks.GetReadableLocation(itemLocMap);
 
-                            var qty = (this.ActDetail.ActItem.SelectedActivityItem as PickingItem).
-                                ActivityItemPickingQuantityShipped;
+                            // Using the line item warehouse, get the product default location.
+                            var defLocMapRefno = await LocationMapTasks.GetDefaultLocMapRefnoFromWhsProdRefno(
+                                itemLocMap.WhsLocMapRefno,
+                                Convert.ToInt32(pickDetail.ProductRefno),
+                                SysCommon.ProdLocMapTypes.Picking);
+                            var defProdLoc = LocationMapTasks.GetReadableLocation(
+                                await LocationMapTasks.GetSLocMapFromLocMapRefno(defLocMapRefno));
 
-                            var wtQty = (this.ActDetail.ActItem.SelectedActivityItem as PickingItem).
-                                ActivityItemPickingWeightQuantityShipped;
+                            var prodDesc = pickDetail.ProductDescription.ToString();
+                            var prodUnitSizeDesc = pickDetail.ProductUnitSizeDescription.ToString();
+                            this.ExtraInfoItems.Add(prodDesc.Trim() + " " + prodUnitSizeDesc.Trim());
 
-                            this.ExtraInfoItems.Add("Total: " + SysCommon.NiceQuantityReadableString(
-                                this.ActDetail.ActItem.ProdInfo,
-                                qty,
-                                wtQty));
+                            this.ExtraInfoItems.Add("Default Location: " + defProdLoc.Trim());
+                            this.ExtraInfoItems.Add("Picked Location: " + detailLoc.Trim());
+                            ////this.ExtraInfoItems.Add(pickDetail.ActivityDetailSchemeID);
+
+                            ////var qty = (this.ActDetail.ActItem.SelectedActivityItem as PickingItem).
+                            ////    ActivityItemPickingQuantityShipped;
+
+                            ////var wtQty = (this.ActDetail.ActItem.SelectedActivityItem as PickingItem).
+                            ////    ActivityItemPickingWeightQuantityShipped;
+
+                            ////this.ExtraInfoItems.Add("Total: " + SysCommon.NiceQuantityReadableString(
+                            ////    this.ActDetail.ActItem.ProdInfo,
+                            ////    qty,
+                            ////    wtQty));
                         }
 
                         break;
 
                     case SysCommon.ActSubTypes.PickingSingle:
-                        if (this.ListViewMainActivity.SelectedItem is PickingDetail pickingSingleDetail)
+                        if (this.ListViewMainActivity.SelectedItem is PickingDetail pickSingleDetail)
                         {
-                            this.ExtraInfoItems.Add(pickingSingleDetail.ActivityDetailSchemeID);
+                            // Get the line item location.
+                            var itemLocMap = await LocationMapTasks.GetSLocMapFromLocMapRefno(
+                                Convert.ToInt32(pickSingleDetail.LocationMapRefno));
+                            var detailLoc = LocationMapTasks.GetReadableLocation(itemLocMap);
 
-                            var qty = (this.ActDetail.ActItem.SelectedActivityItem as PickingItem).
-                                ActivityItemPickingQuantityShipped;
-                            var wtQty = (this.ActDetail.ActItem.SelectedActivityItem as PickingItem).
-                                ActivityItemPickingWeightQuantityShipped;
+                            // Using the line item warehouse, get the product default location.
+                            var defLocMapRefno = await LocationMapTasks.GetDefaultLocMapRefnoFromWhsProdRefno(
+                                itemLocMap.WhsLocMapRefno,
+                                Convert.ToInt32(pickSingleDetail.ProductRefno),
+                                SysCommon.ProdLocMapTypes.Picking);
+                            var defProdLoc = LocationMapTasks.GetReadableLocation(
+                                await LocationMapTasks.GetSLocMapFromLocMapRefno(defLocMapRefno));
 
-                            this.ExtraInfoItems.Add("Total: " + SysCommon.NiceQuantityReadableString(
-                                this.ActDetail.ActItem.ProdInfo,
-                                qty,
-                                wtQty));
+                            var prodDesc = pickSingleDetail.ProductDescription.ToString();
+                            var prodUnitSizeDesc = pickSingleDetail.ProductUnitSizeDescription.ToString();
+                            this.ExtraInfoItems.Add(prodDesc.Trim() + " " + prodUnitSizeDesc.Trim());
+
+                            this.ExtraInfoItems.Add("Default Location: " + defProdLoc.Trim());
+                            this.ExtraInfoItems.Add("Picked Location: " + detailLoc.Trim());
+                            ////this.ExtraInfoItems.Add(pickSingleDetail.ActivityDetailSchemeID);
+
+                            ////var qty = (this.ActDetail.ActItem.SelectedActivityItem as PickingItem).
+                            ////    ActivityItemPickingQuantityShipped;
+                            ////var wtQty = (this.ActDetail.ActItem.SelectedActivityItem as PickingItem).
+                            ////    ActivityItemPickingWeightQuantityShipped;
+
+                            ////this.ExtraInfoItems.Add("Total: " + SysCommon.NiceQuantityReadableString(
+                            ////    this.ActDetail.ActItem.ProdInfo,
+                            ////    qty,
+                            ////    wtQty));
                         }
 
                         break;
 
                     case SysCommon.ActSubTypes.TicketAddProduct:
-                        if (this.ListViewMainActivity.SelectedItem is ProductionTicketByProductDetail productionTicketByProductDetail)
+                        if (this.ListViewMainActivity.SelectedItem is ProductionTicketByProductDetail byProductDetail)
                         {
-                            var loc = productionTicketByProductDetail.Location;
-                            var locCode = Convert.ToString(productionTicketByProductDetail.LocationCode);
-                            var locName = productionTicketByProductDetail.LocationName;
+                            // Get the line item location.
+                            var itemLocMap = await LocationMapTasks.GetSLocMapFromLocMapRefno(
+                                Convert.ToInt32(byProductDetail.LocationMapRefno));
+                            var detailLoc = LocationMapTasks.GetReadableLocation(itemLocMap);
 
-                            this.ExtraInfoItems.Add("LOCATION: " + loc + ": " + locCode + " " + locName);
-                            this.ExtraInfoItems.Add(productionTicketByProductDetail.ActivityDetailSchemeID);
+                            // Using the line item warehouse, get the product default location.
+                            var defLocMapRefno = await LocationMapTasks.GetDefaultLocMapRefnoFromWhsProdRefno(
+                                itemLocMap.WhsLocMapRefno,
+                                Convert.ToInt32(byProductDetail.ProductRefno),
+                                SysCommon.ProdLocMapTypes.Receiving);
+                            var defProdLoc = LocationMapTasks.GetReadableLocation(
+                                await LocationMapTasks.GetSLocMapFromLocMapRefno(defLocMapRefno));
+
+                            var prodDesc = byProductDetail.ProductDescription.ToString();
+                            var prodUnitSizeDesc = byProductDetail.ProductUnitSizeDescription.ToString();
+                            this.ExtraInfoItems.Add(prodDesc.Trim() + " " + prodUnitSizeDesc.Trim());
+
+                            this.ExtraInfoItems.Add("Default Location: " + defProdLoc.Trim());
+                            this.ExtraInfoItems.Add("Additional Location: " + detailLoc.Trim());
+                            ////this.ExtraInfoItems.Add(byProductDetail.ActivityDetailSchemeID);
                         }
 
                         break;
 
                     case SysCommon.ActSubTypes.TicketFinished:
-                        if (this.ListViewMainActivity.SelectedItem is ProductionTicketFinishedDetail productionTicketFinishedDetaill)
+                        if (this.ListViewMainActivity.SelectedItem is ProductionTicketFinishedDetail finishedDetail)
                         {
-                            var loc = productionTicketFinishedDetaill.Location;
-                            var locCode = Convert.ToString(productionTicketFinishedDetaill.LocationCode);
-                            var locName = productionTicketFinishedDetaill.LocationName;
+                            // Get the line item location.
+                            var itemLocMap = await LocationMapTasks.GetSLocMapFromLocMapRefno(
+                                Convert.ToInt32(finishedDetail.LocationMapRefno));
+                            var detailLoc = LocationMapTasks.GetReadableLocation(itemLocMap);
 
-                            this.ExtraInfoItems.Add("LOCATION: " + loc + ": " + locCode + " " + locName);
-                            this.ExtraInfoItems.Add(productionTicketFinishedDetaill.ActivityDetailSchemeID);
+                            // Using the line item warehouse, get the product default location.
+                            var defLocMapRefno = await LocationMapTasks.GetDefaultLocMapRefnoFromWhsProdRefno(
+                                itemLocMap.WhsLocMapRefno,
+                                Convert.ToInt32(finishedDetail.ProductRefno),
+                                SysCommon.ProdLocMapTypes.Receiving);
+                            var defProdLoc = LocationMapTasks.GetReadableLocation(
+                                await LocationMapTasks.GetSLocMapFromLocMapRefno(defLocMapRefno));
+
+                            var prodDesc = finishedDetail.ProductDescription.ToString();
+                            var prodUnitSizeDesc = finishedDetail.ProductUnitSizeDescription.ToString();
+                            this.ExtraInfoItems.Add(prodDesc.Trim() + " " + prodUnitSizeDesc.Trim());
+
+                            this.ExtraInfoItems.Add("Default Location: " + defProdLoc.Trim());
+                            this.ExtraInfoItems.Add("Finished Location: " + detailLoc.Trim());
+                            ////this.ExtraInfoItems.Add(finishedDetail.ActivityDetailSchemeID);
                         }
 
                         break;
 
                     case SysCommon.ActSubTypes.TicketMaterial:
-                        if (this.ListViewMainActivity.SelectedItem is ProductionTicketMaterialDetail productionTicketMaterialDetail)
+                        if (this.ListViewMainActivity.SelectedItem is ProductionTicketMaterialDetail materialDetail)
                         {
-                            var loc = productionTicketMaterialDetail.Location;
-                            var locCode = Convert.ToString(productionTicketMaterialDetail.LocationCode);
-                            var locName = productionTicketMaterialDetail.LocationName;
+                            // Get the line item location.
+                            var itemLocMap = await LocationMapTasks.GetSLocMapFromLocMapRefno(
+                                Convert.ToInt32(materialDetail.LocationMapRefno));
+                            var detailLoc = LocationMapTasks.GetReadableLocation(itemLocMap);
 
-                            this.ExtraInfoItems.Add("LOCATION: " + loc + ": " + locCode + " " + locName);
-                            this.ExtraInfoItems.Add(productionTicketMaterialDetail.ActivityDetailSchemeID);
+                            // Using the line item warehouse, get the product default location.
+                            var defLocMapRefno = await LocationMapTasks.GetDefaultLocMapRefnoFromWhsProdRefno(
+                                itemLocMap.WhsLocMapRefno,
+                                Convert.ToInt32(materialDetail.ProductRefno),
+                                SysCommon.ProdLocMapTypes.Picking);
+                            var defProdLoc = LocationMapTasks.GetReadableLocation(
+                                await LocationMapTasks.GetSLocMapFromLocMapRefno(defLocMapRefno));
+
+                            var prodDesc = materialDetail.ProductDescription.ToString();
+                            var prodUnitSizeDesc = materialDetail.ProductUnitSizeDescription.ToString();
+                            this.ExtraInfoItems.Add(prodDesc.Trim() + " " + prodUnitSizeDesc.Trim());
+
+                            this.ExtraInfoItems.Add("Default Location: " + defProdLoc.Trim());
+                            this.ExtraInfoItems.Add("ByProduct Location: " + detailLoc.Trim());
+                            ////this.ExtraInfoItems.Add(materialDetail.ActivityDetailSchemeID);
                         }
 
                         break;
@@ -2144,12 +2252,26 @@ namespace dMobile.View.Activity
                     case SysCommon.ActSubTypes.Receiving:
                         if (this.ListViewMainActivity.SelectedItem is ReceiveDetail receiveDetail)
                         {
-                            var loc = receiveDetail.Location;
-                            var locCode = Convert.ToString(receiveDetail.LocationCode);
-                            var locName = receiveDetail.LocationName;
+                            // Get the line item location.
+                            var itemLocMap = await LocationMapTasks.GetSLocMapFromLocMapRefno(
+                                Convert.ToInt32(receiveDetail.LocationMapRefno));
+                            var detailLoc = LocationMapTasks.GetReadableLocation(itemLocMap);
 
-                            this.ExtraInfoItems.Add("LOCATION: " + loc + ": " + locCode + " " + locName);
-                            this.ExtraInfoItems.Add(receiveDetail.ActivityDetailSchemeID);
+                            // Using the line item warehouse, get the product default location.
+                            var defLocMapRefno = await LocationMapTasks.GetDefaultLocMapRefnoFromWhsProdRefno(
+                                itemLocMap.WhsLocMapRefno,
+                                Convert.ToInt32(receiveDetail.ProductRefno),
+                                SysCommon.ProdLocMapTypes.Receiving);
+                            var defProdLoc = LocationMapTasks.GetReadableLocation(
+                                await LocationMapTasks.GetSLocMapFromLocMapRefno(defLocMapRefno));
+
+                            var prodDesc = receiveDetail.ProductDescription.ToString();
+                            var prodUnitSizeDesc = receiveDetail.ProductUnitSizeDescription.ToString();
+                            this.ExtraInfoItems.Add(prodDesc.Trim() + " " + prodUnitSizeDesc.Trim());
+
+                            this.ExtraInfoItems.Add("Default Location: " + defProdLoc.Trim());
+                            this.ExtraInfoItems.Add("Received Location: " + detailLoc.Trim());
+                            ////this.ExtraInfoItems.Add(receiveDetail.ActivityDetailSchemeID);
                         }
 
                         break;
@@ -2166,12 +2288,26 @@ namespace dMobile.View.Activity
                     case SysCommon.ActSubTypes.Returns:
                         if (this.ListViewMainActivity.SelectedItem is ReturnDetail returnDetail)
                         {
-                            var loc = returnDetail.Location;
-                            var locCode = Convert.ToString(returnDetail.LocationCode);
-                            var locName = returnDetail.LocationName;
+                            // Get the line item location.
+                            var itemLocMap = await LocationMapTasks.GetSLocMapFromLocMapRefno(
+                                Convert.ToInt32(returnDetail.LocationMapRefno));
+                            var detailLoc = LocationMapTasks.GetReadableLocation(itemLocMap);
 
-                            this.ExtraInfoItems.Add("LOCATION: " + loc + ": " + locCode + " " + locName);
-                            this.ExtraInfoItems.Add(returnDetail.ActivityDetailSchemeID);
+                            // Using the line item warehouse, get the product default location.
+                            var defLocMapRefno = await LocationMapTasks.GetDefaultLocMapRefnoFromWhsProdRefno(
+                                itemLocMap.WhsLocMapRefno,
+                                Convert.ToInt32(returnDetail.ProductRefno),
+                                SysCommon.ProdLocMapTypes.Receiving);
+                            var defProdLoc = LocationMapTasks.GetReadableLocation(
+                                await LocationMapTasks.GetSLocMapFromLocMapRefno(defLocMapRefno));
+
+                            var prodDesc = returnDetail.ProductDescription.ToString();
+                            var prodUnitSizeDesc = returnDetail.ProductUnitSizeDescription.ToString();
+                            this.ExtraInfoItems.Add(prodDesc.Trim() + " " + prodUnitSizeDesc.Trim());
+
+                            this.ExtraInfoItems.Add("Default Location: " + defProdLoc.Trim());
+                            this.ExtraInfoItems.Add("Returned Location: " + detailLoc.Trim());
+                            ////this.ExtraInfoItems.Add(returnDetail.ActivityDetailSchemeID);
                         }
 
                         break;
@@ -2185,10 +2321,26 @@ namespace dMobile.View.Activity
                     case SysCommon.ActSubTypes.SkidInfo:
                         if (this.ListViewMainActivity.SelectedItem is SkidInfoDetail skidInfoDetail)
                         {
-                            this.ExtraInfoItems.Add(skidInfoDetail.ActivityDetailSchemeID);
-                            this.ExtraInfoItems.Add("PRODUCT: " + this.ActDetail.ActItem.ProdInfo.Code +
-                                this.ActDetail.ActItem.ProdInfo.UnitBC + " " +
-                                this.ActDetail.ActItem.ProdInfo.UnitSizeDesc);
+                            // Get the line item location.
+                            var itemLocMap = await LocationMapTasks.GetSLocMapFromLocMapRefno(
+                                Convert.ToInt32(skidInfoDetail.LocationMapRefno));
+                            var detailLoc = LocationMapTasks.GetReadableLocation(itemLocMap);
+
+                            // Using the line item warehouse, get the product default location.
+                            var defLocMapRefno = await LocationMapTasks.GetDefaultLocMapRefnoFromWhsProdRefno(
+                                itemLocMap.WhsLocMapRefno,
+                                Convert.ToInt32(skidInfoDetail.ProductRefno),
+                                SysCommon.ProdLocMapTypes.Picking);
+                            var defProdLoc = LocationMapTasks.GetReadableLocation(
+                                await LocationMapTasks.GetSLocMapFromLocMapRefno(defLocMapRefno));
+
+                            var prodDesc = skidInfoDetail.ProductDescription.ToString();
+                            var prodUnitSizeDesc = skidInfoDetail.ProductUnitSizeDescription.ToString();
+                            this.ExtraInfoItems.Add(prodDesc.Trim() + " " + prodUnitSizeDesc.Trim());
+
+                            this.ExtraInfoItems.Add("Default Location: " + defProdLoc.Trim());
+                            this.ExtraInfoItems.Add("Detail Location: " + detailLoc.Trim());
+                            ////this.ExtraInfoItems.Add(skidInfoDetail.ActivityDetailSchemeID);
                         }
 
                         break;
@@ -2196,12 +2348,26 @@ namespace dMobile.View.Activity
                     case SysCommon.ActSubTypes.TransferFrom:
                         if (this.ListViewMainActivity.SelectedItem is TransferDetail transferFromDetail)
                         {
-                            var loc = transferFromDetail.Location;
-                            var locCode = Convert.ToString(transferFromDetail.LocationCode);
-                            var locName = transferFromDetail.LocationName;
+                            // Get the line item location.
+                            var itemLocMap = await LocationMapTasks.GetSLocMapFromLocMapRefno(
+                                Convert.ToInt32(transferFromDetail.LocationMapRefno));
+                            var detailLoc = LocationMapTasks.GetReadableLocation(itemLocMap);
 
-                            this.ExtraInfoItems.Add("LOCATION: " + loc + ": " + locCode + " " + locName);
-                            this.ExtraInfoItems.Add(transferFromDetail.ActivityDetailSchemeID);
+                            // Using the line item warehouse, get the product default location.
+                            var defLocMapRefno = await LocationMapTasks.GetDefaultLocMapRefnoFromWhsProdRefno(
+                                itemLocMap.WhsLocMapRefno,
+                                Convert.ToInt32(transferFromDetail.ProductRefno),
+                                SysCommon.ProdLocMapTypes.Picking);
+                            var defProdLoc = LocationMapTasks.GetReadableLocation(
+                                await LocationMapTasks.GetSLocMapFromLocMapRefno(defLocMapRefno));
+
+                            var prodDesc = transferFromDetail.ProductDescription.ToString();
+                            var prodUnitSizeDesc = transferFromDetail.ProductUnitSizeDescription.ToString();
+                            this.ExtraInfoItems.Add(prodDesc.Trim() + " " + prodUnitSizeDesc.Trim());
+
+                            this.ExtraInfoItems.Add("Default Location: " + defProdLoc.Trim());
+                            this.ExtraInfoItems.Add("Transferred Location: " + detailLoc.Trim());
+                            ////this.ExtraInfoItems.Add(transferFromDetail.ActivityDetailSchemeID);
                         }
 
                         break;
@@ -2209,12 +2375,26 @@ namespace dMobile.View.Activity
                     case SysCommon.ActSubTypes.TransferTo:
                         if (this.ListViewMainActivity.SelectedItem is TransferDetail transferToDetail)
                         {
-                            var loc = transferToDetail.Location;
-                            var locCode = Convert.ToString(transferToDetail.LocationCode);
-                            var locName = transferToDetail.LocationName;
+                            // Get the line item location.
+                            var itemLocMap = await LocationMapTasks.GetSLocMapFromLocMapRefno(
+                                Convert.ToInt32(transferToDetail.LocationMapRefno));
+                            var detailLoc = LocationMapTasks.GetReadableLocation(itemLocMap);
 
-                            this.ExtraInfoItems.Add("LOCATION: " + loc + ": " + locCode + " " + locName);
-                            this.ExtraInfoItems.Add(transferToDetail.ActivityDetailSchemeID);
+                            // Using the line item warehouse, get the product default location.
+                            var defLocMapRefno = await LocationMapTasks.GetDefaultLocMapRefnoFromWhsProdRefno(
+                                itemLocMap.WhsLocMapRefno,
+                                Convert.ToInt32(transferToDetail.ProductRefno),
+                                SysCommon.ProdLocMapTypes.Receiving);
+                            var defProdLoc = LocationMapTasks.GetReadableLocation(
+                                await LocationMapTasks.GetSLocMapFromLocMapRefno(defLocMapRefno));
+
+                            var prodDesc = transferToDetail.ProductDescription.ToString();
+                            var prodUnitSizeDesc = transferToDetail.ProductUnitSizeDescription.ToString();
+                            this.ExtraInfoItems.Add(prodDesc.Trim() + " " + prodUnitSizeDesc.Trim());
+
+                            this.ExtraInfoItems.Add("Default Location: " + defProdLoc.Trim());
+                            this.ExtraInfoItems.Add("Transferred Location: " + detailLoc.Trim());
+                            ////this.ExtraInfoItems.Add(transferToDetail.ActivityDetailSchemeID);
                         }
 
                         break;
@@ -2531,6 +2711,7 @@ namespace dMobile.View.Activity
 
                     await Device.InvokeOnMainThreadAsync(() => Task.FromResult(this.CmdLocationText = "Location: " +
                         Environment.NewLine + LocationMapTasks.GetCurrentReadableLocation()));
+                    await this.DisplayDataItem();
                 }
                 catch (MessageOnlyException ex)
                 {

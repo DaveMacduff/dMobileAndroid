@@ -2,11 +2,6 @@
 // Copyright (c) InterSect Business Systems Inc. All rights reserved.
 // </copyright>
 
-using dMobile.Controller.Activity;
-using dMobile.Controller.Activity_Detail;
-using dMobile.Controller.Activity_Item;
-using dMobile.View.Views;
-
 namespace dMobile.View.Forms
 {
     using System;
@@ -14,9 +9,13 @@ namespace dMobile.View.Forms
     using System.Xml.Linq;
     using dMobile.Bedrock;
     using dMobile.Controller;
+    using dMobile.Controller.Activity;
+    using dMobile.Controller.Activity_Detail;
+    using dMobile.Controller.Activity_Item;
     using dMobile.View.Activity;
     using dMobile.View.CustomPages.Modal;
     using dMobile.View.Options;
+    using dMobile.View.Views;
     using Xamarin.Forms.Xaml;
 
     /// <summary>
@@ -299,6 +298,7 @@ namespace dMobile.View.Forms
                 EDialogTypes.ActivityInventoryInquirySummary => this.GetModel(modelType, actDetail, actSubType),
                 EDialogTypes.ActivityRemoveFromSkid => this.GetModel(modelType, actDetail, actSubType),
                 EDialogTypes.ActivityDeboxLabelCount => this.GetModel(modelType, actDetail, actSubType),
+                EDialogTypes.ActivityConvertUnitDetail => this.GetModel(modelType, actDetail, actSubType),
                 _ => this.GetModel(modelType, actDetail, actSubType),
             };
 
@@ -354,6 +354,7 @@ namespace dMobile.View.Forms
                 EDialogTypes.ActivityInventoryInquirySummary => throw new NotSupportedException(msg),
                 EDialogTypes.ActivityRemoveFromSkid => throw new NotSupportedException(msg),
                 EDialogTypes.ActivityDeboxLabelCount => throw new NotSupportedException(msg),
+                EDialogTypes.ActivityConvertUnitDetail => throw new NotSupportedException(msg),
                 _ => throw new NotSupportedException(msg),
             };
 
@@ -424,6 +425,7 @@ namespace dMobile.View.Forms
                 EDialogTypes.ActivityInventoryInquirySummary => null,
                 EDialogTypes.ActivityRemoveFromSkid => null,
                 EDialogTypes.ActivityDeboxLabelCount => null,
+                EDialogTypes.ActivityConvertUnitDetail => null,
                 _ => null,
             };
 
@@ -479,6 +481,7 @@ namespace dMobile.View.Forms
                 EDialogTypes.ActivityInventoryInquirySummary => null,
                 EDialogTypes.ActivityRemoveFromSkid => null,
                 EDialogTypes.ActivityDeboxLabelCount => null,
+                EDialogTypes.ActivityConvertUnitDetail => null,
                 _ => null,
             };
 
@@ -541,6 +544,7 @@ namespace dMobile.View.Forms
                 EDialogTypes.SelectProduct => null,
                 EDialogTypes.ActivityInventoryInquirySummary => null,
                 EDialogTypes.ActivityDeboxLabelCount => null,
+                EDialogTypes.ActivityConvertUnitDetail => null,
                 _ => null,
             };
 
@@ -601,6 +605,7 @@ namespace dMobile.View.Forms
                 EDialogTypes.ActivityInventoryInquirySummary => null,
                 EDialogTypes.ActivityRemoveFromSkid => null,
                 EDialogTypes.ActivityDeboxLabelCount => null,
+                EDialogTypes.ActivityConvertUnitDetail => new ActivityConvertUnitDetail(actItem, actSubType),
                 _ => null,
             };
 
@@ -652,6 +657,7 @@ namespace dMobile.View.Forms
                 EDialogTypes.ActivityInventoryInquirySummary => null,
                 EDialogTypes.ActivityRemoveFromSkid => null,
                 EDialogTypes.ActivityDeboxLabelCount => null,
+                EDialogTypes.ActivityConvertUnitDetail => null,
                 _ => null,
             };
 
@@ -702,6 +708,7 @@ namespace dMobile.View.Forms
                 EDialogTypes.ActivityInventoryInquirySummary => null,
                 EDialogTypes.ActivityRemoveFromSkid => null,
                 EDialogTypes.ActivityDeboxLabelCount => null,
+                EDialogTypes.ActivityConvertUnitDetail => null,
                 _ => null,
             };
 

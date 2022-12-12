@@ -185,8 +185,13 @@ namespace dMobile.Bedrock
         ActivityDeboxLabelCount,
 
         /// <summary>
-        /// 
+        /// Activity convert unit edit catch.
         /// </summary>
         ActivityConvertUnitEditCatch,
+
+        /// <summary>
+        /// Activity convert unit detail.
+        /// </summary>
+        ActivityConvertUnitDetail,
     }
 }

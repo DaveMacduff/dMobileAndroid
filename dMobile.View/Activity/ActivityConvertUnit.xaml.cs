@@ -1547,9 +1547,14 @@ namespace dMobile.View.Activity
             }
         }
 
+        /// <summary>
+        /// Ask to confirm to convert the unit.
+        /// </summary>
+        /// <param name="sender"><see cref="object"/> Sender object.</param>
+        /// <param name="e"><see cref="EventArgs"/> Event arguments.</param>
         private async void cmdSave_Clicked(object sender, EventArgs e)
         {
-            string msg = "Confirm to convert unit?";
+            const string msg = "Confirm to convert unit?";
             if (await Device.InvokeOnMainThreadAsync(async () => await Application.Current.MainPage.DisplayAlert(
                     this.GetControlDescription(),
                     msg,
@@ -1601,6 +1606,7 @@ namespace dMobile.View.Activity
                             EDialogTypes.ActivityConvertUnitEditCatch,
                             this.ActDetail,
                             SysCommon.ActSubTypes.ConvertUnit);
+                        ////var form = new FormDialogContainer(EDialogTypes.ActivityConvertUnitDetail, this.ActItem, SysCommon.ActSubTypes.ConvertUnit);
                         if (await form.DisplayControl.ShowDialog() == DialogResult.OK)
                         {
                             var detail = (ConvertUnitDetail)this.ActDetail.ListDetails[this.ActDetail.SelectedListItemIdx];

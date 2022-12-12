@@ -11,6 +11,7 @@ using System.Threading.Tasks;
 using System.Xml.Linq;
 using dMobile.Bedrock;
 using dMobile.Controller.Activity_Item;
+using dMobile.GroundWork;
 using dMobile.Resources.Services;
 using dMobile.Resources.Types;
 using Xamarin.Forms;
@@ -228,7 +229,24 @@ namespace dMobile.Controller.Activity_Detail
         /// <returns>The <see cref="Task"/>.</returns>
         public override Task Refresh()
         {
-            throw new NotImplementedException();
+            ////if (this.SysEnv.SysSettings.IsDisconnectedMode)
+            ////{
+            ////    this.DataLayerProgressOutHandler(this, EventArgs.Empty, 5);
+            ////}
+            ////else
+            ////{
+            ////    this.DataLayerProgressOutHandler(this, EventArgs.Empty, 2);
+
+            ////    var tableDet = new TableActivityConvertUnitDetail();
+            ////    tableDet.PurgeData();
+            ////    this.DataLayerProgressOutHandler(this, EventArgs.Empty, 5);
+
+            ////    tableDet.RegisterDataAccessListenerProgressOut((ConvertUnitDetail)this);
+            ////    ////await tableCountDet.RequestData(this.ActItem.ItemRefno);
+            ////    tableDet.UnregisterDataAccessListenerProgressOut((CycleCountActDetail)this);
+            ////}
+
+            return Task.CompletedTask;
         }
 
         /// <summary>
