@@ -480,7 +480,7 @@ namespace dMobile.Controller.Activity
                 var tableActReceiving = new TableActivityReceiving();
 
                 tableActReceiving.RegisterDataAccessListenerProgressOut((RecvActivity)this);
-                await tableActReceiving.RequestData();
+                await tableActReceiving.RequestHeaderData();
                 tableActReceiving.UnregisterDataAccessListenerProgressOut((RecvActivity)this);
             }
         }

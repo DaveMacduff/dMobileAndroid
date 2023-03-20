@@ -26,110 +26,93 @@ namespace dMobile.GroundWork
           : base()
         {
             this.FullClassName = "dMobile.GroundWork.TableActivityCycleCount";
+            this.CurrentSubType = SysCommon.ActSubTypes.CycleCounts;
+            this.LowerCaseName = "cycle counts";
+            this.ProperCaseName = "Cycle counts";
         }
 
         /// <summary>
-        /// The Request.
+        /// Purge the activity detail.
         /// </summary>
-        public override async Task RequestData()
-        {
-
-            // GC.Collect();
-            // GC.WaitForPendingFinalizers();
-            try
-            {
-                this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Seeding cycle counts.", true);
-
-                var reqData = await this.SendRequest();
-
-                if (reqData.Length > 0)
-                {
-                    if (reqData.Contains("<message>ERROR</message>"))
-                    {
-                        var reqErr = new XmlDocument();
-                        reqErr.LoadXml(reqData);
-                        throw new Exception(reqErr.DocumentElement["detail"].InnerText);
-                    }
-
-                    await this.Save(reqData);
-                }
-
-                this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Seeding cycle counts complete.", true);
-            }
-            catch (Exception ex)
-            {
-                this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Seeding cycle counts failed.", true);
-
-                throw new Exception("Seeding cycle counts failed.", ex);
-            }
-        }
-
-        /// <summary>
-        /// The DataStatus.
-        /// </summary>
-        /// <returns>The <see cref="int"/>.</returns>
-        public override async Task<int> DataStatus()
-        {
-            int rowsAffected;
-            try
-            {
-                var query = "SELECT COUNT(tActivity.ActivityRefno) FROM tActivity WHERE tActivity.ActivitySubType = ?";
-                rowsAffected = await DatabaseConnection.GetInstance().SQLConn.ExecuteScalarAsync<int>(query, Convert.ToInt32(SysCommon.ActSubTypes.CycleCounts));
-
-                this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"{rowsAffected} cycle count(s)", true);
-            }
-            catch (SQLiteException ex)
-            {
-                throw new Exception("Database exception occurred. Cycle counts status failed.", ex);
-            }
-
-            return rowsAffected;
-        }
-
-        /// <summary>
-        /// The Purge.
-        /// </summary>
+        /// <returns><see cref="Task"/> Task completed.</returns>
         public override async Task PurgeData()
         {
-            try
+            var conn = DatabaseConnection.GetInstance().SQLConn;
+            var subType = Convert.ToInt32(this.CurrentSubType);
+            this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging cycle count details.", true);
+
+            await conn.RunInTransactionAsync(transaction =>
             {
-                this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging cycle counts.", true);
+                try
+                {
+                    var query = "DELETE FROM tActivityDetailProductSchemeVariantXRef "
+                        + "WHERE tActivityDetailProductSchemeVariantXRef.ActivityDetailRefno IN "
+                        + "(SELECT tActivityDetail.ActivityDetailRefno "
+                        + "FROM tActivityDetail "
+                        + "WHERE tActivityDetail.ActivityDetailSubType = ?)";
+                    transaction.Execute(query, subType);
 
-                var query = "DELETE FROM tActivityCount WHERE tActivityCount.ActivitySubType = ?";
-                await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(query, Convert.ToInt32(SysCommon.ActSubTypes.CycleCounts));
+                    query = "DELETE FROM tActivityDetailCount "
+                        + "WHERE tActivityDetailCount.ActivityDetailRefno IN "
+                        + "(SELECT tActivityDetail.ActivityDetailRefno "
+                        + "FROM tActivityDetail "
+                        + "WHERE tActivityDetail.ActivityDetailSubType = ?)";
+                    transaction.Execute(query, subType);
 
-                query = "DELETE FROM tActivity WHERE tActivity.ActivitySubType = ?";
-                await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(query, Convert.ToInt32(SysCommon.ActSubTypes.CycleCounts));
+                    query = "DELETE FROM tActivityDetailExtra "
+                        + "WHERE tActivityDetailExtra.ActivityDetailRefno IN "
+                        + "(SELECT tActivityDetail.ActivityDetailRefno "
+                        + "FROM tActivityDetail "
+                        + "WHERE tActivityDetail.ActivityDetailSubType = ?)";
+                    transaction.Execute(query, subType);
 
-                this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging cycle counts complete.", true);
-            }
-            catch (SQLiteException ex)
-            {
-                this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Database exception occurred.", true);
-                this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging cycle counts failed.", true);
+                    query = "DELETE FROM tActivityDetail WHERE tActivityDetail.ActivityDetailSubType = ?";
+                    transaction.Execute(query, subType);
 
-                throw new Exception("Database exception occurred. Purging cycle counts failed.", ex);
-            }
+                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging cycle count details complete.", true);
+                    transaction.Commit();
+                }
+                catch (SQLiteException sqlEx)
+                {
+                    if (transaction.IsInTransaction)
+                    {
+                        transaction.Rollback();
+                    }
+
+                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Database exception occurred.", true);
+                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging cycle count details failed.", true);
+                    throw new Exception("Database exception occurred. Purging cycle count details failed.", sqlEx);
+                }
+                catch (Exception ex)
+                {
+                    if (transaction.IsInTransaction)
+                    {
+                        transaction.Rollback();
+                    }
+
+                    throw new Exception("Database exception occurred. Purging cycle count details failed.", ex);
+                }
+            });
         }
 
         /// <summary>
         /// The Save.
         /// </summary>
-        /// <param name="reqData"></param>
-        protected override async Task Save(string reqData)
+        /// <param name="responseData"></param>
+        protected override async Task Save(string responseData)
         {
             await DatabaseConnection.GetInstance().SQLConn.RunInTransactionAsync(transaction =>
             {
                 try
                 {
-                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Reading received data.", false);
+                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Reading received responseData.", false);
 
                     using var ds = new DataSet();
-                    ds.ReadXml(SysCommon.GetXmlReader(ref reqData), XmlReadMode.Auto);
+                    ds.ReadXml(SysCommon.GetXmlReader(ref responseData), XmlReadMode.Auto);
 
                     this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving cycle counts.", false);
 
-                    // Receiving schema but no data results in no table being created in the dataset.
+                    // Receiving schema but no responseData results in no table being created in the dataset.
                     if (ds.Tables.Count != 0)
                     {
                         var progMax = Convert.ToInt32(ds.Tables["tActivityCount"].Rows.Count);
@@ -318,6 +301,61 @@ namespace dMobile.GroundWork
             xml.Close();
 
             return xmlString.ToString();
+        }
+
+        protected override Task<string> CreateRequest(XDocument criteria)
+        {
+            throw new NotImplementedException();
+        }
+
+        protected override Task<string> CreateRequest(string familyCode)
+        {
+            throw new NotImplementedException();
+        }
+
+        protected override Task<string> CreateRequest(int activityItemFkRefno)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override Task RequestData(int actRefno)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override Task PurgeData(int sectLocMapRefno)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override Task PurgeData(SysCommon.ActSubTypes actSubType)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override Task<int> DataStatus()
+        {
+            throw new NotImplementedException();
+        }
+
+        protected override Task Save(string responseData, int refno)
+        {
+            throw new NotImplementedException();
+        }
+
+        protected override Task<string> CreateRequest(int activityItemFkRefno, XDocument criteria)
+        {
+            throw new NotImplementedException();
+        }
+
+        protected override Task<string> CreateRequest(int prodLocMapType, int whsLocMapFKRefno)
+        {
+            throw new NotImplementedException();
+        }
+
+        protected override Task<string> CreateRequestProdLoc(int prodLocMapType)
+        {
+            throw new NotImplementedException();
         }
     }
 }

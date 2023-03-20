@@ -27,101 +27,9 @@ namespace dMobile.GroundWork
       : base()
         {
             this.FullClassName = "dMobile.GroundWork.TableActivityCycleCountItem";
-        }
-
-        /// <summary>
-        /// The Request.
-        /// </summary>
-        /// <param name="actRefno"></param>
-        public override async Task RequestData(int actRefno)
-        {
-
-            // GC.Collect();
-            // GC.WaitForPendingFinalizers();
-            try
-            {
-                this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Seeding cycle count items.", true);
-
-                string reqData;
-                if (actRefno == 0)
-                {
-                    var results = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<ActivityModel>("SELECT ActivityRefno FROM tActivity WHERE ActivitySubType = ?", Convert.ToInt32(SysCommon.ActSubTypes.CycleCounts));
-
-                    if (results != null && results.Count > 0)
-                    {
-                        foreach (var activity in results)
-                        {
-                            actRefno = Convert.ToInt32(activity.ActivityRefno);
-                            reqData = await this.SendRequest(actRefno);
-
-                            if (reqData.Length > 0)
-                            {
-                                if (reqData.Contains("<message>ERROR</message>"))
-                                {
-                                    var reqErr = new XmlDocument();
-                                    reqErr.LoadXml(reqData);
-                                    throw new Exception(reqErr.DocumentElement["detail"].InnerText);
-                                }
-
-                                await this.Save(reqData, actRefno);
-                            }
-                        }
-                    }
-                }
-                else
-                {
-                    reqData = await this.SendRequest(actRefno);
-
-                    if (reqData.Length > 0)
-                    {
-                        if (reqData.Contains("<message>ERROR</message>"))
-                        {
-                            var reqErr = new XmlDocument();
-                            reqErr.LoadXml(reqData);
-                            throw new Exception(reqErr.DocumentElement["detail"].InnerText);
-                        }
-
-                        await this.Save(reqData, actRefno);
-                    }
-                }
-
-                this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Seeding cycle count items complete.", true);
-            }
-            catch (SQLiteException ex)
-            {
-                this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Database exception occurred.", true);
-                this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Seeding cycle count items failed.", true);
-
-                throw new Exception("Database exception occurred. Seeding cycle count items failed.", ex);
-            }
-            catch (Exception ex)
-            {
-                this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Seeding cycle count items failed.", true);
-
-                throw new Exception("Seeding cycle count items failed.", ex);
-            }
-        }
-
-        /// <summary>
-        /// The DataStatus.
-        /// </summary>
-        /// <returns>The <see cref="int"/>.</returns>
-        public override async Task<int> DataStatus()
-        {
-            int rowsAffected;
-            try
-            {
-                var query = "SELECT COUNT(tActivityItem.ActivityItemRefno) FROM tActivityItem WHERE tActivityItem.ActivityItemSubType = ?";
-                rowsAffected = await DatabaseConnection.GetInstance().SQLConn.ExecuteScalarAsync<int>(query, Convert.ToInt32(SysCommon.ActSubTypes.CycleCounts));
-
-                this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"{rowsAffected} cycle count item(s)", true);
-            }
-            catch (SQLiteException ex)
-            {
-                throw new Exception("Database exception occurred. Cycle count items status failed.", ex);
-            }
-
-            return rowsAffected;
+            this.CurrentSubType = SysCommon.ActSubTypes.CycleCounts;
+            this.LowerCaseName = "cycle count";
+            this.ProperCaseName = "Cycle count";
         }
 
         /// <summary>
@@ -158,11 +66,11 @@ namespace dMobile.GroundWork
         /// <summary>
         /// The Send.
         /// </summary>
-        /// <param name="actRefno">The actRefno<see cref="int"/>.</param>
+        /// <param name="actItemRefno">The actItemRefno<see cref="int"/>.</param>
         /// <returns></returns>
-        protected override async Task<string> SendRequest(int actRefno)
+        protected override async Task<string> SendRequest(int actItemRefno)
         {
-            var results = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<ActivityCountModel>("SELECT * FROM tActivityCount WHERE ActivityRefno = ?", actRefno);
+            var results = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<ActivityCountModel>("SELECT * FROM tActivityCount WHERE ActivityRefno = ?", actItemRefno);
 
             int actCountFKRefno;
             if (results != null && results.Count > 0)
@@ -171,7 +79,7 @@ namespace dMobile.GroundWork
             }
             else
             {
-                throw new Exception("No results in tActivityCount for ActivityRefno " + actRefno);
+                throw new Exception("No results in tActivityCount for ActivityRefno " + actItemRefno);
             }
 
             return await this.SendComm(await this.CreateRequest(actCountFKRefno));
@@ -180,9 +88,9 @@ namespace dMobile.GroundWork
         /// <summary>
         /// The Save.
         /// </summary>
-        /// <param name="reqData"></param>
-        /// <param name="actRefno">The actRefno<see cref="int"/>.</param>
-        protected override async Task Save(string reqData, int actRefno)
+        /// <param name="responseData"></param>
+        /// <param name="actRefno">The actItemRefno<see cref="int"/>.</param>
+        protected override async Task Save(string responseData, int actRefno)
         {
             await DatabaseConnection.GetInstance().SQLConn.RunInTransactionAsync(transaction =>
             {
@@ -191,7 +99,7 @@ namespace dMobile.GroundWork
                     using var ds = new DataSet();
                     this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Reading received data.", false);
 
-                    ds.ReadXml(SysCommon.GetXmlReader(ref reqData), XmlReadMode.Auto);
+                    ds.ReadXml(SysCommon.GetXmlReader(ref responseData), XmlReadMode.Auto);
 
                     this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving cycle count items.", false);
 
@@ -338,9 +246,9 @@ namespace dMobile.GroundWork
         /// <summary>
         /// The Create.
         /// </summary>
-        /// <param name="actCountFKRefno"></param>
+        /// <param name="activityItemFkRefno"></param>
         /// <returns></returns>
-        protected override async Task<string> CreateRequest(int actCountFKRefno)
+        protected override async Task<string> CreateRequest(int activityItemFkRefno)
         {
             var xmlString = new StringBuilder();
             var xml = XmlWriter.Create(xmlString);
@@ -351,7 +259,7 @@ namespace dMobile.GroundWork
                 + "<command>"
                 + "<action>REQUEST CYCLE COUNT ITEMS</action>"
                 + await SysCommon.GetRequestDefaults(false)
-                + "<refno>" + actCountFKRefno.ToString() + "</refno>"
+                + "<refno>" + activityItemFkRefno.ToString() + "</refno>"
                 + "</command>"
                 + "</imclient>");
 
@@ -360,6 +268,61 @@ namespace dMobile.GroundWork
             xml.Close();
 
             return xmlString.ToString();
+        }
+
+        protected override Task<string> CreateRequest()
+        {
+            throw new NotImplementedException();
+        }
+
+        protected override Task<string> CreateRequest(XDocument criteria)
+        {
+            throw new NotImplementedException();
+        }
+
+        protected override Task<string> CreateRequest(string familyCode)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override Task RequestData(int actRefno)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override Task PurgeData(int sectLocMapRefno)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override Task PurgeData(SysCommon.ActSubTypes actSubType)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override Task<int> DataStatus()
+        {
+            throw new NotImplementedException();
+        }
+
+        protected override Task Save(string responseData)
+        {
+            throw new NotImplementedException();
+        }
+
+        protected override Task<string> CreateRequest(int activityItemFkRefno, XDocument criteria)
+        {
+            throw new NotImplementedException();
+        }
+
+        protected override Task<string> CreateRequest(int prodLocMapType, int whsLocMapFKRefno)
+        {
+            throw new NotImplementedException();
+        }
+
+        protected override Task<string> CreateRequestProdLoc(int prodLocMapType)
+        {
+            throw new NotImplementedException();
         }
     }
 }

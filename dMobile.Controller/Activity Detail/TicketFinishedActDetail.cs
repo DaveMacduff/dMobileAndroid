@@ -133,34 +133,30 @@ namespace dMobile.Controller.Activity_Detail
                 + "</params>");
 
             var xmlSend = await this.CreateSubmitXml(request);
-            var reqData = SysCommon.SubmitComm(xmlSend);
+            var responseData = SysCommon.SubmitComm(xmlSend);
+            var xmlDoc = new XmlDocument();
+            xmlDoc.LoadXml(responseData);
 
-            if (reqData.Length > 0)
+            // check if result is an error message
+            if (responseData.Contains("<message>ERROR</message>"))
             {
-                var xmlDoc = new XmlDocument();
-                xmlDoc.LoadXml(reqData);
-
-                // check if result is an error message
-                if (reqData.Contains("<message>ERROR</message>"))
+                var errorDetail = xmlDoc.DocumentElement["detail"].InnerText;
+                if (errorDetail.Contains("MSGBOX-"))
                 {
-                    var errorDetail = xmlDoc.DocumentElement["detail"].InnerText;
-                    if (errorDetail.Contains("MSGBOX-"))
-                    {
-                        throw new MessageOnlyException(errorDetail);
-                    }
-                    else
-                    {
-                        throw new Exception(errorDetail);
-                    }
+                    throw new MessageOnlyException(errorDetail);
                 }
-
-                this.IsUpdateView = true;
-                this.DetailFkRefno = int.Parse(xmlDoc.DocumentElement["ser_refno"].InnerText);
-                this.ActItem.ItemFkRefno = int.Parse(xmlDoc.DocumentElement["itm_refno"].InnerText);
-                this.Quantity = decimal.Parse(xmlDoc.DocumentElement["alt_qty"].InnerText);
-                this.BaseQuantity = decimal.Parse(xmlDoc.DocumentElement["base_qty"].InnerText);
-                this.WeightQuantity = decimal.Parse(xmlDoc.DocumentElement["wt_qty"].InnerText);
+                else
+                {
+                    throw new Exception(errorDetail);
+                }
             }
+
+            this.IsUpdateView = true;
+            this.DetailFkRefno = int.Parse(xmlDoc.DocumentElement["ser_refno"].InnerText);
+            this.ActItem.ItemFkRefno = int.Parse(xmlDoc.DocumentElement["itm_refno"].InnerText);
+            this.Quantity = decimal.Parse(xmlDoc.DocumentElement["alt_qty"].InnerText);
+            this.BaseQuantity = decimal.Parse(xmlDoc.DocumentElement["base_qty"].InnerText);
+            this.WeightQuantity = decimal.Parse(xmlDoc.DocumentElement["wt_qty"].InnerText);
         }
 
         /// <summary>
@@ -175,24 +171,20 @@ namespace dMobile.Controller.Activity_Detail
                 string xmlDelete;
                 xmlDelete = await this.CreateDeleteXml(XDocument.Parse("<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?><params></params>"));
 
-                var reqData = SysCommon.SubmitComm(xmlDelete);
-
-                if (reqData.Length > 0)
+                var responseData = SysCommon.SubmitComm(xmlDelete);
+                if (responseData.Contains("<message>ERROR</message>"))
                 {
-                    if (reqData.Contains("<message>ERROR</message>"))
-                    {
-                        var docError = new XmlDocument();
-                        docError.LoadXml(reqData);
-                        var errorDetail = docError.DocumentElement["detail"].InnerText;
+                    var docError = new XmlDocument();
+                    docError.LoadXml(responseData);
+                    var errorDetail = docError.DocumentElement["detail"].InnerText;
 
-                        if (errorDetail.Contains("MSGBOX-"))
-                        {
-                            throw new MessageOnlyException(errorDetail);
-                        }
-                        else
-                        {
-                            throw new Exception(errorDetail);
-                        }
+                    if (errorDetail.Contains("MSGBOX-"))
+                    {
+                        throw new MessageOnlyException(errorDetail);
+                    }
+                    else
+                    {
+                        throw new Exception(errorDetail);
                     }
                 }
             }
@@ -292,30 +284,21 @@ namespace dMobile.Controller.Activity_Detail
             {
                 var xmlDelete = await this.CreateDeleteXml(XDocument.Parse("<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?><params></params>"));
 
-                var reqData = SysCommon.SubmitComm(xmlDelete);
-
-                if (reqData.Length > 0)
+                var responseData = SysCommon.SubmitComm(xmlDelete);
+                if (responseData.Contains("<message>ERROR</message>"))
                 {
-                    // check if result is an error message
-                    if (reqData.Contains("<message>ERROR</message>"))
+                    var docError = new XmlDocument();
+                    docError.LoadXml(responseData);
+                    var errorDetail = docError.DocumentElement["detail"].InnerText;
+
+                    if (errorDetail.Contains("MSGBOX-"))
                     {
-                        var docError = new XmlDocument();
-                        docError.LoadXml(reqData);
-                        var errorDetail = docError.DocumentElement["detail"].InnerText;
-
-                        if (errorDetail.Contains("MSGBOX-"))
-                        {
-                            throw new MessageOnlyException(errorDetail);
-                        }
-                        else
-                        {
-                            throw new Exception(errorDetail);
-                        }
+                        throw new MessageOnlyException(errorDetail);
                     }
-                }
-                else
-                {
-                    throw new Exception("Unexpected delete activity detail error.");
+                    else
+                    {
+                        throw new Exception(errorDetail);
+                    }
                 }
             }
 
@@ -362,38 +345,34 @@ namespace dMobile.Controller.Activity_Detail
             var xmlDoc = new XmlDocument();
             var xmlSend = await this.CreateSubmitXml(XDocument.Parse("<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?><params></params>"));
 
-            var reqData = SysCommon.SubmitComm(xmlSend);
+            var responseData = SysCommon.SubmitComm(xmlSend);
+            xmlDoc.LoadXml(responseData);
 
-            if (reqData.Length > 0)
+            // check if result is an error message
+            if (responseData.Contains("<message>ERROR</message>"))
             {
-                xmlDoc.LoadXml(reqData);
+                var errorDetail = xmlDoc.DocumentElement["detail"].InnerText;
 
-                // check if result is an error message
-                if (reqData.Contains("<message>ERROR</message>"))
+                if (errorDetail.Contains("MSGBOX-"))
                 {
-                    var errorDetail = xmlDoc.DocumentElement["detail"].InnerText;
-
-                    if (errorDetail.Contains("MSGBOX-"))
-                    {
-                        throw new MessageOnlyException(errorDetail);
-                    }
-                    else
-                    {
-                        throw new Exception(errorDetail);
-                    }
+                    throw new MessageOnlyException(errorDetail);
                 }
                 else
                 {
-                    this.DetailFkRefno = int.Parse(xmlDoc.DocumentElement["ser_refno"].InnerText);
-
-                    if (selectedActivityDetail is ProductionTicketFinishedDetail productionTicketFinishedDetail)
-                    {
-                        productionTicketFinishedDetail.ActivityDetailFKRefno = this.DetailFkRefno;
-                        productionTicketFinishedDetail.ActivityDetailStatus = Convert.ToInt32(SysCommon.ActStatus.NoChange);
-                    }
-
-                    await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync("UPDATE tActivityDetail SET ActivityDetailStatus = ? WHERE ActivityDetailRefno = ?", Convert.ToInt32(SysCommon.ActStatus.NoChange), this.DetailRefno);
+                    throw new Exception(errorDetail);
                 }
+            }
+            else
+            {
+                this.DetailFkRefno = int.Parse(xmlDoc.DocumentElement["ser_refno"].InnerText);
+
+                if (selectedActivityDetail is ProductionTicketFinishedDetail productionTicketFinishedDetail)
+                {
+                    productionTicketFinishedDetail.ActivityDetailFKRefno = this.DetailFkRefno;
+                    productionTicketFinishedDetail.ActivityDetailStatus = Convert.ToInt32(SysCommon.ActStatus.NoChange);
+                }
+
+                await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync("UPDATE tActivityDetail SET ActivityDetailStatus = ? WHERE ActivityDetailRefno = ?", Convert.ToInt32(SysCommon.ActStatus.NoChange), this.DetailRefno);
             }
         }
 
@@ -435,7 +414,7 @@ namespace dMobile.Controller.Activity_Detail
                 this.DataLayerProgressOutHandler(this, EventArgs.Empty, 5);
 
                 tableActTicketDetail.RegisterDataAccessListenerProgressOut((TicketFinishedActDetail)this);
-                await tableActTicketDetail.RequestData(this.ActItem.ItemRefno);
+                await tableActTicketDetail.RequestDetailData(this.ActItem.ItemRefno);
                 tableActTicketDetail.UnregisterDataAccessListenerProgressOut((TicketFinishedActDetail)this);
             }
         }

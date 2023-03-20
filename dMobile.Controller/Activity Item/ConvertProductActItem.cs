@@ -258,26 +258,7 @@ namespace dMobile.Controller.Activity_Item
         /// <returns>The <see cref="Task"/>.</returns>
         public override async Task Submit(XDocument data, object selectedActivityItem)
         {
-            var reqData = SysCommon.SubmitComm(await this.CreateSubmitXml(data));
-
-            if (reqData.Length > 0)
-            {
-                // check if result is an error message
-                if (reqData.Contains("<message>ERROR</message>"))
-                {
-                    var xmlError = new XmlDocument();
-                    xmlError.LoadXml(reqData);
-                    var errorDetail = xmlError.DocumentElement?["detail"]!.InnerText;
-                    if (errorDetail != null && errorDetail.Contains("MSGBOX-"))
-                    {
-                        throw new MessageOnlyException(errorDetail);
-                    }
-                    else
-                    {
-                        throw new Exception(errorDetail);
-                    }
-                }
-            }
+            _ = SysCommon.SubmitComm(await this.CreateSubmitXml(data));
         }
 
         /// <summary>

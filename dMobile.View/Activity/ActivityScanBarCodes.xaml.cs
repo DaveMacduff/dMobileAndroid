@@ -229,13 +229,14 @@ namespace dMobile.View.Activity
             {
                 isReadyToSave = true;
             }
-            catch (MessageOnlyException ex)
+            catch (MessageOnlyException msgEx)
             {
+                var msg = (msgEx.Message.IndexOf("MSGBOX-") == -1) ? msgEx.Message : msgEx.Message["MSGBOX-".Length..];
                 isReadyToSave = false;
                 await Device.InvokeOnMainThreadAsync(async () =>
                     await Application.Current.MainPage.DisplayAlert(
                         this.GetControlDescription(),
-                        ex.Message,
+                        msg,
                         Resource.OK));
             }
             catch (Exception ex)
@@ -269,13 +270,14 @@ namespace dMobile.View.Activity
                 // of the scanner instance upon exiting dMobile.
                 await this.ScannerDisable();
             }
-            catch (MessageOnlyException ex)
+            catch (MessageOnlyException msgEx)
             {
+                var msg = (msgEx.Message.IndexOf("MSGBOX-") == -1) ? msgEx.Message : msgEx.Message["MSGBOX-".Length..];
                 isReadyToClose = false;
                 await Device.InvokeOnMainThreadAsync(async () =>
                     await Application.Current.MainPage.DisplayAlert(
                         this.GetControlDescription(),
-                        ex.Message,
+                        msg,
                         Resource.OK));
             }
             catch (Exception ex)
@@ -324,13 +326,14 @@ namespace dMobile.View.Activity
                     throw new MessageOnlyException("Data failed validation. Check your data.");
                 }
             }
-            catch (MessageOnlyException ex)
+            catch (MessageOnlyException msgEx)
             {
+                var msg = (msgEx.Message.IndexOf("MSGBOX-") == -1) ? msgEx.Message : msgEx.Message["MSGBOX-".Length..];
                 saveComplete = false;
                 await Device.InvokeOnMainThreadAsync(async () =>
                     await Application.Current.MainPage.DisplayAlert(
                         this.GetControlDescription(),
-                        ex.Message,
+                        msg,
                         Resource.OK));
             }
             catch (Exception ex)
@@ -375,13 +378,14 @@ namespace dMobile.View.Activity
                     this.IsChangesMade = false;
                 }
             }
-            catch (MessageOnlyException ex)
+            catch (MessageOnlyException msgEx)
             {
+                var msg = (msgEx.Message.IndexOf("MSGBOX-") == -1) ? msgEx.Message : msgEx.Message["MSGBOX-".Length..];
                 cancelChanges = false;
                 await Device.InvokeOnMainThreadAsync(async () =>
                     await Application.Current.MainPage.DisplayAlert(
                         this.GetControlDescription(),
-                        ex.Message,
+                        msg,
                         Resource.OK));
             }
             catch (Exception ex)
@@ -447,12 +451,13 @@ namespace dMobile.View.Activity
                     await this.ScannerStart();
                 }
             }
-            catch (MessageOnlyException ex)
+            catch (MessageOnlyException msgEx)
             {
+                var msg = (msgEx.Message.IndexOf("MSGBOX-") == -1) ? msgEx.Message : msgEx.Message["MSGBOX-".Length..];
                 await Device.InvokeOnMainThreadAsync(async () =>
                     await Application.Current.MainPage.DisplayAlert(
                         this.GetControlDescription(),
-                        ex.Message,
+                        msg,
                         Resource.OK));
             }
             catch (Exception ex)
@@ -597,7 +602,7 @@ namespace dMobile.View.Activity
                         this.ProductUnitBarCodeRefno = resultsProductUnitBarcode[0].ProductUnitBarCodeRefno;
                         prodSchemeRefno = resultsProductUnitBarcode[0].ProductSchemeRefno;
                         prodCode = resultsProductUnitBarcode[0].ProductCode;
-
+                        prodInfo = await ProductInfoTasks.GetInfoFromRefno(resultsProductUnitBarcode[0].ProductRefno);
                         await DisplayProductAssocInfo(sender, scanArgs, resultsProductUnitBarcode);
                     }
 
@@ -1309,6 +1314,7 @@ namespace dMobile.View.Activity
                                               + "tLocationMapWarehouseProductScheme.ProductSchemeRefno AS WarehouseProductSchemeRefno,"
                                               + "tProduct.ProductSchemeRefno,"
                                               + "tProduct.ProductCode,"
+                                              + "tProduct.ProductRefno,"
                                               + "tProduct.ProductDescription,"
                                               + "tProductUnit.ProductUnitBC,"
                                               + "tUnit.UnitCode "
@@ -1405,12 +1411,13 @@ namespace dMobile.View.Activity
                     }
                 }
             }
-            catch (MessageOnlyException ex)
+            catch (MessageOnlyException msgEx)
             {
+                var msg = (msgEx.Message.IndexOf("MSGBOX-") == -1) ? msgEx.Message : msgEx.Message["MSGBOX-".Length..];
                 await Device.InvokeOnMainThreadAsync(async () =>
                     await Application.Current.MainPage.DisplayAlert(
                         this.GetControlDescription(),
-                        ex.Message,
+                        msg,
                         Resource.OK));
             }
             catch (SQLiteException ex)

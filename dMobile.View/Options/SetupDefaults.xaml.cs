@@ -175,13 +175,14 @@ namespace dMobile.View.Options
             {
                 isReadyToSave = true;
             }
-            catch (MessageOnlyException ex)
+            catch (MessageOnlyException msgEx)
             {
+                var msg = (msgEx.Message.IndexOf("MSGBOX-") == -1) ? msgEx.Message : msgEx.Message["MSGBOX-".Length..];
                 isReadyToSave = false;
                 _ = Device.InvokeOnMainThreadAsync(async () =>
                       await Application.Current.MainPage.DisplayAlert(
                           this.GetControlDescription(),
-                          ex.Message,
+                          msg,
                           Resource.OK));
             }
             catch (Exception ex)
@@ -229,13 +230,14 @@ namespace dMobile.View.Options
                     await this.ScannerDisable();
                 }
             }
-            catch (MessageOnlyException ex)
+            catch (MessageOnlyException msgEx)
             {
+                var msg = (msgEx.Message.IndexOf("MSGBOX-") == -1) ? msgEx.Message : msgEx.Message["MSGBOX-".Length..];
                 isReadyToClose = false;
                 await Device.InvokeOnMainThreadAsync(async () =>
                     await Application.Current.MainPage.DisplayAlert(
                         this.GetControlDescription(),
-                        ex.Message,
+                        msg,
                         Resource.OK));
             }
             catch (Exception ex)
@@ -361,13 +363,14 @@ namespace dMobile.View.Options
                     throw new MessageOnlyException("Data failed validation. Check your data.");
                 }
             }
-            catch (MessageOnlyException ex)
+            catch (MessageOnlyException msgEx)
             {
+                var msg = (msgEx.Message.IndexOf("MSGBOX-") == -1) ? msgEx.Message : msgEx.Message["MSGBOX-".Length..];
                 saveComplete = false;
                 await Device.InvokeOnMainThreadAsync(async () =>
                     await Application.Current.MainPage.DisplayAlert(
                         this.GetControlDescription(),
-                        ex.Message,
+                        msg,
                         Resource.OK));
             }
             catch (Exception ex)
@@ -415,13 +418,14 @@ namespace dMobile.View.Options
                     this.IsChangesMade = false;
                 }
             }
-            catch (MessageOnlyException ex)
+            catch (MessageOnlyException msgEx)
             {
+                var msg = (msgEx.Message.IndexOf("MSGBOX-") == -1) ? msgEx.Message : msgEx.Message["MSGBOX-".Length..];
                 cancelChanges = false;
                 await Device.InvokeOnMainThreadAsync(async () =>
                     await Application.Current.MainPage.DisplayAlert(
                         this.GetControlDescription(),
-                        ex.Message,
+                        msg,
                         Resource.OK));
             }
             catch (Exception ex)
@@ -484,14 +488,16 @@ namespace dMobile.View.Options
                     this.IsChangesMade = true;
                 }
             }
-            catch (MessageOnlyException ex)
+            catch (MessageOnlyException msgEx)
             {
+                var msg = (msgEx.Message.IndexOf("MSGBOX-") == -1) ? msgEx.Message : msgEx.Message["MSGBOX-".Length..];
+
                 // Do not set the IsChangesMade. MessageOnlyException is really not and error.
                 // Allow the validation to handle the setting for IsChangesMade.
                 _ = Device.InvokeOnMainThreadAsync(async () =>
                       await Application.Current.MainPage.DisplayAlert(
                           this.GetControlDescription(),
-                          ex.Message,
+                          msg,
                           Resource.OK));
             }
             catch (Exception ex)
@@ -677,13 +683,14 @@ namespace dMobile.View.Options
                     _ = await errorReport.ShowDialog();
                 });
             }
-            catch (MessageOnlyException ex)
+            catch (MessageOnlyException msgEx)
             {
+                var msg = (msgEx.Message.IndexOf("MSGBOX-") == -1) ? msgEx.Message : msgEx.Message["MSGBOX-".Length..];
                 e.Cancel = false;
                 await Device.InvokeOnMainThreadAsync(async () =>
                     await Application.Current.MainPage.DisplayAlert(
                         this.GetControlDescription(),
-                        ex.Message,
+                        msg,
                         Resource.OK));
             }
             catch (Exception ex)

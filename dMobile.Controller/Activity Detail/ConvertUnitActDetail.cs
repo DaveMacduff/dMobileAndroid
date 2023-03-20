@@ -434,6 +434,8 @@ namespace dMobile.Controller.Activity_Detail
                 }
             }
 
+            listViewMain.VerticalScrollBarVisibility = ScrollBarVisibility.Always;
+            listViewMain.HorizontalScrollBarVisibility = ScrollBarVisibility.Always;
             listViewMain.ItemTemplate = (DataTemplate)this.ResourceDictionary["dataTemplateConvertUnitDetail"];
 
             return observableCollection;

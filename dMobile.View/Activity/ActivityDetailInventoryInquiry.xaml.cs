@@ -2,22 +2,21 @@
 // Copyright (c) InterSect Business Systems Inc. All rights reserved.
 // </copyright>
 
-using dMobile.Controller.Activity_Detail;
-
 namespace dMobile.View.Activity
 {
-    using dMobile.BarCodeScanner.BarCodeParsing;
-    using dMobile.BarCodeScanner.BarCodeScanners;
-    using dMobile.Bedrock;
-    using dMobile.Controller;
-    using dMobile.View.CustomPages.Modal;
-    using dMobile.View.Forms;
     using System;
     using System.Collections.ObjectModel;
     using System.Threading.Tasks;
     using System.Xml.Linq;
+    using dMobile.BarCodeScanner.BarCodeParsing;
+    using dMobile.BarCodeScanner.BarCodeScanners;
+    using dMobile.Bedrock;
+    using dMobile.Controller.Activity_Detail;
+    using dMobile.View.CustomPages.Modal;
+    using dMobile.View.Forms;
     using Xamarin.Forms;
     using Xamarin.Forms.Xaml;
+    using Resource = dMobile.Resources.Properties.Resources;
 
     /// <summary>
     /// Defines the <see cref="ActivityDetailInventoryInquiry" />.
@@ -302,12 +301,32 @@ namespace dMobile.View.Activity
 
                     Console.WriteLine(this.GetControlDescription() + " Not implemented exception");
                 }
+                catch (CommunicationException commEx)
+                {
+                    // Question should a communication error, be reported as an error or just a messagebox?
+                    await Device.InvokeOnMainThreadAsync(async () =>
+                    {
+                        var msg = $"Unable to load activity details.{Environment.NewLine}" +
+                            $"Because of a communication problem.{Environment.NewLine}" +
+                            $"Detail:{commEx.Message}{Environment.NewLine}" +
+                            "Please exit and try again.";
+
+                        await Application.Current.MainPage.DisplayAlert(
+                            this.ActDetail.GetControlDescription(),
+                            msg,
+                            Resource.OK);
+                    });
+                }
                 catch (Exception ex)
                 {
                     await Device.InvokeOnMainThreadAsync(async () =>
                     {
-                        var errRpt = new FormErrorReport(ex);
-                        _ = await errRpt.ShowDialog();
+                        var msg = $"Unable to load activity details.{Environment.NewLine}" +
+                            $"General exception.{Environment.NewLine}" +
+                            $"Detail:{ex.Message}{Environment.NewLine}" +
+                            "Please exit and try again.";
+                        var errorReport = new FormErrorReport(msg, ex);
+                        _ = await errorReport.ShowDialog();
                     });
                 }
                 finally

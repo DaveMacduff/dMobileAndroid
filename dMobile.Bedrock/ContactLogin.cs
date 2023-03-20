@@ -173,8 +173,8 @@ namespace dMobile.Bedrock
         /// </summary>
         public void SubmitContactLogIn()
         {
-            var reqData = this.SubmitContactLogInCommunication();
-            this.SubmitContactLogInData(reqData);
+            var responseData = this.SubmitContactLogInCommunication();
+            this.SubmitContactLogInData(responseData);
         }
 
         /// <summary>
@@ -182,8 +182,8 @@ namespace dMobile.Bedrock
         /// </summary>
         public void SubmitContactLogOut()
         {
-            var reqData = this.SubmitContactLogOutCommunication();
-            this.SubmitContactLogOutData(reqData);
+            var responseData = this.SubmitContactLogOutCommunication();
+            this.SubmitContactLogOutData(responseData);
         }
 
         /// <summary>
@@ -228,7 +228,7 @@ namespace dMobile.Bedrock
             Socket socket = null;
             var bytesSent = 0;
             List<byte> bytRecvData = null;
-            var reqData = string.Empty;
+            var responseData = string.Empty;
             var msgEventArg = new ContactLoginEventArgs();
 
             var sysSocket = new SysSocket();
@@ -285,7 +285,7 @@ namespace dMobile.Bedrock
                         this.OnContactLoginStatusOut(this, msgEventArg);
                     }
 
-                    reqData = Compress.UnZip(bytRecvData.ToArray());
+                    responseData = Compress.UnZip(bytRecvData.ToArray());
                 }
                 else
                 {
@@ -329,7 +329,7 @@ namespace dMobile.Bedrock
                 sysSocket.UnregSockListenerStatusOut(this);
             }
 
-            return reqData;
+            return responseData;
         }
 
         /// <summary>
@@ -342,7 +342,7 @@ namespace dMobile.Bedrock
             var socket = default(Socket);
             var bytesSent = default(int);
             List<byte> bytRecvData = null;
-            var reqData = string.Empty;
+            var responseData = string.Empty;
             var msgEventArg = new ContactLoginEventArgs();
             var sysSocket = new SysSocket();
 
@@ -399,7 +399,7 @@ namespace dMobile.Bedrock
                         this.OnContactLoginStatusOut(this, msgEventArg);
                     }
 
-                    reqData = Compress.UnZip(bytRecvData.ToArray());
+                    responseData = Compress.UnZip(bytRecvData.ToArray());
                 }
                 else
                 {
@@ -443,14 +443,14 @@ namespace dMobile.Bedrock
                 sysSocket.UnregSockListenerStatusOut(this);
             }
 
-            return reqData;
+            return responseData;
         }
 
         /// <summary>
         /// Submit contact log in communication.
         /// </summary>
-        /// <param name="reqData"><see cref="string"/> Submission request data.</param>
-        private void SubmitContactLogInData(string reqData)
+        /// <param name="responseData"><see cref="string"/> Submission request data.</param>
+        private void SubmitContactLogInData(string responseData)
         {
             var msgEventArg = new ContactLoginEventArgs();
 
@@ -459,7 +459,7 @@ namespace dMobile.Bedrock
 
             try
             {
-                if (reqData.Length > 0)
+                if (responseData.Length > 0)
                 {
                     if (this.OnContactLoginStatusOut != null)
                     {
@@ -468,10 +468,10 @@ namespace dMobile.Bedrock
                     }
 
                     // check if result is an error message
-                    if (reqData.Contains("<message>ERROR</message>"))
+                    if (responseData.Contains("<message>ERROR</message>"))
                     {
                         var docError = new XmlDocument();
-                        docError.LoadXml(reqData);
+                        docError.LoadXml(responseData);
 
                         Device.BeginInvokeOnMainThread(() => Application.Current.MainPage.DisplayAlert(
                             "Login Error",
@@ -524,8 +524,8 @@ namespace dMobile.Bedrock
         /// <summary>
         /// Submit contact log out data.
         /// </summary>
-        /// <param name="reqData"><see cref="string"/> Submission request data.</param>
-        private void SubmitContactLogOutData(string reqData)
+        /// <param name="responseData"><see cref="string"/> Submission request data.</param>
+        private void SubmitContactLogOutData(string responseData)
         {
             var msgEventArg = new ContactLoginEventArgs();
 
@@ -534,7 +534,7 @@ namespace dMobile.Bedrock
 
             try
             {
-                if (reqData.Length > 0)
+                if (responseData.Length > 0)
                 {
                     if (this.OnContactLoginStatusOut != null)
                     {
@@ -543,10 +543,10 @@ namespace dMobile.Bedrock
                     }
 
                     // check if result is an error message
-                    if (reqData.Contains("<message>ERROR</message>"))
+                    if (responseData.Contains("<message>ERROR</message>"))
                     {
                         var docError = new XmlDocument();
-                        docError.LoadXml(reqData);
+                        docError.LoadXml(responseData);
                         var errorDetail = docError.DocumentElement["detail"].InnerText;
 
                         Device.BeginInvokeOnMainThread(() => Application.Current.MainPage.DisplayAlert(

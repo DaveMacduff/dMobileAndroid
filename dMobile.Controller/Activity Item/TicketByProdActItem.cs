@@ -450,7 +450,7 @@ namespace dMobile.Controller.Activity_Item
                 this.DataLayerProgressOutHandler(this, EventArgs.Empty, 5);
 
                 tableByProdItem.RegisterDataAccessListenerProgressOut((TicketByProdActItem)this);
-                await tableByProdItem.RequestData(this.ActHdr.HdrRefno);
+                await tableByProdItem.RequestItemData(this.ActHdr.HdrRefno);
                 tableByProdItem.UnregisterDataAccessListenerProgressOut((TicketByProdActItem)this);
             }
         }

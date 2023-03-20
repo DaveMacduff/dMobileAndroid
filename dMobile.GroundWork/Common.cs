@@ -2,8 +2,11 @@
 // Copyright (c) InterSect Business Systems Inc. All rights reserved.
 // </copyright>
 
+using dMobile.Bedrock;
+
 namespace dMobile.GroundWork
 {
+    using System;
     using System.Threading.Tasks;
 
     /// <summary>
@@ -22,14 +25,32 @@ namespace dMobile.GroundWork
             var whsCount = await new TableLocationMapWarehouse().DataStatus();
             var unitCount = await new TableUnit().DataStatus();
             var whsLocMapTypeCount = await new TableWarehouseLocationMapType().DataStatus();
-            var isDataExist = true;
-
-            if (unitCount == 0 || prodCount == 0 || schemeCount == 0 || whsCount == 0 || whsLocMapTypeCount == 0)
-            {
-                isDataExist = false;
-            }
-
+            var isDataExist = !(unitCount == 0 ||
+                prodCount == 0 ||
+                schemeCount == 0 ||
+                whsCount == 0 ||
+                whsLocMapTypeCount == 0);
             return isDataExist;
+        }
+
+        /// <summary>
+        /// Convert enum SysCommon.ActSubTypes value to sub type string.
+        /// </summary>
+        /// <param name="subType">SysCommon.ActSubTypes enum value.</param>
+        /// <returns>Status name string.</returns>
+        public static string SubTypeEnum2String(SysCommon.ActSubTypes subType)
+        {
+            return Enum.GetName(typeof(SysCommon.ActSubTypes), subType);
+        }
+
+        /// <summary>
+        /// Convert status name string to enum SysCommon.ActSubTypes value.
+        /// </summary>
+        /// <param name="subType">Sub type name string.</param>
+        /// <returns>SysCommon.ActSubTypes enum.</returns>
+        public static SysCommon.ActSubTypes TypeString2SubTypeEnum(string subType)
+        {
+            return (SysCommon.ActSubTypes)Enum.Parse(typeof(SysCommon.ActSubTypes), subType);
         }
 
         /// <summary>

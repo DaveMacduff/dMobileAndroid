@@ -440,7 +440,7 @@ namespace dMobile.Controller.Activity
                 var tableActTicketByProduct = new TableActivityProductionTicketByProduct();
 
                 tableActTicketByProduct.RegisterDataAccessListenerProgressOut((TicketByProdActivity)this);
-                await tableActTicketByProduct.RequestData();
+                await tableActTicketByProduct.RequestHeaderData();
                 tableActTicketByProduct.UnregisterDataAccessListenerProgressOut((TicketByProdActivity)this);
             }
         }

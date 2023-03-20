@@ -167,7 +167,7 @@ namespace dMobile.Bedrock
         /// <returns>The <see cref="Task"/>.</returns>
         public async Task RequestProductSchemeLabelSettings()
         {
-            var reqData = string.Empty;
+            var responseData = string.Empty;
             var msgArgs = new ProdSchemeLabelSettingsEventArgs();
 
             try
@@ -176,18 +176,8 @@ namespace dMobile.Bedrock
 
                 this.OnProdSchemeLabelSettingsStatusOut(this, msgArgs);
 
-                reqData = SysCommon.SubmitComm(this.Create());
-                if (reqData.Length > 0)
-                {
-                    if (reqData.Contains("<message>ERROR</message>"))
-                    {
-                        var docError = new XmlDocument();
-                        docError.LoadXml(reqData);
-                        throw new Exception(docError.DocumentElement["detail"].InnerText);
-                    }
-
-                    await this.Save(reqData);
-                }
+                responseData = SysCommon.SubmitComm(this.Create());
+                await this.Save(responseData);
 
                 msgArgs.StatusOutMsg = "Seeding product scheme label settings complete.";
 

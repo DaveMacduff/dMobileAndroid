@@ -105,7 +105,7 @@ namespace dMobile.View.Activity
 
         private ActItem ActItem { get; set; } = null;
 
-        private Controller.Activity.Activity Activity { get; set; } = null;
+        private Controller.Activity.Activity ActHdr { get; set; } = null;
 
         private LocationMap LocMap { get; set; }
 
@@ -120,6 +120,8 @@ namespace dMobile.View.Activity
         private int FromProdUnitRefno { get; set; } = 0;
 
         private int ToProdUnitRefno { get; set; } = 0;
+
+        private bool IsFirstAppearance { get; set; } = true;
 
         private ObservableCollection<object> MainActivityItems { get; set; } = new ObservableCollection<object>();
 
@@ -139,9 +141,9 @@ namespace dMobile.View.Activity
             try
             {
                 this.Loading = true;
-                if (this.FirstAppearance)
+                if (this.IsFirstAppearance)
                 {
-                    this.FirstAppearance = false;
+                    this.IsFirstAppearance = false;
 
                     InitActivity();
                     await InitActivityItem();
@@ -157,12 +159,36 @@ namespace dMobile.View.Activity
                 this.dgUnitWeight.ItemTapped += this.UnitWeight_ItemTapped;
                 await this.ucActivityConvertUnit_GotFocus(this, EventArgs.Empty);
             }
+            catch (CommunicationException commEx)
+            {
+                this.IsFirstAppearance = true;
+
+                // Question should a communication error, be reported as an error or just a messagebox?
+                await Device.InvokeOnMainThreadAsync(async () =>
+                {
+                    var msg = $"Unable to load activity headers.{Environment.NewLine}" +
+                        $"Because of a communication problem.{Environment.NewLine}" +
+                        $"Detail:{commEx.Message}{Environment.NewLine}" +
+                        "Please exit and try again.";
+
+                    await Application.Current.MainPage.DisplayAlert(
+                        this.ActHdr.GetControlDescription(),
+                        msg,
+                        Resource.OK);
+                });
+            }
             catch (Exception ex)
             {
-                await Device.InvokeOnMainThreadAsync(async () => await this.DisplayAlert(
-                    "Error",
-                    "this.ucActivityConvertUnit_GotFocus threw an error " + ex,
-                    "OK"));
+                this.IsFirstAppearance = true;
+                await Device.InvokeOnMainThreadAsync(async () =>
+                {
+                    var msg = $"Unable to load activity headers.{Environment.NewLine}" +
+                        $"General exception.{Environment.NewLine}" +
+                        $"Detail:{ex.Message}{Environment.NewLine}" +
+                        "Please exit and try again.";
+                    var errorReport = new FormErrorReport(msg, ex);
+                    _ = await errorReport.ShowDialog();
+                });
             }
             finally
             {
@@ -179,16 +205,16 @@ namespace dMobile.View.Activity
 
             async Task InitActivityItem()
             {
-                this.ActItem = ActItemFacade.GetActItem(this.Activity, SysCommon.ActSubTypes.ConvertUnit);
-                this.ActItem.ActSubType = this.Activity.ActSubType;
+                this.ActItem = ActItemFacade.GetActItem(this.ActHdr, SysCommon.ActSubTypes.ConvertUnit);
+                this.ActItem.ActSubType = this.ActHdr.ActSubType;
                 _ = await this.ActItem.GetActivityItemList(false);
             }
 
             void InitActivity()
             {
-                this.Activity = ActivityFacade.GetActivity(SysCommon.ActSubTypes.ConvertUnit);
-                this.Activity.SkidInfo = new SysSkidInfo();
-                this.Activity.ActSubType = SysCommon.ActSubTypes.ConvertUnit;
+                this.ActHdr = ActivityFacade.GetActivity(SysCommon.ActSubTypes.ConvertUnit);
+                this.ActHdr.SkidInfo = new SysSkidInfo();
+                this.ActHdr.ActSubType = SysCommon.ActSubTypes.ConvertUnit;
             }
 
             void SubscribeKeyUpHandlers()
@@ -254,8 +280,6 @@ namespace dMobile.View.Activity
             base.OnDisappearing();
         }
 
-        private bool FirstAppearance { get; set; } = true;
-
         /// <summary>
         /// Un-register the bar code scan event handler and disable the scanner.
         /// </summary>
@@ -317,13 +341,14 @@ namespace dMobile.View.Activity
                     throw new MessageOnlyException("No convert to item details have be defined.");
                 }
             }
-            catch (MessageOnlyException ex)
+            catch (MessageOnlyException msgEx)
             {
+                var msg = (msgEx.Message.IndexOf("MSGBOX-") == -1) ? msgEx.Message : msgEx.Message["MSGBOX-".Length..];
                 isReadyToSave = false;
                 await Device.InvokeOnMainThreadAsync(async () =>
                     await Application.Current.MainPage.DisplayAlert(
                         this.GetControlDescription(),
-                        ex.Message,
+                        msg,
                         Resource.OK));
             }
             catch (Exception ex)
@@ -362,13 +387,14 @@ namespace dMobile.View.Activity
                     await this.ScannerDisable();
                 }
             }
-            catch (MessageOnlyException ex)
+            catch (MessageOnlyException msgEx)
             {
+                var msg = (msgEx.Message.IndexOf("MSGBOX-") == -1) ? msgEx.Message : msgEx.Message["MSGBOX-".Length..];
                 isReadyToClose = false;
                 await Device.InvokeOnMainThreadAsync(async () =>
                     await Application.Current.MainPage.DisplayAlert(
                         this.GetControlDescription(),
-                        ex.Message,
+                        msg,
                         Resource.OK));
             }
             catch (Exception ex)
@@ -411,75 +437,61 @@ namespace dMobile.View.Activity
                 {
                     if (this.FromProdUnitRefno != 0 && this.ActItem.ListItems.Count != 0 && this.ActDetail.ListDetails.Count != 0)
                     {
-                        var dataReq = SysCommon.SubmitComm(await this.MakeConvertUnitSubmitString());
-
-                        if (dataReq.Length > 0)
+                        var responseData = SysCommon.SubmitComm(await this.MakeConvertUnitSubmitString());
+                        var xmlDoc = new XmlDocument();
+                        xmlDoc.LoadXml(responseData);
+                        if (this.SysEnv.SysSettings.CanPrintProductLabelConvertUnits)
                         {
-                            var xmlDoc = new XmlDocument();
-                            xmlDoc.LoadXml(dataReq);
-
-                            if (dataReq.Contains("<message>ERROR</message>"))
+                            if (await Device.InvokeOnMainThreadAsync(async () =>
+                                    await this.DisplayAlert(
+                                        "Unit Conversion",
+                                        "Unit conversion complete." + Environment.NewLine + "Do you wish to print product labels?",
+                                        "Yes",
+                                        "No")))
                             {
-                                var errorDetail = xmlDoc.DocumentElement["detail"].InnerText;
-
-                                if (errorDetail.Contains("MSGBOX-"))
+                                for (var idx = 0; idx < this.ActDetail.ListDetails.Count; idx++)
                                 {
-                                    throw new MessageOnlyException(errorDetail);
-                                }
-                                else
-                                {
-                                    throw new Exception(errorDetail);
-                                }
-                            }
-                            else
-                            {
-                                if (this.SysEnv.SysSettings.CanPrintProductLabelConvertUnits)
-                                {
-                                    if (await Device.InvokeOnMainThreadAsync(async () =>
-                                            await this.DisplayAlert(
-                                                "Unit Conversion",
-                                                "Unit conversion complete." + Environment.NewLine + "Do you wish to print product labels?",
+                                    try
+                                    {
+                                        _ = SysCommon.SubmitComm(await this.MakeProductLabelsSubmitString(idx));
+                                    }
+                                    catch (Exception ex)
+                                    {
+                                        saveComplete = false;
+                                        var msg = $"Printing product label failed. Do you wish to try again?" +
+                                                    $"{Environment.NewLine}Reason: {ex.Message}";
+                                        if (await Device.InvokeOnMainThreadAsync(async () =>
+                                            await Application.Current.MainPage.DisplayAlert(
+                                                this.GetControlDescription(),
+                                                msg,
                                                 "Yes",
                                                 "No")))
-                                    {
-                                        for (var idx = 0; idx < this.ActDetail.ListDetails.Count; idx++)
                                         {
-                                            dataReq = SysCommon.SubmitComm(await this.MakeProductLabelsSubmitString(idx));
-
-                                            if (dataReq.Contains("<message>ERROR</message>"))
-                                            {
-                                                xmlDoc.LoadXml(dataReq);
-                                                var errorDetail = xmlDoc.DocumentElement["detail"].InnerText;
-
-                                                if (errorDetail.Contains("MSGBOX-"))
-                                                {
-                                                    throw new MessageOnlyException(errorDetail);
-                                                }
-                                                else
-                                                {
-                                                    throw new Exception(errorDetail);
-                                                }
-                                            }
+                                            idx--;
+                                        }
+                                        else
+                                        {
+                                            throw;
                                         }
                                     }
                                 }
-                                else
-                                {
-                                    await Device.InvokeOnMainThreadAsync(async () =>
-                                        await this.DisplayAlert("Unit Conversion", "Unit conversion complete.", "OK"));
-                                }
                             }
-
-                            await this.ClearContents();
+                        }
+                        else
+                        {
+                            await Device.InvokeOnMainThreadAsync(async () =>
+                                await this.DisplayAlert("Unit Conversion", "Unit conversion complete.", "OK"));
                         }
 
+                        await this.ClearContents();
                         saveComplete = true;
                         this.IsChangesMade = false;
                         if (await Device.InvokeOnMainThreadAsync(async () =>
                                 await this.DisplayAlert(
                                     "Convert Unit(s)",
                                     "Do you wish to convert any more unit(s)?",
-                                    "Yes", "No")))
+                                    "Yes",
+                                    "No")))
                         {
                             saveComplete = false;
                         }
@@ -510,19 +522,19 @@ namespace dMobile.View.Activity
                     }
                 }
             }
-            catch (MessageOnlyException ex)
+            catch (MessageOnlyException msgEx)
             {
+                var msg = (msgEx.Message.IndexOf("MSGBOX-") == -1) ? msgEx.Message : msgEx.Message["MSGBOX-".Length..];
                 saveComplete = false;
                 await Device.InvokeOnMainThreadAsync(async () =>
                     await Application.Current.MainPage.DisplayAlert(
                         this.GetControlDescription(),
-                        ex.Message,
+                        msg,
                         Resource.OK));
             }
             catch (Exception ex)
             {
                 saveComplete = false;
-
                 await Device.InvokeOnMainThreadAsync(async () =>
                 {
                     var errorReport = new FormErrorReport(this.ActSubType, ex);
@@ -567,13 +579,14 @@ namespace dMobile.View.Activity
                     // this.IsChangesMade = false;
                 }
             }
-            catch (MessageOnlyException ex)
+            catch (MessageOnlyException msgEx)
             {
+                var msg = (msgEx.Message.IndexOf("MSGBOX-") == -1) ? msgEx.Message : msgEx.Message["MSGBOX-".Length..];
                 cancelChanges = false;
                 await Device.InvokeOnMainThreadAsync(async () =>
                     await Application.Current.MainPage.DisplayAlert(
                         this.GetControlDescription(),
-                        ex.Message,
+                        msg,
                         Resource.OK));
             }
             catch (Exception ex)
@@ -775,12 +788,13 @@ namespace dMobile.View.Activity
                 {
                     // Do nothing, task cancelled by user
                 }
-                catch (MessageOnlyException ex)
+                catch (MessageOnlyException msgEx)
                 {
+                    var msg = (msgEx.Message.IndexOf("MSGBOX-") == -1) ? msgEx.Message : msgEx.Message["MSGBOX-".Length..];
                     await Device.InvokeOnMainThreadAsync(async () =>
                         await Application.Current.MainPage.DisplayAlert(
                             this.GetControlDescription(),
-                            ex.Message,
+                            msg,
                             Resource.OK));
                 }
                 catch (Exception ex)
@@ -859,13 +873,14 @@ namespace dMobile.View.Activity
                 {
                 }
             }
-            catch (MessageOnlyException ex)
+            catch (MessageOnlyException msgEx)
             {
+                var msg = (msgEx.Message.IndexOf("MSGBOX-") == -1) ? msgEx.Message : msgEx.Message["MSGBOX-".Length..];
                 e.Cancel = true;
                 _ = Device.InvokeOnMainThreadAsync(async () =>
                       await Application.Current.MainPage.DisplayAlert(
                           this.GetControlDescription(),
-                          ex.Message,
+                          msg,
                           Resource.OK));
             }
             catch (Exception ex)
@@ -1164,12 +1179,13 @@ namespace dMobile.View.Activity
                     _ = await errorReport.ShowDialog();
                 });
             }
-            catch (MessageOnlyException ex)
+            catch (MessageOnlyException msgEx)
             {
+                var msg = (msgEx.Message.IndexOf("MSGBOX-") == -1) ? msgEx.Message : msgEx.Message["MSGBOX-".Length..];
                 await Device.InvokeOnMainThreadAsync(async () =>
                     await Application.Current.MainPage.DisplayAlert(
                         this.GetControlDescription(),
-                        ex.Message,
+                        msg,
                         Resource.OK));
             }
             catch (Exception ex)
@@ -1314,10 +1330,11 @@ namespace dMobile.View.Activity
             }
             catch (MessageOnlyException msgEx)
             {
+                var msg = (msgEx.Message.IndexOf("MSGBOX-") == -1) ? msgEx.Message : msgEx.Message["MSGBOX-".Length..];
                 await Device.InvokeOnMainThreadAsync(async () =>
                     await Application.Current.MainPage.DisplayAlert(
                         this.GetControlDescription(),
-                        msgEx.Message,
+                        msg,
                         Resource.OK));
             }
             catch (Exception ex)
@@ -1425,41 +1442,22 @@ namespace dMobile.View.Activity
             };
 
             var request = await this.CreateConvertUnitResultXML(fromProdUnitRefno, toProdUnitRefno, quantity, weightQuantity);
-            var dataReq = SysCommon.SubmitComm(request);
-
-            if (dataReq.Length > 0)
+            var response = SysCommon.SubmitComm(request);
+            var xmlDoc = new XmlDocument();
+            xmlDoc.LoadXml(response);
+            if (xmlDoc.SelectSingleNode("/VFPData/Quantity") !.HasChildNodes)
             {
-                var xmlDoc = new XmlDocument();
-                xmlDoc.LoadXml(dataReq);
+                fillQty.Quantity = Convert.ToDecimal(xmlDoc.SelectSingleNode("/VFPData/Quantity") !.FirstChild.Value);
+            }
 
-                if (dataReq.Contains("<message>ERROR</message>"))
-                {
-                    var errorDetail = xmlDoc.DocumentElement["detail"].InnerText;
+            if (xmlDoc.SelectSingleNode("/VFPData/BaseQuantity") !.HasChildNodes)
+            {
+                fillQty.BaseQuantity = Convert.ToDecimal(xmlDoc.SelectSingleNode("/VFPData/BaseQuantity") !.FirstChild.Value);
+            }
 
-                    if (errorDetail.Contains("MSGBOX-"))
-                    {
-                        throw new MessageOnlyException(errorDetail);
-                    }
-                    else
-                    {
-                        throw new Exception(errorDetail);
-                    }
-                }
-
-                if (xmlDoc.SelectSingleNode("/VFPData/Quantity").HasChildNodes)
-                {
-                    fillQty.Quantity = Convert.ToDecimal(xmlDoc.SelectSingleNode("/VFPData/Quantity").FirstChild.Value);
-                }
-
-                if (xmlDoc.SelectSingleNode("/VFPData/BaseQuantity").HasChildNodes)
-                {
-                    fillQty.BaseQuantity = Convert.ToDecimal(xmlDoc.SelectSingleNode("/VFPData/BaseQuantity").FirstChild.Value);
-                }
-
-                if (xmlDoc.SelectSingleNode("/VFPData/WeightQuantity").HasChildNodes)
-                {
-                    fillQty.WeightQuantity = Convert.ToDecimal(xmlDoc.SelectSingleNode("/VFPData/WeightQuantity").FirstChild.Value);
-                }
+            if (xmlDoc.SelectSingleNode("/VFPData/WeightQuantity") !.HasChildNodes)
+            {
+                fillQty.WeightQuantity = Convert.ToDecimal(xmlDoc.SelectSingleNode("/VFPData/WeightQuantity") !.FirstChild.Value);
             }
 
             return fillQty;

@@ -182,13 +182,14 @@ namespace dMobile.View.Options
                 isReadyToSave = isReadyToSave && int.Parse(this.updnIP4.Text) >= this.MinIPAddress && int.Parse(this.updnIP4.Text) <= this.MaxIPAddress;
                 isReadyToSave = isReadyToSave && int.Parse(this.updnDefaultPort.Text) >= int.Parse(this.updnBasePort.Text) && int.Parse(this.updnDefaultPort.Text) <= this.MaxPort;
             }
-            catch (MessageOnlyException ex)
+            catch (MessageOnlyException msgEx)
             {
+                var msg = (msgEx.Message.IndexOf("MSGBOX-") == -1) ? msgEx.Message : msgEx.Message["MSGBOX-".Length..];
                 isReadyToSave = false;
                 await Device.InvokeOnMainThreadAsync(async () =>
                     await Application.Current.MainPage.DisplayAlert(
                         this.GetControlDescription(),
-                        ex.Message,
+                        msg,
                         Resource.OK));
             }
             catch (Exception ex)
@@ -237,13 +238,14 @@ namespace dMobile.View.Options
                     throw new MessageOnlyException("Data failed validation. Check your data.");
                 }
             }
-            catch (MessageOnlyException ex)
+            catch (MessageOnlyException msgEx)
             {
+                var msg = (msgEx.Message.IndexOf("MSGBOX-") == -1) ? msgEx.Message : msgEx.Message["MSGBOX-".Length..];
                 isSaveComplete = false;
                 await Device.InvokeOnMainThreadAsync(async () =>
                     await Application.Current.MainPage.DisplayAlert(
                         this.GetControlDescription(),
-                        ex.Message,
+                        msg,
                         Resource.OK));
             }
             catch (Exception ex)
@@ -280,19 +282,20 @@ namespace dMobile.View.Options
                 {
                     // NOTE: This code is needed to clean up the scanner driver.
                     // Symbol had threading issues without this call when dMobile was terminating.
-                    // All user controls that initalize a bar code need this code.
+                    // All user controls that initialize a bar code need this code.
                     // The parent form (not a user control) will call scanner.terminate and dispose
                     // of the scanner instance upon exiting dMobile.
                     await this.ScannerDisable();
                 }
             }
-            catch (MessageOnlyException ex)
+            catch (MessageOnlyException msgEx)
             {
+                var msg = (msgEx.Message.IndexOf("MSGBOX-") == -1) ? msgEx.Message : msgEx.Message["MSGBOX-".Length..];
                 isReadyToClose = false;
                 await Device.InvokeOnMainThreadAsync(async () =>
                     await Application.Current.MainPage.DisplayAlert(
                         this.GetControlDescription(),
-                        ex.Message,
+                        msg,
                         Resource.OK));
             }
             catch (Exception ex)
@@ -345,13 +348,14 @@ namespace dMobile.View.Options
                     this.IsChangesMade = false;
                 }
             }
-            catch (MessageOnlyException ex)
+            catch (MessageOnlyException msgEx)
             {
+                var msg = (msgEx.Message.IndexOf("MSGBOX-") == -1) ? msgEx.Message : msgEx.Message["MSGBOX-".Length..];
                 cancelChanges = false;
                 await Device.InvokeOnMainThreadAsync(async () =>
                     await Application.Current.MainPage.DisplayAlert(
                         this.GetControlDescription(),
-                        ex.Message,
+                        msg,
                         Resource.OK));
             }
             catch (Exception ex)
@@ -509,13 +513,14 @@ namespace dMobile.View.Options
 
                 // }
             }
-            catch (MessageOnlyException ex)
+            catch (MessageOnlyException msgEx)
             {
+                var msg = (msgEx.Message.IndexOf("MSGBOX-") == -1) ? msgEx.Message : msgEx.Message["MSGBOX-".Length..];
                 e.Cancel = true;
                 _ = Device.InvokeOnMainThreadAsync(async () =>
                       await Application.Current.MainPage.DisplayAlert(
                           this.GetControlDescription(),
-                          ex.Message,
+                          msg,
                           Resource.OK));
             }
             catch (Exception ex)
@@ -549,12 +554,13 @@ namespace dMobile.View.Options
                     this.IsChangesMade = true;
                 }
             }
-            catch (MessageOnlyException ex)
+            catch (MessageOnlyException msgEx)
             {
+                var msg = (msgEx.Message.IndexOf("MSGBOX-") == -1) ? msgEx.Message : msgEx.Message["MSGBOX-".Length..];
                 _ = Device.InvokeOnMainThreadAsync(async () =>
                       await Application.Current.MainPage.DisplayAlert(
                           this.GetControlDescription(),
-                          ex.Message,
+                          msg,
                           Resource.OK));
             }
             catch (Exception ex)
@@ -647,7 +653,7 @@ namespace dMobile.View.Options
                 Socket socket;
                 int bytesSent;
                 List<byte> bytRecvData;
-                var reqData = string.Empty;
+                var responseData = string.Empty;
 
                 this.ExtraInfoItems.Clear();
 
@@ -726,12 +732,12 @@ namespace dMobile.View.Options
 
                         this.AddCommMsg(this, EventArgs.Empty, "Socket closed.");
 
-                        reqData = Compress.UnZip(bytRecvData.ToArray());
+                        responseData = Compress.UnZip(bytRecvData.ToArray());
 
-                        if (reqData.Contains("<message>ERROR</message>"))
+                        if (responseData.Contains("<message>ERROR</message>"))
                         {
                             var docError = new XmlDocument();
-                            docError.LoadXml(reqData);
+                            docError.LoadXml(responseData);
                             var errorDetail = docError.DocumentElement["detail"].InnerText;
 
                             this.AddCommMsg(this, EventArgs.Empty, "Submit device id error.");

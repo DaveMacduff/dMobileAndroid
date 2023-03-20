@@ -143,9 +143,36 @@ namespace dMobile.View.Activity
 
                 await this.ucActivitySkidPutAway_GotFocus(this, EventArgs.Empty);
             }
+            catch (CommunicationException commEx)
+            {
+                this.isFirstAppearance = true;
+
+                // Question should a communication error, be reported as an error or just a messagebox?
+                await Device.InvokeOnMainThreadAsync(async () =>
+                {
+                    var msg = $"Unable to load skid info.{Environment.NewLine}" +
+                        $"Because of a communication problem.{Environment.NewLine}" +
+                        $"Detail:{commEx.Message}{Environment.NewLine}" +
+                        "Please exit and try again.";
+
+                    await Application.Current.MainPage.DisplayAlert(
+                        this.Activity.GetControlDescription(),
+                        msg,
+                        Resource.OK);
+                });
+            }
             catch (Exception ex)
             {
-                await Device.InvokeOnMainThreadAsync(async () => await this.DisplayAlert("Error", "this.ucActivitySkidPutAway_GotFocus threw an error " + ex, "OK"));
+                this.isFirstAppearance = true;
+                await Device.InvokeOnMainThreadAsync(async () =>
+                {
+                    var msg = $"Unable to load skid info.{Environment.NewLine}" +
+                        $"General exception.{Environment.NewLine}" +
+                        $"Detail:{ex.Message}{Environment.NewLine}" +
+                        "Please exit and try again.";
+                    var errorReport = new FormErrorReport(msg, ex);
+                    _ = await errorReport.ShowDialog();
+                });
             }
         }
 
@@ -294,12 +321,13 @@ namespace dMobile.View.Activity
                     }
                 }
             }
-            catch (MessageOnlyException ex)
+            catch (MessageOnlyException msgEx)
             {
+                var msg = (msgEx.Message.IndexOf("MSGBOX-") == -1) ? msgEx.Message : msgEx.Message["MSGBOX-".Length..];
                 await Device.InvokeOnMainThreadAsync(async () =>
                     await Application.Current.MainPage.DisplayAlert(
                         this.GetControlDescription(),
-                        ex.Message,
+                        msg,
                         Resource.OK));
             }
             catch (Exception ex)
@@ -547,13 +575,14 @@ namespace dMobile.View.Activity
                     // this.IsChangesMade = false;
                 }
             }
-            catch (MessageOnlyException ex)
+            catch (MessageOnlyException msgEx)
             {
+                var msg = (msgEx.Message.IndexOf("MSGBOX-") == -1) ? msgEx.Message : msgEx.Message["MSGBOX-".Length..];
                 cancelChanges = false;
                 await Device.InvokeOnMainThreadAsync(async () =>
                     await Application.Current.MainPage.DisplayAlert(
                         this.GetControlDescription(),
-                        ex.Message,
+                        msg,
                         Resource.OK));
             }
             catch (Exception ex)
@@ -651,13 +680,14 @@ namespace dMobile.View.Activity
                     }
                 }
             }
-            catch (MessageOnlyException ex)
+            catch (MessageOnlyException msgEx)
             {
+                var msg = (msgEx.Message.IndexOf("MSGBOX-") == -1) ? msgEx.Message : msgEx.Message["MSGBOX-".Length..];
                 isReadyToSave = false;
                 await Device.InvokeOnMainThreadAsync(async () =>
                     await Application.Current.MainPage.DisplayAlert(
                         this.GetControlDescription(),
-                        ex.Message,
+                        msg,
                         Resource.OK));
             }
             catch (Exception ex)
@@ -691,38 +721,21 @@ namespace dMobile.View.Activity
             {
                 if (await this.IsReadyToSave())
                 {
-                    var reqData = SysCommon.SubmitComm(this.MakeSkidPutAwaySubmitString());
-
-                    if (reqData.Length > 0)
-                    {
-                        var xmlDoc = new XmlDocument();
-                        xmlDoc.LoadXml(reqData);
-
-                        // check if result is an error message
-                        if (reqData.Contains("<message>ERROR</message>"))
-                        {
-                            var errorDetail = xmlDoc.DocumentElement["detail"].InnerText;
-
-                            if (errorDetail.Contains("MSGBOX-"))
-                            {
-                                throw new MessageOnlyException(errorDetail);
-                            }
-                            else
-                            {
-                                throw new Exception(errorDetail);
-                            }
-                        }
-                        else
-                        {
-                            await Device.InvokeOnMainThreadAsync(async () => await this.DisplayAlert("Skid Put Away", "Skid put away complete!", "OK"));
-                        }
-
-                        await this.ClearContents();
-                    }
-
+                    var responseData = SysCommon.SubmitComm(this.MakeSkidPutAwaySubmitString());
+                    var xmlDoc = new XmlDocument();
+                    xmlDoc.LoadXml(responseData);
+                    await Device.InvokeOnMainThreadAsync(async () => await this.DisplayAlert(
+                        "Skid Put Away",
+                        "Skid put away complete!",
+                        "OK"));
+                    await this.ClearContents();
                     saveComplete = true;
 
-                    if (await Device.InvokeOnMainThreadAsync(async () => await this.DisplayAlert("Skid Put Away", "Do you wish to put away any more skids?", "Yes", "No")))
+                    if (await Device.InvokeOnMainThreadAsync(async () => await this.DisplayAlert(
+                            "Skid Put Away",
+                            "Do you wish to put away any more skids?",
+                            "Yes",
+                            "No")))
                     {
                         saveComplete = false;
                         await this.ScannerEnable();
@@ -733,13 +746,14 @@ namespace dMobile.View.Activity
                     // await Device.InvokeOnMainThreadAsync(async () => await DisplayAlert("Skid Put Away", "Data Failed Validation. Check Your Data.", "OK"));
                 }
             }
-            catch (MessageOnlyException ex)
+            catch (MessageOnlyException msgEx)
             {
+                var msg = (msgEx.Message.IndexOf("MSGBOX-") == -1) ? msgEx.Message : msgEx.Message["MSGBOX-".Length..];
                 saveComplete = false;
                 await Device.InvokeOnMainThreadAsync(async () =>
                     await Application.Current.MainPage.DisplayAlert(
                         this.GetControlDescription(),
-                        ex.Message,
+                        msg,
                         Resource.OK));
             }
             catch (Exception ex)
@@ -1190,12 +1204,13 @@ namespace dMobile.View.Activity
                 {
                     // Do nothing, task cancelled by user
                 }
-                catch (MessageOnlyException ex)
+                catch (MessageOnlyException msgEx)
                 {
+                    var msg = (msgEx.Message.IndexOf("MSGBOX-") == -1) ? msgEx.Message : msgEx.Message["MSGBOX-".Length..];
                     await Device.InvokeOnMainThreadAsync(async () =>
                         await Application.Current.MainPage.DisplayAlert(
                             this.GetControlDescription(),
-                            ex.Message,
+                            msg,
                             Resource.OK));
 
                     if (this.ActDetailOnSkid.ActItem.ActHdr.SkidInfo.CurrSkid.SkidFKRefno != 0)

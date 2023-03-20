@@ -37,7 +37,9 @@
                                       ItemSelected="ListViewMainActivity_ItemSelected"
                                       HasUnevenRows="True"
                                       IsEnabled="{Binding Loading, Converter={Helpers:BoolConverter}}"
-                                      Grid.Row="1"/>
+                                      Grid.Row="1"
+                                      VerticalScrollBarVisibility="Always"
+                                      HorizontalScrollBarVisibility="Always" />
                         </Grid>
                     </ScrollView>
                 </Frame>

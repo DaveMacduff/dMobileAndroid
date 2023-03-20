@@ -450,7 +450,7 @@ namespace dMobile.Controller.Activity
                 var tableTicketMaterial = new TableActivityProductionTicketMaterial();
 
                 tableTicketMaterial.RegisterDataAccessListenerProgressOut((TicketMaterialActivity)this);
-                await tableTicketMaterial.RequestData();
+                await tableTicketMaterial.RequestHeaderData();
                 tableTicketMaterial.UnregisterDataAccessListenerProgressOut((TicketMaterialActivity)this);
             }
         }

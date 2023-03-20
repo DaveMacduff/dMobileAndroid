@@ -4,6 +4,7 @@
 
 namespace dMobile.Bedrock
 {
+    using Org.Apache.Http.Protocol;
     using System;
     using System.Data;
     using System.IO;
@@ -207,25 +208,7 @@ namespace dMobile.Bedrock
             //////////////////////////////////////////////////////////////////////////
             static void PerformMoveRequest(StringBuilder xmlString)
             {
-                var recvData = SysCommon.SubmitComm(xmlString.ToString());
-                if (recvData.Length <= 0)
-                {
-                    throw new MessageOnlyException("Move skid request failed. Check communications.");
-                }
-
-                if (recvData.Contains("<message>ERROR</message>"))
-                {
-                    var xmlResult = new XmlDocument();
-                    xmlResult.LoadXml(recvData);
-                    if (recvData.Contains("MSGBOX-"))
-                    {
-                        throw new MessageOnlyException(xmlResult.DocumentElement["detail"].InnerText);
-                    }
-                    else
-                    {
-                        throw new Exception(xmlResult.DocumentElement["detail"].InnerText);
-                    }
-                }
+                _ = SysCommon.SubmitComm(xmlString.ToString());
             }
         }
 
@@ -278,27 +261,7 @@ namespace dMobile.Bedrock
             writer.Flush();
             writer.Close();
 
-            var recvData = SysCommon.SubmitComm(xmlString.ToString());
-            if (recvData.Length > 0)
-            {
-                if (recvData.Contains("<message>ERROR</message>"))
-                {
-                    var xmlResult = new XmlDocument();
-                    xmlResult.LoadXml(recvData);
-                    if (recvData.Contains("MSGBOX-"))
-                    {
-                        throw new MessageOnlyException(xmlResult.DocumentElement["detail"].InnerText);
-                    }
-                    else
-                    {
-                        throw new Exception(xmlResult.DocumentElement["detail"].InnerText);
-                    }
-                }
-            }
-            else
-            {
-                throw new MessageOnlyException("Update skid request failed. Check communications.");
-            }
+            _ = SysCommon.SubmitComm(xmlString.ToString());
         }
 
         /// <summary>
@@ -332,34 +295,10 @@ namespace dMobile.Bedrock
             writer.Flush();
             writer.Close();
 
-            var recvData = SysCommon.SubmitComm(xmlString.ToString());
-            if (recvData.Length > 0)
-            {
-                if (recvData.Contains("<message>ERROR</message>"))
-                {
-                    var xmlResult = new XmlDocument();
-                    xmlResult.LoadXml(recvData);
-
-                    if (recvData.Contains("MSGBOX-"))
-                    {
-                        throw new MessageOnlyException(xmlResult.DocumentElement["detail"].InnerText);
-                    }
-                    else
-                    {
-                        throw new Exception(xmlResult.DocumentElement["detail"].InnerText);
-                    }
-                }
-                else
-                {
-                    var tempSkidInfo = skid.CurrSkid;
-                    tempSkidInfo.IsCompleted = true;
-                    skid.CurrSkid = tempSkidInfo;
-                }
-            }
-            else
-            {
-                throw new MessageOnlyException("Complete skid request failed. Check communications.");
-            }
+            _ = SysCommon.SubmitComm(xmlString.ToString());
+            var tempSkidInfo = skid.CurrSkid;
+            tempSkidInfo.IsCompleted = true;
+            skid.CurrSkid = tempSkidInfo;
 
             return skid;
         }
@@ -394,27 +333,7 @@ namespace dMobile.Bedrock
             writer.Flush();
             writer.Close();
 
-            var recvData = SysCommon.SubmitComm(xmlString.ToString());
-            if (recvData.Length > 0)
-            {
-                if (recvData.Contains("<message>ERROR</message>"))
-                {
-                    var result = new XmlDocument();
-                    result.LoadXml(recvData);
-                    if (recvData.Contains("MSGBOX-"))
-                    {
-                        throw new MessageOnlyException(result.DocumentElement["detail"].InnerText);
-                    }
-                    else
-                    {
-                        throw new Exception(result.DocumentElement["detail"].InnerText);
-                    }
-                }
-            }
-            else
-            {
-                throw new MessageOnlyException("Print skid label request failed. Check communications.");
-            }
+            _ = SysCommon.SubmitComm(xmlString.ToString());
         }
 
         /// <summary>
@@ -445,35 +364,12 @@ namespace dMobile.Bedrock
             writer.Flush();
             writer.Close();
 
-            var recvData = SysCommon.SubmitComm(xmlString.ToString());
-            if (recvData.Length > 0)
+            var responseData = SysCommon.SubmitComm(xmlString.ToString());
+            using var ds = new DataSet();
+            ds.ReadXml(SysCommon.GetXmlReader(ref responseData), XmlReadMode.Auto);
+            if (ds.Tables.Count != 0)
             {
-                if (recvData.Contains("<message>ERROR</message>"))
-                {
-                    var result = new XmlDocument();
-                    result.LoadXml(recvData);
-                    if (recvData.Contains("MSGBOX-"))
-                    {
-                        throw new MessageOnlyException(result.DocumentElement["detail"].InnerText);
-                    }
-                    else
-                    {
-                        throw new Exception(result.DocumentElement["detail"].InnerText);
-                    }
-                }
-                else
-                {
-                    using var ds = new DataSet();
-                    ds.ReadXml(SysCommon.GetXmlReader(ref recvData), XmlReadMode.Auto);
-                    if (ds.Tables.Count != 0)
-                    {
-                        dataSetSkids = ds;
-                    }
-                }
-            }
-            else
-            {
-                throw new MessageOnlyException("Request available skids failed. Check communications.");
+                dataSetSkids = ds;
             }
 
             return dataSetSkids;
@@ -511,35 +407,12 @@ namespace dMobile.Bedrock
             writer.Flush();
             writer.Close();
 
-            var recvData = SysCommon.SubmitComm(xmlString.ToString());
-            if (recvData.Length > 0)
+            var responseData = SysCommon.SubmitComm(xmlString.ToString());
+            using var ds = new DataSet();
+            ds.ReadXml(SysCommon.GetXmlReader(ref responseData), XmlReadMode.Auto);
+            if (ds.Tables.Count != 0)
             {
-                if (recvData.Contains("<message>ERROR</message>"))
-                {
-                    var result = new XmlDocument();
-                    result.LoadXml(recvData);
-                    if (recvData.Contains("MSGBOX-"))
-                    {
-                        throw new MessageOnlyException(result.DocumentElement["detail"].InnerText);
-                    }
-                    else
-                    {
-                        throw new Exception(result.DocumentElement["detail"].InnerText);
-                    }
-                }
-                else
-                {
-                    using var ds = new DataSet();
-                    ds.ReadXml(SysCommon.GetXmlReader(ref recvData), XmlReadMode.Auto);
-                    if (ds.Tables.Count != 0)
-                    {
-                        dataSetSkidDetail = ds;
-                    }
-                }
-            }
-            else
-            {
-                throw new MessageOnlyException("Request skid detail failed. Check communications.");
+                dataSetSkidDetail = ds;
             }
         }
 
@@ -597,39 +470,16 @@ namespace dMobile.Bedrock
             writer.Flush();
             writer.Close();
 
-            var recvData = SysCommon.SubmitComm(xmlString.ToString());
-
+            var responseData = SysCommon.SubmitComm(xmlString.ToString());
             SysSkidInfo skid;
-            if (recvData.Length > 0)
-            {
-                var result = new XmlDocument();
-                result.LoadXml(recvData);
-                if (recvData.Contains("<message>ERROR</message>"))
-                {
-                    if (recvData.Contains("MSGBOX-"))
-                    {
-                        throw new MessageOnlyException(result.DocumentElement["detail"].InnerText);
-                    }
-                    else
-                    {
-                        throw new Exception(result.DocumentElement["detail"].InnerText);
-                    }
-                }
-                else
-                {
-                    skid = await SysSkidInfo.GetSkidInfoFromXML(skidData);
-                    var tempSkidInfo = skid.CurrSkid;
-                    tempSkidInfo.SkidFKRefno = int.Parse(result.DocumentElement["skid_fk_refno"].InnerText);
-                    tempSkidInfo.SkidCode = result.DocumentElement["skid_code"].InnerText;
-                    tempSkidInfo.LogisticUnitSkidCode = result.DocumentElement["logistic_unit_skid_code"].InnerText;
-                    skid.CurrSkid = tempSkidInfo;
-                }
-            }
-            else
-            {
-                throw new MessageOnlyException("Request create skid failed. Check communications.");
-            }
-
+            var result = new XmlDocument();
+            result.LoadXml(responseData);
+            skid = await SysSkidInfo.GetSkidInfoFromXML(skidData);
+            var tempSkidInfo = skid.CurrSkid;
+            tempSkidInfo.SkidFKRefno = int.Parse(result.DocumentElement["skid_fk_refno"].InnerText);
+            tempSkidInfo.SkidCode = result.DocumentElement["skid_code"].InnerText;
+            tempSkidInfo.LogisticUnitSkidCode = result.DocumentElement["logistic_unit_skid_code"].InnerText;
+            skid.CurrSkid = tempSkidInfo;
             return skid;
         }
 
@@ -723,14 +573,14 @@ namespace dMobile.Bedrock
             xml.Close();
 
             var skid = new SysSkidInfo();
-            var recvData = SysCommon.SubmitComm(request.ToString());
-            if (recvData.Length > 0)
+            var responseData = SysCommon.SubmitComm(request.ToString());
+            if (responseData.Length > 0)
             {
                 var result = new XmlDocument();
-                result.LoadXml(recvData);
-                if (recvData.Contains("<message>ERROR</message>"))
+                result.LoadXml(responseData);
+                if (responseData.Contains("<message>ERROR</message>"))
                 {
-                    if (recvData.Contains("MSGBOX-"))
+                    if (responseData.Contains("MSGBOX-"))
                     {
                         throw new MessageOnlyException(result.DocumentElement["detail"].InnerText);
                     }

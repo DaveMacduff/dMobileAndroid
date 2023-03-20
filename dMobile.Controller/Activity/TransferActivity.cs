@@ -466,14 +466,14 @@ namespace dMobile.Controller.Activity
                 {
                     var tableActTransfer = new TableActivityTransferFrom();
                     tableActTransfer.RegisterDataAccessListenerProgressOut((TransferActivity)this);
-                    await tableActTransfer.RequestData();
+                    await tableActTransfer.RequestHeaderData();
                     tableActTransfer.UnregisterDataAccessListenerProgressOut((TransferActivity)this);
                 }
                 else
                 {
                     var tableActTransfer = new TableActivityTransferTo();
                     tableActTransfer.RegisterDataAccessListenerProgressOut((TransferActivity)this);
-                    await tableActTransfer.RequestData();
+                    await tableActTransfer.RequestHeaderData();
                     tableActTransfer.UnregisterDataAccessListenerProgressOut((TransferActivity)this);
                 }
             }

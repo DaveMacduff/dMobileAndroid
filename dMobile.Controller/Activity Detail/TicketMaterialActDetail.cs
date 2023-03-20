@@ -138,15 +138,15 @@ namespace dMobile.Controller.Activity_Detail
                 + "</params>");
 
             var xmlSend = await this.CreateSubmitXml(request);
-            var reqData = SysCommon.SubmitComm(xmlSend);
+            var responseData = SysCommon.SubmitComm(xmlSend);
 
-            if (reqData.Length > 0)
+            if (responseData.Length > 0)
             {
                 var xmlDoc = new XmlDocument();
-                xmlDoc.LoadXml(reqData);
+                xmlDoc.LoadXml(responseData);
 
                 // check if result is an error message
-                if (reqData.Contains("<message>ERROR</message>"))
+                if (responseData.Contains("<message>ERROR</message>"))
                 {
                     var errorDetail = xmlDoc.DocumentElement["detail"].InnerText;
                     if (errorDetail.Contains("MSGBOX-"))
@@ -179,15 +179,15 @@ namespace dMobile.Controller.Activity_Detail
             {
                 string xmlDelete;
                 xmlDelete = await this.CreateDeleteXml(XDocument.Parse("<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?><params></params>"));
-                var reqData = SysCommon.SubmitComm(xmlDelete);
+                var responseData = SysCommon.SubmitComm(xmlDelete);
 
-                if (reqData.Length > 0)
+                if (responseData.Length > 0)
                 {
                     // check if result is an error message
-                    if (reqData.Contains("<message>ERROR</message>"))
+                    if (responseData.Contains("<message>ERROR</message>"))
                     {
                         var docError = new XmlDocument();
-                        docError.LoadXml(reqData);
+                        docError.LoadXml(responseData);
                         var errorDetail = docError.DocumentElement["detail"].InnerText;
 
                         if (errorDetail.Contains("MSGBOX-"))
@@ -296,15 +296,15 @@ namespace dMobile.Controller.Activity_Detail
             if (!this.SysEnv.SysSettings.IsDisconnectedMode)
             {
                 var xmlDelete = await this.CreateDeleteXml(XDocument.Parse("<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?><params></params>"));
-                var reqData = SysCommon.SubmitComm(xmlDelete);
+                var responseData = SysCommon.SubmitComm(xmlDelete);
 
-                if (reqData.Length > 0)
+                if (responseData.Length > 0)
                 {
                     // check if result is an error message
-                    if (reqData.Contains("<message>ERROR</message>"))
+                    if (responseData.Contains("<message>ERROR</message>"))
                     {
                         var docError = new XmlDocument();
-                        docError.LoadXml(reqData);
+                        docError.LoadXml(responseData);
                         var errorDetail = docError.DocumentElement["detail"].InnerText;
 
                         if (errorDetail.Contains("MSGBOX-"))
@@ -366,14 +366,14 @@ namespace dMobile.Controller.Activity_Detail
         {
             var xmlDoc = new XmlDocument();
             var xmlSend = await this.CreateSubmitXml(XDocument.Parse("<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?><params></params>"));
-            var reqData = SysCommon.SubmitComm(xmlSend);
+            var responseData = SysCommon.SubmitComm(xmlSend);
 
-            if (reqData.Length > 0)
+            if (responseData.Length > 0)
             {
-                xmlDoc.LoadXml(reqData);
+                xmlDoc.LoadXml(responseData);
 
                 // check if result is an error message
-                if (reqData.Contains("<message>ERROR</message>"))
+                if (responseData.Contains("<message>ERROR</message>"))
                 {
                     var errorDetail = xmlDoc.DocumentElement["detail"].InnerText;
 
@@ -439,7 +439,7 @@ namespace dMobile.Controller.Activity_Detail
                 this.DataLayerProgressOutHandler(this, EventArgs.Empty, 5);
 
                 tableActTicketDetail.RegisterDataAccessListenerProgressOut((TicketMaterialActDetail)this);
-                await tableActTicketDetail.RequestData(this.ActItem.ItemRefno);
+                await tableActTicketDetail.RequestDetailData(this.ActItem.ItemRefno);
                 tableActTicketDetail.UnregisterDataAccessListenerProgressOut((TicketMaterialActDetail)this);
             }
         }

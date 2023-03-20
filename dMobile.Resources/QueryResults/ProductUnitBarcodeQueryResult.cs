@@ -27,6 +27,7 @@ namespace dMobile.Resources.QueryResults
         public int WarehouseProductSchemeRefno { get; set; }
         public int ProductSchemeRefno { get; set; }
         public string ProductCode { get; set; }
+        public int ProductRefno { get; set; }
         public string ProductDescription { get; set; }
         public string ProductUnitBC { get; set; }
         public string UnitCode { get; set; }

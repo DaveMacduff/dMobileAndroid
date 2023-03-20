@@ -420,7 +420,7 @@ namespace dMobile.Controller.Activity
                 var tableActReturns = new TableActivityReturns();
 
                 tableActReturns.RegisterDataAccessListenerProgressOut((ReturnsActivity)this);
-                await tableActReturns.RequestData();
+                await tableActReturns.RequestHeaderData();
                 tableActReturns.UnregisterDataAccessListenerProgressOut((ReturnsActivity)this);
             }
         }

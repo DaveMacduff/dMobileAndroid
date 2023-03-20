@@ -2,8 +2,6 @@
 // Copyright (c) InterSect Business Systems Inc. All rights reserved.
 // </copyright>
 
-using Android.Util;
-
 namespace dMobile.View.Activity
 {
     using System;
@@ -388,13 +386,14 @@ namespace dMobile.View.Activity
                     isReadyToSave = await this.IsReadyToSavePicking();
                 }
             }
-            catch (MessageOnlyException ex)
+            catch (MessageOnlyException msgEx)
             {
+                var msg = (msgEx.Message.IndexOf("MSGBOX-") == -1) ? msgEx.Message : msgEx.Message["MSGBOX-".Length..];
                 isReadyToSave = false;
                 await Device.InvokeOnMainThreadAsync(async () =>
                     await Application.Current.MainPage.DisplayAlert(
                         this.ActItem.GetControlDescription(),
-                        ex.Message,
+                        msg,
                         Resource.OK));
             }
             catch (Exception ex)
@@ -430,12 +429,13 @@ namespace dMobile.View.Activity
                     isReadyToClose = await this.IsReadyToClosePicking();
                 }
             }
-            catch (MessageOnlyException ex)
+            catch (MessageOnlyException msgEx)
             {
+                var msg = (msgEx.Message.IndexOf("MSGBOX-") == -1) ? msgEx.Message : msgEx.Message["MSGBOX-".Length..];
                 await Device.InvokeOnMainThreadAsync(async () =>
                     await Application.Current.MainPage.DisplayAlert(
                         this.ActItem.GetControlDescription(),
-                        ex.Message,
+                        msg,
                         Resource.OK));
             }
             catch (Exception ex)
@@ -492,13 +492,14 @@ namespace dMobile.View.Activity
                     this.IsShowDataValidMsg = true;
                 }
             }
-            catch (MessageOnlyException ex)
+            catch (MessageOnlyException msgEx)
             {
+                var msg = (msgEx.Message.IndexOf("MSGBOX-") == -1) ? msgEx.Message : msgEx.Message["MSGBOX-".Length..];
                 isSaveComplete = false;
                 await Device.InvokeOnMainThreadAsync(async () =>
                     await Application.Current.MainPage.DisplayAlert(
                         this.ActItem.GetControlDescription(),
-                        ex.Message,
+                        msg,
                         Resource.OK));
             }
             catch (Exception ex)
@@ -530,13 +531,14 @@ namespace dMobile.View.Activity
                     cancelChanges = false;
                 }
             }
-            catch (MessageOnlyException ex)
+            catch (MessageOnlyException msgEx)
             {
+                var msg = (msgEx.Message.IndexOf("MSGBOX-") == -1) ? msgEx.Message : msgEx.Message["MSGBOX-".Length..];
                 cancelChanges = false;
                 await Device.InvokeOnMainThreadAsync(async () =>
                     await Application.Current.MainPage.DisplayAlert(
                         this.ActItem.GetControlDescription(),
-                        ex.Message,
+                        msg,
                         Resource.OK));
             }
             catch (Exception ex)
@@ -712,21 +714,39 @@ namespace dMobile.View.Activity
                     await this.ActAppearing();
                 }
             }
-            catch (MessageOnlyException ex)
+            catch (MessageOnlyException msgEx)
             {
+                var msg = (msgEx.Message.IndexOf("MSGBOX-") == -1) ? msgEx.Message : msgEx.Message["MSGBOX-".Length..];
                 await Device.InvokeOnMainThreadAsync(async () =>
                     await Application.Current.MainPage.DisplayAlert(
                         this.ActItem.GetControlDescription(),
-                        ex.Message,
+                        msg,
                         Resource.OK));
+            }
+            catch (CommunicationException commEx)
+            {
+                // Question should a communication error, be reported as an error or just a messagebox?
+                await Device.InvokeOnMainThreadAsync(async () =>
+                {
+                    var msg = $"Unable to load activity items.{Environment.NewLine}" +
+                        $"Because of a communication problem.{Environment.NewLine}" +
+                        $"Detail:{commEx.Message}{Environment.NewLine}" +
+                        "Please exit and try again.";
+
+                    await Application.Current.MainPage.DisplayAlert(
+                        this.ActItem.GetControlDescription(),
+                        msg,
+                        Resource.OK);
+                });
             }
             catch (Exception ex)
             {
-                this.IsFirstAppearance = true;
                 await Device.InvokeOnMainThreadAsync(async () =>
                 {
-                    const string msg = "This activity unexpectedly failed to initialize correctly." +
-                              " Please exit and try again.";
+                    var msg = $"Unable to load activity items.{Environment.NewLine}" +
+                        $"General exception.{Environment.NewLine}" +
+                        $"Detail:{ex.Message}{Environment.NewLine}" +
+                        "Please exit and try again.";
                     var errorReport = new FormErrorReport(msg, ex);
                     _ = await errorReport.ShowDialog();
                 });
@@ -1073,12 +1093,13 @@ namespace dMobile.View.Activity
                     await this.DisplayAlert("Item Comment", comment, "OK");
                 }
             }
-            catch (MessageOnlyException ex)
+            catch (MessageOnlyException msgEx)
             {
+                var msg = (msgEx.Message.IndexOf("MSGBOX-") == -1) ? msgEx.Message : msgEx.Message["MSGBOX-".Length..];
                 await Device.InvokeOnMainThreadAsync(async () =>
                     await Application.Current.MainPage.DisplayAlert(
                         this.ActItem.GetControlDescription(),
-                        ex.Message,
+                        msg,
                         Resource.OK));
             }
             catch (Exception ex)
@@ -1114,12 +1135,13 @@ namespace dMobile.View.Activity
                             "OK"));
                 }
             }
-            catch (MessageOnlyException ex)
+            catch (MessageOnlyException msgEx)
             {
+                var msg = (msgEx.Message.IndexOf("MSGBOX-") == -1) ? msgEx.Message : msgEx.Message["MSGBOX-".Length..];
                 await Device.InvokeOnMainThreadAsync(async () =>
                     await Application.Current.MainPage.DisplayAlert(
                         this.ActItem.GetControlDescription(),
-                        ex.Message,
+                        msg,
                         Resource.OK));
             }
             catch (Exception ex)
@@ -1157,12 +1179,13 @@ namespace dMobile.View.Activity
 
                 // No need to refresh the data here after call to inquiry form.
             }
-            catch (MessageOnlyException ex)
+            catch (MessageOnlyException msgEx)
             {
+                var msg = (msgEx.Message.IndexOf("MSGBOX-") == -1) ? msgEx.Message : msgEx.Message["MSGBOX-".Length..];
                 await Device.InvokeOnMainThreadAsync(async () =>
                     await Application.Current.MainPage.DisplayAlert(
                         this.ActItem.GetControlDescription(),
-                        ex.Message,
+                        msg,
                         Resource.OK));
             }
             catch (Exception ex)
@@ -1207,37 +1230,11 @@ namespace dMobile.View.Activity
             await xml.FlushAsync();
             xml.Close();
 
-            var reqData = SysCommon.SubmitComm(xmlString.ToString());
-
-            if (reqData.Length > 0)
+            var responseData = SysCommon.SubmitComm(xmlString.ToString());
+            SysCommon.CheckCommResponseForErrors(responseData);
+            if (responseData.Contains("<detail>True</detail>"))
             {
-                var xmlDoc = new XmlDocument();
-                xmlDoc.LoadXml(reqData);
-                if (xmlDoc.DocumentElement == null)
-                {
-                    throw new Exception("Request to check if there are skids to print failed.");
-                }
-
-                if (reqData.Contains("<message>ERROR</message>"))
-                {
-                    var errorDetail = xmlDoc.DocumentElement["detail"]?.InnerText;
-                    if (errorDetail != null && errorDetail.Contains("MSGBOX-"))
-                    {
-                        throw new MessageOnlyException("Check skids to print error." + Environment.NewLine + errorDetail);
-                    }
-                    else
-                    {
-                        throw new Exception("Check skids to print error." + Environment.NewLine + errorDetail);
-                    }
-                }
-                else if (reqData.Contains("<detail>True</detail>"))
-                {
-                    isExist2Print = true;
-                }
-            }
-            else
-            {
-                throw new Exception("Request to check if there are skids to print failed.");
+                isExist2Print = true;
             }
 
             return isExist2Print;
@@ -1505,12 +1502,13 @@ namespace dMobile.View.Activity
                         this.ActItem.ListItems[this.ActItem.SelectedListItemIdx] = this.ActItem.SelectedActivityItem;
                     }
                 }
-                catch (MessageOnlyException ex)
+                catch (MessageOnlyException msgEx)
                 {
+                    var msg = (msgEx.Message.IndexOf("MSGBOX-") == -1) ? msgEx.Message : msgEx.Message["MSGBOX-".Length..];
                     await Device.InvokeOnMainThreadAsync(async () =>
                         await Application.Current.MainPage.DisplayAlert(
                             this.ActItem.GetControlDescription(),
-                            ex.Message,
+                            msg,
                             Resource.OK));
                 }
                 catch (Exception ex)
@@ -1568,7 +1566,62 @@ namespace dMobile.View.Activity
                         prodUnitRefno = await SysShared.IdentifyProductScanned(this.ActSubType, parse);
                         var scannedProdInfo = await ProductInfoTasks.GetInfoFromUnitRefno(prodUnitRefno);
 
-                        await this.SetLocation(scannedProdInfo);
+                        // Need to get a warehouse to determine default location if turned on, we don't
+                        // have the line item warehouse yet. We could assume the header warehouse or even
+                        // the login warehouse.
+                        // We can't determine the default location until after identifing the line item.
+                        if (this.SysEnv.SysSettings.IsDefaultLocToProductDefaultLoc)
+                        {
+                            // This will be the default location if the line item location is not complete.
+                            var whsLocMapRefno = await LocationMapTasks.GetWhsLocMapRefnoFromLocMapRefno(
+                                this.LocMap.CurrLocMapRefno);
+                            var defLocMapRefno = await this.ActItem.GetDefaultLocMapRefno(
+                                whsLocMapRefno,
+                                scannedProdInfo.Refno);
+
+                            if (this.IsAllowedDefaultLocationOverride())
+                            {
+                                if (await LocationMapTasks.IsCompleteLocMap(this.LocMap.ChosenLocMap))
+                                {
+                                    this.SetCurrentLocationWithChosen();
+                                }
+                                else
+                                {
+                                    if (!await LocationMapTasks.IsCompleteLocMap(defLocMapRefno))
+                                    {
+                                        var msg = "Default locations is enabled, and for this activity and product" +
+                                            " the location is not fully complete.";
+                                        throw new MessageOnlyException(msg);
+                                    }
+
+                                    this.LocMap.CurrLocMap = await LocationMapTasks.GetSLocMapFromLocMapRefno(defLocMapRefno);
+                                    this.LocMap.ChosenLocMap = this.LocMap.CurrLocMap.Clone();
+                                }
+                            }
+                            else
+                            {
+                                if (!await LocationMapTasks.IsCompleteLocMap(defLocMapRefno))
+                                {
+                                        var msg = "Default locations is enabled, and for this activity and product" +
+                                            " the location is not fully complete.";
+                                        throw new MessageOnlyException(msg);
+                                }
+
+                                this.LocMap.CurrLocMap = await LocationMapTasks.GetSLocMapFromLocMapRefno(defLocMapRefno);
+                                this.LocMap.ChosenLocMap = this.LocMap.CurrLocMap.Clone();
+                            }
+                        }
+                        else
+                        {
+                            this.SetCurrentLocationWithChosen();
+                        }
+
+                        if (!await LocationMapTasks.IsCompleteLocMap(this.LocMap.CurrLocMapRefno))
+                        {
+                            throw new MessageOnlyException("Location must be set first!");
+                        }
+
+                        this.ActItem.LocMap = this.LocMap.CurrLocMap;
 
                         actItemFoundRefno = await this.ActItem.GetActivityItemRefno(prodUnitRefno);
                         if (actItemFoundRefno > 0)
@@ -1576,6 +1629,17 @@ namespace dMobile.View.Activity
                             this.ActItem.SetSelectedActivityItem(actItemFoundRefno);
                             selectedItem = this.ActItem.SelectedActivityItem;
                             this.SelectedActivityItemFkRefno = this.ActItem.ItemFkRefno;
+
+                            if (this.SysEnv.SysSettings.IsDefaultLocToProductDefaultLoc
+                                && !this.IsAllowedDefaultLocationOverride())
+                            {
+                                var itemLocMap = await this.ActItem.GetSelectedItemLocation(this.ActItem.LocMapRefno);
+                                if (await LocationMapTasks.IsCompleteLocMap(itemLocMap))
+                                {
+                                    this.LocMap.CurrLocMap = itemLocMap;
+                                    this.LocMap.ChosenLocMap = this.LocMap.CurrLocMap.Clone();
+                                }
+                            }
                         }
                         else
                         {
@@ -1841,12 +1905,13 @@ namespace dMobile.View.Activity
                 // Do nothing as task is being canceled from IdentifyProductScanned when user
                 // declines to assign bar code to product.
             }
-            catch (MessageOnlyException ex)
+            catch (MessageOnlyException msgEx)
             {
+                var msg = (msgEx.Message.IndexOf("MSGBOX-") == -1) ? msgEx.Message : msgEx.Message["MSGBOX-".Length..];
                 await Device.InvokeOnMainThreadAsync(async () =>
                     await Application.Current.MainPage.DisplayAlert(
                         this.ActItem.GetControlDescription(),
-                        ex.Message,
+                        msg,
                         Resource.OK));
             }
             catch (GatherProductDataException ex)
@@ -1960,35 +2025,12 @@ namespace dMobile.View.Activity
                     "Yes",
                     "No"))
                 {
-                    var reqData = await this.SubmitPrintSkidLabelsRequest();
-                    if (reqData.Length > 0)
-                    {
-                        var xmlDoc = new XmlDocument();
-                        xmlDoc.LoadXml(reqData);
-                        if (reqData.Contains("<message>ERROR</message>"))
-                        {
-                            var errorDetail = xmlDoc.DocumentElement?["detail"]?.InnerText ?? string.Empty;
-                            if (errorDetail.Contains("MSGBOX-"))
-                            {
-                                throw new MessageOnlyException(
-                                    "Print all skid label(s) error." + Environment.NewLine +
-                                    errorDetail);
-                            }
-                            else
-                            {
-                                throw new Exception("Print all skid label(s) error." +
-                                    Environment.NewLine + errorDetail);
-                            }
-                        }
-                        else
-                        {
-                            await Device.InvokeOnMainThreadAsync(async () =>
-                                await Application.Current.MainPage.DisplayAlert(
-                                    this.ActItem.GetControlDescription(),
-                                    "Skid labels printed successfully.",
-                                    Resource.OK));
-                        }
-                    }
+                    await this.SubmitPrintSkidLabelsRequest();
+                    await Device.InvokeOnMainThreadAsync(async () =>
+                        await Application.Current.MainPage.DisplayAlert(
+                            this.ActItem.GetControlDescription(),
+                            "Skid labels printed successfully.",
+                            Resource.OK));
                 }
             }
         }
@@ -2000,7 +2042,9 @@ namespace dMobile.View.Activity
         private async Task<string> SubmitPrintSkidLabelsRequest()
         {
             var xmlString = await this.MakeSkidLabelsRequestString();
-            return SysCommon.SubmitComm(xmlString);
+            var responseData = SysCommon.SubmitComm(xmlString);
+            SysCommon.CheckCommResponseForErrors(responseData);
+            return responseData;
         }
 
         /// <summary>
@@ -2199,31 +2243,6 @@ namespace dMobile.View.Activity
         }
 
         /// <summary>
-        /// Set the current location.
-        /// </summary>
-        /// <param name="productInfo"><see cref="ProductInfo"/> Product information.</param>
-        /// <returns><see cref="Task"/> Task operation.</returns>
-        /// <exception cref="MessageOnlyException"> Location must be set first. Location is incomplete.</exception>
-        private async Task SetLocation(ProductInfo productInfo)
-        {
-            if (this.IsAllowedDefaultLocationOverride())
-            {
-                this.SetCurrentLocationWithChosen();
-            }
-            else
-            {
-                await this.DefaultToFloorLocation(productInfo).ConfigureAwait(false);
-            }
-
-            if (!await LocationMapTasks.IsCompleteLocMap(this.LocMap.CurrLocMapRefno))
-            {
-                throw new MessageOnlyException("Location must be set first!");
-            }
-
-            this.ActItem.LocMap = this.LocMap.CurrLocMap;
-        }
-
-        /// <summary>
         /// Set the current location with the chosen location.
         /// </summary>
         private void SetCurrentLocationWithChosen()
@@ -2233,28 +2252,6 @@ namespace dMobile.View.Activity
             {
                 // Set the current location to the chosen one, overriding and defaulting location behaviour.
                 this.LocMap.CurrLocMap = this.LocMap.ChosenLocMap.Clone();
-            }
-        }
-
-        /// <summary>
-        /// Default the location to the floor for a product.
-        /// </summary>
-        /// <param name="productInfo"><see cref="ProductInfo"/> Product information.</param>
-        /// <returns><see cref="Task"/> Task operation.</returns>
-        private async Task DefaultToFloorLocation(ProductInfo productInfo)
-        {
-            var whsLocMapRefno = LocationMapTasks.DefaultLocMapRefnoToWhsIfUnassigned(locationMapRefno: 0);
-
-            // We can't determine the product location map base on the sub type and quantity.
-            // We don't have the quantity yet, so default to the floor.
-            var tmpLocMapRefno = await LocationMapTasks.GetDefaultLocMapRefnoFromWhsProdRefno(
-                whsLocMapRefno,
-                productInfo.Refno,
-                SysCommon.ProdLocMapTypes.Floor);
-            if (await LocationMapTasks.IsCompleteLocMap(tmpLocMapRefno))
-            {
-                this.LocMap.CurrLocMap = await LocationMapTasks.GetSLocMapFromLocMapRefno(tmpLocMapRefno);
-                this.LocMap.ChosenLocMap = this.LocMap.CurrLocMap.Clone();
             }
         }
 
@@ -2612,12 +2609,13 @@ namespace dMobile.View.Activity
                 await this.ScannerDisable();
                 await this.DesignGrid();
             }
-            catch (MessageOnlyException ex)
+            catch (MessageOnlyException msgEx)
             {
+                var msg = (msgEx.Message.IndexOf("MSGBOX-") == -1) ? msgEx.Message : msgEx.Message["MSGBOX-".Length..];
                 await Device.InvokeOnMainThreadAsync(async () =>
                     await Application.Current.MainPage.DisplayAlert(
                         this.ActItem.GetControlDescription(),
-                        ex.Message,
+                        msg,
                         Resource.OK));
             }
             catch (Exception ex)
@@ -3531,7 +3529,7 @@ namespace dMobile.View.Activity
                     await Device.InvokeOnMainThreadAsync(async () =>
                         await Application.Current.MainPage.DisplayAlert(
                             this.ActItem.GetControlDescription(),
-                            "Default locations are enabled, location changes may be overridden.",
+                            "Default locations are enabled, location changes cannot be overridden here.",
                             Resource.OK));
                 }
 
@@ -3561,12 +3559,13 @@ namespace dMobile.View.Activity
                     }
                 }
             }
-            catch (MessageOnlyException ex)
+            catch (MessageOnlyException msgEx)
             {
+                var msg = (msgEx.Message.IndexOf("MSGBOX-") == -1) ? msgEx.Message : msgEx.Message["MSGBOX-".Length..];
                 await Device.InvokeOnMainThreadAsync(async () =>
                     await Application.Current.MainPage.DisplayAlert(
                         this.ActItem.GetControlDescription(),
-                        ex.Message,
+                        msg,
                         Resource.OK));
             }
             catch (Exception ex)
@@ -3678,12 +3677,13 @@ namespace dMobile.View.Activity
                     }
                 }
             }
-            catch (MessageOnlyException ex)
+            catch (MessageOnlyException msgEx)
             {
+                var msg = (msgEx.Message.IndexOf("MSGBOX-") == -1) ? msgEx.Message : msgEx.Message["MSGBOX-".Length..];
                 await Device.InvokeOnMainThreadAsync(async () =>
                     await Application.Current.MainPage.DisplayAlert(
                         this.ActItem.GetControlDescription(),
-                        ex.Message,
+                        msg,
                         Resource.OK));
             }
             catch (Exception ex)
@@ -3714,12 +3714,13 @@ namespace dMobile.View.Activity
                 // Expected menu to be recreated.
                 this.CmdSelectSkidText = "Select Skid";
             }
-            catch (MessageOnlyException ex)
+            catch (MessageOnlyException msgEx)
             {
+                var msg = (msgEx.Message.IndexOf("MSGBOX-") == -1) ? msgEx.Message : msgEx.Message["MSGBOX-".Length..];
                 await Device.InvokeOnMainThreadAsync(async () =>
                     await Application.Current.MainPage.DisplayAlert(
                         this.ActItem.GetControlDescription(),
-                        ex.Message,
+                        msg,
                         Resource.OK));
             }
             catch (Exception ex)
@@ -3840,12 +3841,13 @@ namespace dMobile.View.Activity
 
                 await this.RefreshBySubType();
             }
-            catch (MessageOnlyException ex)
+            catch (MessageOnlyException msgEx)
             {
+                var msg = (msgEx.Message.IndexOf("MSGBOX-") == -1) ? msgEx.Message : msgEx.Message["MSGBOX-".Length..];
                 await Device.InvokeOnMainThreadAsync(async () =>
                     await Application.Current.MainPage.DisplayAlert(
                         this.ActItem.GetControlDescription(),
-                        ex.Message,
+                        msg,
                         Resource.OK));
             }
             catch (Exception ex)
@@ -3973,12 +3975,13 @@ namespace dMobile.View.Activity
             {
                 // Do nothing.
             }
-            catch (MessageOnlyException ex)
+            catch (MessageOnlyException msgEx)
             {
+                var msg = (msgEx.Message.IndexOf("MSGBOX-") == -1) ? msgEx.Message : msgEx.Message["MSGBOX-".Length..];
                 await Device.InvokeOnMainThreadAsync(async () =>
                     await Application.Current.MainPage.DisplayAlert(
                         this.ActItem.GetControlDescription(),
-                        ex.Message,
+                        msg,
                         Resource.OK));
             }
             catch (Exception ex)

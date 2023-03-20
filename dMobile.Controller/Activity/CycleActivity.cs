@@ -444,7 +444,7 @@ namespace dMobile.Controller.Activity
 
                 var cycleCount = new TableActivityCycleCount();
                 cycleCount.RegisterDataAccessListenerProgressOut((IDataAccessEventListener)this);
-                await cycleCount.RequestData();
+                await cycleCount.RequestHeaderData();
                 cycleCount.UnregisterDataAccessListenerProgressOut((IDataAccessEventListener)this);
             }
         }

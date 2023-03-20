@@ -257,12 +257,13 @@ namespace dMobile.View.Forms
                     }
                 }
             }
-            catch (MessageOnlyException ex)
+            catch (MessageOnlyException msgEx)
             {
+                var msg = (msgEx.Message.IndexOf("MSGBOX-") == -1) ? msgEx.Message : msgEx.Message["MSGBOX-".Length..];
                 e.Cancel = true;
                 await Device.InvokeOnMainThreadAsync(async () => await this.DisplayAlert(
                     Resource.Barcode,
-                    ex.Message,
+                    msg,
                     Resource.OK));
             }
             catch (SQLiteException ex)

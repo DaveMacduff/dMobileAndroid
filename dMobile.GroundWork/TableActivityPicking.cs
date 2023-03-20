@@ -27,60 +27,9 @@ namespace dMobile.GroundWork
       : base()
         {
             this.FullClassName = "dMobile.GroundWork.TableActivityPicking";
-        }
-
-        /// <summary>
-        /// The RequestData.
-        /// </summary>
-        /// <param name="criteria"></param>
-        public override async Task RequestData(XDocument criteria)
-        {
-            try
-            {
-                this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Seeding sales orders.", true);
-
-                var reqData = await this.SendRequest(criteria);
-                if (reqData.Length > 0)
-                {
-                    if (reqData.Contains("<message>ERROR</message>"))
-                    {
-                        var reqErr = new XmlDocument();
-                        reqErr.LoadXml(reqData);
-                        throw new Exception(reqErr.DocumentElement["detail"].InnerText);
-                    }
-
-                    await this.Save(reqData);
-                }
-
-                this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Seeding sales orders complete.", true);
-            }
-            catch (Exception ex)
-            {
-                this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Seeding sales orders failed.", true);
-
-                throw new Exception("Seeding sales orders failed.", ex);
-            }
-        }
-
-        /// <summary>
-        /// The DataStatus.
-        /// </summary>
-        /// <returns>The <see cref="int"/>.</returns>
-        public override async Task<int> DataStatus()
-        {
-            int rowsAffected;
-            try
-            {
-                rowsAffected = Convert.ToInt32(await DatabaseConnection.GetInstance().SQLConn.ExecuteScalarAsync<int>("SELECT COUNT(ActivityRefno) FROM tActivity WHERE ActivitySubType = ?", Convert.ToInt32(SysCommon.ActSubTypes.Picking)));
-
-                this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"{rowsAffected} sales orders.", true);
-            }
-            catch (SQLiteException ex)
-            {
-                throw new Exception("Database exception occurred. Sales orders status failed.", ex);
-            }
-
-            return rowsAffected;
+            this.CurrentSubType = SysCommon.ActSubTypes.Picking;
+            this.LowerCaseName = "sales orders";
+            this.ProperCaseName = "Sales orders";
         }
 
         /// <summary>
@@ -113,29 +62,19 @@ namespace dMobile.GroundWork
         }
 
         /// <summary>
-        /// The SendRequest.
-        /// </summary>
-        /// <param name="criteria">The criteria<see cref="XDocument"/>.</param>
-        /// <returns></returns>
-        protected override async Task<string> SendRequest(XDocument criteria)
-        {
-            return await this.SendComm(await this.CreateRequest(criteria));
-        }
-
-        /// <summary>
         /// The Save.
         /// </summary>
-        /// <param name="reqData"></param>
-        protected override async Task Save(string reqData)
+        /// <param name="responseData"></param>
+        protected override async Task Save(string responseData)
         {
             await DatabaseConnection.GetInstance().SQLConn.RunInTransactionAsync(transaction =>
             {
                 try
                 {
                     using var ds = new DataSet();
-                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Reading received data.", false);
+                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Reading received responseData.", false);
 
-                    ds.ReadXml(SysCommon.GetXmlReader(ref reqData), XmlReadMode.Auto);
+                    ds.ReadXml(SysCommon.GetXmlReader(ref responseData), XmlReadMode.Auto);
 
                     this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving sales orders.", false);
 
@@ -290,6 +229,77 @@ namespace dMobile.GroundWork
             xml.Close();
 
             return xmlString.ToString();
+        }
+
+        protected async override Task<string> CreateRequest()
+        {
+            var xmlString = new StringBuilder();
+            var xml = XmlWriter.Create(xmlString);
+            XDocument request;
+            request = XDocument.Parse(
+                "<?xml version=\"1.0\" encoding=\"utf-8\" standalone=\"yes\"?>"
+                + "<imclient>"
+                + "<command>"
+                + "<action>REQUEST SALES ORDERS</action>"
+                + await SysCommon.GetRequestDefaults(false)
+                + "<whs_id></whs_id>"
+                + "<sect_refno></sect_refno>"
+                + "</command>"
+                + "</imclient>");
+            request.Save(xml);
+            xml.Flush();
+            xml.Close();
+
+            return xmlString.ToString();        }
+
+        protected override Task<string> CreateRequest(string familyCode)
+        {
+            throw new NotImplementedException();
+        }
+
+        protected override Task<string> CreateRequest(int activityItemFkRefno)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override Task RequestData(int actRefno)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override Task PurgeData(int sectLocMapRefno)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override Task PurgeData(SysCommon.ActSubTypes actSubType)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override Task<int> DataStatus()
+        {
+            throw new NotImplementedException();
+        }
+
+        protected override Task Save(string responseData, int refno)
+        {
+            throw new NotImplementedException();
+        }
+
+        protected override Task<string> CreateRequest(int activityItemFkRefno, XDocument criteria)
+        {
+            throw new NotImplementedException();
+        }
+
+        protected override Task<string> CreateRequest(int prodLocMapType, int whsLocMapFKRefno)
+        {
+            throw new NotImplementedException();
+        }
+
+        protected override Task<string> CreateRequestProdLoc(int prodLocMapType)
+        {
+            throw new NotImplementedException();
         }
     }
 }

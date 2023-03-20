@@ -157,22 +157,14 @@ namespace dMobile.Controller.Activity
                     xml.Flush();
                     xml.Close();
 
-                    var reqData = SysCommon.SubmitComm(xmlString.ToString());
-
-                    if (reqData.Length > 0)
+                    var responseData = SysCommon.SubmitComm(xmlString.ToString());
+                    if (responseData.Contains("<message>ERROR</message>"))
                     {
-                        if (reqData.Contains("<message>ERROR</message>"))
-                        {
-                            var docError = new XmlDocument();
-                            docError.LoadXml(reqData);
-                            var errorDetail = docError.DocumentElement["detail"].InnerText;
+                        var docError = new XmlDocument();
+                        docError.LoadXml(responseData);
+                        var errorDetail = docError.DocumentElement["detail"].InnerText;
 
-                            throw new Exception(string.Format("Release order # {0} to invoice status failed." + Environment.NewLine + errorDetail, this.HdrFkRefno, null));
-                        }
-                    }
-                    else
-                    {
-                        throw new Exception($"Release order # {this.HdrFkRefno} to invoice status failed.");
+                        throw new Exception(string.Format("Release order # {0} to invoice status failed." + Environment.NewLine + errorDetail, this.HdrFkRefno, null));
                     }
 
                     isResult = true;
@@ -578,7 +570,7 @@ namespace dMobile.Controller.Activity
                 var tableActPicking = new TableActivityPicking();
 
                 tableActPicking.RegisterDataAccessListenerProgressOut((IDataAccessEventListener)this);
-                await tableActPicking.RequestData(data);
+                await tableActPicking.RequestHeaderData(data);
                 tableActPicking.UnregisterDataAccessListenerProgressOut((IDataAccessEventListener)this);
             }
         }

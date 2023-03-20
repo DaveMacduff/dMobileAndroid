@@ -522,7 +522,7 @@ namespace dMobile.Bedrock
 
             try
             {
-                var reqData = string.Empty;
+                var responseData = string.Empty;
 
                 if (OnSysSettingsStatusOut != null)
                 {
@@ -531,36 +531,26 @@ namespace dMobile.Bedrock
                 }
 
                 // First request
-                reqData = SendFirstRequest();
-
-                if (reqData.Length > 0)
+                responseData = SendFirstRequest();
+                if (responseData.Contains("<message>ERROR</message>"))
                 {
-                    // check if result is an error message
-                    if (reqData.Contains("<message>ERROR</message>"))
-                    {
-                        var docError = new XmlDocument();
-                        docError.LoadXml(reqData);
-                        throw new Exception(docError.DocumentElement["detail"].InnerText);
-                    }
-
-                    Save(reqData, 1, ref settings);
+                    var docError = new XmlDocument();
+                    docError.LoadXml(responseData);
+                    throw new Exception(docError.DocumentElement["detail"].InnerText);
                 }
+
+                Save(responseData, 1, ref settings);
 
                 // Second request
-                reqData = SendSecondRequest();
-
-                if (reqData.Length > 0)
+                responseData = SendSecondRequest();
+                if (responseData.Contains("<message>ERROR</message>"))
                 {
-                    // check if result is an error message
-                    if (reqData.Contains("<message>ERROR</message>"))
-                    {
-                        var docError = new XmlDocument();
-                        docError.LoadXml(reqData);
-                        throw new Exception(docError.DocumentElement["detail"].InnerText);
-                    }
-
-                    Save(reqData, 2, ref settings);
+                    var docError = new XmlDocument();
+                    docError.LoadXml(responseData);
+                    throw new Exception(docError.DocumentElement["detail"].InnerText);
                 }
+
+                Save(responseData, 2, ref settings);
 
                 if (OnSysSettingsStatusOut != null)
                 {
@@ -601,10 +591,10 @@ namespace dMobile.Bedrock
         /// <summary>
         /// The Save.
         /// </summary>
-        /// <param name="reqData">.</param>
+        /// <param name="responseData">.</param>
         /// <param name="sysSettingsNumber">The sysSettingsNumber<see cref="int"/>.</param>
         /// <param name="settings">The settings<see cref="SystemSettings"/>.</param>
-        private static void Save(string reqData, int sysSettingsNumber, ref SystemSettings settings)
+        private static void Save(string responseData, int sysSettingsNumber, ref SystemSettings settings)
         {
             var msgEventArg = new SysSettingsEventArgs();
 
@@ -617,7 +607,7 @@ namespace dMobile.Bedrock
                     OnSysSettingsStatusOut(settings, msgEventArg);
                 }
 
-                _ = ds.ReadXml(SysCommon.GetXmlReader(ref reqData), XmlReadMode.Auto);
+                _ = ds.ReadXml(SysCommon.GetXmlReader(ref responseData), XmlReadMode.Auto);
 
                 if (OnSysSettingsStatusOut != null)
                 {

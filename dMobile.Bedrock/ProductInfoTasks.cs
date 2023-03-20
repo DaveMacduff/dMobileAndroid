@@ -504,22 +504,12 @@ namespace dMobile.Bedrock
                 xml.Flush();
                 xml.Close();
 
-                var reqData = SysCommon.SubmitComm(xmlString.ToString());
-                if (reqData.Length > 0)
-                {
-                    if (reqData.Contains("<message>ERROR</message>"))
-                    {
-                        var docError = new XmlDocument();
-                        docError.LoadXml(reqData);
-                        throw new Exception(docError.DocumentElement["detail"].InnerText);
-                    }
+                var responseData = SysCommon.SubmitComm(xmlString.ToString());
+                var xmlResult = new XmlDocument();
+                xmlResult.LoadXml(responseData);
 
-                    var xmlResult = new XmlDocument();
-                    xmlResult.LoadXml(reqData);
-
-                    singleTradeItemSerialNumber = xmlResult.SelectSingleNode(
-                        "/VFPData/SingleTradeUnitSerialNumber").FirstChild.Value.PadRight(20);
-                }
+                singleTradeItemSerialNumber = xmlResult.SelectSingleNode(
+                    "/VFPData/SingleTradeUnitSerialNumber").FirstChild.Value.PadRight(20);
             }
 
             return singleTradeItemSerialNumber;

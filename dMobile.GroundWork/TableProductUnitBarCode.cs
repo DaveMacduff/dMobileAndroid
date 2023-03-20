@@ -38,7 +38,7 @@ namespace dMobile.GroundWork
             {
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Seeding product uom bar codes.", true);
 
-                var reqData = string.Empty;
+                var responseData = string.Empty;
                 var results = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<tFamilyModel>("SELECT * FROM tFamily");
 
                 if (results?.Count > 0)
@@ -47,19 +47,8 @@ namespace dMobile.GroundWork
                     {
                         this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"For family {family.FamilyCode}", true);
 
-                        reqData = await this.SendRequest(family.FamilyCode);
-
-                        if (reqData.Length > 0)
-                        {
-                            if (reqData.Contains("<message>ERROR</message>"))
-                            {
-                                var reqErr = new XmlDocument();
-                                reqErr.LoadXml(reqData);
-                                throw new Exception(reqErr.DocumentElement["detail"].InnerText);
-                            }
-
-                            await this.SaveOpt(reqData);
-                        }
+                        responseData = await this.SendRequest(family.FamilyCode);
+                        await this.SaveOpt(responseData);
                     }
 
                     this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Seeding product uom bar codes complete.", true);
@@ -137,16 +126,16 @@ namespace dMobile.GroundWork
         /// <summary>
         /// The Save.
         /// </summary>
-        /// <param name="reqData"></param>
-        protected override async Task Save(string reqData)
+        /// <param name="responseData"></param>
+        protected override async Task Save(string responseData)
         {
         }
 
         /// <summary>
         /// The SaveOpt.
         /// </summary>
-        /// <param name="reqData"></param>
-        protected async Task SaveOpt(string reqData)
+        /// <param name="responseData"></param>
+        protected async Task SaveOpt(string responseData)
         {
             var errMsg = string.Empty;
             var refreshDataChangesOnly = this.SysEnv.RefreshOpt.RefreshDataChangesOnly;
@@ -156,9 +145,9 @@ namespace dMobile.GroundWork
             {
                 try
                 {
-                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Reading received data.", false);
+                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Reading received responseData.", false);
 
-                    var startIndex = reqData.IndexOf("<VFPData", StringComparison.Ordinal);
+                    var startIndex = responseData.IndexOf("<VFPData", StringComparison.Ordinal);
                     var sett = new XmlReaderSettings
                     {
                         CheckCharacters = false,
@@ -171,7 +160,7 @@ namespace dMobile.GroundWork
                         ValidationType = ValidationType.None,
                     };
 
-                    using var stringReader = new StringReader(reqData.Substring(startIndex));
+                    using var stringReader = new StringReader(responseData.Substring(startIndex));
                     using var reader = XmlReader.Create(stringReader, sett);
                     this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving product uom bar codes.", false);
 
@@ -338,7 +327,7 @@ namespace dMobile.GroundWork
                         {
                             this.DataAccessProgressOutHandler(this, EventArgs.Empty, recordCount / 10 % 100, 0, 100);
                         }
-                    } // end of data
+                    } // end of responseData
 
                     this.DataAccessProgressOutHandler(this, EventArgs.Empty, 100, 0, 100);
 
@@ -386,6 +375,56 @@ namespace dMobile.GroundWork
             xml.Close();
 
             return xmlString.ToString();
+        }
+
+        public override Task RequestData(int actRefno)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override Task PurgeData(int sectLocMapRefno)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override Task PurgeData(SysCommon.ActSubTypes actSubType)
+        {
+            throw new NotImplementedException();
+        }
+
+        protected override Task Save(string responseData, int refno)
+        {
+            throw new NotImplementedException();
+        }
+
+        protected override Task<string> CreateRequest()
+        {
+            throw new NotImplementedException();
+        }
+
+        protected override Task<string> CreateRequest(XDocument criteria)
+        {
+            throw new NotImplementedException();
+        }
+
+        protected override Task<string> CreateRequest(int activityItemFkRefno)
+        {
+            throw new NotImplementedException();
+        }
+
+        protected override Task<string> CreateRequest(int activityItemFkRefno, XDocument criteria)
+        {
+            throw new NotImplementedException();
+        }
+
+        protected override Task<string> CreateRequest(int prodLocMapType, int whsLocMapFKRefno)
+        {
+            throw new NotImplementedException();
+        }
+
+        protected override Task<string> CreateRequestProdLoc(int prodLocMapType)
+        {
+            throw new NotImplementedException();
         }
     }
 }

@@ -176,7 +176,7 @@ namespace dMobile.View.Activity
         /// <summary>
         /// Gets or sets a value indicating whether to performing loading data upon got focus.
         /// </summary>
-        private bool FirstOnAppearing { get; set; } = true;
+        private bool IsFirstAppearance { get; set; } = true;
 
         /// <summary>
         /// Un-register the bar code scan event handler and disable the scanner.
@@ -244,12 +244,13 @@ namespace dMobile.View.Activity
                     });
                 }
             }
-            catch (MessageOnlyException ex)
+            catch (MessageOnlyException msgEx)
             {
+                var msg = (msgEx.Message.IndexOf("MSGBOX-") == -1) ? msgEx.Message : msgEx.Message["MSGBOX-".Length..];
                 await Device.InvokeOnMainThreadAsync(async () =>
                     await Application.Current.MainPage.DisplayAlert(
                         this.ActDetail.GetControlDescription(),
-                        ex.Message,
+                        msg,
                         Resource.OK));
             }
             catch (Exception ex)
@@ -866,13 +867,14 @@ namespace dMobile.View.Activity
             try
             {
             }
-            catch (MessageOnlyException ex)
+            catch (MessageOnlyException msgEx)
             {
+                var msg = (msgEx.Message.IndexOf("MSGBOX-") == -1) ? msgEx.Message : msgEx.Message["MSGBOX-".Length..];
                 isReadyToClose = false;
                 await Device.InvokeOnMainThreadAsync(async () =>
                     await Application.Current.MainPage.DisplayAlert(
                         GetControlDescription(),
-                        ex.Message,
+                        msg,
                         Resource.OK));
             }
             catch (Exception ex)
@@ -946,13 +948,14 @@ namespace dMobile.View.Activity
                     saveComplete = false;
                 }
             }
-            catch (MessageOnlyException ex)
+            catch (MessageOnlyException msgEx)
             {
+                var msg = (msgEx.Message.IndexOf("MSGBOX-") == -1) ? msgEx.Message : msgEx.Message["MSGBOX-".Length..];
                 saveComplete = false;
                 await Device.InvokeOnMainThreadAsync(async () =>
                     await Application.Current.MainPage.DisplayAlert(
                         this.ActDetail.GetControlDescription(),
-                        ex.Message,
+                        msg,
                         Resource.OK));
             }
             catch (Exception ex)
@@ -997,13 +1000,14 @@ namespace dMobile.View.Activity
                     this.IsChangesMade = false;
                 }
             }
-            catch (MessageOnlyException ex)
+            catch (MessageOnlyException msgEx)
             {
+                var msg = (msgEx.Message.IndexOf("MSGBOX-") == -1) ? msgEx.Message : msgEx.Message["MSGBOX-".Length..];
                 cancelChanges = false;
                 await Device.InvokeOnMainThreadAsync(async () =>
                     await Application.Current.MainPage.DisplayAlert(
                         this.ActDetail.GetControlDescription(),
-                        ex.Message,
+                        msg,
                         Resource.OK));
             }
             catch (Exception ex)
@@ -1047,9 +1051,9 @@ namespace dMobile.View.Activity
             try
             {
                 this.Loading = true;
-                if (this.FirstOnAppearing)
+                if (this.IsFirstAppearance)
                 {
-                    this.FirstOnAppearing = false;
+                    this.IsFirstAppearance = false;
                     ////this.ListViewDisplayExtraInfo.ItemsSource = this.ExtraInfoItems;
                     await InitControlState();
                     await ScannerStart();
@@ -1560,14 +1564,13 @@ namespace dMobile.View.Activity
                             {
                                 await this.PrintProductLabels();
                             }
-                            catch (MessageOnlyException ex)
+                            catch (MessageOnlyException msgEx)
                             {
-                                // Even though an error was raised, during label printing
-                                // allow the control to close.
+                                var msg = (msgEx.Message.IndexOf("MSGBOX-") == -1) ? msgEx.Message : msgEx.Message["MSGBOX-".Length..];
                                 await Device.InvokeOnMainThreadAsync(async () =>
                                     await Application.Current.MainPage.DisplayAlert(
                                         GetControlDescription(),
-                                        ex.Message,
+                                        msg,
                                         Resource.OK));
                             }
                             catch (Exception ex)
@@ -1686,25 +1689,7 @@ namespace dMobile.View.Activity
                 {
                     var sendReq = await this.ActDetail.CreateSubmitProductLabelXml(
                         await this.ActDetailEdit.GetXmlFromActivityDetailEdit(this.ActDetailEdit));
-                    var reqData = SysCommon.SubmitComm(sendReq);
-                    if (reqData.Length > 0)
-                    {
-                        if (reqData.Contains("<message>ERROR</message>"))
-                        {
-                            var docError = new XmlDocument();
-                            docError.LoadXml(reqData);
-                            var errorDetail = docError.DocumentElement["detail"].InnerText;
-
-                            if (errorDetail.Contains("MSGBOX-"))
-                            {
-                                throw new MessageOnlyException(errorDetail);
-                            }
-                            else
-                            {
-                                throw new Exception(errorDetail);
-                            }
-                        }
-                    }
+                    _ = SysCommon.SubmitComm(sendReq);
                 }
             }
         }
@@ -1755,13 +1740,15 @@ namespace dMobile.View.Activity
                             {
                                 await this.PrintProductLabels();
                             }
-                            catch (MessageOnlyException ex)
+                            catch (MessageOnlyException msgEx)
                             {
+                                var msg = (msgEx.Message.IndexOf("MSGBOX-") == -1) ? msgEx.Message : msgEx.Message["MSGBOX-".Length..];
+
                                 // Even though an error was raised, during label printing allow the control to close.
                                 await Device.InvokeOnMainThreadAsync(async () =>
                                     await Application.Current.MainPage.DisplayAlert(
                                         GetControlDescription(),
-                                        ex.Message,
+                                        msg,
                                         Resource.OK));
                             }
                             catch (Exception ex)

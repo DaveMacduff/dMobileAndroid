@@ -235,51 +235,28 @@ namespace dMobile.Controller.Activity_Detail
                     + "<params>"
                     + "</params>");
 
-                var reqData = SysCommon.SubmitComm(await this.CreateSubmitXml(xmldocParams));
-
+                var responseData = SysCommon.SubmitComm(await this.CreateSubmitXml(xmldocParams));
                 this.ListDetails = await this.GetActivityDetailList(false);
+                using var ds = new DataSet();
+                ds.ReadXml(SysCommon.GetXmlReader(ref responseData), XmlReadMode.Auto);
 
-                if (reqData.Length > 0)
+                if (ds.Tables.Count != 0)
                 {
-                    if (reqData.Contains("<message>ERROR</message>"))
+                    // TODO: Test
+                    foreach (DataRow row in ds.Tables["tActivityDetail"].Rows)
                     {
-                        var xmlDoc = new XmlDocument();
-                        xmlDoc.LoadXml(reqData);
-                        var errorDetail = xmlDoc.DocumentElement["detail"].InnerText;
-
-                        if (errorDetail.Contains("MSGBOX-"))
+                        var inquiryDetail = new InventoryInquiryDetail
                         {
-                            throw new MessageOnlyException(errorDetail);
-                        }
-                        else
-                        {
-                            throw new Exception(errorDetail);
-                        }
-                    }
-                    else
-                    {
-                        using var ds = new DataSet();
-                        ds.ReadXml(SysCommon.GetXmlReader(ref reqData), XmlReadMode.Auto);
+                            ProductCode = Convert.ToString(row["ProductCode"] != DBNull.Value ? row["ProductCode"] : null),
+                            ProductUnitBC = Convert.ToString(row["ProductUnitBC"] != DBNull.Value ? row["ProductUnitBC"] : null),
+                            UnitCode = Convert.ToString(row["UnitCode"] != DBNull.Value ? row["UnitCode"] : null),
+                            WtUnitCode = Convert.ToString(row["WeightUnitCode"] != DBNull.Value ? row["WeightUnitCode"] : null),
+                            ActivityDetailQuantity = Convert.ToDecimal(row["ActivityDetailQuantity"] != DBNull.Value ? row["ActivityDetailQuantity"] : null),
+                            ActivityDetailWeightQuantity = Convert.ToDecimal(row["ActivityDetailWeightQuantity"] != DBNull.Value ? row["ActivityDetailWeightQuantity"] : null),
+                            ActivityDetailSchemeID = Convert.ToString(row["ActivityDetailSchemeID"] != DBNull.Value ? row["ActivityDetailSchemeID"] : null),
+                        };
 
-                        if (ds.Tables.Count != 0)
-                        {
-                            // TODO: Test
-                            foreach (DataRow row in ds.Tables["tActivityDetail"].Rows)
-                            {
-                                var inquiryDetail = new InventoryInquiryDetail
-                                {
-                                    ProductCode = Convert.ToString(row["ProductCode"] != DBNull.Value ? row["ProductCode"] : null),
-                                    ProductUnitBC = Convert.ToString(row["ProductUnitBC"] != DBNull.Value ? row["ProductUnitBC"] : null),
-                                    UnitCode = Convert.ToString(row["UnitCode"] != DBNull.Value ? row["UnitCode"] : null),
-                                    WtUnitCode = Convert.ToString(row["WeightUnitCode"] != DBNull.Value ? row["WeightUnitCode"] : null),
-                                    ActivityDetailQuantity = Convert.ToDecimal(row["ActivityDetailQuantity"] != DBNull.Value ? row["ActivityDetailQuantity"] : null),
-                                    ActivityDetailWeightQuantity = Convert.ToDecimal(row["ActivityDetailWeightQuantity"] != DBNull.Value ? row["ActivityDetailWeightQuantity"] : null),
-                                    ActivityDetailSchemeID = Convert.ToString(row["ActivityDetailSchemeID"] != DBNull.Value ? row["ActivityDetailSchemeID"] : null),
-                                };
-
-                                this.ListDetails.Add(inquiryDetail);
-                            }
-                        }
+                        this.ListDetails.Add(inquiryDetail);
                     }
                 }
             }

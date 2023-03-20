@@ -112,7 +112,7 @@ namespace dMobile.View.Activity
         /// <summary>
         /// Gets or sets a value indicating whether to performing loading data upon got focus.
         /// </summary>
-        private bool FirstOnAppearing { get; set; } = true;
+        private bool IsFirstAppearance { get; set; } = true;
 
         /// <summary>
         /// Unregister the bar code scan event handler and disable the scanner.
@@ -352,11 +352,11 @@ namespace dMobile.View.Activity
 
             try
             {
-                if (this.FirstOnAppearing)
+                if (this.IsFirstAppearance)
                 {
                     await this.ActItemInventoryInquiry_GotFocus(this, EventArgs.Empty);
                     await this.RefreshData();
-                    this.FirstOnAppearing = false;
+                    this.IsFirstAppearance = false;
                 }
             }
             catch (Exception ex)

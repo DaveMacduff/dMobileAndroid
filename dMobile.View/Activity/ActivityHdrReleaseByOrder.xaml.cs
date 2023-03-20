@@ -32,14 +32,9 @@ namespace dMobile.View.Activity
         private List<string> optionsMenuItems = new List<string>();
 
         /// <summary>
-        ///
+        /// Initializes a new instance of the <see cref="ActivityHdrReleaseByOrder"/> class.
         /// </summary>
-        /// <param name="_ActivitySubTypes"></param>
-        /// <remarks></remarks>
-/// <summary>
-/// Initializes a new instance of the <see cref="ActivityHdrReleaseByOrder"/> class.
-/// </summary>
-/// <param name="actSubTypes"></param>
+        /// <param name="actSubTypes"></param>
         public ActivityHdrReleaseByOrder(SysCommon.ActSubTypes actSubTypes)
         {
             this.InitializeComponent();

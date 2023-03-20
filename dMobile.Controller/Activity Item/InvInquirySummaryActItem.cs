@@ -611,51 +611,35 @@ namespace dMobile.Controller.Activity_Item
             {
                 this.DataLayerProgressOutHandler(this, EventArgs.Empty, 5);
 
-                var reqData = SysCommon.SubmitComm(await this.CreateSubmitXml(data));
+                var responseData = SysCommon.SubmitComm(await this.CreateSubmitXml(data));
                 this.ListItems = await this.GetActivityItemList(false);
-
-                if (reqData.Length > 0)
+                this.DataLayerProgressOutHandler(this, EventArgs.Empty, 50);
+                using (var ds = new DataSet())
                 {
-                    if (reqData.Contains("<message>ERROR</message>"))
-                    {
-                        var xmlDoc = new XmlDocument();
-                        xmlDoc.LoadXml(reqData);
-                        throw new Exception(xmlDoc.DocumentElement["detail"].InnerText);
-                    }
-                    else
-                    {
-                        this.DataLayerProgressOutHandler(this, EventArgs.Empty, 50);
+                    ds.ReadXml(SysCommon.GetXmlReader(ref responseData), XmlReadMode.Auto);
 
-                        using (var ds = new DataSet())
+                    if (ds.Tables.Count != 0)
+                    {
+                        foreach (DataRow row in ds.Tables["tActivityItem"].Rows)
                         {
-                            ds.ReadXml(SysCommon.GetXmlReader(ref reqData), XmlReadMode.Auto);
-
-                            if (ds.Tables.Count != 0)
+                            var activityItem = new ActivityItem
                             {
-                                foreach (DataRow row in ds.Tables["tActivityItem"].Rows)
-                                {
-                                    var activityItem = new ActivityItem
-                                    {
-                                        ProductCode = Convert.ToString(row["ProductCode"] != DBNull.Value ? row["ProductCode"] : null),
-                                        ProductUnitBC = Convert.ToString(row["ProductUnitBC"] != DBNull.Value ? row["ProductUnitBC"] : null),
-                                        UnitCode = Convert.ToString(row["UnitCode"] != DBNull.Value ? row["UnitCode"] : null),
-                                        WeightUnitCode = Convert.ToString(row["WeightUnitCode"] != DBNull.Value ? row["WeightUnitCode"] : null),
-                                        ActivityDetailLogisticUnitProductionDate = Convert.ToString(row["ActivityDetailLogisticUnitProductionDate"] != DBNull.Value ? row["ActivityDetailLogisticUnitProductionDate"] : null),
-                                        ActivityDetailLogisticUnitBestBeforeSellByDate = Convert.ToString(row["ActivityDetailLogisticUnitBestbeforesellbydate"] != DBNull.Value ? row["ActivityDetailLogisticUnitBestbeforesellbydate"] : null),
-                                        LocationMapWarehouseFKRefno = Convert.ToString(row["LocationMapWarehouseFKRefno"] != DBNull.Value ? row["LocationMapWarehouseFKRefno"] : null),
-                                        LocationMapSectionFKRefno = Convert.ToString(row["LocationMapSectionFKRefno"] != DBNull.Value ? row["LocationMapSectionFKRefno"] : null),
-                                        LocationMapSlotFKRefno = Convert.ToString(row["LocationMapSlotFKRefno"] != DBNull.Value ? row["LocationMapSlotFKRefno"] : null),
-                                        SkidCode = Convert.ToString(row["SkidCode"] != DBNull.Value ? row["SkidCode"] : null),
-                                        ActivityItemQuantity = Convert.ToDecimal(row["ActivityItemQuantity"] != DBNull.Value ? row["ActivityItemQuantity"] : null),
-                                        ActivityItemWeightQuantity = Convert.ToDecimal(row["ActivityItemWeightQuantity"] != DBNull.Value ? row["ActivityItemWeightQuantity"] : null),
-                                    };
+                                ProductCode = Convert.ToString(row["ProductCode"] != DBNull.Value ? row["ProductCode"] : null),
+                                ProductUnitBC = Convert.ToString(row["ProductUnitBC"] != DBNull.Value ? row["ProductUnitBC"] : null),
+                                UnitCode = Convert.ToString(row["UnitCode"] != DBNull.Value ? row["UnitCode"] : null),
+                                WeightUnitCode = Convert.ToString(row["WeightUnitCode"] != DBNull.Value ? row["WeightUnitCode"] : null),
+                                ActivityDetailLogisticUnitProductionDate = Convert.ToString(row["ActivityDetailLogisticUnitProductionDate"] != DBNull.Value ? row["ActivityDetailLogisticUnitProductionDate"] : null),
+                                ActivityDetailLogisticUnitBestBeforeSellByDate = Convert.ToString(row["ActivityDetailLogisticUnitBestbeforesellbydate"] != DBNull.Value ? row["ActivityDetailLogisticUnitBestbeforesellbydate"] : null),
+                                LocationMapWarehouseFKRefno = Convert.ToString(row["LocationMapWarehouseFKRefno"] != DBNull.Value ? row["LocationMapWarehouseFKRefno"] : null),
+                                LocationMapSectionFKRefno = Convert.ToString(row["LocationMapSectionFKRefno"] != DBNull.Value ? row["LocationMapSectionFKRefno"] : null),
+                                LocationMapSlotFKRefno = Convert.ToString(row["LocationMapSlotFKRefno"] != DBNull.Value ? row["LocationMapSlotFKRefno"] : null),
+                                SkidCode = Convert.ToString(row["SkidCode"] != DBNull.Value ? row["SkidCode"] : null),
+                                ActivityItemQuantity = Convert.ToDecimal(row["ActivityItemQuantity"] != DBNull.Value ? row["ActivityItemQuantity"] : null),
+                                ActivityItemWeightQuantity = Convert.ToDecimal(row["ActivityItemWeightQuantity"] != DBNull.Value ? row["ActivityItemWeightQuantity"] : null),
+                            };
 
-                                    this.ListItems.Add(activityItem);
-                                }
-                            }
+                            this.ListItems.Add(activityItem);
                         }
-
-                        this.DataLayerProgressOutHandler(this, EventArgs.Empty, 80);
                     }
                 }
 

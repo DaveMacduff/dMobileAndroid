@@ -54,7 +54,7 @@ namespace dMobile.View.Activity
             this.cmdAdd.IsEnabled = false;
             this.FilterText = "Filter";
             this.FilterIsEnabled = true;
-            this.FirstOnAppearing = true;
+            this.IsFirstAppearance = true;
             this.SysEnv = SysEnvironment.GetInstance();
             this.Scanner = ScannerEngine.GetInstance().Scanner;
             this.ActSubType = activitySubType;
@@ -67,6 +67,13 @@ namespace dMobile.View.Activity
                 this.ActHdr.SkidInfo = new SysSkidInfo();
             }
         }
+
+        ////protected override async void OnElementChanged(VisualElementChangedEventArgs e)
+        ////{
+        ////    base.OnElementChanged(e);
+
+        ////    this.ScrollbarFadingEnabled = false;
+        ////}
 
         /// <summary>
         /// Gets or sets the selected activity foreign key reference number.
@@ -167,7 +174,7 @@ namespace dMobile.View.Activity
         /// Gets or sets a value indicating whether to show the pick selection screen during the
         /// the form appearing event. We only want to show it once.
         /// </summary>
-        private bool FirstOnAppearing { get; set; } = true;
+        private bool IsFirstAppearance { get; set; } = true;
 
         /// <summary>
         /// Unregister the bar code scan event handler and disable the scanner.
@@ -289,13 +296,14 @@ namespace dMobile.View.Activity
                     throw new Exception("Data failed validation. Check your data.");
                 }
             }
-            catch (MessageOnlyException ex)
+            catch (MessageOnlyException msgEx)
             {
+                var msg = (msgEx.Message.IndexOf("MSGBOX-") == -1) ? msgEx.Message : msgEx.Message["MSGBOX-".Length..];
                 saveComplete = false;
                 await Device.InvokeOnMainThreadAsync(async () =>
                     await Application.Current.MainPage.DisplayAlert(
                         this.ActHdr.GetControlDescription(),
-                        ex.Message,
+                        msg,
                         Resource.OK));
             }
             catch (Exception ex)
@@ -338,13 +346,14 @@ namespace dMobile.View.Activity
                     cancelChanges = false;
                 }
             }
-            catch (MessageOnlyException ex)
+            catch (MessageOnlyException msgEx)
             {
+                var msg = (msgEx.Message.IndexOf("MSGBOX-") == -1) ? msgEx.Message : msgEx.Message["MSGBOX-".Length..];
                 cancelChanges = false;
                 await Device.InvokeOnMainThreadAsync(async () =>
                     await Application.Current.MainPage.DisplayAlert(
                         this.ActHdr.GetControlDescription(),
-                        ex.Message,
+                        msg,
                         Resource.OK));
             }
             catch (Exception ex)
@@ -458,9 +467,9 @@ namespace dMobile.View.Activity
             try
             {
                 this.Loading = true;
-                if (this.FirstOnAppearing)
+                if (this.IsFirstAppearance)
                 {
-                    this.FirstOnAppearing = false;
+                    this.IsFirstAppearance = false;
                     await this.ScannerStart();
                     this.ExtraInfoItems.Clear();
                     this.ActHdr.XmlDataCriteria = XDocument.Parse(
@@ -474,7 +483,7 @@ namespace dMobile.View.Activity
                     if ((this.ActSubType == SysCommon.ActSubTypes.Picking
                          || this.ActSubType == SysCommon.ActSubTypes.PickingSingle)
                         && this.SysEnv.SysSettings.IsPrePickCrit
-                        && this.FirstOnAppearing)
+                        && this.IsFirstAppearance)
                     {
                         performRefreshData = await HandlePrePickCriteria();
                     }
@@ -498,21 +507,42 @@ namespace dMobile.View.Activity
                     }
                 }
             }
-            catch (MessageOnlyException ex)
+            catch (MessageOnlyException msgEx)
             {
+                var msg = (msgEx.Message.IndexOf("MSGBOX-") == -1) ? msgEx.Message : msgEx.Message["MSGBOX-".Length..];
                 await Device.InvokeOnMainThreadAsync(async () =>
                     await Application.Current.MainPage.DisplayAlert(
                         this.ActHdr.GetControlDescription(),
-                        ex.Message,
+                        msg,
                         Resource.OK));
+            }
+            catch (CommunicationException commEx)
+            {
+                this.IsFirstAppearance = true;
+
+                // Question should a communication error, be reported as an error or just a messagebox?
+                await Device.InvokeOnMainThreadAsync(async () =>
+                {
+                    var msg = $"Unable to load activity headers.{Environment.NewLine}" +
+                        $"Because of a communication problem.{Environment.NewLine}" +
+                        $"Detail:{commEx.Message}{Environment.NewLine}" +
+                        "Please exit and try again.";
+
+                    await Application.Current.MainPage.DisplayAlert(
+                        this.ActHdr.GetControlDescription(),
+                        msg,
+                        Resource.OK);
+                });
             }
             catch (Exception ex)
             {
-                this.FirstOnAppearing = true;
+                this.IsFirstAppearance = true;
                 await Device.InvokeOnMainThreadAsync(async () =>
                 {
-                    const string msg = "This activity unexpectedly failed to initialize correctly." +
-                                       " Please exit and try again.";
+                    var msg = $"Unable to load activity headers.{Environment.NewLine}" +
+                        $"General exception.{Environment.NewLine}" +
+                        $"Detail:{ex.Message}{Environment.NewLine}" +
+                        "Please exit and try again.";
                     var errorReport = new FormErrorReport(msg, ex);
                     _ = await errorReport.ShowDialog();
                 });
@@ -773,12 +803,13 @@ namespace dMobile.View.Activity
                             }
                         }
                     }
-                    catch (MessageOnlyException ex)
+                    catch (MessageOnlyException msgEx)
                     {
+                        var msg = (msgEx.Message.IndexOf("MSGBOX-") == -1) ? msgEx.Message : msgEx.Message["MSGBOX-".Length..];
                         await Device.InvokeOnMainThreadAsync(async () =>
                             await Application.Current.MainPage.DisplayAlert(
                                 this.ActHdr.GetControlDescription(),
-                                ex.Message,
+                                msg,
                                 Resource.OK));
                     }
                     catch (Exception ex)
@@ -901,12 +932,13 @@ namespace dMobile.View.Activity
                                 await this.RefreshData();
                             }
                         }
-                        catch (MessageOnlyException ex)
+                        catch (MessageOnlyException msgEx)
                         {
+                            var msg = (msgEx.Message.IndexOf("MSGBOX-") == -1) ? msgEx.Message : msgEx.Message["MSGBOX-".Length..];
                             await Device.InvokeOnMainThreadAsync(async () =>
                                 await Application.Current.MainPage.DisplayAlert(
                                     this.ActHdr.GetControlDescription(),
-                                    ex.Message,
+                                    msg,
                                     Resource.OK));
                         }
                         catch (Exception ex)
@@ -1007,12 +1039,13 @@ namespace dMobile.View.Activity
                         "Scanned bar code type is not supported here!");
                 }
             }
-            catch (MessageOnlyException ex)
+            catch (MessageOnlyException msgEx)
             {
+                var msg = (msgEx.Message.IndexOf("MSGBOX-") == -1) ? msgEx.Message : msgEx.Message["MSGBOX-".Length..];
                 await Device.InvokeOnMainThreadAsync(async () =>
                     await Application.Current.MainPage.DisplayAlert(
                         this.ActHdr.GetControlDescription(),
-                        ex.Message,
+                        msg,
                         Resource.OK));
             }
             catch (Exception ex)
@@ -1214,15 +1247,17 @@ namespace dMobile.View.Activity
                 XDocument xmlDoc = null;
                 _ = await this.ActHdr.Insert(xmlDoc);
             }
-            catch (MessageOnlyException ex)
+            catch (MessageOnlyException msgEx)
             {
+                var msg = (msgEx.Message.IndexOf("MSGBOX-") == -1) ? msgEx.Message : msgEx.Message["MSGBOX-".Length..];
+
                 // Do not set the IsChangesMade. MessageOnlyException is really not
                 // and error.
                 // Allow the validation to handle the setting for IsChangesMade.
                 await Device.InvokeOnMainThreadAsync(async () =>
                     await Application.Current.MainPage.DisplayAlert(
                         this.ActHdr.GetControlDescription(),
-                        ex.Message,
+                        msg,
                         Resource.OK));
             }
             catch (Exception ex)
@@ -1280,12 +1315,13 @@ namespace dMobile.View.Activity
                             await form.DisplayControl.ShowDialog());
                 }
             }
-            catch (MessageOnlyException ex)
+            catch (MessageOnlyException msgEx)
             {
+                var msg = (msgEx.Message.IndexOf("MSGBOX-") == -1) ? msgEx.Message : msgEx.Message["MSGBOX-".Length..];
                 await Device.InvokeOnMainThreadAsync(async () =>
                     await Application.Current.MainPage.DisplayAlert(
                         this.ActHdr.GetControlDescription(),
-                        ex.Message,
+                        msg,
                         Resource.OK));
             }
             catch (Exception ex)
@@ -1688,12 +1724,13 @@ namespace dMobile.View.Activity
                 await this.ActDisappearing();
                 await this.DesignGrid();
             }
-            catch (MessageOnlyException ex)
+            catch (MessageOnlyException msgEx)
             {
+                var msg = (msgEx.Message.IndexOf("MSGBOX-") == -1) ? msgEx.Message : msgEx.Message["MSGBOX-".Length..];
                 await Device.InvokeOnMainThreadAsync(async () =>
                     await Application.Current.MainPage.DisplayAlert(
                         this.ActHdr.GetControlDescription(),
-                        ex.Message,
+                        msg,
                         Resource.OK));
             }
             catch (Exception ex)
@@ -1793,15 +1830,17 @@ namespace dMobile.View.Activity
                         }
                     });
                 }
-                catch (MessageOnlyException ex)
+                catch (MessageOnlyException msgEx)
                 {
+                    var msg = (msgEx.Message.IndexOf("MSGBOX-") == -1) ? msgEx.Message : msgEx.Message["MSGBOX-".Length..];
+
                     // Do not set the IsChangesMade. MessageOnlyException is really not
                     // an error.
                     // Allow the validation to handle the setting for IsChangesMade.
                     await Device.InvokeOnMainThreadAsync(async () =>
                         await Application.Current.MainPage.DisplayAlert(
                             this.ActHdr.GetControlDescription(),
-                            ex.Message,
+                            msg,
                             Resource.OK));
                 }
                 catch (Exception ex)

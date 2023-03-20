@@ -453,7 +453,7 @@ namespace dMobile.Controller.Activity
 
                 var adj = new TableActivityAdjustment();
                 adj.RegisterDataAccessListenerProgressOut((IDataAccessEventListener)this);
-                await adj.RequestData();
+                await adj.RequestHeaderData();
                 adj.UnregisterDataAccessListenerProgressOut((IDataAccessEventListener)this);
             }
         }
@@ -553,26 +553,8 @@ namespace dMobile.Controller.Activity
                     + "</mobile_printer_name>"
                     + "</imclient>";
 
-                    var reqData = SysCommon.SubmitComm(request);
-
-                    if (reqData.Length > 0)
-                    {
-                        // check if result is an error message
-                        if (reqData.Contains("<message>ERROR</message>"))
-                        {
-                            var docError = new XmlDocument();
-                            docError.LoadXml(reqData);
-                            throw new MessageOnlyException(string.Format(
-                                "Order# {0} print shipping label(s) failed." + Environment.NewLine + "{1}",
-                                this.HdrFkRefno,
-                                docError.DocumentElement["detail"].InnerText));
-                        }
-                    }
-                    else
-                    {
-                        throw new Exception($"Order# {this.HdrFkRefno} Print shipping label(s) failed.");
-                    }
-                }
+                    _ = SysCommon.SubmitComm(request);
+               }
             }
         }
 
@@ -597,24 +579,7 @@ namespace dMobile.Controller.Activity
                       + "<refno>" + this.HdrFkRefno + "</refno>"
                       + "</imclient>";
 
-                var reqData = SysCommon.SubmitComm(xml);
-
-                if (reqData.Length > 0)
-                {
-                    if (reqData.Contains("<message>ERROR</message>"))
-                    {
-                        var docError = new XmlDocument();
-                        docError.LoadXml(reqData);
-                        var errorDetail = docError.DocumentElement["detail"].InnerText;
-
-                        throw new Exception($"Debox failed. {Environment.NewLine + errorDetail}");
-                    }
-                }
-                else
-                {
-                    throw new Exception("Debox failed. No COM service response.");
-                }
-
+                _ = SysCommon.SubmitComm(xml);
                 result = true;
             }
 

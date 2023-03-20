@@ -24,77 +24,9 @@ namespace dMobile.GroundWork
             : base()
         {
             this.FullClassName = "dMobile.GroundWork.TableActivityTransferToItem";
-        }
-
-        /// <summary>
-        ///
-        /// </summary>
-        /// <remarks></remarks>
-        /// <inheritdoc/>
-        public override async Task RequestData(int actRefno)
-        {
-            try
-            {
-                this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Seeding transfer items.", true);
-
-                string reqData;
-                if (actRefno == 0)
-                {
-                    var results = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<ActivityModel>("SELECT ActivityRefno FROM tActivity WHERE ActivitySubType = ?", Convert.ToInt32(SysCommon.ActSubTypes.TransferTo));
-
-                    if (results?.Count > 0)
-                    {
-                        foreach (var activityModel in results)
-                        {
-                            actRefno = Convert.ToInt32(activityModel.ActivityRefno);
-                            reqData = await this.SendRequest(actRefno);
-
-                            if (reqData.Length > 0)
-                            {
-                                if (reqData.Contains("<message>ERROR</message>"))
-                                {
-                                    var reqErr = new XmlDocument();
-                                    reqErr.LoadXml(reqData);
-                                    throw new Exception(reqErr.DocumentElement["detail"].InnerText);
-                                }
-
-                                await this.Save(reqData, actRefno);
-                            }
-                        }
-                    }
-                }
-                else
-                {
-                    reqData = await this.SendRequest(actRefno);
-
-                    if (reqData.Length > 0)
-                    {
-                        if (reqData.Contains("<message>ERROR</message>"))
-                        {
-                            var reqErr = new XmlDocument();
-                            reqErr.LoadXml(reqData);
-                            throw new Exception(reqErr.DocumentElement["detail"].InnerText);
-                        }
-
-                        await this.Save(reqData, actRefno);
-                    }
-                }
-
-                this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Seeding transfer items complete.", true);
-            }
-            catch (SQLiteException ex)
-            {
-                this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Database exception occurred.", true);
-                this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Seeding transfer items failed.", true);
-
-                throw new Exception("Database exception occurred. Seeding transfer items failed.", ex);
-            }
-            catch (Exception ex)
-            {
-                this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Seeding transfer items failed.", true);
-
-                throw new Exception("Seeding transfer items failed.", ex);
-            }
+            this.CurrentSubType = SysCommon.ActSubTypes.TransferTo;
+            this.LowerCaseName = "to transfer";
+            this.ProperCaseName = "To transfer";
         }
 
         /// <summary>
@@ -135,34 +67,12 @@ namespace dMobile.GroundWork
         /// <summary>
         ///
         /// </summary>
-        /// <remarks></remarks>
-        /// <inheritdoc/>
-        public override async Task<int> DataStatus()
-        {
-            int rowsAffected;
-            try
-            {
-                rowsAffected = Convert.ToInt32(await DatabaseConnection.GetInstance().SQLConn.ExecuteScalarAsync<int>("SELECT COUNT(ActivityItemRefno) FROM tActivityItem WHERE ActivityItemSubType = ?", Convert.ToInt32(SysCommon.ActSubTypes.TransferTo)));
-
-                this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"{rowsAffected} transfer items.", true);
-            }
-            catch (SQLiteException ex)
-            {
-                throw new Exception("Database exception occurred. Transfer items status failed.", ex);
-            }
-
-            return rowsAffected;
-        }
-
-        /// <summary>
-        ///
-        /// </summary>
         /// <returns></returns>
         /// <remarks></remarks>
         /// <inheritdoc/>
-        protected override async Task<string> SendRequest(int actRefno)
+        protected override async Task<string> SendRequest(int actItemRefno)
         {
-            var results = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<tActivityTransferModel>("SELECT * FROM tActivityTransfer WHERE ActivityRefno = ?", Convert.ToInt32(actRefno));
+            var results = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<tActivityTransferModel>("SELECT * FROM tActivityTransfer WHERE ActivityRefno = ?", Convert.ToInt32(actItemRefno));
 
             int transFKRefno;
             if (results?.Count > 0)
@@ -171,7 +81,7 @@ namespace dMobile.GroundWork
             }
             else
             {
-                throw new Exception($"Unable to locate the transfer refno {actRefno} in tActivityTransfer.");
+                throw new Exception($"Unable to locate the transfer refno {actItemRefno} in tActivityTransfer.");
             }
 
             return await this.SendComm(await this.CreateRequest(transFKRefno));
@@ -180,10 +90,10 @@ namespace dMobile.GroundWork
         /// <summary>
         ///
         /// </summary>
-        /// <param name="reqData"></param>
+        /// <param name="responseData"></param>
         /// <remarks></remarks>
         /// <inheritdoc/>
-        protected override async Task Save(string reqData, int actRefno)
+        protected override async Task Save(string responseData, int actRefno)
         {
             await DatabaseConnection.GetInstance().SQLConn.RunInTransactionAsync(transaction =>
             {
@@ -193,7 +103,7 @@ namespace dMobile.GroundWork
                     {
                         this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Reading received data.", false);
 
-                        ds.ReadXml(SysCommon.GetXmlReader(ref reqData), XmlReadMode.Auto);
+                        ds.ReadXml(SysCommon.GetXmlReader(ref responseData), XmlReadMode.Auto);
 
                         this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving transfer items.", false);
 
@@ -301,10 +211,10 @@ namespace dMobile.GroundWork
         /// <summary>
         ///
         /// </summary>
-        /// <param name="transFKRefno"></param>
+        /// <param name="activityItemFkRefno"></param>
         /// <returns></returns>
         /// <inheritdoc/>
-        protected override async Task<string> CreateRequest(int transFKRefno)
+        protected override async Task<string> CreateRequest(int activityItemFkRefno)
         {
             var xmlString = new StringBuilder();
             var xml = XmlWriter.Create(xmlString);
@@ -315,7 +225,7 @@ namespace dMobile.GroundWork
                 + "<command>"
                 + "<action>REQUEST TRANSFER TO ITEMS</action>"
                 + await SysCommon.GetRequestDefaults(false)
-                + "<refno>" + transFKRefno.ToString() + "</refno>"
+                + "<refno>" + activityItemFkRefno.ToString() + "</refno>"
                 + "</command>"
                 + "</imclient>");
 
@@ -324,6 +234,61 @@ namespace dMobile.GroundWork
             xml.Close();
 
             return xmlString.ToString();
+        }
+
+        protected override Task<string> CreateRequest()
+        {
+            throw new NotImplementedException();
+        }
+
+        protected override Task<string> CreateRequest(XDocument criteria)
+        {
+            throw new NotImplementedException();
+        }
+
+        protected override Task<string> CreateRequest(string familyCode)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override Task RequestData(int actRefno)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override Task PurgeData(int sectLocMapRefno)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override Task PurgeData(SysCommon.ActSubTypes actSubType)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override Task<int> DataStatus()
+        {
+            throw new NotImplementedException();
+        }
+
+        protected override Task Save(string responseData)
+        {
+            throw new NotImplementedException();
+        }
+
+        protected override Task<string> CreateRequest(int activityItemFkRefno, XDocument criteria)
+        {
+            throw new NotImplementedException();
+        }
+
+        protected override Task<string> CreateRequest(int prodLocMapType, int whsLocMapFKRefno)
+        {
+            throw new NotImplementedException();
+        }
+
+        protected override Task<string> CreateRequestProdLoc(int prodLocMapType)
+        {
+            throw new NotImplementedException();
         }
     }
 }

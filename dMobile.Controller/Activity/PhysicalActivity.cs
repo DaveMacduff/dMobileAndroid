@@ -430,7 +430,7 @@ namespace dMobile.Controller.Activity
                 var tableActPhysicalCount = new TableActivityPhysicalCount();
 
                 tableActPhysicalCount.RegisterDataAccessListenerProgressOut((IDataAccessEventListener)this);
-                await tableActPhysicalCount.RequestData();
+                await tableActPhysicalCount.RequestHeaderData();
                 tableActPhysicalCount.UnregisterDataAccessListenerProgressOut((IDataAccessEventListener)this);
             }
         }

@@ -279,36 +279,15 @@ namespace dMobile.Controller.Activity_Detail
 
                 var xmlDoc = new XmlDocument();
                 var xmlSend = await this.CreateSubmitXml(data);
-                var reqData = SysCommon.SubmitComm(xmlSend);
+                var responseData = SysCommon.SubmitComm(xmlSend);
+                xmlDoc.LoadXml(responseData);
+                this.DetailFkRefno = int.Parse(xmlDoc.DocumentElement["ser_refno"].InnerText);
+                moveDetail.ActivityDetailStatus = Convert.ToInt32(SysCommon.ActStatus.NoChange);
 
-                if (reqData.Length > 0)
-                {
-                    xmlDoc.LoadXml(reqData);
-
-                    // check if result is an error message
-                    if (reqData.Contains("<message>ERROR</message>"))
-                    {
-                        var errorDetail = xmlDoc.DocumentElement["detail"].InnerText;
-                        if (errorDetail.Contains("MSGBOX-"))
-                        {
-                            throw new MessageOnlyException(errorDetail);
-                        }
-                        else
-                        {
-                            throw new Exception(errorDetail);
-                        }
-                    }
-                    else
-                    {
-                        this.DetailFkRefno = int.Parse(xmlDoc.DocumentElement["ser_refno"].InnerText);
-                        moveDetail.ActivityDetailStatus = Convert.ToInt32(SysCommon.ActStatus.NoChange);
-
-                        await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(
-                            "UPDATE tActivityDetail SET ActivityDetailStatus = ? WHERE ActivityDetailRefno = ?",
-                            Convert.ToInt32(SysCommon.ActStatus.NoChange),
-                            this.DetailRefno);
-                    }
-                }
+                await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(
+                    "UPDATE tActivityDetail SET ActivityDetailStatus = ? WHERE ActivityDetailRefno = ?",
+                    Convert.ToInt32(SysCommon.ActStatus.NoChange),
+                    this.DetailRefno);
 
                 this.ListDetails.Remove(moveDetail);
             }

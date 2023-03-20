@@ -351,7 +351,7 @@ namespace dMobile.Controller.Activity_Item
                 this.DataLayerProgressOutHandler(this, EventArgs.Empty, 5);
 
                 tableActReturnsItem.RegisterDataAccessListenerProgressOut((ReturnsActItem)this);
-                await tableActReturnsItem.RequestData(this.ActHdr.HdrRefno);
+                await tableActReturnsItem.RequestItemData(this.ActHdr.HdrRefno);
                 tableActReturnsItem.UnregisterDataAccessListenerProgressOut((ReturnsActItem)this);
             }
         }

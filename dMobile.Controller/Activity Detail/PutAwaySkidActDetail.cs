@@ -289,36 +289,31 @@ namespace dMobile.Controller.Activity_Detail
 
             var xmlDoc = new XmlDocument();
             var xmlSend = await this.CreateSubmitXml(data);
-            var reqData = SysCommon.SubmitComm(xmlSend);
-
-            if (reqData.Length > 0)
+            var responseData = SysCommon.SubmitComm(xmlSend);
+            xmlDoc.LoadXml(responseData);
+            if (responseData.Contains("<message>ERROR</message>"))
             {
-                xmlDoc.LoadXml(reqData);
+                var errorDetail = xmlDoc.DocumentElement["detail"].InnerText;
 
-                if (reqData.Contains("<message>ERROR</message>"))
+                if (errorDetail.Contains("MSGBOX-"))
                 {
-                    var errorDetail = xmlDoc.DocumentElement["detail"].InnerText;
-
-                    if (errorDetail.Contains("MSGBOX-"))
-                    {
-                        throw new MessageOnlyException(errorDetail);
-                    }
-                    else
-                    {
-                        throw new Exception(errorDetail);
-                    }
+                    throw new MessageOnlyException(errorDetail);
                 }
                 else
                 {
-                    this.DetailFkRefno = int.Parse(xmlDoc.DocumentElement["ser_refno"].InnerText);
-
-                    if (selectedActivityDetail is SkidPutAwayDetail skidPutAwayDetail)
-                    {
-                        skidPutAwayDetail.ActivityDetailStatus = Convert.ToInt32(SysCommon.ActStatus.NoChange);
-                    }
-
-                    await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync("UPDATE tActivityDetail SET ActivityDetailStatus = ? WHERE ActivityDetailRefno = ?", Convert.ToInt32(SysCommon.ActStatus.NoChange), this.DetailRefno);
+                    throw new Exception(errorDetail);
                 }
+            }
+            else
+            {
+                this.DetailFkRefno = int.Parse(xmlDoc.DocumentElement["ser_refno"].InnerText);
+
+                if (selectedActivityDetail is SkidPutAwayDetail skidPutAwayDetail)
+                {
+                    skidPutAwayDetail.ActivityDetailStatus = Convert.ToInt32(SysCommon.ActStatus.NoChange);
+                }
+
+                await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync("UPDATE tActivityDetail SET ActivityDetailStatus = ? WHERE ActivityDetailRefno = ?", Convert.ToInt32(SysCommon.ActStatus.NoChange), this.DetailRefno);
             }
 
             this.ListDetails.Remove(selectedActivityDetail);

@@ -6,6 +6,7 @@ namespace dMobile.GroundWork
 {
     using System;
     using System.Threading.Tasks;
+    using System.Xml.Linq;
     using dMobile.Bedrock;
     using SQLite;
 
@@ -18,6 +19,12 @@ namespace dMobile.GroundWork
           : base()
         {
             this.FullClassName = "dMobile.GroundWork.TableActivityMoveInventory";
+            this.CurrentSubType = SysCommon.ActSubTypes.MoveInventory;
+        }
+
+        public override Task<int> DataStatus()
+        {
+            throw new NotImplementedException();
         }
 
         /// <summary>
@@ -46,6 +53,66 @@ namespace dMobile.GroundWork
 
                 throw new Exception("Database exception occurred. Purging move inventory failed.", ex);
             }
+        }
+
+        public override Task PurgeData(int sectLocMapRefno)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override Task PurgeData(SysCommon.ActSubTypes actSubType)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override Task RequestData(int actRefno)
+        {
+            throw new NotImplementedException();
+        }
+
+        protected override Task<string> CreateRequest()
+        {
+            throw new NotImplementedException();
+        }
+
+        protected override Task<string> CreateRequest(XDocument criteria)
+        {
+            throw new NotImplementedException();
+        }
+
+        protected override Task<string> CreateRequest(string familyCode)
+        {
+            throw new NotImplementedException();
+        }
+
+        protected override Task<string> CreateRequest(int activityItemFkRefno)
+        {
+            throw new NotImplementedException();
+        }
+
+        protected override Task<string> CreateRequest(int activityItemFkRefno, XDocument criteria)
+        {
+            throw new NotImplementedException();
+        }
+
+        protected override Task<string> CreateRequest(int prodLocMapType, int whsLocMapFKRefno)
+        {
+            throw new NotImplementedException();
+        }
+
+        protected override Task<string> CreateRequestProdLoc(int prodLocMapType)
+        {
+            throw new NotImplementedException();
+        }
+
+        protected override Task Save(string responseData)
+        {
+            throw new NotImplementedException();
+        }
+
+        protected override Task Save(string responseData, int refno)
+        {
+            throw new NotImplementedException();
         }
     }
 }

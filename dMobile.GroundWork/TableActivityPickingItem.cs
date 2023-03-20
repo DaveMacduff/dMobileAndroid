@@ -14,6 +14,7 @@ namespace dMobile.GroundWork
     using dMobile.Bedrock;
     using dMobile.Resources.Models;
     using SQLite;
+    using static SQLite.SQLite3;
 
     /// <summary>
     /// Defines the <see cref="TableActivityPickingItem" />.
@@ -27,77 +28,9 @@ namespace dMobile.GroundWork
           : base()
         {
             this.FullClassName = "dMobile.GroundWork.TableActivityPickingItem";
-        }
-
-        /// <summary>
-        /// The RequestData.
-        /// </summary>
-        /// <param name="actRefno">The actRefno<see cref="int"/>.</param>
-        /// <param name="xmlCriteria">The xmlCriteria<see cref="XDocument"/>.</param>
-        public override async Task RequestData(int actRefno, XDocument xmlCriteria)
-        {
-            try
-            {
-                this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Seeding sales order items.", true);
-
-                string reqData;
-                if (actRefno == 0)
-                {
-                    var results = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<ActivityModel>("SELECT ActivityRefno FROM tActivity WHERE ActivitySubType = ?", Convert.ToInt32(SysCommon.ActSubTypes.Picking));
-
-                    if (results?.Count > 0)
-                    {
-                        foreach (var actvityModel in results)
-                        {
-                            actRefno = Convert.ToInt32(actvityModel.ActivityRefno);
-                            reqData = await this.SendRequest(actRefno, xmlCriteria);
-
-                            if (reqData.Length > 0)
-                            {
-                                if (reqData.Contains("<message>ERROR</message>"))
-                                {
-                                    var reqErr = new XmlDocument();
-                                    reqErr.LoadXml(reqData);
-                                    throw new Exception(reqErr.DocumentElement["detail"].InnerText);
-                                }
-
-                                await this.Save(reqData, actRefno);
-                            }
-                        }
-                    }
-                }
-                else
-                {
-                    reqData = await this.SendRequest(actRefno, xmlCriteria);
-
-                    if (reqData.Length > 0)
-                    {
-                        if (reqData.Contains("<message>ERROR</message>"))
-                        {
-                            var reqErr = new XmlDocument();
-                            reqErr.LoadXml(reqData);
-                            throw new Exception(reqErr.DocumentElement["detail"].InnerText);
-                        }
-
-                        await this.Save(reqData, actRefno);
-                    }
-                }
-
-                this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Seeding sales order items complete.", true);
-            }
-            catch (SQLiteException ex)
-            {
-                this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Database exception occurred.", true);
-                this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Seeding sales order items failed.", true);
-
-                throw new Exception("Database exception occurred. Seeding sales order items failed.", ex);
-            }
-            catch (Exception ex)
-            {
-                this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Seeding sales order items failed.", true);
-
-                throw new Exception("Seeding sales order items failed.", ex);
-            }
+            this.CurrentSubType = SysCommon.ActSubTypes.Picking;
+            this.LowerCaseName = "sales order";
+            this.ProperCaseName = "Sales order";
         }
 
         /// <summary>
@@ -132,55 +65,51 @@ namespace dMobile.GroundWork
         }
 
         /// <summary>
-        /// The DataStatus.
+        /// Send a request for the sales order activity line items.
         /// </summary>
-        /// <returns>The <see cref="int"/>.</returns>
-        public override async Task<int> DataStatus()
+        /// <param name="actItemRefno"><see cref="int"/> Line item activity item refno.</param>
+        /// <param name="xmlCriteria"><see cref="XDocument"/> Line item filter criteria.</param>
+        /// <returns><see cref="string"/> Request response data.</returns>
+        protected override async Task<string> SendRequest(int actItemRefno, XDocument xmlCriteria)
         {
-            int rowsAffected;
+            string response;
             try
             {
-                rowsAffected = Convert.ToInt32(await DatabaseConnection.GetInstance().SQLConn.ExecuteScalarAsync<int>("SELECT COUNT(ActivityItemRefno) FROM tActivityItem WHERE ActivityItemSubType = ?", Convert.ToInt32(SysCommon.ActSubTypes.Picking)));
+                int actPickFKRefno = 0;
+                var conn = DatabaseConnection.GetInstance().SQLConn;
+                var results = await conn.QueryAsync<tActivityPickingModel>(
+                    "SELECT * FROM tActivityPicking WHERE ActivityRefno = ?",
+                    actItemRefno);
+                if (results?.Count > 0)
+                {
+                    actPickFKRefno = Convert.ToInt32(results[0].ActivityFKRefno);
+                }
+                else
+                {
+                    var msg = $"No results in tActivityPicking for ActivityRefno {actItemRefno}";
+                    throw new Exception(msg);
+                }
 
-                this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"{rowsAffected} Sales order items.", true);
+                response = await this.SendComm(await this.CreateRequest(actPickFKRefno, xmlCriteria));
             }
-            catch (SQLiteException ex)
+            catch (SQLiteException sqlEx)
             {
-                throw new Exception("Database exception occurred. Sales order items status failed.", ex);
+                throw new Exception("Database exception occurred. Unable to get the sales order items.", sqlEx);
             }
-
-            return rowsAffected;
-        }
-
-        /// <summary>
-        /// The SendRequest.
-        /// </summary>
-        /// <param name="actRefno">The actRefno<see cref="int"/>.</param>
-        /// <param name="xmlCriteria">The xmlCriteria<see cref="XDocument"/>.</param>
-        /// <returns></returns>
-        protected override async Task<string> SendRequest(int actRefno, XDocument xmlCriteria)
-        {
-            var results = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<tActivityPickingModel>("SELECT * FROM tActivityPicking WHERE ActivityRefno = ?", actRefno);
-
-            int actPickFKRefno;
-            if (results?.Count > 0)
+            catch (Exception ex)
             {
-                actPickFKRefno = Convert.ToInt32(results[0].ActivityFKRefno);
-            }
-            else
-            {
-                throw new Exception("No results in tActivityPicking for ActivityRefno " + actRefno + Environment.NewLine + this.FullClassName + "SendRequest");
+                throw new Exception("Database exception occurred. Unable to get the sales order items.", ex);
             }
 
-            return await this.SendComm(await this.CreateRequest(actPickFKRefno, xmlCriteria));
+            return response;
         }
 
         /// <summary>
         /// The Save.
         /// </summary>
-        /// <param name="reqData"></param>
-        /// <param name="actRefno">The actRefno<see cref="int"/>.</param>
-        protected override async Task Save(string reqData, int actRefno)
+        /// <param name="responseData"></param>
+        /// <param name="actRefno">The actItemRefno<see cref="int"/>.</param>
+        protected override async Task Save(string responseData, int actRefno)
         {
             await DatabaseConnection.GetInstance().SQLConn.RunInTransactionAsync(transaction =>
             {
@@ -189,7 +118,7 @@ namespace dMobile.GroundWork
                     using var ds = new DataSet();
                     this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Reading received data.", false);
 
-                    ds.ReadXml(SysCommon.GetXmlReader(ref reqData), XmlReadMode.Auto);
+                    ds.ReadXml(SysCommon.GetXmlReader(ref responseData), XmlReadMode.Auto);
 
                     this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving sales order items.", false);
 
@@ -207,7 +136,11 @@ namespace dMobile.GroundWork
 
                         foreach (DataRow drow in ds.Tables["tActivityItemPicking"].Rows)
                         {
-                            transaction.Execute("INSERT INTO tActivityItem (ActivityItemSubType, ActivityItemStatus, ActivityRefno) VALUES (?, ?, ?)", Convert.ToInt32(SysCommon.ActSubTypes.Picking), 0, actRefno);
+                            transaction.Execute(
+                                "INSERT INTO tActivityItem (ActivityItemSubType, ActivityItemStatus, ActivityRefno) VALUES (?, ?, ?)",
+                                Convert.ToInt32(SysCommon.ActSubTypes.Picking),
+                                0,
+                                actRefno);
 
                             var actItemRefno = Convert.ToInt32(transaction.ExecuteScalar<int>("SELECT last_insert_rowid() FROM tActivityItem"));
                             actItemPickFKRefno = Convert.ToInt32(drow["ActivityItemFKRefno"]);
@@ -313,10 +246,10 @@ namespace dMobile.GroundWork
         /// <summary>
         /// The CreateRequest.
         /// </summary>
-        /// <param name="actPickFKRefno"></param>
+        /// <param name="activityItemFkRefno"></param>
         /// <param name="criteria"></param>
         /// <returns></returns>
-        protected async override Task<string> CreateRequest(int actPickFKRefno, XDocument criteria)
+        protected async override Task<string> CreateRequest(int activityItemFkRefno, XDocument criteria)
         {
             var xmlString = new StringBuilder();
             var xml = XmlWriter.Create(xmlString);
@@ -329,7 +262,7 @@ namespace dMobile.GroundWork
                     + "<command>"
                     + "<action>REQUEST SALES ORDER ITEMS</action>"
                     + await SysCommon.GetRequestDefaults(false)
-                    + "<refno>" + actPickFKRefno + "</refno>"
+                    + "<refno>" + activityItemFkRefno + "</refno>"
                     + "<whs_id></whs_id>"
                     + "<sect_refno></sect_refno>"
                     + "</command>" +
@@ -344,7 +277,7 @@ namespace dMobile.GroundWork
                     + "<command>"
                     + "<action>REQUEST SALES ORDER ITEMS</action>"
                     + await SysCommon.GetRequestDefaults(false)
-                    + "<refno>" + actPickFKRefno + "</refno>"
+                    + "<refno>" + activityItemFkRefno + "</refno>"
                     + "<whs_id>" + criteria.Root.Element("whs_id").Value + "</whs_id>"
                     + "<sect_refno>" + criteria.Root.Element("sect_refno").Value + "</sect_refno>"
                     + "</command>"
@@ -357,6 +290,107 @@ namespace dMobile.GroundWork
             xml.Close();
 
             return xmlString.ToString();
+        }
+
+        protected override Task<string> CreateRequest()
+        {
+            throw new NotImplementedException();
+        }
+
+        protected override Task<string> CreateRequest(XDocument criteria)
+        {
+            throw new NotImplementedException();
+        }
+
+        protected override Task<string> CreateRequest(string familyCode)
+        {
+            throw new NotImplementedException();
+        }
+
+        protected async override Task<string> CreateRequest(int activityItemFkRefno)
+        {
+            var xmlString = new StringBuilder();
+            var xml = XmlWriter.Create(xmlString);
+            XDocument request;
+            request = XDocument.Parse(
+                "<?xml version=\"1.0\" encoding=\"utf-8\" standalone=\"yes\"?>"
+                + "<imclient>"
+                + "<command>"
+                + "<action>REQUEST SALES ORDER ITEMS</action>"
+                + await SysCommon.GetRequestDefaults(false)
+                + "<refno>" + activityItemFkRefno + "</refno>"
+                + "<whs_id></whs_id>"
+                + "<sect_refno></sect_refno>"
+                + "</command>" +
+                "<is_disconnected>" + this.SysEnv.SysSettings.IsDisconnectedMode + "</is_disconnected>"
+                + "</imclient>");
+
+            request.Save(xml);
+            xml.Flush();
+            xml.Close();
+
+            return xmlString.ToString();
+        }
+
+        public override Task RequestData(int actRefno)
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <summary>
+        /// The Request Item Data.
+        /// </summary>
+        /// <param name="actHdrRefno"> Activity header refno.</param>
+        /// <returns><see cref="Task"/> Task completed.</returns>
+        public override async Task RequestItemData(int actHdrRefno)
+        {
+            if (actHdrRefno == 0)
+            {
+                var query = "SELECT * FROM tActivityPicking WHERE ActivitySubType = ?";
+                var conn = DatabaseConnection.GetInstance().SQLConn;
+                var queryResult = await conn.QueryAsync<tActivityPickingModel>(query, (int)this.CurrentSubType);
+                if (queryResult != null && queryResult.Count > 0)
+                {
+                    foreach (tActivityPickingModel model in queryResult)
+                    {
+                        _ = base.RequestItemData(model.ActivityFKRefno);
+                    }
+                }
+            }
+            else
+            {
+                _ = base.RequestItemData(actHdrRefno);
+            }
+        }
+
+        public override Task PurgeData(int sectLocMapRefno)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override Task PurgeData(SysCommon.ActSubTypes actSubType)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override Task<int> DataStatus()
+        {
+            throw new NotImplementedException();
+        }
+
+        protected override Task Save(string responseData)
+        {
+            throw new NotImplementedException();
+        }
+
+        protected override Task<string> CreateRequest(int prodLocMapType, int whsLocMapFKRefno)
+        {
+            throw new NotImplementedException();
+        }
+
+        protected override Task<string> CreateRequestProdLoc(int prodLocMapType)
+        {
+            throw new NotImplementedException();
         }
     }
 }

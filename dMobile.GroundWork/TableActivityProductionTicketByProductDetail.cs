@@ -27,140 +27,73 @@ namespace dMobile.GroundWork
       : base()
         {
             this.FullClassName = "dMobile.GroundWork.TableActivityProductionTicketByProductDetail";
+            this.CurrentSubType = SysCommon.ActSubTypes.TicketAddProduct;
+            this.LowerCaseName = "ticket additional product";
+            this.ProperCaseName = "Ticket additional product";
         }
 
         /// <summary>
-        /// The Request.
+        /// Purge the activity detail.
         /// </summary>
-        /// <param name="actItemRefno"></param>
-        public override async Task RequestData(int actItemRefno)
-        {
-            try
-            {
-                this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Seeding ticket add-product details.", true);
-
-                string reqData;
-                if (actItemRefno == 0)
-                {
-                    var query = "SELECT ActivityItemRefno FROM tActivityItem WHERE ActivityItemSubType = ?";
-                    var results = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<tActivityItemModel>(query, Convert.ToInt32(SysCommon.ActSubTypes.TicketAddProduct));
-
-                    if (results != null && results.Count > 0)
-                    {
-                        actItemRefno = Convert.ToInt32(results[0].ActivityItemRefno);
-                        reqData = await this.SendRequest(actItemRefno);
-
-                        if (reqData.Length > 0)
-                        {
-                            if (reqData.Contains("<message>ERROR</message>"))
-                            {
-                                var reqErr = new XmlDocument();
-                                reqErr.LoadXml(reqData);
-                                throw new Exception(reqErr.DocumentElement["detail"].InnerText);
-                            }
-
-                            await this.Save(reqData, actItemRefno);
-                        }
-                    }
-                }
-                else
-                {
-                    reqData = await this.SendRequest(actItemRefno);
-
-                    if (reqData.Length > 0)
-                    {
-                        if (reqData.Contains("<message>ERROR</message>"))
-                        {
-                            var reqErr = new XmlDocument();
-                            reqErr.LoadXml(reqData);
-                            throw new Exception(reqErr.DocumentElement["detail"].InnerText);
-                        }
-
-                        await this.Save(reqData, actItemRefno);
-                    }
-                }
-
-                this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Seeding ticket add-product details complete.", true);
-            }
-            catch (SQLiteException ex)
-            {
-                this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Database exception occurred.", true);
-                this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Seeding ticket add-product details failed.", true);
-
-                throw new Exception("Database exception occurred. Seeding ticket add-product details failed.", ex);
-            }
-            catch (Exception ex)
-            {
-                this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Seeding ticket add-product details failed.", true);
-
-                throw new Exception("Seeding ticket add-product details failed.", ex);
-            }
-        }
-
-        /// <summary>
-        /// The DataStatus.
-        /// </summary>
-        /// <returns>The <see cref="int"/>.</returns>
-        public override async Task<int> DataStatus()
-        {
-            int rowsAffected;
-            try
-            {
-                var query = "SELECT COUNT(ActivityDetailRefno) FROM tActivityDetail WHERE ActivityDetailSubType = ?";
-                rowsAffected = await DatabaseConnection.GetInstance().SQLConn.ExecuteScalarAsync<int>(query, Convert.ToInt32(SysCommon.ActSubTypes.TicketAddProduct));
-
-                this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"{rowsAffected} ticket add-product details.", true);
-            }
-            catch (SQLiteException ex)
-            {
-                throw new Exception("Database exception occurred. Ticket add-product details status failed.", ex);
-            }
-
-            return rowsAffected;
-        }
-
-        /// <summary>
-        /// The Purge.
-        /// </summary>
+        /// <returns><see cref="Task"/> Task completed.</returns>
         public override async Task PurgeData()
         {
+            var conn = DatabaseConnection.GetInstance().SQLConn;
+            var subType = Convert.ToInt32(this.CurrentSubType);
             this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging ticket add-product details.", true);
 
-            try
+            await conn.RunInTransactionAsync(transaction =>
             {
-                var query = "DELETE FROM tActivityDetailProductSchemeVariantXRef"
-                            + " WHERE tActivityDetailProductSchemeVariantXRef.ActivityDetailRefno IN"
-                            + " (SELECT tActivityDetail.ActivityDetailRefno"
-                            + " FROM tActivityDetail"
-                            + " WHERE tActivityDetail.ActivityDetailSubType = ?)";
-                await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(query, Convert.ToInt32(SysCommon.ActSubTypes.TicketAddProduct));
+                try
+                {
+                    var query = "DELETE FROM tActivityDetailProductSchemeVariantXRef "
+                        + "WHERE tActivityDetailProductSchemeVariantXRef.ActivityDetailRefno IN "
+                        + "(SELECT tActivityDetail.ActivityDetailRefno "
+                        + "FROM tActivityDetail "
+                        + "WHERE tActivityDetail.ActivityDetailSubType = ?)";
+                    transaction.Execute(query, subType);
 
-                query = "DELETE FROM tActivityDetailProductionByProduct"
-                    + " WHERE tActivityDetailProductionByProduct.ActivityDetailRefno IN "
-                    + "(SELECT tActivityDetail.ActivityDetailRefno"
-                    + " FROM tActivityDetail"
-                    + " WHERE tActivityDetail.ActivityDetailSubType = ?)";
-                await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(query, Convert.ToInt32(SysCommon.ActSubTypes.TicketAddProduct));
-
-                query = "DELETE FROM tActivityDetailExtra"
-                        + " WHERE tActivityDetailExtra.ActivityDetailRefno IN "
+                    query = "DELETE FROM tActivityDetailProductionByProduct"
+                        + " WHERE tActivityDetailProductionByProduct.ActivityDetailRefno IN "
                         + "(SELECT tActivityDetail.ActivityDetailRefno"
                         + " FROM tActivityDetail"
                         + " WHERE tActivityDetail.ActivityDetailSubType = ?)";
-                await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(query, Convert.ToInt32(SysCommon.ActSubTypes.TicketAddProduct));
+                    transaction.Execute(query, subType);
 
-                query = "DELETE FROM tActivityDetail WHERE tActivityDetail.ActivityDetailSubType = ?";
-                await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(query, Convert.ToInt32(SysCommon.ActSubTypes.TicketAddProduct));
+                    query = "DELETE FROM tActivityDetailExtra "
+                        + "WHERE tActivityDetailExtra.ActivityDetailRefno IN "
+                        + "(SELECT tActivityDetail.ActivityDetailRefno "
+                        + "FROM tActivityDetail "
+                        + "WHERE tActivityDetail.ActivityDetailSubType = ?)";
+                    transaction.Execute(query, subType);
 
-                this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging ticket add-product details complete.", true);
-            }
-            catch (SQLiteException ex)
-            {
-                this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Database exception occurred.", true);
-                this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging ticket add-product details failed.", true);
+                    query = "DELETE FROM tActivityDetail WHERE tActivityDetail.ActivityDetailSubType = ?";
+                    transaction.Execute(query, subType);
 
-                throw new Exception("Database exception occurred. Purging ticket add-product details failed.", ex);
-            }
+                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging ticket add-product details complete.", true);
+                    transaction.Commit();
+                }
+                catch (SQLiteException sqlEx)
+                {
+                    if (transaction.IsInTransaction)
+                    {
+                        transaction.Rollback();
+                    }
+
+                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Database exception occurred.", true);
+                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging ticket add-product details failed.", true);
+                    throw new Exception("Database exception occurred. Purging ticket add-product details failed.", sqlEx);
+                }
+                catch (Exception ex)
+                {
+                    if (transaction.IsInTransaction)
+                    {
+                        transaction.Rollback();
+                    }
+
+                    throw new Exception("Database exception occurred. Purging ticket add-product details failed.", ex);
+                }
+            });
         }
 
         /// <summary>
@@ -197,9 +130,9 @@ namespace dMobile.GroundWork
         /// <summary>
         /// The Save.
         /// </summary>
-        /// <param name="reqData"></param>
+        /// <param name="responseData"></param>
         /// <param name="actItemProductionRefno"></param>
-        protected override async Task Save(string reqData, int actItemProductionRefno)
+        protected override async Task Save(string responseData, int actItemProductionRefno)
         {
             var errMsg = string.Empty;
 
@@ -210,7 +143,7 @@ namespace dMobile.GroundWork
                     using var ds = new DataSet();
                     this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Reading received data.", false);
 
-                    ds.ReadXml(SysCommon.GetXmlReader(ref reqData), XmlReadMode.Auto);
+                    ds.ReadXml(SysCommon.GetXmlReader(ref responseData), XmlReadMode.Auto);
 
                     this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving ticket add-product details.", false);
 
@@ -326,9 +259,9 @@ namespace dMobile.GroundWork
         /// <summary>
         /// The Create.
         /// </summary>
-        /// <param name="actItemFKRefno">The actItemFKRefno<see cref="int"/>.</param>
+        /// <param name="activityItemFkRefno">The activityItemFkRefno<see cref="int"/>.</param>
         /// <returns></returns>
-        protected override async Task<string> CreateRequest(int actItemFKRefno)
+        protected override async Task<string> CreateRequest(int activityItemFkRefno)
         {
             var xmlString = new StringBuilder();
             var xml = XmlWriter.Create(xmlString);
@@ -339,7 +272,7 @@ namespace dMobile.GroundWork
                 + "<command>"
                 + "<action>REQUEST PRODUCTION TICKET BYPRODUCT DETAILS</action>"
                 + await SysCommon.GetRequestDefaults(false)
-                + "<itm_refno>" + actItemFKRefno + "</itm_refno>"
+                + "<itm_refno>" + activityItemFkRefno + "</itm_refno>"
                 + "</command>"
                 + "</imclient>");
 
@@ -348,6 +281,61 @@ namespace dMobile.GroundWork
             xml.Close();
 
             return xmlString.ToString();
+        }
+
+        protected override Task<string> CreateRequest()
+        {
+            throw new NotImplementedException();
+        }
+
+        protected override Task<string> CreateRequest(XDocument criteria)
+        {
+            throw new NotImplementedException();
+        }
+
+        protected override Task<string> CreateRequest(string familyCode)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override Task RequestData(int actRefno)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override Task PurgeData(int sectLocMapRefno)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override Task PurgeData(SysCommon.ActSubTypes actSubType)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override Task<int> DataStatus()
+        {
+            throw new NotImplementedException();
+        }
+
+        protected override Task Save(string responseData)
+        {
+            throw new NotImplementedException();
+        }
+
+        protected override Task<string> CreateRequest(int activityItemFkRefno, XDocument criteria)
+        {
+            throw new NotImplementedException();
+        }
+
+        protected override Task<string> CreateRequest(int prodLocMapType, int whsLocMapFKRefno)
+        {
+            throw new NotImplementedException();
+        }
+
+        protected override Task<string> CreateRequestProdLoc(int prodLocMapType)
+        {
+            throw new NotImplementedException();
         }
     }
 }

@@ -440,7 +440,7 @@ namespace dMobile.Controller.Activity
                 var tableFinished = new TableActivityProductionTicketFinished();
 
                 tableFinished.RegisterDataAccessListenerProgressOut((TicketFinishedActivity)this);
-                await tableFinished.RequestData();
+                await tableFinished.RequestHeaderData();
                 tableFinished.UnregisterDataAccessListenerProgressOut((TicketFinishedActivity)this);
             }
         }

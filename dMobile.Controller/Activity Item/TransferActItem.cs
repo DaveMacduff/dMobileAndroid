@@ -431,7 +431,7 @@ namespace dMobile.Controller.Activity_Item
                     this.DataLayerProgressOutHandler(this, EventArgs.Empty, 5);
 
                     tableActTransferItem.RegisterDataAccessListenerProgressOut((TransferActItem)this);
-                    await tableActTransferItem.RequestData(this.ActHdr.HdrRefno);
+                    await tableActTransferItem.RequestItemData(this.ActHdr.HdrRefno);
                     tableActTransferItem.UnregisterDataAccessListenerProgressOut((TransferActItem)this);
                 }
                 else
@@ -444,7 +444,7 @@ namespace dMobile.Controller.Activity_Item
                     this.DataLayerProgressOutHandler(this, EventArgs.Empty, 5);
 
                     tableActTransferItem.RegisterDataAccessListenerProgressOut((TransferActItem)this);
-                    await tableActTransferItem.RequestData(this.ActHdr.HdrRefno);
+                    await tableActTransferItem.RequestItemData(this.ActHdr.HdrRefno);
                     tableActTransferItem.UnregisterDataAccessListenerProgressOut((TransferActItem)this);
                 }
             }

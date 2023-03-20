@@ -396,27 +396,13 @@ namespace dMobile.Controller.Activity_Item
         {
             try
             {
-                var reqData = SysCommon.SubmitComm(await this.CreateSubmitXml(data));
-
+                var responseData = SysCommon.SubmitComm(await this.CreateSubmitXml(data));
                 this.ListItems = await this.GetActivityItemList(false);
-                if (reqData.Length > 0)
+                using var ds = new DataSet();
+                ds.ReadXml(SysCommon.GetXmlReader(ref responseData), XmlReadMode.Auto);
+                if (ds.Tables.Count != 0)
                 {
-                    if (reqData.Contains("<message>ERROR</message>"))
-                    {
-                        var xmlDoc = new XmlDocument();
-                        xmlDoc.LoadXml(reqData);
-                        throw new Exception(xmlDoc.DocumentElement["detail"].InnerText);
-                    }
-                    else
-                    {
-                        using var ds = new DataSet();
-                        ds.ReadXml(SysCommon.GetXmlReader(ref reqData), XmlReadMode.Auto);
-
-                        if (ds.Tables.Count != 0)
-                        {
-                            this.ListItems = ds.Tables["tActivityItem"].Select().ToList<object>();
-                        }
-                    }
+                    this.ListItems = ds.Tables["tActivityItem"].Select().ToList<object>();
                 }
             }
             catch (Exception ex)

@@ -16,6 +16,7 @@ namespace dMobile.View.Activity
     using System.Text;
     using System.Threading.Tasks;
     using System.Xml.Linq;
+    using Android;
     using Android.Views;
     using dMobile.BarCodeScanner;
     using dMobile.BarCodeScanner.BarCodeParsing;
@@ -30,6 +31,7 @@ namespace dMobile.View.Activity
     using SQLite;
     using Xamarin.Forms;
     using Xamarin.Forms.Xaml;
+    using Resource = dMobile.Resources.Properties.Resources;
 
     [XamlCompilation(XamlCompilationOptions.Compile)]
     public partial class ActivityPurchaseOrderWorkSheet : DMobileContentPage, IAppArea
@@ -150,9 +152,36 @@ namespace dMobile.View.Activity
 
                 await this.ucActivityPurchaseOrderWorkSheet_GotFocus(this, EventArgs.Empty);
             }
+            catch (CommunicationException commEx)
+            {
+                this.isFirstAppearance = true;
+
+                // Question should a communication error, be reported as an error or just a messagebox?
+                await Device.InvokeOnMainThreadAsync(async () =>
+                {
+                    var msg = $"Unable to load PO worksheet.{Environment.NewLine}" +
+                        $"Because of a communication problem.{Environment.NewLine}" +
+                        $"Detail:{commEx.Message}{Environment.NewLine}" +
+                        "Please exit and try again.";
+
+                    await Application.Current.MainPage.DisplayAlert(
+                        this.ActItem.GetControlDescription(),
+                        msg,
+                        Resource.OK);
+                });
+            }
             catch (Exception ex)
             {
-                await Device.InvokeOnMainThreadAsync(async () => await this.DisplayAlert("Error", "this.ucActivityHdr_GotFocus threw an error " + ex, "OK"));
+                this.isFirstAppearance = true;
+                await Device.InvokeOnMainThreadAsync(async () =>
+                {
+                    var msg = $"Unable to load PO worksheet.{Environment.NewLine}" +
+                        $"General exception.{Environment.NewLine}" +
+                        $"Detail:{ex.Message}{Environment.NewLine}" +
+                        "Please exit and try again.";
+                    var errorReport = new FormErrorReport(msg, ex);
+                    _ = await errorReport.ShowDialog();
+                });
             }
             finally
             {

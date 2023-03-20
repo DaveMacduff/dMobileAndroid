@@ -8,6 +8,7 @@ namespace dMobile.GroundWork
     using System.Collections.Generic;
     using System.Data;
     using System.Threading.Tasks;
+    using System.Xml;
     using System.Xml.Linq;
     using dMobile.Bedrock;
     using dMobile.Resources.Models;
@@ -21,9 +22,19 @@ namespace dMobile.GroundWork
         /// <summary>
         /// Initializes a new instance of the <see cref="TableBase"/> class.
         /// </summary>
-        public TableBase()
+        protected TableBase()
         {
             this.SysEnv = SysEnvironment.GetInstance();
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="TableBase"/> class.
+        /// </summary>
+        /// <param name="subType"> Current activity sub type.</param>
+        protected TableBase(SysCommon.ActSubTypes subType)
+        {
+            this.SysEnv = SysEnvironment.GetInstance();
+            this.CurrentSubType = subType;
         }
 
         /// <summary>
@@ -33,7 +44,7 @@ namespace dMobile.GroundWork
         /// access event publisher.</param>
         /// <param name="dataAccessEventArgs"><see cref="DataAccessEventArgs"/> Data access event
         /// arguments.</param>
-        public delegate void OnDataAccessStatusOutEventHandler(
+        public delegate void DataAccessStatusOutEventHandler(
             IDataAccessEventPublisher dataAccessEventPublisher,
             DataAccessEventArgs dataAccessEventArgs);
 
@@ -44,42 +55,481 @@ namespace dMobile.GroundWork
         /// access event publisher.</param>
         /// <param name="dataAccessEventArgs"><see cref="DataAccessEventArgs"/> Data access event
         /// arguments.</param>
-        public delegate void OnDataAccessProgressOutEventHandler(
+        public delegate void DataAccessProgressOutEventHandler(
             IDataAccessEventPublisher dataAccessEventPublisher,
             DataAccessEventArgs dataAccessEventArgs);
 
         /// <summary>
         /// Define the on access status out event.
         /// </summary>
-        public event OnDataAccessStatusOutEventHandler OnDataAccessStatusOut;
+        public event DataAccessStatusOutEventHandler OnDataAccessStatusOut;
 
         /// <summary>
         /// Define the on access progress out event.
         /// </summary>
-        public event OnDataAccessProgressOutEventHandler OnDataAccessProgressOut;
-
-        /// <summary>
-        /// Gets or sets the data access event arguments.
-        /// </summary>
-        public DataAccessEventArgs DataEventArgs { get; set; } = new DataAccessEventArgs();
+        public event DataAccessProgressOutEventHandler OnDataAccessProgressOut;
 
         /// <summary>
         /// Gets or sets the full class name.
         /// </summary>
-        public string FullClassName { get; set; } = "TableBase";
+        protected string FullClassName { get; set; } = "TableBase";
+
+        /// <summary>
+        /// Gets or sets the message text activity lower case name.
+        /// </summary>
+        protected string LowerCaseName { get; set; } = "activity";
+
+        /// <summary>
+        /// Gets or sets the message text activity proper case name.
+        /// </summary>
+        protected string ProperCaseName { get; set; } = "Activity";
 
         /// <summary>
         /// Gets or sets the system environment.
         /// </summary>
-        public SysEnvironment SysEnv { get; set; } = SysEnvironment.GetInstance();
+        protected SysEnvironment SysEnv { get; set; }
+
+        /// <summary>
+        /// Gets or sets the table base current activity sub type.
+        /// </summary>
+        protected SysCommon.ActSubTypes CurrentSubType { get; set; } = SysCommon.ActSubTypes.NotApplicable;
+
+        /// <summary>
+        /// Gets or sets the data access event arguments.
+        /// </summary>
+        private DataAccessEventArgs DataEventArgs { get; set; } = new DataAccessEventArgs();
+
+        /// <summary>
+        /// The Request Header Data.
+        /// </summary>
+        /// <returns><see cref="Task"/> Task completed.</returns>
+        public virtual async Task RequestHeaderData()
+        {
+            string msg = string.Empty;
+            try
+            {
+                this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"Seeding {this.LowerCaseName}.", true);
+                var responseData = await this.SendComm(await this.CreateRequest());
+                await this.Save(responseData);
+                this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"Seeding {this.LowerCaseName} complete.", true);
+            }
+            catch (SQLiteException ex)
+            {
+                this.DataAccessStatusOutHandler(
+                    sender: this,
+                    EventArgs.Empty,
+                    "Database exception occurred.",
+                    overrideDisconnectedMode: true);
+                this.DataAccessStatusOutHandler(
+                    sender: this,
+                    EventArgs.Empty,
+                    $"Seeding {this.LowerCaseName} failed.",
+                    overrideDisconnectedMode: true);
+
+                msg = $"Save {this.LowerCaseName} to database failed.{Environment.NewLine}" +
+                    $"Reason: {ex.Message}.";
+                throw;
+            }
+            catch (CommunicationException)
+            {
+                this.DataAccessStatusOutHandler(
+                    sender: this,
+                    EventArgs.Empty,
+                    "Communication exception occurred.",
+                    overrideDisconnectedMode: true);
+                this.DataAccessStatusOutHandler(
+                    sender: this,
+                    EventArgs.Empty,
+                    $"Seeding {this.LowerCaseName} failed.",
+                    overrideDisconnectedMode: true);
+                throw;
+            }
+            catch (Exception)
+            {
+                this.DataAccessStatusOutHandler(
+                    sender: this,
+                    EventArgs.Empty,
+                    "Unhandled general exception caught.",
+                    overrideDisconnectedMode: true);
+                this.DataAccessStatusOutHandler(
+                    sender: this,
+                    EventArgs.Empty,
+                    $"Seeding {this.LowerCaseName} failed.",
+                    overrideDisconnectedMode: true);
+                throw;
+            }
+        }
+
+        /// <summary>
+        /// The Request Header Data.
+        /// </summary>
+        /// <param name="criteria"> Filter criteria.</param>
+        /// <returns><see cref="Task"/> Task completed.</returns>
+        public virtual async Task RequestHeaderData(XDocument criteria)
+        {
+            try
+            {
+                this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"Seeding {this.LowerCaseName}.", true);
+                var responseData = await this.SendComm(await this.CreateRequest(criteria));
+                await this.Save(responseData);
+                this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"Seeding {this.LowerCaseName} complete.", true);
+            }
+            catch (SQLiteException ex)
+            {
+                this.DataAccessStatusOutHandler(
+                    sender: this,
+                    EventArgs.Empty,
+                    "Database exception occurred.",
+                    overrideDisconnectedMode: true);
+                this.DataAccessStatusOutHandler(
+                    sender: this,
+                    EventArgs.Empty,
+                    $"Seeding {this.LowerCaseName} failed.",
+                    overrideDisconnectedMode: true);
+
+                var msg = $"Save {this.LowerCaseName} to database failed.{Environment.NewLine}" +
+                    $"Reason: {ex.Message}.";
+                throw;
+            }
+            catch (CommunicationException)
+            {
+                this.DataAccessStatusOutHandler(
+                    sender: this,
+                    EventArgs.Empty,
+                    "Communication exception occurred.",
+                    overrideDisconnectedMode: true);
+                this.DataAccessStatusOutHandler(
+                    sender: this,
+                    EventArgs.Empty,
+                    $"Seeding {this.LowerCaseName} failed.",
+                    overrideDisconnectedMode: true);
+                throw;
+            }
+            catch (Exception)
+            {
+                this.DataAccessStatusOutHandler(
+                    sender: this,
+                    EventArgs.Empty,
+                    "Unhandled general exception caught.",
+                    overrideDisconnectedMode: true);
+                this.DataAccessStatusOutHandler(
+                    sender: this,
+                    EventArgs.Empty,
+                    $"Seeding {this.LowerCaseName} failed.",
+                    overrideDisconnectedMode: true);
+                throw;
+            }
+        }
+
+        /// <summary>
+        /// The Request Item Data.
+        /// </summary>
+        /// <param name="actHdrRefno"> Activity header refno.</param>
+        /// <returns><see cref="Task"/> Task completed.</returns>
+        public virtual async Task RequestItemData(int actHdrRefno)
+        {
+            try
+            {
+                this.DataAccessStatusOutHandler(
+                    this,
+                    EventArgs.Empty,
+                    $"Seeding {this.LowerCaseName} items.",
+                    true);
+
+                string responseData;
+                if (actHdrRefno == 0)
+                {
+                    throw new Exception("actHdrRefno == 0");
+                }
+                else
+                {
+                    responseData = await this.SendRequest(actHdrRefno);
+                    await this.Save(responseData, actHdrRefno);
+                }
+
+                this.DataAccessStatusOutHandler(
+                    sender: this,
+                    EventArgs.Empty,
+                    $"Seeding {this.LowerCaseName} items complete.",
+                    true);
+            }
+            catch (SQLiteException ex)
+            {
+                this.DataAccessStatusOutHandler(
+                    sender: this,
+                    EventArgs.Empty,
+                    "Database exception occurred.",
+                    overrideDisconnectedMode: true);
+                this.DataAccessStatusOutHandler(
+                    sender: this,
+                    EventArgs.Empty,
+                    $"Seeding {this.LowerCaseName} items failed.",
+                    overrideDisconnectedMode: true);
+
+                var msg = $"Save {this.LowerCaseName} to database failed.{Environment.NewLine}" +
+                    $"Reason: {ex.Message}.";
+                throw;
+            }
+            catch (CommunicationException)
+            {
+                this.DataAccessStatusOutHandler(
+                    sender: this,
+                    EventArgs.Empty,
+                    "Communication exception occurred.",
+                    overrideDisconnectedMode: true);
+                this.DataAccessStatusOutHandler(
+                    sender: this,
+                    EventArgs.Empty,
+                    $"Seeding {this.LowerCaseName} items failed.",
+                    overrideDisconnectedMode: true);
+                throw;
+            }
+            catch (Exception)
+            {
+                this.DataAccessStatusOutHandler(
+                    sender: this,
+                    EventArgs.Empty,
+                    "Unhandled general exception caught.",
+                    overrideDisconnectedMode: true);
+                this.DataAccessStatusOutHandler(
+                    sender: this,
+                    EventArgs.Empty,
+                    $"Seeding {this.LowerCaseName} items failed.",
+                    overrideDisconnectedMode: true);
+                throw;
+            }
+        }
+
+        /// <summary>
+        /// The Request Item Data.
+        /// </summary>
+        /// <param name="actHdrRefno"> Activity header refno.</param>
+        /// <param name="criteria"> Item data filter.</param>
+        /// <returns><see cref="Task"/> Task completed.</returns>
+        public virtual async Task RequestItemData(int actHdrRefno, XDocument criteria)
+        {
+            try
+            {
+                this.DataAccessStatusOutHandler(
+                    this,
+                    EventArgs.Empty,
+                    $"Seeding {this.LowerCaseName} items.",
+                    true);
+
+                string responseData;
+                if (actHdrRefno == 0)
+                {
+                    var query = "SELECT * FROM tActivity WHERE ActivitySubType = ?";
+                    var conn = DatabaseConnection.GetInstance().SQLConn;
+                    var queryResult = await conn.QueryAsync<ActivityModel>(query, (int)this.CurrentSubType);
+                    if (queryResult != null && queryResult.Count > 0)
+                    {
+                        foreach (ActivityModel model in queryResult)
+                        {
+                            responseData = await this.SendRequest(model.ActivityRefno, criteria);
+                            await this.Save(responseData, model.ActivityRefno);
+                        }
+                    }
+                }
+                else
+                {
+                    responseData = await this.SendRequest(actHdrRefno, criteria);
+                    await this.Save(responseData, actHdrRefno);
+                }
+
+                this.DataAccessStatusOutHandler(
+                    sender: this,
+                    EventArgs.Empty,
+                    $"Seeding {this.LowerCaseName} items complete.",
+                    true);
+            }
+            catch (SQLiteException ex)
+            {
+                this.DataAccessStatusOutHandler(
+                    sender: this,
+                    EventArgs.Empty,
+                    "Database exception occurred.",
+                    overrideDisconnectedMode: true);
+                this.DataAccessStatusOutHandler(
+                    sender: this,
+                    EventArgs.Empty,
+                    $"Seeding {this.LowerCaseName} items failed.",
+                    overrideDisconnectedMode: true);
+
+                var msg = $"Save {this.LowerCaseName} to database failed.{Environment.NewLine}" +
+                    $"Reason: {ex.Message}.";
+                throw;
+            }
+            catch (CommunicationException)
+            {
+                this.DataAccessStatusOutHandler(
+                    sender: this,
+                    EventArgs.Empty,
+                    "Communication exception occurred.",
+                    overrideDisconnectedMode: true);
+                this.DataAccessStatusOutHandler(
+                    sender: this,
+                    EventArgs.Empty,
+                    $"Seeding {this.LowerCaseName} items failed.",
+                    overrideDisconnectedMode: true);
+                throw;
+            }
+            catch (Exception)
+            {
+                this.DataAccessStatusOutHandler(
+                    sender: this,
+                    EventArgs.Empty,
+                    "Unhandled general exception caught.",
+                    overrideDisconnectedMode: true);
+                this.DataAccessStatusOutHandler(
+                    sender: this,
+                    EventArgs.Empty,
+                    $"Seeding {this.LowerCaseName} items failed.",
+                    overrideDisconnectedMode: true);
+                throw;
+            }
+        }
+
+        /// <summary>
+        /// The Request Detail Data.
+        /// </summary>
+        /// <param name="actItemRefno"> Activity header refno.</param>
+        /// <returns><see cref="Task"/> Task completed.</returns>
+        public virtual async Task RequestDetailData(int actItemRefno)
+        {
+            try
+            {
+                this.DataAccessStatusOutHandler(
+                    sender: this,
+                    EventArgs.Empty,
+                    $"Seeding {this.LowerCaseName} details.",
+                    overrideDisconnectedMode: true);
+                if (actItemRefno == 0)
+                {
+                    await RequestDataAll();
+                }
+                else
+                {
+                    await RequestDataSingeLineItem();
+                }
+
+                this.DataAccessStatusOutHandler(
+                    sender: this,
+                    EventArgs.Empty,
+                    $"Seeding {this.LowerCaseName} details complete.",
+                    overrideDisconnectedMode: true);
+            }
+            catch (SQLiteException ex)
+            {
+                this.DataAccessStatusOutHandler(
+                    sender: this,
+                    EventArgs.Empty,
+                    "Database exception occurred.",
+                    overrideDisconnectedMode: true);
+                this.DataAccessStatusOutHandler(
+                    sender: this,
+                    EventArgs.Empty,
+                    $"Seeding {this.LowerCaseName} details failed.",
+                    overrideDisconnectedMode: true);
+
+                var msg = $"Save {this.LowerCaseName} to database failed.{Environment.NewLine}" +
+                    $"Reason: {ex.Message}.";
+                throw;
+            }
+            catch (CommunicationException)
+            {
+                this.DataAccessStatusOutHandler(
+                    sender: this,
+                    EventArgs.Empty,
+                    "Communication exception occurred.",
+                    overrideDisconnectedMode: true);
+                this.DataAccessStatusOutHandler(
+                    sender: this,
+                    EventArgs.Empty,
+                    $"Seeding {this.LowerCaseName} details failed.",
+                    overrideDisconnectedMode: true);
+                throw;
+            }
+            catch (Exception)
+            {
+                this.DataAccessStatusOutHandler(
+                    sender: this,
+                    EventArgs.Empty,
+                    "Unhandled general exception caught.",
+                    overrideDisconnectedMode: true);
+                this.DataAccessStatusOutHandler(
+                    sender: this,
+                    EventArgs.Empty,
+                    $"Seeding {this.LowerCaseName} details failed.",
+                    overrideDisconnectedMode: true);
+                throw;
+            }
+
+            //////////////////////////////////////////////////////////////////////////
+            async Task RequestDataAll()
+            {
+                // Get all activity detail for all activity items, used in disconnected mode.
+                var query = "SELECT ActivityItemRefno FROM tActivityItem WHERE ActivityItemSubType = ?";
+                var queryResult = await DatabaseConnection.GetInstance().SQLConn
+                    .QueryAsync<tActivityItemModel>(
+                        query,
+                        Convert.ToInt32(this.CurrentSubType));
+                if (queryResult?.Count > 0)
+                {
+                    foreach (var model in queryResult)
+                    {
+                        var response = await this.SendRequest(model.ActivityItemRefno);
+                        await this.Save(response, model.ActivityItemRefno);
+                    }
+                }
+                else
+                {
+                    var msg = $"No activity items could be found for the sub type" +
+                              $" {Common.SubTypeEnum2String(this.CurrentSubType)}";
+                    throw new Exception(msg);
+                }
+            }
+
+            //////////////////////////////////////////////////////////////////////////
+            async Task RequestDataSingeLineItem()
+            {
+                var response = await this.SendRequest(actItemRefno);
+                await this.Save(response, actItemRefno);
+            }
+        }
 
         /// <summary>
         /// Perform a request for data.
         /// </summary>
         /// <returns>The <see cref="Task"/> Task operation.</returns>
-        public virtual Task RequestData()
+        public virtual async Task RequestData()
         {
-            throw new NotImplementedException();
+            try
+            {
+                this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"Seeding {this.LowerCaseName}.", true);
+
+                var reqData = await this.SendRequest();
+
+                if (reqData.Length > 0)
+                {
+                    if (reqData.Contains("<message>ERROR</message>"))
+                    {
+                        var reqErr = new XmlDocument();
+                        reqErr.LoadXml(reqData);
+                        throw new Exception(reqErr.DocumentElement["detail"].InnerText);
+                    }
+
+                    await this.Save(reqData);
+                }
+
+                this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"Seeding {this.LowerCaseName} complete.", true);
+            }
+            catch (Exception ex)
+            {
+                this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"Seeding {this.LowerCaseName} failed.", true);
+
+                throw new Exception($"Seeding {this.LowerCaseName} failed.", ex);
+            }
         }
 
         /// <summary>
@@ -87,68 +537,144 @@ namespace dMobile.GroundWork
         /// </summary>
         /// <param name="actRefno"><see cref="int"/> Activity reference number.</param>
         /// <returns>The <see cref="Task"/> Task operation.</returns>
-        public virtual Task RequestData(int actRefno)
-        {
-            throw new NotImplementedException();
-        }
-
-        /// <summary>
-        /// Perform a request for data.
-        /// </summary>
-        /// <param name="criteria"><see cref="XDocument"/> Filter detail used in the comm server.</param>
-        /// <returns>The <see cref="Task"/>.</returns>
-        public virtual Task RequestData(XDocument criteria)
-        {
-            throw new NotImplementedException();
-        }
-
-        /// <summary>
-        /// Perform a request for data.
-        /// </summary>
-        /// <param name="actRefno"><see cref="int"/> Activity reference number.</param>
-        /// <param name="criteria"><see cref="XDocument"/> Filter detail used in the comm server.</param>
-        /// <returns>The <see cref="Task"/>.</returns>
-        public virtual Task RequestData(int actRefno, XDocument criteria)
-        {
-            throw new NotImplementedException();
-        }
+        public abstract Task RequestData(int actRefno);
 
         /// <summary>
         /// Perform a data purge.
         /// </summary>
         /// <returns>The <see cref="Task"/> Task operation.</returns>
-        public virtual Task PurgeData()
-        {
-            throw new NotImplementedException();
-        }
+        public abstract Task PurgeData();
 
         /// <summary>
         /// Perform a data purge.
         /// </summary>
         /// <param name="sectLocMapRefno"><see cref="int"/> Section location map reference number.</param>
         /// <returns>The <see cref="Task"/> Task operation.</returns>
-        public virtual Task PurgeData(int sectLocMapRefno)
-        {
-            throw new NotImplementedException();
-        }
+        public abstract Task PurgeData(int sectLocMapRefno);
 
         /// <summary>
         /// Perform a data purge.
         /// </summary>
         /// <param name="actSubType"> .</param>
         /// <returns>The <see cref="Task"/> Task operation.</returns>
-        public virtual Task PurgeData(SysCommon.ActSubTypes actSubType)
-        {
-            throw new NotImplementedException();
-        }
+        public abstract Task PurgeData(SysCommon.ActSubTypes actSubType);
 
         /// <summary>
         /// Get the data status.
         /// </summary>
         /// <returns>.</returns>
-        public virtual Task<int> DataStatus()
+        public abstract Task<int> DataStatus();
+
+        /// <summary>
+        /// Get the data header status.
+        /// </summary>
+        /// <returns><see cref="int"/> Row count.</returns>
+        public virtual async Task<int> DataHeaderStatus()
         {
-            throw new NotImplementedException();
+            int rowsAffected;
+            try
+            {
+                var query = "SELECT COUNT(tActivity.ActivityRefno)"
+                            + " FROM tActivity"
+                            + " WHERE tActivity.ActivitySubType = ?";
+                var conn = DatabaseConnection.GetInstance().SQLConn;
+                rowsAffected = await conn.ExecuteScalarAsync<int>(query, (int)this.CurrentSubType);
+                this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"{rowsAffected} {this.LowerCaseName}(s)", true);
+            }
+            catch (SQLiteException ex)
+            {
+                throw new Exception($"Database exception occurred. {this.ProperCaseName} status failed.", ex);
+            }
+            catch
+            {
+                this.DataAccessStatusOutHandler(
+                    this,
+                    EventArgs.Empty,
+                    $"Data status {this.LowerCaseName} failed.",
+                    true);
+                throw;
+            }
+
+            return rowsAffected;
+        }
+
+        /// <summary>
+        /// Get the data item status.
+        /// </summary>
+        /// <returns><see cref="int"/> Row count.</returns>
+        public virtual async Task<int> DataItemStatus()
+        {
+            int rowsAffected;
+            try
+            {
+                var query = "SELECT COUNT(tActivityItem.ActivityItemRefno) FROM tActivityItem WHERE" +
+                    " tActivityItem.ActivityItemSubType = ?";
+                rowsAffected = await DatabaseConnection.GetInstance().SQLConn.ExecuteScalarAsync<int>(
+                    query,
+                    (int)this.CurrentSubType);
+                this.DataAccessStatusOutHandler(
+                    this,
+                    EventArgs.Empty,
+                    $"{rowsAffected} {this.LowerCaseName} items.",
+                    true);
+            }
+            catch (SQLiteException ex)
+            {
+                this.DataAccessStatusOutHandler(
+                    this,
+                    EventArgs.Empty,
+                    $"Data status {this.LowerCaseName} items failed.",
+                    true);
+                throw new Exception($"Database exception occurred. {this.ProperCaseName} items status failed.", ex);
+            }
+            catch (Exception)
+            {
+                this.DataAccessStatusOutHandler(
+                    this,
+                    EventArgs.Empty,
+                    $"Data status {this.LowerCaseName} items failed.",
+                    true);
+                throw;
+            }
+
+            return rowsAffected;
+        }
+
+        /// <summary>
+        /// Get the data detail status.
+        /// </summary>
+        /// <returns><see cref="int"/> Row count.</returns>
+        public virtual async Task<int> DataDetailStatus()
+        {
+            int rowsAffected;
+            try
+            {
+                var query = "SELECT COUNT(tActivityDetail.ActivityDetailRefno) FROM tActivityDetail WHERE" +
+                    " tActivityDetail.ActivityDetailSubType = ?";
+                rowsAffected = await DatabaseConnection.GetInstance().SQLConn.ExecuteScalarAsync<int>(
+                    query,
+                    Convert.ToInt32(this.CurrentSubType));
+                this.DataAccessStatusOutHandler(
+                    sender: this,
+                    EventArgs.Empty,
+                    $"{rowsAffected} {this.LowerCaseName} details.",
+                    overrideDisconnectedMode: true);
+            }
+            catch (SQLiteException ex)
+            {
+                throw new Exception($"Database exception occurred. {this.ProperCaseName} details status failed.", ex);
+            }
+            catch (Exception)
+            {
+                this.DataAccessStatusOutHandler(
+                    this,
+                    EventArgs.Empty,
+                    $"Data status {this.LowerCaseName} detail failed.",
+                    true);
+                throw;
+            }
+
+            return rowsAffected;
         }
 
         /// <summary>
@@ -231,7 +757,7 @@ namespace dMobile.GroundWork
         /// <param name="listener"><see cref="IDataAccessEventListener"/> Data access event listener.</param>
         public void RegisterDataAccessListenerStatusOut(IDataAccessEventListener listener)
         {
-            this.OnDataAccessStatusOut += new OnDataAccessStatusOutEventHandler(
+            this.OnDataAccessStatusOut += new DataAccessStatusOutEventHandler(
                 listener.OnDataAccessStatusOut);
         }
 
@@ -241,7 +767,7 @@ namespace dMobile.GroundWork
         /// <param name="listener"><see cref="IDataAccessEventListener"/> Data access event listener.</param>
         public void UnregisterDataAccessListenerStatusOut(IDataAccessEventListener listener)
         {
-            this.OnDataAccessStatusOut -= new OnDataAccessStatusOutEventHandler(
+            this.OnDataAccessStatusOut -= new DataAccessStatusOutEventHandler(
                 listener.OnDataAccessStatusOut);
         }
 
@@ -251,7 +777,7 @@ namespace dMobile.GroundWork
         /// <param name="listener"><see cref="IDataAccessEventListener"/> Data access event listener.</param>
         public void RegisterDataAccessListenerProgressOut(IDataAccessEventListener listener)
         {
-            this.OnDataAccessProgressOut += new OnDataAccessProgressOutEventHandler(
+            this.OnDataAccessProgressOut += new DataAccessProgressOutEventHandler(
                 listener.OnDataAccessProgressOut);
         }
 
@@ -261,7 +787,7 @@ namespace dMobile.GroundWork
         /// <param name="listener"><see cref="IDataAccessEventListener"/> Data access event listener.</param>
         public void UnregisterDataAccessListenerProgressOut(IDataAccessEventListener listener)
         {
-            this.OnDataAccessProgressOut -= new OnDataAccessProgressOutEventHandler(
+            this.OnDataAccessProgressOut -= new DataAccessProgressOutEventHandler(
                 listener.OnDataAccessProgressOut);
         }
 
@@ -270,29 +796,30 @@ namespace dMobile.GroundWork
         /// </summary>
         /// <param name="familyCode"><see cref="string"/> Family code filter.</param>
         /// <returns><see cref="string"/> Send result information.</returns>
-        protected virtual Task<string> SendRequest(string familyCode)
+        protected async virtual Task<string> SendRequest(string familyCode)
         {
-            throw new NotImplementedException();
+            return await this.SendComm(await this.CreateRequest(familyCode));
         }
 
         /// <summary>
         /// Send a data request.
         /// </summary>
-        /// <param name="actRefno"><see cref="int"/> Activity reference number.</param>
+        /// <param name="actItemRefno"><see cref="int"/> Activity reference number.</param>
         /// <returns><see cref="string"/> Send result information.</returns>
-        protected virtual Task<string> SendRequest(int actRefno)
+        protected virtual async Task<string> SendRequest(int actItemRefno)
         {
-            throw new NotImplementedException();
+            return await this.SendComm(await this.CreateRequest(actItemRefno));
         }
 
         /// <summary>
         /// Send a data request.
         /// </summary>
         /// <param name="prodLocMapType"><see cref="int"/> Product location map type.</param>
+        /// <param name="locMapFKRefno"><see cref="int"/> Location map foreign key reference.</param>
         /// <returns><see cref="string"/> Send result information.</returns>
-        protected virtual Task<string> SendRequestProdLoc(int prodLocMapType)
+        protected virtual async Task<string> SendRequest(int prodLocMapType, int locMapFKRefno)
         {
-            throw new NotImplementedException();
+            return await this.SendComm(await this.CreateRequest(prodLocMapType, locMapFKRefno));
         }
 
         /// <summary>
@@ -309,103 +836,71 @@ namespace dMobile.GroundWork
         /// </summary>
         /// <param name="criteria"><see cref="XDocument"/> Data filter request.</param>
         /// <returns><see cref="string"/> Send result information.</returns>
-        protected virtual Task<string> SendRequest(XDocument criteria)
+        protected virtual async Task<string> SendRequest(XDocument criteria)
         {
-            throw new NotImplementedException();
+            return await this.SendComm(await this.CreateRequest(criteria));
         }
 
         /// <summary>
         /// Send a data request.
         /// </summary>
-        /// <param name="actRefno"><see cref="int"/> Activity reference number.</param>
+        /// <param name="actItemRefno"><see cref="int"/> Activity reference number.</param>
         /// <param name="criteria"><see cref="XDocument"/> Data filter request.</param>
         /// <returns><see cref="string"/> Send result information.</returns>
-        protected virtual Task<string> SendRequest(int actRefno, XDocument criteria)
+        protected virtual async Task<string> SendRequest(int actItemRefno, XDocument criteria)
         {
-            throw new NotImplementedException();
-        }
-
-        /// <summary>
-        /// Send a data request.
-        /// </summary>
-        /// <param name="prodLocMapType"><see cref="int"/> Product location map type.</param>
-        /// <param name="whsLocMapFKRefno"><see cref="int"/> Warehouse location map foreign key reference number.</param>
-        /// <returns><see cref="string"/> Send result information.</returns>
-        protected virtual Task<string> SendRequest(int prodLocMapType, int whsLocMapFKRefno)
-        {
-            throw new NotImplementedException();
+            return await this.SendComm(await this.CreateRequest(actItemRefno, criteria));
         }
 
         /// <summary>
         /// Save received data.
         /// </summary>
-        /// <param name="receivedData"><see cref="string"/> Received data to save.</param>
+        /// <param name="responseData"><see cref="string"/> Received data to save.</param>
         /// <returns><see cref="Task"/> Task operation.</returns>
-        protected virtual Task Save(string receivedData)
-        {
-            throw new NotImplementedException();
-        }
+        protected abstract Task Save(string responseData);
 
         /// <summary>
         /// Save received data.
         /// </summary>
-        /// <param name="receivedData"><see cref="string"/> Received data to save.</param>
+        /// <param name="responseData"><see cref="string"/> Received data to save.</param>
         /// <param name="refno"><see cref="int"/> Refno.</param>
         /// <returns><see cref="Task"/> Task operation.</returns>
-        protected virtual Task Save(string receivedData, int refno)
-        {
-            throw new NotImplementedException();
-        }
+        protected abstract Task Save(string responseData, int refno);
 
         /// <summary>
         /// Create the request.
         /// </summary>
         /// <returns><see cref="string"/> Created request.</returns>
-        protected virtual Task<string> CreateRequest()
-        {
-            throw new NotImplementedException();
-        }
+        protected abstract Task<string> CreateRequest();
 
         /// <summary>
         /// Create the request.
         /// </summary>
         /// <param name="criteria"><see cref="XDocument"/> Data filter request.</param>
         /// <returns><see cref="string"/> Created request.</returns>
-        protected virtual Task<string> CreateRequest(XDocument criteria)
-        {
-            throw new NotImplementedException();
-        }
+        protected abstract Task<string> CreateRequest(XDocument criteria);
 
         /// <summary>
         /// Create the request.
         /// </summary>
         /// <param name="familyCode"><see cref="string"/> Family code.</param>
         /// <returns><see cref="string"/> Created request.</returns>
-        protected virtual Task<string> CreateRequest(string familyCode)
-        {
-            throw new NotImplementedException();
-        }
+        protected abstract Task<string> CreateRequest(string familyCode);
 
         /// <summary>
         /// Create the request.
         /// </summary>
-        /// <param name="actFKRefno"><see cref="int"/> Activity foreign key reference number.</param>
+        /// <param name="activityItemFkRefno"><see cref="int"/> Activity foreign key reference number.</param>
         /// <returns><see cref="string"/> Created request.</returns>
-        protected virtual Task<string> CreateRequest(int actFKRefno)
-        {
-            throw new NotImplementedException();
-        }
+        protected abstract Task<string> CreateRequest(int activityItemFkRefno);
 
         /// <summary>
         /// Create the request.
         /// </summary>
-        /// <param name="actFKRefno"><see cref="int"/> Activity foreign key reference number.</param>
+        /// <param name="activityItemFkRefno"><see cref="int"/> Activity foreign key reference number.</param>
         /// <param name="criteria"><see cref="XDocument"/> Data filter request.</param>
         /// <returns><see cref="string"/> Created request.</returns>
-        protected virtual Task<string> CreateRequest(int actFKRefno, XDocument criteria)
-        {
-            throw new NotImplementedException();
-        }
+        protected abstract Task<string> CreateRequest(int activityItemFkRefno, XDocument criteria);
 
         /// <summary>
         /// Create the request.
@@ -413,20 +908,14 @@ namespace dMobile.GroundWork
         /// <param name="prodLocMapType"><see cref="int"/> Product location map type.</param>
         /// <param name="whsLocMapFKRefno"><see cref="int"/> Warehouse location map foreign key reference number.</param>
         /// <returns><see cref="string"/> Created request.</returns>
-        protected virtual Task<string> CreateRequest(int prodLocMapType, int whsLocMapFKRefno)
-        {
-            throw new NotImplementedException();
-        }
+        protected abstract Task<string> CreateRequest(int prodLocMapType, int whsLocMapFKRefno);
 
         /// <summary>
         /// Create the request.
         /// </summary>
         /// <param name="prodLocMapType"><see cref="int"/> Product location map type.</param>
         /// <returns><see cref="string"/> Created request.</returns>
-        protected virtual Task<string> CreateRequestProdLoc(int prodLocMapType)
-        {
-            throw new NotImplementedException();
-        }
+        protected abstract Task<string> CreateRequestProdLoc(int prodLocMapType);
 
         /// <summary>
         /// Save the common detail product scheme variant information.
@@ -460,11 +949,15 @@ namespace dMobile.GroundWork
 
                 if (results != null && results.Count > 0)
                 {
-                    conn.Execute(
+                    int rowsAffected = conn.Execute(
                         "INSERT INTO tActivityDetailProductSchemeVariantXRef (" +
                         "ActivityDetailRefno, ProductSchemeVariantRefno) VALUES (?, ?)",
                         Convert.ToInt32(actDetailRefno),
                         results[0].ProductSchemeVariantRefno);
+                    if (rowsAffected <= 0)
+                    {
+                        throw new Exception("Insert into activity detail product scheme variant xref returned rows affected <= 0.");
+                    }
                 }
                 else
                 {
@@ -545,7 +1038,11 @@ namespace dMobile.GroundWork
                 }
             }
 
-            conn.Execute(query, parameters.ToArray());
+            int rowsAffected = conn.Execute(query, parameters.ToArray());
+            if (rowsAffected <= 0)
+            {
+                throw new Exception("Insert into activity detail extra return rows affected <= 0.");
+            }
         }
 
         /// <summary>

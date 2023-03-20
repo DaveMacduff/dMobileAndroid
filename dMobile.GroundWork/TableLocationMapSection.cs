@@ -39,7 +39,7 @@ namespace dMobile.GroundWork
             {
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Seeding sections.", true);
 
-                var reqData = string.Empty;
+                var responseData = string.Empty;
 
                 if (whsLocMapRefno > 0)
                 {
@@ -57,20 +57,8 @@ namespace dMobile.GroundWork
                     }
                 }
 
-                reqData = await this.SendRequest(whsLocMapRefno);
-
-                if (reqData.Length > 0)
-                {
-                    if (reqData.Contains("<message>ERROR</message>"))
-                    {
-                        var reqErr = new XmlDocument();
-                        reqErr.LoadXml(reqData);
-                        throw new Exception(reqErr.DocumentElement["detail"].InnerText);
-                    }
-
-                    await this.Save(reqData);
-                }
-
+                responseData = await this.SendRequest(whsLocMapRefno);
+                await this.Save(responseData);
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Seeding sections complete.", true);
             }
             catch (SQLiteException ex)
@@ -142,27 +130,27 @@ namespace dMobile.GroundWork
         /// <summary>
         /// The Send.
         /// </summary>
-        /// <param name="whsLocMapRefno"></param>
+        /// <param name="actItemRefno"></param>
         /// <returns></returns>
-        protected override async Task<string> SendRequest(int whsLocMapRefno)
+        protected override async Task<string> SendRequest(int actItemRefno)
         {
-            return await this.SendComm(await this.CreateRequest(whsLocMapRefno));
+            return await this.SendComm(await this.CreateRequest(actItemRefno));
         }
 
         /// <summary>
         /// The Save.
         /// </summary>
-        /// <param name="reqData"></param>
-        protected override async Task Save(string reqData)
+        /// <param name="responseData"></param>
+        protected override async Task Save(string responseData)
         {
             await DatabaseConnection.GetInstance().SQLConn.RunInTransactionAsync(transaction =>
             {
                 try
                 {
                     using var ds = new DataSet();
-                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Reading received data.", false);
+                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Reading received responseData.", false);
 
-                    ds.ReadXml(SysCommon.GetXmlReader(ref reqData), XmlReadMode.Auto);
+                    ds.ReadXml(SysCommon.GetXmlReader(ref responseData), XmlReadMode.Auto);
 
                     this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving sections.", false);
 
@@ -275,9 +263,9 @@ namespace dMobile.GroundWork
         /// <summary>
         /// The Create.
         /// </summary>
-        /// <param name="whsLocMapRefno"></param>
+        /// <param name="activityItemFkRefno"></param>
         /// <returns></returns>
-        protected override async Task<string> CreateRequest(int whsLocMapRefno)
+        protected override async Task<string> CreateRequest(int activityItemFkRefno)
         {
             var xmlString = new StringBuilder();
             var xml = XmlWriter.Create(xmlString);
@@ -285,9 +273,9 @@ namespace dMobile.GroundWork
             var locMapWhsFKRefno = 0;
 
             // lookup and verify warehouse
-            if (whsLocMapRefno > 0)
+            if (activityItemFkRefno > 0)
             {
-                locMapWhsFKRefno = await locMapWhs.GetLocMapWhsFKRefnoFromLocMapWhsRefno(whsLocMapRefno);
+                locMapWhsFKRefno = await locMapWhs.GetLocMapWhsFKRefnoFromLocMapWhsRefno(activityItemFkRefno);
             }
 
             var request = XDocument.Parse(
@@ -305,6 +293,51 @@ namespace dMobile.GroundWork
             xml.Close();
 
             return xmlString.ToString();
+        }
+
+        public override Task PurgeData()
+        {
+            throw new NotImplementedException();
+        }
+
+        public override Task PurgeData(SysCommon.ActSubTypes actSubType)
+        {
+            throw new NotImplementedException();
+        }
+
+        protected override Task Save(string responseData, int refno)
+        {
+            throw new NotImplementedException();
+        }
+
+        protected override Task<string> CreateRequest()
+        {
+            throw new NotImplementedException();
+        }
+
+        protected override Task<string> CreateRequest(XDocument criteria)
+        {
+            throw new NotImplementedException();
+        }
+
+        protected override Task<string> CreateRequest(string familyCode)
+        {
+            throw new NotImplementedException();
+        }
+
+        protected override Task<string> CreateRequest(int activityItemFkRefno, XDocument criteria)
+        {
+            throw new NotImplementedException();
+        }
+
+        protected override Task<string> CreateRequest(int prodLocMapType, int whsLocMapFKRefno)
+        {
+            throw new NotImplementedException();
+        }
+
+        protected override Task<string> CreateRequestProdLoc(int prodLocMapType)
+        {
+            throw new NotImplementedException();
         }
     }
 }

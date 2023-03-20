@@ -279,13 +279,14 @@ namespace dMobile.View.Activity
                     });
                 }
             }
-            catch (MessageOnlyException ex)
+            catch (MessageOnlyException msgEx)
             {
+                var msg = (msgEx.Message.IndexOf("MSGBOX-") == -1) ? msgEx.Message : msgEx.Message["MSGBOX-".Length..];
                 isReadyToSave = false;
                 await Device.InvokeOnMainThreadAsync(async () =>
                     await Application.Current.MainPage.DisplayAlert(
                         this.GetControlDescription(),
-                        ex.Message,
+                        msg,
                         Resource.OK));
             }
             catch (Exception ex)
@@ -318,13 +319,14 @@ namespace dMobile.View.Activity
                     // Set IsReadyToClose = false if checks fail.
                 }
             }
-            catch (MessageOnlyException ex)
+            catch (MessageOnlyException msgEx)
             {
+                var msg = (msgEx.Message.IndexOf("MSGBOX-") == -1) ? msgEx.Message : msgEx.Message["MSGBOX-".Length..];
                 isReadyToClose = false;
                 await Device.InvokeOnMainThreadAsync(async () =>
                     await Application.Current.MainPage.DisplayAlert(
                         this.GetControlDescription(),
-                        ex.Message,
+                        msg,
                         Resource.OK));
             }
             catch (Exception ex)
@@ -367,27 +369,7 @@ namespace dMobile.View.Activity
                     if (await Device.InvokeOnMainThreadAsync(async () => await this.DisplayAlert(this.GetControlDescription(), "Print product labels?", "Yes", "No")))
                     {
                         var sendReq = await this.ActDetail.CreateSubmitProductLabelXml(await this.GetXML());
-                        var strData = SysCommon.SubmitComm(sendReq);
-
-                        if (strData.Length > 0)
-                        {
-                            if (strData.Contains("<message>ERROR</message>"))
-                            {
-                                var docError = new XmlDocument();
-                                docError.LoadXml(strData);
-                                var errorDetail = docError.DocumentElement["detail"].InnerText;
-
-                                if (errorDetail.Contains("MSGBOX-"))
-                                {
-                                    throw new MessageOnlyException(errorDetail);
-                                }
-                                else
-                                {
-                                    throw new Exception(errorDetail);
-                                }
-                            }
-                        }
-
+                        SysCommon.SubmitComm(sendReq);
                         this.IsChangesMade = false;
                         saveComplete = true;
                     }
@@ -397,19 +379,29 @@ namespace dMobile.View.Activity
                     throw new MessageOnlyException("Data failed validation. Check your data.");
                 }
             }
-            catch (MessageOnlyException ex)
+            catch (CommunicationException commEx)
             {
+                var msg = (commEx.Message.IndexOf("MSGBOX-") == -1) ? commEx.Message : commEx.Message["MSGBOX-".Length..];
                 saveComplete = false;
                 await Device.InvokeOnMainThreadAsync(async () =>
                     await Application.Current.MainPage.DisplayAlert(
                         this.GetControlDescription(),
-                        ex.Message,
+                        msg,
+                        Resource.OK));
+            }
+            catch (MessageOnlyException msgEx)
+            {
+                var msg = (msgEx.Message.IndexOf("MSGBOX-") == -1) ? msgEx.Message : msgEx.Message["MSGBOX-".Length..];
+                saveComplete = false;
+                await Device.InvokeOnMainThreadAsync(async () =>
+                    await Application.Current.MainPage.DisplayAlert(
+                        this.GetControlDescription(),
+                        msg,
                         Resource.OK));
             }
             catch (Exception ex)
             {
                 saveComplete = false;
-
                 await Device.InvokeOnMainThreadAsync(async () =>
                 {
                     var errRpt = new FormErrorReport(ex);

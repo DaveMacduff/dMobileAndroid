@@ -40,36 +40,27 @@ namespace dMobile.GroundWork
 
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Default picking locations.", true);
 
-                var reqData = await this.SendRequestProdLoc(Convert.ToInt32(SysCommon.ProdLocMapTypes.Picking));
-
-                if (reqData.Length > 0)
+                var responseData = await this.SendComm(await this.CreateRequestProdLoc(
+                    Convert.ToInt32(SysCommon.ProdLocMapTypes.Picking)));
+                if (responseData.Contains("<message>ERROR</message>"))
                 {
-                    if (reqData.Contains("<message>ERROR</message>"))
-                    {
-                        var reqErr = new XmlDocument();
-                        reqErr.LoadXml(reqData);
-                        throw new Exception(reqErr.DocumentElement["detail"].InnerText);
-                    }
-
-                    await this.Save(reqData);
+                    var reqErr = new XmlDocument();
+                    reqErr.LoadXml(responseData);
+                    throw new Exception(reqErr.DocumentElement["detail"].InnerText);
                 }
 
+                await this.Save(responseData);
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Default receiving locations.", true);
-
-                reqData = await this.SendRequestProdLoc(Convert.ToInt32(SysCommon.ProdLocMapTypes.Receiving));
-
-                if (reqData.Length > 0)
+                responseData = await this.SendComm(await this.CreateRequestProdLoc(
+                    Convert.ToInt32(SysCommon.ProdLocMapTypes.Receiving)));
+                if (responseData.Contains("<message>ERROR</message>"))
                 {
-                    if (reqData.Contains("<message>ERROR</message>"))
-                    {
-                        var reqErr = new XmlDocument();
-                        reqErr.LoadXml(reqData);
-                        throw new Exception(reqErr.DocumentElement["detail"].InnerText);
-                    }
-
-                    await this.Save(reqData);
+                    var reqErr = new XmlDocument();
+                    reqErr.LoadXml(responseData);
+                    throw new Exception(reqErr.DocumentElement["detail"].InnerText);
                 }
 
+                await this.Save(responseData);
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Seeding warehouse locations complete.", true);
             }
             catch (Exception ex)
@@ -125,20 +116,10 @@ namespace dMobile.GroundWork
         }
 
         /// <summary>
-        /// The SendRequest.
-        /// </summary>
-        /// <param name="whsLocMapType"></param>
-        /// <returns></returns>
-        protected override async Task<string> SendRequestProdLoc(int whsLocMapType)
-        {
-            return await this.SendComm(await this.CreateRequestProdLoc(whsLocMapType));
-        }
-
-        /// <summary>
         /// The Save.
         /// </summary>
-        /// <param name="reqData"></param>
-        protected override async Task Save(string reqData)
+        /// <param name="responseData"></param>
+        protected override async Task Save(string responseData)
         {
             var locMapRefno = 0;
             var whsLocMapType = 0;
@@ -154,9 +135,9 @@ namespace dMobile.GroundWork
                 try
                 {
                     using var ds = new DataSet();
-                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Reading received data.", false);
+                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Reading received responseData.", false);
 
-                    ds.ReadXml(SysCommon.GetXmlReader(ref reqData), XmlReadMode.Auto);
+                    ds.ReadXml(SysCommon.GetXmlReader(ref responseData), XmlReadMode.Auto);
 
                     this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving warehouse locations.", false);
 
@@ -350,6 +331,56 @@ namespace dMobile.GroundWork
             xml.Close();
 
             return xmlString.ToString();
+        }
+
+        protected override Task<string> CreateRequest()
+        {
+            throw new NotImplementedException();
+        }
+
+        protected override Task<string> CreateRequest(XDocument criteria)
+        {
+            throw new NotImplementedException();
+        }
+
+        protected override Task<string> CreateRequest(string familyCode)
+        {
+            throw new NotImplementedException();
+        }
+
+        protected override Task<string> CreateRequest(int activityItemFkRefno)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override Task RequestData(int actRefno)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override Task PurgeData(int sectLocMapRefno)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override Task PurgeData(SysCommon.ActSubTypes actSubType)
+        {
+            throw new NotImplementedException();
+        }
+
+        protected override Task Save(string responseData, int refno)
+        {
+            throw new NotImplementedException();
+        }
+
+        protected override Task<string> CreateRequest(int activityItemFkRefno, XDocument criteria)
+        {
+            throw new NotImplementedException();
+        }
+
+        protected override Task<string> CreateRequest(int prodLocMapType, int whsLocMapFKRefno)
+        {
+            throw new NotImplementedException();
         }
     }
 }

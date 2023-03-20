@@ -1087,7 +1087,7 @@ namespace dMobile.Bedrock
 
             try
             {
-                var reqData = string.Empty;
+                var responseData = string.Empty;
 
                 if (this.OnBarCodeSettingsStatusOut != null)
                 {
@@ -1095,19 +1095,8 @@ namespace dMobile.Bedrock
                     this.OnBarCodeSettingsStatusOut(this, msgEventArg);
                 }
 
-                reqData = SysCommon.SubmitComm(this.CreateXMLRequestBarCodeSettings());
-                if (reqData.Length > 0)
-                {
-                    // check if result is an error message
-                    if (reqData.Contains("<message>ERROR</message>"))
-                    {
-                        var docError = new XmlDocument();
-                        docError.LoadXml(reqData);
-                        throw new Exception(docError.DocumentElement["detail"].InnerText);
-                    }
-
-                    this.Save(reqData);
-                }
+                responseData = SysCommon.SubmitComm(this.CreateXMLRequestBarCodeSettings());
+                this.Save(responseData);
 
                 if (this.OnBarCodeSettingsStatusOut != null)
                 {

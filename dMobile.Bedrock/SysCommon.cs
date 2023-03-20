@@ -1,5 +1,3 @@
-using System.Diagnostics;
-
 // <copyright file="SysCommon.cs" company="InterSect Business Systems Inc">
 // Copyright (c) InterSect Business Systems Inc. All rights reserved.
 // </copyright>
@@ -8,8 +6,8 @@ namespace dMobile.Bedrock
 {
     using System;
     using System.Collections.Generic;
+    using System.Diagnostics;
     using System.IO;
-    using System.Net.Sockets;
     using System.Reflection;
     using System.Runtime.InteropServices;
     using System.Text;
@@ -66,7 +64,7 @@ namespace dMobile.Bedrock
         }
 
         /// <summary>
-        ///
+        /// 
         /// </summary>
         /// <remarks></remarks>
         public enum ActPickingQtyOverValLevels : int
@@ -1227,13 +1225,12 @@ namespace dMobile.Bedrock
         /// <summary>
         /// The FillQuantityStructureFromQuantity.
         /// </summary>
-        /// <param name="prodInfo">.</param>
-        /// <param name="quantity">.</param>
+        /// <param name="prodInfo"><see cref="ProductInfo"/> Product information.</param>
+        /// <param name="quantity"><see cref="decimal"/> Quantity.</param>
         /// <returns>.</returns>
         public static SFillQuantity FillQuantityStructureFromQuantity(ProductInfo prodInfo, decimal quantity)
         {
-            var fill = new SFillQuantity();
-
+            var fill = default(SFillQuantity);
             if (quantity == 0)
             {
                 if (prodInfo.UnitCode == "LB" | prodInfo.UnitCode == "KG")
@@ -1303,24 +1300,10 @@ namespace dMobile.Bedrock
             {
                 // KLUDGE: Temp fix until we can share a socket
                 ////System.Threading.Thread.Sleep(500);
-
                 var bytesSent = sysEnv.SysSock.SendRequest(sysSock, sendData);
                 var compressedData = sysEnv.SysSock.ReceiveResponse(sysSock);
-
                 receivedData = Compress.UnZip(compressedData.ToArray());
-
-                // Only errors from the comm server will contain reserved xml characters that need
-                // special handling.
-                // Table data with special characters will be handled when being loaded in the
-                // xml.dom object.
-                if (receivedData.Contains("<message>ERROR</message>"))
-                {
-                    receivedData = SysCommon.RemoveXMLReservedChars(receivedData);
-                }
-                else if (receivedData.IsNullOrEmpty())
-                {
-                    throw new Exception("Unexpected no data received from communication submission.");
-                }
+                SysCommon.CheckCommResponseForErrors(receivedData);
             }
             catch
             {
@@ -1342,23 +1325,39 @@ namespace dMobile.Bedrock
         /// <param name="response">XML response string.</param>
         public static void CheckCommResponseForErrors(string response)
         {
-            if (response == null)
-            {
-                throw new Exception("COM Response is null and contains no data.");
-            }
+            var msg = "Communication response is empty or contains no data.";
+            response = response.IsNullOrEmpty() ? throw new Exception(msg) : response;
 
+            // Only errors from the comm server will contain reserved xml characters that need
+            // special handling.
+            // Table data with special characters will be handled when being loaded in the
+            // xml.dom object.
             if (response.Contains("<message>ERROR</message>"))
             {
-                var xmlDoc = new XmlDocument();
-                xmlDoc.LoadXml(response);
-                var errorDetail = xmlDoc.DocumentElement["detail"].InnerText;
-                if (errorDetail.Contains("MSGBOX-"))
+                response = SysCommon.RemoveXMLReservedChars(response);
+                var receivedError = new XmlDocument();
+                receivedError.LoadXml(response);
+                if (receivedError.DocumentElement == null)
                 {
-                    throw new MessageOnlyException(errorDetail);
+                    ////throw new CommunicationException("receivedError.DocumentElement root element == null.");
+                    throw new CommunicationException("Received data was not complete.");
+                }
+
+                if (receivedError.DocumentElement["detail"] == null)
+                {
+                    ////throw new CommunicationException(@"receivedError.DocumentElement['detail'] element == null.");
+                    throw new CommunicationException("Received detail message was not complete.");
+                }
+
+                msg = receivedError.DocumentElement["detail"] !.InnerText;
+                if (msg.Contains("MSGBOX-"))
+                {
+                    // Throw a message only exception with the 'MSGBOX-' text removed.
+                    throw new MessageOnlyException(msg[7..]);
                 }
                 else
                 {
-                    throw new Exception(errorDetail);
+                    throw new CommunicationException(msg);
                 }
             }
         }
@@ -1458,7 +1457,8 @@ namespace dMobile.Bedrock
                 {
                     if (prop.CanRead)
                     {
-                        tmpElem = result.CreateElement(prop.GetGetMethod().Name.Substring(4, prop.GetGetMethod().Name.Length - 4));
+                        tmpElem = result.CreateElement(
+                            prop.GetGetMethod().Name.Substring(4, prop.GetGetMethod().Name.Length - 4));
                         tmpElem.AppendChild(result.CreateTextNode(prop.GetValue(list, null).ToString()));
                         record.AppendChild(tmpElem);
                     }
@@ -1570,7 +1570,6 @@ namespace dMobile.Bedrock
             ////        newData.Append(ch);
             ////    }
             //// }
-            ///
             return newData.ToString();
         }
 

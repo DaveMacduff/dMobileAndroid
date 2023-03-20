@@ -26,153 +26,86 @@ namespace dMobile.GroundWork
         public TableActivityPhysicalCountDetail()
         {
             this.FullClassName = "dMobile.GroundWork.TableActivityPhysicalCountDetail";
+            this.CurrentSubType = SysCommon.ActSubTypes.PhysicalCounts;
+            this.LowerCaseName = "physical count";
+            this.ProperCaseName = "Physical count";
         }
 
         /// <summary>
-        /// The Request.
+        /// Purge the activity detail.
         /// </summary>
-        /// <param name="actItemRefno">The actItemRefno<see cref="int"/>.</param>
-        public override async Task RequestData(int actItemRefno)
-        {
-
-            // GC.Collect();
-            // GC.WaitForPendingFinalizers();
-            try
-            {
-                this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Seeding physical count details.", true);
-
-                string reqData;
-                if (actItemRefno == 0)
-                {
-                    var query = "SELECT * FROM tActivityItem WHERE ActivityItemSubType = ?";
-                    var results = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<tActivityItemModel>(query, Convert.ToInt32(SysCommon.ActSubTypes.PhysicalCounts));
-                    if (results != null && results.Count > 0)
-                    {
-                        actItemRefno = results[0].ActivityItemRefno;
-                        reqData = await this.SendRequest(actItemRefno);
-
-                        if (reqData.Length > 0)
-                        {
-                            if (reqData.Contains("<message>ERROR</message>"))
-                            {
-                                var reqErr = new XmlDocument();
-                                reqErr.LoadXml(reqData);
-                                throw new Exception(reqErr.DocumentElement["detail"].InnerText);
-                            }
-
-                            await this.Save(reqData, actItemRefno);
-                        }
-                    }
-                }
-                else
-                {
-                    reqData = await this.SendRequest(actItemRefno);
-
-                    if (reqData.Length > 0)
-                    {
-                        if (reqData.Contains("<message>ERROR</message>"))
-                        {
-                            var reqErr = new XmlDocument();
-                            reqErr.LoadXml(reqData);
-                            throw new Exception(reqErr.DocumentElement["detail"].InnerText);
-                        }
-
-                        await this.Save(reqData, actItemRefno);
-                    }
-                }
-
-                this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Seeding physical count details complete.", true);
-            }
-            catch (SQLiteException ex)
-            {
-                this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Database exception occurred.", true);
-                this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Seeding physical count details failed.", true);
-
-                throw new Exception("Database exception occurred. Seeding physical count details failed.", ex);
-            }
-            catch (Exception ex)
-            {
-                this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Seeding physical count details failed.", true);
-
-                throw new Exception("Database exception occurred. Seeding physical count details failed.", ex);
-            }
-        }
-
-        /// <summary>
-        /// The Purge.
-        /// </summary>
+        /// <returns><see cref="Task"/> Task completed.</returns>
         public override async Task PurgeData()
         {
-            try
+            var conn = DatabaseConnection.GetInstance().SQLConn;
+            var subType = Convert.ToInt32(this.CurrentSubType);
+            this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging details.", true);
+
+            await conn.RunInTransactionAsync(transaction =>
             {
-                this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging physical count details.", true);
+                try
+                {
+                    var query = "DELETE FROM tActivityDetailProductSchemeVariantXRef "
+                        + "WHERE tActivityDetailProductSchemeVariantXRef.ActivityDetailRefno IN "
+                        + "(SELECT tActivityDetail.ActivityDetailRefno "
+                        + "FROM tActivityDetail "
+                        + "WHERE tActivityDetail.ActivityDetailSubType = ?)";
+                    transaction.Execute(query, subType);
 
-                var query = "DELETE FROM tActivityDetailProductSchemeVariantXRef "
-                            + "WHERE tActivityDetailProductSchemeVariantXRef.ActivityDetailRefno IN "
-                            + "(SELECT tActivityDetail.ActivityDetailRefno "
-                            + "FROM tActivityDetail "
-                            + "WHERE tActivityDetail.ActivityDetailSubType = ?)";
-                await DatabaseConnection.GetInstance().SQLConn.QueryAsync<tActivityDetailModel>(query, Convert.ToInt32(SysCommon.ActSubTypes.PhysicalCounts));
+                    query = "DELETE FROM tActivityDetailCount "
+                        + "WHERE tActivityDetailCount.ActivityDetailRefno IN "
+                        + "(SELECT tActivityDetail.ActivityDetailRefno "
+                        + "FROM tActivityDetail "
+                        + "WHERE tActivityDetail.ActivityDetailSubType = ?)";
+                    transaction.Execute(query, subType);
 
-                query = "DELETE FROM tActivityDetailCount "
-                    + "WHERE tActivityDetailCount.ActivityDetailRefno IN "
-                    + "(SELECT tActivityDetail.ActivityDetailRefno "
-                    + "FROM tActivityDetail "
-                    + "WHERE tActivityDetail.ActivityDetailSubType = ?)";
-                await DatabaseConnection.GetInstance().SQLConn.QueryAsync<tActivityDetailModel>(query, Convert.ToInt32(SysCommon.ActSubTypes.PhysicalCounts));
-
-                query = "DELETE FROM tActivityDetailExtra "
+                    query = "DELETE FROM tActivityDetailExtra "
                         + "WHERE tActivityDetailExtra.ActivityDetailRefno IN "
                         + "(SELECT tActivityDetail.ActivityDetailRefno "
                         + "FROM tActivityDetail "
                         + "WHERE tActivityDetail.ActivityDetailSubType = ?)";
-                await DatabaseConnection.GetInstance().SQLConn.QueryAsync<tActivityDetailModel>(query, Convert.ToInt32(SysCommon.ActSubTypes.PhysicalCounts));
+                    transaction.Execute(query, subType);
 
-                query = "DELETE FROM tActivityDetail WHERE tActivityDetail.ActivityDetailSubType = ?";
-                await DatabaseConnection.GetInstance().SQLConn.QueryAsync<tActivityDetailModel>(query, Convert.ToInt32(SysCommon.ActSubTypes.PhysicalCounts));
+                    query = "DELETE FROM tActivityDetail WHERE tActivityDetail.ActivityDetailSubType = ?";
+                    transaction.Execute(query, subType);
 
-                this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging physical count details complete.", true);
-            }
-            catch (SQLiteException ex)
-            {
-                this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Database exception occurred.", true);
-                this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging physical count details failed.", true);
+                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging cycle count details complete.", true);
+                    transaction.Commit();
+                }
+                catch (SQLiteException sqlEx)
+                {
+                    if (transaction.IsInTransaction)
+                    {
+                        transaction.Rollback();
+                    }
 
-                throw new Exception("Database exception occurred. Purging physical count details failed.", ex);
-            }
-        }
+                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Database exception occurred.", true);
+                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging cycle count details failed.", true);
+                    throw new Exception("Database exception occurred. Purging cycle count details failed.", sqlEx);
+                }
+                catch (Exception ex)
+                {
+                    if (transaction.IsInTransaction)
+                    {
+                        transaction.Rollback();
+                    }
 
-        /// <summary>
-        /// The DataStatus.
-        /// </summary>
-        /// <returns>The <see cref="int"/>.</returns>
-        public override async Task<int> DataStatus()
-        {
-            int rowsAffected;
-            try
-            {
-                var query = "SELECT COUNT(ActivityDetailRefno) FROM tActivityDetail WHERE ActivityDetailSubType = ?";
-                rowsAffected = await DatabaseConnection.GetInstance().SQLConn.ExecuteScalarAsync<int>(query, Convert.ToInt32(SysCommon.ActSubTypes.PhysicalCounts));
-
-                this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"{rowsAffected} Physical count details.", true);
-            }
-            catch (SQLiteException ex)
-            {
-                throw new Exception("Database exception occurred. Physical count details status failed.", ex);
-            }
-
-            return rowsAffected;
+                    throw new Exception("Database exception occurred. Purging cycle count details failed.", ex);
+                }
+            });
         }
 
         /// <summary>
         /// The Send.
         /// </summary>
-        /// <param name="actItemCountRefno"></param>
+        /// <param name="actItemRefno"></param>
         /// <returns></returns>
-        protected override async Task<string> SendRequest(int actItemCountRefno)
+        protected override async Task<string> SendRequest(int actItemRefno)
         {
             var query = "SELECT * FROM tActivityItemCount WHERE ActivityItemRefno = ?";
-            var results = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<tActivityItemCountModel>(query, actItemCountRefno);
+            var results = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<tActivityItemCountModel>(
+                query,
+                actItemRefno);
 
             int actItemCountFKRefno;
             if (results != null && results.Count > 0)
@@ -181,7 +114,7 @@ namespace dMobile.GroundWork
             }
             else
             {
-                throw new Exception("No results in tActivityItemCount for ActivityItemRefno " + actItemCountRefno);
+                throw new Exception("No results in tActivityItemCount for ActivityItemRefno " + actItemRefno);
             }
 
             return await this.SendComm(await this.CreateRequest(actItemCountFKRefno));
@@ -190,9 +123,9 @@ namespace dMobile.GroundWork
         /// <summary>
         /// The Save.
         /// </summary>
-        /// <param name="reqData"></param>
+        /// <param name="responseData"></param>
         /// <param name="actItemCountRefno"></param>
-        protected override async Task Save(string reqData, int actItemCountRefno)
+        protected override async Task Save(string responseData, int actItemCountRefno)
         {
             var errMsg = string.Empty;
 
@@ -204,7 +137,7 @@ namespace dMobile.GroundWork
                     {
                         this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Reading received data.", false);
 
-                        ds.ReadXml(SysCommon.GetXmlReader(ref reqData), XmlReadMode.Auto);
+                        ds.ReadXml(SysCommon.GetXmlReader(ref responseData), XmlReadMode.Auto);
 
                         this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving physical count details.", false);
 
@@ -317,9 +250,9 @@ namespace dMobile.GroundWork
         /// <summary>
         /// The Create.
         /// </summary>
-        /// <param name="actItemCountFKRefno"></param>
+        /// <param name="activityItemFkRefno"></param>
         /// <returns></returns>
-        protected override async Task<string> CreateRequest(int actItemCountFKRefno)
+        protected override async Task<string> CreateRequest(int activityItemFkRefno)
         {
             var xmlString = new StringBuilder();
             var xml = XmlWriter.Create(xmlString);
@@ -330,7 +263,7 @@ namespace dMobile.GroundWork
                 + "<command>" +
                 "<action>REQUEST PHYSICAL COUNT DETAILS</action>"
                 + await SysCommon.GetRequestDefaults(false)
-                + "<itm_refno>" + actItemCountFKRefno.ToString() + "</itm_refno>"
+                + "<itm_refno>" + activityItemFkRefno.ToString() + "</itm_refno>"
                 + "</command>"
                 + "</imclient>");
 
@@ -339,6 +272,61 @@ namespace dMobile.GroundWork
             xml.Close();
 
             return xmlString.ToString();
+        }
+
+        protected override Task<string> CreateRequest()
+        {
+            throw new NotImplementedException();
+        }
+
+        protected override Task<string> CreateRequest(XDocument criteria)
+        {
+            throw new NotImplementedException();
+        }
+
+        protected override Task<string> CreateRequest(string familyCode)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override Task RequestData(int actRefno)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override Task PurgeData(int sectLocMapRefno)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override Task PurgeData(SysCommon.ActSubTypes actSubType)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override Task<int> DataStatus()
+        {
+            throw new NotImplementedException();
+        }
+
+        protected override Task Save(string responseData)
+        {
+            throw new NotImplementedException();
+        }
+
+        protected override Task<string> CreateRequest(int activityItemFkRefno, XDocument criteria)
+        {
+            throw new NotImplementedException();
+        }
+
+        protected override Task<string> CreateRequest(int prodLocMapType, int whsLocMapFKRefno)
+        {
+            throw new NotImplementedException();
+        }
+
+        protected override Task<string> CreateRequestProdLoc(int prodLocMapType)
+        {
+            throw new NotImplementedException();
         }
     }
 }

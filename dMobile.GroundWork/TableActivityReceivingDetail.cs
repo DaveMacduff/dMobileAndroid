@@ -27,172 +27,103 @@ namespace dMobile.GroundWork
           : base()
         {
             this.FullClassName = "dMobile.GroundWork.TableActivityReceivingDetail";
+            this.CurrentSubType = SysCommon.ActSubTypes.Receiving;
+            this.LowerCaseName = "receiving";
+            this.ProperCaseName = "Receiving";
         }
 
         /// <summary>
-        /// The Request.
+        /// Purge the activity detail.
         /// </summary>
-        /// <param name="actItemRefno"></param>
-        public override async Task RequestData(int actItemRefno)
-        {
-            try
-            {
-                this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Seeding receiving details.", true);
-
-                string reqData;
-                if (actItemRefno == 0)
-                {
-                    var results = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<tActivityItemModel>("SELECT ActivityItemRefno FROM tActivityItem WHERE ActivityItemSubType = ?", Convert.ToInt32(SysCommon.ActSubTypes.Receiving));
-
-                    if (results?.Count > 0)
-                    {
-                        foreach (var activityItemModel in results)
-                        {
-                            actItemRefno = Convert.ToInt32(activityItemModel.ActivityItemRefno);
-                            reqData = await this.SendRequest(actItemRefno);
-
-                            if (reqData.Length > 0)
-                            {
-                                if (reqData.Contains("<message>ERROR</message>"))
-                                {
-                                    var reqErr = new XmlDocument();
-                                    reqErr.LoadXml(reqData);
-                                    throw new Exception(reqErr.DocumentElement["detail"].InnerText);
-                                }
-
-                                await this.Save(reqData, actItemRefno);
-                            }
-                        }
-                    }
-                }
-                else
-                {
-                    reqData = await this.SendRequest(actItemRefno);
-
-                    if (reqData.Length > 0)
-                    {
-                        if (reqData.Contains("<message>ERROR</message>"))
-                        {
-                            var reqErr = new XmlDocument();
-                            reqErr.LoadXml(reqData);
-                            throw new Exception(reqErr.DocumentElement["detail"].InnerText);
-                        }
-
-                        await this.Save(reqData, actItemRefno);
-                    }
-                }
-
-                this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Seeding receiving details complete.", true);
-            }
-            catch (SQLiteException ex)
-            {
-                this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Database exception occurred.", true);
-                this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Seeding receiving details failed.", true);
-
-                throw new Exception("Database exception occurred. Seeding receiving details failed.", ex);
-            }
-            catch (Exception ex)
-            {
-                this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Seeding receiving details failed.", true);
-
-                throw new Exception("Seeding receiving details failed.", ex);
-            }
-        }
-
-        /// <summary>
-        /// The Purge.
-        /// </summary>
+        /// <returns><see cref="Task"/> Task completed.</returns>
         public override async Task PurgeData()
         {
-            try
+            var conn = DatabaseConnection.GetInstance().SQLConn;
+            var subType = Convert.ToInt32(this.CurrentSubType);
+            this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging details.", true);
+
+            await conn.RunInTransactionAsync(transaction =>
             {
-                this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging receiving details.", true);
+                try
+                {
+                    var query = "DELETE FROM tActivityDetailProductSchemeVariantXRef "
+                        + "WHERE tActivityDetailProductSchemeVariantXRef.ActivityDetailRefno IN "
+                        + "(SELECT tActivityDetail.ActivityDetailRefno "
+                        + "FROM tActivityDetail "
+                        + "WHERE tActivityDetail.ActivityDetailSubType = ?)";
+                    transaction.Execute(query, subType);
 
-                var query = "DELETE FROM tActivityDetailProductSchemeVariantXRef "
-                            + "WHERE tActivityDetailProductSchemeVariantXRef.ActivityDetailRefno IN "
-                            + "(SELECT tActivityDetail.ActivityDetailRefno "
-                            + "FROM tActivityDetail "
-                            + "WHERE tActivityDetail.ActivityDetailSubType = ?)";
-                await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(query, Convert.ToInt32(SysCommon.ActSubTypes.Receiving));
+                    query = "DELETE FROM tActivityDetailReceiving "
+                        + "WHERE tActivityDetailReceiving.ActivityDetailRefno IN "
+                        + "(SELECT tActivityDetail.ActivityDetailRefno "
+                        + "FROM tActivityDetail "
+                        + "WHERE tActivityDetail.ActivityDetailSubType = ?)";
+                    transaction.Execute(query, subType);
 
-                query = "DELETE FROM tActivityDetailReceiving "
-                    + "WHERE tActivityDetailReceiving.ActivityDetailRefno IN "
-                    + "(SELECT tActivityDetail.ActivityDetailRefno "
-                    + "FROM tActivityDetail "
-                    + "WHERE tActivityDetail.ActivityDetailSubType = ?)";
-                await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(query, Convert.ToInt32(SysCommon.ActSubTypes.Receiving));
+                    query = "DELETE FROM tActivityDetailExtra "
+                        + "WHERE tActivityDetailExtra.ActivityDetailRefno IN "
+                        + "(SELECT tActivityDetail.ActivityDetailRefno "
+                        + "FROM tActivityDetail "
+                        + "WHERE tActivityDetail.ActivityDetailSubType = ?)";
+                    transaction.Execute(query, subType);
 
-                query = "DELETE FROM tActivityDetailExtra "
-                    + "WHERE tActivityDetailExtra.ActivityDetailRefno IN "
-                    + "(SELECT tActivityDetail.ActivityDetailRefno "
-                    + "FROM tActivityDetail "
-                    + "WHERE tActivityDetail.ActivityDetailSubType = ?)";
-                await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(query, Convert.ToInt32(SysCommon.ActSubTypes.Receiving));
+                    query = "DELETE FROM tActivityDetail WHERE tActivityDetail.ActivityDetailSubType = ?";
+                    transaction.Execute(query, subType);
 
-                query = "DELETE FROM tActivityDetail WHERE tActivityDetail.ActivityDetailSubType = ?";
-                await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(query, Convert.ToInt32(SysCommon.ActSubTypes.Receiving));
+                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging receiving details complete.", true);
+                    transaction.Commit();
+                }
+                catch (SQLiteException sqlEx)
+                {
+                    if (transaction.IsInTransaction)
+                    {
+                        transaction.Rollback();
+                    }
 
-                this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging receiving details complete.", true);
-            }
-            catch (SQLiteException ex)
-            {
-                this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Database exception occurred.", true);
-                this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging receiving details failed.", true);
+                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Database exception occurred.", true);
+                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging receiving details failed.", true);
+                    throw new Exception("Database exception occurred. Purging receiving details failed.", sqlEx);
+                }
+                catch (Exception ex)
+                {
+                    if (transaction.IsInTransaction)
+                    {
+                        transaction.Rollback();
+                    }
 
-                throw new Exception("Database exception occurred. Purging receiving details failed.", ex);
-            }
-        }
-
-        /// <summary>
-        /// The DataStatus.
-        /// </summary>
-        /// <returns>The <see cref="int"/>.</returns>
-        public override async Task<int> DataStatus()
-        {
-            int rowsAffected;
-            try
-            {
-                rowsAffected = Convert.ToInt32(await DatabaseConnection.GetInstance().SQLConn.ExecuteScalarAsync<int>("SELECT COUNT(tActivityDetail.ActivityDetailRefno) FROM tActivityDetail WHERE tActivityDetail.ActivityDetailSubType = ?", Convert.ToInt32(SysCommon.ActSubTypes.Receiving)));
-
-                this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"{rowsAffected} receiving details.", true);
-            }
-            catch (SQLiteException ex)
-            {
-                throw new Exception("Database exception occurred. Receiving details status failed.", ex);
-            }
-
-            return rowsAffected;
+                    throw new Exception("Database exception occurred. Purging receiving details failed.", ex);
+                }
+            });
         }
 
         /// <summary>
         /// The Send.
         /// </summary>
-        /// <param name="actItemRecvRefno"></param>
-        /// <returns></returns>
-        protected override async Task<string> SendRequest(int actItemRecvRefno)
+        /// <param name="actItemRefno"> Activity item reference number.</param>
+        /// <returns><see cref="string"/> Send request data result.</returns>
+        protected override async Task<string> SendRequest(int actItemRefno)
         {
-            var results = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<tActivityItemReceivingModel>("SELECT * FROM tActivityItemReceiving WHERE ActivityItemRefno = ?", actItemRecvRefno);
-            int actItemRecvFKRefno;
-            if (results?.Count > 0)
+            var conn = DatabaseConnection.GetInstance().SQLConn;
+            var query = "SELECT * FROM tActivityItemReceiving WHERE ActivityItemRefno = ?";
+            var results = await conn.QueryAsync<tActivityItemReceivingModel>(
+                query,
+                actItemRefno);
+            if (results.Count <= 0)
             {
-                actItemRecvFKRefno = results[0].ActivityItemFKRefno;
-            }
-            else
-            {
-                throw new Exception("drItemRecv.Read() failed.");
+                throw new Exception($"Unable to find {actItemRefno} in tActivityItemReceiving.");
             }
 
-            var reqData = await this.SendComm(await this.CreateRequest(actItemRecvFKRefno));
-
-            return reqData;
+            var request = await this.CreateRequest(results[0].ActivityItemFKRefno);
+            return await this.SendComm(request);
         }
 
         /// <summary>
         /// The Save.
         /// </summary>
-        /// <param name="reqData"></param>
-        /// <param name="actItemRecvRefno"></param>
-        protected override async Task Save(string reqData, int actItemRecvRefno)
+        /// <param name="responseData"><see cref="string"/> Response data received.</param>
+        /// <param name="actItemRefno"><see cref="int"/> Activity item reference number.</param>
+        /// <returns><see cref="Task"/> Task completed.</returns>
+        protected override async Task Save(string responseData, int actItemRefno)
         {
             var errMsg = string.Empty;
 
@@ -202,106 +133,121 @@ namespace dMobile.GroundWork
                 {
                     using var ds = new DataSet();
                     this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Reading received data.", false);
-
-                    ds.ReadXml(SysCommon.GetXmlReader(ref reqData), XmlReadMode.Auto);
-
+                    ds.ReadXml(SysCommon.GetXmlReader(ref responseData), XmlReadMode.Auto);
                     this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving receiving details.", false);
-
                     if (ds.Tables.Count != 0)
                     {
-                        var progMax = Convert.ToInt32(ds.Tables["tActivityDetailPurchaseOrder"].Rows.Count);
-
-                        this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"Records {progMax}", false);
-
-                        var actDetailRefno = 0;
-                        var productUnitRefno = 0;
-                        var progValue = 0;
-                        var recvDetailFKRefno = 0;
-
-                        this.DataAccessProgressOutHandler(this, EventArgs.Empty, 0, 0, progMax);
-
-                        var results = transaction.Query<tActivityItemReceivingModel>("SELECT * FROM tActivityItemReceiving WHERE ActivityItemRefno = ?", actItemRecvRefno);
-
+                        var maxRowCount = Convert.ToInt32(ds.Tables["tActivityDetailPurchaseOrder"].Rows.Count);
+                        this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"Records {maxRowCount}", false);
+                        this.DataAccessProgressOutHandler(this, EventArgs.Empty, 0, 0, maxRowCount);
+                        var results = transaction.Query<tActivityItemReceivingModel>(
+                            "SELECT * FROM tActivityItemReceiving WHERE ActivityItemRefno = ?",
+                            actItemRefno);
                         if (results == null || results?.Count == 0)
                         {
-                            throw new Exception("No results in tActivityItemReceiving for ActivityItemRefno " + actItemRecvRefno + " " + this.FullClassName);
+                            errMsg = "No results in tActivityItemReceiving for ActivityItemRefno " + actItemRefno +
+                                " " + this.FullClassName;
+                            throw new Exception(errMsg);
                         }
 
-                        productUnitRefno = results[0].ProductUnitRefno;
-
-                        foreach (DataRow drow in ds.Tables["tActivityDetailPurchaseOrder"].Rows)
+                        var currentRow = 0;
+                        foreach (DataRow row in ds.Tables["tActivityDetailPurchaseOrder"].Rows)
                         {
                             errMsg = "Arguments:";
-
                             var queryInsertDetail = "INSERT INTO tActivityDetail " +
-                                                    "(" +
-                                                    "ActivityDetailSubType, " +
-                                                    "ActivityDetailStatus, " +
-                                                    "ActivityItemRefno, " +
-                                                    "LocationMapRefno, " +
-                                                    "ProductUnitRefno, " +
-                                                    "ActivityDetailUniqueSchemeID, " +
-                                                    "ActivityDetailSchemeID, " +
-                                                    "ActivityDetailQuantity, " +
-                                                    "ActivityDetailBaseQuantity, " +
-                                                    "ActivityDetailWeightQuantity, " +
-                                                    "ActivityDetailSingleTradeItemSerialNumber, " +
-                                                    "ActivityDetailLogisticUnitBatchLotNumber, " +
-                                                    "ActivityDetailLogisticUnitBestBeforeSellByDate, " +
-                                                    "ActivityDetailLogisticUnitExpiryUseByDate, " +
-                                                    "ActivityDetailLogisticUnitProductionDate, " +
-                                                    "ActivityDetailLogisticUnitDueDate, " +
-                                                    "ActivityDetailLogisticUnitPackagingDate, " +
-                                                    "ActivityDetailLogisticUnitSkidNumber" +
-                                                    ") " +
-                                                    "VALUES" +
-                                                    "(" +
-                                                    "?, " +
-                                                    "?, " +
-                                                    "?, " +
-                                                    "?, " +
-                                                    "?, " +
-                                                    "?, " +
-                                                    "?, " +
-                                                    "?, " +
-                                                    "?, " +
-                                                    "?, " +
-                                                    "?, " +
-                                                    "?, " +
-                                                    "?, " +
-                                                    "?, " +
-                                                    "?, " +
-                                                    "?, " +
-                                                    "?, " +
-                                                    "?" +
-                                                    ")";
-                            var parametersInsertDetail = new List<object>();
-                            parametersInsertDetail.Add(Convert.ToInt32(SysCommon.ActSubTypes.Receiving));
-                            parametersInsertDetail.Add(Convert.ToInt32(0));
-                            parametersInsertDetail.Add(actItemRecvRefno);
-                            parametersInsertDetail.Add(this.GetDetailLocation(drow, transaction, false));
-                            parametersInsertDetail.Add(productUnitRefno);
-                            parametersInsertDetail.AddRange(this.SaveDetail(drow, transaction, false));
+                                "(" +
+                                "ActivityDetailSubType, " +
+                                "ActivityDetailStatus, " +
+                                "ActivityItemRefno, " +
+                                "LocationMapRefno, " +
+                                "ProductUnitRefno, " +
+                                "ActivityDetailUniqueSchemeID, " +
+                                "ActivityDetailSchemeID, " +
+                                "ActivityDetailQuantity, " +
+                                "ActivityDetailBaseQuantity, " +
+                                "ActivityDetailWeightQuantity, " +
+                                "ActivityDetailSingleTradeItemSerialNumber, " +
+                                "ActivityDetailLogisticUnitBatchLotNumber, " +
+                                "ActivityDetailLogisticUnitBestBeforeSellByDate, " +
+                                "ActivityDetailLogisticUnitExpiryUseByDate, " +
+                                "ActivityDetailLogisticUnitProductionDate, " +
+                                "ActivityDetailLogisticUnitDueDate, " +
+                                "ActivityDetailLogisticUnitPackagingDate, " +
+                                "ActivityDetailLogisticUnitSkidNumber" +
+                                ") " +
+                                "VALUES" +
+                                "(" +
+                                "?, " +
+                                "?, " +
+                                "?, " +
+                                "?, " +
+                                "?, " +
+                                "?, " +
+                                "?, " +
+                                "?, " +
+                                "?, " +
+                                "?, " +
+                                "?, " +
+                                "?, " +
+                                "?, " +
+                                "?, " +
+                                "?, " +
+                                "?, " +
+                                "?, " +
+                                "?" +
+                                ")";
 
-                            transaction.Execute(queryInsertDetail, parametersInsertDetail.ToArray());
-
-                            actDetailRefno = Convert.ToInt32(transaction.ExecuteScalar<int>("SELECT last_insert_rowid() FROM tActivityDetail"));
-                            recvDetailFKRefno = Convert.ToInt32(drow["ActivityDetailFKRefno"]);
-                            errMsg += Environment.NewLine + "Detail fk refno " + recvDetailFKRefno;
-
-                            transaction.Execute("INSERT INTO tActivityDetailReceiving (ActivityDetailRefno, ActivityDetailFKRefno) VALUES (?, ?)", actDetailRefno, recvDetailFKRefno);
-
-                            this.SaveCommonDetailVariant(drow, transaction, actDetailRefno, false);
-                            this.SaveDetailExtra(drow, transaction, actDetailRefno, false);
-
-                            progValue++;
-                            if (progValue % 10 == 0)
+                            var parametersInsertDetail = new List<object>
                             {
-                                this.DataAccessProgressOutHandler(this, EventArgs.Empty, progValue, 0, progMax);
+                                Convert.ToInt32(SysCommon.ActSubTypes.Receiving),
+                                Convert.ToInt32(0),
+                                actItemRefno,
+                                this.GetDetailLocation(row, transaction, false),
+                                results[0].ProductUnitRefno,
+                            };
+
+                            parametersInsertDetail.AddRange(this.SaveDetail(row, transaction, false));
+
+                            var rowsAffected = transaction.Execute(queryInsertDetail, parametersInsertDetail.ToArray());
+                            if (rowsAffected <= 0)
+                            {
+                                errMsg = "Insert into ActivityDetail failed. Rows affected <= 0";
+                                throw new Exception(errMsg);
+                            }
+
+                            var actDetailRefno = Convert.ToInt32(transaction.ExecuteScalar<int>(
+                                "SELECT last_insert_rowid() FROM tActivityDetail"));
+                            if (actDetailRefno <= 0)
+                            {
+                                errMsg = "Failed to find row id after activity detail insert.";
+                                throw new Exception(errMsg);
+                            }
+
+                            var detailFkRefno = Convert.ToInt32(row["ActivityDetailFKRefno"]);
+
+                            errMsg += Environment.NewLine + "Detail fk refno " + detailFkRefno;
+
+                            rowsAffected = transaction.Execute(
+                                "INSERT INTO tActivityDetailReceiving (ActivityDetailRefno, ActivityDetailFKRefno) VALUES (?, ?)",
+                                actDetailRefno,
+                                detailFkRefno);
+                            if (rowsAffected <= 0)
+                            {
+                                errMsg = "Insert into ActivityDetailReceiving failed. Rows affected <= 0";
+                                throw new Exception(errMsg);
+                            }
+
+                            this.SaveCommonDetailVariant(row, transaction, actDetailRefno, false);
+                            this.SaveDetailExtra(row, transaction, actDetailRefno, false);
+
+                            currentRow++;
+                            if (currentRow % 10 == 0)
+                            {
+                                this.DataAccessProgressOutHandler(this, EventArgs.Empty, currentRow, 0, maxRowCount);
                             }
                         }
 
-                        this.DataAccessProgressOutHandler(this, EventArgs.Empty, progMax, 0, progMax);
+                        this.DataAccessProgressOutHandler(this, EventArgs.Empty, maxRowCount, 0, maxRowCount);
                     }
 
                     transaction.Commit();
@@ -315,36 +261,117 @@ namespace dMobile.GroundWork
                     this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Database exception occurred.", true);
                     this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving receiving details failed.", true);
 
-                    throw new Exception("Database exception occurred. Saving receiving details failed." + Environment.NewLine + errMsg, ex);
+                    throw new Exception(
+                        "Database exception occurred. Saving receiving details failed."
+                        + Environment.NewLine
+                        + errMsg, ex);
+                }
+                catch (Exception)
+                {
+                    if (transaction.IsInTransaction)
+                    {
+                        transaction.Rollback();
+                    }
+
+                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Exception occurred.", true);
+                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving receiving details failed.", true);
+                    throw;
                 }
             });
         }
 
         /// <summary>
-        /// The Create.
+        /// Create request activity detail string.
         /// </summary>
-        /// <param name="iActivityItemFKRefno">The iActivityItemFKRefno<see cref="int"/>.</param>
-        /// <returns></returns>
-        protected override async Task<string> CreateRequest(int iActivityItemFKRefno)
+        /// <param name="activityItemFkRefno"><see cref="int"/> Activity item adjustment foreign key reference number.</param>
+        /// <returns><see cref="string"/> Request xml string.</returns>
+        protected override async Task<string> CreateRequest(int activityItemFkRefno)
         {
-            var xmlString = new StringBuilder();
-            var xml = XmlWriter.Create(xmlString);
+            var request = new StringBuilder();
+            using var writer = XmlWriter.Create(request, new XmlWriterSettings() { Async = true });
+            try
+            {
+                var xmlRequest = XDocument.Parse(
+                    "<?xml version=\"1.0\" encoding=\"utf-8\" standalone=\"yes\"?>"
+                    + "<imclient>"
+                    + "<command>"
+                    + "<action>REQUEST PURCHASE ORDER DETAILS</action>"
+                    + await SysCommon.GetRequestDefaults(false)
+                    + "<itm_refno>" + activityItemFkRefno.ToString() + "</itm_refno>"
+                    + "</command>"
+                    + "</imclient>");
 
-            var request = XDocument.Parse(
-                "<?xml version=\"1.0\" encoding=\"utf-8\" standalone=\"yes\"?>"
-                + "<imclient>"
-                + "<command>"
-                + "<action>REQUEST PURCHASE ORDER DETAILS</action>"
-                + await SysCommon.GetRequestDefaults(false)
-                + "<itm_refno>" + iActivityItemFKRefno.ToString() + "</itm_refno>"
-                + "</command>"
-                + "</imclient>");
+                xmlRequest.Save(writer);
+                await writer.FlushAsync();
+            }
+            catch
+            {
+                throw;
+            }
+            finally
+            {
+                writer.Close();
+            }
 
-            request.Save(xml);
-            xml.Flush();
-            xml.Close();
+            const string errMsg = "The created request activity detail xml string length has a zero length.";
+            request = (request.Length <= 0) ? throw new Exception(errMsg) : request;
 
-            return xmlString.ToString();
+            return request.ToString();
+        }
+
+        protected override Task<string> CreateRequest()
+        {
+            throw new NotImplementedException();
+        }
+
+        protected override Task<string> CreateRequest(XDocument criteria)
+        {
+            throw new NotImplementedException();
+        }
+
+        protected override Task<string> CreateRequest(string familyCode)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override Task RequestData(int actRefno)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override Task PurgeData(int sectLocMapRefno)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override Task PurgeData(SysCommon.ActSubTypes actSubType)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override Task<int> DataStatus()
+        {
+            throw new NotImplementedException();
+        }
+
+        protected override Task Save(string responseData)
+        {
+            throw new NotImplementedException();
+        }
+
+        protected override Task<string> CreateRequest(int activityItemFkRefno, XDocument criteria)
+        {
+            throw new NotImplementedException();
+        }
+
+        protected override Task<string> CreateRequest(int prodLocMapType, int whsLocMapFKRefno)
+        {
+            throw new NotImplementedException();
+        }
+
+        protected override Task<string> CreateRequestProdLoc(int prodLocMapType)
+        {
+            throw new NotImplementedException();
         }
     }
 }

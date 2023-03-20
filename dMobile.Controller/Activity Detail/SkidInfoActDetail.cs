@@ -217,31 +217,27 @@ namespace dMobile.Controller.Activity_Detail
 
             var xmlSend = await this.CreateSubmitXml(XDocument.Parse(
                 "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?><params></params>"));
+            var responseData = SysCommon.SubmitComm(xmlSend);
+            var xmlDoc = new XmlDocument();
+            xmlDoc.LoadXml(responseData);
 
-            var reqData = SysCommon.SubmitComm(xmlSend);
-            if (reqData.Length > 0)
+            // check if result is an error message
+            if (responseData.Contains("<message>ERROR</message>"))
             {
-                var xmlDoc = new XmlDocument();
-                xmlDoc.LoadXml(reqData);
-
-                // check if result is an error message
-                if (reqData.Contains("<message>ERROR</message>"))
+                var errorDetail = xmlDoc.DocumentElement["detail"].InnerText;
+                if (errorDetail.Contains("MSGBOX-"))
                 {
-                    var errorDetail = xmlDoc.DocumentElement["detail"].InnerText;
-                    if (errorDetail.Contains("MSGBOX-"))
-                    {
-                        throw new MessageOnlyException(errorDetail);
-                    }
-                    else
-                    {
-                        throw new Exception(errorDetail);
-                    }
+                    throw new MessageOnlyException(errorDetail);
                 }
                 else
                 {
-                    this.DetailFkRefno = int.Parse(xmlDoc.DocumentElement["ser_refno"].InnerText);
-                    this.DetailRefno = this.DetailFkRefno;
+                    throw new Exception(errorDetail);
                 }
+            }
+            else
+            {
+                this.DetailFkRefno = int.Parse(xmlDoc.DocumentElement["ser_refno"].InnerText);
+                this.DetailRefno = this.DetailFkRefno;
             }
         }
 
@@ -255,36 +251,28 @@ namespace dMobile.Controller.Activity_Detail
             {
                 var xmlDelete = await this.CreateDeleteXml(XDocument.Parse(
                     "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?><params></params>"));
-                var reqData = SysCommon.SubmitComm(xmlDelete);
-
-                if (reqData.Length > 0)
+                var responseData = SysCommon.SubmitComm(xmlDelete);
+                if (responseData.Contains("<message>ERROR</message>"))
                 {
-                    if (reqData.Contains("<message>ERROR</message>"))
+                    var docError = new XmlDocument();
+                    docError.LoadXml(responseData);
+                    var errorDetail = docError.DocumentElement["detail"].InnerText;
+                    if (errorDetail.Contains("MSGBOX-"))
                     {
-                        var docError = new XmlDocument();
-                        docError.LoadXml(reqData);
-                        var errorDetail = docError.DocumentElement["detail"].InnerText;
-                        if (errorDetail.Contains("MSGBOX-"))
-                        {
-                            throw new MessageOnlyException(errorDetail);
-                        }
-                        else
-                        {
-                            throw new Exception(errorDetail);
-                        }
+                        throw new MessageOnlyException(errorDetail);
                     }
                     else
                     {
-                        var xmlDoc = new XmlDocument();
-                        xmlDoc.LoadXml(reqData);
-                        var tempSkidInfo = this.ActItem.ActHdr.SkidInfo.CurrSkid;
-                        tempSkidInfo.IsConsumed = bool.Parse(xmlDoc.DocumentElement["IsConsumed"].InnerText);
-                        this.ActItem.ActHdr.SkidInfo.CurrSkid = tempSkidInfo;
+                        throw new Exception(errorDetail);
                     }
                 }
                 else
                 {
-                    throw new Exception("Unexpected delete activity detail error.");
+                    var xmlDoc = new XmlDocument();
+                    xmlDoc.LoadXml(responseData);
+                    var tempSkidInfo = this.ActItem.ActHdr.SkidInfo.CurrSkid;
+                    tempSkidInfo.IsConsumed = bool.Parse(xmlDoc.DocumentElement["IsConsumed"].InnerText);
+                    this.ActItem.ActHdr.SkidInfo.CurrSkid = tempSkidInfo;
                 }
             }
 
@@ -310,34 +298,30 @@ namespace dMobile.Controller.Activity_Detail
             var xmlDoc = new XmlDocument();
             var xmlSend = await this.CreateSubmitXml(XDocument.Parse(
                 "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?><params></params>"));
-            var reqData = SysCommon.SubmitComm(xmlSend);
+            var responseData = SysCommon.SubmitComm(xmlSend);
+            xmlDoc.LoadXml(responseData);
 
-            if (reqData.Length > 0)
+            // check if result is an error message
+            if (responseData.Contains("<message>ERROR</message>"))
             {
-                xmlDoc.LoadXml(reqData);
-
-                // check if result is an error message
-                if (reqData.Contains("<message>ERROR</message>"))
+                var errorDetail = xmlDoc.DocumentElement["detail"].InnerText;
+                if (errorDetail.Contains("MSGBOX-"))
                 {
-                    var errorDetail = xmlDoc.DocumentElement["detail"].InnerText;
-                    if (errorDetail.Contains("MSGBOX-"))
-                    {
-                        throw new MessageOnlyException(errorDetail);
-                    }
-                    else
-                    {
-                        throw new Exception(errorDetail);
-                    }
+                    throw new MessageOnlyException(errorDetail);
                 }
                 else
                 {
-                    this.DetailFkRefno = int.Parse(xmlDoc.DocumentElement["ser_refno"].InnerText);
-                    this.DetailRefno = this.DetailFkRefno;
+                    throw new Exception(errorDetail);
+                }
+            }
+            else
+            {
+                this.DetailFkRefno = int.Parse(xmlDoc.DocumentElement["ser_refno"].InnerText);
+                this.DetailRefno = this.DetailFkRefno;
 
-                    if (selectedActivityDetail is SkidInfoDetail skidInfoDetail)
-                    {
-                        skidInfoDetail.ActivityDetailFKRefno = this.DetailFkRefno;
-                    }
+                if (selectedActivityDetail is SkidInfoDetail skidInfoDetail)
+                {
+                    skidInfoDetail.ActivityDetailFKRefno = this.DetailFkRefno;
                 }
             }
         }

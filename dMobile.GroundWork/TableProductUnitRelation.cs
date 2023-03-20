@@ -45,21 +45,10 @@ namespace dMobile.GroundWork
                 {
                     foreach (var family in results)
                     {
-                        var recvData = await this.SendRequest(family.FamilyCode);
+                        var responseData = await this.SendRequest(family.FamilyCode);
 
                         this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"For family {family.FamilyCode}", true);
-
-                        if (recvData.Length > 0)
-                        {
-                            if (recvData.Contains("<message>ERROR</message>"))
-                            {
-                                var reqErr = new XmlDocument();
-                                reqErr.LoadXml(recvData);
-                                throw new Exception(reqErr.DocumentElement["detail"].InnerText);
-                            }
-
-                            await this.SaveOpt(recvData);
-                        }
+                        await this.SaveOpt(responseData);
                     }
 
                     // Require to have product uom relations.
@@ -144,16 +133,16 @@ namespace dMobile.GroundWork
         /// <summary>
         /// The Save.
         /// </summary>
-        /// <param name="reqData"></param>
-        protected override async Task Save(string reqData)
+        /// <param name="responseData"></param>
+        protected override async Task Save(string responseData)
         {
         }
 
         /// <summary>
         /// The SaveOpt.
         /// </summary>
-        /// <param name="reqData"></param>
-        protected async Task SaveOpt(string reqData)
+        /// <param name="responseData"></param>
+        protected async Task SaveOpt(string responseData)
         {
             var errMsg = string.Empty;
             var recordCount = 0;
@@ -162,9 +151,9 @@ namespace dMobile.GroundWork
             {
                 try
                 {
-                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Reading received data.", false);
+                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Reading received responseData.", false);
 
-                    var startIndex = reqData.IndexOf("<VFPData", StringComparison.Ordinal);
+                    var startIndex = responseData.IndexOf("<VFPData", StringComparison.Ordinal);
                     var sett = new XmlReaderSettings();
                     sett.CheckCharacters = false;
                     sett.CloseInput = false;
@@ -175,7 +164,7 @@ namespace dMobile.GroundWork
                     sett.ValidationFlags = System.Xml.Schema.XmlSchemaValidationFlags.None;
                     sett.ValidationType = ValidationType.None;
 
-                    using var stringReader = new StringReader(reqData.Substring(startIndex));
+                    using var stringReader = new StringReader(responseData.Substring(startIndex));
                     using var reader = XmlReader.Create(stringReader, sett);
                     this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving product uom relations.", false);
 
@@ -402,6 +391,56 @@ namespace dMobile.GroundWork
             xml.Close();
 
             return xmlString.ToString();
+        }
+
+        public override Task RequestData(int actRefno)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override Task PurgeData(int sectLocMapRefno)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override Task PurgeData(SysCommon.ActSubTypes actSubType)
+        {
+            throw new NotImplementedException();
+        }
+
+        protected override Task Save(string responseData, int refno)
+        {
+            throw new NotImplementedException();
+        }
+
+        protected override Task<string> CreateRequest()
+        {
+            throw new NotImplementedException();
+        }
+
+        protected override Task<string> CreateRequest(XDocument criteria)
+        {
+            throw new NotImplementedException();
+        }
+
+        protected override Task<string> CreateRequest(int activityItemFkRefno)
+        {
+            throw new NotImplementedException();
+        }
+
+        protected override Task<string> CreateRequest(int activityItemFkRefno, XDocument criteria)
+        {
+            throw new NotImplementedException();
+        }
+
+        protected override Task<string> CreateRequest(int prodLocMapType, int whsLocMapFKRefno)
+        {
+            throw new NotImplementedException();
+        }
+
+        protected override Task<string> CreateRequestProdLoc(int prodLocMapType)
+        {
+            throw new NotImplementedException();
         }
     }
 }

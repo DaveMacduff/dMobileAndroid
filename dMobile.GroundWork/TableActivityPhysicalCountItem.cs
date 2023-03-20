@@ -27,99 +27,9 @@ namespace dMobile.GroundWork
       : base()
         {
             this.FullClassName = "dMobile.GroundWork.TableActivityPhysicalCountItem";
-        }
-
-        /// <summary>
-        /// The Request.
-        /// </summary>
-        /// <param name="actRefno"></param>
-        public override async Task RequestData(int actRefno)
-        {
-
-            // GC.Collect();
-            // GC.WaitForPendingFinalizers();
-            try
-            {
-                this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Seeding physical count items.", true);
-
-                string reqData;
-                if (actRefno == 0)
-                {
-                    var query = "SELECT ActivityRefno FROM tActivity WHERE ActivitySubType = ?";
-                    var results = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<ActivityModel>(query, Convert.ToInt32(SysCommon.ActSubTypes.PhysicalCounts));
-
-                    if (results != null && results.Count > 0)
-                    {
-                        actRefno = results[0].ActivityRefno;
-                        reqData = await this.SendRequest(actRefno);
-
-                        if (reqData.Length > 0)
-                        {
-                            if (reqData.Contains("<message>ERROR</message>"))
-                            {
-                                var reqErr = new XmlDocument();
-                                reqErr.LoadXml(reqData);
-                                throw new Exception(reqErr.DocumentElement["detail"].InnerText);
-                            }
-
-                            await this.Save(reqData, actRefno);
-                        }
-                    }
-                }
-                else
-                {
-                    reqData = await this.SendRequest(actRefno);
-
-                    if (reqData.Length > 0)
-                    {
-                        if (reqData.Contains("<message>ERROR</message>"))
-                        {
-                            var reqErr = new XmlDocument();
-                            reqErr.LoadXml(reqData);
-                            throw new Exception(reqErr.DocumentElement["detail"].InnerText);
-                        }
-
-                        await this.Save(reqData, actRefno);
-                    }
-                }
-
-                this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Seeding physical count items complete.", true);
-            }
-            catch (SQLiteException ex)
-            {
-                this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Database exception occurred.", false);
-                this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Seeding physical count items failed.", false);
-
-                throw new Exception("Database exception occurred. Seeding physical count items failed.", ex);
-            }
-            catch (Exception ex)
-            {
-                this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Seeding physical count items failed.", false);
-
-                throw new Exception("Seeding physical count items failed.", ex);
-            }
-        }
-
-        /// <summary>
-        /// The DataStatus.
-        /// </summary>
-        /// <returns>The <see cref="int"/>.</returns>
-        public override async Task<int> DataStatus()
-        {
-            int rowsAffected;
-            try
-            {
-                var query = "SELECT COUNT(ActivityItemRefno) FROM tActivityItem WHERE ActivityItemSubType = ?";
-                rowsAffected = await DatabaseConnection.GetInstance().SQLConn.ExecuteScalarAsync<int>(query, Convert.ToInt32(SysCommon.ActSubTypes.PhysicalCounts));
-
-                this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"{rowsAffected} physical count items.", true);
-            }
-            catch (SQLiteException ex)
-            {
-                throw new Exception("Database exception occurred. Physical count items status failed.", ex);
-            }
-
-            return rowsAffected;
+            this.CurrentSubType = SysCommon.ActSubTypes.PhysicalCounts;
+            this.LowerCaseName = "physical count";
+            this.ProperCaseName = "Physical count";
         }
 
         /// <summary>
@@ -158,14 +68,14 @@ namespace dMobile.GroundWork
         /// <summary>
         /// The Send.
         /// </summary>
-        /// <param name="actRefno">The actRefno<see cref="int"/>.</param>
+        /// <param name="actItemRefno">The actItemRefno<see cref="int"/>.</param>
         /// <returns></returns>
-        protected override async Task<string> SendRequest(int actRefno)
+        protected override async Task<string> SendRequest(int actItemRefno)
         {
             var actCountFKRefno = 0;
 
             var query = "SELECT * FROM tActivityCount WHERE ActivityRefno = ?";
-            var results = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<ActivityCountModel>(query, actRefno);
+            var results = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<ActivityCountModel>(query, actItemRefno);
 
             if (results?.Count > 0)
             {
@@ -178,9 +88,9 @@ namespace dMobile.GroundWork
         /// <summary>
         /// The Save.
         /// </summary>
-        /// <param name="reqData"></param>
-        /// <param name="actRefno">The actRefno<see cref="int"/>.</param>
-        protected override async Task Save(string reqData, int actRefno)
+        /// <param name="responseData"></param>
+        /// <param name="actRefno">The actItemRefno<see cref="int"/>.</param>
+        protected override async Task Save(string responseData, int actRefno)
         {
             await DatabaseConnection.GetInstance().SQLConn.RunInTransactionAsync(transaction =>
             {
@@ -189,7 +99,7 @@ namespace dMobile.GroundWork
                     using var ds = new DataSet();
                     this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Reading received data.", false);
 
-                    ds.ReadXml(SysCommon.GetXmlReader(ref reqData), XmlReadMode.Auto);
+                    ds.ReadXml(SysCommon.GetXmlReader(ref responseData), XmlReadMode.Auto);
 
                     this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving physical count items.", false);
 
@@ -321,9 +231,9 @@ namespace dMobile.GroundWork
         /// <summary>
         /// The Create.
         /// </summary>
-        /// <param name="actCountFKRefno"></param>
+        /// <param name="activityItemFkRefno"></param>
         /// <returns></returns>
-        protected override async Task<string> CreateRequest(int actCountFKRefno)
+        protected override async Task<string> CreateRequest(int activityItemFkRefno)
         {
             var xmlString = new StringBuilder();
             var xml = XmlWriter.Create(xmlString);
@@ -334,7 +244,7 @@ namespace dMobile.GroundWork
                 + "<command>"
                 + "<action>REQUEST PHYSICAL COUNT ITEMS</action>"
                 + await SysCommon.GetRequestDefaults(false)
-                + "<refno>" + actCountFKRefno.ToString() + "</refno>"
+                + "<refno>" + activityItemFkRefno.ToString() + "</refno>"
                 + "</command>"
                 + "</imclient>");
 
@@ -343,6 +253,61 @@ namespace dMobile.GroundWork
             xml.Close();
 
             return xmlString.ToString();
+        }
+
+        protected override Task<string> CreateRequest()
+        {
+            throw new NotImplementedException();
+        }
+
+        protected override Task<string> CreateRequest(XDocument criteria)
+        {
+            throw new NotImplementedException();
+        }
+
+        protected override Task<string> CreateRequest(string familyCode)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override Task RequestData(int actRefno)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override Task PurgeData(int sectLocMapRefno)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override Task PurgeData(SysCommon.ActSubTypes actSubType)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override Task<int> DataStatus()
+        {
+            throw new NotImplementedException();
+        }
+
+        protected override Task Save(string responseData)
+        {
+            throw new NotImplementedException();
+        }
+
+        protected override Task<string> CreateRequest(int activityItemFkRefno, XDocument criteria)
+        {
+            throw new NotImplementedException();
+        }
+
+        protected override Task<string> CreateRequest(int prodLocMapType, int whsLocMapFKRefno)
+        {
+            throw new NotImplementedException();
+        }
+
+        protected override Task<string> CreateRequestProdLoc(int prodLocMapType)
+        {
+            throw new NotImplementedException();
         }
     }
 }

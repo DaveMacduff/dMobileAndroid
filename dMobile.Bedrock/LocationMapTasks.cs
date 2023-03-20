@@ -115,7 +115,7 @@ namespace dMobile.Bedrock
         /// Gets a default value for an argument value to the GetActivityItem method for example.
         /// </remarks>
         /// <param name="locationMapRefno"><see cref="int"/> Location map reference number to check.</param>
-        /// <exception cref="ArgumentOutOfRangeException"></exception>
+        /// <exception cref="ArgumentOutOfRangeException"> Location map reference is less than or equal to zero.</exception>
         /// <returns><see cref="int"/> Assigned location map reference number.</returns>
         public static int DefaultLocMapRefnoToWhsIfUnassigned(int locationMapRefno)
         {

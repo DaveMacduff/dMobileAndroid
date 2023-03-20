@@ -40,7 +40,7 @@ namespace dMobile.GroundWork
                 var whsLocMapName = string.Empty;
                 var whsLocMapFKRefno = 0;
                 var whsLocMapRefno = 0;
-                var reqData = string.Empty;
+                var responseData = string.Empty;
 
                 var resultsLocationMapWarehouse = await DatabaseConnection.GetInstance().
                     SQLConn.QueryAsync<tLocationMapWarehouseModel>("SELECT * FROM tLocationMapWarehouse");
@@ -54,54 +54,18 @@ namespace dMobile.GroundWork
                         whsLocMapRefno = locationMapWarehouse.LocationMapRefno;
 
                         this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"For whs \'{whsLocMapName}\'.", true);
-
                         this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Default picking locations.", true);
 
-                        reqData = await this.SendRequest((int)SysCommon.ProdLocMapTypes.Floor, whsLocMapFKRefno);
-
-                        if (reqData.Length > 0)
-                        {
-                            if (reqData.Contains("<message>ERROR</message>"))
-                            {
-                                var reqErr = new XmlDocument();
-                                reqErr.LoadXml(reqData);
-                                throw new Exception(reqErr.DocumentElement["detail"].InnerText);
-                            }
-
-                            await this.SaveOpt(reqData, whsLocMapRefno);
-                        }
-
+                        responseData = await this.SendRequest((int)SysCommon.ProdLocMapTypes.Floor, whsLocMapFKRefno);
+                        await this.SaveOpt(responseData, whsLocMapRefno);
                         this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Default picking locations.", true);
 
-                        reqData = await this.SendRequest((int)SysCommon.ProdLocMapTypes.Picking, whsLocMapFKRefno);
-
-                        if (reqData.Length > 0)
-                        {
-                            if (reqData.Contains("<message>ERROR</message>"))
-                            {
-                                var reqErr = new XmlDocument();
-                                reqErr.LoadXml(reqData);
-                                throw new Exception(reqErr.DocumentElement["detail"].InnerText);
-                            }
-
-                            await this.SaveOpt(reqData, whsLocMapRefno);
-                        }
-
+                        responseData = await this.SendRequest((int)SysCommon.ProdLocMapTypes.Picking, whsLocMapFKRefno);
+                        await this.SaveOpt(responseData, whsLocMapRefno);
                         this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Default receiving locations.", true);
 
-                        reqData = await this.SendRequest((int)SysCommon.ProdLocMapTypes.Receiving, whsLocMapFKRefno);
-
-                        if (reqData.Length > 0)
-                        {
-                            if (reqData.Contains("<message>ERROR</message>"))
-                            {
-                                var reqErr = new XmlDocument();
-                                reqErr.LoadXml(reqData);
-                                throw new Exception(reqErr.DocumentElement["detail"].InnerText);
-                            }
-
-                            await this.SaveOpt(reqData, whsLocMapRefno);
-                        }
+                        responseData = await this.SendRequest((int)SysCommon.ProdLocMapTypes.Receiving, whsLocMapFKRefno);
+                        await this.SaveOpt(responseData, whsLocMapRefno);
                     }
                 }
 
@@ -172,22 +136,10 @@ namespace dMobile.GroundWork
         /// <summary>
         ///
         /// </summary>
-        /// <param name="prodLocMapType"></param>
-        /// <param name="whsLocMapFKRefno"></param>
-        /// <returns></returns>
-        /// <inheritdoc/>
-        protected override async Task<string> SendRequest(int prodLocMapType, int whsLocMapFKRefno)
-        {
-            return await this.SendComm(await this.CreateRequest(prodLocMapType, whsLocMapFKRefno));
-        }
-
-        /// <summary>
-        ///
-        /// </summary>
-        /// <param name="reqData"></param>
+        /// <param name="responseData"></param>
         /// <param name="whsLocMapRefno"></param>
         /// <inheritdoc/>
-        protected override async Task Save(string reqData, int whsLocMapRefno)
+        protected override async Task Save(string responseData, int whsLocMapRefno)
         {
             var prodRefno = 0;
             var locMapRefno = 0;
@@ -206,7 +158,7 @@ namespace dMobile.GroundWork
                     {
                         this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Reading received data.", false);
 
-                        ds.ReadXml(SysCommon.GetXmlReader(ref reqData), XmlReadMode.Auto);
+                        ds.ReadXml(SysCommon.GetXmlReader(ref responseData), XmlReadMode.Auto);
 
                         this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving product locations.", false);
 
@@ -402,15 +354,15 @@ namespace dMobile.GroundWork
         /// <summary>
         ///
         /// </summary>
-        /// <param name="reqData"></param>
+        /// <param name="responseData"></param>
         /// <param name="whsLocMapRefno"></param>
 /// <summary>
 ///
 /// </summary>
-/// <param name="reqData"></param>
+/// <param name="responseData"></param>
 /// <param name="whsLocMapRefno"></param>
 /// <returns>A <see cref="Task"/> representing the result of the asynchronous operation.</returns>
-        protected async Task SaveOpt(string reqData, int whsLocMapRefno)
+        protected async Task SaveOpt(string responseData, int whsLocMapRefno)
         {
             var errMsg = string.Empty;
 
@@ -420,7 +372,7 @@ namespace dMobile.GroundWork
                 {
                     this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Reading received data.", false);
 
-                    var startIndex = reqData.IndexOf("<VFPData", StringComparison.Ordinal);
+                    var startIndex = responseData.IndexOf("<VFPData", StringComparison.Ordinal);
                     var sett = new XmlReaderSettings();
                     sett.CheckCharacters = false;
                     sett.CloseInput = false;
@@ -431,7 +383,7 @@ namespace dMobile.GroundWork
                     sett.ValidationFlags = System.Xml.Schema.XmlSchemaValidationFlags.None;
                     sett.ValidationType = ValidationType.None;
 
-                    using (var stringReader = new StringReader(reqData.Substring(startIndex)))
+                    using (var stringReader = new StringReader(responseData.Substring(startIndex)))
                     using (var reader = XmlReader.Create(stringReader, sett))
                     {
                         this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving product locations.", false);
@@ -692,6 +644,56 @@ namespace dMobile.GroundWork
             xml.Close();
 
             return xmlString.ToString();
+        }
+
+        public override Task RequestData(int actRefno)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override Task PurgeData(int sectLocMapRefno)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override Task PurgeData(SysCommon.ActSubTypes actSubType)
+        {
+            throw new NotImplementedException();
+        }
+
+        protected override Task Save(string responseData)
+        {
+            throw new NotImplementedException();
+        }
+
+        protected override Task<string> CreateRequest()
+        {
+            throw new NotImplementedException();
+        }
+
+        protected override Task<string> CreateRequest(XDocument criteria)
+        {
+            throw new NotImplementedException();
+        }
+
+        protected override Task<string> CreateRequest(string familyCode)
+        {
+            throw new NotImplementedException();
+        }
+
+        protected override Task<string> CreateRequest(int activityItemFkRefno)
+        {
+            throw new NotImplementedException();
+        }
+
+        protected override Task<string> CreateRequest(int activityItemFkRefno, XDocument criteria)
+        {
+            throw new NotImplementedException();
+        }
+
+        protected override Task<string> CreateRequestProdLoc(int prodLocMapType)
+        {
+            throw new NotImplementedException();
         }
     }
 }

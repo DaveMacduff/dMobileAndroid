@@ -177,7 +177,7 @@ namespace dMobile.View.Utilities
         /// <summary>
         /// Gets or sets a value indicating whether to performing loading data upon got focus.
         /// </summary>
-        private bool FirstOnAppearing { get; set; } = true;
+        private bool IsFirstAppearance { get; set; } = true;
 
         /// <summary>
         /// Unregister the bar code scan event handler and disable the scanner.
@@ -230,13 +230,14 @@ namespace dMobile.View.Utilities
                 isReadyToSave = await CheckSelectedPickingLocation(isReadyToSave);
                 isReadyToSave = await CheckSelectedReceivingLocation(isReadyToSave);
             }
-            catch (MessageOnlyException ex)
+            catch (MessageOnlyException msgEx)
             {
+                var msg = (msgEx.Message.IndexOf("MSGBOX-") == -1) ? msgEx.Message : msgEx.Message["MSGBOX-".Length..];
                 isReadyToSave = false;
                 await Device.InvokeOnMainThreadAsync(async () =>
                     await Application.Current.MainPage.DisplayAlert(
                         this.GetControlDescription(),
-                        ex.Message,
+                        msg,
                         Resource.OK));
             }
             catch (Exception ex)
@@ -371,12 +372,13 @@ namespace dMobile.View.Utilities
                     this.IsChangesMade = false;
                 }
             }
-            catch (MessageOnlyException ex)
+            catch (MessageOnlyException msgEx)
             {
+                var msg = (msgEx.Message.IndexOf("MSGBOX-") == -1) ? msgEx.Message : msgEx.Message["MSGBOX-".Length..];
                 await Device.InvokeOnMainThreadAsync(async () =>
                     await Application.Current.MainPage.DisplayAlert(
                         this.GetControlDescription(),
-                        ex.Message,
+                        msg,
                         Resource.OK));
                 cancelChanges = false;
             }
@@ -479,93 +481,66 @@ namespace dMobile.View.Utilities
 
                     // Submit the xml request
                     data = SysCommon.SubmitComm(sendRequest);
+                    var origLocMapDefPickingRefno = await LocationMapTasks.GetDefaultLocMapRefnoFromWhsProdRefno(
+                        this.LocMap.CurrLocMap.WhsLocMapRefno,
+                        this.ActItem.ProdInfo.Refno,
+                        SysCommon.ProdLocMapTypes.Picking);
+                    var origLocMapDefRecvRefno = await LocationMapTasks.GetDefaultLocMapRefnoFromWhsProdRefno(
+                        this.LocMap.CurrLocMap.WhsLocMapRefno,
+                        this.ActItem.ProdInfo.Refno,
+                        SysCommon.ProdLocMapTypes.Receiving);
 
-                    if (data.Length > 0)
-                    {
-                        // check if result is an error message
-                        if (data.Contains("<message>ERROR</message>"))
-                        {
-                            var docError = new XmlDocument();
-                            docError.LoadXml(data);
+                    var dataUpdate = XDocument.Parse(
+                        "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>"
+                        + "<param>"
+                        + "<prod_refno>" + this.ActItem.ProdInfo.Refno + "</prod_refno>"
+                        + "<receiving_is_update>" + this.chkDefaultReceiving.IsToggled + "</receiving_is_update>"
+                        + "<receiving_warehouse_location_refno>" + this.LocMapDefRecv.WhsLocMapRefno
+                        + "</receiving_warehouse_location_refno>"
+                        + "<receiving_old_location_refno>" + origLocMapDefRecvRefno + "</receiving_old_location_refno>"
+                        + "<receiving_new_location_refno>" + this.NewLocMapDefRecvRefno + "</receiving_new_location_refno>"
+                        + "<picking_is_update>" + this.chkDefaultPicking.IsToggled + "</picking_is_update>"
+                        + "<picking_warehouse_location_refno>" + this.LocMapDefPicking.WhsLocMapRefno
+                        + "</picking_warehouse_location_refno>"
+                        + "<picking_old_location_refno>" + origLocMapDefPickingRefno + "</picking_old_location_refno>"
+                        + "<picking_new_location_refno>" + this.NewLocMapDefPickingRefno + "</picking_new_location_refno>"
+                        + "</param>");
 
-                            var errorDetail = docError.DocumentElement["detail"].InnerText;
+                    await this.ActItem.Update(dataUpdate);
 
-                            if (errorDetail.Contains("MSGBOX-"))
-                            {
-                                throw new MessageOnlyException(errorDetail);
-                            }
-                            else
-                            {
-                                throw new Exception(errorDetail);
-                            }
-                        }
-                        else
-                        {
-                            var origLocMapDefPickingRefno = await LocationMapTasks.GetDefaultLocMapRefnoFromWhsProdRefno(
-                                this.LocMap.CurrLocMap.WhsLocMapRefno,
-                                this.ActItem.ProdInfo.Refno,
-                                SysCommon.ProdLocMapTypes.Picking);
-                            var origLocMapDefRecvRefno = await LocationMapTasks.GetDefaultLocMapRefnoFromWhsProdRefno(
-                                this.LocMap.CurrLocMap.WhsLocMapRefno,
-                                this.ActItem.ProdInfo.Refno,
-                                SysCommon.ProdLocMapTypes.Receiving);
+                    this.CurrLocMapDefPickingRefno = await LocationMapTasks.GetDefaultLocMapRefnoFromWhsProdRefno(
+                        this.LocMap.CurrLocMap.WhsLocMapRefno,
+                        this.ActItem.ProdInfo.Refno,
+                        SysCommon.ProdLocMapTypes.Picking);
+                    this.LocMapDefPicking = await LocationMapTasks.GetSLocMapFromLocMapRefno(
+                        this.CurrLocMapDefPickingRefno);
+                    this.CurrLocMapDefRecvRefno = await LocationMapTasks.GetDefaultLocMapRefnoFromWhsProdRefno(
+                        this.LocMap.CurrLocMap.WhsLocMapRefno,
+                        this.ActItem.ProdInfo.Refno,
+                        SysCommon.ProdLocMapTypes.Receiving);
+                    this.LocMapDefRecv = await LocationMapTasks.GetSLocMapFromLocMapRefno(
+                        this.CurrLocMapDefRecvRefno);
 
-                            var dataUpdate = XDocument.Parse(
-                                "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>"
-                                + "<param>"
-                                + "<prod_refno>" + this.ActItem.ProdInfo.Refno + "</prod_refno>"
-                                + "<receiving_is_update>" + this.chkDefaultReceiving.IsToggled + "</receiving_is_update>"
-                                + "<receiving_warehouse_location_refno>" + this.LocMapDefRecv.WhsLocMapRefno
-                                + "</receiving_warehouse_location_refno>"
-                                + "<receiving_old_location_refno>" + origLocMapDefRecvRefno + "</receiving_old_location_refno>"
-                                + "<receiving_new_location_refno>" + this.NewLocMapDefRecvRefno + "</receiving_new_location_refno>"
-                                + "<picking_is_update>" + this.chkDefaultPicking.IsToggled + "</picking_is_update>"
-                                + "<picking_warehouse_location_refno>" + this.LocMapDefPicking.WhsLocMapRefno
-                                + "</picking_warehouse_location_refno>"
-                                + "<picking_old_location_refno>" + origLocMapDefPickingRefno + "</picking_old_location_refno>"
-                                + "<picking_new_location_refno>" + this.NewLocMapDefPickingRefno + "</picking_new_location_refno>"
-                                + "</param>");
+                    await this.DisplayData();
+                    this.lblCurrentPickingLocation.TextColor = Color.Black;
+                    this.lblCurrentReceivingLocation.TextColor = Color.Black;
 
-                            await this.ActItem.Update(dataUpdate);
-
-                            this.CurrLocMapDefPickingRefno = await LocationMapTasks.GetDefaultLocMapRefnoFromWhsProdRefno(
-                                this.LocMap.CurrLocMap.WhsLocMapRefno,
-                                this.ActItem.ProdInfo.Refno,
-                                SysCommon.ProdLocMapTypes.Picking);
-                            this.LocMapDefPicking = await LocationMapTasks.GetSLocMapFromLocMapRefno(
-                                this.CurrLocMapDefPickingRefno);
-                            this.CurrLocMapDefRecvRefno = await LocationMapTasks.GetDefaultLocMapRefnoFromWhsProdRefno(
-                                this.LocMap.CurrLocMap.WhsLocMapRefno,
-                                this.ActItem.ProdInfo.Refno,
-                                SysCommon.ProdLocMapTypes.Receiving);
-                            this.LocMapDefRecv = await LocationMapTasks.GetSLocMapFromLocMapRefno(
-                                this.CurrLocMapDefRecvRefno);
-
-                            await this.DisplayData();
-                            this.lblCurrentPickingLocation.TextColor = Color.Black;
-                            this.lblCurrentReceivingLocation.TextColor = Color.Black;
-
-                            await Device.InvokeOnMainThreadAsync(async () => await this.DisplayAlert(
-                                "Assign Default Location",
-                                "Product default location(s) saved.",
-                                "OK"));
-                        }
-                    }
-                    else
-                    {
-                        throw new Exception("Assign Default Product Location failed.");
-                    }
+                    await Device.InvokeOnMainThreadAsync(async () => await this.DisplayAlert(
+                        "Assign Default Location",
+                        "Product default location(s) saved.",
+                        "OK"));
 
                     saveComplete = false; // Set false to stay in form
                 }
             }
-            catch (MessageOnlyException ex)
+            catch (MessageOnlyException msgEx)
             {
+                var msg = (msgEx.Message.IndexOf("MSGBOX-") == -1) ? msgEx.Message : msgEx.Message["MSGBOX-".Length..];
                 saveComplete = false;
                 await Device.InvokeOnMainThreadAsync(async () =>
                     await Application.Current.MainPage.DisplayAlert(
                         this.GetControlDescription(),
-                        ex.Message,
+                        msg,
                         Resource.OK));
             }
             catch (Exception ex)
@@ -599,9 +574,9 @@ namespace dMobile.View.Utilities
 
             try
             {
-                if (this.FirstOnAppearing)
+                if (this.IsFirstAppearance)
                 {
-                    this.FirstOnAppearing = false;
+                    this.IsFirstAppearance = false;
 
                     if (this.LocMap.CurrLocMap.WhsLocMapRefno <= 0)
                     {
@@ -617,18 +592,19 @@ namespace dMobile.View.Utilities
                 _ = this.cmdLocation.Focus();
                 await this.ScannerEnable();
             }
-            catch (MessageOnlyException ex)
+            catch (MessageOnlyException msgEx)
             {
-                this.FirstOnAppearing = true;
+                var msg = (msgEx.Message.IndexOf("MSGBOX-") == -1) ? msgEx.Message : msgEx.Message["MSGBOX-".Length..];
+                this.IsFirstAppearance = true;
                 await Device.InvokeOnMainThreadAsync(async () =>
                     await Application.Current.MainPage.DisplayAlert(
                         this.GetControlDescription(),
-                        ex.Message,
+                        msg,
                         Resource.OK));
             }
             catch (Exception ex)
             {
-                this.FirstOnAppearing = true;
+                this.IsFirstAppearance = true;
                 await Device.InvokeOnMainThreadAsync(async () =>
                 {
                     var msg = "This activity unexpectedly failed to initialize correctly." +
@@ -695,12 +671,13 @@ namespace dMobile.View.Utilities
                         await this.Close();
                     }
                 }
-                catch (MessageOnlyException ex)
+                catch (MessageOnlyException msgEx)
                 {
+                    var msg = (msgEx.Message.IndexOf("MSGBOX-") == -1) ? msgEx.Message : msgEx.Message["MSGBOX-".Length..];
                     await Device.InvokeOnMainThreadAsync(async () =>
                         await Application.Current.MainPage.DisplayAlert(
                             this.GetControlDescription(),
-                            ex.Message,
+                            msg,
                             Resource.OK));
                 }
                 catch (Exception ex)
@@ -952,12 +929,13 @@ namespace dMobile.View.Utilities
             {
                 // Do nothing, task cancelled by user
             }
-            catch (MessageOnlyException ex)
+            catch (MessageOnlyException msgEx)
             {
+                var msg = (msgEx.Message.IndexOf("MSGBOX-") == -1) ? msgEx.Message : msgEx.Message["MSGBOX-".Length..];
                 await Device.InvokeOnMainThreadAsync(async () =>
                     await Application.Current.MainPage.DisplayAlert(
                         this.GetControlDescription(),
-                        ex.Message,
+                        msg,
                         Resource.OK));
             }
             catch (Exception ex)
@@ -1035,12 +1013,13 @@ namespace dMobile.View.Utilities
                     await this.Close();
                 }
             }
-            catch (MessageOnlyException ex)
+            catch (MessageOnlyException msgEx)
             {
+                var msg = (msgEx.Message.IndexOf("MSGBOX-") == -1) ? msgEx.Message : msgEx.Message["MSGBOX-".Length..];
                 await Device.InvokeOnMainThreadAsync(async () =>
                     await Application.Current.MainPage.DisplayAlert(
                         this.GetControlDescription(),
-                        ex.Message,
+                        msg,
                         Resource.OK));
             }
             catch (Exception ex)

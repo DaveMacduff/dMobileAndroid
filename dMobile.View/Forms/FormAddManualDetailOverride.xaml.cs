@@ -277,13 +277,13 @@ namespace dMobile.View.Forms
                     throw new MessageOnlyException("Invalid login password.");
                 }
             }
-            catch (MessageOnlyException ex)
+            catch (MessageOnlyException msgEx)
             {
+                var msg = (msgEx.Message.IndexOf("MSGBOX-") == -1) ? msgEx.Message : msgEx.Message["MSGBOX-".Length..];
                 e.Cancel = true;
-
                 await Device.InvokeOnMainThreadAsync(async () => await this.DisplayAlert(
                     "Add Manual Detail Override",
-                    ex.Message,
+                    msg,
                     "OK"));
             }
             catch (SQLiteException ex)

@@ -243,24 +243,20 @@ namespace dMobile.Controller.Activity_Item
                     + "<skid_data>" + this.ActHdr.SkidInfo.CurrSkid.SkidCode + "</skid_data>"
                     + "</params>"));
 
-                var reqData = SysCommon.SubmitComm(sendReq);
-
-                if (reqData.Length > 0)
+                var responseData = SysCommon.SubmitComm(sendReq);
+                if (responseData.Contains("<message>ERROR</message>"))
                 {
-                    if (reqData.Contains("<message>ERROR</message>"))
-                    {
-                        var docError = new XmlDocument();
-                        docError.LoadXml(reqData);
-                        var errorDetail = docError.DocumentElement["detail"].InnerText;
+                    var docError = new XmlDocument();
+                    docError.LoadXml(responseData);
+                    var errorDetail = docError.DocumentElement["detail"].InnerText;
 
-                        if (errorDetail.Contains("MSGBOX-"))
-                        {
-                            throw new MessageOnlyException(errorDetail);
-                        }
-                        else
-                        {
-                            throw new Exception(errorDetail);
-                        }
+                    if (errorDetail.Contains("MSGBOX-"))
+                    {
+                        throw new MessageOnlyException(errorDetail);
+                    }
+                    else
+                    {
+                        throw new Exception(errorDetail);
                     }
                 }
             }
@@ -436,7 +432,7 @@ namespace dMobile.Controller.Activity_Item
                 this.DataLayerProgressOutHandler(this, EventArgs.Empty, 5);
 
                 tableActRecvItem.RegisterDataAccessListenerProgressOut((RecvActItem)this);
-                await tableActRecvItem.RequestData(this.ActHdr.HdrRefno);
+                await tableActRecvItem.RequestItemData(this.ActHdr.HdrRefno);
                 tableActRecvItem.UnregisterDataAccessListenerProgressOut((RecvActItem)this);
             }
         }

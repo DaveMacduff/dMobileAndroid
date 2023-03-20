@@ -6,6 +6,7 @@ namespace dMobile.BarCodeScanner
 {
     using dMobile.Bedrock;
     using dMobile.Resources.Models;
+    using Org.Apache.Http.Protocol;
     using System;
     using System.Collections.Generic;
     using System.Reflection;
@@ -201,82 +202,65 @@ namespace dMobile.BarCodeScanner
                 xml.Close();
 
                 var data = SysCommon.SubmitComm(xmlString.ToString());
-                if (data.Length > 0)
+                result.LoadXml(data);
+                if (result.SelectSingleNode("/VFPData/ProductFKRefno").HasChildNodes)
                 {
-                    result.LoadXml(data);
+                    unitRefnoFromBarCode.ProdInfo.FKRefno = Convert.ToInt32(
+                        result.SelectSingleNode("/VFPData/ProductFKRefno").FirstChild.Value);
+                }
 
-                    // check if result is an error message
-                    if (data.Contains("<message>ERROR</message>"))
+                if (result.SelectSingleNode("/VFPData/DeliScaleWeight").HasChildNodes)
+                {
+                    unitRefnoFromBarCode.DeliScaleWeight = Convert.ToDecimal(
+                        result.SelectSingleNode("/VFPData/DeliScaleWeight").FirstChild.Value);
+                }
+
+                if (result.SelectSingleNode("/VFPData/DeliScaleWeightUnit").HasChildNodes)
+                {
+                    unitRefnoFromBarCode.DeliScaleWeightUnit = Convert.ToString(
+                        result.SelectSingleNode("/VFPData/DeliScaleWeightUnit").FirstChild.Value);
+                }
+
+                if (unitRefnoFromBarCode.ProdInfo.FKRefno != 0)
+                {
+                    unitRefnoFromBarCode.ProdInfo.UnitIsBC = Convert.ToBoolean(
+                        result.SelectSingleNode("/VFPData/ProductUnitIsBC").FirstChild.Value);
+                    unitRefnoFromBarCode.ProdInfo.UnitCode = result.SelectSingleNode(
+                        "/VFPData/ProductUnitCode").FirstChild.Value;
+
+                    var productList = await DatabaseConnection.GetInstance().
+                        SQLConn.QueryAsync<tProductModel>(
+                        "SELECT * FROM tProduct WHERE ProductFKRefno = ?",
+                        Convert.ToInt32(unitRefnoFromBarCode.ProdInfo.FKRefno));
+
+                    if (productList != null && productList.Count > 0)
                     {
-                        throw new Exception(result.DocumentElement["detail"].InnerText);
-                    }
-                    else
-                    {
-                        if (result.SelectSingleNode("/VFPData/ProductFKRefno").HasChildNodes)
+                        unitRefnoFromBarCode.ProdInfo.Refno = productList[0].ProductRefno;
+
+                        var unitList = await DatabaseConnection.GetInstance().
+                            SQLConn.QueryAsync<tUnitModel>(
+                            "SELECT * FROM tUnit WHERE UnitCode = ?",
+                            Convert.ToString(unitRefnoFromBarCode.ProdInfo.UnitCode));
+
+                        if (unitList != null && unitList.Count > 0)
                         {
-                            unitRefnoFromBarCode.ProdInfo.FKRefno = Convert.ToInt32(
-                                result.SelectSingleNode("/VFPData/ProductFKRefno").FirstChild.Value);
-                        }
+                            var unitRefno = unitList[0].UnitRefno;
 
-                        if (result.SelectSingleNode("/VFPData/DeliScaleWeight").HasChildNodes)
-                        {
-                            unitRefnoFromBarCode.DeliScaleWeight = Convert.ToDecimal(
-                                result.SelectSingleNode("/VFPData/DeliScaleWeight").FirstChild.Value);
-                        }
+                            var productUnitList = await DatabaseConnection.
+                                GetInstance().SQLConn.QueryAsync<tProductUnitModel>(
+                                "SELECT * FROM tProductUnit WHERE ProductRefno = ?" +
+                                    " AND UnitRefno = ? AND ProductUnitIsBC = ?",
+                                unitRefnoFromBarCode.ProdInfo.Refno,
+                                unitRefno,
+                                unitRefnoFromBarCode.ProdInfo.UnitIsBC);
 
-                        if (result.SelectSingleNode("/VFPData/DeliScaleWeightUnit").HasChildNodes)
-                        {
-                            unitRefnoFromBarCode.DeliScaleWeightUnit = Convert.ToString(
-                                result.SelectSingleNode("/VFPData/DeliScaleWeightUnit").FirstChild.Value);
-                        }
-
-                        if (unitRefnoFromBarCode.ProdInfo.FKRefno != 0)
-                        {
-                            unitRefnoFromBarCode.ProdInfo.UnitIsBC = Convert.ToBoolean(
-                                result.SelectSingleNode("/VFPData/ProductUnitIsBC").FirstChild.Value);
-                            unitRefnoFromBarCode.ProdInfo.UnitCode = result.SelectSingleNode(
-                                "/VFPData/ProductUnitCode").FirstChild.Value;
-
-                            var productList = await DatabaseConnection.GetInstance().
-                                SQLConn.QueryAsync<tProductModel>(
-                                "SELECT * FROM tProduct WHERE ProductFKRefno = ?",
-                                Convert.ToInt32(unitRefnoFromBarCode.ProdInfo.FKRefno));
-
-                            if (productList != null && productList.Count > 0)
+                            if (productUnitList != null && productUnitList.Count > 0)
                             {
-                                unitRefnoFromBarCode.ProdInfo.Refno = productList[0].ProductRefno;
-
-                                var unitList = await DatabaseConnection.GetInstance().
-                                    SQLConn.QueryAsync<tUnitModel>(
-                                    "SELECT * FROM tUnit WHERE UnitCode = ?",
-                                    Convert.ToString(unitRefnoFromBarCode.ProdInfo.UnitCode));
-
-                                if (unitList != null && unitList.Count > 0)
-                                {
-                                    var unitRefno = unitList[0].UnitRefno;
-
-                                    var productUnitList = await DatabaseConnection.
-                                        GetInstance().SQLConn.QueryAsync<tProductUnitModel>(
-                                        "SELECT * FROM tProductUnit WHERE ProductRefno = ?" +
-                                            " AND UnitRefno = ? AND ProductUnitIsBC = ?",
-                                        unitRefnoFromBarCode.ProdInfo.Refno,
-                                        unitRefno,
-                                        unitRefnoFromBarCode.ProdInfo.UnitIsBC);
-
-                                    if (productUnitList != null && productUnitList.Count > 0)
-                                    {
-                                        unitRefnoFromBarCode.ProdInfo.UnitRefno =
-                                            productUnitList[0].ProductUnitRefno;
-                                    }
-                                }
+                                unitRefnoFromBarCode.ProdInfo.UnitRefno =
+                                    productUnitList[0].ProductUnitRefno;
                             }
                         }
                     }
-                }
-                else
-                {
-                    throw new MessageOnlyException(
-                        "Request product with deli information failed. Check communications.");
                 }
             }
 

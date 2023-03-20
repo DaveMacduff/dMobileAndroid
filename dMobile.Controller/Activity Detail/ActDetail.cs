@@ -1032,30 +1032,17 @@ namespace dMobile.Controller.Activity_Detail
         /// <param name="sendReq"><see cref="string"/> Submission request.</param>
         protected void SubmitDetailToCommServer(string sendReq)
         {
-            var reqData = SysCommon.SubmitComm(sendReq);
+            var responseData = SysCommon.SubmitComm(sendReq);
             var xmlData = new XmlDocument();
-            xmlData.LoadXml(reqData);
-
-            if (reqData.Contains("<message>ERROR</message>"))
-            {
-                var errorDetail = xmlData.DocumentElement["detail"].InnerText;
-
-                if (errorDetail.Contains("MSGBOX-"))
-                {
-                    throw new MessageOnlyException(errorDetail);
-                }
-                else
-                {
-                    throw new Exception(errorDetail);
-                }
-            }
-
-            this.IsUpdateView = true;
-            this.ActItem.ItemFkRefno = int.Parse(xmlData.DocumentElement["itm_refno"].InnerText);
+            xmlData.LoadXml(responseData);
+            var innerText = xmlData.DocumentElement?["itm_refno"] !.InnerText;
+            this.ActItem.ItemFkRefno = int.Parse(innerText);
 
             // Assign a temporary activity detail until a full activity detail refresh occurs.
-            this.DetailFkRefno = int.Parse(xmlData.DocumentElement["ser_refno"].InnerText) * -1;
+            innerText = xmlData.DocumentElement["ser_refno"] !.InnerText;
+            this.DetailFkRefno = int.Parse(innerText) * -1;
             this.DetailRefno = this.DetailFkRefno;
+            this.IsUpdateView = true;
         }
 
         /// <summary>

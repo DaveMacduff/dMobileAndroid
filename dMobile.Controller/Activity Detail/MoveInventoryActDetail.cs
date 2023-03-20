@@ -183,37 +183,15 @@ namespace dMobile.Controller.Activity_Detail
 
             var xmlDoc = new XmlDocument();
             var xmlSend = await this.CreateSubmitXml(data);
-            var reqData = SysCommon.SubmitComm(xmlSend);
-
-            if (reqData.Length > 0)
+            var responseData = SysCommon.SubmitComm(xmlSend);
+            xmlDoc.LoadXml(responseData);
+            ((MoveDetail)selectedActivityDetail).ActivityDetailStatus = (int)SysCommon.ActStatus.NoChange;
+            if (xmlDoc.DocumentElement?["ser_refno"] != null)
             {
-                xmlDoc.LoadXml(reqData);
-
-                // check if result is an error message
-                if (reqData.Contains("<message>ERROR</message>"))
-                {
-                    var errorDetail = xmlDoc.DocumentElement["detail"].InnerText;
-
-                    if (errorDetail.Contains("MSGBOX-"))
-                    {
-                        throw new MessageOnlyException(errorDetail);
-                    }
-                    else
-                    {
-                        throw new Exception(errorDetail);
-                    }
-                }
-                else
-                {
-                    ((MoveDetail)selectedActivityDetail).ActivityDetailStatus = (int)SysCommon.ActStatus.NoChange;
-                    if (xmlDoc.DocumentElement?["ser_refno"] != null)
-                    {
-                        this.DetailFkRefno = int.Parse(xmlDoc.DocumentElement["ser_refno"].InnerText);
-                    }
-
-                    this.ListDetails.Remove(selectedActivityDetail);
-                }
+                this.DetailFkRefno = int.Parse(xmlDoc.DocumentElement["ser_refno"].InnerText);
             }
+
+            this.ListDetails.Remove(selectedActivityDetail);
         }
 
         /// <summary>

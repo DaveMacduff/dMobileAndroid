@@ -265,10 +265,10 @@ namespace dMobile.View.Pages
 
             // string sendRequest = this.CreateXMLSyncDateTime();
             //            int bytesSent = sysSock.SendRequest(socket, sendRequest);
-            //            List<byte> recvData = sysSock.ReceiveResponse(socket);
+            //            List<byte> responseData = sysSock.ReceiveResponse(socket);
             //            socket.Close();
 
-            // string data = Compress.UnZip(recvData.ToArray());
+            // string data = Compress.UnZip(responseData.ToArray());
             //            if (data.Contains("<message>ERROR</message>"))
             //            {
             //                XmlDocument docError = new XmlDocument();
@@ -605,11 +605,11 @@ namespace dMobile.View.Pages
 
                         this.StartUpStatusOut(sender, e, "Socket closed.");
 
-                        var recvData = Compress.UnZip(bytRecvData.ToArray());
-                        if (recvData.Contains("<message>ERROR</message>"))
+                        var responseData = Compress.UnZip(bytRecvData.ToArray());
+                        if (responseData.Contains("<message>ERROR</message>"))
                         {
                             var docError = new XmlDocument();
-                            docError.LoadXml(recvData);
+                            docError.LoadXml(responseData);
 
                             var errorDetail = docError.DocumentElement["detail"].InnerText;
 

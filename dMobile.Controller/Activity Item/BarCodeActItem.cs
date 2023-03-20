@@ -230,26 +230,7 @@ namespace dMobile.Controller.Activity_Item
                             var temp = this.CreateSubmitXml(data).Result;
 
                             // string temp = Task.Run(async () => await this.CreateSubmitXML(data)).ToString();
-                            var reqData = SysCommon.SubmitComm(temp);
-                            if (reqData.Length > 0)
-                            {
-                                // Check if result is an error message
-                                if (reqData.Contains("<message>ERROR</message>"))
-                                {
-                                    var docError = new XmlDocument();
-                                    docError.LoadXml(reqData);
-                                    var errorDetail = docError.DocumentElement["detail"].InnerText;
-
-                                    if (errorDetail.Contains("MSGBOX-"))
-                                    {
-                                        throw new MessageOnlyException(errorDetail);
-                                    }
-                                    else
-                                    {
-                                        throw new Exception(errorDetail);
-                                    }
-                                }
-                            }
+                            _ = SysCommon.SubmitComm(temp);
                         }
                     }
                     catch (SQLiteException ex)
@@ -418,28 +399,14 @@ namespace dMobile.Controller.Activity_Item
             if (receivedData.Length > 0)
             {
                 xmlDoc.LoadXml(receivedData);
+                await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(
+                    "UPDATE tActivityItem SET ActivityItemStatus = ? WHERE ActivityItemRefno = ?",
+                    Convert.ToInt32(SysCommon.ActStatus.NoChange),
+                    this.ItemRefno);
 
-                // check if result is an error message
-                if (receivedData.Contains("<message>ERROR</message>"))
+                if (this.ListItems != null && selectedActivityItem is BarcodeAssociationItem barcodeAssociationItem)
                 {
-                    var errorDetail = xmlDoc.DocumentElement["detail"].InnerText;
-                    if (errorDetail.Contains("MSGBOX-"))
-                    {
-                        throw new MessageOnlyException(errorDetail);
-                    }
-                    else
-                    {
-                        throw new Exception(errorDetail);
-                    }
-                }
-                else
-                {
-                    await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync("UPDATE tActivityItem SET ActivityItemStatus = ? WHERE ActivityItemRefno = ?", Convert.ToInt32(SysCommon.ActStatus.NoChange), this.ItemRefno);
-
-                    if (this.ListItems != null && selectedActivityItem is BarcodeAssociationItem barcodeAssociationItem)
-                    {
-                        barcodeAssociationItem.ActivityItemStatus = Convert.ToInt32(SysCommon.ActStatus.NoChange);
-                    }
+                    barcodeAssociationItem.ActivityItemStatus = Convert.ToInt32(SysCommon.ActStatus.NoChange);
                 }
             }
         }
@@ -449,7 +416,7 @@ namespace dMobile.Controller.Activity_Item
         /// </summary>
         /// <param name="data">.</param>
         /// <returns>.</returns>
-        public async override Task<string> CreateSubmitXml(XDocument data)
+        public override async Task<string> CreateSubmitXml(XDocument data)
         {
             var strXml = new StringBuilder();
             using var writer = XmlWriter.Create(strXml);

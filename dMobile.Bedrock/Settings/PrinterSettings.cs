@@ -251,26 +251,15 @@ namespace dMobile.Bedrock
         /// </summary>
         public void RequestPrinterSettings()
         {
-            var reqData = string.Empty;
+            var responseData = string.Empty;
             var msgArgs = new PrnSettingsArgs();
 
             try
             {
                 msgArgs.StatusOutMsg = "Seeding printer settings.";
                 this.OnPrnSettingsStatusOut(this, msgArgs);
-
-                reqData = SysCommon.SubmitComm(this.Create());
-                if (reqData.Length > 0)
-                {
-                    if (reqData.Contains("<message>ERROR</message>"))
-                    {
-                        var docError = new XmlDocument();
-                        docError.LoadXml(reqData);
-                        throw new Exception(docError.DocumentElement["detail"].InnerText);
-                    }
-
-                    this.Save(reqData);
-                }
+                responseData = SysCommon.SubmitComm(this.Create());
+                this.Save(responseData);
 
                 msgArgs.StatusOutMsg = "Seeding printer settings complete.";
                 this.OnPrnSettingsStatusOut(this, msgArgs);

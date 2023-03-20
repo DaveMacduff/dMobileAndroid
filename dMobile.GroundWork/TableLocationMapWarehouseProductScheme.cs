@@ -44,20 +44,8 @@ namespace dMobile.GroundWork
                     foreach (var family in resultsFamily)
                     {
                         this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"For family {family.FamilyCode}", true);
-
-                        var reqData = await this.SendRequest(family.FamilyCode);
-
-                        if (reqData.Length > 0)
-                        {
-                            if (reqData.Contains("<message>ERROR</message>"))
-                            {
-                                var reqErr = new XmlDocument();
-                                reqErr.LoadXml(reqData);
-                                throw new Exception(reqErr.DocumentElement["detail"].InnerText);
-                            }
-
-                            await this.Save(reqData);
-                        }
+                        var responseData = await this.SendRequest(family.FamilyCode);
+                        await this.Save(responseData);
                     }
                 }
 
@@ -124,10 +112,10 @@ namespace dMobile.GroundWork
         /// <summary>
         ///
         /// </summary>
-        /// <param name="reqData"></param>
+        /// <param name="responseData"></param>
         /// <remarks></remarks>
         /// <inheritdoc/>
-        protected override async Task Save(string reqData)
+        protected override async Task Save(string responseData)
         {
             var errMsg = string.Empty;
 
@@ -137,9 +125,9 @@ namespace dMobile.GroundWork
                 {
                     using (var ds = new DataSet())
                     {
-                        this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Reading received data.", false);
+                        this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Reading received responseData.", false);
 
-                        ds.ReadXml(SysCommon.GetXmlReader(ref reqData), XmlReadMode.Auto);
+                        ds.ReadXml(SysCommon.GetXmlReader(ref responseData), XmlReadMode.Auto);
 
                         this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving warehouse product schemes.", false);
 
@@ -283,15 +271,54 @@ namespace dMobile.GroundWork
             return xmlString.ToString();
         }
 
-        /// <summary>
-        ///
-        /// </summary>
-        /// <param name="familyCode"></param>
-        /// <returns></returns>
-        /// <inheritdoc/>
-        protected override async Task<string> SendRequest(string familyCode)
+        public override Task RequestData(int actRefno)
         {
-            return await this.SendComm(await this.CreateRequest(familyCode));
+            throw new NotImplementedException();
+        }
+
+        public override Task PurgeData(int sectLocMapRefno)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override Task PurgeData(SysCommon.ActSubTypes actSubType)
+        {
+            throw new NotImplementedException();
+        }
+
+        protected override Task Save(string responseData, int refno)
+        {
+            throw new NotImplementedException();
+        }
+
+        protected override Task<string> CreateRequest()
+        {
+            throw new NotImplementedException();
+        }
+
+        protected override Task<string> CreateRequest(XDocument criteria)
+        {
+            throw new NotImplementedException();
+        }
+
+        protected override Task<string> CreateRequest(int activityItemFkRefno)
+        {
+            throw new NotImplementedException();
+        }
+
+        protected override Task<string> CreateRequest(int activityItemFkRefno, XDocument criteria)
+        {
+            throw new NotImplementedException();
+        }
+
+        protected override Task<string> CreateRequest(int prodLocMapType, int whsLocMapFKRefno)
+        {
+            throw new NotImplementedException();
+        }
+
+        protected override Task<string> CreateRequestProdLoc(int prodLocMapType)
+        {
+            throw new NotImplementedException();
         }
     }
 }

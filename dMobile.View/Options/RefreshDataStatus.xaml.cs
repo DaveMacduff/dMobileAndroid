@@ -110,9 +110,9 @@ namespace dMobile.View.Options
                 this.TicketFinishedItem = new TableActivityProductionTicketFinishedItem();
                 this.TicketMaterialItem = new TableActivityProductionTicketMaterialItem();
                 this.TicketByProductItem = new TableActivityProductionTicketByProductItem();
-                this.TicketDetailFinished = new TableActivityProductionTicketFinishedDetail();
-                this.TicketDetailMaterial = new TableActivityProductionTicketMaterialDetail();
-                this.TicketDetailByProduct = new TableActivityProductionTicketByProductDetail();
+                this.TicketFinishedDetail = new TableActivityProductionTicketFinishedDetail();
+                this.TicketMaterialDetail = new TableActivityProductionTicketMaterialDetail();
+                this.TicketByProductDetail = new TableActivityProductionTicketByProductDetail();
                 this.PurchaseOrderWorkSheetItem = new TableActivityPurchaseOrderWorkSheetItem();
                 this.PrinterSettings = new PrinterSettings();
                 this.SchemeLabelSettings = new ProdSchemeLabelSettings();
@@ -290,21 +290,21 @@ namespace dMobile.View.Options
 
         private TableActivityProductionTicketFinished TicketFinished { get; set; }
 
-        private TableActivityProductionTicketMaterial TicketMaterial { get; set; }
-
-        private TableActivityProductionTicketByProduct TicketByProduct { get; set; }
-
         private TableActivityProductionTicketFinishedItem TicketFinishedItem { get; set; }
+
+        private TableActivityProductionTicketFinishedDetail TicketFinishedDetail { get; set; }
+
+        private TableActivityProductionTicketMaterial TicketMaterial { get; set; }
 
         private TableActivityProductionTicketMaterialItem TicketMaterialItem { get; set; }
 
+        private TableActivityProductionTicketMaterialDetail TicketMaterialDetail { get; set; }
+
+        private TableActivityProductionTicketByProduct TicketByProduct { get; set; }
+
         private TableActivityProductionTicketByProductItem TicketByProductItem { get; set; }
 
-        private TableActivityProductionTicketFinishedDetail TicketDetailFinished { get; set; }
-
-        private TableActivityProductionTicketMaterialDetail TicketDetailMaterial { get; set; }
-
-        private TableActivityProductionTicketByProductDetail TicketDetailByProduct { get; set; }
+        private TableActivityProductionTicketByProductDetail TicketByProductDetail { get; set; }
 
         private TableActivityPurchaseOrderWorkSheetItem PurchaseOrderWorkSheetItem { get; set; }
 
@@ -866,7 +866,10 @@ namespace dMobile.View.Options
 
             if (!await Common.IsDataBaseDataExist())
             {
-                await Device.InvokeOnMainThreadAsync(async () => await this.DisplayAlert(this.GetControlDescription(), Resource.SomeExpectedDataWasNotRefreshedRecommendRefreshingDataAgain, Resource.OK));
+                await Device.InvokeOnMainThreadAsync(async () => await this.DisplayAlert(
+                    this.GetControlDescription(),
+                    Resource.SomeExpectedDataWasNotRefreshedRecommendRefreshingDataAgain,
+                    Resource.OK));
             }
         }
 
@@ -916,7 +919,7 @@ namespace dMobile.View.Options
 
                 this.PurchaseOrderWorkSheetItem.RegisterDataAccessListenerProgressOut(this);
                 this.PurchaseOrderWorkSheetItem.RegisterDataAccessListenerStatusOut(this);
-                _ = await this.PurchaseOrderWorkSheetItem.DataStatus();
+                _ = await this.PurchaseOrderWorkSheetItem.DataItemStatus();
                 this.PurchaseOrderWorkSheetItem.UnregisterDataAccessListenerStatusOut(this);
                 this.PurchaseOrderWorkSheetItem.UnregisterDataAccessListenerProgressOut(this);
             }
@@ -1214,19 +1217,19 @@ namespace dMobile.View.Options
         {
             this.Receiving.RegisterDataAccessListenerProgressOut(this);
             this.Receiving.RegisterDataAccessListenerStatusOut(this);
-            _ = await this.Receiving.DataStatus();
+            _ = await this.Receiving.DataHeaderStatus();
             this.Receiving.UnregisterDataAccessListenerStatusOut(this);
             this.Receiving.UnregisterDataAccessListenerProgressOut(this);
 
             this.ReceivingItem.RegisterDataAccessListenerProgressOut(this);
             this.ReceivingItem.RegisterDataAccessListenerStatusOut(this);
-            _ = await this.ReceivingItem.DataStatus();
+            _ = await this.ReceivingItem.DataItemStatus();
             this.ReceivingItem.UnregisterDataAccessListenerStatusOut(this);
             this.ReceivingItem.UnregisterDataAccessListenerProgressOut(this);
 
             this.ReceivingDetail.RegisterDataAccessListenerProgressOut(this);
             this.ReceivingDetail.RegisterDataAccessListenerStatusOut(this);
-            _ = await this.ReceivingDetail.DataStatus();
+            _ = await this.ReceivingDetail.DataDetailStatus();
             this.ReceivingDetail.UnregisterDataAccessListenerStatusOut(this);
             this.ReceivingDetail.UnregisterDataAccessListenerProgressOut(this);
         }
@@ -1238,19 +1241,19 @@ namespace dMobile.View.Options
         {
             this.Picking.RegisterDataAccessListenerProgressOut(this);
             this.Picking.RegisterDataAccessListenerStatusOut(this);
-            _ = await this.Picking.DataStatus();
+            _ = await this.Picking.DataHeaderStatus();
             this.Picking.UnregisterDataAccessListenerStatusOut(this);
             this.Picking.UnregisterDataAccessListenerProgressOut(this);
 
             this.PickingItem.RegisterDataAccessListenerProgressOut(this);
             this.PickingItem.RegisterDataAccessListenerStatusOut(this);
-            _ = await this.PickingItem.DataStatus();
+            _ = await this.PickingItem.DataItemStatus();
             this.PickingItem.UnregisterDataAccessListenerStatusOut(this);
             this.PickingItem.UnregisterDataAccessListenerProgressOut(this);
 
             this.PickingDetail.RegisterDataAccessListenerProgressOut(this);
             this.PickingDetail.RegisterDataAccessListenerStatusOut(this);
-            _ = await this.PickingDetail.DataStatus();
+            _ = await this.PickingDetail.DataDetailStatus();
             this.PickingDetail.UnregisterDataAccessListenerStatusOut(this);
             this.PickingDetail.UnregisterDataAccessListenerProgressOut(this);
         }
@@ -1262,19 +1265,19 @@ namespace dMobile.View.Options
         {
             this.Returns.RegisterDataAccessListenerProgressOut(this);
             this.Returns.RegisterDataAccessListenerStatusOut(this);
-            _ = await this.Returns.DataStatus();
+            _ = await this.Returns.DataHeaderStatus();
             this.Returns.UnregisterDataAccessListenerStatusOut(this);
             this.Returns.UnregisterDataAccessListenerProgressOut(this);
 
             this.ReturnsItem.RegisterDataAccessListenerProgressOut(this);
             this.ReturnsItem.RegisterDataAccessListenerStatusOut(this);
-            _ = await this.ReturnsItem.DataStatus();
+            _ = await this.ReturnsItem.DataItemStatus();
             this.ReturnsItem.UnregisterDataAccessListenerStatusOut(this);
             this.ReturnsItem.UnregisterDataAccessListenerProgressOut(this);
 
             this.ReturnsDetail.RegisterDataAccessListenerProgressOut(this);
             this.ReturnsDetail.RegisterDataAccessListenerStatusOut(this);
-            _ = await this.ReturnsDetail.DataStatus();
+            _ = await this.ReturnsDetail.DataDetailStatus();
             this.ReturnsDetail.UnregisterDataAccessListenerStatusOut(this);
             this.ReturnsDetail.UnregisterDataAccessListenerProgressOut(this);
         }
@@ -1286,37 +1289,37 @@ namespace dMobile.View.Options
         {
             this.TransferFrom.RegisterDataAccessListenerProgressOut(this);
             this.TransferFrom.RegisterDataAccessListenerStatusOut(this);
-            _ = await this.TransferFrom.DataStatus();
+            _ = await this.TransferFrom.DataHeaderStatus();
             this.TransferFrom.UnregisterDataAccessListenerStatusOut(this);
             this.TransferFrom.UnregisterDataAccessListenerProgressOut(this);
 
             this.TransferFromItem.RegisterDataAccessListenerProgressOut(this);
             this.TransferFromItem.RegisterDataAccessListenerStatusOut(this);
-            _ = await this.TransferFromItem.DataStatus();
+            _ = await this.TransferFromItem.DataItemStatus();
             this.TransferFromItem.UnregisterDataAccessListenerStatusOut(this);
             this.TransferFromItem.UnregisterDataAccessListenerProgressOut(this);
 
             this.TransferFromDetail.RegisterDataAccessListenerProgressOut(this);
             this.TransferFromDetail.RegisterDataAccessListenerStatusOut(this);
-            _ = await this.TransferFromDetail.DataStatus();
+            _ = await this.TransferFromDetail.DataDetailStatus();
             this.TransferFromDetail.UnregisterDataAccessListenerStatusOut(this);
             this.TransferFromDetail.UnregisterDataAccessListenerProgressOut(this);
 
             this.TransferTo.RegisterDataAccessListenerProgressOut(this);
             this.TransferTo.RegisterDataAccessListenerStatusOut(this);
-            _ = await this.TransferTo.DataStatus();
+            _ = await this.TransferTo.DataHeaderStatus();
             this.TransferTo.UnregisterDataAccessListenerStatusOut(this);
             this.TransferTo.UnregisterDataAccessListenerProgressOut(this);
 
             this.TransferToItem.RegisterDataAccessListenerProgressOut(this);
             this.TransferToItem.RegisterDataAccessListenerStatusOut(this);
-            _ = await this.TransferToItem.DataStatus();
+            _ = await this.TransferToItem.DataItemStatus();
             this.TransferToItem.UnregisterDataAccessListenerStatusOut(this);
             this.TransferToItem.UnregisterDataAccessListenerProgressOut(this);
 
             this.TransferToDetail.RegisterDataAccessListenerProgressOut(this);
             this.TransferToDetail.RegisterDataAccessListenerStatusOut(this);
-            _ = await this.TransferToDetail.DataStatus();
+            _ = await this.TransferToDetail.DataDetailStatus();
             this.TransferToDetail.UnregisterDataAccessListenerStatusOut(this);
             this.TransferToDetail.UnregisterDataAccessListenerProgressOut(this);
         }
@@ -1328,37 +1331,37 @@ namespace dMobile.View.Options
         {
             this.CycleCount.RegisterDataAccessListenerProgressOut(this);
             this.CycleCount.RegisterDataAccessListenerStatusOut(this);
-            _ = await this.CycleCount.DataStatus();
+            _ = await this.CycleCount.DataHeaderStatus();
             this.CycleCount.UnregisterDataAccessListenerStatusOut(this);
             this.CycleCount.UnregisterDataAccessListenerProgressOut(this);
 
             this.CycleCountItem.RegisterDataAccessListenerProgressOut(this);
             this.CycleCountItem.RegisterDataAccessListenerStatusOut(this);
-            _ = await this.CycleCountItem.DataStatus();
+            _ = await this.CycleCountItem.DataItemStatus();
             this.CycleCountItem.UnregisterDataAccessListenerStatusOut(this);
             this.CycleCountItem.UnregisterDataAccessListenerProgressOut(this);
 
             this.CycleCountDetail.RegisterDataAccessListenerProgressOut(this);
             this.CycleCountDetail.RegisterDataAccessListenerStatusOut(this);
-            _ = await this.CycleCountDetail.DataStatus();
+            _ = await this.CycleCountDetail.DataDetailStatus();
             this.CycleCountDetail.UnregisterDataAccessListenerStatusOut(this);
             this.CycleCountDetail.UnregisterDataAccessListenerProgressOut(this);
 
             this.PhysicalCount.RegisterDataAccessListenerProgressOut(this);
             this.PhysicalCount.RegisterDataAccessListenerStatusOut(this);
-            _ = await this.PhysicalCount.DataStatus();
+            _ = await this.PhysicalCount.DataHeaderStatus();
             this.PhysicalCount.UnregisterDataAccessListenerStatusOut(this);
             this.PhysicalCount.UnregisterDataAccessListenerProgressOut(this);
 
             this.PhysicalCountItem.RegisterDataAccessListenerProgressOut(this);
             this.PhysicalCountItem.RegisterDataAccessListenerStatusOut(this);
-            _ = await this.PhysicalCountItem.DataStatus();
+            _ = await this.PhysicalCountItem.DataItemStatus();
             this.PhysicalCountItem.UnregisterDataAccessListenerStatusOut(this);
             this.PhysicalCountItem.UnregisterDataAccessListenerProgressOut(this);
 
             this.PhysicalCountDetail.RegisterDataAccessListenerProgressOut(this);
             this.PhysicalCountDetail.RegisterDataAccessListenerStatusOut(this);
-            _ = await this.PhysicalCountDetail.DataStatus();
+            _ = await this.PhysicalCountDetail.DataDetailStatus();
             this.PhysicalCountDetail.UnregisterDataAccessListenerStatusOut(this);
             this.PhysicalCountDetail.UnregisterDataAccessListenerProgressOut(this);
         }
@@ -1370,46 +1373,58 @@ namespace dMobile.View.Options
         {
             this.TicketFinished.RegisterDataAccessListenerProgressOut(this);
             this.TicketFinished.RegisterDataAccessListenerStatusOut(this);
-            _ = await this.TicketFinished.DataStatus();
+            _ = await this.TicketFinished.DataHeaderStatus();
             this.TicketFinished.UnregisterDataAccessListenerStatusOut(this);
             this.TicketFinished.UnregisterDataAccessListenerProgressOut(this);
 
-            this.TicketMaterial.RegisterDataAccessListenerProgressOut(this);
-            this.TicketMaterial.RegisterDataAccessListenerStatusOut(this);
-            _ = await this.TicketMaterial.DataStatus();
-            this.TicketMaterial.UnregisterDataAccessListenerStatusOut(this);
-            this.TicketMaterial.UnregisterDataAccessListenerProgressOut(this);
-
-            this.TicketByProduct.RegisterDataAccessListenerProgressOut(this);
-            this.TicketByProduct.RegisterDataAccessListenerStatusOut(this);
-            _ = await this.TicketByProduct.DataStatus();
-            this.TicketByProduct.UnregisterDataAccessListenerStatusOut(this);
-            this.TicketByProduct.UnregisterDataAccessListenerProgressOut(this);
-
             this.TicketFinishedItem.RegisterDataAccessListenerProgressOut(this);
             this.TicketFinishedItem.RegisterDataAccessListenerStatusOut(this);
-            _ = await this.TicketFinishedItem.DataStatus();
+            _ = await this.TicketFinishedItem.DataItemStatus();
             this.TicketFinishedItem.UnregisterDataAccessListenerStatusOut(this);
             this.TicketFinishedItem.UnregisterDataAccessListenerProgressOut(this);
 
+            this.TicketFinishedDetail.RegisterDataAccessListenerProgressOut(this);
+            this.TicketFinishedDetail.RegisterDataAccessListenerStatusOut(this);
+            _ = await this.TicketFinishedDetail.DataDetailStatus();
+            this.TicketFinishedDetail.UnregisterDataAccessListenerStatusOut(this);
+            this.TicketFinishedDetail.UnregisterDataAccessListenerProgressOut(this);
+
+            this.TicketMaterial.RegisterDataAccessListenerProgressOut(this);
+            this.TicketMaterial.RegisterDataAccessListenerStatusOut(this);
+            _ = await this.TicketMaterial.DataHeaderStatus();
+            this.TicketMaterial.UnregisterDataAccessListenerStatusOut(this);
+            this.TicketMaterial.UnregisterDataAccessListenerProgressOut(this);
+
             this.TicketMaterialItem.RegisterDataAccessListenerProgressOut(this);
             this.TicketMaterialItem.RegisterDataAccessListenerStatusOut(this);
-            _ = await this.TicketMaterialItem.DataStatus();
+            _ = await this.TicketMaterialItem.DataItemStatus();
             this.TicketMaterialItem.UnregisterDataAccessListenerStatusOut(this);
             this.TicketMaterialItem.UnregisterDataAccessListenerProgressOut(this);
 
+            this.TicketMaterialDetail.RegisterDataAccessListenerProgressOut(this);
+            this.TicketMaterialDetail.RegisterDataAccessListenerStatusOut(this);
+            _ = await this.TicketMaterialDetail.DataDetailStatus();
+            this.TicketMaterialDetail.UnregisterDataAccessListenerStatusOut(this);
+            this.TicketMaterialDetail.UnregisterDataAccessListenerProgressOut(this);
+
+            this.TicketByProduct.RegisterDataAccessListenerProgressOut(this);
+            this.TicketByProduct.RegisterDataAccessListenerStatusOut(this);
+            _ = await this.TicketByProduct.DataHeaderStatus();
+            this.TicketByProduct.UnregisterDataAccessListenerStatusOut(this);
+            this.TicketByProduct.UnregisterDataAccessListenerProgressOut(this);
+
             this.TicketByProductItem.RegisterDataAccessListenerProgressOut(this);
             this.TicketByProductItem.RegisterDataAccessListenerStatusOut(this);
-            _ = await this.TicketByProductItem.DataStatus();
+            _ = await this.TicketByProductItem.DataItemStatus();
             this.TicketByProductItem.UnregisterDataAccessListenerStatusOut(this);
             this.TicketByProductItem.UnregisterDataAccessListenerProgressOut(this);
 
-            this.TicketDetailFinished.RegisterDataAccessListenerProgressOut(this);
-            this.TicketDetailFinished.RegisterDataAccessListenerStatusOut(this);
-            _ = await this.TicketDetailFinished.DataStatus();
-            this.TicketDetailFinished.UnregisterDataAccessListenerStatusOut(this);
-            this.TicketDetailFinished.UnregisterDataAccessListenerProgressOut(this);
-        }
+            this.TicketByProductDetail.RegisterDataAccessListenerProgressOut(this);
+            this.TicketByProductDetail.RegisterDataAccessListenerStatusOut(this);
+            _ = await this.TicketByProductDetail.DataDetailStatus();
+            this.TicketByProductDetail.UnregisterDataAccessListenerStatusOut(this);
+            this.TicketByProductDetail.UnregisterDataAccessListenerProgressOut(this);
+}
 
         /// <summary>
         ///
@@ -1456,14 +1471,14 @@ namespace dMobile.View.Options
                 {
                     this.Adjustment.RegisterDataAccessListenerProgressOut(this);
                     this.Adjustment.RegisterDataAccessListenerStatusOut(this);
-                    await this.Adjustment.RequestData();
+                    await this.Adjustment.RequestHeaderData();
                     this.Adjustment.UnregisterDataAccessListenerStatusOut(this);
                     this.Adjustment.UnregisterDataAccessListenerProgressOut(this);
                     this.StatusOut(string.Empty);
 
                     this.AdjustmentItem.RegisterDataAccessListenerProgressOut(this);
                     this.AdjustmentItem.RegisterDataAccessListenerStatusOut(this);
-                    await this.AdjustmentItem.RequestData(0);
+                    await this.AdjustmentItem.RequestItemData(0);
                     this.AdjustmentItem.UnregisterDataAccessListenerStatusOut(this);
                     this.AdjustmentItem.UnregisterDataAccessListenerProgressOut(this);
                     this.StatusOut(string.Empty);
@@ -1472,7 +1487,7 @@ namespace dMobile.View.Options
                     {
                         this.AdjustmentDetail.RegisterDataAccessListenerProgressOut(this);
                         this.AdjustmentDetail.RegisterDataAccessListenerStatusOut(this);
-                        await this.AdjustmentDetail.RequestData(0);
+                        await this.AdjustmentDetail.RequestDetailData(0);
                         this.AdjustmentDetail.UnregisterDataAccessListenerStatusOut(this);
                         this.AdjustmentDetail.UnregisterDataAccessListenerProgressOut(this);
                         this.StatusOut(string.Empty);
@@ -1504,14 +1519,14 @@ namespace dMobile.View.Options
                 {
                     this.PhysicalCount.RegisterDataAccessListenerProgressOut(this);
                     this.PhysicalCount.RegisterDataAccessListenerStatusOut(this);
-                    await this.PhysicalCount.RequestData();
+                    await this.PhysicalCount.RequestHeaderData();
                     this.PhysicalCount.UnregisterDataAccessListenerStatusOut(this);
                     this.PhysicalCount.UnregisterDataAccessListenerProgressOut(this);
                     this.StatusOut(string.Empty);
 
                     this.PhysicalCountItem.RegisterDataAccessListenerProgressOut(this);
                     this.PhysicalCountItem.RegisterDataAccessListenerStatusOut(this);
-                    await this.PhysicalCountItem.RequestData(0);
+                    await this.PhysicalCountItem.RequestItemData(0);
                     this.PhysicalCountItem.UnregisterDataAccessListenerStatusOut(this);
                     this.PhysicalCountItem.UnregisterDataAccessListenerProgressOut(this);
                     this.StatusOut(string.Empty);
@@ -1520,7 +1535,7 @@ namespace dMobile.View.Options
                     {
                         this.PhysicalCountDetail.RegisterDataAccessListenerProgressOut(this);
                         this.PhysicalCountDetail.RegisterDataAccessListenerStatusOut(this);
-                        await this.PhysicalCountDetail.RequestData(0);
+                        await this.PhysicalCountDetail.RequestDetailData(0);
                         this.PhysicalCountDetail.UnregisterDataAccessListenerStatusOut(this);
                         this.PhysicalCountDetail.UnregisterDataAccessListenerProgressOut(this);
                         this.StatusOut(string.Empty);
@@ -1543,14 +1558,14 @@ namespace dMobile.View.Options
                 {
                     this.CycleCount.RegisterDataAccessListenerProgressOut(this);
                     this.CycleCount.RegisterDataAccessListenerStatusOut(this);
-                    await this.CycleCount.RequestData();
+                    await this.CycleCount.RequestHeaderData();
                     this.CycleCount.UnregisterDataAccessListenerStatusOut(this);
                     this.CycleCount.UnregisterDataAccessListenerProgressOut(this);
                     this.StatusOut(string.Empty);
 
                     this.CycleCountItem.RegisterDataAccessListenerProgressOut(this);
                     this.CycleCountItem.RegisterDataAccessListenerStatusOut(this);
-                    await this.CycleCountItem.RequestData(0);
+                    await this.CycleCountItem.RequestItemData(0);
                     this.CycleCountItem.UnregisterDataAccessListenerStatusOut(this);
                     this.CycleCountItem.UnregisterDataAccessListenerProgressOut(this);
                     this.StatusOut(string.Empty);
@@ -1559,7 +1574,7 @@ namespace dMobile.View.Options
                     {
                         this.CycleCountDetail.RegisterDataAccessListenerProgressOut(this);
                         this.CycleCountDetail.RegisterDataAccessListenerStatusOut(this);
-                        await this.CycleCountDetail.RequestData(0);
+                        await this.CycleCountDetail.RequestDetailData(0);
                         this.CycleCountDetail.UnregisterDataAccessListenerStatusOut(this);
                         this.CycleCountDetail.UnregisterDataAccessListenerProgressOut(this);
                         this.StatusOut(string.Empty);
@@ -1575,17 +1590,17 @@ namespace dMobile.View.Options
         {
             if (this.SysEnv.RefreshOpt.ProductionTickets || this.ActSubType == SysCommon.ActSubTypes.PurgeActivityData)
             {
-                this.TicketDetailFinished.RegisterDataAccessListenerStatusOut(this);
-                await this.TicketDetailFinished.PurgeData();
-                this.TicketDetailFinished.UnregisterDataAccessListenerStatusOut(this);
+                this.TicketFinishedDetail.RegisterDataAccessListenerStatusOut(this);
+                await this.TicketFinishedDetail.PurgeData();
+                this.TicketFinishedDetail.UnregisterDataAccessListenerStatusOut(this);
 
-                this.TicketDetailMaterial.RegisterDataAccessListenerStatusOut(this);
-                await this.TicketDetailMaterial.PurgeData();
-                this.TicketDetailMaterial.UnregisterDataAccessListenerStatusOut(this);
+                this.TicketMaterialDetail.RegisterDataAccessListenerStatusOut(this);
+                await this.TicketMaterialDetail.PurgeData();
+                this.TicketMaterialDetail.UnregisterDataAccessListenerStatusOut(this);
 
-                this.TicketDetailByProduct.RegisterDataAccessListenerStatusOut(this);
-                await this.TicketDetailByProduct.PurgeData();
-                this.TicketDetailByProduct.UnregisterDataAccessListenerStatusOut(this);
+                this.TicketByProductDetail.RegisterDataAccessListenerStatusOut(this);
+                await this.TicketByProductDetail.PurgeData();
+                this.TicketByProductDetail.UnregisterDataAccessListenerStatusOut(this);
 
                 this.TicketFinishedItem.RegisterDataAccessListenerStatusOut(this);
                 await this.TicketFinishedItem.PurgeData();
@@ -1615,67 +1630,67 @@ namespace dMobile.View.Options
                 {
                     this.TicketFinished.RegisterDataAccessListenerProgressOut(this);
                     this.TicketFinished.RegisterDataAccessListenerStatusOut(this);
-                    await this.TicketFinished.RequestData();
+                    await this.TicketFinished.RequestHeaderData();
                     this.TicketFinished.UnregisterDataAccessListenerStatusOut(this);
                     this.TicketFinished.UnregisterDataAccessListenerProgressOut(this);
                     this.StatusOut(string.Empty);
 
                     this.TicketMaterial.RegisterDataAccessListenerProgressOut(this);
                     this.TicketMaterial.RegisterDataAccessListenerStatusOut(this);
-                    await this.TicketMaterial.RequestData();
+                    await this.TicketMaterial.RequestHeaderData();
                     this.TicketMaterial.UnregisterDataAccessListenerStatusOut(this);
                     this.TicketMaterial.UnregisterDataAccessListenerProgressOut(this);
                     this.StatusOut(string.Empty);
 
                     this.TicketByProduct.RegisterDataAccessListenerProgressOut(this);
                     this.TicketByProduct.RegisterDataAccessListenerStatusOut(this);
-                    await this.TicketByProduct.RequestData();
+                    await this.TicketByProduct.RequestHeaderData();
                     this.TicketByProduct.UnregisterDataAccessListenerStatusOut(this);
                     this.TicketByProduct.UnregisterDataAccessListenerProgressOut(this);
                     this.StatusOut(string.Empty);
 
                     this.TicketFinishedItem.RegisterDataAccessListenerProgressOut(this);
                     this.TicketFinishedItem.RegisterDataAccessListenerStatusOut(this);
-                    await this.TicketFinishedItem.RequestData(0);
+                    await this.TicketFinishedItem.RequestItemData(0);
                     this.TicketFinishedItem.UnregisterDataAccessListenerStatusOut(this);
                     this.TicketFinishedItem.UnregisterDataAccessListenerProgressOut(this);
                     this.StatusOut(string.Empty);
 
                     this.TicketMaterialItem.RegisterDataAccessListenerProgressOut(this);
                     this.TicketMaterialItem.RegisterDataAccessListenerStatusOut(this);
-                    await this.TicketMaterialItem.RequestData(0);
+                    await this.TicketMaterialItem.RequestItemData(0);
                     this.TicketMaterialItem.UnregisterDataAccessListenerStatusOut(this);
                     this.TicketMaterialItem.UnregisterDataAccessListenerProgressOut(this);
                     this.StatusOut(string.Empty);
 
                     this.TicketByProductItem.RegisterDataAccessListenerProgressOut(this);
                     this.TicketByProductItem.RegisterDataAccessListenerStatusOut(this);
-                    await this.TicketByProductItem.RequestData(0);
+                    await this.TicketByProductItem.RequestItemData(0);
                     this.TicketByProductItem.UnregisterDataAccessListenerStatusOut(this);
                     this.TicketByProductItem.UnregisterDataAccessListenerProgressOut(this);
                     this.StatusOut(string.Empty);
 
                     if (this.SysEnv.SysSettings.IsDisconnectedModeLoadDetail)
                     {
-                        this.TicketDetailFinished.RegisterDataAccessListenerProgressOut(this);
-                        this.TicketDetailFinished.RegisterDataAccessListenerStatusOut(this);
-                        await this.TicketDetailFinished.RequestData(0);
-                        this.TicketDetailFinished.UnregisterDataAccessListenerStatusOut(this);
-                        this.TicketDetailFinished.UnregisterDataAccessListenerProgressOut(this);
+                        this.TicketFinishedDetail.RegisterDataAccessListenerProgressOut(this);
+                        this.TicketFinishedDetail.RegisterDataAccessListenerStatusOut(this);
+                        await this.TicketFinishedDetail.RequestDetailData(0);
+                        this.TicketFinishedDetail.UnregisterDataAccessListenerStatusOut(this);
+                        this.TicketFinishedDetail.UnregisterDataAccessListenerProgressOut(this);
                         this.StatusOut(string.Empty);
 
-                        this.TicketDetailMaterial.RegisterDataAccessListenerProgressOut(this);
-                        this.TicketDetailMaterial.RegisterDataAccessListenerStatusOut(this);
-                        await this.TicketDetailMaterial.RequestData(0);
-                        this.TicketDetailMaterial.UnregisterDataAccessListenerStatusOut(this);
-                        this.TicketDetailMaterial.UnregisterDataAccessListenerProgressOut(this);
+                        this.TicketMaterialDetail.RegisterDataAccessListenerProgressOut(this);
+                        this.TicketMaterialDetail.RegisterDataAccessListenerStatusOut(this);
+                        await this.TicketMaterialDetail.RequestDetailData(0);
+                        this.TicketMaterialDetail.UnregisterDataAccessListenerStatusOut(this);
+                        this.TicketMaterialDetail.UnregisterDataAccessListenerProgressOut(this);
                         this.StatusOut(string.Empty);
 
-                        this.TicketDetailByProduct.RegisterDataAccessListenerProgressOut(this);
-                        this.TicketDetailByProduct.RegisterDataAccessListenerStatusOut(this);
-                        await this.TicketDetailByProduct.RequestData(0);
-                        this.TicketDetailByProduct.UnregisterDataAccessListenerStatusOut(this);
-                        this.TicketDetailByProduct.UnregisterDataAccessListenerProgressOut(this);
+                        this.TicketByProductDetail.RegisterDataAccessListenerProgressOut(this);
+                        this.TicketByProductDetail.RegisterDataAccessListenerStatusOut(this);
+                        await this.TicketByProductDetail.RequestDetailData(0);
+                        this.TicketByProductDetail.UnregisterDataAccessListenerStatusOut(this);
+                        this.TicketByProductDetail.UnregisterDataAccessListenerProgressOut(this);
                         this.StatusOut(string.Empty);
                     }
                 }
@@ -1709,14 +1724,14 @@ namespace dMobile.View.Options
                 {
                     this.Receiving.RegisterDataAccessListenerProgressOut(this);
                     this.Receiving.RegisterDataAccessListenerStatusOut(this);
-                    await this.Receiving.RequestData();
+                    await this.Receiving.RequestHeaderData();
                     this.Receiving.UnregisterDataAccessListenerStatusOut(this);
                     this.Receiving.UnregisterDataAccessListenerProgressOut(this);
                     this.StatusOut(string.Empty);
 
                     this.ReceivingItem.RegisterDataAccessListenerProgressOut(this);
                     this.ReceivingItem.RegisterDataAccessListenerStatusOut(this);
-                    await this.ReceivingItem.RequestData(0);
+                    await this.ReceivingItem.RequestItemData(0);
                     this.ReceivingItem.UnregisterDataAccessListenerStatusOut(this);
                     this.ReceivingItem.UnregisterDataAccessListenerProgressOut(this);
                     this.StatusOut(string.Empty);
@@ -1725,7 +1740,7 @@ namespace dMobile.View.Options
                     {
                         this.ReceivingDetail.RegisterDataAccessListenerProgressOut(this);
                         this.ReceivingDetail.RegisterDataAccessListenerStatusOut(this);
-                        await this.ReceivingDetail.RequestData(0);
+                        await this.ReceivingDetail.RequestDetailData(0);
                         this.ReceivingDetail.UnregisterDataAccessListenerStatusOut(this);
                         this.ReceivingDetail.UnregisterDataAccessListenerProgressOut(this);
                         this.StatusOut(string.Empty);
@@ -1749,7 +1764,7 @@ namespace dMobile.View.Options
                 {
                     this.PurchaseOrderWorkSheetItem.RegisterDataAccessListenerProgressOut(this);
                     this.PurchaseOrderWorkSheetItem.RegisterDataAccessListenerStatusOut(this);
-                    await this.PurchaseOrderWorkSheetItem.RequestData(0);
+                    await this.PurchaseOrderWorkSheetItem.RequestItemData(0);
                     this.PurchaseOrderWorkSheetItem.UnregisterDataAccessListenerStatusOut(this);
                     this.PurchaseOrderWorkSheetItem.UnregisterDataAccessListenerProgressOut(this);
                     this.StatusOut(string.Empty);
@@ -1788,14 +1803,14 @@ namespace dMobile.View.Options
                 {
                     this.Picking.RegisterDataAccessListenerProgressOut(this);
                     this.Picking.RegisterDataAccessListenerStatusOut(this);
-                    await this.Picking.RequestData(null);
+                    await this.Picking.RequestHeaderData();
                     this.Picking.UnregisterDataAccessListenerStatusOut(this);
                     this.Picking.UnregisterDataAccessListenerProgressOut(this);
                     this.StatusOut(string.Empty);
 
                     this.PickingItem.RegisterDataAccessListenerProgressOut(this);
                     this.PickingItem.RegisterDataAccessListenerStatusOut(this);
-                    await this.PickingItem.RequestData(0, null);
+                    await this.PickingItem.RequestItemData(0);
                     this.PickingItem.UnregisterDataAccessListenerStatusOut(this);
                     this.PickingItem.UnregisterDataAccessListenerProgressOut(this);
                     this.StatusOut(string.Empty);
@@ -1804,7 +1819,7 @@ namespace dMobile.View.Options
                     {
                         this.PickingDetail.RegisterDataAccessListenerProgressOut(this);
                         this.PickingDetail.RegisterDataAccessListenerStatusOut(this);
-                        await this.PickingDetail.RequestData(0);
+                        await this.PickingDetail.RequestDetailData(0);
                         this.PickingDetail.UnregisterDataAccessListenerStatusOut(this);
                         this.PickingDetail.UnregisterDataAccessListenerProgressOut(this);
                         this.StatusOut(string.Empty);
@@ -1848,28 +1863,28 @@ namespace dMobile.View.Options
                 {
                     this.TransferFrom.RegisterDataAccessListenerProgressOut(this);
                     this.TransferFrom.RegisterDataAccessListenerStatusOut(this);
-                    await this.TransferFrom.RequestData();
+                    await this.TransferFrom.RequestHeaderData();
                     this.TransferFrom.UnregisterDataAccessListenerStatusOut(this);
                     this.TransferFrom.UnregisterDataAccessListenerProgressOut(this);
                     this.StatusOut(string.Empty);
 
                     this.TransferFromItem.RegisterDataAccessListenerProgressOut(this);
                     this.TransferFromItem.RegisterDataAccessListenerStatusOut(this);
-                    await this.TransferFromItem.RequestData(0);
+                    await this.TransferFromItem.RequestItemData(0);
                     this.TransferFromItem.UnregisterDataAccessListenerStatusOut(this);
                     this.TransferFromItem.UnregisterDataAccessListenerProgressOut(this);
                     this.StatusOut(string.Empty);
 
                     this.TransferTo.RegisterDataAccessListenerProgressOut(this);
                     this.TransferTo.RegisterDataAccessListenerStatusOut(this);
-                    await this.TransferTo.RequestData();
+                    await this.TransferTo.RequestHeaderData();
                     this.TransferTo.UnregisterDataAccessListenerStatusOut(this);
                     this.TransferTo.UnregisterDataAccessListenerProgressOut(this);
                     this.StatusOut(string.Empty);
 
                     this.TransferToItem.RegisterDataAccessListenerProgressOut(this);
                     this.TransferToItem.RegisterDataAccessListenerStatusOut(this);
-                    await this.TransferToItem.RequestData(0);
+                    await this.TransferToItem.RequestItemData(0);
                     this.TransferToItem.UnregisterDataAccessListenerStatusOut(this);
                     this.TransferToItem.UnregisterDataAccessListenerProgressOut(this);
                     this.StatusOut(string.Empty);
@@ -1878,14 +1893,14 @@ namespace dMobile.View.Options
                     {
                         this.TransferFromDetail.RegisterDataAccessListenerProgressOut(this);
                         this.TransferFromDetail.RegisterDataAccessListenerStatusOut(this);
-                        await this.TransferFromDetail.RequestData(0);
+                        await this.TransferFromDetail.RequestDetailData(0);
                         this.TransferFromDetail.UnregisterDataAccessListenerStatusOut(this);
                         this.TransferFromDetail.UnregisterDataAccessListenerProgressOut(this);
                         this.StatusOut(string.Empty);
 
                         this.TransferToDetail.RegisterDataAccessListenerProgressOut(this);
                         this.TransferToDetail.RegisterDataAccessListenerStatusOut(this);
-                        await this.TransferToDetail.RequestData(0);
+                        await this.TransferToDetail.RequestDetailData(0);
                         this.TransferToDetail.UnregisterDataAccessListenerStatusOut(this);
                         this.TransferToDetail.UnregisterDataAccessListenerProgressOut(this);
                         this.StatusOut(string.Empty);

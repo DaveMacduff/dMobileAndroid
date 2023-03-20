@@ -6,6 +6,7 @@ namespace dMobile.GroundWork
 {
     using System;
     using System.Threading.Tasks;
+    using System.Xml.Linq;
     using dMobile.Bedrock;
     using SQLite;
 
@@ -17,6 +18,14 @@ namespace dMobile.GroundWork
         public TableActivityConvertUnit()
         {
             this.FullClassName = "dMobile.GroundWork.TableActivityConvertUnit";
+            this.CurrentSubType = SysCommon.ActSubTypes.ConvertUnit;
+            this.LowerCaseName = "convert units";
+            this.ProperCaseName = "Convert units";
+        }
+
+        public override Task<int> DataStatus()
+        {
+            throw new NotImplementedException();
         }
 
         /// <summary>
@@ -45,6 +54,66 @@ namespace dMobile.GroundWork
 
                 throw new Exception("Database exception occurred. Purging convert units failed.", ex);
             }
+        }
+
+        public override Task PurgeData(int sectLocMapRefno)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override Task PurgeData(SysCommon.ActSubTypes actSubType)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override Task RequestData(int actRefno)
+        {
+            throw new NotImplementedException();
+        }
+
+        protected override Task<string> CreateRequest()
+        {
+            throw new NotImplementedException();
+        }
+
+        protected override Task<string> CreateRequest(XDocument criteria)
+        {
+            throw new NotImplementedException();
+        }
+
+        protected override Task<string> CreateRequest(string familyCode)
+        {
+            throw new NotImplementedException();
+        }
+
+        protected override Task<string> CreateRequest(int activityItemFkRefno)
+        {
+            throw new NotImplementedException();
+        }
+
+        protected override Task<string> CreateRequest(int activityItemFkRefno, XDocument criteria)
+        {
+            throw new NotImplementedException();
+        }
+
+        protected override Task<string> CreateRequest(int prodLocMapType, int whsLocMapFKRefno)
+        {
+            throw new NotImplementedException();
+        }
+
+        protected override Task<string> CreateRequestProdLoc(int prodLocMapType)
+        {
+            throw new NotImplementedException();
+        }
+
+        protected override Task Save(string responseData)
+        {
+            throw new NotImplementedException();
+        }
+
+        protected override Task Save(string responseData, int refno)
+        {
+            throw new NotImplementedException();
         }
     }
 }

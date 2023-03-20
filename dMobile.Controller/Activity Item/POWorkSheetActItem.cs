@@ -307,35 +307,31 @@ namespace dMobile.Controller.Activity_Item
                 else
                 {
                     var xmlSend = await this.CreateSubmitXml(data);
-                    var reqData = SysCommon.SubmitComm(xmlSend);
+                    var responseData = SysCommon.SubmitComm(xmlSend);
+                    var xmlDoc = new XmlDocument();
+                    xmlDoc.LoadXml(responseData);
 
-                    if (reqData.Length > 0)
+                    // check if result is an error message
+                    if (responseData.Contains("<message>ERROR</message>"))
                     {
-                        var xmlDoc = new XmlDocument();
-                        xmlDoc.LoadXml(reqData);
+                        var errorDetail = xmlDoc.DocumentElement["detail"].InnerText;
 
-                        // check if result is an error message
-                        if (reqData.Contains("<message>ERROR</message>"))
+                        if (errorDetail.Contains("MSGBOX-"))
                         {
-                            var errorDetail = xmlDoc.DocumentElement["detail"].InnerText;
-
-                            if (errorDetail.Contains("MSGBOX-"))
-                            {
-                                throw new MessageOnlyException(errorDetail);
-                            }
-                            else
-                            {
-                                throw new Exception(errorDetail);
-                            }
+                            throw new MessageOnlyException(errorDetail);
                         }
                         else
                         {
-                            this.IsUpdateView = true;
-                            this.NewActItemFkRefno = -Math.Abs(int.Parse(xmlDoc.DocumentElement["itm_refno"].InnerText));
-                            this.ItemFkRefno = -Math.Abs(int.Parse(xmlDoc.DocumentElement["itm_refno"].InnerText));
-                            this.ActHdr.HdrFkRefno = this.ItemFkRefno;
-                            this.ItemRefno = Math.Abs(this.ItemFkRefno);
+                            throw new Exception(errorDetail);
                         }
+                    }
+                    else
+                    {
+                        this.IsUpdateView = true;
+                        this.NewActItemFkRefno = -Math.Abs(int.Parse(xmlDoc.DocumentElement["itm_refno"].InnerText));
+                        this.ItemFkRefno = -Math.Abs(int.Parse(xmlDoc.DocumentElement["itm_refno"].InnerText));
+                        this.ActHdr.HdrFkRefno = this.ItemFkRefno;
+                        this.ItemRefno = Math.Abs(this.ItemFkRefno);
                     }
                 }
             }
@@ -437,34 +433,30 @@ namespace dMobile.Controller.Activity_Item
             else
             {
                 var xmlSend = await this.CreateSubmitXml(data);
-                var reqData = SysCommon.SubmitComm(xmlSend);
+                var responseData = SysCommon.SubmitComm(xmlSend);
+                var xmlDoc = new XmlDocument();
+                xmlDoc.LoadXml(responseData);
 
-                if (reqData.Length > 0)
+                // check if result is an error message
+                if (responseData.Contains("<message>ERROR</message>"))
                 {
-                    var xmlDoc = new XmlDocument();
-                    xmlDoc.LoadXml(reqData);
+                    var errorDetail = xmlDoc.DocumentElement["detail"].InnerText;
 
-                    // check if result is an error message
-                    if (reqData.Contains("<message>ERROR</message>"))
+                    if (errorDetail.Contains("MSGBOX-"))
                     {
-                        var errorDetail = xmlDoc.DocumentElement["detail"].InnerText;
-
-                        if (errorDetail.Contains("MSGBOX-"))
-                        {
-                            throw new MessageOnlyException(errorDetail);
-                        }
-                        else
-                        {
-                            throw new Exception(errorDetail);
-                        }
+                        throw new MessageOnlyException(errorDetail);
                     }
                     else
                     {
-                        this.IsUpdateView = true;
-                        this.NewActItemFkRefno = int.Parse(xmlDoc.DocumentElement["itm_refno"].InnerText);
-                        this.ItemFkRefno = int.Parse(xmlDoc.DocumentElement["itm_refno"].InnerText);
-                        this.ActHdr.HdrFkRefno = this.ItemFkRefno;
+                        throw new Exception(errorDetail);
                     }
+                }
+                else
+                {
+                    this.IsUpdateView = true;
+                    this.NewActItemFkRefno = int.Parse(xmlDoc.DocumentElement["itm_refno"].InnerText);
+                    this.ItemFkRefno = int.Parse(xmlDoc.DocumentElement["itm_refno"].InnerText);
+                    this.ActHdr.HdrFkRefno = this.ItemFkRefno;
                 }
             }
 
@@ -524,38 +516,34 @@ namespace dMobile.Controller.Activity_Item
         {
             var xmlDoc = new XmlDocument();
             var xmlSend = await this.CreateSubmitXml(data);
-            var reqData = SysCommon.SubmitComm(xmlSend);
+            var responseData = SysCommon.SubmitComm(xmlSend);
+            xmlDoc.LoadXml(responseData);
 
-            if (reqData.Length > 0)
+            // check if result is an error message
+            if (responseData.Contains("<message>ERROR</message>"))
             {
-                xmlDoc.LoadXml(reqData);
+                var errorDetail = xmlDoc.DocumentElement["detail"].InnerText;
 
-                // check if result is an error message
-                if (reqData.Contains("<message>ERROR</message>"))
+                if (errorDetail.Contains("MSGBOX-"))
                 {
-                    var errorDetail = xmlDoc.DocumentElement["detail"].InnerText;
-
-                    if (errorDetail.Contains("MSGBOX-"))
-                    {
-                        throw new MessageOnlyException(errorDetail);
-                    }
-                    else
-                    {
-                        throw new Exception(errorDetail);
-                    }
+                    throw new MessageOnlyException(errorDetail);
                 }
                 else
                 {
-                    this.ItemFkRefno = int.Parse(xmlDoc.DocumentElement["ser_refno"].InnerText);
-
-                    if (selectedActivityItem is PurchaseOrderWorkSheetItem purchaseOrderWorkSheetItem)
-                    {
-                        purchaseOrderWorkSheetItem.ActivityItemFKRefno = this.ItemFkRefno;
-                        purchaseOrderWorkSheetItem.ActivityItemStatus = Convert.ToInt32(SysCommon.ActStatus.NoChange);
-                    }
-
-                    await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync("UPDATE tActivityItem SET tActivityItem.ActivityItemStatus = ? WHERE ActivityItemRefno = ?", (int)SysCommon.ActStatus.NoChange, this.ItemRefno);
+                    throw new Exception(errorDetail);
                 }
+            }
+            else
+            {
+                this.ItemFkRefno = int.Parse(xmlDoc.DocumentElement["ser_refno"].InnerText);
+
+                if (selectedActivityItem is PurchaseOrderWorkSheetItem purchaseOrderWorkSheetItem)
+                {
+                    purchaseOrderWorkSheetItem.ActivityItemFKRefno = this.ItemFkRefno;
+                    purchaseOrderWorkSheetItem.ActivityItemStatus = Convert.ToInt32(SysCommon.ActStatus.NoChange);
+                }
+
+                await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync("UPDATE tActivityItem SET tActivityItem.ActivityItemStatus = ? WHERE ActivityItemRefno = ?", (int)SysCommon.ActStatus.NoChange, this.ItemRefno);
             }
         }
 
@@ -580,7 +568,7 @@ namespace dMobile.Controller.Activity_Item
                 this.DataLayerProgressOutHandler(this, EventArgs.Empty, 5);
 
                 tableActPoWorkSheetItem.RegisterDataAccessListenerProgressOut((PoWorkSheetActItem)this);
-                await tableActPoWorkSheetItem.RequestData(this.ActHdr.HdrRefno);
+                await tableActPoWorkSheetItem.RequestItemData(this.ActHdr.HdrRefno);
                 tableActPoWorkSheetItem.UnregisterDataAccessListenerProgressOut((PoWorkSheetActItem)this);
             }
         }
