@@ -2551,6 +2551,21 @@ namespace dMobile.Bedrock
         }
 
         /// <summary>
+        /// Gets or sets a value indicating whether a filter selection screen should be shown once in an activity header.
+        /// </summary>
+        public bool IsShowActivityFilterSelection { get; set; } = true;
+
+        /// <summary>
+        /// Gets or sets a value indicating whether the count activity item data should be refreshed more than once.
+        /// </summary>
+        public bool IsCountActivityItemRefreshData { get; set; } = true;
+
+        /// <summary>
+        /// Gets or sets a value indicating whether the activity has new line items added.
+        /// </summary>
+        public bool IsNewActivityItemsAdded { get; set; } = false;
+
+        /// <summary>
         /// The RegisterSysSettingsListenerStatusOut.
         /// </summary>
         /// <param name="sysSettingsListener">The sysSettingsListener<see cref="ISysSettingsEventListener"/>.</param>

@@ -167,11 +167,15 @@ namespace dMobile.Controller.Activity_Item
                 var conn = DatabaseConnection.GetInstance().SQLConn;
 
                 await conn.ExecuteAsync(
-                    "INSERT INTO tActivityItem (ActivityItemSubType, ActivityItemStatus," +
-                    " ActivityRefno) VALUES (?, ?, ?)",
+                    "INSERT INTO tActivityItem" +
+                    " (ActivityItemSubType," +
+                    " ActivityItemStatus," +
+                    " ActivityRefno," +
+                    " ActivityItemIsAdded) VALUES (?, ?, ?, ?)",
                     Convert.ToInt32(actSubTypes),
                     Convert.ToInt32(SysCommon.ActStatus.Inserted),
-                    Convert.ToInt32(this.ActHdr.HdrRefno));
+                    Convert.ToInt32(this.ActHdr.HdrRefno),
+                    0);
 
                 this.ItemRefno = Convert.ToInt32(await conn.ExecuteScalarAsync<int>(
                     "SELECT last_insert_rowid() FROM tActivityItem"));

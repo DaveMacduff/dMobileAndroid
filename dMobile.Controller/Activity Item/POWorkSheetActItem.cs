@@ -246,7 +246,13 @@ namespace dMobile.Controller.Activity_Item
                             this.ActHdr.HdrRefno = actRefno;
                             this.ActHdr.HdrFkRefno = actRefno;
 
-                            transaction.Execute("INSERT INTO tActivityItem (ActivityItemSubType, ActivityItemStatus, ActivityRefno) VALUES (?, ?, ?)", Convert.ToInt32(SysCommon.ActSubTypes.PurchaseOrderWorkSheet), Convert.ToInt32(SysCommon.ActStatus.Inserted), Convert.ToInt32(this.ActHdr.HdrRefno));
+                            transaction.Execute(
+                                "INSERT INTO tActivityItem (ActivityItemSubType, ActivityItemStatus," +
+                                " ActivityRefno, ActivityItemIsAdded) VALUES (?, ?, ?, ?)",
+                                Convert.ToInt32(SysCommon.ActSubTypes.PurchaseOrderWorkSheet),
+                                Convert.ToInt32(SysCommon.ActStatus.Inserted),
+                                Convert.ToInt32(this.ActHdr.HdrRefno),
+                                1);
 
                             this.ItemRefno = Convert.ToInt32(transaction.ExecuteScalar<int>("SELECT last_insert_rowid() FROM tActivityItem"));
 

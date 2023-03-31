@@ -65,6 +65,11 @@ namespace dMobile.View.Activity
         private bool cmdAddSkidIsEnabled = false;
 
         /// <summary>
+        /// Gets or sets a value indicating whether the search text box is in focus.
+        /// </summary>
+        private bool IsSearchFocused { get; set; } = false;
+
+        /// <summary>
         /// Initializes a new instance of the <see cref="ActivityDetail"/> class.
         /// </summary>
         /// <param name="actItem"><see cref="ActItem"/> Activity item.</param>
@@ -816,7 +821,10 @@ namespace dMobile.View.Activity
 
                         if (keycode == Keycode.Del || keycode == Keycode.Clear)
                         {
-                            await OnAppearingDelKey();
+                            if (!this.IsSearchFocused)
+                            {
+                                await OnAppearingDelKey();
+                            }
                         }
                         else if (keycode == Keycode.F1)
                         {
@@ -1209,6 +1217,26 @@ namespace dMobile.View.Activity
         {
             MessagingCenter.Unsubscribe<string>(this, EventTypes.OnKeyUp.ToString());
             await this.ScannerDisable();
+        }
+
+        /// <summary>
+        /// Text box search item focused event handler.
+        /// </summary>
+        /// <param name="sender"><see cref="object"/> Sender instance.</param>
+        /// <param name="e"><see cref="EventArgs"/> Event arguments.</param>
+        private void TxtSearchItem_Focused(object sender, EventArgs e)
+        {
+            this.IsSearchFocused = true;
+        }
+
+        /// <summary>
+        /// Text box search item unfocused event handler.
+        /// </summary>
+        /// <param name="sender"><see cref="object"/> Sender instance.</param>
+        /// <param name="e"><see cref="EventArgs"/> Event arguments.</param>
+        private void TxtSearchItem_Unfocused(object sender, EventArgs e)
+        {
+            this.IsSearchFocused = false;
         }
 
         /// <summary>

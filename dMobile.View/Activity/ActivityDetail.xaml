@@ -53,7 +53,13 @@
                 </Frame>
 
                 <Grid Grid.Row="3">
-                    <Entry x:Name="txtSearchDetail" Grid.Row="0" Grid.Column="0" TextChanged="TxtSearchHdr_TextChanged" IsEnabled="{Binding Loading, Converter={Helpers:BoolConverter}}"/>
+                    <Entry x:Name="txtSearchDetail"
+                           Grid.Row="0"
+                           Grid.Column="0"
+                           TextChanged="TxtSearchHdr_TextChanged"
+                           Focused="TxtSearchItem_Focused"
+                           Unfocused="TxtSearchItem_Unfocused"                           
+                           IsEnabled="{Binding Loading, Converter={Helpers:BoolConverter}}"/>
                     <Button x:Name="cmdAddDetail"
                             Grid.Row="0"
                             Grid.Column="1"

@@ -295,10 +295,11 @@ namespace dMobile.Controller.Activity_Item
                     {
                         _ = transaction.Execute(
                             "INSERT INTO tActivityItem (ActivityItemSubType, ActivityItemStatus," +
-                                " ActivityRefno) VALUES (?, ?, ?)",
+                                " ActivityRefno, ActivityItemIsAdded) VALUES (?, ?, ?, ?)",
                             Convert.ToInt32(SysCommon.ActSubTypes.Adjustment),
-                            Convert.ToInt32(SysCommon.ActStatus.NoChange),
-                            Convert.ToInt32(this.ActHdr.HdrRefno));
+                            Convert.ToInt32(SysCommon.ActStatus.Inserted),
+                            Convert.ToInt32(this.ActHdr.HdrRefno),
+                            1);
 
                         this.ItemRefno = Convert.ToInt32(transaction.ExecuteScalar<int>(
                             "SELECT last_insert_rowid() FROM tActivityItem"));
@@ -424,9 +425,21 @@ namespace dMobile.Controller.Activity_Item
         {
             var observableCollection = new ObservableCollection<object>();
 
-            foreach (AdjustmentItem adjustmentItem in this.ListItems)
+            foreach (AdjustmentItem adjustmentItem in this.ListItems.Cast<AdjustmentItem>())
             {
-                observableCollection.Add(adjustmentItem);
+                if (adjustmentItem.ActivityItemFKRefno >= 0)
+                {
+                    observableCollection.Add(adjustmentItem);
+                }
+            }
+
+            // Add negative new line items to the bottom.
+            foreach (AdjustmentItem adjustmentItem in this.ListItems.Cast<AdjustmentItem>())
+            {
+                if (adjustmentItem.ActivityItemFKRefno < 0)
+                {
+                    observableCollection.Add(adjustmentItem);
+                }
             }
 
             var labelProductIdHeader = new Label

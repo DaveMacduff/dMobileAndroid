@@ -33,8 +33,10 @@
                                       HasUnevenRows="True"
                                       IsEnabled="{Binding Loading, Converter={Helpers:BoolConverter}}"
                                       Grid.Row="1"
+                                      Focused="ListView_Focused"
+                                      Unfocused="ListView_Focused"
                                       VerticalScrollBarVisibility="Always"
-                                      HorizontalScrollBarVisibility="Always" />
+                                      HorizontalScrollBarVisibility="Always" SelectionMode="Single" />
                         </Grid>
                     </ScrollView>
                 </Frame>
@@ -49,7 +51,9 @@
                             <DataTemplate>
                                 <ViewCell>
                                     <StackLayout Padding="5,1,5,1">
-                                        <Label Text="{Binding}" VerticalOptions="Center"/>
+                                        <Label Text="{Binding}" VerticalOptions="Center"
+                                               Focused="ListDisplay_Focused"
+                                               Unfocused="ListDisplay_Unfocused"/>
                                     </StackLayout>
                                 </ViewCell>
                             </DataTemplate>
@@ -62,8 +66,22 @@
                 -->
                 
                 <Grid Grid.Row="2">
-                    <Entry x:Name="txtSearchHdr" Grid.Row="0" Grid.Column="0" TextChanged="TxtSearchHdr_TextChanged" IsEnabled="{Binding Loading, Converter={Helpers:BoolConverter}}"/>
-                    <Button x:Name="cmdAdd" Grid.Row="0" Grid.Column="1" Text="Add" Clicked="CmdAdd_Click" IsEnabled="{Binding Loading, Converter={Helpers:BoolConverter}}"/>
+                    <Entry x:Name="txtSearchHdr"
+                           Grid.Row="0"
+                           Grid.Column="0"
+                           TextChanged="TxtSearchHdr_TextChanged"
+                           Focused="TxtSearchItem_Focused"
+                           Unfocused="TxtSearchItem_Unfocused"
+                           IsEnabled="{Binding Loading, Converter={Helpers:BoolConverter}}"/>
+                   
+                    <Button x:Name="cmdAdd"
+                            Grid.Row="0"
+                            Grid.Column="1"
+                            Text="Add"
+                            Clicked="CmdAdd_Click"
+                            Focused="CmdAdd_Focused"
+                            Unfocused="CmdAdd_Unfocused"
+                            IsEnabled="{Binding Loading, Converter={Helpers:BoolConverter}}"/>
                 </Grid>
                 <!--
                 <Grid Grid.Row="3">

@@ -575,9 +575,11 @@ namespace dMobile.Controller.Activity_Item
                         {
                             transaction.Execute(
                                 "INSERT INTO tActivityItem (ActivityItemSubType, ActivityItemStatus," +
-                                " ActivityRefno) VALUES (?, ?, ?)", Convert.ToInt32(SysCommon.ActSubTypes.Picking),
-                                Convert.ToInt32(SysCommon.ActStatus.NoChange),
-                                Convert.ToInt32(this.ActHdr.HdrRefno));
+                                " ActivityRefno, ActivityItemIsAdded) VALUES (?, ?, ?, ?)",
+                                Convert.ToInt32(SysCommon.ActSubTypes.Picking),
+                                Convert.ToInt32(SysCommon.ActStatus.Inserted),
+                                Convert.ToInt32(this.ActHdr.HdrRefno),
+                                1);
 
                             this.ItemRefno = Convert.ToInt32(transaction.ExecuteScalar<int>(
                                 "SELECT last_insert_rowid() FROM tActivityItem"));

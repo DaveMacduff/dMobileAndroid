@@ -38,6 +38,8 @@
                                       HasUnevenRows="True"
                                       IsEnabled="{Binding Loading, Converter={Helpers:BoolConverter}}"
                                       Grid.Row="1"
+                                      Focused="ListViewMainActivity_Focused"
+                                      Unfocused="ListViewMainActivity_Unfocused"
                                       VerticalScrollBarVisibility="Always"
                                       HorizontalScrollBarVisibility="Always" />
                         </Grid>
@@ -49,6 +51,8 @@
                               SelectionMode="None"
                               HasUnevenRows="True"
                               IsEnabled="{Binding Loading, Converter={Helpers:BoolConverter}}"
+                              Focused="ListViewDisplayExtraInfo_Focused"
+                              Unfocused="ListViewDisplayExtraInfo_Unfocused"
                               SeparatorVisibility="None">
                         <ListView.ItemTemplate>
                             <DataTemplate>
@@ -71,12 +75,17 @@
                     <Entry x:Name="txtSearchItem" Grid.Row="0"
                            Grid.Column="0"
                            TextChanged="TxtSearchItem_TextChanged"
-                           IsEnabled="{Binding Loading, Converter={Helpers:BoolConverter}}"/>
+                           IsEnabled="{Binding Loading, Converter={Helpers:BoolConverter}}"
+                           Focused="TxtSearchItem_Focused"
+                           Unfocused="TxtSearchItem_Unfocused"
+                           />
                     <customcontrols:CustomPicker x:Name="BarCodeModifier1Picker"
                                                  Grid.Row="0"
                                                  Grid.Column="1"
                                                  Image="arrow_drop_down"
                                                  SelectedIndexChanged="UpdnBarCodeModifier1_SelectedIndexChanged"
+                                                 Focused="BarCodeModifierPicker_Focused"
+                                                 Unfocused="BarCodeModifierPicker_Unfocused"
                                                  IsEnabled="{Binding Loading, Converter={Helpers:BoolConverter}}"/>
                     <!--<Button x:Name="cmdFilter"
                                 Grid.Row="0"

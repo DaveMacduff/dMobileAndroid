@@ -306,7 +306,8 @@ namespace dMobile.Controller.Activity_Item
 
             await DatabaseConnection.GetInstance().SQLConn.RunInTransactionAsync(transaction =>
             {
-                var queryActivityItem = "INSERT INTO tActivityItem (ActivityItemSubType, ActivityItemStatus, ActivityRefno) VALUES (?, ?, ?)";
+                var queryActivityItem = "INSERT INTO tActivityItem (ActivityItemSubType, ActivityItemStatus," +
+                " ActivityRefno, ActivityItemIsAdded) VALUES (?, ?, ?, ?)";
                 var parametersActivityItem = new List<object>();
 
                 if (this.ActSubType == SysCommon.ActSubTypes.TransferFrom)
@@ -318,8 +319,9 @@ namespace dMobile.Controller.Activity_Item
                     parametersActivityItem.Add(Convert.ToInt32(SysCommon.ActSubTypes.TransferTo));
                 }
 
-                parametersActivityItem.Add(Convert.ToInt32(SysCommon.ActStatus.NoChange));
+                parametersActivityItem.Add(Convert.ToInt32(SysCommon.ActStatus.Inserted));
                 parametersActivityItem.Add(Convert.ToInt32(this.ActHdr.HdrRefno));
+                parametersActivityItem.Add(1);
 
                 transaction.Execute(queryActivityItem, parametersActivityItem.ToArray());
 

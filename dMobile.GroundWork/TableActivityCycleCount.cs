@@ -37,62 +37,25 @@ namespace dMobile.GroundWork
         /// <returns><see cref="Task"/> Task completed.</returns>
         public override async Task PurgeData()
         {
-            var conn = DatabaseConnection.GetInstance().SQLConn;
-            var subType = Convert.ToInt32(this.CurrentSubType);
-            this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging cycle count details.", true);
-
-            await conn.RunInTransactionAsync(transaction =>
+            try
             {
-                try
-                {
-                    var query = "DELETE FROM tActivityDetailProductSchemeVariantXRef "
-                        + "WHERE tActivityDetailProductSchemeVariantXRef.ActivityDetailRefno IN "
-                        + "(SELECT tActivityDetail.ActivityDetailRefno "
-                        + "FROM tActivityDetail "
-                        + "WHERE tActivityDetail.ActivityDetailSubType = ?)";
-                    transaction.Execute(query, subType);
+                this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging cycle counts.", true);
 
-                    query = "DELETE FROM tActivityDetailCount "
-                        + "WHERE tActivityDetailCount.ActivityDetailRefno IN "
-                        + "(SELECT tActivityDetail.ActivityDetailRefno "
-                        + "FROM tActivityDetail "
-                        + "WHERE tActivityDetail.ActivityDetailSubType = ?)";
-                    transaction.Execute(query, subType);
+                var query = "DELETE FROM tActivityCount WHERE tActivityCount.ActivitySubType = ?";
+                await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(query, Convert.ToInt32(SysCommon.ActSubTypes.CycleCounts));
 
-                    query = "DELETE FROM tActivityDetailExtra "
-                        + "WHERE tActivityDetailExtra.ActivityDetailRefno IN "
-                        + "(SELECT tActivityDetail.ActivityDetailRefno "
-                        + "FROM tActivityDetail "
-                        + "WHERE tActivityDetail.ActivityDetailSubType = ?)";
-                    transaction.Execute(query, subType);
+                query = "DELETE FROM tActivity WHERE tActivity.ActivitySubType = ?";
+                await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(query, Convert.ToInt32(SysCommon.ActSubTypes.CycleCounts));
 
-                    query = "DELETE FROM tActivityDetail WHERE tActivityDetail.ActivityDetailSubType = ?";
-                    transaction.Execute(query, subType);
+                this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging cycle counts complete.", true);
+            }
+            catch (SQLiteException ex)
+            {
+                this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Database exception occurred.", true);
+                this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging cycle counts failed.", true);
 
-                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging cycle count details complete.", true);
-                    transaction.Commit();
-                }
-                catch (SQLiteException sqlEx)
-                {
-                    if (transaction.IsInTransaction)
-                    {
-                        transaction.Rollback();
-                    }
-
-                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Database exception occurred.", true);
-                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging cycle count details failed.", true);
-                    throw new Exception("Database exception occurred. Purging cycle count details failed.", sqlEx);
-                }
-                catch (Exception ex)
-                {
-                    if (transaction.IsInTransaction)
-                    {
-                        transaction.Rollback();
-                    }
-
-                    throw new Exception("Database exception occurred. Purging cycle count details failed.", ex);
-                }
-            });
+                throw new Exception("Database exception occurred. Purging cycle counts failed.", ex);
+            }
         }
 
         /// <summary>

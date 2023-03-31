@@ -108,7 +108,13 @@ namespace dMobile.GroundWork
                         {
                             transaction.Execute("INSERT INTO tActivity (ActivityStatus, ActivitySubType) VALUES (?, ?)", 0, Convert.ToInt32(SysCommon.ActSubTypes.PurchaseOrderWorkSheet));
                             actRefno = Convert.ToInt32(transaction.ExecuteScalar<int>("SELECT last_insert_rowid() FROM tActivity"));
-                            transaction.Execute("INSERT INTO tActivityItem (ActivityItemSubType, ActivityItemStatus, ActivityRefno) VALUES (?, ?, ?)", Convert.ToInt32(SysCommon.ActSubTypes.PurchaseOrderWorkSheet), 0, actRefno);
+                            transaction.Execute(
+                                "INSERT INTO tActivityItem (ActivityItemSubType, ActivityItemStatus, ActivityRefno," +
+                                " ActivityItemIsAdded) VALUES (?, ?, ?, ?)",
+                                Convert.ToInt32(SysCommon.ActSubTypes.PurchaseOrderWorkSheet),
+                                Convert.ToInt32(SysCommon.ActStatus.NoChange),
+                                actRefno,
+                                0);
                             actItemRefno = Convert.ToInt32(transaction.ExecuteScalar<int>("SELECT last_insert_rowid() FROM tActivityItem"));
                             prodUnitRefno = this.GetProductUnitRefnoFromDataRow(drow, transaction, false);
                             whsLocMapRefno = this.GetWhsLocMapRefnoFromDataRow(drow, transaction);

@@ -27,5 +27,8 @@ namespace dMobile.Resources.Models
         [NotNull]
         [ForeignKey(typeof(ActivityModel))]
         public int ActivityRefno { get; set; }
+
+        [NotNull]
+        public bool ActivityItemIsAdded { get; set; } = false;
     }
 }

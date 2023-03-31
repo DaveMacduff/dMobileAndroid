@@ -40,19 +40,26 @@ namespace dMobile.GroundWork
             try
             {
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging receiving items.", true);
+                var subType = Convert.ToInt32(this.CurrentSubType);
 
                 var query = "DELETE FROM tActivityItemBarCodeAssociationXRef "
                             + "WHERE tActivityItemBarCodeAssociationXRef.ActivityItemRefno IN "
                             + "(SELECT tActivityItem.ActivityItemRefno "
                             + "FROM tActivityItem "
                             + "WHERE tActivityItem.ActivityItemSubType = ?)";
-                await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(query, Convert.ToInt32(SysCommon.ActSubTypes.Receiving));
+                await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(
+                    query,
+                    subType);
 
                 query = "DELETE FROM tActivityItemReceiving WHERE tActivityItemReceiving.ActivityItemSubType = ?";
-                await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(query, Convert.ToInt32(SysCommon.ActSubTypes.Receiving));
+                await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(
+                    query,
+                    subType);
 
                 query = "DELETE FROM tActivityItem WHERE tActivityItem.ActivityItemSubType = ?";
-                await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(query, Convert.ToInt32(SysCommon.ActSubTypes.Receiving));
+                await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(
+                    query,
+                    subType);
 
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging receiving items complete.", true);
             }
@@ -122,7 +129,13 @@ namespace dMobile.GroundWork
 
                         foreach (DataRow drow in ds.Tables["tActivityItemPurchaseOrder"].Rows)
                         {
-                            transaction.Execute("INSERT INTO tActivityItem (ActivityItemSubType, ActivityItemStatus, ActivityRefno) VALUES (?, ?, ?)", Convert.ToInt32(SysCommon.ActSubTypes.Receiving), 0, Convert.ToInt32(actRefno));
+                            transaction.Execute(
+                                "INSERT INTO tActivityItem (ActivityItemSubType, ActivityItemStatus, ActivityRefno," +
+                                " ActivityItemIsAdded) VALUES (?, ?, ?, ?)",
+                                Convert.ToInt32(SysCommon.ActSubTypes.Receiving),
+                                Convert.ToInt32(SysCommon.ActStatus.NoChange),
+                                Convert.ToInt32(actRefno),
+                                0);
 
                             actItemRefno = Convert.ToInt32(transaction.ExecuteScalar<int>("SELECT last_insert_rowid() FROM tActivityItem"));
                             prodUnitRefno = this.GetProductUnitRefnoFromDataRow(drow, transaction, false);

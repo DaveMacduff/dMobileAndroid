@@ -124,7 +124,13 @@ namespace dMobile.GroundWork
 
                             foreach (DataRow drow in ds.Tables["tActivityItemTransfer"].Rows)
                             {
-                                transaction.Execute("INSERT INTO tActivityItem (ActivityItemSubType, ActivityItemStatus, ActivityRefno) VALUES (?, ?, ?)", Convert.ToInt32(SysCommon.ActSubTypes.TransferTo), 0, Convert.ToInt32(actRefno));
+                                transaction.Execute(
+                                    "INSERT INTO tActivityItem (ActivityItemSubType, ActivityItemStatus," +
+                                    " ActivityRefno, ActivityItemIsAdded) VALUES (?, ?, ?, ?)",
+                                    Convert.ToInt32(SysCommon.ActSubTypes.TransferTo),
+                                    Convert.ToInt32(SysCommon.ActStatus.NoChange),
+                                    Convert.ToInt32(actRefno),
+                                    0);
                                 actItemRefno = Convert.ToInt32(transaction.ExecuteScalar<int>("SELECT last_insert_rowid() FROM tActivityItem"));
                                 prodUnitRefno = this.GetProductUnitRefnoFromDataRow(drow, transaction, false);
                                 locMapRefno = 0;

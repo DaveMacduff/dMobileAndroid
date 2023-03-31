@@ -137,10 +137,12 @@ namespace dMobile.GroundWork
                         foreach (DataRow drow in ds.Tables["tActivityItemPicking"].Rows)
                         {
                             transaction.Execute(
-                                "INSERT INTO tActivityItem (ActivityItemSubType, ActivityItemStatus, ActivityRefno) VALUES (?, ?, ?)",
+                                "INSERT INTO tActivityItem (ActivityItemSubType, ActivityItemStatus, ActivityRefno," +
+                                " ActivityItemIsAdded) VALUES (?, ?, ?, ?)",
                                 Convert.ToInt32(SysCommon.ActSubTypes.Picking),
-                                0,
-                                actRefno);
+                                Convert.ToInt32(SysCommon.ActStatus.NoChange),
+                                actRefno,
+                                0);
 
                             var actItemRefno = Convert.ToInt32(transaction.ExecuteScalar<int>("SELECT last_insert_rowid() FROM tActivityItem"));
                             actItemPickFKRefno = Convert.ToInt32(drow["ActivityItemFKRefno"]);
