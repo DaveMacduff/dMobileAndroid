@@ -194,7 +194,7 @@ namespace dMobile.Controller.Activity_Item
         /// Set the activity item selected activity item.
         /// </summary>
         /// <param name="actItemFoundRefno"><see cref="int"/> Activity item reference number to look up.</param>
-        public override void SetSelectedActivityItem(int actItemFoundRefno)
+        public override void SetSelectedActivityItemFromList(int actItemFoundRefno)
         {
             this.SelectedListItemIdx = -1;
             if (actItemFoundRefno >= 0)
@@ -538,9 +538,9 @@ namespace dMobile.Controller.Activity_Item
         /// Insert a new adjustment activity item.
         /// </summary>
         /// <param name="data"><see cref="XDocument"/> Adjustment activity information to insert.</param>
-        /// <param name="askToInsertAsNewItem"><see cref="bool"/> Stop and ask to insert an item.</param>
+
         /// <returns><see cref="Task"/> Task operation.</returns>
-        public override async Task Insert(XDocument data, bool askToInsertAsNewItem)
+        public override async Task Insert(XDocument data)
         {
             var foundActItemRefno = 0;
             var result = false;
@@ -548,9 +548,9 @@ namespace dMobile.Controller.Activity_Item
             var prodUnitRefno = int.Parse(data.Root.Element("ProductUnitRefno").Value);
             if (prodUnitRefno != 0)
             {
-                foundActItemRefno = await this.GetActivityItemRefno(prodUnitRefno);
+                foundActItemRefno = await this.GetActivityItemRefno(prodUnitRefno, LocationMap.GetInstance().CurrLocMap);
 
-                if (foundActItemRefno > 0 && askToInsertAsNewItem)
+                if (foundActItemRefno > 0)
                 {
                     if (await Device.InvokeOnMainThreadAsync(async () => await Application.Current.MainPage.DisplayAlert(
                         "New Item",
@@ -1120,6 +1120,7 @@ namespace dMobile.Controller.Activity_Item
                 this.SelectedActivityItem = item;
                 this.ItemRefno = item.ActivityItemRefno;
                 this.ItemFkRefno = item.ActivityItemFKRefno;
+                this.ActStatus = (SysCommon.ActStatus)item.ActivityItemStatus;
                 this.ProdInfo = await ProductInfoTasks.GetInfoFromUnitRefno(item.ProductUnitRefno);
                 this.ProdInfo.Scheme = await ProductInfoTasks.GetSchemeComponentsFromRefno(this.ProdInfo.Refno);
 
@@ -1174,7 +1175,7 @@ namespace dMobile.Controller.Activity_Item
         /// </summary>
         /// <param name="prodUnitRefno"><see cref="int"/> Product unit reference number.</param>
         /// <returns><see cref="int"/> Found activity item reference number else 0.</returns>
-        public override async Task<int> GetActivityItemRefno(int prodUnitRefno)
+        public override async Task<int> GetActivityItemRefno(int prodUnitRefno, SLocMap locMap)
         {
             var foundActItemRefno = 0;
 
@@ -1189,7 +1190,7 @@ namespace dMobile.Controller.Activity_Item
             sql.Append("INNER JOIN tLocationMapWarehouse ON tLocationMapWarehouse.LocationMapRefno ");
             sql.Append("= tActivityItemPicking.WarehouseLocationMapRefno ");
             sql.AppendFormat("WHERE tActivityItem.ActivityRefno = {0} ", this.ActHdr.HdrRefno);
-            sql.AppendFormat("AND tActivityItemPicking.WarehouseLocationMapRefno = {0} ", this.LocMap.WhsLocMapRefno);
+            sql.AppendFormat("AND tActivityItemPicking.WarehouseLocationMapRefno = {0} ", locMap.WhsLocMapRefno);
             sql.AppendFormat("AND tActivityItemPicking.ProductUnitRefno = {0}", prodUnitRefno);
 
             var results = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<PickingItem>(sql.ToString());

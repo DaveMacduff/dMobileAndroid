@@ -160,7 +160,7 @@ namespace dMobile.Controller.Activity_Item
         /// Set the activity item selected activity item.
         /// </summary>
         /// <param name="actItemFoundRefno"><see cref="int"/> Activity item reference number to look up.</param>
-        public override void SetSelectedActivityItem(int actItemFoundRefno)
+        public override void SetSelectedActivityItemFromList(int actItemFoundRefno)
         {
             this.SelectedListItemIdx = -1;
             if (actItemFoundRefno >= 0)
@@ -565,9 +565,9 @@ namespace dMobile.Controller.Activity_Item
         /// Insert a new adjustment activity item.
         /// </summary>
         /// <param name="data"><see cref="XDocument"/> Adjustment activity information to insert.</param>
-        /// <param name="askToInsertAsNewItem"><see cref="bool"/> Stop and ask to insert an item.</param>
+
         /// <returns><see cref="Task"/> Task operation.</returns>
-        public override async Task Insert(XDocument data, bool askToInsertAsNewItem)
+        public override async Task Insert(XDocument data)
         {
             throw new NotImplementedException();
         }
@@ -1000,6 +1000,7 @@ namespace dMobile.Controller.Activity_Item
                 this.SelectedActivityItem = item;
                 this.ItemRefno = item.ActivityItemRefno;
                 this.ItemFkRefno = item.ActivityItemFKRefno;
+                this.ActStatus = (SysCommon.ActStatus)item.ActivityItemStatus;
                 this.ProdInfo = await ProductInfoTasks.GetInfoFromUnitRefno(item.ProductUnitRefno);
                 this.ProdInfo.Scheme = await ProductInfoTasks.GetSchemeComponentsFromRefno(this.ProdInfo.Refno);
 
@@ -1054,7 +1055,7 @@ namespace dMobile.Controller.Activity_Item
         /// </summary>
         /// <param name="prodUnitRefno"><see cref="int"/> Product unit reference number.</param>
         /// <returns><see cref="int"/> Found activity item refno else 0.</returns>
-        public override async Task<int> GetActivityItemRefno(int prodUnitRefno)
+        public override async Task<int> GetActivityItemRefno(int prodUnitRefno, SLocMap locMap)
         {
             var foundActItemRefno = this.ItemRefno;
             return foundActItemRefno;

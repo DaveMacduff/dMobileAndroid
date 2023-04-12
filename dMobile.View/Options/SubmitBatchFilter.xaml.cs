@@ -32,9 +32,9 @@ namespace dMobile.View.Options
         /// </summary>
         /// <param name="callingControl"></param>
         /// <remarks></remarks>
-/// <summary>
-/// Initializes a new instance of the <see cref="SubmitBatchFilter"/> class.
-/// </summary>
+        /// <summary>
+        /// Initializes a new instance of the <see cref="SubmitBatchFilter"/> class.
+        /// </summary>
         public SubmitBatchFilter()
         {
             this.InitializeComponent();

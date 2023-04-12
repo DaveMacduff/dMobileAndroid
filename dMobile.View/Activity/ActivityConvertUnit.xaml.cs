@@ -760,7 +760,7 @@ namespace dMobile.View.Activity
 
                             var xmlDoc = this.ActDetail.GetXml(this.ActDetail);
 
-                            await this.ActItem.Insert(xmlDoc, false);
+                            await this.ActItem.Insert(xmlDoc);
 
                             await this.DisplayData();
 
@@ -1147,7 +1147,7 @@ namespace dMobile.View.Activity
                 }
 
                 var xmlDoc = await form.GetXML();
-                await this.ActItem.Insert(xmlDoc, false);
+                await this.ActItem.Insert(xmlDoc);
                 var query = "SELECT tProduct.ProductCode,"
                             + "tProductUnit.ProductUnitBC,"
                             + "tUnit.UnitCode "
@@ -1445,19 +1445,19 @@ namespace dMobile.View.Activity
             var response = SysCommon.SubmitComm(request);
             var xmlDoc = new XmlDocument();
             xmlDoc.LoadXml(response);
-            if (xmlDoc.SelectSingleNode("/VFPData/Quantity") !.HasChildNodes)
+            if (xmlDoc.SelectSingleNode("/VFPData/Quantity")!.HasChildNodes)
             {
-                fillQty.Quantity = Convert.ToDecimal(xmlDoc.SelectSingleNode("/VFPData/Quantity") !.FirstChild.Value);
+                fillQty.Quantity = Convert.ToDecimal(xmlDoc.SelectSingleNode("/VFPData/Quantity")!.FirstChild.Value);
             }
 
-            if (xmlDoc.SelectSingleNode("/VFPData/BaseQuantity") !.HasChildNodes)
+            if (xmlDoc.SelectSingleNode("/VFPData/BaseQuantity")!.HasChildNodes)
             {
-                fillQty.BaseQuantity = Convert.ToDecimal(xmlDoc.SelectSingleNode("/VFPData/BaseQuantity") !.FirstChild.Value);
+                fillQty.BaseQuantity = Convert.ToDecimal(xmlDoc.SelectSingleNode("/VFPData/BaseQuantity")!.FirstChild.Value);
             }
 
-            if (xmlDoc.SelectSingleNode("/VFPData/WeightQuantity") !.HasChildNodes)
+            if (xmlDoc.SelectSingleNode("/VFPData/WeightQuantity")!.HasChildNodes)
             {
-                fillQty.WeightQuantity = Convert.ToDecimal(xmlDoc.SelectSingleNode("/VFPData/WeightQuantity") !.FirstChild.Value);
+                fillQty.WeightQuantity = Convert.ToDecimal(xmlDoc.SelectSingleNode("/VFPData/WeightQuantity")!.FirstChild.Value);
             }
 
             return fillQty;

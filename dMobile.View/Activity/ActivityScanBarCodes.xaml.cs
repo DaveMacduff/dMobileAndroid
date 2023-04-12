@@ -1541,7 +1541,7 @@ namespace dMobile.View.Activity
                          + "<enumBarCodeSymbology>" + (int)svdSymbology + "</enumBarCodeSymbology>"
                          + "<BarCodeSymbologyPrefix>" + svdSymbologyPrefix + "</BarCodeSymbologyPrefix>"
                          + "</params>");
-                    await this.ActItemBarCode.Insert(xmlDoc, true);
+                    await this.ActItemBarCode.Insert(xmlDoc);
 
                     _ = await Device.InvokeOnMainThreadAsync(() => this.ExtraInfoItems[0] = "Product associated to bar code");
                 }

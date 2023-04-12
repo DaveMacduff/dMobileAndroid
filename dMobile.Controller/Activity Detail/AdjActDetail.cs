@@ -250,13 +250,9 @@ namespace dMobile.Controller.Activity_Detail
             }
             else
             {
-                this.SubmitDetailToCommServer(await this.CreateSubmitXml(XDocument.Parse(
-                    "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?><params></params>")));
-                if (this.DetailRefno >= 0)
-                {
-                    throw new Exception("Unexpected submit detail to comm server returned a detail reference number" +
-                        " greater than or equal to zero.");
-                }
+                var xmlSubmit = await this.CreateSubmitXml(XDocument.Parse(
+                    "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?><params></params>"));
+                this.SubmitDetailToCommServer(xmlSubmit);
 
                 var query = "UPDATE tActivityItemAdjustment SET ActivityItemStringFKRefno = ?," +
                             " ActivityItemFKRefno = ? WHERE ActivityItemRefno = ?";
@@ -360,6 +356,22 @@ namespace dMobile.Controller.Activity_Detail
             xmlDoc.LoadXml(responseData);
             this.DetailFkRefno = int.Parse(xmlDoc.DocumentElement["ser_refno"].InnerText);
 
+            if (this.ActItem.ActStatus == SysCommon.ActStatus.Inserted)
+            {
+                this.ActItem.ItemFkRefno = int.Parse(xmlDoc.DocumentElement["itm_refno"].InnerText);
+                if (this.ActItem.SelectedActivityItem is AdjustmentItem adjItem)
+                {
+                    adjItem.ActivityItemFKRefno = this.ActItem.ItemFkRefno;
+                }
+
+                this.ActItem.ActStatus = SysCommon.ActStatus.NoChange;
+
+                await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(
+                    "UPDATE tActivityItem SET ActivityItemStatus = ? WHERE ActivityItemRefno = ?",
+                    Convert.ToInt32(SysCommon.ActStatus.NoChange),
+                    this.ActItem.ItemRefno);
+            }
+
             if (selectedActivityDetail is AdjustmentDetail adjustmentDetail)
             {
                 adjustmentDetail.ActivityDetailFKRefno = this.DetailFkRefno;
@@ -392,9 +404,12 @@ namespace dMobile.Controller.Activity_Detail
 
                 this.DataLayerProgressOutHandler(this, EventArgs.Empty, 5);
 
-                adjDetail.RegisterDataAccessListenerProgressOut((AdjActDetail)this);
-                await adjDetail.RequestDetailData(this.ActItem.ItemRefno);
-                adjDetail.UnregisterDataAccessListenerProgressOut((AdjActDetail)this);
+                if (this.ActItem.ActStatus != SysCommon.ActStatus.Inserted)
+                {
+                    adjDetail.RegisterDataAccessListenerProgressOut((AdjActDetail)this);
+                    await adjDetail.RequestDetailData(this.ActItem.ItemRefno);
+                    adjDetail.UnregisterDataAccessListenerProgressOut((AdjActDetail)this);
+                }
             }
         }
 
@@ -1067,6 +1082,7 @@ namespace dMobile.Controller.Activity_Detail
             }
             else
             {
+                int itemFKRefno = (this.ActItem.ActStatus == SysCommon.ActStatus.Inserted) ? 0 : this.ActItem.ItemFkRefno;
                 request = XDocument.Parse(
                     "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>"
                     + "<imclient>"
@@ -1080,7 +1096,7 @@ namespace dMobile.Controller.Activity_Detail
                     + "<skid_data>" + data.Root.Element("skid_data").Value + "</skid_data>"
                     + "<whs_id>" + this.LocMap.CurrLocMap.WhsFKRefno + "</whs_id>"
                     + "<refno>" + this.ActItem.ActHdr.HdrFkRefno.ToString() + "</refno>"
-                    + "<itm_refno>" + this.ActItem.ItemFkRefno.ToString() + "</itm_refno>"
+                    + "<itm_refno>" + itemFKRefno.ToString() + "</itm_refno>"
                     + "<is_negate_qty>" + adjSettings.NegateScanQuantity + "</is_negate_qty>"
                     + "<extra1>" + this.ActExtra.Text1 + "</extra1>"
                     + "<extra2>" + this.ActExtra.Text2 + "</extra2>"

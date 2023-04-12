@@ -131,6 +131,11 @@ namespace dMobile.Controller.Activity_Item
         public SysCommon.ActSubTypes ActSubType { get; set; } = SysCommon.ActSubTypes.NotApplicable;
 
         /// <summary>
+        /// Gets or sets the activity item status, nochange, inserted, updated etc.
+        /// </summary>
+        public SysCommon.ActStatus ActStatus { get; set; } = ActStatus.NoChange;
+
+        /// <summary>
         /// Gets or sets the activity item reference number..
         /// </summary>
         public int ItemRefno { get; set; } = 0;
@@ -200,9 +205,8 @@ namespace dMobile.Controller.Activity_Item
         /// Insert an activity item.
         /// </summary>
         /// <param name="data"><see cref="XDocument"/> Data to insert.</param>
-        /// <param name="askToInsertAsNewItem"><see cref="bool"/> Ask a question to insert a new item.</param>
         /// <returns><see cref="Task"/> Task operation.</returns>
-        public abstract Task Insert(XDocument data, bool askToInsertAsNewItem);
+        public abstract Task Insert(XDocument data);
 
         /// <summary>
         /// Refresh the activity item data.
@@ -234,7 +238,7 @@ namespace dMobile.Controller.Activity_Item
         /// else the SelectedActivityItem is set to null.
         /// </remarks>
         /// <param name="actItemFoundRefno"><see cref="int"/> Activity item reference number to look up.</param>
-        public abstract void SetSelectedActivityItem(int actItemFoundRefno);
+        public abstract void SetSelectedActivityItemFromList(int actItemFoundRefno);
 
         /// <summary>
         /// Get a list of activity items.
@@ -255,12 +259,13 @@ namespace dMobile.Controller.Activity_Item
         /// Get the activity item reference number from the product unit reference number and current location warehouse.
         /// </summary>
         /// <param name="prodUnitRefno"><see cref="int"/> Product unit reference number.</param>
+        /// <param name="locMap"><see cref="SLocMap"/> Location map.</param>
         /// <returns><see cref="int"/> Found activity item reference number else 0.</returns>
         /// <remarks>
         /// The location map parameter most of the time will be the warehouse location map reference number, however for
         /// cycle count line items for it could be any location map sub type; slot, section or warehouse.
         /// </remarks>
-        public abstract Task<int> GetActivityItemRefno(int prodUnitRefno);
+        public abstract Task<int> GetActivityItemRefno(int prodUnitRefno, SLocMap locMap);
 
         /// <summary>
         /// Get the data view sort foreign key reference number index name.

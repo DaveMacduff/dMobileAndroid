@@ -260,10 +260,10 @@ namespace dMobile.View.Options
         /// </summary>
         /// <returns></returns>
         /// <remarks></remarks>
-/// <summary>
-///
-/// </summary>
-/// <returns>A <see cref="Task"/> representing the result of the asynchronous operation.</returns>
+        /// <summary>
+        ///
+        /// </summary>
+        /// <returns>A <see cref="Task"/> representing the result of the asynchronous operation.</returns>
         public async Task RefreshComplete()
         {
             if (this.IsRefreshComplete)

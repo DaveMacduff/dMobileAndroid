@@ -353,10 +353,10 @@ namespace dMobile.View.Activity
         ///
         /// </summary>
         /// <remarks></remarks>
-/// <summary>
-///
-/// </summary>
-/// <returns>A <see cref="Task"/> representing the result of the asynchronous operation.</returns>
+        /// <summary>
+        ///
+        /// </summary>
+        /// <returns>A <see cref="Task"/> representing the result of the asynchronous operation.</returns>
         public async Task RefreshData()
         {
             await this.ScannerDisable();

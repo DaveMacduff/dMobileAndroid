@@ -514,46 +514,46 @@ namespace dMobile.View.Views
                     switch (keycode)
                     {
                         case Keycode.DpadDown:
-                        {
-                            if (this.dgProducts.SelectedItem != null && Convert.ToInt32(
-                                    this.ProductUnits.IndexOf(this.dgProducts.SelectedItem as ProductUnit)) <
-                                this.ProductUnits.Count - 1)
                             {
-                                this.dgProducts.SelectedItem = this.ProductUnits[
-                                    this.ProductUnits.IndexOf(this.dgProducts.SelectedItem as ProductUnit) + 1];
-                                this.dgProducts.ScrollTo(this.dgProducts.SelectedItem, ScrollToPosition.MakeVisible, true);
-                            }
+                                if (this.dgProducts.SelectedItem != null && Convert.ToInt32(
+                                        this.ProductUnits.IndexOf(this.dgProducts.SelectedItem as ProductUnit)) <
+                                    this.ProductUnits.Count - 1)
+                                {
+                                    this.dgProducts.SelectedItem = this.ProductUnits[
+                                        this.ProductUnits.IndexOf(this.dgProducts.SelectedItem as ProductUnit) + 1];
+                                    this.dgProducts.ScrollTo(this.dgProducts.SelectedItem, ScrollToPosition.MakeVisible, true);
+                                }
 
-                            break;
-                        }
+                                break;
+                            }
 
                         case Keycode.DpadUp:
-                        {
-                            if (this.dgProducts.SelectedItem != null && Convert.ToInt32(
-                                    this.ProductUnits.IndexOf(this.dgProducts.SelectedItem as ProductUnit)) > 0)
                             {
-                                this.dgProducts.SelectedItem = this.ProductUnits[
-                                    this.ProductUnits.IndexOf(this.dgProducts.SelectedItem as ProductUnit) - 1];
-                                this.dgProducts.ScrollTo(this.dgProducts.SelectedItem, ScrollToPosition.MakeVisible, true);
-                            }
+                                if (this.dgProducts.SelectedItem != null && Convert.ToInt32(
+                                        this.ProductUnits.IndexOf(this.dgProducts.SelectedItem as ProductUnit)) > 0)
+                                {
+                                    this.dgProducts.SelectedItem = this.ProductUnits[
+                                        this.ProductUnits.IndexOf(this.dgProducts.SelectedItem as ProductUnit) - 1];
+                                    this.dgProducts.ScrollTo(this.dgProducts.SelectedItem, ScrollToPosition.MakeVisible, true);
+                                }
 
-                            break;
-                        }
+                                break;
+                            }
 
                         case Keycode.Enter:
                         case Keycode.F1:
-                        {
-                            if (this.dgProducts.SelectedItem != null)
                             {
-                                if (await this.SaveChanges())
+                                if (this.dgProducts.SelectedItem != null)
                                 {
-                                    this.DialogResult = DialogResult.OK;
-                                    await this.Close();
+                                    if (await this.SaveChanges())
+                                    {
+                                        this.DialogResult = DialogResult.OK;
+                                        await this.Close();
+                                    }
                                 }
-                            }
 
-                            break;
-                        }
+                                break;
+                            }
 
                     }
                 });

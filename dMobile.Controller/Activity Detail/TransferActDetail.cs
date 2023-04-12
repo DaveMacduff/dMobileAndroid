@@ -226,11 +226,6 @@ namespace dMobile.Controller.Activity_Detail
             {
                 this.SubmitDetailToCommServer(await this.CreateSubmitXml(XDocument.Parse(
                     "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?><params></params>")));
-                if (this.DetailRefno >= 0)
-                {
-                    throw new Exception("Unexpected submit detail to comm server returned a detail reference number" +
-                        " greater than or equal to zero.");
-                }
 
                 var query = "UPDATE tActivityItemTransfer SET ActivityItemStringFKRefno = ?," +
                             " ActivityItemFKRefno = ? WHERE ActivityItemRefno = ?";

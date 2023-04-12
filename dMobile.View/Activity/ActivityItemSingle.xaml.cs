@@ -942,7 +942,7 @@ namespace dMobile.View.Activity
                             }
                         }
 
-                        actItemFoundRefno = await this.ActItem.GetActivityItemRefno(prodUnitRefno);
+                        actItemFoundRefno = await this.ActItem.GetActivityItemRefno(prodUnitRefno, LocationMap.GetInstance().CurrLocMap);
 
                         // this.ActItem.DataViewItems.Sort = "ActivityItemRefno";
                         if (actItemFoundRefno > 0)
@@ -982,7 +982,7 @@ namespace dMobile.View.Activity
 
                                 if (isAddNewItem)
                                 {
-                                    await this.ActItem.Insert(ProductInfoTasks.GetXML(tempProdInfo), false);
+                                    await this.ActItem.Insert(ProductInfoTasks.GetXML(tempProdInfo));
 
                                     // This is a little dangerous we assume that the new row idx will be the last one.
                                     foundSelectedActivityItem = this.ActItem.ListItems.Last();
@@ -1115,7 +1115,7 @@ namespace dMobile.View.Activity
                         }
 
                         prodUnitRefno = this.ActHdr.SkidInfo.CurrSkid.ProdInfo.UnitRefno;
-                        actItemFoundRefno = await this.ActItem.GetActivityItemRefno(prodUnitRefno);
+                        actItemFoundRefno = await this.ActItem.GetActivityItemRefno(prodUnitRefno, LocationMap.GetInstance().CurrLocMap);
                         if (actItemFoundRefno > 0)
                         {
                             foundSelectedActivityItem = this.ActItem.ListItems.OfType<object>()
@@ -1129,8 +1129,7 @@ namespace dMobile.View.Activity
                             if (this.ActItem.IsAllowAddItem)
                             {
                                 await this.ActItem.Insert(
-                                    ProductInfoTasks.GetXML(this.ActHdr.SkidInfo.CurrSkid.ProdInfo),
-                                    false);
+                                    ProductInfoTasks.GetXML(this.ActHdr.SkidInfo.CurrSkid.ProdInfo));
 
                                 // This is a little dangerous we assume that the new row idx will be the last one
                                 foundSelectedActivityItem = this.ActItem.ListItems.Last();
@@ -1420,15 +1419,15 @@ namespace dMobile.View.Activity
                         case Keycode.Enter:
 
                         case Keycode.F1:
-                        {
-                            if (await this.SaveChanges())
                             {
-                                this.DialogResult = DialogResult.OK;
-                                await this.Close();
-                            }
+                                if (await this.SaveChanges())
+                                {
+                                    this.DialogResult = DialogResult.OK;
+                                    await this.Close();
+                                }
 
-                            break;
-                        }
+                                break;
+                            }
 
                         case Keycode.F2:
                             await this.KeyUpF2_ShowLineItemComment(this, null);
@@ -2230,7 +2229,7 @@ namespace dMobile.View.Activity
 
                     if (prodUnitRefno != 0)
                     {
-                        itemFoundRefno = await this.ActItem.GetActivityItemRefno(prodUnitRefno);
+                        itemFoundRefno = await this.ActItem.GetActivityItemRefno(prodUnitRefno, LocationMap.GetInstance().CurrLocMap);
 
                         if (itemFoundRefno > 0)
                         {
@@ -2247,7 +2246,7 @@ namespace dMobile.View.Activity
                         {
                             if (this.ActItem.IsAllowAddItem)
                             {
-                                await this.ActItem.Insert(xmlDoc, false);
+                                await this.ActItem.Insert(xmlDoc);
 
                                 // This is a little dangerous we assume that the new row idx
                                 // will be the last one
@@ -2445,7 +2444,7 @@ namespace dMobile.View.Activity
                         "No")))
                     {
                         prodUnitRefno = this.ActHdr.SkidInfo.CurrSkid.ProdInfo.UnitRefno;
-                        actItemFoundRefno = await this.ActItem.GetActivityItemRefno(prodUnitRefno);
+                        actItemFoundRefno = await this.ActItem.GetActivityItemRefno(prodUnitRefno, LocationMap.GetInstance().CurrLocMap);
                         if (actItemFoundRefno > 0)
                         {
                             foundObject = this.ActItem.ListItems.OfType<object>().FirstOrDefault(activityItem =>
@@ -2456,8 +2455,7 @@ namespace dMobile.View.Activity
                         {
                             if (this.ActItem.IsAllowAddItem)
                             {
-                                await this.ActItem.Insert(
-                                    ProductInfoTasks.GetXML(this.ActHdr.SkidInfo.CurrSkid.ProdInfo), false);
+                                await this.ActItem.Insert(ProductInfoTasks.GetXML(this.ActHdr.SkidInfo.CurrSkid.ProdInfo));
 
                                 // This is a little dangerous we assume that the new row idx
                                 // will be the last one

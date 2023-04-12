@@ -779,16 +779,16 @@ namespace dMobile.Controller.Activity_Detail
         /// <summary>
         /// Find the current detail in the list detail.
         /// </summary>
-        /// <param name="activityDetailRefno"><see cref="int"/> Activity detail reference number.</param>
+        /// <param name="activityDetailFKRefno"><see cref="int"/> Activity detail FK reference number.</param>
         /// <returns><see cref="int"/> Found list detail index or negative one if not found.</returns>
-        public virtual int FindListDetailIndex(int activityDetailRefno)
+        public virtual int FindListDetailIndex(int activityDetailFKRefno)
         {
             var foundIdx = -1;
 
             // Go to the list item to update the detail quantity.
             for (var idx = 0; idx < this.ListDetails.Count; idx++)
             {
-                if (((ActivityDetail)this.ListDetails[idx]).ActivityDetailRefno == activityDetailRefno)
+                if (((ActivityDetail)this.ListDetails[idx]).ActivityDetailFKRefno == activityDetailFKRefno)
                 {
                     foundIdx = idx;
                     break;
@@ -908,13 +908,14 @@ namespace dMobile.Controller.Activity_Detail
                 productionDate = this.SchemeData.LogisticUnitProductionDate.ToString("MM/dd/yyyy");
             }
 
+            int itemFKRefno = (this.ActItem.ActStatus == SysCommon.ActStatus.Inserted) ? 0 : this.ActItem.ItemFkRefno;
             var def = "<prod_id>" + this.ActItem.ProdInfo.Code + "</prod_id>"
                       + "<is_bc>" + this.ActItem.ProdInfo.UnitIsBC + "</is_bc>"
                       + "<whs_id>" + this.LocMap.CurrLocMap.WhsFKRefno + "</whs_id>"
                       + "<sect_refno>" + this.LocMap.CurrLocMap.SectFKRefno + "</sect_refno>"
                       + "<slot_refno>" + this.LocMap.CurrLocMap.SlotFKRefno + "</slot_refno>"
                       + "<refno>" + this.ActItem.ActHdr.HdrFkRefno + "</refno>"
-                      + "<itm_refno>" + this.ActItem.ItemFkRefno + "</itm_refno>"
+                      + "<itm_refno>" + itemFKRefno + "</itm_refno>"
                       + "<ser_refno>" + this.DetailFkRefno + "</ser_refno>"
                       + "<alt_qty>" + this.Quantity + "</alt_qty>"
                       + "<alt_unit>" + this.ActItem.ProdInfo.UnitCode + "</alt_unit>"
@@ -1038,10 +1039,8 @@ namespace dMobile.Controller.Activity_Detail
             var innerText = xmlData.DocumentElement?["itm_refno"] !.InnerText;
             this.ActItem.ItemFkRefno = int.Parse(innerText);
 
-            // Assign a temporary activity detail until a full activity detail refresh occurs.
             innerText = xmlData.DocumentElement["ser_refno"] !.InnerText;
-            this.DetailFkRefno = int.Parse(innerText) * -1;
-            this.DetailRefno = this.DetailFkRefno;
+            this.DetailFkRefno = int.Parse(innerText);
             this.IsUpdateView = true;
         }
 

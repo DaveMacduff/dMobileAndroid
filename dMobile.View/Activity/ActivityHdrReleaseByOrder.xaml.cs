@@ -372,12 +372,12 @@ namespace dMobile.View.Activity
         /// <param name="sender"></param>
         /// <param name="e"></param>
         /// <remarks></remarks>
-/// <summary>
-///
-/// </summary>
-/// <param name="sender"></param>
-/// <param name="e"></param>
-/// <returns>A <see cref="Task"/> representing the result of the asynchronous operation.</returns>
+        /// <summary>
+        ///
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        /// <returns>A <see cref="Task"/> representing the result of the asynchronous operation.</returns>
         public async Task ucActivityHdrReleaseByOrder_GotFocus(object sender, EventArgs e)
         {
             await this.ScannerEnable();
@@ -447,12 +447,12 @@ namespace dMobile.View.Activity
         /// <param name="sender"></param>
         /// <param name="e"></param>
         /// <remarks></remarks>
-/// <summary>
-///
-/// </summary>
-/// <param name="sender"></param>
-/// <param name="e"></param>
-/// <returns>A <see cref="Task"/> representing the result of the asynchronous operation.</returns>
+        /// <summary>
+        ///
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        /// <returns>A <see cref="Task"/> representing the result of the asynchronous operation.</returns>
         public async Task ucActivityHdrReleaseByOrder_LostFocus(object sender, EventArgs e)
         {
             // if (this.tmrActivityLoaded.Enabled == false)

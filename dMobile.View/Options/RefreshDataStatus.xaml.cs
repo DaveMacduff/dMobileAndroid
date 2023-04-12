@@ -1424,7 +1424,7 @@ namespace dMobile.View.Options
             _ = await this.TicketByProductDetail.DataDetailStatus();
             this.TicketByProductDetail.UnregisterDataAccessListenerStatusOut(this);
             this.TicketByProductDetail.UnregisterDataAccessListenerProgressOut(this);
-}
+        }
 
         /// <summary>
         ///

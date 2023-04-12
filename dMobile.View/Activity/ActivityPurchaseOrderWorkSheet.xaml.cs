@@ -52,10 +52,10 @@ namespace dMobile.View.Activity
         /// </summary>
         /// <param name="_ActivitySubTypes"></param>
         /// <remarks></remarks>
-/// <summary>
-/// Initializes a new instance of the <see cref="ActivityPurchaseOrderWorkSheet"/> class.
-/// </summary>
-/// <param name="actSubType"></param>
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ActivityPurchaseOrderWorkSheet"/> class.
+        /// </summary>
+        /// <param name="actSubType"></param>
         public ActivityPurchaseOrderWorkSheet(SysCommon.ActSubTypes actSubType)
         {
             this.InitializeComponent();
@@ -307,7 +307,7 @@ namespace dMobile.View.Activity
                         {
                             var oProductInfo = new ProductInfo();
                             oProductInfo = await ProductInfoTasks.GetInfoFromUnitRefno(this.prodUnitRefno);
-                            actItemFoundRefno = await this.ActItem.GetActivityItemRefno(this.prodUnitRefno);
+                            actItemFoundRefno = await this.ActItem.GetActivityItemRefno(this.prodUnitRefno, LocationMap.GetInstance().CurrLocMap);
 
                             // <issue="13609" author="RD" date="2016/02/22"/>
                             SysShared.AssertSuppressedErrorsAgainstScheme(oProductInfo, this.BarParse);
@@ -327,7 +327,7 @@ namespace dMobile.View.Activity
                                 this.ActItem.ItemFkRefno = 0;
 
                                 var request = XDocument.Parse("<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>" + "<params>" + "<ProductUnitRefno>" + this.ActItem.ProdInfo.UnitRefno + "</ProductUnitRefno>" + "<ProductCode>" + this.ActItem.ProdInfo.Code + "</ProductCode>" + "<ProductUnitIsBC>" + this.ActItem.ProdInfo.UnitIsBC + "</ProductUnitIsBC>" + "<UnitCode>" + this.ActItem.ProdInfo.UnitCode + "</UnitCode>" + "<ProductUnitBarCodeCode>" + this.BarParse.ProductIdentifier + "</ProductUnitBarCodeCode>" + "<ProductUnitBarCodeSymbologyPrefix>" + this.BarParse.SymbologyPrefix + "</ProductUnitBarCodeSymbologyPrefix>" + "<alt_qty>" + 0 + "</alt_qty>" + "<base_qty>" + 0 + "</base_qty>" + "<wt_qty>" + 0 + "</wt_qty>" + "<whs_id>" + this.LocMap.LoginWhsLocMapRefno + "</whs_id>" + "<refno>" + this.Activity.HdrFkRefno + "</refno>" + "<itm_refno>" + this.ActItem.ItemFkRefno + "</itm_refno>" + "<alt_unit>" + this.ActItem.ProdInfo.UnitCode + "</alt_unit>" + "<base_unit>" + this.ActItem.ProdInfo.BaseUnitCode + "</base_unit>" + "<wt_unit>" + this.ActItem.ProdInfo.WeightUnitCode + "</wt_unit>" + "</params>");
-                                await this.ActItem.Insert(request, false);
+                                await this.ActItem.Insert(request);
                                 actItemFoundRefno = this.ActItem.ItemRefno;
                             }
                             else
@@ -413,7 +413,7 @@ namespace dMobile.View.Activity
                             {
                                 xmlDocEdit = await form.GetXML();
                                 var request = XDocument.Parse("<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>" + "<params>" + "<ProductUnitRefno>" + this.ActItem.ProdInfo.UnitRefno + "</ProductUnitRefno>" + "<ProductCode>" + this.ActItem.ProdInfo.Code + "</ProductCode>" + "<ProductUnitIsBC>" + this.ActItem.ProdInfo.UnitIsBC + "</ProductUnitIsBC>" + "<UnitCode>" + this.ActItem.ProdInfo.UnitCode + "</UnitCode>" + "<ProductUnitBarCodeCode>" + this.BarParse.ProductIdentifier + "</ProductUnitBarCodeCode>" + "<ProductUnitBarCodeSymbologyPrefix>" + this.BarParse.SymbologyPrefix + "</ProductUnitBarCodeSymbologyPrefix>" + "<alt_qty>" + xmlDocEdit.Root.Element("alt_qty").Value + "</alt_qty>" + "<base_qty>" + xmlDocEdit.Root.Element("base_qty").Value + "</base_qty>" + "<wt_qty>" + xmlDocEdit.Root.Element("wt_qty").Value + "</wt_qty>" + "<whs_id>" + this.LocMap.LoginWhsLocMapRefno + "</whs_id>" + "<refno>" + this.ActItem.ItemFkRefno + "</refno>" + "<itm_refno>" + this.ActItem.ItemFkRefno + "</itm_refno>" + "<alt_unit>" + this.ActItem.ProdInfo.UnitCode + "</alt_unit>" + "<base_unit>" + this.ActItem.ProdInfo.BaseUnitCode + "</base_unit>" + "<wt_unit>" + this.ActItem.ProdInfo.WeightUnitCode + "</wt_unit>" + "</params>");
-                                await this.ActItem.Insert(request, false);
+                                await this.ActItem.Insert(request);
                             }
                         }
 
@@ -495,7 +495,7 @@ namespace dMobile.View.Activity
                             var xmlDoc = XDocument.Parse("<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>" + "<params>" + "<ProductUnitRefno>" + this.prodUnitRefno.ToString() + "</ProductUnitRefno>" + "<ProductUnitBarCodeRefno>" + iProductUnitBarCodeRefno.ToString() + "</ProductUnitBarCodeRefno>" + "<ProductIdentifier>" + oBarCodeParse.ProductIdentifier + "</ProductIdentifier>" + "<RawData>" + oBarCodeParse.Raw + "</RawData>" + "<enumBarCodeSymbology>" + Convert.ToInt32(oBarCodeParse.Symbology) + "</enumBarCodeSymbology>" + "<BarCodeSymbologyPrefix>" + oBarCodeParse.SymbologyPrefix + "</BarCodeSymbologyPrefix>" + "<ProductUnitBarCodeModifier1>" + this.SysEnv.CurrentBarCodeModifier1 + "</ProductUnitBarCodeModifier1>" + "</params>");
 
                             // INSERT A NEW 'BAR CODE ASSOCIATION' ACTIVITY
-                            await actItemBarCode.Insert(xmlDoc, false);
+                            await actItemBarCode.Insert(xmlDoc);
 
                             IsProductIdentified = true;
                         }
@@ -705,12 +705,12 @@ namespace dMobile.View.Activity
         /// <param name="sender"></param>
         /// <param name="e"></param>
         /// <remarks></remarks>
-/// <summary>
-///
-/// </summary>
-/// <param name="sender"></param>
-/// <param name="e"></param>
-/// <returns>A <see cref="Task"/> representing the result of the asynchronous operation.</returns>
+        /// <summary>
+        ///
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        /// <returns>A <see cref="Task"/> representing the result of the asynchronous operation.</returns>
         public async Task ucActivityPurchaseOrderWorkSheet_GotFocus(object sender, EventArgs e)
         {
             await this.ScannerEnable();
@@ -725,12 +725,12 @@ namespace dMobile.View.Activity
         /// <param name="sender"></param>
         /// <param name="e"></param>
         /// <remarks></remarks>
-/// <summary>
-///
-/// </summary>
-/// <param name="sender"></param>
-/// <param name="e"></param>
-/// <returns>A <see cref="Task"/> representing the result of the asynchronous operation.</returns>
+        /// <summary>
+        ///
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        /// <returns>A <see cref="Task"/> representing the result of the asynchronous operation.</returns>
         public async Task ucActivityHdr_LostFocus(object sender, EventArgs e)
         {
             // if (tmrActivityLoaded.Enabled == false)
@@ -779,7 +779,7 @@ namespace dMobile.View.Activity
                         xmlDocProduct = await formSelectProd.GetXML();
                         this.ActItem.ProdInfo = await ProductInfoTasks.GetInfoFromUnitRefno(int.Parse(xmlDocProduct.Root.Element("ProductUnitRefno").Value));
                         this.ActItem.ProdInfo.Scheme = await ProductInfoTasks.GetSchemeComponentsFromRefno(this.ActItem.ProdInfo.Refno);
-                        iActivityItemFoundRefno = await this.ActItem.GetActivityItemRefno(int.Parse(xmlDocProduct.Root.Element("ProductUnitRefno").Value));
+                        iActivityItemFoundRefno = await this.ActItem.GetActivityItemRefno(int.Parse(xmlDocProduct.Root.Element("ProductUnitRefno").Value), LocationMap.GetInstance().CurrLocMap);
 
                         if (iActivityItemFoundRefno > 0)
                         {
@@ -815,7 +815,7 @@ namespace dMobile.View.Activity
                                 xmlDocEdit = await form.GetXML();
                                 var request = XDocument.Parse("<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>" + "<params>" + "<ProductUnitRefno>" + this.ActItem.ProdInfo.UnitRefno + "</ProductUnitRefno>" + "<ProductCode>" + this.ActItem.ProdInfo.Code + "</ProductCode>" + "<ProductUnitIsBC>" + this.ActItem.ProdInfo.UnitIsBC + "</ProductUnitIsBC>" + "<UnitCode>" + this.ActItem.ProdInfo.UnitCode + "</UnitCode>" + "<ProductUnitBarCodeCode>" + strProductUnitBarCodeCode + "</ProductUnitBarCodeCode>" + "<ProductUnitBarCodeSymbologyPrefix>" + strBarCodeSymbologyPrefix + "</ProductUnitBarCodeSymbologyPrefix>" + "<alt_qty>" + xmlDocEdit.Root.Element("alt_qty").Value + "</alt_qty>" + "<base_qty>" + xmlDocEdit.Root.Element("base_qty").Value + "</base_qty>" + "<wt_qty>" + xmlDocEdit.Root.Element("wt_qty").Value + "</wt_qty>" + "<whs_id>" + this.LocMap.LoginWhsLocMapRefno + "</whs_id>" + "<refno>" + this.ActItem.ItemFkRefno + "</refno>" + "<itm_refno>" + this.ActItem.ItemFkRefno + "</itm_refno>" + "<alt_unit>" + this.ActItem.ProdInfo.UnitCode + "</alt_unit>" + "<base_unit>" + this.ActItem.ProdInfo.BaseUnitCode + "</base_unit>" + "<wt_unit>" + this.ActItem.ProdInfo.WeightUnitCode + "</wt_unit>" + "</params>");
 
-                                await this.ActItem.Insert(request, false);
+                                await this.ActItem.Insert(request);
 
                                 if (this.ActItem.ListItems.Count > 0)
                                 {

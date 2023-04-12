@@ -485,12 +485,12 @@ namespace dMobile.View.Activity
         /// <param name="sender"></param>
         /// <param name="e"></param>
         /// <remarks></remarks>
-/// <summary>
-///
-/// </summary>
-/// <param name="sender"></param>
-/// <param name="e"></param>
-/// <returns>A <see cref="Task"/> representing the result of the asynchronous operation.</returns>
+        /// <summary>
+        ///
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        /// <returns>A <see cref="Task"/> representing the result of the asynchronous operation.</returns>
         public async Task tabLocation_GotFocus(object sender, EventArgs e)
         {
             // this.ListSections.RowFilter = "WarehouseLocationMapRefno = " +  this.LocMapInfo.WhsLocMapRefno;
@@ -515,12 +515,12 @@ namespace dMobile.View.Activity
         /// <param name="sender"></param>
         /// <param name="e"></param>
         /// <remarks></remarks>
-/// <summary>
-///
-/// </summary>
-/// <param name="sender"></param>
-/// <param name="e"></param>
-/// <returns>A <see cref="Task"/> representing the result of the asynchronous operation.</returns>
+        /// <summary>
+        ///
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        /// <returns>A <see cref="Task"/> representing the result of the asynchronous operation.</returns>
         public async Task ucSetLocationMap_LostFocus(object sender, EventArgs e)
         {
             await this.ScannerDisable();
@@ -532,12 +532,12 @@ namespace dMobile.View.Activity
         /// <param name="sender"></param>
         /// <param name="e"></param>
         /// <remarks></remarks>
-/// <summary>
-///
-/// </summary>
-/// <param name="sender"></param>
-/// <param name="e"></param>
-/// <returns>A <see cref="Task"/> representing the result of the asynchronous operation.</returns>
+        /// <summary>
+        ///
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        /// <returns>A <see cref="Task"/> representing the result of the asynchronous operation.</returns>
         public async Task ucActivityHdrPickingSelectCriteria_GotFocus(object sender, EventArgs e)
         {
             if (!this.IsControlLoaded)

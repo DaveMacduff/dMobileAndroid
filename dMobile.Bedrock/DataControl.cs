@@ -31,10 +31,10 @@ namespace dMobile.Bedrock
         /// </summary>
         public IDictionary<SysCommon.ActSubTypes, bool> Loading { get; set; }
             = new Dictionary<SysCommon.ActSubTypes, bool>();
- 
+
         /// <summary>
         /// Gets or sets the data control instance.
         /// </summary>
         private static DataControl Instance { get; set; } = new DataControl();
-   }
+    }
 }

@@ -38,8 +38,6 @@
                                       HasUnevenRows="True"
                                       IsEnabled="{Binding Loading, Converter={Helpers:BoolConverter}}"
                                       Grid.Row="1"
-                                      Focused="ListViewMainActivity_Focused"
-                                      Unfocused="ListViewMainActivity_Unfocused"
                                       VerticalScrollBarVisibility="Always"
                                       HorizontalScrollBarVisibility="Always" />
                         </Grid>
@@ -51,8 +49,6 @@
                               SelectionMode="None"
                               HasUnevenRows="True"
                               IsEnabled="{Binding Loading, Converter={Helpers:BoolConverter}}"
-                              Focused="ListViewDisplayExtraInfo_Focused"
-                              Unfocused="ListViewDisplayExtraInfo_Unfocused"
                               SeparatorVisibility="None">
                         <ListView.ItemTemplate>
                             <DataTemplate>

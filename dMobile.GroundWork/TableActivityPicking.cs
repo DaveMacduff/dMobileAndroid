@@ -250,7 +250,8 @@ namespace dMobile.GroundWork
             xml.Flush();
             xml.Close();
 
-            return xmlString.ToString();        }
+            return xmlString.ToString();
+        }
 
         protected override Task<string> CreateRequest(string familyCode)
         {

@@ -11,7 +11,6 @@ using System.Threading.Tasks;
 using System.Xml;
 using System.Xml.Linq;
 using dMobile.Bedrock;
-using dMobile.Controller.Activity;
 using dMobile.GroundWork;
 using dMobile.Resources.Services;
 using dMobile.Resources.Types;
@@ -135,15 +134,15 @@ namespace dMobile.Controller.Activity_Item
         public List<AdjustmentItem> ListAdjustmentItems { get; set; } = new List<AdjustmentItem>();
 
         /// <summary>
-        /// Set the activity item selected activity item.
+        /// Set the activity item selected activity item and selected activity item index.
         /// </summary>
         /// <remarks>
         /// Iterate through the ListItems looking for a matched activity item reference number.
         /// If a match is found set the SelectedActivityItem to one found in the ListItems
-        /// else the SelectedActivityItem is set to null.
+        /// else the SelectedActivityItem is set to null and the selected list item index to -1.
         /// </remarks>
         /// <param name="actItemFoundRefno"><see cref="int"/> Activity item reference number to look up.</param>
-        public override void SetSelectedActivityItem(int actItemFoundRefno)
+        public override void SetSelectedActivityItemFromList(int actItemFoundRefno)
         {
             this.SelectedListItemIdx = -1;
             if (actItemFoundRefno >= 0)
@@ -253,12 +252,9 @@ namespace dMobile.Controller.Activity_Item
         /// <remarks>Checking for existing an activity item that matches is assumed to have been performed
         /// before invoking this method, unless the askToInsertAsNewItem parameter argument is true.</remarks>
         /// <param name="data"><see cref="XDocument"/> Adjustment activity information to insert.</param>
-        /// <param name="askToInsertAsNewItem"><see cref="bool"/> Stop and ask to insert an item.</param>
         /// <returns><see cref="Task"/> Task operation.</returns>
-        public override async Task Insert(XDocument data, bool askToInsertAsNewItem)
+        public override async Task Insert(XDocument data)
         {
-            var insertNew = true;
-
             var prodUnitRefno = int.Parse(data.Root.Element("ProductUnitRefno").Value);
             if (prodUnitRefno <= 0)
             {
@@ -268,23 +264,8 @@ namespace dMobile.Controller.Activity_Item
             this.ProdInfo = await ProductInfoTasks.GetInfoFromUnitRefno(prodUnitRefno);
             this.ProdInfo.Scheme = await ProductInfoTasks.GetSchemeComponentsFromRefno(this.ProdInfo.Refno);
 
-            if (askToInsertAsNewItem)
-            {
-                var foundActItemRefno = await this.GetActivityItemRefno(prodUnitRefno);
-                if (foundActItemRefno > 0)
-                {
-                    var msg = "A line item already exists for the location and product." + Environment.NewLine +
-                              "Do you wish to create an additional one?";
-                    insertNew = await Device.InvokeOnMainThreadAsync(async () =>
-                        await Application.Current.MainPage.DisplayAlert("New Item", msg, "Yes", "No"));
-                }
-            }
-
-            if (insertNew)
-            {
-                await InsertActivityItemInTables(prodUnitRefno);
-                AddActivityItemToList(prodUnitRefno);
-            }
+            await InsertActivityItemInTables(prodUnitRefno);
+            AddActivityItemToList(prodUnitRefno);
 
             //////////////////////////////////////////////////////////////////////////
             async Task InsertActivityItemInTables(int prodUnitRefno)
@@ -293,6 +274,7 @@ namespace dMobile.Controller.Activity_Item
                 {
                     try
                     {
+                        // NOTE: ActiivtyItemStatus is set to inserted for later submission use.
                         _ = transaction.Execute(
                             "INSERT INTO tActivityItem (ActivityItemSubType, ActivityItemStatus," +
                                 " ActivityRefno, ActivityItemIsAdded) VALUES (?, ?, ?, ?)",
@@ -303,8 +285,16 @@ namespace dMobile.Controller.Activity_Item
 
                         this.ItemRefno = Convert.ToInt32(transaction.ExecuteScalar<int>(
                             "SELECT last_insert_rowid() FROM tActivityItem"));
-                        this.ItemFkRefno = this.ItemRefno * -1;
 
+                        // Get temporary item FK refno for newly inserted line item.
+                        this.ItemFkRefno = Convert.ToInt32(transaction.ExecuteScalar<int>(
+                            "SELECT MAX(tActivityItemAdjustment.ActivityItemFKRefno)" +
+                            $" FROM tActivityItemAdjustment WHERE tActivityItemAdjustment.ActivityItemSubType" +
+                            $" = {(int)SysCommon.ActSubTypes.Adjustment}"));
+                        this.ItemFkRefno = this.ItemFkRefno + 1;
+
+                        // After insert the page refresh will load the list view in the proper order. 
+                        // Inserted at the bottom.
                         var query = "INSERT INTO tActivityItemAdjustment (" +
                                     "ActivityItemRefno, " +
                                     "ActivityItemSubType, " +
@@ -329,6 +319,7 @@ namespace dMobile.Controller.Activity_Item
                                     "?" +
                                     ")";
 
+                        var locMap = LocationMap.GetInstance().CurrLocMap;
                         var parameters = new object[]
                         {
                             Convert.ToInt32(this.ItemRefno),
@@ -336,7 +327,7 @@ namespace dMobile.Controller.Activity_Item
                             Convert.ToInt32(this.ItemFkRefno),
                             Convert.ToString(this.ItemFkRefno),
                             Convert.ToInt32(prodUnitRefno),
-                            Convert.ToInt32(this.LocMap.WhsLocMapRefno),
+                            Convert.ToInt32(locMap.WhsLocMapRefno),
                             Convert.ToDecimal(0),
                             Convert.ToDecimal(0),
                             Convert.ToDecimal(0),
@@ -346,11 +337,9 @@ namespace dMobile.Controller.Activity_Item
                         transaction.Execute(query, parameters);
                         transaction.Commit();
                     }
-                    catch (SQLiteException ex)
+                    catch (SQLiteException)
                     {
                         transaction.Rollback();
-
-                        Console.WriteLine(ex);
                     }
                 });
             }
@@ -358,6 +347,7 @@ namespace dMobile.Controller.Activity_Item
             //////////////////////////////////////////////////////////////////////////
             void AddActivityItemToList(int prodUnitRefno)
             {
+                var locMap = LocationMap.GetInstance().CurrLocMap;
                 var adjItem = new AdjustmentItem
                 {
                     ActivityItemRefno = this.ItemRefno,
@@ -370,9 +360,9 @@ namespace dMobile.Controller.Activity_Item
                     UnitCode = this.ProdInfo.UnitCode,
                     ProductUnitBC = this.ProdInfo.UnitBC,
                     ProductUnitSizeDescription = this.ProdInfo.UnitSizeDesc,
-                    LocationMapRefno = this.LocMap.WhsLocMapRefno,
-                    LocationCode = this.LocMap.WhsCode,
-                    LocationName = this.LocMap.WhsName,
+                    LocationMapRefno = locMap.WhsLocMapRefno,
+                    LocationCode = locMap.WhsCode,
+                    LocationName = locMap.WhsName,
                     ActivityItemStatus = (int)SysCommon.ActStatus.Inserted,
                     ActivityItemAdjustmentQuantity = 0,
                     ActivityItemAdjustmentBaseQuantity = 0,
@@ -380,8 +370,6 @@ namespace dMobile.Controller.Activity_Item
                 };
 
                 this.ListItems.Add(adjItem);
-                this.SelectedListItemIdx = this.ListItems.Count - 1;
-                _ = this.AssignActivityItem(adjItem);
             }
         }
 
@@ -706,6 +694,7 @@ namespace dMobile.Controller.Activity_Item
                 this.SelectedActivityItem = item;
                 this.ItemRefno = item.ActivityItemRefno;
                 this.ItemFkRefno = item.ActivityItemFKRefno;
+                this.ActStatus = (SysCommon.ActStatus)item.ActivityItemStatus;
                 this.ProdInfo = await ProductInfoTasks.GetInfoFromUnitRefno(item.ProductUnitRefno);
                 this.ProdInfo.Scheme = await ProductInfoTasks.GetSchemeComponentsFromRefno(this.ProdInfo.Refno);
 
@@ -760,7 +749,7 @@ namespace dMobile.Controller.Activity_Item
         /// </summary>
         /// <param name="prodUnitRefno"><see cref="int"/> Product unit reference number.</param>
         /// <returns><see cref="int"/> Found activity item reference number else 0.</returns>
-        public override async Task<int> GetActivityItemRefno(int prodUnitRefno)
+        public override async Task<int> GetActivityItemRefno(int prodUnitRefno, SLocMap locMap)
         {
             var foundActItemRefno = 0;
             var sql = new StringBuilder();
@@ -774,7 +763,7 @@ namespace dMobile.Controller.Activity_Item
             sql.Append("INNER JOIN tLocationMapWarehouse ON tLocationMapWarehouse.LocationMapRefno ");
             sql.Append("= tActivityItemAdjustment.WarehouseLocationMapRefno ");
             sql.AppendFormat("WHERE tActivityItem.ActivityRefno = {0}", this.ActHdr.HdrRefno);
-            sql.AppendFormat(" AND tActivityItemAdjustment.WarehouseLocationMapRefno = {0}", this.LocMap.WhsLocMapRefno);
+            sql.AppendFormat(" AND tActivityItemAdjustment.WarehouseLocationMapRefno = {0}", locMap.WhsLocMapRefno);
             sql.AppendFormat(" AND tActivityItemAdjustment.ProductUnitRefno = {0}", prodUnitRefno);
 
             var results = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<AdjustmentItem>(

@@ -28,9 +28,9 @@ namespace dMobile.View.Options
         ///
         /// </summary>
         /// <remarks></remarks>
-/// <summary>
-/// Initializes a new instance of the <see cref="About"/> class.
-/// </summary>
+        /// <summary>
+        /// Initializes a new instance of the <see cref="About"/> class.
+        /// </summary>
         public About()
         {
             this.InitializeComponent();

@@ -979,7 +979,7 @@ namespace dMobile.View.Activity
                 var prodInfo = await GetProductInfo();
 
                 //--- Create the activity item using the location and product information.
-                await this.ActItem.Insert(prodInfo, false);
+                await this.ActItem.Insert(prodInfo);
 
                 //--- Read and assign the activity detail from the first existing detail found.
                 var moveDetail = (MoveDetail)this.ActDetail.ListDetails.FirstOrDefault() ?? new MoveDetail();
@@ -1106,7 +1106,7 @@ namespace dMobile.View.Activity
                 actDetail.DetailFkRefno = 0;
                 ////var xmlDoc = this.ActDetail.GetXML(this.ActDetail);
                 ////await this.ActDetail.Insert(xmlDoc);
-                var detailIdx = this.ActDetail.FindListDetailIndex(activityDetailRefno: actDetail.DetailRefno);
+                var detailIdx = this.ActDetail.FindListDetailIndex(actDetail.DetailFkRefno);
                 if (detailIdx >= 0)
                 {
                     this.ActDetail.UpdateListDetail(detailIdx);
@@ -1207,7 +1207,7 @@ namespace dMobile.View.Activity
 
                 if (this.ActDetail.ListDetails.Count >= (listItemRowIdx + 1) && listItemRowIdx >= 0)
                 {
-                    _ = await Device.InvokeOnMainThreadAsync(() => 
+                    _ = await Device.InvokeOnMainThreadAsync(() =>
                         this.ListViewMainActivity.SelectedItem = this.MainActivityItems[listItemRowIdx]);
                 }
             }
@@ -1238,7 +1238,7 @@ namespace dMobile.View.Activity
                     + "<params>"
                     + "<ProductUnitRefno>" + prodUnitReferenceNumber + "</ProductUnitRefno>"
                     + "</params>");
-                await this.ActItem.Insert(xmlDoc, false);
+                await this.ActItem.Insert(xmlDoc);
 
                 var actDetail = new MoveDetail();
                 if (this.ActDetail.ListDetails.Count > 0)

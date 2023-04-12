@@ -23,10 +23,10 @@ namespace dMobile.GroundWork
         ///
         /// </summary>
         /// <param name="msgData"></param>
-/// <summary>
-/// Initializes a new instance of the <see cref="DataNubEventArgs"/> class.
-/// </summary>
-/// <param name="msgData"></param>
+        /// <summary>
+        /// Initializes a new instance of the <see cref="DataNubEventArgs"/> class.
+        /// </summary>
+        /// <param name="msgData"></param>
         public DataNubEventArgs(string msgData)
         {
             this.StatusOutMsg = msgData;

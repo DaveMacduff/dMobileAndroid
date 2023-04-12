@@ -110,7 +110,7 @@ namespace dMobile.View.Exceptions
 
             if (message.Contains(msgToken))
             {
-                message = message[(message.IndexOf(msgToken, StringComparison.Ordinal) + msgToken.Length) ..];
+                message = message[(message.IndexOf(msgToken, StringComparison.Ordinal) + msgToken.Length)..];
             }
 
             return message;

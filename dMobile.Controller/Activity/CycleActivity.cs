@@ -385,6 +385,7 @@ namespace dMobile.Controller.Activity
 
                 if (this.SysEnv.SysSettings.IsDefaultLocToProductDefaultLoc)
                 {
+                    // Set the current location to the header.
                     if (LocationMap.GetInstance().CurrLocMap.WhsLocMapRefno != header.WarehouseLocationMapRefno &&
                             await LocationMapTasks.IsCompleteLocMap(header.WarehouseLocationMapRefno))
                     {
@@ -392,12 +393,14 @@ namespace dMobile.Controller.Activity
                             header.WarehouseLocationMapRefno);
                     }
 
+                    // Override and set the chosen location to the current location.
                     if (LocationMap.GetInstance().ChosenLocMap.WhsLocMapRefno != header.WarehouseLocationMapRefno &&
                             await LocationMapTasks.IsCompleteLocMap(header.WarehouseLocationMapRefno))
                     {
                         LocationMap.GetInstance().ChosenLocMap = LocationMap.GetInstance().CurrLocMap.Clone();
                     }
 
+                    // Override and set any selected skid location to the current location.
                     if (this.SkidInfo.CurrSkid != null && this.SkidInfo.CurrSkid.SkidFKRefno > 0 &&
                         this.SkidInfo.CurrSkid.LocMapRefno != header.WarehouseLocationMapRefno &&
                         await LocationMapTasks.IsCompleteLocMap(header.WarehouseLocationMapRefno))

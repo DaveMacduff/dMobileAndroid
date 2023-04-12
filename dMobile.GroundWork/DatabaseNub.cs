@@ -19,9 +19,9 @@ namespace dMobile.GroundWork
         ///
         /// </summary>
         /// <remarks></remarks>
-/// <summary>
-/// Initializes a new instance of the <see cref="DatabaseNub"/> class.
-/// </summary>
+        /// <summary>
+        /// Initializes a new instance of the <see cref="DatabaseNub"/> class.
+        /// </summary>
         public DatabaseNub()
         {
             this.DBConn = DatabaseConnection.GetInstance();
@@ -84,10 +84,10 @@ namespace dMobile.GroundWork
         ///
         /// </summary>
         /// <remarks></remarks>
-/// <summary>
-///
-/// </summary>
-/// <returns>A <see cref="Task"/> representing the result of the asynchronous operation.</returns>
+        /// <summary>
+        ///
+        /// </summary>
+        /// <returns>A <see cref="Task"/> representing the result of the asynchronous operation.</returns>
         public async Task CreateTables()
         {
             try

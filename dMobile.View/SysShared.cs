@@ -254,7 +254,7 @@ namespace dMobile.View
                                     + "<BarCodeSymbologyPrefix>" + barCodeParse.SymbologyPrefix + "</BarCodeSymbologyPrefix>"
                                     + "</params>");
 
-                                await actItemBarCode.Insert(xmlDoc, false);
+                                await actItemBarCode.Insert(xmlDoc);
                             }
                         }
                         else

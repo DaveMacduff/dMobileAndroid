@@ -1206,34 +1206,6 @@ namespace dMobile.View.Activity
             // NOTE: So far all sub types will be refreshed.
             switch (this.ActSubType)
             {
-                case SysCommon.ActSubTypes.PhysicalCounts:
-                    // Do not refresh product list for counts. Except on first load. See WO# 12222.
-                    // Reloading count items into the thousands is too slow.
-                    // This could change depending on the Exception type such as
-                    // MessageOnlyException vs Exception.
-                    // Refreshing will have to be accomplished by exiting the items activity.
-                    if (this.SysEnv.SysSettings.IsCountActivityItemRefreshData)
-                    {
-                        this.SysEnv.SysSettings.IsCountActivityItemRefreshData = false;
-                        await RefreshData();
-                    }
-
-                    break;
-
-                case SysCommon.ActSubTypes.CycleCounts:
-                    // Do not refresh product list for counts. Except on first load. See WO# 12222.
-                    // Reloading count items into the thousands is too slow.
-                    // This could change depending on the Exception type such as
-                    // MessageOnlyException vs Exception.
-                    // Refreshing will have to be accomplished by exiting the items activity.
-                    if (this.SysEnv.SysSettings.IsCountActivityItemRefreshData)
-                    {
-                        this.SysEnv.SysSettings.IsCountActivityItemRefreshData = false;
-                        await RefreshData();
-                    }
-
-                    break;
-
                 default:
                     // Performing a refresh data will remove and partially added new items or quantity.
                     await RefreshData();

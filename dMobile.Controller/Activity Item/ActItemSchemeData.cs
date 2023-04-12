@@ -68,7 +68,7 @@ namespace dMobile.Controller.Activity_Item
         /// Gets or sets the section location map foreign key reference number.
         /// </summary>
         /// <example>iv_sect.reference number.</example>
-        public int LocMapSectFkRefno { get; set; } = 0; 
+        public int LocMapSectFkRefno { get; set; } = 0;
 
         /// <summary>
         /// Gets or sets the slot location map foreign key reference number.

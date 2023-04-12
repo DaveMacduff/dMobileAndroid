@@ -14,9 +14,9 @@ namespace dMobile.GroundWork
         /// <summary>
         ///
         /// </summary>
-/// <summary>
-/// Initializes a new instance of the <see cref="DataAccessEventArgs"/> class.
-/// </summary>
+        /// <summary>
+        /// Initializes a new instance of the <see cref="DataAccessEventArgs"/> class.
+        /// </summary>
         public DataAccessEventArgs()
         {
         }
@@ -25,10 +25,10 @@ namespace dMobile.GroundWork
         ///
         /// </summary>
         /// <param name="dataMsg"></param>
-/// <summary>
-/// Initializes a new instance of the <see cref="DataAccessEventArgs"/> class.
-/// </summary>
-/// <param name="msgData"></param>
+        /// <summary>
+        /// Initializes a new instance of the <see cref="DataAccessEventArgs"/> class.
+        /// </summary>
+        /// <param name="msgData"></param>
         public DataAccessEventArgs(string msgData)
         {
             this.StatusOutMsg = msgData;

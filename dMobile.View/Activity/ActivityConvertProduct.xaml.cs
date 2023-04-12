@@ -974,7 +974,7 @@ namespace dMobile.View.Activity
                         throw new NullReferenceException("xmlDocProduct.Root == null");
                     }
 
-                    prodRefno = Convert.ToInt32(xmlDocProduct.Root.Element((XName)"ProductRefno") !.Value);
+                    prodRefno = Convert.ToInt32(xmlDocProduct.Root.Element((XName)"ProductRefno")!.Value);
                 }
             }
             catch (FormatException)
@@ -1383,7 +1383,7 @@ namespace dMobile.View.Activity
                 await this.ActItem.Delete();
                 this.ActItem.LocMap = this.LocMap.CurrLocMap;
                 this.ActItem.ProdInfo = this.ToProdInfo;
-                await this.ActItem.Insert(await this.GetXML(), false);
+                await this.ActItem.Insert(await this.GetXML());
             }
 
             //////////////////////////////////////////////////////////////////////////
@@ -1427,21 +1427,21 @@ namespace dMobile.View.Activity
             switch (result)
             {
                 case SaveText:
-                {
-                    if (await this.SaveChanges())
                     {
-                        await this.Close();
+                        if (await this.SaveChanges())
+                        {
+                            await this.Close();
+                        }
+
+                        break;
                     }
 
-                    break;
-                }
-
                 case CancelText:
-                {
-                    _ = await this.CancelChanges();
-                    await this.Close();
-                    break;
-                }
+                    {
+                        _ = await this.CancelChanges();
+                        await this.Close();
+                        break;
+                    }
             }
         }
     }

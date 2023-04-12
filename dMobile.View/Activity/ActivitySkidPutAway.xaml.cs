@@ -41,9 +41,9 @@ namespace dMobile.View.Activity
         ///
         /// </summary>
         /// <remarks></remarks>
-/// <summary>
-/// Initializes a new instance of the <see cref="ActivitySkidPutAway"/> class.
-/// </summary>
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ActivitySkidPutAway"/> class.
+        /// </summary>
         public ActivitySkidPutAway()
         {
             this.InitializeComponent();
@@ -350,12 +350,12 @@ namespace dMobile.View.Activity
         /// <param name="sender"></param>
         /// <param name="e"></param>
         /// <remarks></remarks>
-/// <summary>
-///
-/// </summary>
-/// <param name="sender"></param>
-/// <param name="e"></param>
-/// <returns>A <see cref="Task"/> representing the result of the asynchronous operation.</returns>
+        /// <summary>
+        ///
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        /// <returns>A <see cref="Task"/> representing the result of the asynchronous operation.</returns>
         public async Task ucActivitySkidPutAway_GotFocus(object sender, EventArgs e)
         {
             await this.ScannerEnable();
@@ -494,10 +494,10 @@ namespace dMobile.View.Activity
         ///
         /// </summary>
         /// <returns></returns>
-/// <summary>
-///
-/// </summary>
-/// <returns>A <see cref="Task{TResult}"/> representing the result of the asynchronous operation.</returns>
+        /// <summary>
+        ///
+        /// </summary>
+        /// <returns>A <see cref="Task{TResult}"/> representing the result of the asynchronous operation.</returns>
         public async Task<XDocument> GetXML()
         {
             var xmldocParams = XDocument.Parse(
@@ -513,10 +513,10 @@ namespace dMobile.View.Activity
         /// </summary>
         /// <returns></returns>
         /// <remarks></remarks>
-/// <summary>
-///
-/// </summary>
-/// <returns>A <see cref="Task{TResult}"/> representing the result of the asynchronous operation.</returns>
+        /// <summary>
+        ///
+        /// </summary>
+        /// <returns>A <see cref="Task{TResult}"/> representing the result of the asynchronous operation.</returns>
         public async Task<bool> IsReadyToClose()
         {
             // NOTE: This code is needed to clean up the scanner driver.
@@ -537,10 +537,10 @@ namespace dMobile.View.Activity
         /// </summary>
         /// <returns></returns>
         /// <remarks></remarks>
-/// <summary>
-///
-/// </summary>
-/// <returns>A <see cref="Task{TResult}"/> representing the result of the asynchronous operation.</returns>
+        /// <summary>
+        ///
+        /// </summary>
+        /// <returns>A <see cref="Task{TResult}"/> representing the result of the asynchronous operation.</returns>
         public async Task<bool> CancelChanges()
         {
             var cancelChanges = true;
@@ -614,10 +614,10 @@ namespace dMobile.View.Activity
         /// </summary>
         /// <returns></returns>
         /// <remarks></remarks>
-/// <summary>
-///
-/// </summary>
-/// <returns>A <see cref="Task{TResult}"/> representing the result of the asynchronous operation.</returns>
+        /// <summary>
+        ///
+        /// </summary>
+        /// <returns>A <see cref="Task{TResult}"/> representing the result of the asynchronous operation.</returns>
         public async Task<bool> IsReadyToSave()
         {
             var isReadyToSave = true;
@@ -709,10 +709,10 @@ namespace dMobile.View.Activity
         /// </summary>
         /// <returns></returns>
         /// <remarks></remarks>
-/// <summary>
-///
-/// </summary>
-/// <returns>A <see cref="Task{TResult}"/> representing the result of the asynchronous operation.</returns>
+        /// <summary>
+        ///
+        /// </summary>
+        /// <returns>A <see cref="Task{TResult}"/> representing the result of the asynchronous operation.</returns>
         public async Task<bool> SaveChanges()
         {
             var saveComplete = false;
@@ -774,10 +774,10 @@ namespace dMobile.View.Activity
         ///
         /// </summary>
         /// <remarks></remarks>
-/// <summary>
-///
-/// </summary>
-/// <returns>A <see cref="Task"/> representing the result of the asynchronous operation.</returns>
+        /// <summary>
+        ///
+        /// </summary>
+        /// <returns>A <see cref="Task"/> representing the result of the asynchronous operation.</returns>
         public async Task ClearContents()
         {
             await Device.InvokeOnMainThreadAsync(() =>

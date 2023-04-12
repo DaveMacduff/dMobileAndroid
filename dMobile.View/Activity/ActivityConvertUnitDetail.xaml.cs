@@ -924,7 +924,7 @@ namespace dMobile.View.Activity
                         // Get the activity item reference number from the identified location reference number
                         // and product reference number.
                         var tempActItemRefno = await this.ActDetail.ActItem.GetActivityItemRefno(
-                            prodUnitRefno);
+                            prodUnitRefno, LocationMap.GetInstance().CurrLocMap);
                         if (tempActItemRefno == 0)
                         {
                             // Location and product was not found on this activity
@@ -1181,7 +1181,7 @@ namespace dMobile.View.Activity
             var xmlDoc = actDetail.GetXml(actDetail);
             await actDetail.Insert(xmlDoc);
 
-            var detailIdx = this.ActDetail.FindListDetailIndex(activityDetailRefno: actDetail.DetailRefno);
+            var detailIdx = this.ActDetail.FindListDetailIndex(actDetail.DetailFkRefno);
             if (detailIdx >= 0)
             {
                 this.ActDetail.UpdateListDetail(detailIdx);

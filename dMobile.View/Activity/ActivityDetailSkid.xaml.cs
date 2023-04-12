@@ -1014,7 +1014,7 @@ namespace dMobile.View.Activity
             var xmlDoc = actDetail.GetXml(actDetail);
             await actDetail.Insert(xmlDoc);
 
-            var detailIdx = this.ActDetail.FindListDetailIndex(activityDetailRefno: actDetail.DetailRefno);
+            var detailIdx = this.ActDetail.FindListDetailIndex(actDetail.DetailFkRefno);
             if (detailIdx >= 0)
             {
                 this.ActDetail.UpdateListDetail(detailIdx);

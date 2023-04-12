@@ -400,16 +400,6 @@ namespace dMobile.View.Activity
         private bool IsSearchEntryFocused { get; set; } = false;
 
         /// <summary>
-        /// Gets or sets a value indicating whether the item listview is in focus.
-        /// </summary>
-        private bool IsItemListViewInFocus { get; set; } = false;
-
-        /// <summary>
-        /// Gets or sets a value indicating whether the display extra information is in focus.
-        /// </summary>
-        private bool IsDisplayExtraInfoFocus { get; set; } = false;
-
-        /// <summary>
         /// Gets or sets a value indicating whether the bar code modifier picker is in focus.
         /// </summary>
         private bool IsBarCodeModifierPickerFocus { get; set; } = false;
@@ -832,14 +822,9 @@ namespace dMobile.View.Activity
                 this.SubscribeKeyUpHandlers();
                 this.ListViewMainActivity.ItemTapped += this.ListViewMainActivity_ItemTapped;
                 await this.ScannerEnable();
-
-                if (!this.SysEnv.SysSettings.IsNewActivityItemsAdded)
-                {
-                    this.ActItem.RegLayerListenerProgOut(this);
-                    await this.RefreshDataBySubType();
-                    this.ActItem.UnregLayerListenerProgOut(this);
-                    await this.DesignGrid();
-                }
+                await this.RefreshDataBySubType();
+                await this.DesignGrid();
+                await this.EnableMenuItems();
 
                 if (this.MainActivityItems == null || this.MainActivityItems.Count == 0)
                 {
@@ -974,7 +959,7 @@ namespace dMobile.View.Activity
                         break;
 
                     case Keycode.Del:
-                        if (this.IsItemListViewInFocus)
+                        if (!(this.IsSearchEntryFocused || this.IsBarCodeModifierPickerFocus))
                         {
                             await AppearingDelKey();
                         }
@@ -990,7 +975,7 @@ namespace dMobile.View.Activity
                         break;
 
                     case Keycode.Enter:
-                        if (this.IsItemListViewInFocus)
+                        if (!(this.IsSearchEntryFocused || this.IsBarCodeModifierPickerFocus))
                         {
                             await AppearingEnterKey();
                         }
@@ -1002,7 +987,7 @@ namespace dMobile.View.Activity
                         break;
 
                     case Keycode.F2:
-                        if (this.IsItemListViewInFocus)
+                        if (!(this.IsSearchEntryFocused || this.IsBarCodeModifierPickerFocus))
                         {
                             await OnAppearingF2Key();
                         }
@@ -1010,7 +995,7 @@ namespace dMobile.View.Activity
                         break;
 
                     case Keycode.F3:
-                        if (this.IsItemListViewInFocus)
+                        if (!(this.IsSearchEntryFocused || this.IsBarCodeModifierPickerFocus))
                         {
                             await OnAppearingF3Key();
                         }
@@ -1018,7 +1003,7 @@ namespace dMobile.View.Activity
                         break;
 
                     case Keycode.F4:
-                        if (this.IsItemListViewInFocus)
+                        if (!(this.IsSearchEntryFocused || this.IsBarCodeModifierPickerFocus))
                         {
                             await OnAppearingF4Key();
                         }
@@ -1668,7 +1653,7 @@ namespace dMobile.View.Activity
                 // GLOBAL LOCATION IDENTIFIER SCANNED
                 if (!string.IsNullOrEmpty(parse.LocationIdentifier))
                 {
-                    await this.BarCodeHandlerLocationIdentifier(parse);
+                    await BarCodeHandlerLocationIdentifier(parse);
                 }
                 else
                 {
@@ -1679,67 +1664,13 @@ namespace dMobile.View.Activity
                         prodUnitRefno = await SysShared.IdentifyProductScanned(this.ActSubType, parse);
                         var scannedProdInfo = await ProductInfoTasks.GetInfoFromUnitRefno(prodUnitRefno);
 
-                        // Need to get a warehouse to determine default location if turned on, we don't
-                        // have the line item warehouse yet. We could assume the header warehouse or even
-                        // the login warehouse.
-                        // We can't determine the default location until after identifing the line item.
-                        if (this.SysEnv.SysSettings.IsDefaultLocToProductDefaultLoc)
-                        {
-                            // This will be the default location if the line item location is not complete.
-                            var whsLocMapRefno = await LocationMapTasks.GetWhsLocMapRefnoFromLocMapRefno(
-                                this.LocMap.CurrLocMapRefno);
-                            var defLocMapRefno = await this.ActItem.GetDefaultLocMapRefno(
-                                whsLocMapRefno,
-                                scannedProdInfo.Refno);
-
-                            if (this.IsAllowedDefaultLocationOverride())
-                            {
-                                if (await LocationMapTasks.IsCompleteLocMap(this.LocMap.ChosenLocMap))
-                                {
-                                    this.SetCurrentLocationWithChosen();
-                                }
-                                else
-                                {
-                                    if (!await LocationMapTasks.IsCompleteLocMap(defLocMapRefno))
-                                    {
-                                        var msg = "Default locations is enabled, and for this activity and product" +
-                                            " the location is not fully complete.";
-                                        throw new MessageOnlyException(msg);
-                                    }
-
-                                    this.LocMap.CurrLocMap = await LocationMapTasks.GetSLocMapFromLocMapRefno(defLocMapRefno);
-                                    this.LocMap.ChosenLocMap = this.LocMap.CurrLocMap.Clone();
-                                }
-                            }
-                            else
-                            {
-                                if (!await LocationMapTasks.IsCompleteLocMap(defLocMapRefno))
-                                {
-                                        var msg = "Default locations is enabled, and for this activity and product" +
-                                            " the location is not fully complete.";
-                                        throw new MessageOnlyException(msg);
-                                }
-
-                                this.LocMap.CurrLocMap = await LocationMapTasks.GetSLocMapFromLocMapRefno(defLocMapRefno);
-                                this.LocMap.ChosenLocMap = this.LocMap.CurrLocMap.Clone();
-                            }
-                        }
-                        else
-                        {
-                            this.SetCurrentLocationWithChosen();
-                        }
-
-                        if (!await LocationMapTasks.IsCompleteLocMap(this.LocMap.CurrLocMapRefno))
-                        {
-                            throw new MessageOnlyException("Location must be set first!");
-                        }
-
-                        this.ActItem.LocMap = this.LocMap.CurrLocMap;
-
-                        actItemFoundRefno = await this.ActItem.GetActivityItemRefno(prodUnitRefno);
+                        await this.SetDefaultLocationBeforeKnownActivityItem(scannedProdInfo);
+                        actItemFoundRefno = await this.ActItem.GetActivityItemRefno(prodUnitRefno, this.LocMap.CurrLocMap);
                         if (actItemFoundRefno > 0)
                         {
-                            this.ActItem.SetSelectedActivityItem(actItemFoundRefno);
+                            this.ActItem.SetSelectedActivityItemFromList(actItemFoundRefno);
+                            await this.ActItem.AssignActivityItem(this.ActItem);
+
                             selectedItem = this.ActItem.SelectedActivityItem;
                             this.SelectedActivityItemFkRefno = this.ActItem.ItemFkRefno;
 
@@ -1763,8 +1694,9 @@ namespace dMobile.View.Activity
                                     // Additional found matching line items are not allowed to be created during
                                     // scanning and inserting. I am not expecting matches to be found because
                                     // that check has already been performed at this point.
-                                    await this.ActItem.Insert(ProductInfoTasks.GetXML(scannedProdInfo), false);
+                                    await this.ActItem.Insert(ProductInfoTasks.GetXML(scannedProdInfo));
                                     selectedItem = this.ActItem.SelectedActivityItem;
+                                    await this.ActItem.AssignActivityItem(this.ActItem);
                                     this.SelectedActivityItemFkRefno = this.ActItem.ItemFkRefno;
                                     actItemFoundRefno = this.ActItem.ItemRefno;
                                     this.SysEnv.SysSettings.IsNewActivityItemsAdded = true;
@@ -1827,10 +1759,10 @@ namespace dMobile.View.Activity
                         }
 
                         prodUnitRefno = this.ActItem.ActHdr.SkidInfo.CurrSkid.ProdInfo.UnitRefno;
-                        actItemFoundRefno = await this.ActItem.GetActivityItemRefno(prodUnitRefno);
+                        actItemFoundRefno = await this.ActItem.GetActivityItemRefno(prodUnitRefno, LocationMap.GetInstance().CurrLocMap);
                         if (actItemFoundRefno > 0)
                         {
-                            this.ActItem.SetSelectedActivityItem(actItemFoundRefno);
+                            this.ActItem.SetSelectedActivityItemFromList(actItemFoundRefno);
                             this.SelectedActivityItemFkRefno = this.ActItem.ItemFkRefno;
                             selectedItem = this.ActItem.SelectedActivityItem;
                         }
@@ -1843,7 +1775,7 @@ namespace dMobile.View.Activity
                                 // Additional found matching line items are not allowed to be created during
                                 // scanning and inserting. I am not expecting matches to be found because
                                 // that check has already been performed at this point.
-                                await this.ActItem.Insert(data, askToInsertAsNewItem: false);
+                                await this.ActItem.Insert(data);
                                 selectedItem = this.ActItem.SelectedActivityItem;
                                 this.SelectedActivityItemFkRefno = this.ActItem.ItemFkRefno;
                                 actItemFoundRefno = this.ActItem.ItemRefno;
@@ -1875,7 +1807,7 @@ namespace dMobile.View.Activity
                     // If NOT a container, evaluate
                     if (string.IsNullOrEmpty(parse.SSCC18))
                     {
-                        await this.CheckCurrentLocationMatchProductLocation(selectedItem);
+                        await this.CheckCurrentLocationMatchDefaultProductLocation(this.ActItem.ProdInfo, this.LocMap.CurrLocMap);
 
                         // Not allowed to count individual boxes on a skid. Skids must be
                         // scanned as a whole unit or built in skid maintenance.
@@ -2114,6 +2046,196 @@ namespace dMobile.View.Activity
             }
 
             this.Loading = false;
+
+            //////////////////////////////////////////////////////////////////////////
+            async Task BarCodeHandlerLocationIdentifier(BarCodeParse parse)
+            {
+                // If section filtering was set in the activity header. Do we want to enforce
+                // the scanned section location.
+                var tmpLoc = await LocationMapTasks.GetSLocMapFromLocMapRefno(
+                    await LocationMapTasks.GetLocMapRefnoFromBarCodeGlobalLocIdentifier(
+                        parse.LocationIdentifier));
+                this.LocMap.CurrLocMap = tmpLoc;
+                this.LocMap.ChosenLocMap = this.LocMap.CurrLocMap.Clone();
+
+                await CheckIfScannedSectionMatchesFilteredOne(tmpLoc);
+
+                //////////////////////////////////////////////////////////////////////////
+                async Task CheckIfScannedSectionMatchesFilteredOne(SLocMap scannedLocMap)
+                {
+                    // Special validation for picking and filtering by section.
+                    // Check if the scanned section matched the filtered one.
+                    if (this.ActSubType == SysCommon.ActSubTypes.Picking
+                        || this.ActSubType == SysCommon.ActSubTypes.PickingSingle)
+                    {
+                        var sectRefno = ((PickingActivity)this.ActItem.ActHdr).PickingLocationMapFilter.SectLocMapRefno;
+                        if (sectRefno != 0 && scannedLocMap.SectLocMapRefno != sectRefno)
+                        {
+                            var sectName = ((PickingActivity)this.ActItem.ActHdr).PickingLocationMapFilter.SectName;
+                            var msg = $"Warning scanned location section '{scannedLocMap.SectName}' does" +
+                                      $" not match the filtered picking section '{sectName}'.";
+
+                            await Device.InvokeOnMainThreadAsync(async () =>
+                                await Application.Current.MainPage.DisplayAlert(
+                                    this.ActItem.GetControlDescription(),
+                                    msg,
+                                    Resource.OK));
+                        }
+                    }
+                }
+            }
+
+        }
+
+        /// <summary>
+        /// Set the activity item location for adding new or identify line items.
+        /// </summary>
+        /// <param name="prodInfo"><see cref="ProductInfo"/> Product information.</param>
+        /// <returns><see cref="Task"/> Task operation.</returns>
+        private async Task SetDefaultLocationBeforeKnownActivityItem(ProductInfo prodInfo)
+        {
+            // Need to get a warehouse to determine default location if turned on, we don't
+            // have the line item warehouse yet. We could assume the header warehouse or even
+            // the login warehouse.
+            // We can't determine the default location until after identifing the line item.
+            if (this.SysEnv.SysSettings.IsDefaultLocToProductDefaultLoc)
+            {
+                // This will be the default location if the line item location is not complete.
+                var whsLocMapRefno = await LocationMapTasks.GetWhsLocMapRefnoFromLocMapRefno(
+                    this.LocMap.CurrLocMapRefno);
+                var defLocMapRefno = await this.ActItem.GetDefaultLocMapRefno(
+                    whsLocMapRefno,
+                    prodInfo.Refno);
+
+                if (this.IsAllowedDefaultLocationOverride())
+                {
+                    if (await LocationMapTasks.IsCompleteLocMap(this.LocMap.ChosenLocMap))
+                    {
+                        this.SetCurrentLocationWithChosen();
+                    }
+                    else
+                    {
+                        if (!await LocationMapTasks.IsCompleteLocMap(defLocMapRefno))
+                        {
+                            var msg = "Default locations is enabled, and for this activity and product" +
+                                " the location is not fully complete.";
+                            throw new MessageOnlyException(msg);
+                        }
+
+                        this.LocMap.CurrLocMap = await LocationMapTasks.GetSLocMapFromLocMapRefno(defLocMapRefno);
+                        this.LocMap.ChosenLocMap = this.LocMap.CurrLocMap.Clone();
+                    }
+                }
+                else
+                {
+                    if (!await LocationMapTasks.IsCompleteLocMap(defLocMapRefno))
+                    {
+                        var msg = "Default locations is enabled, and for this activity and product" +
+                            " the location is not fully complete.";
+                        throw new MessageOnlyException(msg);
+                    }
+
+                    this.LocMap.CurrLocMap = await LocationMapTasks.GetSLocMapFromLocMapRefno(defLocMapRefno);
+                    this.LocMap.ChosenLocMap = this.LocMap.CurrLocMap.Clone();
+                }
+            }
+            else
+            {
+                this.SetCurrentLocationWithChosen();
+            }
+
+            if (!await LocationMapTasks.IsCompleteLocMap(this.LocMap.CurrLocMapRefno))
+            {
+                throw new MessageOnlyException("Location must be set first!");
+            }
+        }
+
+        /// <summary>
+        /// Set the current location with the chosen location.
+        /// </summary>
+        private void SetCurrentLocationWithChosen()
+        {
+            // This should not be needed, current location should have been already set using the location picker.
+            if (this.LocMap.CurrLocMapRefno != this.LocMap.ChosenLocMapRefno)
+            {
+                // Set the current location to the chosen one, overriding and defaulting location behaviour.
+                this.LocMap.CurrLocMap = this.LocMap.ChosenLocMap.Clone();
+            }
+        }
+
+        /// <summary>
+        /// Check if default location is allowed to be overridden.
+        /// </summary>
+        /// <returns><see cref="bool"/> True if the location override is allowed else false.</returns>
+        private bool IsAllowedDefaultLocationOverride()
+        {
+            var isAllowedLocationOverride = false;
+            if (this.SysEnv.SysSettings.IsDefaultLocToProductDefaultLoc)
+            {
+                if ((this.ActSubType == SysCommon.ActSubTypes.PhysicalCounts &&
+                     this.SysEnv.SysSettings.IsPhysicalDoNotDefaultProductLocation)
+                    || (this.ActSubType == SysCommon.ActSubTypes.CycleCounts &&
+                        this.SysEnv.SysSettings.IsCycleDoNotDefaultProductLocation))
+                {
+                    isAllowedLocationOverride = true;
+                }
+            }
+
+            return isAllowedLocationOverride;
+        }
+
+        /// <summary>
+        /// Verify the current location matches the default location.
+        /// </summary>
+        /// <returns><see cref="Task"/> Task operation.</returns>
+        /// <exception cref="MessageOnlyException"> Location must be set first.</exception>
+        private async Task VerifyLocationIsValid()
+        {
+            // Check the location again because of product location defaulting.
+            if (!await LocationMapTasks.IsCompleteLocMap(this.LocMap.CurrLocMapRefno) &&
+                this.SysEnv.SysSettings.IsDefaultLocToProductDefaultLoc)
+            {
+                throw new MessageOnlyException("Location must be set first.");
+            }
+        }
+
+        /// <summary>
+        /// Check if the current location matches the product default location.
+        /// </summary>
+        /// <returns><see cref="Task"/> Task oeration.</returns>
+        private async Task CheckCurrentLocationMatchDefaultProductLocation(ProductInfo prodInfo, SLocMap locMap)
+        {
+            if (await LocationMapTasks.IsCompleteLocMap(locMap) &&
+                !this.SysEnv.SysSettings.IsDefaultLocToProductDefaultLoc)
+            {
+                var isVerifyActivity = this.ActSubType == SysCommon.ActSubTypes.Picking ||
+                                       this.ActSubType == SysCommon.ActSubTypes.PickingSingle ||
+                                       this.ActSubType == SysCommon.ActSubTypes.TransferFrom ||
+                                       this.ActSubType == SysCommon.ActSubTypes.TransferTo;
+
+                // RULE: CHECK IF THE CURRENT LOCATION AND PRODUCT HOME LOCATION ARE THE SAME
+                if (this.SysEnv.SysSettings.IsVerifyProductLocation && isVerifyActivity)
+                {
+                    // LocationMapRefno is assumed to be the picking WarehouseLocationMapRefno
+                    // Picking activity items only have the warehouse, not section or slot.
+                    if (locMap.WhsLocMapRefno <= 0)
+                    {
+                        throw new Exception("Invalid warehouse on picking activity item. LocationMapRefno == 0");
+                    }
+
+                    if (prodInfo.Refno <= 0)
+                    {
+                        throw new Exception("Invalid product on picking activity item. ProductRefno == 0");
+                    }
+
+                    var defLocMapRefno = await this.ActItem.GetDefaultLocMapRefno(locMap.WhsLocMapRefno, prodInfo.Refno);
+                    if (LocationMap.GetInstance().CurrLocMapRefno != defLocMapRefno)
+                    {
+                        throw new MessageOnlyException(
+                            "The current location does not match the product home location.");
+                    }
+                }
+            }
         }
 
         /// <summary>
@@ -2181,69 +2303,6 @@ namespace dMobile.View.Activity
         }
 
         /// <summary>
-        /// Verify the current location matches the default location.
-        /// </summary>
-        /// <returns><see cref="Task"/> Task operation.</returns>
-        /// <exception cref="MessageOnlyException"> Location must be set first.</exception>
-        private async Task VerifyLocationIsValid()
-        {
-            // Check the location again because of product location defaulting.
-            if (!await LocationMapTasks.IsCompleteLocMap(this.LocMap.CurrLocMapRefno) &&
-                this.SysEnv.SysSettings.IsDefaultLocToProductDefaultLoc)
-            {
-                throw new MessageOnlyException("Location must be set first.");
-            }
-        }
-
-        /// <summary>
-        /// Check if the current location matches the product default location.
-        /// </summary>
-        /// <param name="selectedItem"><see cref="object"/> Selected activity item instance.</param>
-        /// <returns><see cref="Task"/> Task oeration.</returns>
-        /// <exception cref="Exception"> Invalid warehouse on picking activity item.</exception>
-        /// <exception cref="Exception"> Invalid product on picking activity item.</exception>
-        /// <exception cref="MessageOnlyException"> Current location does not match product default location.</exception>
-        private async Task CheckCurrentLocationMatchProductLocation(object selectedItem)
-        {
-            if (await LocationMapTasks.IsCompleteLocMap(this.LocMap.CurrLocMapRefno) &&
-                !this.SysEnv.SysSettings.IsDefaultLocToProductDefaultLoc)
-            {
-                var isVerifyActivity = this.ActSubType == SysCommon.ActSubTypes.Picking ||
-                                       this.ActSubType == SysCommon.ActSubTypes.PickingSingle ||
-                                       this.ActSubType == SysCommon.ActSubTypes.TransferFrom ||
-                                       this.ActSubType == SysCommon.ActSubTypes.TransferTo;
-
-                // RULE: CHECK IF THE CURRENT LOCATION AND PRODUCT HOME LOCATION ARE THE SAME
-                if (this.SysEnv.SysSettings.IsVerifyProductLocation && isVerifyActivity)
-                {
-                    // LocationMapRefno is assumed to be the picking WarehouseLocationMapRefno
-                    // Picking activity items only have the warehouse, not section or slot.
-                    var whsLocMapRefno =
-                        Convert.ToInt32(
-                            selectedItem.GetType().GetProperty("LocationMapRefno")?.GetValue(selectedItem) ?? "0");
-                    if (whsLocMapRefno <= 0)
-                    {
-                        throw new Exception("Invalid warehouse on picking activity item. LocationMapRefno == 0");
-                    }
-
-                    var prodRefno =
-                        Convert.ToInt32(selectedItem.GetType().GetProperty("ProductRefno")?.GetValue(selectedItem) ?? "0");
-                    if (prodRefno <= 0)
-                    {
-                        throw new Exception("Invalid product on picking activity item. ProductRefno == 0");
-                    }
-
-                    var locMapRefno = await this.ActItem.GetDefaultLocMapRefno(whsLocMapRefno, prodRefno);
-                    if (this.LocMap.CurrLocMapRefno != locMapRefno)
-                    {
-                        throw new MessageOnlyException(
-                            "The current location does not match the product home location.");
-                    }
-                }
-            }
-        }
-
-        /// <summary>
         /// Default scheme data from the current skid scheme detail.
         /// </summary>
         /// <param name="actDetail"><see cref="ActDetail"/> Activity detail containing the skid information.</param>
@@ -2266,52 +2325,6 @@ namespace dMobile.View.Activity
             }
 
             return schemeData;
-        }
-
-        /// <summary>
-        /// Bar code handler location identifier.
-        /// </summary>
-        /// <param name="parse"></param>
-        /// <returns></returns>
-        private async Task BarCodeHandlerLocationIdentifier(BarCodeParse parse)
-        {
-            // If section filtering was set in the activity header. Do we want to enforce
-            // the scanned section location.
-            var tmpLoc = await LocationMapTasks.GetSLocMapFromLocMapRefno(
-                await LocationMapTasks.GetLocMapRefnoFromBarCodeGlobalLocIdentifier(
-                    parse.LocationIdentifier));
-            this.LocMap.CurrLocMap = tmpLoc;
-            this.LocMap.ChosenLocMap = this.LocMap.CurrLocMap.Clone();
-
-            await this.CheckIfScannedSectionMatchesFilteredOne(tmpLoc);
-        }
-
-        /// <summary>
-        /// Check if the scanned location section matches the currently set filtered picking one.
-        /// </summary>
-        /// <param name="scannedLocMap"><see cref="SLocMap"/> Scanned location map.</param>
-        /// <returns><see cref="Task"/> Task operation.</returns>
-        private async Task CheckIfScannedSectionMatchesFilteredOne(SLocMap scannedLocMap)
-        {
-            // Special validation for picking and filtering by section.
-            // Check if the scanned section matched the filtered one.
-            if (this.ActSubType == SysCommon.ActSubTypes.Picking
-                || this.ActSubType == SysCommon.ActSubTypes.PickingSingle)
-            {
-                var sectRefno = ((PickingActivity)this.ActItem.ActHdr).PickingLocationMapFilter.SectLocMapRefno;
-                if (sectRefno != 0 && scannedLocMap.SectLocMapRefno != sectRefno)
-                {
-                    var sectName = ((PickingActivity)this.ActItem.ActHdr).PickingLocationMapFilter.SectName;
-                    var msg = $"Warning scanned location section '{scannedLocMap.SectName}' does" +
-                              $" not match the filtered picking section '{sectName}'.";
-
-                    await Device.InvokeOnMainThreadAsync(async () =>
-                        await Application.Current.MainPage.DisplayAlert(
-                            this.ActItem.GetControlDescription(),
-                            msg,
-                            Resource.OK));
-                }
-            }
         }
 
         /// <summary>
@@ -2350,56 +2363,49 @@ namespace dMobile.View.Activity
         }
 
         /// <summary>
-        /// Set the current location with the chosen location.
-        /// </summary>
-        private void SetCurrentLocationWithChosen()
-        {
-            // This should not be needed, current location should have been already set using the location picker.
-            if (this.LocMap.CurrLocMapRefno != this.LocMap.ChosenLocMapRefno)
-            {
-                // Set the current location to the chosen one, overriding and defaulting location behaviour.
-                this.LocMap.CurrLocMap = this.LocMap.ChosenLocMap.Clone();
-            }
-        }
-
-        /// <summary>
-        /// Check if default location is allowed to be overridden.
-        /// </summary>
-        /// <returns><see cref="bool"/> True if the location override is allowed else false.</returns>
-        private bool IsAllowedDefaultLocationOverride()
-        {
-            var isAllowedLocationOverride = false;
-            if (this.SysEnv.SysSettings.IsDefaultLocToProductDefaultLoc)
-            {
-                if ((this.ActSubType == SysCommon.ActSubTypes.PhysicalCounts &&
-                     this.SysEnv.SysSettings.IsPhysicalDoNotDefaultProductLocation)
-                    || (this.ActSubType == SysCommon.ActSubTypes.CycleCounts &&
-                        this.SysEnv.SysSettings.IsCycleDoNotDefaultProductLocation))
-                {
-                    isAllowedLocationOverride = true;
-                }
-            }
-
-            return isAllowedLocationOverride;
-        }
-
-        /// <summary>
         /// Call refresh data, unique to the activity sub type.
         /// </summary>
         /// <returns><see cref="Task"/> Task operation.</returns>
         private async Task RefreshDataBySubType()
         {
+            bool isDataRequest = true;
+
             // NOTE: So far all sub types will be refreshed.
             switch (this.ActSubType)
             {
+                case SysCommon.ActSubTypes.PhysicalCounts:
+                    // Do not refresh product list for counts. Except on first load. See WO# 12222.
+                    // Reloading count items into the thousands is too slow.
+                    // This could change depending on the Exception type such as
+                    // MessageOnlyException vs Exception.
+                    // Refreshing will have to be accomplished by exiting the items activity.
+                    isDataRequest = this.SysEnv.SysSettings.IsCountActivityItemRefreshData;
+                    isDataRequest = isDataRequest && !this.SysEnv.SysSettings.IsNewActivityItemsAdded;
+                    await RefreshData(isDataRequest);
+                    this.SysEnv.SysSettings.IsCountActivityItemRefreshData = false;
+                    break;
+
+                case SysCommon.ActSubTypes.CycleCounts:
+                    // Do not refresh product list for counts. Except on first load. See WO# 12222.
+                    // Reloading count items into the thousands is too slow.
+                    // This could change depending on the Exception type such as
+                    // MessageOnlyException vs Exception.
+                    // Refreshing will have to be accomplished by exiting the items activity.
+                    isDataRequest = this.SysEnv.SysSettings.IsCountActivityItemRefreshData;
+                    isDataRequest = isDataRequest && !this.SysEnv.SysSettings.IsNewActivityItemsAdded;
+                    await RefreshData(isDataRequest);
+                    this.SysEnv.SysSettings.IsCountActivityItemRefreshData = false;
+                    break;
+
                 default:
+
                     // Performing a refresh data will remove and partially added new items or quantity.
-                    await RefreshData();
+                    await RefreshData(!this.SysEnv.SysSettings.IsNewActivityItemsAdded);
                     break;
             }
 
             //////////////////////////////////////////////////////////////////////////
-            async Task RefreshData()
+            async Task RefreshData(bool isDataRequest)
             {
                 try
                 {
@@ -2407,7 +2413,11 @@ namespace dMobile.View.Activity
                     {
                         this.ActItem.RegLayerListenerProgOut(this);
                         this.ActItem.RegLayerListenerStatOut(this);
-                        await this.ActItem.Refresh(this.ActItem.ActHdr.XmlDataCriteria);
+                        if (isDataRequest)
+                        {
+                            await this.ActItem.Refresh(this.ActItem.ActHdr.XmlDataCriteria);
+                        }
+
                         await Device.InvokeOnMainThreadAsync(() => this.ActItem.ListItems.Clear());
                         this.ActItem.ListItems = await this.ActItem.GetActivityItemList(false);
                     });
@@ -2480,22 +2490,10 @@ namespace dMobile.View.Activity
                     // Goto the first one in the list.
                     this.ActItem.SelectedListItemIdx = 0;
                     this.ListViewMainActivity.SelectedItem = this.MainActivityItems[this.ActItem.SelectedListItemIdx];
-                    this.SelectedActivityItemFkRefno = await this.ActItem.AssignActivityItem(this.ListViewMainActivity.SelectedItem);
                 }
                 else
                 {
-                    this.SelectedActivityItemFkRefno = await this.ActItem.AssignActivityItem(selectedItem);
-                    this.ListViewMainActivity.SelectedItem = this.ActItem.SelectedActivityItem;
-                    if (this.ActItem.SelectedListItemIdx < 0)
-                    {
-                        this.ActItem.SelectedListItemIdx = this.ActItem.ListItems.Count - 1;
-                    }
-
-                    Device.BeginInvokeOnMainThread(() =>
-                    {
-
-                        this.MainActivityItems[this.ActItem.SelectedListItemIdx] = this.ActItem.SelectedActivityItem;
-                    });
+                    this.ListViewMainActivity.SelectedItem = selectedItem;
                 }
 
                 Device.BeginInvokeOnMainThread(() =>
@@ -2580,45 +2578,14 @@ namespace dMobile.View.Activity
         }
 
         /// <summary>
-        /// Activity item display data.
+        /// Display selected item extra information.
         /// </summary>
+        /// <returns><see cref="Task"/> Task operation.</returns>
         private async Task DisplayDataItem()
         {
             await Device.InvokeOnMainThreadAsync(async () =>
             {
                 this.ExtraInfoItems.Clear();
-
-                if (this.ActItem.ActHdr.SkidInfo.CurrSkid.SkidFKRefno > 0)
-                {
-                    this.CmdAddSkidIsEnabled = true;
-                    this.CmdSelectSkidText = "Skid# " + this.ActItem.ActHdr.SkidInfo.CurrSkid.SkidCode;
-                    ////this.ExtraInfoItems.Add("Selected Skid #: " + this.ActItem.ActHdr.SkidInfo.CurrSkid.SkidCode);
-                }
-                else
-                {
-                    this.CmdAddSkidIsEnabled = false;
-                    this.CmdSelectSkidText = "Select Skid";
-                }
-
-                this.ExtraInfoItems.Add("Selected Location: " + LocationMapTasks.GetCurrentReadableLocation());
-
-                if (this.LocMap.CurrLocMap.WhsLocMapRefno > 0)
-                {
-                    this.CmdLocationText = "Location: " + Environment.NewLine +
-                        LocationMapTasks.GetCurrentReadableLocation();
-                }
-                else
-                {
-                    this.CmdLocationText = "Set Location";
-                }
-
-                this.CmdLocationIsEnabled = this.ActItem.ActHdr.SkidInfo.CurrSkid.SkidFKRefno <= 0;
-
-                if (this.LocMap.CurrLocMap.WhsLocMapRefno <= 0)
-                {
-                    this.LocMap.CurrLocMap = await LocationMapTasks.GetSLocMapFromLocMapRefno(
-                        this.LocMap.LoginWhsLocMapRefno);
-                }
 
                 switch (this.ActItem.ActSubType)
                 {
@@ -3126,6 +3093,50 @@ namespace dMobile.View.Activity
         }
 
         /// <summary>
+        /// Enable menu items.
+        /// </summary>
+        /// <returns><see cref="Task"/> Task operation.</returns>
+        private async Task EnableMenuItems()
+        {
+            await Device.InvokeOnMainThreadAsync(async () =>
+            {
+                this.ExtraInfoItems.Clear();
+
+                if (this.ActItem.ActHdr.SkidInfo.CurrSkid.SkidFKRefno > 0)
+                {
+                    this.CmdAddSkidIsEnabled = true;
+                    this.CmdSelectSkidText = "Skid# " + this.ActItem.ActHdr.SkidInfo.CurrSkid.SkidCode;
+                    ////this.ExtraInfoItems.Add("Selected Skid #: " + this.ActItem.ActHdr.SkidInfo.CurrSkid.SkidCode);
+                }
+                else
+                {
+                    this.CmdAddSkidIsEnabled = false;
+                    this.CmdSelectSkidText = "Select Skid";
+                }
+
+                this.ExtraInfoItems.Add("Selected Location: " + LocationMapTasks.GetCurrentReadableLocation());
+
+                if (this.LocMap.CurrLocMap.WhsLocMapRefno > 0)
+                {
+                    this.CmdLocationText = "Location: " + Environment.NewLine +
+                        LocationMapTasks.GetCurrentReadableLocation();
+                }
+                else
+                {
+                    this.CmdLocationText = "Set Location";
+                }
+
+                this.CmdLocationIsEnabled = this.ActItem.ActHdr.SkidInfo.CurrSkid.SkidFKRefno <= 0;
+
+                if (this.LocMap.CurrLocMap.WhsLocMapRefno <= 0)
+                {
+                    this.LocMap.CurrLocMap = await LocationMapTasks.GetSLocMapFromLocMapRefno(
+                        this.LocMap.LoginWhsLocMapRefno);
+                }
+            });
+        }
+
+        /// <summary>
         /// Option menu click event handler.
         /// </summary>
         /// <param name="sender"><see cref="object"/> Sender instance.</param>
@@ -3255,7 +3266,7 @@ namespace dMobile.View.Activity
                     }
                 }
             }
- 
+
             //////////////////////////////////////////////////////////////////////////
             async Task CmdSelectSkidClicked()
             {
@@ -3328,7 +3339,8 @@ namespace dMobile.View.Activity
 
                     this.CmdClearSelectedSkidIsEnabled = true;
                     var actItemFoundRefno = await this.ActItem.GetActivityItemRefno(
-                        this.ActItem.ActHdr.SkidInfo.CurrSkid.ProdInfo.UnitRefno);
+                        this.ActItem.ActHdr.SkidInfo.CurrSkid.ProdInfo.UnitRefno,
+                        LocationMap.GetInstance().CurrLocMap);
 
                     // TODO: Sorting example
                     this.ActItem.ListItems = this.ActItem.ListItems.OrderBy(item =>
@@ -3413,33 +3425,47 @@ namespace dMobile.View.Activity
                             + "</params>");
                     }
 
-                    if (!await LocationMapTasks.IsCompleteLocMap(this.LocMap.CurrLocMap))
-                    {
-                        throw new MessageOnlyException("Location must be set.");
-                    }
+                    // Location used in finding match line item.
+                    await this.SetDefaultLocationBeforeKnownActivityItem(prodInfo);
 
-                    var actItemFoundRefno = await this.ActItem.GetActivityItemRefno(prodInfo.UnitRefno);
+                    var actItemFoundRefno = await this.ActItem.GetActivityItemRefno(
+                        prodInfo.UnitRefno,
+                        LocationMap.GetInstance().CurrLocMap);
                     if (actItemFoundRefno > 0)
                     {
-                        this.ActItem.SetSelectedActivityItem(actItemFoundRefno);
+                        var msg = "A line item already exists for this location and product.";
+                        throw new MessageOnlyException(msg);
                     }
                     else
                     {
                         if (!this.ActItem.IsAllowAddItem)
                         {
-                            throw new MessageOnlyException(
-                                "Adding new line items for this activity is currently disabled.");
+                            var msg = "Adding new line items is currently disabled.";
+                            throw new MessageOnlyException(msg);
                         }
 
-                        // After insert this.ActItem.ItemFKRefno may be a negative value if a new line item was created.
-                        await this.ActItem.Insert(xmlDoc, false);
-                        this.ListViewMainActivity.SelectedItem = this.ActItem.SelectedActivityItem;
-                        this.ActItem.SetSelectedActivityItem(this.ActItem.ItemRefno);
-                        await this.DesignGrid();
+                        await this.CheckCurrentLocationMatchDefaultProductLocation(
+                            prodInfo,
+                            LocationMap.GetInstance().CurrLocMap);
+
+                        // Insert into activity item table, and add new activity item to the list.
+                        // Inserted item uses the current location.
+                        // this.ActItem.ItemRefno assigned in Insert();
+                        // this.ActItem.ItemFKRefno assigned in Insert();
+                        // this.ActItem.ProdInfo assigned in Insert();
+                        // this.ActItem.ProdInfo.Scheme assigned in Insert();
+                        await this.ActItem.Insert(xmlDoc);
+
+                        // this.ActItem.ItemFkRefno contains fake value.
+                        this.SelectedActivityItemFkRefno = this.ActItem.ItemFkRefno;
+
+                        // We need to refresh the page, to see the newly added item.
+                        this.OnAppearing();
                     }
                 }
                 catch (CancelOperationException)
                 {
+                    this.SysEnv.SysSettings.IsNewActivityItemsAdded = false;
                 }
                 catch (GatherProductDataException ex)
                 {
@@ -3466,7 +3492,7 @@ namespace dMobile.View.Activity
                     if (this.ActItem.ListItems.Count > 0)
                     {
                         this.ActItem.SelectedActivityItem = this.ActItem.ListItems.LastOrDefault();
-                        this.ActItem.SelectedListItemIdx = this.ActItem.ListItems.Count -1;
+                        this.ActItem.SelectedListItemIdx = this.ActItem.ListItems.Count - 1;
                     }
                 }
             }
@@ -3474,52 +3500,79 @@ namespace dMobile.View.Activity
             //////////////////////////////////////////////////////////////////////////
             async Task CmdAddSkidClicked()
             {
-                // Needed to check if the enter key was pressed last, because it seems that
-                // SelectNextControl in the key press event causes a click event to fire
-                // if a command button is the next control rather than just giving the button focus.
                 try
                 {
+                    var currSkid = this.ActItem.ActHdr.SkidInfo.CurrSkid;
+                    if (currSkid == null || currSkid.SkidFKRefno == 0)
+                    {
+                        var msg = "Please select a skid to add.";
+                        throw new MessageOnlyException(msg);
+                    }
+
                     if (await this.DisplayAlert(
                         "Add Skid",
                         "Add the available skid quantity to this activity?",
                         "Yes",
                         "No"))
                     {
-                        var prodUnitRefno = this.ActItem.ActHdr.SkidInfo.CurrSkid.ProdInfo.UnitRefno;
-                        var actItemFoundRefno = await this.ActItem.GetActivityItemRefno(prodUnitRefno);
+                        // Use the skid location to find the activity line item.
+                        var prodUnitRefno = currSkid.ProdInfo.UnitRefno;
+                        var actItemFoundRefno = await this.ActItem.GetActivityItemRefno(
+                            prodUnitRefno,
+                            currSkid.LocMap);
+
                         object selectedItem = null;
                         if (actItemFoundRefno > 0)
                         {
-                            ////foundRowIdx = this.ActItem.DataViewItems.Find(actItemFoundRefno);
-                            selectedItem = this.ActItem.ListItems.FirstOrDefault(actItem =>
-                                Convert.ToString(actItem.GetType().GetProperty(
-                                    "ActivityItemRefno")?.GetValue(actItem)) ==
-                                Convert.ToString(actItemFoundRefno));
+                            this.ActItem.SetSelectedActivityItemFromList(actItemFoundRefno);
+                            _ = this.ActItem.AssignActivityItem(this.ActItem.SelectedActivityItem);
                         }
                         else
                         {
-                            if (this.ActItem.IsAllowAddItem)
+                            if (!this.ActItem.IsAllowAddItem)
                             {
-                                var xml = ProductInfoTasks.GetXML(
-                                    this.ActItem.ActHdr.SkidInfo.CurrSkid.ProdInfo);
-                                await this.ActItem.Insert(xml, false);
-
-                                // This is a little dangerous we assume that the new row idx
-                                // will be the last one
-                                ////foundRowIdx = this.ActItem.DataViewItems.Count - 1;
-                                selectedItem = this.ActItem.ListItems.LastOrDefault();
-                                actItemFoundRefno = this.ActItem.ItemRefno;
+                                var msg = "Adding new line items is currently disabled.";
+                                throw new MessageOnlyException(msg);
                             }
-                            else
+
+                            await this.CheckCurrentLocationMatchDefaultProductLocation(
+                                currSkid.ProdInfo,
+                                currSkid.LocMap);
+
+                            if (!this.ActItem.IsAllowAddItem)
                             {
                                 throw new MessageOnlyException(
                                     this.ActItem.GetItemNotFoundMessage(
                                         this.LocMap,
                                         this.ActItem.ActHdr.SkidInfo.CurrSkid.ProdInfo));
                             }
-                        }
 
-                        this.ActItem.SelectedActivityItem = selectedItem;
+                            var xmlDoc = ProductInfoTasks.GetXML(currSkid.ProdInfo);
+
+                            // Insert into activity item table, and add new activity item to the list.
+                            // Inserted item uses the current location.
+                            // this.ActItem.ItemRefno assigned in Insert();
+                            // this.ActItem.ItemFKRefno assigned in Insert();
+                            // this.ActItem.ProdInfo assigned in Insert();
+                            // this.ActItem.ProdInfo.Scheme assigned in Insert();
+                            await this.ActItem.Insert(xmlDoc);
+                            this.ActItem.SetSelectedActivityItemFromList(this.ActItem.ItemRefno);
+                            _ = this.ActItem.AssignActivityItem(this.ActItem.SelectedActivityItem);
+
+                            if (actItemFoundRefno == 0)
+                            {
+                                await this.DesignGrid();
+                            }
+                            else
+                            {
+                                Device.BeginInvokeOnMainThread(() =>
+                                {
+                                    this.ListViewMainActivity.SelectedItem = this.ActItem;
+                                    this.ListViewMainActivity.ScrollTo(this.ActItem, ScrollToPosition.MakeVisible, false);
+                                });
+                                await this.DisplayDataItem();
+                            }
+                        }
 
                         // INSERT A NEW ACTIVITY DETAIL RECORD
                         var actDetail = ActDetailFacade.GetActDetail(
@@ -3596,46 +3649,6 @@ namespace dMobile.View.Activity
         private void TxtSearchItem_Unfocused(object sender, EventArgs e)
         {
             this.IsSearchEntryFocused = false;
-        }
-
-        /// <summary>
-        /// Items list view focused event handler.
-        /// </summary>
-        /// <param name="sender"><see cref="object"/> Sender instance.</param>
-        /// <param name="e"><see cref="FocusEventArgs"/> Focus event arguments.</param>
-        private void ListViewMainActivity_Focused(object sender, FocusEventArgs e)
-        {
-            this.IsItemListViewInFocus = true;
-        }
-
-        /// <summary>
-        /// Items list view unfocused event handler.
-        /// </summary>
-        /// <param name="sender"><see cref="object"/> Sender instance.</param>
-        /// <param name="e"><see cref="FocusEventArgs"/> Focus event arguments.</param>
-        private void ListViewMainActivity_Unfocused(object sender, FocusEventArgs e)
-        {
-            this.IsItemListViewInFocus = false;
-        }
-
-        /// <summary>
-        /// Items list view display extra info focused event handler.
-        /// </summary>
-        /// <param name="sender"><see cref="object"/> Sender instance.</param>
-        /// <param name="e"><see cref="FocusEventArgs"/> Focus event arguments.</param>
-        private void ListViewDisplayExtraInfo_Focused(object sender, FocusEventArgs e)
-        {
-            this.IsDisplayExtraInfoFocus = true;
-        }
-
-        /// <summary>
-        /// Items list view display extra info unfocused event handler.
-        /// </summary>
-        /// <param name="sender"><see cref="object"/> Sender instance.</param>
-        /// <param name="e"><see cref="FocusEventArgs"/> Focus event arguments.</param>
-        private void ListViewDisplayExtraInfo_Unfocused(object sender, FocusEventArgs e)
-        {
-            this.IsDisplayExtraInfoFocus = false;
         }
 
         /// <summary>

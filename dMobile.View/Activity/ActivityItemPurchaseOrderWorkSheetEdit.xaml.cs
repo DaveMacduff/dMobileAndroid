@@ -247,12 +247,12 @@ namespace dMobile.View.Activity
         /// <param name="sender"></param>
         /// <param name="e"></param>
         /// <remarks></remarks>
-/// <summary>
-///
-/// </summary>
-/// <param name="sender"></param>
-/// <param name="e"></param>
-/// <returns>A <see cref="Task"/> representing the result of the asynchronous operation.</returns>
+        /// <summary>
+        ///
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        /// <returns>A <see cref="Task"/> representing the result of the asynchronous operation.</returns>
         public async Task ucActivityDetailEdit_GotFocus(object sender, EventArgs e)
         {
             if (!this.IsControlLoaded)

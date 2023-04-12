@@ -452,187 +452,187 @@ namespace dMobile.Bedrock
             switch (locMapSubType)
             {
                 case SysCommon.LocMapSubTypes.Slot:
-                {
-                    const string query = "SELECT tLocationMapSlot.LocationMapRefno, "
-                                         + "tLocationMapSlot.LocationMapSlotCode, "
-                                         + "tLocationMapSlot.LocationMapSlotName, "
-                                         + "tLocationMapSlot.LocationMapSlotFKRefno, "
-                                         + "tLocationMapSlot.SectionLocationMapRefno, "
-                                         + "tLocationMapSlot.SlotCoord1LocationMapRefno, "
-                                         + "tLocationMapSlot.SlotCoord2LocationMapRefno, "
-                                         + "tLocationMapSlot.SlotCoord3LocationMapRefno, "
-                                         + "tLocationMapSection.LocationMapSectionCode, "
-                                         + "tLocationMapSection.LocationMapSectionName, "
-                                         + "tLocationMapSection.LocationMapSectionFKRefno, "
-                                         + "tLocationMapSection.WarehouseLocationMapRefno, "
-                                         + "tLocationMapWarehouse.LocationMapWarehouseName, "
-                                         + "tLocationMapWarehouse.LocationMapWarehouseCode, "
-                                         + "tLocationMapWarehouse.LocationMapWarehouseIsWMS,  "
-                                         + "tLocationMapWarehouse.LocationMapWarehouseFKRefno, "
-                                         + "tLocationMapWarehouse.LocationMapWarehouseMask, "
-                                         + "tLocationMapWarehouse.LocationMapWarehouseSectionMask, "
-                                         + "tLocationMapWarehouse.LocationMapWarehouseSlotMask, "
-                                         + "tLocationMapWarehouse.LocationMapWarehouseSlotCoordinate1Mask, "
-                                         + "tLocationMapWarehouse.LocationMapWarehouseSlotCoordinate2Mask, "
-                                         + "tLocationMapWarehouse.LocationMapWarehouseSlotCoordinate3Mask, "
-                                         + "tLocationMapWarehouse.LocationMapWarehouseSlotCoordinate1Name, "
-                                         + "tLocationMapWarehouse.LocationMapWarehouseSlotCoordinate2Name, "
-                                         + "tLocationMapWarehouse.LocationMapWarehouseSlotCoordinate3Name, "
-                                         + "tLocationMapWarehouse.LocationMapWarehouseIsSectionTracked, "
-                                         + "tLocationMapWarehouse.LocationMapWarehouseIsSlotTracked, "
-                                         + "tLocationMapWarehouse.LocationMapWarehouseAdhocEnabled "
-                                         + "FROM tLocationMapSlot "
-                                         + "INNER JOIN tLocationMapSection ON tLocationMapSection.LocationMapRefno =" +
-                                         " tLocationMapSlot.SectionLocationMapRefno "
-                                         + "INNER JOIN tLocationMapWarehouse ON tLocationMapWarehouse.LocationMapRefno =" +
-                                         " tLocationMapSection.WarehouseLocationMapRefno "
-                                         + "WHERE tLocationMapSlot.LocationMapRefno = ?";
+                    {
+                        const string query = "SELECT tLocationMapSlot.LocationMapRefno, "
+                                             + "tLocationMapSlot.LocationMapSlotCode, "
+                                             + "tLocationMapSlot.LocationMapSlotName, "
+                                             + "tLocationMapSlot.LocationMapSlotFKRefno, "
+                                             + "tLocationMapSlot.SectionLocationMapRefno, "
+                                             + "tLocationMapSlot.SlotCoord1LocationMapRefno, "
+                                             + "tLocationMapSlot.SlotCoord2LocationMapRefno, "
+                                             + "tLocationMapSlot.SlotCoord3LocationMapRefno, "
+                                             + "tLocationMapSection.LocationMapSectionCode, "
+                                             + "tLocationMapSection.LocationMapSectionName, "
+                                             + "tLocationMapSection.LocationMapSectionFKRefno, "
+                                             + "tLocationMapSection.WarehouseLocationMapRefno, "
+                                             + "tLocationMapWarehouse.LocationMapWarehouseName, "
+                                             + "tLocationMapWarehouse.LocationMapWarehouseCode, "
+                                             + "tLocationMapWarehouse.LocationMapWarehouseIsWMS,  "
+                                             + "tLocationMapWarehouse.LocationMapWarehouseFKRefno, "
+                                             + "tLocationMapWarehouse.LocationMapWarehouseMask, "
+                                             + "tLocationMapWarehouse.LocationMapWarehouseSectionMask, "
+                                             + "tLocationMapWarehouse.LocationMapWarehouseSlotMask, "
+                                             + "tLocationMapWarehouse.LocationMapWarehouseSlotCoordinate1Mask, "
+                                             + "tLocationMapWarehouse.LocationMapWarehouseSlotCoordinate2Mask, "
+                                             + "tLocationMapWarehouse.LocationMapWarehouseSlotCoordinate3Mask, "
+                                             + "tLocationMapWarehouse.LocationMapWarehouseSlotCoordinate1Name, "
+                                             + "tLocationMapWarehouse.LocationMapWarehouseSlotCoordinate2Name, "
+                                             + "tLocationMapWarehouse.LocationMapWarehouseSlotCoordinate3Name, "
+                                             + "tLocationMapWarehouse.LocationMapWarehouseIsSectionTracked, "
+                                             + "tLocationMapWarehouse.LocationMapWarehouseIsSlotTracked, "
+                                             + "tLocationMapWarehouse.LocationMapWarehouseAdhocEnabled "
+                                             + "FROM tLocationMapSlot "
+                                             + "INNER JOIN tLocationMapSection ON tLocationMapSection.LocationMapRefno =" +
+                                             " tLocationMapSlot.SectionLocationMapRefno "
+                                             + "INNER JOIN tLocationMapWarehouse ON tLocationMapWarehouse.LocationMapRefno =" +
+                                             " tLocationMapSection.WarehouseLocationMapRefno "
+                                             + "WHERE tLocationMapSlot.LocationMapRefno = ?";
 
                         var results = await conn.QueryAsync<tLocationMapSlotQueryResult>(
                         query,
                         Convert.ToInt32(locMapRefno));
 
-                    if (results != null && results.Count > 0)
-                    {
-                        locMapInfo.SlotLocMapRefno = results[0].LocationMapRefno;
-                        locMapInfo.SlotCode = results[0].LocationMapSlotCode;
-                        locMapInfo.SlotName = results[0].LocationMapSlotName;
-                        locMapInfo.SlotFKRefno = results[0].LocationMapSlotFKRefno;
-                        locMapInfo.SlotCoord1LocMapRefno = results[0].SlotCoord1LocationMapRefno;
-                        locMapInfo.SlotCoord2LocMapRefno = results[0].SlotCoord2LocationMapRefno;
-                        locMapInfo.SlotCoord3LocMapRefno = results[0].SlotCoord3LocationMapRefno;
-                        locMapInfo.SectLocMapRefno = results[0].SectionLocationMapRefno;
-                        locMapInfo.SectCode = results[0].LocationMapSectionCode;
-                        locMapInfo.SectName = results[0].LocationMapSectionName;
-                        locMapInfo.SectFKRefno = results[0].LocationMapSectionFKRefno;
-                        locMapInfo.WhsLocMapRefno = results[0].WarehouseLocationMapRefno;
-                        locMapInfo.WhsName = results[0].LocationMapWarehouseName;
-                        locMapInfo.WhsCode = results[0].LocationMapWarehouseCode;
-                        locMapInfo.IsWhsWMS = results[0].LocationMapWarehouseIsWMS;
-                        locMapInfo.WhsFKRefno = results[0].LocationMapWarehouseFKRefno;
-                        locMapInfo.WhsCodeMask = results[0].LocationMapWarehouseMask;
-                        locMapInfo.SectMask = results[0].LocationMapWarehouseSectionMask;
-                        locMapInfo.IsSectionTracked = results[0].LocationMapWarehouseIsSectionTracked;
-                        locMapInfo.IsSlotTracked = results[0].LocationMapWarehouseIsSlotTracked;
-                        locMapInfo.SlotCoord1Name = results[0].LocationMapWarehouseSlotCoordinate1Name;
-                        locMapInfo.SlotCoord2Name = results[0].LocationMapWarehouseSlotCoordinate2Name;
-                        locMapInfo.SlotCoord3Name = results[0].LocationMapWarehouseSlotCoordinate3Name;
-                        locMapInfo.SlotMask = results[0].LocationMapWarehouseSlotMask;
-                        locMapInfo.SlotCoord1Mask = results[0].LocationMapWarehouseSlotCoordinate1Mask;
-                        locMapInfo.SlotCoord2Mask = results[0].LocationMapWarehouseSlotCoordinate2Mask;
-                        locMapInfo.SlotCoord3Mask = results[0].LocationMapWarehouseSlotCoordinate3Mask;
+                        if (results != null && results.Count > 0)
+                        {
+                            locMapInfo.SlotLocMapRefno = results[0].LocationMapRefno;
+                            locMapInfo.SlotCode = results[0].LocationMapSlotCode;
+                            locMapInfo.SlotName = results[0].LocationMapSlotName;
+                            locMapInfo.SlotFKRefno = results[0].LocationMapSlotFKRefno;
+                            locMapInfo.SlotCoord1LocMapRefno = results[0].SlotCoord1LocationMapRefno;
+                            locMapInfo.SlotCoord2LocMapRefno = results[0].SlotCoord2LocationMapRefno;
+                            locMapInfo.SlotCoord3LocMapRefno = results[0].SlotCoord3LocationMapRefno;
+                            locMapInfo.SectLocMapRefno = results[0].SectionLocationMapRefno;
+                            locMapInfo.SectCode = results[0].LocationMapSectionCode;
+                            locMapInfo.SectName = results[0].LocationMapSectionName;
+                            locMapInfo.SectFKRefno = results[0].LocationMapSectionFKRefno;
+                            locMapInfo.WhsLocMapRefno = results[0].WarehouseLocationMapRefno;
+                            locMapInfo.WhsName = results[0].LocationMapWarehouseName;
+                            locMapInfo.WhsCode = results[0].LocationMapWarehouseCode;
+                            locMapInfo.IsWhsWMS = results[0].LocationMapWarehouseIsWMS;
+                            locMapInfo.WhsFKRefno = results[0].LocationMapWarehouseFKRefno;
+                            locMapInfo.WhsCodeMask = results[0].LocationMapWarehouseMask;
+                            locMapInfo.SectMask = results[0].LocationMapWarehouseSectionMask;
+                            locMapInfo.IsSectionTracked = results[0].LocationMapWarehouseIsSectionTracked;
+                            locMapInfo.IsSlotTracked = results[0].LocationMapWarehouseIsSlotTracked;
+                            locMapInfo.SlotCoord1Name = results[0].LocationMapWarehouseSlotCoordinate1Name;
+                            locMapInfo.SlotCoord2Name = results[0].LocationMapWarehouseSlotCoordinate2Name;
+                            locMapInfo.SlotCoord3Name = results[0].LocationMapWarehouseSlotCoordinate3Name;
+                            locMapInfo.SlotMask = results[0].LocationMapWarehouseSlotMask;
+                            locMapInfo.SlotCoord1Mask = results[0].LocationMapWarehouseSlotCoordinate1Mask;
+                            locMapInfo.SlotCoord2Mask = results[0].LocationMapWarehouseSlotCoordinate2Mask;
+                            locMapInfo.SlotCoord3Mask = results[0].LocationMapWarehouseSlotCoordinate3Mask;
+                        }
+
+                        break;
                     }
 
-                    break;
-                }
-
                 case SysCommon.LocMapSubTypes.Section:
-                {
-                    const string query = "SELECT tLocationMapSection.LocationMapRefno, "
-                                         + "tLocationMapSection.LocationMapSectionCode, "
-                                         + "tLocationMapSection.LocationMapSectionName, "
-                                         + "tLocationMapSection.LocationMapSectionFKRefno, "
-                                         + "tLocationMapSection.WarehouseLocationMapRefno, "
-                                         + "tLocationMapWarehouse.LocationMapWarehouseName, "
-                                         + "tLocationMapWarehouse.LocationMapWarehouseCode, "
-                                         + "tLocationMapWarehouse.LocationMapWarehouseIsWMS, "
-                                         + "tLocationMapWarehouse.LocationMapWarehouseFKRefno, "
-                                         + "tLocationMapWarehouse.LocationMapWarehouseMask, "
-                                         + "tLocationMapWarehouse.LocationMapWarehouseSectionMask, "
-                                         + "tLocationMapWarehouse.LocationMapWarehouseSlotMask, "
-                                         + "tLocationMapWarehouse.LocationMapWarehouseSlotCoordinate1Mask, "
-                                         + "tLocationMapWarehouse.LocationMapWarehouseSlotCoordinate2Mask, "
-                                         + "tLocationMapWarehouse.LocationMapWarehouseSlotCoordinate3Mask, "
-                                         + "tLocationMapWarehouse.LocationMapWarehouseSlotCoordinate1Name, "
-                                         + "tLocationMapWarehouse.LocationMapWarehouseSlotCoordinate2Name, "
-                                         + "tLocationMapWarehouse.LocationMapWarehouseSlotCoordinate3Name, "
-                                         + "tLocationMapWarehouse.LocationMapWarehouseIsSectionTracked, "
-                                         + "tLocationMapWarehouse.LocationMapWarehouseIsSlotTracked, "
-                                         + "tLocationMapWarehouse.LocationMapWarehouseAdhocEnabled "
-                                         + "FROM tLocationMapSection "
-                                         + "INNER JOIN tLocationMapWarehouse ON tLocationMapWarehouse.LocationMapRefno "
-                                         + "= tLocationMapSection.WarehouseLocationMapRefno "
-                                         + "WHERE tLocationMapSection.LocationMapRefno = ?";
+                    {
+                        const string query = "SELECT tLocationMapSection.LocationMapRefno, "
+                                             + "tLocationMapSection.LocationMapSectionCode, "
+                                             + "tLocationMapSection.LocationMapSectionName, "
+                                             + "tLocationMapSection.LocationMapSectionFKRefno, "
+                                             + "tLocationMapSection.WarehouseLocationMapRefno, "
+                                             + "tLocationMapWarehouse.LocationMapWarehouseName, "
+                                             + "tLocationMapWarehouse.LocationMapWarehouseCode, "
+                                             + "tLocationMapWarehouse.LocationMapWarehouseIsWMS, "
+                                             + "tLocationMapWarehouse.LocationMapWarehouseFKRefno, "
+                                             + "tLocationMapWarehouse.LocationMapWarehouseMask, "
+                                             + "tLocationMapWarehouse.LocationMapWarehouseSectionMask, "
+                                             + "tLocationMapWarehouse.LocationMapWarehouseSlotMask, "
+                                             + "tLocationMapWarehouse.LocationMapWarehouseSlotCoordinate1Mask, "
+                                             + "tLocationMapWarehouse.LocationMapWarehouseSlotCoordinate2Mask, "
+                                             + "tLocationMapWarehouse.LocationMapWarehouseSlotCoordinate3Mask, "
+                                             + "tLocationMapWarehouse.LocationMapWarehouseSlotCoordinate1Name, "
+                                             + "tLocationMapWarehouse.LocationMapWarehouseSlotCoordinate2Name, "
+                                             + "tLocationMapWarehouse.LocationMapWarehouseSlotCoordinate3Name, "
+                                             + "tLocationMapWarehouse.LocationMapWarehouseIsSectionTracked, "
+                                             + "tLocationMapWarehouse.LocationMapWarehouseIsSlotTracked, "
+                                             + "tLocationMapWarehouse.LocationMapWarehouseAdhocEnabled "
+                                             + "FROM tLocationMapSection "
+                                             + "INNER JOIN tLocationMapWarehouse ON tLocationMapWarehouse.LocationMapRefno "
+                                             + "= tLocationMapSection.WarehouseLocationMapRefno "
+                                             + "WHERE tLocationMapSection.LocationMapRefno = ?";
 
                         var results = await conn.QueryAsync<tLocationMapSectionQueryResult>(
                         query,
                         Convert.ToInt32(locMapRefno));
 
-                    if (results != null && results.Count > 0)
-                    {
-                        locMapInfo.SectLocMapRefno = results[0].LocationMapRefno;
-                        locMapInfo.SectCode = results[0].LocationMapSectionCode;
-                        locMapInfo.SectName = results[0].LocationMapSectionName;
-                        locMapInfo.SectFKRefno = results[0].LocationMapSectionFKRefno;
-                        locMapInfo.WhsLocMapRefno = results[0].WarehouseLocationMapRefno;
-                        locMapInfo.WhsName = results[0].LocationMapWarehouseName;
-                        locMapInfo.WhsCode = results[0].LocationMapWarehouseCode;
-                        locMapInfo.IsWhsWMS = results[0].LocationMapWarehouseIsWMS;
-                        locMapInfo.WhsFKRefno = results[0].LocationMapWarehouseFKRefno;
-                        locMapInfo.WhsCodeMask = results[0].LocationMapWarehouseMask;
-                        locMapInfo.SectMask = results[0].LocationMapWarehouseSectionMask;
-                        locMapInfo.IsSectionTracked = results[0].LocationMapWarehouseIsSectionTracked;
-                        locMapInfo.IsSlotTracked = results[0].LocationMapWarehouseIsSlotTracked;
-                        locMapInfo.SlotCoord1Name = results[0].LocationMapWarehouseSlotCoordinate1Name;
-                        locMapInfo.SlotCoord2Name = results[0].LocationMapWarehouseSlotCoordinate2Name;
-                        locMapInfo.SlotCoord3Name = results[0].LocationMapWarehouseSlotCoordinate3Name;
-                        locMapInfo.SlotMask = results[0].LocationMapWarehouseSlotMask;
-                        locMapInfo.SlotCoord1Mask = results[0].LocationMapWarehouseSlotCoordinate1Mask;
-                        locMapInfo.SlotCoord2Mask = results[0].LocationMapWarehouseSlotCoordinate2Mask;
-                        locMapInfo.SlotCoord3Mask = results[0].LocationMapWarehouseSlotCoordinate3Mask;
+                        if (results != null && results.Count > 0)
+                        {
+                            locMapInfo.SectLocMapRefno = results[0].LocationMapRefno;
+                            locMapInfo.SectCode = results[0].LocationMapSectionCode;
+                            locMapInfo.SectName = results[0].LocationMapSectionName;
+                            locMapInfo.SectFKRefno = results[0].LocationMapSectionFKRefno;
+                            locMapInfo.WhsLocMapRefno = results[0].WarehouseLocationMapRefno;
+                            locMapInfo.WhsName = results[0].LocationMapWarehouseName;
+                            locMapInfo.WhsCode = results[0].LocationMapWarehouseCode;
+                            locMapInfo.IsWhsWMS = results[0].LocationMapWarehouseIsWMS;
+                            locMapInfo.WhsFKRefno = results[0].LocationMapWarehouseFKRefno;
+                            locMapInfo.WhsCodeMask = results[0].LocationMapWarehouseMask;
+                            locMapInfo.SectMask = results[0].LocationMapWarehouseSectionMask;
+                            locMapInfo.IsSectionTracked = results[0].LocationMapWarehouseIsSectionTracked;
+                            locMapInfo.IsSlotTracked = results[0].LocationMapWarehouseIsSlotTracked;
+                            locMapInfo.SlotCoord1Name = results[0].LocationMapWarehouseSlotCoordinate1Name;
+                            locMapInfo.SlotCoord2Name = results[0].LocationMapWarehouseSlotCoordinate2Name;
+                            locMapInfo.SlotCoord3Name = results[0].LocationMapWarehouseSlotCoordinate3Name;
+                            locMapInfo.SlotMask = results[0].LocationMapWarehouseSlotMask;
+                            locMapInfo.SlotCoord1Mask = results[0].LocationMapWarehouseSlotCoordinate1Mask;
+                            locMapInfo.SlotCoord2Mask = results[0].LocationMapWarehouseSlotCoordinate2Mask;
+                            locMapInfo.SlotCoord3Mask = results[0].LocationMapWarehouseSlotCoordinate3Mask;
+                        }
+
+                        break;
                     }
 
-                    break;
-                }
-
                 case SysCommon.LocMapSubTypes.Warehouse:
-                {
-                    const string query = "SELECT tLocationMapWarehouse.LocationMapRefno, "
-                                         + "tLocationMapWarehouse.LocationMapWarehouseName, "
-                                         + "tLocationMapWarehouse.LocationMapWarehouseCode, "
-                                         + "tLocationMapWarehouse.LocationMapWarehouseIsWMS, "
-                                         + "tLocationMapWarehouse.LocationMapWarehouseFKRefno,  "
-                                         + "tLocationMapWarehouse.LocationMapWarehouseMask, "
-                                         + "tLocationMapWarehouse.LocationMapWarehouseSectionMask, "
-                                         + "tLocationMapWarehouse.LocationMapWarehouseSlotMask, "
-                                         + "tLocationMapWarehouse.LocationMapWarehouseSlotCoordinate1Mask, "
-                                         + "tLocationMapWarehouse.LocationMapWarehouseSlotCoordinate2Mask, "
-                                         + "tLocationMapWarehouse.LocationMapWarehouseSlotCoordinate3Mask, "
-                                         + "tLocationMapWarehouse.LocationMapWarehouseSlotCoordinate1Name, "
-                                         + "tLocationMapWarehouse.LocationMapWarehouseSlotCoordinate2Name, "
-                                         + "tLocationMapWarehouse.LocationMapWarehouseSlotCoordinate3Name, "
-                                         + "tLocationMapWarehouse.LocationMapWarehouseIsSectionTracked, "
-                                         + "tLocationMapWarehouse.LocationMapWarehouseIsSlotTracked, "
-                                         + "tLocationMapWarehouse.LocationMapWarehouseAdhocEnabled "
-                                         + "FROM tLocationMapWarehouse "
-                                         + "WHERE tLocationMapWarehouse.LocationMapRefno = ?";
+                    {
+                        const string query = "SELECT tLocationMapWarehouse.LocationMapRefno, "
+                                             + "tLocationMapWarehouse.LocationMapWarehouseName, "
+                                             + "tLocationMapWarehouse.LocationMapWarehouseCode, "
+                                             + "tLocationMapWarehouse.LocationMapWarehouseIsWMS, "
+                                             + "tLocationMapWarehouse.LocationMapWarehouseFKRefno,  "
+                                             + "tLocationMapWarehouse.LocationMapWarehouseMask, "
+                                             + "tLocationMapWarehouse.LocationMapWarehouseSectionMask, "
+                                             + "tLocationMapWarehouse.LocationMapWarehouseSlotMask, "
+                                             + "tLocationMapWarehouse.LocationMapWarehouseSlotCoordinate1Mask, "
+                                             + "tLocationMapWarehouse.LocationMapWarehouseSlotCoordinate2Mask, "
+                                             + "tLocationMapWarehouse.LocationMapWarehouseSlotCoordinate3Mask, "
+                                             + "tLocationMapWarehouse.LocationMapWarehouseSlotCoordinate1Name, "
+                                             + "tLocationMapWarehouse.LocationMapWarehouseSlotCoordinate2Name, "
+                                             + "tLocationMapWarehouse.LocationMapWarehouseSlotCoordinate3Name, "
+                                             + "tLocationMapWarehouse.LocationMapWarehouseIsSectionTracked, "
+                                             + "tLocationMapWarehouse.LocationMapWarehouseIsSlotTracked, "
+                                             + "tLocationMapWarehouse.LocationMapWarehouseAdhocEnabled "
+                                             + "FROM tLocationMapWarehouse "
+                                             + "WHERE tLocationMapWarehouse.LocationMapRefno = ?";
 
                         var results = await conn.QueryAsync<tLocationMapWarehouseModel>(
                         query,
                         Convert.ToInt32(locMapRefno));
 
-                    if (results != null && results.Count > 0)
-                    {
-                        locMapInfo.WhsLocMapRefno = Convert.ToInt32(results[0].LocationMapRefno);
-                        locMapInfo.WhsName = Convert.ToString(results[0].LocationMapWarehouseName);
-                        locMapInfo.WhsCode = Convert.ToInt32(results[0].LocationMapWarehouseCode);
-                        locMapInfo.IsWhsWMS = Convert.ToBoolean(results[0].LocationMapWarehouseIsWMS);
-                        locMapInfo.WhsFKRefno = Convert.ToInt32(results[0].LocationMapWarehouseFKRefno);
-                        locMapInfo.WhsCodeMask = Convert.ToString(results[0].LocationMapWarehouseMask);
-                        locMapInfo.SectMask = Convert.ToString(results[0].LocationMapWarehouseSectionMask);
-                        locMapInfo.IsSectionTracked = Convert.ToBoolean(results[0].LocationMapWarehouseIsSectionTracked);
-                        locMapInfo.IsSlotTracked = Convert.ToBoolean(results[0].LocationMapWarehouseIsSlotTracked);
-                        locMapInfo.SlotCoord1Name = Convert.ToString(results[0].LocationMapWarehouseSlotCoordinate1Name);
-                        locMapInfo.SlotCoord2Name = Convert.ToString(results[0].LocationMapWarehouseSlotCoordinate2Name);
-                        locMapInfo.SlotCoord3Name = Convert.ToString(results[0].LocationMapWarehouseSlotCoordinate3Name);
-                        locMapInfo.SlotMask = Convert.ToString(results[0].LocationMapWarehouseSlotMask);
-                        locMapInfo.SlotCoord1Mask = Convert.ToString(results[0].LocationMapWarehouseSlotCoordinate1Mask);
-                        locMapInfo.SlotCoord2Mask = Convert.ToString(results[0].LocationMapWarehouseSlotCoordinate2Mask);
-                        locMapInfo.SlotCoord3Mask = Convert.ToString(results[0].LocationMapWarehouseSlotCoordinate3Mask);
-                    }
+                        if (results != null && results.Count > 0)
+                        {
+                            locMapInfo.WhsLocMapRefno = Convert.ToInt32(results[0].LocationMapRefno);
+                            locMapInfo.WhsName = Convert.ToString(results[0].LocationMapWarehouseName);
+                            locMapInfo.WhsCode = Convert.ToInt32(results[0].LocationMapWarehouseCode);
+                            locMapInfo.IsWhsWMS = Convert.ToBoolean(results[0].LocationMapWarehouseIsWMS);
+                            locMapInfo.WhsFKRefno = Convert.ToInt32(results[0].LocationMapWarehouseFKRefno);
+                            locMapInfo.WhsCodeMask = Convert.ToString(results[0].LocationMapWarehouseMask);
+                            locMapInfo.SectMask = Convert.ToString(results[0].LocationMapWarehouseSectionMask);
+                            locMapInfo.IsSectionTracked = Convert.ToBoolean(results[0].LocationMapWarehouseIsSectionTracked);
+                            locMapInfo.IsSlotTracked = Convert.ToBoolean(results[0].LocationMapWarehouseIsSlotTracked);
+                            locMapInfo.SlotCoord1Name = Convert.ToString(results[0].LocationMapWarehouseSlotCoordinate1Name);
+                            locMapInfo.SlotCoord2Name = Convert.ToString(results[0].LocationMapWarehouseSlotCoordinate2Name);
+                            locMapInfo.SlotCoord3Name = Convert.ToString(results[0].LocationMapWarehouseSlotCoordinate3Name);
+                            locMapInfo.SlotMask = Convert.ToString(results[0].LocationMapWarehouseSlotMask);
+                            locMapInfo.SlotCoord1Mask = Convert.ToString(results[0].LocationMapWarehouseSlotCoordinate1Mask);
+                            locMapInfo.SlotCoord2Mask = Convert.ToString(results[0].LocationMapWarehouseSlotCoordinate2Mask);
+                            locMapInfo.SlotCoord3Mask = Convert.ToString(results[0].LocationMapWarehouseSlotCoordinate3Mask);
+                        }
 
-                    break;
-                }
+                        break;
+                    }
 
                 case SysCommon.LocMapSubTypes.None:
                     break;
@@ -810,7 +810,7 @@ namespace dMobile.Bedrock
                     {
                         location = location + "." + locMap.CurrLocMap.SlotName[
                             (locMap.CurrLocMap.SlotCoord1Mask.Length +
-                            locMap.CurrLocMap.SlotCoord2Mask.Length) ..];
+                            locMap.CurrLocMap.SlotCoord2Mask.Length)..];
                     }
                 }
                 else
@@ -953,7 +953,7 @@ namespace dMobile.Bedrock
                     if (locMapInfo.IsSlotCoord3Tracked)
                     {
                         location = location + "." + locMapInfo.SlotName[
-                            (locMapInfo.SlotCoord1Mask.Length + locMapInfo.SlotCoord2Mask.Length) ..];
+                            (locMapInfo.SlotCoord1Mask.Length + locMapInfo.SlotCoord2Mask.Length)..];
                     }
                 }
                 else

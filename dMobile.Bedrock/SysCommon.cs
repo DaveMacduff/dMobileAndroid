@@ -1349,7 +1349,7 @@ namespace dMobile.Bedrock
                     throw new CommunicationException("Received detail message was not complete.");
                 }
 
-                msg = receivedError.DocumentElement["detail"] !.InnerText;
+                msg = receivedError.DocumentElement["detail"]!.InnerText;
                 if (msg.Contains("MSGBOX-"))
                 {
                     // Throw a message only exception with the 'MSGBOX-' text removed.

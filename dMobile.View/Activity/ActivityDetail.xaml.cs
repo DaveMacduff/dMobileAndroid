@@ -65,11 +65,6 @@ namespace dMobile.View.Activity
         private bool cmdAddSkidIsEnabled = false;
 
         /// <summary>
-        /// Gets or sets a value indicating whether the search text box is in focus.
-        /// </summary>
-        private bool IsSearchFocused { get; set; } = false;
-
-        /// <summary>
         /// Initializes a new instance of the <see cref="ActivityDetail"/> class.
         /// </summary>
         /// <param name="actItem"><see cref="ActItem"/> Activity item.</param>
@@ -88,27 +83,32 @@ namespace dMobile.View.Activity
             this.CmdAddSkidText = "Add Skid";
             this.cmdAddDetail.Text = "Add Detail";
 
-            if (!DesignMode.IsDesignModeEnabled)
+            this.MainActivityItems = new ObservableCollection<object>();
+            this.ExtraInfoItems = new ObservableCollection<string>();
+
+            this.SysEnv = SysEnvironment.GetInstance();
+            this.SysEnv.SysSettings.IsNewActivityItemsAdded = false;
+
+            this.LocMap = LocationMap.GetInstance();
+            this.Scanner = ScannerEngine.GetInstance().Scanner;
+            this.IsFirstAppearance = true;
+
+            if (actItem.ActHdr.SkidInfo == null)
             {
-                this.MainActivityItems = new ObservableCollection<object>();
-                this.ExtraInfoItems = new ObservableCollection<string>();
-
-                this.SysEnv = SysEnvironment.GetInstance();
-                this.LocMap = LocationMap.GetInstance();
-                this.Scanner = ScannerEngine.GetInstance().Scanner;
-
-                if (actItem.ActHdr.SkidInfo == null)
-                {
-                    actItem.ActHdr.SkidInfo = new SysSkidInfo();
-                }
-
-                this.ActSubType = actSubTypes;
-                this.ActDetail = ActDetailFacade.GetActDetail(actItem, actSubTypes);
-                this.ActDetail.ActItem = actItem;
-
-                this.Title = this.ActDetail.GetControlDescription();
+                actItem.ActHdr.SkidInfo = new SysSkidInfo();
             }
+
+            this.ActSubType = actSubTypes;
+            this.ActDetail = ActDetailFacade.GetActDetail(actItem, actSubTypes);
+            this.ActDetail.ActItem = actItem;
+
+            this.Title = this.ActDetail.GetControlDescription();
         }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether this is the first appearance of the form.
+        /// </summary>
+        private bool IsFirstAppearance { get; set; } = false;
 
         /// <summary>
         /// Gets or sets a value indicating whether activity detail has been changed and therefore considered dirty.
@@ -146,11 +146,6 @@ namespace dMobile.View.Activity
         private ActDetail ActDetail { get; set; }
 
         /// <summary>
-        /// Gets or sets a value indicating whether to performing loading data upon got focus.
-        /// </summary>
-        private bool IsFirstAppearance { get; set; } = true;
-
-        /// <summary>
         /// Gets or sets a value indicating whether to show a data valid message or raise an error.
         /// </summary>
         private bool IsShowDataValidMsg { get; set; } = true;
@@ -176,6 +171,11 @@ namespace dMobile.View.Activity
         /// Gets or sets a list of data grid activity items.
         /// </summary>
         private ObservableCollection<object> MainActivityItems { get; set; } = new ObservableCollection<object>();
+
+        /// <summary>
+        /// Gets or sets a value indicating whether the search text box is in focus.
+        /// </summary>
+        private bool IsSearchFocused { get; set; } = false;
 
         /// <summary>
         /// Gets or sets the command location text.
@@ -295,20 +295,6 @@ namespace dMobile.View.Activity
                     await this.Scanner.Start();
                     this.Scanner.BarCodeScan += new BarCodeScanner.BarCodeScanEventHandler(this.BarCodeHandler);
                 }
-            }
-        }
-
-        /// <summary>
-        /// Registers the bar code scan event handler and enables the scanner.
-        /// </summary>
-        /// <returns><see cref="Task"/> Task operation.</returns>
-        public async Task ScannerStart()
-        {
-            if (this.Scanner != null)
-            {
-                this.IsBarCodeHandlerRegistered = true;
-                await this.Scanner.Start();
-                this.Scanner.BarCodeScan += new BarCodeScanner.BarCodeScanEventHandler(this.BarCodeHandler);
             }
         }
 
@@ -628,13 +614,24 @@ namespace dMobile.View.Activity
                     // Even though the back button is meant to be a cancel we need to update
                     // because data still could have changed.
                     this.DialogResult = DialogResult.OK;
-                    _ = base.OnBackButtonPressed();
-                    await this.ActDisappearing();
-                    await this.Close();
+                    BackButtonCallback();
                 }
             });
 
             return true;
+
+            //////////////////////////////////////////////////////////////////////////
+            async void BackButtonCallback()
+            {
+                if (await this.CancelChanges())
+                {
+                    this.SysEnv.SysSettings.IsCountActivityItemRefreshData = true;
+                    this.SysEnv.SysSettings.IsShowActivityFilterSelection = true;
+                    this.SysEnv.SysSettings.IsNewActivityItemsAdded = false;
+                    _ = base.OnBackButtonPressed();
+                    await this.Close();
+                }
+            }
         }
 
         /// <summary>
@@ -703,35 +700,32 @@ namespace dMobile.View.Activity
                 // Note: Do we want to disable the scanner here. It may not even be enabled before at all.
                 // It is my understanding that the OnAppearing event only occurs once when the control is loading.
                 this.Loading = true;
+                this.SubscribeKeyUpHandlers();
+                await this.ScannerEnable();
+                this.ActDetail.RegLayerListenerProgOut(this);
+                await this.RefreshBySubType();
+                this.ActDetail.UnregLayerListenerProgOut(this);
+                await this.DesignGrid();
+                this.cmdAddDetail.IsEnabled = true;
+
+                this.ListViewDisplayExtraInfo.ItemsSource = this.ExtraInfoItems;
+                this.ListViewMainActivity.ItemsSource = this.MainActivityItems;
+
                 if (this.IsFirstAppearance)
                 {
-                    this.IsFirstAppearance = false;
-                    await this.ScannerStart();
+                    ////this.IsFirstAppearance = false;
+                    await this.FindSelectedItemAsync();
+                }
 
-                    // NOTE: Not sure if this is needed at this anymore.
-                    this.ActDetail.ActItem.ProdInfo.Unit2BaseUnitFactor =
-                        await ProductInfoTasks.GetUnitRelationFactor(
-                            this.ActDetail.ActItem.ProdInfo);
-
-                    this.ActDetail.RegLayerListenerProgOut(this);
-                    await this.RefreshBySubType();
-                    this.ActDetail.UnregLayerListenerProgOut(this);
-                    await this.DesignGrid();
-                    this.cmdAddDetail.IsEnabled = true;
-
-                    await this.ActAppearing();
-
-                    // No need to invoke DisplayData() selected item will do so, unless the list is empty.
-                    if (this.MainActivityItems == null || this.MainActivityItems.Count == 0)
-                    {
-                        await this.DisplayDataItem();
-                    }
+                // No need to invoke DisplayData() selected item will do so, unless the list is empty.
+                if (this.MainActivityItems == null || this.MainActivityItems.Count == 0)
+                {
+                    await this.DisplayDataItem();
                 }
             }
             catch (MessageOnlyException msgEx)
             {
                 var msg = (msgEx.Message.IndexOf("MSGBOX-") == -1) ? msgEx.Message : msgEx.Message["MSGBOX-".Length..];
-                this.IsFirstAppearance = true;
                 await Device.InvokeOnMainThreadAsync(async () =>
                     await Application.Current.MainPage.DisplayAlert(
                         this.ActDetail.GetControlDescription(),
@@ -740,8 +734,6 @@ namespace dMobile.View.Activity
             }
             catch (CommunicationException commEx)
             {
-                this.IsFirstAppearance = true;
-
                 // Question should a communication error, be reported as an error or just a messagebox?
                 await Device.InvokeOnMainThreadAsync(async () =>
                 {
@@ -758,7 +750,6 @@ namespace dMobile.View.Activity
             }
             catch (Exception ex)
             {
-                this.IsFirstAppearance = true;
                 await Device.InvokeOnMainThreadAsync(async () =>
                 {
                     var msg = $"Unable to load activity details.{Environment.NewLine}" +
@@ -772,12 +763,6 @@ namespace dMobile.View.Activity
             finally
             {
                 this.Loading = false;
-                ////await Task.Run(() =>
-                ////{
-                ////    // Explicit GC, Xamarin forms not disposing of objects properly
-                ////    GC.Collect();
-                ////    GC.WaitForPendingFinalizers();
-                ////});
             }
         }
 
@@ -786,80 +771,122 @@ namespace dMobile.View.Activity
         /// </summary>
         protected override async void OnDisappearing()
         {
-            await this.ActDisappearing();
+            MessagingCenter.Unsubscribe<string>(this, EventTypes.OnKeyUp.ToString());
+            await this.ScannerDisable();
             base.OnDisappearing();
         }
 
         /// <summary>
-        /// Activity appearing.
+        /// Subscribe the key up handlers.
         /// </summary>
-        /// <returns><see cref="Task"/> Task operation.</returns>
-        private async Task ActAppearing()
+        private void SubscribeKeyUpHandlers()
         {
-            await this.ScannerEnable();
-            SubscribeKeyUpHandlers();
-            this.ListViewDisplayExtraInfo.ItemsSource = this.ExtraInfoItems;
-            this.ListViewMainActivity.ItemsSource = this.MainActivityItems;
+            MessagingCenter.Subscribe<string>(this, EventTypes.OnKeyUp.ToString(), this.KeyUpHandlerCallback);
+        }
 
-            await this.FindSelectedItemAsync();
+        /// <summary>
+        /// Key up handler call back.
+        /// </summary>
+        /// <param name="keyPressed"><see cref="string"/> Key pressed value.</param>
+        private async void KeyUpHandlerCallback(string keyPressed)
+        {
+            if (this.Loading)
+            {
+                return;
+            }
+
+            try
+            {
+                this.Loading = true;
+
+                // TODO: Verify key codes.
+                _ = Enum.TryParse(keyPressed, out Keycode keycode);
+
+                if (keycode == Keycode.Del || keycode == Keycode.Clear)
+                {
+                    if (!this.IsSearchFocused)
+                    {
+                        await OnAppearingDelKey();
+                    }
+                }
+                else if (keycode == Keycode.F1)
+                {
+                    await OnAppearingF1Key();
+                }
+                else if (keycode == Keycode.F3)
+                {
+                    await OnAppearingF3Key();
+                }
+                else if (keycode == Keycode.F4)
+                {
+                    await OnAppearingF4Key();
+                }
+                else if (keycode == Keycode.DpadDown)
+                {
+                    OnAppearingDpadDownKey();
+                }
+                else if (keycode == Keycode.DpadUp)
+                {
+                    OnAppearingDpadUp();
+                }
+            }
+            catch (MessageOnlyException msgEx)
+            {
+                var msg = (msgEx.Message.IndexOf("MSGBOX-") == -1) ? msgEx.Message : msgEx.Message["MSGBOX-".Length..];
+                await Device.InvokeOnMainThreadAsync(async () =>
+                    await Application.Current.MainPage.DisplayAlert(
+                        this.ActDetail.GetControlDescription(),
+                        msg,
+                        Resource.OK));
+            }
+            catch (Exception ex)
+            {
+                await Device.InvokeOnMainThreadAsync(async () =>
+                {
+                    var errRpt = new FormErrorReport(this.ActSubType, ex);
+                    _ = await errRpt.ShowDialog();
+                });
+            }
+            finally
+            {
+                this.Loading = false;
+            }
 
             //////////////////////////////////////////////////////////////////////////
-            void SubscribeKeyUpHandlers()
+            async Task OnAppearingDelKey()
             {
-                MessagingCenter.Subscribe<string>(
-                    this,
-                    EventTypes.OnKeyUp.ToString(),
-                    async (keyPressed) =>
-                    {
-                        if (this.Loading)
-                        {
-                            return;
-                        }
-
-                        // TODO: Verify key codes.
-                        _ = Enum.TryParse(keyPressed, out Keycode keycode);
-
-                        if (keycode == Keycode.Del || keycode == Keycode.Clear)
-                        {
-                            if (!this.IsSearchFocused)
-                            {
-                                await OnAppearingDelKey();
-                            }
-                        }
-                        else if (keycode == Keycode.F1)
-                        {
-                            await OnAppearingF1Key();
-                        }
-                        else if (keycode == Keycode.F3)
-                        {
-                            await OnAppearingF3Key();
-                        }
-                        else if (keycode == Keycode.F4)
-                        {
-                            await OnAppearingF4Key();
-                        }
-                        else if (keycode == Keycode.DpadDown)
-                        {
-                            OnAppearingDpadDownKey();
-                        }
-                        else if (keycode == Keycode.DpadUp)
-                        {
-                            OnAppearingDpadUp();
-                        }
-                    });
-
-                //////////////////////////////////////////////////////////////////////////
-                async Task OnAppearingDelKey()
+                try
                 {
-                    try
-                    {
-                        // Check if there is an item in the data grid selected to delete.
-                        IsItemSelected();
+                    // Check if there is an item in the data grid selected to delete.
+                    IsItemSelected();
 
-                        // Ask if the deletion is a entire skid or item.
-                        var isDelItem = false;
-                        var isDelSkid = false;
-                        if (string.IsNullOrEmpty(this.ActDetail.SchemeData.LogisticUnitSkidNumber))
+                    // Ask if the deletion is a entire skid or item.
+                    var isDelItem = false;
+                    var isDelSkid = false;
+                    if (string.IsNullOrEmpty(this.ActDetail.SchemeData.LogisticUnitSkidNumber))
+                    {
+                        if (await this.DisplayAlert(
+                            this.ActDetail.GetControlDescription(),
+                            "Do you wish to delete this single detail?",
+                            "Yes",
+                            "No"))
+                        {
+                            isDelItem = true;
+                        }
+                    }
+                    else
+                    {
+                        var msg = $"Do you wish to delete all detail belonging to this skid" +
+                                  $" {this.ActDetail.SchemeData.LogisticUnitSkidNumber}?";
+                        if (await this.DisplayAlert(
+                            this.ActDetail.GetControlDescription(),
+                            msg,
+                            "Yes",
+                            "No"))
+                        {
+                            isDelSkid = true;
+                        }
+                        else
                         {
                             if (await this.DisplayAlert(
                                 this.ActDetail.GetControlDescription(),
@@ -870,353 +897,311 @@ namespace dMobile.View.Activity
                                 isDelItem = true;
                             }
                         }
-                        else
-                        {
-                            var msg = $"Do you wish to delete all detail belonging to this skid" +
-                                      $" {this.ActDetail.SchemeData.LogisticUnitSkidNumber}?";
-                            if (await this.DisplayAlert(
-                                this.ActDetail.GetControlDescription(),
-                                msg,
-                                "Yes",
-                                "No"))
-                            {
-                                isDelSkid = true;
-                            }
-                            else
-                            {
-                                if (await this.DisplayAlert(
-                                    this.ActDetail.GetControlDescription(),
-                                    "Do you wish to delete this single detail?",
-                                    "Yes",
-                                    "No"))
-                                {
-                                    isDelItem = true;
-                                }
-                            }
-                        }
-
-                        // Invoke the deletion.
-                        if (isDelItem)
-                        {
-                            await OnAppearingDelKeyDetail();
-                        }
-                        else if (isDelSkid)
-                        {
-                            await OnAppearingDelKeySkid();
-                        }
-
-                        await this.FindSelectedItemAsync();
-                    }
-                    catch (MessageOnlyException msgEx)
-                    {
-                        var msg = (msgEx.Message.IndexOf("MSGBOX-") == -1) ? msgEx.Message : msgEx.Message["MSGBOX-".Length..];
-                        await Device.InvokeOnMainThreadAsync(async () =>
-                            await Application.Current.MainPage.DisplayAlert(
-                                this.GetControlDescription(),
-                                msg,
-                                Resource.OK));
-                    }
-                    catch (Exception ex)
-                    {
-                        await Device.InvokeOnMainThreadAsync(async () =>
-                        {
-                            var errRpt = new FormErrorReport(this.ActSubType, ex);
-                            _ = await errRpt.ShowDialog();
-                        });
                     }
 
-                    //////////////////////////////////////////////////////////////////////////
-                    void IsItemSelected()
+                    // Invoke the deletion.
+                    if (isDelItem)
                     {
-                        var isItemSelected = this.ListViewMainActivity.SelectedItem != null
-                                             && Convert.ToInt32(this.MainActivityItems.IndexOf(
-                                                 this.ListViewMainActivity.SelectedItem)) >= 0;
-
-                        if (!isItemSelected)
-                        {
-                            throw new MessageOnlyException("Nothing selected to delete.");
-                        }
+                        await OnAppearingDelKeyDetail();
+                    }
+                    else if (isDelSkid)
+                    {
+                        await OnAppearingDelKeySkid();
                     }
 
-                    //////////////////////////////////////////////////////////////////////////
-                    async Task OnAppearingDelKeyDetail()
+                    await this.FindSelectedItemAsync();
+                }
+                catch (MessageOnlyException msgEx)
+                {
+                    var msg = (msgEx.Message.IndexOf("MSGBOX-") == -1) ? msgEx.Message : msgEx.Message["MSGBOX-".Length..];
+                    await Device.InvokeOnMainThreadAsync(async () =>
+                        await Application.Current.MainPage.DisplayAlert(
+                            this.GetControlDescription(),
+                            msg,
+                            Resource.OK));
+                }
+                catch (Exception ex)
+                {
+                    await Device.InvokeOnMainThreadAsync(async () =>
                     {
-                        // Read the selected detail.
-                        await this.ActDetail.AssignThisFromDetailAsync(
-                            (Resources.Types.ActivityDetail)this.ListViewMainActivity.SelectedItem,
-                            false);
+                        var errRpt = new FormErrorReport(this.ActSubType, ex);
+                        _ = await errRpt.ShowDialog();
+                    });
+                }
 
-                        // Submit the request, and delete it from the data table.
-                        _ = await this.ActDetail.Delete();
+                //////////////////////////////////////////////////////////////////////////
+                void IsItemSelected()
+                {
+                    var isItemSelected = this.ListViewMainActivity.SelectedItem != null
+                                         && Convert.ToInt32(this.MainActivityItems.IndexOf(
+                                             this.ListViewMainActivity.SelectedItem)) >= 0;
 
-                        // Update the activity line item quantities.
-                        this.ActDetail.ActItem.AddToQuantityInActivityItem(
-                            this.ActDetail.ActItem.SelectedActivityItem,
-                            this.ActDetail.Quantity * -1,
-                            this.ActDetail.BaseQuantity * -1,
-                            this.ActDetail.WeightQuantity * -1);
-
-                        // Update the table item quantity.
-                        await this.ActDetail.ActItem.UpdateItemTableQuantity(this.ActDetail.ActItem.SelectedActivityItem);
-                    }
-
-                    //////////////////////////////////////////////////////////////////////////
-                    async Task OnAppearingDelKeySkid()
+                    if (!isItemSelected)
                     {
-                        // Determine the selected detail skid code.
-                        var currIdx = this.MainActivityItems.IndexOf(
-                            this.ListViewMainActivity.SelectedItem);
-                        var skidCode = Convert.ToString(this.ActDetail.ListDetails[currIdx].GetType().GetProperty(
-                                "ActivityDetailLogisticUnitSkidNumber")?.GetValue(
-                                    this.ActDetail.ListDetails[currIdx]));
-                        var skidInfo = await SysSkidInfo.GetSkidInfoFromBarCodeOrCode(skidCode);
-
-                        if (skidInfo.CurrSkid.SkidFKRefno == 0)
-                        {
-                            throw new Exception($"Unable to determine the skid '{skidCode}'" +
-                                $" information to delete.");
-                        }
-
-                        // Submit the request, and delete it from the data table.
-                        await this.ActDetail.DeleteSkid(skidInfo);
-
-                        await this.RefreshBySubType();
-                        await this.DesignGrid();
+                        throw new MessageOnlyException("Nothing selected to delete.");
                     }
                 }
 
                 //////////////////////////////////////////////////////////////////////////
-                async Task OnAppearingF1Key()
+                async Task OnAppearingDelKeyDetail()
                 {
-                    try
-                    {
-                        await this.ActDisappearing();
-                        if (await this.SaveChanges())
-                        {
-                            this.DialogResult = DialogResult.OK;
+                    // Read the selected detail.
+                    await this.ActDetail.AssignThisFromDetailAsync(
+                        (Resources.Types.ActivityDetail)this.ListViewMainActivity.SelectedItem,
+                        false);
 
-                            // TODO: DEV-5619
-                            // Android dMobile F1 & F3 Button Not Working Same As Windows dMobile.
-                            await this.Close();
-                        }
-                    }
-                    catch (MessageOnlyException msgEx)
+                    // Submit the request, and delete it from the data table.
+                    _ = await this.ActDetail.Delete();
+
+                    // Update the activity line item quantities.
+                    this.ActDetail.ActItem.AddToQuantityInActivityItem(
+                        this.ActDetail.ActItem.SelectedActivityItem,
+                        this.ActDetail.Quantity * -1,
+                        this.ActDetail.BaseQuantity * -1,
+                        this.ActDetail.WeightQuantity * -1);
+
+                    // Update the table item quantity.
+                    await this.ActDetail.ActItem.UpdateItemTableQuantity(this.ActDetail.ActItem.SelectedActivityItem);
+                }
+
+                //////////////////////////////////////////////////////////////////////////
+                async Task OnAppearingDelKeySkid()
+                {
+                    // Determine the selected detail skid code.
+                    var currIdx = this.MainActivityItems.IndexOf(
+                        this.ListViewMainActivity.SelectedItem);
+                    var skidCode = Convert.ToString(this.ActDetail.ListDetails[currIdx].GetType().GetProperty(
+                            "ActivityDetailLogisticUnitSkidNumber")?.GetValue(
+                                this.ActDetail.ListDetails[currIdx]));
+                    var skidInfo = await SysSkidInfo.GetSkidInfoFromBarCodeOrCode(skidCode);
+
+                    if (skidInfo.CurrSkid.SkidFKRefno == 0)
                     {
-                        var msg = (msgEx.Message.IndexOf("MSGBOX-") == -1) ? msgEx.Message : msgEx.Message["MSGBOX-".Length..];
-                        await Device.InvokeOnMainThreadAsync(async () =>
-                            await Application.Current.MainPage.DisplayAlert(
-                                this.ActDetail.GetControlDescription(),
-                                msg,
-                                Resource.OK));
+                        throw new Exception($"Unable to determine the skid '{skidCode}'" +
+                            $" information to delete.");
                     }
-                    catch (Exception ex)
+
+                    // Submit the request, and delete it from the data table.
+                    await this.ActDetail.DeleteSkid(skidInfo);
+
+                    await this.RefreshBySubType();
+                    await this.DesignGrid();
+                }
+            }
+
+            //////////////////////////////////////////////////////////////////////////
+            async Task OnAppearingF1Key()
+            {
+                try
+                {
+                    if (await this.SaveChanges())
                     {
-                        await Device.InvokeOnMainThreadAsync(async () =>
-                        {
-                            var errRpt = new FormErrorReport(this.ActSubType, ex);
-                            _ = await errRpt.ShowDialog();
-                        });
+                        this.DialogResult = DialogResult.OK;
+
+                        // TODO: DEV-5619
+                        // Android dMobile F1 & F3 Button Not Working Same As Windows dMobile.
+                        this.SysEnv.SysSettings.IsNewActivityItemsAdded = false;
+                        await this.Close();
                     }
-                    finally
+                }
+                catch (MessageOnlyException msgEx)
+                {
+                    var msg = (msgEx.Message.IndexOf("MSGBOX-") == -1) ? msgEx.Message : msgEx.Message["MSGBOX-".Length..];
+                    await Device.InvokeOnMainThreadAsync(async () =>
+                        await Application.Current.MainPage.DisplayAlert(
+                            this.ActDetail.GetControlDescription(),
+                            msg,
+                            Resource.OK));
+                }
+                catch (Exception ex)
+                {
+                    await Device.InvokeOnMainThreadAsync(async () =>
                     {
-                        await this.ActAppearing();
+                        var errRpt = new FormErrorReport(this.ActSubType, ex);
+                        _ = await errRpt.ShowDialog();
+                    });
+                }
+            }
+
+            //////////////////////////////////////////////////////////////////////////
+            async Task OnAppearingF3Key()
+            {
+                // TODO: DEV-5619
+                // Android dMobile F1 & F3 Button Not Working Same As Windows dMobile
+                try
+                {
+                    var msg = await this.ActDetail.ActItem.GetTotalQuantity();
+                    if (!string.IsNullOrEmpty(msg))
+                    {
+                        await Device.InvokeOnMainThreadAsync(async () => await this.DisplayAlert(
+                            this.ActDetail.GetControlDescription(),
+                            msg,
+                            "OK"));
+                    }
+                }
+                catch (MessageOnlyException msgEx)
+                {
+                    var msg = (msgEx.Message.IndexOf("MSGBOX-") == -1) ? msgEx.Message : msgEx.Message["MSGBOX-".Length..];
+                    await Device.InvokeOnMainThreadAsync(async () =>
+                        await Application.Current.MainPage.DisplayAlert(
+                            this.ActDetail.GetControlDescription(),
+                            msg,
+                            Resource.OK));
+                }
+                catch (Exception ex)
+                {
+                    await Device.InvokeOnMainThreadAsync(async () =>
+                    {
+                        var errRpt = new FormErrorReport(this.ActSubType, ex);
+                        _ = await errRpt.ShowDialog();
+                    });
+                }
+                finally
+                {
+                    _ = this.ListViewMainActivity.Focus();
+                }
+            }
+
+            //////////////////////////////////////////////////////////////////////////
+            async Task OnAppearingF4Key()
+            {
+                try
+                {
+                    var xmlString = new StringBuilder();
+                    var xml = XmlWriter.Create(xmlString);
+                    await CheckIfActivityCanBeConfirmed();
+                    SubmitDetailConfirmation(xmlString);
+                    MarkDetailAsConfirmed();
+                }
+                catch (MessageOnlyException msgEx)
+                {
+                    var msg = (msgEx.Message.IndexOf("MSGBOX-") == -1) ? msgEx.Message : msgEx.Message["MSGBOX-".Length..];
+                    await Device.InvokeOnMainThreadAsync(async () =>
+                        await Application.Current.MainPage.DisplayAlert(
+                            this.GetControlDescription(),
+                            msg,
+                            Resource.OK));
+                }
+                catch (Exception ex)
+                {
+                    await Device.InvokeOnMainThreadAsync(async () =>
+                    {
+                        var errorReport = new FormErrorReport(this.ActSubType, ex);
+                        _ = await errorReport.ShowDialog();
+                    });
+                }
+                finally
+                {
+                    _ = this.ListViewMainActivity.Focus();
+                }
+
+                //////////////////////////////////////////////////////////////////////////
+                void MarkDetailAsConfirmed()
+                {
+                    if (this.ListViewMainActivity.SelectedItem is PickingDetail pickDetail)
+                    {
+                        pickDetail = (PickingDetail)this.ActDetail.ListDetails[
+                        this.MainActivityItems.IndexOf(this.ListViewMainActivity.SelectedItem)];
+                        pickDetail.ActivityDetailIsConfirmed = true;
+                        pickDetail.ActivityDetailIsConfirmedString = "C";
+                    }
+                    else if (this.ListViewMainActivity.SelectedItem is TransferDetail transferDetail)
+                    {
+                        pickDetail = (PickingDetail)this.ActDetail.ListDetails[
+                        this.MainActivityItems.IndexOf(this.ListViewMainActivity.SelectedItem)];
+                        pickDetail.ActivityDetailIsConfirmed = true;
+                        pickDetail.ActivityDetailIsConfirmedString = "C";
                     }
                 }
 
                 //////////////////////////////////////////////////////////////////////////
-                async Task OnAppearingF3Key()
+                static void SubmitDetailConfirmation(StringBuilder xmlString)
                 {
-                    // TODO: DEV-5619
-                    // Android dMobile F1 & F3 Button Not Working Same As Windows dMobile
-                    try
-                    {
-                        await this.ActDisappearing();
-                        var msg = await this.ActDetail.ActItem.GetTotalQuantity();
-                        if (!string.IsNullOrEmpty(msg))
-                        {
-                            await Device.InvokeOnMainThreadAsync(async () => await this.DisplayAlert(
-                                this.ActDetail.GetControlDescription(),
-                                msg,
-                                "OK"));
-                        }
-                    }
-                    catch (MessageOnlyException msgEx)
-                    {
-                        var msg = (msgEx.Message.IndexOf("MSGBOX-") == -1) ? msgEx.Message : msgEx.Message["MSGBOX-".Length..];
-                        await Device.InvokeOnMainThreadAsync(async () =>
-                            await Application.Current.MainPage.DisplayAlert(
-                                this.ActDetail.GetControlDescription(),
-                                msg,
-                                Resource.OK));
-                    }
-                    catch (Exception ex)
-                    {
-                        await Device.InvokeOnMainThreadAsync(async () =>
-                        {
-                            var errRpt = new FormErrorReport(this.ActSubType, ex);
-                            _ = await errRpt.ShowDialog();
-                        });
-                    }
-                    finally
-                    {
-                        await this.ActAppearing();
-                        _ = this.ListViewMainActivity.Focus();
-                    }
+                    _ = SysCommon.SubmitComm(xmlString.ToString());
                 }
 
                 //////////////////////////////////////////////////////////////////////////
-                async Task OnAppearingF4Key()
+                async Task CheckIfActivityCanBeConfirmed()
                 {
-                    try
-                    {
-                        await this.ActDisappearing();
-                        var xmlString = new StringBuilder();
-                        var xml = XmlWriter.Create(xmlString);
-                        await CheckIfActivityCanBeConfirmed();
-                        SubmitDetailConfirmation(xmlString);
-                        MarkDetailAsConfirmed();
-                    }
-                    catch (MessageOnlyException msgEx)
-                    {
-                        var msg = (msgEx.Message.IndexOf("MSGBOX-") == -1) ? msgEx.Message : msgEx.Message["MSGBOX-".Length..];
-                        await Device.InvokeOnMainThreadAsync(async () =>
-                            await Application.Current.MainPage.DisplayAlert(
-                                this.GetControlDescription(),
-                                msg,
-                                Resource.OK));
-                    }
-                    catch (Exception ex)
-                    {
-                        await Device.InvokeOnMainThreadAsync(async () =>
-                        {
-                            var errorReport = new FormErrorReport(this.ActSubType, ex);
-                            _ = await errorReport.ShowDialog();
-                        });
-                    }
-                    finally
-                    {
-                        await this.ActAppearing();
-                        _ = this.ListViewMainActivity.Focus();
-                    }
+                    XDocument request = null;
 
-                    //////////////////////////////////////////////////////////////////////////
-                    void MarkDetailAsConfirmed()
+                    if (this.ActSubType == SysCommon.ActSubTypes.Picking)
                     {
-                        if (this.ListViewMainActivity.SelectedItem is PickingDetail pickDetail)
-                        {
-                            pickDetail = (PickingDetail)this.ActDetail.ListDetails[
-                            this.MainActivityItems.IndexOf(this.ListViewMainActivity.SelectedItem)];
-                            pickDetail.ActivityDetailIsConfirmed = true;
-                            pickDetail.ActivityDetailIsConfirmedString = "C";
-                        }
-                        else if (this.ListViewMainActivity.SelectedItem is TransferDetail transferDetail)
-                        {
-                            pickDetail = (PickingDetail)this.ActDetail.ListDetails[
-                            this.MainActivityItems.IndexOf(this.ListViewMainActivity.SelectedItem)];
-                            pickDetail.ActivityDetailIsConfirmed = true;
-                            pickDetail.ActivityDetailIsConfirmedString = "C";
-                        }
+                        request = XDocument.Parse(
+                            "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>"
+                            + "<imclient>"
+                            + "<command>"
+                            + "<action>SUBMIT SALES ORDER DETAIL CONFIRM</action>"
+                            + "</command>"
+                            + await SysCommon.GetRequestDefaults(false)
+                            + "<refno>" + this.ActDetail.DetailFkRefno + "</refno>"
+                            + "</imclient>");
                     }
-
-                    //////////////////////////////////////////////////////////////////////////
-                    static void SubmitDetailConfirmation(StringBuilder xmlString)
+                    else if (this.ActSubType == SysCommon.ActSubTypes.TransferFrom)
                     {
-                        _ = SysCommon.SubmitComm(xmlString.ToString());
+                        request = XDocument.Parse(
+                            "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>"
+                            + "<imclient>"
+                            + "<command>"
+                            + "<action>SUBMIT TRANSFER FROM DETAIL CONFIRM</action>"
+                            + "</command>"
+                            + await SysCommon.GetRequestDefaults(false)
+                            + "<refno>" + this.ActDetail.DetailFkRefno + "</refno>"
+                            + "</imclient>");
                     }
-
-                    //////////////////////////////////////////////////////////////////////////
-                    async Task CheckIfActivityCanBeConfirmed()
+                    else if (this.ActSubType == SysCommon.ActSubTypes.TransferTo)
                     {
-                        XDocument request = null;
-
-                        if (this.ActSubType == SysCommon.ActSubTypes.Picking)
-                        {
-                            request = XDocument.Parse(
-                                "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>"
-                                + "<imclient>"
-                                + "<command>"
-                                + "<action>SUBMIT SALES ORDER DETAIL CONFIRM</action>"
-                                + "</command>"
-                                + await SysCommon.GetRequestDefaults(false)
-                                + "<refno>" + this.ActDetail.DetailFkRefno + "</refno>"
-                                + "</imclient>");
-                        }
-                        else if (this.ActSubType == SysCommon.ActSubTypes.TransferFrom)
-                        {
-                            request = XDocument.Parse(
-                                "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>"
-                                + "<imclient>"
-                                + "<command>"
-                                + "<action>SUBMIT TRANSFER FROM DETAIL CONFIRM</action>"
-                                + "</command>"
-                                + await SysCommon.GetRequestDefaults(false)
-                                + "<refno>" + this.ActDetail.DetailFkRefno + "</refno>"
-                                + "</imclient>");
-                        }
-                        else if (this.ActSubType == SysCommon.ActSubTypes.TransferTo)
-                        {
-                            request = XDocument.Parse(
-                                "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>"
-                                + "<imclient>"
-                                + "<command>"
-                                + "<action>SUBMIT TRANSFER TO DETAIL CONFIRM</action>"
-                                + "</command>"
-                                + await SysCommon.GetRequestDefaults(false)
-                                + "<refno>" + this.ActDetail.DetailFkRefno + "</refno>"
-                                + "</imclient>");
-                        }
-                        else
-                        {
-                            throw new MessageOnlyException("Confirmations are not supported with this activity.");
-                        }
+                        request = XDocument.Parse(
+                            "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>"
+                            + "<imclient>"
+                            + "<command>"
+                            + "<action>SUBMIT TRANSFER TO DETAIL CONFIRM</action>"
+                            + "</command>"
+                            + await SysCommon.GetRequestDefaults(false)
+                            + "<refno>" + this.ActDetail.DetailFkRefno + "</refno>"
+                            + "</imclient>");
                     }
-                }
-
-                //////////////////////////////////////////////////////////////////////////
-                void OnAppearingDpadDownKey()
-                {
-                    if (this.ListViewMainActivity.SelectedItem != null &&
-                        Convert.ToInt32(this.MainActivityItems.IndexOf(
-                            this.ListViewMainActivity.SelectedItem)) <
-                            this.MainActivityItems.Count - 1)
+                    else
                     {
-                        this.ListViewMainActivity.SelectedItem =
-                            this.MainActivityItems[this.MainActivityItems.IndexOf(
-                                this.ListViewMainActivity.SelectedItem) + 1];
-                        this.ListViewMainActivity.ScrollTo(
-                            this.ListViewMainActivity.SelectedItem,
-                            ScrollToPosition.MakeVisible,
-                            true);
-                    }
-                }
-
-                //////////////////////////////////////////////////////////////////////////
-                void OnAppearingDpadUp()
-                {
-                    if (this.ListViewMainActivity.SelectedItem != null &&
-                        Convert.ToInt32(this.MainActivityItems.IndexOf(
-                            this.ListViewMainActivity.SelectedItem)) > 0)
-                    {
-                        this.ListViewMainActivity.SelectedItem =
-                            this.MainActivityItems[this.MainActivityItems.IndexOf(
-                                this.ListViewMainActivity.SelectedItem) - 1];
-                        this.ListViewMainActivity.ScrollTo(
-                            this.ListViewMainActivity.SelectedItem,
-                            ScrollToPosition.MakeVisible,
-                            true);
+                        throw new MessageOnlyException("Confirmations are not supported with this activity.");
                     }
                 }
             }
-        }
 
-        /// <summary>
-        /// Activity disappearing.
-        /// </summary>
-        /// <returns><see cref="Task"/> Task operation.</returns>
-        private async Task ActDisappearing()
-        {
-            MessagingCenter.Unsubscribe<string>(this, EventTypes.OnKeyUp.ToString());
-            await this.ScannerDisable();
+            //////////////////////////////////////////////////////////////////////////
+            void OnAppearingDpadDownKey()
+            {
+                if (this.ListViewMainActivity.SelectedItem != null &&
+                    Convert.ToInt32(this.MainActivityItems.IndexOf(
+                        this.ListViewMainActivity.SelectedItem)) <
+                        this.MainActivityItems.Count - 1)
+                {
+                    this.ListViewMainActivity.SelectedItem =
+                        this.MainActivityItems[this.MainActivityItems.IndexOf(
+                            this.ListViewMainActivity.SelectedItem) + 1];
+                    this.ListViewMainActivity.ScrollTo(
+                        this.ListViewMainActivity.SelectedItem,
+                        ScrollToPosition.MakeVisible,
+                        true);
+                }
+            }
+
+            //////////////////////////////////////////////////////////////////////////
+            void OnAppearingDpadUp()
+            {
+                if (this.ListViewMainActivity.SelectedItem != null &&
+                    Convert.ToInt32(this.MainActivityItems.IndexOf(
+                        this.ListViewMainActivity.SelectedItem)) > 0)
+                {
+                    this.ListViewMainActivity.SelectedItem =
+                        this.MainActivityItems[this.MainActivityItems.IndexOf(
+                            this.ListViewMainActivity.SelectedItem) - 1];
+                    this.ListViewMainActivity.ScrollTo(
+                        this.ListViewMainActivity.SelectedItem,
+                        ScrollToPosition.MakeVisible,
+                        true);
+                }
+            }
         }
 
         /// <summary>
@@ -1248,7 +1233,7 @@ namespace dMobile.View.Activity
         {
             try
             {
-                await this.ActDisappearing();
+                await this.ScannerDisable();
                 await this.DesignGrid();
             }
             catch (MessageOnlyException msgEx)
@@ -1270,7 +1255,7 @@ namespace dMobile.View.Activity
             }
             finally
             {
-                await this.ActAppearing();
+                await this.ScannerEnable();
             }
         }
 
@@ -1309,8 +1294,6 @@ namespace dMobile.View.Activity
 
             try
             {
-                await this.ActDisappearing();
-
                 // GLOBAL LOCATION IDENTIFIER SCANNED
                 if (!string.IsNullOrEmpty(parse.LocationIdentifier))
                 {
@@ -1351,7 +1334,7 @@ namespace dMobile.View.Activity
                         // Get the activity item reference number from the identified location reference number
                         // and product reference number.
                         var tempActItemRefno = await this.ActDetail.ActItem.GetActivityItemRefno(
-                            prodUnitRefno);
+                            prodUnitRefno, LocationMap.GetInstance().CurrLocMap);
                         if (tempActItemRefno == 0)
                         {
                             // Location and product was not found on this activity
@@ -1399,7 +1382,7 @@ namespace dMobile.View.Activity
                                 await this.InsertActivityDetail(this.ActDetail);
                             }
 
-                            await this.FindSelectedItemAsync();
+                            ////await this.FindSelectedItemAsync();
                             ////if (this.MainActivityItems.Count > currRowIdx)
                             ////{
                             ////    this.ListViewMainActivity.SelectedItem = this.MainActivityItems[currRowIdx];
@@ -1575,7 +1558,6 @@ namespace dMobile.View.Activity
             finally
             {
                 this.Loading = false;
-                await this.ActAppearing();
             }
 
             //////////////////////////////////////////////////////////////////////////
@@ -1604,187 +1586,60 @@ namespace dMobile.View.Activity
         /// <returns><see cref="Task"/> Task operation.</returns>
         private async Task RefreshBySubType()
         {
+            bool isDataRequest = true;
+
+            // NOTE: So far all sub types will be refreshed.
             switch (this.ActSubType)
             {
                 case SysCommon.ActSubTypes.PhysicalCounts:
-                    await RefreshData();
+                    // Do not refresh product list for counts. Except on first load. See WO# 12222.
+                    // Reloading count items into the thousands is too slow.
+                    // This could change depending on the Exception type such as
+                    // MessageOnlyException vs Exception.
+                    // Refreshing will have to be accomplished by exiting the items activity.
+                    isDataRequest = this.SysEnv.SysSettings.IsCountActivityItemRefreshData;
+                    isDataRequest = isDataRequest && !this.SysEnv.SysSettings.IsNewActivityItemsAdded;
+                    await RefreshData(isDataRequest);
+                    this.SysEnv.SysSettings.IsCountActivityItemRefreshData = false;
                     break;
 
                 case SysCommon.ActSubTypes.CycleCounts:
-                    await RefreshData();
-                    break;
-
-                case SysCommon.ActSubTypes.NotApplicable:
-                    await RefreshData();
-                    break;
-
-                case SysCommon.ActSubTypes.BarCodeAssociation:
-                    await RefreshData();
-                    break;
-
-                case SysCommon.ActSubTypes.Receiving:
-                    await RefreshData();
-                    break;
-
-                case SysCommon.ActSubTypes.Picking:
-                    await RefreshData();
-                    break;
-
-                case SysCommon.ActSubTypes.TransferFrom:
-                    await RefreshData();
-                    break;
-
-                case SysCommon.ActSubTypes.RefreshData:
-                    await RefreshData();
-                    break;
-
-                case SysCommon.ActSubTypes.DataStatus:
-                    await RefreshData();
-                    break;
-
-                case SysCommon.ActSubTypes.Returns:
-                    await RefreshData();
-                    break;
-
-                case SysCommon.ActSubTypes.SelectProduct:
-                    await RefreshData();
-                    break;
-
-                case SysCommon.ActSubTypes.SelectLocation:
-                    await RefreshData();
-                    break;
-
-                case SysCommon.ActSubTypes.ConvertUnit:
-                    await RefreshData();
-                    break;
-
-                case SysCommon.ActSubTypes.MoveInventory:
-                    await RefreshData();
-                    break;
-
-                case SysCommon.ActSubTypes.Adjustment:
-                    await RefreshData();
-                    break;
-
-                case SysCommon.ActSubTypes.PurgeActivityData:
-                    await RefreshData();
-                    break;
-
-                case SysCommon.ActSubTypes.TicketFinished:
-                    await RefreshData();
-                    break;
-
-                case SysCommon.ActSubTypes.TicketMaterial:
-                    await RefreshData();
-                    break;
-
-                case SysCommon.ActSubTypes.TicketAddProduct:
-                    await RefreshData();
-                    break;
-
-                case SysCommon.ActSubTypes.ReleaseByOrder:
-                    await RefreshData();
-                    break;
-
-                case SysCommon.ActSubTypes.ReleaseByItemSection:
-                    await RefreshData();
-                    break;
-
-                case SysCommon.ActSubTypes.PurchaseOrderWorkSheet:
-                    await RefreshData();
-                    break;
-
-                case SysCommon.ActSubTypes.SkidInfo:
-                    await RefreshData();
-                    break;
-
-                case SysCommon.ActSubTypes.MoveSkid:
-                    await RefreshData();
-                    break;
-
-                case SysCommon.ActSubTypes.BreakSkid:
-                    await RefreshData();
-                    break;
-
-                case SysCommon.ActSubTypes.PickingSingle:
-                    await RefreshData();
-                    break;
-
-                case SysCommon.ActSubTypes.PutAwaySkid:
-                    await RefreshData();
-                    break;
-
-                case SysCommon.ActSubTypes.AssignDefaultLocation:
-                    await RefreshData();
-                    break;
-
-                case SysCommon.ActSubTypes.InventoryInquiry:
-                    await RefreshData();
-                    break;
-
-                case SysCommon.ActSubTypes.InventoryReplenishment:
-                    await RefreshData();
-                    break;
-
-                case SysCommon.ActSubTypes.LoginStartup:
-                    await RefreshData();
-                    break;
-
-                case SysCommon.ActSubTypes.SplashStartup:
-                    await RefreshData();
-                    break;
-
-                case SysCommon.ActSubTypes.PrintProductLabel:
-                    await RefreshData();
-                    break;
-
-                case SysCommon.ActSubTypes.PickingSelectCriteria:
-                    await RefreshData();
-                    break;
-
-                case SysCommon.ActSubTypes.PickingFilter:
-                    await RefreshData();
-                    break;
-
-                case SysCommon.ActSubTypes.SubmitBatch:
-                    await RefreshData();
-                    break;
-
-                case SysCommon.ActSubTypes.CommunicationSetup:
-                    await RefreshData();
-                    break;
-
-                case SysCommon.ActSubTypes.SetupDefaults:
-                    await RefreshData();
-                    break;
-
-                case SysCommon.ActSubTypes.InventoryInquirySummary:
-                    await RefreshData();
-                    break;
-
-                case SysCommon.ActSubTypes.ConvertProduct:
-                    await RefreshData();
-                    break;
-
-                case SysCommon.ActSubTypes.TransferTo:
-                    await RefreshData();
+                    // Do not refresh product list for counts. Except on first load. See WO# 12222.
+                    // Reloading count items into the thousands is too slow.
+                    // This could change depending on the Exception type such as
+                    // MessageOnlyException vs Exception.
+                    // Refreshing will have to be accomplished by exiting the items activity.
+                    isDataRequest = this.SysEnv.SysSettings.IsCountActivityItemRefreshData;
+                    isDataRequest = isDataRequest && !this.SysEnv.SysSettings.IsNewActivityItemsAdded;
+                    await RefreshData(isDataRequest);
+                    this.SysEnv.SysSettings.IsCountActivityItemRefreshData = false;
                     break;
 
                 default:
+
                     // Performing a refresh data will remove and partially added new items or quantity.
-                    await RefreshData();
+                    await RefreshData(!this.SysEnv.SysSettings.IsNewActivityItemsAdded);
                     break;
             }
 
             //////////////////////////////////////////////////////////////////////////
-            async Task RefreshData()
+            async Task RefreshData(bool isDataRequest)
             {
                 try
                 {
+                    this.ActDetail.ActItem.ProdInfo.Unit2BaseUnitFactor =
+                        await ProductInfoTasks.GetUnitRelationFactor(
+                            this.ActDetail.ActItem.ProdInfo);
+
                     await Device.InvokeOnMainThreadAsync(async () =>
                     {
-                        this.ActDetail.UnregLayerListenerProgOut(this);
-                        await this.ActDetail.Refresh();
+                        this.ActDetail.RegLayerListenerProgOut(this);
+                        this.ActDetail.RegLayerListenerStatOut(this);
+                        if (isDataRequest)
+                        {
+                            await this.ActDetail.Refresh();
+                        }
+
                         await Device.InvokeOnMainThreadAsync(() => this.ActDetail.ListDetails.Clear());
                         this.ActDetail.ListDetails = await this.ActDetail.GetActivityDetailList(false);
                     });
@@ -1804,18 +1659,13 @@ namespace dMobile.View.Activity
                 finally
                 {
                     this.ActDetail.UnregLayerListenerProgOut(this);
-                    ////await Task.Run(() =>
-                    ////{
-                    ////    // Explicit GC, Xamarin forms not disposing of objects properly
-                    ////    GC.Collect();
-                    ////    GC.WaitForPendingFinalizers();
-                    ////});
+                    this.ActDetail.UnregLayerListenerStatOut(this);
                 }
             }
         }
 
         /// <summary>
-        /// Find the selected item in the data list.
+        /// Find the selected item in the data list using the SelectedActivityDetailFKRefno.
         /// </summary>
         /// <returns><see cref="Task"/> Task operation.</returns>
         private async Task FindSelectedItemAsync()
@@ -1907,12 +1757,17 @@ namespace dMobile.View.Activity
             var xmlDoc = actDetail.GetXml(actDetail);
             await actDetail.Insert(xmlDoc);
 
-            var detailIdx = this.ActDetail.FindListDetailIndex(activityDetailRefno: actDetail.DetailRefno);
+            var detailIdx = this.ActDetail.FindListDetailIndex(actDetail.DetailFkRefno);
             if (detailIdx >= 0)
             {
+                // Update the list detail data status to updated, and add the quantity to the existing quantity.
                 this.ActDetail.UpdateListDetail(detailIdx);
+
+                // Update the selected detail fk refno using the list detail object.
                 var detail = (Resources.Types.ActivityDetail)this.ActDetail.ListDetails[detailIdx];
                 this.SelectedActivityDetailFKRefno = detail.ActivityDetailFKRefno;
+
+                // This should cause the grid to redraw and display the updated quantities.
                 this.MainActivityItems[detailIdx] = detail;
             }
             else
@@ -1926,9 +1781,10 @@ namespace dMobile.View.Activity
                         inserted,
                         this.MainActivityItems);
                 });
-
-                await this.FindSelectedItemAsync();
             }
+
+            // We need to refresh the page, to see the newly added item.
+            ////this.OnAppearing();
         }
 
         /// <summary>
@@ -2456,9 +2312,15 @@ namespace dMobile.View.Activity
         /// <param name="e"><see cref="EventArgs"/> Sender object event arguments.</param>
         private async void CmdAddDetail_Click(object sender, EventArgs e)
         {
+            if (this.Loading)
+            {
+                return;
+            }
+
             try
             {
                 this.Loading = true;
+                ////this.SysEnv.SysSettings.IsNewActivityItemsAdded = true;
                 if (await CheckAllowedToAddDetail())
                 {
                     var locMap = LocationMap.GetInstance();
@@ -2481,6 +2343,7 @@ namespace dMobile.View.Activity
             }
             catch (GatherProductDataException gatherEx)
             {
+                ////this.SysEnv.SysSettings.IsNewActivityItemsAdded = false;
                 if (!gatherEx.SuppressError)
                 {
                     await Device.InvokeOnMainThreadAsync(async () =>
@@ -2492,6 +2355,7 @@ namespace dMobile.View.Activity
             }
             catch (MessageOnlyException msgEx)
             {
+                ////this.SysEnv.SysSettings.IsNewActivityItemsAdded = false;
                 var msg = (msgEx.Message.IndexOf("MSGBOX-") == -1) ? msgEx.Message : msgEx.Message["MSGBOX-".Length..];
                 await Device.InvokeOnMainThreadAsync(async () =>
                     await Application.Current.MainPage.DisplayAlert(
@@ -2501,11 +2365,12 @@ namespace dMobile.View.Activity
             }
             catch (Exception ex)
             {
+                ////this.SysEnv.SysSettings.IsNewActivityItemsAdded = false;
                 await Device.InvokeOnMainThreadAsync(async () => await this.DisplayAlert("Error", ex.Message, "OK"));
             }
             finally
             {
-                ////await this.DisplayDataItem();
+                ////this.SysEnv.SysSettings.IsNewActivityItemsAdded = false;
                 this.Loading = false;
             }
 
@@ -2590,32 +2455,19 @@ namespace dMobile.View.Activity
                 ////}
 
                 var parse = BarCodeParseFacade.ParseData(string.Empty);
+                var tempItemProdSchemeData = InitDetailBeforeGather();
+                isInsertReady = await SysShared.GatherProductData(
+                    parse,
+                    this.ActSubType,
+                    this.ActDetail.ActItem,
+                    tempItemProdSchemeData,
+                    isInsertReady,
+                    this.ActDetail,
+                    true);
 
-                try
+                if (isInsertReady)
                 {
-                    await this.ActDisappearing();
-                    var tempItemProdSchemeData = InitDetailBeforeGather();
-                    isInsertReady = await SysShared.GatherProductData(
-                        parse,
-                        this.ActSubType,
-                        this.ActDetail.ActItem,
-                        tempItemProdSchemeData,
-                        isInsertReady,
-                        this.ActDetail,
-                        true);
-
-                    if (isInsertReady)
-                    {
-                        await this.InsertActivityDetail(this.ActDetail);
-                    }
-                }
-                catch
-                {
-                    throw;
-                }
-                finally
-                {
-                    await this.ActAppearing();
+                    await this.InsertActivityDetail(this.ActDetail);
                 }
             }
         }
@@ -2663,8 +2515,6 @@ namespace dMobile.View.Activity
             {
                 try
                 {
-                    await this.ActDisappearing();
-
                     ////var dspOverrideMsg = false;
                     ////if (this.SysEnv.SysSettings.IsDefaultLocToProductDefaultLoc)
                     ////{
@@ -2745,10 +2595,6 @@ namespace dMobile.View.Activity
                         _ = await errRpt.ShowDialog();
                     });
                 }
-                finally
-                {
-                    await this.ActAppearing();
-                }
             }
 
             //////////////////////////////////////////////////////////////////////////
@@ -2756,7 +2602,6 @@ namespace dMobile.View.Activity
             {
                 try
                 {
-                    await this.ActDisappearing();
                     var form = new FormDialogContainer(
                         EDialogTypes.SkidInfo,
                         this.ActDetail.ActItem,
@@ -2819,10 +2664,6 @@ namespace dMobile.View.Activity
                         _ = await errRpt.ShowDialog();
                     });
                 }
-                finally
-                {
-                    await this.ActAppearing();
-                }
             }
 
             //////////////////////////////////////////////////////////////////////////
@@ -2830,7 +2671,6 @@ namespace dMobile.View.Activity
             {
                 try
                 {
-                    await this.ActDisappearing();
                     if (await CheckAllowedToAddSkid())
                     {
                         if (await Device.InvokeOnMainThreadAsync(async () =>
@@ -2885,10 +2725,6 @@ namespace dMobile.View.Activity
                         _ = await errRpt.ShowDialog();
                     });
                 }
-                finally
-                {
-                    await this.ActAppearing();
-                }
 
                 //////////////////////////////////////////////////////////////////////////
                 async Task<bool> CheckAllowedToAddSkid()
@@ -2900,11 +2736,9 @@ namespace dMobile.View.Activity
                     {
                         if (!this.SysEnv.ContactLog.IsAllowedPickingModuleOverrideAddManualDetail)
                         {
-                            await this.ActDisappearing();
                             var form = new FormAddManualDetailOverride();
                             isAllowedAddManualDetail = await Device.InvokeOnMainThreadAsync(async () =>
                                 await form.ShowDialog() == DialogResult.OK);
-                            await this.ActAppearing();
                         }
                     }
 
