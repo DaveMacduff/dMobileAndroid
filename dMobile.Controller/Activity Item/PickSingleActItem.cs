@@ -162,7 +162,7 @@ namespace dMobile.Controller.Activity_Item
         /// <param name="actItemFoundRefno"><see cref="int"/> Activity item reference number to look up.</param>
         public override void SetSelectedActivityItemFromList(int actItemFoundRefno)
         {
-            this.SelectedListItemIdx = -1;
+            this.SelectedListIdx = -1;
             if (actItemFoundRefno >= 0)
             {
                 var idx = 0;
@@ -170,8 +170,8 @@ namespace dMobile.Controller.Activity_Item
                 {
                     if (item.ActivityItemRefno == this.ItemRefno)
                     {
-                        this.SelectedActivityItem = item;
-                        this.SelectedListItemIdx = idx;
+                        this.SelectedItem = item;
+                        this.SelectedListIdx = idx;
                         break;
                     }
 
@@ -180,7 +180,7 @@ namespace dMobile.Controller.Activity_Item
             }
             else
             {
-                this.SelectedActivityItem = null;
+                this.SelectedItem = null;
             }
         }
 
@@ -207,7 +207,13 @@ namespace dMobile.Controller.Activity_Item
                 var sendReq = string.Empty;
                 var responseData = string.Empty;
                 var xmlString = new StringBuilder();
-                var xml = XmlWriter.Create(xmlString);
+                var settings = new XmlWriterSettings
+                {
+                    Async = true,
+                    Indent = false,
+                };
+                var xml = XmlWriter.Create(xmlString, settings);
+
                 XDocument request = null;
 
                 request = XDocument.Parse(
@@ -221,7 +227,7 @@ namespace dMobile.Controller.Activity_Item
                     + "</imclient>");
 
                 request.Save(xml);
-                xml.Flush();
+                await xml.FlushAsync();
                 xml.Close();
 
                 sendReq = xmlString.ToString();
@@ -418,9 +424,14 @@ namespace dMobile.Controller.Activity_Item
         public async override Task<ActItemSchemeData> GetProdSchemeDataFromDetailFkRefno(int actDetailFkRefno)
         {
             var xmlString = new StringBuilder();
-            var xml = XmlWriter.Create(xmlString);
-            var itemSchemeData = new ActItemSchemeData();
+            var settings = new XmlWriterSettings
+            {
+                Async = true,
+                Indent = false,
+            };
+            var xml = XmlWriter.Create(xmlString, settings);
 
+            var itemSchemeData = new ActItemSchemeData();
             var request = XDocument.Parse(
                 "<?xml version=\"1.0\" encoding=\"utf-8\" standalone=\"yes\"?>"
                 + "<imclient>"
@@ -432,7 +443,7 @@ namespace dMobile.Controller.Activity_Item
                 + "</imclient>");
 
             request.Save(xml);
-            xml.Flush();
+            await xml.FlushAsync();
             xml.Close();
 
             var responseData = SysCommon.SubmitComm(xmlString.ToString());
@@ -997,7 +1008,7 @@ namespace dMobile.Controller.Activity_Item
         {
             if (activityItem is PickingItem item)
             {
-                this.SelectedActivityItem = item;
+                this.SelectedItem = item;
                 this.ItemRefno = item.ActivityItemRefno;
                 this.ItemFkRefno = item.ActivityItemFKRefno;
                 this.ActStatus = (SysCommon.ActStatus)item.ActivityItemStatus;
@@ -1069,7 +1080,13 @@ namespace dMobile.Controller.Activity_Item
         public async override Task<string> CreateSubmitXml(XDocument data)
         {
             var xmlString = new StringBuilder();
-            var xml = XmlWriter.Create(xmlString);
+            var settings = new XmlWriterSettings
+            {
+                Async = true,
+                Indent = false,
+            };
+            var xml = XmlWriter.Create(xmlString, settings);
+
             var prodCode = data.Root.Element("ProductCode").Value.PadRight(10);
             var barCodeCode = data.Root.Element("ProductUnitBarCodeCode").Value.PadRight(20);
             var prodUnitIsBc = bool.Parse(data.Root.Element("ProductUnitIsBC").Value);
@@ -1093,7 +1110,7 @@ namespace dMobile.Controller.Activity_Item
                 + "<refno></refno>" + "</imclient>");
 
             request.Save(xml);
-            xml.Flush();
+            await xml.FlushAsync();
             xml.Close();
 
             return xmlString.ToString();
@@ -1163,7 +1180,7 @@ namespace dMobile.Controller.Activity_Item
         /// <param name="actItemPickQuantity">.</param>
         private void PickingModuleQuantityOverCheck(decimal actItemPickQuantity)
         {
-            if (this.SelectedActivityItem is PickingItem pickingItem)
+            if (this.SelectedItem is PickingItem pickingItem)
             {
                 var shipped = Convert.ToDecimal(pickingItem.ActivityItemPickingQuantityShipped);
                 var ordered = Convert.ToDecimal(pickingItem.ActivityItemPickingQuantityOrdered);
@@ -1254,7 +1271,7 @@ namespace dMobile.Controller.Activity_Item
         public override async Task<int> GetDefaultLocMapRefno(int whsLocMapRefno, int prodRefno)
         {
             var locMapRefno = 0;
-            if (this.SelectedActivityItem is PickingItem item)
+            if (this.SelectedItem is PickingItem item)
             {
                 if (Math.Sign(item.ActivityItemPickingQuantityShipped) == 0 ||
                     Math.Sign(item.ActivityItemPickingQuantityShipped) == -1)

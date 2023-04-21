@@ -252,7 +252,12 @@ namespace dMobile.GroundWork
         protected async override Task<string> CreateRequest(string strFamilyCode)
         {
             var xmlString = new StringBuilder();
-            var xml = XmlWriter.Create(xmlString);
+            var settings = new XmlWriterSettings
+            {
+                Async = true,
+                Indent = false,
+            };
+            var xml = XmlWriter.Create(xmlString, settings);
 
             var request = XDocument.Parse(
                 "<?xml version=\"1.0\" encoding=\"utf-8\" standalone=\"yes\"?>"
@@ -265,7 +270,7 @@ namespace dMobile.GroundWork
                 + "</imclient>");
 
             request.Save(xml);
-            xml.Flush();
+            await xml.FlushAsync();
             xml.Close();
 
             return xmlString.ToString();

@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Xml;
 using System.Xml.Linq;
@@ -128,8 +129,7 @@ namespace dMobile.Controller.Activity_Item
         public ResourceDictionary ResourceDictionary { get; set; } = new ResourceDictionary();
 
         /// <summary>
-        /// Gets or sets the ListAdjustmentItems
-        /// Gets or sets a list of adjustment items..
+        /// Gets or sets a list of adjustment items.
         /// </summary>
         public List<AdjustmentItem> ListAdjustmentItems { get; set; } = new List<AdjustmentItem>();
 
@@ -138,13 +138,13 @@ namespace dMobile.Controller.Activity_Item
         /// </summary>
         /// <remarks>
         /// Iterate through the ListItems looking for a matched activity item reference number.
-        /// If a match is found set the SelectedActivityItem to one found in the ListItems
-        /// else the SelectedActivityItem is set to null and the selected list item index to -1.
+        /// If a match is found set the SelectedItem to one found in the ListItems
+        /// else the SelectedItem is set to null and the selected list item index to -1.
         /// </remarks>
         /// <param name="actItemFoundRefno"><see cref="int"/> Activity item reference number to look up.</param>
         public override void SetSelectedActivityItemFromList(int actItemFoundRefno)
         {
-            this.SelectedListItemIdx = -1;
+            this.SelectedListIdx = -1;
             if (actItemFoundRefno >= 0)
             {
                 var idx = 0;
@@ -152,8 +152,8 @@ namespace dMobile.Controller.Activity_Item
                 {
                     if (item.ActivityItemRefno == this.ItemRefno)
                     {
-                        this.SelectedActivityItem = item;
-                        this.SelectedListItemIdx = idx;
+                        this.SelectedItem = item;
+                        this.SelectedListIdx = idx;
                         break;
                     }
 
@@ -162,7 +162,7 @@ namespace dMobile.Controller.Activity_Item
             }
             else
             {
-                this.SelectedActivityItem = null;
+                this.SelectedItem = null;
             }
         }
 
@@ -691,7 +691,7 @@ namespace dMobile.Controller.Activity_Item
         {
             if (activityItem is AdjustmentItem item)
             {
-                this.SelectedActivityItem = item;
+                this.SelectedItem = item;
                 this.ItemRefno = item.ActivityItemRefno;
                 this.ItemFkRefno = item.ActivityItemFKRefno;
                 this.ActStatus = (SysCommon.ActStatus)item.ActivityItemStatus;
@@ -748,15 +748,17 @@ namespace dMobile.Controller.Activity_Item
         /// Get the activity item reference number from the product unit reference number and current location warehouse.
         /// </summary>
         /// <param name="prodUnitRefno"><see cref="int"/> Product unit reference number.</param>
+        /// <param name="locMap"><see cref="SLocMap"/> Location map structure.</param>
         /// <returns><see cref="int"/> Found activity item reference number else 0.</returns>
         public override async Task<int> GetActivityItemRefno(int prodUnitRefno, SLocMap locMap)
         {
             var foundActItemRefno = 0;
+
             var sql = new StringBuilder();
             sql.Append("SELECT tActivityItem.ActivityItemRefno,");
             sql.Append("tActivityItemAdjustment.ActivityItemFKRefno,");
-            sql.Append("tActivityItemAdjustment.ProductUnitRefno AS ProductUnitRefno,");
-            sql.Append("tLocationMapWarehouse.LocationMapRefno AS LocationMapRefno ");
+            sql.Append("tActivityItemAdjustment.ProductUnitRefno,");
+            sql.Append("tLocationMapWarehouse.LocationMapRefno ");
             sql.Append("FROM tActivityItemAdjustment ");
             sql.Append("INNER JOIN tActivityItem ON tActivityItem.ActivityItemRefno ");
             sql.Append("= tActivityItemAdjustment.ActivityItemRefno ");
@@ -777,6 +779,21 @@ namespace dMobile.Controller.Activity_Item
                 this.ProdInfo.Scheme = await ProductInfoTasks.GetSchemeComponentsFromRefno(this.ProdInfo.Refno);
                 foundActItemRefno = this.ItemRefno;
             }
+            else
+            {
+                foreach (var item in this.ListAdjustmentItems)
+                {
+                    if (item.LocationMapRefno == locMap.WhsLocMapRefno && item.ProductUnitRefno == prodUnitRefno)
+                    {
+                        this.ItemRefno = item.ActivityItemRefno;
+                        this.ItemFkRefno = item.ActivityItemFKRefno;
+                        this.ProdInfo = await ProductInfoTasks.GetInfoFromRefno(item.ProductRefno);
+                        this.ProdInfo.Scheme = await ProductInfoTasks.GetSchemeComponentsFromRefno(this.ProdInfo.Refno);
+                        foundActItemRefno = this.ItemRefno;
+                        break;
+                    }
+                }
+            }
 
             return foundActItemRefno;
         }
@@ -789,7 +806,13 @@ namespace dMobile.Controller.Activity_Item
         public override async Task<string> CreateSubmitXml(XDocument data)
         {
             var xmlString = new StringBuilder();
-            var xml = XmlWriter.Create(xmlString);
+            var settings = new XmlWriterSettings
+            {
+                Async = true,
+                Indent = false,
+            };
+            var xml = XmlWriter.Create(xmlString, settings);
+
             var prodCode = data.Root.Element("ProductCode").Value.PadRight(10);
             var barCode = data.Root.Element("ProductUnitBarCodeCode").Value.PadRight(20);
             var prodUnitIsBc = bool.Parse(data.Root.Element("ProductUnitIsBC").Value);
@@ -814,7 +837,7 @@ namespace dMobile.Controller.Activity_Item
                 + "</imclient>");
 
             request.Save(xml);
-            xml.Flush();
+            await xml.FlushAsync();
             xml.Close();
 
             return xmlString.ToString();
@@ -984,7 +1007,7 @@ namespace dMobile.Controller.Activity_Item
         public override async Task<int> GetDefaultLocMapRefno(int whsLocMapRefno, int prodRefno)
         {
             var locMapRefno = 0;
-            if (this.SelectedActivityItem is AdjustmentItem item)
+            if (this.SelectedItem is AdjustmentItem item)
             {
                 if (Math.Sign(item.ActivityItemAdjustmentQuantity) == 0 ||
                     Math.Sign(item.ActivityItemAdjustmentQuantity) == 1)

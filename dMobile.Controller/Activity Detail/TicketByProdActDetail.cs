@@ -156,7 +156,6 @@ namespace dMobile.Controller.Activity_Detail
                 }
             }
 
-            this.IsUpdateView = true;
             this.DetailFkRefno = int.Parse(xmlDoc.DocumentElement["ser_refno"].InnerText);
             this.ActItem.ItemFkRefno = int.Parse(xmlDoc.DocumentElement["itm_refno"].InnerText);
             this.Quantity = decimal.Parse(xmlDoc.DocumentElement["alt_qty"].InnerText);
@@ -205,7 +204,7 @@ namespace dMobile.Controller.Activity_Detail
             if (this.SysEnv.SysSettings.IsDisconnectedMode)
             {
                 // At this point the 
-                var actDetailRefno = await this.InsertDetailDisconnected();
+                var actDetailRefno = await this.InsertDetail();
 
                 var query = "INSERT INTO tActivityDetailProductionByProduct (ActivityDetailRefno, ActivityDetailFKRefno) VALUES (?, ?)";
                 var rowsAffected = await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(
@@ -216,13 +215,10 @@ namespace dMobile.Controller.Activity_Detail
                 {
                     throw new Exception("Unable to insert activity detail in disconnected mode.");
                 }
-
-                this.IsUpdateView = true;
             }
             else
             {
-                this.SubmitDetailToCommServer(await this.CreateSubmitXml(XDocument.Parse(
-                    "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?><params></params>")));
+                await this.Submit(this, data);
 
                 var query = "UPDATE tActivityItemProductionByProduct SET ActivityItemStringFKRefno = ?," +
                             " ActivityItemFKRefno = ? WHERE ActivityItemRefno = ?";
@@ -231,7 +227,7 @@ namespace dMobile.Controller.Activity_Detail
                     Convert.ToString(this.ActItem.ItemFkRefno),
                     this.ActItem.ItemFkRefno,
                     this.ActItem.ItemRefno);
-                if (rowsAffected <= 0)
+                if (rowsAffected < 0)
                 {
                     throw new Exception("Unable to locate and update the activity line item with a new foreign" +
                         " key upon inserting.");
@@ -362,6 +358,11 @@ namespace dMobile.Controller.Activity_Detail
             else
             {
                 this.DetailFkRefno = int.Parse(xmlDoc.DocumentElement["ser_refno"].InnerText);
+
+                if (this.ActItem.SelectedItem is ProductionTicketByProductItem item)
+                {
+                    item.ActivityItemFKRefno = this.ActItem.ItemFkRefno;
+                }
 
                 if (selectedActivityDetail is ProductionTicketByProductDetail productionTicketByProductDetail)
                 {
@@ -960,7 +961,13 @@ namespace dMobile.Controller.Activity_Detail
         public override async Task<string> CreateSubmitXml(XDocument detailData)
         {
             var xmlString = new StringBuilder();
-            var xml = XmlWriter.Create(xmlString);
+            var settings = new XmlWriterSettings
+            {
+                Async = true,
+                Indent = false,
+            };
+            var xml = XmlWriter.Create(xmlString, settings);
+
             if (this.ActItem.ProdInfo.Scheme.IsBestBeforeDateTracked)
             {
                 var bestBefore = this.SchemeData.LogisticUnitBestBeforeSellByDate.ToString("MM/dd/yyyy");
@@ -1011,7 +1018,7 @@ namespace dMobile.Controller.Activity_Detail
             }
 
             request.Save(xml);
-            xml.Flush();
+            await xml.FlushAsync();
             xml.Close();
 
             return xmlString.ToString();
@@ -1025,7 +1032,13 @@ namespace dMobile.Controller.Activity_Detail
         public override async Task<string> CreateDeleteXml(XDocument detailData)
         {
             var xmlString = new StringBuilder();
-            var xml = XmlWriter.Create(xmlString);
+            var settings = new XmlWriterSettings
+            {
+                Async = true,
+                Indent = false,
+            };
+            var xml = XmlWriter.Create(xmlString, settings);
+
             if (this.ActItem.ProdInfo.Scheme.IsBestBeforeDateTracked)
             {
                 var bestBefore = this.SchemeData.LogisticUnitBestBeforeSellByDate.ToString("MM/dd/yyyy");
@@ -1072,7 +1085,7 @@ namespace dMobile.Controller.Activity_Detail
             }
 
             request.Save(xml);
-            xml.Flush();
+            await xml.FlushAsync();
             xml.Close();
 
             return xmlString.ToString();

@@ -137,7 +137,7 @@ namespace dMobile.Controller.Activity_Item
         /// <param name="actItemFoundRefno"><see cref="int"/> Activity item reference number to look up.</param>
         public override void SetSelectedActivityItemFromList(int actItemFoundRefno)
         {
-            this.SelectedListItemIdx = -1;
+            this.SelectedListIdx = -1;
             if (actItemFoundRefno >= 0)
             {
                 var idx = 0;
@@ -145,8 +145,8 @@ namespace dMobile.Controller.Activity_Item
                 {
                     if (item.ActivityItemRefno == this.ItemRefno)
                     {
-                        this.SelectedActivityItem = item;
-                        this.SelectedListItemIdx = idx;
+                        this.SelectedItem = item;
+                        this.SelectedListIdx = idx;
                         break;
                     }
 
@@ -155,7 +155,7 @@ namespace dMobile.Controller.Activity_Item
             }
             else
             {
-                this.SelectedActivityItem = null;
+                this.SelectedItem = null;
             }
         }
 
@@ -253,7 +253,7 @@ namespace dMobile.Controller.Activity_Item
         public override async Task<int> GetDefaultLocMapRefno(int whsLocMapRefno, int prodRefno)
         {
             var locMapRefno = 0;
-            if (this.SelectedActivityItem is ReturnItem item)
+            if (this.SelectedItem is ReturnItem item)
             {
                 if (Math.Sign(item.ActivityItemReturnsQuantityReturned) == 0 ||
                     Math.Sign(item.ActivityItemReturnsQuantityReturned) == -1)
@@ -632,7 +632,7 @@ namespace dMobile.Controller.Activity_Item
         {
             if (activityItem is ReturnItem item)
             {
-                this.SelectedActivityItem = item;
+                this.SelectedItem = item;
                 this.ItemRefno = item.ActivityItemRefno;
                 this.ItemFkRefno = item.ActivityItemFKRefno;
                 this.ActStatus = (SysCommon.ActStatus)item.ActivityItemStatus;
@@ -730,7 +730,13 @@ namespace dMobile.Controller.Activity_Item
         public override Task<string> CreateSubmitXml(XDocument data)
         {
             var xmlString = new StringBuilder();
-            var xml = XmlWriter.Create(xmlString);
+            var settings = new XmlWriterSettings
+            {
+                Async = true,
+                Indent = false,
+            };
+            var xml = XmlWriter.Create(xmlString, settings);
+
             var deviceId = this.SysEnv.DeviceID;
             var revision = this.SysEnv.RefreshOpt.RefreshedDataLast.ToString("yyyy\'-\'MM\'-\'dd\'T\'HH\':\'mm\':\'ss");
             var loginId = this.SysEnv.ContactLog.LoginID.ToString();

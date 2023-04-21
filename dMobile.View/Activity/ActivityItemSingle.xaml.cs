@@ -285,7 +285,7 @@ namespace dMobile.View.Activity
                     }
                     catch (MessageOnlyException msgEx)
                     {
-                        var msg = (msgEx.Message.IndexOf("MSGBOX-") == -1) ? msgEx.Message : msgEx.Message["MSGBOX-".Length..];
+                        var msg = (msgEx.Message.IndexOf("MSGBOX-", StringComparison.Ordinal) == -1) ? msgEx.Message : msgEx.Message["MSGBOX-".Length..];
                         isReadyToSave = false;
                         await Device.InvokeOnMainThreadAsync(async () =>
                             await Application.Current.MainPage.DisplayAlert(
@@ -406,7 +406,7 @@ namespace dMobile.View.Activity
                     }
                     catch (MessageOnlyException msgEx)
                     {
-                        var msg = (msgEx.Message.IndexOf("MSGBOX-") == -1) ? msgEx.Message : msgEx.Message["MSGBOX-".Length..];
+                        var msg = (msgEx.Message.IndexOf("MSGBOX-", StringComparison.Ordinal) == -1) ? msgEx.Message : msgEx.Message["MSGBOX-".Length..];
                         isReadyToClose = false;
                         await Device.InvokeOnMainThreadAsync(async () =>
                             await Application.Current.MainPage.DisplayAlert(
@@ -573,12 +573,12 @@ namespace dMobile.View.Activity
             {
                 if (await this.IsReadyToSave())
                 {
-                    if (this.ActItem.SelectedActivityItem != null && this.ActItem.SelectedActivityItem == this.ActItem.ListItems.Last())
+                    if (this.ActItem.SelectedItem != null && this.ActItem.SelectedItem == this.ActItem.ListItems.Last())
                     {
                         await this.FullQuantityShippingLabels();
                     }
 
-                    if (this.ActItem.SelectedActivityItem != null)
+                    if (this.ActItem.SelectedItem != null)
                     {
                         // update the header record as reviewed if all items were reviewed
                         var isReviewed = true;
@@ -635,7 +635,7 @@ namespace dMobile.View.Activity
             }
             catch (MessageOnlyException msgEx)
             {
-                var msg = (msgEx.Message.IndexOf("MSGBOX-") == -1) ? msgEx.Message : msgEx.Message["MSGBOX-".Length..];
+                var msg = (msgEx.Message.IndexOf("MSGBOX-", StringComparison.Ordinal) == -1) ? msgEx.Message : msgEx.Message["MSGBOX-".Length..];
                 isSaveComplete = false;
                 await Device.InvokeOnMainThreadAsync(async () =>
                     await Application.Current.MainPage.DisplayAlert(
@@ -669,7 +669,7 @@ namespace dMobile.View.Activity
             {
                 if (await this.IsReadyToClose())
                 {
-                    if (this.ActItem.SelectedActivityItem != null && this.ActItem.SelectedActivityItem == this.ActItem.ListItems.Last())
+                    if (this.ActItem.SelectedItem != null && this.ActItem.SelectedItem == this.ActItem.ListItems.Last())
                     {
                         await this.FullQuantityShippingLabels();
                     }
@@ -688,7 +688,7 @@ namespace dMobile.View.Activity
                     // If any ship quantity exists do not clear the picker. Keep it locked.
                     var hasNotBeenPicked = true;
 
-                    if (this.ActItem.SelectedActivityItem != null)
+                    if (this.ActItem.SelectedItem != null)
                     {
                         if (this.ActItem.ListItems.Cast<PickingItem>().Any(pickingItem =>
                                 Convert.ToDecimal(pickingItem.ActivityItemPickingBaseQuantityShipped) != 0))
@@ -723,7 +723,7 @@ namespace dMobile.View.Activity
             }
             catch (MessageOnlyException msgEx)
             {
-                var msg = (msgEx.Message.IndexOf("MSGBOX-") == -1) ? msgEx.Message : msgEx.Message["MSGBOX-".Length..];
+                var msg = (msgEx.Message.IndexOf("MSGBOX-", StringComparison.Ordinal) == -1) ? msgEx.Message : msgEx.Message["MSGBOX-".Length..];
                 cancelChanges = false;
                 await Device.InvokeOnMainThreadAsync(async () =>
                     await Application.Current.MainPage.DisplayAlert(
@@ -868,8 +868,8 @@ namespace dMobile.View.Activity
 
             // TODO: Test BarCodeHandler
             var msg = string.Empty;
-            var currentSelectedActivityItem = this.ActItem.SelectedActivityItem;
-            var foundSelectedActivityItem = this.ActItem.SelectedActivityItem;
+            var currentSelectedActivityItem = this.ActItem.SelectedItem;
+            var foundSelectedActivityItem = this.ActItem.SelectedItem;
             var actItemFoundRefno = 0;
             BarCodeParse barCodeParse = null;
             var tempItemSchemeData = new ActItemSchemeData();
@@ -1322,7 +1322,7 @@ namespace dMobile.View.Activity
 
                 if (foundSelectedActivityItem != null)
                 {
-                    this.ActItem.SelectedActivityItem = foundSelectedActivityItem;
+                    this.ActItem.SelectedItem = foundSelectedActivityItem;
                 }
             }
             catch (GatherProductDataException ex)
@@ -1338,12 +1338,12 @@ namespace dMobile.View.Activity
 
                 if (foundSelectedActivityItem != null)
                 {
-                    this.ActItem.SelectedActivityItem = foundSelectedActivityItem;
+                    this.ActItem.SelectedItem = foundSelectedActivityItem;
                 }
             }
             catch (MessageOnlyException msgEx)
             {
-                msg = (msgEx.Message.IndexOf("MSGBOX-") == -1) ? msgEx.Message : msgEx.Message["MSGBOX-".Length..];
+                msg = (msgEx.Message.IndexOf("MSGBOX-", StringComparison.Ordinal) == -1) ? msgEx.Message : msgEx.Message["MSGBOX-".Length..];
                 await Device.InvokeOnMainThreadAsync(async () =>
                     await Application.Current.MainPage.DisplayAlert(
                         this.GetControlDescription(),
@@ -1352,7 +1352,7 @@ namespace dMobile.View.Activity
 
                 if (foundSelectedActivityItem != null)
                 {
-                    this.ActItem.SelectedActivityItem = foundSelectedActivityItem;
+                    this.ActItem.SelectedItem = foundSelectedActivityItem;
                 }
             }
             catch (Exception ex)
@@ -1365,7 +1365,7 @@ namespace dMobile.View.Activity
 
                 if (foundSelectedActivityItem != null)
                 {
-                    this.ActItem.SelectedActivityItem = foundSelectedActivityItem;
+                    this.ActItem.SelectedItem = foundSelectedActivityItem;
                 }
             }
             finally
@@ -1554,7 +1554,7 @@ namespace dMobile.View.Activity
                 this.lblProductBCUnit.Text =
                     "Product: " + ProductInfoTasks.GetCurrReadableProdBCUnit(this.ActItem.ProdInfo));
 
-            var selectedActivityItem = this.ActItem.SelectedActivityItem as PickingItem;
+            var selectedActivityItem = this.ActItem.SelectedItem as PickingItem;
 
             if (selectedActivityItem != null)
             {
@@ -1663,7 +1663,7 @@ namespace dMobile.View.Activity
                 await this.ActItem.UpdateItemTableQuantity(selectedActivityItem);
             }
 
-            this.ActItem.SelectedActivityItem = selectedActivityItem;
+            this.ActItem.SelectedItem = selectedActivityItem;
 
             await this.DisplayData();
         }
@@ -1677,7 +1677,7 @@ namespace dMobile.View.Activity
 
             if (this.SysEnv.SysSettings.IsPickMustReviewItemsBeforeRel)
             {
-                if (this.ActItem.SelectedActivityItem is PickingItem pickingItem)
+                if (this.ActItem.SelectedItem is PickingItem pickingItem)
                 {
                     isReviewed = pickingItem.ActivityItemPickingIsReviewed;
                 }
@@ -1846,7 +1846,7 @@ namespace dMobile.View.Activity
         {
             if (this.SysEnv.SysSettings.PickQtyUnderWarn != SysCommon.ActPickingQtyUnderValLevels.NoValidationOrWarning)
             {
-                if (this.ActItem.SelectedActivityItem is PickingItem pickingItem)
+                if (this.ActItem.SelectedItem is PickingItem pickingItem)
                 {
                     var available = pickingItem.ActivityItemPickingBaseQuantityAvailable;
                     var shipped = pickingItem.ActivityItemPickingQuantityShipped;
@@ -1912,7 +1912,7 @@ namespace dMobile.View.Activity
                 await this.ActItem.AssignActivityItem(this.ActItem.ListItems[0]);
 
                 var comment = await this.ActItem.GetComment(
-                        Convert.ToInt32(((PickingItem)this.ActItem.SelectedActivityItem).ActivityItemRefno));
+                        Convert.ToInt32(((PickingItem)this.ActItem.SelectedItem).ActivityItemRefno));
                 if (!string.IsNullOrEmpty(comment))
                 {
                     if (comment.Length > 30)
@@ -1973,7 +1973,7 @@ namespace dMobile.View.Activity
 
             if (this.IsControlLoaded == false)
             {
-                this.ActItem.SelectedActivityItem = null;
+                this.ActItem.SelectedItem = null;
 
                 if (this.LocMap.CurrLocMap.WhsLocMapRefno != 0)
                 {
@@ -2068,7 +2068,7 @@ namespace dMobile.View.Activity
                 }
                 catch (MessageOnlyException msgEx)
                 {
-                    var msg = (msgEx.Message.IndexOf("MSGBOX-") == -1) ? msgEx.Message : msgEx.Message["MSGBOX-".Length..];
+                    var msg = (msgEx.Message.IndexOf("MSGBOX-", StringComparison.Ordinal) == -1) ? msgEx.Message : msgEx.Message["MSGBOX-".Length..];
                     await Device.InvokeOnMainThreadAsync(async () =>
                         await Application.Current.MainPage.DisplayAlert(
                             this.GetControlDescription(),
@@ -2136,7 +2136,7 @@ namespace dMobile.View.Activity
                 }
                 catch (MessageOnlyException msgEx)
                 {
-                    var msg = (msgEx.Message.IndexOf("MSGBOX-") == -1) ? msgEx.Message : msgEx.Message["MSGBOX-".Length..];
+                    var msg = (msgEx.Message.IndexOf("MSGBOX-", StringComparison.Ordinal) == -1) ? msgEx.Message : msgEx.Message["MSGBOX-".Length..];
                     await Device.InvokeOnMainThreadAsync(async () =>
                         await Application.Current.MainPage.DisplayAlert(
                             this.GetControlDescription(),
@@ -2236,7 +2236,7 @@ namespace dMobile.View.Activity
                             // this.ActItem.DataViewItems.Sort = "ActivityItemRefno";
                             // foundRowIdx = this.ActItem.DataViewItems.Find(itemFoundRefno);
                             // this.ActItem.CurrRowIdx = foundRowIdx;
-                            this.ActItem.SelectedActivityItem = this.ActItem.ListItems.OfType<object>()
+                            this.ActItem.SelectedItem = this.ActItem.ListItems.OfType<object>()
                                 .FirstOrDefault(activityItem => Convert.ToString(activityItem.GetType()
                                                                     .GetProperty("ActivityItemRefno")
                                                                     ?.GetValue(activityItem)) ==
@@ -2250,7 +2250,7 @@ namespace dMobile.View.Activity
 
                                 // This is a little dangerous we assume that the new row idx
                                 // will be the last one
-                                this.ActItem.SelectedActivityItem = this.ActItem.ListItems.Last();
+                                this.ActItem.SelectedItem = this.ActItem.ListItems.Last();
                                 itemFoundRefno = this.ActItem.ItemRefno;
                             }
                             else
@@ -2268,8 +2268,8 @@ namespace dMobile.View.Activity
                         {
                             // LocationMapRefno is assumed to be the picking WarehouseLocationMapRefno
                             int locMapRefno = this.ActItem.GetDefaultLocMapRefno(
-                                Convert.ToInt32(((dynamic)this.ActItem.SelectedActivityItem)?.LocationMapRefno),
-                                Convert.ToInt32(((dynamic)this.ActItem.SelectedActivityItem)?.ProductRefno));
+                                Convert.ToInt32(((dynamic)this.ActItem.SelectedItem)?.LocationMapRefno),
+                                Convert.ToInt32(((dynamic)this.ActItem.SelectedItem)?.ProductRefno));
 
                             if (this.LocMap.CurrLocMapRefno != locMapRefno)
                             {
@@ -2347,7 +2347,7 @@ namespace dMobile.View.Activity
                 }
                 catch (MessageOnlyException msgEx)
                 {
-                    var msg = (msgEx.Message.IndexOf("MSGBOX-") == -1) ? msgEx.Message : msgEx.Message["MSGBOX-".Length..];
+                    var msg = (msgEx.Message.IndexOf("MSGBOX-", StringComparison.Ordinal) == -1) ? msgEx.Message : msgEx.Message["MSGBOX-".Length..];
                     await Device.InvokeOnMainThreadAsync(async () =>
                         await Application.Current.MainPage.DisplayAlert(
                             this.GetControlDescription(),
@@ -2476,7 +2476,7 @@ namespace dMobile.View.Activity
                             }
                         }
 
-                        this.ActItem.SelectedActivityItem = foundObject;
+                        this.ActItem.SelectedItem = foundObject;
 
                         // Insert a new activity detail record
                         var actDetail = ActDetailFacade.GetActDetail(this.ActItem, this.ActSubType);
@@ -2523,7 +2523,7 @@ namespace dMobile.View.Activity
                 }
                 catch (MessageOnlyException msgEx)
                 {
-                    var msg = (msgEx.Message.IndexOf("MSGBOX-") == -1) ? msgEx.Message : msgEx.Message["MSGBOX-".Length..];
+                    var msg = (msgEx.Message.IndexOf("MSGBOX-", StringComparison.Ordinal) == -1) ? msgEx.Message : msgEx.Message["MSGBOX-".Length..];
                     await Device.InvokeOnMainThreadAsync(async () =>
                         await Application.Current.MainPage.DisplayAlert(
                             this.GetControlDescription(),
@@ -2557,7 +2557,7 @@ namespace dMobile.View.Activity
                 try
                 {
                     await this.ScannerDisable();
-                    await this.ActItem.AssignActivityItem(this.ActItem.SelectedActivityItem);
+                    await this.ActItem.AssignActivityItem(this.ActItem.SelectedItem);
 
                     var currentSkid = this.ActItem.ActHdr.SkidInfo.CurrSkid;
                     if (this.ActItem.ActHdr.SkidInfo.CurrSkid.SkidFKRefno != 0)
@@ -2577,12 +2577,12 @@ namespace dMobile.View.Activity
                     var xmlDoc = await form.GetXML();
 
                     this.ActItem.ReplaceQuantityInActivityItem(
-                        this.ActItem.SelectedActivityItem,
+                        this.ActItem.SelectedItem,
                         Math.Round(decimal.Parse(xmlDoc.Root.Element("qty").Value), 3),
                         Math.Round(decimal.Parse(xmlDoc.Root.Element("base_qty").Value), 3),
                         Math.Round(decimal.Parse(xmlDoc.Root.Element("wt_qty").Value), 3));
 
-                    await this.ActItem.UpdateItemTableQuantity(this.ActItem.SelectedActivityItem);
+                    await this.ActItem.UpdateItemTableQuantity(this.ActItem.SelectedItem);
 
                     if (currentSkid.SkidFKRefno != 0)
                     {
@@ -2602,7 +2602,7 @@ namespace dMobile.View.Activity
                 }
                 catch (MessageOnlyException msgEx)
                 {
-                    var msg = (msgEx.Message.IndexOf("MSGBOX-") == -1) ? msgEx.Message : msgEx.Message["MSGBOX-".Length..];
+                    var msg = (msgEx.Message.IndexOf("MSGBOX-", StringComparison.Ordinal) == -1) ? msgEx.Message : msgEx.Message["MSGBOX-".Length..];
                     await Device.InvokeOnMainThreadAsync(async () =>
                         await Application.Current.MainPage.DisplayAlert(
                             this.GetControlDescription(),
@@ -2639,7 +2639,7 @@ namespace dMobile.View.Activity
 
                     if (this.ActSubType == SysCommon.ActSubTypes.PickingSingle)
                     {
-                        if (this.ActItem.SelectedActivityItem != null)
+                        if (this.ActItem.SelectedItem != null)
                         {
                             try
                             {
@@ -2689,9 +2689,9 @@ namespace dMobile.View.Activity
                     {
                         await this.FullQuantityShippingLabels();
 
-                        if (this.ActItem.SelectedActivityItem != null)
+                        if (this.ActItem.SelectedItem != null)
                         {
-                            await this.ActItem.AssignActivityItem(this.ActItem.SelectedActivityItem);
+                            await this.ActItem.AssignActivityItem(this.ActItem.SelectedItem);
                         }
 
                         if (this.SysEnv.SysSettings.IsDefaultLocToProductDefaultLoc)
@@ -2712,7 +2712,7 @@ namespace dMobile.View.Activity
                 }
                 catch (MessageOnlyException msgEx)
                 {
-                    var msg = (msgEx.Message.IndexOf("MSGBOX-") == -1) ? msgEx.Message : msgEx.Message["MSGBOX-".Length..];
+                    var msg = (msgEx.Message.IndexOf("MSGBOX-", StringComparison.Ordinal) == -1) ? msgEx.Message : msgEx.Message["MSGBOX-".Length..];
                     await Device.InvokeOnMainThreadAsync(async () =>
                         await Application.Current.MainPage.DisplayAlert(
                             this.GetControlDescription(),
@@ -2787,9 +2787,9 @@ namespace dMobile.View.Activity
                     {
                         await this.FullQuantityShippingLabels();
 
-                        if (this.ActItem.SelectedActivityItem != null)
+                        if (this.ActItem.SelectedItem != null)
                         {
-                            await this.ActItem.AssignActivityItem(this.ActItem.SelectedActivityItem);
+                            await this.ActItem.AssignActivityItem(this.ActItem.SelectedItem);
                         }
 
                         if (this.SysEnv.SysSettings.IsDefaultLocToProductDefaultLoc)
@@ -2810,7 +2810,7 @@ namespace dMobile.View.Activity
                 }
                 catch (MessageOnlyException msgEx)
                 {
-                    var msg = (msgEx.Message.IndexOf("MSGBOX-") == -1) ? msgEx.Message : msgEx.Message["MSGBOX-".Length..];
+                    var msg = (msgEx.Message.IndexOf("MSGBOX-", StringComparison.Ordinal) == -1) ? msgEx.Message : msgEx.Message["MSGBOX-".Length..];
                     await Device.InvokeOnMainThreadAsync(async () =>
                         await Application.Current.MainPage.DisplayAlert(
                             this.GetControlDescription(),
@@ -2844,14 +2844,14 @@ namespace dMobile.View.Activity
             {
                 await this.ScannerDisable();
 
-                if (this.ActItem.SelectedActivityItem == null)
+                if (this.ActItem.SelectedItem == null)
                 {
                     throw new MessageOnlyException("Please select and line item to show the comments for.");
                 }
 
                 string comment =
                     await this.ActItem.GetComment(
-                        Convert.ToInt32((this.ActItem.SelectedActivityItem as dynamic).ActivityItemRefno));
+                        Convert.ToInt32((this.ActItem.SelectedItem as dynamic).ActivityItemRefno));
 
                 if (!string.IsNullOrEmpty(comment))
                 {
@@ -2863,7 +2863,7 @@ namespace dMobile.View.Activity
             }
             catch (MessageOnlyException msgEx)
             {
-                var msg = (msgEx.Message.IndexOf("MSGBOX-") == -1) ? msgEx.Message : msgEx.Message["MSGBOX-".Length..];
+                var msg = (msgEx.Message.IndexOf("MSGBOX-", StringComparison.Ordinal) == -1) ? msgEx.Message : msgEx.Message["MSGBOX-".Length..];
                 await Device.InvokeOnMainThreadAsync(async () =>
                     await Application.Current.MainPage.DisplayAlert(
                         this.GetControlDescription(),
@@ -2908,7 +2908,7 @@ namespace dMobile.View.Activity
             }
             catch (MessageOnlyException msgEx)
             {
-                var msg = (msgEx.Message.IndexOf("MSGBOX-") == -1) ? msgEx.Message : msgEx.Message["MSGBOX-".Length..];
+                var msg = (msgEx.Message.IndexOf("MSGBOX-", StringComparison.Ordinal) == -1) ? msgEx.Message : msgEx.Message["MSGBOX-".Length..];
                 await Device.InvokeOnMainThreadAsync(async () =>
                     await Application.Current.MainPage.DisplayAlert(
                         this.GetControlDescription(),

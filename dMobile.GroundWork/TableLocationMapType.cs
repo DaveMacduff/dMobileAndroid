@@ -287,7 +287,13 @@ namespace dMobile.GroundWork
         protected override async Task<string> CreateRequest(int activityItemFkRefno)
         {
             var xmlString = new StringBuilder();
-            var xml = XmlWriter.Create(xmlString);
+            var settings = new XmlWriterSettings
+            {
+                Async = true,
+                Indent = false,
+            };
+            var xml = XmlWriter.Create(xmlString, settings);
+
             var locMapWhsFKRefno = 0;
             var locMapWhs = new TableLocationMapWarehouse();
 
@@ -308,7 +314,7 @@ namespace dMobile.GroundWork
                 + "</imclient>");
 
             request.Save(xml);
-            xml.Flush();
+            await xml.FlushAsync();
             xml.Close();
 
             return xmlString.ToString();

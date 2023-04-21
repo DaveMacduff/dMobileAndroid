@@ -492,7 +492,7 @@ namespace dMobile.View.Activity
         /// </summary>
         private void DisplaySummaryData()
         {
-            var selectedItem = this.ActItem.SelectedActivityItem as Resources.Types.ActivityItem;
+            var selectedItem = this.ActItem.SelectedItem as Resources.Types.ActivityItem;
             var prodInfo = this.ActItem.ProdInfo;
 
             this.ExtraInfoItems.Clear();
@@ -628,7 +628,7 @@ namespace dMobile.View.Activity
         /// <param name="e">The e<see cref="SelectedItemChangedEventArgs"/>.</param>
         private void ListViewMainActivity_ItemSelected(object sender, SelectedItemChangedEventArgs e)
         {
-            this.ActItem.SelectedActivityItem = e.SelectedItem;
+            this.ActItem.SelectedItem = e.SelectedItem;
             this.DisplaySummaryData();
         }
     }

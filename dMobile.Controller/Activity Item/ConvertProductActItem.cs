@@ -162,7 +162,7 @@ namespace dMobile.Controller.Activity_Item
                 };
 
                 this.ListItems.Add(item);
-                this.SelectedListItemIdx = this.ListItems.Count - 1;
+                this.SelectedListIdx = this.ListItems.Count - 1;
                 _ = this.AssignActivityItem(item);
             }
         }

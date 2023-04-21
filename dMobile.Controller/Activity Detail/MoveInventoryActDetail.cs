@@ -178,20 +178,28 @@ namespace dMobile.Controller.Activity_Detail
         /// <returns>The <see cref="Task"/>.</returns>
         public override async Task Submit(object selectedActivityDetail, XDocument data)
         {
-            var detail = (MoveDetail)selectedActivityDetail;
-            await this.AssignThisFromDetailAsync(detail, false);
-
-            var xmlDoc = new XmlDocument();
-            var xmlSend = await this.CreateSubmitXml(data);
-            var responseData = SysCommon.SubmitComm(xmlSend);
-            xmlDoc.LoadXml(responseData);
-            ((MoveDetail)selectedActivityDetail).ActivityDetailStatus = (int)SysCommon.ActStatus.NoChange;
-            if (xmlDoc.DocumentElement?["ser_refno"] != null)
+            if (selectedActivityDetail == null)
             {
-                this.DetailFkRefno = int.Parse(xmlDoc.DocumentElement["ser_refno"].InnerText);
+                var xmlSend = await this.CreateSubmitXmlAll(data);
+                _ = SysCommon.SubmitComm(xmlSend);
             }
+            else
+            {
+                var detail = (MoveDetail)selectedActivityDetail;
+                await this.AssignThisFromDetailAsync(detail, false);
 
-            this.ListDetails.Remove(selectedActivityDetail);
+                var xmlDoc = new XmlDocument();
+                var xmlSend = await this.CreateSubmitXml(data);
+                var responseData = SysCommon.SubmitComm(xmlSend);
+                xmlDoc.LoadXml(responseData);
+                ((MoveDetail)selectedActivityDetail).ActivityDetailStatus = (int)SysCommon.ActStatus.NoChange;
+                if (xmlDoc.DocumentElement?["ser_refno"] != null)
+                {
+                    this.DetailFkRefno = int.Parse(xmlDoc.DocumentElement["ser_refno"].InnerText);
+                }
+
+                this.ListDetails.Remove(selectedActivityDetail);
+            }
         }
 
         /// <summary>
@@ -499,6 +507,41 @@ namespace dMobile.Controller.Activity_Detail
         public override async Task<string> CreateDeleteXml(XDocument data)
         {
             throw new NotImplementedException();
+        }
+
+        /// <summary>
+        /// The CreateSubmitXMLAll.
+        /// </summary>
+        /// <param name="data">.</param>
+        /// <returns>.</returns>
+        public async Task<string> CreateSubmitXmlAll(XDocument data)
+        {
+            var xmlString = new StringBuilder();
+            var xml = XmlWriter.Create(xmlString, new XmlWriterSettings() { Async = true });
+
+            var request = XDocument.Parse(
+                "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>"
+                + "<imclient>"
+                + "<command>"
+                + "<action>SUBMIT MOVE ALL</action>"
+                + "<whs_id>0</whs_id>"
+                + "<sect_refno>0</sect_refno>"
+                + "</command>"
+                + await SysCommon.GetRequestDefaults(false)
+                + "<whs_id>" + data.Root.Element("whs_id").Value + "</whs_id>"
+                + "<sect_refno>" + data.Root.Element("sect_refno").Value + "</sect_refno>"
+                + "<slot_refno>" + data.Root.Element("slot_refno").Value + "</slot_refno>"
+                + "<to_sect_refno>" + data.Root.Element("to_sect_refno").Value + "</to_sect_refno>"
+                + "<to_slot_refno>" + data.Root.Element("to_slot_refno").Value + "</to_slot_refno>"
+                + "<refno>" + this.ActItem.ActHdr.HdrFkRefno + "</refno>"
+                + "<itm_refno>" + this.ActItem.ItemFkRefno + "</itm_refno>"
+                + "</imclient>");
+
+            request.Save(xml);
+            await xml.FlushAsync();
+            xml.Close();
+
+            return xmlString.ToString();
         }
 
         /// <summary>

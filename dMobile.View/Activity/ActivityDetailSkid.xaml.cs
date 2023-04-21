@@ -211,7 +211,7 @@ namespace dMobile.View.Activity
             }
             catch (MessageOnlyException msgEx)
             {
-                var msg = (msgEx.Message.IndexOf("MSGBOX-") == -1) ? msgEx.Message : msgEx.Message["MSGBOX-".Length..];
+                var msg = (msgEx.Message.IndexOf("MSGBOX-", StringComparison.Ordinal) == -1) ? msgEx.Message : msgEx.Message["MSGBOX-".Length..];
                 await Device.InvokeOnMainThreadAsync(async () =>
                     await Application.Current.MainPage.DisplayAlert(
                         this.ActDetail.GetControlDescription(),
@@ -249,7 +249,7 @@ namespace dMobile.View.Activity
             }
             catch (MessageOnlyException msgEx)
             {
-                var msg = (msgEx.Message.IndexOf("MSGBOX-") == -1) ? msgEx.Message : msgEx.Message["MSGBOX-".Length..];
+                var msg = (msgEx.Message.IndexOf("MSGBOX-", StringComparison.Ordinal) == -1) ? msgEx.Message : msgEx.Message["MSGBOX-".Length..];
                 isReadyToSave = false;
                 await Device.InvokeOnMainThreadAsync(async () =>
                     await Application.Current.MainPage.DisplayAlert(
@@ -312,7 +312,7 @@ namespace dMobile.View.Activity
             }
             catch (MessageOnlyException msgEx)
             {
-                var msg = (msgEx.Message.IndexOf("MSGBOX-") == -1) ? msgEx.Message : msgEx.Message["MSGBOX-".Length..];
+                var msg = (msgEx.Message.IndexOf("MSGBOX-", StringComparison.Ordinal) == -1) ? msgEx.Message : msgEx.Message["MSGBOX-".Length..];
                 await Device.InvokeOnMainThreadAsync(async () =>
                     await Application.Current.MainPage.DisplayAlert(
                         this.GetControlDescription(),
@@ -377,7 +377,7 @@ namespace dMobile.View.Activity
             }
             catch (MessageOnlyException msgEx)
             {
-                var msg = (msgEx.Message.IndexOf("MSGBOX-") == -1) ? msgEx.Message : msgEx.Message["MSGBOX-".Length..];
+                var msg = (msgEx.Message.IndexOf("MSGBOX-", StringComparison.Ordinal) == -1) ? msgEx.Message : msgEx.Message["MSGBOX-".Length..];
                 cancelChanges = false;
                 await Device.InvokeOnMainThreadAsync(async () =>
                     await Application.Current.MainPage.DisplayAlert(
@@ -442,7 +442,7 @@ namespace dMobile.View.Activity
             }
             catch (MessageOnlyException msgEx)
             {
-                var msg = (msgEx.Message.IndexOf("MSGBOX-") == -1) ? msgEx.Message : msgEx.Message["MSGBOX-".Length..];
+                var msg = (msgEx.Message.IndexOf("MSGBOX-", StringComparison.Ordinal) == -1) ? msgEx.Message : msgEx.Message["MSGBOX-".Length..];
 
                 ////this.IsFirstAppearance = true;
                 await Device.InvokeOnMainThreadAsync(async () =>
@@ -627,7 +627,7 @@ namespace dMobile.View.Activity
                     }
                     catch (MessageOnlyException msgEx)
                     {
-                        var msg = (msgEx.Message.IndexOf("MSGBOX-") == -1) ? msgEx.Message : msgEx.Message["MSGBOX-".Length..];
+                        var msg = (msgEx.Message.IndexOf("MSGBOX-", StringComparison.Ordinal) == -1) ? msgEx.Message : msgEx.Message["MSGBOX-".Length..];
                         await Device.InvokeOnMainThreadAsync(async () =>
                             await Application.Current.MainPage.DisplayAlert(
                                 this.GetControlDescription(),
@@ -741,7 +741,7 @@ namespace dMobile.View.Activity
             else
             {
                 // Clear the activity nothing can be selected.
-                this.ActDetail.SelectedActivityDetail = null;
+                this.ActDetail.SelectedDetail = null;
                 this.ActDetail.DetailFkRefno = 0;
                 this.ActDetail.DetailRefno = 0;
                 this.ListViewMainActivity.SelectedItem = null;
@@ -797,7 +797,7 @@ namespace dMobile.View.Activity
                 }
                 catch (MessageOnlyException msgEx)
                 {
-                    var msg = (msgEx.Message.IndexOf("MSGBOX-") == -1) ? msgEx.Message : msgEx.Message["MSGBOX-".Length..];
+                    var msg = (msgEx.Message.IndexOf("MSGBOX-", StringComparison.Ordinal) == -1) ? msgEx.Message : msgEx.Message["MSGBOX-".Length..];
                     await Device.InvokeOnMainThreadAsync(async () =>
                         await Application.Current.MainPage.DisplayAlert(
                             this.ActDetail.GetControlDescription(),
@@ -957,7 +957,7 @@ namespace dMobile.View.Activity
             }
             catch (MessageOnlyException msgEx)
             {
-                var msg = (msgEx.Message.IndexOf("MSGBOX-") == -1) ? msgEx.Message : msgEx.Message["MSGBOX-".Length..];
+                var msg = (msgEx.Message.IndexOf("MSGBOX-", StringComparison.Ordinal) == -1) ? msgEx.Message : msgEx.Message["MSGBOX-".Length..];
                 this.CleanUpBarCodeHandler(svdActDetailFKRefno, currRowIdx);
                 await Device.InvokeOnMainThreadAsync(async () =>
                     await Application.Current.MainPage.DisplayAlert(
@@ -1138,7 +1138,7 @@ namespace dMobile.View.Activity
             }
             catch (MessageOnlyException msgEx)
             {
-                var msg = (msgEx.Message.IndexOf("MSGBOX-") == -1) ? msgEx.Message : msgEx.Message["MSGBOX-".Length..];
+                var msg = (msgEx.Message.IndexOf("MSGBOX-", StringComparison.Ordinal) == -1) ? msgEx.Message : msgEx.Message["MSGBOX-".Length..];
                 await Device.InvokeOnMainThreadAsync(async () =>
                     await Application.Current.MainPage.DisplayAlert(
                         this.GetControlDescription(),
@@ -1262,7 +1262,6 @@ namespace dMobile.View.Activity
                     this.ActDetail,
                     true);
 
-                this.ActDetail.IsUpdateView = true;
                 if (isInsertReady)
                 {
                     await this.InsertActivityDetail(this.ActDetail);
@@ -1281,7 +1280,7 @@ namespace dMobile.View.Activity
             }
             catch (MessageOnlyException msgEx)
             {
-                var msg = (msgEx.Message.IndexOf("MSGBOX-") == -1) ? msgEx.Message : msgEx.Message["MSGBOX-".Length..];
+                var msg = (msgEx.Message.IndexOf("MSGBOX-", StringComparison.Ordinal) == -1) ? msgEx.Message : msgEx.Message["MSGBOX-".Length..];
                 await Device.InvokeOnMainThreadAsync(async () =>
                     await Application.Current.MainPage.DisplayAlert(
                         this.GetControlDescription(),
@@ -1352,7 +1351,7 @@ namespace dMobile.View.Activity
             }
             catch (MessageOnlyException msgEx)
             {
-                var msg = (msgEx.Message.IndexOf("MSGBOX-") == -1) ? msgEx.Message : msgEx.Message["MSGBOX-".Length..];
+                var msg = (msgEx.Message.IndexOf("MSGBOX-", StringComparison.Ordinal) == -1) ? msgEx.Message : msgEx.Message["MSGBOX-".Length..];
                 await Device.InvokeOnMainThreadAsync(async () =>
                     await Application.Current.MainPage.DisplayAlert(
                         this.GetControlDescription(),

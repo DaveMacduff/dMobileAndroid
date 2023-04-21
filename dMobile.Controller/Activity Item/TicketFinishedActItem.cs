@@ -25,41 +25,6 @@ namespace dMobile.Controller.Activity_Item
     public class TicketFinishedActItem : ActItem
     {
         /// <summary>
-        /// Defines the columnWidth0.
-        /// </summary>
-        private double columnWidth0 = 0;
-
-        /// <summary>
-        /// Defines the columnWidth1.
-        /// </summary>
-        private double columnWidth1 = 0;
-
-        /// <summary>
-        /// Defines the columnWidth2.
-        /// </summary>
-        private double columnWidth2 = 0;
-
-        /// <summary>
-        /// Defines the columnWidth3.
-        /// </summary>
-        private double columnWidth3 = 0;
-
-        /// <summary>
-        /// Defines the columnWidth4.
-        /// </summary>
-        private double columnWidth4 = 0;
-
-        /// <summary>
-        /// Defines the resourceDictionary.
-        /// </summary>
-        private ResourceDictionary resourceDictionary = new ResourceDictionary();
-
-        /// <summary>
-        /// Defines the listProductionTicketFinishedItems.
-        /// </summary>
-        private List<ProductionTicketFinishedItem> listProductionTicketFinishedItems = new List<ProductionTicketFinishedItem>();
-
-        /// <summary>
         /// Initializes a new instance of the <see cref="TicketFinishedActItem"/> class.
         /// </summary>
         /// <param name="activity">.</param>
@@ -78,11 +43,11 @@ namespace dMobile.Controller.Activity_Item
                     Padding = new Thickness(5),
                     ColumnDefinitions =
                     {
-                        new ColumnDefinition { Width = new GridLength(this.columnWidth0, GridUnitType.Absolute) },
-                        new ColumnDefinition { Width = new GridLength(this.columnWidth1, GridUnitType.Absolute) },
-                        new ColumnDefinition { Width = new GridLength(this.columnWidth2, GridUnitType.Absolute) },
-                        new ColumnDefinition { Width = new GridLength(this.columnWidth3, GridUnitType.Absolute) },
-                        new ColumnDefinition { Width = new GridLength(this.columnWidth4, GridUnitType.Absolute) },
+                        new ColumnDefinition { Width = new GridLength(this.ColumnWidth0, GridUnitType.Absolute) },
+                        new ColumnDefinition { Width = new GridLength(this.ColumnWidth1, GridUnitType.Absolute) },
+                        new ColumnDefinition { Width = new GridLength(this.ColumnWidth2, GridUnitType.Absolute) },
+                        new ColumnDefinition { Width = new GridLength(this.ColumnWidth3, GridUnitType.Absolute) },
+                        new ColumnDefinition { Width = new GridLength(this.ColumnWidth4, GridUnitType.Absolute) },
                     },
                 };
 
@@ -117,7 +82,7 @@ namespace dMobile.Controller.Activity_Item
             });
 
             var isAddKey = true;
-            foreach (var item in this.resourceDictionary)
+            foreach (var item in this.ResDict)
             {
                 if (item.Key == "dataTemplateFinishedItem")
                 {
@@ -127,9 +92,45 @@ namespace dMobile.Controller.Activity_Item
 
             if (isAddKey)
             {
-                this.resourceDictionary.Add("dataTemplateFinishedItem", dataTemplate);
+                this.ResDict.Add("dataTemplateFinishedItem", dataTemplate);
             }
         }
+
+        /// <summary>
+        /// Defines the columnWidth0.
+        /// </summary>
+        private double ColumnWidth0 { get; set; } = 0;
+
+        /// <summary>
+        /// Defines the columnWidth1.
+        /// </summary>
+        private double ColumnWidth1 { get; set; } = 0;
+
+        /// <summary>
+        /// Defines the columnWidth2.
+        /// </summary>
+        private double ColumnWidth2 { get; set; } = 0;
+
+        /// <summary>
+        /// Defines the columnWidth3.
+        /// </summary>
+        private double ColumnWidth3 { get; set; } = 0;
+
+        /// <summary>
+        /// Defines the columnWidth4.
+        /// </summary>
+        private double ColumnWidth4 { get; set; } = 0;
+
+        /// <summary>
+        /// Defines the resourceDictionary.
+        /// </summary>
+        private ResourceDictionary ResDict { get; } = new ResourceDictionary();
+
+        /// <summary>
+        /// Defines the listProductionTicketFinishedItems.
+        /// </summary>
+        private List<ProductionTicketFinishedItem> ListProductionTicketFinishedItems { get; set; } =
+            new List<ProductionTicketFinishedItem>();
 
         /// <summary>
         /// Set the activity item selected activity item.
@@ -137,7 +138,7 @@ namespace dMobile.Controller.Activity_Item
         /// <param name="actItemFoundRefno"><see cref="int"/> Activity item reference number to look up.</param>
         public override void SetSelectedActivityItemFromList(int actItemFoundRefno)
         {
-            this.SelectedListItemIdx = -1;
+            this.SelectedListIdx = -1;
             if (actItemFoundRefno >= 0)
             {
                 var idx = 0;
@@ -145,8 +146,8 @@ namespace dMobile.Controller.Activity_Item
                 {
                     if (item.ActivityItemRefno == this.ItemRefno)
                     {
-                        this.SelectedActivityItem = item;
-                        this.SelectedListItemIdx = idx;
+                        this.SelectedItem = item;
+                        this.SelectedListIdx = idx;
                         break;
                     }
 
@@ -155,7 +156,7 @@ namespace dMobile.Controller.Activity_Item
             }
             else
             {
-                this.SelectedActivityItem = null;
+                this.SelectedItem = null;
             }
         }
 
@@ -230,7 +231,7 @@ namespace dMobile.Controller.Activity_Item
         public override async Task<int> GetDefaultLocMapRefno(int whsLocMapRefno, int prodRefno)
         {
             var locMapRefno = 0;
-            if (this.SelectedActivityItem is ProductionTicketByProductItem item)
+            if (this.SelectedItem is ProductionTicketByProductItem item)
             {
                 if (Math.Sign(item.ActivityItemProductionQuantity) == 0 ||
                     Math.Sign(item.ActivityItemProductionQuantity) == 1)
@@ -302,131 +303,129 @@ namespace dMobile.Controller.Activity_Item
         /// <returns><see cref="Task"/> Task operation.</returns>
         public override async Task Insert(XDocument data)
         {
-            var foundActItemRefno = 0;
-            var dlgResult = false;
-
             var prodUnitRefno = int.Parse(data.Root.Element("ProductUnitRefno").Value);
-            if (prodUnitRefno != 0)
+            if (prodUnitRefno <= 0)
             {
-                foundActItemRefno = await this.GetActivityItemRefno(prodUnitRefno, LocationMap.GetInstance().CurrLocMap);
+                throw new Exception("prodUnitRefno expected to be greater than zero.");
+            }
 
-                if (foundActItemRefno > 0)
-                {
-                    dlgResult = await Device.InvokeOnMainThreadAsync(async () => await Application.Current.MainPage.DisplayAlert("New Item", "A line item already exists for this location and product." + Environment.NewLine + "Do you wish to create one?", "Yes", "No"));
-                }
-                else
-                {
-                    // If the selected product to insert was not found, force the dialog result to insert it.
-                    dlgResult = true;
-                }
+            this.ProdInfo = await ProductInfoTasks.GetInfoFromUnitRefno(prodUnitRefno);
+            this.ProdInfo.Scheme = await ProductInfoTasks.GetSchemeComponentsFromRefno(this.ProdInfo.Refno);
 
-                if (dlgResult)
+            await InsertActivityItemInTables(prodUnitRefno);
+            AddActivityItemToList(prodUnitRefno);
+
+            //////////////////////////////////////////////////////////////////////////
+            async Task InsertActivityItemInTables(int prodUnitRefno)
+            {
+                await DatabaseConnection.GetInstance().SQLConn.RunInTransactionAsync(transaction =>
                 {
-                    await DatabaseConnection.GetInstance().SQLConn.RunInTransactionAsync(transaction =>
+                    try
                     {
-                        try
+                        transaction.Execute(
+                            "INSERT INTO tActivityItem (ActivityItemSubType, ActivityItemStatus, ActivityRefno," +
+                                " ActivityItemIsAdded) VALUES (?, ?, ?, ?)",
+                            Convert.ToInt32(SysCommon.ActSubTypes.TicketFinished),
+                            Convert.ToInt32(SysCommon.ActStatus.Inserted),
+                            Convert.ToInt32(this.ActHdr.HdrRefno),
+                            1);
+
+                        this.ItemRefno = Convert.ToInt32(transaction.ExecuteScalar<int>(
+                            "SELECT last_insert_rowid() FROM tActivityItem"));
+
+                        var queryItemProduction = "INSERT INTO tActivityItemProduction (" +
+                                                  "ActivityItemRefno, " +
+                                                  "ActivityItemSubType, " +
+                                                  "ProductUnitRefno, " +
+                                                  "LocationMapRefno, " +
+                                                  "ActivityItemProductionQuantity, " +
+                                                  "ActivityItemProductionBaseQuantity, " +
+                                                  "ActivityItemProductionWeightQuantity, " +
+                                                  "ActivityItemProductionDescription, " +
+                                                  "ActivityItemProductionQuantityExpected, " +
+                                                  "ActivityItemProductionBaseQuantityExpected, " +
+                                                  "ActivityItemProductionWeightQuantityExpected" +
+                                                  ") VALUES (" +
+                                                  "?, " +
+                                                  "?, " +
+                                                  "?, " +
+                                                  "?, " +
+                                                  "?, " +
+                                                  "?, " +
+                                                  "?, " +
+                                                  "?, " +
+                                                  "?, " +
+                                                  "?, " +
+                                                  "?" +
+                                                  ")";
+                        var parametersItemProduction = new object[]
                         {
-                            transaction.Execute(
-                                "INSERT INTO tActivityItem (ActivityItemSubType, ActivityItemStatus," +
-                                " ActivityRefno, ActivityItemIsAdded) VALUES (?, ?, ?, ?)",
-                                Convert.ToInt32(SysCommon.ActSubTypes.TicketFinished),
-                                Convert.ToInt32(SysCommon.ActStatus.Inserted),
-                                Convert.ToInt32(this.ActHdr.HdrRefno),
-                                1);
-
-                            this.ItemRefno = Convert.ToInt32(transaction.ExecuteScalar<int>("SELECT last_insert_rowid() FROM tActivityItem"));
-
-                            var querytItemProduction = "INSERT INTO tActivityItemProduction (" +
-                                                       "ActivityItemRefno, " +
-                                                       "ActivityItemSubType, " +
-                                                       "ProductUnitRefno, " +
-                                                       "LocationMapRefno, " +
-                                                       "ActivityItemProductionQuantity, " +
-                                                       "ActivityItemProductionBaseQuantity, " +
-                                                       "ActivityItemProductionWeightQuantity, " +
-                                                       "ActivityItemProductionDescription, " +
-                                                       "ActivityItemProductionQuantityExpected, " +
-                                                       "ActivityItemProductionBaseQuantityExpected, " +
-                                                       "ActivityItemProductionWeightQuantityExpected" +
-                                                       ") VALUES (" +
-                                                       "?, " +
-                                                       "?, " +
-                                                       "?, " +
-                                                       "?, " +
-                                                       "?, " +
-                                                       "?, " +
-                                                       "?, " +
-                                                       "?, " +
-                                                       "?, " +
-                                                       "?, " +
-                                                       "?" +
-                                                       ")";
-                            var parametersItemProduction = new object[]
-                            {
-                                Convert.ToInt32(this.ItemRefno),
-                                Convert.ToInt32(SysCommon.ActSubTypes.TicketFinished),
-                                Convert.ToInt32(prodUnitRefno),
-                                Convert.ToInt32(this.LocMap.WhsLocMapRefno),
-                                Convert.ToDecimal(0),
-                                Convert.ToDecimal(0),
-                                Convert.ToDecimal(0),
-                                Convert.ToString(data.Root.Element("ProductDescription").Value.ToString().TrimEnd() + " " + data.Root.Element("ProductUnitSizeDescription").Value),
-                                Convert.ToDecimal(0),
-                                Convert.ToDecimal(0),
-                                Convert.ToDecimal(0),
-                            };
-
-                            transaction.Execute(querytItemProduction, parametersItemProduction);
-
-                            this.ItemFkRefno = this.ItemRefno * -1;
-
-                            transaction.Execute("INSERT INTO tActivityItemProductionFinished (ActivityItemRefno, ActivityItemFKRefno, ActivityItemStringFKRefno) VALUES (?, ?, ?)",
-                                Convert.ToInt32(this.ItemRefno),
-                                Convert.ToInt32(this.ItemFkRefno),
-                                Convert.ToString(this.ItemFkRefno));
-                            transaction.Commit();
-                        }
-                        catch (SQLiteException ex)
-                        {
-                            transaction.Rollback();
-
-                            Console.WriteLine(ex);
-                        }
-                    });
-
-                    this.ProdInfo = await ProductInfoTasks.GetInfoFromUnitRefno(prodUnitRefno);
-                    this.ProdInfo.Scheme = await ProductInfoTasks.GetSchemeComponentsFromRefno(this.ProdInfo.Refno);
-
-                    if (this.ListItems != null)
-                    {
-                        var item = new ProductionTicketFinishedItem()
-                        {
-                            ActivityItemRefno = this.ItemRefno,
-                            ActivityItemFKRefno = this.ItemFkRefno,
-                            ActivityItemStringFKRefno = this.ItemFkRefno.ToString(),
-                            ProductUnitRefno = prodUnitRefno,
-                            ProductRefno = int.Parse(data.Root.Element("ProductRefno").Value),
-                            ProductCode = data.Root.Element("ProductCode").Value,
-                            ProductDescription = data.Root.Element("ProductDescription").Value,
-                            BaseUnitCode = data.Root.Element("BaseUnitCode").Value,
-                            ProductUnitBC = data.Root.Element("ProductUnitBC").Value,
-                            ProductUnitSizeDescription = data.Root.Element("ProductUnitSizeDescription").Value,
-                            LocationMapRefno = this.LocMap.WhsLocMapRefno,
-                            LocationCode = this.LocMap.WhsCode,
-                            LocationName = this.LocMap.WhsName,
-                            ActivityItemStatus = Convert.ToInt32(SysCommon.ActStatus.Inserted),
-                            ActivityItemProductionQuantity = 0,
-                            ActivityItemProductionBaseQuantity = 0,
-                            ActivityItemProductionWeightQuantity = 0,
-                            ActivityItemProductionQuantityExpected = 0,
-                            ActivityItemProductionBaseQuantityExpected = 0,
-                            ActivityItemProductionWeightQuantityExpected = 0,
+                            Convert.ToInt32(this.ItemRefno),
+                            Convert.ToInt32(SysCommon.ActSubTypes.TicketFinished),
+                            Convert.ToInt32(prodUnitRefno),
+                            Convert.ToInt32(this.LocMap.WhsLocMapRefno),
+                            Convert.ToDecimal(0),
+                            Convert.ToDecimal(0),
+                            Convert.ToDecimal(0),
+                            Convert.ToString(data.Root.Element("ProductDescription").Value.ToString().TrimEnd() +
+                                             " " + data.Root.Element("ProductUnitSizeDescription").Value),
+                            Convert.ToDecimal(0),
+                            Convert.ToDecimal(0),
+                            Convert.ToDecimal(0),
                         };
-                        this.ListItems.Add(item);
-                        this.SelectedListItemIdx = this.ListItems.Count - 1;
-                        _ = this.AssignActivityItem(item);
+
+                        transaction.Execute(queryItemProduction, parametersItemProduction);
+
+                        // Get temporary item FK refno for newly inserted line item.
+                        this.ItemFkRefno = Convert.ToInt32(transaction.ExecuteScalar<int>(
+                            "SELECT MAX(tActivityItemProductionFinished.ActivityItemFKRefno)" +
+                            $" FROM tActivityItemProductionFinished"));
+                        this.ItemFkRefno = this.ItemFkRefno + 1;
+
+                        transaction.Execute(
+                            "INSERT INTO tActivityItemProductionFinished (ActivityItemRefno, ActivityItemFKRefno," +
+                                " ActivityItemStringFKRefno) VALUES (?, ?, ?)",
+                            Convert.ToInt32(this.ItemRefno),
+                            Convert.ToInt32(this.ItemFkRefno),
+                            Convert.ToString(this.ItemFkRefno));
+                        transaction.Commit();
                     }
-                }
+                    catch (SQLiteException ex)
+                    {
+                        transaction.Rollback();
+
+                        Console.WriteLine(ex);
+                    }
+                });
+            }
+
+            //////////////////////////////////////////////////////////////////////////
+            void AddActivityItemToList(int prodUnitRefno)
+            {
+                var item = new ProductionTicketFinishedItem()
+                {
+                    ActivityItemRefno = this.ItemRefno,
+                    ActivityItemFKRefno = this.ItemFkRefno,
+                    ActivityItemStringFKRefno = this.ItemFkRefno.ToString(),
+                    ProductUnitRefno = prodUnitRefno,
+                    ProductRefno = int.Parse(data.Root.Element("ProductRefno").Value),
+                    ProductCode = data.Root.Element("ProductCode").Value,
+                    ProductDescription = data.Root.Element("ProductDescription").Value,
+                    BaseUnitCode = data.Root.Element("BaseUnitCode").Value,
+                    ProductUnitBC = data.Root.Element("ProductUnitBC").Value,
+                    ProductUnitSizeDescription = data.Root.Element("ProductUnitSizeDescription").Value,
+                    LocationMapRefno = this.LocMap.WhsLocMapRefno,
+                    LocationCode = this.LocMap.WhsCode,
+                    LocationName = this.LocMap.WhsName,
+                    ActivityItemStatus = Convert.ToInt32(SysCommon.ActStatus.Inserted),
+                    ActivityItemProductionQuantity = 0,
+                    ActivityItemProductionBaseQuantity = 0,
+                    ActivityItemProductionWeightQuantity = 0,
+                    ActivityItemProductionQuantityExpected = 0,
+                    ActivityItemProductionBaseQuantityExpected = 0,
+                    ActivityItemProductionWeightQuantityExpected = 0,
+                };
+                this.ListItems.Add(item);
             }
         }
 
@@ -503,22 +502,22 @@ namespace dMobile.Controller.Activity_Item
             var labelQtyHeader = new Label { Text = "Qty", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
             var labelExpQtyHeader = new Label { Text = "Exp Qty", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
 
-            this.columnWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(labelCodeHeader.Text);
-            this.columnWidth1 = DependencyService.Get<IGridService>().CalculateTextWidth(labelBcHeader.Text);
-            this.columnWidth2 = DependencyService.Get<IGridService>().CalculateTextWidth(labelUnitHeader.Text);
-            this.columnWidth3 = DependencyService.Get<IGridService>().CalculateTextWidth(labelQtyHeader.Text);
-            this.columnWidth4 = DependencyService.Get<IGridService>().CalculateTextWidth(labelExpQtyHeader.Text);
+            this.ColumnWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(labelCodeHeader.Text);
+            this.ColumnWidth1 = DependencyService.Get<IGridService>().CalculateTextWidth(labelBcHeader.Text);
+            this.ColumnWidth2 = DependencyService.Get<IGridService>().CalculateTextWidth(labelUnitHeader.Text);
+            this.ColumnWidth3 = DependencyService.Get<IGridService>().CalculateTextWidth(labelQtyHeader.Text);
+            this.ColumnWidth4 = DependencyService.Get<IGridService>().CalculateTextWidth(labelExpQtyHeader.Text);
 
             var gridHeader = new Grid
             {
                 Padding = new Thickness(5),
                 ColumnDefinitions =
                 {
-                    new ColumnDefinition { Width = new GridLength(this.columnWidth0, GridUnitType.Absolute) },
-                    new ColumnDefinition { Width = new GridLength(this.columnWidth1, GridUnitType.Absolute) },
-                    new ColumnDefinition { Width = new GridLength(this.columnWidth2, GridUnitType.Absolute) },
-                    new ColumnDefinition { Width = new GridLength(this.columnWidth3, GridUnitType.Absolute) },
-                    new ColumnDefinition { Width = new GridLength(this.columnWidth4, GridUnitType.Absolute) },
+                    new ColumnDefinition { Width = new GridLength(this.ColumnWidth0, GridUnitType.Absolute) },
+                    new ColumnDefinition { Width = new GridLength(this.ColumnWidth1, GridUnitType.Absolute) },
+                    new ColumnDefinition { Width = new GridLength(this.ColumnWidth2, GridUnitType.Absolute) },
+                    new ColumnDefinition { Width = new GridLength(this.ColumnWidth3, GridUnitType.Absolute) },
+                    new ColumnDefinition { Width = new GridLength(this.ColumnWidth4, GridUnitType.Absolute) },
                 },
             };
 
@@ -552,38 +551,38 @@ namespace dMobile.Controller.Activity_Item
                 var detailWidth4 = DependencyService.Get<IGridService>().CalculateTextWidth(
                     $"{productionTickedFinishedItem.ActivityItemProductionBaseQuantityExpected:F3}");
 
-                if (detailWidth0 > this.columnWidth0)
+                if (detailWidth0 > this.ColumnWidth0)
                 {
-                    this.columnWidth0 = detailWidth0;
-                    gridHeader.ColumnDefinitions[0].Width = this.columnWidth0;
+                    this.ColumnWidth0 = detailWidth0;
+                    gridHeader.ColumnDefinitions[0].Width = this.ColumnWidth0;
                 }
 
-                if (detailWidth1 > this.columnWidth1)
+                if (detailWidth1 > this.ColumnWidth1)
                 {
-                    this.columnWidth1 = detailWidth1;
-                    gridHeader.ColumnDefinitions[1].Width = this.columnWidth1;
+                    this.ColumnWidth1 = detailWidth1;
+                    gridHeader.ColumnDefinitions[1].Width = this.ColumnWidth1;
                 }
 
-                if (detailWidth2 > this.columnWidth2)
+                if (detailWidth2 > this.ColumnWidth2)
                 {
-                    this.columnWidth2 = detailWidth2;
-                    gridHeader.ColumnDefinitions[2].Width = this.columnWidth2;
+                    this.ColumnWidth2 = detailWidth2;
+                    gridHeader.ColumnDefinitions[2].Width = this.ColumnWidth2;
                 }
 
-                if (detailWidth3 > this.columnWidth3)
+                if (detailWidth3 > this.ColumnWidth3)
                 {
-                    this.columnWidth3 = detailWidth3;
-                    gridHeader.ColumnDefinitions[3].Width = this.columnWidth3;
+                    this.ColumnWidth3 = detailWidth3;
+                    gridHeader.ColumnDefinitions[3].Width = this.ColumnWidth3;
                 }
 
-                if (detailWidth4 > this.columnWidth4)
+                if (detailWidth4 > this.ColumnWidth4)
                 {
-                    this.columnWidth4 = detailWidth4;
-                    gridHeader.ColumnDefinitions[4].Width = this.columnWidth4;
+                    this.ColumnWidth4 = detailWidth4;
+                    gridHeader.ColumnDefinitions[4].Width = this.ColumnWidth4;
                 }
             }
 
-            listViewMainActivity.ItemTemplate = (DataTemplate)this.resourceDictionary["dataTemplateFinishedItem"];
+            listViewMainActivity.ItemTemplate = (DataTemplate)this.ResDict["dataTemplateFinishedItem"];
 
             return observableCollection;
         }
@@ -794,8 +793,8 @@ namespace dMobile.Controller.Activity_Item
             //        this.DataViewItems.Sort = "ActivityItemRefno";
             //    }
             // }
-            this.listProductionTicketFinishedItems = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<ProductionTicketFinishedItem>(sql.ToString());
-            this.ListItems = this.listProductionTicketFinishedItems.Cast<object>().ToList();
+            this.ListProductionTicketFinishedItems = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<ProductionTicketFinishedItem>(sql.ToString());
+            this.ListItems = this.ListProductionTicketFinishedItems.Cast<object>().ToList();
             return this.ListItems;
         }
 
@@ -810,7 +809,7 @@ namespace dMobile.Controller.Activity_Item
 
             // if (string.IsNullOrEmpty(this.ActItemFilter))
             // {
-            this.ListItems = this.listProductionTicketFinishedItems.Where(productionTicketFinishedItem => productionTicketFinishedItem.ProductCode.ToString().ToLower().Contains(searchText.ToLower().Trim())).Cast<object>().ToList();
+            this.ListItems = this.ListProductionTicketFinishedItems.Where(productionTicketFinishedItem => productionTicketFinishedItem.ProductCode.ToString().ToLower().Contains(searchText.ToLower().Trim())).Cast<object>().ToList();
 
             // }
             // else
@@ -860,7 +859,7 @@ namespace dMobile.Controller.Activity_Item
         {
             if (activityItem is ProductionTicketFinishedItem item)
             {
-                this.SelectedActivityItem = item;
+                this.SelectedItem = item;
                 this.ItemRefno = item.ActivityItemRefno;
                 this.ItemFkRefno = item.ActivityItemFKRefno;
                 this.ActStatus = (SysCommon.ActStatus)item.ActivityItemStatus;
@@ -961,7 +960,13 @@ namespace dMobile.Controller.Activity_Item
         public async override Task<string> CreateSubmitXml(XDocument data)
         {
             var xmlString = new StringBuilder();
-            var xml = XmlWriter.Create(xmlString);
+            var settings = new XmlWriterSettings
+            {
+                Async = true,
+                Indent = false,
+            };
+            var xml = XmlWriter.Create(xmlString, settings);
+
             var prodCode = data.Root.Element("ProductCode").Value.PadRight(10);
             var barCodeCode = data.Root.Element("ProductUnitBarCodeCode").Value.PadRight(20);
             var prodUnitIsBc = bool.Parse(data.Root.Element("ProductUnitIsBC").Value);
@@ -986,7 +991,7 @@ namespace dMobile.Controller.Activity_Item
                 + "</imclient>");
 
             request.Save(xml);
-            xml.Flush();
+            await xml.FlushAsync();
             xml.Close();
 
             return xmlString.ToString();

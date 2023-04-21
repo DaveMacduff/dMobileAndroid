@@ -141,7 +141,12 @@ namespace dMobile.Controller.Activity
                     // GC.WaitForPendingFinalizers();
                     var sendReq = string.Empty;
                     var xmlString = new StringBuilder();
-                    var xml = XmlWriter.Create(xmlString);
+                    var settings = new XmlWriterSettings
+                    {
+                        Async = true,
+                        Indent = false,
+                    };
+                    var xml = XmlWriter.Create(xmlString, settings);
 
                     var request = XDocument.Parse(
                         "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>"
@@ -154,7 +159,7 @@ namespace dMobile.Controller.Activity
                         + "</imclient>");
 
                     request.Save(xml);
-                    xml.Flush();
+                    await xml.FlushAsync();
                     xml.Close();
 
                     var responseData = SysCommon.SubmitComm(xmlString.ToString());

@@ -67,11 +67,6 @@ namespace dMobile.Controller.Activity_Detail
         public string FullClassName { get; set; } = string.Empty;
 
         /// <summary>
-        /// Gets or sets a value indicating whether is update the view.
-        /// </summary>
-        public bool IsUpdateView { get; set; } = false;
-
-        /// <summary>
         /// Gets or sets the selected location map.
         /// </summary>
         public SLocMap SelectedLocMap { get; set; } = new SLocMap();
@@ -154,12 +149,12 @@ namespace dMobile.Controller.Activity_Detail
         /// <summary>
         /// Gets or sets the selected activity detail.
         /// </summary>
-        public object SelectedActivityDetail { get; set; }
+        public object SelectedDetail { get; set; }
 
         /// <summary>
         /// Gets or sets the list item current index.
         /// </summary>
-        public int SelectedListItemIdx { get; set; } = -1;
+        public int SelectedListIdx { get; set; } = -1;
 
         /// <summary>
         /// The Insert.
@@ -245,7 +240,7 @@ namespace dMobile.Controller.Activity_Detail
         /// <param name="selectedActivityDetail"><see cref="object"/> Activity detail to select.</param>
         /// <returns>The <see cref="Task"/> Task operation.</returns>
         /// <remarks>
-        /// Assigns this.SelectedActivityDetail.
+        /// Assigns this.SelectedDetail.
         /// Handles verifying product default location.
         /// Current location is set to the selected skid location.
         /// Clears the selected skid if the line item product changed (Flag).
@@ -290,6 +285,39 @@ namespace dMobile.Controller.Activity_Detail
             else
             {
                 this.ClearProperties();
+            }
+        }
+
+        /// <summary>
+        /// Set the activity detail selected activity item and selected activity detail index.
+        /// </summary>
+        /// <remarks>
+        /// Iterate through the ListDetails looking for a matched activity detail reference number.
+        /// If a match is found set the SelectedDetail to one found in the ListDetails
+        /// else the SelectedDetail is set to null and the selected list detail index to -1.
+        /// </remarks>
+        /// <param name="actDetailFoundRefno"><see cref="int"/> Activity detail reference number to look up.</param>
+        public virtual void SetSelectedActivityDetailFromList(int actDetailFoundRefno)
+        {
+            this.SelectedListIdx = -1;
+            if (actDetailFoundRefno >= 0)
+            {
+                var idx = 0;
+                foreach (ActivityDetail detail in this.ListDetails)
+                {
+                    if (detail.ActivityDetailRefno == this.DetailRefno)
+                    {
+                        this.SelectedDetail = detail;
+                        this.SelectedListIdx = idx;
+                        break;
+                    }
+
+                    idx++;
+                }
+            }
+            else
+            {
+                this.SelectedDetail = null;
             }
         }
 
@@ -384,7 +412,7 @@ namespace dMobile.Controller.Activity_Detail
             this.ActExtra.DateTime1 = SysCommon.EmptyDateTime;
 
             ////this.SelectedLocMap = new SLocMap();
-            ////this.SelectedActivityDetail = null;
+            ////this.SelectedDetail = null;
         }
 
         /// <summary>
@@ -1028,27 +1056,10 @@ namespace dMobile.Controller.Activity_Detail
         }
 
         /// <summary>
-        /// Insert the activity detail.
-        /// </summary>
-        /// <param name="sendReq"><see cref="string"/> Submission request.</param>
-        protected void SubmitDetailToCommServer(string sendReq)
-        {
-            var responseData = SysCommon.SubmitComm(sendReq);
-            var xmlData = new XmlDocument();
-            xmlData.LoadXml(responseData);
-            var innerText = xmlData.DocumentElement?["itm_refno"] !.InnerText;
-            this.ActItem.ItemFkRefno = int.Parse(innerText);
-
-            innerText = xmlData.DocumentElement["ser_refno"] !.InnerText;
-            this.DetailFkRefno = int.Parse(innerText);
-            this.IsUpdateView = true;
-        }
-
-        /// <summary>
-        /// Insert activity detail in disconnected mode.
+        /// Insert activity detail.
         /// </summary>
         /// <returns><see cref="int"/> Inserted activity detail reference number.</returns>
-        protected async Task<int> InsertDetailDisconnected()
+        protected async Task<int> InsertDetail()
         {
             var conn = DatabaseConnection.GetInstance().SQLConn;
             int actDetailRefno;
@@ -1130,7 +1141,6 @@ namespace dMobile.Controller.Activity_Detail
                 actDetailRefno = Convert.ToInt32(await conn.ExecuteScalarAsync<int>(
                     "SELECT last_insert_rowid() FROM tActivityDetail"));
                 this.DetailRefno = actDetailRefno;
-                this.DetailFkRefno = actDetailRefno * -1;
 
                 if (this.SchemeData.VariantNumber > 0)
                 {

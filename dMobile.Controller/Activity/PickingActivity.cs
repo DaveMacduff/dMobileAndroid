@@ -140,7 +140,13 @@ namespace dMobile.Controller.Activity
                 0);
             var locMap = sLocMapAndRefno.SLocMap;
             var xmlString = new StringBuilder();
-            var xml = XmlWriter.Create(xmlString);
+            var settings = new XmlWriterSettings
+            {
+                Async = true,
+                Indent = false,
+            };
+            var xml = XmlWriter.Create(xmlString, settings);
+
             var prnSettings = new PrinterSettings().LoadData();
 
             // Don't even bother sending in a print request if no quantity was entered.
@@ -195,7 +201,7 @@ namespace dMobile.Controller.Activity
                     + "</imclient>");
 
                 request.Save(xml);
-                xml.Flush();
+                await xml.FlushAsync();
                 xml.Close();
                 _ = SysCommon.SubmitComm(xmlString.ToString());
             }
@@ -215,7 +221,13 @@ namespace dMobile.Controller.Activity
                 var sendReq = string.Empty;
                 var responseData = string.Empty;
                 var xmlString = new StringBuilder();
-                var xml = XmlWriter.Create(xmlString);
+                var settings = new XmlWriterSettings
+                {
+                    Async = true,
+                    Indent = false,
+                };
+                var xml = XmlWriter.Create(xmlString, settings);
+
                 XDocument request = null;
                 var sLocMapAndRefno = await LocationMapTasks.GetSLocMapFromLocMapFkRefno(
                     int.Parse(this.XmlDataCriteria.Root.Element("whs_id").Value),
@@ -235,7 +247,7 @@ namespace dMobile.Controller.Activity
                     + "</imclient>");
 
                 request.Save(xml);
-                xml.Flush();
+                await xml.FlushAsync();
                 xml.Close();
 
                 sendReq = xmlString.ToString();
@@ -292,7 +304,13 @@ namespace dMobile.Controller.Activity
             var locMap = sLocMapAndRefno.SLocMap;
             var responseData = string.Empty;
             var xmlString = new StringBuilder();
-            var xml = XmlWriter.Create(xmlString);
+            var settings = new XmlWriterSettings
+            {
+                Async = true,
+                Indent = false,
+            };
+            var xml = XmlWriter.Create(xmlString, settings);
+
             XDocument request = null;
 
             request = XDocument.Parse(
@@ -308,7 +326,7 @@ namespace dMobile.Controller.Activity
                 + "</imclient>");
 
             request.Save(xml);
-            xml.Flush();
+            await xml.FlushAsync();
             xml.Close();
 
             var isBeingPicked = false;
@@ -344,7 +362,13 @@ namespace dMobile.Controller.Activity
                 var locMap = sLocMapAndRefno.SLocMap;
                 var responseData = string.Empty;
                 var xmlString = new StringBuilder();
-                var xml = XmlWriter.Create(xmlString);
+                var settings = new XmlWriterSettings
+                {
+                    Async = true,
+                    Indent = false,
+                };
+                var xml = XmlWriter.Create(xmlString, settings);
+
                 XDocument request = null;
 
                 isClearedBeingPicked = false;
@@ -362,7 +386,7 @@ namespace dMobile.Controller.Activity
                     + "</imclient>");
 
                 request.Save(xml);
-                xml.Flush();
+                await xml.FlushAsync();
                 xml.Close();
 
                 try
@@ -399,7 +423,13 @@ namespace dMobile.Controller.Activity
             {
                 var reqResult = string.Empty;
                 var xmlString = new StringBuilder();
-                var xml = XmlWriter.Create(xmlString);
+                var settings = new XmlWriterSettings
+                {
+                    Async = true,
+                    Indent = false,
+                };
+                var xml = XmlWriter.Create(xmlString, settings);
+
 
                 var request = XDocument.Parse(
                     "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>"
@@ -412,7 +442,7 @@ namespace dMobile.Controller.Activity
                     + "</imclient>");
 
                 request.Save(xml);
-                xml.Flush();
+                await xml.FlushAsync();
                 xml.Close();
 
                 reqResult = SysCommon.SubmitComm(xmlString.ToString());
@@ -462,7 +492,13 @@ namespace dMobile.Controller.Activity
             else
             {
                 var xmlString = new StringBuilder();
-                var xml = XmlWriter.Create(xmlString);
+                var settings = new XmlWriterSettings
+                {
+                    Async = true,
+                    Indent = false,
+                };
+                var xml = XmlWriter.Create(xmlString, settings);
+
                 var locMap = LocationMap.GetInstance();
 
                 var request = XDocument.Parse(
@@ -478,7 +514,7 @@ namespace dMobile.Controller.Activity
                     + "</imclient>");
 
                 request.Save(xml);
-                xml.Flush();
+                await xml.FlushAsync();
                 xml.Close();
 
                 var responseData = string.Empty;
@@ -1140,7 +1176,13 @@ namespace dMobile.Controller.Activity
             {
                 var responseData = string.Empty;
                 var xmlString = new StringBuilder();
-                var xml = XmlWriter.Create(xmlString);
+                var settings = new XmlWriterSettings
+                {
+                    Async = true,
+                    Indent = false,
+                };
+                var xml = XmlWriter.Create(xmlString, settings);
+
                 XDocument request = null;
 
                 request = XDocument.Parse(
@@ -1156,7 +1198,7 @@ namespace dMobile.Controller.Activity
                     + "</imclient>");
 
                 request.Save(xml);
-                xml.Flush();
+                await xml.FlushAsync();
                 xml.Close();
 
                 responseData = SysCommon.SubmitComm(xmlString.ToString());

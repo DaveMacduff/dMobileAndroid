@@ -153,12 +153,12 @@ namespace dMobile.Controller.Activity_Item
         /// <summary>
         /// Gets or sets the selected activity item..
         /// </summary>
-        public object SelectedActivityItem { get; set; }
+        public object SelectedItem { get; set; }
 
         /// <summary>
         /// Gets or sets the activity item list item selected index.
         /// </summary>
-        public int SelectedListItemIdx { get; set; } = -1;
+        public int SelectedListIdx { get; set; } = -1;
 
         /// <summary>
         /// Create activity.
@@ -234,8 +234,8 @@ namespace dMobile.Controller.Activity_Item
         /// </summary>
         /// <remarks>
         /// Iterate through the ListItems looking for a matched activity item reference number.
-        /// If a match is found set the SelectedActivityItem to one found in the ListItems
-        /// else the SelectedActivityItem is set to null.
+        /// If a match is found set the SelectedItem to one found in the ListItems
+        /// else the SelectedItem is set to null.
         /// </remarks>
         /// <param name="actItemFoundRefno"><see cref="int"/> Activity item reference number to look up.</param>
         public abstract void SetSelectedActivityItemFromList(int actItemFoundRefno);

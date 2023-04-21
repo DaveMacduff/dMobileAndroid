@@ -364,7 +364,7 @@ namespace dMobile.Controller.Activity_Item
         {
             if (activityItem is BarcodeAssociationItem item)
             {
-                this.SelectedActivityItem = item;
+                this.SelectedItem = item;
                 this.ItemRefno = Convert.ToInt32(item.ActivityItemRefno);
                 this.ActStatus = (SysCommon.ActStatus)item.ActivityItemStatus;
                 this.ProdInfo = await ProductInfoTasks.GetInfoFromUnitRefno(Convert.ToInt32(item.ProductUnitRefno));

@@ -382,7 +382,7 @@ namespace dMobile.Controller.Activity_Item
         public override async Task<int> AssignActivityItem(object activityItem)
         {
             var itemFkRefno = Task.FromResult(0);
-            this.SelectedActivityItem = activityItem;
+            this.SelectedItem = activityItem;
             return await itemFkRefno;
         }
 
@@ -418,7 +418,12 @@ namespace dMobile.Controller.Activity_Item
         public async override Task<string> CreateSubmitXml(XDocument data)
         {
             var xmlString = new StringBuilder();
-            var xml = XmlWriter.Create(xmlString);
+            var settings = new XmlWriterSettings
+            {
+                Async = true,
+                Indent = false,
+            };
+            var xml = XmlWriter.Create(xmlString, settings);
 
             var request = XDocument.Parse(
                 "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>"
@@ -436,7 +441,7 @@ namespace dMobile.Controller.Activity_Item
                 + "</imclient>");
 
             request.Save(xml);
-            xml.Flush();
+            await xml.FlushAsync();
             xml.Close();
 
             return xmlString.ToString();
@@ -561,7 +566,7 @@ namespace dMobile.Controller.Activity_Item
         public override async Task<int> GetDefaultLocMapRefno(int whsLocMapRefno, int prodRefno)
         {
             var locMapRefno = 0;
-            if (this.SelectedActivityItem is InventoryInquiryItem item)
+            if (this.SelectedItem is InventoryInquiryItem item)
             {
                 if (Math.Sign(item.ActivityItemQuantity) == 0 ||
                     Math.Sign(item.ActivityItemQuantity) == 1)

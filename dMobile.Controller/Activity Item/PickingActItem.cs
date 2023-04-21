@@ -26,56 +26,6 @@ namespace dMobile.Controller.Activity_Item
     public class PickingActItem : ActItem
     {
         /// <summary>
-        /// Defines the templateName.
-        /// </summary>
-        private string templateName = "fdjka";
-
-        /// <summary>
-        /// Defines the columnWidth0.
-        /// </summary>
-        private double columnWidth0 = 0;
-
-        /// <summary>
-        /// Defines the columnWidth1.
-        /// </summary>
-        private double columnWidth1 = 0;
-
-        /// <summary>
-        /// Defines the columnWidth2.
-        /// </summary>
-        private double columnWidth2 = 0;
-
-        /// <summary>
-        /// Defines the columnWidth3.
-        /// </summary>
-        private double columnWidth3 = 0;
-
-        /// <summary>
-        /// Defines the columnWidth4.
-        /// </summary>
-        private double columnWidth4 = 0;
-
-        /// <summary>
-        /// Defines the columnWidth5.
-        /// </summary>
-        private double columnWidth5 = 0;
-
-        /// <summary>
-        /// Defines the columnWidth6.
-        /// </summary>
-        private double columnWidth6 = 0;
-
-        /// <summary>
-        /// Defines the resourceDictionary.
-        /// </summary>
-        private ResourceDictionary resourceDictionary = new ResourceDictionary();
-
-        /// <summary>
-        /// Defines the listPickingItems.
-        /// </summary>
-        private List<PickingItem> listPickingItems = new List<PickingItem>();
-
-        /// <summary>
         /// Initializes a new instance of the <see cref="PickingActItem"/> class.
         /// </summary>
         /// <param name="activity">.</param>
@@ -94,13 +44,13 @@ namespace dMobile.Controller.Activity_Item
                     Padding = new Thickness(5),
                     ColumnDefinitions =
                     {
-                        new ColumnDefinition { Width = new GridLength(this.columnWidth0, GridUnitType.Absolute) },
-                        new ColumnDefinition { Width = new GridLength(this.columnWidth1, GridUnitType.Absolute) },
-                        new ColumnDefinition { Width = new GridLength(this.columnWidth2, GridUnitType.Absolute) },
-                        new ColumnDefinition { Width = new GridLength(this.columnWidth3, GridUnitType.Absolute) },
-                        new ColumnDefinition { Width = new GridLength(this.columnWidth4, GridUnitType.Absolute) },
-                        new ColumnDefinition { Width = new GridLength(this.columnWidth5, GridUnitType.Absolute) },
-                        new ColumnDefinition { Width = new GridLength(this.columnWidth6, GridUnitType.Absolute) },
+                        new ColumnDefinition { Width = new GridLength(this.ColumnWidth0, GridUnitType.Absolute) },
+                        new ColumnDefinition { Width = new GridLength(this.ColumnWidth1, GridUnitType.Absolute) },
+                        new ColumnDefinition { Width = new GridLength(this.ColumnWidth2, GridUnitType.Absolute) },
+                        new ColumnDefinition { Width = new GridLength(this.ColumnWidth3, GridUnitType.Absolute) },
+                        new ColumnDefinition { Width = new GridLength(this.ColumnWidth4, GridUnitType.Absolute) },
+                        new ColumnDefinition { Width = new GridLength(this.ColumnWidth5, GridUnitType.Absolute) },
+                        new ColumnDefinition { Width = new GridLength(this.ColumnWidth6, GridUnitType.Absolute) },
                     },
                 };
 
@@ -176,7 +126,7 @@ namespace dMobile.Controller.Activity_Item
 
             // TODO: Change dictionary key to string variable
             var isAddKey = true;
-            foreach (var item in this.resourceDictionary)
+            foreach (var item in this.ResourceDictionary)
             {
                 if (item.Key == "dataTemplatePickingItem")
                 {
@@ -186,9 +136,54 @@ namespace dMobile.Controller.Activity_Item
 
             if (isAddKey)
             {
-                this.resourceDictionary.Add("dataTemplatePickingItem", dataTemplate);
+                this.ResourceDictionary.Add("dataTemplatePickingItem", dataTemplate);
             }
         }
+
+        /// <summary>
+        /// Gets or sets the grid column 0 width.
+        /// </summary>
+        private double ColumnWidth0 { get; set; } = 0;
+
+        /// <summary>
+        /// Gets or sets the grid column 1 width.
+        /// </summary>
+        private double ColumnWidth1 { get; set; } = 0;
+
+        /// <summary>
+        /// Gets or sets the grid column 2 width.
+        /// </summary>
+        private double ColumnWidth2 { get; set; } = 0;
+
+        /// <summary>
+        /// Gets or sets the grid column 3 width.
+        /// </summary>
+        private double ColumnWidth3 { get; set; } = 0;
+
+        /// <summary>
+        /// Gets or sets the grid column 4 width.
+        /// </summary>
+        private double ColumnWidth4 { get; set; } = 0;
+
+        /// <summary>
+        /// Gets or sets the grid column 5 width.
+        /// </summary>
+        private double ColumnWidth5 { get; set; } = 0;
+
+        /// <summary>
+        /// Gets or sets the grid column 6 width.
+        /// </summary>
+        private double ColumnWidth6 { get; set; } = 0;
+
+        /// <summary>
+        /// Gets or sets the resource dictionary.
+        /// </summary>
+        private ResourceDictionary ResourceDictionary { get; set; } = new ResourceDictionary();
+
+        /// <summary>
+        /// Gets or sets the list picking items.
+        /// </summary>
+        private List<PickingItem> ListPickingItems { get; set; } = new List<PickingItem>();
 
         /// <summary>
         /// Set the activity item selected activity item.
@@ -196,7 +191,7 @@ namespace dMobile.Controller.Activity_Item
         /// <param name="actItemFoundRefno"><see cref="int"/> Activity item reference number to look up.</param>
         public override void SetSelectedActivityItemFromList(int actItemFoundRefno)
         {
-            this.SelectedListItemIdx = -1;
+            this.SelectedListIdx = -1;
             if (actItemFoundRefno >= 0)
             {
                 var idx = 0;
@@ -204,8 +199,8 @@ namespace dMobile.Controller.Activity_Item
                 {
                     if (item.ActivityItemRefno == this.ItemRefno)
                     {
-                        this.SelectedActivityItem = item;
-                        this.SelectedListItemIdx = idx;
+                        this.SelectedItem = item;
+                        this.SelectedListIdx = idx;
                         break;
                     }
 
@@ -214,7 +209,7 @@ namespace dMobile.Controller.Activity_Item
             }
             else
             {
-                this.SelectedActivityItem = null;
+                this.SelectedItem = null;
             }
         }
 
@@ -383,7 +378,13 @@ namespace dMobile.Controller.Activity_Item
         public async override Task<ActItemSchemeData> GetProdSchemeDataFromDetailFkRefno(int activityDetailFkRefno)
         {
             var xmlString = new StringBuilder();
-            var xml = XmlWriter.Create(xmlString);
+            var settings = new XmlWriterSettings
+            {
+                Async = true,
+                Indent = false,
+            };
+            var xml = XmlWriter.Create(xmlString, settings);
+
             var itemSchemeData = new ActItemSchemeData();
 
             var request = XDocument.Parse(
@@ -397,7 +398,7 @@ namespace dMobile.Controller.Activity_Item
                 + "</imclient>");
 
             request.Save(xml);
-            xml.Flush();
+            await xml.FlushAsync();
             xml.Close();
 
             var responseData = SysCommon.SubmitComm(xmlString.ToString());
@@ -542,157 +543,150 @@ namespace dMobile.Controller.Activity_Item
         /// <returns><see cref="Task"/> Task operation.</returns>
         public override async Task Insert(XDocument data)
         {
-            var foundActItemRefno = 0;
-            var result = false;
-
             var prodUnitRefno = int.Parse(data.Root.Element("ProductUnitRefno").Value);
-            if (prodUnitRefno != 0)
+            if (prodUnitRefno <= 0)
             {
-                foundActItemRefno = await this.GetActivityItemRefno(prodUnitRefno, LocationMap.GetInstance().CurrLocMap);
+                throw new Exception("prodUnitRefno expected to be greater than zero.");
+            }
 
-                if (foundActItemRefno > 0)
-                {
-                    if (await Device.InvokeOnMainThreadAsync(async () => await Application.Current.MainPage.DisplayAlert(
-                        "New Item",
-                        "A line item already exists for this location and product." + Environment.NewLine + "Do you wish to create one?",
-                        "Yes",
-                        "No")))
-                    {
-                        result = true;
-                    }
-                }
-                else
-                {
-                    // If the selected product to insert was not found, force the dialog result to insert it.
-                    result = true;
-                }
+            this.ProdInfo = await ProductInfoTasks.GetInfoFromUnitRefno(prodUnitRefno);
+            this.ProdInfo.Scheme = await ProductInfoTasks.GetSchemeComponentsFromRefno(this.ProdInfo.Refno);
 
-                if (result)
+            await InsertActivityItemInTables(prodUnitRefno);
+            AddActivityItemToList(prodUnitRefno);
+
+            //////////////////////////////////////////////////////////////////////////
+            async Task InsertActivityItemInTables(int prodUnitRefno)
+            {
+                await DatabaseConnection.GetInstance().SQLConn.RunInTransactionAsync(transaction =>
                 {
-                    await DatabaseConnection.GetInstance().SQLConn.RunInTransactionAsync(transaction =>
+                    try
                     {
-                        try
-                        {
-                            transaction.Execute(
-                                "INSERT INTO tActivityItem (ActivityItemSubType, ActivityItemStatus," +
+                        // NOTE: ActivityItemStatus is set to inserted for later submission use.
+                        _ = transaction.Execute(
+                            "INSERT INTO tActivityItem (ActivityItemSubType, ActivityItemStatus," +
                                 " ActivityRefno, ActivityItemIsAdded) VALUES (?, ?, ?, ?)",
-                                Convert.ToInt32(SysCommon.ActSubTypes.Picking),
-                                Convert.ToInt32(SysCommon.ActStatus.Inserted),
-                                Convert.ToInt32(this.ActHdr.HdrRefno),
-                                1);
+                            Convert.ToInt32(SysCommon.ActSubTypes.Picking),
+                            Convert.ToInt32(SysCommon.ActStatus.Inserted),
+                            Convert.ToInt32(this.ActHdr.HdrRefno),
+                            1);
 
-                            this.ItemRefno = Convert.ToInt32(transaction.ExecuteScalar<int>(
-                                "SELECT last_insert_rowid() FROM tActivityItem"));
-                            var query = "INSERT INTO tActivityItemPicking (" +
-                                        "ActivityItemRefno, " +
-                                        "ActivityItemSubType, " +
-                                        "ActivityItemFKRefno, " +
-                                        "ActivityItemStringFKRefno, " +
-                                        "ProductUnitRefno, " +
-                                        "WarehouseLocationMapRefno, " +
-                                        "ActivityItemPickingQuantityOrdered, " +
-                                        "ActivityItemPickingBaseQuantityOrdered, " +
-                                        "ActivityItemPickingWeightQuantityOrdered, " +
-                                        "ActivityItemPickingQuantityShipped, " +
-                                        "ActivityItemPickingBaseQuantityShipped, " +
-                                        "ActivityItemPickingWeightQuantityShipped, " +
-                                        "ActivityItemPickingCustomerProductUnitCode, " +
-                                        "ActivityItemPickingDescription, " +
-                                        "ActivityItemPickingQuantityAvailable, " +
-                                        "ActivityItemPickingBaseQuantityAvailable, " +
-                                        "ActivityItemPickingWeightQuantityAvailable, " +
-                                        "ActivityItemPickingIsReviewed" +
-                                        ") VALUES (" +
-                                        "?, " +
-                                        "?, " +
-                                        "?, " +
-                                        "?, " +
-                                        "?, " +
-                                        "?, " +
-                                        "?, " +
-                                        "?, " +
-                                        "?, " +
-                                        "?, " +
-                                        "?, " +
-                                        "?, " +
-                                        "?, " +
-                                        "?, " +
-                                        "?, " +
-                                        "?, " +
-                                        "?, " +
-                                        "?" +
-                                        ")";
-                            var parameters = new object[]
-                            {
-                                Convert.ToInt32(this.ItemRefno),
-                                Convert.ToInt32(SysCommon.ActSubTypes.Picking),
-                                Convert.ToInt32(this.ItemRefno * -1),
-                                Convert.ToString(this.ItemRefno * -1),
-                                Convert.ToInt32(prodUnitRefno),
-                                Convert.ToInt32(this.LocMap.WhsLocMapRefno),
-                                Convert.ToInt32(0),
-                                Convert.ToInt32(0),
-                                Convert.ToInt32(0),
-                                Convert.ToInt32(0),
-                                Convert.ToInt32(0),
-                                Convert.ToInt32(0),
-                                Convert.ToString(string.Empty),
-                                Convert.ToString(this.ProdInfo.Desc.Trim() + " " + this.ProdInfo.UnitSizeDesc),
-                                Convert.ToInt32(0),
-                                Convert.ToInt32(0),
-                                Convert.ToInt32(0),
-                                Convert.ToInt32(false),
-                            };
+                        this.ItemRefno = Convert.ToInt32(transaction.ExecuteScalar<int>(
+                            "SELECT last_insert_rowid() FROM tActivityItem"));
 
-                            transaction.Execute(query, parameters);
-                            transaction.Commit();
-                        }
-                        catch (SQLiteException ex)
+                        // Get temporary item FK refno for newly inserted line item.
+                        this.ItemFkRefno = Convert.ToInt32(transaction.ExecuteScalar<int>(
+                            "SELECT MAX(tActivityItemCount.ActivityItemFKRefno)" +
+                            $" FROM tActivityItemCount WHERE tActivityItemCount.ActivityItemSubType" +
+                            $" = {(int)SysCommon.ActSubTypes.Picking}"));
+                        this.ItemFkRefno = this.ItemFkRefno + 1;
+
+                        var query = "INSERT INTO tActivityItemPicking (" +
+                                    "ActivityItemRefno, " +
+                                    "ActivityItemSubType, " +
+                                    "ActivityItemFKRefno, " +
+                                    "ActivityItemStringFKRefno, " +
+                                    "ProductUnitRefno, " +
+                                    "WarehouseLocationMapRefno, " +
+                                    "ActivityItemPickingQuantityOrdered, " +
+                                    "ActivityItemPickingBaseQuantityOrdered, " +
+                                    "ActivityItemPickingWeightQuantityOrdered, " +
+                                    "ActivityItemPickingQuantityShipped, " +
+                                    "ActivityItemPickingBaseQuantityShipped, " +
+                                    "ActivityItemPickingWeightQuantityShipped, " +
+                                    "ActivityItemPickingCustomerProductUnitCode, " +
+                                    "ActivityItemPickingDescription, " +
+                                    "ActivityItemPickingQuantityAvailable, " +
+                                    "ActivityItemPickingBaseQuantityAvailable, " +
+                                    "ActivityItemPickingWeightQuantityAvailable, " +
+                                    "ActivityItemPickingIsReviewed" +
+                                    ") VALUES (" +
+                                    "?, " +
+                                    "?, " +
+                                    "?, " +
+                                    "?, " +
+                                    "?, " +
+                                    "?, " +
+                                    "?, " +
+                                    "?, " +
+                                    "?, " +
+                                    "?, " +
+                                    "?, " +
+                                    "?, " +
+                                    "?, " +
+                                    "?, " +
+                                    "?, " +
+                                    "?, " +
+                                    "?, " +
+                                    "?" +
+                                    ")";
+
+                        var parameters = new object[]
                         {
-                            Console.WriteLine(ex);
-                            transaction.Rollback();
-                        }
-                    });
-
-                    this.ItemFkRefno = this.ItemRefno * -1;
-                    this.ProdInfo = await ProductInfoTasks.GetInfoFromUnitRefno(prodUnitRefno);
-                    this.ProdInfo.Scheme = await ProductInfoTasks.GetSchemeComponentsFromRefno(this.ProdInfo.Refno);
-
-                    if (this.ListItems != null)
-                    {
-                        var item = new PickingItem()
-                        {
-                            ActivityItemRefno = this.ItemRefno,
-                            ActivityItemFKRefno = this.ItemFkRefno,
-                            ActivityItemStringFKRefno = this.ItemFkRefno.ToString(),
-                            ProductUnitRefno = prodUnitRefno,
-                            ProductRefno = this.ProdInfo.Refno,
-                            ProductCode = this.ProdInfo.Code,
-                            ProductDescription = this.ProdInfo.Desc,
-                            UnitCode = this.ProdInfo.UnitCode,
-                            ProductUnitBC = this.ProdInfo.UnitBC,
-                            ProductUnitSizeDescription = this.ProdInfo.UnitSizeDesc,
-                            LocationMapRefno = this.LocMap.WhsLocMapRefno,
-                            LocationCode = this.LocMap.WhsCode,
-                            LocationName = this.LocMap.WhsName,
-                            ActivityItemPickingCustomerProductUnitCode = string.Empty,
-                            ActivityItemStatus = Convert.ToInt32(SysCommon.ActStatus.Inserted),
-                            IsActivityItemPickingComment = string.Empty,
-                            ActivityItemPickingQuantityOrdered = 0,
-                            ActivityItemPickingBaseQuantityOrdered = 0,
-                            ActivityItemPickingWeightQuantityOrdered = 0,
-                            ActivityItemPickingQuantityShipped = 0,
-                            ActivityItemPickingBaseQuantityShipped = 0,
-                            ActivityItemPickingWeightQuantityShipped = 0,
-                            ActivityItemPickingQuantityAvailable = 0,
-                            ActivityItemPickingBaseQuantityAvailable = 0,
-                            ActivityItemPickingWeightQuantityAvailable = 0,
+                            Convert.ToInt32(this.ItemRefno),
+                            Convert.ToInt32(SysCommon.ActSubTypes.Picking),
+                            Convert.ToInt32(this.ItemFkRefno),
+                            Convert.ToString(this.ItemFkRefno),
+                            Convert.ToInt32(prodUnitRefno),
+                            Convert.ToInt32(this.LocMap.WhsLocMapRefno),
+                            Convert.ToInt32(0),
+                            Convert.ToInt32(0),
+                            Convert.ToInt32(0),
+                            Convert.ToInt32(0),
+                            Convert.ToInt32(0),
+                            Convert.ToInt32(0),
+                            Convert.ToString(string.Empty),
+                            Convert.ToString(this.ProdInfo.Desc.Trim() + " " + this.ProdInfo.UnitSizeDesc),
+                            Convert.ToInt32(0),
+                            Convert.ToInt32(0),
+                            Convert.ToInt32(0),
+                            Convert.ToInt32(false),
                         };
-                        this.ListItems.Add(item);
-                        this.SelectedListItemIdx = this.ListItems.Count - 1;
-                        _ = this.AssignActivityItem(item);
+
+                        transaction.Execute(query, parameters);
+                        transaction.Commit();
                     }
-                }
+                    catch (SQLiteException)
+                    {
+                        transaction.Rollback();
+                    }
+                });
+            }
+
+            //////////////////////////////////////////////////////////////////////////
+            void AddActivityItemToList(int prodUnitRefno)
+            {
+                var locMap = LocationMap.GetInstance().CurrLocMap;
+                var item = new PickingItem()
+                {
+                    ActivityItemRefno = this.ItemRefno,
+                    ActivityItemFKRefno = this.ItemFkRefno,
+                    ActivityItemStringFKRefno = this.ItemFkRefno.ToString(),
+                    ProductUnitRefno = prodUnitRefno,
+                    ProductRefno = this.ProdInfo.Refno,
+                    ProductCode = this.ProdInfo.Code,
+                    ProductDescription = this.ProdInfo.Desc,
+                    UnitCode = this.ProdInfo.UnitCode,
+                    ProductUnitBC = this.ProdInfo.UnitBC,
+                    ProductUnitSizeDescription = this.ProdInfo.UnitSizeDesc,
+                    LocationMapRefno = this.LocMap.WhsLocMapRefno,
+                    LocationCode = this.LocMap.WhsCode,
+                    LocationName = this.LocMap.WhsName,
+                    ActivityItemPickingCustomerProductUnitCode = string.Empty,
+                    ActivityItemStatus = Convert.ToInt32(SysCommon.ActStatus.Inserted),
+                    IsActivityItemPickingComment = string.Empty,
+                    ActivityItemPickingQuantityOrdered = 0,
+                    ActivityItemPickingBaseQuantityOrdered = 0,
+                    ActivityItemPickingWeightQuantityOrdered = 0,
+                    ActivityItemPickingQuantityShipped = 0,
+                    ActivityItemPickingBaseQuantityShipped = 0,
+                    ActivityItemPickingWeightQuantityShipped = 0,
+                    ActivityItemPickingQuantityAvailable = 0,
+                    ActivityItemPickingBaseQuantityAvailable = 0,
+                    ActivityItemPickingWeightQuantityAvailable = 0,
+                };
+
+                this.ListItems.Add(item);
             }
         }
 
@@ -734,6 +728,22 @@ namespace dMobile.Controller.Activity_Item
         {
             var observableCollection = new ObservableCollection<object>();
 
+            foreach (PickingItem pickingItem in this.ListItems)
+            {
+                if (pickingItem.ActivityItemFKRefno >= 0)
+                {
+                    observableCollection.Add(pickingItem);
+                }
+            }
+
+            foreach (PickingItem pickingItem in this.ListItems)
+            {
+                if (pickingItem.ActivityItemFKRefno < 0)
+                {
+                    observableCollection.Add(pickingItem);
+                }
+            }
+
             var labelIsActivityItemPickingCommentHeader = new Label { Text = "C", VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start, FontAttributes = FontAttributes.Bold };
             var labelActivityItemPickingProductCodeHeader = new Label { Text = "Product ID", VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start, FontAttributes = FontAttributes.Bold };
             var labelActivityItemPickingProductUnitBcHeader = new Label { Text = string.Empty, VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start, FontAttributes = FontAttributes.Bold };
@@ -742,13 +752,13 @@ namespace dMobile.Controller.Activity_Item
             var labelActivityItemPickingQuantityReceivedHeader = new Label { Text = "Shipped", VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start, FontAttributes = FontAttributes.Bold };
             var labelActivityItemPickingQuantityAvailableHeader = new Label { Text = "Available", VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start, FontAttributes = FontAttributes.Bold };
 
-            this.columnWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(labelIsActivityItemPickingCommentHeader.Text);
-            this.columnWidth1 = DependencyService.Get<IGridService>().CalculateTextWidth(labelActivityItemPickingProductCodeHeader.Text);
-            this.columnWidth2 = DependencyService.Get<IGridService>().CalculateTextWidth(labelActivityItemPickingProductUnitBcHeader.Text);
-            this.columnWidth3 = DependencyService.Get<IGridService>().CalculateTextWidth(labelActivityItemPickingUnitCodeHeader.Text);
-            this.columnWidth4 = DependencyService.Get<IGridService>().CalculateTextWidth(labelActivityItemPickingQuantityOrderedHeader.Text);
-            this.columnWidth5 = DependencyService.Get<IGridService>().CalculateTextWidth(labelActivityItemPickingQuantityReceivedHeader.Text);
-            this.columnWidth6 = DependencyService.Get<IGridService>().CalculateTextWidth(labelActivityItemPickingQuantityAvailableHeader.Text);
+            this.ColumnWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(labelIsActivityItemPickingCommentHeader.Text);
+            this.ColumnWidth1 = DependencyService.Get<IGridService>().CalculateTextWidth(labelActivityItemPickingProductCodeHeader.Text);
+            this.ColumnWidth2 = DependencyService.Get<IGridService>().CalculateTextWidth(labelActivityItemPickingProductUnitBcHeader.Text);
+            this.ColumnWidth3 = DependencyService.Get<IGridService>().CalculateTextWidth(labelActivityItemPickingUnitCodeHeader.Text);
+            this.ColumnWidth4 = DependencyService.Get<IGridService>().CalculateTextWidth(labelActivityItemPickingQuantityOrderedHeader.Text);
+            this.ColumnWidth5 = DependencyService.Get<IGridService>().CalculateTextWidth(labelActivityItemPickingQuantityReceivedHeader.Text);
+            this.ColumnWidth6 = DependencyService.Get<IGridService>().CalculateTextWidth(labelActivityItemPickingQuantityAvailableHeader.Text);
 
             // Header grid
             var gridHeaderPicking = new Grid
@@ -756,13 +766,13 @@ namespace dMobile.Controller.Activity_Item
                 Padding = new Thickness(5),
                 ColumnDefinitions =
                 {
-                    new ColumnDefinition { Width = new GridLength(this.columnWidth0, GridUnitType.Absolute) },
-                    new ColumnDefinition { Width = new GridLength(this.columnWidth1, GridUnitType.Absolute) },
-                    new ColumnDefinition { Width = new GridLength(this.columnWidth2, GridUnitType.Absolute) },
-                    new ColumnDefinition { Width = new GridLength(this.columnWidth3, GridUnitType.Absolute) },
-                    new ColumnDefinition { Width = new GridLength(this.columnWidth4, GridUnitType.Absolute) },
-                    new ColumnDefinition { Width = new GridLength(this.columnWidth5, GridUnitType.Absolute) },
-                    new ColumnDefinition { Width = new GridLength(this.columnWidth6, GridUnitType.Absolute) },
+                    new ColumnDefinition { Width = new GridLength(this.ColumnWidth0, GridUnitType.Absolute) },
+                    new ColumnDefinition { Width = new GridLength(this.ColumnWidth1, GridUnitType.Absolute) },
+                    new ColumnDefinition { Width = new GridLength(this.ColumnWidth2, GridUnitType.Absolute) },
+                    new ColumnDefinition { Width = new GridLength(this.ColumnWidth3, GridUnitType.Absolute) },
+                    new ColumnDefinition { Width = new GridLength(this.ColumnWidth4, GridUnitType.Absolute) },
+                    new ColumnDefinition { Width = new GridLength(this.ColumnWidth5, GridUnitType.Absolute) },
+                    new ColumnDefinition { Width = new GridLength(this.ColumnWidth6, GridUnitType.Absolute) },
                 },
             };
 
@@ -798,35 +808,6 @@ namespace dMobile.Controller.Activity_Item
 
             foreach (PickingItem pickingItem in this.ListItems)
             {
-                // PickingItem pickingItem = new PickingItem
-                // {
-                //    ActivityItemRefno = Convert.ToInt32(row["ActivityItemRefno"] != DBNull.Value ? row["ActivityItemRefno"] : null),
-                //    ActivityItemFKRefno = Convert.ToInt32(row["ActivityItemFKRefno"] != DBNull.Value ? row["ActivityItemFKRefno"] : null),
-                //    ActivityItemStringFKRefno = Convert.ToString(row["ActivityItemStringFKRefno"] != DBNull.Value ? row["ActivityItemStringFKRefno"] : null),
-                //    ProductUnitRefno = Convert.ToInt32(row["ProductUnitRefno"] != DBNull.Value ? row["ProductUnitRefno"] : null),
-                //    ProductCode = Convert.ToString(row["ProductCode"] != DBNull.Value ? row["ProductCode"] : null),
-                //    ProductDescription = Convert.ToString(row["ProductDescription"] != DBNull.Value ? row["ProductDescription"] : null),
-                //    ProductBrandDescription = Convert.ToString(row["ProductBrandDescription"] != DBNull.Value ? row["ProductBrandDescription"] : null),
-                //    UnitCode = Convert.ToString(row["UnitCode"] != DBNull.Value ? row["UnitCode"] : null),
-                //    ProductUnitBC = Convert.ToString(row["ProductUnitBC"] != DBNull.Value ? row["ProductUnitBC"] : null),
-                //    ProductUnitSizeDescription = Convert.ToString(row["ProductUnitSizeDescription"] != DBNull.Value ? row["ProductUnitSizeDescription"] : null),
-                //    ActivityItemPickingQuantityOrdered = Convert.ToDecimal(row["ActivityItemPickingQuantityOrdered"] != DBNull.Value ? row["ActivityItemPickingQuantityOrdered"] : null),
-                //    ActivityItemPickingBaseQuantityOrdered = Convert.ToDecimal(row["ActivityItemPickingBaseQuantityOrdered"] != DBNull.Value ? row["ActivityItemPickingBaseQuantityOrdered"] : null),
-                //    ActivityItemPickingWeightQuantityOrdered = Convert.ToDecimal(row["ActivityItemPickingWeightQuantityOrdered"] != DBNull.Value ? row["ActivityItemPickingWeightQuantityOrdered"] : null),
-                //    ActivityItemPickingQuantityShipped = Convert.ToDecimal(row["ActivityItemPickingQuantityShipped"] != DBNull.Value ? row["ActivityItemPickingQuantityShipped"] : null),
-                //    ActivityItemPickingBaseQuantityShipped = Convert.ToDecimal(row["ActivityItemPickingBaseQuantityShipped"] != DBNull.Value ? row["ActivityItemPickingBaseQuantityShipped"] : null),
-                //    ActivityItemPickingWeightQuantityShipped = Convert.ToDecimal(row["ActivityItemPickingWeightQuantityShipped"] != DBNull.Value ? row["ActivityItemPickingWeightQuantityShipped"] : null),
-                //    ActivityItemPickingCustomerProductUnitCode = Convert.ToString(row["ActivityItemPickingCustomerProductUnitCode"] != DBNull.Value ? row["ActivityItemPickingCustomerProductUnitCode"] : null),
-                //    LocationMapRefno = Convert.ToInt32(row["LocationMapRefno"] != DBNull.Value ? row["LocationMapRefno"] : null),
-                //    LocationCode = Convert.ToInt32(row["LocationCode"] != DBNull.Value ? row["LocationCode"] : null),
-                //    LocationName = Convert.ToString(row["LocationName"] != DBNull.Value ? row["LocationName"] : null),
-                //    ActivityItemPickingQuantityAvailable = Convert.ToDecimal(row["ActivityItemPickingQuantityAvailable"] != DBNull.Value ? row["ActivityItemPickingQuantityAvailable"] : null),
-                //    ActivityItemPickingWeightQuantityAvailable = Convert.ToDecimal(row["ActivityItemPickingWeightQuantityAvailable"] != DBNull.Value ? row["ActivityItemPickingWeightQuantityAvailable"] : null),
-                //    IsActivityItemPickingComment = !string.IsNullOrWhiteSpace(Convert.ToString(row["IsActivityItemPickingComment"] != DBNull.Value ? row["IsActivityItemPickingComment"] : null)) ? "X" : "",
-                //    ActivityItemStatus = Convert.ToInt32(row["ActivityItemStatus"] != DBNull.Value ? row["ActivityItemStatus"] : null)
-                // };
-                observableCollection.Add(pickingItem);
-
                 var detailWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(pickingItem.IsActivityItemPickingComment);
                 var detailWidth1 = DependencyService.Get<IGridService>().CalculateTextWidth(pickingItem.ProductCode);
                 var detailWidth2 = DependencyService.Get<IGridService>().CalculateTextWidth(pickingItem.ProductUnitBC);
@@ -838,58 +819,58 @@ namespace dMobile.Controller.Activity_Item
                 var detailWidth6 = DependencyService.Get<IGridService>().CalculateTextWidth(
                     $"{pickingItem.ActivityItemPickingQuantityAvailable:F3}");
 
-                if (detailWidth0 > this.columnWidth0)
+                if (detailWidth0 > this.ColumnWidth0)
                 {
-                    this.columnWidth0 = detailWidth0;
-                    gridHeaderPicking.ColumnDefinitions[0].Width = this.columnWidth0;
+                    this.ColumnWidth0 = detailWidth0;
+                    gridHeaderPicking.ColumnDefinitions[0].Width = this.ColumnWidth0;
                 }
 
-                if (detailWidth1 > this.columnWidth1)
+                if (detailWidth1 > this.ColumnWidth1)
                 {
-                    this.columnWidth1 = detailWidth1;
-                    gridHeaderPicking.ColumnDefinitions[1].Width = this.columnWidth1;
+                    this.ColumnWidth1 = detailWidth1;
+                    gridHeaderPicking.ColumnDefinitions[1].Width = this.ColumnWidth1;
                 }
 
-                if (detailWidth2 > this.columnWidth2)
+                if (detailWidth2 > this.ColumnWidth2)
                 {
-                    this.columnWidth2 = detailWidth2;
-                    gridHeaderPicking.ColumnDefinitions[2].Width = this.columnWidth2;
+                    this.ColumnWidth2 = detailWidth2;
+                    gridHeaderPicking.ColumnDefinitions[2].Width = this.ColumnWidth2;
                 }
 
-                if (detailWidth3 > this.columnWidth3)
+                if (detailWidth3 > this.ColumnWidth3)
                 {
-                    this.columnWidth3 = detailWidth3;
-                    gridHeaderPicking.ColumnDefinitions[3].Width = this.columnWidth3;
+                    this.ColumnWidth3 = detailWidth3;
+                    gridHeaderPicking.ColumnDefinitions[3].Width = this.ColumnWidth3;
                 }
 
-                if (detailWidth4 > this.columnWidth4)
+                if (detailWidth4 > this.ColumnWidth4)
                 {
-                    this.columnWidth4 = detailWidth4;
-                    gridHeaderPicking.ColumnDefinitions[4].Width = this.columnWidth4;
+                    this.ColumnWidth4 = detailWidth4;
+                    gridHeaderPicking.ColumnDefinitions[4].Width = this.ColumnWidth4;
                 }
 
-                if (detailWidth5 > this.columnWidth5)
+                if (detailWidth5 > this.ColumnWidth5)
                 {
-                    this.columnWidth5 = detailWidth5;
-                    gridHeaderPicking.ColumnDefinitions[5].Width = this.columnWidth5;
+                    this.ColumnWidth5 = detailWidth5;
+                    gridHeaderPicking.ColumnDefinitions[5].Width = this.ColumnWidth5;
                 }
 
                 if (this.SysEnv.SysSettings.IsPickShowItemQtyAvail)
                 {
-                    if (detailWidth6 > this.columnWidth6)
+                    if (detailWidth6 > this.ColumnWidth6)
                     {
-                        this.columnWidth6 = detailWidth6;
-                        gridHeaderPicking.ColumnDefinitions[6].Width = this.columnWidth6;
+                        this.ColumnWidth6 = detailWidth6;
+                        gridHeaderPicking.ColumnDefinitions[6].Width = this.ColumnWidth6;
                     }
                 }
                 else
                 {
-                    this.columnWidth6 = 0;
-                    gridHeaderPicking.ColumnDefinitions[6].Width = this.columnWidth6;
+                    this.ColumnWidth6 = 0;
+                    gridHeaderPicking.ColumnDefinitions[6].Width = this.ColumnWidth6;
                 }
             }
 
-            listViewMainActivity.ItemTemplate = (DataTemplate)this.resourceDictionary["dataTemplatePickingItem"];
+            listViewMainActivity.ItemTemplate = (DataTemplate)this.ResourceDictionary["dataTemplatePickingItem"];
 
             return observableCollection;
         }
@@ -1048,9 +1029,9 @@ namespace dMobile.Controller.Activity_Item
             //        this.DataViewItems.Sort = "ActivityItemRefno";
             //    }
             // }
-            this.listPickingItems = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<PickingItem>(sql.ToString());
-            this.listPickingItems = this.listPickingItems.OrderBy(x => x.ActivityItemRefno).ToList();
-            this.ListItems = this.listPickingItems.Cast<object>().ToList();
+            this.ListPickingItems = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<PickingItem>(sql.ToString());
+            this.ListPickingItems = this.ListPickingItems.OrderBy(x => x.ActivityItemRefno).ToList();
+            this.ListItems = this.ListPickingItems.Cast<object>().ToList();
             return this.ListItems;
         }
 
@@ -1063,45 +1044,11 @@ namespace dMobile.Controller.Activity_Item
         {
             var observableCollection = new ObservableCollection<object>();
 
-            // if (string.IsNullOrEmpty(this.ActItemFilter))
-            // {
-            this.ListItems = this.listPickingItems.Where(pickingItem => pickingItem.ProductCode.ToString().ToLower().Contains(searchText.ToLower().Trim())).Cast<object>().ToList();
+            this.ListItems = this.ListPickingItems.Where(pickingItem => pickingItem.ProductCode.ToString().ToLower()
+                .Contains(searchText.ToLower().Trim())).Cast<object>().ToList();
 
-            // }
-            // else
-            // {
-            // TODO: Fix filtering
-            // this.DataViewItems.RowFilter = this.ActItemFilter + " AND ProductCode LIKE \'%" + searchText.Trim() + "%\'";
-            // }
             foreach (PickingItem pickingItem in this.ListItems)
             {
-                // PickingItem pickingItem = new PickingItem
-                // {
-                //    ActivityItemRefno = Convert.ToInt32(row["ActivityItemRefno"] != DBNull.Value ? row["ActivityItemRefno"] : null),
-                //    ActivityItemFKRefno = Convert.ToInt32(row["ActivityItemFKRefno"] != DBNull.Value ? row["ActivityItemFKRefno"] : null),
-                //    ActivityItemStringFKRefno = Convert.ToString(row["ActivityItemStringFKRefno"] != DBNull.Value ? row["ActivityItemStringFKRefno"] : null),
-                //    ProductUnitRefno = Convert.ToInt32(row["ProductUnitRefno"] != DBNull.Value ? row["ProductUnitRefno"] : null),
-                //    ProductCode = Convert.ToString(row["ProductCode"] != DBNull.Value ? row["ProductCode"] : null),
-                //    ProductDescription = Convert.ToString(row["ProductDescription"] != DBNull.Value ? row["ProductDescription"] : null),
-                //    ProductBrandDescription = Convert.ToString(row["ProductBrandDescription"] != DBNull.Value ? row["ProductBrandDescription"] : null),
-                //    UnitCode = Convert.ToString(row["UnitCode"] != DBNull.Value ? row["UnitCode"] : null),
-                //    ProductUnitBC = Convert.ToString(row["ProductUnitBC"] != DBNull.Value ? row["ProductUnitBC"] : null),
-                //    ProductUnitSizeDescription = Convert.ToString(row["ProductUnitSizeDescription"] != DBNull.Value ? row["ProductUnitSizeDescription"] : null),
-                //    ActivityItemPickingQuantityOrdered = Convert.ToDecimal(row["ActivityItemPickingQuantityOrdered"] != DBNull.Value ? row["ActivityItemPickingQuantityOrdered"] : null),
-                //    ActivityItemPickingBaseQuantityOrdered = Convert.ToDecimal(row["ActivityItemPickingBaseQuantityOrdered"] != DBNull.Value ? row["ActivityItemPickingBaseQuantityOrdered"] : null),
-                //    ActivityItemPickingWeightQuantityOrdered = Convert.ToDecimal(row["ActivityItemPickingWeightQuantityOrdered"] != DBNull.Value ? row["ActivityItemPickingWeightQuantityOrdered"] : null),
-                //    ActivityItemPickingQuantityShipped = Convert.ToDecimal(row["ActivityItemPickingQuantityShipped"] != DBNull.Value ? row["ActivityItemPickingQuantityShipped"] : null),
-                //    ActivityItemPickingBaseQuantityShipped = Convert.ToDecimal(row["ActivityItemPickingBaseQuantityShipped"] != DBNull.Value ? row["ActivityItemPickingBaseQuantityShipped"] : null),
-                //    ActivityItemPickingWeightQuantityShipped = Convert.ToDecimal(row["ActivityItemPickingWeightQuantityShipped"] != DBNull.Value ? row["ActivityItemPickingWeightQuantityShipped"] : null),
-                //    ActivityItemPickingCustomerProductUnitCode = Convert.ToString(row["ActivityItemPickingCustomerProductUnitCode"] != DBNull.Value ? row["ActivityItemPickingCustomerProductUnitCode"] : null),
-                //    LocationMapRefno = Convert.ToInt32(row["LocationMapRefno"] != DBNull.Value ? row["LocationMapRefno"] : null),
-                //    LocationCode = Convert.ToInt32(row["LocationCode"] != DBNull.Value ? row["LocationCode"] : null),
-                //    LocationName = Convert.ToString(row["LocationName"] != DBNull.Value ? row["LocationName"] : null),
-                //    ActivityItemPickingQuantityAvailable = Convert.ToDecimal(row["ActivityItemPickingQuantityAvailable"] != DBNull.Value ? row["ActivityItemPickingQuantityAvailable"] : null),
-                //    ActivityItemPickingWeightQuantityAvailable = Convert.ToDecimal(row["ActivityItemPickingWeightQuantityAvailable"] != DBNull.Value ? row["ActivityItemPickingWeightQuantityAvailable"] : null),
-                //    IsActivityItemPickingComment = !string.IsNullOrWhiteSpace(Convert.ToString(row["IsActivityItemPickingComment"] != DBNull.Value ? row["IsActivityItemPickingComment"] : null)) ? "X" : "",
-                //    ActivityItemStatus = Convert.ToInt32(row["ActivityItemStatus"] != DBNull.Value ? row["ActivityItemStatus"] : null)
-                // };
                 observableCollection.Add(pickingItem);
             }
 
@@ -1117,7 +1064,7 @@ namespace dMobile.Controller.Activity_Item
         {
             if (activityItem is PickingItem item)
             {
-                this.SelectedActivityItem = item;
+                this.SelectedItem = item;
                 this.ItemRefno = item.ActivityItemRefno;
                 this.ItemFkRefno = item.ActivityItemFKRefno;
                 this.ActStatus = (SysCommon.ActStatus)item.ActivityItemStatus;
@@ -1194,7 +1141,6 @@ namespace dMobile.Controller.Activity_Item
             sql.AppendFormat("AND tActivityItemPicking.ProductUnitRefno = {0}", prodUnitRefno);
 
             var results = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<PickingItem>(sql.ToString());
-
             if (results != null && results.Count > 0)
             {
                 this.ItemFkRefno = Convert.ToInt32(results[0].ActivityItemFKRefno);
@@ -1205,12 +1151,25 @@ namespace dMobile.Controller.Activity_Item
             }
             else
             {
+                foreach (var item in this.ListPickingItems)
+                {
+                    if (item.LocationMapRefno == locMap.WhsLocMapRefno && item.ProductUnitRefno == prodUnitRefno)
+                    {
+                        this.ItemRefno = item.ActivityItemRefno;
+                        this.ItemFkRefno = item.ActivityItemFKRefno;
+                        this.ProdInfo = await ProductInfoTasks.GetInfoFromRefno(item.ProductRefno);
+                        this.ProdInfo.Scheme = await ProductInfoTasks.GetSchemeComponentsFromRefno(this.ProdInfo.Refno);
+                        foundActItemRefno = this.ItemRefno;
+                        break;
+                    }
+                }
+
                 // If location defaulting is on, attempt to find a matching line item by ignoring the line item
                 // warehouse location. Yes this will be a problem if the sales order has multiple item lines
                 // on it for the same product and different warehouse.
                 // Picking is the only activity that could have this sort of problem. All other activities are
                 // warehouse friend because the can't mix warehouses or are created by the mobile itself.
-                if (this.SysEnv.SysSettings.IsDefaultLocToProductDefaultLoc)
+                if (foundActItemRefno == 0 && this.SysEnv.SysSettings.IsDefaultLocToProductDefaultLoc)
                 {
                     sql = new StringBuilder();
                     sql.Append("SELECT tActivityItem.ActivityItemRefno,");
@@ -1255,6 +1214,21 @@ namespace dMobile.Controller.Activity_Item
                             foundActItemRefno = this.ItemRefno;
                         }
                     }
+                    else
+                    {
+                        foreach (var item in this.ListPickingItems)
+                        {
+                            if (item.ProductUnitRefno == prodUnitRefno)
+                            {
+                                this.ItemRefno = item.ActivityItemRefno;
+                                this.ItemFkRefno = item.ActivityItemFKRefno;
+                                this.ProdInfo = await ProductInfoTasks.GetInfoFromRefno(item.ProductRefno);
+                                this.ProdInfo.Scheme = await ProductInfoTasks.GetSchemeComponentsFromRefno(this.ProdInfo.Refno);
+                                foundActItemRefno = this.ItemRefno;
+                                break;
+                            }
+                        }
+                    }
                 }
             }
 
@@ -1289,7 +1263,13 @@ namespace dMobile.Controller.Activity_Item
         public async override Task<string> CreateDeleteXml(XDocument data)
         {
             var xmlString = new StringBuilder();
-            var xml = XmlWriter.Create(xmlString);
+            var settings = new XmlWriterSettings
+            {
+                Async = true,
+                Indent = false,
+            };
+            var xml = XmlWriter.Create(xmlString, settings);
+
             XDocument request;
             if (data.Document.Root.Element("skid_data") == null)
             {
@@ -1313,7 +1293,7 @@ namespace dMobile.Controller.Activity_Item
             }
 
             request.Save(xml);
-            xml.Flush();
+            await xml.FlushAsync();
             xml.Close();
 
             return xmlString.ToString();
@@ -1327,7 +1307,13 @@ namespace dMobile.Controller.Activity_Item
         public async override Task<string> CreateSubmitXml(XDocument data)
         {
             var xmlString = new StringBuilder();
-            var xml = XmlWriter.Create(xmlString);
+            var settings = new XmlWriterSettings
+            {
+                Async = true,
+                Indent = false,
+            };
+            var xml = XmlWriter.Create(xmlString, settings);
+
             var prodCode = data.Root.Element("ProductCode").Value.PadRight(10);
             var barCodeCode = data.Root.Element("ProductUnitBarCodeCode").Value.PadRight(20);
             var prodUnitIsBc = bool.Parse(data.Root.Element("ProductUnitIsBC").Value);
@@ -1352,7 +1338,7 @@ namespace dMobile.Controller.Activity_Item
                 + "</imclient>");
 
             request.Save(xml);
-            xml.Flush();
+            await xml.FlushAsync();
             xml.Close();
 
             return xmlString.ToString();
@@ -1395,14 +1381,14 @@ namespace dMobile.Controller.Activity_Item
             if (selectedActivityItem is PickingItem pickingItem)
             {
                 //// Update UI here?
-                this.listPickingItems.First(x => x.ActivityItemFKRefno == pickingItem.ActivityItemFKRefno)
+                this.ListPickingItems.First(x => x.ActivityItemFKRefno == pickingItem.ActivityItemFKRefno)
                     .ActivityItemPickingQuantityShipped += quantity;
-                this.listPickingItems.First(x => x.ActivityItemFKRefno == pickingItem.ActivityItemFKRefno)
+                this.ListPickingItems.First(x => x.ActivityItemFKRefno == pickingItem.ActivityItemFKRefno)
                     .ActivityItemPickingBaseQuantityShipped += quantity;
-                this.listPickingItems.First(x => x.ActivityItemFKRefno == pickingItem.ActivityItemFKRefno)
+                this.ListPickingItems.First(x => x.ActivityItemFKRefno == pickingItem.ActivityItemFKRefno)
                     .ActivityItemPickingWeightQuantityShipped += quantity;
 
-                this.ListItems = this.listPickingItems.Cast<object>().ToList();
+                this.ListItems = this.ListPickingItems.Cast<object>().ToList();
             }
         }
 
@@ -1442,7 +1428,12 @@ namespace dMobile.Controller.Activity_Item
         public async Task<string> CreateRequestTotalQuantityXml(int actFkRefno)
         {
             var xmlString = new StringBuilder();
-            var xml = XmlWriter.Create(xmlString);
+            var settings = new XmlWriterSettings
+            {
+                Async = true,
+                Indent = false,
+            };
+            var xml = XmlWriter.Create(xmlString, settings);
 
             var request = XDocument.Parse(
                 "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>"
@@ -1455,7 +1446,7 @@ namespace dMobile.Controller.Activity_Item
                 + "</imclient>");
 
             request.Save(xml);
-            xml.Flush();
+            await xml.FlushAsync();
             xml.Close();
 
             return xmlString.ToString();
@@ -1513,7 +1504,7 @@ namespace dMobile.Controller.Activity_Item
         /// <exception cref="MessageOnlyException"> Quantity shipped greater message.</exception>
         private void PickingModuleQuantityOverCheck(decimal actItemPickQuantity)
         {
-            if (this.SelectedActivityItem is PickingItem pickingItem)
+            if (this.SelectedItem is PickingItem pickingItem)
             {
                 var shipped = Convert.ToDecimal(pickingItem.ActivityItemPickingQuantityShipped);
                 var ordered = Convert.ToDecimal(pickingItem.ActivityItemPickingQuantityOrdered);
@@ -1577,7 +1568,7 @@ namespace dMobile.Controller.Activity_Item
         public override async Task<int> GetDefaultLocMapRefno(int whsLocMapRefno, int prodRefno)
         {
             var locMapRefno = 0;
-            if (this.SelectedActivityItem is PickingItem item)
+            if (this.SelectedItem is PickingItem item)
             {
                 if (Math.Sign(item.ActivityItemPickingQuantityShipped) == 0 ||
                     Math.Sign(item.ActivityItemPickingQuantityShipped) == -1)

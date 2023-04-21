@@ -144,7 +144,7 @@ namespace dMobile.Controller.Activity_Item
         /// <param name="actItemFoundRefno"><see cref="int"/> Activity item reference number to look up.</param>
         public override void SetSelectedActivityItemFromList(int actItemFoundRefno)
         {
-            this.SelectedListItemIdx = -1;
+            this.SelectedListIdx = -1;
             if (actItemFoundRefno >= 0)
             {
                 var idx = 0;
@@ -152,8 +152,8 @@ namespace dMobile.Controller.Activity_Item
                 {
                     if (item.ActivityItemRefno == this.ItemRefno)
                     {
-                        this.SelectedActivityItem = item;
-                        this.SelectedListItemIdx = idx;
+                        this.SelectedItem = item;
+                        this.SelectedListIdx = idx;
                         break;
                     }
 
@@ -162,7 +162,7 @@ namespace dMobile.Controller.Activity_Item
             }
             else
             {
-                this.SelectedActivityItem = null;
+                this.SelectedItem = null;
             }
         }
 
@@ -403,7 +403,7 @@ namespace dMobile.Controller.Activity_Item
                     ActivityItemTransferWeightQuantity = 0,
                 };
                 this.ListItems.Add(item);
-                this.SelectedListItemIdx = this.ListItems.Count - 1;
+                this.SelectedListIdx = this.ListItems.Count - 1;
                 _ = this.AssignActivityItem(item);
             }
         }
@@ -769,7 +769,7 @@ namespace dMobile.Controller.Activity_Item
         {
             if (activityItem is TransferItem item)
             {
-                this.SelectedActivityItem = item;
+                this.SelectedItem = item;
                 this.ItemRefno = item.ActivityItemRefno;
                 this.ItemFkRefno = item.ActivityItemFKRefno;
                 this.ActStatus = (SysCommon.ActStatus)item.ActivityItemStatus;
@@ -867,7 +867,12 @@ namespace dMobile.Controller.Activity_Item
         public async override Task<string> CreateSubmitXml(XDocument data)
         {
             var xmlString = new StringBuilder();
-            var xml = XmlWriter.Create(xmlString);
+            var settings = new XmlWriterSettings
+            {
+                Async = true,
+                Indent = false,
+            };
+            var xml = XmlWriter.Create(xmlString, settings);
 
             var request = XDocument.Parse(
                 "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>"
@@ -888,7 +893,7 @@ namespace dMobile.Controller.Activity_Item
                 + "</imclient>");
 
             request.Save(xml);
-            xml.Flush();
+            await xml.FlushAsync();
             xml.Close();
 
             return xmlString.ToString();
@@ -959,7 +964,7 @@ namespace dMobile.Controller.Activity_Item
         /// <param name="actItemTransQuantity">.</param>
         private void TransferModuleQuantityOverCheck(int actItemTransFkRefno, decimal actItemTransQuantity)
         {
-            if (this.SelectedActivityItem is TransferItem transferItem)
+            if (this.SelectedItem is TransferItem transferItem)
             {
                 var transferred = Convert.ToDecimal(transferItem.ActivityItemTransferQuantity);
                 var required = Convert.ToDecimal(transferItem.ActivityItemTransferRequiredQuantity);
@@ -1070,7 +1075,7 @@ namespace dMobile.Controller.Activity_Item
         public override async Task<int> GetDefaultLocMapRefno(int whsLocMapRefno, int prodRefno)
         {
             var locMapRefno = 0;
-            if (this.SelectedActivityItem is TransferItem item)
+            if (this.SelectedItem is TransferItem item)
             {
                 if (Math.Sign(item.ActivityItemTransferQuantity) == 0 ||
                     Math.Sign(item.ActivityItemTransferQuantity) == 1)

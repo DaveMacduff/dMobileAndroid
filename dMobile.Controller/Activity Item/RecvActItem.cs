@@ -60,11 +60,6 @@ namespace dMobile.Controller.Activity_Item
         private ResourceDictionary resourceDictionary = new ResourceDictionary();
 
         /// <summary>
-        /// Defines the listReceiveItems.
-        /// </summary>
-        private List<ReceiveItem> listReceiveItems = new List<ReceiveItem>();
-
-        /// <summary>
         /// Initializes a new instance of the <see cref="RecvActItem"/> class.
         /// </summary>
         /// <param name="activity">.</param>
@@ -139,12 +134,17 @@ namespace dMobile.Controller.Activity_Item
         }
 
         /// <summary>
+        /// Defines the listReceiveItems.
+        /// </summary>
+        private List<ReceiveItem> ListReceiveItems { get; set; } = new List<ReceiveItem>();
+
+        /// <summary>
         /// Set the activity item selected activity item.
         /// </summary>
         /// <param name="actItemFoundRefno"><see cref="int"/> Activity item reference number to look up.</param>
         public override void SetSelectedActivityItemFromList(int actItemFoundRefno)
         {
-            this.SelectedListItemIdx = -1;
+            this.SelectedListIdx = -1;
             if (actItemFoundRefno >= 0)
             {
                 var idx = 0;
@@ -152,8 +152,8 @@ namespace dMobile.Controller.Activity_Item
                 {
                     if (item.ActivityItemRefno == this.ItemRefno)
                     {
-                        this.SelectedActivityItem = item;
-                        this.SelectedListItemIdx = idx;
+                        this.SelectedItem = item;
+                        this.SelectedListIdx = idx;
                         break;
                     }
 
@@ -162,7 +162,7 @@ namespace dMobile.Controller.Activity_Item
             }
             else
             {
-                this.SelectedActivityItem = null;
+                this.SelectedItem = null;
             }
         }
 
@@ -272,7 +272,13 @@ namespace dMobile.Controller.Activity_Item
         public async override Task<string> CreateDeleteXml(XDocument data)
         {
             var xmlString = new StringBuilder();
-            var xml = XmlWriter.Create(xmlString);
+            var settings = new XmlWriterSettings
+            {
+                Async = true,
+                Indent = false,
+            };
+            var xml = XmlWriter.Create(xmlString, settings);
+
             XDocument request;
             if (data.Document.Root.Element("skid_data") == null)
             {
@@ -296,7 +302,7 @@ namespace dMobile.Controller.Activity_Item
             }
 
             request.Save(xml);
-            xml.Flush();
+            await xml.FlushAsync();
             xml.Close();
 
             return xmlString.ToString();
@@ -334,7 +340,7 @@ namespace dMobile.Controller.Activity_Item
         {
             var locMapRefno = 0;
 
-            if (this.SelectedActivityItem is ReceiveItem item)
+            if (this.SelectedItem is ReceiveItem item)
             {
                 if (Math.Sign(item.ActivityItemReceivingQuantityOrdered) == 0 ||
                     Math.Sign(item.ActivityItemReceivingQuantityOrdered) == 1)
@@ -449,34 +455,19 @@ namespace dMobile.Controller.Activity_Item
 
             foreach (ReceiveItem receiveItem in this.ListItems)
             {
-                // ReceiveItem receiveItem = new ReceiveItem
-                // {
-                //    ActivityItemRefno = Convert.ToInt32(row["ActivityItemRefno"] != DBNull.Value ? row["ActivityItemRefno"] : null),
-                //    ActivityItemFKRefno = Convert.ToInt32(row["ActivityItemFKRefno"]!= DBNull.Value ? row["ActivityItemFKRefno"] : null),
-                //    ActivityItemStringFKRefno = Convert.ToString(row["ActivityItemStringFKRefno"]!= DBNull.Value ? row["ActivityItemStringFKRefno"] : null),
-                //    ProductUnitRefno = Convert.ToInt32(row["ProductUnitRefno"]!= DBNull.Value ? row["ProductUnitRefno"] : null),
-                //    ProductRefno = Convert.ToInt32(row["ProductRefno"]!= DBNull.Value ? row["ProductRefno"] : null),
-                //    ProductCode = Convert.ToString(row["ProductCode"]!= DBNull.Value ? row["ProductCode"] : null),
-                //    ProductDescription = Convert.ToString(row["ProductDescription"]!= DBNull.Value ? row["ProductDescription"] : null),
-                //    UnitCode = Convert.ToString(row["UnitCode"]!= DBNull.Value ? row["UnitCode"] : null),
-                //    ProductUnitBC = Convert.ToString(row["ProductUnitBC"]!= DBNull.Value ? row["ProductUnitBC"] : null),
-                //    ProductUnitSizeDescription = Convert.ToString(row["ProductUnitSizeDescription"]!= DBNull.Value ? row["ProductUnitSizeDescription"] : null),
-                //    ActivityItemReceivingQuantityOrdered = Convert.ToDecimal(row["ActivityItemReceivingQuantityOrdered"]!= DBNull.Value ? row["ActivityItemReceivingQuantityOrdered"] : null),
-                //    ActivityItemReceivingBaseQuantityOrdered = Convert.ToDecimal(row["ActivityItemReceivingBaseQuantityOrdered"]!= DBNull.Value ? row["ActivityItemReceivingBaseQuantityOrdered"] : null),
-                //    ActivityItemReceivingWeightQuantityOrdered = Convert.ToDecimal(row["ActivityItemReceivingWeightQuantityOrdered"]!= DBNull.Value ? row["ActivityItemReceivingWeightQuantityOrdered"] : null),
-                //    ActivityItemReceivingQuantityReceived = Convert.ToDecimal(row["ActivityItemReceivingQuantityReceived"]!= DBNull.Value ? row["ActivityItemReceivingQuantityReceived"] : null),
-                //    ActivityItemReceivingBaseQuantityReceived = Convert.ToDecimal(row["ActivityItemReceivingBaseQuantityReceived"]!= DBNull.Value ? row["ActivityItemReceivingBaseQuantityReceived"] : null),
-                //    ActivityItemReceivingWeightQuantityReceived = Convert.ToDecimal(row["ActivityItemReceivingWeightQuantityReceived"]!= DBNull.Value ? row["ActivityItemRefno"] : null),
-                //    ActivityItemReceivingVendorProductUnitCode = Convert.ToString(row["ActivityItemReceivingVendorProductUnitCode"]!= DBNull.Value ? row["ActivityItemReceivingVendorProductUnitCode"] : null),
-                //    ActivityItemReceivingDescription = Convert.ToString(row["ActivityItemReceivingDescription"]!= DBNull.Value ? row["ActivityItemReceivingDescription"] : null),
-                //    LocationMapRefno = Convert.ToInt32(row["LocationMapRefno"]!= DBNull.Value ? row["LocationMapRefno"] : null),
-                //    LocationCode = Convert.ToInt32(row["LocationCode"]!= DBNull.Value ? row["LocationCode"] : null),
-                //    LocationName = Convert.ToString(row["LocationName"]!= DBNull.Value ? row["LocationName"] : null),
-                //    ActivityItemReceivingQuantityReceivedToDate = Convert.ToDecimal(row["ActivityItemReceivingQuantityReceivedToDate"]!= DBNull.Value ? row["ActivityItemReceivingQuantityReceivedToDate"] : null),
-                //    ActivityItemReceivingWeightQuantityReceivedToDate = Convert.ToDecimal(row["ActivityItemReceivingWeightQuantityReceivedToDate"]!= DBNull.Value ? row["ActivityItemReceivingWeightQuantityReceivedToDate"] : null),
-                //    IsActivityItemReceivingComment = !string.IsNullOrWhiteSpace(Convert.ToString(row["IsActivityItemReceivingComment"])) ? "X" : ""
-                // };
-                observableCollection.Add(receiveItem);
+                if (receiveItem.ActivityItemFKRefno >= 0)
+                {
+                    observableCollection.Add(receiveItem);
+                }
+            }
+
+            // Add negative new line items to the bottom.
+            foreach (ReceiveItem receiveItem in this.ListItems)
+            {
+                if (receiveItem.ActivityItemFKRefno < 0)
+                {
+                    observableCollection.Add(receiveItem);
+                }
             }
 
             var labelIsActivityItemReceivingCommentReceiving = new Label { Text = "C", VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start, FontAttributes = FontAttributes.Bold };
@@ -754,8 +745,8 @@ namespace dMobile.Controller.Activity_Item
             //        this.DataViewItems.Sort = "ActivityItemRefno";
             //    }
             // }
-            this.listReceiveItems = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<ReceiveItem>(sql.ToString());
-            this.ListItems = this.listReceiveItems.Cast<object>().ToList();
+            this.ListReceiveItems = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<ReceiveItem>(sql.ToString());
+            this.ListItems = this.ListReceiveItems.Cast<object>().ToList();
             return this.ListItems;
         }
 
@@ -768,37 +759,10 @@ namespace dMobile.Controller.Activity_Item
         {
             var observableCollection = new ObservableCollection<object>();
 
-            this.ListItems = this.listReceiveItems.Where(receiveItem => receiveItem.ProductCode.ToLower().Contains(searchText.ToLower().Trim())).Cast<object>().ToList();
+            this.ListItems = this.ListReceiveItems.Where(receiveItem => receiveItem.ProductCode.ToLower().Contains(searchText.ToLower().Trim())).Cast<object>().ToList();
 
             foreach (ReceiveItem receiveItem in this.ListItems)
             {
-                // ReceiveItem receiveItem = new ReceiveItem
-                // {
-                //    ActivityItemRefno = Convert.ToInt32(row["ActivityItemRefno"]),
-                //    ActivityItemFKRefno = Convert.ToInt32(row["ActivityItemFKRefno"]),
-                //    ActivityItemStringFKRefno = Convert.ToString(row["ActivityItemStringFKRefno"]),
-                //    ProductUnitRefno = Convert.ToInt32(row["ProductUnitRefno"]),
-                //    ProductRefno = Convert.ToInt32(row["ProductRefno"]),
-                //    ProductCode = Convert.ToString(row["ProductCode"]),
-                //    ProductDescription = Convert.ToString(row["ProductDescription"]),
-                //    UnitCode = Convert.ToString(row["UnitCode"]),
-                //    ProductUnitBC = Convert.ToString(row["ProductUnitBC"]),
-                //    ProductUnitSizeDescription = Convert.ToString(row["ProductUnitSizeDescription"]),
-                //    ActivityItemReceivingQuantityOrdered = Convert.ToDecimal(row["ActivityItemReceivingQuantityOrdered"]),
-                //    ActivityItemReceivingBaseQuantityOrdered = Convert.ToDecimal(row["ActivityItemReceivingBaseQuantityOrdered"]),
-                //    ActivityItemReceivingWeightQuantityOrdered = Convert.ToDecimal(row["ActivityItemReceivingWeightQuantityOrdered"]),
-                //    ActivityItemReceivingQuantityReceived = Convert.ToDecimal(row["ActivityItemReceivingQuantityReceived"]),
-                //    ActivityItemReceivingBaseQuantityReceived = Convert.ToDecimal(row["ActivityItemReceivingBaseQuantityReceived"]),
-                //    ActivityItemReceivingWeightQuantityReceived = Convert.ToDecimal(row["ActivityItemReceivingWeightQuantityReceived"]),
-                //    ActivityItemReceivingVendorProductUnitCode = Convert.ToString(row["ActivityItemReceivingVendorProductUnitCode"]),
-                //    ActivityItemReceivingDescription = Convert.ToString(row["ActivityItemReceivingDescription"]),
-                //    LocationMapRefno = Convert.ToInt32(row["LocationMapRefno"]),
-                //    LocationCode = Convert.ToInt32(row["LocationCode"]),
-                //    LocationName = Convert.ToString(row["LocationName"]),
-                //    ActivityItemReceivingQuantityReceivedToDate = Convert.ToDecimal(row["ActivityItemReceivingQuantityReceivedToDate"]),
-                //    ActivityItemReceivingWeightQuantityReceivedToDate = Convert.ToDecimal(row["ActivityItemReceivingWeightQuantityReceivedToDate"]),
-                //    IsActivityItemReceivingCommentString = !string.IsNullOrWhiteSpace(Convert.ToString(row["IsActivityItemReceivingComment"])) ? "X" : "",
-                // };
                 observableCollection.Add(receiveItem);
             }
 
@@ -814,7 +778,7 @@ namespace dMobile.Controller.Activity_Item
         {
             if (activityItem is ReceiveItem item)
             {
-                this.SelectedActivityItem = item;
+                this.SelectedItem = item;
                 this.ItemRefno = item.ActivityItemRefno;
                 this.ItemFkRefno = item.ActivityItemFKRefno;
                 ////this.ActStatus = (SysCommon.ActStatus)item.ActivityItemStatus;
@@ -899,6 +863,21 @@ namespace dMobile.Controller.Activity_Item
                 this.ProdInfo.Scheme = await ProductInfoTasks.GetSchemeComponentsFromRefno(this.ProdInfo.Refno);
                 foundActItemRefno = this.ItemRefno;
             }
+            else
+            {
+                foreach (var item in this.ListReceiveItems)
+                {
+                    if (item.LocationMapRefno == locMap.WhsLocMapRefno && item.ProductUnitRefno == prodUnitRefno)
+                    {
+                        this.ItemRefno = item.ActivityItemRefno;
+                        this.ItemFkRefno = item.ActivityItemFKRefno;
+                        this.ProdInfo = await ProductInfoTasks.GetInfoFromRefno(item.ProductRefno);
+                        this.ProdInfo.Scheme = await ProductInfoTasks.GetSchemeComponentsFromRefno(this.ProdInfo.Refno);
+                        foundActItemRefno = this.ItemRefno;
+                        break;
+                    }
+                }
+            }
 
             return foundActItemRefno;
         }
@@ -911,7 +890,13 @@ namespace dMobile.Controller.Activity_Item
         public async override Task<string> CreateSubmitXml(XDocument data)
         {
             var xmlString = new StringBuilder();
-            var xml = XmlWriter.Create(xmlString);
+            var settings = new XmlWriterSettings
+            {
+                Async = true,
+                Indent = false,
+            };
+            var xml = XmlWriter.Create(xmlString, settings);
+
             var prodCode = data.Root.Element("ProductCode").Value.PadRight(10);
             var prodUnitBarCodeCode = data.Root.Element("ProductUnitBarCodeCode").Value.PadRight(20);
             var prodUnitIsBc = bool.Parse(data.Root.Element("ProductUnitIsBC").Value);
@@ -935,7 +920,7 @@ namespace dMobile.Controller.Activity_Item
                 + "</imclient>");
 
             request.Save(xml);
-            xml.Flush();
+            await xml.FlushAsync();
             xml.Close();
 
             return xmlString.ToString();
@@ -948,7 +933,11 @@ namespace dMobile.Controller.Activity_Item
         /// <param name="quantity">.</param>
         /// <param name="baseQuantity">.</param>
         /// <param name="weightQuantity">.</param>
-        public override void ReplaceQuantityInActivityItem(object selectedActivityItem, decimal quantity, decimal baseQuantity, decimal weightQuantity)
+        public override void ReplaceQuantityInActivityItem(
+            object selectedActivityItem,
+            decimal quantity,
+            decimal baseQuantity,
+            decimal weightQuantity)
         {
             if (selectedActivityItem is ReceiveItem receiveItem)
             {
@@ -965,7 +954,11 @@ namespace dMobile.Controller.Activity_Item
         /// <param name="quantity">.</param>
         /// <param name="baseQuantity">.</param>
         /// <param name="weightQuantity">.</param>
-        public override void AddToQuantityInActivityItem(object selectedActivityItem, decimal quantity, decimal baseQuantity, decimal weightQuantity)
+        public override void AddToQuantityInActivityItem(
+            object selectedActivityItem,
+            decimal quantity,
+            decimal baseQuantity,
+            decimal weightQuantity)
         {
             if (selectedActivityItem is ReceiveItem receiveItem)
             {
@@ -1078,7 +1071,7 @@ namespace dMobile.Controller.Activity_Item
         /// <param name="actItemRecvQuantity">The actItemRecvQuantity<see cref="decimal"/>.</param>
         private void ReceivingModuleQuantityOverCheck(decimal actItemRecvQuantity)
         {
-            if (this.SelectedActivityItem is ReceiveItem receiveItem)
+            if (this.SelectedItem is ReceiveItem receiveItem)
             {
                 var received = Convert.ToDecimal(receiveItem.ActivityItemReceivingQuantityReceived);
                 var ordered = Convert.ToDecimal(receiveItem.ActivityItemReceivingQuantityOrdered);

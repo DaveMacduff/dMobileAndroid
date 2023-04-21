@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 using System.Xml;
@@ -195,7 +196,6 @@ namespace dMobile.Controller.Activity_Detail
             this.Quantity = decimal.Parse(xmlDoc.DocumentElement["alt_qty"].InnerText);
             this.BaseQuantity = decimal.Parse(xmlDoc.DocumentElement["base_qty"].InnerText);
             this.WeightQuantity = decimal.Parse(xmlDoc.DocumentElement["wt_qty"].InnerText);
-            this.IsUpdateView = true;
         }
 
         /// <summary>
@@ -232,43 +232,34 @@ namespace dMobile.Controller.Activity_Detail
         {
             await this.FillActDetailObjFromXml(data);
 
-            if (this.SysEnv.SysSettings.IsDisconnectedMode)
+            // Get temporary item FK refno for newly inserted line item.
+            this.DetailFkRefno = await DatabaseConnection.GetInstance().SQLConn.ExecuteScalarAsync<int>(
+                "SELECT MAX(tActivityDetailAdjustment.ActivityDetailFKRefno) FROM tActivityDetailAdjustment");
+            this.DetailFkRefno++;
+
+            // Insert the common activity detail data.
+            this.DetailRefno = await this.InsertDetail();
+
+            if (!this.SysEnv.SysSettings.IsDisconnectedMode)
             {
-                var actDetailRefno = await this.InsertDetailDisconnected();
-
-                var query = "INSERT INTO tActivityDetailAdjustment (ActivityDetailRefno, ActivityDetailFKRefno) VALUES (?, ?)";
-                var rowsAffected = await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(
-                    query,
-                    Convert.ToInt32(actDetailRefno),
-                    Convert.ToInt32(this.DetailFkRefno));
-                if (rowsAffected <= 0)
-                {
-                    throw new Exception("Unable to insert activity detail in disconnected mode.");
-                }
-
-                this.IsUpdateView = true;
+                await this.Submit(this, data);
             }
-            else
+
+            var query = "INSERT INTO tActivityDetailAdjustment (ActivityDetailRefno, ActivityDetailFKRefno) VALUES (?, ?)";
+            var rowsAffected = await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(
+                query,
+                this.DetailRefno,
+                this.DetailFkRefno);
+            if (rowsAffected <= 0)
             {
-                var xmlSubmit = await this.CreateSubmitXml(XDocument.Parse(
-                    "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?><params></params>"));
-                this.SubmitDetailToCommServer(xmlSubmit);
+                throw new Exception("Unable to insert activity detail.");
+            }
 
-                var query = "UPDATE tActivityItemAdjustment SET ActivityItemStringFKRefno = ?," +
-                            " ActivityItemFKRefno = ? WHERE ActivityItemRefno = ?";
-                var rowsAffected = await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(
-                    query,
-                    Convert.ToString(this.ActItem.ItemFkRefno),
-                    this.ActItem.ItemFkRefno,
-                    this.ActItem.ItemRefno);
-                if (rowsAffected <= 0)
-                {
-                    throw new Exception("Unable to locate and update the activity line item with a new foreign" +
-                        " key upon inserting.");
-                }
+            FindListItemAndSetFkRefno();
 
-                // Find the activity item that may also have been newly created, and update the line item reference
-                // returned from the communication server.
+            /////
+            void FindListItemAndSetFkRefno()
+            {
                 AdjustmentItem foundItem = null;
                 foreach (AdjustmentItem item in this.ActItem.ListItems)
                 {
@@ -330,8 +321,8 @@ namespace dMobile.Controller.Activity_Detail
             });
 
             //// delete row from DataView
-            var adj = this.ListDetails.OfType<AdjustmentDetail>().Where(
-                adjItem => adjItem.ActivityDetailFKRefno == this.DetailFkRefno).FirstOrDefault();
+            var adj = this.ListDetails.OfType<AdjustmentDetail>().FirstOrDefault(
+                adjItem => adjItem.ActivityDetailFKRefno == this.DetailFkRefno);
             if (adj != null)
             {
                 _ = this.ListDetails.Remove(adj);
@@ -348,40 +339,105 @@ namespace dMobile.Controller.Activity_Detail
         /// <returns>The <see cref="Task"/>.</returns>
         public override async Task Submit(object selectedActivityDetail, XDocument data)
         {
+            int rowsAffected;
+
             var xmlDoc = new XmlDocument();
-            var strXmlSend =
-                await this.CreateSubmitXml(
-                    XDocument.Parse("<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?><params></params>"));
+            var strXmlSend = await this.CreateSubmitXml(data);
             var responseData = SysCommon.SubmitComm(strXmlSend);
             xmlDoc.LoadXml(responseData);
-            this.DetailFkRefno = int.Parse(xmlDoc.DocumentElement["ser_refno"].InnerText);
 
-            if (this.ActItem.ActStatus == SysCommon.ActStatus.Inserted)
+            if (xmlDoc.DocumentElement == null)
             {
-                this.ActItem.ItemFkRefno = int.Parse(xmlDoc.DocumentElement["itm_refno"].InnerText);
-                if (this.ActItem.SelectedActivityItem is AdjustmentItem adjItem)
-                {
-                    adjItem.ActivityItemFKRefno = this.ActItem.ItemFkRefno;
-                }
-
-                this.ActItem.ActStatus = SysCommon.ActStatus.NoChange;
-
-                await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(
-                    "UPDATE tActivityItem SET ActivityItemStatus = ? WHERE ActivityItemRefno = ?",
-                    Convert.ToInt32(SysCommon.ActStatus.NoChange),
-                    this.ActItem.ItemRefno);
+                throw new Exception("xmlDoc.DocumentElement == null");
             }
 
-            if (selectedActivityDetail is AdjustmentDetail adjustmentDetail)
-            {
-                adjustmentDetail.ActivityDetailFKRefno = this.DetailFkRefno;
-                adjustmentDetail.ActivityDetailStatus = Convert.ToInt32(SysCommon.ActStatus.NoChange);
-            }
+            this.DetailFkRefno = int.Parse(xmlDoc.DocumentElement["ser_refno"] !.InnerText);
 
-            await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(
-                "UPDATE tActivityDetail SET ActivityDetailStatus = ? WHERE ActivityDetailRefno = ?",
-                Convert.ToInt32(SysCommon.ActStatus.NoChange),
-                this.DetailRefno);
+            switch (this.ActItem.ActStatus)
+            {
+                case SysCommon.ActStatus.NoChange:
+                    break;
+
+                case SysCommon.ActStatus.Inserted:
+                    this.ActItem.ItemFkRefno = int.Parse(xmlDoc.DocumentElement["itm_refno"] !.InnerText);
+
+                    // Update the selected item also.
+                    if (this.ActItem.SelectedItem is AdjustmentItem item)
+                    {
+                        item.ActivityItemFKRefno = this.ActItem.ItemFkRefno;
+                    }
+
+                    this.ActItem.ActStatus = SysCommon.ActStatus.NoChange;
+
+                    rowsAffected = await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(
+                        "UPDATE tActivityItem SET ActivityItemStatus = ? WHERE ActivityItemRefno = ?",
+                        Convert.ToInt32(SysCommon.ActStatus.NoChange),
+                        this.ActItem.ItemRefno);
+
+                    if (rowsAffected < 0)
+                    {
+                        throw new Exception(
+                            "Unable to locate and update the activity line item with a new foreign" +
+                            " key upon inserting.");
+                    }
+
+                    if (selectedActivityDetail is AdjustmentDetail selectedInserted)
+                    {
+                        selectedInserted.ActivityDetailFKRefno = this.DetailFkRefno;
+                        selectedInserted.ActivityDetailStatus = Convert.ToInt32(SysCommon.ActStatus.NoChange);
+                    }
+
+                    rowsAffected = await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(
+                        "UPDATE tActivityDetail SET ActivityDetailStatus = ? WHERE ActivityDetailRefno = ?",
+                        Convert.ToInt32(SysCommon.ActStatus.NoChange),
+                        this.DetailRefno);
+
+                    if (rowsAffected < 0)
+                    {
+                        throw new Exception("Unable to locate and update the activity detail status to no change.");
+                    }
+
+                    break;
+
+                case SysCommon.ActStatus.Updated:
+                    if (selectedActivityDetail is AdjustmentDetail selectedUpdated)
+                    {
+                        selectedUpdated.ActivityDetailStatus = Convert.ToInt32(SysCommon.ActStatus.NoChange);
+                    }
+
+                    rowsAffected = await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(
+                        "UPDATE tActivityDetail SET ActivityDetailStatus = ? WHERE ActivityDetailRefno = ?",
+                        Convert.ToInt32(SysCommon.ActStatus.NoChange),
+                        this.DetailRefno);
+
+                    if (rowsAffected < 0)
+                    {
+                        throw new Exception("Unable to locate and update the activity detail status to no change.");
+                    }
+
+                    break;
+
+                case SysCommon.ActStatus.Deleted:
+                    if (selectedActivityDetail is AdjustmentDetail selectedDeleted)
+                    {
+                        selectedDeleted.ActivityDetailStatus = Convert.ToInt32(SysCommon.ActStatus.NoChange);
+                    }
+
+                    rowsAffected = await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(
+                        "UPDATE tActivityDetail SET ActivityDetailStatus = ? WHERE ActivityDetailRefno = ?",
+                        Convert.ToInt32(SysCommon.ActStatus.NoChange),
+                        this.DetailRefno);
+
+                    if (rowsAffected < 0)
+                    {
+                        throw new Exception("Unable to locate and update the activity detail status to no change.");
+                    }
+
+                    break;
+
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
         }
 
         /// <summary>
@@ -396,16 +452,13 @@ namespace dMobile.Controller.Activity_Detail
             }
             else
             {
-                this.DataLayerProgressOutHandler(this, EventArgs.Empty, 2);
-
-                var adjDetail = new TableActivityAdjustmentDetail();
-
-                await adjDetail.PurgeData();
-
-                this.DataLayerProgressOutHandler(this, EventArgs.Empty, 5);
-
                 if (this.ActItem.ActStatus != SysCommon.ActStatus.Inserted)
                 {
+                    this.DataLayerProgressOutHandler(this, EventArgs.Empty, 2);
+                    var adjDetail = new TableActivityAdjustmentDetail();
+                    await adjDetail.PurgeData();
+                    this.DataLayerProgressOutHandler(this, EventArgs.Empty, 5);
+
                     adjDetail.RegisterDataAccessListenerProgressOut((AdjActDetail)this);
                     await adjDetail.RequestDetailData(this.ActItem.ItemRefno);
                     adjDetail.UnregisterDataAccessListenerProgressOut((AdjActDetail)this);
@@ -1056,7 +1109,13 @@ namespace dMobile.Controller.Activity_Detail
         public override async Task<string> CreateSubmitXml(XDocument data)
         {
             var xmlString = new StringBuilder();
-            var xml = XmlWriter.Create(xmlString);
+            var settings = new XmlWriterSettings
+            {
+                Async = true,
+                Indent = false,
+            };
+            var xml = XmlWriter.Create(xmlString, settings);
+
             var adjSettings = new AdjustmentSettings().LoadData();
 
             var adjType = (SysCommon.AdjTypes)Convert.ToInt32(await DatabaseConnection.GetInstance().SQLConn.ExecuteScalarAsync<int>(
@@ -1107,7 +1166,7 @@ namespace dMobile.Controller.Activity_Detail
             }
 
             request.Save(xml);
-            xml.Flush();
+            await xml.FlushAsync();
             xml.Close();
 
             return xmlString.ToString();
@@ -1121,7 +1180,13 @@ namespace dMobile.Controller.Activity_Detail
         public override async Task<string> CreateDeleteXml(XDocument data)
         {
             var xmlString = new StringBuilder();
-            var xml = XmlWriter.Create(xmlString);
+            var settings = new XmlWriterSettings
+            {
+                Async = true,
+                Indent = false,
+            };
+            var xml = XmlWriter.Create(xmlString, settings);
+
             var adjType = (SysCommon.AdjTypes)Convert.ToInt32(await DatabaseConnection.GetInstance().SQLConn.ExecuteScalarAsync<int>(
                 "SELECT ActivityAdjustmentType FROM tActivityAdjustment WHERE ActivityRefno = ?",
                 this.ActItem.ActHdr.HdrRefno));
@@ -1189,7 +1254,7 @@ namespace dMobile.Controller.Activity_Detail
             }
 
             request.Save(xml);
-            xml.Flush();
+            await xml.FlushAsync();
             xml.Close();
 
             return xmlString.ToString();

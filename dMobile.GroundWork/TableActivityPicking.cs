@@ -195,7 +195,13 @@ namespace dMobile.GroundWork
         protected async override Task<string> CreateRequest(XDocument critFilter)
         {
             var xmlString = new StringBuilder();
-            var xml = XmlWriter.Create(xmlString);
+            var settings = new XmlWriterSettings
+            {
+                Async = true,
+                Indent = false,
+            };
+            var xml = XmlWriter.Create(xmlString, settings);
+
             XDocument request;
             if (critFilter == null)
             {
@@ -225,7 +231,7 @@ namespace dMobile.GroundWork
             }
 
             request.Save(xml);
-            xml.Flush();
+            await xml.FlushAsync();
             xml.Close();
 
             return xmlString.ToString();
@@ -234,7 +240,13 @@ namespace dMobile.GroundWork
         protected async override Task<string> CreateRequest()
         {
             var xmlString = new StringBuilder();
-            var xml = XmlWriter.Create(xmlString);
+            var settings = new XmlWriterSettings
+            {
+                Async = true,
+                Indent = false,
+            };
+            var xml = XmlWriter.Create(xmlString, settings);
+
             XDocument request;
             request = XDocument.Parse(
                 "<?xml version=\"1.0\" encoding=\"utf-8\" standalone=\"yes\"?>"
@@ -247,7 +259,7 @@ namespace dMobile.GroundWork
                 + "</command>"
                 + "</imclient>");
             request.Save(xml);
-            xml.Flush();
+            await xml.FlushAsync();
             xml.Close();
 
             return xmlString.ToString();

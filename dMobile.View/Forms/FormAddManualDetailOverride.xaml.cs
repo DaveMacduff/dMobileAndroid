@@ -279,7 +279,7 @@ namespace dMobile.View.Forms
             }
             catch (MessageOnlyException msgEx)
             {
-                var msg = (msgEx.Message.IndexOf("MSGBOX-") == -1) ? msgEx.Message : msgEx.Message["MSGBOX-".Length..];
+                var msg = (msgEx.Message.IndexOf("MSGBOX-", StringComparison.Ordinal) == -1) ? msgEx.Message : msgEx.Message["MSGBOX-".Length..];
                 e.Cancel = true;
                 await Device.InvokeOnMainThreadAsync(async () => await this.DisplayAlert(
                     "Add Manual Detail Override",

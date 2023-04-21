@@ -178,7 +178,7 @@ namespace dMobile.Controller.Activity_Item
                     ActivityDetailRefno = this.ItemRefno,
                 };
                 this.ListItems.Add(item);
-                this.SelectedListItemIdx = this.ListItems.Count - 1;
+                this.SelectedListIdx = this.ListItems.Count - 1;
                 _ = this.AssignActivityItem(item);
             }
         }
@@ -258,7 +258,7 @@ namespace dMobile.Controller.Activity_Item
         {
             if (activityItem is AdjustmentItem item)
             {
-                this.SelectedActivityItem = item;
+                this.SelectedItem = item;
                 this.ItemRefno = item.ActivityItemRefno;
                 this.ItemFkRefno = item.ActivityItemFKRefno;
                 this.ActStatus = (SysCommon.ActStatus)item.ActivityItemStatus;
@@ -486,7 +486,7 @@ namespace dMobile.Controller.Activity_Item
         public override async Task<int> GetDefaultLocMapRefno(int whsLocMapRefno, int prodRefno)
         {
             var locMapRefno = 0;
-            if (this.SelectedActivityItem is ConvertUnitItem item)
+            if (this.SelectedItem is ConvertUnitItem item)
             {
                 if (Math.Sign(item.ActivityDetailQuantity) == 0 ||
                     Math.Sign(item.ActivityDetailQuantity) == 1)

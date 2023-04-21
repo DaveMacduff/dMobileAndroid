@@ -189,7 +189,6 @@ namespace dMobile.Controller.Activity_Detail
             this.Quantity = decimal.Parse(xmlDoc.DocumentElement["alt_qty"].InnerText);
             this.BaseQuantity = decimal.Parse(xmlDoc.DocumentElement["base_qty"].InnerText);
             this.WeightQuantity = decimal.Parse(xmlDoc.DocumentElement["wt_qty"].InnerText);
-            this.IsUpdateView = true;
         }
 
         /// <summary>
@@ -221,7 +220,7 @@ namespace dMobile.Controller.Activity_Detail
             if (this.SysEnv.SysSettings.IsDisconnectedMode)
             {
                 // At this point the 
-                var actDetailRefno = await this.InsertDetailDisconnected();
+                var actDetailRefno = await this.InsertDetail();
 
                 var query = "INSERT INTO tActivityDetailPicking (ActivityDetailRefno, ActivityDetailFKRefno," +
                             " ActivityDetailPickingIsConfirmed) VALUES (?, ?, ?)";
@@ -234,13 +233,10 @@ namespace dMobile.Controller.Activity_Detail
                 {
                     throw new Exception("Unable to insert activity detail in disconnected mode.");
                 }
-
-                this.IsUpdateView = true;
             }
             else
             {
-                this.SubmitDetailToCommServer(await this.CreateSubmitXml(XDocument.Parse(
-                    "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?><params></params>")));
+                await this.Submit(this, data);
 
                 var query = "UPDATE tActivityItemPicking SET ActivityItemStringFKRefno = ?," +
                             " ActivityItemFKRefno = ? WHERE ActivityItemRefno = ?";
@@ -249,7 +245,7 @@ namespace dMobile.Controller.Activity_Detail
                     Convert.ToString(this.ActItem.ItemFkRefno),
                     this.ActItem.ItemFkRefno,
                     this.ActItem.ItemRefno);
-                if (rowsAffected <= 0)
+                if (rowsAffected < 0)
                 {
                     throw new Exception("Unable to locate and update the activity line item with a new foreign" +
                         " key upon inserting.");
@@ -350,6 +346,11 @@ namespace dMobile.Controller.Activity_Detail
             var responseData = SysCommon.SubmitComm(xmlSend);
             xmlDoc.LoadXml(responseData);
             this.DetailFkRefno = int.Parse(xmlDoc.DocumentElement["ser_refno"].InnerText);
+
+            if (this.ActItem.SelectedItem is PickingItem item)
+            {
+                item.ActivityItemFKRefno = this.ActItem.ItemFkRefno;
+            }
 
             if (this.ListDetails != null && selectedActivityDetail is PickingDetail pickingDetail)
             {
@@ -1146,7 +1147,12 @@ namespace dMobile.Controller.Activity_Detail
         public override async Task<string> CreateSubmitXml(XDocument sendData)
         {
             var xmlString = new StringBuilder();
-            var xml = XmlWriter.Create(xmlString);
+            var settings = new XmlWriterSettings
+            {
+                Async = true,
+                Indent = false,
+            };
+            var xml = XmlWriter.Create(xmlString, settings);
 
             XDocument request;
             if (this.ActItem.ActHdr.XmlDataCriteria == null)
@@ -1272,7 +1278,7 @@ namespace dMobile.Controller.Activity_Detail
             }
 
             request.Save(xml);
-            xml.Flush();
+            await xml.FlushAsync();
             xml.Close();
 
             return xmlString.ToString();
@@ -1286,7 +1292,12 @@ namespace dMobile.Controller.Activity_Detail
         public override async Task<string> CreateDeleteXml(XDocument data)
         {
             var xmlString = new StringBuilder();
-            var xml = XmlWriter.Create(xmlString);
+            var settings = new XmlWriterSettings
+            {
+                Async = true,
+                Indent = false,
+            };
+            var xml = XmlWriter.Create(xmlString, settings);
 
             XDocument request;
             if (data.Document.Root.Element("skid_data") == null)
@@ -1336,7 +1347,7 @@ namespace dMobile.Controller.Activity_Detail
             }
 
             request.Save(xml);
-            xml.Flush();
+            await xml.FlushAsync();
             xml.Close();
 
             return xmlString.ToString();

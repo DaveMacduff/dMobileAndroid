@@ -2566,6 +2566,11 @@ namespace dMobile.Bedrock
         public bool IsNewActivityItemsAdded { get; set; } = false;
 
         /// <summary>
+        /// Gets or sets a value indicating whether the activity has new details added.
+        /// </summary>
+        public bool IsNewActivityDetailsAdded { get; set; } = false;
+
+        /// <summary>
         /// The RegisterSysSettingsListenerStatusOut.
         /// </summary>
         /// <param name="sysSettingsListener">The sysSettingsListener<see cref="ISysSettingsEventListener"/>.</param>

@@ -551,7 +551,13 @@ namespace dMobile.Bedrock
         {
             var sysEnv = SysEnvironment.GetInstance();
             var xmlString = new StringBuilder();
-            var xml = XmlWriter.Create(xmlString);
+            var settings = new XmlWriterSettings
+            {
+                Async = true,
+                Indent = false,
+            };
+            var xml = XmlWriter.Create(xmlString, settings);
+
             var revDateTime = sysEnv.RefreshOpt.RefreshedDataLast.ToString("yyyy'-'MM'-'dd'T'HH':'mm':'ss");
             var currDateTime = DateTime.Now.ToString("yyyy'-'MM'-'dd'T'HH':'mm':'ss");
 
@@ -569,7 +575,7 @@ namespace dMobile.Bedrock
                     new XElement("skid_data", skidData)));
 
             request.Save(xml);
-            xml.Flush();
+            await xml.FlushAsync();
             xml.Close();
 
             var skid = new SysSkidInfo();

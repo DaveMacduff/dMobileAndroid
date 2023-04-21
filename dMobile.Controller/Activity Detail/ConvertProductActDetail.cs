@@ -689,7 +689,7 @@ namespace dMobile.Controller.Activity_Detail
             var xml = XmlWriter.Create(xmlString, new XmlWriterSettings() { Async = true });
 
             // Set the FK refno to be the selected row
-            dynamic selectedActivityItem = this.ActItem.SelectedActivityItem;
+            dynamic selectedActivityItem = this.ActItem.SelectedItem;
             this.ActItem.ActHdr.HdrFkRefno = Convert.ToInt32(selectedActivityItem.ActivityHdrFKRefno);
             this.ActItem.ItemFkRefno = Convert.ToInt32(selectedActivityItem.ActivityItemFKRefno);
             this.DetailFkRefno = Convert.ToInt32(selectedActivityItem.ActivityDetailFKRefno);
@@ -754,7 +754,12 @@ namespace dMobile.Controller.Activity_Detail
         public override async Task<string> CreateSubmitXml(XDocument data)
         {
             var xmlString = new StringBuilder();
-            var xml = XmlWriter.Create(xmlString);
+            var settings = new XmlWriterSettings
+            {
+                Async = true,
+                Indent = false,
+            };
+            var xml = XmlWriter.Create(xmlString, settings);
 
             var fromProdRefno = Convert.ToInt32(((ConvertProductItem)this.ActItem.ListItems[0]).FromProdFKRefno);
             var toProdRefno = Convert.ToInt32(((ConvertProductItem)this.ActItem.ListItems[0]).ToProdFKRefno);
@@ -827,7 +832,7 @@ namespace dMobile.Controller.Activity_Detail
 
             var request = XDocument.Parse(req.ToString());
             request.Save(xml);
-            xml.Flush();
+            await xml.FlushAsync();
             xml.Close();
 
             return xmlString.ToString();

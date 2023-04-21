@@ -336,7 +336,13 @@ namespace dMobile.View.Pages
         private string CreateXMLSyncDateTime()
         {
             var xmlString = new StringBuilder();
-            var xml = XmlWriter.Create(xmlString);
+            var settings = new XmlWriterSettings
+            {
+                Async = true,
+                Indent = false,
+            };
+            var xml = XmlWriter.Create(xmlString, settings);
+
             var deviceID = SysDeviceID.GetDeviceID();
 
             var request = XDocument.Parse(

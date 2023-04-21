@@ -116,11 +116,6 @@ namespace dMobile.Controller.Activity_Item
         public int NewActItemFkRefno { get; set; } = 0;
 
         /// <summary>
-        /// Gets or sets a value indicating whether IsUpdateView.
-        /// </summary>
-        public bool IsUpdateView { get; set; } = true;
-
-        /// <summary>
         /// Set the activity item selected activity item.
         /// </summary>
         /// <param name="actItemFoundRefno"><see cref="int"/> Activity item reference number to look up.</param>
@@ -294,7 +289,6 @@ namespace dMobile.Controller.Activity_Item
                             transaction.Commit();
 
                             this.ItemFkRefno = this.ItemRefno * -1;
-                            this.IsUpdateView = true;
                         }
                         catch (SQLiteException ex)
                         {
@@ -333,7 +327,6 @@ namespace dMobile.Controller.Activity_Item
                     }
                     else
                     {
-                        this.IsUpdateView = true;
                         this.NewActItemFkRefno = -Math.Abs(int.Parse(xmlDoc.DocumentElement["itm_refno"].InnerText));
                         this.ItemFkRefno = -Math.Abs(int.Parse(xmlDoc.DocumentElement["itm_refno"].InnerText));
                         this.ActHdr.HdrFkRefno = this.ItemFkRefno;
@@ -342,7 +335,7 @@ namespace dMobile.Controller.Activity_Item
                 }
             }
 
-            if (this.IsUpdateView && this.ListItems != null)
+            if (this.ListItems != null)
             {
                 this.ProdInfo = await ProductInfoTasks.GetInfoFromUnitRefno(prodUnitRefno);
                 this.ProdInfo.Scheme = await ProductInfoTasks.GetSchemeComponentsFromRefno(this.ProdInfo.Refno);
@@ -390,7 +383,7 @@ namespace dMobile.Controller.Activity_Item
                 if (toBeAdded)
                 {
                     this.ListItems.Add(item);
-                    this.SelectedListItemIdx = this.ListItems.Count - 1;
+                    this.SelectedListIdx = this.ListItems.Count - 1;
                     _ = this.AssignActivityItem(item);
                 }
             }
@@ -459,14 +452,13 @@ namespace dMobile.Controller.Activity_Item
                 }
                 else
                 {
-                    this.IsUpdateView = true;
                     this.NewActItemFkRefno = int.Parse(xmlDoc.DocumentElement["itm_refno"].InnerText);
                     this.ItemFkRefno = int.Parse(xmlDoc.DocumentElement["itm_refno"].InnerText);
                     this.ActHdr.HdrFkRefno = this.ItemFkRefno;
                 }
             }
 
-            if (this.IsUpdateView && this.ListItems != null)
+            if (this.ListItems != null)
             {
                 // TODO: Fix sorting
                 // DataRowView rowView = null;
@@ -821,7 +813,7 @@ namespace dMobile.Controller.Activity_Item
         {
             if (activityItem is PurchaseOrderWorkSheetItem item)
             {
-                this.SelectedActivityItem = item;
+                this.SelectedItem = item;
                 this.ItemRefno = item.ActivityItemRefno;
                 this.ItemFkRefno = item.ActivityItemFKRefno;
                 this.ActStatus = (SysCommon.ActStatus)item.ActivityItemStatus;
@@ -920,7 +912,13 @@ namespace dMobile.Controller.Activity_Item
         public async override Task<string> CreateSubmitXml(XDocument data)
         {
             var xmlString = new StringBuilder();
-            var xml = XmlWriter.Create(xmlString);
+            var settings = new XmlWriterSettings
+            {
+                Async = true,
+                Indent = false,
+            };
+            var xml = XmlWriter.Create(xmlString, settings);
+
             var prodCode = data.Root.Element("ProductCode").Value.PadRight(10);
             var barCodeCode = data.Root.Element("ProductUnitBarCodeCode").Value.PadRight(20);
             var prodUnitIsBc = bool.Parse(data.Root.Element("ProductUnitIsBC").Value);
@@ -950,7 +948,7 @@ namespace dMobile.Controller.Activity_Item
                 + "</imclient>");
 
             request.Save(xml);
-            xml.Flush();
+            await xml.FlushAsync();
             xml.Close();
 
             return xmlString.ToString();
@@ -1092,7 +1090,7 @@ namespace dMobile.Controller.Activity_Item
         public override async Task<int> GetDefaultLocMapRefno(int whsLocMapRefno, int prodRefno)
         {
             var locMapRefno = 0;
-            if (this.SelectedActivityItem is PurchaseOrderWorkSheetItem item)
+            if (this.SelectedItem is PurchaseOrderWorkSheetItem item)
             {
                 if (Math.Sign(item.ActivityItemPurchaseOrderWorkSheetQuantityOrdered) == 0 ||
                     Math.Sign(item.ActivityItemPurchaseOrderWorkSheetQuantityOrdered) == 1)

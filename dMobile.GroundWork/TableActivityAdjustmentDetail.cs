@@ -28,14 +28,14 @@ namespace dMobile.GroundWork
         {
             this.FullClassName = "dMobile.GroundWork.TableActivityAdjustmentDetail";
             this.CurrentSubType = SysCommon.ActSubTypes.Adjustment;
-            this.LowerCaseName = "adjusment";
+            this.LowerCaseName = "adjustment";
             this.ProperCaseName = "Adjustment";
         }
 
         /// <summary>
         /// Purge the activity detail.
         /// </summary>
-        /// <returns><see cref="Task"/> Task operation.</returns>
+        /// <returns><see cref="Task"/> Task operation.</returns> 
         public override async Task PurgeData()
         {
             var conn = DatabaseConnection.GetInstance().SQLConn;

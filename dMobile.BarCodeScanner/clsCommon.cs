@@ -176,7 +176,12 @@ namespace dMobile.BarCodeScanner
             if (!sysEnv.SysSettings.IsDisconnectedMode)
             {
                 var xmlString = new StringBuilder();
-                var xml = XmlWriter.Create(xmlString);
+                var settings = new XmlWriterSettings
+                {
+                    Async = true,
+                    Indent = false,
+                };
+                var xml = XmlWriter.Create(xmlString, settings);
                 var revisionDateTime = sysEnv.RefreshOpt.RefreshedDataLast.ToString(
                     "yyyy'-'MM'-'dd'T'HH':'mm':'ss");
                 var currentDateTime = DateTime.Now.ToString("yyyy'-'MM'-'dd'T'HH':'mm':'ss");
@@ -198,7 +203,7 @@ namespace dMobile.BarCodeScanner
                         new XElement("barcode_amount", deliScaleAmount)));
 
                 request.Save(xml);
-                xml.Flush();
+                await xml.FlushAsync();
                 xml.Close();
 
                 var data = SysCommon.SubmitComm(xmlString.ToString());

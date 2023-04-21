@@ -264,7 +264,8 @@ namespace dMobile.View.Activity
         {
             var isReadyToSave = !this.IsChangesMade;
 
-            if (this.ActDetail.ListDetails.Count > 0)
+            // If slot tracked validate full slot quantity move and non full slot.
+            if (this.ActDetail.ListDetails.Count > 0 || this.SelFromLocMap.IsSlotTracked)
             {
                 if (!await LocationMapTasks.IsCompleteLocMap(this.SelFromLocMap))
                 {
@@ -321,7 +322,7 @@ namespace dMobile.View.Activity
             }
             catch (MessageOnlyException msgEx)
             {
-                var msg = (msgEx.Message.IndexOf("MSGBOX-") == -1) ? msgEx.Message : msgEx.Message["MSGBOX-".Length..];
+                var msg = (msgEx.Message.IndexOf("MSGBOX-", StringComparison.Ordinal) == -1) ? msgEx.Message : msgEx.Message["MSGBOX-".Length..];
                 await Device.InvokeOnMainThreadAsync(async () =>
                     await Application.Current.MainPage.DisplayAlert(
                         this.ActItem.GetControlDescription(),
@@ -375,6 +376,25 @@ namespace dMobile.View.Activity
                         }
                     }
                 }
+                else
+                {
+                        if (await Device.InvokeOnMainThreadAsync(async () => await this.DisplayAlert(
+                                "Move Submission",
+                                "Do you wish to move ALL of the slot contents?",
+                                "Yes",
+                                "No")))
+                        {
+                            await PerformMoveAll();
+                            if (await Device.InvokeOnMainThreadAsync(async () => await this.DisplayAlert(
+                                    "Move Submission",
+                                    "Finished Moves?",
+                                    "Yes",
+                                    "No")))
+                            {
+                                isSaveComplete = true;
+                            }
+                        }
+                }
             }
             catch (CancelOperationException)
             {
@@ -382,7 +402,7 @@ namespace dMobile.View.Activity
             }
             catch (MessageOnlyException msgEx)
             {
-                var msg = (msgEx.Message.IndexOf("MSGBOX-") == -1) ? msgEx.Message : msgEx.Message["MSGBOX-".Length..];
+                var msg = (msgEx.Message.IndexOf("MSGBOX-", StringComparison.Ordinal) == -1) ? msgEx.Message : msgEx.Message["MSGBOX-".Length..];
                 isSaveComplete = false;
                 await Device.InvokeOnMainThreadAsync(async () =>
                     await Application.Current.MainPage.DisplayAlert(
@@ -398,6 +418,39 @@ namespace dMobile.View.Activity
                     var errorReport = new FormErrorReport(this.ActSubType, ex);
                     _ = await errorReport.ShowDialog();
                 });
+            }
+
+            //////////////////////////////////////////////////////////////////////////
+            async Task PerformMoveAll()
+            {
+                try
+                {
+                    this.ActItem.ItemFkRefno = 0;
+                    this.ActItem.ItemRefno = 0;
+                    var xmlParam = XDocument.Parse(
+                        "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>" +
+                        "<param>" + "<whs_id>" + this.SelFromLocMap.WhsFKRefno.ToString() +
+                        "</whs_id>" + "<sect_refno>" + this.SelFromLocMap.SectFKRefno.ToString() +
+                        "</sect_refno>" + "<slot_refno>" + this.SelFromLocMap.SlotFKRefno.ToString() +
+                        "</slot_refno>" + "<to_sect_refno>" + this.SelToLocMap.SectFKRefno.ToString() +
+                        "</to_sect_refno>" + "<to_slot_refno>" + this.SelToLocMap.SlotFKRefno.ToString() +
+                        "</to_slot_refno>" + "</param>");
+
+                    await this.ActDetail.Submit(null, xmlParam);
+                }
+                catch (Exception ex)
+                {
+                    var result = await Device.InvokeOnMainThreadAsync(async () =>
+                        await this.DisplayAlert(
+                            "Move Submission",
+                            Convert.ToString("Submit Move Failed" + Environment.NewLine + ex.Message),
+                            "Cancel",
+                            "Continue"));
+                    if (result)
+                    {
+                        isSaveComplete = false;
+                    }
+                }
             }
 
             //////////////////////////////////////////////////////////////////////////
@@ -566,7 +619,7 @@ namespace dMobile.View.Activity
             }
             catch (MessageOnlyException msgEx)
             {
-                var msg = (msgEx.Message.IndexOf("MSGBOX-") == -1) ? msgEx.Message : msgEx.Message["MSGBOX-".Length..];
+                var msg = (msgEx.Message.IndexOf("MSGBOX-", StringComparison.Ordinal) == -1) ? msgEx.Message : msgEx.Message["MSGBOX-".Length..];
                 await Device.InvokeOnMainThreadAsync(async () =>
                     await Application.Current.MainPage.DisplayAlert(
                         this.ActItem.GetControlDescription(),
@@ -678,7 +731,7 @@ namespace dMobile.View.Activity
         private async void ListViewMainActivity_ItemSelected(object sender, SelectedItemChangedEventArgs e)
         {
             await this.ActDetail.AssignActivityDetail(e.SelectedItem);
-            this.ActDetail.SelectedListItemIdx = e.SelectedItemIndex;
+            this.ActDetail.SelectedListIdx = e.SelectedItemIndex;
             this.SelectedActivityDetailFKRefno = this.ActDetail.DetailFkRefno;
         }
 
@@ -692,7 +745,7 @@ namespace dMobile.View.Activity
             {
                 // I am thinking this iteration will be fast even with 100+ records.
                 // We are not triggering any UI refreshing, so it should be.
-                this.ActDetail.SelectedListItemIdx = -1;
+                this.ActDetail.SelectedListIdx = -1;
                 object selectedItem = null;
                 if (this.SelectedActivityDetailFKRefno != 0)
                 {
@@ -701,7 +754,7 @@ namespace dMobile.View.Activity
                         if (this.SelectedActivityDetailFKRefno == this.ActDetail.GetFkRefno(item))
                         {
                             selectedItem = item;
-                            this.ActDetail.SelectedListItemIdx++;
+                            this.ActDetail.SelectedListIdx++;
                             break;
                         }
                     }
@@ -710,8 +763,8 @@ namespace dMobile.View.Activity
                 if (selectedItem == null)
                 {
                     // Goto the first one in the list.
-                    this.ActDetail.SelectedListItemIdx = 0;
-                    selectedItem = this.ActDetail.ListDetails[this.ActDetail.SelectedListItemIdx];
+                    this.ActDetail.SelectedListIdx = 0;
+                    selectedItem = this.ActDetail.ListDetails[this.ActDetail.SelectedListIdx];
                     await this.ActDetail.AssignActivityDetail(selectedItem);
                     this.SelectedActivityDetailFKRefno = this.ActDetail.DetailFkRefno;
                 }
@@ -730,8 +783,8 @@ namespace dMobile.View.Activity
             else
             {
                 // Clear the activity nothing can be selected.
-                this.ActDetail.SelectedListItemIdx = -1;
-                this.ActDetail.SelectedActivityDetail = null;
+                this.ActDetail.SelectedListIdx = -1;
+                this.ActDetail.SelectedDetail = null;
                 this.ActDetail.DetailFkRefno = 0;
                 this.ActDetail.DetailRefno = 0;
                 this.SelectedActivityDetailFKRefno = 0;
@@ -1019,7 +1072,7 @@ namespace dMobile.View.Activity
             }
             catch (MessageOnlyException msgEx)
             {
-                var msg = (msgEx.Message.IndexOf("MSGBOX-") == -1) ? msgEx.Message : msgEx.Message["MSGBOX-".Length..];
+                var msg = (msgEx.Message.IndexOf("MSGBOX-", StringComparison.Ordinal) == -1) ? msgEx.Message : msgEx.Message["MSGBOX-".Length..];
                 await Device.InvokeOnMainThreadAsync(async () =>
                     await Application.Current.MainPage.DisplayAlert(
                         this.GetControlDescription(),
@@ -1184,7 +1237,7 @@ namespace dMobile.View.Activity
             }
             catch (MessageOnlyException msgEx)
             {
-                var msg = (msgEx.Message.IndexOf("MSGBOX-") == -1) ? msgEx.Message : msgEx.Message["MSGBOX-".Length..];
+                var msg = (msgEx.Message.IndexOf("MSGBOX-", StringComparison.Ordinal) == -1) ? msgEx.Message : msgEx.Message["MSGBOX-".Length..];
                 await Device.InvokeOnMainThreadAsync(async () =>
                     await Application.Current.MainPage.DisplayAlert(
                         this.GetControlDescription(),

@@ -641,7 +641,12 @@ namespace dMobile.Controller.Activity_Detail
         public override async Task<string> CreateDeleteXml(XDocument data)
         {
             var xmlString = new StringBuilder();
-            var xml = XmlWriter.Create(xmlString);
+            var settings = new XmlWriterSettings
+            {
+                Async = true,
+                Indent = false,
+            };
+            var xml = XmlWriter.Create(xmlString, settings);
 
             ////await this.FillActDetailObjFromXML(data);
 
@@ -659,7 +664,7 @@ namespace dMobile.Controller.Activity_Detail
                 + "</imclient>");
 
             request.Save(xml);
-            xml.Flush();
+            await xml.FlushAsync();
             xml.Close();
 
             return xmlString.ToString();
@@ -673,7 +678,12 @@ namespace dMobile.Controller.Activity_Detail
         public override async Task<string> CreateSubmitXml(XDocument data)
         {
             var xmlString = new StringBuilder();
-            var xml = XmlWriter.Create(xmlString);
+            var settings = new XmlWriterSettings
+            {
+                Async = true,
+                Indent = false,
+            };
+            var xml = XmlWriter.Create(xmlString, settings);
 
             ////await this.FillActDetailObjFromXML(data);
             var reqDetail = this.GetRequestDetailDefaults();
@@ -693,7 +703,7 @@ namespace dMobile.Controller.Activity_Detail
                 + "</imclient>");
 
             request.Save(xml);
-            xml.Flush();
+            await xml.FlushAsync();
             xml.Close();
 
             return xmlString.ToString();

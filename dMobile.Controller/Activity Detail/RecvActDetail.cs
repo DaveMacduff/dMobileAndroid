@@ -205,7 +205,6 @@ namespace dMobile.Controller.Activity_Detail
                 }
             }
 
-            this.IsUpdateView = true;
             this.DetailFkRefno = int.Parse(xmlDoc.DocumentElement["ser_refno"].InnerText);
             this.ActItem.ItemFkRefno = int.Parse(xmlDoc.DocumentElement["itm_refno"].InnerText);
             this.Quantity = decimal.Parse(xmlDoc.DocumentElement["alt_qty"].InnerText);
@@ -251,7 +250,12 @@ namespace dMobile.Controller.Activity_Detail
         public override async Task<string> CreateSubmitProductLabelXml(XDocument detailData)
         {
             var xmlString = new StringBuilder();
-            var xml = XmlWriter.Create(xmlString);
+            var settings = new XmlWriterSettings
+            {
+                Async = true,
+                Indent = false,
+            };
+            var xml = XmlWriter.Create(xmlString, settings);
 
             // Init the production and best before date as empty intentional.
             // We want to send a 'blank' date if it is not tracked rather than {01/01/1900} as the empty date.
@@ -303,7 +307,7 @@ namespace dMobile.Controller.Activity_Detail
                 + "</imclient>");
 
             request.Save(xml);
-            xml.Flush();
+            await xml.FlushAsync();
             xml.Close();
 
             return xmlString.ToString();
@@ -320,7 +324,7 @@ namespace dMobile.Controller.Activity_Detail
 
             if (this.SysEnv.SysSettings.IsDisconnectedMode)
             {
-                var actDetailRefno = await this.InsertDetailDisconnected();
+                var actDetailRefno = await this.InsertDetail();
 
                 var query = "INSERT INTO tActivityDetailReceiving (ActivityDetailRefno, ActivityDetailFKRefno) VALUES (?, ?)";
                 var rowsAffected = await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(
@@ -331,13 +335,10 @@ namespace dMobile.Controller.Activity_Detail
                 {
                     throw new Exception("Unable to insert activity detail in disconnected mode.");
                 }
-
-                this.IsUpdateView = true;
             }
             else
             {
-                this.SubmitDetailToCommServer(await this.CreateSubmitXml(XDocument.Parse(
-                    "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?><params></params>")));
+                await this.Submit(this, data);
 
                 var query = "UPDATE tActivityItemReceiving SET ActivityItemStringFKRefno = ?," +
                             " ActivityItemFKRefno = ? WHERE ActivityItemRefno = ?";
@@ -346,7 +347,7 @@ namespace dMobile.Controller.Activity_Detail
                     Convert.ToString(this.ActItem.ItemFkRefno),
                     this.ActItem.ItemFkRefno,
                     this.ActItem.ItemRefno);
-                if (rowsAffected <= 0)
+                if (rowsAffected < 0)
                 {
                     throw new Exception("Unable to locate and update the activity line item with a new foreign" +
                         " key upon inserting.");
@@ -473,6 +474,11 @@ namespace dMobile.Controller.Activity_Detail
             else
             {
                 this.DetailFkRefno = int.Parse(xmlDoc.DocumentElement["ser_refno"].InnerText);
+
+                if (this.ActItem.SelectedItem is ReceiveItem item)
+                {
+                    item.ActivityItemFKRefno = this.ActItem.ItemFkRefno;
+                }
 
                 if (selectedActivityDetail is ReceiveDetail receiveDetail)
                 {
@@ -1075,7 +1081,13 @@ namespace dMobile.Controller.Activity_Detail
         public override async Task<string> CreateSubmitXml(XDocument data)
         {
             var xmlString = new StringBuilder();
-            var xml = XmlWriter.Create(xmlString);
+            var settings = new XmlWriterSettings
+            {
+                Async = true,
+                Indent = false,
+            };
+            var xml = XmlWriter.Create(xmlString, settings);
+
             XDocument request;
             if (data.Document.Root.Element("skid_data") == null)
             {
@@ -1121,7 +1133,7 @@ namespace dMobile.Controller.Activity_Detail
             }
 
             request.Save(xml);
-            xml.Flush();
+            await xml.FlushAsync();
             xml.Close();
 
             return xmlString.ToString();
@@ -1135,7 +1147,13 @@ namespace dMobile.Controller.Activity_Detail
         public override async Task<string> CreateDeleteXml(XDocument data)
         {
             var xmlString = new StringBuilder();
-            var xml = XmlWriter.Create(xmlString);
+            var settings = new XmlWriterSettings
+            {
+                Async = true,
+                Indent = false,
+            };
+            var xml = XmlWriter.Create(xmlString, settings);
+
             XDocument request;
             if (data.Document.Root.Element("skid_data") == null)
             {
@@ -1176,7 +1194,7 @@ namespace dMobile.Controller.Activity_Detail
             }
 
             request.Save(xml);
-            xml.Flush();
+            await xml.FlushAsync();
             xml.Close();
 
             return xmlString.ToString();
