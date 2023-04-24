@@ -939,6 +939,7 @@ namespace dMobile.View.Activity
                 {
                     // Read the selected detail.
                     await this.ActDetail.AssignActivityDetail((Resources.Types.ActivityDetail)this.ListViewMainActivity.SelectedItem);
+                    this.ActDetail.ActStatus = SysCommon.ActStatus.Deleted;
 
                     // Submit the request, and delete it from the data table.
                     _ = await this.ActDetail.Delete();
@@ -956,11 +957,7 @@ namespace dMobile.View.Activity
                         await this.ActDetail.ActItem.UpdateItemTableQuantity(this.ActDetail.ActItem.SelectedItem);
                     }
 
-                    // Do not call this.OnAppearing() we can handle the grid here.
-                    // Calling design grid is not the best idea because it has to redraw the grid for ALL items.
-                    ////this.OnAppearing();
-                    await this.DesignGrid();
-                    this.FindSelectedItemAsync();
+                    this.OnAppearing();
                 }
 
                 //////////////////////////////////////////////////////////////////////////
@@ -982,9 +979,7 @@ namespace dMobile.View.Activity
 
                     // Submit the request, and delete it from the data table.
                     await this.ActDetail.DeleteSkid(skidInfo);
-
-                    await this.DesignGrid();
-                    this.FindSelectedItemAsync();
+                    this.OnAppearing();
                 }
             }
 
@@ -1789,12 +1784,14 @@ namespace dMobile.View.Activity
         {
             actDetail.DetailFkRefno = 0;
             var xmlDoc = actDetail.GetXml(actDetail);
+            actDetail.ActStatus = SysCommon.ActStatus.Inserted;
             await actDetail.Insert(xmlDoc);
             await AddOrUpdateDetailList();
 
             async Task AddOrUpdateDetailList()
             {
                 this.SysEnv.SysSettings.IsNewActivityItemsAdded = true;
+                Resources.Types.ActivityDetail detail;
                 var detailIdx = this.ActDetail.FindListDetailIndex(actDetail.DetailFkRefno);
                 if (detailIdx >= 0)
                 {
@@ -1802,24 +1799,17 @@ namespace dMobile.View.Activity
                     this.ActDetail.UpdateListDetail(detailIdx);
 
                     // Update the selected detail fk refno using the list detail object.
-                    var detail = (Resources.Types.ActivityDetail)this.ActDetail.ListDetails[detailIdx];
-                    this.ActDetail.SetSelectedActivityDetailFromList(detail.ActivityDetailRefno);
-                    await this.ActDetail.AssignActivityDetail(this.ActDetail.SelectedDetail);
-                    this.SelectedActivityDetailFkRefno = this.ActDetail.DetailFkRefno;
-
-                    // This should cause the grid to redraw and display the updated quantities.
-                    this.MainActivityItems[detailIdx] = detail;
+                    detail = (Resources.Types.ActivityDetail)this.ActDetail.ListDetails[detailIdx];
                 }
                 else
                 {
-                    var detail = this.ActDetail.InsertListDetail(this.MainActivityItems);
-                    this.ActDetail.SetSelectedActivityDetailFromList(detail.ActivityDetailRefno);
-                    await this.ActDetail.AssignActivityDetail(this.ActDetail.SelectedDetail);
-                    this.SelectedActivityDetailFkRefno = this.ActDetail.DetailFkRefno;
-
-                    // Data will be reread from table and the grid will be redrawn with focus being left on the new item.
-                    this.OnAppearing();
+                    detail = this.ActDetail.InsertListDetail(this.MainActivityItems);
                 }
+
+                this.ActDetail.SetSelectedActivityDetailFromList(detail.ActivityDetailRefno);
+                await this.ActDetail.AssignActivityDetail(this.ActDetail.SelectedDetail);
+                this.SelectedActivityDetailFkRefno = this.ActDetail.DetailFkRefno;
+                this.OnAppearing();
             }
         }
 

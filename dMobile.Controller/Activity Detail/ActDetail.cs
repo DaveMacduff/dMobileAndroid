@@ -92,6 +92,11 @@ namespace dMobile.Controller.Activity_Detail
         public int DetailFkRefno { get; set; } = 0;
 
         /// <summary>
+        /// Gets or sets the activity detail status.
+        /// </summary>
+        public SysCommon.ActStatus ActStatus { get; set; } = SysCommon.ActStatus.NoChange;
+
+        /// <summary>
         /// Gets or sets the product scheme data.
         /// </summary>
         public ProductSchemeData SchemeData { get; set; } = new ProductSchemeData();
@@ -1010,10 +1015,10 @@ namespace dMobile.Controller.Activity_Detail
         }
 
         /// <summary>
-        /// Insert activity detail.
+        /// Insert activity detail into activity detail tables.
         /// </summary>
         /// <returns><see cref="int"/> Inserted activity detail reference number.</returns>
-        protected async Task<int> InsertDetail()
+        protected async Task<int> InsertDetailIntoTablesDetail()
         {
             var conn = DatabaseConnection.GetInstance().SQLConn;
             int actDetailRefno;

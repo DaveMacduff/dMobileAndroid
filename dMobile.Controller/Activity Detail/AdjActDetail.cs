@@ -232,58 +232,31 @@ namespace dMobile.Controller.Activity_Detail
         {
             await this.FillActDetailObjFromXml(data);
 
-            // Get temporary item FK refno for newly inserted line item.
+            // Get temporary item FK refno for newly inserted line item, used in disconnected mode.
             this.DetailFkRefno = await DatabaseConnection.GetInstance().SQLConn.ExecuteScalarAsync<int>(
                 "SELECT MAX(tActivityDetailAdjustment.ActivityDetailFKRefno) FROM tActivityDetailAdjustment");
             this.DetailFkRefno++;
 
-            // Insert the common activity detail data.
-            this.DetailRefno = await this.InsertDetail();
-
+            // Perform the comm server request first, because of return values. And we do not want to keep the
+            // data if the submission fails. User will have to re-enter the data.
             if (!this.SysEnv.SysSettings.IsDisconnectedMode)
             {
-                await this.Submit(this, data);
+                await this.Submit(this.SelectedDetail, data);
             }
 
-            var query = "INSERT INTO tActivityDetailAdjustment (ActivityDetailRefno, ActivityDetailFKRefno) VALUES (?, ?)";
-            var rowsAffected = await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(
-                query,
-                this.DetailRefno,
-                this.DetailFkRefno);
-            if (rowsAffected <= 0)
+            // In order to support base tracking the DetailFKRefno is the itm_refno rather than the serial.refno.
+            var foundIdx = this.FindListDetailIndex(this.DetailFkRefno);
+            if (foundIdx < 0)
             {
-                throw new Exception("Unable to insert activity detail.");
-            }
-
-            FindListItemAndSetFkRefno();
-
-            /////
-            void FindListItemAndSetFkRefno()
-            {
-                AdjustmentItem foundItem = null;
-                foreach (AdjustmentItem item in this.ActItem.ListItems)
+                this.DetailRefno = await this.InsertDetailIntoTablesDetail();
+                var query = "INSERT INTO tActivityDetailAdjustment (ActivityDetailRefno, ActivityDetailFKRefno) VALUES (?, ?)";
+                var rowsAffected = await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(
+                    query,
+                    this.DetailRefno,
+                    this.DetailFkRefno);
+                if (rowsAffected <= 0)
                 {
-                    if (item.ActivityItemRefno == this.ActItem.ItemRefno)
-                    {
-                        foundItem = item;
-                        break;
-                    }
-                }
-
-                // Also verify that line item reference number matches, just in case. If a FirstOrDefault
-                // was used it could have returned an incorrect default reference.
-                if (foundItem == null)
-                {
-                    throw new Exception("Unable to locate inserted list detail line item.");
-                }
-                else if (foundItem.ActivityItemRefno == this.ActItem.ItemRefno)
-                {
-                    foundItem.ActivityItemFKRefno = this.ActItem.ItemFkRefno;
-                    foundItem.ActivityItemStringFKRefno = Convert.ToString(this.ActItem.ItemFkRefno);
-                }
-                else
-                {
-                    throw new Exception("Unable to locate inserted list detail line item.");
+                    throw new Exception("Unable to insert activity detail.");
                 }
             }
         }
@@ -351,8 +324,7 @@ namespace dMobile.Controller.Activity_Detail
                 throw new Exception("xmlDoc.DocumentElement == null");
             }
 
-            this.DetailFkRefno = int.Parse(xmlDoc.DocumentElement["ser_refno"] !.InnerText);
-
+            // Fill the activity item instance if needed.
             switch (this.ActItem.ActStatus)
             {
                 case SysCommon.ActStatus.NoChange:
@@ -380,6 +352,26 @@ namespace dMobile.Controller.Activity_Detail
                             "Unable to locate and update the activity line item with a new foreign" +
                             " key upon inserting.");
                     }
+
+                    break;
+
+                case SysCommon.ActStatus.Updated:
+                    break;
+
+                case SysCommon.ActStatus.Deleted:
+                    break;
+
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
+
+            switch (this.ActStatus)
+            {
+                case SysCommon.ActStatus.NoChange:
+                    break;
+
+                case SysCommon.ActStatus.Inserted:
+                    this.DetailFkRefno = int.Parse(xmlDoc.DocumentElement["ser_refno"] !.InnerText);
 
                     if (selectedActivityDetail is AdjustmentDetail selectedInserted)
                     {

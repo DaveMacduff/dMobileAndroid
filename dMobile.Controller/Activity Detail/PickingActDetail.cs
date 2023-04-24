@@ -268,55 +268,26 @@ namespace dMobile.Controller.Activity_Detail
                 "SELECT MAX(tActivityDetailPicking.ActivityDetailFKRefno) FROM tActivityDetailPicking");
             this.DetailFkRefno++;
 
-            // Insert the common activity detail data.
-            this.DetailRefno = await this.InsertDetail();
-
             if (!this.SysEnv.SysSettings.IsDisconnectedMode)
             {
                 await this.Submit(this, data);
             }
 
-            var query = "INSERT INTO tActivityDetailPicking (ActivityDetailRefno, ActivityDetailFKRefno," +
-                        " ActivityDetailPickingIsConfirmed) VALUES (?, ?, ?)";
-            var rowsAffected = await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(
-                query,
-                Convert.ToInt32(this.DetailRefno),
-                Convert.ToInt32(this.DetailFkRefno),
-                true);
-            if (rowsAffected <= 0)
+            // In order to support base tracking the DetailFKRefno is the itm_refno rather than the serial.refno.
+            var foundIdx = this.FindListDetailIndex(this.DetailFkRefno);
+            if (foundIdx < 0)
             {
-                throw new Exception("Unable to insert activity detail in disconnected mode.");
-            }
-
-            FindListItemAndSetFkRefno();
-
-            /////
-            void FindListItemAndSetFkRefno()
-            {
-                PickingItem foundItem = null;
-                foreach (PickingItem item in this.ActItem.ListItems)
+                this.DetailRefno = await this.InsertDetailIntoTablesDetail();
+                var query = "INSERT INTO tActivityDetailPicking (ActivityDetailRefno, ActivityDetailFKRefno," +
+                            " ActivityDetailPickingIsConfirmed) VALUES (?, ?, ?)";
+                var rowsAffected = await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(
+                    query,
+                    Convert.ToInt32(this.DetailRefno),
+                    Convert.ToInt32(this.DetailFkRefno),
+                    true);
+                if (rowsAffected <= 0)
                 {
-                    if (item.ActivityItemRefno == this.ActItem.ItemRefno)
-                    {
-                        foundItem = item;
-                        break;
-                    }
-                }
-
-                // Also verify that line item reference number matches, just in case. If a FirstOrDefault
-                // was used it could have returned an incorrect default reference.
-                if (foundItem == null)
-                {
-                    throw new Exception("Unable to locate inserted list detail line item.");
-                }
-                else if (foundItem.ActivityItemRefno == this.ActItem.ItemRefno)
-                {
-                    foundItem.ActivityItemFKRefno = this.ActItem.ItemFkRefno;
-                    foundItem.ActivityItemStringFKRefno = Convert.ToString(this.ActItem.ItemFkRefno);
-                }
-                else
-                {
-                    throw new Exception("Unable to locate inserted list detail line item.");
+                    throw new Exception("Unable to insert activity detail in disconnected mode.");
                 }
             }
         }
