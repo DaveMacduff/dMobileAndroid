@@ -39,8 +39,23 @@ namespace dMobile.GroundWork
 
             try
             {
-                await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync("DELETE FROM tActivityReturns WHERE ActivitySubType = ?", Convert.ToInt32(SysCommon.ActSubTypes.Returns));
-                await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync("DELETE FROM tActivity WHERE ActivitySubType = ?", Convert.ToInt32(SysCommon.ActSubTypes.Returns));
+                // Corruption recovery cleanup.
+                this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"Purging {this.LowerCaseName}.", true);
+                var query = "DELETE FROM tActivityReturns WHERE tActivityReturns.ActivityRefno <= 0" +
+                            " OR tActivityReturns.ActivityFKRefno <= 0";
+                await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(query);
+
+                // Corruption recovery cleanup.
+                query = "DELETE FROM tActivity WHERE tActivity.ActivityRefno <= 0";
+                await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(query);
+
+                await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(
+                    "DELETE FROM tActivityReturns WHERE ActivitySubType = ?",
+                    Convert.ToInt32(SysCommon.ActSubTypes.Returns));
+
+                await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(
+                    "DELETE FROM tActivity WHERE ActivitySubType = ?",
+                    Convert.ToInt32(SysCommon.ActSubTypes.Returns));
 
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging sales returns failed.", true);
             }

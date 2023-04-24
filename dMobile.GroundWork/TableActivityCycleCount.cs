@@ -41,7 +41,17 @@ namespace dMobile.GroundWork
             {
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging cycle counts.", true);
 
-                var query = "DELETE FROM tActivityCount WHERE tActivityCount.ActivitySubType = ?";
+                // Corruption recovery cleanup.
+                this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"Purging {this.LowerCaseName}.", true);
+                var query = "DELETE FROM tActivityCount WHERE tActivityCount.ActivityRefno <= ?" +
+                            " or tActivityCount.ActivityFKRefno <= 0";
+                await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(query);
+
+                // Corruption recovery cleanup.
+                query = "DELETE FROM tActivity WHERE tActivity.ActivityRefno <= 0";
+                await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(query);
+
+                query = "DELETE FROM tActivityCount WHERE tActivityCount.ActivitySubType = ?";
                 await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(query, Convert.ToInt32(SysCommon.ActSubTypes.CycleCounts));
 
                 query = "DELETE FROM tActivity WHERE tActivity.ActivitySubType = ?";

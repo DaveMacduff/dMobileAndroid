@@ -45,7 +45,27 @@ namespace dMobile.GroundWork
             {
                 try
                 {
-                    var query = "DELETE FROM tActivityDetailProductSchemeVariantXRef "
+                    // Corruption recovery cleanup.
+                    var query = "DELETE FROM tActivityDetailProductSchemeVariantXRef" +
+                                " WHERE tActivityDetailProductSchemeVariantXRef.ActivityDetailRefno <= 0" +
+                                " OR tActivityDetailProductSchemeVariantXRef.ProductSchemeVariantRefno <= 0";
+                    transaction.Execute(query);
+
+                    // Corruption recovery cleanup.
+                    query = "DELETE FROM tActivityDetailExtra WHERE tActivityDetailExtra.ActivityDetailRefno <= 0";
+                    transaction.Execute(query);
+
+                    // Corruption recovery cleanup.
+                    query = "DELETE FROM tActivityDetailCount WHERE tActivityDetailCount.ActivityDetailRefno <= 0" +
+                            " OR tActivityDetailCount.ActivityDetailFKRefno <= 0";
+                    transaction.Execute(query);
+
+                    // Corruption recovery cleanup.
+                    query = "DELETE FROM tActivityDetail WHERE tActivityDetail.ActivityDetailSubType = ?" +
+                            " AND tActivityDetail.ActivityDetailRefno <= 0";
+                    transaction.Execute(query, subType);
+
+                    query = "DELETE FROM tActivityDetailProductSchemeVariantXRef "
                         + "WHERE tActivityDetailProductSchemeVariantXRef.ActivityDetailRefno IN "
                         + "(SELECT tActivityDetail.ActivityDetailRefno "
                         + "FROM tActivityDetail "
@@ -69,7 +89,7 @@ namespace dMobile.GroundWork
                     query = "DELETE FROM tActivityDetail WHERE tActivityDetail.ActivityDetailSubType = ?";
                     transaction.Execute(query, subType);
 
-                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging cycle count details complete.", true);
+                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging physical count details complete.", true);
                     transaction.Commit();
                 }
                 catch (SQLiteException sqlEx)
@@ -80,8 +100,8 @@ namespace dMobile.GroundWork
                     }
 
                     this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Database exception occurred.", true);
-                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging cycle count details failed.", true);
-                    throw new Exception("Database exception occurred. Purging cycle count details failed.", sqlEx);
+                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging physical count details failed.", true);
+                    throw new Exception("Database exception occurred. Purging physical count details failed.", sqlEx);
                 }
                 catch (Exception ex)
                 {
@@ -90,7 +110,7 @@ namespace dMobile.GroundWork
                         transaction.Rollback();
                     }
 
-                    throw new Exception("Database exception occurred. Purging cycle count details failed.", ex);
+                    throw new Exception("Database exception occurred. Purging physical count details failed.", ex);
                 }
             });
         }

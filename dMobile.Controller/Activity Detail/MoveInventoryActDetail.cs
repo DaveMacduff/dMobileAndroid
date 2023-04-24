@@ -186,7 +186,7 @@ namespace dMobile.Controller.Activity_Detail
             else
             {
                 var detail = (MoveDetail)selectedActivityDetail;
-                await this.AssignThisFromDetailAsync(detail, false);
+                await this.AssignActivityDetail(detail);
 
                 var xmlDoc = new XmlDocument();
                 var xmlSend = await this.CreateSubmitXml(data);
@@ -489,15 +489,6 @@ namespace dMobile.Controller.Activity_Detail
             throw new NotImplementedException();
         }
 
-        /// <summary>
-        /// Select the activity detail.
-        /// </summary>
-        /// <param name="selectedActivityDetail"><see cref="object"/> Selected activity detail.</param>
-        /// <returns><see cref="Task"/> Task operation.</returns>
-        public override async Task AssignActivityDetail(object selectedActivityDetail)
-        {
-            await base.AssignActivityDetail(selectedActivityDetail);
-        }
 
         /// <summary>
         /// The CreateDeleteXML.

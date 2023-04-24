@@ -1637,6 +1637,11 @@ namespace dMobile.View.Activity
 
                             break;
 
+                        case SysCommon.ActSubTypes.TransferTo:
+                            DisplayDataTransferFrom();
+
+                            break;
+
                         case SysCommon.ActSubTypes.NotApplicable:
                             throw new NotImplementedException("SysCommon.ActSubTypes.NotApplicable");
 
@@ -1711,9 +1716,6 @@ namespace dMobile.View.Activity
 
                         case SysCommon.ActSubTypes.ConvertProduct:
                             throw new NotImplementedException("SysCommon.ActSubTypes.ConvertProduct");
-
-                        case SysCommon.ActSubTypes.TransferTo:
-                            throw new NotImplementedException("SysCommon.ActSubTypes.TransferTo");
 
                         default:
                             break;

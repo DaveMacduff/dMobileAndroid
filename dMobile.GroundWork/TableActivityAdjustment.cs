@@ -40,8 +40,17 @@ namespace dMobile.GroundWork
         {
             try
             {
+                // Corruption recovery cleanup.
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"Purging {this.LowerCaseName}.", true);
-                var query = "DELETE FROM tActivityAdjustment WHERE tActivityAdjustment.ActivitySubType = ?";
+                var query = "DELETE FROM tActivityAdjustment WHERE tActivityAdjustment.ActivityRefno <= 0" +
+                            " OR tActivityAdjustment.ActivityFKRefno <= 0";
+                await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(query);
+
+                // Corruption recovery cleanup.
+                query = "DELETE FROM tActivity WHERE tActivity.ActivityRefno <= 0";
+                await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(query);
+
+                query = "DELETE FROM tActivityAdjustment WHERE tActivityAdjustment.ActivitySubType = ?";
                 await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(
                     query,
                     Convert.ToInt32(this.CurrentSubType));

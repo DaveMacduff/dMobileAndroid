@@ -191,20 +191,6 @@ namespace dMobile.Controller.Activity_Detail
             var xmlDoc = new XmlDocument();
             xmlDoc.LoadXml(responseData);
 
-            // check if result is an error message
-            if (responseData.Contains("<message>ERROR</message>"))
-            {
-                var errorDetail = xmlDoc.DocumentElement["detail"].InnerText;
-                if (errorDetail.Contains("MSGBOX-"))
-                {
-                    throw new MessageOnlyException(errorDetail);
-                }
-                else
-                {
-                    throw new Exception(errorDetail);
-                }
-            }
-
             this.DetailFkRefno = int.Parse(xmlDoc.DocumentElement["ser_refno"].InnerText);
             this.ActItem.ItemFkRefno = int.Parse(xmlDoc.DocumentElement["itm_refno"].InnerText);
             this.Quantity = decimal.Parse(xmlDoc.DocumentElement["alt_qty"].InnerText);
@@ -223,22 +209,7 @@ namespace dMobile.Controller.Activity_Detail
             {
                 var xmlDelete = await this.CreateDeleteXml(
                     XDocument.Parse("<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?><params></params>"));
-                var responseData = SysCommon.SubmitComm(xmlDelete);
-                if (responseData.Contains("<message>ERROR</message>"))
-                {
-                    var docError = new XmlDocument();
-                    docError.LoadXml(responseData);
-                    var errorDetail = docError.DocumentElement["detail"].InnerText;
-
-                    if (errorDetail.Contains("MSGBOX-"))
-                    {
-                        throw new MessageOnlyException(errorDetail);
-                    }
-                    else
-                    {
-                        throw new Exception(errorDetail);
-                    }
-                }
+                _ = SysCommon.SubmitComm(xmlDelete);
             }
         }
 
@@ -322,39 +293,34 @@ namespace dMobile.Controller.Activity_Detail
         {
             await this.FillActDetailObjFromXml(data);
 
-            if (this.SysEnv.SysSettings.IsDisconnectedMode)
-            {
-                var actDetailRefno = await this.InsertDetail();
+            // Get temporary item FK refno for newly inserted line item.
+            this.DetailFkRefno = await DatabaseConnection.GetInstance().SQLConn.ExecuteScalarAsync<int>(
+                "SELECT MAX(tActivityDetailReceiving.ActivityDetailFKRefno) FROM tActivityDetailReceiving");
+            this.DetailFkRefno++;
 
-                var query = "INSERT INTO tActivityDetailReceiving (ActivityDetailRefno, ActivityDetailFKRefno) VALUES (?, ?)";
-                var rowsAffected = await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(
-                    query,
-                    Convert.ToInt32(actDetailRefno),
-                    Convert.ToInt32(this.DetailFkRefno));
-                if (rowsAffected <= 0)
-                {
-                    throw new Exception("Unable to insert activity detail in disconnected mode.");
-                }
-            }
-            else
+            // Insert the common activity detail data.
+            this.DetailRefno = await this.InsertDetail();
+
+            if (!this.SysEnv.SysSettings.IsDisconnectedMode)
             {
                 await this.Submit(this, data);
+            }
 
-                var query = "UPDATE tActivityItemReceiving SET ActivityItemStringFKRefno = ?," +
-                            " ActivityItemFKRefno = ? WHERE ActivityItemRefno = ?";
-                var rowsAffected = await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(
-                    query,
-                    Convert.ToString(this.ActItem.ItemFkRefno),
-                    this.ActItem.ItemFkRefno,
-                    this.ActItem.ItemRefno);
-                if (rowsAffected < 0)
-                {
-                    throw new Exception("Unable to locate and update the activity line item with a new foreign" +
-                        " key upon inserting.");
-                }
+            var query = "INSERT INTO tActivityDetailReceiving (ActivityDetailRefno, ActivityDetailFKRefno) VALUES (?, ?)";
+            var rowsAffected = await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(
+                query,
+                Convert.ToInt32(this.DetailRefno),
+                Convert.ToInt32(this.DetailFkRefno));
+            if (rowsAffected <= 0)
+            {
+                throw new Exception("Unable to insert activity detail in disconnected mode.");
+            }
 
-                // Find the activity item that may also have been newly created, and update the line item reference
-                // returned from the communication server.
+            FindListItemAndSetFkRefno();
+
+            /////
+            void FindListItemAndSetFkRefno()
+            {
                 ReceiveItem foundItem = null;
                 foreach (ReceiveItem item in this.ActItem.ListItems)
                 {
@@ -393,22 +359,7 @@ namespace dMobile.Controller.Activity_Detail
             {
                 var xmlDelete = await this.CreateDeleteXml(
                     XDocument.Parse("<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?><params></params>"));
-                var responseData = SysCommon.SubmitComm(xmlDelete);
-                if (responseData.Contains("<message>ERROR</message>"))
-                {
-                    var docError = new XmlDocument();
-                    docError.LoadXml(responseData);
-                    var errorDetail = docError.DocumentElement["detail"].InnerText;
-
-                    if (errorDetail.Contains("MSGBOX-"))
-                    {
-                        throw new MessageOnlyException(errorDetail);
-                    }
-                    else
-                    {
-                        throw new Exception(errorDetail);
-                    }
-                }
+                _ = SysCommon.SubmitComm(xmlDelete);
             }
 
             // delete row from DataView
@@ -451,63 +402,104 @@ namespace dMobile.Controller.Activity_Detail
         /// <returns>The <see cref="Task"/>.</returns>
         public override async Task Submit(object selectedActivityDetail, XDocument data)
         {
+            int rowsAffected;
+
             var xmlDoc = new XmlDocument();
-            var xmlSend = await this.CreateSubmitXml(
-                XDocument.Parse("<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?><params></params>"));
-            var responseData = SysCommon.SubmitComm(xmlSend);
+            var strXmlSend = await this.CreateSubmitXml(data);
+            var responseData = SysCommon.SubmitComm(strXmlSend);
             xmlDoc.LoadXml(responseData);
 
-            // Check if result is an error message
-            if (responseData.Contains("<message>ERROR</message>"))
+            if (xmlDoc.DocumentElement == null)
             {
-                var errorDetail = xmlDoc.DocumentElement["detail"].InnerText;
-
-                if (errorDetail.Contains("MSGBOX-"))
-                {
-                    throw new MessageOnlyException(errorDetail);
-                }
-                else
-                {
-                    throw new Exception(errorDetail);
-                }
+                throw new Exception("xmlDoc.DocumentElement == null");
             }
-            else
+
+            this.DetailFkRefno = int.Parse(xmlDoc.DocumentElement["ser_refno"] !.InnerText);
+
+            switch (this.ActItem.ActStatus)
             {
-                this.DetailFkRefno = int.Parse(xmlDoc.DocumentElement["ser_refno"].InnerText);
+                case SysCommon.ActStatus.NoChange:
+                    break;
 
-                if (this.ActItem.SelectedItem is ReceiveItem item)
-                {
-                    item.ActivityItemFKRefno = this.ActItem.ItemFkRefno;
-                }
+                case SysCommon.ActStatus.Inserted:
+                    this.ActItem.ItemFkRefno = int.Parse(xmlDoc.DocumentElement["itm_refno"] !.InnerText);
 
-                if (selectedActivityDetail is ReceiveDetail receiveDetail)
-                {
-                    receiveDetail.ActivityDetailFKRefno = this.DetailFkRefno;
-                    receiveDetail.ActivityDetailStatus = Convert.ToInt32(SysCommon.ActStatus.NoChange);
-                }
+                    // Update the selected item also.
+                    if (this.ActItem.SelectedItem is ReceiveItem item)
+                    {
+                        item.ActivityItemFKRefno = this.ActItem.ItemFkRefno;
+                    }
 
-                await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(
-                    "UPDATE tActivityDetail SET ActivityDetailStatus = ? WHERE ActivityDetailRefno = ?",
-                    Convert.ToInt32(SysCommon.ActStatus.NoChange),
-                    this.DetailRefno);
-            }
-        }
+                    this.ActItem.ActStatus = SysCommon.ActStatus.NoChange;
 
-        /// <summary>
-        /// The GetInfo.
-        /// </summary>
-        /// <param name="selectedActivityDetail">The selectedActivityDetail<see cref="object"/>.</param>
-        /// <param name="isAdd">.</param>
-        /// <returns>.</returns>
-        public override async Task AssignThisFromDetailAsync(ActivityDetail selectedActivityDetail, bool isAdd)
-        {
-            await base.AssignThisFromDetailAsync(selectedActivityDetail, isAdd);
+                    rowsAffected = await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(
+                        "UPDATE tActivityItem SET ActivityItemStatus = ? WHERE ActivityItemRefno = ?",
+                        Convert.ToInt32(SysCommon.ActStatus.NoChange),
+                        this.ActItem.ItemRefno);
 
-            if (!isAdd && selectedActivityDetail is ReceiveDetail receiveDetail)
-            {
-                this.DetailFkRefno = Convert.ToInt32(receiveDetail.ActivityDetailFKRefno);
-                this.LocMap.CurrLocMap = await LocationMapTasks.GetSLocMapFromLocMapRefno(
-                    Convert.ToInt32(receiveDetail.LocationMapRefno));
+                    if (rowsAffected < 0)
+                    {
+                        throw new Exception(
+                            "Unable to locate and update the activity line item with a new foreign" +
+                            " key upon inserting.");
+                    }
+
+                    if (selectedActivityDetail is ReceiveDetail selectedInserted)
+                    {
+                        selectedInserted.ActivityDetailFKRefno = this.DetailFkRefno;
+                        selectedInserted.ActivityDetailStatus = Convert.ToInt32(SysCommon.ActStatus.NoChange);
+                    }
+
+                    rowsAffected = await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(
+                        "UPDATE tActivityDetail SET ActivityDetailStatus = ? WHERE ActivityDetailRefno = ?",
+                        Convert.ToInt32(SysCommon.ActStatus.NoChange),
+                        this.DetailRefno);
+
+                    if (rowsAffected < 0)
+                    {
+                        throw new Exception("Unable to locate and update the activity detail status to no change.");
+                    }
+
+                    break;
+
+                case SysCommon.ActStatus.Updated:
+                    if (selectedActivityDetail is ReceiveDetail selectedUpdated)
+                    {
+                        selectedUpdated.ActivityDetailStatus = Convert.ToInt32(SysCommon.ActStatus.NoChange);
+                    }
+
+                    rowsAffected = await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(
+                        "UPDATE tActivityDetail SET ActivityDetailStatus = ? WHERE ActivityDetailRefno = ?",
+                        Convert.ToInt32(SysCommon.ActStatus.NoChange),
+                        this.DetailRefno);
+
+                    if (rowsAffected < 0)
+                    {
+                        throw new Exception("Unable to locate and update the activity detail status to no change.");
+                    }
+
+                    break;
+
+                case SysCommon.ActStatus.Deleted:
+                    if (selectedActivityDetail is ReceiveDetail selectedDeleted)
+                    {
+                        selectedDeleted.ActivityDetailStatus = Convert.ToInt32(SysCommon.ActStatus.NoChange);
+                    }
+
+                    rowsAffected = await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(
+                        "UPDATE tActivityDetail SET ActivityDetailStatus = ? WHERE ActivityDetailRefno = ?",
+                        Convert.ToInt32(SysCommon.ActStatus.NoChange),
+                        this.DetailRefno);
+
+                    if (rowsAffected < 0)
+                    {
+                        throw new Exception("Unable to locate and update the activity detail status to no change.");
+                    }
+
+                    break;
+
+                default:
+                    throw new ArgumentOutOfRangeException();
             }
         }
 
@@ -1061,16 +1053,6 @@ namespace dMobile.Controller.Activity_Detail
             }
 
             return observableCollection;
-        }
-
-        /// <summary>
-        /// Select the activity detail.
-        /// </summary>
-        /// <param name="selectedActivityDetail"><see cref="object"/> Selected activity detail.</param>
-        /// <returns><see cref="Task"/> Task operation.</returns>
-        public override async Task AssignActivityDetail(object selectedActivityDetail)
-        {
-            await base.AssignActivityDetail(selectedActivityDetail);
         }
 
         /// <summary>

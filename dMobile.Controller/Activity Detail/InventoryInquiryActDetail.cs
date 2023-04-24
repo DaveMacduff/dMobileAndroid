@@ -197,21 +197,6 @@ namespace dMobile.Controller.Activity_Detail
         }
 
         /// <summary>
-        /// The GetInfo.
-        /// </summary>
-        /// <param name="selectedActivityDetail">The selectedActivityDetail<see cref="object"/>.</param>
-        /// <param name="isAdd">.</param>
-        public override async Task AssignThisFromDetailAsync(ActivityDetail selectedActivityDetail, bool isAdd)
-        {
-            await base.AssignThisFromDetailAsync(selectedActivityDetail, isAdd);
-
-            if (!isAdd && selectedActivityDetail != null)
-            {
-                this.DetailFkRefno = Convert.ToInt32(selectedActivityDetail.GetType().GetProperty("ActivityDetailFKRefno")?.GetValue(selectedActivityDetail));
-            }
-        }
-
-        /// <summary>
         /// The Submit.
         /// </summary>
         /// <param name="selectedActivityDetail">The selectedActivityDetail<see cref="object"/>.</param>
@@ -398,16 +383,6 @@ namespace dMobile.Controller.Activity_Detail
         public override ObservableCollection<object> Search(string searchText)
         {
             throw new NotImplementedException();
-        }
-
-        /// <summary>
-        /// Select the activity detail.
-        /// </summary>
-        /// <param name="selectedActivityDetail"><see cref="object"/> Selected activity detail.</param>
-        /// <returns><see cref="Task"/> Task operation.</returns>
-        public override async Task AssignActivityDetail(object selectedActivityDetail)
-        {
-            await base.AssignActivityDetail(selectedActivityDetail);
         }
 
         /// <summary>

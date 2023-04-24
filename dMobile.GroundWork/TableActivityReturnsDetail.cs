@@ -44,7 +44,27 @@ namespace dMobile.GroundWork
             {
                 try
                 {
-                    var query = "DELETE FROM tActivityDetailProductSchemeVariantXRef "
+                    // Corruption recovery cleanup.
+                    var query = "DELETE FROM tActivityDetailProductSchemeVariantXRef" +
+                                " WHERE tActivityDetailProductSchemeVariantXRef.ActivityDetailRefno <= 0" +
+                                " OR tActivityDetailProductSchemeVariantXRef.ProductSchemeVariantRefno <= 0";
+                    transaction.Execute(query);
+
+                    // Corruption recovery cleanup.
+                    query = "DELETE FROM tActivityDetailExtra WHERE tActivityDetailExtra.ActivityDetailRefno <= 0";
+                    transaction.Execute(query);
+
+                    // Corruption recovery cleanup.
+                    query = "DELETE FROM tActivityDetailReturns WHERE tActivityDetailReturns.ActivityDetailRefno <= 0" +
+                            " OR tActivityDetailReturns.ActivityDetailFKRefno <= 0";
+                    transaction.Execute(query);
+
+                    // Corruption recovery cleanup.
+                    query = "DELETE FROM tActivityDetail WHERE tActivityDetail.ActivityDetailSubType = ?" +
+                            " AND tActivityDetail.ActivityDetailRefno <= 0";
+                    transaction.Execute(query, subType);
+
+                    query = "DELETE FROM tActivityDetailProductSchemeVariantXRef "
                         + "WHERE tActivityDetailProductSchemeVariantXRef.ActivityDetailRefno IN "
                         + "(SELECT tActivityDetail.ActivityDetailRefno "
                         + "FROM tActivityDetail "
@@ -68,7 +88,7 @@ namespace dMobile.GroundWork
                     query = "DELETE FROM tActivityDetail WHERE tActivityDetail.ActivityDetailSubType = ?";
                     transaction.Execute(query, subType);
 
-                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging return details complete.", true);
+                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging receiving details complete.", true);
                     transaction.Commit();
                 }
                 catch (SQLiteException sqlEx)

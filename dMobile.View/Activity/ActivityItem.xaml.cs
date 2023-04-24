@@ -1565,6 +1565,7 @@ namespace dMobile.View.Activity
                 try
                 {
                     await this.ActItem.AssignActivityItem(this.ListViewMainActivity.SelectedItem);
+
                     if (this.ActItem.ActHdr.SkidInfo.CurrSkid.SkidFKRefno != 0)
                     {
                         if (this.ActItem.ActHdr.SkidInfo.CurrSkid.ProdInfo.Refno != this.ActItem.ProdInfo.Refno)
@@ -3030,7 +3031,7 @@ namespace dMobile.View.Activity
                     // Get the cycle count line item location.
                     var countItemLocMap = await LocationMapTasks.GetSLocMapFromLocMapRefno(
                         Convert.ToInt32(cycleCountItem.LocationMapRefno));
-                    var countLoc = LocationMapTasks.GetReadableLocation(countItemLocMap);
+                    ////var countLoc = LocationMapTasks.GetReadableLocation(countItemLocMap);
 
                     // Using the cycle count line item warehouse, get the product default
                     // picking location.
@@ -3045,13 +3046,13 @@ namespace dMobile.View.Activity
                     var prodUnitSizeDesc = cycleCountItem.ProductUnitSizeDescription.ToString();
                     this.ExtraInfoItems.Add(prodDesc.Trim() + " " + prodUnitSizeDesc.Trim());
                     this.ExtraInfoItems.Add("Default Location: " + defProdLoc.Trim());
-                    this.ExtraInfoItems.Add("Count Location: " + countLoc.Trim());
+                    ////this.ExtraInfoItems.Add("Count Location: " + countLoc.Trim());
                 }
                 else
                 {
                     this.ExtraInfoItems.Add("No product description.");
                     this.ExtraInfoItems.Add("Default Location: Unknown");
-                    this.ExtraInfoItems.Add("Count Location: Unknown");
+                    ////this.ExtraInfoItems.Add("Count Location: Unknown");
                 }
             }
 

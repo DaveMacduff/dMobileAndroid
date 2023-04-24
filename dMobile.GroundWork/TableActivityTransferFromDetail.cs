@@ -36,43 +36,82 @@ namespace dMobile.GroundWork
         /// <inheritdoc/>
         public override async Task PurgeData()
         {
-            try
+            var conn = DatabaseConnection.GetInstance().SQLConn;
+            var subType = Convert.ToInt32(this.CurrentSubType);
+            this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging transfer details.", true);
+
+            await conn.RunInTransactionAsync(transaction =>
             {
-                this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging transfer details.", true);
+                try
+                {
+                    // Corruption recovery cleanup.
+                    var query = "DELETE FROM tActivityDetailProductSchemeVariantXRef" +
+                                " WHERE tActivityDetailProductSchemeVariantXRef.ActivityDetailRefno <= 0" +
+                                " OR tActivityDetailProductSchemeVariantXRef.ProductSchemeVariantRefno <= 0";
+                    transaction.Execute(query);
 
-                var query = "DELETE FROM tActivityDetailProductSchemeVariantXRef "
-                            + "WHERE tActivityDetailProductSchemeVariantXRef.ActivityDetailRefno IN "
-                            + "(SELECT tActivityDetail.ActivityDetailRefno "
-                            + "FROM tActivityDetail "
-                            + "WHERE tActivityDetail.ActivityDetailSubType = ?)";
-                await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(query, Convert.ToInt32(SysCommon.ActSubTypes.TransferFrom));
+                    // Corruption recovery cleanup.
+                    query = "DELETE FROM tActivityDetailExtra WHERE tActivityDetailExtra.ActivityDetailRefno <= 0";
+                    transaction.Execute(query);
 
-                query = "DELETE FROM tActivityDetailTransfer "
-                    + "WHERE tActivityDetailTransfer.ActivityDetailRefno IN "
-                    + "(SELECT tActivityDetail.ActivityDetailRefno "
-                    + "FROM tActivityDetail "
-                    + " WHERE tActivityDetail.ActivityDetailSubType = ?)";
-                await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(query, Convert.ToInt32(SysCommon.ActSubTypes.TransferFrom));
+                    // Corruption recovery cleanup.
+                    query = "DELETE FROM tActivityDetailTransfer WHERE tActivityDetailTransfer.ActivityDetailRefno <= 0" +
+                            " OR tActivityDetailTransfer.ActivityDetailFKRefno <= 0";
+                    transaction.Execute(query);
 
-                query = "DELETE FROM tActivityDetailExtra "
-                    + "WHERE tActivityDetailExtra.ActivityDetailRefno IN "
-                    + "(SELECT tActivityDetail.ActivityDetailRefno "
-                    + "FROM tActivityDetail "
-                    + "WHERE tActivityDetail.ActivityDetailSubType = ?)";
-                await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(query, Convert.ToInt32(SysCommon.ActSubTypes.TransferFrom));
+                    // Corruption recovery cleanup.
+                    query = "DELETE FROM tActivityDetail WHERE tActivityDetail.ActivityDetailSubType = ?" +
+                            " AND tActivityDetail.ActivityDetailRefno <= 0";
+                    transaction.Execute(query, subType);
 
-                query = "DELETE FROM tActivityDetail WHERE ActivityDetailSubType = ?";
-                await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(query, Convert.ToInt32(SysCommon.ActSubTypes.TransferFrom));
+                    query = "DELETE FROM tActivityDetailProductSchemeVariantXRef "
+                        + "WHERE tActivityDetailProductSchemeVariantXRef.ActivityDetailRefno IN "
+                        + "(SELECT tActivityDetail.ActivityDetailRefno "
+                        + "FROM tActivityDetail "
+                        + "WHERE tActivityDetail.ActivityDetailSubType = ?)";
+                    transaction.Execute(query, subType);
 
-                this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging transfer details complete.", true);
-            }
-            catch (SQLiteException ex)
-            {
-                this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Database exception occurred.", true);
-                this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging transfer details failed.", true);
+                    query = "DELETE FROM tActivityDetailTransfer "
+                        + "WHERE tActivityDetailTransfer.ActivityDetailRefno IN "
+                        + "(SELECT tActivityDetail.ActivityDetailRefno "
+                        + "FROM tActivityDetail "
+                        + "WHERE tActivityDetail.ActivityDetailSubType = ?)";
+                    transaction.Execute(query, subType);
 
-                throw new Exception("Database exception occurred. Purging transfer details failed.", ex);
-            }
+                    query = "DELETE FROM tActivityDetailExtra "
+                        + "WHERE tActivityDetailExtra.ActivityDetailRefno IN "
+                        + "(SELECT tActivityDetail.ActivityDetailRefno "
+                        + "FROM tActivityDetail "
+                        + "WHERE tActivityDetail.ActivityDetailSubType = ?)";
+                    transaction.Execute(query, subType);
+
+                    query = "DELETE FROM tActivityDetail WHERE tActivityDetail.ActivityDetailSubType = ?";
+                    transaction.Execute(query, subType);
+
+                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging transfer details complete.", true);
+                    transaction.Commit();
+                }
+                catch (SQLiteException sqlEx)
+                {
+                    if (transaction.IsInTransaction)
+                    {
+                        transaction.Rollback();
+                    }
+
+                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Database exception occurred.", true);
+                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging transfer details failed.", true);
+                    throw new Exception("Database exception occurred. Purging transfer details failed.", sqlEx);
+                }
+                catch (Exception ex)
+                {
+                    if (transaction.IsInTransaction)
+                    {
+                        transaction.Rollback();
+                    }
+
+                    throw new Exception("Database exception occurred. Purging transfer details failed.", ex);
+                }
+            });
         }
 
         /// <summary>

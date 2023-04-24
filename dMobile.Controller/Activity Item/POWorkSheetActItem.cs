@@ -224,168 +224,116 @@ namespace dMobile.Controller.Activity_Item
         /// <returns><see cref="Task"/> Task operation.</returns>
         public override async Task Insert(XDocument data)
         {
-            var actRefno = 0;
-
             var prodUnitRefno = int.Parse(data.Root.Element("ProductUnitRefno").Value);
-            if (prodUnitRefno != 0)
+            if (prodUnitRefno <= 0)
             {
-                if (this.SysEnv.SysSettings.IsDisconnectedMode)
-                {
-                    await DatabaseConnection.GetInstance().SQLConn.RunInTransactionAsync(transaction =>
-                    {
-                        try
-                        {
-                            transaction.Execute("INSERT INTO tActivity (ActivityStatus, ActivitySubType) VALUES (?, ?)", Convert.ToInt32(SysCommon.ActStatus.Inserted), Convert.ToInt32(SysCommon.ActSubTypes.PurchaseOrderWorkSheet));
-
-                            actRefno = Convert.ToInt32(transaction.ExecuteScalar<int>("SELECT last_insert_rowid() FROM tActivity"));
-                            this.ActHdr.HdrRefno = actRefno;
-                            this.ActHdr.HdrFkRefno = actRefno;
-
-                            transaction.Execute(
-                                "INSERT INTO tActivityItem (ActivityItemSubType, ActivityItemStatus," +
-                                " ActivityRefno, ActivityItemIsAdded) VALUES (?, ?, ?, ?)",
-                                Convert.ToInt32(SysCommon.ActSubTypes.PurchaseOrderWorkSheet),
-                                Convert.ToInt32(SysCommon.ActStatus.Inserted),
-                                Convert.ToInt32(this.ActHdr.HdrRefno),
-                                1);
-
-                            this.ItemRefno = Convert.ToInt32(transaction.ExecuteScalar<int>("SELECT last_insert_rowid() FROM tActivityItem"));
-
-                            var queryActSheetItem = "INSERT INTO tActivityItemPurchaseOrderWorkSheet (" +
-                                                    "ActivityItemRefno, " +
-                                                    "ActivityItemSubType, " +
-                                                    "ActivityItemFKRefno, " +
-                                                    "ActivityItemStringFKRefno, " +
-                                                    "ProductUnitRefno, " +
-                                                    "WarehouseLocationMapRefno, " +
-                                                    "ActivityItemPurchaseOrderWorkSheetQuantityOrdered, " +
-                                                    "ActivityItemPurchaseOrderWorkSheetBaseQuantityOrdered, " +
-                                                    "ActivityItemPurchaseOrderWorkSheetWeightQuantityOrdered" +
-                                                    ") VALUES (" +
-                                                    "?, " +
-                                                    "?, " +
-                                                    "?, " +
-                                                    "?, " +
-                                                    "?, " +
-                                                    "?, " +
-                                                    "?, " +
-                                                    "?, " +
-                                                    "?" +
-                                                    ")";
-                            var parametersActSheetItem = new object[]
-                            {
-                                Convert.ToInt32(this.ItemRefno),
-                                Convert.ToInt32(SysCommon.ActSubTypes.PurchaseOrderWorkSheet),
-                                Convert.ToInt32(this.ItemRefno * -1),
-                                Convert.ToString(this.ItemRefno * -1),
-                                Convert.ToInt32(prodUnitRefno),
-                                Convert.ToInt32(this.LocMap.WhsLocMapRefno),
-                                decimal.Parse(data.Root.Element("alt_qty").Value),
-                                decimal.Parse(data.Root.Element("base_qty").Value),
-                                decimal.Parse(data.Root.Element("wt_qty").Value),
-                            };
-
-                            transaction.Execute(queryActSheetItem, parametersActSheetItem);
-                            transaction.Commit();
-
-                            this.ItemFkRefno = this.ItemRefno * -1;
-                        }
-                        catch (SQLiteException ex)
-                        {
-                            transaction.Rollback();
-
-                            Console.WriteLine(ex);
-                        }
-                        catch (Exception ex)
-                        {
-                            transaction.Rollback();
-
-                            Console.WriteLine(ex);
-                        }
-                    });
-                }
-                else
-                {
-                    var xmlSend = await this.CreateSubmitXml(data);
-                    var responseData = SysCommon.SubmitComm(xmlSend);
-                    var xmlDoc = new XmlDocument();
-                    xmlDoc.LoadXml(responseData);
-
-                    // check if result is an error message
-                    if (responseData.Contains("<message>ERROR</message>"))
-                    {
-                        var errorDetail = xmlDoc.DocumentElement["detail"].InnerText;
-
-                        if (errorDetail.Contains("MSGBOX-"))
-                        {
-                            throw new MessageOnlyException(errorDetail);
-                        }
-                        else
-                        {
-                            throw new Exception(errorDetail);
-                        }
-                    }
-                    else
-                    {
-                        this.NewActItemFkRefno = -Math.Abs(int.Parse(xmlDoc.DocumentElement["itm_refno"].InnerText));
-                        this.ItemFkRefno = -Math.Abs(int.Parse(xmlDoc.DocumentElement["itm_refno"].InnerText));
-                        this.ActHdr.HdrFkRefno = this.ItemFkRefno;
-                        this.ItemRefno = Math.Abs(this.ItemFkRefno);
-                    }
-                }
+                throw new Exception("prodUnitRefno expected to be greater than zero.");
             }
 
-            if (this.ListItems != null)
+            this.ProdInfo = await ProductInfoTasks.GetInfoFromUnitRefno(prodUnitRefno);
+            this.ProdInfo.Scheme = await ProductInfoTasks.GetSchemeComponentsFromRefno(this.ProdInfo.Refno);
+
+            await InsertActivityItemInTables(prodUnitRefno);
+            AddActivityItemToList(prodUnitRefno);
+
+            //////////////////////////////////////////////////////////////////////////
+            async Task InsertActivityItemInTables(int prodUnitRefno)
             {
-                this.ProdInfo = await ProductInfoTasks.GetInfoFromUnitRefno(prodUnitRefno);
-                this.ProdInfo.Scheme = await ProductInfoTasks.GetSchemeComponentsFromRefno(this.ProdInfo.Refno);
-
-                // TODO: Fix sorting
-                // string oldSort = DataViewItems.Sort;
-                // int rowIdx = 0;
-                // this.DataViewItems.Sort = "ActivityItemFKRefno";
-                PurchaseOrderWorkSheetItem item = null;
-                var toBeAdded = false;
-
-                if (this.ItemFkRefno > 0)
+                await DatabaseConnection.GetInstance().SQLConn.RunInTransactionAsync(transaction =>
                 {
-                    item = this.ListItems.OfType<PurchaseOrderWorkSheetItem>().Where(worksheetItem => worksheetItem.ActivityItemFKRefno == this.ItemFkRefno).FirstOrDefault();
-                }
+                    try
+                    {
+                        // NOTE: ActivityItemStatus is set to inserted for later submission use.
+                        _ = transaction.Execute(
+                            "INSERT INTO tActivityItem (ActivityItemSubType, ActivityItemStatus," +
+                                " ActivityRefno, ActivityItemIsAdded) VALUES (?, ?, ?, ?)",
+                            Convert.ToInt32(SysCommon.ActSubTypes.PurchaseOrderWorkSheet),
+                            Convert.ToInt32(SysCommon.ActStatus.Inserted),
+                            Convert.ToInt32(this.ActHdr.HdrRefno),
+                            1);
 
-                if (item == null)
+                        this.ItemRefno = Convert.ToInt32(transaction.ExecuteScalar<int>(
+                            "SELECT last_insert_rowid() FROM tActivityItem"));
+
+                        // Get temporary item FK refno for newly inserted line item.
+                        this.ItemFkRefno = Convert.ToInt32(transaction.ExecuteScalar<int>(
+                            "SELECT MAX(tActivityItemPurchaseOrderWorkSheet.ActivityItemFKRefno)" +
+                            $" FROM tActivityItemPurchaseOrderWorkSheet WHERE tActivityItemPurchaseOrderWorkSheet.ActivityItemSubType" +
+                            $" = {(int)SysCommon.ActSubTypes.PurchaseOrderWorkSheet}"));
+                        this.ItemFkRefno = this.ItemFkRefno + 1;
+
+                        var query = "INSERT INTO tActivityItemPurchaseOrderWorkSheet (" + 
+                                        "ActivityItemRefno, " +
+                                        "ActivityItemSubType, " +
+                                        "ActivityItemFKRefno, " +
+                                        "ActivityItemStringFKRefno, " +
+                                        "ProductUnitRefno, " +
+                                        "WarehouseLocationMapRefno, " +
+                                        "ActivityItemPurchaseOrderWorkSheetQuantityOrdered, " +
+                                        "ActivityItemPurchaseOrderWorkSheetBaseQuantityOrdered, " +
+                                        "ActivityItemPurchaseOrderWorkSheetWeightQuantityOrdered" +
+                                        ") VALUES (" +
+                                        "?, " +
+                                        "?, " +
+                                        "?, " +
+                                        "?, " +
+                                        "?, " +
+                                        "?, " +
+                                        "?, " +
+                                        "?, " +
+                                        "?" +
+                                        ")";
+
+                        var locMap = LocationMap.GetInstance().CurrLocMap;
+                        var parameters = new object[]
+                        {
+                            Convert.ToInt32(this.ItemRefno),
+                            Convert.ToInt32(SysCommon.ActSubTypes.PurchaseOrderWorkSheet),
+                            Convert.ToInt32(this.ItemFkRefno),
+                            Convert.ToString(this.ItemFkRefno),
+                            Convert.ToInt32(prodUnitRefno),
+                            Convert.ToInt32(locMap.WhsLocMapRefno),
+                            decimal.Parse(data.Root.Element("alt_qty").Value),
+                            decimal.Parse(data.Root.Element("base_qty").Value),
+                            decimal.Parse(data.Root.Element("wt_qty").Value),
+                        };
+
+                        transaction.Execute(query, parameters);
+                        transaction.Commit();
+                    }
+                    catch (SQLiteException)
+                    {
+                        transaction.Rollback();
+                        throw;
+                    }
+                });
+            }
+
+            //////////////////////////////////////////////////////////////////////////
+            void AddActivityItemToList(int prodUnitRefno)
+            {
+                var locMap = LocationMap.GetInstance().CurrLocMap;
+                var item = new PurchaseOrderWorkSheetItem()
                 {
-                    item = new PurchaseOrderWorkSheetItem();
-                    item.ActivityItemRefno = this.ItemRefno;
-                    item.ProductUnitRefno = this.ProdInfo.UnitRefno;
-                    item.ProductRefno = this.ProdInfo.Refno;
-                    item.ProductCode = this.ProdInfo.Code;
-                    item.ProductDescription = this.ProdInfo.Desc;
-                    item.ProductUnitSizeDescription = this.ProdInfo.UnitSizeDesc;
-                    item.UnitCode = this.ProdInfo.UnitCode;
-                    item.ActivityItemFKRefno = this.ItemFkRefno;
-                    item.ActivityItemStringFKRefno = this.ItemFkRefno.ToString();
+                    ActivityItemRefno = this.ItemRefno,
+                    ActivityItemFKRefno = this.ItemFkRefno,
+                    ActivityItemStringFKRefno = this.ItemFkRefno.ToString(),
+                    ProductUnitRefno = prodUnitRefno,
+                    ProductRefno = int.Parse(data.Root.Element("ProductRefno").Value),
+                    ProductCode = data.Root.Element("ProductCode").Value,
+                    ProductDescription = data.Root.Element("ProductDescription").Value,
+                    UnitCode = data.Root.Element("UnitCode").Value,
+                    ProductUnitSizeDescription = data.Root.Element("ProductUnitSizeDescription").Value,
+                    LocationMapRefno = locMap.WhsLocMapRefno,
+                    LocationCode = locMap.WhsCode,
+                    LocationName = locMap.WhsName,
+                    ActivityItemStatus = (int)SysCommon.ActStatus.Inserted,
+                    ActivityItemPurchaseOrderWorkSheetQuantityOrdered = Math.Round(decimal.Parse(data.Root.Element("alt_qty").Value), 3),
+                    ActivityItemPurchaseOrderWorkSheetBaseQuantityOrdered = Math.Round(decimal.Parse(data.Root.Element("base_qty").Value), 3),
+                    ActivityItemPurchaseOrderWorkSheetWeightQuantityOrdered = Math.Round(decimal.Parse(data.Root.Element("wt_qty").Value), 3),
+                };
 
-                    toBeAdded = true;
-                }
-
-                var locMapRefno = LocationMapTasks.DefaultLocMapRefnoToWhsIfUnassigned(0);
-                var locMap = await LocationMapTasks.GetSLocMapFromLocMapRefno(locMapRefno);
-                item.ActivityItemStatus = Convert.ToInt32(SysCommon.ActStatus.NoChange);
-                item.LocationMapRefno = locMap.WhsLocMapRefno;
-                item.ActivityItemPurchaseOrderWorkSheetQuantityOrdered = Math.Round(decimal.Parse(data.Root.Element("alt_qty").Value), 3);
-                item.ActivityItemPurchaseOrderWorkSheetBaseQuantityOrdered = Math.Round(decimal.Parse(data.Root.Element("base_qty").Value), 3);
-                item.ActivityItemPurchaseOrderWorkSheetWeightQuantityOrdered = Math.Round(decimal.Parse(data.Root.Element("wt_qty").Value), 3);
-                item.LocationCode = this.LocMap.WhsLocMapRefno;
-                item.LocationName = this.LocMap.WhsName;
-
-                // TODO: Fix sorting
-                // this.DataViewItems.Sort = oldSort;
-                if (toBeAdded)
-                {
-                    this.ListItems.Add(item);
-                    this.SelectedListIdx = this.ListItems.Count - 1;
-                    _ = this.AssignActivityItem(item);
-                }
+                this.ListItems.Add(item);
             }
         }
 
@@ -516,33 +464,17 @@ namespace dMobile.Controller.Activity_Item
             var xmlSend = await this.CreateSubmitXml(data);
             var responseData = SysCommon.SubmitComm(xmlSend);
             xmlDoc.LoadXml(responseData);
-
-            // check if result is an error message
-            if (responseData.Contains("<message>ERROR</message>"))
+            this.ItemFkRefno = int.Parse(xmlDoc.DocumentElement["ser_refno"].InnerText);
+            if (selectedActivityItem is PurchaseOrderWorkSheetItem purchaseOrderWorkSheetItem)
             {
-                var errorDetail = xmlDoc.DocumentElement["detail"].InnerText;
-
-                if (errorDetail.Contains("MSGBOX-"))
-                {
-                    throw new MessageOnlyException(errorDetail);
-                }
-                else
-                {
-                    throw new Exception(errorDetail);
-                }
+                purchaseOrderWorkSheetItem.ActivityItemFKRefno = this.ItemFkRefno;
+                purchaseOrderWorkSheetItem.ActivityItemStatus = Convert.ToInt32(SysCommon.ActStatus.NoChange);
             }
-            else
-            {
-                this.ItemFkRefno = int.Parse(xmlDoc.DocumentElement["ser_refno"].InnerText);
 
-                if (selectedActivityItem is PurchaseOrderWorkSheetItem purchaseOrderWorkSheetItem)
-                {
-                    purchaseOrderWorkSheetItem.ActivityItemFKRefno = this.ItemFkRefno;
-                    purchaseOrderWorkSheetItem.ActivityItemStatus = Convert.ToInt32(SysCommon.ActStatus.NoChange);
-                }
-
-                await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync("UPDATE tActivityItem SET tActivityItem.ActivityItemStatus = ? WHERE ActivityItemRefno = ?", (int)SysCommon.ActStatus.NoChange, this.ItemRefno);
-            }
+            await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(
+                "UPDATE tActivityItem SET tActivityItem.ActivityItemStatus = ? WHERE ActivityItemRefno = ?",
+                (int)SysCommon.ActStatus.NoChange,
+                this.ItemRefno);
         }
 
         /// <summary>
@@ -583,25 +515,6 @@ namespace dMobile.Controller.Activity_Item
 
             foreach (PurchaseOrderWorkSheetItem purchaseOrderWorkSheetItem in this.ListItems)
             {
-                // PurchaseOrderWorkSheetItem purchaseOrderWorkSheetItem = new PurchaseOrderWorkSheetItem
-                // {
-                //    ActivityItemRefno = Convert.ToInt32(row["ActivityItemRefno"] != DBNull.Value ? row["ActivityItemRefno"] : null),
-                //    ActivityItemFKRefno = Convert.ToInt32(row["ActivityItemFKRefno"] != DBNull.Value ? row["ActivityItemFKRefno"] : null),
-                //    ActivityItemStringFKRefno = Convert.ToString(row["ActivityItemStringFKRefno"] != DBNull.Value ? row["ActivityItemStringFKRefno"] : null),
-                //    ProductUnitRefno = Convert.ToInt32(row["ProductUnitRefno"] != DBNull.Value ? row["ProductUnitRefno"] : null),
-                //    ProductRefno = Convert.ToInt32(row["ProductRefno"] != DBNull.Value ? row["ProductRefno"] : null),
-                //    ProductCode = Convert.ToString(row["ProductCode"] != DBNull.Value ? row["ProductCode"] : null),
-                //    ProductDescription = Convert.ToString(row["ProductDescription"] != DBNull.Value ? row["ProductDescription"] : null),
-                //    UnitCode = Convert.ToString(row["UnitCode"] != DBNull.Value ? row["UnitCode"] : null),
-                //    ProductUnitSizeDescription = Convert.ToString(row["ProductUnitSizeDescription"] != DBNull.Value ? row["ProductUnitSizeDescription"] : null),
-                //    ActivityItemPurchaseOrderWorkSheetQuantityOrdered = Convert.ToDecimal(row["ActivityItemPurchaseOrderWorkSheetQuantityOrdered"] != DBNull.Value ? row["ActivityItemPurchaseOrderWorkSheetQuantityOrdered"] : null),
-                //    ActivityItemPurchaseOrderWorkSheetBaseQuantityOrdered = Convert.ToDecimal(row["ActivityItemPurchaseOrderWorkSheetBaseQuantityOrdered"] != DBNull.Value ? row["ActivityItemPurchaseOrderWorkSheetBaseQuantityOrdered"] : null),
-                //    ActivityItemPurchaseOrderWorkSheetWeightQuantityOrdered = Convert.ToDecimal(row["ActivityItemPurchaseOrderWorkSheetWeightQuantityOrdered"] != DBNull.Value ? row["ActivityItemPurchaseOrderWorkSheetWeightQuantityOrdered"] : null),
-                //    LocationMapRefno = Convert.ToInt32(row["LocationMapRefno"] != DBNull.Value ? row["LocationMapRefno"] : null),
-                //    LocationCode = Convert.ToInt32(row["LocationCode"] != DBNull.Value ? row["LocationCode"] : null),
-                //    LocationName = Convert.ToString(row["LocationName"] != DBNull.Value ? row["LocationName"] : null),
-                //    ActivityItemStatus = Convert.ToInt32(row["ActivityItemStatus"] != DBNull.Value ? row["ActivityItemStatus"] : null),
-                // };
                 observableCollection.Add(purchaseOrderWorkSheetItem);
             }
 
@@ -740,19 +653,6 @@ namespace dMobile.Controller.Activity_Item
                 sql.Append("ORDER BY tActivityItemPurchaseOrderWorkSheet.ActivityItemRefno");
             }
 
-            // using (SQLiteDataAdapter da = new SQLiteDataAdapter(sql.ToString(), DatabaseConnection.GetInstance().SQLConn))
-            // {
-            //    using (DataSet ds = new DataSet())
-            //    {
-            //        da.Fill(ds);
-            //        this.DataViewItems = ds.Tables[0].DefaultView;
-            //        this.DataViewItems.Table.TableName = this.MainGridMappingName;
-            //        this.DataViewItems.Sort = "ActivityItemFKRefno";
-            //        this.DataViewItems.AllowNew = true;
-            //        this.DataViewItems.AllowEdit = true;
-            //        this.DataViewItems.AllowDelete = true;
-            //    }
-            // }
             this.listPurchaseOrderWorkSheetItems = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<PurchaseOrderWorkSheetItem>(sql.ToString());
             this.ListItems = this.listPurchaseOrderWorkSheetItems.OrderBy(poItem => poItem.ActivityItemFKRefno).Cast<object>().ToList();
             return this.ListItems;
@@ -779,25 +679,6 @@ namespace dMobile.Controller.Activity_Item
             // }
             foreach (PurchaseOrderWorkSheetItem purchaseOrderWorkSheetItem in this.ListItems)
             {
-                // PurchaseOrderWorkSheetItem purchaseOrderWorkSheetItem = new PurchaseOrderWorkSheetItem
-                // {
-                //    ActivityItemRefno = Convert.ToInt32(row["ActivityItemRefno"] != DBNull.Value ? row["ActivityItemRefno"] : null),
-                //    ActivityItemFKRefno = Convert.ToInt32(row["ActivityItemFKRefno"] != DBNull.Value ? row["ActivityItemFKRefno"] : null),
-                //    ActivityItemStringFKRefno = Convert.ToString(row["ActivityItemStringFKRefno"] != DBNull.Value ? row["ActivityItemStringFKRefno"] : null),
-                //    ProductUnitRefno = Convert.ToInt32(row["ProductUnitRefno"] != DBNull.Value ? row["ProductUnitRefno"] : null),
-                //    ProductRefno = Convert.ToInt32(row["ProductRefno"] != DBNull.Value ? row["ProductRefno"] : null),
-                //    ProductCode = Convert.ToString(row["ProductCode"] != DBNull.Value ? row["ProductCode"] : null),
-                //    ProductDescription = Convert.ToString(row["ProductDescription"] != DBNull.Value ? row["ProductDescription"] : null),
-                //    UnitCode = Convert.ToString(row["UnitCode"] != DBNull.Value ? row["UnitCode"] : null),
-                //    ProductUnitSizeDescription = Convert.ToString(row["ProductUnitSizeDescription"] != DBNull.Value ? row["ProductUnitSizeDescription"] : null),
-                //    ActivityItemPurchaseOrderWorkSheetQuantityOrdered = Convert.ToDecimal(row["ActivityItemPurchaseOrderWorkSheetQuantityOrdered"] != DBNull.Value ? row["ActivityItemPurchaseOrderWorkSheetQuantityOrdered"] : null),
-                //    ActivityItemPurchaseOrderWorkSheetBaseQuantityOrdered = Convert.ToDecimal(row["ActivityItemPurchaseOrderWorkSheetBaseQuantityOrdered"] != DBNull.Value ? row["ActivityItemPurchaseOrderWorkSheetBaseQuantityOrdered"] : null),
-                //    ActivityItemPurchaseOrderWorkSheetWeightQuantityOrdered = Convert.ToDecimal(row["ActivityItemPurchaseOrderWorkSheetWeightQuantityOrdered"] != DBNull.Value ? row["ActivityItemPurchaseOrderWorkSheetWeightQuantityOrdered"] : null),
-                //    LocationMapRefno = Convert.ToInt32(row["LocationMapRefno"] != DBNull.Value ? row["LocationMapRefno"] : null),
-                //    LocationCode = Convert.ToInt32(row["LocationCode"] != DBNull.Value ? row["LocationCode"] : null),
-                //    LocationName = Convert.ToString(row["LocationName"] != DBNull.Value ? row["LocationName"] : null),
-                //    ActivityItemStatus = Convert.ToInt32(row["ActivityItemStatus"] != DBNull.Value ? row["ActivityItemStatus"] : null),
-                // };
                 observableCollection.Add(purchaseOrderWorkSheetItem);
             }
 
@@ -851,11 +732,11 @@ namespace dMobile.Controller.Activity_Item
                 }
                 else
                 {
-                    // Only assign the current location if the map is complete else leave it alone.
-                    if (locMap != null && await LocationMapTasks.IsCompleteLocMap(locMap))
+                    // We need set at least the warehouse for line items.
+                    this.LocMap = locMap.Clone();
+                    if (this.LocMap.WhsLocMapRefno <= 0)
                     {
-                        // Do not update the current, chosen or skid location when defaulting is off.
-                        this.LocMap = locMap.Clone();
+                        throw new MessageOnlyException("Location must be set first.");
                     }
                 }
 

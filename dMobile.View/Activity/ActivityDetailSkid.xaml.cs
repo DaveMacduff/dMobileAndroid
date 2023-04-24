@@ -603,7 +603,7 @@ namespace dMobile.View.Activity
                         if (this.ListViewMainActivity.SelectedItem != null)
                         {
                             var detail = (Resources.Types.SkidInfoDetail)this.ListViewMainActivity.SelectedItem;
-                            await this.ActDetail.AssignThisFromDetailAsync(detail, false);
+                            await this.ActDetail.AssignActivityDetail(detail);
                             await PromptRemove();
                         }
 
@@ -1236,7 +1236,7 @@ namespace dMobile.View.Activity
                 if (this.MainActivityItems.Count != 0)
                 {
                     var detail = new dMobile.Resources.Types.ActivityDetail();
-                    await this.ActDetail.AssignThisFromDetailAsync(detail, true);
+                    this.ActDetail.ClearProperties();
                 }
 
                 await this.ActDisappearing();

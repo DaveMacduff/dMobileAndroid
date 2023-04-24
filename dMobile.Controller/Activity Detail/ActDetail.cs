@@ -235,60 +235,6 @@ namespace dMobile.Controller.Activity_Detail
             ObservableCollection<object> mainActivityItems);
 
         /// <summary>
-        /// Select an activity detail.
-        /// </summary>
-        /// <param name="selectedActivityDetail"><see cref="object"/> Activity detail to select.</param>
-        /// <returns>The <see cref="Task"/> Task operation.</returns>
-        /// <remarks>
-        /// Assigns this.SelectedDetail.
-        /// Handles verifying product default location.
-        /// Current location is set to the selected skid location.
-        /// Clears the selected skid if the line item product changed (Flag).
-        /// </remarks>
-        public virtual async Task AssignActivityDetail(object selectedActivityDetail)
-        {
-            if (selectedActivityDetail is ActivityDetail detail)
-            {
-                this.DetailRefno = detail.ActivityDetailRefno;
-                this.DetailFkRefno = detail.ActivityDetailFKRefno;
-                this.Quantity = detail.ActivityDetailQuantity;
-                this.BaseQuantity = detail.ActivityDetailBaseQuantity;
-                this.WeightQuantity = detail.ActivityDetailWeightQuantity;
-
-                // SelectedLocMap is used in the activity detail edit for label printing.
-                // detail.LocationMapRefno could be a warehouse or even a slot.
-                this.SelectedLocMap = await LocationMapTasks.GetSLocMapFromLocMapRefno(detail.LocationMapRefno);
-
-                var schemeData = new ProductSchemeData
-                {
-                    LogisticUnitBatchLotNumber = detail.ActivityDetailLogisticUnitBatchLotNumber,
-                    LogisticUnitBestBeforeSellByDate = detail.ActivityDetailLogisticUnitBestBeforeSellByDate,
-                    LogisticUnitProductionDate = detail.ActivityDetailLogisticUnitProductionDate,
-                    LogisticUnitSkidNumber = detail.ActivityDetailLogisticUnitSkidNumber,
-                    SingleTradeItemSerialNumber = detail.ActivityDetailSingleTradeItemSerialNumber,
-                    VariantCode = detail.ProductSchemeVariantCode,
-                    VariantDescription = detail.ProductSchemeVariantDescription,
-                    VariantNumber = detail.ProductSchemeVariantNo,
-                };
-                this.SchemeData = schemeData;
-
-                this.SchemeId = detail.ActivityDetailSchemeID;
-                this.UniqueSchemeId = detail.ActivityDetailUniqueSchemeID;
-                this.ActExtra.Text1 = detail.ActivityDetailExtra1Text;
-                this.ActExtra.Text2 = detail.ActivityDetailExtra2Text;
-                this.ActExtra.Text3 = detail.ActivityDetailExtra3Text;
-                this.ActExtra.Text4 = detail.ActivityDetailExtra4Text;
-                this.ActExtra.DateTime1 = detail.ActivityDetailExtra5Date <= SysCommon.EmptyDateTime
-                    ? SysCommon.EmptyDateTime
-                    : detail.ActivityDetailExtra5Date;
-            }
-            else
-            {
-                this.ClearProperties();
-            }
-        }
-
-        /// <summary>
         /// Set the activity detail selected activity item and selected activity detail index.
         /// </summary>
         /// <remarks>
@@ -388,7 +334,7 @@ namespace dMobile.Controller.Activity_Detail
         /// <summary>
         /// Clear the activity properties.
         /// </summary>
-        protected virtual void ClearProperties()
+        public virtual void ClearProperties()
         {
             // Document activity references
             this.DetailRefno = 0;
@@ -400,7 +346,13 @@ namespace dMobile.Controller.Activity_Detail
             this.WeightQuantity = 0;
 
             // Scheme
+
+            // Replace empty scheme dates with date time now, not empty.
+            var tmpSchemeData = this.SchemeData;
+            tmpSchemeData.LogisticUnitBestBeforeSellByDate = DateTime.Now;
+            tmpSchemeData.LogisticUnitProductionDate = DateTime.Now;
             this.SchemeData = new ProductSchemeData();
+            this.SchemeData = tmpSchemeData;
             this.SchemeId = string.Empty;
             this.UniqueSchemeId = string.Empty;
 
@@ -416,46 +368,50 @@ namespace dMobile.Controller.Activity_Detail
         }
 
         /// <summary>
-        /// Get the activity detail information.
+        /// Select an activity detail.
         /// </summary>
-        /// <param name="actDetail"><see cref="ActivityDetail"/> Selected activity detail.</param>
-        /// <param name="clearThisValues"><see cref="bool"/> Clear the current instance properties.</param>
-        /// <returns><see cref="Task"/> Task operation.</returns>
-        public virtual async Task AssignThisFromDetailAsync(ActivityDetail actDetail, bool clearThisValues)
+        /// <param name="actDetail"><see cref="object"/> Activity detail to select.</param>
+        /// <returns>The <see cref="Task"/> Task operation.</returns>
+        /// <remarks>
+        /// Assigns this.SelectedDetail.
+        /// Handles verifying product default location.
+        /// Current location is set to the selected skid location.
+        /// Clears the selected skid if the line item product changed (Flag).
+        /// </remarks>
+        public virtual async Task AssignActivityDetail(object actDetail)
         {
-            actDetail = actDetail ?? throw new ArgumentNullException(nameof(actDetail));
-            await Task.Run(async () =>
+            if (actDetail is ActivityDetail detail)
             {
-                if (clearThisValues)
+                this.DetailRefno = detail.ActivityDetailRefno;
+                this.DetailFkRefno = detail.ActivityDetailFKRefno;
+                this.Quantity = detail.ActivityDetailQuantity;
+                this.BaseQuantity = detail.ActivityDetailBaseQuantity;
+                this.WeightQuantity = detail.ActivityDetailWeightQuantity;
+
+                // SelectedLocMap is used in the activity detail edit for label printing.
+                // detail.LocationMapRefno could be a warehouse or even a slot.
+                this.SelectedLocMap = await LocationMapTasks.GetSLocMapFromLocMapRefno(detail.LocationMapRefno);
+
+                var schemeData = new ProductSchemeData
                 {
-                    this.ClearProperties();
+                    LogisticUnitBatchLotNumber = detail.ActivityDetailLogisticUnitBatchLotNumber,
+                    LogisticUnitBestBeforeSellByDate = detail.ActivityDetailLogisticUnitBestBeforeSellByDate,
+                    LogisticUnitProductionDate = detail.ActivityDetailLogisticUnitProductionDate,
+                    LogisticUnitSkidNumber = detail.ActivityDetailLogisticUnitSkidNumber,
+                    SingleTradeItemSerialNumber = detail.ActivityDetailSingleTradeItemSerialNumber,
+                    VariantCode = detail.ProductSchemeVariantCode,
+                    VariantDescription = detail.ProductSchemeVariantDescription,
+                    VariantNumber = detail.ProductSchemeVariantNo,
+                };
+                this.SchemeData = schemeData;
 
-                    // Replace empty scheme dates with date time now, not empty.
-                    var tmpSchemeData = this.SchemeData;
-                    tmpSchemeData.LogisticUnitBestBeforeSellByDate = DateTime.Now;
-                    tmpSchemeData.LogisticUnitProductionDate = DateTime.Now;
-                    this.SchemeData = tmpSchemeData;
-                }
-                else
-                {
-                    this.Quantity = actDetail.ActivityDetailQuantity;
-                    this.BaseQuantity = actDetail.ActivityDetailBaseQuantity;
-                    this.WeightQuantity = actDetail.ActivityDetailWeightQuantity;
-                    this.DetailRefno = actDetail.ActivityDetailRefno;
-                    this.DetailFkRefno = actDetail.ActivityDetailFKRefno;
-                    if (this.LocMap.CurrLocMapRefno != actDetail.LocationMapRefno)
-                    {
-                        this.LocMap.CurrLocMap = await LocationMapTasks.GetSLocMapFromLocMapRefno(actDetail.LocationMapRefno);
-                    }
-
-                    AssignScheme(actDetail);
-                    AssignExtra(actDetail);
-                }
-
-                return Task.CompletedTask;
-            });
-
-            return;
+                AssignExtra(detail);
+                AssignScheme(detail);
+            }
+            else
+            {
+                throw new Exception("Expected actDetail parameter to be of type ActivityDetail.");
+            }
 
             //////////////////////////////////////////////////////////////////////////
             void AssignExtra(ActivityDetail detail)
@@ -481,11 +437,9 @@ namespace dMobile.Controller.Activity_Detail
                     this.ActExtra.Text4 = Convert.ToString(detail.ActivityDetailExtra4Text);
                 }
 
-                if (detail.ActivityDetailExtra5Date != null &&
-                    !string.IsNullOrEmpty(Convert.ToString(detail.ActivityDetailExtra5Date)))
-                {
-                    this.ActExtra.DateTime1 = Convert.ToDateTime(detail.ActivityDetailExtra5Date);
-                }
+                this.ActExtra.DateTime1 = detail.ActivityDetailExtra5Date <= SysCommon.EmptyDateTime
+                    ? SysCommon.EmptyDateTime
+                    : detail.ActivityDetailExtra5Date;
             }
 
             //////////////////////////////////////////////////////////////////////////
@@ -494,33 +448,33 @@ namespace dMobile.Controller.Activity_Detail
                 var tmpSchemeData = this.SchemeData;
 
                 // Default best before date to today.
-                var bestBefore = Convert.ToDateTime(detail.ActivityDetailLogisticUnitBestBeforeSellByDate);
+                var bestBefore = detail.ActivityDetailLogisticUnitBestBeforeSellByDate;
                 tmpSchemeData.LogisticUnitBestBeforeSellByDate = SysCommon.IsEmptyDateTime(bestBefore) &&
                     this.ActItem.ProdInfo.Scheme.IsBestBeforeDateTrackedDefault
                     ? DateTime.Now
                     : bestBefore;
 
                 // Default production date to today.
-                var production = Convert.ToDateTime(detail.ActivityDetailLogisticUnitProductionDate);
+                var production = detail.ActivityDetailLogisticUnitProductionDate;
                 tmpSchemeData.LogisticUnitProductionDate = SysCommon.IsEmptyDateTime(production) &&
                     this.ActItem.ProdInfo.Scheme.IsProductionDateTrackedDefault
                     ? DateTime.Now
                     : production;
 
-                tmpSchemeData.SingleTradeItemSerialNumber = Convert.ToString(detail.ActivityDetailSingleTradeItemSerialNumber);
-                tmpSchemeData.LogisticUnitBatchLotNumber = Convert.ToString(detail.ActivityDetailLogisticUnitBatchLotNumber);
+                tmpSchemeData.SingleTradeItemSerialNumber = detail.ActivityDetailSingleTradeItemSerialNumber;
+                tmpSchemeData.LogisticUnitBatchLotNumber = detail.ActivityDetailLogisticUnitBatchLotNumber;
 
                 // Check for DBNull because variants are in a child table, left join from the data query.
                 if (detail.ProductSchemeVariantCode != null)
                 {
-                    tmpSchemeData.VariantCode = Convert.ToString(detail.ProductSchemeVariantCode);
-                    tmpSchemeData.VariantNumber = Convert.ToInt32(detail.ProductSchemeVariantNo);
+                    tmpSchemeData.VariantCode = detail.ProductSchemeVariantCode;
+                    tmpSchemeData.VariantNumber = detail.ProductSchemeVariantNo;
                 }
 
                 this.SchemeData = tmpSchemeData;
 
-                this.SchemeId = Convert.ToString(detail.ActivityDetailSchemeID);
-                this.UniqueSchemeId = Convert.ToString(detail.ActivityDetailUniqueSchemeID);
+                this.SchemeId = detail.ActivityDetailSchemeID;
+                this.UniqueSchemeId = detail.ActivityDetailUniqueSchemeID;
             }
         }
 

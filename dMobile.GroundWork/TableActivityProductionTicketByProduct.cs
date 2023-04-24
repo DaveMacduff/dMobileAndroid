@@ -40,7 +40,21 @@ namespace dMobile.GroundWork
             {
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging ticket add-products.", true);
 
-                var query = "DELETE FROM tActivityProductionByProduct"
+                // Corruption recovery cleanup.
+                this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"Purging {this.LowerCaseName}.", true);
+                var query = "DELETE FROM tActivityProductionByProduct WHERE tActivityProductionByProduct.ActivityRefno <= 0";
+                await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(query);
+
+                // Corruption recovery cleanup.
+                query = "DELETE FROM tActivityProduction WHERE tActivityProduction.ActivityRefno <= 0" +
+                        " OR tActivityProduction.ActivityFKRefno <= 0";
+                await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(query);
+
+                // Corruption recovery cleanup.
+                query = "DELETE FROM tActivity WHERE tActivity.ActivityRefno = 0";
+                await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(query);
+
+                query = "DELETE FROM tActivityProductionByProduct"
                             + " WHERE tActivityProductionByProduct.ActivityRefno IN"
                             + " (SELECT tActivityProduction.ActivityRefno FROM tActivityProduction WHERE tActivityProduction.ActivitySubType = ?)";
                 await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(query, Convert.ToInt32(SysCommon.ActSubTypes.TicketAddProduct));

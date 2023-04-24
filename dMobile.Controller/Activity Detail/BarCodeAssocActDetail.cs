@@ -186,16 +186,6 @@ namespace dMobile.Controller.Activity_Detail
         }
 
         /// <summary>
-        /// Select the activity detail.
-        /// </summary>
-        /// <param name="selectedActivityDetail"><see cref="object"/> Selected activity detail.</param>
-        /// <returns><see cref="Task"/> Task operation.</returns>
-        public override async Task AssignActivityDetail(object selectedActivityDetail)
-        {
-            await base.AssignActivityDetail(selectedActivityDetail);
-        }
-
-        /// <summary>
         /// The CreateDeleteXML.
         /// </summary>
         /// <param name="data">.</param>

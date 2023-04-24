@@ -168,6 +168,52 @@ namespace dMobile.Controller.Activity_Detail
         public List<PickingDetail> ListPickingDetails { get; set; } = new List<PickingDetail>();
 
         /// <summary>
+        /// Find or insert an activity detail into the list details.
+        /// </summary>
+        /// <param name="mainActivityItems"><see cref="ObservableCollection{object}"/> Main activity items.</param>
+        /// <returns><see cref="ActivityDetail"/> Activity detail.</returns>
+        public override ActivityDetail InsertListDetail(ObservableCollection<object> mainActivityItems)
+        {
+            PickingDetail detail = null;
+            if (this.ListDetails != null)
+            {
+                detail = new PickingDetail();
+                detail.ActivityDetailRefno = this.DetailRefno;
+                detail.ActivityDetailFKRefno = this.DetailFkRefno;
+
+                this.InsertListDetailProduct(detail);
+                this.InsertListDetailQuantity(detail);
+                this.InsertListDetailScheme(detail);
+                this.InsertListDetailExtra(detail);
+                this.InsertListDetailLocation(detail);
+
+                detail.ActivityDetailSchemeID = this.SchemeId;
+                detail.ActivityDetailUniqueSchemeID = this.UniqueSchemeId;
+                detail.ActivityDetailStatus = (int)SysCommon.ActStatus.Inserted;
+                this.ListDetails.Add(detail);
+            }
+
+            return detail;
+        }
+
+        /// <summary>
+        /// Update detail in the detail list.
+        /// </summary>
+        /// <param name="listDetailIdx"><see cref="int"/> Zero based list detail index.</param>
+        public override void UpdateListDetail(int listDetailIdx)
+        {
+            var detail = (PickingDetail)this.ListDetails[listDetailIdx];
+            if (detail.ActivityDetailStatus == (int)SysCommon.ActStatus.NoChange)
+            {
+                detail.ActivityDetailStatus = (int)SysCommon.ActStatus.Updated;
+            }
+
+            detail.ActivityDetailQuantity += Math.Round(this.Quantity, 3);
+            detail.ActivityDetailBaseQuantity += Math.Round(this.BaseQuantity, 3);
+            detail.ActivityDetailWeightQuantity += Math.Round(this.WeightQuantity, 3);
+        }
+
+        /// <summary>
         /// Perform the insert skid call to the comm server, and fill the this activity detail instance.
         /// </summary>
         /// <param name="skidInfo"><see cref="SysSkidInfo"/> Skid information.</param>
@@ -217,47 +263,36 @@ namespace dMobile.Controller.Activity_Detail
         {
             await this.FillActDetailObjFromXml(data);
 
-            if (this.SysEnv.SysSettings.IsDisconnectedMode)
-            {
-                // At this point the 
-                var actDetailRefno = await this.InsertDetail();
+            // Get temporary item FK refno for newly inserted line item.
+            this.DetailFkRefno = await DatabaseConnection.GetInstance().SQLConn.ExecuteScalarAsync<int>(
+                "SELECT MAX(tActivityDetailPicking.ActivityDetailFKRefno) FROM tActivityDetailPicking");
+            this.DetailFkRefno++;
 
-                var query = "INSERT INTO tActivityDetailPicking (ActivityDetailRefno, ActivityDetailFKRefno," +
-                            " ActivityDetailPickingIsConfirmed) VALUES (?, ?, ?)";
-                var rowsAffected = await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(
-                    query,
-                    Convert.ToInt32(actDetailRefno),
-                    Convert.ToInt32(this.DetailFkRefno),
-                    true);
-                if (rowsAffected <= 0)
-                {
-                    throw new Exception("Unable to insert activity detail in disconnected mode.");
-                }
-            }
-            else
+            // Insert the common activity detail data.
+            this.DetailRefno = await this.InsertDetail();
+
+            if (!this.SysEnv.SysSettings.IsDisconnectedMode)
             {
                 await this.Submit(this, data);
+            }
 
-                var query = "UPDATE tActivityItemPicking SET ActivityItemStringFKRefno = ?," +
-                            " ActivityItemFKRefno = ? WHERE ActivityItemRefno = ?";
-                var rowsAffected = await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(
-                    query,
-                    Convert.ToString(this.ActItem.ItemFkRefno),
-                    this.ActItem.ItemFkRefno,
-                    this.ActItem.ItemRefno);
-                if (rowsAffected < 0)
-                {
-                    throw new Exception("Unable to locate and update the activity line item with a new foreign" +
-                        " key upon inserting.");
-                }
+            var query = "INSERT INTO tActivityDetailPicking (ActivityDetailRefno, ActivityDetailFKRefno," +
+                        " ActivityDetailPickingIsConfirmed) VALUES (?, ?, ?)";
+            var rowsAffected = await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(
+                query,
+                Convert.ToInt32(this.DetailRefno),
+                Convert.ToInt32(this.DetailFkRefno),
+                true);
+            if (rowsAffected <= 0)
+            {
+                throw new Exception("Unable to insert activity detail in disconnected mode.");
+            }
 
-                // Find the activity item that may also have been newly created, and update the line item reference
-                // returned from the communication server.
-                // Do not use FirstOrDefault because we do not want to overwrite a wrongly matched item.
-                // Linq returns new references only for base types (int, string, double etc...).
-                // The IEnumerable will be same instance of initial list, you have to call ToList or ToArray
-                // to create a new collection.
-                // Linq is slower than a for loop, but the number of line items would likely be sub 500 normally.
+            FindListItemAndSetFkRefno();
+
+            /////
+            void FindListItemAndSetFkRefno()
+            {
                 PickingItem foundItem = null;
                 foreach (PickingItem item in this.ActItem.ListItems)
                 {
@@ -340,48 +375,104 @@ namespace dMobile.Controller.Activity_Detail
         /// <returns>The <see cref="Task"/>.</returns>
         public override async Task Submit(object selectedActivityDetail, XDocument data)
         {
+            int rowsAffected;
+
             var xmlDoc = new XmlDocument();
-            var xmlSend = await this.CreateSubmitXml(XDocument.Parse(
-                "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?><params></params>"));
-            var responseData = SysCommon.SubmitComm(xmlSend);
+            var strXmlSend = await this.CreateSubmitXml(data);
+            var responseData = SysCommon.SubmitComm(strXmlSend);
             xmlDoc.LoadXml(responseData);
-            this.DetailFkRefno = int.Parse(xmlDoc.DocumentElement["ser_refno"].InnerText);
 
-            if (this.ActItem.SelectedItem is PickingItem item)
+            if (xmlDoc.DocumentElement == null)
             {
-                item.ActivityItemFKRefno = this.ActItem.ItemFkRefno;
+                throw new Exception("xmlDoc.DocumentElement == null");
             }
 
-            if (this.ListDetails != null && selectedActivityDetail is PickingDetail pickingDetail)
+            this.DetailFkRefno = int.Parse(xmlDoc.DocumentElement["ser_refno"] !.InnerText);
+
+            switch (this.ActItem.ActStatus)
             {
-                pickingDetail.ActivityDetailFKRefno = this.DetailFkRefno;
-                pickingDetail.ActivityDetailStatus = Convert.ToInt32(SysCommon.ActStatus.NoChange);
-            }
+                case SysCommon.ActStatus.NoChange:
+                    break;
 
-            await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(
-                "UPDATE tActivityDetail SET ActivityDetailStatus = ? WHERE ActivityDetailRefno = ?",
-                Convert.ToInt32(SysCommon.ActStatus.NoChange),
-                this.DetailRefno);
-        }
+                case SysCommon.ActStatus.Inserted:
+                    this.ActItem.ItemFkRefno = int.Parse(xmlDoc.DocumentElement["itm_refno"] !.InnerText);
 
-        /// <summary>
-        /// The GetInfo.
-        /// </summary>
-        /// <param name="selectedActivityDetail">The selectedActivityDetail<see cref="object"/>.</param>
-        /// <param name="isAdd">.</param>
-        /// <returns>.</returns>
-        public override async Task AssignThisFromDetailAsync(ActivityDetail selectedActivityDetail, bool isAdd)
-        {
-            if (selectedActivityDetail is PickingDetail pickingDetail)
-            {
-                _ = base.AssignThisFromDetailAsync(pickingDetail, isAdd);
+                    // Update the selected item also.
+                    if (this.ActItem.SelectedItem is PickingItem item)
+                    {
+                        item.ActivityItemFKRefno = this.ActItem.ItemFkRefno;
+                    }
 
-                if (!isAdd)
-                {
-                    this.DetailFkRefno = Convert.ToInt32(pickingDetail.ActivityDetailFKRefno);
-                    this.LocMap.CurrLocMap = await LocationMapTasks.GetSLocMapFromLocMapRefno(
-                        Convert.ToInt32(pickingDetail.LocationMapRefno));
-                }
+                    this.ActItem.ActStatus = SysCommon.ActStatus.NoChange;
+
+                    rowsAffected = await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(
+                        "UPDATE tActivityItem SET ActivityItemStatus = ? WHERE ActivityItemRefno = ?",
+                        Convert.ToInt32(SysCommon.ActStatus.NoChange),
+                        this.ActItem.ItemRefno);
+
+                    if (rowsAffected < 0)
+                    {
+                        throw new Exception(
+                            "Unable to locate and update the activity line item with a new foreign" +
+                            " key upon inserting.");
+                    }
+
+                    if (selectedActivityDetail is PickingDetail selectedInserted)
+                    {
+                        selectedInserted.ActivityDetailFKRefno = this.DetailFkRefno;
+                        selectedInserted.ActivityDetailStatus = Convert.ToInt32(SysCommon.ActStatus.NoChange);
+                    }
+
+                    rowsAffected = await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(
+                        "UPDATE tActivityDetail SET ActivityDetailStatus = ? WHERE ActivityDetailRefno = ?",
+                        Convert.ToInt32(SysCommon.ActStatus.NoChange),
+                        this.DetailRefno);
+
+                    if (rowsAffected < 0)
+                    {
+                        throw new Exception("Unable to locate and update the activity detail status to no change.");
+                    }
+
+                    break;
+
+                case SysCommon.ActStatus.Updated:
+                    if (selectedActivityDetail is PickingDetail selectedUpdated)
+                    {
+                        selectedUpdated.ActivityDetailStatus = Convert.ToInt32(SysCommon.ActStatus.NoChange);
+                    }
+
+                    rowsAffected = await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(
+                        "UPDATE tActivityDetail SET ActivityDetailStatus = ? WHERE ActivityDetailRefno = ?",
+                        Convert.ToInt32(SysCommon.ActStatus.NoChange),
+                        this.DetailRefno);
+
+                    if (rowsAffected < 0)
+                    {
+                        throw new Exception("Unable to locate and update the activity detail status to no change.");
+                    }
+
+                    break;
+
+                case SysCommon.ActStatus.Deleted:
+                    if (selectedActivityDetail is PickingDetail selectedDeleted)
+                    {
+                        selectedDeleted.ActivityDetailStatus = Convert.ToInt32(SysCommon.ActStatus.NoChange);
+                    }
+
+                    rowsAffected = await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(
+                        "UPDATE tActivityDetail SET ActivityDetailStatus = ? WHERE ActivityDetailRefno = ?",
+                        Convert.ToInt32(SysCommon.ActStatus.NoChange),
+                        this.DetailRefno);
+
+                    if (rowsAffected < 0)
+                    {
+                        throw new Exception("Unable to locate and update the activity detail status to no change.");
+                    }
+
+                    break;
+
+                default:
+                    throw new ArgumentOutOfRangeException();
             }
         }
 
@@ -1130,16 +1221,6 @@ namespace dMobile.Controller.Activity_Detail
         }
 
         /// <summary>
-        /// Select the activity detail.
-        /// </summary>
-        /// <param name="selectedActivityDetail"><see cref="object"/> Selected activity detail.</param>
-        /// <returns><see cref="Task"/> Task operation.</returns>
-        public override async Task AssignActivityDetail(object selectedActivityDetail)
-        {
-            await base.AssignActivityDetail(selectedActivityDetail);
-        }
-
-        /// <summary>
         /// The CreateSubmitXML.
         /// </summary>
         /// <param name="sendData">.</param>
@@ -1397,52 +1478,6 @@ namespace dMobile.Controller.Activity_Detail
             ////return prod;
 
             return $"Pick # {this.ActItem.ActHdr.HdrFkRefno}";
-        }
-
-        /// <summary>
-        /// Find or insert an activity detail into the list details.
-        /// </summary>
-        /// <param name="mainActivityItems"><see cref="ObservableCollection{object}"/> Main activity items.</param>
-        /// <returns><see cref="ActivityDetail"/> Activity detail.</returns>
-        public override ActivityDetail InsertListDetail(ObservableCollection<object> mainActivityItems)
-        {
-            PickingDetail detail = null;
-            if (this.ListDetails != null)
-            {
-                detail = new PickingDetail();
-                detail.ActivityDetailRefno = this.DetailRefno;
-                detail.ActivityDetailFKRefno = this.DetailFkRefno;
-
-                this.InsertListDetailProduct(detail);
-                this.InsertListDetailQuantity(detail);
-                this.InsertListDetailScheme(detail);
-                this.InsertListDetailExtra(detail);
-                this.InsertListDetailLocation(detail);
-
-                detail.ActivityDetailSchemeID = this.SchemeId;
-                detail.ActivityDetailUniqueSchemeID = this.UniqueSchemeId;
-                detail.ActivityDetailStatus = (int)SysCommon.ActStatus.Inserted;
-                this.ListDetails.Add(detail);
-            }
-
-            return detail;
-        }
-
-        /// <summary>
-        /// Update detail in the detail list.
-        /// </summary>
-        /// <param name="listDetailIdx"><see cref="int"/> Zero based list detail index.</param>
-        public override void UpdateListDetail(int listDetailIdx)
-        {
-            var detail = (PickingDetail)this.ListDetails[listDetailIdx];
-            if (detail.ActivityDetailStatus == (int)SysCommon.ActStatus.NoChange)
-            {
-                detail.ActivityDetailStatus = (int)SysCommon.ActStatus.Updated;
-            }
-
-            detail.ActivityDetailQuantity += Math.Round(this.Quantity, 3);
-            detail.ActivityDetailBaseQuantity += Math.Round(this.BaseQuantity, 3);
-            detail.ActivityDetailWeightQuantity += Math.Round(this.WeightQuantity, 3);
         }
     }
 }

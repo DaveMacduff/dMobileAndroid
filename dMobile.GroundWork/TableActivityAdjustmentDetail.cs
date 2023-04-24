@@ -55,11 +55,31 @@ namespace dMobile.GroundWork
                         "Purging adjustment details.",
                         overrideDisconnectedMode: true);
 
-                    var query = "DELETE FROM tActivityDetailProductSchemeVariantXRef "
-                                + "WHERE tActivityDetailProductSchemeVariantXRef.ActivityDetailRefno IN "
-                                + "(SELECT tActivityDetail.ActivityDetailRefno "
-                                + "FROM tActivityDetail "
-                                + "WHERE tActivityDetail.ActivityDetailSubType = ?)";
+                    // Corruption recovery cleanup.
+                    var query = "DELETE FROM tActivityDetailProductSchemeVariantXRef" +
+                            " WHERE tActivityDetailProductSchemeVariantXRef.ActivityDetailRefno <= 0" +
+                            " OR tActivityDetailProductSchemeVariantXRef.ProductSchemeVariantRefno <= 0";
+                    transaction.Execute(query);
+
+                    // Corruption recovery cleanup.
+                    query = "DELETE FROM tActivityDetailExtra WHERE tActivityDetailExtra.ActivityDetailRefno <= 0";
+                    transaction.Execute(query);
+
+                    // Corruption recovery cleanup.
+                    query = "DELETE FROM tActivityDetailAdjustment WHERE tActivityDetailAdjustment.ActivityDetailRefno <= 0" +
+                            " OR tActivityDetailAdjustment.ActivityDetailFKRefno <= 0";
+                    transaction.Execute(query);
+
+                    // Corruption recovery cleanup.
+                    query = "DELETE FROM tActivityDetail WHERE tActivityDetail.ActivityDetailSubType = ?" +
+                            " AND tActivityDetail.ActivityDetailRefno <= 0";
+                    transaction.Execute(query, subType);
+
+                    query = "DELETE FROM tActivityDetailProductSchemeVariantXRef "
+                            + "WHERE tActivityDetailProductSchemeVariantXRef.ActivityDetailRefno IN "
+                            + "(SELECT tActivityDetail.ActivityDetailRefno "
+                            + "FROM tActivityDetail "
+                            + "WHERE tActivityDetail.ActivityDetailSubType = ?)";
                     transaction.Execute(query, subType);
 
                     query = "DELETE FROM tActivityDetailAdjustment "

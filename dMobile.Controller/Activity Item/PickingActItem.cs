@@ -621,6 +621,7 @@ namespace dMobile.Controller.Activity_Item
                                     "?" +
                                     ")";
 
+                        var locMap = LocationMap.GetInstance().CurrLocMap;
                         var parameters = new object[]
                         {
                             Convert.ToInt32(this.ItemRefno),
@@ -628,7 +629,7 @@ namespace dMobile.Controller.Activity_Item
                             Convert.ToInt32(this.ItemFkRefno),
                             Convert.ToString(this.ItemFkRefno),
                             Convert.ToInt32(prodUnitRefno),
-                            Convert.ToInt32(this.LocMap.WhsLocMapRefno),
+                            Convert.ToInt32(locMap.WhsLocMapRefno),
                             Convert.ToInt32(0),
                             Convert.ToInt32(0),
                             Convert.ToInt32(0),
@@ -649,6 +650,7 @@ namespace dMobile.Controller.Activity_Item
                     catch (SQLiteException)
                     {
                         transaction.Rollback();
+                        throw;
                     }
                 });
             }
@@ -669,9 +671,9 @@ namespace dMobile.Controller.Activity_Item
                     UnitCode = this.ProdInfo.UnitCode,
                     ProductUnitBC = this.ProdInfo.UnitBC,
                     ProductUnitSizeDescription = this.ProdInfo.UnitSizeDesc,
-                    LocationMapRefno = this.LocMap.WhsLocMapRefno,
-                    LocationCode = this.LocMap.WhsCode,
-                    LocationName = this.LocMap.WhsName,
+                    LocationMapRefno = locMap.WhsLocMapRefno,
+                    LocationCode = locMap.WhsCode,
+                    LocationName = locMap.WhsName,
                     ActivityItemPickingCustomerProductUnitCode = string.Empty,
                     ActivityItemStatus = Convert.ToInt32(SysCommon.ActStatus.Inserted),
                     IsActivityItemPickingComment = string.Empty,
@@ -1102,11 +1104,11 @@ namespace dMobile.Controller.Activity_Item
                 }
                 else
                 {
-                    // Only assign the current location if the map is complete else leave it alone.
-                    if (locMap != null && await LocationMapTasks.IsCompleteLocMap(locMap))
+                    // We need set at least the warehouse for line items.
+                    this.LocMap = locMap.Clone();
+                    if (this.LocMap.WhsLocMapRefno <= 0)
                     {
-                        // Do not update the current, chosen or skid location when defaulting is off.
-                        this.LocMap = locMap.Clone();
+                        throw new MessageOnlyException("Location must be set first.");
                     }
                 }
 

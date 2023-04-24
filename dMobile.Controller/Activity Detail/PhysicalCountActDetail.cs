@@ -214,44 +214,34 @@ namespace dMobile.Controller.Activity_Detail
         {
             await this.FillActDetailObjFromXml(data);
 
-            if (this.SysEnv.SysSettings.IsDisconnectedMode)
-            {
-                var actDetailRefno = await this.InsertDetail();
+            // Get temporary item FK refno for newly inserted line item.
+            this.DetailFkRefno = await DatabaseConnection.GetInstance().SQLConn.ExecuteScalarAsync<int>(
+                "SELECT MAX(tActivityDetailCount.ActivityDetailFKRefno) FROM tActivityDetailCount");
+            this.DetailFkRefno++;
 
-                var query = "INSERT INTO tActivityDetailCount (ActivityDetailRefno, ActivityDetailFKRefno) VALUES (?, ?)";
-                var rowsAffected = await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(
-                    query,
-                    Convert.ToInt32(actDetailRefno),
-                    Convert.ToInt32(this.DetailFkRefno));
-                if (rowsAffected <= 0)
-                {
-                    throw new Exception("Unable to insert activity detail in disconnected mode.");
-                }
-            }
-            else
+            // Insert the common activity detail data.
+            this.DetailRefno = await this.InsertDetail();
+
+            if (!this.SysEnv.SysSettings.IsDisconnectedMode)
             {
                 await this.Submit(this, data);
+            }
 
-                var query = "UPDATE tActivityItemCount SET ActivityItemStringFKRefno = ?," +
-                            " ActivityItemFKRefno = ? WHERE ActivityItemRefno = ?";
-                var rowsAffected = await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(
-                    query,
-                    Convert.ToString(this.ActItem.ItemFkRefno),
-                    this.ActItem.ItemFkRefno,
-                    this.ActItem.ItemRefno);
-                if (rowsAffected < 0)
-                {
-                    throw new Exception("Unable to locate and update the activity line item with a new foreign" +
-                        " key upon inserting.");
-                }
+            var query = "INSERT INTO tActivityDetailCount (ActivityDetailRefno, ActivityDetailFKRefno) VALUES (?, ?)";
+            var rowsAffected = await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(
+                query,
+                Convert.ToInt32(this.DetailRefno),
+                Convert.ToInt32(this.DetailFkRefno));
+            if (rowsAffected <= 0)
+            {
+                throw new Exception("Unable to insert activity detail in disconnected mode.");
+            }
 
-                // Find the activity item that may also have been newly created, and update the line item reference
-                // returned from the communication server.
-                // Do not use FirstOrDefault because we do not want to overwrite a wrongly matched item.
-                // Linq returns new references only for base types (int, string, double etc...).
-                // The IEnumerable will be same instance of initial list, you have to call ToList or ToArray
-                // to create a new collection.
-                // Linq is slower than a for loop, but the number of line items would likely be sub 500 normally.
+            FindListItemAndSetFkRefno();
+
+            /////
+            void FindListItemAndSetFkRefno()
+            {
                 CountItem foundItem = null;
                 foreach (CountItem item in this.ActItem.ListItems)
                 {
@@ -332,39 +322,105 @@ namespace dMobile.Controller.Activity_Detail
         /// <inheritdoc/>
         public override async Task Submit(object selectedActivityDetail, XDocument data)
         {
+            int rowsAffected;
+
             var xmlDoc = new XmlDocument();
-            var xmlSend = await this.CreateSubmitXml(XDocument.Parse(
-                "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?><params></params>"));
-            var responseData = SysCommon.SubmitComm(xmlSend);
+            var strXmlSend = await this.CreateSubmitXml(data);
+            var responseData = SysCommon.SubmitComm(strXmlSend);
             xmlDoc.LoadXml(responseData);
-            this.DetailFkRefno = int.Parse(xmlDoc.DocumentElement["ser_refno"].InnerText);
 
-            if (this.ActItem.ActStatus == SysCommon.ActStatus.Inserted)
+            if (xmlDoc.DocumentElement == null)
             {
-                this.ActItem.ItemFkRefno = int.Parse(xmlDoc.DocumentElement["itm_refno"].InnerText);
-                if (this.ActItem.SelectedItem is CountItem item)
-                {
-                    item.ActivityItemFKRefno = this.ActItem.ItemFkRefno;
-                }
-
-                this.ActItem.ActStatus = SysCommon.ActStatus.NoChange;
-
-                await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(
-                    "UPDATE tActivityItem SET ActivityItemStatus = ? WHERE ActivityItemRefno = ?",
-                    Convert.ToInt32(SysCommon.ActStatus.NoChange),
-                    this.ActItem.ItemRefno);
+                throw new Exception("xmlDoc.DocumentElement == null");
             }
 
-            if (selectedActivityDetail is CountDetail countDetail)
-            {
-                countDetail.ActivityDetailFKRefno = this.DetailFkRefno;
-                countDetail.ActivityDetailStatus = Convert.ToInt32(SysCommon.ActStatus.NoChange);
-            }
+            this.DetailFkRefno = int.Parse(xmlDoc.DocumentElement["ser_refno"] !.InnerText);
 
-            await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(
-                "UPDATE tActivityDetail SET ActivityDetailStatus = ? WHERE ActivityDetailRefno = ?",
-                Convert.ToInt32(SysCommon.ActStatus.NoChange),
-                this.DetailRefno);
+            switch (this.ActItem.ActStatus)
+            {
+                case SysCommon.ActStatus.NoChange:
+                    break;
+
+                case SysCommon.ActStatus.Inserted:
+                    this.ActItem.ItemFkRefno = int.Parse(xmlDoc.DocumentElement["itm_refno"] !.InnerText);
+
+                    // Update the selected item also.
+                    if (this.ActItem.SelectedItem is CountItem item)
+                    {
+                        item.ActivityItemFKRefno = this.ActItem.ItemFkRefno;
+                    }
+
+                    this.ActItem.ActStatus = SysCommon.ActStatus.NoChange;
+
+                    rowsAffected = await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(
+                        "UPDATE tActivityItem SET ActivityItemStatus = ? WHERE ActivityItemRefno = ?",
+                        Convert.ToInt32(SysCommon.ActStatus.NoChange),
+                        this.ActItem.ItemRefno);
+
+                    if (rowsAffected < 0)
+                    {
+                        throw new Exception(
+                            "Unable to locate and update the activity line item with a new foreign" +
+                            " key upon inserting.");
+                    }
+
+                    if (selectedActivityDetail is CountDetail selectedInserted)
+                    {
+                        selectedInserted.ActivityDetailFKRefno = this.DetailFkRefno;
+                        selectedInserted.ActivityDetailStatus = Convert.ToInt32(SysCommon.ActStatus.NoChange);
+                    }
+
+                    rowsAffected = await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(
+                        "UPDATE tActivityDetail SET ActivityDetailStatus = ? WHERE ActivityDetailRefno = ?",
+                        Convert.ToInt32(SysCommon.ActStatus.NoChange),
+                        this.DetailRefno);
+
+                    if (rowsAffected < 0)
+                    {
+                        throw new Exception("Unable to locate and update the activity detail status to no change.");
+                    }
+
+                    break;
+
+                case SysCommon.ActStatus.Updated:
+                    if (selectedActivityDetail is CountDetail selectedUpdated)
+                    {
+                        selectedUpdated.ActivityDetailStatus = Convert.ToInt32(SysCommon.ActStatus.NoChange);
+                    }
+
+                    rowsAffected = await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(
+                        "UPDATE tActivityDetail SET ActivityDetailStatus = ? WHERE ActivityDetailRefno = ?",
+                        Convert.ToInt32(SysCommon.ActStatus.NoChange),
+                        this.DetailRefno);
+
+                    if (rowsAffected < 0)
+                    {
+                        throw new Exception("Unable to locate and update the activity detail status to no change.");
+                    }
+
+                    break;
+
+                case SysCommon.ActStatus.Deleted:
+                    if (selectedActivityDetail is CountDetail selectedDeleted)
+                    {
+                        selectedDeleted.ActivityDetailStatus = Convert.ToInt32(SysCommon.ActStatus.NoChange);
+                    }
+
+                    rowsAffected = await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(
+                        "UPDATE tActivityDetail SET ActivityDetailStatus = ? WHERE ActivityDetailRefno = ?",
+                        Convert.ToInt32(SysCommon.ActStatus.NoChange),
+                        this.DetailRefno);
+
+                    if (rowsAffected < 0)
+                    {
+                        throw new Exception("Unable to locate and update the activity detail status to no change.");
+                    }
+
+                    break;
+
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
         }
 
         /// <summary>
@@ -775,52 +831,6 @@ namespace dMobile.Controller.Activity_Detail
 
             foreach (CountDetail countDetail in this.ListDetails)
             {
-                // CountDetail countDetail = new CountDetail
-                // {
-                //    ActivityDetailRefno = Convert.ToInt32(row["ActivityDetailRefno"] != DBNull.Value ? row["ActivityDetailRefno"] : null),
-                //    ActivityDetailLogisticUnitExpiryUseByDate = Convert.ToDateTime(row["ActivityDetailLogisticUnitExpiryUseByDate"] != DBNull.Value ? row["ActivityDetailLogisticUnitExpiryUseByDate"] : null),
-                //    ActivityDetailStatus = Convert.ToInt32(row["ActivityDetailStatus"] != DBNull.Value ? row["ActivityDetailStatus"] : null),
-                //    ActivityDetailFKRefno = Convert.ToInt32(row["ActivityDetailFKRefno"] != DBNull.Value ? row["ActivityDetailFKRefno"] : null),
-                //    BaseUnitCode = Convert.ToString(row["BaseUnitCode"] != DBNull.Value ? row["BaseUnitCode"] : null),
-                //    Location = Convert.ToString(row["Location"] != DBNull.Value ? row["Location"] : null),
-                //    ProductSchemeVariantDescription = Convert.ToString(row["ProductSchemeVariantDescription"] != DBNull.Value ? row["ProductSchemeVariantDescription"] : null),
-                //    ProductUnitIsBC = Convert.ToBoolean(row["ProductUnitIsBC"] != DBNull.Value ? row["ProductUnitIsBC"] : null),
-                //    WtUnitCode = Convert.ToString(row["WtUnitCode"] != DBNull.Value ? row["WtUnitCode"] : null),
-                //    LocationMapRefno = Convert.ToInt32(row["LocationMapRefno"] != DBNull.Value ? row["LocationMapRefno"] : null),
-                //    UnitCode = Convert.ToString(row["UnitCode"] != DBNull.Value ? row["UnitCode"] : null),
-                //    ProductCode = Convert.ToString(row["ProductCode"] != DBNull.Value ? row["ProductCode"] : null),
-                //    ProductRefno = Convert.ToInt32(row["ProductRefno"] != DBNull.Value ? row["ProductRefno"] : null),
-                //    ProductDescription = Convert.ToString(row["ProductDescription"] != DBNull.Value ? row["ProductDescription"] : null),
-                //    ProductUnitBC = Convert.ToString(row["ProductUnitBC"] != DBNull.Value ? row["ProductUnitBC"] : null),
-                //    ProductUnitSizeDescription = Convert.ToString(row["ProductUnitSizeDescription"] != DBNull.Value ? row["ProductUnitSizeDescription"] : null),
-                //    ActivityDetailQuantity = Convert.ToDecimal(row["ActivityDetailQuantity"] != DBNull.Value ? row["ActivityDetailQuantity"] : null),
-                //    ActivityDetailBaseQuantity = Convert.ToDecimal(row["ActivityDetailBaseQuantity"] != DBNull.Value ? row["ActivityDetailBaseQuantity"] : null),
-                //    ActivityDetailWeightQuantity = Convert.ToDecimal(row["ActivityDetailWeightQuantity"] != DBNull.Value ? row["ActivityDetailWeightQuantity"] : null),
-                //    ActivityDetailLogisticUnitBestBeforeSellByDate = Convert.ToDateTime(row["ActivityDetailLogisticUnitBestBeforeSellByDate"] != DBNull.Value ? row["ActivityDetailLogisticUnitBestBeforeSellByDate"] : null),
-                //    ActivityDetailSchemeID = Convert.ToString(row["ActivityDetailSchemeID"] != DBNull.Value ? row["ActivityDetailSchemeID"] : null),
-                //    ActivityDetailUniqueSchemeID = Convert.ToString(row["ActivityDetailUniqueSchemeID"] != DBNull.Value ? row["ActivityDetailUniqueSchemeID"] : null),
-                //    ActivityDetailSingleTradeItemSerialNumber = Convert.ToString(row["ActivityDetailSingleTradeItemSerialNumber"] != DBNull.Value ? row["ActivityDetailSingleTradeItemSerialNumber"] : null),
-                //    ActivityDetailLogisticUnitBatchLotNumber = Convert.ToString(row["ActivityDetailLogisticUnitBatchLotNumber"] != DBNull.Value ? row["ActivityDetailLogisticUnitBatchLotNumber"] : null),
-                //    ActivityDetailLogisticUnitProductionDate = Convert.ToDateTime(row["ActivityDetailLogisticUnitProductionDate"] != DBNull.Value ? row["ActivityDetailLogisticUnitProductionDate"] : null),
-                //    ActivityDetailLogisticUnitSkidNumber = Convert.ToString(row["ActivityDetailLogisticUnitSkidNumber"] != DBNull.Value ? row["ActivityDetailLogisticUnitSkidNumber"] : null),
-                //    LocationCode = Convert.ToInt32(row["LocationCode"] != DBNull.Value ? row["LocationCode"] : null),
-                //    LocationName = Convert.ToString(row["LocationName"] != DBNull.Value ? row["LocationName"] : null),
-                //    ProductSchemeVariantCode = Convert.ToString(row["LocationCode"] != DBNull.Value ? row["LocationCode"] : null),
-                //    ProductSchemeVariantNo = Convert.ToInt32(row["ProductSchemeVariantNo"] != DBNull.Value ? row["ProductSchemeVariantNo"] : null),
-                //    ActivityDetailExtra1Text = Convert.ToString(row["ActivityDetailExtra1Text"] != DBNull.Value ? row["ActivityDetailExtra1Text"] : null),
-                //    ActivityDetailExtra2Text = Convert.ToString(row["ActivityDetailExtra2Text"] != DBNull.Value ? row["ActivityDetailExtra2Text"] : null),
-                //    ActivityDetailExtra3Text = Convert.ToString(row["ActivityDetailExtra3Text"] != DBNull.Value ? row["ActivityDetailExtra3Text"] : null),
-                //    ActivityDetailExtra4Text = Convert.ToString(row["ActivityDetailExtra4Text"] != DBNull.Value ? row["ActivityDetailExtra4Text"] : null)
-                // };
-
-                // if (DateTime.TryParse(Convert.ToString(row["ActivityDetailExtra5Date"]), out _))
-                // {
-                //    countDetail.ActivityDetailExtra5Date = Convert.ToDateTime(row["ActivityDetailExtra5Date"] != DBNull.Value ? row["ActivityDetailExtra5Date"] : null);
-                // }
-                // else
-                // {
-                //    countDetail.ActivityDetailExtra5Date = new DateTime(1900, 1, 1);
-                // }
                 observableCollection.Add(countDetail);
             }
 
@@ -917,66 +927,10 @@ namespace dMobile.Controller.Activity_Detail
 
             foreach (CountDetail countDetail in this.ListDetails)
             {
-                // CountDetail countDetail = new CountDetail
-                // {
-                //    ActivityDetailRefno = Convert.ToInt32(row["ActivityDetailRefno"] != DBNull.Value ? row["ActivityDetailRefno"] : null),
-                //    ActivityDetailLogisticUnitExpiryUseByDate = Convert.ToDateTime(row["ActivityDetailLogisticUnitExpiryUseByDate"] != DBNull.Value ? row["ActivityDetailLogisticUnitExpiryUseByDate"] : null),
-                //    ActivityDetailStatus = Convert.ToInt32(row["ActivityDetailStatus"] != DBNull.Value ? row["ActivityDetailStatus"] : null),
-                //    ActivityDetailFKRefno = Convert.ToInt32(row["ActivityDetailFKRefno"] != DBNull.Value ? row["ActivityDetailFKRefno"] : null),
-                //    BaseUnitCode = Convert.ToString(row["BaseUnitCode"] != DBNull.Value ? row["BaseUnitCode"] : null),
-                //    Location = Convert.ToString(row["Location"] != DBNull.Value ? row["Location"] : null),
-                //    ProductSchemeVariantDescription = Convert.ToString(row["ProductSchemeVariantDescription"] != DBNull.Value ? row["ProductSchemeVariantDescription"] : null),
-                //    ProductUnitIsBC = Convert.ToBoolean(row["ProductUnitIsBC"] != DBNull.Value ? row["ProductUnitIsBC"] : null),
-                //    WtUnitCode = Convert.ToString(row["WtUnitCode"] != DBNull.Value ? row["WtUnitCode"] : null),
-                //    LocationMapRefno = Convert.ToInt32(row["LocationMapRefno"] != DBNull.Value ? row["LocationMapRefno"] : null),
-                //    UnitCode = Convert.ToString(row["UnitCode"] != DBNull.Value ? row["UnitCode"] : null),
-                //    ProductCode = Convert.ToString(row["ProductCode"] != DBNull.Value ? row["ProductCode"] : null),
-                //    ProductRefno = Convert.ToInt32(row["ProductRefno"] != DBNull.Value ? row["ProductRefno"] : null),
-                //    ProductDescription = Convert.ToString(row["ProductDescription"] != DBNull.Value ? row["ProductDescription"] : null),
-                //    ProductUnitBC = Convert.ToString(row["ProductUnitBC"] != DBNull.Value ? row["ProductUnitBC"] : null),
-                //    ProductUnitSizeDescription = Convert.ToString(row["ProductUnitSizeDescription"] != DBNull.Value ? row["ProductUnitSizeDescription"] : null),
-                //    ActivityDetailQuantity = Convert.ToDecimal(row["ActivityDetailQuantity"] != DBNull.Value ? row["ActivityDetailQuantity"] : null),
-                //    ActivityDetailBaseQuantity = Convert.ToDecimal(row["ActivityDetailBaseQuantity"] != DBNull.Value ? row["ActivityDetailBaseQuantity"] : null),
-                //    ActivityDetailWeightQuantity = Convert.ToDecimal(row["ActivityDetailWeightQuantity"] != DBNull.Value ? row["ActivityDetailWeightQuantity"] : null),
-                //    ActivityDetailLogisticUnitBestBeforeSellByDate = Convert.ToDateTime(row["ActivityDetailLogisticUnitBestBeforeSellByDate"] != DBNull.Value ? row["ActivityDetailLogisticUnitBestBeforeSellByDate"] : null),
-                //    ActivityDetailSchemeID = Convert.ToString(row["ActivityDetailSchemeID"] != DBNull.Value ? row["ActivityDetailSchemeID"] : null),
-                //    ActivityDetailUniqueSchemeID = Convert.ToString(row["ActivityDetailUniqueSchemeID"] != DBNull.Value ? row["ActivityDetailUniqueSchemeID"] : null),
-                //    ActivityDetailSingleTradeItemSerialNumber = Convert.ToString(row["ActivityDetailSingleTradeItemSerialNumber"] != DBNull.Value ? row["ActivityDetailSingleTradeItemSerialNumber"] : null),
-                //    ActivityDetailLogisticUnitBatchLotNumber = Convert.ToString(row["ActivityDetailLogisticUnitBatchLotNumber"] != DBNull.Value ? row["ActivityDetailLogisticUnitBatchLotNumber"] : null),
-                //    ActivityDetailLogisticUnitProductionDate = Convert.ToDateTime(row["ActivityDetailLogisticUnitProductionDate"] != DBNull.Value ? row["ActivityDetailLogisticUnitProductionDate"] : null),
-                //    ActivityDetailLogisticUnitSkidNumber = Convert.ToString(row["ActivityDetailLogisticUnitSkidNumber"] != DBNull.Value ? row["ActivityDetailLogisticUnitSkidNumber"] : null),
-                //    LocationCode = Convert.ToInt32(row["LocationCode"] != DBNull.Value ? row["LocationCode"] : null),
-                //    LocationName = Convert.ToString(row["LocationName"] != DBNull.Value ? row["LocationName"] : null),
-                //    ProductSchemeVariantCode = Convert.ToString(row["LocationCode"] != DBNull.Value ? row["LocationCode"] : null),
-                //    ProductSchemeVariantNo = Convert.ToInt32(row["ProductSchemeVariantNo"] != DBNull.Value ? row["ProductSchemeVariantNo"] : null),
-                //    ActivityDetailExtra1Text = Convert.ToString(row["ActivityDetailExtra1Text"] != DBNull.Value ? row["ActivityDetailExtra1Text"] : null),
-                //    ActivityDetailExtra2Text = Convert.ToString(row["ActivityDetailExtra2Text"] != DBNull.Value ? row["ActivityDetailExtra2Text"] : null),
-                //    ActivityDetailExtra3Text = Convert.ToString(row["ActivityDetailExtra3Text"] != DBNull.Value ? row["ActivityDetailExtra3Text"] : null),
-                //    ActivityDetailExtra4Text = Convert.ToString(row["ActivityDetailExtra4Text"] != DBNull.Value ? row["ActivityDetailExtra4Text"] : null)
-                // };
-
-                // if (DateTime.TryParse(Convert.ToString(row["ActivityDetailExtra5Date"]), out _))
-                // {
-                //    this.ActExtra.DateTime5 = Convert.ToDateTime(row["ActivityDetailExtra5Date"]);
-                // }
-                // else
-                // {
-                //    this.ActExtra.DateTime5 = Convert.ToDateTime(new DateTime(1900, 1, 1));
-                // }
                 observableCollection.Add(countDetail);
             }
 
             return observableCollection;
-        }
-
-        /// <summary>
-        /// Select the activity detail.
-        /// </summary>
-        /// <param name="selectedActivityDetail"><see cref="object"/> Selected activity detail.</param>
-        /// <returns><see cref="Task"/> Task operation.</returns>
-        public override async Task AssignActivityDetail(object selectedActivityDetail)
-        {
-            await base.AssignActivityDetail(selectedActivityDetail);
         }
 
         /// <summary>

@@ -472,7 +472,7 @@ namespace dMobile.View.Activity
                             this.ActItem.ProdInfo = prodInfo;
 
                             var detail = (Resources.Types.ActivityDetail)this.ActDetail.ListDetails[idx];
-                            await this.ActDetail.AssignThisFromDetailAsync(detail, false);
+                            await this.ActDetail.AssignActivityDetail(detail);
                             var xmlParam = XDocument.Parse(
                                 "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>" +
                                 "<param>" + "<whs_id>" + this.SelFromLocMap.WhsFKRefno.ToString() +
@@ -1037,7 +1037,7 @@ namespace dMobile.View.Activity
                 //--- Read and assign the activity detail from the first existing detail found.
                 var moveDetail = (MoveDetail)this.ActDetail.ListDetails.FirstOrDefault() ?? new MoveDetail();
                 moveDetail.ActivityDetailStatus = (int)SysCommon.ActStatus.Inserted;
-                await this.ActDetail.AssignThisFromDetailAsync(moveDetail, true);
+                this.ActDetail.ClearProperties();
 
                 // --- Gather the activity detail to insert.
                 var isInsertReady = await GatherActivityDetail();
@@ -1299,7 +1299,7 @@ namespace dMobile.View.Activity
                     actDetail = (MoveDetail)this.ActDetail.ListDetails.First();
                 }
 
-                await this.ActDetail.AssignThisFromDetailAsync(actDetail, true);
+                this.ActDetail.ClearProperties();
 
                 var tempItemSchemeData = new ActItemSchemeData();
                 var isInsertReady = false;

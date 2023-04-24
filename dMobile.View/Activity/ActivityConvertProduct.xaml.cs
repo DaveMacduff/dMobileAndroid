@@ -1390,8 +1390,7 @@ namespace dMobile.View.Activity
             // Create new detail instance and fill it.
             async Task CreateAndFillActivityDetail()
             {
-                var detail = new dMobile.Resources.Types.ActivityDetail();
-                await this.ActDetail.AssignThisFromDetailAsync(detail, clearThisValues: true);
+                this.ActDetail.ClearProperties();
                 this.ActDetail.ActItem = this.ActItem;
             }
         }

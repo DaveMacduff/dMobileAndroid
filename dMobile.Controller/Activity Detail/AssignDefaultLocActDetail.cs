@@ -187,7 +187,6 @@ namespace dMobile.Controller.Activity_Detail
             ////{
             ////    detail.ActivityDetailStatus = (int)SysCommon.ActStatus.Updated;
             ////}
-
             detail.ActivityDetailQuantity += Math.Round(this.Quantity, 3);
             detail.ActivityDetailBaseQuantity += Math.Round(this.BaseQuantity, 3);
             detail.ActivityDetailWeightQuantity += Math.Round(this.WeightQuantity, 3);
@@ -275,7 +274,7 @@ namespace dMobile.Controller.Activity_Detail
         {
             if (selectedActivityDetail is MoveDetail moveDetail)
             {
-                await this.AssignThisFromDetailAsync(moveDetail, false);
+                await this.AssignActivityDetail(moveDetail);
 
                 var xmlDoc = new XmlDocument();
                 var xmlSend = await this.CreateSubmitXml(data);
@@ -480,16 +479,6 @@ namespace dMobile.Controller.Activity_Detail
         public override ObservableCollection<object> Search(string searchText)
         {
             throw new NotImplementedException();
-        }
-
-        /// <summary>
-        /// Select the activity detail.
-        /// </summary>
-        /// <param name="selectedActivityDetail"><see cref="object"/> Selected activity detail.</param>
-        /// <returns><see cref="Task"/> Task operation.</returns>
-        public override async Task AssignActivityDetail(object selectedActivityDetail)
-        {
-            await base.AssignActivityDetail(selectedActivityDetail);
         }
 
         /// <summary>

@@ -1127,8 +1127,8 @@ namespace dMobile.View.Activity
                 this.ActItem.ProdInfo.Scheme =
                     await ProductInfoTasks.GetSchemeComponentsFromRefno(this.ActItem.ProdInfo.Refno);
                 var detail = new dMobile.Resources.Types.ActivityDetail();
-                await this.ActDetail.AssignThisFromDetailAsync(detail, true);
-
+                this.ActDetail.ClearProperties();
+                
                 this.ActDetail.Quantity = 0;
                 this.ActDetail.BaseQuantity = 0;
                 this.ActDetail.WeightQuantity = 0;

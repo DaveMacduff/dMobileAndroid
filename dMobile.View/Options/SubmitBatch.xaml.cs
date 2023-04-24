@@ -713,7 +713,7 @@ namespace dMobile.View.Options
                                             for (var detailIdx = 0; detailIdx <= actDetail.ListDetails.Count - 1; detailIdx++)
                                             {
                                                 var detail = (ActivityDetail)actDetail.ListDetails[detailIdx];
-                                                await actDetail.AssignThisFromDetailAsync(detail, false);
+                                                await actDetail.AssignActivityDetail(detail);
                                                 await actDetail.Submit(actDetail.ListDetails[detailIdx], null);
                                             }
                                         }

@@ -37,13 +37,33 @@ namespace dMobile.GroundWork
         {
             var conn = DatabaseConnection.GetInstance().SQLConn;
             var subType = Convert.ToInt32(this.CurrentSubType);
-            this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging ales order details.", true);
+            this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging sales order details.", true);
 
             await conn.RunInTransactionAsync(transaction =>
             {
                 try
                 {
-                    var query = "DELETE FROM tActivityDetailProductSchemeVariantXRef "
+                    // Corruption recovery cleanup.
+                    var query = "DELETE FROM tActivityDetailProductSchemeVariantXRef" +
+                                " WHERE tActivityDetailProductSchemeVariantXRef.ActivityDetailRefno <= 0" +
+                                " OR tActivityDetailProductSchemeVariantXRef.ProductSchemeVariantRefno <= 0";
+                    transaction.Execute(query);
+
+                    // Corruption recovery cleanup.
+                    query = "DELETE FROM tActivityDetailExtra WHERE tActivityDetailExtra.ActivityDetailRefno <= 0";
+                    transaction.Execute(query);
+
+                    // Corruption recovery cleanup.
+                    query = "DELETE FROM tActivityDetailPicking WHERE tActivityDetailPicking.ActivityDetailRefno <= 0" +
+                            " OR tActivityDetailPicking.ActivityDetailFKRefno <= 0";
+                    transaction.Execute(query);
+
+                    // Corruption recovery cleanup.
+                    query = "DELETE FROM tActivityDetail WHERE tActivityDetail.ActivityDetailSubType = ?" +
+                            " AND tActivityDetail.ActivityDetailRefno <= 0";
+                    transaction.Execute(query, subType);
+
+                    query = "DELETE FROM tActivityDetailProductSchemeVariantXRef "
                         + "WHERE tActivityDetailProductSchemeVariantXRef.ActivityDetailRefno IN "
                         + "(SELECT tActivityDetail.ActivityDetailRefno "
                         + "FROM tActivityDetail "

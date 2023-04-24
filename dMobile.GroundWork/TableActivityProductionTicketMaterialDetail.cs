@@ -37,43 +37,82 @@ namespace dMobile.GroundWork
         /// </summary>
         public override async Task PurgeData()
         {
+            var conn = DatabaseConnection.GetInstance().SQLConn;
+            var subType = Convert.ToInt32(this.CurrentSubType);
             this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging ticket material details.", true);
 
-            try
+            await conn.RunInTransactionAsync(transaction =>
             {
-                var query = "DELETE FROM tActivityDetailProductSchemeVariantXRef"
-                            + " WHERE tActivityDetailProductSchemeVariantXRef.ActivityDetailRefno IN"
-                            + " (SELECT tActivityDetail.ActivityDetailRefno"
-                            + " FROM tActivityDetail"
-                            + " WHERE tActivityDetail.ActivityDetailSubType = ?)";
-                await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(query, Convert.ToInt32(SysCommon.ActSubTypes.TicketMaterial));
+                try
+                {
+                    // Corruption recovery cleanup.
+                    var query = "DELETE FROM tActivityDetailProductSchemeVariantXRef" +
+                                " WHERE tActivityDetailProductSchemeVariantXRef.ActivityDetailRefno <= 0" +
+                                " OR tActivityDetailProductSchemeVariantXRef.ProductSchemeVariantRefno <= 0";
+                    transaction.Execute(query);
 
-                query = "DELETE FROM tActivityDetailProductionMaterial"
-                    + " WHERE tActivityDetailProductionMaterial.ActivityDetailRefno IN"
-                    + " (SELECT tActivityDetail.ActivityDetailRefno"
-                    + " FROM tActivityDetail"
-                    + " WHERE tActivityDetail.ActivityDetailSubType = ?)";
-                await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(query, Convert.ToInt32(SysCommon.ActSubTypes.TicketMaterial));
+                    // Corruption recovery cleanup.
+                    query = "DELETE FROM tActivityDetailExtra WHERE tActivityDetailExtra.ActivityDetailRefno <= 0";
+                    transaction.Execute(query);
 
-                query = "DELETE FROM tActivityDetailExtra"
-                    + " WHERE tActivityDetailExtra.ActivityDetailRefno IN"
-                    + " (SELECT tActivityDetail.ActivityDetailRefno"
-                    + " FROM tActivityDetail"
-                    + " WHERE tActivityDetail.ActivityDetailSubType = ?)";
-                await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(query, Convert.ToInt32(SysCommon.ActSubTypes.TicketMaterial));
+                    // Corruption recovery cleanup.
+                    query = "DELETE FROM tActivityDetailProductionMaterial WHERE tActivityDetailProductionMaterial.ActivityDetailRefno <= 0" +
+                            " OR tActivityDetailProductionMaterial.ActivityDetailFKRefno <= 0";
+                    transaction.Execute(query);
 
-                query = "DELETE FROM tActivityDetail WHERE tActivityDetail.ActivityDetailSubType = ?";
-                await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(query, Convert.ToInt32(SysCommon.ActSubTypes.TicketMaterial));
+                    // Corruption recovery cleanup.
+                    query = "DELETE FROM tActivityDetail WHERE tActivityDetail.ActivityDetailSubType = ?" +
+                            " AND tActivityDetail.ActivityDetailRefno <= 0";
+                    transaction.Execute(query, subType);
 
-                this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging ticket material details complete.", true);
-            }
-            catch (SQLiteException ex)
-            {
-                this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Database exception occurred.", true);
-                this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging ticket material details failed.", true);
+                    query = "DELETE FROM tActivityDetailProductSchemeVariantXRef "
+                        + "WHERE tActivityDetailProductSchemeVariantXRef.ActivityDetailRefno IN "
+                        + "(SELECT tActivityDetail.ActivityDetailRefno "
+                        + "FROM tActivityDetail "
+                        + "WHERE tActivityDetail.ActivityDetailSubType = ?)";
+                    transaction.Execute(query, subType);
 
-                throw new Exception("Database exception occurred. Purging ticket material details failed.", ex);
-            }
+                    query = "DELETE FROM tActivityDetailProductionMaterial"
+                        + " WHERE tActivityDetailProductionMaterial.ActivityDetailRefno IN "
+                        + "(SELECT tActivityDetail.ActivityDetailRefno"
+                        + " FROM tActivityDetail"
+                        + " WHERE tActivityDetail.ActivityDetailSubType = ?)";
+                    transaction.Execute(query, subType);
+
+                    query = "DELETE FROM tActivityDetailExtra "
+                        + "WHERE tActivityDetailExtra.ActivityDetailRefno IN "
+                        + "(SELECT tActivityDetail.ActivityDetailRefno "
+                        + "FROM tActivityDetail "
+                        + "WHERE tActivityDetail.ActivityDetailSubType = ?)";
+                    transaction.Execute(query, subType);
+
+                    query = "DELETE FROM tActivityDetail WHERE tActivityDetail.ActivityDetailSubType = ?";
+                    transaction.Execute(query, subType);
+
+                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging ticket material details complete.", true);
+                    transaction.Commit();
+                }
+                catch (SQLiteException sqlEx)
+                {
+                    if (transaction.IsInTransaction)
+                    {
+                        transaction.Rollback();
+                    }
+
+                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Database exception occurred.", true);
+                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging ticket material details failed.", true);
+                    throw new Exception("Database exception occurred. Purging ticket material details failed.", sqlEx);
+                }
+                catch (Exception ex)
+                {
+                    if (transaction.IsInTransaction)
+                    {
+                        transaction.Rollback();
+                    }
+
+                    throw new Exception("Database exception occurred. Purging ticket material details failed.", ex);
+                }
+            });
         }
 
         /// <summary>

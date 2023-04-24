@@ -220,25 +220,8 @@ namespace dMobile.Controller.Activity_Detail
             var responseData = SysCommon.SubmitComm(xmlSend);
             var xmlDoc = new XmlDocument();
             xmlDoc.LoadXml(responseData);
-
-            // check if result is an error message
-            if (responseData.Contains("<message>ERROR</message>"))
-            {
-                var errorDetail = xmlDoc.DocumentElement["detail"].InnerText;
-                if (errorDetail.Contains("MSGBOX-"))
-                {
-                    throw new MessageOnlyException(errorDetail);
-                }
-                else
-                {
-                    throw new Exception(errorDetail);
-                }
-            }
-            else
-            {
-                this.DetailFkRefno = int.Parse(xmlDoc.DocumentElement["ser_refno"].InnerText);
-                this.DetailRefno = this.DetailFkRefno;
-            }
+            this.DetailFkRefno = int.Parse(xmlDoc.DocumentElement["ser_refno"].InnerText);
+            this.DetailRefno = this.DetailFkRefno;
         }
 
         /// <summary>
@@ -252,28 +235,11 @@ namespace dMobile.Controller.Activity_Detail
                 var xmlDelete = await this.CreateDeleteXml(XDocument.Parse(
                     "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?><params></params>"));
                 var responseData = SysCommon.SubmitComm(xmlDelete);
-                if (responseData.Contains("<message>ERROR</message>"))
-                {
-                    var docError = new XmlDocument();
-                    docError.LoadXml(responseData);
-                    var errorDetail = docError.DocumentElement["detail"].InnerText;
-                    if (errorDetail.Contains("MSGBOX-"))
-                    {
-                        throw new MessageOnlyException(errorDetail);
-                    }
-                    else
-                    {
-                        throw new Exception(errorDetail);
-                    }
-                }
-                else
-                {
-                    var xmlDoc = new XmlDocument();
-                    xmlDoc.LoadXml(responseData);
-                    var tempSkidInfo = this.ActItem.ActHdr.SkidInfo.CurrSkid;
-                    tempSkidInfo.IsConsumed = bool.Parse(xmlDoc.DocumentElement["IsConsumed"].InnerText);
-                    this.ActItem.ActHdr.SkidInfo.CurrSkid = tempSkidInfo;
-                }
+                var xmlDoc = new XmlDocument();
+                xmlDoc.LoadXml(responseData);
+                var tempSkidInfo = this.ActItem.ActHdr.SkidInfo.CurrSkid;
+                tempSkidInfo.IsConsumed = bool.Parse(xmlDoc.DocumentElement["IsConsumed"].InnerText);
+                this.ActItem.ActHdr.SkidInfo.CurrSkid = tempSkidInfo;
             }
 
             var skidInfoDetail = this.ListDetails.OfType<SkidInfoDetail>().Where(
@@ -300,29 +266,12 @@ namespace dMobile.Controller.Activity_Detail
                 "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?><params></params>"));
             var responseData = SysCommon.SubmitComm(xmlSend);
             xmlDoc.LoadXml(responseData);
+            this.DetailFkRefno = int.Parse(xmlDoc.DocumentElement["ser_refno"].InnerText);
+            this.DetailRefno = this.DetailFkRefno;
 
-            // check if result is an error message
-            if (responseData.Contains("<message>ERROR</message>"))
+            if (selectedActivityDetail is SkidInfoDetail skidInfoDetail)
             {
-                var errorDetail = xmlDoc.DocumentElement["detail"].InnerText;
-                if (errorDetail.Contains("MSGBOX-"))
-                {
-                    throw new MessageOnlyException(errorDetail);
-                }
-                else
-                {
-                    throw new Exception(errorDetail);
-                }
-            }
-            else
-            {
-                this.DetailFkRefno = int.Parse(xmlDoc.DocumentElement["ser_refno"].InnerText);
-                this.DetailRefno = this.DetailFkRefno;
-
-                if (selectedActivityDetail is SkidInfoDetail skidInfoDetail)
-                {
-                    skidInfoDetail.ActivityDetailFKRefno = this.DetailFkRefno;
-                }
+                skidInfoDetail.ActivityDetailFKRefno = this.DetailFkRefno;
             }
         }
 
@@ -621,16 +570,6 @@ namespace dMobile.Controller.Activity_Detail
         public override ObservableCollection<object> Search(string searchText)
         {
             throw new NotImplementedException();
-        }
-
-        /// <summary>
-        /// Select the activity detail.
-        /// </summary>
-        /// <param name="selectedActivityDetail"><see cref="object"/> Selected activity detail.</param>
-        /// <returns><see cref="Task"/> Task operation.</returns>
-        public override async Task AssignActivityDetail(object selectedActivityDetail)
-        {
-            await base.AssignActivityDetail(selectedActivityDetail);
         }
 
         /// <summary>

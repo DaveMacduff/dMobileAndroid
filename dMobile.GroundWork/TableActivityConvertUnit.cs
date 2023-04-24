@@ -39,7 +39,17 @@ namespace dMobile.GroundWork
             {
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging convert units.", true);
 
-                var query = "DELETE FROM tActivityConvertUnit WHERE tActivityConvertUnit.ActivitySubType = ?";
+                // Corruption recovery cleanup.
+                this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"Purging {this.LowerCaseName}.", true);
+                var query = "DELETE FROM tActivityConvertUnit WHERE tActivityConvertUnit.ActivityRefno <= 0" +
+                            " OR tActivityConvertUnit.ActivityFKRefno <= 0";
+                await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(query);
+
+                // Corruption recovery cleanup.
+                query = "DELETE FROM tActivity WHERE tActivity.ActivityRefno <= 0";
+                await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(query);
+
+                query = "DELETE FROM tActivityConvertUnit WHERE tActivityConvertUnit.ActivitySubType = ?";
                 await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(query, Convert.ToInt32(SysCommon.ActSubTypes.ConvertUnit));
 
                 query = "DELETE FROM tActivity WHERE tActivity.ActivitySubType = ?";

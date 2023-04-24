@@ -938,9 +938,7 @@ namespace dMobile.View.Activity
                 async Task OnAppearingDelKeyDetail()
                 {
                     // Read the selected detail.
-                    await this.ActDetail.AssignThisFromDetailAsync(
-                        (Resources.Types.ActivityDetail)this.ListViewMainActivity.SelectedItem,
-                        false);
+                    await this.ActDetail.AssignActivityDetail((Resources.Types.ActivityDetail)this.ListViewMainActivity.SelectedItem);
 
                     // Submit the request, and delete it from the data table.
                     _ = await this.ActDetail.Delete();

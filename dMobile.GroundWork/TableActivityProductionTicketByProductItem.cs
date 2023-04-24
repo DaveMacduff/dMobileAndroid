@@ -41,7 +41,26 @@ namespace dMobile.GroundWork
             {
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging ticket add-product items.", true);
 
-                var query = "DELETE FROM tActivityItemBarCodeAssociationXRef "
+                // Corruption recovery cleanup.
+                this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"Purging {this.LowerCaseName}.", true);
+                var query = "DELETE FROM tActivityItemBarCodeAssociationXRef WHERE" +
+                            " tActivityItemBarCodeAssociationXRef.ActivityItemRefno <= 0";
+                await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(query);
+
+                // Corruption recovery cleanup.
+                query = "DELETE FROM tActivityItemProductionByProduct WHERE tActivityItemProductionByProduct.ActivityItemRefno <= 0" +
+                    " OR tActivityItemProductionByProduct.ActivityItemFKRefno <= 0";
+                await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(query);
+
+                // Corruption recovery cleanup.
+                query = "DELETE FROM tActivityItemProduction WHERE tActivityItemProduction.ActivityItemRefno <= 0";
+                await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(query);
+
+                // Corruption recovery cleanup.
+                query = "DELETE FROM tActivityItem WHERE tActivityItem.ActivityRefno <= 0";
+                await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(query);
+
+                query = "DELETE FROM tActivityItemBarCodeAssociationXRef "
                             + "WHERE tActivityItemBarCodeAssociationXRef.ActivityItemRefno IN "
                             + "(SELECT tActivityItem.ActivityItemRefno "
                             + "FROM tActivityItem "

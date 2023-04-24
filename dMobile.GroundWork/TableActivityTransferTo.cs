@@ -40,8 +40,23 @@ namespace dMobile.GroundWork
 
             try
             {
-                await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync("DELETE FROM tActivityTransfer WHERE ActivitySubType = ?", Convert.ToInt32(SysCommon.ActSubTypes.TransferTo));
-                await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync("DELETE FROM tActivity WHERE ActivitySubType = ?", Convert.ToInt32(SysCommon.ActSubTypes.TransferTo));
+                // Corruption recovery cleanup.
+                this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"Purging {this.LowerCaseName}.", true);
+                var query = "DELETE FROM tActivityTransfer WHERE tActivityTransfer.ActivityRefno <= 0" +
+                            " OR tActivityTransfer.ActivityFKRefno <= 0";
+                await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(query);
+
+                // Corruption recovery cleanup.
+                query = "DELETE FROM tActivity WHERE tActivity.ActivityRefno <= 0";
+                await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(query);
+
+                await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(
+                    "DELETE FROM tActivityTransfer WHERE ActivitySubType = ?",
+                    Convert.ToInt32(SysCommon.ActSubTypes.TransferTo));
+
+                await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(
+                    "DELETE FROM tActivity WHERE ActivitySubType = ?",
+                    Convert.ToInt32(SysCommon.ActSubTypes.TransferTo));
 
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging transfers to complete.", true);
             }

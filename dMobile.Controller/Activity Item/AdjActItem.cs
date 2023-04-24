@@ -274,7 +274,7 @@ namespace dMobile.Controller.Activity_Item
                 {
                     try
                     {
-                        // NOTE: ActiivtyItemStatus is set to inserted for later submission use.
+                        // NOTE: ActivityItemStatus is set to inserted for later submission use.
                         _ = transaction.Execute(
                             "INSERT INTO tActivityItem (ActivityItemSubType, ActivityItemStatus," +
                                 " ActivityRefno, ActivityItemIsAdded) VALUES (?, ?, ?, ?)",
@@ -340,6 +340,7 @@ namespace dMobile.Controller.Activity_Item
                     catch (SQLiteException)
                     {
                         transaction.Rollback();
+                        throw;
                     }
                 });
             }
@@ -348,7 +349,7 @@ namespace dMobile.Controller.Activity_Item
             void AddActivityItemToList(int prodUnitRefno)
             {
                 var locMap = LocationMap.GetInstance().CurrLocMap;
-                var adjItem = new AdjustmentItem
+                var adjItem = new AdjustmentItem()
                 {
                     ActivityItemRefno = this.ItemRefno,
                     ActivityItemFKRefno = this.ItemFkRefno,
@@ -729,11 +730,11 @@ namespace dMobile.Controller.Activity_Item
                 }
                 else
                 {
-                    // Only assign the current location if the map is complete else leave it alone.
-                    if (locMap != null && await LocationMapTasks.IsCompleteLocMap(locMap))
+                    // We need set at least the warehouse for line items.
+                    this.LocMap = locMap.Clone();
+                    if (this.LocMap.WhsLocMapRefno <= 0)
                     {
-                        // Do not update the current, chosen or skid location when defaulting is off.
-                        this.LocMap = locMap.Clone();
+                        throw new MessageOnlyException("Location must be set first.");
                     }
                 }
 

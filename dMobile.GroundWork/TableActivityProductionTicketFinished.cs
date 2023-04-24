@@ -40,7 +40,21 @@ namespace dMobile.GroundWork
             {
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging finished ticket.", true);
 
-                var query = "DELETE FROM tActivityProductionFinished"
+                // Corruption recovery cleanup.
+                this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"Purging {this.LowerCaseName}.", true);
+                var query = "DELETE FROM tActivityProductionFinished WHERE tActivityProductionFinished.ActivityRefno <= 0";
+                await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(query);
+
+                // Corruption recovery cleanup.
+                query = "DELETE FROM tActivityProduction WHERE tActivityProduction.ActivityRefno <= 0" +
+                        " OR tActivityProduction.ActivityFKRefno <= 0";
+                await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(query);
+
+                // Corruption recovery cleanup.
+                query = "DELETE FROM tActivity WHERE tActivity.ActivityRefno = 0";
+                await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(query);
+
+                query = "DELETE FROM tActivityProductionFinished"
                             + " WHERE tActivityProductionFinished.ActivityRefno IN"
                             + " (SELECT tActivityProduction.ActivityRefno"
                             + " FROM tActivityProduction"

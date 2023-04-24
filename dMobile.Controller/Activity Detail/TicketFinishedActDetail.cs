@@ -136,21 +136,6 @@ namespace dMobile.Controller.Activity_Detail
             var responseData = SysCommon.SubmitComm(xmlSend);
             var xmlDoc = new XmlDocument();
             xmlDoc.LoadXml(responseData);
-
-            // check if result is an error message
-            if (responseData.Contains("<message>ERROR</message>"))
-            {
-                var errorDetail = xmlDoc.DocumentElement["detail"].InnerText;
-                if (errorDetail.Contains("MSGBOX-"))
-                {
-                    throw new MessageOnlyException(errorDetail);
-                }
-                else
-                {
-                    throw new Exception(errorDetail);
-                }
-            }
-
             this.DetailFkRefno = int.Parse(xmlDoc.DocumentElement["ser_refno"].InnerText);
             this.ActItem.ItemFkRefno = int.Parse(xmlDoc.DocumentElement["itm_refno"].InnerText);
             this.Quantity = decimal.Parse(xmlDoc.DocumentElement["alt_qty"].InnerText);
@@ -169,23 +154,7 @@ namespace dMobile.Controller.Activity_Detail
             {
                 string xmlDelete;
                 xmlDelete = await this.CreateDeleteXml(XDocument.Parse("<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?><params></params>"));
-
-                var responseData = SysCommon.SubmitComm(xmlDelete);
-                if (responseData.Contains("<message>ERROR</message>"))
-                {
-                    var docError = new XmlDocument();
-                    docError.LoadXml(responseData);
-                    var errorDetail = docError.DocumentElement["detail"].InnerText;
-
-                    if (errorDetail.Contains("MSGBOX-"))
-                    {
-                        throw new MessageOnlyException(errorDetail);
-                    }
-                    else
-                    {
-                        throw new Exception(errorDetail);
-                    }
-                }
+                _ = SysCommon.SubmitComm(xmlDelete);
             }
         }
 
@@ -198,47 +167,36 @@ namespace dMobile.Controller.Activity_Detail
         {
             await this.FillActDetailObjFromXml(data);
 
-            if (this.SysEnv.SysSettings.IsDisconnectedMode)
-            {
-                // At this point the 
-                var actDetailRefno = await this.InsertDetail();
+            // Get temporary item FK refno for newly inserted line item.
+            this.DetailFkRefno = await DatabaseConnection.GetInstance().SQLConn.ExecuteScalarAsync<int>(
+                "SELECT MAX(tActivityDetailProductionFinished.ActivityDetailFKRefno) FROM tActivityDetailProductionFinished");
+            this.DetailFkRefno++;
 
-                var query = "INSERT INTO tActivityDetailProductionFinished (ActivityDetailRefno, ActivityDetailFKRefno) VALUES (?, ?)";
-                var rowsAffected = await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(
-                    query,
-                    Convert.ToInt32(actDetailRefno),
-                    Convert.ToInt32(this.DetailFkRefno));
-                if (rowsAffected <= 0)
-                {
-                    throw new Exception("Unable to insert activity detail in disconnected mode.");
-                }
-            }
-            else
+            // Insert the common activity detail data.
+            this.DetailRefno = await this.InsertDetail();
+
+            if (!this.SysEnv.SysSettings.IsDisconnectedMode)
             {
                 await this.Submit(this, data);
+            }
 
-                var query = "UPDATE tActivityItemProductionFinished SET ActivityItemStringFKRefno = ?," +
-                            " ActivityItemFKRefno = ? WHERE ActivityItemRefno = ?";
-                var rowsAffected = await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(
-                    query,
-                    Convert.ToString(this.ActItem.ItemFkRefno),
-                    this.ActItem.ItemFkRefno,
-                    this.ActItem.ItemRefno);
-                if (rowsAffected < 0)
-                {
-                    throw new Exception("Unable to locate and update the activity line item with a new foreign" +
-                        " key upon inserting.");
-                }
+            var query = "INSERT INTO tActivityDetailProductionFinished (ActivityDetailRefno, ActivityDetailFKRefno) VALUES (?, ?)";
+            var rowsAffected = await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(
+                query,
+                Convert.ToInt32(this.DetailRefno),
+                Convert.ToInt32(this.DetailFkRefno));
+            if (rowsAffected <= 0)
+            {
+                throw new Exception("Unable to insert activity detail in disconnected mode.");
+            }
 
-                // Find the activity item that may also have been newly created, and update the line item reference
-                // returned from the communication server.
-                // Do not use FirstOrDefault because we do not want to overwrite a wrongly matched item.
-                // Linq returns new references only for base types (int, string, double etc...).
-                // The IEnumerable will be same instance of initial list, you have to call ToList or ToArray
-                // to create a new collection.
-                // Linq is slower than a for loop, but the number of line items would likely be sub 500 normally.
-                ProductionTicketFinishedItem foundItem = null;
-                foreach (ProductionTicketFinishedItem item in this.ActItem.ListItems)
+            FindListItemAndSetFkRefno();
+
+            /////
+            void FindListItemAndSetFkRefno()
+            {
+                ReturnItem foundItem = null;
+                foreach (ReturnItem item in this.ActItem.ListItems)
                 {
                     if (item.ActivityItemRefno == this.ActItem.ItemRefno)
                     {
@@ -274,23 +232,7 @@ namespace dMobile.Controller.Activity_Detail
             if (!this.SysEnv.SysSettings.IsDisconnectedMode)
             {
                 var xmlDelete = await this.CreateDeleteXml(XDocument.Parse("<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?><params></params>"));
-
-                var responseData = SysCommon.SubmitComm(xmlDelete);
-                if (responseData.Contains("<message>ERROR</message>"))
-                {
-                    var docError = new XmlDocument();
-                    docError.LoadXml(responseData);
-                    var errorDetail = docError.DocumentElement["detail"].InnerText;
-
-                    if (errorDetail.Contains("MSGBOX-"))
-                    {
-                        throw new MessageOnlyException(errorDetail);
-                    }
-                    else
-                    {
-                        throw new Exception(errorDetail);
-                    }
-                }
+                _ = SysCommon.SubmitComm(xmlDelete);
             }
 
             // delete row from DataView
@@ -329,64 +271,108 @@ namespace dMobile.Controller.Activity_Detail
         /// The Submit.
         /// </summary>
         /// <param name="selectedActivityDetail">The selectedActivityDetail<see cref="object"/>.</param>
-        /// <param name="detailData">.</param>
+        /// <param name="data">.</param>
         /// <returns>The <see cref="Task"/>.</returns>
-        public override async Task Submit(object selectedActivityDetail, XDocument detailData)
+        public override async Task Submit(object selectedActivityDetail, XDocument data)
         {
-            var xmlDoc = new XmlDocument();
-            var xmlSend = await this.CreateSubmitXml(XDocument.Parse("<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?><params></params>"));
+            int rowsAffected;
 
-            var responseData = SysCommon.SubmitComm(xmlSend);
+            var xmlDoc = new XmlDocument();
+            var strXmlSend = await this.CreateSubmitXml(data);
+            var responseData = SysCommon.SubmitComm(strXmlSend);
             xmlDoc.LoadXml(responseData);
 
-            // check if result is an error message
-            if (responseData.Contains("<message>ERROR</message>"))
+            if (xmlDoc.DocumentElement == null)
             {
-                var errorDetail = xmlDoc.DocumentElement["detail"].InnerText;
-
-                if (errorDetail.Contains("MSGBOX-"))
-                {
-                    throw new MessageOnlyException(errorDetail);
-                }
-                else
-                {
-                    throw new Exception(errorDetail);
-                }
+                throw new Exception("xmlDoc.DocumentElement == null");
             }
-            else
+
+            this.DetailFkRefno = int.Parse(xmlDoc.DocumentElement["ser_refno"] !.InnerText);
+
+            switch (this.ActItem.ActStatus)
             {
-                this.DetailFkRefno = int.Parse(xmlDoc.DocumentElement["ser_refno"].InnerText);
+                case SysCommon.ActStatus.NoChange:
+                    break;
 
-                if (this.ActItem.SelectedItem is ProductionTicketFinishedItem item)
-                {
-                    item.ActivityItemFKRefno = this.ActItem.ItemFkRefno;
-                }
+                case SysCommon.ActStatus.Inserted:
+                    this.ActItem.ItemFkRefno = int.Parse(xmlDoc.DocumentElement["itm_refno"] !.InnerText);
 
-                if (selectedActivityDetail is ProductionTicketFinishedDetail productionTicketFinishedDetail)
-                {
-                    productionTicketFinishedDetail.ActivityDetailFKRefno = this.DetailFkRefno;
-                    productionTicketFinishedDetail.ActivityDetailStatus = Convert.ToInt32(SysCommon.ActStatus.NoChange);
-                }
+                    // Update the selected item also.
+                    if (this.ActItem.SelectedItem is ProductionTicketFinishedItem item)
+                    {
+                        item.ActivityItemFKRefno = this.ActItem.ItemFkRefno;
+                    }
 
-                await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync("UPDATE tActivityDetail SET ActivityDetailStatus = ? WHERE ActivityDetailRefno = ?", Convert.ToInt32(SysCommon.ActStatus.NoChange), this.DetailRefno);
-            }
-        }
+                    this.ActItem.ActStatus = SysCommon.ActStatus.NoChange;
 
-        /// <summary>
-        /// The GetInfo.
-        /// </summary>
-        /// <param name="selectedActivityDetail">The selectedActivityDetail<see cref="object"/>.</param>
-        /// <param name="isAdd">.</param>
-        /// <returns>.</returns>
-        public override async Task AssignThisFromDetailAsync(ActivityDetail selectedActivityDetail, bool isAdd)
-        {
-            await base.AssignThisFromDetailAsync(selectedActivityDetail, isAdd);
+                    rowsAffected = await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(
+                        "UPDATE tActivityItem SET ActivityItemStatus = ? WHERE ActivityItemRefno = ?",
+                        Convert.ToInt32(SysCommon.ActStatus.NoChange),
+                        this.ActItem.ItemRefno);
 
-            if (!isAdd && selectedActivityDetail is ProductionTicketFinishedDetail productionTicketFinishedDetail)
-            {
-                this.DetailFkRefno = Convert.ToInt32(productionTicketFinishedDetail.ActivityDetailFKRefno);
-                this.LocMap.CurrLocMap = await LocationMapTasks.GetSLocMapFromLocMapRefno(
-                    Convert.ToInt32(productionTicketFinishedDetail.LocationMapRefno));
+                    if (rowsAffected < 0)
+                    {
+                        throw new Exception(
+                            "Unable to locate and update the activity line item with a new foreign" +
+                            " key upon inserting.");
+                    }
+
+                    if (selectedActivityDetail is ProductionTicketFinishedDetail selectedInserted)
+                    {
+                        selectedInserted.ActivityDetailFKRefno = this.DetailFkRefno;
+                        selectedInserted.ActivityDetailStatus = Convert.ToInt32(SysCommon.ActStatus.NoChange);
+                    }
+
+                    rowsAffected = await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(
+                        "UPDATE tActivityDetail SET ActivityDetailStatus = ? WHERE ActivityDetailRefno = ?",
+                        Convert.ToInt32(SysCommon.ActStatus.NoChange),
+                        this.DetailRefno);
+
+                    if (rowsAffected < 0)
+                    {
+                        throw new Exception("Unable to locate and update the activity detail status to no change.");
+                    }
+
+                    break;
+
+                case SysCommon.ActStatus.Updated:
+                    if (selectedActivityDetail is ProductionTicketFinishedDetail selectedUpdated)
+                    {
+                        selectedUpdated.ActivityDetailStatus = Convert.ToInt32(SysCommon.ActStatus.NoChange);
+                    }
+
+                    rowsAffected = await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(
+                        "UPDATE tActivityDetail SET ActivityDetailStatus = ? WHERE ActivityDetailRefno = ?",
+                        Convert.ToInt32(SysCommon.ActStatus.NoChange),
+                        this.DetailRefno);
+
+                    if (rowsAffected < 0)
+                    {
+                        throw new Exception("Unable to locate and update the activity detail status to no change.");
+                    }
+
+                    break;
+
+                case SysCommon.ActStatus.Deleted:
+                    if (selectedActivityDetail is ProductionTicketFinishedDetail selectedDeleted)
+                    {
+                        selectedDeleted.ActivityDetailStatus = Convert.ToInt32(SysCommon.ActStatus.NoChange);
+                    }
+
+                    rowsAffected = await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(
+                        "UPDATE tActivityDetail SET ActivityDetailStatus = ? WHERE ActivityDetailRefno = ?",
+                        Convert.ToInt32(SysCommon.ActStatus.NoChange),
+                        this.DetailRefno);
+
+                    if (rowsAffected < 0)
+                    {
+                        throw new Exception("Unable to locate and update the activity detail status to no change.");
+                    }
+
+                    break;
+
+                default:
+                    throw new ArgumentOutOfRangeException();
             }
         }
 
@@ -890,66 +876,10 @@ namespace dMobile.Controller.Activity_Detail
 
             foreach (ProductionTicketFinishedDetail productionTicketFinishedDetail in this.ListDetails)
             {
-                // ProductionTicketFinishedDetail productionTicketFinishedDetail = new ProductionTicketFinishedDetail
-                // {
-                //    ActivityDetailRefno = Convert.ToInt32(row["ActivityDetailRefno"] != DBNull.Value ? row["ActivityDetailRefno"] : null),
-                //    ActivityDetailLogisticUnitExpiryUseByDate = Convert.ToDateTime(row["ActivityDetailLogisticUnitExpiryUseByDate"] != DBNull.Value ? row["ActivityDetailLogisticUnitExpiryUseByDate"] : null),
-                //    ActivityDetailStatus = Convert.ToInt32(row["ActivityDetailStatus"] != DBNull.Value ? row["ActivityDetailStatus"] : null),
-                //    ActivityDetailFKRefno = Convert.ToInt32(row["ActivityDetailFKRefno"] != DBNull.Value ? row["ActivityDetailFKRefno"] : null),
-                //    BaseUnitCode = Convert.ToString(row["BaseUnitCode"] != DBNull.Value ? row["BaseUnitCode"] : null),
-                //    Location = Convert.ToString(row["Location"] != DBNull.Value ? row["Location"] : null),
-                //    ProductSchemeVariantDescription = Convert.ToString(row["ProductSchemeVariantDescription"] != DBNull.Value ? row["ProductSchemeVariantDescription"] : null),
-                //    ProductUnitIsBC = Convert.ToBoolean(row["ProductUnitIsBC"] != DBNull.Value ? row["ProductUnitIsBC"] : null),
-                //    WtUnitCode = Convert.ToString(row["WtUnitCode"] != DBNull.Value ? row["WtUnitCode"] : null),
-                //    LocationMapRefno = Convert.ToInt32(row["LocationMapRefno"] != DBNull.Value ? row["LocationMapRefno"] : null),
-                //    UnitCode = Convert.ToString(row["UnitCode"] != DBNull.Value ? row["UnitCode"] : null),
-                //    ProductCode = Convert.ToString(row["ProductCode"] != DBNull.Value ? row["ProductCode"] : null),
-                //    ProductRefno = Convert.ToInt32(row["ProductRefno"] != DBNull.Value ? row["ProductRefno"] : null),
-                //    ProductDescription = Convert.ToString(row["ProductDescription"] != DBNull.Value ? row["ProductDescription"] : null),
-                //    ProductUnitBC = Convert.ToString(row["ProductUnitBC"] != DBNull.Value ? row["ProductUnitBC"] : null),
-                //    ProductUnitSizeDescription = Convert.ToString(row["ProductUnitSizeDescription"] != DBNull.Value ? row["ProductUnitSizeDescription"] : null),
-                //    ActivityDetailQuantity = Convert.ToDecimal(row["ActivityDetailQuantity"] != DBNull.Value ? row["ActivityDetailQuantity"] : null),
-                //    ActivityDetailBaseQuantity = Convert.ToDecimal(row["ActivityDetailBaseQuantity"] != DBNull.Value ? row["ActivityDetailBaseQuantity"] : null),
-                //    ActivityDetailWeightQuantity = Convert.ToDecimal(row["ActivityDetailWeightQuantity"] != DBNull.Value ? row["ActivityDetailWeightQuantity"] : null),
-                //    ActivityDetailLogisticUnitBestBeforeSellByDate = Convert.ToDateTime(row["ActivityDetailLogisticUnitBestBeforeSellByDate"] != DBNull.Value ? row["ActivityDetailLogisticUnitBestBeforeSellByDate"] : null),
-                //    ActivityDetailSchemeID = Convert.ToString(row["ActivityDetailSchemeID"] != DBNull.Value ? row["ActivityDetailSchemeID"] : null),
-                //    ActivityDetailUniqueSchemeID = Convert.ToString(row["ActivityDetailUniqueSchemeID"] != DBNull.Value ? row["ActivityDetailUniqueSchemeID"] : null),
-                //    ActivityDetailSingleTradeItemSerialNumber = Convert.ToString(row["ActivityDetailSingleTradeItemSerialNumber"] != DBNull.Value ? row["ActivityDetailSingleTradeItemSerialNumber"] : null),
-                //    ActivityDetailLogisticUnitBatchLotNumber = Convert.ToString(row["ActivityDetailLogisticUnitBatchLotNumber"] != DBNull.Value ? row["ActivityDetailLogisticUnitBatchLotNumber"] : null),
-                //    ActivityDetailLogisticUnitProductionDate = Convert.ToDateTime(row["ActivityDetailLogisticUnitProductionDate"] != DBNull.Value ? row["ActivityDetailLogisticUnitProductionDate"] : null),
-                //    ActivityDetailLogisticUnitSkidNumber = Convert.ToString(row["ActivityDetailLogisticUnitSkidNumber"] != DBNull.Value ? row["ActivityDetailLogisticUnitSkidNumber"] : null),
-                //    LocationCode = Convert.ToInt32(row["LocationCode"] != DBNull.Value ? row["LocationCode"] : null),
-                //    LocationName = Convert.ToString(row["LocationName"] != DBNull.Value ? row["LocationName"] : null),
-                //    ProductSchemeVariantCode = Convert.ToString(row["ProductSchemeVariantCode"] != DBNull.Value ? row["ProductSchemeVariantCode"] : null),
-                //    ProductSchemeVariantNo = Convert.ToInt32(row["ProductSchemeVariantNo"] != DBNull.Value ? row["ProductSchemeVariantNo"] : null),
-                //    ActivityDetailExtra1Text = Convert.ToString(row["ActivityDetailExtra1Text"] != DBNull.Value ? row["ActivityDetailExtra1Text"] : null),
-                //    ActivityDetailExtra2Text = Convert.ToString(row["ActivityDetailExtra2Text"] != DBNull.Value ? row["ActivityDetailExtra2Text"] : null),
-                //    ActivityDetailExtra3Text = Convert.ToString(row["ActivityDetailExtra3Text"] != DBNull.Value ? row["ActivityDetailExtra3Text"] : null),
-                //    ActivityDetailExtra4Text = Convert.ToString(row["ActivityDetailExtra4Text"] != DBNull.Value ? row["ActivityDetailExtra4Text"] : null)
-                // };
-
-                // if (DateTime.TryParse(Convert.ToString(row["ActivityDetailExtra5Date"]), out DateTime _))
-                // {
-                //    productionTicketFinishedDetail.ActivityDetailExtra5Date = Convert.ToDateTime(row["ActivityDetailExtra5Date"] != DBNull.Value ? row["ActivityDetailExtra5Date"] : null);
-                // }
-                // else
-                // {
-                //    productionTicketFinishedDetail.ActivityDetailExtra5Date = new DateTime(1900, 1, 1);
-                // }
                 observableCollection.Add(productionTicketFinishedDetail);
             }
 
             return observableCollection;
-        }
-
-        /// <summary>
-        /// Select the activity detail.
-        /// </summary>
-        /// <param name="selectedActivityDetail"><see cref="object"/> Selected activity detail.</param>
-        /// <returns><see cref="Task"/> Task operation.</returns>
-        public override async Task AssignActivityDetail(object selectedActivityDetail)
-        {
-            await base.AssignActivityDetail(selectedActivityDetail);
         }
 
         /// <summary>

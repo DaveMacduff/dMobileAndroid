@@ -40,11 +40,26 @@ namespace dMobile.GroundWork
 
             try
             {
-                var query = "DELETE FROM tActivityItemBarCodeAssociationXRef"
-                            + " WHERE tActivityItemBarCodeAssociationXRef.ActivityItemRefno IN"
-                            + " (SELECT tActivityItem.ActivityItemRefno"
-                            + " FROM tActivityItem"
-                            + " WHERE tActivityItem.ActivityItemSubType = ?)";
+                // Corruption recovery cleanup.
+                this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"Purging {this.LowerCaseName}.", true);
+                var query = "DELETE FROM tActivityItemBarCodeAssociationXRef WHERE" +
+                            " tActivityItemBarCodeAssociationXRef.ActivityItemRefno <= 0";
+                await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(query);
+
+                // Corruption recovery cleanup.
+                query = "DELETE FROM tActivityItemTransfer WHERE tActivityItemTransfer.ActivityItemRefno <= 0" +
+                        " OR tActivityItemTransfer.ActivityItemFKRefno <= 0";
+                await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(query);
+
+                // Corruption recovery cleanup.
+                query = "DELETE FROM tActivityItem WHERE tActivityItem.ActivityRefno <= 0";
+                await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(query);
+
+                query = "DELETE FROM tActivityItemBarCodeAssociationXRef"
+                        + " WHERE tActivityItemBarCodeAssociationXRef.ActivityItemRefno IN"
+                        + " (SELECT tActivityItem.ActivityItemRefno"
+                        + " FROM tActivityItem"
+                        + " WHERE tActivityItem.ActivityItemSubType = ?)";
                 await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(query, Convert.ToInt32(SysCommon.ActSubTypes.TransferFrom));
 
                 query = "DELETE FROM tActivityItemTransfer WHERE ActivityItemSubType = ?";

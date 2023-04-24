@@ -42,7 +42,22 @@ namespace dMobile.GroundWork
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging receiving items.", true);
                 var subType = Convert.ToInt32(this.CurrentSubType);
 
-                var query = "DELETE FROM tActivityItemBarCodeAssociationXRef "
+                // Corruption recovery cleanup.
+                this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"Purging {this.LowerCaseName}.", true);
+                var query = "DELETE FROM tActivityItemBarCodeAssociationXRef WHERE" +
+                            " tActivityItemBarCodeAssociationXRef.ActivityItemRefno <= 0";
+                await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(query);
+
+                // Corruption recovery cleanup.
+                query = "DELETE FROM tActivityItemReceiving WHERE tActivityItemReceiving.ActivityItemRefno <= 0" +
+                        " OR tActivityItemReceiving.ActivityItemFKRefno <= 0";
+                await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(query);
+
+                // Corruption recovery cleanup.
+                query = "DELETE FROM tActivityItem WHERE tActivityItem.ActivityRefno <= 0";
+                await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(query);
+
+                query = "DELETE FROM tActivityItemBarCodeAssociationXRef "
                             + "WHERE tActivityItemBarCodeAssociationXRef.ActivityItemRefno IN "
                             + "(SELECT tActivityItem.ActivityItemRefno "
                             + "FROM tActivityItem "

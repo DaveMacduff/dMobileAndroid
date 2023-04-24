@@ -406,7 +406,7 @@ namespace dMobile.View.Activity
                     }
 
                     var detail = new dMobile.Resources.Types.ActivityDetail();
-                    await this.ActDetail.AssignThisFromDetailAsync(detail, true);
+                    this.ActDetail.ClearProperties();
 
                     var fillQty = SysCommon.FillQuantityStructureFromQuantity((ProductInfo)this.ActItem.ProdInfo, this.ActDetailOnSkid.Quantity);
 

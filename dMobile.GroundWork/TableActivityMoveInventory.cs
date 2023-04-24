@@ -38,7 +38,16 @@ namespace dMobile.GroundWork
 
             try
             {
-                var query = "DELETE FROM tActivityMoveInventory WHERE ActivitySubType = ?";
+                // Corruption recovery cleanup.
+                this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"Purging {this.LowerCaseName}.", true);
+                var query = "DELETE FROM tActivityMoveInventory WHERE tActivityMoveInventory.ActivityRefno <= 0";
+                await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(query);
+
+                // Corruption recovery cleanup.
+                query = "DELETE FROM tActivity WHERE tActivity.ActivityRefno <= 0";
+                await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(query);
+
+                query = "DELETE FROM tActivityMoveInventory WHERE ActivitySubType = ?";
                 await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(query, Convert.ToInt32(SysCommon.ActSubTypes.MoveInventory));
 
                 query = "DELETE FROM tActivity WHERE ActivitySubType = ?";

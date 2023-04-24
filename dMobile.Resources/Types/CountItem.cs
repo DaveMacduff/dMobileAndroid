@@ -23,7 +23,7 @@ namespace dMobile.Resources.Types
         public string UnitCode { get; set; }
         public string ProductUnitBC { get; set; }
         public string ProductUnitSizeDescription { get; set; }
-        public string LocationCode { get; set; }
+        public int LocationCode { get; set; }
         public string LocationName { get; set; }
         public int ActivityItemStatus { get; set; }
     }
