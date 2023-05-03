@@ -201,7 +201,7 @@ namespace dMobile.Controller.Activity_Detail
         /// <summary>
         /// The Delete.
         /// </summary>
-        /// <returns>The <see cref="Task{int}"/>.</returns>
+        /// <returns>The <see cref="int"/>.</returns>
         public override async Task<int> Delete()
         {
             await Task.Run(() =>

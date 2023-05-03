@@ -46,8 +46,8 @@ namespace dMobile.GroundWork
                 {
                     // Corruption recovery cleanup.
                     var query = "DELETE FROM tActivityDetailProductSchemeVariantXRef" +
-                                " WHERE tActivityDetailAdjustment.ActivityDetailRefno <= 0" +
-                                " OR tActivityDetailAdjustment.ProductSchemeVariantRefno <= 0";
+                                " WHERE tActivityDetailProductSchemeVariantXRef.ActivityDetailRefno <= 0" +
+                                " OR tActivityDetailProductSchemeVariantXRef.ProductSchemeVariantRefno <= 0";
                     transaction.Execute(query);
 
                     // Corruption recovery cleanup.

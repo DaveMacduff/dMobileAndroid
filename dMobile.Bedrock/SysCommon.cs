@@ -7,6 +7,7 @@ namespace dMobile.Bedrock
     using System;
     using System.Collections.Generic;
     using System.Diagnostics;
+    using System.Globalization;
     using System.IO;
     using System.Reflection;
     using System.Runtime.InteropServices;
@@ -1162,7 +1163,8 @@ namespace dMobile.Bedrock
 
             // Added the login warehouse fk refno, for request filtering.
             // Easier to add it here than review every activity request, for filtering.
-            var loginLocMap = await LocationMapTasks.GetSLocMapFromLocMapRefno(LocationMap.GetInstance().LoginWhsLocMapRefno);
+            var loginWhs = LocationMap.GetInstance().LoginWhsLocMapRefno;
+            var loginLocMap = await LocationMapTasks.GetSLocMapFromLocMapRefno(loginWhs);
 
             var def = "<device_id>" + sysEnv.DeviceID + "</device_id>"
                       + "<login_id>" + sysEnv.ContactLog.LoginID + "</login_id>"
@@ -1247,37 +1249,38 @@ namespace dMobile.Bedrock
                 fill.Quantity = quantity;
             }
 
-            if (prodInfo.UnitCode == "LB" | prodInfo.UnitCode == "KG")
+            decimal baseQty;
+            if (prodInfo.UnitCode == prodInfo.BaseUnitCode && prodInfo.Unit2BaseUnitFactor <= 1)
             {
-                if (fill.Quantity != 0)
-                {
-                    fill.WeightQuantity = fill.Quantity;
-                }
-                else
-                {
-                    fill.WeightQuantity = prodInfo.UnitGrossWeight;
-                }
+                baseQty = fill.Quantity;
+                fill.BaseQuantity = Math.Round(baseQty, 3);
+            }
+            else if (prodInfo.BaseUnitCode == "LB" || prodInfo.BaseUnitCode == "KG")
+            {
+                baseQty = fill.Quantity * prodInfo.UnitGrossWeight;
+                fill.BaseQuantity = Math.Round(baseQty, 3);
             }
             else
             {
-                fill.WeightQuantity = prodInfo.UnitGrossWeight;
+                baseQty = fill.Quantity * prodInfo.Unit2BaseUnitFactor;
+                fill.BaseQuantity = Math.Round(baseQty, 3);
             }
 
-            if (prodInfo.BaseUnitCode == "LB" | prodInfo.BaseUnitCode == "KG")
+            decimal weightQty;
+            if (prodInfo.UnitCode == prodInfo.WeightUnitCode)
             {
-                fill.BaseQuantity = fill.WeightQuantity;
+                weightQty = fill.Quantity;
+                fill.WeightQuantity = Math.Round(weightQty, 3);
+            }
+            else if (prodInfo.BaseUnitCode == prodInfo.WeightUnitCode)
+            {
+                weightQty = baseQty;
+                fill.WeightQuantity = Math.Round(weightQty, 3);
             }
             else
             {
-                if (prodInfo.Unit2BaseUnitFactor != 0)
-                {
-                    fill.BaseQuantity = fill.Quantity *
-                        prodInfo.Unit2BaseUnitFactor;
-                }
-                else
-                {
-                    fill.BaseQuantity = fill.Quantity;
-                }
+                weightQty = fill.Quantity * prodInfo.UnitGrossWeight;
+                fill.WeightQuantity = Math.Round(weightQty, 3);
             }
 
             return fill;

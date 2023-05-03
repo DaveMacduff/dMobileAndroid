@@ -87,7 +87,7 @@ namespace dMobile.View
         /// </summary>
         /// <param name="actSubType">The actSubType<see cref="SysCommon.ActSubTypes"/>.</param>
         /// <param name="barCodeParse">.</param>
-        /// <returns>The <see cref="Task{int}"/> Task operation.</returns>
+        /// <returns>The <see cref="int"/> Task operation.</returns>
         public static async Task<int> IdentifyProductScanned(
             SysCommon.ActSubTypes actSubType,
             BarCodeParse barCodeParse)

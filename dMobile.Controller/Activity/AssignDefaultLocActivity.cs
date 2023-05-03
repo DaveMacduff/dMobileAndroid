@@ -153,7 +153,7 @@ namespace dMobile.Controller.Activity
         /// The Insert.
         /// </summary>
         /// <param name="xmlParams">The xmlParams<see cref="XDocument"/>.</param>
-        /// <returns>The <see cref="Task{int}"/>.</returns>
+        /// <returns>The <see cref="int"/>.</returns>
         public override Task<int> Insert(XDocument xmlParams)
         {
             throw new NotImplementedException();

@@ -369,11 +369,13 @@ namespace dMobile.Controller.Activity
             {
                 if (sort.SortOrder == Resources.Enums.SortOrder.ASC)
                 {
-                    this.listReceives = this.listReceives.OrderBy(receive => receive.GetType().GetProperty(sort.SortValue).GetValue(receive)).ToList();
+                    this.listReceives = this.listReceives.OrderBy(receive => receive.GetType().
+                        GetProperty(sort.SortValue).GetValue(receive)).ToList();
                 }
                 else
                 {
-                    this.listReceives = this.listReceives.OrderByDescending(receive => receive.GetType().GetProperty(sort.SortValue).GetValue(receive)).ToList();
+                    this.listReceives = this.listReceives.OrderByDescending(receive => receive.GetType().
+                        GetProperty(sort.SortValue).GetValue(receive)).ToList();
                 }
             }
 
@@ -517,7 +519,8 @@ namespace dMobile.Controller.Activity
                     var minDate = new DateTime(dt.Year, dt.Month, dt.Day, 00, 00, 00);
                     var maxDate = new DateTime(dt.Year, dt.Month, dt.Day, 23, 59, 59);
 
-                    this.listReceives = this.listReceives.Where(receive => receive.ActivityReceivingIssuedDateTime >= minDate && receive.ActivityReceivingIssuedDateTime <= maxDate).ToList();
+                    this.listReceives = this.listReceives.Where(receive => receive.ActivityReceivingIssuedDateTime
+                        >= minDate && receive.ActivityReceivingIssuedDateTime <= maxDate).ToList();
                 }
             }
 
@@ -529,7 +532,8 @@ namespace dMobile.Controller.Activity
                     var minDate = new DateTime(dt.Year, dt.Month, dt.Day, 00, 00, 00);
                     var maxDate = new DateTime(dt.Year, dt.Month, dt.Day, 23, 59, 59);
 
-                    this.listReceives = this.listReceives.Where(receive => receive.ActivityReceivingArrivalDateTime >= minDate && receive.ActivityReceivingArrivalDateTime <= maxDate).ToList();
+                    this.listReceives = this.listReceives.Where(receive => receive.ActivityReceivingArrivalDateTime
+                        >= minDate && receive.ActivityReceivingArrivalDateTime <= maxDate).ToList();
                 }
             }
         }
@@ -550,7 +554,8 @@ namespace dMobile.Controller.Activity
                     var minDate = new DateTime(dt.Year, dt.Month, dt.Day, 00, 00, 00);
                     var maxDate = new DateTime(dt.Year, dt.Month, dt.Day, 23, 59, 59);
 
-                    this.listReceives = this.listReceives.Where(receive => receive.ActivityReceivingIssuedDateTime >= minDate && receive.ActivityReceivingIssuedDateTime <= maxDate).ToList();
+                    this.listReceives = this.listReceives.Where(receive => receive.ActivityReceivingIssuedDateTime
+                        >= minDate && receive.ActivityReceivingIssuedDateTime <= maxDate).ToList();
                 }
             }
 
@@ -562,7 +567,8 @@ namespace dMobile.Controller.Activity
                     var minDate = new DateTime(dt.Year, dt.Month, dt.Day, 00, 00, 00);
                     var maxDate = new DateTime(dt.Year, dt.Month, dt.Day, 23, 59, 59);
 
-                    this.listReceives = this.listReceives.Where(receive => receive.ActivityReceivingArrivalDateTime >= minDate && receive.ActivityReceivingArrivalDateTime <= maxDate).ToList();
+                    this.listReceives = this.listReceives.Where(receive => receive.ActivityReceivingArrivalDateTime
+                        >= minDate && receive.ActivityReceivingArrivalDateTime <= maxDate).ToList();
                 }
             }
         }
@@ -582,7 +588,7 @@ namespace dMobile.Controller.Activity
         /// The Insert.
         /// </summary>
         /// <param name="xmlParams">The xmlParams<see cref="XDocument"/>.</param>
-        /// <returns>The <see cref="Task{int}"/>.</returns>
+        /// <returns>The <see cref="int"/>.</returns>
         public override Task<int> Insert(XDocument xmlParams)
         {
             throw new NotImplementedException();

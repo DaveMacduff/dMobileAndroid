@@ -15,6 +15,7 @@ using dMobile.Controller.Activity_Item;
 using dMobile.GroundWork;
 using dMobile.Resources.Services;
 using dMobile.Resources.Types;
+using SQLite;
 using Xamarin.Forms;
 
 namespace dMobile.Controller.Activity_Detail
@@ -198,45 +199,38 @@ namespace dMobile.Controller.Activity_Detail
         /// <summary>
         /// The Delete.
         /// </summary>
-        /// <returns>The <see cref="Task{int}"/>.</returns>
+        /// <returns>The <see cref="int"/>.</returns>
         public override async Task<int> Delete()
         {
             if (!this.SysEnv.SysSettings.IsDisconnectedMode)
             {
-                var xmlDelete = await this.CreateDeleteXml(XDocument.Parse("<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?><params></params>"));
-                _ = SysCommon.SubmitComm(xmlDelete);
+                var xmlDelete = await this.CreateDeleteXml(XDocument.Parse(
+                    "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?><params></params>"));
+                var responseData = SysCommon.SubmitComm(xmlDelete);
             }
 
-            // delete row from DataView
-            // TODO: Fix sorting
-            // string oldSort = this.DataViewDetails.Sort;
-            // this.DataViewDetails.Sort = "ActivityDetailFKRefno";
-            // int rowIdx = DataViewDetails.Find(FKRefno);
-            var productionTicketFinishedDetail = this.ListDetails.
-                OfType<ProductionTicketFinishedDetail>().Where(productionTicketFinishedDetail =>
-                productionTicketFinishedDetail.ActivityDetailFKRefno == this.DetailFkRefno).FirstOrDefault();
-
-            if (productionTicketFinishedDetail != null)
-            {
-                this.ListDetails.Remove(productionTicketFinishedDetail);
-            }
-
-            // TODO: Fix sorting
-            // this.DataViewDetails.Sort = oldSort;
-            // delete from database
-            var query = "DELETE FROM tActivityDetailProductSchemeVariantXRef WHERE ActivityDetailRefno = ?";
-            await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(query, this.DetailRefno);
-
-            query = "DELETE FROM tActivityDetailProductionFinished WHERE ActivityDetailRefno = ?";
-            await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(query, this.DetailRefno);
-
-            query = "DELETE FROM tActivityDetailExtra WHERE ActivityDetailRefno = ?";
-            await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(query, this.DetailRefno);
-
-            query = "DELETE FROM tActivityDetail WHERE ActivityDetailRefno = ?";
-            await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(query, this.DetailRefno);
+            // Delete from database
+            var conn = DatabaseConnection.GetInstance().SQLConn;
+            await conn.RunInTransactionAsync(DeleteFromTables);
 
             return 0;
+
+            //////////////////////////////////////////////////////////////////////////
+            async void DeleteFromTables(SQLiteConnection delete)
+            {
+                await conn.ExecuteAsync(
+                    "DELETE FROM tActivityDetailProductSchemeVariantXRef WHERE ActivityDetailRefno = ?",
+                    this.DetailRefno);
+                await conn.ExecuteAsync(
+                    "DELETE FROM tActivityDetailProductionFinished WHERE ActivityDetailRefno = ?",
+                    this.DetailRefno);
+                await conn.ExecuteAsync(
+                    "DELETE FROM tActivityDetailExtra WHERE ActivityDetailRefno = ?",
+                    this.DetailRefno);
+                await conn.ExecuteAsync(
+                    "DELETE FROM tActivityDetail WHERE ActivityDetailRefno = ?",
+                    this.DetailRefno);
+            }
         }
 
         /// <summary>

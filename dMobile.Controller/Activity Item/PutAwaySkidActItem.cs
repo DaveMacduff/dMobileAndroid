@@ -106,7 +106,11 @@ namespace dMobile.Controller.Activity_Item
         /// <param name="quantity">.</param>
         /// <param name="baseQuantity">.</param>
         /// <param name="weightQuantity">.</param>
-        public override void AddToQuantityInActivityItem(object selectedActivityItem, decimal quantity, decimal baseQuantity, decimal weightQuantity)
+        public override void AddToQuantityInActivityItem(
+            object selectedActivityItem,
+            decimal quantity,
+            decimal baseQuantity,
+            decimal weightQuantity)
         {
             throw new NotImplementedException();
         }
@@ -162,7 +166,9 @@ namespace dMobile.Controller.Activity_Item
         /// <param name="gridMainActivity">The GridMainActivity<see cref="Grid"/>.</param>
         /// <param name="listViewMainActivity">The ListViewMainActivity<see cref="ListView"/>.</param>
         /// <returns>The <see cref="ObservableCollection{object}"/>.</returns>
-        public override ObservableCollection<object> DesignGrid(ref Grid gridMainActivity, ref ListView listViewMainActivity)
+        public override ObservableCollection<object> DesignGrid(
+            ref Grid gridMainActivity,
+            ref ListView listViewMainActivity)
         {
             throw new NotImplementedException();
         }
@@ -234,7 +240,11 @@ namespace dMobile.Controller.Activity_Item
         /// <param name="quantity">.</param>
         /// <param name="baseQuantity">.</param>
         /// <param name="weightQuantity">.</param>
-        public override void ReplaceQuantityInActivityItem(object selectedActivityItem, decimal quantity, decimal baseQuantity, decimal weightQuantity)
+        public override void ReplaceQuantityInActivityItem(
+            object selectedActivityItem,
+            decimal quantity,
+            decimal baseQuantity,
+            decimal weightQuantity)
         {
             throw new NotImplementedException();
         }
@@ -265,13 +275,13 @@ namespace dMobile.Controller.Activity_Item
         /// <returns><see cref="string"/> Get activity item control description.</returns>
         public override string GetControlDescription()
         {
-            return "Putaway.";
+            return "Skid put away.";
         }
 
         /// <summary>
         /// The Delete.
         /// </summary>
-        /// <returns>The <see cref="Task{int}"/>.</returns>
+        /// <returns>The <see cref="int"/>.</returns>
         public override async Task<int> Delete()
         {
             throw new NotImplementedException();
@@ -291,7 +301,7 @@ namespace dMobile.Controller.Activity_Item
         /// The GetComment.
         /// </summary>
         /// <param name="selectedActivityItem">The selectedActivityItem<see cref="object"/>.</param>
-        /// <returns>The <see cref="Task{string}"/>.</returns>
+        /// <returns>The <see cref="string"/>.</returns>
         public override Task<string> GetComment(object selectedActivityItem)
         {
             throw new NotImplementedException();
@@ -312,7 +322,7 @@ namespace dMobile.Controller.Activity_Item
         /// The CreateDeleteXML.
         /// </summary>
         /// <param name="data">The data<see cref="XDocument"/>.</param>
-        /// <returns>The <see cref="Task{string}"/>.</returns>
+        /// <returns>The <see cref="string"/>.</returns>
         public override Task<string> CreateDeleteXml(XDocument data)
         {
             throw new NotImplementedException();
@@ -331,7 +341,7 @@ namespace dMobile.Controller.Activity_Item
         /// <summary>
         /// The GetTotalQuantity.
         /// </summary>
-        /// <returns>The <see cref="Task{string}"/>.</returns>
+        /// <returns>The <see cref="string"/>.</returns>
         public override Task<string> GetTotalQuantity()
         {
             throw new NotImplementedException();

@@ -232,7 +232,7 @@ namespace dMobile.Controller.Activity_Item
         /// <summary>
         /// The Delete.
         /// </summary>
-        /// <returns>The <see cref="Task{int}"/>.</returns>
+        /// <returns>The <see cref="int"/>.</returns>
         public override async Task<int> Delete()
         {
             if (!this.SysEnv.SysSettings.IsDisconnectedMode)

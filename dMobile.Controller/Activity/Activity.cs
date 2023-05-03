@@ -454,7 +454,7 @@ namespace dMobile.Controller.Activity
         public void RegLayerListenerProgOut(IDataLayerEventListener listener)
         {
             this.OnDataLayerProgressOut += new DataLayerProgressOutEventHandler(
-                listener.OnLayerProgOut);
+                listener.OnLayerProgressOut);
         }
 
         /// <summary>
@@ -465,7 +465,7 @@ namespace dMobile.Controller.Activity
         public void UnregLayerListenerProgOut(IDataLayerEventListener listener)
         {
             this.OnDataLayerProgressOut -= new DataLayerProgressOutEventHandler(
-                listener.OnLayerProgOut);
+                listener.OnLayerProgressOut);
         }
     }
 }

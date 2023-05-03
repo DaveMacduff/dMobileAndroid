@@ -62,7 +62,7 @@ namespace dMobile.Controller.Activity_Detail
         /// <summary>
         /// The Delete.
         /// </summary>
-        /// <returns>The <see cref="Task{int}"/>.</returns>
+        /// <returns>The <see cref="int"/>.</returns>
         public override Task<int> Delete()
         {
             throw new NotImplementedException();

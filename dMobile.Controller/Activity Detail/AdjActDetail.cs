@@ -16,6 +16,7 @@ using dMobile.Controller.Activity_Item;
 using dMobile.GroundWork;
 using dMobile.Resources.Services;
 using dMobile.Resources.Types;
+using SQLite;
 using Xamarin.Forms;
 
 namespace dMobile.Controller.Activity_Detail
@@ -262,46 +263,49 @@ namespace dMobile.Controller.Activity_Detail
         }
 
         /// <summary>
-        /// The Delete.
+        /// Request delete from comm server, and delete the detail from the tables.
         /// </summary>
         /// <returns>The <see cref="Task"/>.</returns>
         public override async Task<int> Delete()
         {
             if (!this.SysEnv.SysSettings.IsDisconnectedMode)
             {
-                var extraData = XDocument.Parse("<?xml version=\"1.0\" encoding=\"utf-16\"" +
-                                                " standalone=\"yes\"?><params></params>");
+                var extraData = XDocument.Parse(
+                    "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?><params></params>");
                 var xmlDelete = await this.CreateDeleteXml(extraData);
-                var responseData = SysCommon.SubmitComm(xmlDelete);
+                _ = SysCommon.SubmitComm(xmlDelete);
             }
 
             // Delete from database
             var conn = DatabaseConnection.GetInstance().SQLConn;
-            await conn.RunInTransactionAsync(async delete =>
-            {
-                await conn.ExecuteAsync(
-                    "DELETE FROM tActivityDetailProductSchemeVariantXRef" +
-                    " WHERE ActivityDetailRefno = ?", this.DetailRefno);
-                await conn.ExecuteAsync(
-                    "DELETE FROM tActivityDetailAdjustment" +
-                    " WHERE ActivityDetailRefno = ?", this.DetailRefno);
-                await conn.ExecuteAsync(
-                    "DELETE FROM tActivityDetailExtra" +
-                    " WHERE ActivityDetailRefno = ?", this.DetailRefno);
-                await conn.ExecuteAsync(
-                    "DELETE FROM tActivityDetail" +
-                    " WHERE ActivityDetailRefno = ?", this.DetailRefno);
-            });
+            await conn.RunInTransactionAsync(DeleteFromTables);
 
-            //// delete row from DataView
-            var adj = this.ListDetails.OfType<AdjustmentDetail>().FirstOrDefault(
-                adjItem => adjItem.ActivityDetailFKRefno == this.DetailFkRefno);
-            if (adj != null)
-            {
-                _ = this.ListDetails.Remove(adj);
-            }
+            //////// delete row from DataView
+            ////var adj = this.ListDetails.OfType<AdjustmentDetail>().FirstOrDefault(
+            ////    adjItem => adjItem.ActivityDetailFKRefno == this.DetailFkRefno);
+            ////if (adj != null)
+            ////{
+            ////    _ = this.ListDetails.Remove(adj);
+            ////}
 
             return 0;
+
+            //////////////////////////////////////////////////////////////////////////
+            async void DeleteFromTables(SQLiteConnection deleteConn)
+            {
+                await conn.ExecuteAsync(
+                    "DELETE FROM tActivityDetailProductSchemeVariantXRef WHERE ActivityDetailRefno = ?",
+                    this.DetailRefno);
+                await conn.ExecuteAsync(
+                    "DELETE FROM tActivityDetailAdjustment WHERE ActivityDetailRefno = ?",
+                    this.DetailRefno);
+                await conn.ExecuteAsync(
+                    "DELETE FROM tActivityDetailExtra WHERE ActivityDetailRefno = ?",
+                    this.DetailRefno);
+                await conn.ExecuteAsync(
+                    "DELETE FROM tActivityDetail WHERE ActivityDetailRefno = ?",
+                    this.DetailRefno);
+            }
         }
 
         /// <summary>

@@ -21,7 +21,6 @@ namespace dMobile.Controller.Activity
         /// Initializes a new instance of the <see cref="PutAwaySkidActivity"/> class.
         /// </summary>
         public PutAwaySkidActivity()
-          : base()
         {
             this.FullClassName = typeof(PutAwaySkidActivity).FullName;
         }
@@ -68,7 +67,7 @@ namespace dMobile.Controller.Activity
         /// The GetActivityList.
         /// </summary>
         /// <param name="isSubmitBatch">.</param>
-        /// <returns>.</returns>
+        /// <returns>List of objects.</returns>
         public override Task<List<object>> GetActivityList(bool isSubmitBatch)
         {
             throw new NotImplementedException();
@@ -78,7 +77,7 @@ namespace dMobile.Controller.Activity
         /// The Search.
         /// </summary>
         /// <param name="searchText">.</param>
-        /// <returns>.</returns>
+        /// <returns>Observable collection of objects.</returns>
         public override ObservableCollection<object> Search(string searchText)
         {
             throw new NotImplementedException();
@@ -89,7 +88,7 @@ namespace dMobile.Controller.Activity
         /// </summary>
         /// <param name="gridMainActivity">The gridMainActivity<see cref="Grid"/>.</param>
         /// <param name="listViewMainActivity">The listViewMainActivity<see cref="ListView"/>.</param>
-        /// <returns>The <see cref="ObservableCollection{object}"/>.</returns>
+        /// <returns>Observable collection of objects.</returns>
         public override ObservableCollection<object> DesignGrid(ref Grid gridMainActivity, ref ListView listViewMainActivity)
         {
             throw new NotImplementedException();
@@ -144,7 +143,7 @@ namespace dMobile.Controller.Activity
         /// The Insert.
         /// </summary>
         /// <param name="xmlParams">The xmlParams<see cref="XDocument"/>.</param>
-        /// <returns>The <see cref="Task{int}"/>.</returns>
+        /// <returns>The <see cref="int"/>.</returns>
         public override Task<int> Insert(XDocument xmlParams)
         {
             throw new NotImplementedException();
@@ -183,7 +182,7 @@ namespace dMobile.Controller.Activity
         /// The ChangeStatus.
         /// </summary>
         /// <param name="selectedActivity">The selectedActivity<see cref="object"/>.</param>
-        /// <returns>The <see cref="Task{bool}"/>.</returns>
+        /// <returns>The <see cref="bool"/>.</returns>
         public override Task<bool> ChangeStatus(object selectedActivity)
         {
             throw new NotImplementedException();

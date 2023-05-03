@@ -15,6 +15,7 @@ using dMobile.Controller.Activity_Item;
 using dMobile.GroundWork;
 using dMobile.Resources.Services;
 using dMobile.Resources.Types;
+using SQLite;
 using Xamarin.Forms;
 
 namespace dMobile.Controller.Activity_Detail
@@ -248,7 +249,7 @@ namespace dMobile.Controller.Activity_Detail
         /// <summary>
         /// The Delete.
         /// </summary>
-        /// <returns>The <see cref="Task{int}"/>.</returns>
+        /// <returns>The <see cref="int"/>.</returns>
         public override async Task<int> Delete()
         {
             if (!this.SysEnv.SysSettings.IsDisconnectedMode)
@@ -260,32 +261,26 @@ namespace dMobile.Controller.Activity_Detail
 
             // Delete from database
             var conn = DatabaseConnection.GetInstance().SQLConn;
-            await conn.RunInTransactionAsync(async delete =>
-            {
-                await conn.ExecuteAsync(
-                    "DELETE FROM tActivityDetailProductSchemeVariantXRef" +
-                    " WHERE ActivityDetailRefno = ?", this.DetailRefno);
-                await conn.ExecuteAsync(
-                    "DELETE FROM tActivityDetailCount" +
-                    " WHERE ActivityDetailRefno = ?", this.DetailRefno);
-                await conn.ExecuteAsync(
-                    "DELETE FROM tActivityDetailExtra" +
-                    " WHERE ActivityDetailRefno = ?", this.DetailRefno);
-                await conn.ExecuteAsync(
-                    "DELETE FROM tActivityDetail" +
-                    " WHERE ActivityDetailRefno = ?", this.DetailRefno);
-            });
-
-            // delete row from DataView
-            var detail = this.ListDetails.OfType<CountDetail>().Where(
-                countDetail => countDetail.ActivityDetailFKRefno == this.DetailFkRefno).FirstOrDefault();
-
-            if (detail != null)
-            {
-                this.ListDetails.Remove(detail);
-            }
+            await conn.RunInTransactionAsync(DeleteFromTables);
 
             return 0;
+
+            //////////////////////////////////////////////////////////////////////////
+            async void DeleteFromTables(SQLiteConnection delete)
+            {
+                await conn.ExecuteAsync(
+                    "DELETE FROM tActivityDetailProductSchemeVariantXRef WHERE ActivityDetailRefno = ?",
+                    this.DetailRefno);
+                await conn.ExecuteAsync(
+                    "DELETE FROM tActivityDetailCount WHERE ActivityDetailRefno = ?",
+                    this.DetailRefno);
+                await conn.ExecuteAsync(
+                    "DELETE FROM tActivityDetailExtra WHERE ActivityDetailRefno = ?",
+                    this.DetailRefno);
+                await conn.ExecuteAsync(
+                    "DELETE FROM tActivityDetail WHERE ActivityDetailRefno = ?",
+                    this.DetailRefno);
+            }
         }
 
         /// <summary>
@@ -1128,10 +1123,30 @@ namespace dMobile.Controller.Activity_Detail
         {
             mainActivityItems.Add(actDetail);
 
-            var labelQtyHeader = new Label { Text = "Qty", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
-            var labelWeightHeader = new Label { Text = "Weight", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
-            var labelUnitCodeHeader = new Label { Text = string.Empty, VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
-            var labelSchemeIdHeader = new Label { Text = "Scheme ID", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
+            var labelQtyHeader = new Label
+            {
+                Text = "Qty",
+                VerticalOptions = LayoutOptions.Center,
+                FontAttributes = FontAttributes.Bold,
+            };
+            var labelWeightHeader = new Label
+            {
+                Text = "Weight",
+                VerticalOptions = LayoutOptions.Center,
+                FontAttributes = FontAttributes.Bold,
+            };
+            var labelUnitCodeHeader = new Label
+            {
+                Text = string.Empty,
+                VerticalOptions = LayoutOptions.Center,
+                FontAttributes = FontAttributes.Bold,
+            };
+            var labelSchemeIdHeader = new Label
+            {
+                Text = "Scheme ID",
+                VerticalOptions = LayoutOptions.Center,
+                FontAttributes = FontAttributes.Bold,
+            };
 
             this.ColumnWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(labelQtyHeader.Text);
             this.ColumnWidth1 = DependencyService.Get<IGridService>().CalculateTextWidth(labelWeightHeader.Text);

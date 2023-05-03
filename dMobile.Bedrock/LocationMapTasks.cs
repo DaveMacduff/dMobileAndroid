@@ -489,8 +489,8 @@ namespace dMobile.Bedrock
                                              + "WHERE tLocationMapSlot.LocationMapRefno = ?";
 
                         var results = await conn.QueryAsync<tLocationMapSlotQueryResult>(
-                        query,
-                        Convert.ToInt32(locMapRefno));
+                            query,
+                            Convert.ToInt32(locMapRefno));
 
                         if (results != null && results.Count > 0)
                         {

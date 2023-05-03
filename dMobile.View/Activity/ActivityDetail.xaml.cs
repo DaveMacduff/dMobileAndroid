@@ -592,7 +592,7 @@ namespace dMobile.View.Activity
         /// </summary>
         /// <param name="publisher">The publisher<see cref="IDataLayerEventPublisher"/>.</param>
         /// <param name="dataLayerEventArgs">The dataLayerEventArgs<see cref="DataLayerEventArgs"/>.</param>
-        public void OnLayerProgOut(IDataLayerEventPublisher publisher, DataLayerEventArgs dataLayerEventArgs)
+        public void OnLayerProgressOut(IDataLayerEventPublisher publisher, DataLayerEventArgs dataLayerEventArgs)
         {
             if (dataLayerEventArgs.CurrentValue > 0 && dataLayerEventArgs.MaxValue > 0)
             {
@@ -715,7 +715,7 @@ namespace dMobile.View.Activity
                 }
 
                 this.ListViewDisplayExtraInfo.ItemsSource = this.ExtraInfoItems;
-                this.ListViewMainActivity.ItemsSource = this.MainActivityItems;
+                ////this.ListViewMainActivity.ItemsSource = this.MainActivityItems;
             }
             catch (MessageOnlyException msgEx)
             {
@@ -791,7 +791,7 @@ namespace dMobile.View.Activity
 
             try
             {
-                this.Loading = true;
+                ////this.Loading = true;
 
                 // TODO: Verify key codes.
                 _ = Enum.TryParse(keyPressed, out Keycode keycode);
@@ -843,7 +843,7 @@ namespace dMobile.View.Activity
             }
             finally
             {
-                this.Loading = false;
+                ////this.Loading = false;
             }
 
             //////////////////////////////////////////////////////////////////////////
@@ -851,6 +851,8 @@ namespace dMobile.View.Activity
             {
                 try
                 {
+                    this.Loading = true;
+
                     // Check if there is an item in the data grid selected to delete.
                     IsItemSelected();
 
@@ -860,10 +862,10 @@ namespace dMobile.View.Activity
                     if (string.IsNullOrEmpty(this.ActDetail.SchemeData.LogisticUnitSkidNumber))
                     {
                         if (await this.DisplayAlert(
-                            this.ActDetail.GetControlDescription(),
-                            "Do you wish to delete this single detail?",
-                            "Yes",
-                            "No"))
+                                this.ActDetail.GetControlDescription(),
+                                "Do you wish to delete this single detail?",
+                                "Yes",
+                                "No"))
                         {
                             isDelItem = true;
                         }
@@ -873,20 +875,20 @@ namespace dMobile.View.Activity
                         var msg = $"Do you wish to delete all detail belonging to this skid" +
                                   $" {this.ActDetail.SchemeData.LogisticUnitSkidNumber}?";
                         if (await this.DisplayAlert(
-                            this.ActDetail.GetControlDescription(),
-                            msg,
-                            "Yes",
-                            "No"))
+                                this.ActDetail.GetControlDescription(),
+                                msg,
+                                "Yes",
+                                "No"))
                         {
                             isDelSkid = true;
                         }
                         else
                         {
                             if (await this.DisplayAlert(
-                                this.ActDetail.GetControlDescription(),
-                                "Do you wish to delete this single detail?",
-                                "Yes",
-                                "No"))
+                                    this.ActDetail.GetControlDescription(),
+                                    "Do you wish to delete this single detail?",
+                                    "Yes",
+                                    "No"))
                             {
                                 isDelItem = true;
                             }
@@ -905,7 +907,10 @@ namespace dMobile.View.Activity
                 }
                 catch (MessageOnlyException msgEx)
                 {
-                    var msg = (msgEx.Message.IndexOf("MSGBOX-", StringComparison.Ordinal) == -1) ? msgEx.Message : msgEx.Message["MSGBOX-".Length..];
+                    this.Loading = false;
+                    var msg = (msgEx.Message.IndexOf("MSGBOX-", StringComparison.Ordinal) == -1)
+                        ? msgEx.Message
+                        : msgEx.Message["MSGBOX-".Length..];
                     await Device.InvokeOnMainThreadAsync(async () =>
                         await Application.Current.MainPage.DisplayAlert(
                             this.GetControlDescription(),
@@ -914,13 +919,14 @@ namespace dMobile.View.Activity
                 }
                 catch (Exception ex)
                 {
+                    this.Loading = false;
                     await Device.InvokeOnMainThreadAsync(async () =>
                     {
                         var errRpt = new FormErrorReport(this.ActSubType, ex);
                         _ = await errRpt.ShowDialog();
                     });
                 }
-
+                
                 //////////////////////////////////////////////////////////////////////////
                 void IsItemSelected()
                 {
@@ -944,19 +950,17 @@ namespace dMobile.View.Activity
                     // Submit the request, and delete it from the data table.
                     _ = await this.ActDetail.Delete();
 
-                    if (this.SysEnv.SysSettings.IsDisconnectedMode)
-                    {
-                        // Update the activity line item quantities.
-                        this.ActDetail.ActItem.AddToQuantityInActivityItem(
-                            this.ActDetail.ActItem.SelectedItem,
-                            this.ActDetail.Quantity * -1,
-                            this.ActDetail.BaseQuantity * -1,
-                            this.ActDetail.WeightQuantity * -1);
+                    // Update the activity line item quantities.
+                    this.ActDetail.ActItem.AddToQuantityInActivityItem(
+                        this.ActDetail.ActItem.SelectedItem,
+                        this.ActDetail.Quantity * -1,
+                        this.ActDetail.BaseQuantity * -1,
+                        this.ActDetail.WeightQuantity * -1);
 
-                        // Update the table item quantity.
-                        await this.ActDetail.ActItem.UpdateItemTableQuantity(this.ActDetail.ActItem.SelectedItem);
-                    }
+                    // Update the table item quantity.
+                    await this.ActDetail.ActItem.UpdateItemTableQuantity(this.ActDetail.ActItem.SelectedItem);
 
+                    this.Loading = false;
                     this.OnAppearing();
                 }
 
@@ -979,6 +983,7 @@ namespace dMobile.View.Activity
 
                     // Submit the request, and delete it from the data table.
                     await this.ActDetail.DeleteSkid(skidInfo);
+                    this.Loading = false;
                     this.OnAppearing();
                 }
             }

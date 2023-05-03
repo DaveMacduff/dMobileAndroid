@@ -491,7 +491,7 @@ namespace dMobile.Controller.Activity_Item
         /// <summary>
         /// The Delete.
         /// </summary>
-        /// <returns>The <see cref="Task{int}"/>.</returns>
+        /// <returns>The <see cref="int"/>.</returns>
         public override async Task<int> Delete()
         {
             throw new NotImplementedException();
@@ -511,7 +511,7 @@ namespace dMobile.Controller.Activity_Item
         /// The GetComment.
         /// </summary>
         /// <param name="selectedActivityItem">The selectedActivityItem<see cref="object"/>.</param>
-        /// <returns>The <see cref="Task{string}"/>.</returns>
+        /// <returns>The <see cref="string"/>.</returns>
         public override Task<string> GetComment(object selectedActivityItem)
         {
             throw new NotImplementedException();
@@ -532,7 +532,7 @@ namespace dMobile.Controller.Activity_Item
         /// The CreateDeleteXML.
         /// </summary>
         /// <param name="data">The data<see cref="XDocument"/>.</param>
-        /// <returns>The <see cref="Task{string}"/>.</returns>
+        /// <returns>The <see cref="string"/>.</returns>
         public override Task<string> CreateDeleteXml(XDocument data)
         {
             throw new NotImplementedException();
@@ -551,7 +551,7 @@ namespace dMobile.Controller.Activity_Item
         /// <summary>
         /// The GetTotalQuantity.
         /// </summary>
-        /// <returns>The <see cref="Task{string}"/>.</returns>
+        /// <returns>The <see cref="string"/>.</returns>
         public override Task<string> GetTotalQuantity()
         {
             throw new NotImplementedException();

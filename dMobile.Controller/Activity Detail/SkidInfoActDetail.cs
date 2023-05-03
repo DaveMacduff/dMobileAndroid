@@ -227,7 +227,7 @@ namespace dMobile.Controller.Activity_Detail
         /// <summary>
         /// Delete the currently selected skid activity detail.
         /// </summary>
-        /// <returns><see cref="Task{int}"/> Always returns zero.</returns>
+        /// <returns><see cref="int"/> Always returns zero.</returns>
         public override async Task<int> Delete()
         {
             if (!this.SysEnv.SysSettings.IsDisconnectedMode)

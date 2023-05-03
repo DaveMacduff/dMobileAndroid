@@ -2,29 +2,22 @@
 // Copyright (c) InterSect Business Systems Inc. All rights reserved.
 // </copyright>
 
-using dMobile.Controller.Activity;
-using dMobile.Controller.Activity_Detail;
-using dMobile.Controller.Activity_Item;
-
 namespace dMobile.View.Activity
 {
     using System;
-    using System.Collections.Generic;
     using System.Collections.ObjectModel;
-    using System.Data;
-    using System.Drawing;
     using System.Linq;
-    using System.Runtime.CompilerServices;
     using System.Text;
     using System.Threading.Tasks;
     using System.Xml;
     using System.Xml.Linq;
     using Android.Views;
-    using dMobile.BarCodeScanner;
     using dMobile.BarCodeScanner.BarCodeParsing;
     using dMobile.BarCodeScanner.BarCodeScanners;
     using dMobile.Bedrock;
-    using dMobile.Controller;
+    using dMobile.Controller.Activity;
+    using dMobile.Controller.Activity_Detail;
+    using dMobile.Controller.Activity_Item;
     using dMobile.Resources.Enums;
     using dMobile.View.CustomPages;
     using dMobile.View.Forms;
@@ -118,15 +111,12 @@ namespace dMobile.View.Activity
                             {
                                 _ = this.ActDetail.ListDetails.Remove(this.ListViewMainActivity.SelectedItem);
 
-                                // Delete needs to rebind the the grid to the proper dataview depending on the record count
-                                if (this.ActDetail.ListDetails.Count == 0)
+                                // Delete needs to rebind the the grid to the proper data view depending on the record count
+                                await Device.InvokeOnMainThreadAsync(() =>
                                 {
-                                    await Device.InvokeOnMainThreadAsync(() =>
-                                    {
-                                        this.MainActivityItems = this.ActDetailOnSkid.DesignGrid(ref this.GridMainActivity, ref this.ListViewMainActivity);
-                                        this.ListViewMainActivity.ItemsSource = this.MainActivityItems;
-                                    });
-                                }
+                                    this.MainActivityItems = this.ActDetailOnSkid.DesignGrid(ref this.GridMainActivity, ref this.ListViewMainActivity);
+                                    this.ListViewMainActivity.ItemsSource = this.MainActivityItems;
+                                });
                             }
                         }
                     }
@@ -234,6 +224,7 @@ namespace dMobile.View.Activity
         private bool IsControlLoaded { get; set; } = false;
 
         public ObservableCollection<string> ExtraInfoItems { get; set; }
+
         public ObservableCollection<object> MainActivityItems { get; set; }
 
         /// <summary>
@@ -345,13 +336,7 @@ namespace dMobile.View.Activity
         }
 
         /// <summary>
-        ///
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        /// <remarks></remarks>
-        /// <summary>
-        ///
+        /// 
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
@@ -389,11 +374,16 @@ namespace dMobile.View.Activity
                     await this.ScannerDisable();
                     this.ActItem.ProdInfo = this.OrigProdInfoOnSkid;
 
-                    if (await Device.InvokeOnMainThreadAsync(async () => await this.DisplayAlert("Select UOM", "Select a different unit of measure?", "Yes", "No")))
+                    if (await Device.InvokeOnMainThreadAsync(async () =>
+                            await this.DisplayAlert("Select UOM", "Select a different unit of measure?", "Yes", "No")))
                     {
-                        var form = new FormDialogContainer(EDialogTypes.SelectProductUnitFilterToProduct, this.ActItem, this.ActSubType);
+                        var form = new FormDialogContainer(
+                            EDialogTypes.SelectProductUnitFilterToProduct,
+                            this.ActItem,
+                            this.ActSubType);
 
-                        if (await Device.InvokeOnMainThreadAsync(async () => await form.DisplayControl.ShowDialog() == DialogResult.OK))
+                        if (await Device.InvokeOnMainThreadAsync(async () =>
+                                await form.DisplayControl.ShowDialog() == DialogResult.OK))
                         {
                             var xmlDoc = await form.GetXML();
                             var prodUnitRefno = int.Parse(xmlDoc.Root.Element("ProductUnitRefno").Value);
@@ -405,10 +395,11 @@ namespace dMobile.View.Activity
                         }
                     }
 
-                    var detail = new dMobile.Resources.Types.ActivityDetail();
+                    // Clear the quantities and scheme components, defaulting dates.
                     this.ActDetail.ClearProperties();
-
-                    var fillQty = SysCommon.FillQuantityStructureFromQuantity((ProductInfo)this.ActItem.ProdInfo, this.ActDetailOnSkid.Quantity);
+                    var fillQty = SysCommon.FillQuantityStructureFromQuantity(
+                        (ProductInfo)this.ActItem.ProdInfo,
+                        this.ActDetailOnSkid.Quantity);
 
                     this.ActDetail.Quantity = fillQty.Quantity;
                     this.ActDetail.BaseQuantity = fillQty.BaseQuantity;
@@ -721,7 +712,15 @@ namespace dMobile.View.Activity
             {
                 if (await this.IsReadyToSave())
                 {
-                    var responseData = SysCommon.SubmitComm(this.MakeSkidPutAwaySubmitString());
+                    await Task.Run(() =>
+                    {
+                        // Explicit GC, Xamarin forms not disposing of objects properly
+                        GC.Collect();
+                        GC.WaitForPendingFinalizers();
+                    });
+
+                    var request = await this.MakeSkidPutAwaySubmitString();
+                    var responseData = SysCommon.SubmitComm(request);
                     var xmlDoc = new XmlDocument();
                     xmlDoc.LoadXml(responseData);
                     await Device.InvokeOnMainThreadAsync(async () => await this.DisplayAlert(
@@ -885,7 +884,7 @@ namespace dMobile.View.Activity
         /// </summary>
         /// <returns></returns>
         /// <remarks></remarks>
-        public string MakeSkidPutAwaySubmitString()
+        public async Task<string> MakeSkidPutAwaySubmitString()
         {
             var production = string.Empty;
             var bestBefore = string.Empty;
@@ -898,7 +897,8 @@ namespace dMobile.View.Activity
             _ = request.Append("<?xml version=\'1.0\' encoding=\'utf-16\' standalone=\'yes\'?>");
             _ = request.Append("<imclient>");
             _ = request.Append("<command><action>SUBMIT PUT AWAY SKID</action></command>");
-            _ = request.Append(SysCommon.GetRequestDefaults(false).Result);
+            var reqDef = await SysCommon.GetRequestDefaults(false);
+            _ = request.Append(reqDef);
 
             for (var idx = 0; idx <= skidDetail.Count - 1; idx++)
             {

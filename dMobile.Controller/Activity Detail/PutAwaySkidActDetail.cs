@@ -249,7 +249,7 @@ namespace dMobile.Controller.Activity_Detail
         /// <summary>
         /// The Delete.
         /// </summary>
-        /// <returns>The <see cref="Task{int}"/>.</returns>
+        /// <returns>The <see cref="int"/>.</returns>
         public override async Task<int> Delete()
         {
             if (this.ListDetails != null)
@@ -504,7 +504,7 @@ namespace dMobile.Controller.Activity_Detail
         /// <returns><see cref="string"/> Get activity item control description.</returns>
         public override string GetControlDescription()
         {
-            throw new NotImplementedException();
+            return "Skid Put Away Detail";
         }
 
         /// <summary>

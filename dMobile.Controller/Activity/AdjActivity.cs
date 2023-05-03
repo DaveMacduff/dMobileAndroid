@@ -604,7 +604,7 @@ namespace dMobile.Controller.Activity
         /// Insert, create a new activity adjustment header.
         /// </summary>
         /// <param name="xmlParams">The xmlParams<see cref="XDocument"/>.</param>
-        /// <returns>The <see cref="Task{int}"/>.</returns>
+        /// <returns>The <see cref="int"/>.</returns>
         public override Task<int> Insert(XDocument xmlParams)
         {
             throw new NotImplementedException();

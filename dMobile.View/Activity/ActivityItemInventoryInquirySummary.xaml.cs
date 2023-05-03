@@ -613,11 +613,11 @@ namespace dMobile.View.Activity
         }
 
         /// <summary>
-        /// The OnLayerProgOut.
+        /// The OnLayerProgressOut.
         /// </summary>
         /// <param name="publisher">.</param>
         /// <param name="dataLayerEventArgs">.</param>
-        public void OnLayerProgOut(IDataLayerEventPublisher publisher, DataLayerEventArgs dataLayerEventArgs)
+        public void OnLayerProgressOut(IDataLayerEventPublisher publisher, DataLayerEventArgs dataLayerEventArgs)
         {
         }
 

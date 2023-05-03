@@ -344,7 +344,7 @@ namespace dMobile.Controller.Activity_Item
         /// Get activity item comment.
         /// </summary>
         /// <param name="selectedActivityItem"><see cref="object"/> Selected activity item.</param>
-        /// <returns><see cref="Task{string}"/> Line item comment.</returns>
+        /// <returns><see cref="string"/> Line item comment.</returns>
         public abstract Task<string> GetComment(object selectedActivityItem);
 
         /// <summary>
@@ -365,7 +365,7 @@ namespace dMobile.Controller.Activity_Item
         /// Create delete XML request.
         /// </summary>
         /// <param name="data"><see cref="XDocument"/> Create delete XML request.</param>
-        /// <returns><see cref="Task{string}"/> Delete XML.</returns>
+        /// <returns><see cref="string"/> Delete XML.</returns>
         public abstract Task<string> CreateDeleteXml(XDocument data);
 
         /// <summary>
@@ -688,7 +688,7 @@ namespace dMobile.Controller.Activity_Item
         public void RegLayerListenerProgOut(IDataLayerEventListener listener)
         {
             this.OnDataLayerProgressOut += new DataLayerProgressOutEventHandler(
-                listener.OnLayerProgOut);
+                listener.OnLayerProgressOut);
         }
 
         /// <summary>
@@ -698,7 +698,7 @@ namespace dMobile.Controller.Activity_Item
         public void UnregLayerListenerProgOut(IDataLayerEventListener listener)
         {
             this.OnDataLayerProgressOut -= new DataLayerProgressOutEventHandler(
-                listener.OnLayerProgOut);
+                listener.OnLayerProgressOut);
         }
     }
 }

@@ -20,16 +20,16 @@ using Xamarin.Forms;
 namespace dMobile.Controller.Activity_Detail
 {
     /// <summary>
-    /// Defines the <see cref="MoveInventoryActDetail" />.
+    ///     Defines the <see cref="MoveInventoryActDetail" />.
     /// </summary>
     public class MoveInventoryActDetail : ActDetail
     {
         /// <summary>
-        /// Initializes a new instance of the <see cref="MoveInventoryActDetail"/> class.
+        ///     Initializes a new instance of the <see cref="MoveInventoryActDetail" /> class.
         /// </summary>
         /// <param name="activityItem">.</param>
         public MoveInventoryActDetail(ActItem activityItem)
-          : base(activityItem)
+            : base(activityItem)
         {
             this.FullClassName = typeof(MoveInventoryActDetail).FullName;
 
@@ -45,59 +45,61 @@ namespace dMobile.Controller.Activity_Detail
         }
 
         /// <summary>
-        /// Gets or sets the grid column 0 width...
+        ///     Gets or sets the grid column 0 width...
         /// </summary>
-        private double ColumnWidth0 { get; set; } = 0;
+        private double ColumnWidth0 { get; set; }
 
         /// <summary>
-        /// Gets or sets the grid column 1 width...
+        ///     Gets or sets the grid column 1 width...
         /// </summary>
-        private double ColumnWidth1 { get; set; } = 0;
+        private double ColumnWidth1 { get; set; }
 
         /// <summary>
-        /// Gets or sets the grid column 2 width...
+        ///     Gets or sets the grid column 2 width...
         /// </summary>
-        private double ColumnWidth2 { get; set; } = 0;
+        private double ColumnWidth2 { get; set; }
 
         /// <summary>
-        /// Gets or sets the grid column 3 width...
+        ///     Gets or sets the grid column 3 width...
         /// </summary>
-        private double ColumnWidth3 { get; set; } = 0;
+        private double ColumnWidth3 { get; set; }
 
         /// <summary>
-        /// Gets or sets the grid column 4 width...
+        ///     Gets or sets the grid column 4 width...
         /// </summary>
-        private double ColumnWidth4 { get; set; } = 0;
+        private double ColumnWidth4 { get; set; }
 
         /// <summary>
-        /// Gets or sets the grid column 5 width...
+        ///     Gets or sets the grid column 5 width...
         /// </summary>
-        private double ColumnWidth5 { get; set; } = 0;
+        private double ColumnWidth5 { get; set; }
 
         /// <summary>
-        /// Gets or sets the resource dictionary...
+        ///     Gets or sets the resource dictionary...
         /// </summary>
-        private ResourceDictionary ResourceDictionary { get; set; } = new ResourceDictionary();
+        private ResourceDictionary ResourceDictionary { get; } = new ResourceDictionary();
 
         /// <summary>
-        /// Gets or sets the ListMoveInventoryDetails
-        /// Gets or sets a list of picking details..
+        ///     Gets or sets the ListMoveInventoryDetails
+        ///     Gets or sets a list of picking details..
         /// </summary>
         private List<MoveDetail> ListMoveInventoryDetails { get; set; } = new List<MoveDetail>();
 
         /// <summary>
-        /// Find or insert an activity detail into the list details.
+        ///     Find or insert an activity detail into the list details.
         /// </summary>
-        /// <param name="mainActivityItems"><see cref="ObservableCollection{object}"/> Main activity items.</param>
-        /// <returns><see cref="ActivityDetail"/> Activity detail.</returns>
+        /// <param name="mainActivityItems"><see cref="ObservableCollection{object}" /> Main activity items.</param>
+        /// <returns><see cref="ActivityDetail" /> Activity detail.</returns>
         public override ActivityDetail InsertListDetail(ObservableCollection<object> mainActivityItems)
         {
             MoveDetail detail = null;
             if (this.ListDetails != null)
             {
-                detail = new MoveDetail();
-                detail.ActivityDetailRefno = this.DetailRefno;
-                detail.ActivityDetailFKRefno = this.DetailFkRefno;
+                detail = new MoveDetail
+                {
+                    ActivityDetailRefno = this.DetailRefno,
+                    ActivityDetailFKRefno = this.DetailFkRefno,
+                };
 
                 this.InsertListDetailProduct(detail);
                 this.InsertListDetailQuantity(detail);
@@ -115,9 +117,9 @@ namespace dMobile.Controller.Activity_Detail
         }
 
         /// <summary>
-        /// Update detail in the detail list.
+        ///     Update detail in the detail list.
         /// </summary>
-        /// <param name="listDetailIdx"><see cref="int"/> Zero based list detail index.</param>
+        /// <param name="listDetailIdx"><see cref="int" /> Zero based list detail index.</param>
         public override void UpdateListDetail(int listDetailIdx)
         {
             var detail = (MoveDetail)this.ListDetails[listDetailIdx];
@@ -132,50 +134,50 @@ namespace dMobile.Controller.Activity_Detail
         }
 
         /// <summary>
-        /// The InsertSkid.
+        ///     Insert a skid.
         /// </summary>
         /// <param name="skidInfo">.</param>
-        /// <returns>The <see cref="Task"/>.</returns>
+        /// <returns>The <see cref="Task" />.</returns>
         public override Task InsertSkid(SysSkidInfo skidInfo)
         {
             throw new NotImplementedException();
         }
 
         /// <summary>
-        /// The DeleteSkid.
+        ///     Delete a skid.
         /// </summary>
         /// <param name="skidInfo">.</param>
-        /// <returns>The <see cref="Task"/>.</returns>
+        /// <returns>The <see cref="Task" />.</returns>
         public override Task DeleteSkid(SysSkidInfo skidInfo)
         {
             throw new NotImplementedException();
         }
 
         /// <summary>
-        /// The Insert.
+        ///     The Insert.
         /// </summary>
         /// <param name="data">.</param>
-        /// <returns>The <see cref="Task"/>.</returns>
+        /// <returns>The <see cref="Task" />.</returns>
         public override async Task Insert(XDocument data)
         {
             throw new NotImplementedException();
         }
 
         /// <summary>
-        /// The Delete.
+        ///     The Delete.
         /// </summary>
-        /// <returns>The <see cref="Task{int}"/>.</returns>
+        /// <returns>The <see cref="int" />.</returns>
         public override async Task<int> Delete()
         {
             throw new NotImplementedException();
         }
 
         /// <summary>
-        /// The Submit.
+        ///     The Submit.
         /// </summary>
-        /// <param name="selectedActivityDetail">The selectedActivityDetail<see cref="object"/>.</param>
+        /// <param name="selectedActivityDetail">The selectedActivityDetail<see cref="object" />.</param>
         /// <param name="data">.</param>
-        /// <returns>The <see cref="Task"/>.</returns>
+        /// <returns>The <see cref="Task" />.</returns>
         public override async Task Submit(object selectedActivityDetail, XDocument data)
         {
             if (selectedActivityDetail == null)
@@ -203,18 +205,18 @@ namespace dMobile.Controller.Activity_Detail
         }
 
         /// <summary>
-        /// The Refresh.
+        ///     The Refresh.
         /// </summary>
-        /// <returns>The <see cref="Task"/>.</returns>
+        /// <returns>The <see cref="Task" />.</returns>
         public override Task Refresh()
         {
             throw new NotImplementedException();
         }
 
         /// <summary>
-        /// The GetRefno.
+        ///     The GetRefno.
         /// </summary>
-        /// <param name="selectedActivityDetail">The selectedActivityDetail<see cref="object"/>.</param>
+        /// <param name="selectedActivityDetail">The selectedActivityDetail<see cref="object" />.</param>
         /// <returns>.</returns>
         public override int GetRefno(object selectedActivityDetail)
         {
@@ -222,9 +224,9 @@ namespace dMobile.Controller.Activity_Detail
         }
 
         /// <summary>
-        /// The GetFKRefno.
+        ///     The GetFKRefno.
         /// </summary>
-        /// <param name="selectedActivityDetail">The selectedActivityDetail<see cref="object"/>.</param>
+        /// <param name="selectedActivityDetail">The selectedActivityDetail<see cref="object" />.</param>
         /// <returns>.</returns>
         public override int GetFkRefno(object selectedActivityDetail)
         {
@@ -232,7 +234,7 @@ namespace dMobile.Controller.Activity_Detail
         }
 
         /// <summary>
-        /// The GetActivityDetailList.
+        ///     The GetActivityDetailList.
         /// </summary>
         /// <param name="isSubmitBatch">.</param>
         /// <returns>.</returns>
@@ -298,11 +300,11 @@ namespace dMobile.Controller.Activity_Detail
         }
 
         /// <summary>
-        /// The DesignGrid.
+        ///     The DesignGrid.
         /// </summary>
-        /// <param name="gridMain">The gridMain<see cref="Grid"/>.</param>
-        /// <param name="listViewMain">The listViewMain<see cref="ListView"/>.</param>
-        /// <returns>The <see cref="ObservableCollection{object}"/>.</returns>
+        /// <param name="gridMain">The gridMain<see cref="Grid" />.</param>
+        /// <param name="listViewMain">The listViewMain<see cref="ListView" />.</param>
+        /// <returns>Observable collection of objects.</returns>
         public override ObservableCollection<object> DesignGrid(ref Grid gridMain, ref ListView listViewMain)
         {
             var observableCollection = new ObservableCollection<object>();
@@ -370,10 +372,14 @@ namespace dMobile.Controller.Activity_Detail
             var col6Size = Math.Max(labelCode.Text.Length, 30);
             this.ColumnWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(labelCode.Text.PadRight(col1Size));
             this.ColumnWidth1 = DependencyService.Get<IGridService>().CalculateTextWidth(labelBc.Text.PadRight(col2Size));
-            this.ColumnWidth2 = DependencyService.Get<IGridService>().CalculateTextWidth(labelUnitCode.Text.PadRight(col3Size));
-            this.ColumnWidth3 = DependencyService.Get<IGridService>().CalculateTextWidth(labelQuantity.Text.PadRight(col4Size));
-            this.ColumnWidth4 = DependencyService.Get<IGridService>().CalculateTextWidth(labelWeight.Text.PadRight(col5Size));
-            this.ColumnWidth5 = DependencyService.Get<IGridService>().CalculateTextWidth(labelSchemeId.Text.PadRight(col6Size));
+            this.ColumnWidth2 = DependencyService.Get<IGridService>()
+                .CalculateTextWidth(labelUnitCode.Text.PadRight(col3Size));
+            this.ColumnWidth3 = DependencyService.Get<IGridService>()
+                .CalculateTextWidth(labelQuantity.Text.PadRight(col4Size));
+            this.ColumnWidth4 = DependencyService.Get<IGridService>()
+                .CalculateTextWidth(labelWeight.Text.PadRight(col5Size));
+            this.ColumnWidth5 = DependencyService.Get<IGridService>()
+                .CalculateTextWidth(labelSchemeId.Text.PadRight(col6Size));
 
             // Column definitions.
             const int thicknessUniformSize = 5;
@@ -424,18 +430,18 @@ namespace dMobile.Controller.Activity_Detail
 
             foreach (MoveDetail moveInventoryDetail in observableCollection)
             {
-                var detailWidth0 = DependencyService.Get<IGridService>().
-                    CalculateTextWidth(moveInventoryDetail.ProductCode);
-                var detailWidth1 = DependencyService.Get<IGridService>().
-                    CalculateTextWidth(moveInventoryDetail.ProductUnitBC);
-                var detailWidth2 = DependencyService.Get<IGridService>().
-                    CalculateTextWidth(moveInventoryDetail.UnitCode);
-                var detailWidth3 = DependencyService.Get<IGridService>().
-                    CalculateTextWidth($"{moveInventoryDetail.ActivityDetailQuantity:F3}");
-                var detailWidth4 = DependencyService.Get<IGridService>().
-                    CalculateTextWidth($"{moveInventoryDetail.ActivityDetailWeightQuantity:F3}");
-                var detailWidth5 = DependencyService.Get<IGridService>().
-                    CalculateTextWidth(moveInventoryDetail.ActivityDetailSchemeID);
+                var detailWidth0 = DependencyService.Get<IGridService>()
+                    .CalculateTextWidth(moveInventoryDetail.ProductCode);
+                var detailWidth1 = DependencyService.Get<IGridService>()
+                    .CalculateTextWidth(moveInventoryDetail.ProductUnitBC);
+                var detailWidth2 = DependencyService.Get<IGridService>()
+                    .CalculateTextWidth(moveInventoryDetail.UnitCode);
+                var detailWidth3 = DependencyService.Get<IGridService>()
+                    .CalculateTextWidth($"{moveInventoryDetail.ActivityDetailQuantity:F3}");
+                var detailWidth4 = DependencyService.Get<IGridService>()
+                    .CalculateTextWidth($"{moveInventoryDetail.ActivityDetailWeightQuantity:F3}");
+                var detailWidth5 = DependencyService.Get<IGridService>()
+                    .CalculateTextWidth(moveInventoryDetail.ActivityDetailSchemeID);
 
                 if (detailWidth0 > this.ColumnWidth0)
                 {
@@ -480,7 +486,7 @@ namespace dMobile.Controller.Activity_Detail
         }
 
         /// <summary>
-        /// The Search.
+        ///     The Search.
         /// </summary>
         /// <param name="searchText">.</param>
         /// <returns>.</returns>
@@ -491,7 +497,7 @@ namespace dMobile.Controller.Activity_Detail
 
 
         /// <summary>
-        /// The CreateDeleteXML.
+        ///     The CreateDeleteXML.
         /// </summary>
         /// <param name="data">.</param>
         /// <returns>.</returns>
@@ -501,14 +507,14 @@ namespace dMobile.Controller.Activity_Detail
         }
 
         /// <summary>
-        /// The CreateSubmitXMLAll.
+        ///     The CreateSubmitXMLAll.
         /// </summary>
         /// <param name="data">.</param>
         /// <returns>.</returns>
         public async Task<string> CreateSubmitXmlAll(XDocument data)
         {
             var xmlString = new StringBuilder();
-            var xml = XmlWriter.Create(xmlString, new XmlWriterSettings() { Async = true });
+            var xml = XmlWriter.Create(xmlString, new XmlWriterSettings { Async = true });
 
             var request = XDocument.Parse(
                 "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>"
@@ -536,14 +542,14 @@ namespace dMobile.Controller.Activity_Detail
         }
 
         /// <summary>
-        /// The CreateSubmitXML.
+        ///     The CreateSubmitXML.
         /// </summary>
         /// <param name="data">.</param>
         /// <returns>.</returns>
         public override async Task<string> CreateSubmitXml(XDocument data)
         {
             var xmlString = new StringBuilder();
-            var xml = XmlWriter.Create(xmlString, new XmlWriterSettings() { Async = true });
+            var xml = XmlWriter.Create(xmlString, new XmlWriterSettings { Async = true });
             var production = string.Empty;
             var bestBefore = string.Empty;
 
@@ -597,21 +603,21 @@ namespace dMobile.Controller.Activity_Detail
         }
 
         /// <summary>
-        /// Get the activity item control description.
+        ///     Get the activity item control description.
         /// </summary>
-        /// <returns><see cref="string"/> Get activity item control description.</returns>
+        /// <returns><see cref="string" /> Get activity item control description.</returns>
         public override string GetControlDescription()
         {
-            return string.Format("Move Detail");
+            return "Move Detail";
         }
 
         /// <summary>
-        /// Design the activity grid.
+        ///     Design the activity grid.
         /// </summary>
-        /// <param name="gridMain"><see cref="Grid"/> Activity grid.</param>
-        /// <param name="actDetail"><see cref="ActivityDetail"/> Activity detail.</param>
-        /// <param name="mainActivityItems"><see cref="ObservableCollection(object)"/> Main activity items list.</param>
-        /// <returns><see cref="DataTemplate"/> Data template.</returns>
+        /// <param name="gridMain"><see cref="Grid" /> Activity grid.</param>
+        /// <param name="actDetail"><see cref="ActivityDetail" /> Activity detail.</param>
+        /// <param name="mainActivityItems"><see cref="ObservableCollection(object)" /> Main activity items list.</param>
+        /// <returns><see cref="DataTemplate" /> Data template.</returns>
         public override DataTemplate DesignGrid(
             ref Grid gridMain,
             ActivityDetail actDetail,
@@ -678,10 +684,14 @@ namespace dMobile.Controller.Activity_Detail
             var col6Size = Math.Max(labelCode.Text.Length, 30);
             this.ColumnWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(actDetail.ProductCode);
             this.ColumnWidth1 = DependencyService.Get<IGridService>().CalculateTextWidth(labelBc.Text.PadRight(col2Size));
-            this.ColumnWidth2 = DependencyService.Get<IGridService>().CalculateTextWidth(labelUnitCode.Text.PadRight(col3Size));
-            this.ColumnWidth3 = DependencyService.Get<IGridService>().CalculateTextWidth(labelQuantity.Text.PadRight(col4Size));
-            this.ColumnWidth4 = DependencyService.Get<IGridService>().CalculateTextWidth(labelWeight.Text.PadRight(col5Size));
-            this.ColumnWidth5 = DependencyService.Get<IGridService>().CalculateTextWidth(labelSchemeId.Text.PadRight(col6Size));
+            this.ColumnWidth2 = DependencyService.Get<IGridService>()
+                .CalculateTextWidth(labelUnitCode.Text.PadRight(col3Size));
+            this.ColumnWidth3 = DependencyService.Get<IGridService>()
+                .CalculateTextWidth(labelQuantity.Text.PadRight(col4Size));
+            this.ColumnWidth4 = DependencyService.Get<IGridService>()
+                .CalculateTextWidth(labelWeight.Text.PadRight(col5Size));
+            this.ColumnWidth5 = DependencyService.Get<IGridService>()
+                .CalculateTextWidth(labelSchemeId.Text.PadRight(col6Size));
 
             // Header grid
             var gridHeader = new Grid
@@ -768,9 +778,9 @@ namespace dMobile.Controller.Activity_Detail
         }
 
         /// <summary>
-        /// Create initial datatemplate.
+        ///     Create initial data template.
         /// </summary>
-        /// <returns></returns>
+        /// <returns>Move inventory data template.</returns>
         private DataTemplate CreateTemplate()
         {
             var dataTemplate = new DataTemplate(() =>
@@ -830,12 +840,18 @@ namespace dMobile.Controller.Activity_Detail
                 var col4Size = Math.Max(labelQuantity.Text.Length, 11);
                 var col5Size = Math.Max(labelWeight.Text.Length, 11);
                 var col6Size = Math.Max(labelCode.Text.Length, 40);
-                this.ColumnWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(labelCode.Text.PadRight(col1Size));
-                this.ColumnWidth1 = DependencyService.Get<IGridService>().CalculateTextWidth(labelBc.Text.PadRight(col2Size));
-                this.ColumnWidth2 = DependencyService.Get<IGridService>().CalculateTextWidth(labelUnitCode.Text.PadRight(col3Size));
-                this.ColumnWidth3 = DependencyService.Get<IGridService>().CalculateTextWidth(labelQuantity.Text.PadRight(col4Size));
-                this.ColumnWidth4 = DependencyService.Get<IGridService>().CalculateTextWidth(labelWeight.Text.PadRight(col5Size));
-                this.ColumnWidth5 = DependencyService.Get<IGridService>().CalculateTextWidth(labelSchemeId.Text.PadRight(col6Size));
+                this.ColumnWidth0 = DependencyService.Get<IGridService>()
+                    .CalculateTextWidth(labelCode.Text.PadRight(col1Size));
+                this.ColumnWidth1 = DependencyService.Get<IGridService>()
+                    .CalculateTextWidth(labelBc.Text.PadRight(col2Size));
+                this.ColumnWidth2 = DependencyService.Get<IGridService>()
+                    .CalculateTextWidth(labelUnitCode.Text.PadRight(col3Size));
+                this.ColumnWidth3 = DependencyService.Get<IGridService>()
+                    .CalculateTextWidth(labelQuantity.Text.PadRight(col4Size));
+                this.ColumnWidth4 = DependencyService.Get<IGridService>()
+                    .CalculateTextWidth(labelWeight.Text.PadRight(col5Size));
+                this.ColumnWidth5 = DependencyService.Get<IGridService>()
+                    .CalculateTextWidth(labelSchemeId.Text.PadRight(col6Size));
 
                 // Column definitions.
                 const int thicknessUniformSize = 5;

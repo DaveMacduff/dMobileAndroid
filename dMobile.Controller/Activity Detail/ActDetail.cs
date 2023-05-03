@@ -27,7 +27,7 @@ namespace dMobile.Controller.Activity_Detail
         /// Initializes a new instance of the <see cref="ActDetail"/> class.
         /// </summary>
         /// <param name="activityItem">.</param>
-        public ActDetail(ActItem activityItem)
+        protected ActDetail(ActItem activityItem)
         {
             this.ActItem = activityItem;
             this.ActSubType = this.ActItem.ActSubType;
@@ -171,7 +171,7 @@ namespace dMobile.Controller.Activity_Detail
         /// <summary>
         /// Delete one or a set of activity detail.
         /// </summary>
-        /// <returns><see cref="Task{int}"/> Previous non deleted detail foreign key reference number.</returns>
+        /// <returns><see cref="int"/> Previous non deleted detail foreign key reference number.</returns>
         /// <remarks>this is a test of the emergency broadcast system.</remarks>
         public abstract Task<int> Delete();
 
@@ -185,14 +185,14 @@ namespace dMobile.Controller.Activity_Detail
         ///  Create submission XML.
         /// </summary>
         /// <param name="data"><see cref="XDocument"/> Filter criteria.</param>
-        /// <returns>The <see cref="Task{string}"/> Submission XML.</returns>
+        /// <returns>The <see cref="string"/> Submission XML.</returns>
         public abstract Task<string> CreateSubmitXml(XDocument data);
 
         /// <summary>
         ///  Delete submission XML.
         /// </summary>
         /// <param name="data"><see cref="XDocument"/> Filter criteria.</param>
-        /// <returns>The <see cref="Task{string}"/> Deletion XML.</returns>
+        /// <returns>The <see cref="string"/> Deletion XML.</returns>
         public abstract Task<string> CreateDeleteXml(XDocument data);
 
         /// <summary>
@@ -509,7 +509,7 @@ namespace dMobile.Controller.Activity_Detail
         /// Create a submit product label XML request.
         /// </summary>
         /// <param name="data"><see cref="XDocument"/> Data to use to populate label.</param>
-        /// <returns><see cref="Task{string}"/> Submission string.</returns>
+        /// <returns><see cref="string"/> Submission string.</returns>
         public virtual Task<string> CreateSubmitProductLabelXml(XDocument data)
         {
             throw new NotImplementedException();
@@ -663,12 +663,23 @@ namespace dMobile.Controller.Activity_Detail
         /// Fill the activity detail object from XML data.
         /// </summary>
         /// <param name="data"><see cref="XDocument"/> Activity detail data.</param>
+        /// <exception cref="NullReferenceException"></exception>
         /// <returns><see cref="Task"/> Task operation.</returns>
         public async Task FillActDetailObjFromXml(XDocument data)
         {
-            if (!string.IsNullOrEmpty(data.Root.Element("ser_refno").Value))
+            data = data ?? throw new NullReferenceException("data");
+            if (data is { Root: null })
             {
-                this.DetailFkRefno = int.Parse(data.Root.Element("ser_refno").Value);
+                throw new NullReferenceException("data.Root");
+            }
+
+            if (!string.IsNullOrEmpty(data.Root.Element("ser_refno")?.Value))
+            {
+                var fkRefno = data.Root.Element("ser_refno")?.Value;
+                if (fkRefno != null)
+                {
+                    this.DetailFkRefno = int.Parse(fkRefno);
+                }
             }
 
             if (!string.IsNullOrEmpty(data.Root.Element("refno").Value))
@@ -822,7 +833,7 @@ namespace dMobile.Controller.Activity_Detail
         /// <param name="listener"><see cref="IDataAccessEventListener"/> Event listener.</param>
         public void RegLayerListenerProgOut(IDataLayerEventListener listener)
         {
-            this.OnDataLayerProgressOut += new DataLayerProgressOutEventHandler(listener.OnLayerProgOut);
+            this.OnDataLayerProgressOut += new DataLayerProgressOutEventHandler(listener.OnLayerProgressOut);
         }
 
         /// <summary>
@@ -831,7 +842,7 @@ namespace dMobile.Controller.Activity_Detail
         /// <param name="listener"><see cref="IDataAccessEventListener"/> Event listener.</param>
         public void UnregLayerListenerProgOut(IDataLayerEventListener listener)
         {
-            this.OnDataLayerProgressOut -= new DataLayerProgressOutEventHandler(listener.OnLayerProgOut);
+            this.OnDataLayerProgressOut -= new DataLayerProgressOutEventHandler(listener.OnLayerProgressOut);
         }
 
         /// <summary>

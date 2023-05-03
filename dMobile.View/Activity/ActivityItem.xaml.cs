@@ -7,7 +7,6 @@ namespace dMobile.View.Activity
     using System;
     using System.Collections.Generic;
     using System.Collections.ObjectModel;
-    using System.Data;
     using System.Linq;
     using System.Runtime.CompilerServices;
     using System.Text;
@@ -15,17 +14,17 @@ namespace dMobile.View.Activity
     using System.Xml;
     using System.Xml.Linq;
     using Android.Views;
-    using dMobile.BarCodeScanner.BarCodeParsing;
-    using dMobile.BarCodeScanner.BarCodeScanners;
-    using dMobile.Bedrock;
-    using dMobile.Controller;
+    using BarCodeScanner.BarCodeParsing;
+    using BarCodeScanner.BarCodeScanners;
+    using Bedrock;
+    using Controller;
     using dMobile.Controller.Activity;
-    using dMobile.Controller.Activity_Detail;
-    using dMobile.Controller.Activity_Item;
-    using dMobile.Resources.Enums;
-    using dMobile.Resources.Types;
-    using dMobile.View.CustomPages.Modal;
-    using dMobile.View.Forms;
+    using Controller.Activity_Detail;
+    using Controller.Activity_Item;
+    using Resources.Enums;
+    using Resources.Types;
+    using CustomPages.Modal;
+    using Forms;
     using Xamarin.Forms;
     using Xamarin.Forms.Xaml;
     using Resource = dMobile.Resources.Properties.Resources;
@@ -37,11 +36,6 @@ namespace dMobile.View.Activity
     public partial class ActivityItem : DMobileModal, IAppArea, IDataLayerEventListener
     {
         /// <summary>
-        /// First appearing lock object.
-        /// </summary>
-        private readonly object firstAppearingLock = new object();
-
-        /// <summary>
         /// Define the warehouse map location text information.
         /// </summary>
         private string cmdLocationText = string.Empty;
@@ -49,7 +43,7 @@ namespace dMobile.View.Activity
         /// <summary>
         /// Define a value indicating whether the location selection is enabled.
         /// </summary>
-        private bool cmdLocationIsEnabled = false;
+        private bool cmdLocationIsEnabled;
 
         /// <summary>
         /// Define the activity filter text information.
@@ -59,7 +53,7 @@ namespace dMobile.View.Activity
         /// <summary>
         /// Define a value indicating whether the filter selection is enabled.
         /// </summary>
-        private bool cmdFilterIsEnabled = false;
+        private bool cmdFilterIsEnabled;
 
         /// <summary>
         /// Define the select skid text information.
@@ -69,7 +63,7 @@ namespace dMobile.View.Activity
         /// <summary>
         /// Define a value indicating whether the skid selection is enabled.
         /// </summary>
-        private bool cmdSelectSkidIsEnabled = false;
+        private bool cmdSelectSkidIsEnabled;
 
         /// <summary>
         /// Define the add a product text information.
@@ -79,7 +73,7 @@ namespace dMobile.View.Activity
         /// <summary>
         /// Define a value indicating whether adding a product is enabled.
         /// </summary>
-        private bool cmdAddProductIsEnabled = false;
+        private bool cmdAddProductIsEnabled;
 
         /// <summary>
         /// Define the add skid text information.
@@ -89,7 +83,7 @@ namespace dMobile.View.Activity
         /// <summary>
         /// Define a value indicating whether adding a skid is enabled.
         /// </summary>
-        private bool cmdAddSkidIsEnabled = false;
+        private bool cmdAddSkidIsEnabled;
 
         /// <summary>
         /// Define the clear selected skid text information.
@@ -99,13 +93,13 @@ namespace dMobile.View.Activity
         /// <summary>
         /// Define a value indicating whether clear selected a skid is enabled.
         /// </summary>
-        private bool cmdClearSelectedSkidIsEnabled = false;
+        private bool cmdClearSelectedSkidIsEnabled;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ActivityItem"/> class.
         /// </summary>
         /// <param name="activity"><see cref="Activity"/> Activity header instance.</param>
-        /// <param name="actSubTypes"><see cref="SysCommon.ActSubType"/> Activity sub type.</param>
+        /// <param name="actSubTypes"><see cref="SysCommon.ActSubTypes"/> Activity sub type.</param>
         public ActivityItem(Activity activity, SysCommon.ActSubTypes actSubTypes)
         {
             this.InitializeComponent();
@@ -137,8 +131,7 @@ namespace dMobile.View.Activity
 
             ParseAndSeedBarCodeModifier();
 
-            // Page title.
-            this.Title = this.ActItem.GetControlDescription();
+            this.Title = this.ActItem.ActHdr.GetControlDescription();
 
             //////////////////////////////////////////////////////////////////////////
             void ParseAndSeedBarCodeModifier()
@@ -171,7 +164,7 @@ namespace dMobile.View.Activity
         /// <summary>
         /// Gets or sets the selected activity item foreign key reference number.
         /// </summary>
-        private int SelectedActivityItemFkRefno { get; set; } = 0;
+        private int SelectedActivityItemFkRefno { get; set; }
 
         /// <summary>
         /// Gets or sets a value indicating whether to show a data valid message or raise an error.
@@ -226,7 +219,7 @@ namespace dMobile.View.Activity
         /// <summary>
         /// Gets or sets a counter that tracks the number of screen taps, for double click.
         /// </summary>
-        private int NumTaps { get; set; } = 0;
+        private int NumTaps { get; set; }
 
         /// <summary>
         /// Gets or sets the sender for tracking the number of screen taps, for double click.
@@ -392,12 +385,12 @@ namespace dMobile.View.Activity
         /// <summary>
         /// Gets or sets a value indicating whether the search text box is in focus.
         /// </summary>
-        private bool IsSearchEntryFocused { get; set; } = false;
+        private bool IsSearchEntryFocused { get; set; }
 
         /// <summary>
         /// Gets or sets a value indicating whether the bar code modifier picker is in focus.
         /// </summary>
-        private bool IsBarCodeModifierPickerFocus { get; set; } = false;
+        private bool IsBarCodeModifierPickerFocus { get; set; }
 
         /// <summary>
         /// Get the control description.
@@ -429,9 +422,9 @@ namespace dMobile.View.Activity
                 bool isReadyToSave = true;
                 try
                 {
-                    this.ItemQuantityUnderCheck();
+                    await this.ItemQuantityUnderCheck();
 
-                    // Added extra check for Lekker, check all items.
+                    // Added extra check for Lekker Foods, check all items.
                     this.AllItemsQuantityUnderCheck();
                 }
                 catch (MessageOnlyException ex)
@@ -614,7 +607,7 @@ namespace dMobile.View.Activity
                 try
                 {
                     this.IsShowDataValidMsg = true;
-                    this.ItemQuantityUnderCheck();
+                    await this.ItemQuantityUnderCheck();
 
                     // Added extra check for Lekker, check all items.
                     this.AllItemsQuantityUnderCheck();
@@ -702,13 +695,13 @@ namespace dMobile.View.Activity
         /// event publisher.</param>
         /// <param name="dataLayerEventArgs">><see cref="DataLayerEventArgs"/> Data layer event
         /// arguments.</param>
-        public void OnLayerProgOut(IDataLayerEventPublisher publisher, DataLayerEventArgs dataLayerEventArgs)
+        public void OnLayerProgressOut(IDataLayerEventPublisher publisher, DataLayerEventArgs dataLayerEventArgs)
         {
             dataLayerEventArgs = dataLayerEventArgs ?? throw new ArgumentNullException(nameof(dataLayerEventArgs));
             if (dataLayerEventArgs.CurrentValue > 0 && dataLayerEventArgs.MaxValue > 0)
             {
                 // ReSharper disable once PossibleLossOfFraction
-                double percent = (100 * dataLayerEventArgs.CurrentValue) / dataLayerEventArgs.MaxValue;
+                ////double percent = (100 * dataLayerEventArgs.CurrentValue) / dataLayerEventArgs.MaxValue;
             }
         }
 
@@ -723,8 +716,12 @@ namespace dMobile.View.Activity
                 this.Scanner = ScannerEngine.GetInstance().Scanner;
             }
 
-            this.Scanner.BarCodeScan -= new BarCodeScanner.BarCodeScanEventHandler(this.BarCodeHandler);
-            await this.Scanner.Stop();
+            var barCodeScanner = this.Scanner;
+            if (barCodeScanner != null)
+            {
+                barCodeScanner.BarCodeScan -= new BarCodeScanner.BarCodeScanEventHandler(this.BarCodeHandler);
+                await barCodeScanner.Stop();
+            }
         }
 
         /// <summary>
@@ -738,8 +735,12 @@ namespace dMobile.View.Activity
                 this.Scanner = ScannerEngine.GetInstance().Scanner;
             }
 
-            await this.Scanner.Start();
-            this.Scanner.BarCodeScan += new BarCodeScanner.BarCodeScanEventHandler(this.BarCodeHandler);
+            var barCodeScanner = this.Scanner;
+            if (barCodeScanner != null)
+            {
+                await barCodeScanner.Start();
+                barCodeScanner.BarCodeScan += new BarCodeScanner.BarCodeScanEventHandler(this.BarCodeHandler);
+            }
         }
 
         /// <summary>
@@ -822,14 +823,15 @@ namespace dMobile.View.Activity
                 }
                 else
                 {
-                    await this.FindSelectedItemAsync();
+                    FindSelectedItemAsync();
                 }
 
                 this.ListViewDisplayExtraInfo.ItemsSource = this.ExtraInfoItems;
             }
             catch (MessageOnlyException msgEx)
             {
-                var msg = (msgEx.Message.IndexOf("MSGBOX-", StringComparison.Ordinal) == -1) ? msgEx.Message : msgEx.Message["MSGBOX-".Length..];
+                var msg = (msgEx.Message.IndexOf("MSGBOX-", StringComparison.Ordinal) == -1)
+                    ? msgEx.Message : msgEx.Message["MSGBOX-".Length..];
                 await Device.InvokeOnMainThreadAsync(async () =>
                     await Application.Current.MainPage.DisplayAlert(
                         this.ActItem.GetControlDescription(),
@@ -838,7 +840,7 @@ namespace dMobile.View.Activity
             }
             catch (CommunicationException commEx)
             {
-                // Question should a communication error, be reported as an error or just a messagebox?
+                // Question should a communication error, be reported as an error or just a message box?
                 await Device.InvokeOnMainThreadAsync(async () =>
                 {
                     var msg = $"Unable to load activity items.{Environment.NewLine}" +
@@ -868,6 +870,58 @@ namespace dMobile.View.Activity
             {
                 this.Loading = false;
                 await this.ScannerEnable();
+            }
+
+            //////////////////////////////////////////////////////////////////////////
+            void FindSelectedItemAsync()
+            {
+                if (this.ActItem.ListItems.Count > 0)
+                {
+                    this.ActItem.SelectedListIdx = 0;
+                    object selectedItem = null;
+                    foreach (var item in this.ActItem.ListItems)
+                    {
+                        if (this.SelectedActivityItemFkRefno == this.ActItem.GetFkRefno(item))
+                        {
+                            selectedItem = item;
+                            break;
+                        }
+
+                        this.ActItem.SelectedListIdx++;
+                    }
+
+                    if (selectedItem == null)
+                    {
+                        // Goto the first one in the list.
+                        this.ActItem.SelectedListIdx = 0;
+                        this.ListViewMainActivity.SelectedItem = this.MainActivityItems[this.ActItem.SelectedListIdx];
+                    }
+                    else
+                    {
+                        this.ListViewMainActivity.SelectedItem = selectedItem;
+                    }
+
+                    Device.BeginInvokeOnMainThread(() =>
+                    {
+                        this.ListViewMainActivity.ScrollTo(
+                            this.ListViewMainActivity.SelectedItem,
+                            ScrollToPosition.MakeVisible,
+                            animated: false);
+                    });
+                }
+                else
+                {
+                    // Clear the activity nothing can be selected.
+                    this.ActItem.SelectedListIdx = -1;
+                    this.ActItem.SelectedItem = null;
+                    this.ActItem.ItemFkRefno = 0;
+                    this.ActItem.ItemRefno = 0;
+                    this.SelectedActivityItemFkRefno = 0;
+                    Device.BeginInvokeOnMainThread(() =>
+                    {
+                        this.ListViewMainActivity.SelectedItem = null;
+                    });
+                }
             }
         }
 
@@ -943,6 +997,7 @@ namespace dMobile.View.Activity
             {
                 _ = Enum.TryParse(keyPressed, out Keycode keycode);
 
+                // ReSharper disable once SwitchStatementMissingSomeEnumCasesNoDefault
                 switch (keycode)
                 {
                     case Keycode.Clear:
@@ -1497,7 +1552,7 @@ namespace dMobile.View.Activity
         /// Perform quantity under check for one line item.
         /// </summary>
         /// <remarks>Line items must exist, one needs to be selected.</remarks>
-        private async void ItemQuantityUnderCheck()
+        private async Task ItemQuantityUnderCheck()
         {
             if (this.ActItem.ListItems != null
                 && this.ActItem.SelectedItem != null
@@ -2395,7 +2450,7 @@ namespace dMobile.View.Activity
             }
 
             //////////////////////////////////////////////////////////////////////////
-            async Task RefreshData(bool isDataRequest)
+            async Task RefreshData(bool isDataRequestRefresh)
             {
                 try
                 {
@@ -2403,7 +2458,7 @@ namespace dMobile.View.Activity
                     {
                         this.ActItem.RegLayerListenerProgOut(this);
                         this.ActItem.RegLayerListenerStatOut(this);
-                        if (isDataRequest)
+                        if (isDataRequestRefresh)
                         {
                             await this.ActItem.Refresh(this.ActItem.ActHdr.XmlDataCriteria);
                         }
@@ -2452,58 +2507,6 @@ namespace dMobile.View.Activity
 
                 this.ListViewMainActivity.ItemsSource = this.MainActivityItems;
             });
-        }
-
-        /// <summary>
-        /// Find the selected item in the data list.
-        /// </summary>
-        /// <returns><see cref="Task"/> Task operation.</returns>
-        private async Task FindSelectedItemAsync()
-        {
-            if (this.ActItem.ListItems.Count > 0)
-            {
-                this.ActItem.SelectedListIdx = 0;
-                object selectedItem = null;
-                foreach (var item in this.ActItem.ListItems)
-                {
-                    if (this.SelectedActivityItemFkRefno == this.ActItem.GetFkRefno(item))
-                    {
-                        selectedItem = item;
-                        break;
-                    }
-
-                    this.ActItem.SelectedListIdx++;
-                }
-
-                if (selectedItem == null)
-                {
-                    // Goto the first one in the list.
-                    this.ActItem.SelectedListIdx = 0;
-                    this.ListViewMainActivity.SelectedItem = this.MainActivityItems[this.ActItem.SelectedListIdx];
-                }
-                else
-                {
-                    this.ListViewMainActivity.SelectedItem = selectedItem;
-                }
-
-                Device.BeginInvokeOnMainThread(() =>
-                {
-                    this.ListViewMainActivity.ScrollTo(this.ListViewMainActivity.SelectedItem, ScrollToPosition.MakeVisible, false);
-                });
-            }
-            else
-            {
-                // Clear the activity nothing can be selected.
-                this.ActItem.SelectedListIdx = -1;
-                this.ActItem.SelectedItem = null;
-                this.ActItem.ItemFkRefno = 0;
-                this.ActItem.ItemRefno = 0;
-                this.SelectedActivityItemFkRefno = 0;
-                Device.BeginInvokeOnMainThread(() =>
-                {
-                    this.ListViewMainActivity.SelectedItem = null;
-                });
-            }
         }
 
         /// <summary>
@@ -2668,8 +2671,8 @@ namespace dMobile.View.Activity
             {
                 if (this.ListViewMainActivity.SelectedItem is TransferItem transferItemFrom)
                 {
-                    var prodLocCode = Convert.ToString(transferItemFrom.LocationCode);
-                    var prodLocName = transferItemFrom.LocationName;
+                    ////var prodLocCode = Convert.ToString(transferItemFrom.LocationCode);
+                    ////var prodLocName = transferItemFrom.LocationName;
                     var prodDesc = transferItemFrom.ProductDescription;
                     var prodUnitSizeDesc = transferItemFrom.ProductUnitSizeDescription;
 
@@ -2899,7 +2902,7 @@ namespace dMobile.View.Activity
                     switch (this.SysEnv.SysSettings.PickItemDescOpt)
                     {
                         case 1:
-                            prodDesc = pickingItemSingle.ProductDescription;
+                            ////prodDesc = pickingItemSingle.ProductDescription;
                             prodUnitSizeDesc = pickingItemSingle.ProductUnitSizeDescription;
                             this.ExtraInfoItems.Add("SIZE: " + prodUnitSizeDesc.Trim() + ", BRAND: " +
                                 prodBrandDesc.Trim());
@@ -2936,7 +2939,7 @@ namespace dMobile.View.Activity
                 {
                     ////var prodLocCode = Convert.ToString(pickingItem.LocationCode);
                     ////var prodLocName = pickingItem.LocationName;
-                    var prodCode = pickingItem.ProductCode;
+                    ////var prodCode = pickingItem.ProductCode;
                     var prodDesc = pickingItem.ProductDescription;
                     var prodUnitSizeDesc = pickingItem.ProductUnitSizeDescription;
                     var prodBrandDesc = pickingItem.ProductBrandDescription;
@@ -2996,8 +2999,8 @@ namespace dMobile.View.Activity
                     var defProdLoc = LocationMapTasks.GetReadableLocation(
                         await LocationMapTasks.GetSLocMapFromLocMapRefno(defLocMapRefno));
 
-                    var prodDesc = physicalCountItem.ProductDescription.ToString();
-                    var prodUnitSizeDesc = physicalCountItem.ProductUnitSizeDescription.ToString();
+                    var prodDesc = physicalCountItem.ProductDescription;
+                    var prodUnitSizeDesc = physicalCountItem.ProductUnitSizeDescription;
                     this.ExtraInfoItems.Add(prodDesc.Trim() + " " + prodUnitSizeDesc.Trim());
                     this.ExtraInfoItems.Add("Default Location: " + defProdLoc.Trim());
                 }
@@ -3011,14 +3014,9 @@ namespace dMobile.View.Activity
             //////////////////////////////////////////////////////////////////////////
             void DisplayDataItemInventoryInquiry()
             {
-                if (this.ActItem.ProdInfo.Refno <= 0)
-                {
-                    this.ExtraInfoItems.Add($"PRODUCT: {"All"}");
-                }
-                else
-                {
-                    this.ExtraInfoItems.Add($"PRODUCT: {ProductInfoTasks.GetCurrReadableProdBCUnit(this.ActItem.ProdInfo)}");
-                }
+                this.ExtraInfoItems.Add(this.ActItem.ProdInfo.Refno <= 0
+                    ? "PRODUCT: All"
+                    : $"PRODUCT: {ProductInfoTasks.GetCurrReadableProdBCUnit(this.ActItem.ProdInfo)}");
 
                 this.ExtraInfoItems.Add($"LOCATION: {LocationMapTasks.GetCurrentReadableLocation()}");
             }
@@ -3042,8 +3040,8 @@ namespace dMobile.View.Activity
                     var defProdLoc = LocationMapTasks.GetReadableLocation(
                         await LocationMapTasks.GetSLocMapFromLocMapRefno(defLocMapRefno));
 
-                    var prodDesc = cycleCountItem.ProductDescription.ToString();
-                    var prodUnitSizeDesc = cycleCountItem.ProductUnitSizeDescription.ToString();
+                    var prodDesc = cycleCountItem.ProductDescription;
+                    var prodUnitSizeDesc = cycleCountItem.ProductUnitSizeDescription;
                     this.ExtraInfoItems.Add(prodDesc.Trim() + " " + prodUnitSizeDesc.Trim());
                     this.ExtraInfoItems.Add("Default Location: " + defProdLoc.Trim());
                     ////this.ExtraInfoItems.Add("Count Location: " + countLoc.Trim());
@@ -3213,7 +3211,6 @@ namespace dMobile.View.Activity
                         || (this.ActSubType == SysCommon.ActSubTypes.CycleCounts &&
                             this.SysEnv.SysSettings.IsCycleDoNotDefaultProductLocation))
                     {
-                        dspOverrideMsg = false;
                     }
                     else
                     {
@@ -3369,8 +3366,8 @@ namespace dMobile.View.Activity
                 // if a command button is the next control rather than just giving the button focus.
                 try
                 {
-                    XDocument xmlDoc = null;
-                    ProductInfo prodInfo = null;
+                    XDocument xmlDoc;
+                    ProductInfo prodInfo;
                     this.SysEnv.SysSettings.IsNewActivityItemsAdded = true;
                     if (this.ActItem.ActHdr.SkidInfo.CurrSkid.SkidFKRefno == 0)
                     {

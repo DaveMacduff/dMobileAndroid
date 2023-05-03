@@ -21,7 +21,7 @@ namespace dMobile.Controller
         /// </summary>
         /// <param name="publisher"><see cref="IDataLayerEventPublisher"/> Data layer event publisher.</param>
         /// <param name="eventArgs"><see cref="DataLayerEventArgs"/> Data layer event arguments.</param>
-        void OnLayerProgOut(IDataLayerEventPublisher publisher, DataLayerEventArgs eventArgs);
+        void OnLayerProgressOut(IDataLayerEventPublisher publisher, DataLayerEventArgs eventArgs);
     }
 
     /// <summary>
