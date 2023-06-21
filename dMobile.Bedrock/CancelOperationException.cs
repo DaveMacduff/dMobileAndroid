@@ -5,9 +5,10 @@
 namespace dMobile.Bedrock
 {
     using System;
-    using System.Collections.Generic;
-    using System.Text;
 
+    /// <summary>
+    /// Cancel operation exception.
+    /// </summary>
     public class CancelOperationException : Exception
     {
         /// <summary>
@@ -21,7 +22,7 @@ namespace dMobile.Bedrock
         /// <summary>
         /// Initializes a new instance of the <see cref="CancelOperationException"/> class.
         /// </summary>
-        /// <param name="message">.</param>
+        /// <param name="message"> Cancellation reason message.</param>
         public CancelOperationException(string message)
             : base(message)
         {
@@ -30,39 +31,11 @@ namespace dMobile.Bedrock
         /// <summary>
         /// Initializes a new instance of the <see cref="CancelOperationException"/> class.
         /// </summary>
-        /// <param name="message">.</param>
-        /// <param name="inner">.</param>
+        /// <param name="message"> Cancellation reason message.</param>
+        /// <param name="inner"> Inner exception.</param>
         public CancelOperationException(string message, Exception inner)
             : base(message, inner)
         {
         }
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="CancelOperationException"/> class.
-        /// </summary>
-        /// <param name="message">.</param>
-        /// <param name="suppressError">.</param>
-        public CancelOperationException(string message, bool suppressError)
-            : base(message)
-        {
-            this.SuppressError = suppressError;
-        }
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="CancelOperationException"/> class.
-        /// </summary>
-        /// <param name="message">.</param>
-        /// <param name="inner">.</param>
-        /// <param name="suppressError">.</param>
-        public CancelOperationException(string message, Exception inner, bool suppressError)
-            : base(message, inner)
-        {
-            this.SuppressError = suppressError;
-        }
-
-        /// <summary>
-        /// Gets or sets a value indicating whether SuppressError.
-        /// </summary>
-        public bool SuppressError { get; set; } = false;
     }
 }

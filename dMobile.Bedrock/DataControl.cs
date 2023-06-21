@@ -21,10 +21,7 @@ namespace dMobile.Bedrock
         /// <summary>
         /// Gets the data control instance.
         /// </summary>
-        public static DataControl GetInstance
-        {
-            get { return Instance; }
-        }
+        public static DataControl GetInstance => Instance;
 
         /// <summary>
         /// Gets or sets a value indicating whether the semaphore to indicate data is loaded.

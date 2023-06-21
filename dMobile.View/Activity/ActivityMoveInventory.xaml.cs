@@ -11,17 +11,17 @@ namespace dMobile.View.Activity
     using System.Threading.Tasks;
     using System.Xml.Linq;
     using Android.Views;
-    using dMobile.BarCodeScanner.BarCodeParsing;
-    using dMobile.BarCodeScanner.BarCodeScanners;
-    using dMobile.Bedrock;
-    using dMobile.Controller;
+    using BarCodeScanner.BarCodeParsing;
+    using BarCodeScanner.BarCodeScanners;
+    using Bedrock;
+    using Controller;
     using dMobile.Controller.Activity;
-    using dMobile.Controller.Activity_Detail;
-    using dMobile.Controller.Activity_Item;
-    using dMobile.Resources.Enums;
-    using dMobile.Resources.Types;
-    using dMobile.View.CustomPages;
-    using dMobile.View.Forms;
+    using Controller.Activity_Detail;
+    using Controller.Activity_Item;
+    using Resources.Enums;
+    using Resources.Types;
+    using CustomPages;
+    using Forms;
     using Xamarin.Forms;
     using Xamarin.Forms.Xaml;
     using Resource = dMobile.Resources.Properties.Resources;
@@ -125,37 +125,37 @@ namespace dMobile.View.Activity
         /// Gets or sets the selected activity detail foreign key reference number.
         /// </summary>
         // ReSharper disable once InconsistentNaming
-        private int SelectedActivityDetailFKRefno { get; set; } = 0;
+        private int SelectedActivityDetailFKRefno { get; set; }
 
         /// <summary>
         /// Gets or sets the Scanner.
         /// </summary>
-        private BarCodeScanner Scanner { get; set; } = null;
+        private BarCodeScanner Scanner { get; set; }
 
         /// <summary>
         /// Gets or sets the SelToCurrLocMapRefno.
         /// </summary>
-        private int SelToCurrLocMapRefno { get; set; } = 0;
+        private int SelToCurrLocMapRefno { get; set; }
 
         /// <summary>
         /// Gets or sets the SelFromCurrLocMapRefno.
         /// </summary>
-        private int SelFromCurrLocMapRefno { get; set; } = 0;
+        private int SelFromCurrLocMapRefno { get; set; }
 
         /// <summary>
         /// Gets or sets the ActDetail.
         /// </summary>
-        private ActDetail ActDetail { get; set; } = null;
+        private ActDetail ActDetail { get; set; }
 
         /// <summary>
         /// Gets or sets the ActItem.
         /// </summary>
-        private ActItem ActItem { get; set; } = null;
+        private ActItem ActItem { get; set; }
 
         /// <summary>
         /// Gets or sets the Activity.
         /// </summary>
-        private Controller.Activity.Activity Activity { get; set; } = null;
+        private Activity Activity { get; set; }
 
         /// <summary>
         /// Gets or sets the ActSubType.
@@ -185,12 +185,12 @@ namespace dMobile.View.Activity
         /// <summary>
         /// Gets or sets a value indicating whether IsBarCodeHandlerRegistered.
         /// </summary>
-        private bool IsBarCodeHandlerRegistered { get; set; } = false;
+        private bool IsBarCodeHandlerRegistered { get; set; }
 
         /// <summary>
         /// Gets or sets a value indicating whether IsControlLoaded.
         /// </summary>
-        private bool IsControlLoaded { get; set; } = false;
+        private bool IsControlLoaded { get; set; }
 
         /// <summary>
         /// Gets or sets a value indicating whether IsChangesMade.
@@ -198,19 +198,9 @@ namespace dMobile.View.Activity
         private bool IsChangesMade { get; set; } = false;
 
         /// <summary>
-        /// Gets or sets the ProdUnitRefno.
-        /// </summary>
-        private int ProdUnitRefno { get; set; } = 0;
-
-        /// <summary>
-        /// Gets or sets the ProdUnitBarCodeRefno.
-        /// </summary>
-        private int ProdUnitBarCodeRefno { get; set; } = 0;
-
-        /// <summary>
         /// Gets or sets the BarCodeParse.
         /// </summary>
-        private BarCodeParse BarCodeParse { get; set; } = null;
+        private BarCodeParse BarCodeParse { get; set; }
 
         /// <summary>
         /// Gets or sets the model bound to view, activity items extra information. Changes made will update the UI.
@@ -232,7 +222,7 @@ namespace dMobile.View.Activity
             {
                 if (this.IsBarCodeHandlerRegistered)
                 {
-                    this.Scanner.BarCodeScan -= new BarCodeScanner.BarCodeScanEventHandler(this.BarCodeHandler);
+                    this.Scanner.BarCodeScan -= this.BarCodeHandler;
                     await this.Scanner.Stop();
                     this.IsBarCodeHandlerRegistered = false;
                 }
@@ -250,7 +240,7 @@ namespace dMobile.View.Activity
                 if (!this.IsBarCodeHandlerRegistered)
                 {
                     await this.Scanner.Start();
-                    this.Scanner.BarCodeScan += new BarCodeScanner.BarCodeScanEventHandler(this.BarCodeHandler);
+                    this.Scanner.BarCodeScan += this.BarCodeHandler;
                     this.IsBarCodeHandlerRegistered = true;
                 }
             }
@@ -366,9 +356,9 @@ namespace dMobile.View.Activity
                     }
                     else
                     {
-                        if (await Device.InvokeOnMainThreadAsync(async () => await this.DisplayAlert(
+                        if (!await Device.InvokeOnMainThreadAsync(async () => await this.DisplayAlert(
                                 "Move Submission",
-                                "Finished Moves?",
+                                "Continue performing moves?",
                                 "Yes",
                                 "No")))
                         {
@@ -385,9 +375,9 @@ namespace dMobile.View.Activity
                                 "No")))
                         {
                             await PerformMoveAll();
-                            if (await Device.InvokeOnMainThreadAsync(async () => await this.DisplayAlert(
+                            if (!await Device.InvokeOnMainThreadAsync(async () => await this.DisplayAlert(
                                     "Move Submission",
-                                    "Finished Moves?",
+                                    "Continue performing moves?",
                                     "Yes",
                                     "No")))
                             {
@@ -557,7 +547,7 @@ namespace dMobile.View.Activity
         /// The OnLayerStatOut.
         /// </summary>
         /// <param name="publisher">.</param>
-        /// <param name="dataLayerEventArgs">.</param>
+        /// <param name="dataLayerEventArgs"> Data layer event arguments.</param>
         public void OnLayerStatOut(IDataLayerEventPublisher publisher, DataLayerEventArgs dataLayerEventArgs)
         {
             this.ExtraInfoItems.Clear();
@@ -586,7 +576,7 @@ namespace dMobile.View.Activity
         /// The OnLayerProgressOut.
         /// </summary>
         /// <param name="publisher">.</param>
-        /// <param name="dataLayerEventArgs">.</param>
+        /// <param name="dataLayerEventArgs"> Data layer event arguments.</param>
         public void OnLayerProgressOut(IDataLayerEventPublisher publisher, DataLayerEventArgs dataLayerEventArgs)
         {
         }
@@ -685,11 +675,10 @@ namespace dMobile.View.Activity
                 if (this.Scanner != null)
                 {
                     await this.Scanner.Start();
-                    this.Scanner.BarCodeScan += new BarCodeScanner.BarCodeScanEventHandler(this.BarCodeHandler);
+                    this.Scanner.BarCodeScan += this.BarCodeHandler;
                     this.IsBarCodeHandlerRegistered = true;
                 }
             }
-
         }
 
         /// <summary>
@@ -749,8 +738,9 @@ namespace dMobile.View.Activity
                 object selectedItem = null;
                 if (this.SelectedActivityDetailFKRefno != 0)
                 {
-                    foreach (var item in this.ActDetail.ListDetails)
+                    for (var index = 0; index < this.ActDetail.ListDetails.Count; index++)
                     {
+                        var item = this.ActDetail.ListDetails[index];
                         if (this.SelectedActivityDetailFKRefno == this.ActDetail.GetFkRefno(item))
                         {
                             selectedItem = item;
@@ -762,8 +752,8 @@ namespace dMobile.View.Activity
 
                 if (selectedItem == null)
                 {
-                    // Goto the first one in the list.
-                    this.ActDetail.SelectedListIdx = 0;
+                    // Goto the last one in the list.
+                    this.ActDetail.SelectedListIdx = this.ActDetail.ListDetails.Count - 1;
                     selectedItem = this.ActDetail.ListDetails[this.ActDetail.SelectedListIdx];
                     await this.ActDetail.AssignActivityDetail(selectedItem);
                     this.SelectedActivityDetailFKRefno = this.ActDetail.DetailFkRefno;
@@ -827,7 +817,7 @@ namespace dMobile.View.Activity
                 //////////////////////////////////////////////////////////////////////////
                 async void KeyUpCallback(string keyPressed)
                 {
-                    var svdIsScanReg = this.IsBarCodeHandlerRegistered;
+                    ////var svdIsScanReg = this.IsBarCodeHandlerRegistered;
                     await this.ScannerDisable();
 
                     _ = Enum.TryParse(keyPressed, out Keycode keycode);
@@ -839,17 +829,20 @@ namespace dMobile.View.Activity
                     {
                         if (keycode == Keycode.Del || keycode == Keycode.Clear || keycode == Keycode.Back)
                         {
-                            if (this.ListViewMainActivity.SelectedItem != null &&
-                                this.MainActivityItems.IndexOf(this.ListViewMainActivity.SelectedItem) != -1 &&
-                                await Device.InvokeOnMainThreadAsync(async () =>
-                                    await this.DisplayAlert(
-                                        this.GetControlDescription(),
-                                        "Do you wish to delete this record?",
-                                        "Yes",
-                                        "No")))
+                            var selectedIdx = this.MainActivityItems.IndexOf(this.ListViewMainActivity.SelectedItem);
+                            if (this.ListViewMainActivity.SelectedItem != null && selectedIdx > -1)
                             {
-                                this.ActDetail.ListDetails.RemoveAt(
-                                    this.MainActivityItems.IndexOf(this.ListViewMainActivity.SelectedItem));
+                                if (await Device.InvokeOnMainThreadAsync(async () =>
+                                        await this.DisplayAlert(
+                                            this.GetControlDescription(),
+                                            "Do you wish to delete this record?",
+                                            "Yes",
+                                            "No")))
+                                {
+                                    this.ActDetail.ListDetails.RemoveAt(selectedIdx);
+                                    this.MainActivityItems.RemoveAt(selectedIdx);
+                                    this.ListViewMainActivity.ItemsSource = this.MainActivityItems;
+                                }
                             }
                         }
                     }
@@ -1052,9 +1045,7 @@ namespace dMobile.View.Activity
                     throw new MessageOnlyException("Move quantity must be greater than zero.");
                 }
 
-                //--- Perform the activity detail insert.
-                var foundRowIdx = this.ActDetail.ListDetails.Count > 0 ? this.ActDetail.ListDetails.Count - 1 : -1;
-                await this.InsertActivityDetail(foundRowIdx, this.ActDetail, this.BarCodeParse, isInsertReady);
+                await this.InsertActivityDetail(this.ActDetail, isInsertReady);
             }
             catch (CancelOperationException)
             {
@@ -1147,40 +1138,25 @@ namespace dMobile.View.Activity
         /// <summary>
         /// Insert activity detail.
         /// </summary>
-        /// <param name="rowIdx">The rowIdx<see cref="int"/>.</param>
         /// <param name="actDetail">.</param>
-        /// <param name="parse">The parse<see cref="BarCodeParse"/>.</param>
         /// <param name="isInsertDetailReady">The isInsertDetailReady<see cref="bool"/>.</param>
         /// <returns>The <see cref="Task"/>.</returns>
-        private async Task InsertActivityDetail(int rowIdx, ActDetail actDetail, BarCodeParse parse, bool isInsertDetailReady)
+        private async Task InsertActivityDetail(ActDetail actDetail, bool isInsertDetailReady)
         {
             if (isInsertDetailReady)
             {
                 actDetail.DetailFkRefno = 0;
-                ////var xmlDoc = this.ActDetail.GetXML(this.ActDetail);
-                ////await this.ActDetail.Insert(xmlDoc);
-                var detailIdx = this.ActDetail.FindListDetailIndex(actDetail.DetailFkRefno);
-                if (detailIdx >= 0)
+                var inserted = this.ActDetail.InsertListDetail(this.MainActivityItems);
+                this.SelectedActivityDetailFKRefno = inserted.ActivityDetailFKRefno;
+                await Device.InvokeOnMainThreadAsync(() =>
                 {
-                    this.ActDetail.UpdateListDetail(detailIdx);
-                    var detail = (Resources.Types.ActivityDetail)this.ActDetail.ListDetails[detailIdx];
-                    this.SelectedActivityDetailFKRefno = detail.ActivityDetailFKRefno;
-                    this.MainActivityItems[detailIdx] = detail;
-                }
-                else
-                {
-                    var inserted = this.ActDetail.InsertListDetail(this.MainActivityItems);
-                    this.SelectedActivityDetailFKRefno = inserted.ActivityDetailFKRefno;
-                    await Device.InvokeOnMainThreadAsync(() =>
-                    {
-                        this.ListViewMainActivity.ItemTemplate = this.ActDetail.DesignGrid(
-                            ref this.GridMainActivity,
-                            inserted,
-                            this.MainActivityItems);
-                    });
+                    this.ListViewMainActivity.ItemTemplate = this.ActDetail.DesignGrid(
+                        ref this.GridMainActivity,
+                        inserted,
+                        this.MainActivityItems);
+                });
 
-                    await this.FindSelectedItemAsync();
-                }
+                await this.FindSelectedItemAsync();
             }
         }
 
@@ -1197,6 +1173,7 @@ namespace dMobile.View.Activity
                 return;
             }
 
+            this.Loading = true;
             var listItemRowIdx = 0;
 
             try
@@ -1273,6 +1250,7 @@ namespace dMobile.View.Activity
                 });
 
                 await this.ActAppearing();
+                this.Loading = false;
             }
 
             //////////////////////////////////////////////////////////////////////////
@@ -1303,12 +1281,6 @@ namespace dMobile.View.Activity
 
                 var tempItemSchemeData = new ActItemSchemeData();
                 var isInsertReady = false;
-                var foundRowIdx = -1;
-                if (this.ActDetail.ListDetails.Count > 0)
-                {
-                    foundRowIdx = this.ActDetail.ListDetails.Count - 1;
-                }
-
                 isInsertReady = await SysShared.GatherProductData(
                     this.BarCodeParse,
                     this.ActSubType,
@@ -1317,7 +1289,7 @@ namespace dMobile.View.Activity
                     false,
                     this.ActDetail,
                     false);
-                await this.InsertActivityDetail(foundRowIdx, this.ActDetail, this.BarCodeParse, isInsertReady);
+                await this.InsertActivityDetail(this.ActDetail, isInsertReady);
             }
 
             //////////////////////////////////////////////////////////////////////////
@@ -1446,10 +1418,13 @@ namespace dMobile.View.Activity
                 return;
             }
 
+            this.CmdPerformMove.IsEnabled = false;
             if (await this.SaveChanges())
             {
                 await this.Close();
             }
+
+            this.CmdPerformMove.IsEnabled = true;
         }
     }
 }

@@ -140,7 +140,9 @@ namespace dMobile.Bedrock
         {
             if (File.Exists(dbASCIIZ) & sqlConn == null)
             {
-                sqlConn = new SQLiteAsyncConnection(dbASCIIZ, SQLiteOpenFlags.Create | SQLiteOpenFlags.FullMutex | SQLiteOpenFlags.ReadWrite);
+                sqlConn = new SQLiteAsyncConnection(
+                    dbASCIIZ,
+                    SQLiteOpenFlags.Create | SQLiteOpenFlags.FullMutex | SQLiteOpenFlags.ReadWrite);
             }
         }
 

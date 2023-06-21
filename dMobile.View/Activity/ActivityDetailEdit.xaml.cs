@@ -243,6 +243,7 @@ namespace dMobile.View.Activity
             }
             catch (MessageOnlyException msgEx)
             {
+                isReadyToSave = false;
                 var msg = (msgEx.Message.IndexOf("MSGBOX-", StringComparison.Ordinal) == -1) ? msgEx.Message : msgEx.Message["MSGBOX-".Length..];
                 await Device.InvokeOnMainThreadAsync(async () =>
                     await Application.Current.MainPage.DisplayAlert(
@@ -266,7 +267,7 @@ namespace dMobile.View.Activity
             async Task IsValidData()
             {
                 await ValidateQuantity();
-                ValidateScheme();
+                await ValidateScheme();
                 ValidateSchemeExtra();
 
                 var prodInfo = this.ActDetail.ActItem.ProdInfo;
@@ -647,7 +648,7 @@ namespace dMobile.View.Activity
                 }
 
                 //////////////////////////////////////////////////////////////////////////
-                async void ValidateScheme()
+                async Task ValidateScheme()
                 {
                     await AssignScheme();
                     ValidateSchemeSerialTracked();
@@ -1319,23 +1320,46 @@ namespace dMobile.View.Activity
                     if (prodInfo.Scheme.IsSerialTracked)
                     {
                         GetNextDefaultSerialNumber(schemeData);
-
                         this.cboSerialNo.Text = schemeData.SingleTradeItemSerialNumber;
                     }
 
                     if (prodInfo.Scheme.IsLotTracked)
                     {
                         this.cboLotNo.SelectedItem = schemeData.LogisticUnitBatchLotNumber;
-
                         if (this.cboLotNo.SelectedIndex < 0)
                         {
+                            GetLotNumbers();
+                            var lot = new LotNumber
+                            {
+                                ActivityDetailLogisticUnitBatchLotNumber = schemeData.LogisticUnitBatchLotNumber,
+                            };
+                            this.ListLots.Add(lot);
+
+                            Device.InvokeOnMainThreadAsync(() =>
+                            {
+                                ////this.cboLotNo.ItemDisplayBinding = new Binding("ActivityDetailLogisticUnitBatchLotNumber");
+                                this.cboLotNo.ItemsSource = this.ListLots;
+                            });
+
                             this.cboLotNo.SelectedItem = schemeData.LogisticUnitBatchLotNumber;
+
+                            ////this.cboLotNo.SelectedItem = schemeData.LogisticUnitBatchLotNumber;
+                            ////this.cboLotNo.SelectedIndex = this.cboLotNo.Items.Count - 1;
+                            ////this.cboLotNo.Text = schemeData.LogisticUnitBatchLotNumber;
+                            ////this.cboLotNo.SelectedValue = this.cboLotNo.SelectedIndex;
                         }
                     }
 
                     if (prodInfo.Scheme.IsVariantTracked)
                     {
-                        this.cboVariantCode.SelectedItem = schemeData.VariantNumber;
+                        this.cboVariantCode.SelectedItem = schemeData.VariantNumber.ToString();
+                        if (this.cboVariantCode.SelectedIndex < 0)
+                        {
+                            this.cboVariantCode.Items.Add(schemeData.VariantNumber.ToString());
+                            this.cboVariantCode.SelectedItem = schemeData.VariantNumber.ToString();
+                            ////this.cboVariantCode.Text = schemeData.VariantNumber.ToString();
+                            ////this.cboVariantCode.SelectedValue = this.cboVariantCode.SelectedIndex;
+                        }
                     }
 
                     //////////////////////////////////////////////////////////////////////////

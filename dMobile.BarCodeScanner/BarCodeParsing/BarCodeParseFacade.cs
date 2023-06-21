@@ -5,12 +5,11 @@
 namespace dMobile.BarCodeScanner.BarCodeParsing
 {
     using System;
-    using dMobile.Bedrock;
 
     /// <summary>
     /// Bar code parsing facade. Create an bar code parse instance.
     /// </summary>
-    public class BarCodeParseFacade
+    public static class BarCodeParseFacade
     {
         /// <summary>
         /// Gets or sets the raw data received from the scanner engine.

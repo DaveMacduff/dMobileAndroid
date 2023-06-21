@@ -554,8 +554,13 @@ namespace dMobile.Controller.Activity_Detail
         /// <returns>.</returns>
         public bool IsSchemeComplete(ActItem actItem)
         {
-            var isComplete = !(actItem.ProdInfo.Scheme.IsBestBeforeDateTracked &&
-                               SysCommon.IsEmptyDateTime(this.SchemeData.LogisticUnitBestBeforeSellByDate));
+            var isComplete = true;
+
+            if (actItem.ProdInfo.Scheme.IsBestBeforeDateTracked &&
+                 SysCommon.IsEmptyDateTime(this.SchemeData.LogisticUnitBestBeforeSellByDate))
+            {
+                isComplete = false;
+            }
 
             if (actItem.ProdInfo.Scheme.IsLotTracked &&
                 string.IsNullOrEmpty(this.SchemeData.LogisticUnitBatchLotNumber))
