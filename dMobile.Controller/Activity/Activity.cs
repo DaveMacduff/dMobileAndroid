@@ -96,6 +96,11 @@ namespace dMobile.Controller.Activity
         public List<object> ListHdrs { get; set; }
 
         /// <summary>
+        /// Gets or sets the list of activity items.
+        /// </summary>
+        public List<object> ListItems { get; set; }
+
+        /// <summary>
         /// Gets or sets the ActSubType.
         /// </summary>
         public SysCommon.ActSubTypes ActSubType { get; set; }
@@ -195,7 +200,7 @@ namespace dMobile.Controller.Activity
         /// Get the activity foreign key reference number.
         /// </summary>
         /// <param name="resourceType"><see cref="object"/> Resource model type (t????Model).</param>
-        /// <returns><see cref="int"/> Found activity foreign key refno, else 0 if not found.</returns>
+        /// <returns><see cref="int"/> Found activity foreign key reference number, else 0 if not found.</returns>
         public abstract int GetFkRefno(object resourceType);
 
         /// <summary>

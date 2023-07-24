@@ -178,6 +178,10 @@ namespace dMobile.GroundWork
                 await this.CreateTableActivityDetailProductionByProduct();
 
                 await this.CreateTableActivityItemPurchaseOrderWorkSheet();
+
+                await this.CreateTableActivityReplenishment();
+                await this.CreateTableActivityItemReplenishment();
+                await this.CreateTableActivityDetailReplenishment();
             }
             catch (SQLiteException ex)
             {
@@ -359,6 +363,21 @@ namespace dMobile.GroundWork
         ///
         /// </summary>
         /// <remarks></remarks>
+        private async Task CreateTableActivityReplenishment()
+        {
+            if (this.OnNubStatOut != null)
+            {
+                this.MsgEventArgs.StatusOutMsg = "Creating replenishment table.";
+                this.OnNubStatOut(this, this.MsgEventArgs);
+            }
+
+            await DatabaseConnection.GetInstance().SQLConn.CreateTableAsync<tActivityReplenishmentModel>();
+        }
+
+        /// <summary>
+        ///
+        /// </summary>
+        /// <remarks></remarks>
         private async Task CreateTableActivityTransfer()
         {
             if (this.OnNubStatOut != null)
@@ -458,6 +477,21 @@ namespace dMobile.GroundWork
             }
 
             await DatabaseConnection.GetInstance().SQLConn.CreateTableAsync<tActivityItemReceivingModel>();
+        }
+
+        /// <summary>
+        ///
+        /// </summary>
+        /// <remarks></remarks>
+        private async Task CreateTableActivityItemReplenishment()
+        {
+            if (this.OnNubStatOut != null)
+            {
+                this.MsgEventArgs.StatusOutMsg = "Creating replenishment item table.";
+                this.OnNubStatOut(this, this.MsgEventArgs);
+            }
+
+            await DatabaseConnection.GetInstance().SQLConn.CreateTableAsync<tActivityItemReplenishmentModel>();
         }
 
         /// <summary>
@@ -578,6 +612,21 @@ namespace dMobile.GroundWork
             }
 
             await DatabaseConnection.GetInstance().SQLConn.CreateTableAsync<tActivityDetailReceivingModel>();
+        }
+
+        /// <summary>
+        ///
+        /// </summary>
+        /// <remarks></remarks>
+        private async Task CreateTableActivityDetailReplenishment()
+        {
+            if (this.OnNubStatOut != null)
+            {
+                this.MsgEventArgs.StatusOutMsg = "Creating replenishment detail table.";
+                this.OnNubStatOut(this, this.MsgEventArgs);
+            }
+
+            await DatabaseConnection.GetInstance().SQLConn.CreateTableAsync<tActivityDetailReplenishmentModel>();
         }
 
         /// <summary>

@@ -130,7 +130,7 @@ namespace dMobile.Resources.Types
         /// <summary>
         /// Gets or sets the activity detail logistic unit best before sell by date.
         /// </summary>
-        public DateTime ActivityDetailLogisticUnitBestBeforeSellByDate { get; set; } = SysCommon.EmptyDateTime;
+        public DateTime ActivityDetailLogisticUnitBestBeforeSellByDate { get; set; } = ResSysCommon.EmptyDateTime;
 
         /// <summary>
         /// Gets or sets the activity detail logistic unit batch lot number.
@@ -140,7 +140,7 @@ namespace dMobile.Resources.Types
         /// <summary>
         /// Gets or sets the activity detail logistic unit production date.
         /// </summary>
-        public DateTime ActivityDetailLogisticUnitProductionDate { get; set; } = SysCommon.EmptyDateTime;
+        public DateTime ActivityDetailLogisticUnitProductionDate { get; set; } = ResSysCommon.EmptyDateTime;
 
         /// <summary>
         /// Gets or sets the activity detail logistic unit skid number.
@@ -170,7 +170,7 @@ namespace dMobile.Resources.Types
         /// <summary>
         /// Gets or sets the activity detail extra 5 date time.
         /// </summary>
-        public DateTime ActivityDetailExtra5Date { get; set; } = SysCommon.EmptyDateTime;
+        public DateTime ActivityDetailExtra5Date { get; set; } = ResSysCommon.EmptyDateTime;
 
         /// <summary>
         /// Gets or sets the activity detail scheme id.

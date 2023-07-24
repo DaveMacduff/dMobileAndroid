@@ -197,6 +197,27 @@ namespace dMobile.Bedrock
         }
 
         /// <summary>
+        /// Replenishment move type codes.
+        /// </summary>
+        public enum ReplenishmentTypes : int
+        {
+            /// <summary>
+            /// Manual replenishment move type.
+            /// </summary>
+            Manual = 0,
+
+            /// <summary>
+            /// PullDown replenishment move type.
+            /// </summary>
+            PullDown = 1,
+
+            /// <summary>
+            /// Restock replenishment move type.
+            /// </summary>
+            Restock = 2,
+        }
+
+        /// <summary>
         ///
         /// </summary>
         /// <remarks></remarks>
@@ -1294,7 +1315,7 @@ namespace dMobile.Bedrock
         public static string SubmitComm(string sendData)
         {
             Debug.WriteLine(sendData);
-            string receivedData;
+            var receivedData = string.Empty;
             var sysEnv = SysEnvironment.GetInstance();
             using var sysSock = sysEnv.SysSock.Connect();
             _ = sysSock ?? throw new Exception("Failed to connect.");
@@ -1314,8 +1335,11 @@ namespace dMobile.Bedrock
             }
             finally
             {
-                sysSock.Disconnect(true);
-                sysSock.Close();
+                if (sysSock != null && sysSock.Connected)
+                {
+                    sysSock.Disconnect(true);
+                    sysSock.Close();
+                }
             }
 
             return receivedData;

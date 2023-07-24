@@ -115,7 +115,7 @@ namespace dMobile.View.Activity
         /// <summary>
         /// Gets or sets the activity header sub type.
         /// </summary>
-        private SysCommon.ActSubTypes ActSubType { get; set; } = SysCommon.ActSubTypes.NotApplicable;
+        private SysCommon.ActSubTypes ActSubType { get; set; } = SysCommon.ActSubTypes.InventoryReplenishment;
 
         /// <summary>
         /// Gets or sets the list of items.

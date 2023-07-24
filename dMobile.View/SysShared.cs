@@ -671,7 +671,9 @@ namespace dMobile.View
                 // Get the lot code default value from the GTIN containing the supplier company prefix.
                 static async Task<string> GetLotCodeDefaultFromSupplierCompanyPrefix(int schemeReferenceNumber, string globalTradeIdentifier)
                 {
-                    schemeReferenceNumber = (schemeReferenceNumber <= 0) ? throw new ArgumentOutOfRangeException(nameof(schemeReferenceNumber)) : schemeReferenceNumber;
+                    schemeReferenceNumber = (schemeReferenceNumber <= 0)
+                        ? throw new ArgumentOutOfRangeException(nameof(schemeReferenceNumber))
+                        : schemeReferenceNumber;
                     var lotCodeDefault = string.Empty;
 
                     if (!string.IsNullOrEmpty(globalTradeIdentifier))
@@ -767,8 +769,7 @@ namespace dMobile.View
                 // XDocument xmlDoc = null;
                 decimal unitQuantity = 1;
 
-                if (sysEnv.BarCodeSettings.IsRuleEnabled_Parse_Code_128_AI01_Nossack_AI21_SkidNumber_BoxCount &&
-                    barParse != null)
+                if (sysEnv.BarCodeSettings.IsRuleEnabled_Parse_Code_128_AI01_Nossack_AI21_SkidNumber_BoxCount)
                 {
                     EvalParse_Code_128_AI01_Nossack_AI21_SkidNumber_BoxCount(
                         barParse,

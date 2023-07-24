@@ -1,4 +1,4 @@
-﻿// <copyright file="SysCommon.cs" company="InterSect Business Systems Inc">
+﻿// <copyright file="ResSysCommon.cs" company="InterSect Business Systems Inc">
 // Copyright (c) InterSect Business Systems Inc. All rights reserved.
 // </copyright>
 
@@ -9,7 +9,7 @@ namespace dMobile.Resources
     /// <summary>
     /// Class of common shared methods.
     /// </summary>
-    public class SysCommon
+    public class ResSysCommon
     {
         /// <summary>
         /// Define the empty date time.

@@ -5,22 +5,20 @@
 namespace dMobile.View.Activity
 {
     using System;
-    using System.Collections.Generic;
     using System.Collections.ObjectModel;
     using System.Globalization;
     using System.Threading.Tasks;
     using System.Xml.Linq;
     using Android.Views;
-    using dMobile.BarCodeScanner.BarCodeScanners;
-    using dMobile.Bedrock;
-    using dMobile.Controller.Activity_Detail;
-    using dMobile.Resources.Enums;
-    using dMobile.Resources.Types;
-    using dMobile.View.CustomPages.Modal;
-    using dMobile.View.Forms;
+    using BarCodeScanner.BarCodeScanners;
+    using Bedrock;
+    using Controller.Activity_Detail;
+    using CustomPages.Modal;
+    using Forms;
+    using Resources.Enums;
     using Xamarin.Forms;
     using Xamarin.Forms.Xaml;
-    using Resource = dMobile.Resources.Properties.Resources;
+    using Resource = Resources.Properties.Resources;
 
     /// <summary>
     /// Define the <see cref="ActivityDetailEdit"/> activity detail edit.
@@ -40,9 +38,6 @@ namespace dMobile.View.Activity
             this.ExtraInfoItems = new ObservableCollection<string>();
             this.SysEnv = SysEnvironment.GetInstance();
             this.ActSubType = actSubTypes;
-            this.ListSerialNumbers = new List<SerialNumber>();
-            this.ListLots = new List<LotNumber>();
-            this.ListVariants = new List<ProductVariant>();
 
             this.lblQty.Text = "Quantity";
             this.lblUnit.Text = "KG";
@@ -124,21 +119,6 @@ namespace dMobile.View.Activity
         /// Gets or sets the activity sub type.
         /// </summary>
         private SysCommon.ActSubTypes ActSubType { get; set; }
-
-        /// <summary>
-        /// Gets or sets a list of logistic unit serial numbers.
-        /// </summary>
-        private List<SerialNumber> ListSerialNumbers { get; set; }
-
-        /// <summary>
-        /// Gets or sets a list of logistic unit batch lot numbers.
-        /// </summary>
-        private List<LotNumber> ListLots { get; set; }
-
-        /// <summary>
-        /// Gets or sets a list of logistic product variants.
-        /// </summary>
-        private List<ProductVariant> ListVariants { get; set; }
 
         /// <summary>
         /// Gets or sets the activity detail edit.
@@ -299,7 +279,7 @@ namespace dMobile.View.Activity
 
                     // Check if Units of measure's are the same quantity should be the same.
                     var productInfo = this.ActDetail.ActItem.ProdInfo;
-                    CheckEqualQuantity(productInfo);
+                    CheckEqualQuantity();
 
                     if (this.ActDetailEdit.BaseQuantity == 0)
                     {
@@ -336,23 +316,23 @@ namespace dMobile.View.Activity
 
                     //////////////////////////////////////////////////////////////////////////
                     // Check the quantity if the UOM match.
-                    void CheckEqualQuantity(ProductInfo prodInfo)
+                    void CheckEqualQuantity()
                     {
-                        if (prodInfo.UnitCode == prodInfo.BaseUnitCode &&
+                        if (productInfo.UnitCode == productInfo.BaseUnitCode &&
                             this.ActDetailEdit.AltQuantity != this.ActDetailEdit.BaseQuantity)
                         {
                             throw new MessageOnlyException("Quantity and base quantity are expected" +
                                 " to be the same, because the units are the same.");
                         }
 
-                        if (prodInfo.UnitCode == prodInfo.WeightUnitCode &&
+                        if (productInfo.UnitCode == productInfo.WeightUnitCode &&
                             this.ActDetailEdit.AltQuantity != this.ActDetailEdit.WeightQuantity)
                         {
                             throw new MessageOnlyException("Quantity and weight quantity are expected" +
                                 " to be the same, because the units are the same.");
                         }
 
-                        if (prodInfo.BaseUnitCode == prodInfo.WeightUnitCode &&
+                        if (productInfo.BaseUnitCode == productInfo.WeightUnitCode &&
                             this.ActDetailEdit.BaseQuantity != this.ActDetailEdit.WeightQuantity)
                         {
                             throw new MessageOnlyException("Base quantity and weight quantity are expected" +
@@ -661,13 +641,13 @@ namespace dMobile.View.Activity
                     async Task AssignScheme()
                     {
                         var scheme = this.ActDetailEdit.SchemeData;
-                        var schemeSingleTradeItemSerialNumber = this.cboSerialNo.Text;
+                        var schemeSingleTradeItemSerialNumber = this.txtSerialNo.Text;
                         if (schemeSingleTradeItemSerialNumber != null)
                         {
                             scheme.SingleTradeItemSerialNumber = schemeSingleTradeItemSerialNumber;
                         }
 
-                        var schemeLogisticUnitBatchLotNumber = this.cboLotNo.Text;
+                        var schemeLogisticUnitBatchLotNumber = this.txtLotNo.Text;
                         if (schemeLogisticUnitBatchLotNumber != null)
                         {
                             scheme.LogisticUnitBatchLotNumber = schemeLogisticUnitBatchLotNumber;
@@ -768,8 +748,7 @@ namespace dMobile.View.Activity
                     {
                         if (this.ActDetail.ActItem.ProdInfo.Scheme.IsVariantTracked)
                         {
-                            var variant = this.cboVariantCode?.SelectedItem as ProductVariant;
-                            scheme.VariantNumber = Convert.ToInt32(variant?.ProductSchemeVariantNo ?? -1);
+                            scheme.VariantNumber = Convert.ToInt32(this.txtVariantCode.Text);
                             scheme = await this.ActDetail.FillSchemeDataVarInfoFromSchemeDataVarNo(scheme);
                         }
 
@@ -1080,7 +1059,7 @@ namespace dMobile.View.Activity
                 if (this.Scanner != null)
                 {
                     await this.Scanner.Start();
-                    this.Scanner.BarCodeScan += new BarCodeScanner.BarCodeScanEventHandler(this.BarCodeHandler);
+                    this.Scanner.BarCodeScan += this.BarCodeHandler;
                     this.IsBarCodeHandlerRegistered = true;
                 }
             }
@@ -1115,13 +1094,13 @@ namespace dMobile.View.Activity
                         this.txtWtQty.IsEnabled = false;
                     }
 
-                    InitControlStateScheme(scheme);
-                    InitControlStateExtra(scheme);
+                    InitControlStateScheme();
+                    InitControlStateExtra();
                 });
 
                 //////////////////////////////////////////////////////////////////////////
                 // Enable scheme controls state.
-                void InitControlStateScheme(ProdScheme scheme)
+                void InitControlStateScheme()
                 {
                     if (!scheme.IsBestBeforeDateTracked)
                     {
@@ -1135,23 +1114,23 @@ namespace dMobile.View.Activity
 
                     if (!scheme.IsLotTracked)
                     {
-                        this.cboLotNo.IsEnabled = false;
+                        this.txtLotNo.IsEnabled = false;
                     }
 
                     if (!scheme.IsSerialTracked)
                     {
-                        this.cboSerialNo.IsEnabled = false;
+                        this.txtSerialNo.IsEnabled = false;
                     }
 
                     if (!scheme.IsVariantTracked)
                     {
-                        this.cboVariantCode.IsEnabled = false;
+                        this.txtVariantCode.IsEnabled = false;
                     }
                 }
 
                 /////////////////////////////////////////////////////////////////////////
                 // Enable extra data controls state.
-                void InitControlStateExtra(ProdScheme scheme)
+                void InitControlStateExtra()
                 {
                     if (scheme.Extra1Type == (int)SysCommon.SchemeExtraTypes.Disabled)
                     {
@@ -1191,78 +1170,6 @@ namespace dMobile.View.Activity
                     LoadSchemeDetail();
                     LoadExtraDetail();
                 });
-
-                await LoadProductVariants();
-                await GetSerialNumbers();
-                await GetLotNumbers();
-
-                //////////////////////////////////////////////////////////////////////////
-                // Load the product variants list and bind it to the variant display control.
-                async Task LoadProductVariants()
-                {
-                    this.ListVariants = await this.ActDetailEdit.GetVariantList(
-                        prodRefno: this.ActDetail.ActItem.ProdInfo.Refno);
-
-                    var variants = new ObservableCollection<object>();
-                    foreach (var productVariant in this.ListVariants)
-                    {
-                        variants.Add(productVariant);
-                    }
-
-                    await Device.InvokeOnMainThreadAsync(() =>
-                    {
-                        this.cboVariantCode.ItemDisplayBinding = new Binding("ProductSchemeVariantDisplay");
-                        this.cboVariantCode.ItemsSource = variants;
-                    });
-                }
-
-                //////////////////////////////////////////////////////////////////////////
-                // Load the lot numbers list and bind it to the lot display control.
-                async Task GetLotNumbers()
-                {
-                    this.ListLots = await this.ActDetailEdit.GetLotList(
-                        prodRefno: this.ActDetail.ActItem.ProdInfo.Refno);
-                    var lotNumberList = new ObservableCollection<object>();
-
-                    foreach (var lotNumber in this.ListLots)
-                    {
-                        lotNumberList.Add(lotNumber);
-                    }
-
-                    await Device.InvokeOnMainThreadAsync(() =>
-                    {
-                        this.cboLotNo.ItemDisplayBinding = new Binding("ActivityDetailLogisticUnitBatchLotNumber");
-                        this.cboLotNo.ItemsSource = lotNumberList;
-                    });
-                }
-
-                //////////////////////////////////////////////////////////////////////////
-                // Load the serial numbers list and bind it to the serial number display control.
-                async Task GetSerialNumbers()
-                {
-                    this.ListSerialNumbers =
-                        await this.ActDetailEdit.GetSerialNumberList(prodRefno: this.ActDetail.ActItem.ProdInfo.Refno);
-                    var serialNumbers = new ObservableCollection<SerialNumber>();
-                    var selectedSerialNumberItem = this.cboSerialNo.Text;
-                    var selectedSerialNumber = new SerialNumber();
-
-                    if (!string.IsNullOrEmpty(selectedSerialNumberItem))
-                    {
-                        selectedSerialNumber.ActivityDetailSingleTradeItemSerialNumber = Convert.ToString(selectedSerialNumberItem);
-                        serialNumbers.Add(selectedSerialNumber);
-                    }
-
-                    foreach (var serialNumber in this.ListSerialNumbers)
-                    {
-                        serialNumbers.Add(serialNumber);
-                    }
-
-                    if (selectedSerialNumber.ActivityDetailSingleTradeItemSerialNumber != null)
-                    {
-                        _ = await Device.InvokeOnMainThreadAsync(() =>
-                            this.cboSerialNo.Text = selectedSerialNumber.ActivityDetailSingleTradeItemSerialNumber);
-                    }
-                }
 
                 //////////////////////////////////////////////////////////////////////////
                 // Load the extra detail controls with the activity detail extra values.
@@ -1320,46 +1227,17 @@ namespace dMobile.View.Activity
                     if (prodInfo.Scheme.IsSerialTracked)
                     {
                         GetNextDefaultSerialNumber(schemeData);
-                        this.cboSerialNo.Text = schemeData.SingleTradeItemSerialNumber;
+                        this.txtSerialNo.Text = schemeData.SingleTradeItemSerialNumber;
                     }
 
                     if (prodInfo.Scheme.IsLotTracked)
                     {
-                        this.cboLotNo.SelectedItem = schemeData.LogisticUnitBatchLotNumber;
-                        if (this.cboLotNo.SelectedIndex < 0)
-                        {
-                            GetLotNumbers();
-                            var lot = new LotNumber
-                            {
-                                ActivityDetailLogisticUnitBatchLotNumber = schemeData.LogisticUnitBatchLotNumber,
-                            };
-                            this.ListLots.Add(lot);
-
-                            Device.InvokeOnMainThreadAsync(() =>
-                            {
-                                ////this.cboLotNo.ItemDisplayBinding = new Binding("ActivityDetailLogisticUnitBatchLotNumber");
-                                this.cboLotNo.ItemsSource = this.ListLots;
-                            });
-
-                            this.cboLotNo.SelectedItem = schemeData.LogisticUnitBatchLotNumber;
-
-                            ////this.cboLotNo.SelectedItem = schemeData.LogisticUnitBatchLotNumber;
-                            ////this.cboLotNo.SelectedIndex = this.cboLotNo.Items.Count - 1;
-                            ////this.cboLotNo.Text = schemeData.LogisticUnitBatchLotNumber;
-                            ////this.cboLotNo.SelectedValue = this.cboLotNo.SelectedIndex;
-                        }
+                        this.txtLotNo.Text = schemeData.LogisticUnitBatchLotNumber;
                     }
 
                     if (prodInfo.Scheme.IsVariantTracked)
                     {
-                        this.cboVariantCode.SelectedItem = schemeData.VariantNumber.ToString();
-                        if (this.cboVariantCode.SelectedIndex < 0)
-                        {
-                            this.cboVariantCode.Items.Add(schemeData.VariantNumber.ToString());
-                            this.cboVariantCode.SelectedItem = schemeData.VariantNumber.ToString();
-                            ////this.cboVariantCode.Text = schemeData.VariantNumber.ToString();
-                            ////this.cboVariantCode.SelectedValue = this.cboVariantCode.SelectedIndex;
-                        }
+                        this.txtVariantCode.Text = schemeData.VariantNumber.ToString();
                     }
 
                     //////////////////////////////////////////////////////////////////////////
@@ -1379,19 +1257,22 @@ namespace dMobile.View.Activity
                 void LoadQuantityDetailAltQuantity()
                 {
                     var prodInfo = this.ActDetail.ActItem.ProdInfo;
+                    var isSetCatchWeightZero = this.ActDetail.ActItem.ProdInfo.IsCatchWeight
+                                               && this.SysEnv.SysSettings.IsSetCatchWeightZero &&
+                                               (prodInfo.UnitCode == "LB" || prodInfo.UnitCode == "KG");
+                    var isSetCatchCountZero = this.ActDetail.ActItem.ProdInfo.IsCatchCount &&
+                                               this.SysEnv.SysSettings.IsSetCatchCountZero &&
+                                               prodInfo.UnitCode == prodInfo.BaseUnitCode;
+
                     if (this.ActDetail.ActItem.IsCatchAskZero())
                     {
                         this.ActDetailEdit.AltQuantity = 0;
                     }
-                    else if (this.ActDetail.ActItem.ProdInfo.IsCatchWeight &&
-                        this.SysEnv.SysSettings.IsSetCatchWeightZero &&
-                        (prodInfo.UnitCode == "LB" || prodInfo.UnitCode == "KG"))
+                    else if (isSetCatchWeightZero)
                     {
                         this.ActDetailEdit.AltQuantity = 0;
                     }
-                    else if (this.ActDetail.ActItem.ProdInfo.IsCatchCount &&
-                        this.SysEnv.SysSettings.IsSetCatchCountZero &&
-                        prodInfo.UnitCode == prodInfo.BaseUnitCode)
+                    else if (isSetCatchCountZero)
                     {
                         this.ActDetailEdit.AltQuantity = 0;
                     }
@@ -1581,7 +1462,9 @@ namespace dMobile.View.Activity
                             }
                             catch (MessageOnlyException msgEx)
                             {
-                                var msg = (msgEx.Message.IndexOf("MSGBOX-", StringComparison.Ordinal) == -1) ? msgEx.Message : msgEx.Message["MSGBOX-".Length..];
+                                var msg = (msgEx.Message.IndexOf("MSGBOX-", StringComparison.Ordinal) == -1)
+                                    ? msgEx.Message
+                                    : msgEx.Message["MSGBOX-".Length..];
                                 await Device.InvokeOnMainThreadAsync(async () =>
                                     await Application.Current.MainPage.DisplayAlert(
                                         GetControlDescription(),
@@ -1757,7 +1640,11 @@ namespace dMobile.View.Activity
                             }
                             catch (MessageOnlyException msgEx)
                             {
-                                var msg = (msgEx.Message.IndexOf("MSGBOX-", StringComparison.Ordinal) == -1) ? msgEx.Message : msgEx.Message["MSGBOX-".Length..];
+                                var msg = (msgEx.Message.IndexOf("MSGBOX-",
+                                               StringComparison.Ordinal) ==
+                                           -1)
+                                    ? msgEx.Message
+                                    : msgEx.Message["MSGBOX-".Length..];
 
                                 // Even though an error was raised, during label printing allow the control to close.
                                 await Device.InvokeOnMainThreadAsync(async () =>

@@ -131,7 +131,7 @@ namespace dMobile.Controller.Activity_Item
         public SysCommon.ActSubTypes ActSubType { get; set; } = SysCommon.ActSubTypes.NotApplicable;
 
         /// <summary>
-        /// Gets or sets the activity item status, nochange, inserted, updated etc.
+        /// Gets or sets the activity item status, no change, inserted, updated etc.
         /// </summary>
         public SysCommon.ActStatus ActStatus { get; set; } = ActStatus.NoChange;
 
@@ -159,41 +159,6 @@ namespace dMobile.Controller.Activity_Item
         /// Gets or sets the activity item list item selected index.
         /// </summary>
         public int SelectedListIdx { get; set; } = -1;
-
-        /// <summary>
-        /// Create activity.
-        /// </summary>
-        /// <param name="actSubTypes"><see cref="SysCommon.ActSubTypes"/> Activity sub type.</param>
-        /// <returns><see cref="Task"/> Task operation.</returns>
-        protected async Task Create(SysCommon.ActSubTypes actSubTypes)
-        {
-            try
-            {
-                var conn = DatabaseConnection.GetInstance().SQLConn;
-
-                await conn.ExecuteAsync(
-                    "INSERT INTO tActivityItem" +
-                    " (ActivityItemSubType," +
-                    " ActivityItemStatus," +
-                    " ActivityRefno," +
-                    " ActivityItemIsAdded) VALUES (?, ?, ?, ?)",
-                    Convert.ToInt32(actSubTypes),
-                    Convert.ToInt32(SysCommon.ActStatus.Inserted),
-                    Convert.ToInt32(this.ActHdr.HdrRefno),
-                    0);
-
-                this.ItemRefno = Convert.ToInt32(await conn.ExecuteScalarAsync<int>(
-                    "SELECT last_insert_rowid() FROM tActivityItem"));
-            }
-            catch (SQLiteException ex)
-            {
-                throw new Exception("Database exception occurred.", ex);
-            }
-            catch
-            {
-                throw;
-            }
-        }
 
         /// <summary>
         /// Gets or sets a value indicating whether allowed to add skid detail.
@@ -452,10 +417,10 @@ namespace dMobile.Controller.Activity_Item
             if (this.SysEnv.SysSettings.IsDefaultLocToProductDefaultLoc)
             {
                 if ((this.ActSubType == SysCommon.ActSubTypes.PhysicalCounts &&
-                     this.SysEnv.SysSettings.IsPhysicalDoNotDefaultProductLocation)
+                    this.SysEnv.SysSettings.IsPhysicalDoNotDefaultProductLocation)
                     ||
                     (this.ActSubType == SysCommon.ActSubTypes.CycleCounts &&
-                     this.SysEnv.SysSettings.IsCycleDoNotDefaultProductLocation))
+                        this.SysEnv.SysSettings.IsCycleDoNotDefaultProductLocation))
                 {
                     isGetDefault = false;
                 }
@@ -512,7 +477,7 @@ namespace dMobile.Controller.Activity_Item
         /// Get item not found message.
         /// </summary>
         /// <param name="locMap"><see cref="LocationMap"/> Location map reference number.</param>
-        /// <param name="prodInfo"><see cref="ProductInfo"/> Product informations.</param>
+        /// <param name="prodInfo"><see cref="ProductInfo"/> Product information.</param>
         /// <returns><see cref="string"/> Item not found message.</returns>
         public virtual string GetItemNotFoundMessage(LocationMap locMap, ProductInfo prodInfo)
         {
@@ -534,11 +499,14 @@ namespace dMobile.Controller.Activity_Item
         /// <returns><see cref="Task"/> Task operation.</returns>
         public virtual async Task IsReadyToApply(XDocument data)
         {
+            data = data ?? throw new ArgumentNullException(nameof(data));
+            _ = data.Root ?? throw new ArgumentNullException(nameof(data.Root));
+
             // Check for duplicate
             if (this.SysEnv.SysSettings.IsDisconnectedMode)
             {
-                var actDetailUniqSchemeId = data.Root.Element("ActivityDetailUniqueSchemeID").Value;
-                if (string.Compare(actDetailUniqSchemeId, string.Empty) > 0)
+                var actDetailUniqSchemeId = data.Root.Element("ActivityDetailUniqueSchemeID")!.Value;
+                if (string.Compare(actDetailUniqSchemeId, string.Empty, StringComparison.CurrentCulture) > 0)
                 {
                     var isDupSchemeId = await ProductInfoTasks.IsDuplicateUniqueSchemeID(
                         actDetailUniqSchemeId);
@@ -699,6 +667,41 @@ namespace dMobile.Controller.Activity_Item
         {
             this.OnDataLayerProgressOut -= new DataLayerProgressOutEventHandler(
                 listener.OnLayerProgressOut);
+        }
+
+        /// <summary>
+        /// Create activity.
+        /// </summary>
+        /// <param name="actSubTypes"><see cref="SysCommon.ActSubTypes"/> Activity sub type.</param>
+        /// <returns><see cref="Task"/> Task operation.</returns>
+        protected async Task Create(SysCommon.ActSubTypes actSubTypes)
+        {
+            try
+            {
+                var conn = DatabaseConnection.GetInstance().SQLConn;
+
+                await conn.ExecuteAsync(
+                    "INSERT INTO tActivityItem" +
+                    " (ActivityItemSubType," +
+                    " ActivityItemStatus," +
+                    " ActivityRefno," +
+                    " ActivityItemIsAdded) VALUES (?, ?, ?, ?)",
+                    Convert.ToInt32(actSubTypes),
+                    Convert.ToInt32(SysCommon.ActStatus.Inserted),
+                    Convert.ToInt32(this.ActHdr.HdrRefno),
+                    0);
+
+                this.ItemRefno = Convert.ToInt32(await conn.ExecuteScalarAsync<int>(
+                    "SELECT last_insert_rowid() FROM tActivityItem"));
+            }
+            catch (SQLiteException ex)
+            {
+                throw new Exception("Database exception occurred.", ex);
+            }
+            catch
+            {
+                throw;
+            }
         }
     }
 }
