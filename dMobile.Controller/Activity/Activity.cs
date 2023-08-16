@@ -106,6 +106,11 @@ namespace dMobile.Controller.Activity
         public SysCommon.ActSubTypes ActSubType { get; set; }
 
         /// <summary>
+        /// Gets or sets the location map reference number.
+        /// </summary>
+        public int LocationMapRefno { get; set; } = 0;
+
+        /// <summary>
         /// Gets or sets the Refno.
         /// </summary>
         public int HdrRefno { get; set; } = 0;

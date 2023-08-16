@@ -22,6 +22,9 @@ namespace dMobile.Resources.Models
         [Indexed(Name = "UQ_ActivityItemReplenishmentOnActivityItemRefnoAndActivityItemSubType", Order = 1, Unique = true)]
         public int ActivityItemRefno { get; set; }
 
+        /// <summary>
+        /// Gets or sets the replenishment move type.
+        /// </summary>
         [NotNull]
         [Indexed(Name = "UQ_ActivityItemReplenishmentOnActivityItemRefnoAndActivityItemSubType", Order = 2, Unique = true)]
         public int ActivityItemSubType { get; set; }
@@ -40,12 +43,13 @@ namespace dMobile.Resources.Models
         [NotNull]
         [Indexed(Name = "UQ_ActivityItemReplenishmentOnActivityItemFKRefno", Order = 1, Unique = true)]
         public int ActivityItemFKRefno { get; set; }
+
         /// <summary>
         /// Gets or sets the activity item foreign key parent reference number.
         /// </summary>
         [NotNull]
-        [Indexed(Name = "UQ_ActivityItemReplenishmentOnActivityItemFKParentRefno", Order = 1, Unique = false)]
-        public int ActivityItemFKParentRefno { get; set; }
+        [Indexed(Name = "UQ_ActivityItemReplenishmentOnActivityItemFKParRefno", Order = 1, Unique = false)]
+        public int ActivityItemFKParRefno { get; set; }
 
         [NotNull]
         [ForeignKey(typeof(tProductUnitModel))]

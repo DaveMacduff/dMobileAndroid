@@ -111,6 +111,11 @@ namespace dMobile.Bedrock
         private bool inventoryInquirySearchEntireWarehouse = false;
 
         /// <summary>
+        /// When true, disable the move all slot quantity option.
+        /// </summary>
+        private bool isDisableMoveAllSlotQuantityOption = false;
+
+        /// <summary>
         /// Defines the gtinCompanyPrefix.
         /// </summary>
         private string gtinCompanyPrefix = string.Empty;
@@ -1026,6 +1031,16 @@ namespace dMobile.Bedrock
             get => this.inventoryInquirySearchEntireWarehouse;
 
             set => this.inventoryInquirySearchEntireWarehouse = value;
+        }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether to disable the move all slot quantity option.
+        /// </summary>
+        public bool IsDisableMoveAllSlotQuantityOption
+        {
+            get => this.isDisableMoveAllSlotQuantityOption;
+
+            set => this.isDisableMoveAllSlotQuantityOption = value;
         }
 
         /// <summary>

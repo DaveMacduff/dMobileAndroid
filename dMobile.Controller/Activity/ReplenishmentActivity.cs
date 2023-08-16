@@ -8,10 +8,10 @@ namespace dMobile.Controller.Activity
     using System.Collections.Generic;
     using System.Collections.ObjectModel;
     using System.Linq;
-    using System.Text;
     using System.Threading.Tasks;
     using System.Xml.Linq;
     using dMobile.Bedrock;
+    using dMobile.Controller.Activity_Detail;
     using dMobile.GroundWork;
     using dMobile.Resources;
     using dMobile.Resources.Services;
@@ -41,28 +41,39 @@ namespace dMobile.Controller.Activity
                         new ColumnDefinition { Width = new GridLength(this.FromColWidth0, GridUnitType.Absolute) },
                         new ColumnDefinition { Width = new GridLength(this.FromColWidth1, GridUnitType.Absolute) },
                         new ColumnDefinition { Width = new GridLength(this.FromColWidth2, GridUnitType.Absolute) },
+                        new ColumnDefinition { Width = new GridLength(this.FromColWidth3, GridUnitType.Absolute) },
+                        new ColumnDefinition { Width = new GridLength(this.FromColWidth4, GridUnitType.Absolute) },
+                        new ColumnDefinition { Width = new GridLength(this.FromColWidth5, GridUnitType.Absolute) },
                     },
                 };
 
-                var labelActivityStringFkRefno = new Label { VerticalOptions = LayoutOptions.Center };
-                var labelActivityReplenishmentDateTime = new Label { VerticalOptions = LayoutOptions.Center };
-                var labelActivityReplenishmentDescription = new Label { VerticalOptions = LayoutOptions.Center };
+                var labelMoveTypeString = new Label { VerticalOptions = LayoutOptions.Center };
+                var labelFromLocation = new Label { VerticalOptions = LayoutOptions.Center };
+                var labelProductCode = new Label { VerticalOptions = LayoutOptions.Center };
+                var labelProductBC = new Label { VerticalOptions = LayoutOptions.Center };
+                var labelProductUnit = new Label { VerticalOptions = LayoutOptions.Center };
+                var labelProductAltQty = new Label { VerticalOptions = LayoutOptions.Center };
 
-                labelActivityStringFkRefno.SetBinding(Label.TextProperty, new Binding("ActivityStringFKRefno"));
-                labelActivityReplenishmentDateTime.SetBinding(
-                    Label.TextProperty,
-                    new Binding("ActivityReplenishmentDateTime", BindingMode.Default, null, null, "{0:MM/dd/yyyy}"));
-                labelActivityReplenishmentDescription.SetBinding(
-                    Label.TextProperty,
-                    new Binding("ActivityReplenishmentDescription"));
+                labelMoveTypeString.SetBinding(Label.TextProperty, new Binding("MoveTypeString"));
+                labelFromLocation.SetBinding(Label.TextProperty, new Binding("ReadableLocationMap"));
+                labelProductCode.SetBinding(Label.TextProperty, new Binding("ProductCode"));
+                labelProductBC.SetBinding(Label.TextProperty, new Binding("ProductUnitBC"));
+                labelProductUnit.SetBinding(Label.TextProperty, new Binding("ProductUnitCode"));
+                labelProductAltQty.SetBinding(Label.TextProperty, new Binding("ActivityItemReplenishmentQuantity"));
 
-                gridData.Children.Add(labelActivityStringFkRefno, 0, 0);
-                gridData.Children.Add(labelActivityReplenishmentDateTime, 0, 0);
-                gridData.Children.Add(labelActivityReplenishmentDescription, 0, 0);
+                gridData.Children.Add(labelMoveTypeString, 0, 0);
+                gridData.Children.Add(labelFromLocation, 0, 0);
+                gridData.Children.Add(labelProductCode, 0, 0);
+                gridData.Children.Add(labelProductBC, 0, 0);
+                gridData.Children.Add(labelProductUnit, 0, 0);
+                gridData.Children.Add(labelProductAltQty, 0, 0);
 
-                Grid.SetColumn(labelActivityStringFkRefno, 0);
-                Grid.SetColumn(labelActivityReplenishmentDateTime, 1);
-                Grid.SetColumn(labelActivityReplenishmentDescription, 2);
+                Grid.SetColumn(labelMoveTypeString, 0);
+                Grid.SetColumn(labelFromLocation, 1);
+                Grid.SetColumn(labelProductCode, 2);
+                Grid.SetColumn(labelProductBC, 3);
+                Grid.SetColumn(labelProductUnit, 4);
+                Grid.SetColumn(labelProductAltQty, 5);
 
                 return new ViewCell { View = gridData };
             });
@@ -73,22 +84,37 @@ namespace dMobile.Controller.Activity
         /// <summary>
         /// Gets or sets the replenishment settings.
         /// </summary>
-        public ReplenishmentSettings ReplenSettings { get; set; }
+        public ReplenishmentSettings ReplenSettings { get; set; } = new ReplenishmentSettings();
 
         /// <summary>
-        /// Gets or sets the list view / from grid column 0 width.
+        /// Gets or sets the list view / from grid column 0 width. MoveType.
         /// </summary>
         public double FromColWidth0 { get; set; } = 0;
 
         /// <summary>
-        /// Gets or sets the list view / from grid column 1 width.
+        /// Gets or sets the list view / from grid column 1 width. From Location.
         /// </summary>
         public double FromColWidth1 { get; set; } = 0;
 
         /// <summary>
-        /// Gets or sets the list view / from grid column 2 width.
+        /// Gets or sets the list view / from grid column 2 width. Product Code.
         /// </summary>
         public double FromColWidth2 { get; set; } = 0;
+
+        /// <summary>
+        /// Gets or sets the list view / from grid column 2 width. Product BC.
+        /// </summary>
+        public double FromColWidth3 { get; set; } = 0;
+
+        /// <summary>
+        /// Gets or sets the list view / from grid column 2 width. Product unit.
+        /// </summary>
+        public double FromColWidth4 { get; set; } = 0;
+
+        /// <summary>
+        /// Gets or sets the list view / from grid column 2 width. Alt Qty.
+        /// </summary>
+        public double FromColWidth5 { get; set; } = 0;
 
         /// <summary>
         /// Gets or sets the list view / to grid column 0 width.
@@ -150,7 +176,7 @@ namespace dMobile.Controller.Activity
         {
             var headersList = new ObservableCollection<object>();
 
-            var labelMoveType = new Label
+            var labelMoveTypeString = new Label
             {
                 Text = "Type",
                 VerticalOptions = LayoutOptions.Center,
@@ -164,6 +190,27 @@ namespace dMobile.Controller.Activity
                 FontAttributes = FontAttributes.Bold,
             };
 
+            var labelFromProductCode = new Label
+            {
+                Text = "Product",
+                VerticalOptions = LayoutOptions.Center,
+                FontAttributes = FontAttributes.Bold,
+            };
+
+            var labelFromProductBC = new Label
+            {
+                Text = "BC",
+                VerticalOptions = LayoutOptions.Center,
+                FontAttributes = FontAttributes.Bold,
+            };
+
+            var labelFromProductUnit = new Label
+            {
+                Text = "Unit",
+                VerticalOptions = LayoutOptions.Center,
+                FontAttributes = FontAttributes.Bold,
+            };
+
             var labelFromAltQty = new Label
             {
                 Text = "Qty",
@@ -172,9 +219,12 @@ namespace dMobile.Controller.Activity
             };
 
             // Calculate text size
-            this.FromColWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(labelMoveType.Text);
+            this.FromColWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(labelMoveTypeString.Text);
             this.FromColWidth1 = DependencyService.Get<IGridService>().CalculateTextWidth(labelFromLocation.Text);
-            this.FromColWidth2 = DependencyService.Get<IGridService>().CalculateTextWidth(labelFromAltQty.Text);
+            this.FromColWidth2 = DependencyService.Get<IGridService>().CalculateTextWidth(labelFromProductCode.Text);
+            this.FromColWidth3 = DependencyService.Get<IGridService>().CalculateTextWidth(labelFromProductBC.Text);
+            this.FromColWidth4 = DependencyService.Get<IGridService>().CalculateTextWidth(labelFromProductUnit.Text);
+            this.FromColWidth5 = DependencyService.Get<IGridService>().CalculateTextWidth(labelFromAltQty.Text);
 
             var gridHeader = new Grid
             {
@@ -184,18 +234,27 @@ namespace dMobile.Controller.Activity
                     new ColumnDefinition { Width = new GridLength(this.FromColWidth0, GridUnitType.Absolute) },
                     new ColumnDefinition { Width = new GridLength(this.FromColWidth1, GridUnitType.Absolute) },
                     new ColumnDefinition { Width = new GridLength(this.FromColWidth2, GridUnitType.Absolute) },
+                    new ColumnDefinition { Width = new GridLength(this.FromColWidth3, GridUnitType.Absolute) },
+                    new ColumnDefinition { Width = new GridLength(this.FromColWidth4, GridUnitType.Absolute) },
+                    new ColumnDefinition { Width = new GridLength(this.FromColWidth5, GridUnitType.Absolute) },
                 },
             };
 
             gridHeader.SetDynamicResource(VisualElement.BackgroundColorProperty, "HeaderColor");
 
-            gridHeader.Children.Add(labelMoveType);
+            gridHeader.Children.Add(labelMoveTypeString);
             gridHeader.Children.Add(labelFromLocation);
+            gridHeader.Children.Add(labelFromProductCode);
+            gridHeader.Children.Add(labelFromProductBC);
+            gridHeader.Children.Add(labelFromProductUnit);
             gridHeader.Children.Add(labelFromAltQty);
 
-            Grid.SetColumn(labelMoveType, 0);
+            Grid.SetColumn(labelMoveTypeString, 0);
             Grid.SetColumn(labelFromLocation, 1);
-            Grid.SetColumn(labelFromAltQty, 2);
+            Grid.SetColumn(labelFromProductCode, 2);
+            Grid.SetColumn(labelFromProductBC, 3);
+            Grid.SetColumn(labelFromProductUnit, 4);
+            Grid.SetColumn(labelFromAltQty, 5);
 
             Grid.SetRow(gridHeader, 0);
             gridMainActivity.Children.Add(gridHeader);
@@ -204,12 +263,13 @@ namespace dMobile.Controller.Activity
             {
                 headersList.Add(replen);
 
-                var dataFromColWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(
-                    ReplenishmentMoveType.Enum2String(replen.MoveType));
-                var dataFromColWidth1 = DependencyService.Get<IGridService>().CalculateTextWidth(
-                    replen.ReadableLocationMap);
-                var dataFromColWidth2 = DependencyService.Get<IGridService>().CalculateTextWidth(
-                    replen.ActivityItemReplenishmentQuantity.ToString());
+                var dataFromColWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(replen.MoveTypeString);
+                var dataFromColWidth1 = DependencyService.Get<IGridService>().CalculateTextWidth(replen.ReadableLocationMap);
+                var dataFromColWidth2 = DependencyService.Get<IGridService>().CalculateTextWidth(replen.ProductCode);
+                var dataFromColWidth3 = DependencyService.Get<IGridService>().CalculateTextWidth(replen.ProductUnitBC);
+                var dataFromColWidth4 = DependencyService.Get<IGridService>().CalculateTextWidth(replen.ProductUnitCode);
+                var dataFromColWidth5 = DependencyService.Get<IGridService>().CalculateTextWidth(
+                    $"{replen.ActivityItemReplenishmentQuantity:F3}");
 
                 if (dataFromColWidth0 > this.FromColWidth0)
                 {
@@ -228,6 +288,24 @@ namespace dMobile.Controller.Activity
                     this.FromColWidth2 = dataFromColWidth2;
                     gridHeader.ColumnDefinitions[2].Width = this.FromColWidth2;
                 }
+
+                if (dataFromColWidth3 > this.FromColWidth3)
+                {
+                    this.FromColWidth3 = dataFromColWidth3;
+                    gridHeader.ColumnDefinitions[3].Width = this.FromColWidth3;
+                }
+
+                if (dataFromColWidth4 > this.FromColWidth4)
+                {
+                    this.FromColWidth4 = dataFromColWidth4;
+                    gridHeader.ColumnDefinitions[4].Width = this.FromColWidth4;
+                }
+
+                if (dataFromColWidth5 > this.FromColWidth5)
+                {
+                    this.FromColWidth5 = dataFromColWidth5;
+                    gridHeader.ColumnDefinitions[5].Width = this.FromColWidth5;
+                }
             }
 
             listViewMainActivity.ItemTemplate = (DataTemplate)this.ResDict["dataTemplateFromReplenish"];
@@ -236,7 +314,7 @@ namespace dMobile.Controller.Activity
         }
 
         /// <summary>
-        /// Get list of activity headers.
+        /// Get list of from move types.
         /// </summary>
         /// <param name="isSubmitBatch"><see cref="bool"/> Is submitting batch mode.</param>
         /// <returns><see cref="List{object}"/> List of headers.</returns>
@@ -256,10 +334,17 @@ namespace dMobile.Controller.Activity
                         ,tActivityItemReplenishment.ActivityItemRefno
                         ,tActivityItemReplenishment.ActivityItemSubType
                         ,tActivityItemReplenishment.MoveType
+                        ,cast('' as varchar(10)) as MoveTypeString
                         ,tActivityItemReplenishment.ActivityItemFKRefno
-                        ,tActivityItemReplenishment.ActivityItemFKParentRefno
+                        ,tActivityItemReplenishment.ActivityItemFKParRefno
+                        ,tActivityItemReplenishment.ProductUnitRefno
+                        ,cast('' as varchar(10)) as ProductCode
+                        ,cast('' as varchar(1)) as ProductUnitBC
+                        ,cast('' as varchar(2)) as ProductUnitCode
+                        ,tActivityItemReplenishment.ProductUnitRefno
                         ,tActivityItemReplenishment.ProductUnitRefno
                         ,tActivityItemReplenishment.LocationMapRefno
+                        ,cast('' as varchar(30)) as ReadableLocationMap
                         ,tActivityItemReplenishment.ActivityItemReplenishmentQuantity
                         ,tActivityItemReplenishment.ActivityItemReplenishmentBaseQuantity
                         ,tActivityItemReplenishment.ActivityItemReplenishmentWeightQuantity
@@ -290,7 +375,29 @@ namespace dMobile.Controller.Activity
                     inner join tActivityDetailReplenishment on tActivityDetailReplenishment.ActivityDetailRefno = tActivityDetail.ActivityDetailRefno";
 
             this.ListReplenishments = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<Replenishment>(query);
-            this.ListHdrs = this.ListReplenishments.Cast<object>().ToList();
+
+            foreach (var item in this.ListReplenishments)
+            {
+                item.MoveTypeString = ReplenishmentMoveType.Enum2String(item.MoveType);
+                SLocMap tmpLocMap = await LocationMapTasks.GetSLocMapFromLocMapRefno(item.LocationMapRefno);
+                item.ReadableLocationMap = LocationMapTasks.GetReadableLocation(tmpLocMap, isSepSlotCoords: false);
+
+                var prodBCUnit = await ProductInfoTasks.GetInfoFromUnitRefno(item.ProductUnitRefno);
+                item.ProductCode = prodBCUnit.Code;
+                item.ProductUnitBC = prodBCUnit.UnitBC;
+                item.ProductUnitCode = prodBCUnit.UnitCode;
+            }
+
+            var from = from item in this.ListReplenishments
+                                where item.ActivityItemFKRefno == item.ActivityItemFKParRefno
+                                select item;
+            this.ListHdrs = from.Cast<object>().ToList();
+
+            var to = from item in this.ListReplenishments
+                     where item.ActivityItemFKRefno != item.ActivityItemFKParRefno
+                     select item;
+            this.ListItems = to.Cast<object>().ToList();
+
             return this.ListHdrs;
         }
 
@@ -309,37 +416,10 @@ namespace dMobile.Controller.Activity
             if (selectedActivity is Replenishment header)
             {
                 this.SelectedActivity = header;
-                ////this.HdrFkRefno = header.ActivityFKRefno;
-                ////this.HdrRefno = header.ActivityRefno;
-
-                ////if (this.SysEnv.SysSettings.IsDefaultLocToProductDefaultLoc)
-                ////{
-                ////    // Set the current location to the header.
-                ////    if (LocationMap.GetInstance().CurrLocMap.WhsLocMapRefno != header.WarehouseLocationMapRefno &&
-                ////            await LocationMapTasks.IsCompleteLocMap(header.LocationMapRefno))
-                ////    {
-                ////        LocationMap.GetInstance().CurrLocMap = await LocationMapTasks.GetSLocMapFromLocMapRefno(
-                ////            header.LocationMapRefno);
-                ////    }
-
-                ////    // Override and set the chosen location to the current location.
-                ////    if (LocationMap.GetInstance().ChosenLocMap.WhsLocMapRefno != header.LocationMapRefno &&
-                ////            await LocationMapTasks.IsCompleteLocMap(header.LocationMapRefno))
-                ////    {
-                ////        LocationMap.GetInstance().ChosenLocMap = LocationMap.GetInstance().CurrLocMap.Clone();
-                ////    }
-
-                ////    // Override and set any selected skid location to the current location.
-                ////    if (this.SkidInfo.CurrSkid != null && this.SkidInfo.CurrSkid.SkidFKRefno > 0 &&
-                ////        this.SkidInfo.CurrSkid.LocMapRefno != header.LocationMapRefno &&
-                ////        await LocationMapTasks.IsCompleteLocMap(header.LocationMapRefno))
-                ////    {
-                ////        // NOTE: We may have to use a temp var to assign the current skid a new location.
-                ////        this.SkidInfo.CurrSkid.LocMap = LocationMap.GetInstance().CurrLocMap.Clone();
-                ////    }
-                ////}
-
-                this.ReplenSettings = this.ReplenSettings.LoadData();
+                this.HdrFkRefno = header.ActivityItemFKRefno;
+                this.HdrRefno = header.ActivityRefno;
+                this.LocationMapRefno = header.LocationMapRefno;
+                ////this.ReplenSettings = this.ReplenSettings.LoadData();
             }
         }
 
@@ -350,11 +430,11 @@ namespace dMobile.Controller.Activity
         /// <returns><see cref="int"/> Selected activity reference number.</returns>
         public override int GetRefnoFromRowIdx(object selectedItem)
         {
-            ////if (selectedItem is Replenishment adjustment)
-            ////{
-            ////    this.HdrFkRefno = Convert.ToInt32(adjustment.ActivityFKRefno);
-            ////    this.HdrRefno = Convert.ToInt32(adjustment.ActivityRefno);
-            ////}
+            if (selectedItem is Replenishment replen)
+            {
+                this.HdrFkRefno = Convert.ToInt32(replen.ActivityItemFKRefno);
+                this.HdrRefno = Convert.ToInt32(replen.ActivityRefno);
+            }
 
             return this.HdrRefno;
         }

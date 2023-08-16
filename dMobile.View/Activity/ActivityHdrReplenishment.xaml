@@ -22,8 +22,9 @@
                     <RowDefinition Height="6*"/>
                     <RowDefinition Height="45*"/>
                     <RowDefinition Height="15*"/>
-                    <RowDefinition Height="15*"/>
-                    <RowDefinition Height="15*"/>
+                    <RowDefinition Height="10*"/>
+                    <RowDefinition Height="10*"/>
+                    <RowDefinition Height="10*"/>
                 </Grid.RowDefinitions>
                 <Grid Grid.Row="0">
                     <Label x:Name="lblMoveType"
@@ -42,14 +43,14 @@
                             </Grid.RowDefinitions>
 
                             <ListView x:Name="ListViewMoveFrom"
-                                      ItemSelected="ListViewMoveFrom_ItemSelected"
                                       HasUnevenRows="True"
                                       IsEnabled="{Binding Loading, Converter={Helpers:BoolConverter}}"
                                       Grid.Row="1"
-                                      Focused="ListViewMoveFrom_Focused"
-                                      Unfocused="ListViewMoveFrom_Unfocused"
                                       VerticalScrollBarVisibility="Always"
-                                      HorizontalScrollBarVisibility="Always" SelectionMode="Single" />
+                                      HorizontalScrollBarVisibility="Always" SelectionMode="Single"
+                                      ItemSelected="ListViewMoveFrom_ItemSelected"
+                                      Focused="ListViewMoveFrom_Focused"
+                                      Unfocused="ListViewMoveFrom_Unfocused"/>
                         </Grid>
                     </ScrollView>
                 </Frame>
@@ -75,21 +76,32 @@
                 </Frame>
 
                 <Grid Grid.Row="3">
+                    <Button x:Name="cmdSetFromLocation"
+                            Grid.Row="0"
+                            Grid.Column="0"
+                            Text="Confirm From Location"
+                            Clicked="CmdSetFromLocation_Click"
+                            Focused="CmdSetFromLocation_Focused"
+                            Unfocused="CmdSetFromLocation_Unfocused"
+                            IsEnabled="{Binding Loading, Converter={Helpers:BoolConverter}}"/>
+                </Grid>
+
+                <Grid Grid.Row="4">
                     <Button x:Name="cmdSetToLocation"
                             Grid.Row="0"
                             Grid.Column="0"
-                            Text="Add"
+                            Text="Confirm To Location"
                             Clicked="CmdSetToLocation_Click"
                             Focused="CmdSetToLocation_Focused"
                             Unfocused="CmdSetToLocation_Unfocused"
                             IsEnabled="{Binding Loading, Converter={Helpers:BoolConverter}}"/>
                 </Grid>
 
-                <Grid Grid.Row="4">
+                <Grid Grid.Row="5">
                     <Button x:Name="cmdPerformMove"
                             Grid.Row="0"
                             Grid.Column="0"
-                            Text="Add"
+                            Text="Perform Move"
                             Clicked="CmdPerformMove_Click"
                             Focused="CmdPerformMove_Focused"
                             Unfocused="CmdPerformMove_Unfocused"

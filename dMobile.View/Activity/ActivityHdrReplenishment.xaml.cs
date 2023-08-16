@@ -7,9 +7,10 @@ namespace dMobile.View.Activity
     using System;
     using System.Collections.Generic;
     using System.Collections.ObjectModel;
-    using System.Linq;
     using System.Runtime.CompilerServices;
+    using System.Text;
     using System.Threading.Tasks;
+    using System.Xml;
     using System.Xml.Linq;
     using Android.Views;
     using dMobile.BarCodeScanner.BarCodeParsing;
@@ -31,21 +32,45 @@ namespace dMobile.View.Activity
     [XamlCompilation(XamlCompilationOptions.Compile)]
     public partial class ActivityHdrReplenishment : DMobileContentPage, IAppArea, IDataLayerEventListener
     {
+        /// <summary>
+        /// Show all move types is enabled.
+        /// </summary>
         private bool cmdShowAllMoveTypesIsEnabled = false;
 
-        private string cmdShowAllMoveTypes = string.Empty;
+        /// <summary>
+        /// Show all move types string.
+        /// </summary>
+        private string cmdShowAllMoveTypes = "All Move Types";
 
-        private bool cmdShowOnlyPullDownMoveTypeIsEnabled = false;
+        /// <summary>
+        /// Show only pull down pull down move type is enabled.
+        /// </summary>
+        private bool cmdShowOnlyPullDownMoveTypeIsEnabled = true;
 
-        private string cmdShowOnlyPullDownMoveType = string.Empty;
+        /// <summary>
+        /// Show only pull down move type.
+        /// </summary>
+        private string cmdShowOnlyPullDownMoveType = "Pull Down Only";
 
-        private bool cmdShowOnlyRestockMoveTypeIsEnabled = false;
+        /// <summary>
+        /// Show only restock move type is enabled.
+        /// </summary>
+        private bool cmdShowOnlyRestockMoveTypeIsEnabled = true;
 
-        private string cmdShowOnlyRestockMoveType = string.Empty;
+        /// <summary>
+        /// Show only restock move type.
+        /// </summary>
+        private string cmdShowOnlyRestockMoveType = "Restock Only";
 
-        private bool cmdShowOnlyManualMoveTypeIsEnabled = false;
+        /// <summary>
+        /// Show only manual move type is enabled.
+        /// </summary>
+        private bool cmdShowOnlyManualMoveTypeIsEnabled = true;
 
-        private string cmdShowOnlyManualMoveType = string.Empty;
+        /// <summary>
+        /// Show only manual move type.
+        /// </summary>
+        private string cmdShowOnlyManualMoveType = "Manual Only";
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ActivityHdrReplenishment"/> class.
@@ -58,10 +83,6 @@ namespace dMobile.View.Activity
         {
             this.InitializeComponent();
 
-            this.cmdPerformMove.Text = "Perform Move";
-            this.cmdPerformMove.IsEnabled = false;
-            this.cmdSetToLocation.Text = "Confirm To Location";
-            this.cmdSetToLocation.IsEnabled = false;
             this.SysEnv = SysEnvironment.GetInstance();
             this.SysEnv.SysSettings.IsShowActivityFilterSelection = true;
             this.Scanner = ScannerEngine.GetInstance().Scanner;
@@ -69,33 +90,56 @@ namespace dMobile.View.Activity
             this.ActHdr = ActivityFacade.GetActivity(this.ActSubType);
             this.Title = this.ActHdr.GetControlDescription();
 
-            this.cmdSetToLocation.IsEnabled = true;
-            this.cmdPerformMove.IsEnabled = true;
             this.CmdShowAllMoveTypesIsEnabled = true;
-            this.CmdShowAllMoveTypes = "All Move Types";
-            this.CmdShowOnlyRestockMoveTypeIsEnabled = true;
-            this.CmdShowOnlyRestockMoveType = "Restock Only";
-            this.CmdShowOnlyPullDownMoveTypeIsEnabled = true;
-            this.CmdShowOnlyPullDownMoveType = "Pull Down Only";
             this.CmdShowOnlyManualMoveTypeIsEnabled = true;
-            this.CmdShowOnlyManualMoveType = "Manual Only";
-
-            this.MainMoveToItems.Clear();
-            this.MainMoveToItems.Add("To Location:");
-            this.MainMoveToItems.Add("Tracking:");
-            this.ListViewMoveTo.ItemsSource = this.MainMoveToItems;
-
-            // If the activity header object does not have a skid already initialize the instance.
-            if (this.ActHdr.SkidInfo == null)
-            {
-                this.ActHdr.SkidInfo = new SysSkidInfo();
-            }
+            this.CmdShowOnlyPullDownMoveTypeIsEnabled = true;
+            this.CmdShowOnlyRestockMoveTypeIsEnabled = true;
         }
 
         /// <summary>
         /// Gets or sets the current location map.
         /// </summary>
         public LocationMap LocMap { get; set; } = LocationMap.GetInstance();
+
+        /// <summary>
+        /// Gets or sets the source to location map.
+        /// </summary>
+        public SLocMap SourceToLocMap { get; set; } = new SLocMap();
+
+        /// <summary>
+        /// Gets or sets the source to location map reference number.
+        /// </summary>
+        public int SourceToLocMapRefno { get; set; } = 0;
+
+        /// <summary>
+        /// Gets or sets the source from location map.
+        /// </summary>
+        public SLocMap SourceFromLocMap { get; set; } = new SLocMap();
+
+        /// <summary>
+        /// Gets or sets the source from location map reference number.
+        /// </summary>
+        public int SourceFromLocMapRefno { get; set; } = 0;
+
+        /// <summary>
+        /// Gets or sets the form activity item foreign key reference number.
+        /// </summary>
+        public int SourceFromActivityItemFKRefno { get; set; } = 0;
+
+        /// <summary>
+        /// Gets or sets the to activity item foreign key reference number.
+        /// </summary>
+        public int SourceToActivityItemFKRefno { get; set; } = 0;
+
+        /// <summary>
+        /// Gets or sets the selected from location map.
+        /// </summary>
+        public SLocMap SelFromLocMap { get; set; } = new SLocMap();
+
+        /// <summary>
+        /// Gets or sets the selected from current location reference number.
+        /// </summary>
+        public int SelFromLocMapRefno { get; set; } = 0;
 
         /// <summary>
         /// Gets or sets the selected to location map.
@@ -105,7 +149,7 @@ namespace dMobile.View.Activity
         /// <summary>
         /// Gets or sets the selected to current location reference number.
         /// </summary>
-        public int SelToCurrLocMapRefno { get; set; } = 0;
+        public int SelToLocMapRefno { get; set; } = 0;
 
         /// <summary>
         /// Gets or sets a value indicating whether to show all move type is enabled.
@@ -234,12 +278,12 @@ namespace dMobile.View.Activity
         /// <summary>
         /// Gets or sets the global system environment object.
         /// </summary>
-        private SysEnvironment SysEnv { get; set; }
+        private SysEnvironment SysEnv { get; set; } = SysEnvironment.GetInstance();
 
         /// <summary>
         /// Gets or sets a value indicating whether bar code handler is registered / enabled.
         /// </summary>
-        private bool IsBarCodeHandlerRegistered { get; set; }
+        private bool IsBarCodeHandlerRegistered { get; set; } = false;
 
         /// <summary>
         /// Gets or sets the activity header instance.
@@ -286,7 +330,7 @@ namespace dMobile.View.Activity
         /// <summary>
         /// Gets or sets a value indicating whether the list view move from is in focus.
         /// </summary>
-        private bool IsListViewMoveFromFocused { get; set;} = false;
+        private bool IsListViewMoveFromFocused { get; set; } = false;
 
         /// <summary>
         /// Gets or sets a value indicating whether the list view move to is in focus.
@@ -302,6 +346,11 @@ namespace dMobile.View.Activity
         /// Gets or sets a value indicating whether the set to location button is in focus.
         /// </summary>
         private bool IsCmdSetToLocationFocused { get; set; } = false;
+
+        /// <summary>
+        /// Gets or sets a value indicating whether the set from location button is in focus.
+        /// </summary>
+        private bool IsCmdSetFromLocationFocused { get; set; } = false;
 
         /// <summary>
         /// Unregister the bar code scan event handler and disable the scanner.
@@ -578,7 +627,6 @@ namespace dMobile.View.Activity
                 this.NumTaps = 0;
                 this.SubscribeKeyUpHandlers();
                 this.ListViewMoveFrom.ItemTapped += this.ListViewMoveFrom_ItemTapped;
-                this.ListViewMoveTo.ItemTapped += this.ListViewMoveTo_ItemTapped;
                 await this.ScannerEnable();
 
                 this.ActHdr.XmlDataCriteria = XDocument.Parse(
@@ -652,7 +700,6 @@ namespace dMobile.View.Activity
         protected override async void OnDisappearing()
         {
             this.ListViewMoveFrom.ItemTapped -= this.ListViewMoveFrom_ItemTapped;
-            this.ListViewMoveTo.ItemTapped -= this.ListViewMoveTo_ItemTapped;
             MessagingCenter.Unsubscribe<string>(this, EventTypes.OnKeyUp.ToString());
             await this.ScannerDisable();
             base.OnDisappearing();
@@ -693,22 +740,12 @@ namespace dMobile.View.Activity
                             MoveFromAppearingDpadDownKey();
                         }
 
-                        if (this.IsListViewMoveToFocused)
-                        {
-                            MoveToAppearingDpadDownKey();
-                        }
-
                         break;
 
                     case Keycode.DpadUp:
                         if (this.IsListViewMoveFromFocused)
                         {
                             MoveFromAppearingDpadUpKey();
-                        }
-
-                        if (this.IsListViewMoveToFocused)
-                        {
-                            MoveToAppearingDpadUpKey();
                         }
 
                         break;
@@ -761,28 +798,6 @@ namespace dMobile.View.Activity
             }
 
             //////////////////////////////////////////////////////////////////////////
-            void MoveToAppearingDpadDownKey()
-            {
-                var selItem = this.ListViewMoveTo.SelectedItem;
-                if (selItem == null)
-                {
-                    return;
-                }
-
-                var selItemIdx = this.MainMoveToItems.IndexOf(selItem);
-                if (selItemIdx >= this.MainMoveToItems.Count - 1)
-                {
-                    return;
-                }
-
-                this.ListViewMoveTo.SelectedItem = this.MainMoveToItems[selItemIdx + 1];
-                this.ListViewMoveTo.ScrollTo(
-                    item: this.ListViewMoveTo.SelectedItem,
-                    position: ScrollToPosition.MakeVisible,
-                    animated: true);
-            }
-
-            //////////////////////////////////////////////////////////////////////////
             void MoveFromAppearingDpadUpKey()
             {
                 var selItem = this.ListViewMoveFrom.SelectedItem;
@@ -800,28 +815,6 @@ namespace dMobile.View.Activity
                 this.ListViewMoveFrom.SelectedItem = this.MainMoveFromItems[selItemIdx - 1];
                 this.ListViewMoveFrom.ScrollTo(
                     item: this.ListViewMoveFrom.SelectedItem,
-                    position: ScrollToPosition.MakeVisible,
-                    animated: true);
-            }
-
-            //////////////////////////////////////////////////////////////////////////
-            void MoveToAppearingDpadUpKey()
-            {
-                var selItem = this.ListViewMoveTo.SelectedItem;
-                if (selItem == null)
-                {
-                    return;
-                }
-
-                var selItemIdx = this.MainMoveToItems.IndexOf(selItem);
-                if (selItemIdx <= 0)
-                {
-                    return;
-                }
-
-                this.ListViewMoveTo.SelectedItem = this.MainMoveToItems[selItemIdx - 1];
-                this.ListViewMoveTo.ScrollTo(
-                    item: this.ListViewMoveTo.SelectedItem,
                     position: ScrollToPosition.MakeVisible,
                     animated: true);
             }
@@ -868,17 +861,6 @@ namespace dMobile.View.Activity
                 return;
             }
 
-            ////if (scanArgs == null)
-            ////{
-            ////    var msg = "Scanner event fired but not data was received.";
-            ////    await Device.InvokeOnMainThreadAsync(async () =>
-            ////        await Application.Current.MainPage.DisplayAlert(
-            ////            this.ActHdr.GetControlDescription(),
-            ////            msg,
-            ////            Resource.OK));
-            ////    return;
-            ////}
-
             var message = string.Empty;
 
             try
@@ -904,7 +886,25 @@ namespace dMobile.View.Activity
                 }
                 else if (!string.IsNullOrEmpty(this.BarParse.LocationIdentifier))
                 {
-                    throw new MessageOnlyException("Scanning a location identifier bar code is not supported here!");
+                    ////throw new MessageOnlyException("Scanning a location identifier bar code is not supported here!");
+                    var locMapRefno = await LocationMapTasks.GetLocMapRefnoFromBarCodeGlobalLocIdentifier(
+                        this.BarParse.LocationIdentifier);
+                    if (locMapRefno > 0)
+                    {
+                        this.SelToLocMapRefno = locMapRefno;
+                        this.SelToLocMap = await LocationMapTasks.GetSLocMapFromLocMapRefno(locMapRefno);
+
+                        _ = await Device.InvokeOnMainThreadAsync(() => this.cmdSetToLocation.Text = "To: " +
+                            LocationMapTasks.GetCurrentReadableLocation());
+                        if (this.SourceToLocMapRefno != this.SelToLocMapRefno)
+                        {
+                            throw new MessageOnlyException("The move to location set does not match the scanned to location.");
+                        }
+                    }
+                    else
+                    {
+                        _ = await Device.InvokeOnMainThreadAsync(() => this.cmdSetToLocation.Text = "Confirm To Location");
+                    }
                 }
                 else
                 {
@@ -945,34 +945,6 @@ namespace dMobile.View.Activity
         /// <param name="sender"><see cref="object"/> Sender object.</param>
         /// <param name="e">The e<see cref="ItemTappedEventArgs"/> Item tapped event arguments.</param>
         private async void ListViewMoveFrom_ItemTapped(object sender, ItemTappedEventArgs e)
-        {
-            this.NumTaps++;
-
-            if (this.PreviousSender == e.Item)
-            {
-                if (this.NumTaps == 2)
-                {
-                    this.NumTaps = 0;
-                }
-            }
-            else
-            {
-                this.PreviousSender = e.Item;
-                this.NumTaps = 1;
-            }
-
-            await Task.Delay(500);
-            this.NumTaps = 0;
-        }
-
-        /// <summary>
-        /// Handle double click on list view item.
-        /// Using a tap gesture recognizer in the designGrid would be optimal, however there is
-        /// currently a known bug that prevents selectedItemChanged from firing.
-        /// </summary>
-        /// <param name="sender"><see cref="object"/> Sender object.</param>
-        /// <param name="e">The e<see cref="ItemTappedEventArgs"/> Item tapped event arguments.</param>
-        private async void ListViewMoveTo_ItemTapped(object sender, ItemTappedEventArgs e)
         {
             this.NumTaps++;
 
@@ -1147,18 +1119,6 @@ namespace dMobile.View.Activity
         }
 
         /// <summary>
-        /// The ListViewMainActivity_ItemSelected.
-        /// </summary>
-        /// <param name="sender"><see cref="object"/> Sender object.</param>
-        /// <param name="e"><see cref="SelectedItemChangedEventArgs"/> Select item changed event arguments.</param>
-        private async void ListViewMainActivity_ItemSelected(object sender, SelectedItemChangedEventArgs e)
-        {
-            this.ActHdr.SelectedListItemIdx = e.SelectedItemIndex;
-            await this.ActHdr.SelectActivity(e.SelectedItem);
-            this.SelectedActivityFkRefno = this.ActHdr.HdrFkRefno;
-        }
-
-        /// <summary>
         /// Option menu click handler.
         /// </summary>
         /// <param name="sender"><see cref="object"/> Sender object.</param>
@@ -1235,16 +1195,6 @@ namespace dMobile.View.Activity
             }
         }
 
-        private void ListViewMoveFrom_ItemSelected(object sender, SelectedItemChangedEventArgs e)
-        {
-
-        }
-
-        private void ListViewMoveTo_ItemSelected(object sender, SelectedItemChangedEventArgs e)
-        {
-
-        }
-
         private async void CmdSetToLocation_Click(object sender, EventArgs e)
         {
             try
@@ -1257,20 +1207,34 @@ namespace dMobile.View.Activity
                     return;
                 }
 
-                this.LocMap.CurrLocMap = this.LocMap.ChosenLocMap.Clone();
-                this.SelToLocMap = this.LocMap.CurrLocMap.Clone();
-                this.SelToCurrLocMapRefno = this.LocMap.CurrLocMapRefno;
+                this.SelToLocMap = this.LocMap.ChosenLocMap.Clone();
+                this.SelToLocMapRefno = this.LocMap.ChosenLocMapRefno;
 
-                // Display the selected from location.
-                if (this.LocMap.CurrLocMap.WhsLocMapRefno != 0)
+                // Display the selected to location.
+                if (this.LocMap.ChosenLocMap.WhsLocMapRefno != 0)
                 {
                     _ = await Device.InvokeOnMainThreadAsync(() => this.cmdSetToLocation.Text = "To: " +
-                        LocationMapTasks.GetCurrentReadableLocation());
+                        LocationMapTasks.GetChosenReadableLocation());
+
+                    if (this.SourceToLocMapRefno != this.LocMap.ChosenLocMapRefno)
+                    {
+                        throw new MessageOnlyException("The move to location set does not match the selected to location.");
+                    }
+
+                    // Only set the current location to the Move To selected location if it is valid.
+                    this.LocMap.CurrLocMap = this.LocMap.ChosenLocMap.Clone();
                 }
                 else
                 {
                     _ = await Device.InvokeOnMainThreadAsync(() => this.cmdSetToLocation.Text = "Confirm To Location");
                 }
+            }
+            catch (MessageOnlyException msgEx)
+            {
+                await Device.InvokeOnMainThreadAsync(async () => await this.DisplayAlert(
+                    "Message",
+                    msgEx.Message,
+                    "OK"));
             }
             catch (Exception ex)
             {
@@ -1285,32 +1249,237 @@ namespace dMobile.View.Activity
             }
         }
 
+        /// <summary>
+        /// Set to location focus event handler.
+        /// </summary>
+        /// <param name="sender"><see cref="object"/> Sender instance.</param>
+        /// <param name="e"><see cref="EventArgs"/> Focus event arguments.</param>
         private void CmdSetToLocation_Focused(object sender, FocusEventArgs e)
         {
-
+            this.IsCmdSetToLocationFocused = true;
         }
 
+        /// <summary>
+        /// Set to location unfocused event handler.
+        /// </summary>
+        /// <param name="sender"><see cref="object"/> Sender instance.</param>
+        /// <param name="e"><see cref="EventArgs"/> Unfocused event arguments.</param>
         private void CmdSetToLocation_Unfocused(object sender, FocusEventArgs e)
         {
-
+            this.IsCmdSetToLocationFocused = false;
         }
 
+        /// <summary>
+        /// Perform move click event handler.
+        /// </summary>
+        /// <param name="sender"><see cref="object"/> Sender instance.</param>
+        /// <param name="e"><see cref="EventArgs"/> Event arguments.</param>
         private async void CmdPerformMove_Click(object sender, EventArgs e)
         {
-            await Device.InvokeOnMainThreadAsync(async () => await this.DisplayAlert(
-                "Perform Move",
-                "Replenishment move complete",
-                "OK"));
+
+            var responseData = string.Empty;
+            var xmlString = new StringBuilder();
+
+            try
+            {
+                if (this.ActHdr.HdrFkRefno <= 0)
+                {
+                    throw new MessageOnlyException("Please select a replenishment move.");
+                }
+
+                if (this.SourceFromLocMapRefno != this.SelFromLocMapRefno)
+                {
+                    throw new MessageOnlyException("The move from location set does not match the selected from location.");
+                }
+
+                if (this.SourceToLocMapRefno != this.SelToLocMapRefno)
+                {
+                    throw new MessageOnlyException("The move to location set does not match the selected to location.");
+                }
+
+                await CreateSubmitXml(xmlString);
+                responseData = SysCommon.SubmitComm(xmlString.ToString());
+
+                await Device.InvokeOnMainThreadAsync(async () => await this.DisplayAlert(
+                    "Perform Move",
+                    "Replenishment move complete",
+                    "OK"));
+
+                this.OnAppearing();
+            }
+            catch (CommunicationException commEx)
+            {
+                await Device.InvokeOnMainThreadAsync(async () => await Application.Current.MainPage.DisplayAlert(
+                    this.ActHdr.GetControlDescription(),
+                    commEx.Message,
+                    "OK"));
+            }
+            catch (MessageOnlyException msgEx)
+            {
+                await Device.InvokeOnMainThreadAsync(async () => await Application.Current.MainPage.DisplayAlert(
+                    this.ActHdr.GetControlDescription(),
+                    msgEx.Message,
+                    "OK"));
+            }
+            catch (Exception ex)
+            {
+                await Device.InvokeOnMainThreadAsync(async () => await Application.Current.MainPage.DisplayAlert(
+                    this.ActHdr.GetControlDescription(),
+                    ex.Message,
+                    "OK"));
+            }
+
+            ////////////////////////////////////////////////////////////////////////////////
+            async Task CreateSubmitXml(StringBuilder xmlString)
+            {
+                var settings = new XmlWriterSettings
+                {
+                    Async = true,
+                    Indent = false,
+                };
+                var xml = XmlWriter.Create(xmlString, settings);
+                XDocument request = null;
+                var conn = DatabaseConnection.GetInstance().SQLConn;
+
+                request = XDocument.Parse(
+                    "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>"
+                    + "<imclient>"
+                    + "<command>"
+                    + "<action>SUBMIT REPLENISHMENT</action>"
+                    + await SysCommon.GetRequestDefaults(false)
+                    + "<from_refno>" + this.SourceFromActivityItemFKRefno + "</from_refno>"
+                    + "<to_refno>" + this.SourceToActivityItemFKRefno + "</to_refno>"
+                    + "</command>"
+                    + "</imclient>");
+
+                request.Save(xml);
+                await xml.FlushAsync();
+                xml.Close();
+            }
         }
 
         private void CmdPerformMove_Focused(object sender, FocusEventArgs e)
         {
-
+            this.IsCmdPerformMoveFocused = true;
         }
 
         private void CmdPerformMove_Unfocused(object sender, FocusEventArgs e)
         {
+            this.IsCmdPerformMoveFocused = false;
+        }
 
+        /// <summary>
+        /// List view move from item selected event handler.
+        /// </summary>
+        /// <param name="sender"><see cref="object"/> Sender instance.</param>
+        /// <param name="e"><see cref="SelectedItemChangedEventArgs"/> Selected item changed event arguments.</param>
+        private async void ListViewMoveFrom_ItemSelected(object sender, SelectedItemChangedEventArgs e)
+        {
+            this.ActHdr.SelectedListItemIdx = e.SelectedItemIndex;
+            await this.ActHdr.SelectActivity(e.SelectedItem);
+            this.SelectedActivityFkRefno = this.ActHdr.HdrFkRefno;
+
+            this.SourceFromLocMap = new SLocMap();
+            this.SourceFromLocMapRefno = 0;
+            this.SourceFromLocMapRefno = this.ActHdr.LocationMapRefno;
+            this.SourceFromLocMap = await LocationMapTasks.GetSLocMapFromLocMapRefno(this.SourceFromLocMapRefno);
+            this.SourceFromActivityItemFKRefno = ((Replenishment)this.ActHdr.SelectedActivity).ActivityItemFKRefno;
+            this.MainMoveToItems.Clear();
+            foreach (var item in this.ActHdr.ListItems)
+            {
+                if (item is Replenishment replen)
+                {
+                    if (replen.ActivityItemFKParRefno == this.ActHdr.HdrFkRefno)
+                    {
+                        this.SourceToLocMapRefno = replen.LocationMapRefno;
+                        this.SourceToLocMap = await LocationMapTasks.GetSLocMapFromLocMapRefno(this.SourceToLocMapRefno);
+                        this.SourceToActivityItemFKRefno = replen.ActivityItemFKRefno;
+                        this.MainMoveToItems.Add($"To: {replen.ReadableLocationMap}");
+                        this.MainMoveToItems.Add($"Scheme ID: {replen.ActivityDetailSchemeID}");
+                        this.MainMoveToItems.Add($"Quantity {replen.ActivityItemReplenishmentQuantity * -1}" +
+                            $" {(replen.ProductUnitBC + replen.ProductUnitCode).TrimStart()}");
+                        break;
+                    }
+                }
+            }
+
+            this.ListViewMoveTo.ItemsSource = this.MainMoveToItems;
+        }
+
+        /// <summary>
+        /// Set from location click event handler.
+        /// </summary>
+        /// <param name="sender"><see cref="object"/> Sender instance.</param>
+        /// <param name="e"><see cref="EventArgs"/> Event arguments.</param>
+        private async void CmdSetFromLocation_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                await this.ScannerDisable();
+
+                var form = new FormDialogContainer(EDialogTypes.SelectLocationMap, SysCommon.ActSubTypes.NotApplicable);
+                if (await Device.InvokeOnMainThreadAsync(async () => await form.DisplayControl.ShowDialog() != DialogResult.OK))
+                {
+                    return;
+                }
+
+                this.SelFromLocMap = this.LocMap.ChosenLocMap.Clone();
+                this.SelFromLocMapRefno = this.LocMap.ChosenLocMapRefno;
+
+                // Display the selected from location.
+                if (this.LocMap.ChosenLocMap.WhsLocMapRefno != 0)
+                {
+                    _ = await Device.InvokeOnMainThreadAsync(() => this.cmdSetFromLocation.Text = "From: " +
+                        LocationMapTasks.GetChosenReadableLocation());
+
+                    if (this.SourceFromLocMapRefno != this.LocMap.ChosenLocMapRefno)
+                    {
+                        throw new MessageOnlyException("The move from location set does not match the selected from location.");
+                    }
+                }
+                else
+                {
+                    _ = await Device.InvokeOnMainThreadAsync(() => this.cmdSetToLocation.Text = "Confirm From Location");
+                }
+            }
+            catch (MessageOnlyException msgEx)
+            {
+                await Device.InvokeOnMainThreadAsync(async () => await this.DisplayAlert(
+                    "Message",
+                    msgEx.Message,
+                    "OK"));
+            }
+            catch (Exception ex)
+            {
+                await Device.InvokeOnMainThreadAsync(async () => await this.DisplayAlert(
+                    "Error",
+                    "Error selecting to location." + Environment.NewLine + ex.Message,
+                    "OK"));
+            }
+            finally
+            {
+                await this.ScannerEnable();
+            }
+        }
+
+        /// <summary>
+        /// Set from location focused event handler.
+        /// </summary>
+        /// <param name="sender"><see cref="object"/> Sender instance.</param>
+        /// <param name="e"><see cref="FocusEventArgs"/> Focus event arguments.</param>
+        private void CmdSetFromLocation_Focused(object sender, FocusEventArgs e)
+        {
+            this.IsCmdSetFromLocationFocused = true;
+        }
+
+        /// <summary>
+        /// Set from location unfocused event handler.
+        /// </summary>
+        /// <param name="sender"><see cref="object"/> Sender instance.</param>
+        /// <param name="e"><see cref="FocusEventArgs"/> Focus event arguments.</param>
+        private void CmdSetFromLocation_Unfocused(object sender, FocusEventArgs e)
+        {
+            this.IsCmdSetFromLocationFocused = false;
         }
     }
 }

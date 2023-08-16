@@ -309,7 +309,7 @@ namespace dMobile.GroundWork
                     transaction.Execute(
                         "INSERT INTO tActivityItem (ActivityItemSubType, ActivityItemStatus, ActivityRefno," +
                         " ActivityItemIsAdded) VALUES (?, ?, ?, ?)",
-                        Convert.ToInt32(SysCommon.ActSubTypes.Picking),
+                        Convert.ToInt32(SysCommon.ActSubTypes.InventoryReplenishment),
                         Convert.ToInt32(SysCommon.ActStatus.NoChange),
                         actRefno,
                         0);
@@ -322,13 +322,16 @@ namespace dMobile.GroundWork
                     var prodUnitRefno = this.GetProductUnitRefnoFromDataRow(drow, transaction, false);
                     var locMapRefno = this.GetDetailLocation(drow, transaction, false);
                     var moveType = (SysCommon.ReplenishmentTypes)Convert.ToInt32(drow["MoveType"]);
+                    var altQty = Convert.ToDecimal(drow["ActivityDetailQuantity"]) * -1;
+                    var baseQty = Convert.ToDecimal(drow["ActivityDetailBaseQuantity"]) * -1;
+                    var wtQty = Convert.ToDecimal(drow["ActivityDetailWeightQuantity"]) * -1;
 
                     var query = @"INSERT INTO tActivityItemReplenishment (
                             ActivityItemRefno
                             ,ActivityItemSubType
                             ,MoveType
                             ,ActivityItemFKRefno
-                            ,ActivityItemFKParentRefno
+                            ,ActivityItemFKParRefno
                             ,ProductUnitRefno
                             ,LocationMapRefno
                             ,ActivityItemReplenishmentQuantity
@@ -355,9 +358,9 @@ namespace dMobile.GroundWork
                                 fkParentRefno,
                                 prodUnitRefno,
                                 locMapRefno,
-                                0,
-                                0,
-                                0,
+                                altQty,
+                                baseQty,
+                                wtQty,
                     };
 
                     transaction.Execute(query, paramsReplenishment);

@@ -4,6 +4,8 @@
 
 namespace dMobile.Resources.Types
 {
+    using System;
+
     /// <summary>
     /// Replenishment header type.
     /// </summary>
@@ -37,7 +39,7 @@ namespace dMobile.Resources.Types
         /// <summary>
         /// Gets or sets the move type string. 'Manual', 'Restock', 'Pull Down'.
         /// </summary>
-        public string MoveTypeString { get; set; } = string.Empty;
+        public string MoveTypeString { get; set; } = ReplenishmentMoveType.Enum2String(ReplenishmentMoveType.Code.Manual);
 
         /// <summary>
         /// Gets or sets the activity item foreign key reference.
@@ -47,7 +49,12 @@ namespace dMobile.Resources.Types
         /// <summary>
         /// Gets or sets the activity item parent foreign key reference.
         /// </summary>
-        public int ActivityItemParentFKRefno { get; set; } = 0;
+        public int ActivityItemFKParRefno { get; set; } = 0;
+
+        /// <summary>
+        /// Gets or sets the scheme identifier.
+        /// </summary>
+        public string ActivityDetailSchemeID { get; set; } = string.Empty;
 
         /// <summary>
         /// Gets or sets the product unit reference.
@@ -103,5 +110,30 @@ namespace dMobile.Resources.Types
         /// Gets or sets the activity detail is confirmed string.
         /// </summary>
         public string ActivityDetailIsConfirmedString { get; set; } = string.Empty;
+
+        /////// <summary>
+        /////// Gets or sets the activity detail single trade item serial number.
+        /////// </summary>
+        ////public string ActivityDetailSingleTradeItemSerialNumber { get; set; } = string.Empty;
+
+        /////// <summary>
+        /////// Gets or sets the activity detail logistic unit batch lot number.
+        /////// </summary>
+        ////public string ActivityDetailLogisticUnitBatchLotNumber { get; set; } = string.Empty;
+
+        /////// <summary>
+        /////// Gets or sets the activity detail logistic unit best before sell by date.
+        /////// </summary>
+        ////public DateTime ActivityDetailLogisticUnitBestBeforeSellByDate { get; set; } = ResSysCommon.EmptyDateTime;
+
+        /////// <summary>
+        /////// Gets or sets the activity detail logistic unit production date.
+        /////// </summary>
+        ////public DateTime ActivityDetailLogisticUnitProductionDate { get; set; } = ResSysCommon.EmptyDateTime;
+
+        /////// <summary>
+        /////// Gets or sets the activity detail logistic unit skid number.
+        /////// </summary>
+        ////public string ActivityDetailLogisticUnitSkidNumber { get; set; } = string.Empty;
     }
 }
