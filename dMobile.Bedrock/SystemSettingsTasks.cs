@@ -477,6 +477,15 @@ namespace dMobile.Bedrock
             {
                 settings.InventoryInquirySearchEntireWarehouse = false;
             }
+
+            if (drow.Table.Columns.Contains("IsDisableMoveAllSlotQuantityOption"))
+            {
+                settings.IsDisableMoveAllSlotQuantityOption = Convert.ToBoolean(drow["IsDisableMoveAllSlotQuantityOption"]);
+            }
+            else
+            {
+                settings.IsDisableMoveAllSlotQuantityOption = false;
+            }
         }
 
         /// <summary>

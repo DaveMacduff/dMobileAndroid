@@ -4,7 +4,6 @@
 
 namespace dMobile.Resources.Models
 {
-    using System;
     using SQLite;
     using SQLiteNetExtensions.Attributes;
 

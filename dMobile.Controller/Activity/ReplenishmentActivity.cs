@@ -1,0 +1,553 @@
+﻿// <copyright file="ReplenishmentActivity.cs" company="InterSect Business Systems Inc">
+// Copyright (c) InterSect Business Systems Inc. All rights reserved.
+// </copyright>
+
+namespace dMobile.Controller.Activity
+{
+    using System;
+    using System.Collections.Generic;
+    using System.Collections.ObjectModel;
+    using System.Linq;
+    using System.Threading.Tasks;
+    using System.Xml.Linq;
+    using dMobile.Bedrock;
+    using dMobile.Controller.Activity_Detail;
+    using dMobile.GroundWork;
+    using dMobile.Resources;
+    using dMobile.Resources.Services;
+    using dMobile.Resources.Types;
+    using Xamarin.Forms;
+
+    /// <summary>
+    /// Defines the <see cref="ReplenishmentActivity" />.
+    /// </summary>
+    public class ReplenishmentActivity : Activity
+    {
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ReplenishmentActivity"/> class.
+        /// </summary>
+        public ReplenishmentActivity()
+          : base()
+        {
+            this.FullClassName = typeof(ReplenishmentActivity).FullName;
+            ////this.ReplenSettings = new ReplenishmentSettings().LoadData();
+            var dataFromTemplate = new DataTemplate(() =>
+            {
+                var gridData = new Grid
+                {
+                    Padding = new Thickness(5),
+                    ColumnDefinitions =
+                    {
+                        new ColumnDefinition { Width = new GridLength(this.FromColWidth0, GridUnitType.Absolute) },
+                        new ColumnDefinition { Width = new GridLength(this.FromColWidth1, GridUnitType.Absolute) },
+                        new ColumnDefinition { Width = new GridLength(this.FromColWidth2, GridUnitType.Absolute) },
+                        new ColumnDefinition { Width = new GridLength(this.FromColWidth3, GridUnitType.Absolute) },
+                        new ColumnDefinition { Width = new GridLength(this.FromColWidth4, GridUnitType.Absolute) },
+                        new ColumnDefinition { Width = new GridLength(this.FromColWidth5, GridUnitType.Absolute) },
+                    },
+                };
+
+                var labelMoveTypeString = new Label { VerticalOptions = LayoutOptions.Center };
+                var labelFromLocation = new Label { VerticalOptions = LayoutOptions.Center };
+                var labelProductCode = new Label { VerticalOptions = LayoutOptions.Center };
+                var labelProductBC = new Label { VerticalOptions = LayoutOptions.Center };
+                var labelProductUnit = new Label { VerticalOptions = LayoutOptions.Center };
+                var labelProductAltQty = new Label { VerticalOptions = LayoutOptions.Center };
+
+                labelMoveTypeString.SetBinding(Label.TextProperty, new Binding("MoveTypeString"));
+                labelFromLocation.SetBinding(Label.TextProperty, new Binding("ReadableLocationMap"));
+                labelProductCode.SetBinding(Label.TextProperty, new Binding("ProductCode"));
+                labelProductBC.SetBinding(Label.TextProperty, new Binding("ProductUnitBC"));
+                labelProductUnit.SetBinding(Label.TextProperty, new Binding("ProductUnitCode"));
+                labelProductAltQty.SetBinding(Label.TextProperty, new Binding("ActivityItemReplenishmentQuantity"));
+
+                gridData.Children.Add(labelMoveTypeString, 0, 0);
+                gridData.Children.Add(labelFromLocation, 0, 0);
+                gridData.Children.Add(labelProductCode, 0, 0);
+                gridData.Children.Add(labelProductBC, 0, 0);
+                gridData.Children.Add(labelProductUnit, 0, 0);
+                gridData.Children.Add(labelProductAltQty, 0, 0);
+
+                Grid.SetColumn(labelMoveTypeString, 0);
+                Grid.SetColumn(labelFromLocation, 1);
+                Grid.SetColumn(labelProductCode, 2);
+                Grid.SetColumn(labelProductBC, 3);
+                Grid.SetColumn(labelProductUnit, 4);
+                Grid.SetColumn(labelProductAltQty, 5);
+
+                return new ViewCell { View = gridData };
+            });
+
+            this.ResDict.Add("dataTemplateFromReplenish", dataFromTemplate);
+        }
+
+        /// <summary>
+        /// Gets or sets the replenishment settings.
+        /// </summary>
+        public ReplenishmentSettings ReplenSettings { get; set; } = new ReplenishmentSettings();
+
+        /// <summary>
+        /// Gets or sets the list view / from grid column 0 width. MoveType.
+        /// </summary>
+        public double FromColWidth0 { get; set; } = 0;
+
+        /// <summary>
+        /// Gets or sets the list view / from grid column 1 width. From Location.
+        /// </summary>
+        public double FromColWidth1 { get; set; } = 0;
+
+        /// <summary>
+        /// Gets or sets the list view / from grid column 2 width. Product Code.
+        /// </summary>
+        public double FromColWidth2 { get; set; } = 0;
+
+        /// <summary>
+        /// Gets or sets the list view / from grid column 2 width. Product BC.
+        /// </summary>
+        public double FromColWidth3 { get; set; } = 0;
+
+        /// <summary>
+        /// Gets or sets the list view / from grid column 2 width. Product unit.
+        /// </summary>
+        public double FromColWidth4 { get; set; } = 0;
+
+        /// <summary>
+        /// Gets or sets the list view / from grid column 2 width. Alt Qty.
+        /// </summary>
+        public double FromColWidth5 { get; set; } = 0;
+
+        /// <summary>
+        /// Gets or sets the list view / to grid column 0 width.
+        /// </summary>
+        public double ToColWidth0 { get; set; } = 0;
+
+        /// <summary>
+        /// Gets or sets the list view / to grid column 1 width.
+        /// </summary>
+        public double ToColWidth1 { get; set; } = 0;
+
+        /// <summary>
+        /// Gets or sets the resource dictionary of string for resource objects.
+        /// </summary>
+        public ResourceDictionary ResDict { get; set; } = new ResourceDictionary();
+
+        /// <summary>
+        /// Gets or sets a list of from headers.
+        /// </summary>
+        public List<Replenishment> ListReplenishments { get; set; } = new List<Replenishment>();
+
+        /// <summary>
+        /// Purge adjustment headers, items and detail.
+        /// </summary>
+        /// <returns>The <see cref="Task"/> Task operation.</returns>
+        public override async Task Purge()
+        {
+            var replenishment = new TableActivityReplenishment();
+            await replenishment.PurgeData();
+        }
+
+        /// <summary>
+        /// Get the activity header foreign key reference index name.
+        /// </summary>
+        /// <returns><see cref="string"/> Index name.</returns>
+        public override string GetFkRefnoIdx()
+        {
+            return "ActivityStringFKRefno";
+        }
+
+        /// <summary>
+        /// Get the activity header control description.
+        /// </summary>
+        /// <returns><see cref="string"/> Control description.</returns>
+        public override string GetControlDescription()
+        {
+            return "Replenishment";
+        }
+
+        /// <summary>
+        /// Design the activity header grid.
+        /// </summary>
+        /// <param name="gridMainActivity"><see cref="Grid"/> Main activity header grid.</param>
+        /// <param name="listViewMainActivity"><see cref="ListView"/> Main activity list.</param>
+        /// <returns><see cref="ObservableCollection{object}"/> List of activity headers.</returns>
+        public override ObservableCollection<object> DesignGrid(
+            ref Grid gridMainActivity,
+            ref ListView listViewMainActivity)
+        {
+            var headersList = new ObservableCollection<object>();
+
+            var labelMoveTypeString = new Label
+            {
+                Text = "Type",
+                VerticalOptions = LayoutOptions.Center,
+                FontAttributes = FontAttributes.Bold,
+            };
+
+            var labelFromLocation = new Label
+            {
+                Text = "From",
+                VerticalOptions = LayoutOptions.Center,
+                FontAttributes = FontAttributes.Bold,
+            };
+
+            var labelFromProductCode = new Label
+            {
+                Text = "Product",
+                VerticalOptions = LayoutOptions.Center,
+                FontAttributes = FontAttributes.Bold,
+            };
+
+            var labelFromProductBC = new Label
+            {
+                Text = "BC",
+                VerticalOptions = LayoutOptions.Center,
+                FontAttributes = FontAttributes.Bold,
+            };
+
+            var labelFromProductUnit = new Label
+            {
+                Text = "Unit",
+                VerticalOptions = LayoutOptions.Center,
+                FontAttributes = FontAttributes.Bold,
+            };
+
+            var labelFromAltQty = new Label
+            {
+                Text = "Qty",
+                VerticalOptions = LayoutOptions.Center,
+                FontAttributes = FontAttributes.Bold,
+            };
+
+            // Calculate text size
+            this.FromColWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(labelMoveTypeString.Text);
+            this.FromColWidth1 = DependencyService.Get<IGridService>().CalculateTextWidth(labelFromLocation.Text);
+            this.FromColWidth2 = DependencyService.Get<IGridService>().CalculateTextWidth(labelFromProductCode.Text);
+            this.FromColWidth3 = DependencyService.Get<IGridService>().CalculateTextWidth(labelFromProductBC.Text);
+            this.FromColWidth4 = DependencyService.Get<IGridService>().CalculateTextWidth(labelFromProductUnit.Text);
+            this.FromColWidth5 = DependencyService.Get<IGridService>().CalculateTextWidth(labelFromAltQty.Text);
+
+            var gridHeader = new Grid
+            {
+                Padding = new Thickness(5),
+                ColumnDefinitions =
+                {
+                    new ColumnDefinition { Width = new GridLength(this.FromColWidth0, GridUnitType.Absolute) },
+                    new ColumnDefinition { Width = new GridLength(this.FromColWidth1, GridUnitType.Absolute) },
+                    new ColumnDefinition { Width = new GridLength(this.FromColWidth2, GridUnitType.Absolute) },
+                    new ColumnDefinition { Width = new GridLength(this.FromColWidth3, GridUnitType.Absolute) },
+                    new ColumnDefinition { Width = new GridLength(this.FromColWidth4, GridUnitType.Absolute) },
+                    new ColumnDefinition { Width = new GridLength(this.FromColWidth5, GridUnitType.Absolute) },
+                },
+            };
+
+            gridHeader.SetDynamicResource(VisualElement.BackgroundColorProperty, "HeaderColor");
+
+            gridHeader.Children.Add(labelMoveTypeString);
+            gridHeader.Children.Add(labelFromLocation);
+            gridHeader.Children.Add(labelFromProductCode);
+            gridHeader.Children.Add(labelFromProductBC);
+            gridHeader.Children.Add(labelFromProductUnit);
+            gridHeader.Children.Add(labelFromAltQty);
+
+            Grid.SetColumn(labelMoveTypeString, 0);
+            Grid.SetColumn(labelFromLocation, 1);
+            Grid.SetColumn(labelFromProductCode, 2);
+            Grid.SetColumn(labelFromProductBC, 3);
+            Grid.SetColumn(labelFromProductUnit, 4);
+            Grid.SetColumn(labelFromAltQty, 5);
+
+            Grid.SetRow(gridHeader, 0);
+            gridMainActivity.Children.Add(gridHeader);
+
+            foreach (Replenishment replen in this.ListHdrs)
+            {
+                headersList.Add(replen);
+
+                var dataFromColWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(replen.MoveTypeString);
+                var dataFromColWidth1 = DependencyService.Get<IGridService>().CalculateTextWidth(replen.ReadableLocationMap);
+                var dataFromColWidth2 = DependencyService.Get<IGridService>().CalculateTextWidth(replen.ProductCode);
+                var dataFromColWidth3 = DependencyService.Get<IGridService>().CalculateTextWidth(replen.ProductUnitBC);
+                var dataFromColWidth4 = DependencyService.Get<IGridService>().CalculateTextWidth(replen.ProductUnitCode);
+                var dataFromColWidth5 = DependencyService.Get<IGridService>().CalculateTextWidth(
+                    $"{replen.ActivityItemReplenishmentQuantity:F3}");
+
+                if (dataFromColWidth0 > this.FromColWidth0)
+                {
+                    this.FromColWidth0 = dataFromColWidth0;
+                    gridHeader.ColumnDefinitions[0].Width = this.FromColWidth0;
+                }
+
+                if (dataFromColWidth1 > this.FromColWidth1)
+                {
+                    this.FromColWidth1 = dataFromColWidth1;
+                    gridHeader.ColumnDefinitions[1].Width = this.FromColWidth1;
+                }
+
+                if (dataFromColWidth2 > this.FromColWidth2)
+                {
+                    this.FromColWidth2 = dataFromColWidth2;
+                    gridHeader.ColumnDefinitions[2].Width = this.FromColWidth2;
+                }
+
+                if (dataFromColWidth3 > this.FromColWidth3)
+                {
+                    this.FromColWidth3 = dataFromColWidth3;
+                    gridHeader.ColumnDefinitions[3].Width = this.FromColWidth3;
+                }
+
+                if (dataFromColWidth4 > this.FromColWidth4)
+                {
+                    this.FromColWidth4 = dataFromColWidth4;
+                    gridHeader.ColumnDefinitions[4].Width = this.FromColWidth4;
+                }
+
+                if (dataFromColWidth5 > this.FromColWidth5)
+                {
+                    this.FromColWidth5 = dataFromColWidth5;
+                    gridHeader.ColumnDefinitions[5].Width = this.FromColWidth5;
+                }
+            }
+
+            listViewMainActivity.ItemTemplate = (DataTemplate)this.ResDict["dataTemplateFromReplenish"];
+
+            return headersList;
+        }
+
+        /// <summary>
+        /// Get list of from move types.
+        /// </summary>
+        /// <param name="isSubmitBatch"><see cref="bool"/> Is submitting batch mode.</param>
+        /// <returns><see cref="List{object}"/> List of headers.</returns>
+        public override async Task<List<object>> GetActivityList(bool isSubmitBatch)
+        {
+            ////var replenSettings = new ReplenishmentSettings().LoadData();
+
+            if (isSubmitBatch)
+            {
+                throw new NotImplementedException("Replenishment batching is currently not supported.");
+            }
+
+            var query = @"
+                select tActivityReplenishment.ActivityRefno
+                        ,tActivityReplenishment.ActivitySubType
+                        ,tActivityReplenishment.WarehouseLocationMapRefno
+                        ,tActivityItemReplenishment.ActivityItemRefno
+                        ,tActivityItemReplenishment.ActivityItemSubType
+                        ,tActivityItemReplenishment.MoveType
+                        ,cast('' as varchar(10)) as MoveTypeString
+                        ,tActivityItemReplenishment.ActivityItemFKRefno
+                        ,tActivityItemReplenishment.ActivityItemFKParRefno
+                        ,tActivityItemReplenishment.ProductUnitRefno
+                        ,cast('' as varchar(10)) as ProductCode
+                        ,cast('' as varchar(1)) as ProductUnitBC
+                        ,cast('' as varchar(2)) as ProductUnitCode
+                        ,tActivityItemReplenishment.ProductUnitRefno
+                        ,tActivityItemReplenishment.ProductUnitRefno
+                        ,tActivityItemReplenishment.LocationMapRefno
+                        ,cast('' as varchar(30)) as ReadableLocationMap
+                        ,tActivityItemReplenishment.ActivityItemReplenishmentQuantity
+                        ,tActivityItemReplenishment.ActivityItemReplenishmentBaseQuantity
+                        ,tActivityItemReplenishment.ActivityItemReplenishmentWeightQuantity
+                        ,tActivityDetailReplenishment.ActivityDetailFKRefno
+                        ,tActivityDetailReplenishment.ActivityDetailReplenishmentIsConfirmed
+                        ,tActivityDetail.ActivityDetailRefno
+                        ,tActivityDetail.ActivityDetailSubType
+                        ,tActivityDetail.ActivityDetailStatus
+                        ,tActivityDetail.ActivityItemRefno
+                        ,tActivityDetail.ActivityDetailUniqueSchemeID
+                        ,tActivityDetail.ActivityDetailSchemeID
+                        ,tActivityDetail.ActivityDetailQuantity
+                        ,tActivityDetail.ActivityDetailBaseQuantity
+                        ,tActivityDetail.ActivityDetailWeightQuantity
+                        ,tActivityDetail.ActivityDetailSingleTradeItemSerialNumber
+                        ,tActivityDetail.ActivityDetailLogisticUnitBatchLotNumber
+                        ,tActivityDetail.ActivityDetailLogisticUnitBestBeforeSellByDate
+                        ,tActivityDetail.ActivityDetailLogisticUnitExpiryUseByDate
+                        ,tActivityDetail.ActivityDetailLogisticUnitProductionDate
+                        ,tActivityDetail.ActivityDetailLogisticUnitDueDate
+                        ,tActivityDetail.ActivityDetailLogisticUnitPackagingDate
+                        ,tActivityDetail.ActivityDetailLogisticUnitSkidNumber
+                    from tActivityReplenishment
+                    inner join tActivity on tActivity.ActivityRefno = tActivityReplenishment.ActivityRefno
+                    inner join tActivityItem on tActivityItem.ActivityRefno = tActivity.ActivityRefno
+                    inner join tActivityItemReplenishment on tActivityItemReplenishment.ActivityItemRefno = tActivityItem.ActivityItemRefno
+                    inner join tActivityDetail on tActivityDetail.ActivityItemRefno = tActivityItem.ActivityItemRefno
+                    inner join tActivityDetailReplenishment on tActivityDetailReplenishment.ActivityDetailRefno = tActivityDetail.ActivityDetailRefno";
+
+            this.ListReplenishments = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<Replenishment>(query);
+
+            foreach (var item in this.ListReplenishments)
+            {
+                item.MoveTypeString = ReplenishmentMoveType.Enum2String(item.MoveType);
+                SLocMap tmpLocMap = await LocationMapTasks.GetSLocMapFromLocMapRefno(item.LocationMapRefno);
+                item.ReadableLocationMap = LocationMapTasks.GetReadableLocation(tmpLocMap, isSepSlotCoords: false);
+
+                var prodBCUnit = await ProductInfoTasks.GetInfoFromUnitRefno(item.ProductUnitRefno);
+                item.ProductCode = prodBCUnit.Code;
+                item.ProductUnitBC = prodBCUnit.UnitBC;
+                item.ProductUnitCode = prodBCUnit.UnitCode;
+            }
+
+            var from = from item in this.ListReplenishments
+                                where item.ActivityItemFKRefno == item.ActivityItemFKParRefno
+                                select item;
+            this.ListHdrs = from.Cast<object>().ToList();
+
+            var to = from item in this.ListReplenishments
+                     where item.ActivityItemFKRefno != item.ActivityItemFKParRefno
+                     select item;
+            this.ListItems = to.Cast<object>().ToList();
+
+            return this.ListHdrs;
+        }
+
+        ////public async Task<List<object>> GetActivityItemList()
+        ////{
+
+        ////}
+
+        /// <summary>
+        /// Select the adjustment activity header.
+        /// </summary>
+        /// <param name="selectedActivity"><see cref="object"/> Activity header to select.</param>
+        /// <returns><see cref="Task"/> Task operation.</returns>
+        public override async Task SelectActivity(object selectedActivity)
+        {
+            if (selectedActivity is Replenishment header)
+            {
+                this.SelectedActivity = header;
+                this.HdrFkRefno = header.ActivityItemFKRefno;
+                this.HdrRefno = header.ActivityRefno;
+                this.LocationMapRefno = header.LocationMapRefno;
+                ////this.ReplenSettings = this.ReplenSettings.LoadData();
+            }
+        }
+
+        /// <summary>
+        /// Get the activity reference number for the selected object.
+        /// </summary>
+        /// <param name="selectedItem"><see cref="object"/> Selected item.</param>
+        /// <returns><see cref="int"/> Selected activity reference number.</returns>
+        public override int GetRefnoFromRowIdx(object selectedItem)
+        {
+            if (selectedItem is Replenishment replen)
+            {
+                this.HdrFkRefno = Convert.ToInt32(replen.ActivityItemFKRefno);
+                this.HdrRefno = Convert.ToInt32(replen.ActivityRefno);
+            }
+
+            return this.HdrRefno;
+        }
+
+        /// <summary>
+        /// Refresh the activity headers.
+        /// </summary>
+        /// <param name="data"><see cref="XDocument"/> Activity header filter criteria.</param>
+        /// <returns>The <see cref="Task"/> Task operation.</returns>
+        public override async Task Refresh(XDocument data)
+        {
+            if (this.SysEnv.SysSettings.IsDisconnectedMode)
+            {
+                this.DataLayerProgressOutHandler(this, EventArgs.Empty, 5);
+            }
+            else
+            {
+                this.DataLayerProgressOutHandler(this, EventArgs.Empty, 2);
+                await this.Purge();
+
+                this.DataLayerProgressOutHandler(this, EventArgs.Empty, 5);
+
+                var replen = new TableActivityReplenishment();
+                replen.RegisterDataAccessListenerProgressOut((IDataAccessEventListener)this);
+                await replen.RequestHeaderData();
+                replen.UnregisterDataAccessListenerProgressOut((IDataAccessEventListener)this);
+            }
+        }
+
+        /// <summary>
+        /// Get the activity foreign key reference number.
+        /// </summary>
+        /// <param name="resourceType"><see cref="object"/> Resource model type (tActivity??Model).</param>
+        /// <returns><see cref="int"/> Found activity foreign key refno, else 0 if not found.</returns>
+        public override int GetFkRefno(object resourceType)
+        {
+            object tmpFkRefno = ((Replenishment)resourceType).ActivityItemFKRefno;
+            return tmpFkRefno == null ? 0 : Convert.ToInt32(tmpFkRefno);
+        }
+
+        /// <summary>
+        /// Insert, create a new activity replenishment header.
+        /// </summary>
+        /// <param name="xmlParams">The xmlParams<see cref="XDocument"/>.</param>
+        /// <returns>The <see cref="int"/>.</returns>
+        public override Task<int> Insert(XDocument xmlParams)
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <summary>
+        /// Delete the replenishment activity header.
+        /// </summary>
+        /// <returns>The <see cref="Task"/>.</returns>
+        public override Task Delete()
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <summary>
+        /// Get shipping label quantity.
+        /// </summary>
+        /// <param name="isRepackQuantityOnly">The isRepackQuantityOnly<see cref="bool"/>.</param>
+        /// <returns>The <see cref="Task{SLabelQuantity}"/>.</returns>
+        public override Task<SLabelQuantity> GetLabelQuantity(bool isRepackQuantityOnly)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override ObservableCollection<object> Search(string searchText)
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <summary>
+        /// Get the activity replenishment filter.
+        /// </summary>
+        /// <exception cref="NotImplementedException"> Not implemented exception.</exception>
+        public override void GetFilter()
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <summary>
+        /// Get the activity replenishment filter.
+        /// </summary>
+        /// <param name="data"><see cref="XDocument"/> Prefilter criteria.</param>
+        /// <exception cref="NotImplementedException"> Not implemented exception.</exception>
+        public override void GetFilter(XDocument data)
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <summary>
+        /// Print labels.
+        /// </summary>
+        /// <param name="xmlParam"></param>
+        /// <returns></returns>
+        /// <exception cref="NotImplementedException"> Not implemented exception.</exception>
+        public override Task PrintLabel(XDocument xmlParam)
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <summary>
+        /// Change activity status.
+        /// </summary>
+        /// <param name="selectedActivity"></param>
+        /// <returns></returns>
+        /// <exception cref="NotImplementedException"> Not implemented exception.</exception>
+        public override Task<bool> ChangeStatus(object selectedActivity)
+        {
+            throw new NotImplementedException();
+        }
+    }
+}

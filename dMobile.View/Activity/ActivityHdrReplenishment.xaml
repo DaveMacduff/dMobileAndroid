@@ -1,0 +1,118 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<page:DMobileContentPage
+    xmlns:page="clr-namespace:dMobile.View.CustomPages"
+    xmlns="http://xamarin.com/schemas/2014/forms"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:customcontrols="clr-namespace:dMobile.View.CustomControls"
+    xmlns:Helpers="clr-namespace:dMobile.View.Helpers"
+    x:Class="dMobile.View.Activity.ActivityHdrReplenishment">
+    <ContentPage.ToolbarItems>
+        <ToolbarItem x:Name="optionsMenu"
+                     IconImageSource="{Binding OptionsIconSource}"
+                     Clicked="OptionsMenu_Clicked"
+                     IsEnabled="{Binding Loading, Converter={Helpers:BoolConverter}}"/>
+    </ContentPage.ToolbarItems>
+    <ContentPage.Content>
+        <AbsoluteLayout VerticalOptions="Center">
+            <Grid x:Name="gridContainer"
+                  Padding="10"
+                  AbsoluteLayout.LayoutFlags="All"
+                  AbsoluteLayout.LayoutBounds="0,0,1,1">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="6*"/>
+                    <RowDefinition Height="45*"/>
+                    <RowDefinition Height="15*"/>
+                    <RowDefinition Height="10*"/>
+                    <RowDefinition Height="10*"/>
+                    <RowDefinition Height="10*"/>
+                </Grid.RowDefinitions>
+                <Grid Grid.Row="0">
+                    <Label x:Name="lblMoveType"
+                           Text="All Move Types"
+                           Grid.Row="0"
+                           Grid.Column="0"
+                           FontAttributes="Bold"
+                           VerticalOptions="CenterAndExpand"/>
+                </Grid>
+
+                <Frame VerticalOptions="Start" Grid.Row="1" OutlineColor="{DynamicResource BorderColor}">
+                    <ScrollView Orientation="Horizontal">
+                        <Grid x:Name="GridMoveFrom">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
+
+                            <ListView x:Name="ListViewMoveFrom"
+                                      HasUnevenRows="True"
+                                      IsEnabled="{Binding Loading, Converter={Helpers:BoolConverter}}"
+                                      Grid.Row="1"
+                                      VerticalScrollBarVisibility="Always"
+                                      HorizontalScrollBarVisibility="Always" SelectionMode="Single"
+                                      ItemSelected="ListViewMoveFrom_ItemSelected"
+                                      Focused="ListViewMoveFrom_Focused"
+                                      Unfocused="ListViewMoveFrom_Unfocused"/>
+                        </Grid>
+                    </ScrollView>
+                </Frame>
+
+                <Frame VerticalOptions="Start" Grid.Row="2" OutlineColor="{DynamicResource BorderColor}">
+                    <ListView x:Name="ListViewMoveTo"
+                              SelectionMode="None"
+                              HasUnevenRows="True"
+                              IsEnabled="{Binding Loading, Converter={Helpers:BoolConverter}}"
+                              SeparatorVisibility="None">
+                        <ListView.ItemTemplate>
+                            <DataTemplate>
+                                <ViewCell>
+                                    <StackLayout Padding="5,1,5,1">
+                                        <Label Text="{Binding}" VerticalOptions="Center"
+                                               Focused="ListViewMoveTo_Focused"
+                                               Unfocused="ListViewMoveTo_Unfocused"/>
+                                    </StackLayout>
+                                </ViewCell>
+                            </DataTemplate>
+                        </ListView.ItemTemplate>
+                    </ListView>
+                </Frame>
+
+                <Grid Grid.Row="3">
+                    <Button x:Name="cmdSetFromLocation"
+                            Grid.Row="0"
+                            Grid.Column="0"
+                            Text="Confirm From Location"
+                            Clicked="CmdSetFromLocation_Click"
+                            Focused="CmdSetFromLocation_Focused"
+                            Unfocused="CmdSetFromLocation_Unfocused"
+                            IsEnabled="{Binding Loading, Converter={Helpers:BoolConverter}}"/>
+                </Grid>
+
+                <Grid Grid.Row="4">
+                    <Button x:Name="cmdSetToLocation"
+                            Grid.Row="0"
+                            Grid.Column="0"
+                            Text="Confirm To Location"
+                            Clicked="CmdSetToLocation_Click"
+                            Focused="CmdSetToLocation_Focused"
+                            Unfocused="CmdSetToLocation_Unfocused"
+                            IsEnabled="{Binding Loading, Converter={Helpers:BoolConverter}}"/>
+                </Grid>
+
+                <Grid Grid.Row="5">
+                    <Button x:Name="cmdPerformMove"
+                            Grid.Row="0"
+                            Grid.Column="0"
+                            Text="Perform Move"
+                            Clicked="CmdPerformMove_Click"
+                            Focused="CmdPerformMove_Focused"
+                            Unfocused="CmdPerformMove_Unfocused"
+                            IsEnabled="{Binding Loading, Converter={Helpers:BoolConverter}}"/>
+                </Grid>
+            </Grid>
+
+            <ActivityIndicator IsVisible="{Binding Loading}" 
+                               IsRunning="{Binding Loading}"
+                               AbsoluteLayout.LayoutFlags="All" 
+                               AbsoluteLayout.LayoutBounds="0.5,0.5,0.3,0.3"/>
+        </AbsoluteLayout>
+    </ContentPage.Content>
+</page:DMobileContentPage>

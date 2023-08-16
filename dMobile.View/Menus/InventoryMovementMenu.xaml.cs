@@ -5,9 +5,6 @@
 namespace dMobile.View.Menus
 {
     using System;
-    using System.Collections.Generic;
-    using System.Linq;
-    using System.Text;
     using System.Threading.Tasks;
     using System.Xml.Linq;
     using Android.Views;
@@ -18,14 +15,12 @@ namespace dMobile.View.Menus
     using Xamarin.Forms;
     using Xamarin.Forms.Xaml;
 
+    /// <summary>
+    /// Inventory movement menu.
+    /// </summary>
     [XamlCompilation(XamlCompilationOptions.Compile)]
     public partial class InventoryMovementMenu : DMobileContentPage, IAppArea
     {
-
-        /// <summary>
-        ///
-        /// </summary>
-        /// <remarks></remarks>
         /// <summary>
         /// Initializes a new instance of the <see cref="InventoryMovementMenu"/> class.
         /// </summary>
@@ -38,16 +33,101 @@ namespace dMobile.View.Menus
             this.cmdTransferFrom.Text = "2) Transfer From";
             this.cmdTransferTo.Text = "3) Transfer To";
             this.cmdMoveSkid.Text = "4) Move Skid";
-
-            if (!DesignMode.IsDesignModeEnabled)
-            {
-                this.SysEnv = SysEnvironment.GetInstance();
-                this.TransSettings = new TransferSettings();
-            }
+            this.cmdReplenishment.Text = "5) Replenishment";
         }
 
         /// <summary>
-        /// The OnAppearing.
+        /// Gets or sets the transfer settings.
+        /// </summary>
+        private TransferSettings TransSettings { get; set; } = new TransferSettings();
+
+        /// <summary>
+        /// Gets or sets a value indicating whether the control is loaded.
+        /// </summary>
+        private bool IsControlLoaded { get; set; } = false;
+
+        /// <summary>
+        /// Gets or sets the system settings environment.
+        /// </summary>
+        private SysEnvironment SysEnv { get; set; } = SysEnvironment.GetInstance();
+
+        /// <summary>
+        /// Unregister the bar code scan event handler and disable the scanner.
+        /// </summary>
+        /// <returns><see cref="Task"/> Task operation.</returns>
+        public async Task ScannerDisable()
+        {
+        }
+
+        /// <summary>
+        /// Registers the bar code scan event handler and enables the scanner.
+        /// </summary>
+        /// <returns><see cref="Task"/> Task operation.</returns>
+        public async Task ScannerEnable()
+        {
+        }
+
+        /// <summary>
+        /// Is ready to save.
+        /// </summary>
+        /// <returns><see cref="Task"/> Task operation.</returns>
+        public async Task<bool> IsReadyToSave()
+        {
+            return true;
+        }
+
+        /// <summary>
+        /// Is ready to close.
+        /// </summary>
+        /// <returns><see cref="Task"/> Task operation.</returns>
+        public async Task<bool> IsReadyToClose()
+        {
+            return true;
+        }
+
+        /// <summary>
+        /// Get the control description.
+        /// </summary>
+        /// <returns><see cref="string"/> Get the control description.</returns>
+        public string GetControlDescription()
+        {
+            return "Inventory Movement Menu";
+        }
+
+        /// <summary>
+        /// Save changes.
+        /// </summary>
+        /// <returns><see cref="bool"/> True.</returns>
+        public async Task<bool> SaveChanges()
+        {
+            return true;
+        }
+
+        /// <summary>
+        /// Cancel changes.
+        /// </summary>
+        /// <returns><see cref="bool"/> True.</returns>
+        public async Task<bool> CancelChanges()
+        {
+            return true;
+        }
+
+        /// <summary>
+        /// Gets the return xml data.
+        /// </summary>
+        /// <returns><see cref="XDocument"/> Xml data.</returns>
+        public async Task<XDocument> GetXML()
+        {
+            var xmldocParams = XDocument.Parse(
+                "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>"
+                + "<params>"
+                + "</params>");
+
+            return xmldocParams;
+        }
+
+        /// <summary>
+        /// The on appearing event handler.
         /// </summary>
         protected override async void OnAppearing()
         {
@@ -79,20 +159,27 @@ namespace dMobile.View.Menus
                 {
                     await this.MoveSkid();
                 }
+                else if (keycode == Keycode.Num5)
+                {
+                    await this.Replenishment();
+                }
             });
 
             try
             {
-                this.ucInventoryMovementMenu_GotFocus(this, EventArgs.Empty);
+                this.InventoryMovementMenu_GotFocus(this, EventArgs.Empty);
             }
             catch (Exception ex)
             {
-                await Device.InvokeOnMainThreadAsync(async () => await this.DisplayAlert("Error", "this.ucInventoryMovementMenu_GotFocus threw an error " + ex, "OK"));
+                await Device.InvokeOnMainThreadAsync(async () => await this.DisplayAlert(
+                    "Error",
+                    "this.ucInventoryMovementMenu_GotFocus threw an error " + ex,
+                    "OK"));
             }
         }
 
         /// <summary>
-        /// The OnDisappearing.
+        /// On disappearing event handler.
         /// </summary>
         protected override void OnDisappearing()
         {
@@ -100,7 +187,10 @@ namespace dMobile.View.Menus
             base.OnDisappearing();
         }
 
-        /// <inheritdoc/>
+        /// <summary>
+        /// On back button pressed.
+        /// </summary>
+        /// <returns><see cref="bool"/> True.</returns>
         protected override bool OnBackButtonPressed()
         {
             Device.BeginInvokeOnMainThread(async () =>
@@ -113,128 +203,25 @@ namespace dMobile.View.Menus
             return true;
         }
 
-        private TransferSettings TransSettings { get; set; }
-
-        private bool IsControlLoaded { get; set; } = false;
-
-        private SysEnvironment SysEnv { get; set; }
-
         /// <summary>
-        /// Unregister the bar code scan event handler and disable the scanner.
+        /// Disable the menu controls.
         /// </summary>
-        /// <remarks></remarks>
-        public async Task ScannerDisable()
-        {
-        }
-
-        /// <summary>
-        /// Registers the bar code scan event handler and enables the scanner.
-        /// </summary>
-        /// <remarks></remarks>
-        public async Task ScannerEnable()
-        {
-        }
-
-        /// <summary>
-        ///
-        /// </summary>
-        /// <returns></returns>
-        /// <remarks></remarks>
-        /// <inheritdoc/>
-        public async Task<bool> IsReadyToSave()
-        {
-            return true;
-        }
-
-        /// <summary>
-        ///
-        /// </summary>
-        /// <returns></returns>
-        /// <remarks></remarks>
-        /// <inheritdoc/>
-        public async Task<bool> IsReadyToClose()
-        {
-            return true;
-        }
-
-        ///// <summary>
-        /////
-        ///// </summary>
-        ///// <returns></returns>
-        ///// <remarks></remarks>
-        // public UserControl GetCallingControl()
-        // {
-        //    return this.CallingControl;
-        // }
-
-        /// <summary>
-        ///
-        /// </summary>
-        /// <returns></returns>
-        /// <remarks></remarks>
-        public string GetControlDescription()
-        {
-            return "Inventory Movement Menu";
-        }
-
-        /// <summary>
-        ///
-        /// </summary>
-        /// <returns></returns>
-        /// <remarks></remarks>
-        /// <inheritdoc/>
-        public async Task<bool> SaveChanges()
-        {
-            return true;
-        }
-
-        /// <summary>
-        ///
-        /// </summary>
-        /// <returns></returns>
-        /// <remarks></remarks>
-        /// <inheritdoc/>
-        public async Task<bool> CancelChanges()
-        {
-            return true;
-        }
-
-        /// <summary>
-        ///
-        /// </summary>
-        /// <returns></returns>
-        /// <remarks></remarks>
-        /// <inheritdoc/>
-        public async Task<XDocument> GetXML()
-        {
-            var xmldocParams = XDocument.Parse(
-                "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>"
-                + "<params>"
-                + "</params>");
-
-            return xmldocParams;
-        }
-
-        /// <summary>
-        ///
-        /// </summary>
-        /// <remarks></remarks>
         private void DisableControls()
         {
             this.cmdMoveProduct.IsEnabled = false;
             this.cmdMoveSkid.IsEnabled = false;
             this.cmdTransferFrom.IsEnabled = false;
             this.cmdTransferTo.IsEnabled = false;
+            this.cmdReplenishment.IsEnabled = false;
             this.IsControlLoaded = false;
         }
 
         /// <summary>
-        ///
+        /// Inventory movement menu got focus event handler.
         /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        /// <remarks></remarks>
-        private void ucInventoryMovementMenu_GotFocus(object sender, EventArgs e)
+        /// <param name="sender"><see cref="object"/> Sender.</param>
+        /// <param name="e"><see cref="EventArgs"/> Event arguments.</param>
+        private void InventoryMovementMenu_GotFocus(object sender, EventArgs e)
         {
             if (!this.IsControlLoaded)
             {
@@ -244,6 +231,7 @@ namespace dMobile.View.Menus
                 this.cmdTransferTo.IsEnabled = false;
                 this.cmdMoveProduct.IsEnabled = false;
                 this.cmdMoveSkid.IsEnabled = false;
+                this.cmdReplenishment.IsEnabled = false;
 
                 if ((this.SysEnv.IsCommunicationTestSuccessful || this.SysEnv.SysSettings.IsDisconnectedMode)
                     && this.SysEnv.ContactLog.LoginID != SysCommon.SetupLoginID
@@ -255,6 +243,7 @@ namespace dMobile.View.Menus
                         this.cmdTransferTo.IsEnabled = true;
                         this.cmdMoveProduct.IsEnabled = true;
                         this.cmdMoveSkid.IsEnabled = true;
+                        this.cmdReplenishment.IsEnabled = true;
                     }
                     else
                     {
@@ -262,6 +251,7 @@ namespace dMobile.View.Menus
                         this.cmdTransferTo.IsEnabled = this.SysEnv.SysSettings.IsTransMod;
                         this.cmdMoveProduct.IsEnabled = this.SysEnv.SysSettings.IsMovesModule;
                         this.cmdMoveSkid.IsEnabled = this.SysEnv.SysSettings.IsMoveSkidModule;
+                        this.cmdReplenishment.IsEnabled = this.SysEnv.SysSettings.IsReplenishmentModule;
                     }
                 }
 
@@ -274,16 +264,16 @@ namespace dMobile.View.Menus
                     this.cmdMoveSkid.IsEnabled = true;
                     this.cmdTransferFrom.IsEnabled = true;
                     this.cmdTransferTo.IsEnabled = true;
+                    this.cmdReplenishment.IsEnabled = true;
                 }
             }
         }
 
         /// <summary>
-        ///
+        /// Moves menu item click event handler.
         /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        /// <remarks></remarks>
+        /// <param name="sender"><see cref="object"/> Sender.</param>
+        /// <param name="e"><see cref="EventArgs"/> Event arguments.</param>
         private async void cmdMoves_Click(object sender, EventArgs e)
         {
             this.DisableControls();
@@ -293,11 +283,10 @@ namespace dMobile.View.Menus
         }
 
         /// <summary>
-        ///
+        /// Transfer from menu item click event handler.
         /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        /// <remarks></remarks>
+        /// <param name="sender"><see cref="object"/> Sender.</param>
+        /// <param name="e"><see cref="EventArgs"/> Event arguments.</param>
         private async void cmdTransferFrom_Click(object sender, EventArgs e)
         {
             this.SetSaveTransSettings();
@@ -308,10 +297,10 @@ namespace dMobile.View.Menus
         }
 
         /// <summary>
-        ///
+        /// Transfer to menu item click event handler.
         /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
+        /// <param name="sender"><see cref="object"/> Sender.</param>
+        /// <param name="e"><see cref="EventArgs"/> Event arguments.</param>
         private async void cmdTransferTo_Click(object sender, EventArgs e)
         {
             this.SetSaveTransSettings();
@@ -322,11 +311,10 @@ namespace dMobile.View.Menus
         }
 
         /// <summary>
-        ///
+        /// Move skid menu item click event handler.
         /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        /// <remarks></remarks>
+        /// <param name="sender"><see cref="object"/> Sender.</param>
+        /// <param name="e"><see cref="EventArgs"/> Event arguments.</param>
         private async void cmdMoveSkid_Click(object sender, EventArgs e)
         {
             await this.MoveSkid();
@@ -344,13 +332,33 @@ namespace dMobile.View.Menus
         }
 
         /// <summary>
-        ///
+        /// Set save transfer settings.
         /// </summary>
         private void SetSaveTransSettings()
         {
             var tempTransSettings = this.TransSettings;
             _ = this.TransSettings.SaveData(ref tempTransSettings);
             this.TransSettings = tempTransSettings;
+        }
+
+        /// <summary>
+        /// Replenishment menu item click event handler.
+        /// </summary>
+        /// <param name="sender"><see cref="object"/> Sender.</param>
+        /// <param name="e"><see cref="EventArgs"/> Event arguments.</param>
+        private async void cmdReplenishment_Click(object sender, EventArgs e)
+        {
+            await this.Replenishment();
+        }
+
+        /// <summary>
+        /// Opens the replenishment screen and disables controls of this screen.
+        /// </summary>
+        private async Task Replenishment()
+        {
+            this.DisableControls();
+            var replenishment = new ActivityHdrReplenishment(SysCommon.ActSubTypes.InventoryReplenishment);
+            await replenishment.Show();
         }
     }
 }

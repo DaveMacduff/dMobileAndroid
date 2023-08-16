@@ -7,6 +7,7 @@
 /// </summary>
 
 using System;
+using System.Runtime.CompilerServices;
 using dMobile.Bedrock;
 
 namespace dMobile.Controller.Activity
@@ -147,7 +148,8 @@ namespace dMobile.Controller.Activity
                     throw new NotImplementedException();
 
                 case SysCommon.ActSubTypes.InventoryReplenishment:
-                    throw new NotImplementedException();
+                    actFactory = new ReplenishmentActivityFactory();
+                    break;
 
                 case SysCommon.ActSubTypes.LoginStartup:
                     throw new NotImplementedException();

@@ -56,7 +56,7 @@
 
                             <!--Row 3-->
                             <Label x:Name="lblSerialNo" Grid.Row="3" Grid.Column="0" VerticalOptions="CenterAndExpand"/>
-                            <Entry x:Name="cboSerialNo" Grid.Row="3" Grid.Column="1" Grid.ColumnSpan="2" VerticalOptions="CenterAndExpand" IsEnabled="{Binding Loading, Converter={Helpers:BoolConverter}}"/>
+                            <Entry x:Name="txtSerialNo" Grid.Row="3" Grid.Column="1" Grid.ColumnSpan="2" VerticalOptions="CenterAndExpand" IsEnabled="{Binding Loading, Converter={Helpers:BoolConverter}}"/>
 
                             <!--Row 4-->
                             <Label x:Name="lblProductionDate" Grid.Row="4" Grid.Column="0" VerticalOptions="CenterAndExpand"/>
@@ -64,7 +64,7 @@
 
                             <!--Row 5-->
                             <Label x:Name="lblLotNo" Grid.Row="5" Grid.Column="0" VerticalOptions="CenterAndExpand"/>
-                            <customcontrols:CustomPicker x:Name="cboLotNo" Grid.Row="5" Grid.Column="1" Grid.ColumnSpan="2" VerticalOptions="CenterAndExpand" IsEnabled="{Binding Loading, Converter={Helpers:BoolConverter}}"/>
+                            <Entry x:Name="txtLotNo" Grid.Row="5" Grid.Column="1" Grid.ColumnSpan="2" VerticalOptions="CenterAndExpand" IsEnabled="{Binding Loading, Converter={Helpers:BoolConverter}}"/>
 
                             <!--Row 6-->
                             <Label x:Name="lblBestBeforeDate" Grid.Row="6" Grid.Column="0" VerticalOptions="CenterAndExpand"/>
@@ -72,7 +72,7 @@
 
                             <!--Row 7-->
                             <Label x:Name="lblVariantCode" Grid.Row="7" Grid.Column="0" VerticalOptions="CenterAndExpand"/>
-                            <customcontrols:CustomPicker x:Name="cboVariantCode" Grid.Row="7" Grid.Column="1" Grid.ColumnSpan="2" VerticalOptions="CenterAndExpand" IsEnabled="{Binding Loading, Converter={Helpers:BoolConverter}}"/>
+                            <Entry x:Name="txtVariantCode" Grid.Row="7" Grid.Column="1" Grid.ColumnSpan="2" VerticalOptions="CenterAndExpand" IsEnabled="{Binding Loading, Converter={Helpers:BoolConverter}}"/>
 
                             <!--Row 8-->
                             <Label x:Name="lbl1" Grid.Row="8" Grid.Column="0" VerticalOptions="CenterAndExpand"/>

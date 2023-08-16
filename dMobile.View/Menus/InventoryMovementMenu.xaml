@@ -11,6 +11,7 @@
                 <Button x:Name="cmdTransferFrom" Clicked="cmdTransferFrom_Click" Text="2) Transfer From" />
                 <Button x:Name="cmdTransferTo" Clicked="cmdTransferTo_Click" Text="3) Transfer To" />
                 <Button x:Name="cmdMoveSkid" Clicked="cmdMoveSkid_Click" Text="4) Move Skid" />
+                <Button x:Name="cmdReplenishment" Clicked="cmdReplenishment_Click" Text="4) Replenishment" />
             </StackLayout>
 
             <ActivityIndicator IsVisible="{Binding Loading}" 

@@ -105,7 +105,6 @@ namespace dMobile.GroundWork
         /// <returns><see cref="Task"/> Task completed.</returns>
         public virtual async Task RequestHeaderData()
         {
-            string msg = string.Empty;
             try
             {
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"Seeding {this.LowerCaseName}.", true);
@@ -126,8 +125,7 @@ namespace dMobile.GroundWork
                     $"Seeding {this.LowerCaseName} failed.",
                     overrideDisconnectedMode: true);
 
-                msg = $"Save {this.LowerCaseName} to database failed.{Environment.NewLine}" +
-                    $"Reason: {ex.Message}.";
+                string msg = $"Save {this.LowerCaseName} to database failed.{Environment.NewLine}Reason: {ex.Message}.";
                 throw;
             }
             catch (CommunicationException)
@@ -187,8 +185,7 @@ namespace dMobile.GroundWork
                     $"Seeding {this.LowerCaseName} failed.",
                     overrideDisconnectedMode: true);
 
-                var msg = $"Save {this.LowerCaseName} to database failed.{Environment.NewLine}" +
-                    $"Reason: {ex.Message}.";
+                var msg = $"Save {this.LowerCaseName} to database failed.{Environment.NewLine}Reason: {ex.Message}.";
                 throw;
             }
             catch (CommunicationException)
@@ -266,8 +263,7 @@ namespace dMobile.GroundWork
                     $"Seeding {this.LowerCaseName} items failed.",
                     overrideDisconnectedMode: true);
 
-                var msg = $"Save {this.LowerCaseName} to database failed.{Environment.NewLine}" +
-                    $"Reason: {ex.Message}.";
+                var msg = $"Save {this.LowerCaseName} to database failed.{Environment.NewLine}Reason: {ex.Message}.";
                 throw;
             }
             catch (CommunicationException)
@@ -303,7 +299,7 @@ namespace dMobile.GroundWork
         /// <summary>
         /// The Request Item Data.
         /// </summary>
-        /// <param name="actHdrRefno"> Activity header refno.</param>
+        /// <param name="actHdrRefno"> Activity header reference number.</param>
         /// <param name="criteria"> Item data filter.</param>
         /// <returns><see cref="Task"/> Task completed.</returns>
         public virtual async Task RequestItemData(int actHdrRefno, XDocument criteria)
@@ -485,7 +481,7 @@ namespace dMobile.GroundWork
                 else
                 {
                     var msg = $"No activity items could be found for the sub type" +
-                              $" {Common.SubTypeEnum2String(this.CurrentSubType)}";
+                        $" {Common.SubTypeEnum2String(this.CurrentSubType)}";
                     throw new Exception(msg);
                 }
             }
@@ -507,9 +503,7 @@ namespace dMobile.GroundWork
             try
             {
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"Seeding {this.LowerCaseName}.", true);
-
                 var reqData = await this.SendRequest();
-
                 if (reqData.Length > 0)
                 {
                     if (reqData.Contains("<message>ERROR</message>"))
@@ -931,16 +925,9 @@ namespace dMobile.GroundWork
             int actDetailRefno,
             bool useFNumberElements)
         {
-            int schemeVariantNo;
-            if (useFNumberElements)
-            {
-                schemeVariantNo = Convert.ToInt32(drow["f17"]);
-            }
-            else
-            {
-                schemeVariantNo = Convert.ToInt32(drow["ProductSchemeVariantNo"]);
-            }
-
+            int schemeVariantNo = useFNumberElements
+                ? Convert.ToInt32(drow["f17"])
+                : Convert.ToInt32(drow["ProductSchemeVariantNo"]);
             if (schemeVariantNo > 0)
             {
                 var results = conn.Query<tProductSchemeVariantModel>(
@@ -956,7 +943,8 @@ namespace dMobile.GroundWork
                         results[0].ProductSchemeVariantRefno);
                     if (rowsAffected <= 0)
                     {
-                        throw new Exception("Insert into activity detail product scheme variant xref returned rows affected <= 0.");
+                        throw new Exception("Insert into activity detail product scheme variant xref returned rows" +
+                            " affected <= 0.");
                     }
                 }
                 else
@@ -1046,12 +1034,12 @@ namespace dMobile.GroundWork
         }
 
         /// <summary>
-        /// get the activity detail location information.
+        /// Get the activity detail location information.
         /// </summary>
         /// <param name="drow"><see cref="DataRow"/> Data row to get the scheme variant no from.</param>
         /// <param name="conn"><see cref="SQLiteConnection"/> SQLite connection.</param>
-        /// <param name="useFNumberElements"><see cref="bool"/> Flag indicating whether to read
-        /// 'F' XML element or a more verbose field name element.</param>
+        /// <param name="useFNumberElements"><see cref="bool"/> Flag indicating whether to read 'F' XML element or a
+        /// more verbose field name element.</param>
         /// <returns>The <see cref="int"/> Identified location map reference number.</returns>
         protected virtual int GetDetailLocation(
             DataRow drow,
@@ -1080,7 +1068,6 @@ namespace dMobile.GroundWork
                 var results = conn.Query<tLocationMapSlotModel>(
                     "SELECT * FROM tLocationMapSlot WHERE LocationMapSlotFKRefno = ?",
                     locMapSlotFKRefno);
-
                 if (results != null && results.Count > 0)
                 {
                     locMapRefno = results[0].LocationMapRefno;
@@ -1092,7 +1079,6 @@ namespace dMobile.GroundWork
                 var results = conn.Query<tLocationMapSectionModel>(
                     "SELECT * FROM tLocationMapSection WHERE LocationMapSectionFKRefno = ?",
                     locMapSectFKRefno);
-
                 if (results != null && results.Count > 0)
                 {
                     locMapRefno = results[0].LocationMapRefno;
@@ -1104,7 +1090,6 @@ namespace dMobile.GroundWork
                 var results = conn.Query<tLocationMapWarehouseModel>(
                     "SELECT * FROM tLocationMapWarehouse WHERE LocationMapWarehouseFKRefno = ?",
                     locMapWhsFKRefno);
-
                 if (results != null && results.Count > 0)
                 {
                     locMapRefno = results[0].LocationMapRefno;
@@ -1311,9 +1296,8 @@ namespace dMobile.GroundWork
         /// </summary>
         /// <param name="drow"><see cref="DataRow"/> Data row.</param>
         /// <param name="conn">The conn<see cref="SQLiteConnection"/> SQL connection.</param>
-        /// <param name="errMsg">.</param>
-        /// <param name="useFNumberElements"><see cref="bool"/> Flag indicating whether to read
-        /// 'F' XML element or a more verbose field name element.</param>
+        /// <param name="useFNumberElements"><see cref="bool"/> Flag indicating whether to read 'F' XML element or a
+        /// more verbose field name element.</param>
         /// <returns>.</returns>
         protected virtual int GetProductUnitRefnoFromDataRow(
             DataRow drow,
@@ -1338,7 +1322,6 @@ namespace dMobile.GroundWork
 
             var productResults = conn.Query<tProductModel>(
                 "SELECT * FROM tProduct WHERE ProductFKRefno = ?", Convert.ToInt32(prodFKRefno));
-
             int prodRefno;
             if (productResults != null && productResults.Count > 0)
             {
@@ -1347,12 +1330,11 @@ namespace dMobile.GroundWork
             else
             {
                 throw new Exception(
-                    "drProduct.Read() failed. Unable to locate the product refno" +
-                    " from the product fk refno in tProduct.");
+                    "drProduct.Read() failed. Unable to locate the product refno from the product foreign key" +
+                    " reference number in tProduct.");
             }
 
-            var unitResults = conn.Query<tUnitModel>(
-                "SELECT * FROM tUnit WHERE UnitCode = ?", unitCode);
+            var unitResults = conn.Query<tUnitModel>("SELECT * FROM tUnit WHERE UnitCode = ?", unitCode);
             int unitRefno;
             if (unitResults != null && unitResults.Count > 0)
             {
@@ -1377,7 +1359,7 @@ namespace dMobile.GroundWork
             {
                 throw new Exception(
                     "drProdUnit.Read() failed. Unable to locate the product unit refno from the" +
-                    " product fk refno, bc and unit code in tProductUnit.");
+                    " product foreign key reference number, broken case and unit code in tProductUnit.");
             }
 
             return prodUnitRefno;

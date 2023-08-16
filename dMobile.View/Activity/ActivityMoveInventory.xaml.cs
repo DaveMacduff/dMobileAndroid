@@ -368,22 +368,32 @@ namespace dMobile.View.Activity
                 }
                 else
                 {
-                        if (await Device.InvokeOnMainThreadAsync(async () => await this.DisplayAlert(
+                    if (this.LocMap.CurrLocMap.IsSlotTracked)
+                    {
+                        throw new MessageOnlyException("Please add some detail to move.");
+                    }
+
+                    if (this.SysEnv.SysSettings.IsDisableMoveAllSlotQuantityOption)
+                    {
+                        throw new MessageOnlyException("Moving all slot contents is currently not enabled.");
+                    }
+
+                    if (await Device.InvokeOnMainThreadAsync(async () => await this.DisplayAlert(
+                        "Move Submission",
+                        "Do you wish to move ALL of the slot contents?",
+                        "Yes",
+                        "No")))
+                    {
+                        await PerformMoveAll();
+                        if (!await Device.InvokeOnMainThreadAsync(async () => await this.DisplayAlert(
                                 "Move Submission",
-                                "Do you wish to move ALL of the slot contents?",
+                                "Continue performing moves?",
                                 "Yes",
                                 "No")))
                         {
-                            await PerformMoveAll();
-                            if (!await Device.InvokeOnMainThreadAsync(async () => await this.DisplayAlert(
-                                    "Move Submission",
-                                    "Continue performing moves?",
-                                    "Yes",
-                                    "No")))
-                            {
-                                isSaveComplete = true;
-                            }
+                            isSaveComplete = true;
                         }
+                    }
                 }
             }
             catch (CancelOperationException)
@@ -392,7 +402,9 @@ namespace dMobile.View.Activity
             }
             catch (MessageOnlyException msgEx)
             {
-                var msg = (msgEx.Message.IndexOf("MSGBOX-", StringComparison.Ordinal) == -1) ? msgEx.Message : msgEx.Message["MSGBOX-".Length..];
+                var msg = (msgEx.Message.IndexOf("MSGBOX-", StringComparison.Ordinal) == -1)
+                    ? msgEx.Message
+                    : msgEx.Message["MSGBOX-".Length..];
                 isSaveComplete = false;
                 await Device.InvokeOnMainThreadAsync(async () =>
                     await Application.Current.MainPage.DisplayAlert(
@@ -427,6 +439,12 @@ namespace dMobile.View.Activity
                         "</to_slot_refno>" + "</param>");
 
                     await this.ActDetail.Submit(null, xmlParam);
+
+                    await Device.InvokeOnMainThreadAsync(async () =>
+                        await Application.Current.MainPage.DisplayAlert(
+                            this.ActItem.GetControlDescription(),
+                            "Move completed.",
+                            Resource.OK));
                 }
                 catch (Exception ex)
                 {
@@ -473,7 +491,13 @@ namespace dMobile.View.Activity
                                 "</to_slot_refno>" + "</param>");
 
                             await this.ActDetail.Submit(this.ActDetail.ListDetails[idx], xmlParam);
+
                             ////((MoveDetail)this.ActDetail.ListDetails[idx]).ActivityDetailStatus = (int)SysCommon.ActStatus.NoChange;
+                            await Device.InvokeOnMainThreadAsync(async () =>
+                                await Application.Current.MainPage.DisplayAlert(
+                                    this.ActItem.GetControlDescription(),
+                                    "Move completed.",
+                                    Resource.OK));
                         }
                     }
                     catch (Exception ex)
@@ -907,7 +931,7 @@ namespace dMobile.View.Activity
         }
 
         /// <summary>
-        /// The CmdToLocation_Click.
+        /// Command to location click event handler.
         /// </summary>
         /// <param name="sender"><see cref="object"/> Sender object.</param>
         /// <param name="e"><see cref="EventArgs"/> Event arguments.</param>
@@ -1063,7 +1087,9 @@ namespace dMobile.View.Activity
             }
             catch (MessageOnlyException msgEx)
             {
-                var msg = (msgEx.Message.IndexOf("MSGBOX-", StringComparison.Ordinal) == -1) ? msgEx.Message : msgEx.Message["MSGBOX-".Length..];
+                var msg = (msgEx.Message.IndexOf("MSGBOX-", StringComparison.Ordinal) == -1)
+                    ? msgEx.Message
+                    : msgEx.Message["MSGBOX-".Length..];
                 await Device.InvokeOnMainThreadAsync(async () =>
                     await Application.Current.MainPage.DisplayAlert(
                         this.GetControlDescription(),
@@ -1214,7 +1240,9 @@ namespace dMobile.View.Activity
             }
             catch (MessageOnlyException msgEx)
             {
-                var msg = (msgEx.Message.IndexOf("MSGBOX-", StringComparison.Ordinal) == -1) ? msgEx.Message : msgEx.Message["MSGBOX-".Length..];
+                var msg = (msgEx.Message.IndexOf("MSGBOX-", StringComparison.Ordinal) == -1)
+                    ? msgEx.Message
+                    : msgEx.Message["MSGBOX-".Length..];
                 await Device.InvokeOnMainThreadAsync(async () =>
                     await Application.Current.MainPage.DisplayAlert(
                         this.GetControlDescription(),
@@ -1395,6 +1423,11 @@ namespace dMobile.View.Activity
                 {
                     await this.Close();
                 }
+                else
+                {
+                    this.MainActivityItems.Clear();
+                    this.ListViewMainActivity.ItemsSource = this.MainActivityItems;
+                }
             }
             else if (result == "Cancel")
             {
@@ -1422,6 +1455,11 @@ namespace dMobile.View.Activity
             if (await this.SaveChanges())
             {
                 await this.Close();
+            }
+            else
+            {
+                this.MainActivityItems.Clear();
+                this.ListViewMainActivity.ItemsSource = this.MainActivityItems;
             }
 
             this.CmdPerformMove.IsEnabled = true;

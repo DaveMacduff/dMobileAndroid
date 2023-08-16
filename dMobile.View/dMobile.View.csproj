@@ -54,6 +54,9 @@
     <Compile Update="Activity\ActivityConvertUnitDetail.xaml.cs">
       <DependentUpon>ActivityConvertUnitDetail.xaml</DependentUpon>
     </Compile>
+    <Compile Update="Activity\ActivityHdrReplenishment.xaml.cs">
+      <DependentUpon>ActivityHdrReplenishment.xaml</DependentUpon>
+    </Compile>
     <Compile Update="Activity\ActivityHdr.xaml.cs">
       <DependentUpon>ActivityHdr.xaml</DependentUpon>
     </Compile>
