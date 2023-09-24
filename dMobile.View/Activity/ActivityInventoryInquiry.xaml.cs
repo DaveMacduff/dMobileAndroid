@@ -2,9 +2,6 @@
 // Copyright (c) InterSect Business Systems Inc. All rights reserved.
 // </copyright>
 
-using dMobile.Controller.Activity;
-using dMobile.Controller.Activity_Item;
-
 namespace dMobile.View.Activity
 {
     using System;
@@ -18,24 +15,22 @@ namespace dMobile.View.Activity
     using dMobile.BarCodeScanner.BarCodeParsing;
     using dMobile.BarCodeScanner.BarCodeScanners;
     using dMobile.Bedrock;
-    using dMobile.Controller;
+    using dMobile.Controller.Activity;
+    using dMobile.Controller.Activity_Item;
     using dMobile.Resources.Enums;
     using dMobile.Resources.Services;
     using dMobile.Resources.Types;
     using dMobile.View.CustomPages.Modal;
     using dMobile.View.Forms;
-    using SQLite;
     using Xamarin.Forms;
     using Xamarin.Forms.Xaml;
 
+    /// <summary>
+    /// Activity inventory inquiry.
+    /// </summary>
     [XamlCompilation(XamlCompilationOptions.Compile)]
     public partial class ActivityInventoryInquiry : DMobileModal, IAppArea
     {
-
-        /// <summary>
-        ///
-        /// </summary>
-        /// <remarks></remarks>
         /// <summary>
         /// Initializes a new instance of the <see cref="ActivityInventoryInquiry"/> class.
         /// </summary>
@@ -43,197 +38,126 @@ namespace dMobile.View.Activity
         {
             this.InitializeComponent();
 
+            this.SysEnv = SysEnvironment.GetInstance();
+            this.LocMap = LocationMap.GetInstance();
+            this.Scanner = ScannerEngine.GetInstance().Scanner;
+            this.ActSubType = SysCommon.ActSubTypes.InventoryInquiry;
+
+            // Initialize activity header instance.
+            this.Activity = ActivityFacade.GetActivity(this.ActSubType);
+            if (this.Activity.SkidInfo == null)
+            {
+                this.Activity.SkidInfo = new SysSkidInfo();
+            }
+
+            // Initialize activity item instance.
+            this.ActItem = ActItemFacade.GetActItem(this.Activity, SysCommon.ActSubTypes.InventoryInquiry);
+            this.ActItem.ProdInfo = new ProductInfo();
+            this.ActItem.LocMap = this.LocMap.CurrLocMap;
+            this.ActItem.SysEnv = this.SysEnv;
+
+            this.InitializeBarCodeModifierControl();
+
+            // Set control texts.
             this.cmdSelectProduct.Text = "Select Product";
             this.cmdLocation.Text = "Set Location";
             this.cmdDisplayDefault.Text = "Display Defaults";
             this.cmdView.Text = "View";
-
-            if (!DesignMode.IsDesignModeEnabled)
-            {
-                this.SysEnv = SysEnvironment.GetInstance();
-                this.LocMap = LocationMap.GetInstance();
-
-                this.BarCodeModifier1Picker.Items.Clear();
-
-                if (this.SysEnv.SysSettings.IsProductUnitBarCodeModifier1)
-                {
-                    this.BarCodeModifier1Picker.Items.Add(string.Empty);
-                    var modifiers = this.SysEnv.SysSettings.ProductUnitBarCodeModifier1Codes.Split(',');
-
-                    foreach (var item in modifiers)
-                    {
-                        this.BarCodeModifier1Picker.Items.Add(item);
-                    }
-                }
-                else
-                {
-                    this.BarCodeModifier1Picker.IsVisible = false;
-                    this.BarCodeModifier1Picker.IsEnabled = false;
-                }
-
-                this.BarCodeModifier1Picker.SelectedItem = Convert.ToString(this.SysEnv.CurrentBarCodeModifier1);
-
-                this.Scanner = ScannerEngine.GetInstance().Scanner;
-                this.ActSubType = SysCommon.ActSubTypes.InventoryInquiry;
-                this.Activity = ActivityFacade.GetActivity(this.ActSubType);
-
-                if (this.Activity.SkidInfo == null)
-                {
-                    this.Activity.SkidInfo = new SysSkidInfo();
-                }
-
-                this.ActItem = ActItemFacade.GetActItem(this.Activity, SysCommon.ActSubTypes.InventoryInquiry);
-                this.ActItem.ProdInfo = new ProductInfo();
-                this.ActItem.LocMap = this.LocMap.CurrLocMap;
-                this.ActItem.SysEnv = this.SysEnv;
-
-                this.Title = this.GetControlDescription();
-            }
+            this.Title = this.GetControlDescription();
         }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ActivityInventoryInquiry"/> class.
         /// </summary>
-        /// <param name="prodInfo"></param>
+        /// <param name="prodInfo"><see cref="ProductInfo"/> Product information instance.</param>
         public ActivityInventoryInquiry(ProductInfo prodInfo)
         {
             this.InitializeComponent();
 
+            // Initialize
+            this.SysEnv = SysEnvironment.GetInstance();
+            this.LocMap = LocationMap.GetInstance();
+            this.Scanner = ScannerEngine.GetInstance().Scanner;
+            this.ActSubType = SysCommon.ActSubTypes.InventoryInquiry;
+
+            // Initialize activity header instance.
+            this.Activity = ActivityFacade.GetActivity(this.ActSubType);
+            if (this.Activity.SkidInfo == null)
+            {
+                this.Activity.SkidInfo = new SysSkidInfo();
+            }
+
+            // Initialize activity item instance.
+            this.ActItem = ActItemFacade.GetActItem(this.Activity, SysCommon.ActSubTypes.InventoryInquiry);
+            this.ActItem.ProdInfo = prodInfo;
+            this.ActItem.LocMap = this.LocMap.CurrLocMap;
+            this.ActItem.SysEnv = this.SysEnv;
+
+            this.InitializeBarCodeModifierControl();
+
+            // Set control texts.
             this.cmdSelectProduct.Text = "Select Product";
             this.cmdLocation.Text = "Set Location";
             this.cmdDisplayDefault.Text = "Display Defaults";
             this.cmdView.Text = "View";
-
-            if (!DesignMode.IsDesignModeEnabled)
-            {
-                this.SysEnv = SysEnvironment.GetInstance();
-                this.LocMap = LocationMap.GetInstance();
-
-                this.BarCodeModifier1Picker.Items.Clear();
-
-                if (this.SysEnv.SysSettings.IsProductUnitBarCodeModifier1)
-                {
-                    this.BarCodeModifier1Picker.Items.Add(string.Empty);
-                    var modifiers = this.SysEnv.SysSettings.ProductUnitBarCodeModifier1Codes.Split(',');
-
-                    foreach (var item in modifiers)
-                    {
-                        this.BarCodeModifier1Picker.Items.Add(item);
-                    }
-                }
-                else
-                {
-                    this.BarCodeModifier1Picker.IsVisible = false;
-                    this.BarCodeModifier1Picker.IsEnabled = false;
-                }
-
-                this.BarCodeModifier1Picker.SelectedItem = Convert.ToString(this.SysEnv.CurrentBarCodeModifier1);
-
-                this.Scanner = ScannerEngine.GetInstance().Scanner;
-                this.ActSubType = SysCommon.ActSubTypes.InventoryInquiry;
-                this.Activity = ActivityFacade.GetActivity(this.ActSubType);
-
-                if (this.Activity.SkidInfo == null)
-                {
-                    this.Activity.SkidInfo = new SysSkidInfo();
-                }
-
-                this.ActItem = ActItemFacade.GetActItem(this.Activity, SysCommon.ActSubTypes.InventoryInquiry);
-                this.ActItem.ProdInfo = prodInfo;
-                this.ActItem.LocMap = this.LocMap.CurrLocMap;
-                this.ActItem.SysEnv = this.SysEnv;
-
-                this.cmdSelectProduct.Text = prodInfo.Code;
-                this.Title = this.GetControlDescription();
-            }
+            this.cmdSelectProduct.Text = prodInfo.Code;
+            this.Title = this.GetControlDescription();
         }
 
         /// <summary>
-        /// The OnAppearing.
+        /// Gets or sets a value indicating whether a control is loaded.
         /// </summary>
-        protected override async void OnAppearing()
-        {
-            base.OnAppearing();
-
-            this.dataGridMain.ItemsSource = this.DataGridMainExtraInfoItems;
-
-            MessagingCenter.Subscribe<string>(this, EventTypes.OnKeyUp.ToString(), async (keyPressed) =>
-            {
-                _ = Enum.TryParse(keyPressed, out Keycode keycode);
-
-                if (!this.Loading)
-                {
-                    if (keycode == Keycode.Enter)
-                    {
-                        if (await this.SaveChanges())
-                        {
-                            this.DialogResult = DialogResult.OK;
-                            await this.Close();
-                        }
-                    }
-                }
-            });
-
-            try
-            {
-                await this.ucActivityInventoryInquiry_GotFocus(this, EventArgs.Empty);
-            }
-            catch (Exception ex)
-            {
-                await Device.InvokeOnMainThreadAsync(async () => await this.DisplayAlert("Error", "this.ucActivityInventoryInquiry_GotFocus threw an error " + ex, "OK"));
-            }
-        }
-
-        /// <summary>
-        /// The OnDisappearing.
-        /// </summary>
-        protected override async void OnDisappearing()
-        {
-            MessagingCenter.Unsubscribe<string>(this, EventTypes.OnKeyUp.ToString());
-            await this.ScannerDisable();
-
-            base.OnDisappearing();
-        }
-
-        /// <inheritdoc/>
-        protected override bool OnBackButtonPressed()
-        {
-            Device.BeginInvokeOnMainThread(async () =>
-            {
-                _ = base.OnBackButtonPressed();
-                _ = await this.CancelChanges();
-                this.DialogResult = DialogResult.None;
-                await this.Close();
-            });
-
-            return true;
-        }
-
         private bool IsControlLoaded { get; set; } = false;
 
+        /// <summary>
+        /// Gets or sets the bar code parse information.
+        /// </summary>
         private BarCodeParse BarParse { get; set; }
 
+        /// <summary>
+        /// Gets or sets the scanner engine instance.
+        /// </summary>
         private BarCodeScanner Scanner { get; set; }
 
+        /// <summary>
+        /// Gets or sets the activity item.
+        /// </summary>
         private ActItem ActItem { get; set; }
 
+        /// <summary>
+        /// Gets or sets the location map.
+        /// </summary>
         private LocationMap LocMap { get; set; }
 
-        private bool IsEnterTrapped { get; set; } = false;
-
+        /// <summary>
+        /// Gets or sets the system environment.
+        /// </summary>
         private SysEnvironment SysEnv { get; set; }
 
+        /// <summary>
+        /// Gets or sets a value indicating whether the bar code handler is registered.
+        /// </summary>
         private bool IsBarCodeHandlerRegistered { get; set; } = false;
 
-        private Controller.Activity.Activity Activity { get; set; }
+        /// <summary>
+        /// Gets or sets the activity header.
+        /// </summary>
+        private Activity Activity { get; set; }
 
-        private SysCommon.ActSubTypes ActSubType { get; set; }
+        /// <summary>
+        /// Gets or sets the activity sub type.
+        /// </summary>
+        private SysCommon.ActSubTypes ActSubType { get; set; } = SysCommon.ActSubTypes.InventoryInquiry;
 
-        private string MainGridMappingName { get; set; } = "tLocationMapDefault";
-
+        /// <summary>
+        /// Gets or sets the list items.
+        /// </summary>
         private List<object> ListItems { get; set; } = new List<object>();
 
-        public ObservableCollection<object> DataGridMainExtraInfoItems { get; set; } = new ObservableCollection<object>();
+        /// <summary>
+        /// Gets or sets the data grid main extra information items.
+        /// </summary>
+        private ObservableCollection<object> DataGridMainExtraInfoItems { get; set; } = new ObservableCollection<object>();
 
         /// <summary>
         /// Unregister the bar code scan event handler and disable the scanner.
@@ -265,21 +189,18 @@ namespace dMobile.View.Activity
         }
 
         /// <summary>
-        ///
+        /// Get the control description.
         /// </summary>
-        /// <returns></returns>
-        /// <remarks></remarks>
+        /// <returns><see cref="string"/> The control description.</returns>
         public string GetControlDescription()
         {
             return this.Activity.GetControlDescription();
         }
 
         /// <summary>
-        ///
+        /// Get the activity result.
         /// </summary>
-        /// <returns></returns>
-        /// <remarks></remarks>
-        /// <inheritdoc/>
+        /// <returns><see cref="XDocument"/> XML data.</returns>
         public async Task<XDocument> GetXML()
         {
             var xmldocParams = XDocument.Parse(
@@ -291,11 +212,9 @@ namespace dMobile.View.Activity
         }
 
         /// <summary>
-        ///
+        /// Check if is ready to save.
         /// </summary>
-        /// <returns></returns>
-        /// <remarks></remarks>
-        /// <inheritdoc/>
+        /// <returns><see cref="bool"/> True if is ready to save, else false.</returns>
         public async Task<bool> IsReadyToSave()
         {
             var isReadyToSave = true;
@@ -304,18 +223,19 @@ namespace dMobile.View.Activity
             {
                 isReadyToSave = false;
 
-                await Device.InvokeOnMainThreadAsync(async () => await this.DisplayAlert("Inventory Inquiry", "Quantity inquiry is not supported in disconnected mode.", "OK"));
+                await Device.InvokeOnMainThreadAsync(async () => await this.DisplayAlert(
+                    "Inventory Inquiry",
+                    "Quantity inquiry is not supported in disconnected mode.",
+                    "OK"));
             }
 
             return isReadyToSave;
         }
 
         /// <summary>
-        ///
+        /// Check if the form is ready to close.
         /// </summary>
-        /// <returns></returns>
-        /// <remarks></remarks>
-        /// <inheritdoc/>
+        /// <returns><see cref="bool"/> True if ready to close, else false.</returns>
         public async Task<bool> IsReadyToClose()
         {
             var isReadyToClose = true;
@@ -337,17 +257,14 @@ namespace dMobile.View.Activity
         }
 
         /// <summary>
-        ///
+        /// Save changes, launch the inventory inquiry summary screen.
         /// </summary>
-        /// <returns></returns>
-        /// <remarks></remarks>
-        /// <inheritdoc/>
+        /// <returns><see cref="bool"/> True for success, else false.</returns>
         public async Task<bool> SaveChanges()
         {
             try
             {
                 await this.ScannerDisable();
-
                 var form = new FormDialogContainer(EDialogTypes.ActivityInventoryInquirySummary, this.ActItem, this.ActSubType);
                 _ = await form.DisplayControl.ShowDialog();
             }
@@ -368,11 +285,9 @@ namespace dMobile.View.Activity
         }
 
         /// <summary>
-        ///
+        /// Cancel changes.
         /// </summary>
-        /// <returns></returns>
-        /// <remarks></remarks>
-        /// <inheritdoc/>
+        /// <returns><see cref="bool"/> True if cancelled, else false.</returns>
         public async Task<bool> CancelChanges()
         {
             var cancelChanges = true;
@@ -416,11 +331,10 @@ namespace dMobile.View.Activity
         }
 
         /// <summary>
-        ///
+        /// Location click event handler.
         /// </summary>
-        /// <param name="sender"></param>
+        /// <param name="sender"><see cref="object"/> Object that generated the event.</param>
         /// <param name="e"></param>
-        /// <remarks></remarks>
         public async void cmdLocation_Click(object sender, EventArgs e)
         {
             await this.ScannerDisable();
@@ -486,7 +400,7 @@ namespace dMobile.View.Activity
         /// <param name="sender"></param>
         /// <param name="e"></param>
         /// <remarks></remarks>
-        public void tmrActivityInventoryInquiry_Tick(object sender, EventArgs e)
+        public void TmrActivityInventoryInquiry_Tick(object sender, EventArgs e)
         {
             this.IsControlLoaded = true;
 
@@ -495,6 +409,75 @@ namespace dMobile.View.Activity
             this.cmdSelectProduct.IsEnabled = true;
             this.cmdDisplayDefault.IsEnabled = true;
             this.BarCodeModifier1Picker.IsEnabled = true;
+        }
+
+        /// <summary>
+        /// The on appearing.
+        /// </summary>
+        protected override async void OnAppearing()
+        {
+            base.OnAppearing();
+
+            this.dataGridMain.ItemsSource = this.DataGridMainExtraInfoItems;
+            SubscribeKeyHandlers();
+
+            try
+            {
+                await this.ucActivityInventoryInquiry_GotFocus(this, EventArgs.Empty);
+            }
+            catch (Exception ex)
+            {
+                await Device.InvokeOnMainThreadAsync(async () => await this.DisplayAlert(
+                    "Error",
+                    "this.ucActivityInventoryInquiry_GotFocus threw an error " + ex,
+                    "OK"));
+            }
+
+            //////////////////////////////////////////////////////////////////////////
+            void SubscribeKeyHandlers()
+            {
+                MessagingCenter.Subscribe<string>(this, EventTypes.OnKeyUp.ToString(), async (keyPressed) =>
+                {
+                    _ = Enum.TryParse(keyPressed, out Keycode keycode);
+
+                    if (!this.Loading)
+                    {
+                        if (keycode == Keycode.Enter)
+                        {
+                            if (await this.SaveChanges())
+                            {
+                                this.DialogResult = DialogResult.OK;
+                                await this.Close();
+                            }
+                        }
+                    }
+                });
+            }
+        }
+
+        /// <summary>
+        /// The on disappearing.
+        /// </summary>
+        protected override async void OnDisappearing()
+        {
+            MessagingCenter.Unsubscribe<string>(this, EventTypes.OnKeyUp.ToString());
+            await this.ScannerDisable();
+
+            base.OnDisappearing();
+        }
+
+        /// <inheritdoc/>
+        protected override bool OnBackButtonPressed()
+        {
+            Device.BeginInvokeOnMainThread(async () =>
+            {
+                _ = base.OnBackButtonPressed();
+                _ = await this.CancelChanges();
+                this.DialogResult = DialogResult.None;
+                await this.Close();
+            });
+
+            return true;
         }
 
         /// <summary>
@@ -547,8 +530,8 @@ namespace dMobile.View.Activity
                     }
                     else if (!string.IsNullOrEmpty(this.BarParse.LocationIdentifier))
                     {
-                        this.LocMap.CurrLocMap = await LocationMapTasks.GetSLocMapFromLocMapRefno(await LocationMapTasks.GetLocMapRefnoFromBarCodeGlobalLocIdentifier(this.BarParse.LocationIdentifier));
-
+                        this.LocMap.CurrLocMap = await LocationMapTasks.GetSLocMapFromLocMapRefno(
+                            await LocationMapTasks.GetLocMapRefnoFromBarCodeGlobalLocIdentifier(this.BarParse.LocationIdentifier));
                         if (this.LocMap.CurrLocMap.WhsLocMapRefno != 0)
                         {
                             _ = await Device.InvokeOnMainThreadAsync(() => this.cmdLocation.Text = LocationMapTasks.GetCurrentReadableLocation());
@@ -584,13 +567,38 @@ namespace dMobile.View.Activity
         }
 
         /// <summary>
+        /// Initialize bar code modifier control.
+        /// </summary>
+        private void InitializeBarCodeModifierControl()
+        {
+            this.BarCodeModifier1Picker.Items.Clear();
+            if (this.SysEnv.SysSettings.IsProductUnitBarCodeModifier1)
+            {
+                this.BarCodeModifier1Picker.Items.Add(string.Empty);
+                var modifiers = this.SysEnv.SysSettings.ProductUnitBarCodeModifier1Codes.Split(',');
+
+                foreach (var item in modifiers)
+                {
+                    this.BarCodeModifier1Picker.Items.Add(item);
+                }
+            }
+            else
+            {
+                this.BarCodeModifier1Picker.IsVisible = false;
+                this.BarCodeModifier1Picker.IsEnabled = false;
+            }
+
+            this.BarCodeModifier1Picker.SelectedItem = Convert.ToString(this.SysEnv.CurrentBarCodeModifier1);
+        }
+
+        /// <summary>
         ///
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
         private async Task ucActivityInventoryInquiry_GotFocus(object sender, EventArgs e)
         {
-            this.tmrActivityInventoryInquiry_Tick(sender, e);
+            this.TmrActivityInventoryInquiry_Tick(sender, e);
             await this.ScannerEnable();
         }
 

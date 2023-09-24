@@ -1060,19 +1060,29 @@ namespace dMobile.Controller.Activity_Item
         /// <summary>
         /// Select an activity item.
         /// </summary>
-        /// <param name="activityItem"><see cref="object"/> Selected activity object.</param>
+        /// <param name="selectedActivityItem"><see cref="object"/> Selected activity object.</param>
         /// <returns><see cref="Task{T}"/> Activity item foreign key reference number.</returns>
-        public override async Task<int> AssignActivityItem(object activityItem)
+        public override async Task<int> AssignActivityItem(object selectedActivityItem)
         {
-            if (activityItem is PickingItem item)
+            if (selectedActivityItem is PickingItem item)
             {
                 this.SelectedItem = item;
                 this.ItemRefno = item.ActivityItemRefno;
                 this.ItemFkRefno = item.ActivityItemFKRefno;
                 this.ActStatus = (SysCommon.ActStatus)item.ActivityItemStatus;
                 this.ProdInfo = await ProductInfoTasks.GetInfoFromUnitRefno(item.ProductUnitRefno);
-                this.ProdInfo.Scheme = await ProductInfoTasks.GetSchemeComponentsFromRefno(this.ProdInfo.Refno);
 
+                await AssignItemLocation(item);
+
+                // LocationMap.GetInstance().CurrLocMap warehouse needs to be set before call to GetSchemeComponentsFromRefno.
+                this.ProdInfo.Scheme = await ProductInfoTasks.GetSchemeComponentsFromRefno(this.ProdInfo.Refno);
+            }
+
+            return this.ItemFkRefno;
+
+            //////////////////////////////////////////////////////////////////////////
+            async Task AssignItemLocation(PickingItem item)
+            {
                 // This code needs to be before the call to GetSelectedItemLocation, because the skid location may be
                 // used if the product unit and warehouse match.
                 if (this.SysEnv.SysSettings.DoesSelectingADifferentProductClearSkid &&
@@ -1081,42 +1091,43 @@ namespace dMobile.Controller.Activity_Item
                     this.ActHdr.SkidInfo.CurrSkid = new SSkidInfo();
                 }
 
-                var locMap = await this.GetSelectedItemLocation(item.LocationMapRefno);
-
-                if (this.SysEnv.SysSettings.IsDefaultLocToProductDefaultLoc)
+                var itemLocMap = await this.GetSelectedItemLocation(item.LocationMapRefno);
+                if (itemLocMap == null)
                 {
-                    // Only assign the current location if the map is complete else leave it alone.
-                    if (locMap != null && await LocationMapTasks.IsCompleteLocMap(locMap))
+                    // Current location used, we need one for popup forms.
+                    this.LocMap = await LocationMapTasks.GetSLocMapFromLocMapRefno(this.ActHdr.LocationMapRefno);
+                    if (this.LocMap.WhsLocMapRefno == 0)
                     {
-                        // Update the chosen location with the current when defaulting is turned on.
-                        LocationMap.GetInstance().CurrLocMap = locMap.Clone();
-                        LocationMap.GetInstance().ChosenLocMap = locMap.Clone();
-
-                        // Assign the skid the location, because defaulting is enabled.
-                        if (this.ActHdr.SkidInfo.CurrSkid.SkidFKRefno > 0)
-                        {
-                            this.ActHdr.SkidInfo.CurrSkid.LocMap = locMap.Clone();
-                        }
-
-                        // Update the activity item location.
-                        this.LocMap = LocationMap.GetInstance().CurrLocMap.Clone();
+                        var defLocMapRefno = LocationMapTasks.DefaultLocMapRefnoToWhsIfUnassigned(locationMapRefno: 0);
+                        this.LocMap = await LocationMapTasks.GetSLocMapFromLocMapRefno(defLocMapRefno);
                     }
                 }
                 else
                 {
-                    // We need set at least the warehouse for line items.
-                    this.LocMap = locMap.Clone();
-                    if (this.LocMap.WhsLocMapRefno <= 0)
+                    this.LocMap = itemLocMap.Clone();
+
+                    // Override the location with the product default if exists and complete.
+                    if (this.SysEnv.SysSettings.IsDefaultLocToProductDefaultLoc)
                     {
-                        throw new MessageOnlyException("Location must be set first.");
+                        // Only assign the current location if the map is complete else leave it alone.
+                        if (await LocationMapTasks.IsCompleteLocMap(itemLocMap))
+                        {
+                            // Update the chosen location with the current when defaulting is turned on.
+                            LocationMap.GetInstance().CurrLocMap = itemLocMap.Clone();
+                            LocationMap.GetInstance().ChosenLocMap = itemLocMap.Clone();
+
+                            // Assign the skid the location, because defaulting is enabled.
+                            if (this.ActHdr.SkidInfo.CurrSkid.SkidFKRefno > 0)
+                            {
+                                this.ActHdr.SkidInfo.CurrSkid.LocMap = itemLocMap.Clone();
+                            }
+
+                            // Update the activity item location.
+                            this.LocMap = LocationMap.GetInstance().CurrLocMap.Clone();
+                        }
                     }
                 }
-
-                // LocationMap.GetInstance().CurrLocMap warehouse needs to be set before call to GetSchemeComponentsFromRefno.
-                this.ProdInfo.Scheme = await ProductInfoTasks.GetSchemeComponentsFromRefno(this.ProdInfo.Refno);
             }
-
-            return this.ItemFkRefno;
         }
 
         /// <summary>

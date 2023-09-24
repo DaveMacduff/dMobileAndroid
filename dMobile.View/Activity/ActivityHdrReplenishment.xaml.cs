@@ -1081,7 +1081,7 @@ namespace dMobile.View.Activity
         /// <summary>
         /// Headers list view focused event handler.
         /// </summary>
-        /// <param name="sender"><see cref="object"/> Sender instance.</param>
+        /// <param name="sender"><see cref="object"/> Object that generated the event.</param>
         /// <param name="e"><see cref="FocusEventArgs"/> Focus event arguments.</param>
         private void ListViewMoveFrom_Focused(object sender, FocusEventArgs e)
         {
@@ -1091,7 +1091,7 @@ namespace dMobile.View.Activity
         /// <summary>
         /// Headers list view unfocused event handler.
         /// </summary>
-        /// <param name="sender"><see cref="object"/> Sender instance.</param>
+        /// <param name="sender"><see cref="object"/> Object that generated the event.</param>
         /// <param name="e"><see cref="FocusEventArgs"/> Focus event arguments.</param>
         private void ListViewMoveFrom_Unfocused(object sender, FocusEventArgs e)
         {
@@ -1101,7 +1101,7 @@ namespace dMobile.View.Activity
         /// <summary>
         /// Headers list view focused event handler.
         /// </summary>
-        /// <param name="sender"><see cref="object"/> Sender instance.</param>
+        /// <param name="sender"><see cref="object"/> Object that generated the event.</param>
         /// <param name="e"><see cref="FocusEventArgs"/> Focus event arguments.</param>
         private void ListViewMoveTo_Focused(object sender, FocusEventArgs e)
         {
@@ -1111,7 +1111,7 @@ namespace dMobile.View.Activity
         /// <summary>
         /// Headers list view unfocused event handler.
         /// </summary>
-        /// <param name="sender"><see cref="object"/> Sender instance.</param>
+        /// <param name="sender"><see cref="object"/> Object that generated the event.</param>
         /// <param name="e"><see cref="FocusEventArgs"/> Focus event arguments.</param>
         private void ListViewMoveTo_Unfocused(object sender, FocusEventArgs e)
         {
@@ -1169,7 +1169,7 @@ namespace dMobile.View.Activity
             }
             catch (MessageOnlyException msgEx)
             {
-                var msg = (msgEx.Message.IndexOf("MSGBOX-", StringComparison.Ordinal) == -1) ? msgEx.Message : msgEx.Message["MSGBOX-".Length..];
+                var msg = SysCommon.GetMessageFromMessageException(msgEx);
 
                 // Do not set the IsChangesMade. MessageOnlyException is really not
                 // an error.
@@ -1252,7 +1252,7 @@ namespace dMobile.View.Activity
         /// <summary>
         /// Set to location focus event handler.
         /// </summary>
-        /// <param name="sender"><see cref="object"/> Sender instance.</param>
+        /// <param name="sender"><see cref="object"/> Object that generated the event.</param>
         /// <param name="e"><see cref="EventArgs"/> Focus event arguments.</param>
         private void CmdSetToLocation_Focused(object sender, FocusEventArgs e)
         {
@@ -1262,7 +1262,7 @@ namespace dMobile.View.Activity
         /// <summary>
         /// Set to location unfocused event handler.
         /// </summary>
-        /// <param name="sender"><see cref="object"/> Sender instance.</param>
+        /// <param name="sender"><see cref="object"/> Object that generated the event.</param>
         /// <param name="e"><see cref="EventArgs"/> Unfocused event arguments.</param>
         private void CmdSetToLocation_Unfocused(object sender, FocusEventArgs e)
         {
@@ -1272,7 +1272,7 @@ namespace dMobile.View.Activity
         /// <summary>
         /// Perform move click event handler.
         /// </summary>
-        /// <param name="sender"><see cref="object"/> Sender instance.</param>
+        /// <param name="sender"><see cref="object"/> Object that generated the event.</param>
         /// <param name="e"><see cref="EventArgs"/> Event arguments.</param>
         private async void CmdPerformMove_Click(object sender, EventArgs e)
         {
@@ -1371,7 +1371,7 @@ namespace dMobile.View.Activity
         /// <summary>
         /// List view move from item selected event handler.
         /// </summary>
-        /// <param name="sender"><see cref="object"/> Sender instance.</param>
+        /// <param name="sender"><see cref="object"/> Object that generated the event.</param>
         /// <param name="e"><see cref="SelectedItemChangedEventArgs"/> Selected item changed event arguments.</param>
         private async void ListViewMoveFrom_ItemSelected(object sender, SelectedItemChangedEventArgs e)
         {
@@ -1409,7 +1409,7 @@ namespace dMobile.View.Activity
         /// <summary>
         /// Set from location click event handler.
         /// </summary>
-        /// <param name="sender"><see cref="object"/> Sender instance.</param>
+        /// <param name="sender"><see cref="object"/> Object that generated the event.</param>
         /// <param name="e"><see cref="EventArgs"/> Event arguments.</param>
         private async void CmdSetFromLocation_Click(object sender, EventArgs e)
         {
@@ -1465,7 +1465,7 @@ namespace dMobile.View.Activity
         /// <summary>
         /// Set from location focused event handler.
         /// </summary>
-        /// <param name="sender"><see cref="object"/> Sender instance.</param>
+        /// <param name="sender"><see cref="object"/> Object that generated the event.</param>
         /// <param name="e"><see cref="FocusEventArgs"/> Focus event arguments.</param>
         private void CmdSetFromLocation_Focused(object sender, FocusEventArgs e)
         {
@@ -1475,7 +1475,7 @@ namespace dMobile.View.Activity
         /// <summary>
         /// Set from location unfocused event handler.
         /// </summary>
-        /// <param name="sender"><see cref="object"/> Sender instance.</param>
+        /// <param name="sender"><see cref="object"/> Object that generated the event.</param>
         /// <param name="e"><see cref="FocusEventArgs"/> Focus event arguments.</param>
         private void CmdSetFromLocation_Unfocused(object sender, FocusEventArgs e)
         {

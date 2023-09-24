@@ -350,25 +350,33 @@ namespace dMobile.Bedrock
         public static async Task<bool> IsCompleteLocMap(int locMapRefno)
         {
             var isComplete = false;
-            var results = await DatabaseConnection.GetInstance().SQLConn
-                .QueryAsync<tLocationMapModel>(
+            var results = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<tLocationMapModel>(
                 "SELECT * FROM tLocationMap WHERE LocationMapRefno = ?",
-                Convert.ToInt32(locMapRefno));
+                locMapRefno);
             if (results != null && results.Count > 0)
             {
-                var locMap = await LocationMapTasks.GetSLocMapFromLocMapRefno(locMapRefno);
                 var locMapSubType = (SysCommon.LocMapSubTypes)results[0].LocationMapSubType;
-                if (locMap.IsSlotTracked && locMapSubType == SysCommon.LocMapSubTypes.Slot)
+                var locMap = await LocationMapTasks.GetSLocMapFromLocMapRefno(locMapRefno);
+                if (locMap.IsSlotTracked)
                 {
-                    isComplete = true;
+                    if (locMapSubType == SysCommon.LocMapSubTypes.Slot)
+                    {
+                        isComplete = true;
+                    }
                 }
-                else if (locMap.IsSectionTracked && locMapSubType == SysCommon.LocMapSubTypes.Section)
+                else if (locMap.IsSectionTracked)
                 {
-                    isComplete = true;
+                    if (locMapSubType == SysCommon.LocMapSubTypes.Section)
+                    {
+                        isComplete = true;
+                    }
                 }
-                else if (locMapSubType == SysCommon.LocMapSubTypes.Warehouse)
+                else
                 {
-                    isComplete = true;
+                    if (locMapSubType == SysCommon.LocMapSubTypes.Warehouse)
+                    {
+                        isComplete = true;
+                    }
                 }
             }
 

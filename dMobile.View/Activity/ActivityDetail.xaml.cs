@@ -313,7 +313,7 @@ namespace dMobile.View.Activity
             }
             catch (MessageOnlyException msgEx)
             {
-                var msg = (msgEx.Message.IndexOf("MSGBOX-", StringComparison.Ordinal) == -1) ? msgEx.Message : msgEx.Message["MSGBOX-".Length..];
+                var msg = SysCommon.GetMessageFromMessageException(msgEx);
                 await Device.InvokeOnMainThreadAsync(async () =>
                     await Application.Current.MainPage.DisplayAlert(
                         this.ActDetail.GetControlDescription(),
@@ -346,7 +346,7 @@ namespace dMobile.View.Activity
             }
             catch (MessageOnlyException msgEx)
             {
-                var msg = (msgEx.Message.IndexOf("MSGBOX-", StringComparison.Ordinal) == -1) ? msgEx.Message : msgEx.Message["MSGBOX-".Length..];
+                var msg = SysCommon.GetMessageFromMessageException(msgEx);
                 await Device.InvokeOnMainThreadAsync(async () =>
                     await Application.Current.MainPage.DisplayAlert(
                         this.ActDetail.GetControlDescription(),
@@ -415,7 +415,7 @@ namespace dMobile.View.Activity
             }
             catch (MessageOnlyException msgEx)
             {
-                var msg = (msgEx.Message.IndexOf("MSGBOX-", StringComparison.Ordinal) == -1) ? msgEx.Message : msgEx.Message["MSGBOX-".Length..];
+                var msg = SysCommon.GetMessageFromMessageException(msgEx);
                 isSaveComplete = false;
                 await Device.InvokeOnMainThreadAsync(async () =>
                     await Application.Current.MainPage.DisplayAlert(
@@ -486,7 +486,7 @@ namespace dMobile.View.Activity
                         }
                         catch (MessageOnlyException msgEx)
                         {
-                            var msg = (msgEx.Message.IndexOf("MSGBOX-", StringComparison.Ordinal) == -1) ? msgEx.Message : msgEx.Message["MSGBOX-".Length..];
+                            var msg = SysCommon.GetMessageFromMessageException(msgEx);
                             await Device.InvokeOnMainThreadAsync(async () =>
                                 await Application.Current.MainPage.DisplayAlert(
                                     this.GetControlDescription(),
@@ -538,7 +538,7 @@ namespace dMobile.View.Activity
             }
             catch (MessageOnlyException msgEx)
             {
-                var msg = (msgEx.Message.IndexOf("MSGBOX-", StringComparison.Ordinal) == -1) ? msgEx.Message : msgEx.Message["MSGBOX-".Length..];
+                var msg = SysCommon.GetMessageFromMessageException(msgEx);
                 cancelChanges = false;
                 await Device.InvokeOnMainThreadAsync(async () =>
                     await Application.Current.MainPage.DisplayAlert(
@@ -719,7 +719,7 @@ namespace dMobile.View.Activity
             }
             catch (MessageOnlyException msgEx)
             {
-                var msg = (msgEx.Message.IndexOf("MSGBOX-", StringComparison.Ordinal) == -1) ? msgEx.Message : msgEx.Message["MSGBOX-".Length..];
+                var msg = SysCommon.GetMessageFromMessageException(msgEx);
                 await Device.InvokeOnMainThreadAsync(async () =>
                     await Application.Current.MainPage.DisplayAlert(
                         this.ActDetail.GetControlDescription(),
@@ -826,7 +826,7 @@ namespace dMobile.View.Activity
             }
             catch (MessageOnlyException msgEx)
             {
-                var msg = (msgEx.Message.IndexOf("MSGBOX-", StringComparison.Ordinal) == -1) ? msgEx.Message : msgEx.Message["MSGBOX-".Length..];
+                var msg = SysCommon.GetMessageFromMessageException(msgEx);
                 await Device.InvokeOnMainThreadAsync(async () =>
                     await Application.Current.MainPage.DisplayAlert(
                         this.ActDetail.GetControlDescription(),
@@ -1005,7 +1005,7 @@ namespace dMobile.View.Activity
                 }
                 catch (MessageOnlyException msgEx)
                 {
-                    var msg = (msgEx.Message.IndexOf("MSGBOX-", StringComparison.Ordinal) == -1) ? msgEx.Message : msgEx.Message["MSGBOX-".Length..];
+                    var msg = SysCommon.GetMessageFromMessageException(msgEx);
                     await Device.InvokeOnMainThreadAsync(async () =>
                         await Application.Current.MainPage.DisplayAlert(
                             this.ActDetail.GetControlDescription(),
@@ -1040,7 +1040,7 @@ namespace dMobile.View.Activity
                 }
                 catch (MessageOnlyException msgEx)
                 {
-                    var msg = (msgEx.Message.IndexOf("MSGBOX-", StringComparison.Ordinal) == -1) ? msgEx.Message : msgEx.Message["MSGBOX-".Length..];
+                    var msg = SysCommon.GetMessageFromMessageException(msgEx);
                     await Device.InvokeOnMainThreadAsync(async () =>
                         await Application.Current.MainPage.DisplayAlert(
                             this.ActDetail.GetControlDescription(),
@@ -1080,7 +1080,7 @@ namespace dMobile.View.Activity
                 }
                 catch (MessageOnlyException msgEx)
                 {
-                    var msg = (msgEx.Message.IndexOf("MSGBOX-", StringComparison.Ordinal) == -1) ? msgEx.Message : msgEx.Message["MSGBOX-".Length..];
+                    var msg = SysCommon.GetMessageFromMessageException(msgEx);
                     await Device.InvokeOnMainThreadAsync(async () =>
                         await Application.Current.MainPage.DisplayAlert(
                             this.GetControlDescription(),
@@ -1212,7 +1212,7 @@ namespace dMobile.View.Activity
         /// <summary>
         /// Text box search item focused event handler.
         /// </summary>
-        /// <param name="sender"><see cref="object"/> Sender instance.</param>
+        /// <param name="sender"><see cref="object"/> Object that generated the event.</param>
         /// <param name="e"><see cref="EventArgs"/> Event arguments.</param>
         private void TxtSearchItem_Focused(object sender, EventArgs e)
         {
@@ -1222,7 +1222,7 @@ namespace dMobile.View.Activity
         /// <summary>
         /// Text box search item unfocused event handler.
         /// </summary>
-        /// <param name="sender"><see cref="object"/> Sender instance.</param>
+        /// <param name="sender"><see cref="object"/> Object that generated the event.</param>
         /// <param name="e"><see cref="EventArgs"/> Event arguments.</param>
         private void TxtSearchItem_Unfocused(object sender, EventArgs e)
         {
@@ -1232,7 +1232,7 @@ namespace dMobile.View.Activity
         /// <summary>
         /// Search text changed event handler.
         /// </summary>
-        /// <param name="sender"><see cref="object"/> Sender instance.</param>
+        /// <param name="sender"><see cref="object"/> Object that generated the event.</param>
         /// <param name="e"><see cref="EventArgs"/> Sender object event arguments.</param>
         private async void TxtSearchHdr_TextChanged(object sender, TextChangedEventArgs e)
         {
@@ -1243,7 +1243,7 @@ namespace dMobile.View.Activity
             }
             catch (MessageOnlyException msgEx)
             {
-                var msg = (msgEx.Message.IndexOf("MSGBOX-", StringComparison.Ordinal) == -1) ? msgEx.Message : msgEx.Message["MSGBOX-".Length..];
+                var msg = SysCommon.GetMessageFromMessageException(msgEx);
                 await Device.InvokeOnMainThreadAsync(async () =>
                     await Application.Current.MainPage.DisplayAlert(
                         this.ActDetail.GetControlDescription(),
@@ -1267,7 +1267,7 @@ namespace dMobile.View.Activity
         /// <summary>
         /// Data grid activity detail selected detail event handler.
         /// </summary>
-        /// <param name="sender"><see cref="object"/> Sender instance.</param>
+        /// <param name="sender"><see cref="object"/> Object that generated the event.</param>
         /// <param name="e">The e<see cref="SelectedItemChangedEventArgs"/>.</param>
         private async void ListViewMainActivity_ItemSelected(object sender, SelectedItemChangedEventArgs e)
         {
@@ -1540,7 +1540,7 @@ namespace dMobile.View.Activity
             }
             catch (MessageOnlyException msgEx)
             {
-                var msg = (msgEx.Message.IndexOf("MSGBOX-", StringComparison.Ordinal) == -1) ? msgEx.Message : msgEx.Message["MSGBOX-".Length..];
+                var msg = SysCommon.GetMessageFromMessageException(msgEx);
                 await Device.InvokeOnMainThreadAsync(async () =>
                     await Application.Current.MainPage.DisplayAlert(
                         this.GetControlDescription(),
@@ -2339,7 +2339,7 @@ namespace dMobile.View.Activity
         /// <summary>
         /// Set add detail command button click event handler.
         /// </summary>
-        /// <param name="sender"><see cref="object"/> Sender instance.</param>
+        /// <param name="sender"><see cref="object"/> Object that generated the event.</param>
         /// <param name="e"><see cref="EventArgs"/> Sender object event arguments.</param>
         private async void CmdAddDetail_Click(object sender, EventArgs e)
         {
@@ -2387,7 +2387,7 @@ namespace dMobile.View.Activity
             catch (MessageOnlyException msgEx)
             {
                 ////this.SysEnv.SysSettings.IsNewActivityItemsAdded = false;
-                var msg = (msgEx.Message.IndexOf("MSGBOX-", StringComparison.Ordinal) == -1) ? msgEx.Message : msgEx.Message["MSGBOX-".Length..];
+                var msg = SysCommon.GetMessageFromMessageException(msgEx);
                 await Device.InvokeOnMainThreadAsync(async () =>
                     await Application.Current.MainPage.DisplayAlert(
                         this.ActDetail.GetControlDescription(),
@@ -2506,7 +2506,7 @@ namespace dMobile.View.Activity
         /// <summary>
         /// Option menu click event handler.
         /// </summary>
-        /// <param name="sender"><see cref="object"/> Sender instance.</param>
+        /// <param name="sender"><see cref="object"/> Object that generated the event.</param>
         /// <param name="e"><see cref="EventArgs"/> Sender object event arguments.</param>
         private async void OptionsMenu_Clicked(object sender, EventArgs e)
         {
@@ -2546,38 +2546,14 @@ namespace dMobile.View.Activity
             {
                 try
                 {
-                    ////var dspOverrideMsg = false;
-                    ////if (this.SysEnv.SysSettings.IsDefaultLocToProductDefaultLoc)
-                    ////{
-                    ////    if ((this.ActSubType == SysCommon.ActSubTypes.PhysicalCounts &&
-                    ////            this.SysEnv.SysSettings.IsPhysicalDoNotDefaultProductLocation)
-                    ////        || (this.ActSubType == SysCommon.ActSubTypes.CycleCounts &&
-                    ////            this.SysEnv.SysSettings.IsCycleDoNotDefaultProductLocation))
-                    ////    {
-                    ////        dspOverrideMsg = false;
-                    ////    }
-                    ////    else
-                    ////    {
-                    ////        dspOverrideMsg = true;
-                    ////    }
-                    ////}
-
-                    ////if (dspOverrideMsg)
-                    ////{
-                    ////    await Device.InvokeOnMainThreadAsync(async () =>
-                    ////        await Application.Current.MainPage.DisplayAlert(
-                    ////            this.ActDetail.ActItem.GetControlDescription(),
-                    ////            "Default locations are enabled, location changes may be overridden.",
-                    ////            Resource.OK));
-                    ////}
-
                     var form = new FormDialogContainer(
                         EDialogTypes.SelectLocationMap,
                         this.ActDetail.ActItem.LocMap.WhsLocMapRefno,
                         true);
                     if (await form.DisplayControl.ShowDialog() == DialogResult.OK)
                     {
-                        if (this.LocMap.ChosenLocMap.WhsLocMapRefno != this.ActDetail.ActItem.LocMap.WhsLocMapRefno)
+                        var actItemLocRefno = this.ActDetail.ActItem.LocMap.WhsLocMapRefno;
+                        if (this.LocMap.ChosenLocMap.WhsLocMapRefno != actItemLocRefno)
                         {
                             throw new MessageOnlyException("Chosen warehouse must match the activity item warehouse.");
                         }
@@ -2611,7 +2587,7 @@ namespace dMobile.View.Activity
                 }
                 catch (MessageOnlyException msgEx)
                 {
-                    var msg = (msgEx.Message.IndexOf("MSGBOX-", StringComparison.Ordinal) == -1) ? msgEx.Message : msgEx.Message["MSGBOX-".Length..];
+                    var msg = SysCommon.GetMessageFromMessageException(msgEx);
                     await Device.InvokeOnMainThreadAsync(async () =>
                         await Application.Current.MainPage.DisplayAlert(
                             this.ActDetail.GetControlDescription(),
@@ -2680,7 +2656,7 @@ namespace dMobile.View.Activity
                 }
                 catch (MessageOnlyException msgEx)
                 {
-                    var msg = (msgEx.Message.IndexOf("MSGBOX-", StringComparison.Ordinal) == -1) ? msgEx.Message : msgEx.Message["MSGBOX-".Length..];
+                    var msg = SysCommon.GetMessageFromMessageException(msgEx);
                     await Device.InvokeOnMainThreadAsync(async () =>
                         await Application.Current.MainPage.DisplayAlert(
                             this.ActDetail.GetControlDescription(),
@@ -2741,7 +2717,7 @@ namespace dMobile.View.Activity
                 }
                 catch (MessageOnlyException msgEx)
                 {
-                    var msg = (msgEx.Message.IndexOf("MSGBOX-", StringComparison.Ordinal) == -1) ? msgEx.Message : msgEx.Message["MSGBOX-".Length..];
+                    var msg = SysCommon.GetMessageFromMessageException(msgEx);
                     await Device.InvokeOnMainThreadAsync(async () =>
                         await Application.Current.MainPage.DisplayAlert(
                             this.ActDetail.GetControlDescription(),

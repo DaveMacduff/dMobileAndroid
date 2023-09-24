@@ -319,7 +319,9 @@ namespace dMobile.Controller.Activity_Item
 
             if (selectedActivityItem is ReceiveItem receiveItem)
             {
-                var results = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<tActivityItemReceivingCommentModel>("SELECT * FROM tActivityItemReceivingComment WHERE ActivityItemRefno = ?", receiveItem.ActivityItemRefno);
+                var results = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<tActivityItemReceivingCommentModel>(
+                    "SELECT * FROM tActivityItemReceivingComment WHERE ActivityItemRefno = ?",
+                    receiveItem.ActivityItemRefno);
 
                 if (results != null && results.Count > 0)
                 {
@@ -451,13 +453,13 @@ namespace dMobile.Controller.Activity_Item
         /// <returns>The <see cref="ObservableCollection{object}"/>.</returns>
         public override ObservableCollection<object> DesignGrid(ref Grid gridMainActivity, ref ListView listViewMainActivity)
         {
-            var observableCollection = new ObservableCollection<object>();
+            var receiveItems = new ObservableCollection<object>();
 
             foreach (ReceiveItem receiveItem in this.ListItems)
             {
                 if (receiveItem.ActivityItemFKRefno >= 0)
                 {
-                    observableCollection.Add(receiveItem);
+                    receiveItems.Add(receiveItem);
                 }
             }
 
@@ -466,26 +468,66 @@ namespace dMobile.Controller.Activity_Item
             {
                 if (receiveItem.ActivityItemFKRefno < 0)
                 {
-                    observableCollection.Add(receiveItem);
+                    receiveItems.Add(receiveItem);
                 }
             }
 
-            var labelIsActivityItemReceivingCommentReceiving = new Label { Text = "C", VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start, FontAttributes = FontAttributes.Bold };
-            var labelProductCodeReceiving = new Label { Text = "Product ID", VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start, FontAttributes = FontAttributes.Bold };
-            var labelProductUnitBcReceiving = new Label { Text = string.Empty, VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start, FontAttributes = FontAttributes.Bold };
-            var labelUnitCodeReceiving = new Label { Text = string.Empty, VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start, FontAttributes = FontAttributes.Bold };
-            var labelActivityItemReceivingQuantityOrderedReceiving = new Label { Text = "Ordered", VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start, FontAttributes = FontAttributes.Bold };
-            var labelActivityItemReceivingQuantityReceivedReceiving = new Label { Text = "Received", VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start, FontAttributes = FontAttributes.Bold };
+            var labelIsItemComment = new Label
+            {
+                Text = "C",
+                VerticalOptions = LayoutOptions.Center,
+                HorizontalOptions = LayoutOptions.Start,
+                FontAttributes = FontAttributes.Bold,
+            };
+            this.columnWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(labelIsItemComment.Text);
 
-            this.columnWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(labelIsActivityItemReceivingCommentReceiving.Text);
-            this.columnWidth1 = DependencyService.Get<IGridService>().CalculateTextWidth(labelProductCodeReceiving.Text);
-            this.columnWidth2 = DependencyService.Get<IGridService>().CalculateTextWidth(labelProductUnitBcReceiving.Text);
-            this.columnWidth3 = DependencyService.Get<IGridService>().CalculateTextWidth(labelUnitCodeReceiving.Text);
-            this.columnWidth4 = DependencyService.Get<IGridService>().CalculateTextWidth(labelActivityItemReceivingQuantityOrderedReceiving.Text);
-            this.columnWidth5 = DependencyService.Get<IGridService>().CalculateTextWidth(labelActivityItemReceivingQuantityReceivedReceiving.Text);
+            var labelProductCode = new Label
+            {
+                Text = "Product ID",
+                VerticalOptions = LayoutOptions.Center,
+                HorizontalOptions = LayoutOptions.Start,
+                FontAttributes = FontAttributes.Bold,
+            };
+            this.columnWidth1 = DependencyService.Get<IGridService>().CalculateTextWidth(labelProductCode.Text);
+
+            var labelProductUnitBc = new Label
+            {
+                Text = string.Empty,
+                VerticalOptions = LayoutOptions.Center,
+                HorizontalOptions = LayoutOptions.Start,
+                FontAttributes = FontAttributes.Bold,
+            };
+            this.columnWidth2 = DependencyService.Get<IGridService>().CalculateTextWidth(labelProductUnitBc.Text);
+
+            var labelUnitCode = new Label
+            {
+                Text = string.Empty,
+                VerticalOptions = LayoutOptions.Center,
+                HorizontalOptions = LayoutOptions.Start,
+                FontAttributes = FontAttributes.Bold,
+            };
+            this.columnWidth3 = DependencyService.Get<IGridService>().CalculateTextWidth(labelUnitCode.Text);
+
+            var labelQuantityOrdered = new Label
+            {
+                Text = "Ordered",
+                VerticalOptions = LayoutOptions.Center,
+                HorizontalOptions = LayoutOptions.Start,
+                FontAttributes = FontAttributes.Bold,
+            };
+            this.columnWidth4 = DependencyService.Get<IGridService>().CalculateTextWidth(labelQuantityOrdered.Text);
+
+            var labelQuantityReceived = new Label
+            {
+                Text = "Received",
+                VerticalOptions = LayoutOptions.Center,
+                HorizontalOptions = LayoutOptions.Start,
+                FontAttributes = FontAttributes.Bold,
+            };
+            this.columnWidth5 = DependencyService.Get<IGridService>().CalculateTextWidth(labelQuantityReceived.Text);
 
             // Header grid
-            var gridHeaderReceiving = new Grid
+            var gridItems = new Grid
             {
                 Padding = new Thickness(5),
                 ColumnDefinitions =
@@ -499,29 +541,30 @@ namespace dMobile.Controller.Activity_Item
                 },
             };
 
-            gridHeaderReceiving.SetDynamicResource(VisualElement.BackgroundColorProperty, "HeaderColor");
+            gridItems.SetDynamicResource(VisualElement.BackgroundColorProperty, "HeaderColor");
 
-            gridHeaderReceiving.Children.Add(labelIsActivityItemReceivingCommentReceiving);
-            gridHeaderReceiving.Children.Add(labelProductCodeReceiving);
-            gridHeaderReceiving.Children.Add(labelProductUnitBcReceiving);
-            gridHeaderReceiving.Children.Add(labelUnitCodeReceiving);
-            gridHeaderReceiving.Children.Add(labelActivityItemReceivingQuantityOrderedReceiving);
-            gridHeaderReceiving.Children.Add(labelActivityItemReceivingQuantityReceivedReceiving);
+            gridItems.Children.Add(labelIsItemComment);
+            gridItems.Children.Add(labelProductCode);
+            gridItems.Children.Add(labelProductUnitBc);
+            gridItems.Children.Add(labelUnitCode);
+            gridItems.Children.Add(labelQuantityOrdered);
+            gridItems.Children.Add(labelQuantityReceived);
 
-            Grid.SetColumn(labelIsActivityItemReceivingCommentReceiving, 0);
-            Grid.SetColumn(labelProductCodeReceiving, 1);
-            Grid.SetColumn(labelProductUnitBcReceiving, 2);
-            Grid.SetColumn(labelUnitCodeReceiving, 3);
-            Grid.SetColumn(labelActivityItemReceivingQuantityOrderedReceiving, 4);
-            Grid.SetColumn(labelActivityItemReceivingQuantityReceivedReceiving, 5);
+            Grid.SetColumn(labelIsItemComment, 0);
+            Grid.SetColumn(labelProductCode, 1);
+            Grid.SetColumn(labelProductUnitBc, 2);
+            Grid.SetColumn(labelUnitCode, 3);
+            Grid.SetColumn(labelQuantityOrdered, 4);
+            Grid.SetColumn(labelQuantityReceived, 5);
 
-            Grid.SetRow(gridHeaderReceiving, 0);
+            Grid.SetRow(gridItems, 0);
 
-            gridMainActivity.Children.Add(gridHeaderReceiving);
+            gridMainActivity.Children.Add(gridItems);
 
-            foreach (ReceiveItem receiveItem in observableCollection)
+            foreach (ReceiveItem receiveItem in receiveItems)
             {
-                var detailWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(receiveItem.IsActivityItemReceivingComment);
+                var detailWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(
+                    receiveItem.IsActivityItemReceivingComment);
                 var detailWidth1 = DependencyService.Get<IGridService>().CalculateTextWidth(receiveItem.ProductCode);
                 var detailWidth2 = DependencyService.Get<IGridService>().CalculateTextWidth(receiveItem.ProductUnitBC);
                 var detailWidth3 = DependencyService.Get<IGridService>().CalculateTextWidth(receiveItem.UnitCode);
@@ -533,43 +576,43 @@ namespace dMobile.Controller.Activity_Item
                 if (detailWidth0 > this.columnWidth0)
                 {
                     this.columnWidth0 = detailWidth0;
-                    gridHeaderReceiving.ColumnDefinitions[0].Width = this.columnWidth0;
+                    gridItems.ColumnDefinitions[0].Width = this.columnWidth0;
                 }
 
                 if (detailWidth1 > this.columnWidth1)
                 {
                     this.columnWidth1 = detailWidth1;
-                    gridHeaderReceiving.ColumnDefinitions[1].Width = this.columnWidth1;
+                    gridItems.ColumnDefinitions[1].Width = this.columnWidth1;
                 }
 
                 if (detailWidth2 > this.columnWidth2)
                 {
                     this.columnWidth2 = detailWidth2;
-                    gridHeaderReceiving.ColumnDefinitions[2].Width = this.columnWidth2;
+                    gridItems.ColumnDefinitions[2].Width = this.columnWidth2;
                 }
 
                 if (detailWidth3 > this.columnWidth3)
                 {
                     this.columnWidth3 = detailWidth3;
-                    gridHeaderReceiving.ColumnDefinitions[3].Width = this.columnWidth3;
+                    gridItems.ColumnDefinitions[3].Width = this.columnWidth3;
                 }
 
                 if (detailWidth4 > this.columnWidth4)
                 {
                     this.columnWidth4 = detailWidth4;
-                    gridHeaderReceiving.ColumnDefinitions[4].Width = this.columnWidth4;
+                    gridItems.ColumnDefinitions[4].Width = this.columnWidth4;
                 }
 
                 if (detailWidth5 > this.columnWidth5)
                 {
                     this.columnWidth5 = detailWidth5;
-                    gridHeaderReceiving.ColumnDefinitions[5].Width = this.columnWidth5;
+                    gridItems.ColumnDefinitions[5].Width = this.columnWidth5;
                 }
             }
 
             listViewMainActivity.ItemTemplate = (DataTemplate)this.resourceDictionary["dataTemplateReceivingItem"];
 
-            return observableCollection;
+            return receiveItems;
         }
 
         /// <summary>
@@ -585,9 +628,9 @@ namespace dMobile.Controller.Activity_Item
             {
                 // Gather any newly added line items.
                 // Also perform union into tActivityDetail to check of detail exists.
-                sql.Append("SELECT tActivityItemReceiving.ActivityItemRefno,");
-                sql.Append("tActivityItemReceiving.ActivityItemFKRefno,");
-                sql.Append("tActivityItemReceiving.ActivityItemStringFKRefno,");
+                sql.Append("SELECT recvItem.ActivityItemRefno,");
+                sql.Append("recvItem.ActivityItemFKRefno,");
+                sql.Append("recvItem.ActivityItemStringFKRefno,");
                 sql.Append("tProductUnit.ProductUnitRefno AS ProductUnitRefno,");
                 sql.Append("tProduct.ProductRefno AS ProductRefno,");
                 sql.Append("tProduct.ProductCode AS ProductCode,");
@@ -595,46 +638,46 @@ namespace dMobile.Controller.Activity_Item
                 sql.Append("tUnit.UnitCode AS UnitCode,");
                 sql.Append("tProductUnit.ProductUnitBC AS ProductUnitBC,");
                 sql.Append("tProductUnit.ProductUnitSizeDescription AS ProductUnitSizeDescription,");
-                sql.Append("tActivityItemReceiving.ActivityItemReceivingQuantityOrdered");
-                sql.Append("- tActivityItemReceiving.ActivityItemReceivingQuantityReceivedToDate ");
+                sql.Append("recvItem.ActivityItemReceivingQuantityOrdered");
+                sql.Append("- recvItem.ActivityItemReceivingQuantityReceivedToDate ");
                 sql.Append("AS ActivityItemReceivingQuantityOrdered,");
-                sql.Append("tActivityItemReceiving.ActivityItemReceivingBaseQuantityOrdered ");
-                sql.Append("- tActivityItemReceiving.ActivityItemReceivingBaseQuantityReceivedToDate ");
+                sql.Append("recvItem.ActivityItemReceivingBaseQuantityOrdered ");
+                sql.Append("- recvItem.ActivityItemReceivingBaseQuantityReceivedToDate ");
                 sql.Append("AS ActivityItemReceivingBaseQuantityOrdered,");
-                sql.Append("tActivityItemReceiving.ActivityItemReceivingWeightQuantityOrdered ");
-                sql.Append("- tActivityItemReceiving.ActivityItemReceivingWeightQuantityReceivedToDate ");
+                sql.Append("recvItem.ActivityItemReceivingWeightQuantityOrdered ");
+                sql.Append("- recvItem.ActivityItemReceivingWeightQuantityReceivedToDate ");
                 sql.Append("AS ActivityItemReceivingWeightQuantityOrdered,");
-                sql.Append("tActivityItemReceiving.ActivityItemReceivingQuantityReceived AS ActivityItemReceivingQuantityReceived,");
-                sql.Append("tActivityItemReceiving.ActivityItemReceivingBaseQuantityReceived AS ActivityItemReceivingBaseQuantityReceived,");
-                sql.Append("tActivityItemReceiving.ActivityItemReceivingWeightQuantityReceived AS ActivityItemReceivingWeightQuantityReceived,");
-                sql.Append("tActivityItemReceiving.ActivityItemReceivingVendorProductUnitCode AS ActivityItemReceivingVendorProductUnitCode,");
-                sql.Append("tActivityItemReceiving.ActivityItemReceivingDescription AS ActivityItemReceivingDescription,");
-                sql.Append("tLocationMapWarehouse.LocationMapRefno AS LocationMapRefno,");
-                sql.Append("tLocationMapWarehouse.LocationMapWarehouseCode AS LocationCode,");
-                sql.Append("tLocationMapWarehouse.LocationMapWarehouseName AS LocationName,");
-                sql.Append("tActivityItemReceiving.ActivityItemReceivingQuantityReceivedToDate AS ActivityItemReceivingQuantityReceivedToDate,");
-                sql.Append("tActivityItemReceiving.ActivityItemReceivingWeightQuantityReceivedToDate AS ActivityItemReceivingWeightQuantityReceivedToDate,");
-                sql.Append("CASE WHEN tActivityItemReceivingComment.ActivityItemReceivingCommentComment IS NULL ");
+                sql.Append("recvItem.ActivityItemReceivingQuantityReceived AS ActivityItemReceivingQuantityReceived,");
+                sql.Append("recvItem.ActivityItemReceivingBaseQuantityReceived AS ActivityItemReceivingBaseQuantityReceived,");
+                sql.Append("recvItem.ActivityItemReceivingWeightQuantityReceived AS ActivityItemReceivingWeightQuantityReceived,");
+                sql.Append("recvItem.ActivityItemReceivingVendorProductUnitCode AS ActivityItemReceivingVendorProductUnitCode,");
+                sql.Append("recvItem.ActivityItemReceivingDescription AS ActivityItemReceivingDescription,");
+                sql.Append("whs.LocationMapRefno AS LocationMapRefno,");
+                sql.Append("whs.LocationMapWarehouseCode AS LocationCode,");
+                sql.Append("whs.LocationMapWarehouseName AS LocationName,");
+                sql.Append("recvItem.ActivityItemReceivingQuantityReceivedToDate AS ActivityItemReceivingQuantityReceivedToDate,");
+                sql.Append("recvItem.ActivityItemReceivingWeightQuantityReceivedToDate AS ActivityItemReceivingWeightQuantityReceivedToDate,");
+                sql.Append("CASE WHEN itemComment.ActivityItemReceivingCommentComment IS NULL ");
                 sql.Append("THEN \' \' ELSE \'*\' END AS IsActivityItemReceivingComment,");
                 sql.Append("tActivityItem.ActivityItemStatus AS ActivityItemStatus ");
-                sql.Append("FROM tActivityItemReceiving ");
+                sql.Append("FROM tActivityItemReceiving recvItem ");
                 sql.Append("INNER JOIN tActivityItem ON tActivityItem.ActivityItemRefno = ");
-                sql.Append("tActivityItemReceiving.ActivityItemRefno ");
+                sql.Append("recvItem.ActivityItemRefno ");
                 sql.Append("INNER JOIN tProductUnit ON tProductUnit.ProductUnitRefno = ");
-                sql.Append("tActivityItemReceiving.ProductUnitRefno ");
+                sql.Append("recvItem.ProductUnitRefno ");
                 sql.Append("INNER JOIN tUnit ON tUnit.UnitRefno = tProductUnit.UnitRefno ");
                 sql.Append("INNER JOIN tProduct ON tProduct.ProductRefno = tProductUnit.ProductRefno ");
-                sql.Append("INNER JOIN tLocationMapWarehouse ON tLocationMapWarehouse.LocationMapRefno = ");
-                sql.Append("tActivityItemReceiving.WarehouseLocationMapRefno ");
-                sql.Append("LEFT JOIN tActivityItemReceivingComment ON tActivityItemReceivingComment.ActivityItemRefno = ");
-                sql.Append("tActivityItemReceiving.ActivityItemRefno ");
+                sql.Append("INNER JOIN tLocationMapWarehouse whs ON whs.LocationMapRefno = ");
+                sql.Append("recvItem.WarehouseLocationMapRefno ");
+                sql.Append("LEFT JOIN tActivityItemReceivingComment itemComment ON itemComment.ActivityItemRefno = ");
+                sql.Append("recvItem.ActivityItemRefno ");
                 sql.AppendFormat("WHERE tActivityItem.ActivityRefno = {0} ", this.ActHdr.HdrRefno);
                 sql.AppendFormat("AND tActivityItem.ActivityItemSubType = {0} ", Convert.ToInt32(SysCommon.ActSubTypes.Receiving));
                 sql.AppendFormat("AND tActivityItem.ActivityItemStatus <> {0} ", Convert.ToInt32(SysCommon.ActStatus.NoChange));
                 sql.Append("UNION ");
-                sql.Append("SELECT tActivityItemReceiving.ActivityItemRefno,");
-                sql.Append("tActivityItemReceiving.ActivityItemFKRefno,");
-                sql.Append("tActivityItemReceiving.ActivityItemStringFKRefno,");
+                sql.Append("SELECT recvItem.ActivityItemRefno,");
+                sql.Append("recvItem.ActivityItemFKRefno,");
+                sql.Append("recvItem.ActivityItemStringFKRefno,");
                 sql.Append("tProductUnit.ProductUnitRefno,");
                 sql.Append("tProduct.ProductRefno,");
                 sql.Append("tProduct.ProductCode,");
@@ -642,53 +685,53 @@ namespace dMobile.Controller.Activity_Item
                 sql.Append("tUnit.UnitCode,");
                 sql.Append("tProductUnit.ProductUnitBC,");
                 sql.Append("tProductUnit.ProductUnitSizeDescription,");
-                sql.Append("tActivityItemReceiving.ActivityItemReceivingQuantityOrdered - ");
-                sql.Append("tActivityItemReceiving.ActivityItemReceivingQuantityReceivedToDate AS ");
+                sql.Append("recvItem.ActivityItemReceivingQuantityOrdered - ");
+                sql.Append("recvItem.ActivityItemReceivingQuantityReceivedToDate AS ");
                 sql.Append("ActivityItemReceivingQuantityOrdered,");
-                sql.Append("tActivityItemReceiving.ActivityItemReceivingBaseQuantityOrdered - ");
-                sql.Append("tActivityItemReceiving.ActivityItemReceivingBaseQuantityReceivedToDate AS ");
+                sql.Append("recvItem.ActivityItemReceivingBaseQuantityOrdered - ");
+                sql.Append("recvItem.ActivityItemReceivingBaseQuantityReceivedToDate AS ");
                 sql.Append("ActivityItemReceivingBaseQuantityOrdered,");
-                sql.Append("tActivityItemReceiving.ActivityItemReceivingWeightQuantityOrdered - ");
-                sql.Append("tActivityItemReceiving.ActivityItemReceivingWeightQuantityReceivedToDate AS ");
+                sql.Append("recvItem.ActivityItemReceivingWeightQuantityOrdered - ");
+                sql.Append("recvItem.ActivityItemReceivingWeightQuantityReceivedToDate AS ");
                 sql.Append("ActivityItemReceivingWeightQuantityOrdered,");
-                sql.Append("tActivityItemReceiving.ActivityItemReceivingQuantityReceived,");
-                sql.Append("tActivityItemReceiving.ActivityItemReceivingBaseQuantityReceived,");
-                sql.Append("tActivityItemReceiving.ActivityItemReceivingWeightQuantityReceived,");
-                sql.Append("tActivityItemReceiving.ActivityItemReceivingVendorProductUnitCode,");
-                sql.Append("tActivityItemReceiving.ActivityItemReceivingDescription,");
-                sql.Append("tLocationMapWarehouse.LocationMapRefno,");
-                sql.Append("tLocationMapWarehouse.LocationMapWarehouseCode AS LocationCode,");
-                sql.Append("tLocationMapWarehouse.LocationMapWarehouseName AS LocationName,");
-                sql.Append("tActivityItemReceiving.ActivityItemReceivingQuantityReceivedToDate,");
-                sql.Append("tActivityItemReceiving.ActivityItemReceivingWeightQuantityReceivedToDate,");
-                sql.Append("CASE WHEN tActivityItemReceivingComment.ActivityItemReceivingCommentComment IS NULL ");
+                sql.Append("recvItem.ActivityItemReceivingQuantityReceived,");
+                sql.Append("recvItem.ActivityItemReceivingBaseQuantityReceived,");
+                sql.Append("recvItem.ActivityItemReceivingWeightQuantityReceived,");
+                sql.Append("recvItem.ActivityItemReceivingVendorProductUnitCode,");
+                sql.Append("recvItem.ActivityItemReceivingDescription,");
+                sql.Append("whs.LocationMapRefno,");
+                sql.Append("whs.LocationMapWarehouseCode AS LocationCode,");
+                sql.Append("whs.LocationMapWarehouseName AS LocationName,");
+                sql.Append("recvItem.ActivityItemReceivingQuantityReceivedToDate,");
+                sql.Append("recvItem.ActivityItemReceivingWeightQuantityReceivedToDate,");
+                sql.Append("CASE WHEN itemComment.ActivityItemReceivingCommentComment IS NULL ");
                 sql.Append("THEN \' \' ELSE \'*\' END AS IsActivityItemReceivingComment,");
                 sql.Append("tActivityItem.ActivityItemStatus ");
-                sql.Append("FROM tActivityItemReceiving ");
+                sql.Append("FROM tActivityItemReceiving recvItem ");
                 sql.Append("INNER JOIN tActivityItem ON tActivityItem.ActivityItemRefno = ");
-                sql.Append("tActivityItemReceiving.ActivityItemRefno ");
+                sql.Append("recvItem.ActivityItemRefno ");
                 sql.Append("INNER JOIN tActivityDetail ON tActivityDetail.ActivityItemRefno = ");
-                sql.Append("tActivityItemReceiving.ActivityItemRefno ");
+                sql.Append("recvItem.ActivityItemRefno ");
                 sql.Append("INNER JOIN tProductUnit ON tProductUnit.ProductUnitRefno = ");
-                sql.Append("tActivityItemReceiving.ProductUnitRefno ");
+                sql.Append("recvItem.ProductUnitRefno ");
                 sql.Append("INNER JOIN tUnit ON tUnit.UnitRefno = tProductUnit.UnitRefno ");
                 sql.Append("INNER JOIN tProduct ON tProduct.ProductRefno = tProductUnit.ProductRefno ");
-                sql.Append("INNER JOIN tLocationMapWarehouse ON tLocationMapWarehouse.LocationMapRefno = ");
-                sql.Append("tActivityItemReceiving.WarehouseLocationMapRefno ");
-                sql.Append("LEFT JOIN tActivityItemReceivingComment ON tActivityItemReceivingComment.ActivityItemRefno = ");
-                sql.Append("tActivityItemReceiving.ActivityItemRefno ");
+                sql.Append("INNER JOIN tLocationMapWarehouse whs ON whs.LocationMapRefno = ");
+                sql.Append("recvItem.WarehouseLocationMapRefno ");
+                sql.Append("LEFT JOIN tActivityItemReceivingComment itemComment ON itemComment.ActivityItemRefno = ");
+                sql.Append("recvItem.ActivityItemRefno ");
                 sql.AppendFormat("WHERE tActivityItem.ActivityRefno = {0} ", this.ActHdr.HdrRefno);
                 sql.AppendFormat("AND tActivityItem.ActivityItemStatus = {0} ", Convert.ToInt32(SysCommon.ActStatus.NoChange));
                 sql.AppendFormat("AND tActivityDetail.ActivityDetailStatus <> {0} ", Convert.ToInt32(SysCommon.ActStatus.NoChange));
                 sql.AppendFormat("AND tActivityItem.ActivityItemSubType = {0} ", Convert.ToInt32(SysCommon.ActSubTypes.Receiving));
                 sql.AppendFormat("AND tActivityDetail.ActivityDetailSubType = {0} ", Convert.ToInt32(SysCommon.ActSubTypes.Receiving));
-                sql.Append("ORDER BY tActivityItemReceiving.ActivityItemRefno");
+                sql.Append("ORDER BY recvItem.ActivityItemRefno");
             }
             else
             {
-                sql.Append("SELECT tActivityItemReceiving.ActivityItemRefno,");
-                sql.Append("tActivityItemReceiving.ActivityItemFKRefno,");
-                sql.Append("tActivityItemReceiving.ActivityItemStringFKRefno,");
+                sql.Append("SELECT recvItem.ActivityItemRefno,");
+                sql.Append("recvItem.ActivityItemFKRefno,");
+                sql.Append("recvItem.ActivityItemStringFKRefno,");
                 sql.Append("tProductUnit.ProductUnitRefno AS ProductUnitRefno,");
                 sql.Append("tProduct.ProductRefno AS ProductRefno,");
                 sql.Append("tProduct.ProductCode AS ProductCode,");
@@ -696,55 +739,42 @@ namespace dMobile.Controller.Activity_Item
                 sql.Append("tUnit.UnitCode AS UnitCode,");
                 sql.Append("tProductUnit.ProductUnitBC AS ProductUnitBC,");
                 sql.Append("tProductUnit.ProductUnitSizeDescription AS ProductUnitSizeDescription,");
-                sql.Append("tActivityItemReceiving.ActivityItemReceivingQuantityOrdered - ");
-                sql.Append("tActivityItemReceiving.ActivityItemReceivingQuantityReceivedToDate AS ");
+                sql.Append("recvItem.ActivityItemReceivingQuantityOrdered - ");
+                sql.Append("recvItem.ActivityItemReceivingQuantityReceivedToDate AS ");
                 sql.Append("ActivityItemReceivingQuantityOrdered,");
-                sql.Append("tActivityItemReceiving.ActivityItemReceivingBaseQuantityOrdered - ");
-                sql.Append("tActivityItemReceiving.ActivityItemReceivingBaseQuantityReceivedToDate AS ");
+                sql.Append("recvItem.ActivityItemReceivingBaseQuantityOrdered - ");
+                sql.Append("recvItem.ActivityItemReceivingBaseQuantityReceivedToDate AS ");
                 sql.Append("ActivityItemReceivingBaseQuantityOrdered,");
-                sql.Append("tActivityItemReceiving.ActivityItemReceivingWeightQuantityOrdered - ");
-                sql.Append("tActivityItemReceiving.ActivityItemReceivingWeightQuantityReceivedToDate AS ");
+                sql.Append("recvItem.ActivityItemReceivingWeightQuantityOrdered - ");
+                sql.Append("recvItem.ActivityItemReceivingWeightQuantityReceivedToDate AS ");
                 sql.Append("ActivityItemReceivingWeightQuantityOrdered,");
-                sql.Append("tActivityItemReceiving.ActivityItemReceivingQuantityReceived AS ActivityItemReceivingQuantityReceived,");
-                sql.Append("tActivityItemReceiving.ActivityItemReceivingBaseQuantityReceived AS ActivityItemReceivingBaseQuantityReceived,");
-                sql.Append("tActivityItemReceiving.ActivityItemReceivingWeightQuantityReceived AS ActivityItemReceivingWeightQuantityReceived,");
-                sql.Append("tActivityItemReceiving.ActivityItemReceivingVendorProductUnitCode AS ActivityItemReceivingVendorProductUnitCode,");
-                sql.Append("tActivityItemReceiving.ActivityItemReceivingDescription AS ActivityItemReceivingDescription,");
-                sql.Append("tLocationMapWarehouse.LocationMapRefno AS LocationMapRefno,");
-                sql.Append("tLocationMapWarehouse.LocationMapWarehouseCode AS LocationCode,");
-                sql.Append("tLocationMapWarehouse.LocationMapWarehouseName AS LocationName,");
-                sql.Append("tActivityItemReceiving.ActivityItemReceivingQuantityReceivedToDate AS ActivityItemReceivingQuantityReceivedToDate,");
-                sql.Append("tActivityItemReceiving.ActivityItemReceivingWeightQuantityReceivedToDate AS ActivityItemReceivingWeightQuantityReceivedToDate,");
-                sql.Append("CASE WHEN tActivityItemReceivingComment.ActivityItemReceivingCommentComment IS NULL THEN \' \' ");
+                sql.Append("recvItem.ActivityItemReceivingQuantityReceived AS ActivityItemReceivingQuantityReceived,");
+                sql.Append("recvItem.ActivityItemReceivingBaseQuantityReceived AS ActivityItemReceivingBaseQuantityReceived,");
+                sql.Append("recvItem.ActivityItemReceivingWeightQuantityReceived AS ActivityItemReceivingWeightQuantityReceived,");
+                sql.Append("recvItem.ActivityItemReceivingVendorProductUnitCode AS ActivityItemReceivingVendorProductUnitCode,");
+                sql.Append("recvItem.ActivityItemReceivingDescription AS ActivityItemReceivingDescription,");
+                sql.Append("whs.LocationMapRefno AS LocationMapRefno,");
+                sql.Append("whs.LocationMapWarehouseCode AS LocationCode,");
+                sql.Append("whs.LocationMapWarehouseName AS LocationName,");
+                sql.Append("recvItem.ActivityItemReceivingQuantityReceivedToDate AS ActivityItemReceivingQuantityReceivedToDate,");
+                sql.Append("recvItem.ActivityItemReceivingWeightQuantityReceivedToDate AS ActivityItemReceivingWeightQuantityReceivedToDate,");
+                sql.Append("CASE WHEN itemComment.ActivityItemReceivingCommentComment IS NULL THEN \' \' ");
                 sql.Append("ELSE \'*\' END AS IsActivityItemReceivingComment ");
-                sql.Append("FROM tActivityItemReceiving ");
+                sql.Append("FROM tActivityItemReceiving recvItem ");
                 sql.Append("INNER JOIN tActivityItem ON tActivityItem.ActivityItemRefno = ");
-                sql.Append("tActivityItemReceiving.ActivityItemRefno ");
+                sql.Append("recvItem.ActivityItemRefno ");
                 sql.Append("INNER JOIN tProductUnit ON tProductUnit.ProductUnitRefno = ");
-                sql.Append("tActivityItemReceiving.ProductUnitRefno ");
+                sql.Append("recvItem.ProductUnitRefno ");
                 sql.Append("INNER JOIN tUnit ON tUnit.UnitRefno = tProductUnit.UnitRefno ");
                 sql.Append("INNER JOIN tProduct ON tProduct.ProductRefno = tProductUnit.ProductRefno ");
-                sql.Append("INNER JOIN tLocationMapWarehouse ON tLocationMapWarehouse.LocationMapRefno = ");
-                sql.Append("tActivityItemReceiving.WarehouseLocationMapRefno ");
-                sql.Append("LEFT JOIN tActivityItemReceivingComment ON tActivityItemReceivingComment.ActivityItemRefno = ");
-                sql.Append("tActivityItemReceiving.ActivityItemRefno ");
+                sql.Append("INNER JOIN tLocationMapWarehouse whs ON whs.LocationMapRefno = ");
+                sql.Append("recvItem.WarehouseLocationMapRefno ");
+                sql.Append("LEFT JOIN tActivityItemReceivingComment itemComment ON itemComment.ActivityItemRefno = ");
+                sql.Append("recvItem.ActivityItemRefno ");
                 sql.AppendFormat("WHERE tActivityItem.ActivityRefno = {0} ", this.ActHdr.HdrRefno);
-                sql.Append("ORDER BY tActivityItemReceiving.ActivityItemRefno");
+                sql.Append("ORDER BY recvItem.ActivityItemRefno");
             }
 
-            // using (SQLiteDataAdapter da = new SQLiteDataAdapter(sql.ToString(), DatabaseConnection.GetInstance().SQLConn))
-            // {
-            //    using (DataSet ds = new DataSet())
-            //    {
-            //        da.Fill(ds);
-            //        this.DataViewItems = ds.Tables[0].DefaultView;
-            //        this.DataViewItems.Table.TableName = this.MainGridMappingName;
-            //        this.DataViewItems.AllowNew = true;
-            //        this.DataViewItems.AllowEdit = true;
-            //        this.DataViewItems.AllowDelete = true;
-            //        this.DataViewItems.Sort = "ActivityItemRefno";
-            //    }
-            // }
             this.ListReceiveItems = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<ReceiveItem>(sql.ToString());
             this.ListItems = this.ListReceiveItems.Cast<object>().ToList();
             return this.ListItems;
@@ -759,7 +789,8 @@ namespace dMobile.Controller.Activity_Item
         {
             var observableCollection = new ObservableCollection<object>();
 
-            this.ListItems = this.ListReceiveItems.Where(receiveItem => receiveItem.ProductCode.ToLower().Contains(searchText.ToLower().Trim())).Cast<object>().ToList();
+            this.ListItems = this.ListReceiveItems.Where(receiveItem => receiveItem.ProductCode.ToLower().Contains(
+                searchText.ToLower().Trim())).Cast<object>().ToList();
 
             foreach (ReceiveItem receiveItem in this.ListItems)
             {
@@ -774,17 +805,27 @@ namespace dMobile.Controller.Activity_Item
         /// </summary>
         /// <param name="selectedActivityItem"><see cref="object"/> Selected activity object.</param>
         /// <returns><see cref="Task{T}"/> Activity item foreign key reference number.</returns>
-        public override async Task<int> AssignActivityItem(object activityItem)
+        public override async Task<int> AssignActivityItem(object selectedActivityItem)
         {
-            if (activityItem is ReceiveItem item)
+            if (selectedActivityItem is ReceiveItem item)
             {
                 this.SelectedItem = item;
                 this.ItemRefno = item.ActivityItemRefno;
                 this.ItemFkRefno = item.ActivityItemFKRefno;
                 ////this.ActStatus = (SysCommon.ActStatus)item.ActivityItemStatus;
                 this.ProdInfo = await ProductInfoTasks.GetInfoFromUnitRefno(item.ProductUnitRefno);
-                this.ProdInfo.Scheme = await ProductInfoTasks.GetSchemeComponentsFromRefno(this.ProdInfo.Refno);
 
+                await AssignItemLocation(item);
+
+                // LocationMap.GetInstance().CurrLocMap warehouse needs to be set before call to GetSchemeComponentsFromRefno.
+                this.ProdInfo.Scheme = await ProductInfoTasks.GetSchemeComponentsFromRefno(this.ProdInfo.Refno);
+            }
+
+            return this.ItemFkRefno;
+
+            //////////////////////////////////////////////////////////////////////////
+            async Task AssignItemLocation(ReceiveItem item)
+            {
                 // This code needs to be before the call to GetSelectedItemLocation, because the skid location may be
                 // used if the product unit and warehouse match.
                 if (this.SysEnv.SysSettings.DoesSelectingADifferentProductClearSkid &&
@@ -793,42 +834,44 @@ namespace dMobile.Controller.Activity_Item
                     this.ActHdr.SkidInfo.CurrSkid = new SSkidInfo();
                 }
 
-                var locMap = await this.GetSelectedItemLocation(item.LocationMapRefno);
-
-                if (this.SysEnv.SysSettings.IsDefaultLocToProductDefaultLoc)
+                var itemLocMap = await this.GetSelectedItemLocation(item.LocationMapRefno);
+                if (itemLocMap == null)
                 {
-                    // Only assign the current location if the map is complete else leave it alone.
-                    if (locMap != null && await LocationMapTasks.IsCompleteLocMap(locMap))
+                    // Current location used, we need one for popup forms.
+                    this.LocMap = await LocationMapTasks.GetSLocMapFromLocMapRefno(this.ActHdr.LocationMapRefno);
+                    if (this.LocMap.WhsLocMapRefno == 0)
                     {
-                        // Update the chosen location with the current when defaulting is turned on.
-                        LocationMap.GetInstance().CurrLocMap = locMap.Clone();
-                        LocationMap.GetInstance().ChosenLocMap = locMap.Clone();
-
-                        // Assign the skid the location, because defaulting is enabled.
-                        if (this.ActHdr.SkidInfo.CurrSkid.SkidFKRefno > 0)
-                        {
-                            this.ActHdr.SkidInfo.CurrSkid.LocMap = locMap.Clone();
-                        }
-
-                        // Update the activity item location.
-                        this.LocMap = LocationMap.GetInstance().CurrLocMap.Clone();
+                        // We need to have at least a location with a warehouse.
+                        var defLocMapRefno = LocationMapTasks.DefaultLocMapRefnoToWhsIfUnassigned(locationMapRefno: 0);
+                        this.LocMap = await LocationMapTasks.GetSLocMapFromLocMapRefno(defLocMapRefno);
                     }
                 }
                 else
                 {
-                    // We need set at least the warehouse for line items.
-                    this.LocMap = locMap.Clone();
-                    if (this.LocMap.WhsLocMapRefno <= 0)
+                    this.LocMap = itemLocMap.Clone();
+
+                    // Override the location with the product default if exists and complete.
+                    if (this.SysEnv.SysSettings.IsDefaultLocToProductDefaultLoc)
                     {
-                        throw new MessageOnlyException("Location must be set first.");
+                        // Only assign the current location if the map is complete else leave it alone.
+                        if (await LocationMapTasks.IsCompleteLocMap(itemLocMap))
+                        {
+                            // Update the chosen location with the current when defaulting is turned on.
+                            LocationMap.GetInstance().CurrLocMap = itemLocMap.Clone();
+                            LocationMap.GetInstance().ChosenLocMap = itemLocMap.Clone();
+
+                            // Assign the skid the location, because defaulting is enabled.
+                            if (this.ActHdr.SkidInfo.CurrSkid.SkidFKRefno > 0)
+                            {
+                                this.ActHdr.SkidInfo.CurrSkid.LocMap = itemLocMap.Clone();
+                            }
+
+                            // Update the activity item location.
+                            this.LocMap = LocationMap.GetInstance().CurrLocMap.Clone();
+                        }
                     }
                 }
-
-                // LocationMap.GetInstance().CurrLocMap warehouse needs to be set before call to GetSchemeComponentsFromRefno.
-                this.ProdInfo.Scheme = await ProductInfoTasks.GetSchemeComponentsFromRefno(this.ProdInfo.Refno);
             }
-
-            return this.ItemFkRefno;
         }
 
         /// <summary>
@@ -1033,7 +1076,8 @@ namespace dMobile.Controller.Activity_Item
             await base.IsReadyToApply(data);
 
             // New items are identified with 0 < this.FKRefno, do not validate.
-            if (this.SysEnv.SysSettings.RecvQtyOverWarn != SysCommon.ActReceivingQtyOverValLevels.NoValidationOrWarning && this.ItemFkRefno > 0)
+            if (this.SysEnv.SysSettings.RecvQtyOverWarn != SysCommon.ActReceivingQtyOverValLevels.NoValidationOrWarning
+                && this.ItemFkRefno > 0)
             {
                 try
                 {
@@ -1058,6 +1102,7 @@ namespace dMobile.Controller.Activity_Item
                             {
                                 throw new IsReadyToApplyException(ex.Message, true, false);
                             }
+
                         case SysCommon.ActReceivingQtyOverValLevels.ValidateWarnAndStop:
                             throw new IsReadyToApplyException(ex.Message, false, false);
                     }
@@ -1078,8 +1123,9 @@ namespace dMobile.Controller.Activity_Item
 
                 if (received + actItemRecvQuantity > ordered)
                 {
-                    throw new Exception(
-                        $"The resulting quantity received {received + actItemRecvQuantity} {this.ProdInfo.UnitCode} will be greater than the quantity ordered {ordered} {this.ProdInfo.UnitCode}.");
+                    throw new Exception($"The resulting quantity received {received + actItemRecvQuantity}" +
+                        $" {this.ProdInfo.UnitCode} will be greater than the quantity ordered {ordered}" +
+                        $" {this.ProdInfo.UnitCode}.");
                 }
             }
         }

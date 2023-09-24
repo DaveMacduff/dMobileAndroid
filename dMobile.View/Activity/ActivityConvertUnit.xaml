@@ -10,12 +10,12 @@
         <AbsoluteLayout VerticalOptions="Center">
             <Grid Padding="10" AbsoluteLayout.LayoutFlags="All" AbsoluteLayout.LayoutBounds="0,0,1,1">
                 <Grid.RowDefinitions>
-                    <RowDefinition Height="15*"/>
-                    <RowDefinition Height="15*"/>
-                    <RowDefinition Height="15*"/>
-                    <RowDefinition Height="15*"/>
-                    <RowDefinition Height="25*"/>
-                    <RowDefinition Height="15*"/>
+                    <RowDefinition Height="10*"/>
+                    <RowDefinition Height="10*"/>
+                    <RowDefinition Height="10*"/>
+                    <RowDefinition Height="10*"/>
+                    <RowDefinition Height="50*"/>
+                    <RowDefinition Height="10*"/>
                 </Grid.RowDefinitions>
 
                 <!--Row 0-->

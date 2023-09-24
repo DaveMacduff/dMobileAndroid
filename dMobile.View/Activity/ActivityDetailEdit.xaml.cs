@@ -224,7 +224,7 @@ namespace dMobile.View.Activity
             catch (MessageOnlyException msgEx)
             {
                 isReadyToSave = false;
-                var msg = (msgEx.Message.IndexOf("MSGBOX-", StringComparison.Ordinal) == -1) ? msgEx.Message : msgEx.Message["MSGBOX-".Length..];
+                var msg = SysCommon.GetMessageFromMessageException(msgEx);
                 await Device.InvokeOnMainThreadAsync(async () =>
                     await Application.Current.MainPage.DisplayAlert(
                         this.ActDetail.GetControlDescription(),
@@ -299,7 +299,8 @@ namespace dMobile.View.Activity
                     }
                     else
                     {
-                        expectedWeightQty = Math.Round(this.ActDetailEdit.BaseQuantity * productInfo.UnitGrossWeight, 3);
+                        ////expectedWeightQty = Math.Round(this.ActDetailEdit.BaseQuantity * productInfo.UnitGrossWeight, 3);
+                        expectedWeightQty = Math.Round(this.ActDetailEdit.AltQuantity * productInfo.UnitGrossWeight, 3);
                     }
 
                     if (Math.Sign(this.ActDetailEdit.AltQuantity) == 0 &&
@@ -392,7 +393,7 @@ namespace dMobile.View.Activity
                                 {
                                     throw new MessageOnlyException($"Weight quantity {this.ActDetailEdit.WeightQuantity}" +
                                         $" {productInfo.WeightUnitCode} does not match the expected weight quantity" +
-                                        $"{expectedWeightQty} {productInfo.WeightUnitCode}.");
+                                        $" {expectedWeightQty} {productInfo.WeightUnitCode}.");
                                 }
                             }
                         }
@@ -445,7 +446,7 @@ namespace dMobile.View.Activity
                                 {
                                     throw new MessageOnlyException($"Weight quantity {this.ActDetailEdit.WeightQuantity}" +
                                         $" {productInfo.WeightUnitCode} does not match the expected weight quantity" +
-                                        $"{expectedWeightQty} {productInfo.WeightUnitCode}.");
+                                        $" {expectedWeightQty} {productInfo.WeightUnitCode}.");
                                 }
                             }
                         }
@@ -511,7 +512,7 @@ namespace dMobile.View.Activity
                                 {
                                     throw new MessageOnlyException($"Weight quantity {this.ActDetailEdit.WeightQuantity}" +
                                         $" {productInfo.WeightUnitCode} does not match the expected weight quantity" +
-                                        $"{expectedWeightQty} {productInfo.WeightUnitCode}.");
+                                        $" {expectedWeightQty} {productInfo.WeightUnitCode}.");
                                 }
                             }
                             else
@@ -620,7 +621,7 @@ namespace dMobile.View.Activity
                                 {
                                     throw new MessageOnlyException($"Weight quantity {this.ActDetailEdit.WeightQuantity}" +
                                         $" {productInfo.WeightUnitCode} does not match the expected weight quantity" +
-                                        $"{expectedWeightQty} {productInfo.WeightUnitCode}.");
+                                        $" {expectedWeightQty} {productInfo.WeightUnitCode}.");
                                 }
                             }
                         }
@@ -846,7 +847,7 @@ namespace dMobile.View.Activity
             }
             catch (MessageOnlyException msgEx)
             {
-                var msg = (msgEx.Message.IndexOf("MSGBOX-", StringComparison.Ordinal) == -1) ? msgEx.Message : msgEx.Message["MSGBOX-".Length..];
+                var msg = SysCommon.GetMessageFromMessageException(msgEx);
                 isReadyToClose = false;
                 await Device.InvokeOnMainThreadAsync(async () =>
                     await Application.Current.MainPage.DisplayAlert(
@@ -927,7 +928,7 @@ namespace dMobile.View.Activity
             }
             catch (MessageOnlyException msgEx)
             {
-                var msg = (msgEx.Message.IndexOf("MSGBOX-", StringComparison.Ordinal) == -1) ? msgEx.Message : msgEx.Message["MSGBOX-".Length..];
+                var msg = SysCommon.GetMessageFromMessageException(msgEx);
                 saveComplete = false;
                 await Device.InvokeOnMainThreadAsync(async () =>
                     await Application.Current.MainPage.DisplayAlert(
@@ -979,7 +980,7 @@ namespace dMobile.View.Activity
             }
             catch (MessageOnlyException msgEx)
             {
-                var msg = (msgEx.Message.IndexOf("MSGBOX-", StringComparison.Ordinal) == -1) ? msgEx.Message : msgEx.Message["MSGBOX-".Length..];
+                var msg = SysCommon.GetMessageFromMessageException(msgEx);
                 cancelChanges = false;
                 await Device.InvokeOnMainThreadAsync(async () =>
                     await Application.Current.MainPage.DisplayAlert(
@@ -1384,8 +1385,10 @@ namespace dMobile.View.Activity
                         }
                         else if (this.ActDetailEdit.BaseQuantity != 0)
                         {
+                            ////this.ActDetailEdit.WeightQuantity =
+                            ////    this.ActDetailEdit.BaseQuantity * prodInfo.UnitGrossWeight;
                             this.ActDetailEdit.WeightQuantity =
-                                this.ActDetailEdit.BaseQuantity * prodInfo.UnitGrossWeight;
+                                this.ActDetailEdit.AltQuantity * prodInfo.UnitGrossWeight;
                         }
                     }
                     else
@@ -1595,7 +1598,7 @@ namespace dMobile.View.Activity
         /// <summary>
         /// Bar code scan event handler.
         /// </summary>
-        /// <param name="sender"><see cref="object"/> Sender instance.</param>
+        /// <param name="sender"><see cref="object"/> Object that generated the event.</param>
         /// <param name="scanArgs"><see cref="BarCodeScannerEventArgs"/> Sender bar code scanner
         /// event arguments.</param>
         private async Task BarCodeHandler(object sender, BarCodeScannerEventArgs scanArgs)

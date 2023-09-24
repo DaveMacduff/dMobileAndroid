@@ -232,7 +232,7 @@ namespace dMobile.View.Utilities
             }
             catch (MessageOnlyException msgEx)
             {
-                var msg = (msgEx.Message.IndexOf("MSGBOX-", StringComparison.Ordinal) == -1) ? msgEx.Message : msgEx.Message["MSGBOX-".Length..];
+                var msg = SysCommon.GetMessageFromMessageException(msgEx);
                 isReadyToSave = false;
                 await Device.InvokeOnMainThreadAsync(async () =>
                     await Application.Current.MainPage.DisplayAlert(
@@ -374,7 +374,7 @@ namespace dMobile.View.Utilities
             }
             catch (MessageOnlyException msgEx)
             {
-                var msg = (msgEx.Message.IndexOf("MSGBOX-", StringComparison.Ordinal) == -1) ? msgEx.Message : msgEx.Message["MSGBOX-".Length..];
+                var msg = SysCommon.GetMessageFromMessageException(msgEx);
                 await Device.InvokeOnMainThreadAsync(async () =>
                     await Application.Current.MainPage.DisplayAlert(
                         this.GetControlDescription(),
@@ -541,7 +541,7 @@ namespace dMobile.View.Utilities
             }
             catch (MessageOnlyException msgEx)
             {
-                var msg = (msgEx.Message.IndexOf("MSGBOX-", StringComparison.Ordinal) == -1) ? msgEx.Message : msgEx.Message["MSGBOX-".Length..];
+                var msg = SysCommon.GetMessageFromMessageException(msgEx);
                 saveComplete = false;
                 await Device.InvokeOnMainThreadAsync(async () =>
                     await Application.Current.MainPage.DisplayAlert(
@@ -600,7 +600,7 @@ namespace dMobile.View.Utilities
             }
             catch (MessageOnlyException msgEx)
             {
-                var msg = (msgEx.Message.IndexOf("MSGBOX-", StringComparison.Ordinal) == -1) ? msgEx.Message : msgEx.Message["MSGBOX-".Length..];
+                var msg = SysCommon.GetMessageFromMessageException(msgEx);
                 this.IsFirstAppearance = true;
                 await Device.InvokeOnMainThreadAsync(async () =>
                     await Application.Current.MainPage.DisplayAlert(
@@ -679,7 +679,7 @@ namespace dMobile.View.Utilities
                 }
                 catch (MessageOnlyException msgEx)
                 {
-                    var msg = (msgEx.Message.IndexOf("MSGBOX-", StringComparison.Ordinal) == -1) ? msgEx.Message : msgEx.Message["MSGBOX-".Length..];
+                    var msg = SysCommon.GetMessageFromMessageException(msgEx);
                     await Device.InvokeOnMainThreadAsync(async () =>
                         await Application.Current.MainPage.DisplayAlert(
                             this.GetControlDescription(),
@@ -709,7 +709,7 @@ namespace dMobile.View.Utilities
         /// <summary>
         /// Check if changes have been made.
         /// </summary>
-        /// <param name="sender"><see cref="object"/> Sender instance.</param>
+        /// <param name="sender"><see cref="object"/> Object that generated the event.</param>
         /// <param name="e"><see cref="EventArgs"/> Event arguments.</param>
         private void IdentifyChangesMade(object sender, EventArgs e)
         {
@@ -742,7 +742,7 @@ namespace dMobile.View.Utilities
         /// <summary>
         /// Command location click event handler.
         /// </summary>
-        /// <param name="sender"><see cref="object"/> Sender instance.</param>
+        /// <param name="sender"><see cref="object"/> Object that generated the event.</param>
         /// <param name="e"><see cref="EventArgs"/> Event arguments.</param>
         private async void CmdLocation_Click(object sender, EventArgs e)
         {
@@ -790,7 +790,7 @@ namespace dMobile.View.Utilities
         /// <summary>
         /// Command select product click event handler.
         /// </summary>
-        /// <param name="sender"><see cref="object"/> Sender instance.</param>
+        /// <param name="sender"><see cref="object"/> Object that generated the event.</param>
         /// <param name="e"><see cref="EventArgs"/> Event arguments.</param>
         private async void CmdProduct_Click(object sender, EventArgs e)
         {
@@ -937,7 +937,7 @@ namespace dMobile.View.Utilities
             }
             catch (MessageOnlyException msgEx)
             {
-                var msg = (msgEx.Message.IndexOf("MSGBOX-", StringComparison.Ordinal) == -1) ? msgEx.Message : msgEx.Message["MSGBOX-".Length..];
+                var msg = SysCommon.GetMessageFromMessageException(msgEx);
                 await Device.InvokeOnMainThreadAsync(async () =>
                     await Application.Current.MainPage.DisplayAlert(
                         this.GetControlDescription(),
@@ -1021,7 +1021,7 @@ namespace dMobile.View.Utilities
             }
             catch (MessageOnlyException msgEx)
             {
-                var msg = (msgEx.Message.IndexOf("MSGBOX-", StringComparison.Ordinal) == -1) ? msgEx.Message : msgEx.Message["MSGBOX-".Length..];
+                var msg = SysCommon.GetMessageFromMessageException(msgEx);
                 await Device.InvokeOnMainThreadAsync(async () =>
                     await Application.Current.MainPage.DisplayAlert(
                         this.GetControlDescription(),

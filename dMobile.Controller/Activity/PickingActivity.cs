@@ -964,6 +964,7 @@ namespace dMobile.Controller.Activity
                 this.SelectedActivity = header;
                 this.HdrFkRefno = header.ActivityFKRefno;
                 this.HdrRefno = header.ActivityRefno;
+                this.LocationMapRefno = header.LocationMapRefno;
 
                 if (this.SysEnv.SysSettings.IsDefaultLocToProductDefaultLoc)
                 {

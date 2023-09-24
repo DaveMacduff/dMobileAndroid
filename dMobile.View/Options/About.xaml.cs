@@ -19,15 +19,14 @@ namespace dMobile.View.Options
     using Xamarin.Forms;
     using Xamarin.Forms.Xaml;
 
+    /// <summary>
+    /// About screen.
+    /// </summary>
     [XamlCompilation(XamlCompilationOptions.Compile)]
     public partial class About : DMobileContentPage, IAppArea
     {
         private ObservableCollection<IPAddr> itemsList;
 
-        /// <summary>
-        ///
-        /// </summary>
-        /// <remarks></remarks>
         /// <summary>
         /// Initializes a new instance of the <see cref="About"/> class.
         /// </summary>
@@ -61,6 +60,96 @@ namespace dMobile.View.Options
                     Console.WriteLine("Error in About.xaml.cs " + ex);
                 }
             }
+        }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether the control has been loaded.
+        /// </summary>
+        public bool IsControlLoaded { get; set; } = false;
+
+        /// <summary>
+        /// Gets or sets a network interface.
+        /// </summary>
+        public NetworkInterface Nic { get; set; } = null;
+
+        /// <summary>
+        /// Unregister the bar code scan event handler and disable the scanner.
+        /// </summary>
+        public async Task ScannerDisable()
+        {
+        }
+
+        /// <summary>
+        /// Registers the bar code scan event handler and enables the scanner.
+        /// </summary>
+        /// <remarks></remarks>
+        public async Task ScannerEnable()
+        {
+        }
+
+        /// <summary>
+        /// Is ready to save.
+        /// </summary>
+        /// <returns><see cref="int"/> True if ready to save.</returns>
+        public async Task<bool> IsReadyToSave()
+        {
+            return true;
+        }
+
+        /// <summary>
+        /// Is ready to close.
+        /// </summary>
+        /// <returns><see cref="int"/> True if ready to close.</returns>
+        public async Task<bool> IsReadyToClose()
+        {
+            return true;
+        }
+
+        /// <summary>
+        /// Get the control description.
+        /// </summary>
+        /// <returns><see cref="string"/> Control description.</returns>
+        public string GetControlDescription()
+        {
+            return "About dMobile";
+        }
+
+        /// <summary>
+        ///
+        /// </summary>
+        /// <returns></returns>
+        /// <remarks></remarks>
+        /// <inheritdoc/>
+        public async Task<bool> SaveChanges()
+        {
+            return true;
+        }
+
+        /// <summary>
+        ///
+        /// </summary>
+        /// <returns></returns>
+        /// <remarks></remarks>
+        /// <inheritdoc/>
+        public async Task<bool> CancelChanges()
+        {
+            return true;
+        }
+
+        /// <summary>
+        ///
+        /// </summary>
+        /// <returns></returns>
+        /// <remarks></remarks>
+        /// <inheritdoc/>
+        public async Task<XDocument> GetXML()
+        {
+            var xmldocParams = XDocument.Parse(
+                "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>"
+                + "<params>"
+                + "</params>");
+
+            return xmldocParams;
         }
 
         /// <summary>
@@ -114,96 +203,6 @@ namespace dMobile.View.Options
             base.OnDisappearing();
 
             MessagingCenter.Unsubscribe<string>(this, EventTypes.OnKeyUp.ToString());
-        }
-
-        public bool IsControlLoaded { get; set; } = false;
-
-        public NetworkInterface NIC { get; set; } = null;
-
-        /// <summary>
-        /// Unregister the bar code scan event handler and disable the scanner.
-        /// </summary>
-        /// <remarks></remarks>
-        public async Task ScannerDisable()
-        {
-        }
-
-        /// <summary>
-        /// Registers the bar code scan event handler and enables the scanner.
-        /// </summary>
-        /// <remarks></remarks>
-        public async Task ScannerEnable()
-        {
-        }
-
-        /// <summary>
-        ///
-        /// </summary>
-        /// <returns></returns>
-        /// <remarks></remarks>
-        /// <inheritdoc/>
-        public async Task<bool> IsReadyToSave()
-        {
-            return true;
-        }
-
-        /// <summary>
-        ///
-        /// </summary>
-        /// <returns></returns>
-        /// <remarks></remarks>
-        /// <inheritdoc/>
-        public async Task<bool> IsReadyToClose()
-        {
-            return true;
-        }
-
-        /// <summary>
-        ///
-        /// </summary>
-        /// <returns></returns>
-        /// <remarks></remarks>
-        public string GetControlDescription()
-        {
-            return "About dMobile";
-        }
-
-        /// <summary>
-        ///
-        /// </summary>
-        /// <returns></returns>
-        /// <remarks></remarks>
-        /// <inheritdoc/>
-        public async Task<bool> SaveChanges()
-        {
-            return true;
-        }
-
-        /// <summary>
-        ///
-        /// </summary>
-        /// <returns></returns>
-        /// <remarks></remarks>
-        /// <inheritdoc/>
-        public async Task<bool> CancelChanges()
-        {
-            return true;
-        }
-
-        /// <summary>
-        ///
-        /// </summary>
-        /// <returns></returns>
-        /// <remarks></remarks>
-        /// <inheritdoc/>
-        public async Task<XDocument> GetXML()
-        {
-            var xmldocParams = XDocument.Parse(
-                "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>"
-                + "<params>"
-                + "</params>");
-
-            return xmldocParams;
         }
 
         /// <summary>
@@ -308,10 +307,10 @@ namespace dMobile.View.Options
         private void LstDeviceNameIP_ItemSelected(object sender, SelectedItemChangedEventArgs e)
         {
             var test = (IPAddr)this.lstDeviceNameIP.SelectedItem;
-            this.NIC = test.networkInterface;
-            this.lblMACAddressData.Text = this.NIC.GetPhysicalAddress().ToString();
-            this.lblSpeedData.Text = this.NIC.Speed.ToString();
-            this.lblStatusData.Text = this.NIC.OperationalStatus.ToString();
+            this.Nic = test.networkInterface;
+            this.lblMACAddressData.Text = this.Nic.GetPhysicalAddress().ToString();
+            this.lblSpeedData.Text = this.Nic.Speed.ToString();
+            this.lblStatusData.Text = this.Nic.OperationalStatus.ToString();
         }
     }
 }

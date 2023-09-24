@@ -519,7 +519,7 @@ namespace dMobile.View.Activity
             }
             catch (MessageOnlyException msgEx)
             {
-                var msg = (msgEx.Message.IndexOf("MSGBOX-", StringComparison.Ordinal) == -1) ? msgEx.Message : msgEx.Message["MSGBOX-".Length..];
+                var msg = SysCommon.GetMessageFromMessageException(msgEx);
                 isSaveComplete = false;
                 await Device.InvokeOnMainThreadAsync(async () =>
                     await Application.Current.MainPage.DisplayAlert(
@@ -559,7 +559,7 @@ namespace dMobile.View.Activity
             catch (MessageOnlyException msgEx)
             {
                 cancelChanges = false;
-                var msg = (msgEx.Message.IndexOf("MSGBOX-", StringComparison.Ordinal) == -1) ? msgEx.Message : msgEx.Message["MSGBOX-".Length..];
+                var msg = SysCommon.GetMessageFromMessageException(msgEx);
                 await Device.InvokeOnMainThreadAsync(async () =>
                     await Application.Current.MainPage.DisplayAlert(
                         this.ActItem.GetControlDescription(),
@@ -1051,6 +1051,12 @@ namespace dMobile.View.Activity
                     case Keycode.F4:
                         if (!(this.IsSearchEntryFocused || this.IsBarCodeModifierPickerFocus))
                         {
+                            await Task.Run(() =>
+                            {
+                                // Explicit GC, Xamarin forms not disposing of objects properly
+                                GC.Collect();
+                                GC.WaitForPendingFinalizers();
+                            });
                             await OnAppearingF4Key();
                         }
 
@@ -1059,7 +1065,7 @@ namespace dMobile.View.Activity
             }
             catch (MessageOnlyException msgEx)
             {
-                var msg = (msgEx.Message.IndexOf("MSGBOX-", StringComparison.Ordinal) == -1) ? msgEx.Message : msgEx.Message["MSGBOX-".Length..];
+                var msg = SysCommon.GetMessageFromMessageException(msgEx);
                 await Device.InvokeOnMainThreadAsync(async () =>
                     await Application.Current.MainPage.DisplayAlert(
                         this.ActItem.GetControlDescription(),
@@ -1260,7 +1266,7 @@ namespace dMobile.View.Activity
                 }
                 catch (MessageOnlyException msgEx)
                 {
-                    var msg = (msgEx.Message.IndexOf("MSGBOX-", StringComparison.Ordinal) == -1) ? msgEx.Message : msgEx.Message["MSGBOX-".Length..];
+                    var msg = SysCommon.GetMessageFromMessageException(msgEx);
                     await Device.InvokeOnMainThreadAsync(async () =>
                         await Application.Current.MainPage.DisplayAlert(
                             this.ActItem.GetControlDescription(),
@@ -1299,7 +1305,7 @@ namespace dMobile.View.Activity
                 }
                 catch (MessageOnlyException msgEx)
                 {
-                    var msg = (msgEx.Message.IndexOf("MSGBOX-", StringComparison.Ordinal) == -1) ? msgEx.Message : msgEx.Message["MSGBOX-".Length..];
+                    var msg = SysCommon.GetMessageFromMessageException(msgEx);
                     await Device.InvokeOnMainThreadAsync(async () =>
                         await Application.Current.MainPage.DisplayAlert(
                             this.ActItem.GetControlDescription(),
@@ -1338,7 +1344,7 @@ namespace dMobile.View.Activity
                 }
                 catch (MessageOnlyException msgEx)
                 {
-                    var msg = (msgEx.Message.IndexOf("MSGBOX-", StringComparison.Ordinal) == -1) ? msgEx.Message : msgEx.Message["MSGBOX-".Length..];
+                    var msg = SysCommon.GetMessageFromMessageException(msgEx);
                     await Device.InvokeOnMainThreadAsync(async () =>
                         await Application.Current.MainPage.DisplayAlert(
                             this.ActItem.GetControlDescription(),
@@ -1652,7 +1658,7 @@ namespace dMobile.View.Activity
                 }
                 catch (MessageOnlyException msgEx)
                 {
-                    var msg = (msgEx.Message.IndexOf("MSGBOX-", StringComparison.Ordinal) == -1) ? msgEx.Message : msgEx.Message["MSGBOX-".Length..];
+                    var msg = SysCommon.GetMessageFromMessageException(msgEx);
                     await Device.InvokeOnMainThreadAsync(async () =>
                         await Application.Current.MainPage.DisplayAlert(
                             this.ActItem.GetControlDescription(),
@@ -1677,7 +1683,7 @@ namespace dMobile.View.Activity
         /// <summary>
         /// Bar code scan event handler.
         /// </summary>
-        /// <param name="sender"><see cref="object"/> Sender instance.</param>
+        /// <param name="sender"><see cref="object"/> Object that generated the event.</param>
         /// <param name="scanArgs"><see cref="BarCodeScannerEventArgs"/> Sender bar code scanner event arguments.</param>
         private async Task BarCodeHandler(object sender, BarCodeScannerEventArgs scanArgs)
         {
@@ -1690,23 +1696,26 @@ namespace dMobile.View.Activity
             object selectedItem = null;
             var actItemFoundRefno = 0;
             var tempItemProdSchemeData = new ActItemSchemeData();
-
             try
             {
                 var parse = scanArgs.ParseInfo;
+                var isLocationBarCodeScanned = !string.IsNullOrEmpty(parse.LocationIdentifier);
+                var isProductScanned = !string.IsNullOrEmpty(parse.ProductIdentifier);
+                var isFKItemRefnoScanned = !string.IsNullOrEmpty(parse.ActItemFKRefno);
+                var isFKDetailRefnoScanned = !string.IsNullOrEmpty(parse.ActDetailFKRefno);
+                var isSkidScanned = !string.IsNullOrEmpty(parse.SSCC18);
 
                 // GLOBAL LOCATION IDENTIFIER SCANNED
-                if (!string.IsNullOrEmpty(parse.LocationIdentifier))
+                if (isLocationBarCodeScanned)
                 {
                     await BarCodeHandlerLocationIdentifier(parse);
                 }
                 else
                 {
-                    var prodUnitRefno = 0;
-                    if (!string.IsNullOrEmpty(parse.ProductIdentifier))
+                    if (isProductScanned)
                     {
                         // Identify the product from the parse info.
-                        prodUnitRefno = await SysShared.IdentifyProductScanned(this.ActSubType, parse);
+                        var prodUnitRefno = await SysShared.IdentifyProductScanned(this.ActSubType, parse);
                         var scannedProdInfo = await ProductInfoTasks.GetInfoFromUnitRefno(prodUnitRefno);
 
                         await this.SetDefaultLocationBeforeKnownActivityItem(scannedProdInfo);
@@ -1758,7 +1767,7 @@ namespace dMobile.View.Activity
                             }
                         }
                     }
-                    else if (!string.IsNullOrEmpty(parse.ActItemFKRefno))
+                    else if (isFKItemRefnoScanned)
                     {
                         selectedItem = this.ActItem.ListItems.OfType<object>().FirstOrDefault(activityItem =>
                             Convert.ToString(activityItem.GetType().GetProperty(
@@ -1775,17 +1784,16 @@ namespace dMobile.View.Activity
                             actItemFoundRefno = this.ActItem.ItemRefno;
                         }
                     }
-                    else if (!string.IsNullOrEmpty(parse.ActDetailFKRefno))
+                    else if (isFKDetailRefnoScanned)
                     {
-                        throw new MessageOnlyException(
-                            "Scanning an line item detail bar code is not supported here.");
+                        throw new MessageOnlyException("Scanning an line item detail bar code is not supported here.");
                     }
-                    else if (!string.IsNullOrEmpty(parse.SSCC18))
+                    else if (isSkidScanned)
                     {
-                        if (!this.SysEnv.SysSettings.IsSkidTrackingModule)
+                        bool isSkidTrackingEnabled = this.SysEnv.SysSettings.IsSkidTrackingModule;
+                        if (!isSkidTrackingEnabled)
                         {
-                            throw new MessageOnlyException(
-                                "Scanning a shipping container bar code is not enabled.");
+                            throw new MessageOnlyException("Scanning a shipping container bar code is not enabled.");
                         }
 
                         if (this.SysEnv.SysSettings.IsDisconnectedMode)
@@ -1802,7 +1810,7 @@ namespace dMobile.View.Activity
                             throw new MessageOnlyException("Skid does not exist.");
                         }
 
-                        prodUnitRefno = this.ActItem.ActHdr.SkidInfo.CurrSkid.ProdInfo.UnitRefno;
+                        var prodUnitRefno = this.ActItem.ActHdr.SkidInfo.CurrSkid.ProdInfo.UnitRefno;
                         actItemFoundRefno = await this.ActItem.GetActivityItemRefno(prodUnitRefno, LocationMap.GetInstance().CurrLocMap);
                         if (actItemFoundRefno > 0)
                         {
@@ -1991,7 +1999,7 @@ namespace dMobile.View.Activity
             }
             catch (MessageOnlyException msgEx)
             {
-                var msg = (msgEx.Message.IndexOf("MSGBOX-", StringComparison.Ordinal) == -1) ? msgEx.Message : msgEx.Message["MSGBOX-".Length..];
+                var msg = SysCommon.GetMessageFromMessageException(msgEx);
                 await Device.InvokeOnMainThreadAsync(async () =>
                     await Application.Current.MainPage.DisplayAlert(
                         this.ActItem.GetControlDescription(),
@@ -2146,17 +2154,14 @@ namespace dMobile.View.Activity
             if (this.SysEnv.SysSettings.IsDefaultLocToProductDefaultLoc)
             {
                 // This will be the default location if the line item location is not complete.
-                var whsLocMapRefno = await LocationMapTasks.GetWhsLocMapRefnoFromLocMapRefno(
-                    this.LocMap.CurrLocMapRefno);
-                var defLocMapRefno = await this.ActItem.GetDefaultLocMapRefno(
-                    whsLocMapRefno,
-                    prodInfo.Refno);
+                var whsLocMapRefno = await LocationMapTasks.GetWhsLocMapRefnoFromLocMapRefno(this.LocMap.CurrLocMapRefno);
+                var defLocMapRefno = await this.ActItem.GetDefaultLocMapRefno(whsLocMapRefno, prodInfo.Refno);
 
                 if (this.IsAllowedDefaultLocationOverride())
                 {
                     if (await LocationMapTasks.IsCompleteLocMap(this.LocMap.ChosenLocMap))
                     {
-                        this.SetCurrentLocationWithChosen();
+                        SetCurrentLocationWithChosen();
                     }
                     else
                     {
@@ -2186,25 +2191,24 @@ namespace dMobile.View.Activity
             }
             else
             {
-                this.SetCurrentLocationWithChosen();
+                SetCurrentLocationWithChosen();
             }
 
             if (!await LocationMapTasks.IsCompleteLocMap(this.LocMap.CurrLocMapRefno))
             {
                 throw new MessageOnlyException("Location must be set first!");
             }
-        }
 
-        /// <summary>
-        /// Set the current location with the chosen location.
-        /// </summary>
-        private void SetCurrentLocationWithChosen()
-        {
-            // This should not be needed, current location should have been already set using the location picker.
-            if (this.LocMap.CurrLocMapRefno != this.LocMap.ChosenLocMapRefno)
+            //////////////////////////////////////////////////////////////////////////
+            // Set the current location with the chosen location.
+            void SetCurrentLocationWithChosen()
             {
-                // Set the current location to the chosen one, overriding and defaulting location behaviour.
-                this.LocMap.CurrLocMap = this.LocMap.ChosenLocMap.Clone();
+                // This should not be needed, current location should have been already set using the location picker.
+                if (this.LocMap.CurrLocMapRefno != this.LocMap.ChosenLocMapRefno)
+                {
+                    // Set the current location to the chosen one, overriding and defaulting location behaviour.
+                    this.LocMap.CurrLocMap = this.LocMap.ChosenLocMap.Clone();
+                }
             }
         }
 
@@ -2215,12 +2219,14 @@ namespace dMobile.View.Activity
         private bool IsAllowedDefaultLocationOverride()
         {
             var isAllowedLocationOverride = false;
-            if (this.SysEnv.SysSettings.IsDefaultLocToProductDefaultLoc)
+            var useProductDefaultLocation = this.SysEnv.SysSettings.IsDefaultLocToProductDefaultLoc;
+            if (useProductDefaultLocation)
             {
-                if ((this.ActSubType == SysCommon.ActSubTypes.PhysicalCounts &&
-                     this.SysEnv.SysSettings.IsPhysicalDoNotDefaultProductLocation)
-                    || (this.ActSubType == SysCommon.ActSubTypes.CycleCounts &&
-                        this.SysEnv.SysSettings.IsCycleDoNotDefaultProductLocation))
+                var allowLocationOverridePhysical = this.ActSubType == SysCommon.ActSubTypes.PhysicalCounts
+                    && this.SysEnv.SysSettings.IsPhysicalDoNotDefaultProductLocation;
+                var allowLocationOverrideCycle = this.ActSubType == SysCommon.ActSubTypes.CycleCounts
+                    && this.SysEnv.SysSettings.IsCycleDoNotDefaultProductLocation;
+                if (allowLocationOverridePhysical || allowLocationOverrideCycle)
                 {
                     isAllowedLocationOverride = true;
                 }
@@ -2236,9 +2242,10 @@ namespace dMobile.View.Activity
         /// <exception cref="MessageOnlyException"> Location must be set first.</exception>
         private async Task VerifyLocationIsValid()
         {
+            var useProductDefaultLocation = this.SysEnv.SysSettings.IsDefaultLocToProductDefaultLoc;
+
             // Check the location again because of product location defaulting.
-            if (!await LocationMapTasks.IsCompleteLocMap(this.LocMap.CurrLocMapRefno) &&
-                this.SysEnv.SysSettings.IsDefaultLocToProductDefaultLoc)
+            if (!await LocationMapTasks.IsCompleteLocMap(this.LocMap.CurrLocMapRefno) && useProductDefaultLocation)
             {
                 throw new MessageOnlyException("Location must be set first.");
             }
@@ -2250,34 +2257,34 @@ namespace dMobile.View.Activity
         /// <returns><see cref="Task"/> Task oeration.</returns>
         private async Task CheckCurrentLocationMatchDefaultProductLocation(ProductInfo prodInfo, SLocMap locMap)
         {
-            if (await LocationMapTasks.IsCompleteLocMap(locMap) &&
-                !this.SysEnv.SysSettings.IsDefaultLocToProductDefaultLoc)
+            var isLocationComplete = await LocationMapTasks.IsCompleteLocMap(locMap);
+            var useSelectedLocation = !this.SysEnv.SysSettings.IsDefaultLocToProductDefaultLoc;
+            if (isLocationComplete && useSelectedLocation)
             {
-                var isVerifyActivity = this.ActSubType == SysCommon.ActSubTypes.Picking ||
-                                       this.ActSubType == SysCommon.ActSubTypes.PickingSingle ||
-                                       this.ActSubType == SysCommon.ActSubTypes.TransferFrom ||
-                                       this.ActSubType == SysCommon.ActSubTypes.TransferTo;
-
                 // RULE: CHECK IF THE CURRENT LOCATION AND PRODUCT HOME LOCATION ARE THE SAME
-                if (this.SysEnv.SysSettings.IsVerifyProductLocation && isVerifyActivity)
+                var isVerifyProductLocation = this.SysEnv.SysSettings.IsVerifyProductLocation;
+                var isActivityTypeToVerify = this.ActSubType == SysCommon.ActSubTypes.Picking ||
+                    this.ActSubType == SysCommon.ActSubTypes.PickingSingle ||
+                    this.ActSubType == SysCommon.ActSubTypes.TransferFrom ||
+                    this.ActSubType == SysCommon.ActSubTypes.TransferTo;
+                if (isVerifyProductLocation && isActivityTypeToVerify)
                 {
                     // LocationMapRefno is assumed to be the picking WarehouseLocationMapRefno
                     // Picking activity items only have the warehouse, not section or slot.
                     if (locMap.WhsLocMapRefno <= 0)
                     {
-                        throw new Exception("Invalid warehouse on picking activity item. LocationMapRefno == 0");
+                        throw new Exception("Invalid warehouse on activity item. LocationMapRefno == 0");
                     }
 
                     if (prodInfo.Refno <= 0)
                     {
-                        throw new Exception("Invalid product on picking activity item. ProductRefno == 0");
+                        throw new Exception("Invalid product on activity item. ProductRefno == 0");
                     }
 
                     var defLocMapRefno = await this.ActItem.GetDefaultLocMapRefno(locMap.WhsLocMapRefno, prodInfo.Refno);
                     if (LocationMap.GetInstance().CurrLocMapRefno != defLocMapRefno)
                     {
-                        throw new MessageOnlyException(
-                            "The current location does not match the product home location.");
+                        throw new MessageOnlyException("The current location does not match the product home location.");
                     }
                 }
             }
@@ -2512,7 +2519,7 @@ namespace dMobile.View.Activity
         /// <summary>
         /// Text search activity items text changed event handler.
         /// </summary>
-        /// <param name="sender"><see cref="object"/> Sender instance.</param>
+        /// <param name="sender"><see cref="object"/> Object that generated the event.</param>
         /// <param name="e"><see cref="TextChangedEventArgs"/> Sender object text changed event arguments.</param>
         /// <remarks>Code lens reports no references yet this event does fire.</remarks>
         private async void TxtSearchItem_TextChanged(object sender, TextChangedEventArgs e)
@@ -2524,7 +2531,7 @@ namespace dMobile.View.Activity
             }
             catch (MessageOnlyException msgEx)
             {
-                var msg = (msgEx.Message.IndexOf("MSGBOX-", StringComparison.Ordinal) == -1) ? msgEx.Message : msgEx.Message["MSGBOX-".Length..];
+                var msg = SysCommon.GetMessageFromMessageException(msgEx);
                 await Device.InvokeOnMainThreadAsync(async () =>
                     await Application.Current.MainPage.DisplayAlert(
                         this.ActItem.GetControlDescription(),
@@ -2548,7 +2555,7 @@ namespace dMobile.View.Activity
         /// <summary>
         /// Bar code modifier selected index changed event handler.
         /// </summary>
-        /// <param name="sender"><see cref="object"/> Sender instance.</param>
+        /// <param name="sender"><see cref="object"/> Object that generated the event.</param>
         /// <param name="e"><see cref="EventArgs"/> Sender object event arguments.</param>
         private void UpdnBarCodeModifier1_SelectedIndexChanged(object sender, EventArgs e)
         {
@@ -2558,7 +2565,7 @@ namespace dMobile.View.Activity
         /// <summary>
         /// Data grid activity item selected item event handler.
         /// </summary>
-        /// <param name="sender"><see cref="object"/> Sender instance.</param>
+        /// <param name="sender"><see cref="object"/> Object that generated the event.</param>
         /// <param name="e"><see cref="SelectedItemChangedEventArgs"/> Sender selected item changed
         /// event arguments.</param>
         /// <remarks>Code lens reports no references yet this event does fire.</remarks>
@@ -2639,6 +2646,8 @@ namespace dMobile.View.Activity
                         await DisplayDataItemTransferTo();
                         break;
                 }
+
+                this.ExtraInfoItems.Add("Selected Location: " + LocationMapTasks.GetCurrentReadableLocation());
             });
 
             //////////////////////////////////////////////////////////////////////////
@@ -3102,8 +3111,6 @@ namespace dMobile.View.Activity
                     this.CmdSelectSkidText = "Select Skid";
                 }
 
-                this.ExtraInfoItems.Add("Selected Location: " + LocationMapTasks.GetCurrentReadableLocation());
-
                 if (this.LocMap.CurrLocMap.WhsLocMapRefno > 0)
                 {
                     this.CmdLocationText = "Location: " + Environment.NewLine +
@@ -3127,7 +3134,7 @@ namespace dMobile.View.Activity
         /// <summary>
         /// Option menu click event handler.
         /// </summary>
-        /// <param name="sender"><see cref="object"/> Sender instance.</param>
+        /// <param name="sender"><see cref="object"/> Object that generated the event.</param>
         /// <param name="e"><see cref="EventArgs"/> Sender object event arguments.</param>
         /// <remarks>Code lens reports no references yet this event does fire.</remarks>
         private async void OptionsMenu_Clicked(object sender, EventArgs e)
@@ -3179,7 +3186,7 @@ namespace dMobile.View.Activity
             }
             catch (MessageOnlyException msgEx)
             {
-                var msg = (msgEx.Message.IndexOf("MSGBOX-", StringComparison.Ordinal) == -1) ? msgEx.Message : msgEx.Message["MSGBOX-".Length..];
+                var msg = SysCommon.GetMessageFromMessageException(msgEx);
                 await Device.InvokeOnMainThreadAsync(async () =>
                     await Application.Current.MainPage.DisplayAlert(
                         this.ActItem.GetControlDescription(),
@@ -3620,7 +3627,7 @@ namespace dMobile.View.Activity
         /// <summary>
         /// Text box search item focused event handler.
         /// </summary>
-        /// <param name="sender"><see cref="object"/> Sender instance.</param>
+        /// <param name="sender"><see cref="object"/> Object that generated the event.</param>
         /// <param name="e"><see cref="EventArgs"/> Event arguments.</param>
         private void TxtSearchItem_Focused(object sender, EventArgs e)
         {
@@ -3630,7 +3637,7 @@ namespace dMobile.View.Activity
         /// <summary>
         /// Text box search item unfocused event handler.
         /// </summary>
-        /// <param name="sender"><see cref="object"/> Sender instance.</param>
+        /// <param name="sender"><see cref="object"/> Object that generated the event.</param>
         /// <param name="e"><see cref="EventArgs"/> Event arguments.</param>
         private void TxtSearchItem_Unfocused(object sender, EventArgs e)
         {
@@ -3640,7 +3647,7 @@ namespace dMobile.View.Activity
         /// <summary>
         /// Barcode modifier focused event handler.
         /// </summary>
-        /// <param name="sender"><see cref="object"/> Sender instance.</param>
+        /// <param name="sender"><see cref="object"/> Object that generated the event.</param>
         /// <param name="e"><see cref="FocusEventArgs"/> Focus event arguments.</param>
         private void BarCodeModifierPicker_Focused(object sender, FocusEventArgs e)
         {
@@ -3650,7 +3657,7 @@ namespace dMobile.View.Activity
         /// <summary>
         /// Barcode modifier unfocused event handler.
         /// </summary>
-        /// <param name="sender"><see cref="object"/> Sender instance.</param>
+        /// <param name="sender"><see cref="object"/> Object that generated the event.</param>
         /// <param name="e"><see cref="FocusEventArgs"/> Focus event arguments.</param>
         private void BarCodeModifierPicker_Unfocused(object sender, FocusEventArgs e)
         {

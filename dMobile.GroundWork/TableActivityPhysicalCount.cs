@@ -36,82 +36,38 @@ namespace dMobile.GroundWork
         /// </summary>
         public override async Task PurgeData()
         {
-            var conn = DatabaseConnection.GetInstance().SQLConn;
+            ////var conn = DatabaseConnection.GetInstance().SQLConn;
             var subType = Convert.ToInt32(this.CurrentSubType);
             this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging details.", true);
-
-            await conn.RunInTransactionAsync(transaction =>
+            try
             {
-                try
-                {
-                    // Corruption recovery cleanup.
-                    var query = "DELETE FROM tActivityDetailProductSchemeVariantXRef" +
-                                " WHERE tActivityDetailProductSchemeVariantXRef.ActivityDetailRefno <= 0" +
-                                " OR tActivityDetailProductSchemeVariantXRef.ProductSchemeVariantRefno <= 0";
-                    transaction.Execute(query);
+                this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging cycle counts.", true);
 
-                    // Corruption recovery cleanup.
-                    query = "DELETE FROM tActivityDetailExtra WHERE tActivityDetailExtra.ActivityDetailRefno <= 0";
-                    transaction.Execute(query);
+                // Corruption recovery cleanup.
+                this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"Purging {this.LowerCaseName}.", true);
+                var query = "DELETE FROM tActivityCount WHERE tActivityCount.ActivityRefno <= ?" +
+                            " or tActivityCount.ActivityFKRefno <= 0";
+                await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(query);
 
-                    // Corruption recovery cleanup.
-                    query = "DELETE FROM tActivityDetailCount WHERE tActivityDetailCount.ActivityDetailRefno <= 0" +
-                            " OR tActivityDetailCount.ActivityDetailFKRefno <= 0";
-                    transaction.Execute(query);
+                // Corruption recovery cleanup.
+                query = "DELETE FROM tActivity WHERE tActivity.ActivityRefno <= 0";
+                await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(query);
 
-                    // Corruption recovery cleanup.
-                    query = "DELETE FROM tActivityDetail WHERE tActivityDetail.ActivityDetailSubType = ?" +
-                            " AND tActivityDetail.ActivityDetailRefno <= 0";
-                    transaction.Execute(query, subType);
+                query = "DELETE FROM tActivityCount WHERE tActivityCount.ActivitySubType = ?";
+                await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(query, subType);
 
-                    query = "DELETE FROM tActivityDetailProductSchemeVariantXRef "
-                        + "WHERE tActivityDetailProductSchemeVariantXRef.ActivityDetailRefno IN "
-                        + "(SELECT tActivityDetail.ActivityDetailRefno "
-                        + "FROM tActivityDetail "
-                        + "WHERE tActivityDetail.ActivityDetailSubType = ?)";
-                    transaction.Execute(query, subType);
+                query = "DELETE FROM tActivity WHERE tActivity.ActivitySubType = ?";
+                await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(query, subType);
 
-                    query = "DELETE FROM tActivityDetailCount "
-                        + "WHERE tActivityDetailCount.ActivityDetailRefno IN "
-                        + "(SELECT tActivityDetail.ActivityDetailRefno "
-                        + "FROM tActivityDetail "
-                        + "WHERE tActivityDetail.ActivityDetailSubType = ?)";
-                    transaction.Execute(query, subType);
+                this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging physical counts complete.", true);
+            }
+            catch (SQLiteException ex)
+            {
+                this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Database exception occurred.", true);
+                this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging physical counts failed.", true);
 
-                    query = "DELETE FROM tActivityDetailExtra "
-                        + "WHERE tActivityDetailExtra.ActivityDetailRefno IN "
-                        + "(SELECT tActivityDetail.ActivityDetailRefno "
-                        + "FROM tActivityDetail "
-                        + "WHERE tActivityDetail.ActivityDetailSubType = ?)";
-                    transaction.Execute(query, subType);
-
-                    query = "DELETE FROM tActivityDetail WHERE tActivityDetail.ActivityDetailSubType = ?";
-                    transaction.Execute(query, subType);
-
-                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging physical count details complete.", true);
-                    transaction.Commit();
-                }
-                catch (SQLiteException sqlEx)
-                {
-                    if (transaction.IsInTransaction)
-                    {
-                        transaction.Rollback();
-                    }
-
-                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Database exception occurred.", true);
-                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging physical count details failed.", true);
-                    throw new Exception("Database exception occurred. Purging physical count details failed.", sqlEx);
-                }
-                catch (Exception ex)
-                {
-                    if (transaction.IsInTransaction)
-                    {
-                        transaction.Rollback();
-                    }
-
-                    throw new Exception("Database exception occurred. Purging physical count details failed.", ex);
-                }
-            });
+                throw new Exception("Database exception occurred. Purging physical counts failed.", ex);
+            }
         }
 
         /// <summary>

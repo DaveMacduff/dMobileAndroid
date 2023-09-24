@@ -31,7 +31,7 @@ namespace dMobile.BarCodeScanner.BarCodeScanners
         /// <summary>
         /// Bar code scan event handler delegate.
         /// </summary>
-        /// <param name="sender"><see cref="object"/> Sender instance.</param>
+        /// <param name="sender"><see cref="object"/> Object that generated the event.</param>
         /// <param name="e"> <see cref="BarCodeScannerEventArgs"/> Scanner event arguments.</param>
         /// <returns><see cref="Task"/> Task operation.</returns>
         public delegate Task BarCodeScanEventHandler(object sender, BarCodeScannerEventArgs e);

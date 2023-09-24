@@ -2,24 +2,18 @@
 // Copyright (c) InterSect Business Systems Inc. All rights reserved.
 // </copyright>
 
-using dMobile.Controller.Activity_Detail;
-using dMobile.Controller.Activity_Item;
-
 namespace dMobile.View.Activity
 {
     using System;
-    using System.Collections.Generic;
     using System.Collections.ObjectModel;
-    using System.Linq;
-    using System.Text;
     using System.Threading.Tasks;
     using System.Xml.Linq;
     using Android.Views;
-    using dMobile.BarCodeScanner;
     using dMobile.BarCodeScanner.BarCodeParsing;
     using dMobile.BarCodeScanner.BarCodeScanners;
     using dMobile.Bedrock;
-    using dMobile.Controller;
+    using dMobile.Controller.Activity_Detail;
+    using dMobile.Controller.Activity_Item;
     using dMobile.Resources.Enums;
     using dMobile.View.CustomPages.Modal;
     using dMobile.View.Forms;
@@ -30,11 +24,6 @@ namespace dMobile.View.Activity
     public partial class ActivityItemInventoryInquiry : DMobileModal, IAppArea
     {
 
-        /// <summary>
-        ///
-        /// </summary>
-        /// <param name="_ActivitySubTypes"></param>
-        /// <remarks></remarks>
         /// <summary>
         /// Initializes a new instance of the <see cref="ActivityItemInventoryInquiry"/> class.
         /// </summary>

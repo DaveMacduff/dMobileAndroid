@@ -989,8 +989,7 @@ namespace dMobile.Bedrock
         /// </summary>
         /// <param name="adjustmentType">.</param>
         /// <returns>.</returns>
-        public static bool IsAllowedChangeNegateQuantityFromAdjType(AdjTypes
-            adjustmentType)
+        public static bool IsAllowedChangeNegateQuantityFromAdjType(AdjTypes adjustmentType)
         {
             var isAllowedNegateQuantity = false;
 
@@ -1462,51 +1461,6 @@ namespace dMobile.Bedrock
         }
 
         /// <summary>
-        /// The GetXMLDocumentFromObjectArray.
-        /// </summary>
-        /// <param name="objList">.</param>
-        /// <returns>.</returns>
-        public static XmlDocument GetXMLDocumentFromObjectArray(Array objList)
-        {
-            var result = new XmlDocument();
-            var root = result.CreateElement("List");
-
-            result.AppendChild(root);
-
-            foreach (var list in objList)
-            {
-                var record = result.CreateElement("Record");
-                root.AppendChild(record);
-                XmlElement tmpElem = null;
-
-                // Interrogate properties
-                foreach (var prop in list.GetType().GetProperties())
-                {
-                    if (prop.CanRead)
-                    {
-                        tmpElem = result.CreateElement(
-                            prop.GetGetMethod().Name.Substring(4, prop.GetGetMethod().Name.Length - 4));
-                        tmpElem.AppendChild(result.CreateTextNode(prop.GetValue(list, null).ToString()));
-                        record.AppendChild(tmpElem);
-                    }
-                }
-
-                // Interrogate fields
-                foreach (var fld in list.GetType().GetFields())
-                {
-                    if (fld.IsPublic)
-                    {
-                        tmpElem = result.CreateElement(fld.Name);
-                        tmpElem.AppendChild(result.CreateTextNode(fld.GetValue(list).ToString()));
-                        record.AppendChild(tmpElem);
-                    }
-                }
-            }
-
-            return result;
-        }
-
-        /// <summary>
         /// The GetAssemblyVersion.
         /// </summary>
         /// <returns>.</returns>
@@ -1567,37 +1521,6 @@ namespace dMobile.Bedrock
             // "dMobile Error Occurred Do you wish to continue!") == MsgBoxResult.No);
             // #endif
             return result;
-        }
-
-        /// <summary>
-        /// Removes control characters and other non-UTF-8 characters.
-        /// </summary>
-        /// <param name="inData">The string to process.</param>
-        /// <returns>A string with no control characters or entities above 0x00FD.</returns>
-        public static string RemoveTroublesomeCharacters(string inData)
-        {
-            if (string.IsNullOrEmpty(inData))
-            {
-                return string.Empty;
-            }
-
-            var newData = new StringBuilder();
-            //// char ch = '\0';
-            //// for (int index = 0; index <= inData.Length - 1; index++)
-            //// {
-            ////    ch = inData[index];
-
-            //// // remove any characters outside the valid UTF-8 range as well as all control characters
-            ////    // except tabs and new lines
-            ////    ////if ((&HFD > AscW(ch) And AscW(ch) > &H1F) Or ch = "\t" Or ch = "\n" Or ch = "\r")
-            ////    ////newString.Append(ch)
-
-            //// if (0xfd > Strings.AscW(ch) & Strings.AscW(ch) > 0x1f)
-            ////    {
-            ////        newData.Append(ch);
-            ////    }
-            //// }
-            return newData.ToString();
         }
 
         /// <summary>
@@ -1845,25 +1768,6 @@ namespace dMobile.Bedrock
         }
 
         /// <summary>
-        /// The GlobalMemoryStatus.
-        /// </summary>
-        /// <param name="ms">The ms<see cref="MEMORYSTATUS"/>.</param>
-        /// <returns>The <see cref="int"/>.</returns>
-        [DllImport("coredll")]
-        public static extern int GlobalMemoryStatus(ref MEMORYSTATUS ms);
-
-        /// <summary>
-        /// The GetSystemMemoryDivision.
-        /// </summary>
-        /// <param name="lpdwStorePages">The lpdwStorePages<see cref="uint"/>.</param>
-        /// <param name="ldpwRamPages">The ldpwRamPages<see cref="uint"/>.</param>
-        /// <param name="ldpwPageSize">The ldpwPageSize<see cref="uint"/>.</param>
-        /// <returns>The <see cref="int"/>.</returns>
-        [DllImport("coredll")]
-        public static extern int GetSystemMemoryDivision(ref uint lpdwStorePages,
-            ref uint ldpwRamPages, ref uint ldpwPageSize);
-
-        /// <summary>
         /// The ShowMemory.
         /// </summary>
         /// <returns>The <see cref="string"/>.</returns>
@@ -1892,196 +1796,15 @@ namespace dMobile.Bedrock
         }
 
         /// <summary>
-        /// Defines the FILE_DEVICE_HAL.
-        /// </summary>
-        private const int FILE_DEVICE_HAL = 0x101;
-
-        /// <summary>
-        /// Defines the METHOD_BUFFERED.
-        /// </summary>
-        private const int METHOD_BUFFERED = 0;
-
-        /// <summary>
-        /// Defines the FILE_ANY_ACCESS.
-        /// </summary>
-        private const int FILE_ANY_ACCESS = 0;
-
-        /// <summary>
-        /// The CTL_CODE.
-        /// </summary>
-        /// <param name="DeviceType">The DeviceType<see cref="int"/>.</param>
-        /// <param name="Func">The Func<see cref="int"/>.</param>
-        /// <param name="Method">The Method<see cref="int"/>.</param>
-        /// <param name="Access">The Access<see cref="int"/>.</param>
-        /// <returns>The <see cref="int"/>.</returns>
-        private int CTL_CODE(int DeviceType, int Func, int Method, int Access)
-        {
-            return (DeviceType << 16) | (Access << 14) | (Func << 2) | Method;
-        }
-
-        /// <summary>
-        /// The KernelIoControl.
-        /// </summary>
-        /// <param name="dwIoControlCode">The dwIoControlCode<see cref="int"/>.</param>
-        /// <param name="lpInBuf">The lpInBuf<see cref="IntPtr"/>.</param>
-        /// <param name="nInBufSize">The nInBufSize<see cref="int"/>.</param>
-        /// <param name="lpOutBuf">The lpOutBuf<see cref="IntPtr"/>.</param>
-        /// <param name="nOutBufSize">The nOutBufSize<see cref="int"/>.</param>
-        /// <param name="lpBytesReturned">The lpBytesReturned<see cref="int"/>.</param>
-        /// <returns>The <see cref="int"/>.</returns>
-        [DllImport("coredll")]
-        public static extern int KernelIoControl(int dwIoControlCode, IntPtr lpInBuf, int nInBufSize,
-            IntPtr lpOutBuf, int nOutBufSize, ref int lpBytesReturned);
-
-        /// <summary>
-        /// The ResetDevice.
-        /// </summary>
-        /// <returns>.</returns>
-        private int ResetDevice()
-        {
-            var bytesReturned = 0;
-            var IOCTL_HAL_REBOOT = this.CTL_CODE(FILE_DEVICE_HAL, 15, METHOD_BUFFERED, FILE_ANY_ACCESS);
-
-            return KernelIoControl(IOCTL_HAL_REBOOT, IntPtr.Zero, 0, IntPtr.Zero, 0, ref bytesReturned);
-        }
-
-        /// <summary>
-        /// Defines the EM_SETSEL.
-        /// </summary>
-        private const int EM_SETSEL = 0xb1;
-
-        /// <summary>
-        /// Defines the WM_USER.
-        /// </summary>
-        private const int WM_USER = 0x400;
-
-        /// <summary>
-        /// Defines the UDM_GETBUDDY.
-        /// </summary>
-        private const int UDM_GETBUDDY = WM_USER + 106;
-
-        /// <summary>
-        /// Defines the GW_CHILD.
-        /// </summary>
-        private const int GW_CHILD = 5;
-
-        /// <summary>
-        /// The SendMessage.
-        /// </summary>
-        /// <param name="hWnd">The hWnd<see cref="IntPtr"/>.</param>
-        /// <param name="msg">The msg<see cref="int"/>.</param>
-        /// <param name="wParam">The wParam<see cref="int"/>.</param>
-        /// <param name="lParam">The lParam<see cref="int"/>.</param>
-        /// <returns>The <see cref="IntPtr"/>.</returns>
-        [DllImport("coredll")]
-        public static extern IntPtr SendMessage(IntPtr hWnd, int msg, int wParam, int lParam);
-
-        /// <summary>
-        /// The GetCapture.
-        /// </summary>
-        /// <returns>The <see cref="IntPtr"/>.</returns>
-        [DllImport("coredll")]
-        public static extern IntPtr GetCapture();
-
-        /// <summary>
-        /// The GetWindow.
-        /// </summary>
-        /// <param name="hWnd">The hWnd<see cref="IntPtr"/>.</param>
-        /// <param name="nIndex">The nIndex<see cref="int"/>.</param>
-        /// <returns>The <see cref="IntPtr"/>.</returns>
-        [DllImport("coredll")]
-        public static extern IntPtr GetWindow(IntPtr hWnd, int nIndex);
-
-        /// <summary>
-        /// The SetFocus.
-        /// </summary>
-        /// <param name="hWnd">The hWnd<see cref="IntPtr"/>.</param>
-        [DllImport("coredll")]
-        public static extern void SetFocus(IntPtr hWnd);
-
-        /// <summary>
-        /// /// </summary>
-        /// <param name="ctl"></param>
-        //// public static void SetFocusAndSelectValueToNumericUpDown(UpDownBase ctl)
-        //// {
-        ////    ctl.Capture = true;
-        ////    IntPtr hWnd = GetCapture();
-        ////    ctl.Capture = false;
-        ////    IntPtr hBuddy = GetWindow(hWnd, GW_CHILD);
-        ////    SetFocus(hBuddy);
-        ////    SendMessage(hBuddy, EM_SETSEL, 0, -1);
-        //// }
-
-        /// <summary>
-        ///
-        /// </summary>
-        /// <param name="ctl"></param>
-        //// public static void SetFocusAndSelectValueToDomainUpDown(UpDownBase ctl)
-        //// {
-        ////    ctl.Capture = true;
-        ////    IntPtr hWnd = GetCapture();
-        ////    ctl.Capture = false;
-        ////    IntPtr hBuddy = GetWindow(hWnd, GW_CHILD);
-        ////    SetFocus(hBuddy);
-        ////    SendMessage(hBuddy, EM_SETSEL, 0, -1);
-        //// }
-
-        /// <summary>
-        ///
-        /// </summary>
-        /// <param name="ctl"></param>
-        //// public static void SelectValueInNumericUpDown(UpDownBase ctl)
-        //// {
-        ////    ctl.Capture = true;
-        ////    IntPtr hWnd = GetCapture();
-        ////    ctl.Capture = false;
-        ////    IntPtr hBuddy = GetWindow(hWnd, GW_CHILD);
-        ////    ////SetFocus(hBuddy)
-        ////    SendMessage(hBuddy, EM_SETSEL, 0, -1);
-        //// }
-
-        /// <summary>
-        ///
-        /// </summary>
-        /// <param name="ctl"></param>
-        //// public static void SelectValueInDomainUpDown(UpDownBase ctl)
-        //// {
-        ////    ctl.Capture = true;
-        ////    IntPtr hWnd = GetCapture();
-        ////    ctl.Capture = false;
-        ////    IntPtr hBuddy = GetWindow(hWnd, GW_CHILD);
-        ////    ////SetFocus(hBuddy)
-        ////    SendMessage(hBuddy, EM_SETSEL, 0, -1);
-        //// }
-
-        /// <summary>
-        ///.
-        /// </summary>
-        /// <typeparam name="TObjectType">.</typeparam>
-        /// <param name="oObject">.</param>
-        /// <returns>.</returns>
-        public static TObjectType CopyObject<TObjectType>(TObjectType oObject)
-        {
-            var oSerializer = new XmlSerializer(oObject.GetType());
-            using var oStream = new MemoryStream();
-            oSerializer.Serialize(oStream, oObject);
-            oStream.Position = 0;
-            return (TObjectType)oSerializer.Deserialize(oStream);
-        }
-
-        /// <summary>
         /// The clone.
         /// </summary>
         /// <typeparam name="T">.</typeparam>
         /// <param name="original">.</param>
         /// <returns>.</returns>
-        public static T clone<T>(T original)
+        public static T Clone<T>(T original)
         {
             var tempMyClass = (T)Activator.CreateInstance(original.GetType());
-
-            var fis = original.GetType().GetFields(
-                BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
-
+            var fis = original.GetType().GetFields(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
             foreach (var fi in fis)
             {
                 var fieldValue = fi.GetValue(original);
@@ -2091,7 +1814,7 @@ namespace dMobile.Bedrock
                 }
                 else
                 {
-                    fi.SetValue(tempMyClass, clone(fieldValue));
+                    fi.SetValue(tempMyClass, Clone(fieldValue));
                 }
             }
 
@@ -2109,13 +1832,16 @@ namespace dMobile.Bedrock
         }
 
         /// <summary>
-        /// Convert dialog type string to it's enum value type.
+        /// Get message string from message only exception.
         /// </summary>
-        /// <param name="dialogType"><see cref="string"/> Dialog type name string.</param>
-        /// <returns><see cref="EDialogTypes"/> Dialog type enum.</returns>
-        public static EDialogTypes SourceString2Enum(string dialogType)
+        /// <param name="msgEx"><see cref="MessageOnlyException"/> Message only exception.</param>
+        /// <returns><see cref="string"/> Create message string.</returns>
+        public static string GetMessageFromMessageException(MessageOnlyException msgEx)
         {
-            return (EDialogTypes)Enum.Parse(typeof(EDialogTypes), dialogType);
+            var msg = (msgEx.Message.IndexOf("MSGBOX-", StringComparison.Ordinal) == -1)
+                ? msgEx.Message
+                : msgEx.Message["MSGBOX-".Length..];
+            return msg;
         }
     }
 }

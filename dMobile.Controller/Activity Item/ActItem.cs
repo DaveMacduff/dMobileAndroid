@@ -429,6 +429,13 @@ namespace dMobile.Controller.Activity_Item
                     isGetDefault = true;
                 }
             }
+            else
+            {
+                if (selectedLocMap != null)
+                {
+                    this.LocMap = selectedLocMap.Clone();
+                }
+            }
 
             // Even if the line item selected location is complete, default location will override.
             if (isGetDefault)

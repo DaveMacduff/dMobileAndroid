@@ -297,7 +297,7 @@ namespace dMobile.Controller.Activity
         /// <summary>
         /// The data layer status out handler.
         /// </summary>
-        /// <param name="sender"><see cref="object"/> Sender instance.</param>
+        /// <param name="sender"><see cref="object"/> Object that generated the event.</param>
         /// <param name="e"><see cref="EventArgs"/> Sender object event arguments.</param>
         /// <param name="outMessage"><see cref="string"/> Status out message.</param>
         /// <param name="overrideDisconnectedMode"><see cref="bool"/> Override disconnected mode.</param>
@@ -336,7 +336,7 @@ namespace dMobile.Controller.Activity
         /// <summary>
         /// The data layer progress out handler.
         /// </summary>
-        /// <param name="sender"><see cref="object"/> Sender instance.</param>
+        /// <param name="sender"><see cref="object"/> Object that generated the event.</param>
         /// <param name="e"><see cref="EventArgs"/> Sender object event arguments.</param>
         /// <param name="currentValue"><see cref="int"/> Current progress value.</param>
         /// <param name="minValue"><see cref="int"/> Minimum progress value.</param>
@@ -371,7 +371,7 @@ namespace dMobile.Controller.Activity
         /// <summary>
         /// The data layer progress out handler.
         /// </summary>
-        /// <param name="sender"><see cref="object"/> Sender instance.</param>
+        /// <param name="sender"><see cref="object"/> Object that generated the event.</param>
         /// <param name="e"><see cref="EventArgs"/> Sender object event arguments.</param>
         /// <param name="currentValue"><see cref="int"/> Current progress value.</param>
         public void DataLayerProgressOutHandler(object sender, EventArgs e, int currentValue)

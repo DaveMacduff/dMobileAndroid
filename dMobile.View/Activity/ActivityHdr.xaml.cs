@@ -306,7 +306,7 @@ namespace dMobile.View.Activity
             }
             catch (MessageOnlyException msgEx)
             {
-                var msg = (msgEx.Message.IndexOf("MSGBOX-", StringComparison.Ordinal) == -1) ? msgEx.Message : msgEx.Message["MSGBOX-".Length..];
+                var msg = SysCommon.GetMessageFromMessageException(msgEx);
                 saveComplete = false;
                 await Device.InvokeOnMainThreadAsync(async () =>
                     await Application.Current.MainPage.DisplayAlert(
@@ -356,7 +356,7 @@ namespace dMobile.View.Activity
             }
             catch (MessageOnlyException msgEx)
             {
-                var msg = (msgEx.Message.IndexOf("MSGBOX-", StringComparison.Ordinal) == -1) ? msgEx.Message : msgEx.Message["MSGBOX-".Length..];
+                var msg = SysCommon.GetMessageFromMessageException(msgEx);
                 cancelChanges = false;
                 await Device.InvokeOnMainThreadAsync(async () =>
                     await Application.Current.MainPage.DisplayAlert(
@@ -478,7 +478,6 @@ namespace dMobile.View.Activity
                 this.NumTaps = 0;
                 this.SubscribeKeyUpHandlers();
                 this.ListViewMainActivity.ItemTapped += this.ListViewMainActivity_ItemTapped;
-                await this.ScannerEnable();
                 this.ExtraInfoItems.Clear();
 
                 this.ActHdr.XmlDataCriteria = XDocument.Parse(
@@ -518,7 +517,7 @@ namespace dMobile.View.Activity
             }
             catch (MessageOnlyException msgEx)
             {
-                var msg = (msgEx.Message.IndexOf("MSGBOX-", StringComparison.Ordinal) == -1) ? msgEx.Message : msgEx.Message["MSGBOX-".Length..];
+                var msg = SysCommon.GetMessageFromMessageException(msgEx);
                 await Device.InvokeOnMainThreadAsync(async () =>
                     await Application.Current.MainPage.DisplayAlert(
                         this.ActHdr.GetControlDescription(),
@@ -562,6 +561,7 @@ namespace dMobile.View.Activity
                     await this.Close();
                 }
 
+                await this.ScannerEnable();
                 ////await Task.Run(() =>
                 ////{
                 ////    // Explicit GC, Xamarin forms not disposing of objects properly
@@ -699,7 +699,7 @@ namespace dMobile.View.Activity
             }
             catch (MessageOnlyException msgEx)
             {
-                var msg = (msgEx.Message.IndexOf("MSGBOX-", StringComparison.Ordinal) == -1) ? msgEx.Message : msgEx.Message["MSGBOX-".Length..];
+                var msg = SysCommon.GetMessageFromMessageException(msgEx);
                 await Device.InvokeOnMainThreadAsync(async () =>
                     await Application.Current.MainPage.DisplayAlert(
                         this.ActHdr.GetControlDescription(),
@@ -1073,7 +1073,7 @@ namespace dMobile.View.Activity
             }
             catch (MessageOnlyException msgEx)
             {
-                var msg = (msgEx.Message.IndexOf("MSGBOX-", StringComparison.Ordinal) == -1) ? msgEx.Message : msgEx.Message["MSGBOX-".Length..];
+                var msg = SysCommon.GetMessageFromMessageException(msgEx);
                 await Device.InvokeOnMainThreadAsync(async () =>
                     await Application.Current.MainPage.DisplayAlert(
                         this.ActHdr.GetControlDescription(),
@@ -1492,7 +1492,7 @@ namespace dMobile.View.Activity
         /// <summary>
         /// Headers list view focused event handler.
         /// </summary>
-        /// <param name="sender"><see cref="object"/> Sender instance.</param>
+        /// <param name="sender"><see cref="object"/> Object that generated the event.</param>
         /// <param name="e"><see cref="FocusEventArgs"/> Focus event arguments.</param>
         private void ListView_Focused(object sender, FocusEventArgs e)
         {
@@ -1502,7 +1502,7 @@ namespace dMobile.View.Activity
         /// <summary>
         /// Headers list view unfocused event handler.
         /// </summary>
-        /// <param name="sender"><see cref="object"/> Sender instance.</param>
+        /// <param name="sender"><see cref="object"/> Object that generated the event.</param>
         /// <param name="e"><see cref="FocusEventArgs"/> Focus event arguments.</param>
         private void ListView_Unfocused(object sender, FocusEventArgs e)
         {
@@ -1512,7 +1512,7 @@ namespace dMobile.View.Activity
         /// <summary>
         /// Headers list view focused event handler.
         /// </summary>
-        /// <param name="sender"><see cref="object"/> Sender instance.</param>
+        /// <param name="sender"><see cref="object"/> Object that generated the event.</param>
         /// <param name="e"><see cref="FocusEventArgs"/> Focus event arguments.</param>
         private void ListDisplay_Focused(object sender, FocusEventArgs e)
         {
@@ -1522,7 +1522,7 @@ namespace dMobile.View.Activity
         /// <summary>
         /// Headers list view unfocused event handler.
         /// </summary>
-        /// <param name="sender"><see cref="object"/> Sender instance.</param>
+        /// <param name="sender"><see cref="object"/> Object that generated the event.</param>
         /// <param name="e"><see cref="FocusEventArgs"/> Focus event arguments.</param>
         private void ListDisplay_Unfocused(object sender, FocusEventArgs e)
         {
@@ -1532,7 +1532,7 @@ namespace dMobile.View.Activity
         /// <summary>
         /// Headers list view focused event handler.
         /// </summary>
-        /// <param name="sender"><see cref="object"/> Sender instance.</param>
+        /// <param name="sender"><see cref="object"/> Object that generated the event.</param>
         /// <param name="e"><see cref="FocusEventArgs"/> Focus event arguments.</param>
         private void CmdAdd_Focused(object sender, FocusEventArgs e)
         {
@@ -1542,7 +1542,7 @@ namespace dMobile.View.Activity
         /// <summary>
         /// Headers list view unfocused event handler.
         /// </summary>
-        /// <param name="sender"><see cref="object"/> Sender instance.</param>
+        /// <param name="sender"><see cref="object"/> Object that generated the event.</param>
         /// <param name="e"><see cref="FocusEventArgs"/> Focus event arguments.</param>
         private void CmdAdd_Unfocused(object sender, FocusEventArgs e)
         {
@@ -1879,7 +1879,7 @@ namespace dMobile.View.Activity
         /// <summary>
         /// Text box search item focused event handler.
         /// </summary>
-        /// <param name="sender"><see cref="object"/> Sender instance.</param>
+        /// <param name="sender"><see cref="object"/> Object that generated the event.</param>
         /// <param name="e"><see cref="FocusEventArgs"/> Focus event arguments.</param>
         private void TxtSearchItem_Focused(object sender, FocusEventArgs e)
         {
@@ -1889,7 +1889,7 @@ namespace dMobile.View.Activity
         /// <summary>
         /// Text box search item unfocused event handler.
         /// </summary>
-        /// <param name="sender"><see cref="object"/> Sender instance.</param>
+        /// <param name="sender"><see cref="object"/> Object that generated the event.</param>
         /// <param name="e"><see cref="FocusEventArgs"/> Focus event arguments.</param>
         private void TxtSearchItem_Unfocused(object sender, FocusEventArgs e)
         {
@@ -1905,11 +1905,16 @@ namespace dMobile.View.Activity
         {
             try
             {
+                if (string.IsNullOrEmpty(this.txtSearchHdr.Text))
+                {
+                    await this.RefreshDataBySubType();
+                }
+
                 await this.DesignGrid();
             }
             catch (MessageOnlyException msgEx)
             {
-                var msg = (msgEx.Message.IndexOf("MSGBOX-", StringComparison.Ordinal) == -1) ? msgEx.Message : msgEx.Message["MSGBOX-".Length..];
+                var msg = SysCommon.GetMessageFromMessageException(msgEx);
                 await Device.InvokeOnMainThreadAsync(async () =>
                     await Application.Current.MainPage.DisplayAlert(
                         this.ActHdr.GetControlDescription(),
@@ -2014,7 +2019,7 @@ namespace dMobile.View.Activity
             }
             catch (MessageOnlyException msgEx)
             {
-                var msg = (msgEx.Message.IndexOf("MSGBOX-", StringComparison.Ordinal) == -1) ? msgEx.Message : msgEx.Message["MSGBOX-".Length..];
+                var msg = SysCommon.GetMessageFromMessageException(msgEx);
 
                 // Do not set the IsChangesMade. MessageOnlyException is really not
                 // an error.

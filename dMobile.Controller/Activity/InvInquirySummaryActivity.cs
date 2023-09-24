@@ -65,6 +65,7 @@ namespace dMobile.Controller.Activity
                 this.SelectedActivity = inquiry;
                 this.HdrFkRefno = inquiry.HdrRefno;
                 this.HdrRefno = inquiry.HdrRefno;
+                this.LocationMapRefno = inquiry.LocationMapRefno;
             }
         }
 

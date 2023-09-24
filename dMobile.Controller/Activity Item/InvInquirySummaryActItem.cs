@@ -96,6 +96,7 @@ namespace dMobile.Controller.Activity_Item
         {
             this.FullClassName = typeof(CycleActItem).FullName;
             this.IsAskCreateNewItem = false;
+            this.LocMap = LocationMap.GetInstance().CurrLocMap;
 
             // Create item template
             var dataTemplate = new DataTemplate(() =>
@@ -668,19 +669,22 @@ namespace dMobile.Controller.Activity_Item
                 foreach (ActivityItem activityItem in this.ListItems)
                 {
                     var sectionFkRefno = Convert.ToInt32(activityItem.LocationMapSectionFKRefno);
-                    string sectionName;
-
-                    if (names.ContainsKey(sectionFkRefno))
+                    if (sectionFkRefno > 0)
                     {
-                        sectionName = names[sectionFkRefno];
-                    }
-                    else
-                    {
-                        sectionName = await LocationMapTasks.GetSectionName(sectionFkRefno);
-                        names.Add(sectionFkRefno, sectionName);
-                    }
+                        string sectionName;
 
-                    activityItem.LocationMapSectionFKRefno = sectionName;
+                        if (names.ContainsKey(sectionFkRefno))
+                        {
+                            sectionName = names[sectionFkRefno];
+                        }
+                        else
+                        {
+                            sectionName = await LocationMapTasks.GetSectionName(sectionFkRefno);
+                            names.Add(sectionFkRefno, sectionName);
+                        }
+
+                        activityItem.LocationMapSectionFKRefno = sectionName;
+                    }
                 }
 
                 names.Clear();
@@ -695,19 +699,22 @@ namespace dMobile.Controller.Activity_Item
                 foreach (ActivityItem activityItem in this.ListItems)
                 {
                     var slotFkRefno = Convert.ToInt32(activityItem.LocationMapSlotFKRefno);
-                    string slotName;
-
-                    if (names.ContainsKey(slotFkRefno))
+                    if (slotFkRefno > 0)
                     {
-                        slotName = names[slotFkRefno];
-                    }
-                    else
-                    {
-                        slotName = await LocationMapTasks.GetSlotName(slotFkRefno);
-                        names.Add(slotFkRefno, slotName);
-                    }
+                        string slotName;
 
-                    activityItem.LocationMapSlotFKRefno = slotName;
+                        if (names.ContainsKey(slotFkRefno))
+                        {
+                            slotName = names[slotFkRefno];
+                        }
+                        else
+                        {
+                            slotName = await LocationMapTasks.GetSlotName(slotFkRefno);
+                            names.Add(slotFkRefno, slotName);
+                        }
+
+                        activityItem.LocationMapSlotFKRefno = slotName;
+                    }
                 }
 
                 names.Clear();

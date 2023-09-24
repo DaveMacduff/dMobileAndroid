@@ -11,7 +11,6 @@ namespace dMobile.Controller.Activity
     using System.Threading.Tasks;
     using System.Xml.Linq;
     using dMobile.Bedrock;
-    using dMobile.Controller.Activity_Detail;
     using dMobile.GroundWork;
     using dMobile.Resources;
     using dMobile.Resources.Services;
@@ -328,51 +327,51 @@ namespace dMobile.Controller.Activity
             }
 
             var query = @"
-                select tActivityReplenishment.ActivityRefno
-                        ,tActivityReplenishment.ActivitySubType
-                        ,tActivityReplenishment.WarehouseLocationMapRefno
-                        ,tActivityItemReplenishment.ActivityItemRefno
-                        ,tActivityItemReplenishment.ActivityItemSubType
-                        ,tActivityItemReplenishment.MoveType
+                select replen.ActivityRefno
+                        ,replen.ActivitySubType
+                        ,replen.WarehouseLocationMapRefno
+                        ,replenItem.ActivityItemRefno
+                        ,replenItem.ActivityItemSubType
+                        ,replenItem.MoveType
                         ,cast('' as varchar(10)) as MoveTypeString
-                        ,tActivityItemReplenishment.ActivityItemFKRefno
-                        ,tActivityItemReplenishment.ActivityItemFKParRefno
-                        ,tActivityItemReplenishment.ProductUnitRefno
+                        ,replenItem.ActivityItemFKRefno
+                        ,replenItem.ActivityItemFKParRefno
+                        ,replenItem.ProductUnitRefno
                         ,cast('' as varchar(10)) as ProductCode
                         ,cast('' as varchar(1)) as ProductUnitBC
                         ,cast('' as varchar(2)) as ProductUnitCode
-                        ,tActivityItemReplenishment.ProductUnitRefno
-                        ,tActivityItemReplenishment.ProductUnitRefno
-                        ,tActivityItemReplenishment.LocationMapRefno
+                        ,replenItem.ProductUnitRefno
+                        ,replenItem.ProductUnitRefno
+                        ,replenItem.LocationMapRefno
                         ,cast('' as varchar(30)) as ReadableLocationMap
-                        ,tActivityItemReplenishment.ActivityItemReplenishmentQuantity
-                        ,tActivityItemReplenishment.ActivityItemReplenishmentBaseQuantity
-                        ,tActivityItemReplenishment.ActivityItemReplenishmentWeightQuantity
-                        ,tActivityDetailReplenishment.ActivityDetailFKRefno
-                        ,tActivityDetailReplenishment.ActivityDetailReplenishmentIsConfirmed
-                        ,tActivityDetail.ActivityDetailRefno
-                        ,tActivityDetail.ActivityDetailSubType
-                        ,tActivityDetail.ActivityDetailStatus
-                        ,tActivityDetail.ActivityItemRefno
-                        ,tActivityDetail.ActivityDetailUniqueSchemeID
-                        ,tActivityDetail.ActivityDetailSchemeID
-                        ,tActivityDetail.ActivityDetailQuantity
-                        ,tActivityDetail.ActivityDetailBaseQuantity
-                        ,tActivityDetail.ActivityDetailWeightQuantity
-                        ,tActivityDetail.ActivityDetailSingleTradeItemSerialNumber
-                        ,tActivityDetail.ActivityDetailLogisticUnitBatchLotNumber
-                        ,tActivityDetail.ActivityDetailLogisticUnitBestBeforeSellByDate
-                        ,tActivityDetail.ActivityDetailLogisticUnitExpiryUseByDate
-                        ,tActivityDetail.ActivityDetailLogisticUnitProductionDate
-                        ,tActivityDetail.ActivityDetailLogisticUnitDueDate
-                        ,tActivityDetail.ActivityDetailLogisticUnitPackagingDate
-                        ,tActivityDetail.ActivityDetailLogisticUnitSkidNumber
-                    from tActivityReplenishment
-                    inner join tActivity on tActivity.ActivityRefno = tActivityReplenishment.ActivityRefno
-                    inner join tActivityItem on tActivityItem.ActivityRefno = tActivity.ActivityRefno
-                    inner join tActivityItemReplenishment on tActivityItemReplenishment.ActivityItemRefno = tActivityItem.ActivityItemRefno
-                    inner join tActivityDetail on tActivityDetail.ActivityItemRefno = tActivityItem.ActivityItemRefno
-                    inner join tActivityDetailReplenishment on tActivityDetailReplenishment.ActivityDetailRefno = tActivityDetail.ActivityDetailRefno";
+                        ,replenItem.ActivityItemReplenishmentQuantity
+                        ,replenItem.ActivityItemReplenishmentBaseQuantity
+                        ,replenItem.ActivityItemReplenishmentWeightQuantity
+                        ,replenDetail.ActivityDetailFKRefno
+                        ,replenDetail.ActivityDetailReplenishmentIsConfirmed
+                        ,detail.ActivityDetailRefno
+                        ,detail.ActivityDetailSubType
+                        ,detail.ActivityDetailStatus
+                        ,detail.ActivityItemRefno
+                        ,detail.ActivityDetailUniqueSchemeID
+                        ,detail.ActivityDetailSchemeID
+                        ,detail.ActivityDetailQuantity
+                        ,detail.ActivityDetailBaseQuantity
+                        ,detail.ActivityDetailWeightQuantity
+                        ,detail.ActivityDetailSingleTradeItemSerialNumber
+                        ,detail.ActivityDetailLogisticUnitBatchLotNumber
+                        ,detail.ActivityDetailLogisticUnitBestBeforeSellByDate
+                        ,detail.ActivityDetailLogisticUnitExpiryUseByDate
+                        ,detail.ActivityDetailLogisticUnitProductionDate
+                        ,detail.ActivityDetailLogisticUnitDueDate
+                        ,detail.ActivityDetailLogisticUnitPackagingDate
+                        ,detail.ActivityDetailLogisticUnitSkidNumber
+                    from tActivityReplenishment replen
+                    inner join tActivity on tActivity.ActivityRefno = replen.ActivityRefno
+                    inner join tActivityItem item on item.ActivityRefno = tActivity.ActivityRefno
+                    inner join tActivityItemReplenishment replenItem on replenItem.ActivityItemRefno = item.ActivityItemRefno
+                    inner join tActivityDetail detail on detail.ActivityItemRefno = item.ActivityItemRefno
+                    inner join tActivityDetailReplenishment replenDetail on replenDetail.ActivityDetailRefno = detail.ActivityDetailRefno";
 
             this.ListReplenishments = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<Replenishment>(query);
 
@@ -400,11 +399,6 @@ namespace dMobile.Controller.Activity
 
             return this.ListHdrs;
         }
-
-        ////public async Task<List<object>> GetActivityItemList()
-        ////{
-
-        ////}
 
         /// <summary>
         /// Select the adjustment activity header.
