@@ -18,15 +18,16 @@ namespace dMobile.View.Activity
     using BarCodeScanner.BarCodeScanners;
     using Bedrock;
     using Controller;
-    using dMobile.Controller.Activity;
     using Controller.Activity_Detail;
     using Controller.Activity_Item;
+    using CustomPages.Modal;
+    using dMobile.Controller.Activity;
+    using Forms;
     using Resources.Enums;
     using Resources.Types;
-    using CustomPages.Modal;
-    using Forms;
     using Xamarin.Forms;
     using Xamarin.Forms.Xaml;
+    using static Android.Content.ClipData;
     using Resource = dMobile.Resources.Properties.Resources;
 
     /// <summary>
@@ -104,6 +105,7 @@ namespace dMobile.View.Activity
         {
             this.InitializeComponent();
 
+            this.IsPageLoading = false;
             this.CmdLocationText = "Set Location";
             this.CmdFilterText = "Filter";
             this.CmdSelectSkidText = "Select Skid";
@@ -195,6 +197,11 @@ namespace dMobile.View.Activity
         /// Gets or sets the system environment instance.
         /// </summary>
         private SysEnvironment SysEnv { get; set; }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether bar code handler is registered / enabled.
+        /// </summary>
+        private bool IsBarCodeHandlerRegistered { get; set; }
 
         /// <summary>
         /// Gets or sets the bar code scanner instance.
@@ -706,21 +713,19 @@ namespace dMobile.View.Activity
         }
 
         /// <summary>
-        /// Un-register the bar code scan event handler and disable the scanner.
+        /// Unregister the bar code scan event handler and disable the scanner.
         /// </summary>
         /// <returns><see cref="Task"/> Task operation.</returns>
         public async Task ScannerDisable()
         {
             if (this.Scanner != null)
             {
-                this.Scanner = ScannerEngine.GetInstance().Scanner;
-            }
-
-            var barCodeScanner = this.Scanner;
-            if (barCodeScanner != null)
-            {
-                barCodeScanner.BarCodeScan -= new BarCodeScanner.BarCodeScanEventHandler(this.BarCodeHandler);
-                await barCodeScanner.Stop();
+                if (this.IsBarCodeHandlerRegistered)
+                {
+                    this.Scanner.BarCodeScan -= new BarCodeScanner.BarCodeScanEventHandler(this.BarCodeHandler);
+                    await this.Scanner.Stop();
+                    this.IsBarCodeHandlerRegistered = false;
+                }
             }
         }
 
@@ -732,14 +737,26 @@ namespace dMobile.View.Activity
         {
             if (this.Scanner != null)
             {
-                this.Scanner = ScannerEngine.GetInstance().Scanner;
+                if (!this.IsBarCodeHandlerRegistered)
+                {
+                    await this.Scanner.Start();
+                    this.Scanner.BarCodeScan += new BarCodeScanner.BarCodeScanEventHandler(this.BarCodeHandler);
+                    this.IsBarCodeHandlerRegistered = true;
+                }
             }
+        }
 
-            var barCodeScanner = this.Scanner;
-            if (barCodeScanner != null)
+        /// <summary>
+        /// Registers the bar code scan event handler and enables the scanner.
+        /// </summary>
+        /// <returns><see cref="Task"/> Task operation.</returns>
+        public async Task ScannerStart()
+        {
+            if (this.Scanner != null)
             {
-                await barCodeScanner.Start();
-                barCodeScanner.BarCodeScan += new BarCodeScanner.BarCodeScanEventHandler(this.BarCodeHandler);
+                await this.Scanner.Start();
+                this.Scanner.BarCodeScan += new BarCodeScanner.BarCodeScanEventHandler(this.BarCodeHandler);
+                this.IsBarCodeHandlerRegistered = true;
             }
         }
 
@@ -806,70 +823,73 @@ namespace dMobile.View.Activity
         /// </summary>
         protected override async void OnAppearing()
         {
-            base.OnAppearing();
-            try
+            if (!this.IsPageLoading)
             {
-                this.Loading = true;
-                this.NumTaps = 0;
-                this.SubscribeKeyUpHandlers();
-                this.ListViewMainActivity.ItemTapped += this.ListViewMainActivity_ItemTapped;
-                await this.RefreshDataBySubType();
-                await this.DesignGrid();
-                await this.EnableMenuItems();
-
-                if (this.MainActivityItems == null || this.MainActivityItems.Count == 0)
+                try
                 {
-                    Device.BeginInvokeOnMainThread(() => this.ExtraInfoItems.Clear());
+                    this.IsPageLoading = true;
+                    base.OnAppearing();
+                    this.NumTaps = 0;
+                    this.SubscribeKeyUpHandlers();
+                    this.ListViewMainActivity.ItemTapped += this.ListViewMainActivity_ItemTapped;
+                    await this.RefreshDataBySubType();
+                    await this.DesignGrid();
+                    await this.EnableMenuItems();
+
+                    if (this.MainActivityItems == null || this.MainActivityItems.Count == 0)
+                    {
+                        Device.BeginInvokeOnMainThread(() => this.ExtraInfoItems.Clear());
+                    }
+                    else
+                    {
+                        FindSelectedItemAsync();
+                    }
+
+                    this.ListViewDisplayExtraInfo.ItemsSource = this.ExtraInfoItems;
                 }
-                else
+                catch (MessageOnlyException msgEx)
                 {
-                    FindSelectedItemAsync();
+                    var msg = (msgEx.Message.IndexOf("MSGBOX-", StringComparison.Ordinal) == -1)
+                        ? msgEx.Message : msgEx.Message["MSGBOX-".Length..];
+                    await Device.InvokeOnMainThreadAsync(async () =>
+                        await Application.Current.MainPage.DisplayAlert(
+                            this.ActItem.GetControlDescription(),
+                            msg,
+                            Resource.OK));
                 }
-
-                this.ListViewDisplayExtraInfo.ItemsSource = this.ExtraInfoItems;
-            }
-            catch (MessageOnlyException msgEx)
-            {
-                var msg = (msgEx.Message.IndexOf("MSGBOX-", StringComparison.Ordinal) == -1)
-                    ? msgEx.Message : msgEx.Message["MSGBOX-".Length..];
-                await Device.InvokeOnMainThreadAsync(async () =>
-                    await Application.Current.MainPage.DisplayAlert(
-                        this.ActItem.GetControlDescription(),
-                        msg,
-                        Resource.OK));
-            }
-            catch (CommunicationException commEx)
-            {
-                // Question should a communication error, be reported as an error or just a message box?
-                await Device.InvokeOnMainThreadAsync(async () =>
+                catch (CommunicationException commEx)
                 {
-                    var msg = $"Unable to load activity items.{Environment.NewLine}" +
-                        $"Because of a communication problem.{Environment.NewLine}" +
-                        $"Detail:{commEx.Message}{Environment.NewLine}" +
-                        "Please exit and try again.";
+                    // Question should a communication error, be reported as an error or just a message box?
+                    await Device.InvokeOnMainThreadAsync(async () =>
+                    {
+                        var msg = $"Unable to load activity items.{Environment.NewLine}" +
+                            $"Because of a communication problem.{Environment.NewLine}" +
+                            $"Detail:{commEx.Message}{Environment.NewLine}" +
+                            "Please exit and try again.";
 
-                    await Application.Current.MainPage.DisplayAlert(
-                        this.ActItem.GetControlDescription(),
-                        msg,
-                        Resource.OK);
-                });
-            }
-            catch (Exception ex)
-            {
-                await Device.InvokeOnMainThreadAsync(async () =>
+                        await Application.Current.MainPage.DisplayAlert(
+                            this.ActItem.GetControlDescription(),
+                            msg,
+                            Resource.OK);
+                    });
+                }
+                catch (Exception ex)
                 {
-                    var msg = $"Unable to load activity items.{Environment.NewLine}" +
-                        $"General exception.{Environment.NewLine}" +
-                        $"Detail:{ex.Message}{Environment.NewLine}" +
-                        "Please exit and try again.";
-                    var errorReport = new FormErrorReport(msg, ex);
-                    _ = await errorReport.ShowDialog();
-                });
-            }
-            finally
-            {
-                this.Loading = false;
-                await this.ScannerEnable();
+                    await Device.InvokeOnMainThreadAsync(async () =>
+                    {
+                        var msg = $"Unable to load activity items.{Environment.NewLine}" +
+                            $"General exception.{Environment.NewLine}" +
+                            $"Detail:{ex.Message}{Environment.NewLine}" +
+                            "Please exit and try again.";
+                        var errorReport = new FormErrorReport(msg, ex);
+                        _ = await errorReport.ShowDialog();
+                    });
+                }
+                finally
+                {
+                    await this.ScannerStart();
+                    this.IsPageLoading = false;
+                }
             }
 
             //////////////////////////////////////////////////////////////////////////
@@ -894,7 +914,10 @@ namespace dMobile.View.Activity
                     {
                         // Goto the first one in the list.
                         this.ActItem.SelectedListIdx = 0;
-                        this.ListViewMainActivity.SelectedItem = this.MainActivityItems[this.ActItem.SelectedListIdx];
+                        if (this.ActItem.SelectedListIdx <= this.MainActivityItems.Count - 1)
+                        {
+                            this.ListViewMainActivity.SelectedItem = this.MainActivityItems[this.ActItem.SelectedListIdx];
+                        }
                     }
                     else
                     {
@@ -934,6 +957,8 @@ namespace dMobile.View.Activity
             MessagingCenter.Unsubscribe<string>(this, EventTypes.OnKeyUp.ToString());
             await this.ScannerDisable();
             base.OnDisappearing();
+            GC.Collect();
+            GC.WaitForPendingFinalizers();
         }
 
         /// <summary>
@@ -988,7 +1013,7 @@ namespace dMobile.View.Activity
         /// <param name="keyPressed"><see cref="string"/> Key pressed value.</param>
         private async void KeyUpHandlerCallback(string keyPressed)
         {
-            if (this.Loading)
+            if (this.IsPageLoading)
             {
                 return;
             }
@@ -1079,10 +1104,6 @@ namespace dMobile.View.Activity
                     var errRpt = new FormErrorReport(this.ActSubType, ex);
                     _ = await errRpt.ShowDialog();
                 });
-            }
-            finally
-            {
-                this.Loading = false;
             }
 
             //////////////////////////////////////////////////////////////////////////
@@ -1411,7 +1432,7 @@ namespace dMobile.View.Activity
         /// <param name="e"><see cref="ItemTappedEventArgs"/> Item tapped event arguments.</param>
         private async void ListViewMainActivity_ItemTapped(object sender, ItemTappedEventArgs e)
         {
-            if (this.Loading)
+            if (this.IsPageLoading)
             {
                 return;
             }
@@ -1614,7 +1635,7 @@ namespace dMobile.View.Activity
         /// <returns>The <see cref="Task"/> Task operation.</returns>
         private async Task ListViewMainActivity_KeyUpEnter()
         {
-            if (this.Loading ||
+            if (this.IsPageLoading ||
                 this.ListViewMainActivity.SelectedItem == null ||
                 Convert.ToInt32(this.MainActivityItems.IndexOf(this.ListViewMainActivity.SelectedItem)) < 0)
             {
@@ -1687,22 +1708,23 @@ namespace dMobile.View.Activity
         /// <param name="scanArgs"><see cref="BarCodeScannerEventArgs"/> Sender bar code scanner event arguments.</param>
         private async Task BarCodeHandler(object sender, BarCodeScannerEventArgs scanArgs)
         {
-            if (this.Loading || scanArgs == null)
+            if (this.IsPageLoading || scanArgs == null)
             {
                 return;
             }
 
-            this.Loading = true;
+            this.IsPageLoading = true;
             object selectedItem = null;
             var actItemFoundRefno = 0;
             var tempItemProdSchemeData = new ActItemSchemeData();
             try
             {
+                await this.ScannerDisable();
                 var parse = scanArgs.ParseInfo;
                 var isLocationBarCodeScanned = !string.IsNullOrEmpty(parse.LocationIdentifier);
                 var isProductScanned = !string.IsNullOrEmpty(parse.ProductIdentifier);
-                var isFKItemRefnoScanned = !string.IsNullOrEmpty(parse.ActItemFKRefno);
-                var isFKDetailRefnoScanned = !string.IsNullOrEmpty(parse.ActDetailFKRefno);
+                var isFkItemRefnoScanned = !string.IsNullOrEmpty(parse.ActItemFKRefno);
+                var isFkDetailRefnoScanned = !string.IsNullOrEmpty(parse.ActDetailFKRefno);
                 var isSkidScanned = !string.IsNullOrEmpty(parse.SSCC18);
 
                 // GLOBAL LOCATION IDENTIFIER SCANNED
@@ -1747,6 +1769,8 @@ namespace dMobile.View.Activity
                                     // Additional found matching line items are not allowed to be created during
                                     // scanning and inserting. I am not expecting matches to be found because
                                     // that check has already been performed at this point.
+                                    GC.Collect();
+                                    GC.WaitForPendingFinalizers();
                                     await this.ActItem.Insert(ProductInfoTasks.GetXML(scannedProdInfo));
                                     this.ActItem.SetSelectedActivityItemFromList(this.ActItem.ItemRefno);
                                     selectedItem = this.ActItem.SelectedItem;
@@ -1767,7 +1791,7 @@ namespace dMobile.View.Activity
                             }
                         }
                     }
-                    else if (isFKItemRefnoScanned)
+                    else if (isFkItemRefnoScanned)
                     {
                         selectedItem = this.ActItem.ListItems.OfType<object>().FirstOrDefault(activityItem =>
                             Convert.ToString(activityItem.GetType().GetProperty(
@@ -1784,7 +1808,7 @@ namespace dMobile.View.Activity
                             actItemFoundRefno = this.ActItem.ItemRefno;
                         }
                     }
-                    else if (isFKDetailRefnoScanned)
+                    else if (isFkDetailRefnoScanned)
                     {
                         throw new MessageOnlyException("Scanning an line item detail bar code is not supported here.");
                     }
@@ -1892,14 +1916,15 @@ namespace dMobile.View.Activity
                             this.ActSubType,
                             this.ActItem,
                             tempItemProdSchemeData,
-                            false,
+                            isInsertDetailReady: false,
                             actDetail,
-                            false);
+                            isForceStopForEdit: false);
 
                         if (isInsertReady)
                         {
                             var xmlDoc = actDetail.GetXml(actDetail);
                             await actDetail.Insert(xmlDoc);
+                            this.ActItem = actDetail.ActItem;
 
                             // TODO check if actually new, if not delete and change counter
                             // Does the row exist? If not, then it has been removed due to not needing it
@@ -1921,7 +1946,11 @@ namespace dMobile.View.Activity
                                     this.ListViewMainActivity.SelectedItem = this.ActItem.SelectedItem;
 
                                     // This line is needed to display the new updated quantity visually.
-                                    this.MainActivityItems[this.ActItem.SelectedListIdx] = this.ActItem.SelectedItem;
+                                    // Check the index because the MainActivityItems may not be updated yet.
+                                    if (this.ActItem.SelectedListIdx <= this.MainActivityItems.Count - 1)
+                                    {
+                                        this.MainActivityItems[this.ActItem.SelectedListIdx] = this.ActItem.SelectedItem;
+                                    }
                                 });
                             }
                         }
@@ -1969,15 +1998,16 @@ namespace dMobile.View.Activity
                             actDetail.BaseQuantity,
                             actDetail.WeightQuantity);
                         await this.ActItem.UpdateItemTableQuantity(selectedItem);
+                        this.ActItem.SetSelectedActivityItemFromList(this.ActItem.ItemRefno);
                         this.ActItem.SelectedItem = selectedItem;
                         this.ActItem.ListItems[this.ActItem.SelectedListIdx] = this.ActItem.SelectedItem;
-                        Device.BeginInvokeOnMainThread(() =>
-                        {
-                            this.ListViewMainActivity.SelectedItem = this.ActItem.SelectedItem;
+                        ////Device.BeginInvokeOnMainThread(() =>
+                        ////{
+                        ////    this.ListViewMainActivity.SelectedItem = this.ActItem.SelectedItem;
 
-                            // This line is needed to display the new updated quantity visually.
-                            this.MainActivityItems[this.ActItem.SelectedListIdx] = this.ActItem.SelectedItem;
-                        });
+                        ////    // This line is needed to display the new updated quantity visually.
+                        ////    this.MainActivityItems[this.ActItem.SelectedListIdx] = this.ActItem.SelectedItem;
+                        ////});
                     }
 
                     // IF AN ACTIVITY LINE ITEM WAS FOUND
@@ -1988,6 +2018,16 @@ namespace dMobile.View.Activity
                     else
                     {
                         this.ActItem.SelectedItem = selectedItem;
+                        Device.BeginInvokeOnMainThread(() =>
+                        {
+                            this.ListViewMainActivity.SelectedItem = this.ActItem.SelectedItem;
+                            if (this.ActItem.SelectedListIdx <= this.MainActivityItems.Count - 1)
+                            {
+                                // This line is needed to display the new updated quantity visually.
+                                this.MainActivityItems[this.ActItem.SelectedListIdx] = this.ActItem.SelectedItem;
+                            }
+                        });
+                        this.IsPageLoading = false;
                         this.OnAppearing();
                     }
                 }
@@ -2096,9 +2136,9 @@ namespace dMobile.View.Activity
             finally
             {
                 this.ListViewDisplayExtraInfo.ItemsSource = this.ExtraInfoItems;
+                await this.ScannerEnable();
+                this.IsPageLoading = false;
             }
-
-            this.Loading = false;
 
             //////////////////////////////////////////////////////////////////////////
             async Task BarCodeHandlerLocationIdentifier(BarCodeParse parse)
@@ -2113,6 +2153,7 @@ namespace dMobile.View.Activity
 
                 await CheckIfScannedSectionMatchesFilteredOne(tmpLoc);
 
+                await Device.InvokeOnMainThreadAsync(async () => await this.DisplayDataItem());
                 //////////////////////////////////////////////////////////////////////////
                 async Task CheckIfScannedSectionMatchesFilteredOne(SLocMap scannedLocMap)
                 {
@@ -2425,29 +2466,29 @@ namespace dMobile.View.Activity
             // NOTE: So far all sub types will be refreshed.
             switch (this.ActSubType)
             {
-                case SysCommon.ActSubTypes.PhysicalCounts:
-                    // Do not refresh product list for counts. Except on first load. See WO# 12222.
-                    // Reloading count items into the thousands is too slow.
-                    // This could change depending on the Exception type such as
-                    // MessageOnlyException vs Exception.
-                    // Refreshing will have to be accomplished by exiting the items activity.
-                    isDataRequest = this.SysEnv.SysSettings.IsCountActivityItemRefreshData;
-                    isDataRequest = isDataRequest && !this.SysEnv.SysSettings.IsNewActivityItemsAdded;
-                    await RefreshData(isDataRequest);
-                    this.SysEnv.SysSettings.IsCountActivityItemRefreshData = false;
-                    break;
+                ////case SysCommon.ActSubTypes.PhysicalCounts:
+                ////    // Do not refresh product list for counts. Except on first load. See WO# 12222.
+                ////    // Reloading count items into the thousands is too slow.
+                ////    // This could change depending on the Exception type such as
+                ////    // MessageOnlyException vs Exception.
+                ////    // Refreshing will have to be accomplished by exiting the items activity.
+                ////    isDataRequest = this.SysEnv.SysSettings.IsCountActivityItemRefreshData;
+                ////    isDataRequest = isDataRequest && !this.SysEnv.SysSettings.IsNewActivityItemsAdded;
+                ////    await RefreshData(isDataRequest);
+                ////    this.SysEnv.SysSettings.IsCountActivityItemRefreshData = false;
+                ////    break;
 
-                case SysCommon.ActSubTypes.CycleCounts:
-                    // Do not refresh product list for counts. Except on first load. See WO# 12222.
-                    // Reloading count items into the thousands is too slow.
-                    // This could change depending on the Exception type such as
-                    // MessageOnlyException vs Exception.
-                    // Refreshing will have to be accomplished by exiting the items activity.
-                    isDataRequest = this.SysEnv.SysSettings.IsCountActivityItemRefreshData;
-                    isDataRequest = isDataRequest && !this.SysEnv.SysSettings.IsNewActivityItemsAdded;
-                    await RefreshData(isDataRequest);
-                    this.SysEnv.SysSettings.IsCountActivityItemRefreshData = false;
-                    break;
+                ////case SysCommon.ActSubTypes.CycleCounts:
+                ////    // Do not refresh product list for counts. Except on first load. See WO# 12222.
+                ////    // Reloading count items into the thousands is too slow.
+                ////    // This could change depending on the Exception type such as
+                ////    // MessageOnlyException vs Exception.
+                ////    // Refreshing will have to be accomplished by exiting the items activity.
+                ////    isDataRequest = this.SysEnv.SysSettings.IsCountActivityItemRefreshData;
+                ////    isDataRequest = isDataRequest && !this.SysEnv.SysSettings.IsNewActivityItemsAdded;
+                ////    await RefreshData(isDataRequest);
+                ////    this.SysEnv.SysSettings.IsCountActivityItemRefreshData = false;
+                ////    break;
 
                 default:
 
@@ -2526,7 +2567,6 @@ namespace dMobile.View.Activity
         {
             try
             {
-                await this.ScannerDisable();
                 await this.DesignGrid();
             }
             catch (MessageOnlyException msgEx)
@@ -2545,10 +2585,6 @@ namespace dMobile.View.Activity
                     var errRpt = new FormErrorReport(this.ActSubType, ex);
                     _ = await errRpt.ShowDialog();
                 });
-            }
-            finally
-            {
-                await this.ScannerEnable();
             }
         }
 
@@ -3139,14 +3175,13 @@ namespace dMobile.View.Activity
         /// <remarks>Code lens reports no references yet this event does fire.</remarks>
         private async void OptionsMenu_Clicked(object sender, EventArgs e)
         {
-            if (this.Loading)
+            if (this.IsPageLoading)
             {
                 return;
             }
 
             try
             {
-                this.Loading = true;
                 await Device.InvokeOnMainThreadAsync(async () =>
                 {
                     var currentReadableLocation = LocationMapTasks.GetCurrentReadableLocation();
@@ -3204,7 +3239,6 @@ namespace dMobile.View.Activity
             finally
             {
                 this.ListViewDisplayExtraInfo.ItemsSource = this.ExtraInfoItems;
-                this.Loading = false;
             }
 
             //////////////////////////////////////////////////////////////////////////

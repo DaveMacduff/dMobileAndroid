@@ -42,8 +42,8 @@
                     <ColumnDefinition Width="*" />
                 </Grid.ColumnDefinitions>
 
-                <Button x:Name="btnSave" Text="Save" Grid.Row="0" Grid.Column="0" IsEnabled="{Binding Loading, Converter={Helpers:BoolConverter}}"/>
-                <Button x:Name="btnCancel" Text="Cancel" Grid.Row="0" Grid.Column="1" IsEnabled="{Binding Loading, Converter={Helpers:BoolConverter}}"/>
+                <Button x:Name="btnSave" Text="Save" Grid.Row="0" Grid.Column="0" IsEnabled="{Binding IsPageLoading, Converter={Helpers:BoolConverter}}"/>
+                <Button x:Name="btnCancel" Text="Cancel" Grid.Row="0" Grid.Column="1" IsEnabled="{Binding IsPageLoading, Converter={Helpers:BoolConverter}}"/>
             </Grid>
         </Grid>
     </ContentView.Content>

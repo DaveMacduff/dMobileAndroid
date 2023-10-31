@@ -102,12 +102,12 @@
                     </Grid>
                 </ScrollView>
 
-                <Button x:Name="btnSave" Grid.Row="1" Grid.Column="0" Text="Save" IsEnabled="{Binding Loading, Converter={Helpers:BoolConverter}}" Clicked="BtnSave_Clicked"/>
-                <Button x:Name="btnClose" Grid.Row="1" Grid.Column="1" Text="Close" IsEnabled="{Binding Loading, Converter={Helpers:BoolConverter}}" Clicked="BtnClose_Clicked"/>
+                <Button x:Name="btnSave" Grid.Row="1" Grid.Column="0" Text="Save" IsEnabled="{Binding IsPageLoading, Converter={Helpers:BoolConverter}}" Clicked="BtnSave_Clicked"/>
+                <Button x:Name="btnClose" Grid.Row="1" Grid.Column="1" Text="Close" IsEnabled="{Binding IsPageLoading, Converter={Helpers:BoolConverter}}" Clicked="BtnClose_Clicked"/>
             </Grid>
 
-            <ActivityIndicator IsVisible="{Binding Loading}" 
-                               IsRunning="{Binding Loading}"
+            <ActivityIndicator IsVisible="{Binding IsPageLoading}" 
+                               IsRunning="{Binding IsPageLoading}"
                                AbsoluteLayout.LayoutFlags="All" 
                                AbsoluteLayout.LayoutBounds="0.5,0.5,0.3,0.3"/>
         </AbsoluteLayout>

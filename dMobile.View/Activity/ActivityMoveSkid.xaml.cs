@@ -479,7 +479,7 @@ namespace dMobile.View.Activity
             await this.ScannerDisable();
             SubscribeKeyUpHandlers();
 
-            this.Loading = true;
+            this.IsPageLoading = true;
             try
             {
                 this.lstSkidStats.ItemsSource = this.ExtraInfoItems;
@@ -509,7 +509,7 @@ namespace dMobile.View.Activity
             }
             finally
             {
-                this.Loading = false;
+                this.IsPageLoading = false;
                 await this.ScannerEnable();
 
                 await Task.Run(() =>
@@ -593,6 +593,8 @@ namespace dMobile.View.Activity
             MessagingCenter.Unsubscribe<string>(this, EventTypes.OnKeyUp.ToString());
             Device.BeginInvokeOnMainThread(async () => { await this.ScannerDisable(); });
             base.OnDisappearing();
+            GC.Collect();
+            GC.WaitForPendingFinalizers();
         }
 
         /// <summary>
@@ -658,14 +660,14 @@ namespace dMobile.View.Activity
         /// <param name="scanArgs"><see cref="BarCodeScannerEventArgs"/> Scan event arguments.</param>
         private async Task BarCodeHandler(object sender, BarCodeScannerEventArgs scanArgs)
         {
-            if (this.Loading)
+            if (this.IsPageLoading)
             {
                 return;
             }
 
             scanArgs = scanArgs ?? throw new ArgumentNullException(nameof(scanArgs));
 
-            this.Loading = true;
+            this.IsPageLoading = true;
             await this.ScannerDisable();
             var parse = scanArgs.ParseInfo;
 
@@ -760,7 +762,7 @@ namespace dMobile.View.Activity
             finally
             {
                 await this.ScannerEnable();
-                this.Loading = false;
+                this.IsPageLoading = false;
             }
         }
 

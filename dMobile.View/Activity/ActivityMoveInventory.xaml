@@ -30,7 +30,7 @@
                 <Button x:Name="CmdFromLocation"
                         Clicked="CmdFromLocation_Click"
                         Grid.Row="0"
-                        IsEnabled="{Binding Loading, Converter={helpers:BoolConverter}}"
+                        IsEnabled="{Binding IsPageLoading, Converter={helpers:BoolConverter}}"
                         x:DataType="custompages:DMobileContentPage"/>
 
                 <!--Grid row 1 -->
@@ -45,20 +45,20 @@
                     <CheckBox x:Name="ChkScanToLocation"
                               Grid.Column="0"
                               VerticalOptions="Center"
-                              IsEnabled="{Binding Loading, Converter={helpers:BoolConverter}}"
+                              IsEnabled="{Binding IsPageLoading, Converter={helpers:BoolConverter}}"
                               x:DataType="custompages:DMobileContentPage" />
 
                     <Label x:Name="LblScanToLocation" Grid.Column="1" VerticalOptions="Center" />
 
                     <Picker x:Name="BarCodeModifier1Picker"
                             Grid.Column="2"
-                            IsEnabled="{Binding Loading, Converter={helpers:BoolConverter}}"
+                            IsEnabled="{Binding IsPageLoading, Converter={helpers:BoolConverter}}"
                             x:DataType="custompages:DMobileContentPage" />
 
                     <Button x:Name="CmdAdd"
                             Grid.Column="3"
                             Clicked="CmdAdd_Click"
-                            IsEnabled="{Binding Loading, Converter={helpers:BoolConverter}}"
+                            IsEnabled="{Binding IsPageLoading, Converter={helpers:BoolConverter}}"
                             x:DataType="custompages:DMobileContentPage" />
                 </Grid>
 
@@ -73,7 +73,7 @@
                             <ListView x:Name="ListViewMainActivity"
                                       ItemSelected="ListViewMainActivity_ItemSelected"
                                       HasUnevenRows="True"
-                                      IsEnabled="{Binding Loading, Converter={helpers:BoolConverter}}"
+                                      IsEnabled="{Binding IsPageLoading, Converter={helpers:BoolConverter}}"
                                       x:DataType="custompages:DMobileContentPage"
                                       Grid.Row="1" />
                         </Grid>
@@ -85,7 +85,7 @@
                     <ListView x:Name="ListViewDisplayExtraInfo"
                               SelectionMode="None"
                               HasUnevenRows="True"
-                              IsEnabled="{Binding Loading, Converter={helpers:BoolConverter}}"
+                              IsEnabled="{Binding IsPageLoading, Converter={helpers:BoolConverter}}"
                               x:DataType="custompages:DMobileContentPage"
                               SeparatorVisibility="None">
 
@@ -105,19 +105,19 @@
                 <Button x:Name="CmdToLocation"
                         Grid.Row="4"
                         Clicked="CmdToLocation_Click"
-                        IsEnabled="{Binding Loading, Converter={helpers:BoolConverter}}"
+                        IsEnabled="{Binding IsPageLoading, Converter={helpers:BoolConverter}}"
                         x:DataType="custompages:DMobileContentPage"/>
 
                 <!--Grid row 5 -->
                 <Button x:Name="CmdPerformMove"
                         Grid.Row="5"
                         Clicked="CmdPerformMove_Clicked"
-                        IsEnabled="{Binding Loading, Converter={helpers:BoolConverter}}"
+                        IsEnabled="{Binding IsPageLoading, Converter={helpers:BoolConverter}}"
                         x:DataType="custompages:DMobileContentPage"/>
             </Grid>
 
-            <ActivityIndicator IsVisible="{Binding Loading}" 
-                               IsRunning="{Binding Loading}"
+            <ActivityIndicator IsVisible="{Binding IsPageLoading}" 
+                               IsRunning="{Binding IsPageLoading}"
                                x:DataType="custompages:DMobileContentPage"
                                AbsoluteLayout.LayoutFlags="All" 
                                AbsoluteLayout.LayoutBounds="0.5,0.5,0.3,0.3"/>

@@ -116,6 +116,8 @@ namespace dMobile.View.Activity
         {
             MessagingCenter.Unsubscribe<string>(this, EventTypes.OnKeyUp.ToString());
             base.OnDisappearing();
+            GC.Collect();
+            GC.WaitForPendingFinalizers();
         }
 
         /// <inheritdoc/>

@@ -320,20 +320,20 @@ namespace dMobile.Controller.Activity_Item
             if (isCatchAsk)
             {
                 // modules are for exclusions
-                isCatchAsk = this.SysEnv.SysSettings.IsPickSingleCatchAsk;
+                ////isCatchAsk = this.SysEnv.SysSettings.IsPickSingleCatchAsk;
             }
 
             return isCatchAsk;
         }
 
         /// <summary>
-        /// The IsCatchAskZero.
+        /// Check if the product is catch count.
         /// </summary>
-        /// <returns>.</returns>
+        /// <returns><see cref="bool"/> True if catch count, else false.</returns>
         public override bool IsCatchAskZero()
         {
-            var result = this.IsCatchAsk();
-            if (result && this.ProdInfo.IsCatchAskZero)
+            var result = false;
+            if (this.IsCatchAsk() && this.ProdInfo.IsCatchAskZero)
             {
                 result = !this.SysEnv.SysSettings.IsPickingSingleModuleNoCatchAskZeroEnabled;
             }

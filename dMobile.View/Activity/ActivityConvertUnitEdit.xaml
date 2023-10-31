@@ -92,7 +92,7 @@
                     <ListView x:Name="ListViewDisplayExtraInfo"
                               SelectionMode="None"
                               HasUnevenRows="True"
-                              IsEnabled="{Binding Loading, Converter={helpers:BoolConverter}}"
+                              IsEnabled="{Binding IsPageLoading, Converter={helpers:BoolConverter}}"
                               SeparatorVisibility="None" x:DataType="modal:DMobileModal">
                         <ListView.ItemTemplate>
                             <DataTemplate>
@@ -117,20 +117,20 @@
                             Grid.Row="0"
                             Grid.Column="0"
                             Clicked="cmdSave_Clicked"
-                            IsEnabled="{Binding Loading, Converter={helpers:BoolConverter}}"
+                            IsEnabled="{Binding IsPageLoading, Converter={helpers:BoolConverter}}"
                             x:DataType="modal:DMobileModal" />
                     <Button x:Name="CmdCancel"
                             Grid.Row="0"
                             Grid.Column="1"
                             Clicked="cmdCancel_Clicked"
-                            IsEnabled="{Binding Loading, Converter={helpers:BoolConverter}}"
+                            IsEnabled="{Binding IsPageLoading, Converter={helpers:BoolConverter}}"
                             x:DataType="modal:DMobileModal" />
                 </Grid>
 
             </Grid>
 
-            <ActivityIndicator IsVisible="{Binding Loading}" 
-                               IsRunning="{Binding Loading}"
+            <ActivityIndicator IsVisible="{Binding IsPageLoading}" 
+                               IsRunning="{Binding IsPageLoading}"
                                x:DataType="modal:DMobileModal"
                                AbsoluteLayout.LayoutFlags="All" 
                                AbsoluteLayout.LayoutBounds="0.5,0.5,0.3,0.3"/>

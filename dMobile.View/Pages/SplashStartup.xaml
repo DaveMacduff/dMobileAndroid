@@ -25,11 +25,11 @@
                     </ListView.ItemTemplate>
                 </ListView>
 
-                <Button x:Name="btnClose" Grid.Row="2" Text="Close" Clicked="BtnClose_Clicked" IsEnabled="{Binding Loading, Converter={Helpers:BoolConverter}}"/>
+                <Button x:Name="btnClose" Grid.Row="2" Text="Close" Clicked="BtnClose_Clicked" IsEnabled="{Binding IsPageLoading, Converter={Helpers:BoolConverter}}"/>
             </Grid>
 
-            <ActivityIndicator IsVisible="{Binding Loading}" 
-                               IsRunning="{Binding Loading}" 
+            <ActivityIndicator IsVisible="{Binding IsPageLoading}" 
+                               IsRunning="{Binding IsPageLoading}" 
                                AbsoluteLayout.LayoutFlags="All" 
                                AbsoluteLayout.LayoutBounds="0.5,0.5,0.3,0.3"/>
         </AbsoluteLayout>

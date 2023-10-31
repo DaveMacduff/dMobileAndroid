@@ -2,9 +2,6 @@
 // Copyright (c) InterSect Business Systems Inc. All rights reserved.
 // </copyright>
 
-using dMobile.Controller.Activity;
-using dMobile.Controller.Activity_Item;
-
 namespace dMobile.View.Activity
 {
     using System;
@@ -17,7 +14,8 @@ namespace dMobile.View.Activity
     using dMobile.BarCodeScanner.BarCodeParsing;
     using dMobile.BarCodeScanner.BarCodeScanners;
     using dMobile.Bedrock;
-    using dMobile.Controller;
+    using dMobile.Controller.Activity;
+    using dMobile.Controller.Activity_Item;
     using dMobile.GroundWork;
     using dMobile.Resources.Enums;
     using dMobile.Resources.Models;
@@ -44,6 +42,7 @@ namespace dMobile.View.Activity
         {
             this.InitializeComponent();
 
+            this.IsPageLoading = false;
             this.Title = this.GetControlDescription();
 
             this.cmdAssignProduct.Text = "Assign Scan To Product";
@@ -470,7 +469,7 @@ namespace dMobile.View.Activity
             }
             finally
             {
-                this.Loading = false;
+                this.IsPageLoading = false;
 
                 await Task.Run(() =>
                 {
@@ -505,8 +504,9 @@ namespace dMobile.View.Activity
         {
             MessagingCenter.Unsubscribe<string>(this, EventTypes.OnKeyUp.ToString());
             await this.ScannerDisable();
-
             base.OnDisappearing();
+            GC.Collect();
+            GC.WaitForPendingFinalizers();
         }
 
         /// <summary>
@@ -554,12 +554,10 @@ namespace dMobile.View.Activity
         /// <returns>The <see cref="Task"/>. Task operation.</returns>
         private async Task BarCodeHandler(object sender, BarCodeScannerEventArgs scanArgs)
         {
-            if (this.Loading || scanArgs == null)
+            if (this.IsPageLoading || scanArgs == null)
             {
                 return;
             }
-
-            this.Loading = true;
 
             var isSerialTracked = false;
             var isProductionDateTracked = false;
@@ -923,7 +921,6 @@ namespace dMobile.View.Activity
             finally
             {
                 await this.ScannerEnable();
-                this.Loading = false;
             }
 
             //////////////////////////////////////////////////////////////////////////
@@ -1294,7 +1291,7 @@ namespace dMobile.View.Activity
                 if (this.SysEnv.BarCodeSettings.IsRuleEnabled_ParseSumwaFarmFedWholeDuck_UseWeightRangeToIDProduct &&
                     this.Parse.ProductIdentifier == "90695955110022")
                 {
-                    SysShared.BarCodeRuleParseSumwaFarmFedWholeDuckUseWeightRangeToIDProduct(this.Parse);
+                    SysShared.BarCodeRuleParseSumwaFarmFedWholeDuckUseWeightRangeToIdProduct(this.Parse);
 
                     prodInfo = await ProductInfoTasks.GetInfoFromCodeBCUnit(
                         this.Parse.ProductIdentifier,

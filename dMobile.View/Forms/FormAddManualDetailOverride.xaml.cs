@@ -123,7 +123,7 @@ namespace dMobile.View.Forms
                 // TODO: Verify key codes.
                 _ = Enum.TryParse(keyPressed, out Keycode keycode);
 
-                if (!this.Loading)
+                if (!this.IsPageLoading)
                 {
                     if (keycode == Keycode.Enter || keycode == Keycode.F1)
                     {
@@ -155,8 +155,9 @@ namespace dMobile.View.Forms
         protected override void OnDisappearing()
         {
             MessagingCenter.Unsubscribe<string>(this, EventTypes.OnKeyUp.ToString());
-
             base.OnDisappearing();
+            GC.Collect();
+            GC.WaitForPendingFinalizers();
         }
 
         /// <summary>

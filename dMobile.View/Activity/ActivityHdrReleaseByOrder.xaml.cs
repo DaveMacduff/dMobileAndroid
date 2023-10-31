@@ -67,7 +67,7 @@ namespace dMobile.View.Activity
             {
                 _ = Enum.TryParse(keyPressed, out Keycode keycode);
 
-                if (!this.Loading)
+                if (!this.IsPageLoading)
                 {
                     if (keycode == Keycode.F4 && !this.SysEnv.SysSettings.IsDisconnectedMode)
                     {
@@ -168,8 +168,9 @@ namespace dMobile.View.Activity
         {
             MessagingCenter.Unsubscribe<string>(this, EventTypes.OnKeyUp.ToString());
             await this.ucActivityHdrReleaseByOrder_LostFocus(this, EventArgs.Empty);
-
             base.OnDisappearing();
+            GC.Collect();
+            GC.WaitForPendingFinalizers();
         }
 
         /// <inheritdoc/>
@@ -500,14 +501,14 @@ namespace dMobile.View.Activity
         /// <remarks></remarks>
         private async Task BarCodeHandler(object sender, BarCodeScannerEventArgs scanArgs)
         {
-            if (this.Loading || scanArgs == null)
+            if (this.IsPageLoading || scanArgs == null)
             {
                 return;
             }
 
             try
             {
-                this.Loading = true;
+                this.IsPageLoading = true;
 
                 var message = string.Empty;
                 var savedViewSort = string.Empty;
@@ -577,7 +578,7 @@ namespace dMobile.View.Activity
             finally
             {
                 await this.ScannerEnable();
-                this.Loading = false;
+                this.IsPageLoading = false;
             }
         }
 
@@ -587,7 +588,7 @@ namespace dMobile.View.Activity
         /// <remarks></remarks>
         private async Task RefreshData()
         {
-            this.Loading = true;
+            this.IsPageLoading = true;
 
             await Task.Run(async () =>
             {
@@ -608,7 +609,7 @@ namespace dMobile.View.Activity
                 }
                 finally
                 {
-                    this.Loading = false;
+                    this.IsPageLoading = false;
                 }
 
                 this.Activity.ListHdrs = await this.Activity.GetActivityList(false);
@@ -633,12 +634,12 @@ namespace dMobile.View.Activity
                 });
             });
 
-            this.Loading = false;
+            this.IsPageLoading = false;
         }
 
         private async void OptionsMenu_Clicked(object sender, EventArgs e)
         {
-            if (this.Loading)
+            if (this.IsPageLoading)
             {
                 return;
             }

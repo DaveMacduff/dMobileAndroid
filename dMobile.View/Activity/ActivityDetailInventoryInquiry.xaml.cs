@@ -65,6 +65,8 @@ namespace dMobile.View.Activity
         {
             await this.ScannerDisable();
             base.OnDisappearing();
+            GC.Collect();
+            GC.WaitForPendingFinalizers();
         }
 
         /// <summary>
@@ -277,7 +279,7 @@ namespace dMobile.View.Activity
             {
                 try
                 {
-                    this.Loading = true;
+                    this.IsPageLoading = true;
                     await this.ScannerDisable();
                     await Device.InvokeOnMainThreadAsync(() => this.ExtraInfoItems.Clear());
 
@@ -332,7 +334,7 @@ namespace dMobile.View.Activity
                 finally
                 {
                     await this.ScannerEnable();
-                    this.Loading = false;
+                    this.IsPageLoading = false;
                 }
             });
         }
@@ -361,14 +363,14 @@ namespace dMobile.View.Activity
         /// <returns>The <see cref="Task"/>.</returns>
         private async Task BarCodeHandler(object sender, BarCodeScannerEventArgs scanArgs)
         {
-            if (this.Loading || scanArgs == null)
+            if (this.IsPageLoading || scanArgs == null)
             {
                 return;
             }
 
             try
             {
-                this.Loading = true;
+                this.IsPageLoading = true;
                 this.BarParse = scanArgs.ParseInfo;
                 await this.ScannerDisable();
 
@@ -414,7 +416,7 @@ namespace dMobile.View.Activity
             finally
             {
                 await this.ScannerEnable();
-                this.Loading = false;
+                this.IsPageLoading = false;
             }
         }
 

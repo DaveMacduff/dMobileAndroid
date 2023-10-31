@@ -64,7 +64,7 @@ namespace dMobile.View.Options
             {
                 _ = Enum.TryParse(keyPressed, out Keycode keycode);
 
-                if (!this.Loading)
+                if (!this.IsPageLoading)
                 {
                     if (keycode == Keycode.F1)
                     {
@@ -83,7 +83,7 @@ namespace dMobile.View.Options
 
             try
             {
-                this.Loading = true;
+                this.IsPageLoading = true;
                 await this.ucSubmitBatch_GotFocus(this, EventArgs.Empty);
             }
             catch (Exception ex)
@@ -92,7 +92,7 @@ namespace dMobile.View.Options
             }
             finally
             {
-                this.Loading = false;
+                this.IsPageLoading = false;
             }
         }
 
@@ -103,8 +103,9 @@ namespace dMobile.View.Options
         {
             MessagingCenter.Unsubscribe<string>(this, EventTypes.OnKeyUp.ToString());
             await this.ScannerDisable();
-
             base.OnDisappearing();
+            GC.Collect();
+            GC.WaitForPendingFinalizers();
         }
 
         /// <inheritdoc/>
@@ -515,7 +516,7 @@ namespace dMobile.View.Options
             {
                 try
                 {
-                    this.Loading = true;
+                    this.IsPageLoading = true;
 
                     if (this.Activity.ListHdrs.Count > 0)
                     {
@@ -750,7 +751,7 @@ namespace dMobile.View.Options
                         this.cmdSubmit.IsEnabled = true;
                     });
 
-                    this.Loading = false;
+                    this.IsPageLoading = false;
                 }
             });
         }

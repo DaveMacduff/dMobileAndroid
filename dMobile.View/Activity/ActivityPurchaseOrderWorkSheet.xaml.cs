@@ -119,7 +119,7 @@ namespace dMobile.View.Activity
             {
                 _ = Enum.TryParse(keyPressed, out Keycode keycode);
 
-                if (!this.Loading)
+                if (!this.IsPageLoading)
                 {
                     if (keycode == Keycode.DpadDown)
                     {
@@ -142,7 +142,7 @@ namespace dMobile.View.Activity
 
             try
             {
-                this.Loading = true;
+                this.IsPageLoading = true;
 
                 if (this.isFirstAppearance)
                 {
@@ -185,7 +185,7 @@ namespace dMobile.View.Activity
             }
             finally
             {
-                this.Loading = false;
+                this.IsPageLoading = false;
             }
         }
 
@@ -196,8 +196,9 @@ namespace dMobile.View.Activity
         {
             MessagingCenter.Unsubscribe<string>(this, EventTypes.OnKeyUp.ToString());
             await this.ucActivityHdr_LostFocus(this, EventArgs.Empty);
-
             base.OnDisappearing();
+            GC.Collect();
+            GC.WaitForPendingFinalizers();
         }
 
         /// <inheritdoc/>
@@ -253,12 +254,12 @@ namespace dMobile.View.Activity
         /// <remarks></remarks>
         private async Task BarCodeHandler(object sender, BarCodeScannerEventArgs scanArgs)
         {
-            if (this.Loading || scanArgs == null)
+            if (this.IsPageLoading || scanArgs == null)
             {
                 return;
             }
 
-            this.Loading = true;
+            this.IsPageLoading = true;
 
             await Task.Run(async () =>
             {
@@ -305,12 +306,12 @@ namespace dMobile.View.Activity
 
                         if (await this.IdentifyProductScanned(this.BarParse, xmlDocProduct))
                         {
-                            var oProductInfo = new ProductInfo();
-                            oProductInfo = await ProductInfoTasks.GetInfoFromUnitRefno(this.prodUnitRefno);
+                            var prodInfo = new ProductInfo();
+                            prodInfo = await ProductInfoTasks.GetInfoFromUnitRefno(this.prodUnitRefno);
                             actItemFoundRefno = await this.ActItem.GetActivityItemRefno(this.prodUnitRefno, LocationMap.GetInstance().CurrLocMap);
 
                             // <issue="13609" author="RD" date="2016/02/22"/>
-                            SysShared.AssertSuppressedErrorsAgainstScheme(oProductInfo, this.BarParse);
+                            SysShared.AssertSuppressedErrorsAgainstScheme(prodInfo, this.BarParse);
                         }
 
                         if (actItemFoundRefno == 0 && this.prodUnitRefno != 0)
@@ -440,7 +441,7 @@ namespace dMobile.View.Activity
                 finally
                 {
                     await this.ScannerEnable();
-                    this.Loading = false;
+                    this.IsPageLoading = false;
                 }
             });
         }
@@ -518,7 +519,7 @@ namespace dMobile.View.Activity
         {
             try
             {
-                this.Loading = true;
+                this.IsPageLoading = true;
                 await this.Activity.Refresh(null);
                 await this.ActItem.Refresh(null);
 
@@ -551,7 +552,7 @@ namespace dMobile.View.Activity
             }
             finally
             {
-                this.Loading = false;
+                this.IsPageLoading = false;
             }
         }
 

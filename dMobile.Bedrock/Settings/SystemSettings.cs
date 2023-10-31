@@ -139,6 +139,7 @@ namespace dMobile.Bedrock
         // private string locMapSlotCoord1Name = string.Empty;
         // private string locMapSlotCoord2Name = string.Empty;
         // private string locMapSlotCoord3Name = string.Empty;
+
         /// <summary>
         /// Defines the isDefaultLocToProductDefaultLoc.
         /// </summary>

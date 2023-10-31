@@ -613,7 +613,7 @@ namespace dMobile.View.Activity
             base.OnAppearing();
             try
             {
-                this.Loading = true;
+                this.IsPageLoading = true;
                 if (this.IsFirstAppearance)
                 {
                     this.IsFirstAppearance = false;
@@ -673,12 +673,12 @@ namespace dMobile.View.Activity
             }
             finally
             {
-                this.Loading = false;
+                this.IsPageLoading = false;
             }
 
             try
             {
-                this.Loading = true;
+                this.IsPageLoading = true;
                 await Task.Run(async () => await this.ActivityMoveInventory_GotFocus());
             }
             catch (Exception ex)
@@ -690,7 +690,7 @@ namespace dMobile.View.Activity
             }
             finally
             {
-                this.Loading = false;
+                this.IsPageLoading = false;
             }
 
             //////////////////////////////////////////////////////////////////////////
@@ -713,6 +713,8 @@ namespace dMobile.View.Activity
             MessagingCenter.Unsubscribe<string>(this, EventTypes.OnKeyUp.ToString());
             await this.ScannerDisable();
             base.OnDisappearing();
+            GC.Collect();
+            GC.WaitForPendingFinalizers();
         }
 
         /// <summary>
@@ -939,7 +941,7 @@ namespace dMobile.View.Activity
         {
             try
             {
-                this.Loading = true;
+                this.IsPageLoading = true;
                 await this.ScannerDisable();
 
                 var form = new FormDialogContainer(EDialogTypes.SelectLocationMap, SysCommon.ActSubTypes.NotApplicable);
@@ -972,7 +974,7 @@ namespace dMobile.View.Activity
             finally
             {
                 await this.ScannerEnable();
-                this.Loading = false;
+                this.IsPageLoading = false;
             }
         }
 
@@ -1194,12 +1196,12 @@ namespace dMobile.View.Activity
         /// <returns>The <see cref="Task"/>.</returns>
         private async Task BarCodeHandler(object sender, BarCodeScannerEventArgs scanArgs)
         {
-            if (this.Loading || scanArgs == null)
+            if (this.IsPageLoading || scanArgs == null)
             {
                 return;
             }
 
-            this.Loading = true;
+            this.IsPageLoading = true;
             var listItemRowIdx = 0;
 
             try
@@ -1278,7 +1280,7 @@ namespace dMobile.View.Activity
                 });
 
                 await this.ActAppearing();
-                this.Loading = false;
+                this.IsPageLoading = false;
             }
 
             //////////////////////////////////////////////////////////////////////////
@@ -1406,7 +1408,7 @@ namespace dMobile.View.Activity
         /// <param name="e"><see cref="EventArgs"/> Event arguments.</param>
         private async void OptionsMenu_Clicked(object sender, EventArgs e)
         {
-            if (this.Loading)
+            if (this.IsPageLoading)
             {
                 return;
             }
@@ -1446,7 +1448,7 @@ namespace dMobile.View.Activity
         /// <param name="e"><see cref="EventArgs"/> Event arguments.</param>
         private async void CmdPerformMove_Clicked(object sender, EventArgs e)
         {
-            if (this.Loading)
+            if (this.IsPageLoading)
             {
                 return;
             }

@@ -576,7 +576,7 @@ namespace dMobile.View.Utilities
 
             SubscribeKeyUpHandlers();
 
-            this.Loading = true;
+            this.IsPageLoading = true;
 
             try
             {
@@ -621,7 +621,7 @@ namespace dMobile.View.Utilities
             }
             finally
             {
-                this.Loading = false;
+                this.IsPageLoading = false;
                 await this.ScannerEnable();
                 await Task.Run(() =>
                 {
@@ -655,8 +655,9 @@ namespace dMobile.View.Utilities
         {
             MessagingCenter.Unsubscribe<string>(this, EventTypes.OnKeyUp.ToString());
             await this.ScannerDisable();
-
             base.OnDisappearing();
+            GC.Collect();
+            GC.WaitForPendingFinalizers();
         }
 
         /// <summary>
@@ -840,7 +841,7 @@ namespace dMobile.View.Utilities
         /// <returns>The <see cref="Task"/>.</returns>
         private async Task BarCodeHandler(object sender, BarCodeScannerEventArgs scanArgs)
         {
-            if (this.Loading || scanArgs == null)
+            if (this.IsPageLoading || scanArgs == null)
             {
                 return;
             }
@@ -850,7 +851,7 @@ namespace dMobile.View.Utilities
 
             try
             {
-                this.Loading = true;
+                this.IsPageLoading = true;
                 await this.ScannerDisable();
 
                 parse = scanArgs.ParseInfo;
@@ -955,7 +956,7 @@ namespace dMobile.View.Utilities
             finally
             {
                 await this.ScannerEnable();
-                this.Loading = false;
+                this.IsPageLoading = false;
             }
         }
 

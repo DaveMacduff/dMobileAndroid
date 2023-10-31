@@ -140,7 +140,7 @@ namespace dMobile.View.Activity
 
             try
             {
-                this.Loading = true;
+                this.IsPageLoading = true;
                 if (this.IsFirstAppearance)
                 {
                     this.IsFirstAppearance = false;
@@ -192,7 +192,7 @@ namespace dMobile.View.Activity
             }
             finally
             {
-                this.Loading = false;
+                this.IsPageLoading = false;
             }
 
             void InitActivityDetail()
@@ -221,7 +221,7 @@ namespace dMobile.View.Activity
             {
                 MessagingCenter.Subscribe<string>(this, EventTypes.OnKeyUp.ToString(), async (keyPressed) =>
                 {
-                    if (!this.Loading)
+                    if (!this.IsPageLoading)
                     {
                         _ = Enum.TryParse(keyPressed, out Keycode keycode);
 
@@ -278,6 +278,8 @@ namespace dMobile.View.Activity
             this.dgUnitWeight.ItemTapped -= this.UnitWeight_ItemTapped;
             MessagingCenter.Unsubscribe<string>(this, EventTypes.OnKeyUp.ToString());
             base.OnDisappearing();
+            GC.Collect();
+            GC.WaitForPendingFinalizers();
         }
 
         /// <summary>
@@ -671,14 +673,14 @@ namespace dMobile.View.Activity
         /// <remarks></remarks>
         private async Task BarCodeHandler(object sender, BarCodeScannerEventArgs scanArgs)
         {
-            if (this.Loading || scanArgs == null)
+            if (this.IsPageLoading || scanArgs == null)
             {
                 return;
             }
 
             await Task.Run(async () =>
             {
-                this.Loading = true;
+                this.IsPageLoading = true;
                 BarCodeParse parse = null;
                 var tempItemProdSchemeData = new ActItemSchemeData();
 
@@ -809,7 +811,7 @@ namespace dMobile.View.Activity
                 finally
                 {
                     await this.ScannerEnable();
-                    this.Loading = false;
+                    this.IsPageLoading = false;
                 }
             });
         }
@@ -1593,7 +1595,7 @@ namespace dMobile.View.Activity
         /// <param name="e"><see cref="ItemTappedEventArgs"/> Item tapped event arguments.</param>
         private async void UnitWeight_ItemTapped(object sender, ItemTappedEventArgs e)
         {
-            if (this.Loading)
+            if (this.IsPageLoading)
             {
                 return;
             }

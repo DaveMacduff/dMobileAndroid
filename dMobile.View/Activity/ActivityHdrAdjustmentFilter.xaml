@@ -47,7 +47,7 @@
                         </Grid.ColumnDefinitions>
 
                         <Label x:Name="lblAdjustmentType" Grid.Row="0" Grid.Column="0" FontAttributes="Bold" VerticalOptions="CenterAndExpand"/>
-                        <customcontrols:CustomPicker x:Name="cboAdjustmentType" SelectedIndexChanged="cboAdjustmentType_SelectedIndexChanged" Grid.Row="0" Grid.Column="1" Image="arrow_drop_down" IsEnabled="{Binding Loading, Converter={Helpers:BoolConverter}}"/>
+                        <customcontrols:CustomPicker x:Name="cboAdjustmentType" SelectedIndexChanged="cboAdjustmentType_SelectedIndexChanged" Grid.Row="0" Grid.Column="1" Image="arrow_drop_down" IsEnabled="{Binding IsPageLoading, Converter={Helpers:BoolConverter}}"/>
 
                         <Label x:Name="lblAdjustmentDate" Grid.Row="1" Grid.Column="0" FontAttributes="Bold" VerticalOptions="CenterAndExpand"/>
                         <DatePicker x:Name="dtpAdjustmentDate" Grid.Row="1" Grid.Column="1"/>
@@ -55,13 +55,13 @@
                         <Label x:Name="lblSortBy" Grid.Row="2" Grid.Column="0" FontAttributes="Bold" VerticalOptions="CenterAndExpand"/>
 
                         <Label x:Name="lblSortBy1" Grid.Row="3" Grid.Column="0" FontAttributes="Bold" VerticalOptions="CenterAndExpand" HorizontalOptions="CenterAndExpand"/>
-                        <customcontrols:CustomPicker x:Name="cboSortBy1" Grid.Row="3" Grid.Column="1" Image="arrow_drop_down" IsEnabled="{Binding Loading, Converter={Helpers:BoolConverter}}"/>
+                        <customcontrols:CustomPicker x:Name="cboSortBy1" Grid.Row="3" Grid.Column="1" Image="arrow_drop_down" IsEnabled="{Binding IsPageLoading, Converter={Helpers:BoolConverter}}"/>
 
                         <Label x:Name="lblSortBy2" Grid.Row="4" Grid.Column="0" FontAttributes="Bold" VerticalOptions="CenterAndExpand" HorizontalOptions="CenterAndExpand"/>
-                        <customcontrols:CustomPicker x:Name="cboSortBy2" Grid.Row="4" Grid.Column="1" Image="arrow_drop_down" IsEnabled="{Binding Loading, Converter={Helpers:BoolConverter}}"/>
+                        <customcontrols:CustomPicker x:Name="cboSortBy2" Grid.Row="4" Grid.Column="1" Image="arrow_drop_down" IsEnabled="{Binding IsPageLoading, Converter={Helpers:BoolConverter}}"/>
 
                         <Label x:Name="lblSortBy3" Grid.Row="5" Grid.Column="0" FontAttributes="Bold" VerticalOptions="CenterAndExpand" HorizontalOptions="CenterAndExpand"/>
-                        <customcontrols:CustomPicker x:Name="cboSortBy3" Grid.Row="5" Grid.Column="1" Image="arrow_drop_down" IsEnabled="{Binding Loading, Converter={Helpers:BoolConverter}}"/>
+                        <customcontrols:CustomPicker x:Name="cboSortBy3" Grid.Row="5" Grid.Column="1" Image="arrow_drop_down" IsEnabled="{Binding IsPageLoading, Converter={Helpers:BoolConverter}}"/>
                     </Grid>
                 </ScrollView>
 
@@ -74,13 +74,13 @@
                     <Label x:Name="lblNegateScanQuantity" VerticalOptions="CenterAndExpand" FontAttributes="Bold" Grid.Row="0" Grid.Column="0"/>
                     <customcontrols:CustomSwitch x:Name="chkNegateScanQuantity" VerticalOptions="CenterAndExpand" HorizontalOptions="EndAndExpand" Grid.Row="0" Grid.Column="1"/>
 
-                    <Button x:Name="btnSave" Grid.Row="1" Grid.Column="0" IsEnabled="{Binding Loading, Converter={Helpers:BoolConverter}}" Clicked="btnSave_Clicked"/>
-                    <Button x:Name="btnClose" Grid.Row="1" Grid.Column="1" IsEnabled="{Binding Loading, Converter={Helpers:BoolConverter}}" Clicked="btnClose_Clicked"/>
+                    <Button x:Name="btnSave" Grid.Row="1" Grid.Column="0" IsEnabled="{Binding IsPageLoading, Converter={Helpers:BoolConverter}}" Clicked="btnSave_Clicked"/>
+                    <Button x:Name="btnClose" Grid.Row="1" Grid.Column="1" IsEnabled="{Binding IsPageLoading, Converter={Helpers:BoolConverter}}" Clicked="btnClose_Clicked"/>
                 </Grid>
             </Grid>
 
-            <ActivityIndicator IsVisible="{Binding Loading}" 
-                               IsRunning="{Binding Loading}"
+            <ActivityIndicator IsVisible="{Binding IsPageLoading}" 
+                               IsRunning="{Binding IsPageLoading}"
                                AbsoluteLayout.LayoutFlags="All" 
                                AbsoluteLayout.LayoutBounds="0.5,0.5,0.3,0.3"/>
         </AbsoluteLayout>

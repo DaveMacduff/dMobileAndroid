@@ -250,26 +250,27 @@ namespace dMobile.Bedrock
         /// <summary>
         /// Get the slot location map reference number from slot coordinate reference number's.
         /// </summary>
+        /// <param name="locMap"> Location map instance.</param>
         /// <param name="sectionLocMapRefno"><see cref="int"/> Section location map reference number.</param>
         /// <param name="slotCoord1Refno"><see cref="int"/> Slot coordinate 1 reference number.</param>
         /// <param name="slotCoord2Refno"><see cref="int"/> Slot coordinate 2 reference number.</param>
         /// <param name="slotCoord3Refno"><see cref="int"/> Slot coordinate 3 reference number.</param>
         /// <returns>.</returns>
         public static async Task<int> GetSlotRefnoFromCoordinates(
+            SLocMap locMap,
             int sectionLocMapRefno,
             int slotCoord1Refno,
             int slotCoord2Refno,
             int slotCoord3Refno)
         {
             var slotLocMapRefno = 0;
-            var locMap = LocationMap.GetInstance();
             var query = string.Empty;
             var parameters = new List<object>();
 
-            switch (locMap.CurrLocMap.IsSlotCoord1Tracked)
+            switch (locMap.IsSlotCoord1Tracked)
             {
-                case true when locMap.CurrLocMap.IsSlotCoord2Tracked &&
-                               locMap.CurrLocMap.IsSlotCoord3Tracked:
+                case true when locMap.IsSlotCoord2Tracked &&
+                               locMap.IsSlotCoord3Tracked:
                     query = "SELECT tLocationMapSlot.LocationMapRefno "
                             + "FROM tLocationMapSlot "
                             + "WHERE tLocationMapSlot.SectionLocationMapRefno = ?"
@@ -282,7 +283,7 @@ namespace dMobile.Bedrock
                     parameters.Add(Convert.ToInt32(slotCoord3Refno));
                     break;
 
-                case true when locMap.CurrLocMap.IsSlotCoord2Tracked:
+                case true when locMap.IsSlotCoord2Tracked:
                     query = "SELECT tLocationMapSlot.LocationMapRefno "
                             + "FROM tLocationMapSlot "
                             + "WHERE tLocationMapSlot.SectionLocationMapRefno = ?"
@@ -496,9 +497,7 @@ namespace dMobile.Bedrock
                                              " tLocationMapSection.WarehouseLocationMapRefno "
                                              + "WHERE tLocationMapSlot.LocationMapRefno = ?";
 
-                        var results = await conn.QueryAsync<tLocationMapSlotQueryResult>(
-                            query,
-                            Convert.ToInt32(locMapRefno));
+                        var results = await conn.QueryAsync<tLocationMapSlotQueryResult>(query, Convert.ToInt32(locMapRefno));
 
                         if (results != null && results.Count > 0)
                         {
@@ -562,9 +561,7 @@ namespace dMobile.Bedrock
                                              + "= tLocationMapSection.WarehouseLocationMapRefno "
                                              + "WHERE tLocationMapSection.LocationMapRefno = ?";
 
-                        var results = await conn.QueryAsync<tLocationMapSectionQueryResult>(
-                        query,
-                        Convert.ToInt32(locMapRefno));
+                        var results = await conn.QueryAsync<tLocationMapSectionQueryResult>(query, Convert.ToInt32(locMapRefno));
 
                         if (results != null && results.Count > 0)
                         {
@@ -615,9 +612,7 @@ namespace dMobile.Bedrock
                                              + "FROM tLocationMapWarehouse "
                                              + "WHERE tLocationMapWarehouse.LocationMapRefno = ?";
 
-                        var results = await conn.QueryAsync<tLocationMapWarehouseModel>(
-                        query,
-                        Convert.ToInt32(locMapRefno));
+                        var results = await conn.QueryAsync<tLocationMapWarehouseModel>(query, Convert.ToInt32(locMapRefno));
 
                         if (results != null && results.Count > 0)
                         {

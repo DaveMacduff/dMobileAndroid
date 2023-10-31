@@ -18,7 +18,7 @@ namespace dMobile.View.Activity
     using Resources.Enums;
     using Xamarin.Forms;
     using Xamarin.Forms.Xaml;
-    using Resource = Resources.Properties.Resources;
+    using Resource = dMobile.Resources.Properties.Resources;
 
     /// <summary>
     /// Define the <see cref="ActivityDetailEdit"/> activity detail edit.
@@ -35,6 +35,7 @@ namespace dMobile.View.Activity
         {
             this.InitializeComponent();
 
+            this.IsPageLoading = false;
             this.ExtraInfoItems = new ObservableCollection<string>();
             this.SysEnv = SysEnvironment.GetInstance();
             this.ActSubType = actSubTypes;
@@ -151,12 +152,7 @@ namespace dMobile.View.Activity
         private BarCodeScanner Scanner { get; set; } = ScannerEngine.GetInstance().Scanner;
 
         /// <summary>
-        /// Gets or sets a value indicating whether to performing loading data upon got focus.
-        /// </summary>
-        private bool IsFirstAppearance { get; set; } = true;
-
-        /// <summary>
-        /// Un-register the bar code scan event handler and disable the scanner.
+        /// Unregister the bar code scan event handler and disable the scanner.
         /// </summary>
         /// <returns><see cref="Task"/> Task operation.</returns>
         public async Task ScannerDisable()
@@ -186,6 +182,20 @@ namespace dMobile.View.Activity
                     this.Scanner.BarCodeScan += new BarCodeScanner.BarCodeScanEventHandler(this.BarCodeHandler);
                     this.IsBarCodeHandlerRegistered = true;
                 }
+            }
+        }
+
+        /// <summary>
+        /// Registers the bar code scan event handler and enables the scanner.
+        /// </summary>
+        /// <returns><see cref="Task"/> Task operation.</returns>
+        public async Task ScannerStart()
+        {
+            if (this.Scanner != null)
+            {
+                await this.Scanner.Start();
+                this.Scanner.BarCodeScan += new BarCodeScanner.BarCodeScanEventHandler(this.BarCodeHandler);
+                this.IsBarCodeHandlerRegistered = true;
             }
         }
 
@@ -1016,42 +1026,39 @@ namespace dMobile.View.Activity
         /// </summary>
         protected override async void OnAppearing()
         {
-            base.OnAppearing();
-
-            // Note: Do we want to disable the scanner here. It may not even be enabled before at all.
-            // It is my understanding that the OnAppearing event only occurs once when the control
-            // is loading.
-            await this.ScannerDisable();
-            SubscribeKeyUpHandlers();
-            this.txtAltQty.TextChanged += this.TxtAltQty_TextChanged;
-            this.txtBaseQty.TextChanged += this.TxtBaseQty_TextChanged;
-
-            try
+            if (!this.IsPageLoading)
             {
-                this.Loading = true;
-                if (this.IsFirstAppearance)
+                try
                 {
-                    this.IsFirstAppearance = false;
+                    this.IsPageLoading = true;
+                    base.OnAppearing();
+
+                    // Note: Do we want to disable the scanner here. It may not even be enabled before at all.
+                    // It is my understanding that the OnAppearing event only occurs once when the control
+                    // is loading.
+                    await this.ScannerDisable();
+                    SubscribeKeyUpHandlers();
+                    this.txtAltQty.TextChanged += this.TxtAltQty_TextChanged;
+                    this.txtBaseQty.TextChanged += this.TxtBaseQty_TextChanged;
+
                     ////this.ListViewDisplayExtraInfo.ItemsSource = this.ExtraInfoItems;
                     await InitControlState();
-                    await ScannerStart();
                     await LoadData();
                     await ShowProductInfo();
-
-                    ////await SetStartingFocus();
                 }
-            }
-            catch (Exception ex)
-            {
-                await Device.InvokeOnMainThreadAsync(async () =>
-                    await this.DisplayAlert(
-                        "Error",
-                        "this.ucActivityDetailEdit_GotFocus threw an error " + ex,
-                        "OK"));
-            }
-            finally
-            {
-                this.Loading = false;
+                catch (Exception ex)
+                {
+                    await Device.InvokeOnMainThreadAsync(async () =>
+                        await this.DisplayAlert(
+                            "Error",
+                            "this.ucActivityDetailEdit_GotFocus threw an error " + ex,
+                            "OK"));
+                }
+                finally
+                {
+                    this.IsPageLoading = false;
+                    await ScannerStart();
+                }
             }
 
             //////////////////////////////////////////////////////////////////////////
@@ -1409,7 +1416,7 @@ namespace dMobile.View.Activity
                     EventTypes.OnKeyUp.ToString(),
                     async (keyPressed) =>
                     {
-                        if (this.Loading)
+                        if (this.IsPageLoading)
                         {
                             return;
                         }
@@ -1420,12 +1427,9 @@ namespace dMobile.View.Activity
                         // TODO: Verify key codes.
                         _ = Enum.TryParse(keyPressed, out Keycode keycode);
 
-                        if (!this.Loading)
+                        if (keycode == Keycode.F1 || keycode == Keycode.Enter)
                         {
-                            if (keycode == Keycode.F1 || keycode == Keycode.Enter)
-                            {
-                                await AppearingEnterKey();
-                            }
+                            await AppearingEnterKey();
                         }
 
                         if (svdIsScanReg)
@@ -1514,8 +1518,9 @@ namespace dMobile.View.Activity
             this.txtBaseQty.TextChanged -= this.TxtBaseQty_TextChanged;
             MessagingCenter.Unsubscribe<string>(this, EventTypes.OnKeyUp.ToString());
             await this.ScannerDisable();
-
             base.OnDisappearing();
+            GC.Collect();
+            GC.WaitForPendingFinalizers();
         }
 
         /// <summary>
@@ -1603,18 +1608,12 @@ namespace dMobile.View.Activity
         /// event arguments.</param>
         private async Task BarCodeHandler(object sender, BarCodeScannerEventArgs scanArgs)
         {
-            if (this.Loading)
+            if (this.IsPageLoading)
             {
                 return;
             }
 
             _ = scanArgs ?? throw new ArgumentNullException(nameof(scanArgs));
-
-            // Allowing scanning does not make sense here. Unless you are scanning a secondary
-            // supporting bar code with other AI's.
-            this.Loading = true;
-
-            await this.ScannerDisable();
         }
 
         /// <summary>
@@ -1643,9 +1642,7 @@ namespace dMobile.View.Activity
                             }
                             catch (MessageOnlyException msgEx)
                             {
-                                var msg = (msgEx.Message.IndexOf("MSGBOX-",
-                                               StringComparison.Ordinal) ==
-                                           -1)
+                                var msg = (msgEx.Message.IndexOf("MSGBOX-", StringComparison.Ordinal) == -1)
                                     ? msgEx.Message
                                     : msgEx.Message["MSGBOX-".Length..];
 

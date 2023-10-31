@@ -25,7 +25,7 @@
                                 <ColumnDefinition x:Name="dataGridWidth" Width="Auto"/>
                             </Grid.ColumnDefinitions>
 
-                            <ListView x:Name="ListViewMainActivity" HasUnevenRows="True" IsEnabled="{Binding Loading, Converter={Helpers:BoolConverter}}" Grid.Row="1"/>
+                            <ListView x:Name="ListViewMainActivity" HasUnevenRows="True" IsEnabled="{Binding IsPageLoading, Converter={Helpers:BoolConverter}}" Grid.Row="1"/>
                         </Grid>
                     </ScrollView>
                 </Frame>
@@ -42,13 +42,13 @@
                     </ListView>
                 </Frame>
 
-                <Button x:Name="cmdFilter" Grid.Row="2" Text="Filter" Clicked="cmdFilter_Click" IsEnabled="{Binding Loading, Converter={Helpers:BoolConverter}}"/>
-                <Button x:Name="cmdSubmit" Grid.Row="3" Text="Submit Selected" Clicked="cmdSubmit_Click" IsEnabled="{Binding Loading, Converter={Helpers:BoolConverter}}"/>
+                <Button x:Name="cmdFilter" Grid.Row="2" Text="Filter" Clicked="cmdFilter_Click" IsEnabled="{Binding IsPageLoading, Converter={Helpers:BoolConverter}}"/>
+                <Button x:Name="cmdSubmit" Grid.Row="3" Text="Submit Selected" Clicked="cmdSubmit_Click" IsEnabled="{Binding IsPageLoading, Converter={Helpers:BoolConverter}}"/>
 
             </Grid>
 
-            <ActivityIndicator IsVisible="{Binding Loading}" 
-                               IsRunning="{Binding Loading}" 
+            <ActivityIndicator IsVisible="{Binding IsPageLoading}" 
+                               IsRunning="{Binding IsPageLoading}" 
                                AbsoluteLayout.LayoutFlags="All" 
                                AbsoluteLayout.LayoutBounds="0.5,0.5,0.3,0.3"/>
         </AbsoluteLayout>

@@ -51,11 +51,7 @@ namespace dMobile.Controller.Activity_Item
         /// <returns>.</returns>
         public override bool IsCatchAskZero()
         {
-            var result = this.IsCatchAsk();
-            if (result && this.ProdInfo.IsCatchAskZero)
-            {
-                result = true;
-            }
+            bool result = this.IsCatchAsk() && this.ProdInfo.IsCatchAskZero;
 
             return result;
         }

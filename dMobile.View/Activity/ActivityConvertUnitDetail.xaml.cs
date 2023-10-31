@@ -401,7 +401,7 @@ namespace dMobile.View.Activity
             {
                 // Note: Do we want to disable the scanner here. It may not even be enabled before at all.
                 // It is my understanding that the OnAppearing event only occurs once when the control is loading.
-                this.Loading = true;
+                this.IsPageLoading = true;
                 if (this.IsFirstAppearance)
                 {
                     this.IsFirstAppearance = false;
@@ -450,7 +450,7 @@ namespace dMobile.View.Activity
             }
             finally
             {
-                this.Loading = false;
+                this.IsPageLoading = false;
                 ////await Task.Run(() =>
                 ////{
                 ////    // Explicit GC, Xamarin forms not disposing of objects properly
@@ -467,6 +467,8 @@ namespace dMobile.View.Activity
         {
             await this.ActDisappearing();
             base.OnDisappearing();
+            GC.Collect();
+            GC.WaitForPendingFinalizers();
         }
 
         /// <summary>
@@ -504,7 +506,7 @@ namespace dMobile.View.Activity
                     EventTypes.OnKeyUp.ToString(),
                     async (keyPressed) =>
                     {
-                        if (this.Loading)
+                        if (this.IsPageLoading)
                         {
                             return;
                         }
@@ -872,14 +874,14 @@ namespace dMobile.View.Activity
         /// <returns>The <see cref="Task"/>.</returns>
         private async Task BarCodeHandler(object sender, BarCodeScannerEventArgs scanArgs)
         {
-            if (this.Loading)
+            if (this.IsPageLoading)
             {
                 return;
             }
 
             scanArgs = scanArgs ?? throw new ArgumentNullException(nameof(scanArgs));
 
-            this.Loading = true;
+            this.IsPageLoading = true;
             var prodUnitRefno = 0;
             var svdActDetailFKRefno = this.ActDetail.DetailFkRefno;
             var parse = scanArgs.ParseInfo;
@@ -1047,7 +1049,7 @@ namespace dMobile.View.Activity
             }
             finally
             {
-                this.Loading = false;
+                this.IsPageLoading = false;
                 await this.ActAppearing();
             }
         }
@@ -1227,7 +1229,7 @@ namespace dMobile.View.Activity
         {
             try
             {
-                this.Loading = true;
+                this.IsPageLoading = true;
                 if (await CheckAllowedToAddDetail())
                 {
                     var locMap = LocationMap.GetInstance();
@@ -1275,7 +1277,7 @@ namespace dMobile.View.Activity
             finally
             {
                 await this.DisplayDataItem();
-                this.Loading = false;
+                this.IsPageLoading = false;
             }
 
             //////////////////////////////////////////////////////////////////////////

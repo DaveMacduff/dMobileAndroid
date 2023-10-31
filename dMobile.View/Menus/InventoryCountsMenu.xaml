@@ -11,8 +11,8 @@
                 <Button x:Name="cmdCycleCount" Clicked="cmdCycleCount_Click" Text="2) Convert Units (Break Case)" />
             </StackLayout>
 
-            <ActivityIndicator IsVisible="{Binding Loading}" 
-                               IsRunning="{Binding Loading}" 
+            <ActivityIndicator IsVisible="{Binding IsPageLoading}" 
+                               IsRunning="{Binding IsPageLoading}" 
                                AbsoluteLayout.LayoutFlags="All" 
                                AbsoluteLayout.LayoutBounds="0.5,0.5,0.3,0.3"/>
         </AbsoluteLayout>

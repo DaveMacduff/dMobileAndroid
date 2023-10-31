@@ -364,7 +364,7 @@ namespace dMobile.View.Views
                 try
                 {
                     base.OnAppearing();
-                    this.Loading = true;
+                    this.IsPageLoading = true;
                     SubscribeKeyUpHandlers();
                     await this.LoginStartup_GotFocus();
                 }
@@ -389,7 +389,7 @@ namespace dMobile.View.Views
                 }
                 finally
                 {
-                    this.Loading = false;
+                    this.IsPageLoading = false;
                 }
             });
 
@@ -430,7 +430,7 @@ namespace dMobile.View.Views
                     }
                     finally
                     {
-                        this.Loading = false;
+                        this.IsPageLoading = false;
                     }
                 });
             }
@@ -443,6 +443,8 @@ namespace dMobile.View.Views
         {
             MessagingCenter.Unsubscribe<string>(this, EventTypes.OnKeyUp.ToString());
             base.OnDisappearing();
+            GC.Collect();
+            GC.WaitForPendingFinalizers();
         }
 
         /// <summary>
@@ -626,7 +628,7 @@ namespace dMobile.View.Views
         {
             try
             {
-                this.Loading = true;
+                this.IsPageLoading = true;
 
                 await Task.Run(async () =>
                 {
@@ -656,7 +658,7 @@ namespace dMobile.View.Views
             }
             finally
             {
-                this.Loading = false;
+                this.IsPageLoading = false;
             }
         }
 

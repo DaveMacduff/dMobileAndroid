@@ -74,9 +74,10 @@ namespace dMobile.View.Pages
         /// </summary>
         protected override void OnDisappearing()
         {
-            base.OnDisappearing();
-
             MessagingCenter.Unsubscribe<string>(this, EventTypes.OnKeyUp.ToString());
+            base.OnDisappearing();
+            GC.Collect();
+            GC.WaitForPendingFinalizers();
         }
 
         public bool IsErrorRaised { get; set; } = false;
@@ -488,7 +489,7 @@ namespace dMobile.View.Pages
             {
                 try
                 {
-                    this.Loading = true;
+                    this.IsPageLoading = true;
 
                     this.StartUpStatusOut(sender, e, "Initializing environment.");
 
@@ -528,7 +529,7 @@ namespace dMobile.View.Pages
                 }
                 finally
                 {
-                    this.Loading = false;
+                    this.IsPageLoading = false;
                 }
             });
         }

@@ -7,7 +7,7 @@
     xmlns:input="http://schemas.microsoft.com/netfx/2009/xaml/presentation"
     x:Class="dMobile.View.Activity.ActivityDetail">
     <ContentPage.ToolbarItems>
-        <ToolbarItem x:Name="optionsMenu" IconImageSource="{Binding OptionsIconSource}" Clicked="OptionsMenu_Clicked" IsEnabled="{Binding Loading, Converter={Helpers:BoolConverter}}"/>
+        <ToolbarItem x:Name="optionsMenu" IconImageSource="{Binding OptionsIconSource}" Clicked="OptionsMenu_Clicked" IsEnabled="{Binding IsPageLoading, Converter={Helpers:BoolConverter}}"/>
     </ContentPage.ToolbarItems>
     <ContentPage.Content>
         <AbsoluteLayout VerticalOptions="Center">
@@ -35,14 +35,14 @@
                             <ListView x:Name="ListViewMainActivity"
                                       ItemSelected="ListViewMainActivity_ItemSelected"
                                       HasUnevenRows="true"
-                                      IsEnabled="{Binding Loading, Converter={Helpers:BoolConverter}}"
+                                      IsEnabled="{Binding IsPageLoading, Converter={Helpers:BoolConverter}}"
                                       Grid.Row="1"/>
                         </Grid>
                     </ScrollView>
                 </Frame>
 
                 <Frame VerticalOptions="Start" Grid.Row="2" OutlineColor="{DynamicResource BorderColor}">
-                    <ListView x:Name="ListViewDisplayExtraInfo" SelectionMode="None" HasUnevenRows="true" IsEnabled="{Binding Loading, Converter={Helpers:BoolConverter}}" SeparatorVisibility="None" >
+                    <ListView x:Name="ListViewDisplayExtraInfo" SelectionMode="None" HasUnevenRows="true" IsEnabled="{Binding IsPageLoading, Converter={Helpers:BoolConverter}}" SeparatorVisibility="None" >
                         <ListView.ItemTemplate>
                             <DataTemplate>
                                 <ViewCell>
@@ -62,29 +62,29 @@
                            TextChanged="TxtSearchHdr_TextChanged"
                            Focused="TxtSearchItem_Focused"
                            Unfocused="TxtSearchItem_Unfocused"                           
-                           IsEnabled="{Binding Loading, Converter={Helpers:BoolConverter}}"/>
+                           IsEnabled="{Binding IsPageLoading, Converter={Helpers:BoolConverter}}"/>
                     <Button x:Name="cmdAddDetail"
                             Grid.Row="0"
                             Grid.Column="1"
                             Text="Add Detail"
                             Clicked="CmdAddDetail_Click"
-                            IsEnabled="{Binding Loading, Converter={Helpers:BoolConverter}}"/>
+                            IsEnabled="{Binding IsPageLoading, Converter={Helpers:BoolConverter}}"/>
                 </Grid>
 
                 <Grid Grid.Row="4">
                     <ProgressBar x:Name="progBarMain" Grid.Row="0" Grid.Column="0" Visual="Default"></ProgressBar>
                 </Grid>
                 
-                <!--<Grid x:Name="gridButtonContainer" Grid.Row="3" Grid.ColumnSpan="2" IsEnabled="{Binding Loading, Converter={Helpers:BoolConverter}}">-->
-                    <!--<Button x:Name="cmdSelectSkid" Grid.Row="3" Grid.Column="0" Text="Select Skid" Clicked="CmdSelectSkid_Click" IsEnabled="{Binding Loading, Converter={Helpers:BoolConverter}}"/>-->
+                <!--<Grid x:Name="gridButtonContainer" Grid.Row="3" Grid.ColumnSpan="2" IsEnabled="{Binding IsPageLoading, Converter={Helpers:BoolConverter}}">-->
+                    <!--<Button x:Name="cmdSelectSkid" Grid.Row="3" Grid.Column="0" Text="Select Skid" Clicked="CmdSelectSkid_Click" IsEnabled="{Binding IsPageLoading, Converter={Helpers:BoolConverter}}"/>-->
                     
-                    <!--<Button x:Name="cmdLocation" Grid.Row="1" Grid.Column="0" Text="Set Location" Clicked="CmdLocation_Click" IsEnabled="{Binding Loading, Converter={Helpers:BoolConverter}}"/>
-                    <Button x:Name="cmdAddSkid" Grid.Row="1" Grid.Column="1" Text="Add Skid" Clicked="CmdAddSkid_Click" IsEnabled="{Binding Loading, Converter={Helpers:BoolConverter}}"/>-->
+                    <!--<Button x:Name="cmdLocation" Grid.Row="1" Grid.Column="0" Text="Set Location" Clicked="CmdLocation_Click" IsEnabled="{Binding IsPageLoading, Converter={Helpers:BoolConverter}}"/>
+                    <Button x:Name="cmdAddSkid" Grid.Row="1" Grid.Column="1" Text="Add Skid" Clicked="CmdAddSkid_Click" IsEnabled="{Binding IsPageLoading, Converter={Helpers:BoolConverter}}"/>-->
                 <!--</Grid>-->
             </Grid>
 
-            <ActivityIndicator IsVisible="{Binding Loading}" 
-                               IsRunning="{Binding Loading}"
+            <ActivityIndicator IsVisible="{Binding IsPageLoading}" 
+                               IsRunning="{Binding IsPageLoading}"
                                AbsoluteLayout.LayoutFlags="All" 
                                AbsoluteLayout.LayoutBounds="0.5,0.5,0.3,0.3"/>
         </AbsoluteLayout>

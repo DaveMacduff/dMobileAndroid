@@ -623,7 +623,7 @@ namespace dMobile.View.Activity
 
             try
             {
-                this.Loading = true;
+                this.IsPageLoading = true;
                 this.NumTaps = 0;
                 this.SubscribeKeyUpHandlers();
                 this.ListViewMoveFrom.ItemTapped += this.ListViewMoveFrom_ItemTapped;
@@ -690,7 +690,7 @@ namespace dMobile.View.Activity
             }
             finally
             {
-                this.Loading = false;
+                this.IsPageLoading = false;
             }
         }
 
@@ -703,6 +703,8 @@ namespace dMobile.View.Activity
             MessagingCenter.Unsubscribe<string>(this, EventTypes.OnKeyUp.ToString());
             await this.ScannerDisable();
             base.OnDisappearing();
+            GC.Collect();
+            GC.WaitForPendingFinalizers();
         }
 
         /// <summary>
@@ -719,7 +721,7 @@ namespace dMobile.View.Activity
         /// <param name="keyPressed"><see cref="string"/> Key pressed value.</param>
         private async void KeyUpHandlerCallback(string keyPressed)
         {
-            if (this.Loading)
+            if (this.IsPageLoading)
             {
                 return;
             }
@@ -730,7 +732,7 @@ namespace dMobile.View.Activity
                 switch (keycode)
                 {
                     case Keycode.F1:
-                        this.Loading = true;
+                        this.IsPageLoading = true;
                         await KeyUpF1Handler();
                         break;
 
@@ -772,7 +774,7 @@ namespace dMobile.View.Activity
             }
             finally
             {
-                this.Loading = false;
+                this.IsPageLoading = false;
             }
 
             //////////////////////////////////////////////////////////////////////////
@@ -856,7 +858,7 @@ namespace dMobile.View.Activity
         /// <returns>The <see cref="Task"/>. Task operation.</returns>
         private async Task BarCodeHandler(object sender, BarCodeScannerEventArgs scanArgs)
         {
-            if (this.Loading)
+            if (this.IsPageLoading)
             {
                 return;
             }
@@ -865,7 +867,7 @@ namespace dMobile.View.Activity
 
             try
             {
-                this.Loading = true;
+                this.IsPageLoading = true;
                 await this.ScannerDisable();
                 this.BarParse = scanArgs.ParseInfo;
                 if (!string.IsNullOrEmpty(this.BarParse.ActFKRefno))
@@ -933,7 +935,7 @@ namespace dMobile.View.Activity
             finally
             {
                 await this.ScannerEnable();
-                this.Loading = false;
+                this.IsPageLoading = false;
             }
         }
 
@@ -1132,7 +1134,7 @@ namespace dMobile.View.Activity
 
             try
             {
-                this.Loading = true;
+                this.IsPageLoading = true;
                 await this.ScannerDisable();
 
                 var result = await this.DisplayActionSheet(
@@ -1191,7 +1193,7 @@ namespace dMobile.View.Activity
             finally
             {
                 await this.ScannerEnable();
-                this.Loading = false;
+                this.IsPageLoading = false;
             }
         }
 

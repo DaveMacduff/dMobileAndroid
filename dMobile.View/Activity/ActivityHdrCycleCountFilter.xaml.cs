@@ -78,7 +78,7 @@ namespace dMobile.View.Activity
             {
                 _ = Enum.TryParse(keyPressed, out Keycode keycode);
 
-                if (!this.Loading)
+                if (!this.IsPageLoading)
                 {
                     if (keycode == Keycode.F1)
                     {
@@ -114,8 +114,9 @@ namespace dMobile.View.Activity
         {
             MessagingCenter.Unsubscribe<string>(this, EventTypes.OnKeyUp.ToString());
             await this.ScannerDisable();
-
             base.OnDisappearing();
+            GC.Collect();
+            GC.WaitForPendingFinalizers();
         }
 
         /// <inheritdoc/>

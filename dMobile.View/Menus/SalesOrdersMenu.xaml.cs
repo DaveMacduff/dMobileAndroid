@@ -97,8 +97,9 @@ namespace dMobile.View.Menus
         protected override void OnDisappearing()
         {
             MessagingCenter.Unsubscribe<string>(this, EventTypes.OnKeyUp.ToString());
-
             base.OnDisappearing();
+            GC.Collect();
+            GC.WaitForPendingFinalizers();
         }
 
         private bool IsControlLoaded { get; set; } = false;

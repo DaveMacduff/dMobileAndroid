@@ -39,6 +39,7 @@ namespace dMobile.View.Views
         {
             this.InitializeComponent();
 
+            this.IsPageLoading = false;
             this.Title = this.GetControlDescription();
             this.lblSearch.Text = "Search";
             this.lblProductDescription.Text = string.Empty;
@@ -82,52 +83,59 @@ namespace dMobile.View.Views
         /// </summary>
         protected override async void OnAppearing()
         {
-            base.OnAppearing();
-
-            MessagingCenter.Subscribe<string>(this, EventTypes.OnKeyUp.ToString(), async (keyPressed) =>
+            if (!this.IsPageLoading)
             {
-                _ = Enum.TryParse(keyPressed, out Keycode keycode);
+                this.IsPageLoading = true;
+                base.OnAppearing();
+                MessagingCenter.Subscribe<string>(this, EventTypes.OnKeyUp.ToString(), async (keyPressed) =>
+                {
+                    _ = Enum.TryParse(keyPressed, out Keycode keycode);
 
-                if (keycode == Keycode.Enter || keycode == Keycode.F1)
-                {
-                    if (await this.SaveChanges())
+                    if (keycode == Keycode.Enter || keycode == Keycode.F1)
                     {
-                        this.DialogResult = DialogResult.OK;
-                        await this.Close();
+                        if (await this.SaveChanges())
+                        {
+                            this.DialogResult = DialogResult.OK;
+                            await this.Close();
+                        }
                     }
-                }
-                else if (keycode == Keycode.DpadDown)
-                {
-                    if (this.dgProducts.SelectedItem != null && Convert.ToInt32(
-                        this.ProductFilteredObservableCollection.IndexOf(
-                            this.dgProducts.SelectedItem as Product)) < this.ProductFilteredObservableCollection.Count - 1)
+                    else if (keycode == Keycode.DpadDown)
                     {
-                        this.dgProducts.SelectedItem =
-                            this.ProductFilteredObservableCollection[this.ProductFilteredObservableCollection.IndexOf(
-                                this.dgProducts.SelectedItem as Product) + 1];
-                        this.dgProducts.ScrollTo(this.dgProducts.SelectedItem, ScrollToPosition.MakeVisible, true);
+                        if (this.dgProducts.SelectedItem != null && Convert.ToInt32(
+                            this.ProductFilteredObservableCollection.IndexOf(
+                                this.dgProducts.SelectedItem as Product)) < this.ProductFilteredObservableCollection.Count - 1)
+                        {
+                            this.dgProducts.SelectedItem =
+                                this.ProductFilteredObservableCollection[this.ProductFilteredObservableCollection.IndexOf(
+                                    this.dgProducts.SelectedItem as Product) + 1];
+                            this.dgProducts.ScrollTo(this.dgProducts.SelectedItem, ScrollToPosition.MakeVisible, true);
+                        }
                     }
-                }
-                else if (keycode == Keycode.DpadUp)
-                {
-                    if (this.dgProducts.SelectedItem != null && Convert.ToInt32(
-                        this.ProductFilteredObservableCollection.IndexOf(this.dgProducts.SelectedItem as Product)) > 0)
+                    else if (keycode == Keycode.DpadUp)
                     {
-                        this.dgProducts.SelectedItem =
-                            this.ProductFilteredObservableCollection[this.ProductFilteredObservableCollection.IndexOf(
-                                this.dgProducts.SelectedItem as Product) - 1];
-                        this.dgProducts.ScrollTo(this.dgProducts.SelectedItem, ScrollToPosition.MakeVisible, true);
+                        if (this.dgProducts.SelectedItem != null && Convert.ToInt32(
+                            this.ProductFilteredObservableCollection.IndexOf(this.dgProducts.SelectedItem as Product)) > 0)
+                        {
+                            this.dgProducts.SelectedItem =
+                                this.ProductFilteredObservableCollection[this.ProductFilteredObservableCollection.IndexOf(
+                                    this.dgProducts.SelectedItem as Product) - 1];
+                            this.dgProducts.ScrollTo(this.dgProducts.SelectedItem, ScrollToPosition.MakeVisible, true);
+                        }
                     }
-                }
-            });
+                });
 
-            try
-            {
-                await this.ucSelectProduct_GotFocus(this, EventArgs.Empty);
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine("this.ucSelectProduct_GotFocus threw error " + ex);
+                try
+                {
+                    await this.ucSelectProduct_GotFocus(this, EventArgs.Empty);
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine("this.ucSelectProduct_GotFocus threw error " + ex);
+                }
+                finally
+                {
+                    this.IsPageLoading = false;
+                }
             }
         }
 
@@ -138,6 +146,8 @@ namespace dMobile.View.Views
         {
             MessagingCenter.Unsubscribe<string>(this, EventTypes.OnKeyUp.ToString());
             base.OnDisappearing();
+            GC.Collect();
+            GC.WaitForPendingFinalizers();
         }
 
         /// <summary>
@@ -451,7 +461,7 @@ namespace dMobile.View.Views
         {
             if (!this.IsControlLoaded)
             {
-                this.Loading = true;
+                this.IsPageLoading = true;
 
                 _ = await Task.Run(() => this.LoadData()).ContinueWith(async (_) =>
                     {
@@ -464,7 +474,7 @@ namespace dMobile.View.Views
                                 this.dgProducts.SelectedItem = this.ProductFilteredObservableCollection[0];
                             }
 
-                            this.Loading = false;
+                            this.IsPageLoading = false;
                         });
                     });
 

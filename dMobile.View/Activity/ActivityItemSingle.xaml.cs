@@ -859,12 +859,12 @@ namespace dMobile.View.Activity
         /// <returns>The <see cref="Task"/>.</returns>
         private async Task BarCodeHandler(object sender, BarCodeScannerEventArgs scanArgs)
         {
-            if (this.Loading || scanArgs == null)
+            if (this.IsPageLoading || scanArgs == null)
             {
                 return;
             }
 
-            this.Loading = true;
+            this.IsPageLoading = true;
 
             // TODO: Test BarCodeHandler
             var msg = string.Empty;
@@ -1371,7 +1371,7 @@ namespace dMobile.View.Activity
             finally
             {
                 await this.ScannerEnable();
-                this.Loading = false;
+                this.IsPageLoading = false;
             }
         }
 
@@ -1412,7 +1412,7 @@ namespace dMobile.View.Activity
             {
                 _ = Enum.TryParse(keyPressed, out Keycode keycode);
 
-                if (!this.Loading)
+                if (!this.IsPageLoading)
                 {
                     switch (keycode)
                     {
@@ -1476,7 +1476,7 @@ namespace dMobile.View.Activity
             }
             finally
             {
-                this.Loading = false;
+                this.IsPageLoading = false;
             }
         }
 
@@ -1487,8 +1487,9 @@ namespace dMobile.View.Activity
         {
             MessagingCenter.Unsubscribe<string>(this, EventTypes.OnKeyUp.ToString());
             await this.ScannerDisable();
-
             base.OnDisappearing();
+            GC.Collect();
+            GC.WaitForPendingFinalizers();
         }
 
         /// <summary>
@@ -2936,7 +2937,7 @@ namespace dMobile.View.Activity
         /// <param name="e">The e<see cref="EventArgs"/>.</param>
         private async void OptionsMenu_Clicked(object sender, EventArgs e)
         {
-            if (this.Loading)
+            if (this.IsPageLoading)
             {
                 return;
             }

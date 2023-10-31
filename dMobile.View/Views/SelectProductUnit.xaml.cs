@@ -34,6 +34,7 @@ namespace dMobile.View.Views
         public SelectProductUnit()
         {
             this.InitializeComponent();
+            this.IsPageLoading = false;
         }
 
         /// <summary>
@@ -44,6 +45,7 @@ namespace dMobile.View.Views
         {
             this.InitializeComponent();
 
+            this.IsPageLoading = false;
             this.Title = this.GetControlDescription();
             this.lblSearch.Text = "Search";
             this.lblProductDescription.Text = string.Empty;
@@ -66,6 +68,7 @@ namespace dMobile.View.Views
         {
             this.InitializeComponent();
 
+            this.IsPageLoading = false;
             this.Title = this.GetControlDescription();
             this.lblSearch.Text = "Search";
             this.lblProductDescription.Text = string.Empty;
@@ -406,51 +409,53 @@ namespace dMobile.View.Views
         /// </summary>
         protected override async void OnAppearing()
         {
-            base.OnAppearing();
-
-            try
+            if (!this.IsPageLoading)
             {
-                this.Loading = true;
-                await Task.Run(async () => { await this.LoadData(); });
-                if (this.IsFirstAppearance)
+                try
                 {
-                    this.IsFirstAppearance = false;
-                    await ScannerStart();
-                    _ = await Device.InvokeOnMainThreadAsync(() => this.cboSearch.SelectedIndex = 0);
-                    await this.ActAppearing();
+                    this.IsPageLoading = true;
+                    base.OnAppearing();
+                    await Task.Run(async () => { await this.LoadData(); });
+                    if (this.IsFirstAppearance)
+                    {
+                        this.IsFirstAppearance = false;
+                        await ScannerStart();
+                        _ = await Device.InvokeOnMainThreadAsync(() => this.cboSearch.SelectedIndex = 0);
+                        await this.ActAppearing();
+                    }
                 }
-            }
-            catch (MessageOnlyException msgEx)
-            {
-                var msg = SysCommon.GetMessageFromMessageException(msgEx);
-                this.IsFirstAppearance = true;
-                await Device.InvokeOnMainThreadAsync(async () =>
-                    await Application.Current.MainPage.DisplayAlert(
-                        this.GetControlDescription(),
-                        msg,
-                        Resource.OK));
-            }
-            catch (Exception ex)
-            {
-                this.IsFirstAppearance = true;
-                await Device.InvokeOnMainThreadAsync(async () =>
+                catch (MessageOnlyException msgEx)
                 {
-                    const string msg = "This activity unexpectedly failed to initialize correctly." +
-                                       " Please exit and try again.";
-                    var errorReport = new FormErrorReport(msg, ex);
-                    _ = await errorReport.ShowDialog();
-                });
-            }
-            finally
-            {
-                await this.ScannerEnable();
-                this.Loading = false;
-                await Task.Run(() =>
+                    var msg = SysCommon.GetMessageFromMessageException(msgEx);
+                    this.IsFirstAppearance = true;
+                    await Device.InvokeOnMainThreadAsync(async () =>
+                        await Application.Current.MainPage.DisplayAlert(
+                            this.GetControlDescription(),
+                            msg,
+                            Resource.OK));
+                }
+                catch (Exception ex)
                 {
-                    // Explicit GC, Xamarin forms not disposing of objects properly
-                    GC.Collect();
-                    GC.WaitForPendingFinalizers();
-                });
+                    this.IsFirstAppearance = true;
+                    await Device.InvokeOnMainThreadAsync(async () =>
+                    {
+                        const string msg = "This activity unexpectedly failed to initialize correctly." +
+                                           " Please exit and try again.";
+                        var errorReport = new FormErrorReport(msg, ex);
+                        _ = await errorReport.ShowDialog();
+                    });
+                }
+                finally
+                {
+                    await this.ScannerEnable();
+                    this.IsPageLoading = false;
+                    ////await Task.Run(() =>
+                    ////{
+                    ////    // Explicit GC, Xamarin forms not disposing of objects properly
+                    ////    GC.Collect();
+                    ////    GC.WaitForPendingFinalizers();
+                    ////});
+                }
             }
 
             //////////////////////////////////////////////////////////////////////////
@@ -474,6 +479,8 @@ namespace dMobile.View.Views
         {
             await this.ActDisappearing();
             base.OnDisappearing();
+            GC.Collect();
+            GC.WaitForPendingFinalizers();
         }
 
         /// <summary>
@@ -768,7 +775,7 @@ namespace dMobile.View.Views
         /// <remarks></remarks>
         private async Task BarCodeHandler(object sender, BarCodeScannerEventArgs scanArgs)
         {
-            if (this.Loading || scanArgs == null)
+            if (this.IsPageLoading || scanArgs == null)
             {
                 return;
             }
@@ -777,7 +784,6 @@ namespace dMobile.View.Views
 
             try
             {
-                this.Loading = true;
                 await this.ScannerDisable();
 
                 parse = scanArgs.ParseInfo;
@@ -837,7 +843,6 @@ namespace dMobile.View.Views
             finally
             {
                 await this.ScannerEnable();
-                this.Loading = false;
             }
         }
 

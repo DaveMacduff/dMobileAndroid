@@ -101,6 +101,8 @@ namespace dMobile.View.Menus
         {
             MessagingCenter.Unsubscribe<string>(this, EventTypes.OnKeyUp.ToString());
             base.OnDisappearing();
+            GC.Collect();
+            GC.WaitForPendingFinalizers();
         }
 
         private bool IsControlLoaded { get; set; } = false;

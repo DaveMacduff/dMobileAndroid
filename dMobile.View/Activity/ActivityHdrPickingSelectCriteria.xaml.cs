@@ -78,7 +78,7 @@ namespace dMobile.View.Activity
             {
                 _ = Enum.TryParse(keyPressed, out Keycode keycode);
 
-                if (!this.Loading)
+                if (!this.IsPageLoading)
                 {
                     if (keycode == Keycode.Enter || keycode == Keycode.F1)
                     {
@@ -171,8 +171,9 @@ namespace dMobile.View.Activity
         {
             MessagingCenter.Unsubscribe<string>(this, EventTypes.OnKeyUp.ToString());
             await this.ScannerDisable();
-
             base.OnDisappearing();
+            GC.Collect();
+            GC.WaitForPendingFinalizers();
         }
 
         private BarCodeParse BarParse { get; set; } = null;
@@ -744,14 +745,14 @@ namespace dMobile.View.Activity
         /// <remarks></remarks>
         private async Task BarCodeHandler(object sender, BarCodeScannerEventArgs scanArgs)
         {
-            if (this.Loading || scanArgs == null)
+            if (this.IsPageLoading || scanArgs == null)
             {
                 return;
             }
 
             try
             {
-                this.Loading = true;
+                this.IsPageLoading = true;
 
                 // No need to disable/enable scanner because only messagebox are called.
                 // GoFocus and LostFocus events will handle the scanner
@@ -807,7 +808,7 @@ namespace dMobile.View.Activity
             }
             finally
             {
-                this.Loading = false;
+                this.IsPageLoading = false;
             }
         }
 

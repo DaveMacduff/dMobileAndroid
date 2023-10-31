@@ -150,6 +150,8 @@ namespace dMobile.View.Options
         {
             MessagingCenter.Unsubscribe<string>(this, EventTypes.OnKeyUp.ToString());
             base.OnDisappearing();
+            GC.Collect();
+            GC.WaitForPendingFinalizers();
         }
 
         /// <inheritdoc/>
@@ -620,7 +622,7 @@ namespace dMobile.View.Options
         {
             var refreshLast = new DateTime(1900, 1, 1);
 
-            this.Loading = true;
+            this.IsPageLoading = true;
 
             await Task.Run(async () =>
             {
@@ -724,7 +726,7 @@ namespace dMobile.View.Options
                 // }
             });
 
-            this.Loading = false;
+            this.IsPageLoading = false;
         }
 
         /// <summary>

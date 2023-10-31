@@ -431,7 +431,7 @@ namespace dMobile.View.Activity
 
             try
             {
-                this.Loading = true;
+                this.IsPageLoading = true;
                 if (this.IsFirstAppearance)
                 {
                     this.IsFirstAppearance = false;
@@ -484,7 +484,7 @@ namespace dMobile.View.Activity
             }
             finally
             {
-                this.Loading = false;
+                this.IsPageLoading = false;
                 ////await this.ScannerEnable();
                 ////await Task.Run(() =>
                 ////{
@@ -517,7 +517,7 @@ namespace dMobile.View.Activity
                 {
                     _ = Enum.TryParse(keyPressed, out Keycode keycode);
 
-                    if (this.Loading)
+                    if (this.IsPageLoading)
                     {
                         return;
                     }
@@ -755,6 +755,8 @@ namespace dMobile.View.Activity
         {
             await this.ActDisappearing();
             base.OnDisappearing();
+            GC.Collect();
+            GC.WaitForPendingFinalizers();
         }
 
         /// <summary>
@@ -846,7 +848,7 @@ namespace dMobile.View.Activity
         /// <returns>The <see cref="Task"/>.</returns>
         private async Task BarCodeHandler(object sender, BarCodeScannerEventArgs scanArgs)
         {
-            if (this.Loading || scanArgs == null)
+            if (this.IsPageLoading || scanArgs == null)
             {
                 return;
             }
@@ -857,7 +859,7 @@ namespace dMobile.View.Activity
 
             try
             {
-                this.Loading = true;
+                this.IsPageLoading = true;
                 this.Parse = scanArgs.ParseInfo;
 
                 await this.ScannerDisable();
@@ -978,7 +980,7 @@ namespace dMobile.View.Activity
             finally
             {
                 await this.ScannerEnable();
-                this.Loading = false;
+                this.IsPageLoading = false;
             }
 
             //////////////////////////////////////////////////////////////////////////

@@ -36,7 +36,6 @@ namespace dMobile.View.Activity
         private int toProdRefno = 0;
         private ProductInfo fromProductInfo;
         private ProductInfo toProductInfo;
-        private bool isFirstAppearance = true;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ActivityConvertProduct"/> class.
@@ -446,14 +445,12 @@ namespace dMobile.View.Activity
         /// </summary>
         protected override async void OnAppearing()
         {
-            base.OnAppearing();
-
-            try
+            if (!this.IsPageLoading)
             {
-                this.Loading = true;
-                if (this.isFirstAppearance)
+                try
                 {
-                    this.isFirstAppearance = false;
+                    this.IsPageLoading = true;
+                    base.OnAppearing();
                     await ScannerStart();
                     this.ListViewDisplayExtraInfo.ItemsSource = this.ExtraInfoItems;
 
@@ -473,61 +470,54 @@ namespace dMobile.View.Activity
 
                     _ = await this.ActDetail.GetActivityDetailList(false);
                     await this.Load();
+
+                    await this.ActAppearing();
                 }
-
-                await this.ActAppearing();
-            }
-            catch (MessageOnlyException msgEx)
-            {
-                var msg = SysCommon.GetMessageFromMessageException(msgEx);
-                await Device.InvokeOnMainThreadAsync(async () =>
-                    await Application.Current.MainPage.DisplayAlert(
-                        this.ActItem.GetControlDescription(),
-                        msg,
-                        Resource.OK));
-            }
-            catch (CommunicationException commEx)
-            {
-                this.IsFirstAppearance = true;
-
-                // Question should a communication error, be reported as an error or just a messagebox?
-                await Device.InvokeOnMainThreadAsync(async () =>
+                catch (MessageOnlyException msgEx)
                 {
-                    var msg = $"Unable to load activity items.{Environment.NewLine}" +
-                        $"Because of a communication problem.{Environment.NewLine}" +
-                        $"Detail:{commEx.Message}{Environment.NewLine}" +
-                        "Please exit and try again.";
-
-                    await Application.Current.MainPage.DisplayAlert(
-                        this.ActItem.GetControlDescription(),
-                        msg,
-                        Resource.OK);
-                });
-            }
-            catch (Exception ex)
-            {
-                this.IsFirstAppearance = true;
-                await Device.InvokeOnMainThreadAsync(async () =>
+                    var msg = SysCommon.GetMessageFromMessageException(msgEx);
+                    await Device.InvokeOnMainThreadAsync(async () =>
+                        await Application.Current.MainPage.DisplayAlert(
+                            this.ActItem.GetControlDescription(),
+                            msg,
+                            Resource.OK));
+                }
+                catch (CommunicationException commEx)
                 {
-                    var msg = $"Unable to load activity items.{Environment.NewLine}" +
-                        $"General exception.{Environment.NewLine}" +
-                        $"Detail:{ex.Message}{Environment.NewLine}" +
-                        "Please exit and try again.";
-                    var errorReport = new FormErrorReport(msg, ex);
-                    _ = await errorReport.ShowDialog();
-                });
-            }
-            finally
-            {
-                this.Loading = false;
-                await this.ScannerEnable();
+                    this.IsFirstAppearance = true;
 
-                ////await Task.Run(() =>
-                ////{
-                ////    // Explicit GC, Xamarin forms not disposing of objects properly
-                ////    GC.Collect();
-                ////    GC.WaitForPendingFinalizers();
-                ////});
+                    // Question should a communication error, be reported as an error or just a messagebox?
+                    await Device.InvokeOnMainThreadAsync(async () =>
+                    {
+                        var msg = $"Unable to load activity items.{Environment.NewLine}" +
+                            $"Because of a communication problem.{Environment.NewLine}" +
+                            $"Detail:{commEx.Message}{Environment.NewLine}" +
+                            "Please exit and try again.";
+
+                        await Application.Current.MainPage.DisplayAlert(
+                            this.ActItem.GetControlDescription(),
+                            msg,
+                            Resource.OK);
+                    });
+                }
+                catch (Exception ex)
+                {
+                    this.IsFirstAppearance = true;
+                    await Device.InvokeOnMainThreadAsync(async () =>
+                    {
+                        var msg = $"Unable to load activity items.{Environment.NewLine}" +
+                            $"General exception.{Environment.NewLine}" +
+                            $"Detail:{ex.Message}{Environment.NewLine}" +
+                            "Please exit and try again.";
+                        var errorReport = new FormErrorReport(msg, ex);
+                        _ = await errorReport.ShowDialog();
+                    });
+                }
+                finally
+                {
+                    this.IsPageLoading = false;
+                    await this.ScannerEnable();
+                }
             }
 
             //////////////////////////////////////////////////////////////////////////
@@ -567,6 +557,8 @@ namespace dMobile.View.Activity
         {
             await this.ActDisappearing();
             base.OnDisappearing();
+            GC.Collect();
+            GC.WaitForPendingFinalizers();
         }
 
         /// <summary>
@@ -597,7 +589,7 @@ namespace dMobile.View.Activity
                 {
                     _ = Enum.TryParse(keyPressed, out Keycode keycode);
 
-                    if (!this.Loading)
+                    if (!this.IsPageLoading)
                     {
                         var svdIsScanReg = this.IsBarCodeHandlerRegistered;
                         await this.ScannerDisable();
@@ -636,13 +628,13 @@ namespace dMobile.View.Activity
         /// event arguments.</param>
         private async Task BarCodeHandler(object sender, BarCodeScannerEventArgs scanArgs)
         {
-            if (this.Loading)
+            if (this.IsPageLoading)
             {
                 return;
             }
 
             scanArgs = scanArgs ?? throw new ArgumentNullException(nameof(scanArgs));
-            this.Loading = true;
+            this.IsPageLoading = true;
 
             try
             {
@@ -712,7 +704,7 @@ namespace dMobile.View.Activity
                 });
             }
 
-            this.Loading = false;
+            this.IsPageLoading = false;
 
             //////////////////////////////////////////////////////////////////////////
             async Task BarCodeHandlerLocationIdentifier(BarCodeParse parse)
@@ -1412,7 +1404,7 @@ namespace dMobile.View.Activity
         /// <param name="e"><see cref="EventArgs"/> Event arguments.</param>
         private async void OptionsMenu_Clicked(object sender, EventArgs e)
         {
-            if (this.Loading)
+            if (this.IsPageLoading)
             {
                 return;
             }

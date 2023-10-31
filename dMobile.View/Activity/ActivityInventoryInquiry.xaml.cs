@@ -440,7 +440,7 @@ namespace dMobile.View.Activity
                 {
                     _ = Enum.TryParse(keyPressed, out Keycode keycode);
 
-                    if (!this.Loading)
+                    if (!this.IsPageLoading)
                     {
                         if (keycode == Keycode.Enter)
                         {
@@ -462,8 +462,9 @@ namespace dMobile.View.Activity
         {
             MessagingCenter.Unsubscribe<string>(this, EventTypes.OnKeyUp.ToString());
             await this.ScannerDisable();
-
             base.OnDisappearing();
+            GC.Collect();
+            GC.WaitForPendingFinalizers();
         }
 
         /// <inheritdoc/>
@@ -489,7 +490,7 @@ namespace dMobile.View.Activity
         {
             await Task.Run(async () =>
             {
-                this.Loading = true;
+                this.IsPageLoading = true;
                 this.BarParse = scanArgs.ParseInfo;
 
                 await this.ScannerDisable();
@@ -561,7 +562,7 @@ namespace dMobile.View.Activity
                 finally
                 {
                     await this.ScannerEnable();
-                    this.Loading = false;
+                    this.IsPageLoading = false;
                 }
             });
         }
@@ -1093,7 +1094,7 @@ namespace dMobile.View.Activity
             {
                 try
                 {
-                    this.Loading = true;
+                    this.IsPageLoading = true;
 
                     if (this.ActItem.ProdInfo.Refno > 0)
                     {
@@ -1137,7 +1138,7 @@ namespace dMobile.View.Activity
                 }
                 finally
                 {
-                    this.Loading = false;
+                    this.IsPageLoading = false;
                 }
             });
         }

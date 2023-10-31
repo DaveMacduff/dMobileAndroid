@@ -49,14 +49,14 @@
                 </Frame>
 
                 <Grid VerticalOptions="End" Grid.Row="2">
-                    <Button x:Name="cmdRefreshData" Text="Refresh Data" Clicked="cmdRefreshData_Click" IsEnabled="{Binding Loading, Converter={Helpers:BoolConverter}}"/>
-                    <Button x:Name="cmdDataStatus" Text="Data Status" Grid.Row="0" Grid.Column="1" Clicked="cmdDataStatus_Click" IsEnabled="{Binding Loading, Converter={Helpers:BoolConverter}}"/>
+                    <Button x:Name="cmdRefreshData" Text="Refresh Data" Clicked="cmdRefreshData_Click" IsEnabled="{Binding IsPageLoading, Converter={Helpers:BoolConverter}}"/>
+                    <Button x:Name="cmdDataStatus" Text="Data Status" Grid.Row="0" Grid.Column="1" Clicked="cmdDataStatus_Click" IsEnabled="{Binding IsPageLoading, Converter={Helpers:BoolConverter}}"/>
                 </Grid>
 
             </Grid>
 
-            <ActivityIndicator IsVisible="{Binding Loading}" 
-                               IsRunning="{Binding Loading}" 
+            <ActivityIndicator IsVisible="{Binding IsPageLoading}" 
+                               IsRunning="{Binding IsPageLoading}" 
                                AbsoluteLayout.LayoutFlags="All" 
                                AbsoluteLayout.LayoutBounds="0.5,0.5,0.3,0.3"/>
         </AbsoluteLayout>

@@ -55,25 +55,25 @@ namespace dMobile.Controller.Activity_Item
             if (isCatchAsk)
             {
                 // modules are for exclusions
-                isCatchAsk = this.SysEnv.SysSettings.IsMoveInventoryCatchAskEnabled;
+                ////isCatchAsk = this.SysEnv.SysSettings.IsMoveInventoryCatchAskEnabled;
             }
 
             return isCatchAsk;
         }
 
         /// <summary>
-        /// Check if catch ask zero is enabled for move inventory.
+        /// Check if the product is catch count.
         /// </summary>
-        /// <returns><see cref="bool"/> True if catch ask zero is enabled.</returns>
+        /// <returns><see cref="bool"/> True if catch count, else false.</returns>
         public override bool IsCatchAskZero()
         {
-            var isCatchAskZero = this.ProdInfo.IsCatchAskZero;
-            if (isCatchAskZero)
+            var result = false;
+            if (this.IsCatchAsk() && this.ProdInfo.IsCatchAskZero)
             {
-                isCatchAskZero = !this.SysEnv.SysSettings.IsMoveInventoryModuleNoCatchAskZeroEnabled;
+                result = !this.SysEnv.SysSettings.IsMoveInventoryModuleNoCatchAskZeroEnabled;
             }
 
-            return isCatchAskZero;
+            return result;
         }
 
         /// <summary>

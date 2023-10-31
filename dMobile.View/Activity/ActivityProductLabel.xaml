@@ -57,7 +57,7 @@
 
                 <!--Row 1-->
                 <Frame Grid.Row="1" OutlineColor="{DynamicResource BorderColor}">
-                    <ListView x:Name="ListViewDisplayExtraInfo" SelectionMode="None" HasUnevenRows="True" IsEnabled="{Binding Loading, Converter={Helpers:BoolConverter}}" SeparatorVisibility="None">
+                    <ListView x:Name="ListViewDisplayExtraInfo" SelectionMode="None" HasUnevenRows="True" IsEnabled="{Binding IsPageLoading, Converter={Helpers:BoolConverter}}" SeparatorVisibility="None">
                         <ListView.ItemTemplate>
                             <DataTemplate>
                                 <ViewCell>
@@ -77,7 +77,7 @@
                 </Grid>
             </Grid>
 
-            <ActivityIndicator IsVisible="{Binding Loading}" IsRunning="{Binding Loading}" AbsoluteLayout.LayoutFlags="All" AbsoluteLayout.LayoutBounds="0.5,0.5,0.3,0.3"/>
+            <ActivityIndicator IsVisible="{Binding IsPageLoading}" IsRunning="{Binding IsPageLoading}" AbsoluteLayout.LayoutFlags="All" AbsoluteLayout.LayoutBounds="0.5,0.5,0.3,0.3"/>
         </AbsoluteLayout>
     </ContentPage.Content>
 </modal:DMobileModal>

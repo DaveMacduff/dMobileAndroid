@@ -176,7 +176,7 @@ namespace dMobile.Controller.Activity_Item
             if (isCatchAsk)
             {
                 // modules are for exclusions
-                isCatchAsk = this.SysEnv.SysSettings.IsAdjustmentCatchAskEnabled;
+                ////isCatchAsk = this.SysEnv.SysSettings.IsAdjustmentCatchAskEnabled;
             }
 
             return isCatchAsk;
@@ -188,8 +188,8 @@ namespace dMobile.Controller.Activity_Item
         /// <returns><see cref="bool"/> True if catch count, else false.</returns>
         public override bool IsCatchAskZero()
         {
-            var result = this.IsCatchAsk();
-            if (result && this.ProdInfo.IsCatchAskZero)
+            var result = false;
+            if (this.IsCatchAsk() && this.ProdInfo.IsCatchAskZero)
             {
                 result = !this.SysEnv.SysSettings.IsAdjustmentNoCatchAskZeroEnabled;
             }
@@ -371,6 +371,7 @@ namespace dMobile.Controller.Activity_Item
                 };
 
                 this.ListItems.Add(adjItem);
+                this.ListAdjustmentItems.Add(adjItem);
             }
         }
 

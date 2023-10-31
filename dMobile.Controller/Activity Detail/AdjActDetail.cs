@@ -346,10 +346,10 @@ namespace dMobile.Controller.Activity_Detail
                     this.ActItem.ActStatus = SysCommon.ActStatus.NoChange;
 
                     rowsAffected = await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(
-                        "UPDATE tActivityItem SET ActivityItemStatus = ? WHERE ActivityItemRefno = ?",
+                        "UPDATE tActivityItem SET ActivityItemStatus = ?" +
+                        " WHERE ActivityItemRefno = ?",
                         Convert.ToInt32(SysCommon.ActStatus.NoChange),
                         this.ActItem.ItemRefno);
-
                     if (rowsAffected < 0)
                     {
                         throw new Exception(

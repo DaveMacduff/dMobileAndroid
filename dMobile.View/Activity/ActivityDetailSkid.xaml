@@ -30,7 +30,7 @@
                                 <ListView x:Name="ListViewMainActivity"
                                           ItemSelected="ListViewMainActivity_ItemSelected"
                                           HasUnevenRows="True"
-                                          IsEnabled="{Binding Loading, Converter={Helpers:BoolConverter}}"
+                                          IsEnabled="{Binding IsPageLoading, Converter={Helpers:BoolConverter}}"
                                           Grid.Row="1"/>
                             </Grid>
                         </ScrollView>
@@ -40,7 +40,7 @@
                         <ListView x:Name="ListViewDisplayExtraInfo"
                                   SelectionMode="None"
                                   HasUnevenRows="True"
-                                  IsEnabled="{Binding Loading, Converter={Helpers:BoolConverter}}"
+                                  IsEnabled="{Binding IsPageLoading, Converter={Helpers:BoolConverter}}"
                                   SeparatorVisibility="None">
                             <ListView.ItemTemplate>
                                 <DataTemplate>
@@ -59,18 +59,18 @@
                                Grid.Row="0"
                                Grid.Column="0"
                                TextChanged="TxtSearchHdr_TextChanged"
-                               IsEnabled="{Binding Loading, Converter={Helpers:BoolConverter}}"/>
+                               IsEnabled="{Binding IsPageLoading, Converter={Helpers:BoolConverter}}"/>
                         <Button x:Name="cmdAdd"
                                 Grid.Row="0"
                                 Grid.Column="1"
                                 Text="Add"
                                 Clicked="CmdAdd_Click"
-                                IsEnabled="{Binding Loading, Converter={Helpers:BoolConverter}}"/>
+                                IsEnabled="{Binding IsPageLoading, Converter={Helpers:BoolConverter}}"/>
                     </Grid>
                 </Grid>
 
-                <ActivityIndicator IsVisible="{Binding Loading}" 
-                               IsRunning="{Binding Loading}"
+                <ActivityIndicator IsVisible="{Binding IsPageLoading}" 
+                               IsRunning="{Binding IsPageLoading}"
                                AbsoluteLayout.LayoutFlags="All" 
                                AbsoluteLayout.LayoutBounds="0.5,0.5,0.3,0.3"/>
             </AbsoluteLayout>

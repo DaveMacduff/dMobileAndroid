@@ -2,24 +2,24 @@
 // Copyright (c) InterSect Business Systems Inc. All rights reserved.
 // </copyright>
 
-using System;
-using dMobile.Bedrock;
-using dMobile.Controller.Activity;
-
 namespace dMobile.Controller.Activity_Item
 {
+    using System;
+    using Activity;
+    using Bedrock;
+
     /// <summary>
-    /// This is the activity facade class that return an activity object.
+    ///     This is the activity facade class that return an activity object.
     /// </summary>
     public class ActItemFacade
     {
         /// <summary>
-        /// Creates and returns a generic activity object.
+        ///     Creates and returns a generic activity object.
         /// </summary>
-        /// <param name="activity"><see cref="Activity"/> Activity header.</param>
-        /// <param name="actSubType"><see cref="SysCommon.ActSubTypes"/> Activity sub type.</param>
-        /// <returns><see cref="ActItem"/> Activity item object.</returns>
-        public static ActItem GetActItem(Activity.Activity activity, SysCommon.ActSubTypes actSubType)
+        /// <param name="activity"><see cref="Activity" /> Activity header.</param>
+        /// <param name="actSubType"><see cref="SysCommon.ActSubTypes" /> Activity sub type.</param>
+        /// <returns><see cref="ActItem" /> Activity item object.</returns>
+        public static ActItem GetActItem(Activity activity, SysCommon.ActSubTypes actSubType)
         {
             ActItemFactory actItemFactory = null;
 
@@ -119,11 +119,9 @@ namespace dMobile.Controller.Activity_Item
             {
                 throw new NotImplementedException("Could not create activity item object.");
             }
-            else
-            {
-                actItem = actItemFactory.GetActItem(activity);
-                actItem.ActSubType = actSubType;
-            }
+
+            actItem = actItemFactory.GetActItem(activity);
+            actItem.ActSubType = actSubType;
 
             return actItem;
         }

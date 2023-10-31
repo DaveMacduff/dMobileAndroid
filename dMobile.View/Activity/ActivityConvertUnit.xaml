@@ -25,12 +25,12 @@
                         <ColumnDefinition Width="30*"/>
                     </Grid.ColumnDefinitions>
 
-                    <Button x:Name="cmdLocation" Grid.Row="0" Grid.Column="0" IsEnabled="{Binding Loading, Converter={Helpers:BoolConverter}}" Clicked="cmdLocation_Click"/>
-                    <customcontrols:CustomPicker x:Name="BarCodeModifier1Picker" Image="arrow_drop_down" Grid.Row="0" Grid.Column="1" SelectedIndexChanged="IdentifyChangesMade" IsEnabled="{Binding Loading, Converter={Helpers:BoolConverter}}"/>
+                    <Button x:Name="cmdLocation" Grid.Row="0" Grid.Column="0" IsEnabled="{Binding IsPageLoading, Converter={Helpers:BoolConverter}}" Clicked="cmdLocation_Click"/>
+                    <customcontrols:CustomPicker x:Name="BarCodeModifier1Picker" Image="arrow_drop_down" Grid.Row="0" Grid.Column="1" SelectedIndexChanged="IdentifyChangesMade" IsEnabled="{Binding IsPageLoading, Converter={Helpers:BoolConverter}}"/>
                 </Grid>
 
                 <!--Row 1-->
-                <Button x:Name="cmdSelectFromUnit" Grid.Row="1" IsEnabled="{Binding Loading, Converter={Helpers:BoolConverter}}" Clicked="cmdSelectFromUnit_Click"/>
+                <Button x:Name="cmdSelectFromUnit" Grid.Row="1" IsEnabled="{Binding IsPageLoading, Converter={Helpers:BoolConverter}}" Clicked="cmdSelectFromUnit_Click"/>
 
                 <!--Row 2-->
                 <Grid Grid.Row="2">
@@ -44,7 +44,7 @@
                 </Grid>
 
                 <!--Row 3-->
-                <Button x:Name="cmdSelectToUnit" Grid.Row="3" IsEnabled="{Binding Loading, Converter={Helpers:BoolConverter}}" Clicked="cmdSelectToUnit_Click"/>
+                <Button x:Name="cmdSelectToUnit" Grid.Row="3" IsEnabled="{Binding IsPageLoading, Converter={Helpers:BoolConverter}}" Clicked="cmdSelectToUnit_Click"/>
 
                 <!--Row 4-->
                 <Frame Grid.Row="4" OutlineColor="{DynamicResource BorderColor}">
@@ -57,7 +57,7 @@
                             <ListView x:Name="dgUnitWeight"
                                       ItemSelected="dgUnitWeight_ItemSelected"
                                       HasUnevenRows="True"
-                                      IsEnabled="{Binding Loading, Converter={Helpers:BoolConverter}}"
+                                      IsEnabled="{Binding IsPageLoading, Converter={Helpers:BoolConverter}}"
                                       Grid.Row="1"
                                       VerticalScrollBarVisibility="Always"
                                       HorizontalScrollBarVisibility="Always" />
@@ -72,13 +72,13 @@
                         <ColumnDefinition Width="*"/>
                     </Grid.ColumnDefinitions>
 
-                    <Button x:Name="cmdSave" Grid.Row="0" Grid.Column="0" Clicked="cmdSave_Clicked" IsEnabled="{Binding Loading, Converter={Helpers:BoolConverter}}"/>
-                    <Button x:Name="cmdCancel" Grid.Row="0" Grid.Column="1" Clicked="cmdCancel_Clicked" IsEnabled="{Binding Loading, Converter={Helpers:BoolConverter}}"/>
+                    <Button x:Name="cmdSave" Grid.Row="0" Grid.Column="0" Clicked="cmdSave_Clicked" IsEnabled="{Binding IsPageLoading, Converter={Helpers:BoolConverter}}"/>
+                    <Button x:Name="cmdCancel" Grid.Row="0" Grid.Column="1" Clicked="cmdCancel_Clicked" IsEnabled="{Binding IsPageLoading, Converter={Helpers:BoolConverter}}"/>
                 </Grid>
             </Grid>
 
-            <ActivityIndicator IsVisible="{Binding Loading}" 
-                               IsRunning="{Binding Loading}"
+            <ActivityIndicator IsVisible="{Binding IsPageLoading}" 
+                               IsRunning="{Binding IsPageLoading}"
                                AbsoluteLayout.LayoutFlags="All" 
                                AbsoluteLayout.LayoutBounds="0.5,0.5,0.3,0.3"/>
         </AbsoluteLayout>

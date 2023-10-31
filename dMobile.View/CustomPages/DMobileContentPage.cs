@@ -17,7 +17,7 @@ namespace dMobile.View.CustomPages
         /// <summary>
         /// Defines the loading.
         /// </summary>
-        private bool loading;
+        private bool isPageLoading = false;
 
         /// <summary>
         /// 
@@ -35,20 +35,20 @@ namespace dMobile.View.CustomPages
         public DMobileContentPage()
         {
             this.BindingContext = this;
-            this.Loading = false;
+            this.IsPageLoading = false;
             this.OptionsIconSource = Convert.ToString(Application.Current.Resources["OptionsIcon"]);
         }
 
         /// <summary>
         /// Gets or sets a value indicating whether the page content is loading.
         /// </summary>
-        public bool Loading
+        public bool IsPageLoading
         {
-            get => this.loading;
+            get => this.isPageLoading;
 
             set
             {
-                this.loading = value;
+                this.isPageLoading = value;
                 this.OnPropertyChanged();
             }
         }
@@ -97,7 +97,7 @@ namespace dMobile.View.CustomPages
 
                     await Task.Run(() =>
                     {
-                        while (this.Loading)
+                        while (this.IsPageLoading)
                         {
                             // Wait for loading to complete
                         }

@@ -2,11 +2,11 @@
 // Copyright (c) InterSect Business Systems Inc. All rights reserved.
 // </copyright>
 
-using dMobile.Bedrock;
-using dMobile.Controller.Activity_Detail;
-
 namespace dMobile.Controller.Activity_Item
 {
+    using dMobile.Bedrock;
+    using dMobile.Controller.Activity_Detail;
+
     /// <summary>
     ///  Structure for activity items scheme data.
     /// </summary>
@@ -20,7 +20,6 @@ namespace dMobile.Controller.Activity_Item
         /// <summary>
         /// Gets or sets the activity item foreign key reference number.
         /// </summary>
-        /// <example>ar_oehdr.reference number.</example>
         public int ActItemFkRefno { get; set; } = 0;
 
         /// <summary>
@@ -61,19 +60,16 @@ namespace dMobile.Controller.Activity_Item
         /// <summary>
         /// Gets or sets the warehouse location map foreign key reference number.
         /// </summary>
-        /// <example>iv_locwh.wh_locat.</example>
         public int LocMapWhsFkRefno { get; set; } = 0;
 
         /// <summary>
         /// Gets or sets the section location map foreign key reference number.
         /// </summary>
-        /// <example>iv_sect.reference number.</example>
         public int LocMapSectFkRefno { get; set; } = 0;
 
         /// <summary>
         /// Gets or sets the slot location map foreign key reference number.
         /// </summary>
-        /// <example>iv_slot.reference number.</example>
         public int LocMapSlotFkRefno { get; set; } = 0;
     }
 }

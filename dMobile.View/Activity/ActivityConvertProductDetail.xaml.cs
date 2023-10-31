@@ -475,7 +475,7 @@ namespace dMobile.View.Activity
             {
                 _ = Enum.TryParse(keyPressed, out Keycode keycode);
 
-                if (!this.Loading)
+                if (!this.IsPageLoading)
                 {
                     if (keycode == Keycode.Enter)
                     {
@@ -523,6 +523,8 @@ namespace dMobile.View.Activity
             MessagingCenter.Unsubscribe<string>(this, EventTypes.OnKeyUp.ToString());
             await this.ScannerDisable();
             base.OnDisappearing();
+            GC.Collect();
+            GC.WaitForPendingFinalizers();
         }
 
         /// <summary>
@@ -581,13 +583,13 @@ namespace dMobile.View.Activity
         /// <param name="scanArgs"><see cref="BarCodeScannerEventArgs"/> Sender bar code scanner event arguments.</param>
         private async Task BarCodeHandler(object sender, BarCodeScannerEventArgs scanArgs)
         {
-            if (this.Loading)
+            if (this.IsPageLoading)
             {
                 return;
             }
 
             scanArgs = scanArgs ?? throw new ArgumentNullException(nameof(scanArgs));
-            this.Loading = true;
+            this.IsPageLoading = true;
 
             try
             {
@@ -654,7 +656,7 @@ namespace dMobile.View.Activity
                 });
             }
 
-            this.Loading = false;
+            this.IsPageLoading = false;
         }
 
         /// <summary>

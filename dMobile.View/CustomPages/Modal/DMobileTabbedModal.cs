@@ -18,7 +18,7 @@ namespace dMobile.View.CustomPages.Modal
         /// <summary>
         /// Defines the loading.
         /// </summary>
-        private bool loading;
+        private bool isPageLoading = false;
 
         /// <summary>
         /// Defines the optionsIconSource.
@@ -32,20 +32,20 @@ namespace dMobile.View.CustomPages.Modal
         {
             this.Tcs = new TaskCompletionSource<bool>();
             this.BindingContext = this;
-            this.Loading = false;
+            this.IsPageLoading = false;
             this.OptionsIconSource = Convert.ToString(Application.Current.Resources["OptionsIcon"]);
         }
 
         /// <summary>
         /// Gets or sets a value indicating whether Loading.
         /// </summary>
-        public bool Loading
+        public bool IsPageLoading
         {
-            get => this.loading;
+            get => this.isPageLoading;
 
             set
             {
-                this.loading = value;
+                this.isPageLoading = value;
                 this.OnPropertyChanged();
             }
         }

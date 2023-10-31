@@ -9,7 +9,7 @@
             <ToolbarItem x:Name="optionsMenu"
                         IconImageSource="{Binding OptionsIconSource}"
                         Clicked="OptionsMenu_Clicked"
-                        IsEnabled="{Binding Loading, Converter={Helpers:BoolConverter}}"/>
+                        IsEnabled="{Binding IsPageLoading, Converter={Helpers:BoolConverter}}"/>
         </ContentPage.ToolbarItems>-->
     <ContentPage.Content>
         <AbsoluteLayout VerticalOptions="Center">
@@ -33,7 +33,7 @@
                             <ListView x:Name="ListViewMainActivity"
                                       ItemSelected="ListViewMainActivity_ItemSelected"
                                       HasUnevenRows="True"
-                                      IsEnabled="{Binding Loading, Converter={helpers:BoolConverter}}"
+                                      IsEnabled="{Binding IsPageLoading, Converter={helpers:BoolConverter}}"
                                       Grid.Row="1"/>
                         </Grid>
                     </ScrollView>
@@ -43,7 +43,7 @@
                     <ListView x:Name="ListViewDisplayExtraInfo"
                               SelectionMode="None"
                               HasUnevenRows="True"
-                              IsEnabled="{Binding Loading, Converter={helpers:BoolConverter}}"
+                              IsEnabled="{Binding IsPageLoading, Converter={helpers:BoolConverter}}"
                               SeparatorVisibility="None">
                         <ListView.ItemTemplate>
                             <DataTemplate>
@@ -63,7 +63,7 @@
                         Grid.Column="1"
                         Text="Filter"
                         Clicked="cmdFilter_Click"
-                        IsEnabled="{Binding Loading, Converter={Helpers:BoolConverter}}"/>
+                        IsEnabled="{Binding IsPageLoading, Converter={Helpers:BoolConverter}}"/>
                 -->
                 <Grid Grid.Row="2">
                     <Grid.RowDefinitions>
@@ -77,19 +77,19 @@
                     <Entry x:Name="TxtSearch"
                            Grid.Row="0"
                            TextChanged="TxtSearch_TextChanged"
-                           IsEnabled="{Binding Loading, Converter={helpers:BoolConverter}}"/>
+                           IsEnabled="{Binding IsPageLoading, Converter={helpers:BoolConverter}}"/>
                     <Button x:Name="CmdAdd"
                             Grid.Row="0"
                             Grid.Column="1"
                             Text="Add"
                             Clicked="CmdAdd_Click"
-                            IsEnabled="{Binding Loading, Converter={helpers:BoolConverter}}"/>
+                            IsEnabled="{Binding IsPageLoading, Converter={helpers:BoolConverter}}"/>
                 </Grid>
 
             </Grid>
 
-            <ActivityIndicator IsVisible="{Binding Loading}" 
-                               IsRunning="{Binding Loading}"
+            <ActivityIndicator IsVisible="{Binding IsPageLoading}" 
+                               IsRunning="{Binding IsPageLoading}"
                                AbsoluteLayout.LayoutFlags="All" 
                                AbsoluteLayout.LayoutBounds="0.5,0.5,0.3,0.3"/>
         </AbsoluteLayout>

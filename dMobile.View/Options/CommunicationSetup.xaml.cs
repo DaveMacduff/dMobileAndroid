@@ -85,9 +85,10 @@ namespace dMobile.View.Options
         /// </summary>
         protected override void OnDisappearing()
         {
-            base.OnDisappearing();
-
             MessagingCenter.Unsubscribe<string>(this, EventTypes.OnKeyUp.ToString());
+            base.OnDisappearing();
+            GC.Collect();
+            GC.WaitForPendingFinalizers();
         }
 
         /// <inheritdoc/>
@@ -645,7 +646,7 @@ namespace dMobile.View.Options
         /// <remarks></remarks>
         private async Task Connect()
         {
-            this.Loading = true;
+            this.IsPageLoading = true;
 
             await Task.Run(() =>
             {
@@ -765,7 +766,7 @@ namespace dMobile.View.Options
                 }
             });
 
-            this.Loading = false;
+            this.IsPageLoading = false;
         }
 
         /// <summary>

@@ -541,7 +541,7 @@ namespace dMobile.View.Activity
 
             try
             {
-                this.Loading = true;
+                this.IsPageLoading = true;
                 this.ListViewDisplayExtraInfo.ItemsSource = this.ExtraInfoItems;
 
                 if (this.IsFirstAppearance)
@@ -595,7 +595,7 @@ namespace dMobile.View.Activity
             }
             finally
             {
-                this.Loading = false;
+                this.IsPageLoading = false;
                 await Task.Run(() =>
                 {
                     // Explicit GC, Xamarin forms not disposing of objects properly
@@ -611,7 +611,7 @@ namespace dMobile.View.Activity
                 {
                     _ = Enum.TryParse(keyPressed, out Keycode keycode);
 
-                    if (!this.Loading)
+                    if (!this.IsPageLoading)
                     {
                         if (keycode == Keycode.F1)
                         {
@@ -766,6 +766,8 @@ namespace dMobile.View.Activity
             MessagingCenter.Unsubscribe<string>(this, EventTypes.OnKeyUp.ToString());
             await this.ScannerDisable();
             base.OnDisappearing();
+            GC.Collect();
+            GC.WaitForPendingFinalizers();
         }
 
         /// <summary>
@@ -877,7 +879,7 @@ namespace dMobile.View.Activity
         /// event arguments.</param>
         private async Task BarCodeHandler(object sender, BarCodeScannerEventArgs scanArgs)
         {
-            if (this.Loading || scanArgs == null)
+            if (this.IsPageLoading || scanArgs == null)
             {
                 return;
             }
@@ -891,7 +893,7 @@ namespace dMobile.View.Activity
             {
                 try
                 {
-                    this.Loading = true;
+                    this.IsPageLoading = true;
                     ////this.IsSvdBarScannerEnabled = this.IsBarCodeHandlerRegistered;
                     await this.ScannerDisable();
 
@@ -1020,7 +1022,7 @@ namespace dMobile.View.Activity
                 finally
                 {
                     await this.ScannerEnable();
-                    this.Loading = false;
+                    this.IsPageLoading = false;
                 }
             });
         }
@@ -1296,7 +1298,7 @@ namespace dMobile.View.Activity
         {
             try
             {
-                this.Loading = true;
+                this.IsPageLoading = true;
                 await this.ScannerDisable();
 
                 if (this.SkidInfo.CurrSkid.SkidFKRefno == 0)
@@ -1340,7 +1342,7 @@ namespace dMobile.View.Activity
                     async () => await form.DisplayControl.ShowDialog() == DialogResult.OK))
                 {
                     var xmlDoc = await form.GetXML();
-                    this.Loading = true;
+                    this.IsPageLoading = true;
                     this.IsChangesMade = false;
 
                     if (this.SkidInfo.CurrSkid.IsConsumed)
@@ -1369,7 +1371,7 @@ namespace dMobile.View.Activity
             finally
             {
                 await this.ScannerEnable();
-                this.Loading = false;
+                this.IsPageLoading = false;
             }
         }
 
@@ -1407,7 +1409,7 @@ namespace dMobile.View.Activity
             finally
             {
                 await this.ScannerEnable();
-                this.Loading = false;
+                this.IsPageLoading = false;
             }
         }
 
@@ -1471,7 +1473,7 @@ namespace dMobile.View.Activity
             finally
             {
                 await this.ScannerEnable();
-                this.Loading = false;
+                this.IsPageLoading = false;
             }
         }
 
@@ -1487,7 +1489,7 @@ namespace dMobile.View.Activity
                 ////Device.BeginInvokeOnMainThread(async () => await this.ScannerDisable());
 
                 // Set as changed only after form has been loaded.
-                if (!this.Loading)
+                if (!this.IsPageLoading)
                 {
                     if (sender == this.txtSkidCode && e.NewTextValue != e.OldTextValue)
                     {

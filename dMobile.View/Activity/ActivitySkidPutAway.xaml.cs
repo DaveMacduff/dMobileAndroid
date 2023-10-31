@@ -94,7 +94,7 @@ namespace dMobile.View.Activity
             {
                 _ = Enum.TryParse(keyPressed, out Keycode keycode);
 
-                if (!this.Loading)
+                if (!this.IsPageLoading)
                 {
                     if (keycode == Keycode.F1)
                     {
@@ -174,6 +174,8 @@ namespace dMobile.View.Activity
             MessagingCenter.Unsubscribe<string>(this, EventTypes.OnKeyUp.ToString());
             await this.ScannerDisable();
             base.OnDisappearing();
+            GC.Collect();
+            GC.WaitForPendingFinalizers();
         }
 
         /// <inheritdoc/>
@@ -351,9 +353,9 @@ namespace dMobile.View.Activity
             {
                 this.IsControlLoaded = true;
 
-                if (this.Loading)
+                if (this.IsPageLoading)
                 {
-                    this.Loading = false;
+                    this.IsPageLoading = false;
                 }
             }
         }
@@ -370,7 +372,7 @@ namespace dMobile.View.Activity
             {
                 if (this.Activity.SkidInfo.CurrSkid.SkidFKRefno != 0)
                 {
-                    this.Loading = true;
+                    this.IsPageLoading = true;
                     await this.ScannerDisable();
                     this.ActItem.ProdInfo = this.OrigProdInfoOnSkid;
 
@@ -423,7 +425,7 @@ namespace dMobile.View.Activity
             finally
             {
                 await this.ScannerEnable();
-                this.Loading = false;
+                this.IsPageLoading = false;
             }
         }
 
@@ -1077,14 +1079,14 @@ namespace dMobile.View.Activity
         /// <remarks></remarks>
         private async Task BarCodeHandler(object sender, BarCodeScannerEventArgs scanArgs)
         {
-            if (this.Loading || scanArgs == null)
+            if (this.IsPageLoading || scanArgs == null)
             {
                 return;
             }
 
             await Task.Run(async () =>
             {
-                this.Loading = true;
+                this.IsPageLoading = true;
                 var prodUnitRefno = 0;
                 var svdActDetailFKRefno = this.ActDetailOnSkid.DetailFkRefno;
 
@@ -1290,7 +1292,7 @@ namespace dMobile.View.Activity
                 finally
                 {
                     await this.ScannerEnable();
-                    this.Loading = false;
+                    this.IsPageLoading = false;
                 }
             });
         }
